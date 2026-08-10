@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bank Points — Admin</title>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='1' y='1' width='22' height='22' rx='5' fill='%230a0a0a'/%3E%3Cpath d='M6 8l4 4-4 4' stroke='%23ffffff' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cline x1='12' y1='16' x2='18' y2='16' stroke='%23ffffff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="title-group">
+      <span class="icon-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="34" height="34">
+          <rect x="1" y="1" width="22" height="22" rx="5" fill="#ffffff"/>
+          <path d="M6 8l4 4-4 4" stroke="#0a0a0a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="12" y1="16" x2="18" y2="16" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <div>
+        <h1>Bank Points — Admin</h1>
+        <p>Add students, award or use points, and see requests.</p>
+      </div>
+    </div>
+    <nav class="site-nav">
+      <a href="index.html">Points Board</a>
+      <a href="request.html">Request Form</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div id="pin-gate" class="pin-gate">
+    <div class="card">
+      <h2 style="margin-top:0;">Enter Admin PIN</h2>
+      <div id="pin-alert"></div>
+      <form class="stack" id="pin-form">
+        <div class="field">
+          <label for="pin-input">PIN</label>
+          <input type="password" id="pin-input" inputmode="numeric" autocomplete="off" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Unlock</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="dashboard" style="display:none;">
+    <div class="card">
+      <h2 style="margin-top:0; display:flex; align-items:center; justify-content:space-between;">
+        Recent Point Requests
+        <button class="btn btn-ghost btn-sm" id="refresh-requests">Refresh</button>
+      </h2>
+      <p class="hint" style="margin-top:-8px;">You also get an email for every request &mdash; check your Netlify site's Forms tab if you ever need the full history.</p>
+      <div id="requests-slot" class="loading">Loading&hellip;</div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0;">Add a Student</h2>
+      <div id="add-student-alert"></div>
+      <form class="stack" id="add-student-form">
+        <div class="field-row">
+          <div class="field">
+            <label for="new-name">Student Name</label>
+            <input type="text" id="new-name" required>
+          </div>
+          <div class="field">
+            <label for="new-period">Class Period</label>
+            <input type="text" id="new-period" list="period-options" placeholder="e.g. Period 3" required>
+            <datalist id="period-options"></datalist>
+          </div>
+        </div>
+        <div>
+          <button type="submit" class="btn btn-primary">Add Student</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0;">Import Roster</h2>
+      <p class="hint" style="margin-top:-8px;">Upload a CSV exported from Infinite Campus, or paste rows copied from a Google Sheet. Works with extra columns (student ID, grade, course, etc.) &mdash; you'll pick which ones are Name and Period next.</p>
+      <div id="import-alert"></div>
+      <form class="stack" id="import-form">
+        <div class="field">
+          <label for="import-file">CSV file (optional)</label>
+          <input type="file" id="import-file" accept=".csv,text/csv">
+        </div>
+        <div class="field">
+          <label for="import-text">...or pasted data</label>
+          <textarea id="import-text" rows="5" placeholder="Jane Doe&#9;Period 3&#10;John Smith&#9;Period 3&#10;Alex Lee&#9;Period 5"></textarea>
+        </div>
+        <label class="hint" style="display:flex; align-items:center; gap:6px; margin-top:0;">
+          <input type="checkbox" id="import-has-header" checked style="width:auto;">
+          First row is a header row
+        </label>
+
+        <div id="import-mapping" style="display:none;">
+          <label class="hint" style="display:flex; align-items:center; gap:6px; margin-top:0;">
+            <input type="checkbox" id="import-split-name" style="width:auto;">
+            Name is split into separate Last Name / First Name columns
+          </label>
+
+          <div class="field-row">
+            <div class="field" id="import-name-single-field">
+              <label for="import-name-col">Name column</label>
+              <select id="import-name-col"></select>
+            </div>
+            <div class="field" id="import-last-field" style="display:none;">
+              <label for="import-last-col">Last Name column</label>
+              <select id="import-last-col"></select>
+            </div>
+            <div class="field" id="import-first-field" style="display:none;">
+              <label for="import-first-col">First Name column</label>
+              <select id="import-first-col"></select>
+            </div>
+            <div class="field">
+              <label for="import-period-col">Period column</label>
+              <select id="import-period-col"></select>
+            </div>
+          </div>
+
+          <div id="import-preview-table" style="overflow-x:auto;"></div>
+        </div>
+
+        <div id="import-preview" class="hint"></div>
+        <div>
+          <button type="submit" class="btn btn-primary" id="import-submit" disabled>Import Students</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="roster-alert"></div>
+    <div id="roster-slot" class="loading">Loading roster&hellip;</div>
+  </div>
+</main>
+
+<footer class="site-footer">Bank Points Admin</footer>
+
+<div id="modal-root"></div>
+
+<script src="assets/api.js"></script>
+<script>
+const PIN_KEY = 'bankPointsPin';
+let roster = [];
+
+const pinGate = document.getElementById('pin-gate');
+const dashboard = document.getElementById('dashboard');
+const pinForm = document.getElementById('pin-form');
+const pinAlert = document.getElementById('pin-alert');
+const modalRoot = document.getElementById('modal-root');
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+function getPin() {
+  return sessionStorage.getItem(PIN_KEY) || '';
+}
+
+function setAlert(el, type, message) {
+  el.innerHTML = message ? `<div class="alert alert-${type}">${message}</div>` : '';
+}
+
+pinForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const pin = document.getElementById('pin-input').value.trim();
+  setAlert(pinAlert, 'info', 'Checking&hellip;');
+  try {
+    const res = await apiPost({ action: 'verifyPin', pin: pin });
+    if (res.ok) {
+      sessionStorage.setItem(PIN_KEY, pin);
+      pinAlert.innerHTML = '';
+      unlock();
+    } else {
+      setAlert(pinAlert, 'error', res.error || 'Incorrect PIN.');
+    }
+  } catch (err) {
+    setAlert(pinAlert, 'error', 'Could not reach the server. This page needs to be running on Netlify (with functions deployed) to work.');
+  }
+});
+
+function unlock() {
+  pinGate.style.display = 'none';
+  dashboard.style.display = 'block';
+  loadRoster();
+  loadRequests();
+}
+
+async function authedPost(payload) {
+  const res = await apiPost(Object.assign({}, payload, { pin: getPin() }));
+  if (res.error === 'Invalid PIN') {
+    sessionStorage.removeItem(PIN_KEY);
+    dashboard.style.display = 'none';
+    pinGate.style.display = 'block';
+    setAlert(pinAlert, 'error', 'Your session expired. Please re-enter the PIN.');
+  }
+  return res;
+}
+
+async function loadRoster() {
+  const slot = document.getElementById('roster-slot');
+  try {
+    const data = await apiGet('list');
+    if (data.error) {
+      slot.innerHTML = `<div class="alert alert-error">${escapeHtml(data.error)}</div>`;
+      return;
+    }
+    roster = data.students || [];
+    renderPeriodOptions();
+    renderRoster();
+  } catch (err) {
+    slot.innerHTML = '<div class="alert alert-error">Could not load roster.</div>';
+  }
+}
+
+function renderPeriodOptions() {
+  const list = document.getElementById('period-options');
+  const periods = [...new Set(roster.map(s => s.period))].sort();
+  list.innerHTML = periods.map(p => `<option value="${escapeHtml(p)}"></option>`).join('');
+}
+
+function renderRoster() {
+  const slot = document.getElementById('roster-slot');
+  if (roster.length === 0) {
+    slot.innerHTML = '<div class="card empty-state">No students yet. Add one above.</div>';
+    return;
+  }
+
+  const periods = {};
+  roster.forEach(s => {
+    if (!periods[s.period]) periods[s.period] = [];
+    periods[s.period].push(s);
+  });
+  const periodNames = Object.keys(periods).sort((a, b) =>
+    a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+  );
+
+  let html = '';
+  periodNames.forEach(period => {
+    const rows = periods[period].sort((a, b) => a.name.localeCompare(b.name));
+    html += `<section class="period-section">
+      <h2>${escapeHtml(period)} <span class="count">${rows.length} student${rows.length === 1 ? '' : 's'}</span></h2>
+      <table class="roster">
+        <thead>
+          <tr><th>Name</th><th>Earned</th><th>Used</th><th>Available</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          ${rows.map(s => `
+            <tr>
+              <td>${escapeHtml(s.name)}</td>
+              <td class="num-earned">${s.earned}</td>
+              <td class="num-used">${s.used}</td>
+              <td class="num-available">${s.available}</td>
+              <td>
+                <div class="row-actions">
+                  <button class="btn btn-earn btn-sm" onclick="openTxModal('${s.id}','EARNED')">+ Add</button>
+                  <button class="btn btn-use btn-sm" onclick="openTxModal('${s.id}','USED')">&minus; Use</button>
+                  <button class="btn btn-ghost btn-sm" onclick="openEditModal('${s.id}')">Edit</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')">Delete</button>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </section>`;
+  });
+  slot.innerHTML = html;
+}
+
+document.getElementById('add-student-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const alertEl = document.getElementById('add-student-alert');
+  const name = document.getElementById('new-name').value.trim();
+  const period = document.getElementById('new-period').value.trim();
+  if (!name || !period) return;
+
+  setAlert(alertEl, 'info', 'Adding&hellip;');
+  const res = await authedPost({ action: 'addStudent', name, period });
+  if (res.error) {
+    setAlert(alertEl, 'error', res.error);
+  } else {
+    setAlert(alertEl, 'success', `Added ${escapeHtml(name)}.`);
+    document.getElementById('add-student-form').reset();
+    loadRoster();
+  }
+});
+
+function detectDelimiter(firstLine) {
+  const commaCount = (firstLine.match(/,/g) || []).length;
+  const tabCount = (firstLine.match(/\t/g) || []).length;
+  return tabCount > commaCount ? '\t' : ',';
+}
+
+// Handles quoted fields (with embedded commas/newlines) the way spreadsheet/SIS exports do.
+function parseDelimited(text, delimiter) {
+  const rows = [];
+  let row = [];
+  let field = '';
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    const next = text[i + 1];
+    if (inQuotes) {
+      if (char === '"' && next === '"') { field += '"'; i++; }
+      else if (char === '"') { inQuotes = false; }
+      else { field += char; }
+    } else if (char === '"') {
+      inQuotes = true;
+    } else if (char === delimiter) {
+      row.push(field); field = '';
+    } else if (char === '\n') {
+      row.push(field); rows.push(row); row = []; field = '';
+    } else if (char === '\r') {
+      // skip
+    } else {
+      field += char;
+    }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows
+    .map(r => r.map(c => c.trim()))
+    .filter(r => r.some(c => c !== ''));
+}
+
+const importFile = document.getElementById('import-file');
+const importText = document.getElementById('import-text');
+const importHasHeader = document.getElementById('import-has-header');
+const importMapping = document.getElementById('import-mapping');
+const importNameCol = document.getElementById('import-name-col');
+const importPeriodCol = document.getElementById('import-period-col');
+const importPreviewTable = document.getElementById('import-preview-table');
+const importPreview = document.getElementById('import-preview');
+const importSubmit = document.getElementById('import-submit');
+
+let parsedRows = [];
+let parsedHeaders = [];
+
+function escapeHtmlLocal(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+function reparseAndRender() {
+  const text = importText.value;
+  if (!text.trim()) {
+    parsedRows = [];
+    parsedHeaders = [];
+    importMapping.style.display = 'none';
+    importPreview.textContent = '';
+    importSubmit.disabled = true;
+    return;
+  }
+
+  const delimiter = detectDelimiter(text.split(/\r?\n/)[0] || '');
+  const allRows = parseDelimited(text, delimiter);
+  if (allRows.length === 0) {
+    importMapping.style.display = 'none';
+    importSubmit.disabled = true;
+    return;
+  }
+
+  const hasHeader = importHasHeader.checked;
+  parsedHeaders = hasHeader ? allRows[0] : allRows[0].map((_, i) => `Column ${i + 1}`);
+  parsedRows = hasHeader ? allRows.slice(1) : allRows;
+
+  const nameGuess = parsedHeaders.findIndex(h => /name/i.test(h));
+  const periodGuess = parsedHeaders.findIndex(h => /period|class|section/i.test(h));
+
+  const optionsHtml = parsedHeaders.map((h, i) => `<option value="${i}">${escapeHtmlLocal(h)}</option>`).join('');
+  importNameCol.innerHTML = optionsHtml;
+  importPeriodCol.innerHTML = optionsHtml;
+  importNameCol.value = nameGuess >= 0 ? nameGuess : 0;
+  importPeriodCol.value = periodGuess >= 0 ? periodGuess : (parsedHeaders.length > 1 ? 1 : 0);
+
+  importMapping.style.display = 'block';
+  renderImportPreview();
+}
+
+function renderImportPreview() {
+  const nameIdx = Number(importNameCol.value);
+  const periodIdx = Number(importPeriodCol.value);
+
+  const headHtml = `<tr>${parsedHeaders.map((h, i) =>
+    `<th>${i === nameIdx ? '&rarr; Name: ' : i === periodIdx ? '&rarr; Period: ' : ''}${escapeHtmlLocal(h)}</th>`
+  ).join('')}</tr>`;
+  const bodyHtml = parsedRows.slice(0, 5).map(r =>
+    `<tr>${parsedHeaders.map((_, i) => `<td>${escapeHtmlLocal(r[i] || '')}</td>`).join('')}</tr>`
+  ).join('');
+  importPreviewTable.innerHTML = `<table class="roster"><thead>${headHtml}</thead><tbody>${bodyHtml}</tbody></table>`;
+
+  const validRows = parsedRows.filter(r => (r[nameIdx] || '').trim() && (r[periodIdx] || '').trim());
+  importPreview.textContent = `Ready to import ${validRows.length} student${validRows.length === 1 ? '' : 's'}${parsedRows.length > 5 ? ` (showing first 5 of ${parsedRows.length} rows above)` : ''}.`;
+  importSubmit.disabled = validRows.length === 0;
+}
+
+importFile.addEventListener('change', () => {
+  const file = importFile.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    importText.value = String(reader.result || '');
+    reparseAndRender();
+  };
+  reader.readAsText(file);
+});
+
+importText.addEventListener('input', reparseAndRender);
+importHasHeader.addEventListener('change', reparseAndRender);
+importNameCol.addEventListener('change', renderImportPreview);
+importPeriodCol.addEventListener('change', renderImportPreview);
+
+document.getElementById('import-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const alertEl = document.getElementById('import-alert');
+  const nameIdx = Number(importNameCol.value);
+  const periodIdx = Number(importPeriodCol.value);
+
+  const existing = new Set(roster.map(s => `${s.name.toLowerCase()}|${s.period.toLowerCase()}`));
+  const seen = new Set();
+  const rows = [];
+  parsedRows.forEach(r => {
+    const name = (r[nameIdx] || '').trim();
+    const period = (r[periodIdx] || '').trim();
+    if (!name || !period) return;
+    const key = `${name.toLowerCase()}|${period.toLowerCase()}`;
+    if (existing.has(key) || seen.has(key)) return;
+    seen.add(key);
+    rows.push({ name, period });
+  });
+
+  if (rows.length === 0) {
+    setAlert(alertEl, 'warning', 'Nothing new to import — everyone in this file is already on the roster, or the file is empty.');
+    return;
+  }
+
+  setAlert(alertEl, 'info', 'Importing&hellip;');
+  const res = await authedPost({ action: 'bulkAddStudents', students: rows });
+  if (res.error) {
+    setAlert(alertEl, 'error', res.error);
+  } else {
+    const skipped = parsedRows.length - rows.length;
+    setAlert(alertEl, 'success', `Imported ${res.added} student${res.added === 1 ? '' : 's'}.${skipped > 0 ? ` Skipped ${skipped} already on the roster.` : ''}`);
+    importFile.value = '';
+    importText.value = '';
+    importMapping.style.display = 'none';
+    importPreview.textContent = '';
+    importSubmit.disabled = true;
+    loadRoster();
+  }
+});
+
+function closeModal() {
+  modalRoot.innerHTML = '';
+}
+
+function openTxModal(studentId, type) {
+  const student = roster.find(s => s.id === studentId);
+  if (!student) return;
+  const label = type === 'EARNED' ? 'Add Points' : 'Use Points';
+  const btnClass = type === 'EARNED' ? 'btn-earn' : 'btn-use';
+
+  modalRoot.innerHTML = `
+    <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+      <div class="modal">
+        <h3>${label} &mdash; ${escapeHtml(student.name)}</h3>
+        <p class="hint" style="margin-top:-8px;">Currently available: ${student.available}</p>
+        <div id="tx-alert"></div>
+        <form class="stack" id="tx-form">
+          <div class="field">
+            <label for="tx-amount">Points</label>
+            <input type="number" id="tx-amount" min="1" step="1" required>
+          </div>
+          <div class="field">
+            <label for="tx-desc">Description (optional)</label>
+            <textarea id="tx-desc" rows="2" placeholder="e.g. Perfect quiz score"></textarea>
+          </div>
+        </form>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+          <button class="btn ${btnClass}" id="tx-submit">${label}</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('tx-submit').addEventListener('click', async () => {
+    const amount = Number(document.getElementById('tx-amount').value);
+    const description = document.getElementById('tx-desc').value.trim();
+    const alertEl = document.getElementById('tx-alert');
+    if (!amount || amount <= 0) {
+      setAlert(alertEl, 'error', 'Enter a positive number of points.');
+      return;
+    }
+    const res = await authedPost({ action: 'addTransaction', studentId, type, amount, description });
+    if (res.error) {
+      setAlert(alertEl, 'error', res.error);
+    } else {
+      closeModal();
+      loadRoster();
+    }
+  });
+}
+
+function openEditModal(studentId) {
+  const student = roster.find(s => s.id === studentId);
+  if (!student) return;
+
+  modalRoot.innerHTML = `
+    <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+      <div class="modal">
+        <h3>Edit Student</h3>
+        <div id="edit-alert"></div>
+        <form class="stack" id="edit-form">
+          <div class="field">
+            <label for="edit-name">Name</label>
+            <input type="text" id="edit-name" value="${escapeHtml(student.name)}" required>
+          </div>
+          <div class="field">
+            <label for="edit-period">Period</label>
+            <input type="text" id="edit-period" value="${escapeHtml(student.period)}" required>
+          </div>
+        </form>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+          <button class="btn btn-primary" id="edit-submit">Save</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('edit-submit').addEventListener('click', async () => {
+    const name = document.getElementById('edit-name').value.trim();
+    const period = document.getElementById('edit-period').value.trim();
+    const alertEl = document.getElementById('edit-alert');
+    if (!name || !period) {
+      setAlert(alertEl, 'error', 'Name and period are required.');
+      return;
+    }
+    const res = await authedPost({ action: 'editStudent', id: studentId, name, period });
+    if (res.error) {
+      setAlert(alertEl, 'error', res.error);
+    } else {
+      closeModal();
+      loadRoster();
+    }
+  });
+}
+
+async function deleteStudent(studentId) {
+  const student = roster.find(s => s.id === studentId);
+  if (!student) return;
+  if (!confirm(`Delete ${student.name}? This removes them from the roster but keeps their point history.`)) return;
+  const res = await authedPost({ action: 'deleteStudent', id: studentId });
+  if (res.error) {
+    alert(res.error);
+  } else {
+    loadRoster();
+  }
+}
+
+async function loadRequests() {
+  const slot = document.getElementById('requests-slot');
+  try {
+    const data = await apiGet('requests');
+    const requests = data.requests || [];
+    if (requests.length === 0) {
+      slot.innerHTML = '<div class="hint">No requests submitted yet.</div>';
+      return;
+    }
+    slot.innerHTML = `
+      <table class="roster">
+        <thead><tr><th>When</th><th>Name</th><th>Period</th><th>Points</th><th>Assignment</th></tr></thead>
+        <tbody>
+          ${requests.map(r => `
+            <tr>
+              <td>${escapeHtml(new Date(r.timestamp).toLocaleString())}</td>
+              <td>${escapeHtml(r.name)}</td>
+              <td>${escapeHtml(r.period)}</td>
+              <td>${escapeHtml(r.points)}</td>
+              <td>${escapeHtml(r.assignment)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch (err) {
+    slot.innerHTML = '<div class="alert alert-error">Could not load requests.</div>';
+  }
+}
+
+document.getElementById('refresh-requests').addEventListener('click', loadRequests);
+
+if (getPin()) {
+  unlock();
+}
+</script>
+</body>
+</html>

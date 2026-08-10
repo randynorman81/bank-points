@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Request to Use Bank Points</title>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='1' y='1' width='22' height='22' rx='5' fill='%230a0a0a'/%3E%3Cpath d='M6 8l4 4-4 4' stroke='%23ffffff' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cline x1='12' y1='16' x2='18' y2='16' stroke='%23ffffff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="title-group">
+      <span class="icon-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="34" height="34">
+          <rect x="1" y="1" width="22" height="22" rx="5" fill="#ffffff"/>
+          <path d="M6 8l4 4-4 4" stroke="#0a0a0a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="12" y1="16" x2="18" y2="16" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <div>
+        <h1>Request to Use Bank Points</h1>
+        <p>Fill this out to ask to spend points from your bank on an assignment.</p>
+      </div>
+    </div>
+    <nav class="site-nav">
+      <a href="index.html">Back to Points Board</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="card">
+    <div id="alert-slot"></div>
+
+    <!--
+      This form is wired for Netlify Forms (data-netlify) so Netlify emails
+      a notification on every submission, in addition to being logged via
+      our own function for the Admin page's "Recent Requests" list.
+    -->
+    <form class="stack" id="request-form" name="request" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="request">
+      <input type="hidden" name="subject" value="BANK POINTS REQUESTED">
+      <p style="display:none;">
+        <label>Leave this blank: <input name="bot-field"></label>
+      </p>
+
+      <div class="field">
+        <label for="period">Class Period</label>
+        <select id="period" name="period" required>
+          <option value="" disabled selected>Choose your period&hellip;</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="name">Your Name</label>
+        <select id="name" name="name" required disabled>
+          <option value="" disabled selected>Choose your period first&hellip;</option>
+        </select>
+      </div>
+
+      <div id="available-slot"></div>
+
+      <div class="field">
+        <label for="points">Points You Want to Use</label>
+        <input type="number" id="points" name="points" min="1" step="1" required>
+      </div>
+
+      <div class="field">
+        <label for="assignment">Assignment Name (the short name in Infinite Campus, e.g. RDRFT)</label>
+        <input type="text" id="assignment" name="assignment" maxlength="10" required>
+        <div class="hint">Use the 4-5 letter assignment name exactly as it appears in Infinite Campus.</div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="submit-btn">Submit Request</button>
+    </form>
+  </div>
+</main>
+
+<footer class="site-footer">
+  Submitting this form emails Mr. Norman &mdash; it does not use your points automatically.
+</footer>
+
+<script src="assets/api.js"></script>
+<script>
+let roster = [];
+const periodSelect = document.getElementById('period');
+const nameSelect = document.getElementById('name');
+const availableSlot = document.getElementById('available-slot');
+const alertSlot = document.getElementById('alert-slot');
+const form = document.getElementById('request-form');
+const submitBtn = document.getElementById('submit-btn');
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function showAlert(type, message) {
+  alertSlot.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+}
+
+function encodeFormData(data) {
+  return Object.keys(data)
+    .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
+    .join('&');
+}
+
+async function init() {
+  try {
+    const data = await apiGet('list');
+    roster = data.students || [];
+    const periods = [...new Set(roster.map(s => s.period))].sort((a, b) =>
+      a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+    );
+    periods.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p;
+      opt.textContent = p;
+      periodSelect.appendChild(opt);
+    });
+  } catch (err) {
+    showAlert('error', 'Could not load the roster. Please try again in a moment.');
+  }
+}
+
+periodSelect.addEventListener('change', () => {
+  const period = periodSelect.value;
+  nameSelect.innerHTML = '<option value="" disabled selected>Choose your name&hellip;</option>';
+  const inPeriod = roster.filter(s => s.period === period).sort((a, b) => a.name.localeCompare(b.name));
+  inPeriod.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.name;
+    nameSelect.appendChild(opt);
+  });
+  nameSelect.disabled = false;
+  availableSlot.innerHTML = '';
+});
+
+nameSelect.addEventListener('change', () => {
+  const student = roster.find(s => s.id === nameSelect.value);
+  if (student) {
+    availableSlot.innerHTML = `<div class="alert alert-info">You currently have <strong>${student.available}</strong> point${student.available === 1 ? '' : 's'} available.</div>`;
+  }
+});
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  alertSlot.innerHTML = '';
+
+  const student = roster.find(s => s.id === nameSelect.value);
+  const points = Number(document.getElementById('points').value);
+  const assignment = document.getElementById('assignment').value.trim();
+
+  if (!student) {
+    showAlert('error', 'Please choose your period and name.');
+    return;
+  }
+
+  if (student.available > 0 && points > student.available) {
+    const proceed = confirm(`You're requesting ${points} points but only have ${student.available} available. Submit anyway?`);
+    if (!proceed) return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting…';
+
+  try {
+    // 1) Netlify Forms submission — this is what triggers the email notification.
+    await fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: encodeFormData({
+        'form-name': 'request',
+        subject: 'BANK POINTS REQUESTED',
+        name: student.name,
+        period: student.period,
+        points: String(points),
+        assignment: assignment
+      })
+    });
+
+    // 2) Our own log, so it shows up in the Admin page's Recent Requests list.
+    const res = await apiPost({
+      action: 'requestPoints',
+      name: student.name,
+      period: student.period,
+      points: points,
+      assignment: assignment
+    });
+
+    if (res.error) {
+      showAlert('error', res.error);
+    } else {
+      form.reset();
+      nameSelect.disabled = true;
+      nameSelect.innerHTML = '<option value="" disabled selected>Choose your period first&hellip;</option>';
+      availableSlot.innerHTML = '';
+      showAlert('success', 'Request submitted! Mr. Norman has been notified by email.');
+    }
+  } catch (err) {
+    showAlert('error', 'Something went wrong submitting your request. Please try again.');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Request';
+  }
+});
+
+init();
+</script>
+</body>
+</html>
