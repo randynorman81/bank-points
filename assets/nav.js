@@ -47,8 +47,8 @@ async function renderHeader(activePeriod) {
         <a href="index.html" class="brand">
           ${logoMarkup()}
           <span class="brand-text">
-            <h1>${escapeHtmlNav(SCHOOL_NAME)}</h1>
-            <p>Extra Credit Points Bank</p>
+            <p class="brand-eyebrow">SCHS Computer Science</p>
+            <h1 class="brand-title">The Bank</h1>
           </span>
         </a>
         <div class="header-actions">
