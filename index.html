@@ -5,34 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bank Points</title>
 <link rel="stylesheet" href="assets/style.css">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='1' y='1' width='22' height='22' rx='5' fill='%230a0a0a'/%3E%3Cpath d='M6 8l4 4-4 4' stroke='%23ffffff' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cline x1='12' y1='16' x2='18' y2='16' stroke='%23ffffff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
 </head>
 <body>
 
-<header class="site-header">
-  <div class="header-inner">
-    <div class="title-group">
-      <span class="icon-mark" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="34" height="34">
-          <rect x="1" y="1" width="22" height="22" rx="5" fill="#ffffff"/>
-          <path d="M6 8l4 4-4 4" stroke="#0a0a0a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="12" y1="16" x2="18" y2="16" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </span>
-      <div>
-        <h1>Bank Points</h1>
-        <p>Extra points earned and available, by class period.</p>
-      </div>
-    </div>
-    <nav class="site-nav">
-      <a href="request.html">Request to Use Points</a>
-      <a href="admin.html">Admin</a>
-    </nav>
-  </div>
-</header>
+<div id="site-header-root"></div>
 
 <main>
-  <div id="content" class="loading">Loading roster&hellip;</div>
+  <div class="hero">
+    <h2>Extra Credit Points Bank</h2>
+    <p>Choose your class period above to see your points, or use the button below to request spending points on an assignment.</p>
+    <a class="btn btn-primary" href="request.html">Request to Use Points</a>
+  </div>
+
+  <div id="class-grid" class="class-grid"></div>
 </main>
 
 <footer class="site-footer">
@@ -40,74 +25,34 @@
 </footer>
 
 <script src="assets/api.js"></script>
+<script src="assets/nav.js"></script>
 <script>
-async function render() {
-  const content = document.getElementById('content');
-
-  try {
-    const data = await apiGet('list');
-    if (data.error) {
-      content.innerHTML = `<div class="alert alert-error">${data.error}</div>`;
-      return;
-    }
-
-    const students = data.students || [];
-    if (students.length === 0) {
-      content.innerHTML = '<div class="card empty-state">No students have been added yet. Add students from the Admin page.</div>';
-      return;
-    }
-
-    const periods = {};
-    students.forEach(s => {
-      if (!periods[s.period]) periods[s.period] = [];
-      periods[s.period].push(s);
-    });
-
-    const periodNames = Object.keys(periods).sort((a, b) =>
-      a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
-    );
-
-    let html = '';
-    periodNames.forEach(period => {
-      const rows = periods[period].sort((a, b) => a.name.localeCompare(b.name));
-      html += `<section class="period-section">
-        <h2>${escapeHtml(period)} <span class="count">${rows.length} student${rows.length === 1 ? '' : 's'}</span></h2>
-        <table class="roster">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Earned (year)</th>
-              <th>Used (year)</th>
-              <th>Available</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows.map(s => `
-              <tr>
-                <td>${escapeHtml(s.name)}</td>
-                <td class="num-earned">${s.earned}</td>
-                <td class="num-used">${s.used}</td>
-                <td class="num-available">${s.available}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </section>`;
-    });
-
-    content.innerHTML = html;
-  } catch (err) {
-    content.innerHTML = '<div class="alert alert-error">Could not load data. If you just opened this file directly, note this site needs to be running on Netlify (with functions deployed) to work &mdash; it won\'t load data from a local file.</div>';
-  }
-}
-
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
 }
 
-render();
+async function renderClassGrid() {
+  const grid = document.getElementById('class-grid');
+  try {
+    const data = await apiGet('list');
+    const students = data.students || [];
+    const periods = sortPeriods([...new Set(students.map(s => s.period))]);
+    if (periods.length === 0) {
+      grid.innerHTML = '';
+      return;
+    }
+    grid.innerHTML = periods
+      .map(p => `<a href="class.html?period=${encodeURIComponent(p)}">${escapeHtml(p)}</a>`)
+      .join('');
+  } catch (err) {
+    grid.innerHTML = '';
+  }
+}
+
+renderHeader(null);
+renderClassGrid();
 </script>
 </body>
 </html>
