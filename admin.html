@@ -76,7 +76,7 @@
           <textarea id="import-text" rows="5" placeholder="Jane Doe&#9;Period 3&#10;John Smith&#9;Period 3&#10;Alex Lee&#9;Period 5"></textarea>
         </div>
         <label class="hint" style="display:flex; align-items:center; gap:6px; margin-top:0;">
-          <input type="checkbox" id="import-has-header" checked style="width:auto;">
+          <input type="checkbox" id="import-has-header" style="width:auto;">
           First row is a header row
         </label>
 
@@ -332,7 +332,11 @@ function escapeHtmlLocal(str) {
   return div.innerHTML;
 }
 
-function reparseAndRender() {
+function looksLikeHeaderRow(row) {
+  return row.some(cell => /name|period|class|section|grade|student/i.test(cell));
+}
+
+function reparseAndRender(autoDetectHeader) {
   const text = importText.value;
   if (!text.trim()) {
     parsedRows = [];
@@ -343,14 +347,29 @@ function reparseAndRender() {
     return;
   }
 
-  const delimiter = detectDelimiter(text.split(/\r?\n/)[0] || '');
-  const allRows = parseDelimited(text, delimiter);
+  const firstLine = text.split(/\r?\n/)[0] || '';
+  let allRows;
+  if (!firstLine.includes('\t') && !firstLine.includes(',')) {
+    // Pasted text lost its tab characters (common when copying a code block) —
+    // fall back to splitting each line on its last run of whitespace, since
+    // period codes never contain spaces but names sometimes do.
+    allRows = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean).map(line => {
+      const match = line.match(/^(.*\S)\s+(\S+)$/);
+      return match ? [match[1], match[2]] : [line];
+    });
+  } else {
+    const delimiter = detectDelimiter(firstLine);
+    allRows = parseDelimited(text, delimiter);
+  }
   if (allRows.length === 0) {
     importMapping.style.display = 'none';
     importSubmit.disabled = true;
     return;
   }
 
+  if (autoDetectHeader) {
+    importHasHeader.checked = looksLikeHeaderRow(allRows[0]);
+  }
   const hasHeader = importHasHeader.checked;
   parsedHeaders = hasHeader ? allRows[0] : allRows[0].map((_, i) => `Column ${i + 1}`);
   parsedRows = hasHeader ? allRows.slice(1) : allRows;
@@ -391,13 +410,13 @@ importFile.addEventListener('change', () => {
   const reader = new FileReader();
   reader.onload = () => {
     importText.value = String(reader.result || '');
-    reparseAndRender();
+    reparseAndRender(true);
   };
   reader.readAsText(file);
 });
 
-importText.addEventListener('input', reparseAndRender);
-importHasHeader.addEventListener('change', reparseAndRender);
+importText.addEventListener('input', () => reparseAndRender(true));
+importHasHeader.addEventListener('change', () => reparseAndRender(false));
 importNameCol.addEventListener('change', renderImportPreview);
 importPeriodCol.addEventListener('change', renderImportPreview);
 
