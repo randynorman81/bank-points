@@ -1,4 +1,4 @@
-const { getStore } = require("@netlify/blobs");
+import { getStore } from "@netlify/blobs";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
@@ -119,23 +119,24 @@ async function handleRequestPoints(body) {
   return { ok: true };
 }
 
-exports.handler = async (event) => {
+export default async (req) => {
   function ok(obj) {
-    return { statusCode: 200, headers: JSON_HEADERS, body: JSON.stringify(obj) };
+    return new Response(JSON.stringify(obj), { status: 200, headers: JSON_HEADERS });
   }
 
   try {
-    if (event.httpMethod === "GET") {
-      const action = (event.queryStringParameters && event.queryStringParameters.action) || "list";
+    if (req.method === "GET") {
+      const url = new URL(req.url);
+      const action = url.searchParams.get("action") || "list";
       if (action === "list") return ok(await getRoster());
       if (action === "requests") return ok(await getRequests());
       return ok({ error: "Unknown action" });
     }
 
-    if (event.httpMethod === "POST") {
+    if (req.method === "POST") {
       let body;
       try {
-        body = JSON.parse(event.body || "{}");
+        body = await req.json();
       } catch (err) {
         return ok({ error: "Malformed request" });
       }
@@ -169,10 +170,9 @@ exports.handler = async (event) => {
       }
     }
 
-    return { statusCode: 405, headers: JSON_HEADERS, body: JSON.stringify({ error: "Method not allowed" }) };
+    return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers: JSON_HEADERS });
   } catch (err) {
     console.error(err);
-    // TEMP DIAGNOSTIC: remove message/stack from the response once the root cause is fixed.
-    return { statusCode: 500, headers: JSON_HEADERS, body: JSON.stringify({ error: "Server error", message: err.message, stack: err.stack }) };
+    return new Response(JSON.stringify({ error: "Server error", message: err.message }), { status: 500, headers: JSON_HEADERS });
   }
 };
