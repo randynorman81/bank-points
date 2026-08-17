@@ -229,7 +229,13 @@ function renderRoster() {
   periodNames.forEach(period => {
     const rows = periods[period].sort((a, b) => a.name.localeCompare(b.name));
     html += `<section class="period-section">
-      <h2>${escapeHtml(period)} <span class="count">${rows.length} student${rows.length === 1 ? '' : 's'}</span></h2>
+      <h2 style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+        <span>${escapeHtml(period)} <span class="count">${rows.length} student${rows.length === 1 ? '' : 's'}</span></span>
+        <span class="row-actions">
+          <button class="btn btn-earn btn-sm bulk-tx-btn" data-period="${escapeHtml(period)}" data-type="EARNED">+ Add to All</button>
+          <button class="btn btn-use btn-sm bulk-tx-btn" data-period="${escapeHtml(period)}" data-type="USED">&minus; Use for All</button>
+        </span>
+      </h2>
       <table class="roster">
         <thead>
           <tr><th>Name</th><th>Earned</th><th>Used</th><th>Available</th><th>Actions</th></tr>
@@ -503,6 +509,59 @@ function openTxModal(studentId, type) {
       return;
     }
     const res = await authedPost({ action: 'addTransaction', studentId, type, amount, description });
+    if (res.error) {
+      setAlert(alertEl, 'error', res.error);
+    } else {
+      closeModal();
+      loadRoster();
+    }
+  });
+}
+
+document.getElementById('roster-slot').addEventListener('click', (e) => {
+  const btn = e.target.closest('.bulk-tx-btn');
+  if (!btn) return;
+  openBulkTxModal(btn.dataset.period, btn.dataset.type);
+});
+
+function openBulkTxModal(period, type) {
+  const count = roster.filter(s => s.period === period).length;
+  const label = type === 'EARNED' ? 'Add Points to All' : 'Use Points for All';
+  const btnClass = type === 'EARNED' ? 'btn-earn' : 'btn-use';
+
+  modalRoot.innerHTML = `
+    <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+      <div class="modal">
+        <h3>${label} &mdash; ${escapeHtml(period)}</h3>
+        <p class="hint" style="margin-top:-8px;">This applies to all ${count} student${count === 1 ? '' : 's'} currently in ${escapeHtml(period)}.</p>
+        <div id="bulk-tx-alert"></div>
+        <form class="stack" id="bulk-tx-form">
+          <div class="field">
+            <label for="bulk-tx-amount">Points (per student)</label>
+            <input type="number" id="bulk-tx-amount" min="1" step="1" required>
+          </div>
+          <div class="field">
+            <label for="bulk-tx-desc">Description (optional)</label>
+            <textarea id="bulk-tx-desc" rows="2" placeholder="e.g. Whole-class bonus for the escape room"></textarea>
+          </div>
+        </form>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+          <button class="btn ${btnClass}" id="bulk-tx-submit">${label}</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('bulk-tx-submit').addEventListener('click', async () => {
+    const amount = Number(document.getElementById('bulk-tx-amount').value);
+    const description = document.getElementById('bulk-tx-desc').value.trim();
+    const alertEl = document.getElementById('bulk-tx-alert');
+    if (!amount || amount <= 0) {
+      setAlert(alertEl, 'error', 'Enter a positive number of points.');
+      return;
+    }
+    const res = await authedPost({ action: 'bulkAddTransaction', period, type, amount, description });
     if (res.error) {
       setAlert(alertEl, 'error', res.error);
     } else {

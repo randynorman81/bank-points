@@ -106,6 +106,34 @@ async function addTransaction(body) {
   return { ok: true };
 }
 
+async function bulkAddTransaction(body) {
+  const period = (body.period || "").trim();
+  const amount = Number(body.amount);
+  const type = body.type;
+  if (!period) return { error: "Missing period" };
+  if (!amount || amount <= 0) return { error: "Amount must be a positive number" };
+  if (type !== "EARNED" && type !== "USED") return { error: "Invalid transaction type" };
+
+  const students = await readJSON("students", []);
+  const inPeriod = students.filter((s) => s.period === period);
+  if (inPeriod.length === 0) return { error: "No students in that period" };
+
+  const transactions = await readJSON("transactions", []);
+  const timestamp = new Date().toISOString();
+  inPeriod.forEach((s) => {
+    transactions.push({
+      id: newId(),
+      studentId: s.id,
+      type,
+      amount,
+      description: body.description || "",
+      timestamp
+    });
+  });
+  await writeJSON("transactions", transactions);
+  return { ok: true, count: inPeriod.length };
+}
+
 async function handleRequestPoints(body) {
   const name = (body.name || "").trim();
   const period = (body.period || "").trim();
@@ -165,6 +193,8 @@ export default async (req) => {
           return ok(await deleteStudent(body));
         case "addTransaction":
           return ok(await addTransaction(body));
+        case "bulkAddTransaction":
+          return ok(await bulkAddTransaction(body));
         default:
           return ok({ error: "Unknown action" });
       }
