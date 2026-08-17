@@ -171,6 +171,8 @@ exports.handler = async (event) => {
 
     return { statusCode: 405, headers: JSON_HEADERS, body: JSON.stringify({ error: "Method not allowed" }) };
   } catch (err) {
-    return { statusCode: 500, headers: JSON_HEADERS, body: JSON.stringify({ error: "Server error" }) };
+    console.error(err);
+    // TEMP DIAGNOSTIC: remove message/stack from the response once the root cause is fixed.
+    return { statusCode: 500, headers: JSON_HEADERS, body: JSON.stringify({ error: "Server error", message: err.message, stack: err.stack }) };
   }
 };
