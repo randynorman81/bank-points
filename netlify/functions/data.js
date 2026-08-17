@@ -173,6 +173,6 @@ export default async (req) => {
     return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers: JSON_HEADERS });
   } catch (err) {
     console.error(err);
-    return new Response(JSON.stringify({ error: "Server error", message: err.message }), { status: 500, headers: JSON_HEADERS });
+    return new Response(JSON.stringify({ error: "Server error" }), { status: 500, headers: JSON_HEADERS });
   }
 };
