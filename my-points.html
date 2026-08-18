@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Points</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="assets/logo.png">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<main>
+  <h2 style="margin-top:0;">My Points</h2>
+  <p class="hint" style="margin-top:-8px; margin-bottom:16px;">Sign in with your school Google account to see your own points.</p>
+
+  <div class="card" id="signin-card">
+    <div id="g_id_onload"
+         data-client_id="735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse"
+         data-hd="socialcircleschools.org"
+         data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin"
+         data-type="standard"
+         data-size="large"
+         data-theme="outline"
+         data-text="signin_with"
+         data-shape="rectangular">
+    </div>
+  </div>
+
+  <div id="result"></div>
+</main>
+
+<footer class="site-footer">
+  Bank Points &middot; questions? see Mr. Norman
+</footer>
+
+<script src="assets/api.js"></script>
+<script src="assets/nav.js"></script>
+<script>
+renderHeader(null);
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+async function handleCredentialResponse(response) {
+  const resultEl = document.getElementById('result');
+  resultEl.innerHTML = '<div class="loading">Checking your account&hellip;</div>';
+
+  try {
+    const res = await apiPost({ action: 'myPoints', credential: response.credential });
+    if (res.error) {
+      resultEl.innerHTML = `<div class="alert alert-error">${escapeHtml(res.error)}</div>`;
+      return;
+    }
+
+    document.getElementById('signin-card').style.display = 'none';
+
+    resultEl.innerHTML = res.students.map(s => `
+      <div class="card">
+        <h2 style="margin-top:0;">${escapeHtml(s.name)}</h2>
+        <p class="hint" style="margin-top:-8px;">${escapeHtml(s.period)}</p>
+        <table class="roster">
+          <thead>
+            <tr><th>Earned (year)</th><th>Used (year)</th><th>Available</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="num-earned">${s.earned}</td>
+              <td class="num-used">${s.used}</td>
+              <td class="num-available">${s.available}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `).join('');
+  } catch (err) {
+    resultEl.innerHTML = '<div class="alert alert-error">Something went wrong. Please try again.</div>';
+  }
+}
+window.handleCredentialResponse = handleCredentialResponse;
+</script>
+</body>
+</html>

@@ -56,6 +56,10 @@
             <datalist id="period-options"></datalist>
           </div>
         </div>
+        <div class="field">
+          <label for="new-email">School Email (optional, needed for My Points sign-in)</label>
+          <input type="email" id="new-email" placeholder="28first.last@socialcircleschools.org">
+        </div>
         <div>
           <button type="submit" class="btn btn-primary">Add Student</button>
         </div>
@@ -111,6 +115,20 @@
         <div id="import-preview" class="hint"></div>
         <div>
           <button type="submit" class="btn btn-primary" id="import-submit" disabled>Import Students</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0;">Set Student Emails (for My Points sign-in)</h2>
+      <p class="hint" style="margin-top:-8px;">Paste rows of <strong>Name, Period, Email</strong> (one per line, tab or comma separated) to fill in or update school emails for students already on the roster below. Rows for names that don't match an existing student are skipped.</p>
+      <div id="set-emails-alert"></div>
+      <form class="stack" id="set-emails-form">
+        <div class="field">
+          <textarea id="set-emails-text" rows="5" placeholder="Luke Carter-Satterfield&#9;1A&#9;27luke.carter-satterfield@socialcircleschools.org"></textarea>
+        </div>
+        <div>
+          <button type="submit" class="btn btn-primary">Set Emails</button>
         </div>
       </form>
     </div>
@@ -190,7 +208,7 @@ async function authedPost(payload) {
 async function loadRoster() {
   const slot = document.getElementById('roster-slot');
   try {
-    const data = await apiGet('list');
+    const data = await authedPost({ action: 'adminRoster' });
     if (data.error) {
       slot.innerHTML = `<div class="alert alert-error">${escapeHtml(data.error)}</div>`;
       return;
@@ -238,12 +256,13 @@ function renderRoster() {
       </h2>
       <table class="roster">
         <thead>
-          <tr><th>Name</th><th>Earned</th><th>Used</th><th>Available</th><th>Actions</th></tr>
+          <tr><th>Name</th><th>School Email</th><th>Earned</th><th>Used</th><th>Available</th><th>Actions</th></tr>
         </thead>
         <tbody>
           ${rows.map(s => `
             <tr>
               <td>${escapeHtml(s.name)}</td>
+              <td>${s.email ? escapeHtml(s.email) : '<span class="hint" style="margin:0;">not set</span>'}</td>
               <td class="num-earned">${s.earned}</td>
               <td class="num-used">${s.used}</td>
               <td class="num-available">${s.available}</td>
@@ -269,10 +288,11 @@ document.getElementById('add-student-form').addEventListener('submit', async (e)
   const alertEl = document.getElementById('add-student-alert');
   const name = document.getElementById('new-name').value.trim();
   const period = document.getElementById('new-period').value.trim();
+  const email = document.getElementById('new-email').value.trim();
   if (!name || !period) return;
 
   setAlert(alertEl, 'info', 'Adding&hellip;');
-  const res = await authedPost({ action: 'addStudent', name, period });
+  const res = await authedPost({ action: 'addStudent', name, period, email });
   if (res.error) {
     setAlert(alertEl, 'error', res.error);
   } else {
@@ -466,6 +486,36 @@ document.getElementById('import-form').addEventListener('submit', async (e) => {
   }
 });
 
+document.getElementById('set-emails-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const alertEl = document.getElementById('set-emails-alert');
+  const text = document.getElementById('set-emails-text').value;
+  if (!text.trim()) return;
+
+  const firstLine = text.split(/\r?\n/)[0] || '';
+  const delimiter = detectDelimiter(firstLine);
+  const allRows = parseDelimited(text, delimiter);
+  const rows = allRows
+    .map(r => ({ name: (r[0] || '').trim(), period: (r[1] || '').trim(), email: (r[2] || '').trim() }))
+    .filter(r => r.name && r.period && r.email);
+
+  if (rows.length === 0) {
+    setAlert(alertEl, 'error', "Couldn't find any valid Name, Period, Email rows.");
+    return;
+  }
+
+  setAlert(alertEl, 'info', 'Setting emails&hellip;');
+  const res = await authedPost({ action: 'bulkSetEmails', rows });
+  if (res.error) {
+    setAlert(alertEl, 'error', res.error);
+  } else {
+    const unmatched = res.total - res.matched;
+    setAlert(alertEl, 'success', `Set email for ${res.matched} student${res.matched === 1 ? '' : 's'}.${unmatched > 0 ? ` ${unmatched} row${unmatched === 1 ? '' : 's'} didn't match anyone on the roster.` : ''}`);
+    document.getElementById('set-emails-form').reset();
+    loadRoster();
+  }
+});
+
 function closeModal() {
   modalRoot.innerHTML = '';
 }
@@ -589,6 +639,10 @@ function openEditModal(studentId) {
             <label for="edit-period">Period</label>
             <input type="text" id="edit-period" value="${escapeHtml(student.period)}" required>
           </div>
+          <div class="field">
+            <label for="edit-email">School Email (for My Points sign-in)</label>
+            <input type="email" id="edit-email" value="${escapeHtml(student.email || '')}" placeholder="28first.last@socialcircleschools.org">
+          </div>
         </form>
         <div class="modal-actions">
           <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
@@ -601,12 +655,13 @@ function openEditModal(studentId) {
   document.getElementById('edit-submit').addEventListener('click', async () => {
     const name = document.getElementById('edit-name').value.trim();
     const period = document.getElementById('edit-period').value.trim();
+    const email = document.getElementById('edit-email').value.trim();
     const alertEl = document.getElementById('edit-alert');
     if (!name || !period) {
       setAlert(alertEl, 'error', 'Name and period are required.');
       return;
     }
-    const res = await authedPost({ action: 'editStudent', id: studentId, name, period });
+    const res = await authedPost({ action: 'editStudent', id: studentId, name, period, email });
     if (res.error) {
       setAlert(alertEl, 'error', res.error);
     } else {

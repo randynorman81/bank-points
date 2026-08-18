@@ -52,6 +52,7 @@ async function renderHeader(activePeriod) {
           </span>
         </a>
         <div class="header-actions">
+          <a class="btn btn-primary btn-sm" href="my-points.html">My Points</a>
           <a class="btn btn-ghost btn-sm" href="request.html">Request to Use Points</a>
         </div>
       </div>

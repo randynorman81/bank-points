@@ -2,6 +2,11 @@ import { getStore } from "@netlify/blobs";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
+// Google OAuth Client ID for the "My Points" student sign-in, and the school
+// Google Workspace domain accounts must belong to. Not secrets — safe to edit here.
+const GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
+const SCHOOL_EMAIL_DOMAIN = "socialcircleschools.org";
+
 function store() {
   return getStore("bank-points");
 }
@@ -19,7 +24,7 @@ function newId() {
   return "id-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
 }
 
-async function getRoster() {
+async function getRoster(includeEmail) {
   const students = await readJSON("students", []);
   const transactions = await readJSON("transactions", []);
 
@@ -34,7 +39,9 @@ async function getRoster() {
   return {
     students: students.map((s) => {
       const t = totals[s.id] || { earned: 0, used: 0 };
-      return { id: s.id, name: s.name, period: s.period, earned: t.earned, used: t.used, available: t.earned - t.used };
+      const row = { id: s.id, name: s.name, period: s.period, earned: t.earned, used: t.used, available: t.earned - t.used };
+      if (includeEmail) row.email = s.email || "";
+      return row;
     })
   };
 }
@@ -47,10 +54,11 @@ async function getRequests() {
 async function addStudent(body) {
   const name = (body.name || "").trim();
   const period = (body.period || "").trim();
+  const email = (body.email || "").trim().toLowerCase();
   if (!name || !period) return { error: "Name and period are required" };
   const students = await readJSON("students", []);
   const id = newId();
-  students.push({ id, name, period });
+  students.push({ id, name, period, email });
   await writeJSON("students", students);
   return { ok: true, id };
 }
@@ -58,12 +66,12 @@ async function addStudent(body) {
 async function bulkAddStudents(body) {
   const rows = Array.isArray(body.students) ? body.students : [];
   const cleaned = rows
-    .map((r) => ({ name: (r.name || "").trim(), period: (r.period || "").trim() }))
+    .map((r) => ({ name: (r.name || "").trim(), period: (r.period || "").trim(), email: (r.email || "").trim().toLowerCase() }))
     .filter((r) => r.name && r.period);
   if (cleaned.length === 0) return { error: "No valid rows to import" };
 
   const students = await readJSON("students", []);
-  cleaned.forEach((r) => students.push({ id: newId(), name: r.name, period: r.period }));
+  cleaned.forEach((r) => students.push({ id: newId(), name: r.name, period: r.period, email: r.email }));
   await writeJSON("students", students);
   return { ok: true, added: cleaned.length };
 }
@@ -74,6 +82,7 @@ async function editStudent(body) {
   if (!student) return { error: "Student not found" };
   student.name = (body.name || "").trim();
   student.period = (body.period || "").trim();
+  student.email = (body.email || "").trim().toLowerCase();
   await writeJSON("students", students);
   return { ok: true };
 }
@@ -84,6 +93,25 @@ async function deleteStudent(body) {
   if (remaining.length === students.length) return { error: "Student not found" };
   await writeJSON("students", remaining);
   return { ok: true };
+}
+
+async function bulkSetEmails(body) {
+  const rows = Array.isArray(body.rows) ? body.rows : [];
+  const students = await readJSON("students", []);
+  let matched = 0;
+  rows.forEach((r) => {
+    const name = (r.name || "").trim();
+    const period = (r.period || "").trim();
+    const email = (r.email || "").trim().toLowerCase();
+    if (!name || !period || !email) return;
+    const student = students.find((s) => s.name.toLowerCase() === name.toLowerCase() && s.period === period);
+    if (student) {
+      student.email = email;
+      matched++;
+    }
+  });
+  await writeJSON("students", students);
+  return { ok: true, matched, total: rows.length };
 }
 
 async function addTransaction(body) {
@@ -147,6 +175,45 @@ async function handleRequestPoints(body) {
   return { ok: true };
 }
 
+// Verifies a Google Identity Services ID token server-side (signature, audience,
+// expiry all checked by Google) and returns the signed-in email, or null if the
+// token is invalid or isn't a verified @SCHOOL_EMAIL_DOMAIN account.
+async function verifyGoogleToken(credential) {
+  if (!credential) return null;
+  const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`);
+  if (!res.ok) return null;
+  const payload = await res.json();
+  if (payload.aud !== GOOGLE_CLIENT_ID) return null;
+  if (payload.email_verified !== "true" && payload.email_verified !== true) return null;
+  if ((payload.hd || "").toLowerCase() !== SCHOOL_EMAIL_DOMAIN) return null;
+  return (payload.email || "").toLowerCase();
+}
+
+async function myPoints(body) {
+  const email = await verifyGoogleToken(body.credential);
+  if (!email) return { error: "Could not verify your school Google sign-in. Please try again." };
+
+  const students = await readJSON("students", []);
+  const matches = students.filter((s) => (s.email || "").toLowerCase() === email);
+  if (matches.length === 0) {
+    return { error: `No student record found for ${email}. Ask Mr. Norman to add your school email to the roster.` };
+  }
+
+  const transactions = await readJSON("transactions", []);
+  const results = matches.map((student) => {
+    const totals = { earned: 0, used: 0 };
+    transactions.forEach((t) => {
+      if (t.studentId !== student.id) return;
+      const amount = Number(t.amount) || 0;
+      if (t.type === "EARNED") totals.earned += amount;
+      else if (t.type === "USED") totals.used += amount;
+    });
+    return { name: student.name, period: student.period, earned: totals.earned, used: totals.used, available: totals.earned - totals.used };
+  });
+
+  return { ok: true, students: results };
+}
+
 export default async (req) => {
   function ok(obj) {
     return new Response(JSON.stringify(obj), { status: 200, headers: JSON_HEADERS });
@@ -156,7 +223,7 @@ export default async (req) => {
     if (req.method === "GET") {
       const url = new URL(req.url);
       const action = url.searchParams.get("action") || "list";
-      if (action === "list") return ok(await getRoster());
+      if (action === "list") return ok(await getRoster(false));
       if (action === "requests") return ok(await getRequests());
       return ok({ error: "Unknown action" });
     }
@@ -175,6 +242,10 @@ export default async (req) => {
         return ok(await handleRequestPoints(body));
       }
 
+      if (action === "myPoints") {
+        return ok(await myPoints(body));
+      }
+
       const adminPin = process.env.ADMIN_PIN || "1234";
       if (body.pin !== adminPin) {
         return ok({ error: "Invalid PIN" });
@@ -183,6 +254,8 @@ export default async (req) => {
       switch (action) {
         case "verifyPin":
           return ok({ ok: true });
+        case "adminRoster":
+          return ok(await getRoster(true));
         case "addStudent":
           return ok(await addStudent(body));
         case "bulkAddStudents":
@@ -191,6 +264,8 @@ export default async (req) => {
           return ok(await editStudent(body));
         case "deleteStudent":
           return ok(await deleteStudent(body));
+        case "bulkSetEmails":
+          return ok(await bulkSetEmails(body));
         case "addTransaction":
           return ok(await addTransaction(body));
         case "bulkAddTransaction":
