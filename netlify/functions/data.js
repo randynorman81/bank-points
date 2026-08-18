@@ -46,6 +46,27 @@ async function getRoster(includeEmail) {
   };
 }
 
+// Every earn/use event for one student, most recent first, plus how many
+// times each type happened (a count of events, not a sum of points).
+function buildHistory(studentId, transactions) {
+  const forStudent = transactions
+    .filter((t) => t.studentId === studentId)
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const earnedCount = forStudent.filter((t) => t.type === "EARNED").length;
+  const usedCount = forStudent.filter((t) => t.type === "USED").length;
+  const history = forStudent.map((t) => ({ type: t.type, amount: t.amount, description: t.description || "", timestamp: t.timestamp }));
+  return { earnedCount, usedCount, history };
+}
+
+async function getStudentHistory(body) {
+  const students = await readJSON("students", []);
+  const student = students.find((s) => s.id === body.id);
+  if (!student) return { error: "Student not found" };
+  const transactions = await readJSON("transactions", []);
+  const { earnedCount, usedCount, history } = buildHistory(student.id, transactions);
+  return { ok: true, name: student.name, period: student.period, earnedCount, usedCount, history };
+}
+
 async function getRequests() {
   const requests = await readJSON("requests", []);
   return { requests: requests.slice(-50).reverse() };
@@ -208,7 +229,17 @@ async function myPoints(body) {
       if (t.type === "EARNED") totals.earned += amount;
       else if (t.type === "USED") totals.used += amount;
     });
-    return { name: student.name, period: student.period, earned: totals.earned, used: totals.used, available: totals.earned - totals.used };
+    const { earnedCount, usedCount, history } = buildHistory(student.id, transactions);
+    return {
+      name: student.name,
+      period: student.period,
+      earned: totals.earned,
+      used: totals.used,
+      available: totals.earned - totals.used,
+      earnedCount,
+      usedCount,
+      history
+    };
   });
 
   return { ok: true, students: results };
@@ -266,6 +297,8 @@ export default async (req) => {
           return ok(await deleteStudent(body));
         case "bulkSetEmails":
           return ok(await bulkSetEmails(body));
+        case "studentHistory":
+          return ok(await getStudentHistory(body));
         case "addTransaction":
           return ok(await addTransaction(body));
         case "bulkAddTransaction":

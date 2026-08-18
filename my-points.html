@@ -82,6 +82,25 @@ async function handleCredentialResponse(response) {
             </tr>
           </tbody>
         </table>
+        <p class="hint">Earned points ${s.earnedCount} time${s.earnedCount === 1 ? '' : 's'} &middot; Used points ${s.usedCount} time${s.usedCount === 1 ? '' : 's'} this year</p>
+        ${s.history.length ? `
+          <h3 style="margin-bottom:8px;">Activity</h3>
+          <div style="max-height:340px; overflow-y:auto;">
+            <table class="roster">
+              <thead><tr><th>Date</th><th>Type</th><th>Points</th><th>What For</th></tr></thead>
+              <tbody>
+                ${s.history.map(t => `
+                  <tr>
+                    <td>${escapeHtml(new Date(t.timestamp).toLocaleDateString())}</td>
+                    <td>${t.type === 'EARNED' ? 'Earned' : 'Used'}</td>
+                    <td class="${t.type === 'EARNED' ? 'num-earned' : 'num-used'}">${t.type === 'EARNED' ? '+' : '&minus;'}${t.amount}</td>
+                    <td>${t.description ? escapeHtml(t.description) : '<span class="hint" style="margin:0;">&mdash;</span>'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        ` : ''}
       </div>
     `).join('');
   } catch (err) {

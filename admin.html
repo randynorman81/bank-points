@@ -270,6 +270,7 @@ function renderRoster() {
                 <div class="row-actions">
                   <button class="btn btn-earn btn-sm" onclick="openTxModal('${s.id}','EARNED')">+ Add</button>
                   <button class="btn btn-use btn-sm" onclick="openTxModal('${s.id}','USED')">&minus; Use</button>
+                  <button class="btn btn-ghost btn-sm" onclick="openHistoryModal('${s.id}')">History</button>
                   <button class="btn btn-ghost btn-sm" onclick="openEditModal('${s.id}')">Edit</button>
                   <button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')">Delete</button>
                 </div>
@@ -619,6 +620,56 @@ function openBulkTxModal(period, type) {
       loadRoster();
     }
   });
+}
+
+function renderHistoryTable(res) {
+  if (res.history.length === 0) {
+    return '<div class="hint">No point activity yet.</div>';
+  }
+  return `
+    <p class="hint" style="margin-top:-4px;">Earned ${res.earnedCount} time${res.earnedCount === 1 ? '' : 's'} &middot; Used ${res.usedCount} time${res.usedCount === 1 ? '' : 's'} this year</p>
+    <div style="max-height:340px; overflow-y:auto;">
+      <table class="roster">
+        <thead><tr><th>Date</th><th>Type</th><th>Points</th><th>What For</th></tr></thead>
+        <tbody>
+          ${res.history.map(t => `
+            <tr>
+              <td>${escapeHtml(new Date(t.timestamp).toLocaleDateString())}</td>
+              <td>${t.type === 'EARNED' ? 'Earned' : 'Used'}</td>
+              <td class="${t.type === 'EARNED' ? 'num-earned' : 'num-used'}">${t.type === 'EARNED' ? '+' : '&minus;'}${t.amount}</td>
+              <td>${t.description ? escapeHtml(t.description) : '<span class="hint" style="margin:0;">&mdash;</span>'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+async function openHistoryModal(studentId) {
+  const student = roster.find(s => s.id === studentId);
+  if (!student) return;
+
+  modalRoot.innerHTML = `
+    <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+      <div class="modal" style="max-width:560px;">
+        <h3>Point History &mdash; ${escapeHtml(student.name)}</h3>
+        <div id="history-content" class="loading">Loading&hellip;</div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const res = await authedPost({ action: 'studentHistory', id: studentId });
+  const contentEl = document.getElementById('history-content');
+  if (!contentEl) return;
+  if (res.error) {
+    contentEl.innerHTML = `<div class="alert alert-error">${escapeHtml(res.error)}</div>`;
+    return;
+  }
+  contentEl.innerHTML = renderHistoryTable(res);
 }
 
 function openEditModal(studentId) {
