@@ -15,8 +15,10 @@
 <div id="site-header-root"></div>
 
 <main>
-  <h2 id="class-title" style="margin-top:0;"></h2>
-  <div id="content" class="loading">Loading&hellip;</div>
+  <div class="card empty-state">
+    <p>Class point boards have moved to a private, sign-in-only view.</p>
+    <a class="btn btn-primary" href="my-points.html">Go to My Points</a>
+  </div>
 </main>
 
 <footer class="site-footer">
@@ -26,75 +28,7 @@
 <script src="assets/api.js"></script>
 <script src="assets/nav.js"></script>
 <script>
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-function getPeriodFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('period') || '';
-}
-
-async function render() {
-  const period = getPeriodFromUrl();
-  const content = document.getElementById('content');
-  const titleEl = document.getElementById('class-title');
-
-  if (!period) {
-    titleEl.textContent = 'Class Not Found';
-    content.innerHTML = '<div class="alert alert-error">No class period was specified. Choose one from the menu above.</div>';
-    return;
-  }
-
-  titleEl.textContent = period;
-
-  try {
-    const data = await apiGet('list');
-    if (data.error) {
-      content.innerHTML = `<div class="alert alert-error">${escapeHtml(data.error)}</div>`;
-      return;
-    }
-
-    const students = (data.students || [])
-      .filter(s => s.period === period)
-      .sort((a, b) => a.name.localeCompare(b.name));
-
-    if (students.length === 0) {
-      content.innerHTML = '<div class="card empty-state">No students in this class yet. Add them from the Admin page.</div>';
-      return;
-    }
-
-    content.innerHTML = `
-      <table class="roster">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Earned (year)</th>
-            <th>Used (year)</th>
-            <th>Available</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${students.map(s => `
-            <tr>
-              <td>${escapeHtml(s.name)}</td>
-              <td class="num-earned">${s.earned}</td>
-              <td class="num-used">${s.used}</td>
-              <td class="num-available">${s.available}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    `;
-  } catch (err) {
-    content.innerHTML = '<div class="alert alert-error">Could not load data. If you just opened this file directly, note this site needs to be running on Netlify (with functions deployed) to work.</div>';
-  }
-}
-
-renderHeader(getPeriodFromUrl());
-render();
+renderHeader();
 </script>
 </body>
 </html>

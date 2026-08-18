@@ -17,11 +17,10 @@
 <main>
   <div class="hero">
     <h2>Extra Credit Points Bank</h2>
-    <p>Choose your class period above to see your points, or use the button below to request spending points on an assignment.</p>
-    <a class="btn btn-primary" href="request.html">Request to Use Points</a>
+    <p>Sign in with your school Google account to see your own points, or use the button below to request spending points on an assignment.</p>
+    <a class="btn btn-primary" href="my-points.html">My Points</a>
+    <a class="btn btn-ghost" href="request.html">Request to Use Points</a>
   </div>
-
-  <div id="class-grid" class="class-grid"></div>
 </main>
 
 <footer class="site-footer">
@@ -31,32 +30,7 @@
 <script src="assets/api.js"></script>
 <script src="assets/nav.js"></script>
 <script>
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-async function renderClassGrid() {
-  const grid = document.getElementById('class-grid');
-  try {
-    const data = await apiGet('list');
-    const students = data.students || [];
-    const periods = sortPeriods([...new Set(students.map(s => s.period))]);
-    if (periods.length === 0) {
-      grid.innerHTML = '';
-      return;
-    }
-    grid.innerHTML = periods
-      .map(p => `<a href="class.html?period=${encodeURIComponent(p)}">${escapeHtml(p)}</a>`)
-      .join('');
-  } catch (err) {
-    grid.innerHTML = '';
-  }
-}
-
-renderHeader(null);
-renderClassGrid();
+renderHeader();
 </script>
 </body>
 </html>
