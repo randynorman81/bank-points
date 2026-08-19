@@ -155,6 +155,39 @@ async function addTransaction(body) {
   return { ok: true };
 }
 
+// Awards/uses points by school email instead of studentId — used by the Exit
+// Tickets site (a separate Netlify site) to award points automatically when a
+// student completes an exit ticket, without needing to know internal student
+// IDs. Matches every student record with that email (same fan-out myPoints
+// uses), so a student listed under more than one period all get it.
+async function addTransactionByEmail(body) {
+  const email = (body.email || "").trim().toLowerCase();
+  const amount = Number(body.amount);
+  const type = body.type;
+  if (!email) return { error: "Missing email" };
+  if (!amount || amount <= 0) return { error: "Amount must be a positive number" };
+  if (type !== "EARNED" && type !== "USED") return { error: "Invalid transaction type" };
+
+  const students = await readJSON("students", []);
+  const matches = students.filter((s) => (s.email || "").toLowerCase() === email);
+  if (matches.length === 0) return { error: `No student found with email ${email}` };
+
+  const transactions = await readJSON("transactions", []);
+  const timestamp = new Date().toISOString();
+  matches.forEach((s) => {
+    transactions.push({
+      id: newId(),
+      studentId: s.id,
+      type,
+      amount,
+      description: body.description || "",
+      timestamp
+    });
+  });
+  await writeJSON("transactions", transactions);
+  return { ok: true, matched: matches.length };
+}
+
 async function bulkAddTransaction(body) {
   const period = (body.period || "").trim();
   const amount = Number(body.amount);
@@ -301,6 +334,8 @@ export default async (req) => {
           return ok(await getStudentHistory(body));
         case "addTransaction":
           return ok(await addTransaction(body));
+        case "addTransactionByEmail":
+          return ok(await addTransactionByEmail(body));
         case "bulkAddTransaction":
           return ok(await bulkAddTransaction(body));
         default:
