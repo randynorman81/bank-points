@@ -71,6 +71,13 @@ const COURSES = [
   }
 ];
 
+// Standalone class tools that live on their own separate sites (not part of
+// this repo/deploy). Shows up as a persistent nav link on every page, plus a
+// card on the homepage. To add one: add one object here.
+const TOOLS = [
+  { id: "quizzes", name: "Quizzes", url: "https://quizzescomputerscience.netlify.app/", description: "Sign in with your school Google account to take an open quiz." }
+];
+
 function escapeHtmlNav(str) {
   const div = document.createElement("div");
   div.textContent = str == null ? "" : String(str);
@@ -119,6 +126,11 @@ function renderHeader(opts) {
   const logoMarkup = `<img src="${LOGO_SRC}" alt="${escapeHtmlNav(SCHOOL_NAME)} logo" class="school-logo" onerror="this.outerHTML=window.__placeholderLogo();">`;
 
   const courseItems = COURSES.map(courseDropdownMarkup).join("");
+  const toolItems = TOOLS.map(t => `
+    <div class="nav-item">
+      <a class="nav-link" href="${t.url}" target="_blank" rel="noopener">${escapeHtmlNav(t.name)} &#8599;</a>
+    </div>
+  `).join("");
 
   root.innerHTML = `
     <header class="site-header">
@@ -135,6 +147,7 @@ function renderHeader(opts) {
             <a class="nav-link" href="${NAV_ROOT}index.html">Home</a>
           </div>
           ${courseItems}
+          ${toolItems}
         </nav>
       </div>
     </header>
@@ -182,6 +195,21 @@ function renderUnitGrid(courseId, containerId) {
   }).join("");
 }
 
+// Renders cards for the standalone TOOLS list (used on the homepage).
+function renderToolsGrid(containerId) {
+  const container = document.getElementById(containerId || "tools-grid-root");
+  if (!container) return;
+
+  container.innerHTML = TOOLS.map(t => `
+    <a class="tool-card" href="${t.url}" target="_blank" rel="noopener">
+      <h3>${escapeHtmlNav(t.name)} &#8599;</h3>
+      <p>${escapeHtmlNav(t.description)}</p>
+    </a>
+  `).join("");
+}
+
 window.renderHeader = renderHeader;
 window.renderUnitGrid = renderUnitGrid;
+window.renderToolsGrid = renderToolsGrid;
 window.COURSES = COURSES;
+window.TOOLS = TOOLS;
