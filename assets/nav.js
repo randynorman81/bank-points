@@ -75,7 +75,8 @@ const COURSES = [
 // this repo/deploy). Shows up as a persistent nav link on every page, plus a
 // card on the homepage. To add one: add one object here.
 const TOOLS = [
-  { id: "quizzes", name: "Quizzes", url: "https://quizzescomputerscience.netlify.app/", description: "Sign in with your school Google account to take an open quiz." }
+  { id: "quizzes", name: "Quizzes", url: "https://quizzescomputerscience.netlify.app/", description: "Sign in with your school Google account to take an open quiz." },
+  { id: "bank", name: "Bank Points", url: "https://computer-science-bank.netlify.app/", description: "Check your extra credit points, or request to use some on an assignment." }
 ];
 
 function escapeHtmlNav(str) {
