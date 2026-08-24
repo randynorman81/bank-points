@@ -2,17 +2,21 @@
 
 A site for tracking each student's "bank of extra points" by class period, with a form students use to request spending points on an assignment.
 
+This app lives at `/bank/` on this Netlify site — the site's homepage (`/`) is
+the separate SCHS Computer Science site (see [CS-SITE-README.md](CS-SITE-README.md)).
+They share the same repo and deploy, but are otherwise unrelated.
+
 ## How it works
 
-- **The website** (this folder) is static HTML/CSS/JS.
+- **The website** (the `bank/` folder) is static HTML/CSS/JS.
 - **The data** (roster + point history) lives in **Netlify Blobs**, a small built-in database that comes free with every Netlify site — no Google account, no third-party service, and no district IT approval needed, since it's entirely part of Netlify (which you're already using to host the site).
 - **Reads/writes** go through one small **Netlify Function** (`netlify/functions/data.js`) that runs automatically once the site is deployed.
 - **The email** to `randy.norman@socialcircleschools.org` (subject `BANK POINTS REQUESTED`) is sent by Netlify's own built-in **Forms** feature whenever a student submits the request form — also free, also no external accounts.
 
-Three pages:
-- `index.html` — public points board (Name, Earned, Used, Available), grouped by period
-- `request.html` — student form to request using points (triggers the email)
-- `admin.html` — PIN-protected page where you add/edit/remove students and add or use points
+Three pages, all under `bank/`:
+- `bank/index.html` — public points board (Name, Earned, Used, Available), grouped by period
+- `bank/request.html` — student form to request using points (triggers the email)
+- `bank/admin.html` — PIN-protected page where you add/edit/remove students and add or use points
 
 ## Why this needs to deploy through GitHub (not drag-and-drop)
 
@@ -54,11 +58,11 @@ That's it — no code edits needed for either the PIN or the notification email,
 
 ### 5. Try it out
 
-1. Open your Netlify site URL, add `/admin.html`, and enter your PIN.
+1. Open your Netlify site URL, add `/bank/admin.html`, and enter your PIN.
 2. Add a student and a class period.
-3. Go back to the home page — they should appear.
+3. Go back to `/bank/index.html` — they should appear.
 4. Use "+ Add" to give them points, with an optional note about why.
-5. Open `/request.html`, submit a test request for that student, and confirm you get the "BANK POINTS REQUESTED" email.
+5. Open `/bank/request.html`, submit a test request for that student, and confirm you get the "BANK POINTS REQUESTED" email.
 
 ## Day-to-day use
 
