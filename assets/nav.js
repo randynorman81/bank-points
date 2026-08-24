@@ -72,11 +72,14 @@ const COURSES = [
 ];
 
 // Standalone class tools that live on their own separate sites (not part of
-// this repo/deploy). Shows up as a persistent nav link on every page, plus a
-// card on the homepage. To add one: add one object here.
+// this repo/deploy). Shows up in a "Class Tools" dropdown on every page, plus
+// a card on the homepage. To add one: add one object here. Leave `url` as
+// null for a tool that's still being built -- it'll show as "coming soon"
+// instead of a link.
 const TOOLS = [
   { id: "quizzes", name: "Quizzes", url: "https://quizzescomputerscience.netlify.app/", description: "Sign in with your school Google account to take an open quiz." },
-  { id: "bank", name: "Bank Points", url: "https://computer-science-bank.netlify.app/", description: "Check your extra credit points, or request to use some on an assignment." }
+  { id: "bank", name: "Bank Points", url: "https://computer-science-bank.netlify.app/", description: "Check your extra credit points, or request to use some on an assignment." },
+  { id: "calendar", name: "Calendar", url: null, description: "Per-class calendars, synced across sections that meet on the same day." }
 ];
 
 function escapeHtmlNav(str) {
@@ -119,6 +122,24 @@ function courseDropdownMarkup(course) {
   `;
 }
 
+function toolsDropdownMarkup() {
+  const toolLinks = TOOLS.map(t => {
+    if (t.url) {
+      return `<a class="external" href="${t.url}" target="_blank" rel="noopener">${escapeHtmlNav(t.name)}</a>`;
+    }
+    return `<span class="dropdown-disabled">${escapeHtmlNav(t.name)} <span class="badge">coming soon</span></span>`;
+  }).join("");
+
+  return `
+    <div class="nav-item" data-course="tools">
+      <button type="button" class="nav-link" aria-haspopup="true" aria-expanded="false">Class Tools &#9662;</button>
+      <div class="dropdown-panel">
+        ${toolLinks}
+      </div>
+    </div>
+  `;
+}
+
 function renderHeader(opts) {
   opts = opts || {};
   const root = document.getElementById("site-header-root");
@@ -127,11 +148,7 @@ function renderHeader(opts) {
   const logoMarkup = `<img src="${LOGO_SRC}" alt="${escapeHtmlNav(SCHOOL_NAME)} logo" class="school-logo" onerror="this.outerHTML=window.__placeholderLogo();">`;
 
   const courseItems = COURSES.map(courseDropdownMarkup).join("");
-  const toolItems = TOOLS.map(t => `
-    <div class="nav-item">
-      <a class="nav-link" href="${t.url}" target="_blank" rel="noopener">${escapeHtmlNav(t.name)} &#8599;</a>
-    </div>
-  `).join("");
+  const toolsDropdown = toolsDropdownMarkup();
 
   root.innerHTML = `
     <header class="site-header">
@@ -148,7 +165,7 @@ function renderHeader(opts) {
             <a class="nav-link" href="${NAV_ROOT}index.html">Home</a>
           </div>
           ${courseItems}
-          ${toolItems}
+          ${toolsDropdown}
         </nav>
       </div>
     </header>
@@ -201,12 +218,20 @@ function renderToolsGrid(containerId) {
   const container = document.getElementById(containerId || "tools-grid-root");
   if (!container) return;
 
-  container.innerHTML = TOOLS.map(t => `
-    <a class="tool-card" href="${t.url}" target="_blank" rel="noopener">
-      <h3>${escapeHtmlNav(t.name)} &#8599;</h3>
-      <p>${escapeHtmlNav(t.description)}</p>
-    </a>
-  `).join("");
+  container.innerHTML = TOOLS.map(t => {
+    if (t.url) {
+      return `
+        <a class="tool-card" href="${t.url}" target="_blank" rel="noopener">
+          <h3>${escapeHtmlNav(t.name)} &#8599;</h3>
+          <p>${escapeHtmlNav(t.description)}</p>
+        </a>`;
+    }
+    return `
+      <div class="tool-card locked">
+        <h3>${escapeHtmlNav(t.name)} <span class="badge">coming soon</span></h3>
+        <p>${escapeHtmlNav(t.description)}</p>
+      </div>`;
+  }).join("");
 }
 
 window.renderHeader = renderHeader;
