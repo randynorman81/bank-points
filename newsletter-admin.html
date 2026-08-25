@@ -66,7 +66,51 @@
         Posts
         <button class="btn btn-ghost btn-sm" onclick="loadPosts()">Refresh</button>
       </h2>
+      <p class="hint" style="margin-top:-8px;">Publishing a post automatically emails every parent contact below. If that fails (or the notifier isn't set up yet), each post shows why and lets you resend.</p>
       <div id="posts-slot" class="loading">Loading&hellip;</div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0; display:flex; align-items:center; justify-content:space-between;">
+        Parent Contacts
+        <button class="btn btn-ghost btn-sm" onclick="loadParents()">Refresh</button>
+      </h2>
+      <p class="hint" style="margin-top:-8px;">Who gets emailed when a new post goes out. Not shown to students or the public.</p>
+      <div id="add-parent-alert"></div>
+      <form class="stack" id="add-parent-form">
+        <div class="field-row">
+          <div class="field">
+            <label for="new-parent-student">Student Name</label>
+            <input type="text" id="new-parent-student" required>
+          </div>
+          <div class="field">
+            <label for="new-parent-period">Class Period</label>
+            <input type="text" id="new-parent-period" list="parent-period-options" placeholder="e.g. Period 3" required>
+            <datalist id="parent-period-options"></datalist>
+          </div>
+          <div class="field">
+            <label for="new-parent-email">Parent Email</label>
+            <input type="email" id="new-parent-email" required>
+          </div>
+        </div>
+        <div>
+          <button type="submit" class="btn btn-primary">Add Contact</button>
+        </div>
+      </form>
+
+      <h3 style="margin-bottom:8px;">Paste Contacts</h3>
+      <p class="hint" style="margin-top:-4px;">One per line: Student Name, Period, Parent Email (tab or comma separated). Rows missing any field are skipped.</p>
+      <div id="bulk-parent-alert"></div>
+      <form class="stack" id="bulk-parent-form">
+        <div class="field">
+          <textarea id="bulk-parent-text" rows="5" placeholder="Jane Doe&#9;Period 3&#9;jane.parent@example.com"></textarea>
+        </div>
+        <div>
+          <button type="submit" class="btn btn-primary">Import</button>
+        </div>
+      </form>
+
+      <div id="parents-slot" class="loading">Loading&hellip;</div>
     </div>
 
   </div>
@@ -84,6 +128,7 @@ renderHeader();
 const PIN_KEY = 'newsletterPin';
 let posts = [];
 let editingId = null;
+let parents = [];
 
 const pinGate = document.getElementById('pin-gate');
 const dashboard = document.getElementById('dashboard');
@@ -127,6 +172,7 @@ function unlock() {
   dashboard.style.display = 'block';
   document.getElementById('post-date').value = new Date().toISOString().slice(0, 10);
   loadPosts();
+  loadParents();
 }
 
 async function authedPost(payload) {
@@ -161,7 +207,10 @@ function renderPosts() {
     <div class="post-list-item">
       <div>
         <span class="title">${escapeHtml(p.title)}</span>
-        <span class="sub">${escapeHtml(p.date)}</span>
+        <span class="sub">${escapeHtml(p.date)}</span><br>
+        ${p.notifiedParents
+          ? '<span class="badge badge-open">parents notified</span>'
+          : `<span class="badge badge-closed" title="${escapeHtml(p.notifyError || 'Not sent')}">not notified</span> <button class="btn btn-ghost btn-sm" onclick="resendNotify('${p.id}')">Resend Notification</button>`}
       </div>
       <div class="row-actions">
         <button class="btn btn-ghost btn-sm" onclick="editPost('${p.id}')">Edit</button>
@@ -169,6 +218,15 @@ function renderPosts() {
       </div>
     </div>
   `).join('');
+}
+
+async function resendNotify(id) {
+  const res = await authedPost({ action: 'notifyPost', id });
+  if (res.error) { alert(res.error); return; }
+  const p = posts.find(x => x.id === id);
+  if (p) { p.notifiedParents = res.notifiedParents; p.notifyError = res.notifyError; }
+  renderPosts();
+  if (!res.notifiedParents) alert('Still not sent: ' + (res.notifyError || 'unknown error'));
 }
 
 function editPost(id) {
@@ -212,7 +270,13 @@ document.getElementById('post-form').addEventListener('submit', async (e) => {
     setAlert(alertEl, 'error', res.error);
     return;
   }
-  setAlert(alertEl, 'success', editingId ? 'Post updated.' : 'Post published.');
+  if (editingId) {
+    setAlert(alertEl, 'success', 'Post updated.');
+  } else if (res.notifiedParents) {
+    setAlert(alertEl, 'success', 'Post published and parents notified.');
+  } else {
+    setAlert(alertEl, 'warning', `Post published, but parents weren't notified: ${escapeHtml(res.notifyError || 'unknown error')}. You can resend from the Posts list below.`);
+  }
   resetForm();
   loadPosts();
 });
@@ -226,6 +290,128 @@ async function removePost(id) {
   posts = posts.filter(x => x.id !== id);
   renderPosts();
   if (editingId === id) resetForm();
+}
+
+// ---- parent contacts ----
+
+async function loadParents() {
+  const slot = document.getElementById('parents-slot');
+  const res = await authedPost({ action: 'adminListParents' });
+  if (res.error) {
+    slot.innerHTML = `<div class="alert alert-error">${escapeHtml(res.error)}</div>`;
+    return;
+  }
+  parents = res.parents || [];
+  renderParentPeriodOptions();
+  renderParents();
+}
+
+function renderParentPeriodOptions() {
+  const list = document.getElementById('parent-period-options');
+  const periods = [...new Set(parents.map(p => p.period))].sort();
+  list.innerHTML = periods.map(p => `<option value="${escapeHtml(p)}"></option>`).join('');
+}
+
+function renderParents() {
+  const slot = document.getElementById('parents-slot');
+  if (parents.length === 0) {
+    slot.innerHTML = '<div class="empty-state">No parent contacts yet. Add one above.</div>';
+    return;
+  }
+  const periods = {};
+  parents.forEach(p => {
+    if (!periods[p.period]) periods[p.period] = [];
+    periods[p.period].push(p);
+  });
+  const periodNames = Object.keys(periods).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+
+  slot.innerHTML = periodNames.map(period => {
+    const rows = periods[period].sort((a, b) => a.studentName.localeCompare(b.studentName));
+    return `
+      <section class="period-section">
+        <h2><span>${escapeHtml(period)} <span class="count">${rows.length} contact${rows.length === 1 ? '' : 's'}</span></span></h2>
+        <table class="roster">
+          <thead><tr><th>Student</th><th>Parent Email</th><th>Actions</th></tr></thead>
+          <tbody>
+            ${rows.map(p => `
+              <tr>
+                <td>${escapeHtml(p.studentName)}</td>
+                <td>${escapeHtml(p.email)}</td>
+                <td><button class="btn btn-danger btn-sm" onclick="deleteParent('${p.id}')">Delete</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </section>
+    `;
+  }).join('');
+}
+
+document.getElementById('add-parent-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const alertEl = document.getElementById('add-parent-alert');
+  const studentName = document.getElementById('new-parent-student').value.trim();
+  const period = document.getElementById('new-parent-period').value.trim();
+  const email = document.getElementById('new-parent-email').value.trim();
+  if (!studentName || !period || !email) return;
+
+  setAlert(alertEl, 'info', 'Adding&hellip;');
+  const res = await authedPost({ action: 'addParentContact', studentName, period, email });
+  if (res.error) {
+    setAlert(alertEl, 'error', res.error);
+  } else {
+    parents.push({ id: res.id, studentName, period, email: email.toLowerCase() });
+    renderParentPeriodOptions();
+    renderParents();
+    setAlert(alertEl, 'success', `Added contact for ${escapeHtml(studentName)}.`);
+    document.getElementById('add-parent-form').reset();
+  }
+});
+
+function detectDelimiterLocal(firstLine) {
+  const commaCount = (firstLine.match(/,/g) || []).length;
+  const tabCount = (firstLine.match(/\t/g) || []).length;
+  return tabCount > commaCount ? '\t' : ',';
+}
+
+document.getElementById('bulk-parent-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const alertEl = document.getElementById('bulk-parent-alert');
+  const text = document.getElementById('bulk-parent-text').value;
+  if (!text.trim()) return;
+
+  const firstLine = text.split(/\r?\n/)[0] || '';
+  const delimiter = detectDelimiterLocal(firstLine);
+  const nonEmptyLines = text.split(/\r?\n/).filter(l => l.trim());
+  const rows = nonEmptyLines
+    .map(line => line.split(delimiter).map(c => c.trim()))
+    .map(cols => ({ studentName: cols[0] || '', period: cols[1] || '', email: cols[2] || '' }))
+    .filter(r => r.studentName && r.period && r.email);
+
+  if (rows.length === 0) {
+    setAlert(alertEl, 'error', `Couldn't find any valid Student, Period, Email rows. Make sure every line uses the same separator (tab or comma) — mixing both in one paste will drop rows.`);
+    return;
+  }
+
+  setAlert(alertEl, 'info', `Importing ${rows.length} contact${rows.length === 1 ? '' : 's'}&hellip;`);
+  const res = await authedPost({ action: 'bulkAddParentContacts', contacts: rows });
+  if (res.error) {
+    setAlert(alertEl, 'error', res.error);
+  } else {
+    setAlert(alertEl, 'success', `Imported ${res.added} contact${res.added === 1 ? '' : 's'}.`);
+    document.getElementById('bulk-parent-form').reset();
+    loadParents();
+  }
+});
+
+async function deleteParent(id) {
+  const p = parents.find(x => x.id === id);
+  if (!p) return;
+  if (!confirm(`Remove the parent contact for ${p.studentName}?`)) return;
+  const res = await authedPost({ action: 'deleteParentContact', id });
+  if (res.error) { alert(res.error); return; }
+  parents = parents.filter(x => x.id !== id);
+  renderParents();
 }
 
 if (getPin()) {
