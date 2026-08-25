@@ -7,10 +7,9 @@ month, and paste the result into Message. It's plain text (no markdown) —
 line breaks are preserved exactly as typed on the public page.
 
 Covers the things a parent of a high schooler actually wants from a class
-update: what's being taught, what's due, how grading works, how to help at
-home, and how to reach you — plus the two sections specific to this program
-(Bank Points, and the sign-in-only tools) so parents unfamiliar with either
-aren't left guessing.
+update: what's being taught, what's due, how to help at home, and how to
+reach you — plus a note on the sign-in-only tools so parents unfamiliar
+with them aren't left guessing.
 
 ---
 
@@ -27,19 +26,6 @@ WHAT'S DUE / COMING UP
 - [Assignment or project] — due [date]
 - [Quiz or test] — [date]
 - [Anything AP-specific: Create PT checkpoint, exam registration deadline, etc.]
-
-HOW GRADES WORK RIGHT NOW
-[What this unit's grade is actually made of — e.g. "two auto-graded
-quizzes and one project rubric" — so a grade in the portal isn't a mystery.]
-
-HOW YOUR STUDENT CAN EARN BANK POINTS
-Bank Points is our extra-credit system. Students earn points automatically
-for finishing an exit ticket (2 points) or scoring 100% on a quiz (10
-points), and I award points by hand for [participation / effort / whatever
-you're recognizing this month]. Points can be spent toward things like
-[late-work forgiveness / a redo / extra credit on an assignment — your
-call each time]. Students check their own balance anytime by signing in
-with their school Google account at computer-science-bank.netlify.app.
 
 HOW YOU CAN HELP AT HOME
 - Ask your student to show you their Bank Points balance or their most
@@ -73,6 +59,5 @@ Email me anytime: randy.norman@socialcircleschools.org
   Create Performance Task checkpoints once you have those dates.
 - Sections with nothing to say that month (e.g. no classroom reminder
   needed) can just be deleted rather than left blank.
-- "HOW YOUR STUDENT CAN EARN BANK POINTS" and "A NOTE ON TOOLS" rarely
-  change — write them once, keep them in your paste buffer, and only touch
-  the top few sections each month.
+- "A NOTE ON TOOLS" rarely changes — write it once, keep it in your paste
+  buffer, and only touch the top few sections each month.
