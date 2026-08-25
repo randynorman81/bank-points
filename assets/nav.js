@@ -78,6 +78,7 @@ const COURSES = [
 // instead of a link.
 const TOOLS = [
   { id: "quizzes", name: "Quizzes", url: "https://quizzescomputerscience.netlify.app/", description: "Sign in with your school Google account to take an open quiz." },
+  { id: "exit-tickets", name: "Exit Tickets", url: "https://starlit-salmiakki-e2394f.netlify.app/", description: "Sign in with your school Google account to answer an open exit ticket." },
   { id: "bank", name: "Bank Points", url: "https://computer-science-bank.netlify.app/", description: "Check your extra credit points, or request to use some on an assignment." },
   { id: "calendar", name: "Calendar", url: "https://norman-calendar.netlify.app/", description: "Per-class calendars, synced across sections that meet on the same day." }
 ];
