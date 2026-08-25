@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Newsletter | SCHS Computer Science</title>
+<meta name="description" content="Updates for parents on what's happening in Intro to Software Technology, AP Computer Science Principles, and Embedded Computing.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<main>
+  <h2 style="margin-top:0;">Newsletter</h2>
+  <p class="hint" style="margin-top:-8px; margin-bottom:20px;">Updates for parents on what's happening in class.</p>
+
+  <div id="posts-slot" class="loading">Loading&hellip;</div>
+</main>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science
+</footer>
+
+<script src="assets/api.js"></script>
+<script src="assets/nav.js"></script>
+<script>
+renderHeader();
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+function formatDate(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+async function loadPosts() {
+  const slot = document.getElementById('posts-slot');
+  try {
+    const res = await apiGet('list');
+    const posts = res.posts || [];
+    if (posts.length === 0) {
+      slot.innerHTML = '<p class="hint">No newsletter posts yet — check back soon.</p>';
+      return;
+    }
+    slot.innerHTML = posts.map(p => `
+      <div class="card post-card">
+        <p class="post-date">${escapeHtml(formatDate(p.date))}</p>
+        <h3>${escapeHtml(p.title)}</h3>
+        <p class="post-body">${escapeHtml(p.body)}</p>
+      </div>
+    `).join('');
+  } catch (err) {
+    slot.innerHTML = '<div class="alert alert-error">Could not load the newsletter. Please try again in a moment.</div>';
+  }
+}
+
+loadPosts();
+</script>
+</body>
+</html>

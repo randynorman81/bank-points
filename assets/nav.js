@@ -83,6 +83,42 @@ const TOOLS = [
   { id: "calendar", name: "Calendar", url: "https://norman-calendar.netlify.app/", description: "Per-class calendars, synced across sections that meet on the same day." }
 ];
 
+// Site search: a client-side index of everything a search box on this site
+// can find. Static entries (courses, units, docs, tools) are built once from
+// COURSES/TOOLS above; newsletter posts are fetched once and merged in when
+// available, so the box still works instantly even before that fetch lands.
+function buildStaticSearchIndex() {
+  const entries = [
+    { title: "Home", url: NAV_ROOT + "index.html", category: "Site" },
+    { title: "Newsletter", url: NAV_ROOT + "newsletter.html", category: "Site" }
+  ];
+  COURSES.forEach((course) => {
+    entries.push({ title: course.name + " — course home", url: NAV_ROOT + course.home, category: course.shortName });
+    entries.push({ title: course.name + " — class docs / syllabus", url: NAV_ROOT + course.classDocs, category: course.shortName });
+    course.units.forEach((u) => {
+      const url = u.migrated ? NAV_ROOT + u.path : u.googleSite;
+      entries.push({ title: "Unit " + u.n + ": " + u.title, url, category: course.shortName });
+    });
+  });
+  TOOLS.forEach((t) => {
+    if (t.url) entries.push({ title: t.name, url: t.url, category: "Tool" });
+  });
+  return entries;
+}
+
+let SEARCH_INDEX = buildStaticSearchIndex();
+
+(function loadNewsletterIntoSearchIndex() {
+  fetch(NAV_ROOT + "api/newsletter?action=list")
+    .then((r) => r.json())
+    .then((data) => {
+      (data.posts || []).forEach((p) => {
+        SEARCH_INDEX.push({ title: p.title, url: NAV_ROOT + "newsletter.html", category: "Newsletter" });
+      });
+    })
+    .catch(() => {});
+})();
+
 function escapeHtmlNav(str) {
   const div = document.createElement("div");
   div.textContent = str == null ? "" : String(str);
@@ -167,10 +203,19 @@ function renderHeader(opts) {
           </div>
           ${courseItems}
           ${toolsDropdown}
+          <div class="nav-item${opts.current === "newsletter" ? " current" : ""}">
+            <a class="nav-link" href="${NAV_ROOT}newsletter.html">Newsletter</a>
+          </div>
         </nav>
+        <div class="search-box">
+          <input type="search" id="site-search-input" placeholder="Search the site&hellip;" autocomplete="off">
+          <div class="search-results" id="site-search-results"></div>
+        </div>
       </div>
     </header>
   `;
+
+  setupSiteSearch(root);
 
   root.querySelectorAll(".nav-item[data-course]").forEach(item => {
     const btn = item.querySelector("button.nav-link");
@@ -187,6 +232,53 @@ function renderHeader(opts) {
 
   document.addEventListener("click", () => {
     root.querySelectorAll(".nav-item.open").forEach(o => { o.classList.remove("open"); o.querySelector("button.nav-link")?.setAttribute("aria-expanded", "false"); });
+  });
+}
+
+// Wires the header's search box to SEARCH_INDEX: filters as you type (by
+// title, case-insensitive substring match), shows up to 8 results grouped
+// with their category, and jumps to the top result on Enter.
+function setupSiteSearch(root) {
+  const input = root.querySelector("#site-search-input");
+  const results = root.querySelector("#site-search-results");
+  if (!input || !results) return;
+
+  function render(matches) {
+    if (matches.length === 0) {
+      results.innerHTML = '<div class="r-empty">No matches.</div>';
+      return;
+    }
+    results.innerHTML = matches.slice(0, 8).map(m => `
+      <a href="${m.url}"${/^https?:\/\//.test(m.url) && m.url.indexOf(location.origin) !== 0 ? ' target="_blank" rel="noopener"' : ""}>
+        <span class="r-title">${escapeHtmlNav(m.title)}</span><span class="r-cat">${escapeHtmlNav(m.category)}</span>
+      </a>
+    `).join("");
+  }
+
+  input.addEventListener("input", () => {
+    const q = input.value.trim().toLowerCase();
+    if (!q) { results.classList.remove("open"); return; }
+    const matches = SEARCH_INDEX.filter(e => e.title.toLowerCase().includes(q));
+    render(matches);
+    results.classList.add("open");
+  });
+
+  input.addEventListener("focus", () => {
+    if (input.value.trim()) results.classList.add("open");
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const first = results.querySelector("a");
+      if (first) { location.href = first.getAttribute("href"); }
+    } else if (e.key === "Escape") {
+      results.classList.remove("open");
+      input.blur();
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".search-box")) results.classList.remove("open");
   });
 }
 

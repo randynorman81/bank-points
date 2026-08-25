@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Newsletter — Teacher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<main>
+  <h2 style="margin-top:0;">Newsletter — Teacher</h2>
+  <p class="hint" style="margin-top:-8px; margin-bottom:16px;">Post updates that show up on the public Newsletter page for parents.</p>
+
+  <div id="pin-gate" class="pin-gate">
+    <div class="card">
+      <h2 style="margin-top:0;">Enter Admin PIN</h2>
+      <div id="pin-alert"></div>
+      <form class="stack" id="pin-form">
+        <div class="field">
+          <label for="pin-input">PIN</label>
+          <input type="password" id="pin-input" inputmode="numeric" autocomplete="off" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Unlock</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="dashboard" style="display:none;">
+
+    <div class="card">
+      <h2 style="margin-top:0; display:flex; align-items:center; justify-content:space-between;">
+        Compose
+        <span id="editing-badge"></span>
+      </h2>
+      <div id="form-alert"></div>
+      <form class="stack" id="post-form">
+        <input type="hidden" id="post-id">
+        <div class="field">
+          <label for="post-title">Title</label>
+          <input type="text" id="post-title" required>
+        </div>
+        <div class="field">
+          <label for="post-date">Date</label>
+          <input type="date" id="post-date" required>
+        </div>
+        <div class="field">
+          <label for="post-body">Message</label>
+          <textarea id="post-body" rows="8" required></textarea>
+        </div>
+        <div class="row-actions">
+          <button type="submit" class="btn btn-primary" id="post-submit-btn">Publish</button>
+          <button type="button" class="btn btn-ghost" id="post-cancel-btn" style="display:none;">Cancel Edit</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0; display:flex; align-items:center; justify-content:space-between;">
+        Posts
+        <button class="btn btn-ghost btn-sm" onclick="loadPosts()">Refresh</button>
+      </h2>
+      <div id="posts-slot" class="loading">Loading&hellip;</div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science
+</footer>
+
+<script src="assets/api.js"></script>
+<script src="assets/nav.js"></script>
+<script>
+renderHeader();
+
+const PIN_KEY = 'newsletterPin';
+let posts = [];
+let editingId = null;
+
+const pinGate = document.getElementById('pin-gate');
+const dashboard = document.getElementById('dashboard');
+const pinForm = document.getElementById('pin-form');
+const pinAlert = document.getElementById('pin-alert');
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+function getPin() {
+  return sessionStorage.getItem(PIN_KEY) || '';
+}
+
+function setAlert(el, type, message) {
+  el.innerHTML = message ? `<div class="alert alert-${type}">${message}</div>` : '';
+}
+
+pinForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const pin = document.getElementById('pin-input').value.trim();
+  setAlert(pinAlert, 'info', 'Checking&hellip;');
+  try {
+    const res = await apiPost({ action: 'verifyPin', pin: pin });
+    if (res.ok) {
+      sessionStorage.setItem(PIN_KEY, pin);
+      pinAlert.innerHTML = '';
+      unlock();
+    } else {
+      setAlert(pinAlert, 'error', res.error || 'Incorrect PIN.');
+    }
+  } catch (err) {
+    setAlert(pinAlert, 'error', 'Could not reach the server. This page needs to be running on Netlify (with functions deployed) to work.');
+  }
+});
+
+function unlock() {
+  pinGate.style.display = 'none';
+  dashboard.style.display = 'block';
+  document.getElementById('post-date').value = new Date().toISOString().slice(0, 10);
+  loadPosts();
+}
+
+async function authedPost(payload) {
+  const res = await apiPost(Object.assign({}, payload, { pin: getPin() }));
+  if (res.error === 'Invalid PIN') {
+    sessionStorage.removeItem(PIN_KEY);
+    dashboard.style.display = 'none';
+    pinGate.style.display = 'block';
+    setAlert(pinAlert, 'error', 'Your session expired. Please re-enter the PIN.');
+  }
+  return res;
+}
+
+async function loadPosts() {
+  const slot = document.getElementById('posts-slot');
+  const res = await authedPost({ action: 'list' });
+  if (res.error) {
+    slot.innerHTML = `<div class="alert alert-error">${escapeHtml(res.error)}</div>`;
+    return;
+  }
+  posts = res.posts || [];
+  renderPosts();
+}
+
+function renderPosts() {
+  const slot = document.getElementById('posts-slot');
+  if (posts.length === 0) {
+    slot.innerHTML = '<p class="hint">No posts yet.</p>';
+    return;
+  }
+  slot.innerHTML = posts.map(p => `
+    <div class="post-list-item">
+      <div>
+        <span class="title">${escapeHtml(p.title)}</span>
+        <span class="sub">${escapeHtml(p.date)}</span>
+      </div>
+      <div class="row-actions">
+        <button class="btn btn-ghost btn-sm" onclick="editPost('${p.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="removePost('${p.id}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function editPost(id) {
+  const p = posts.find(x => x.id === id);
+  if (!p) return;
+  editingId = id;
+  document.getElementById('post-id').value = p.id;
+  document.getElementById('post-title').value = p.title;
+  document.getElementById('post-date').value = p.date;
+  document.getElementById('post-body').value = p.body;
+  document.getElementById('post-submit-btn').textContent = 'Save Changes';
+  document.getElementById('post-cancel-btn').style.display = 'inline-block';
+  document.getElementById('editing-badge').innerHTML = '<span class="badge">editing</span>';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetForm() {
+  editingId = null;
+  document.getElementById('post-form').reset();
+  document.getElementById('post-date').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('post-submit-btn').textContent = 'Publish';
+  document.getElementById('post-cancel-btn').style.display = 'none';
+  document.getElementById('editing-badge').innerHTML = '';
+}
+
+document.getElementById('post-cancel-btn').addEventListener('click', resetForm);
+
+document.getElementById('post-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const alertEl = document.getElementById('form-alert');
+  const title = document.getElementById('post-title').value.trim();
+  const date = document.getElementById('post-date').value;
+  const body = document.getElementById('post-body').value.trim();
+
+  const payload = editingId
+    ? { action: 'editPost', id: editingId, title, date, body }
+    : { action: 'createPost', title, date, body };
+
+  const res = await authedPost(payload);
+  if (res.error) {
+    setAlert(alertEl, 'error', res.error);
+    return;
+  }
+  setAlert(alertEl, 'success', editingId ? 'Post updated.' : 'Post published.');
+  resetForm();
+  loadPosts();
+});
+
+async function removePost(id) {
+  const p = posts.find(x => x.id === id);
+  if (!p) return;
+  if (!confirm(`Delete "${p.title}"?`)) return;
+  const res = await authedPost({ action: 'deletePost', id });
+  if (res.error) { alert(res.error); return; }
+  posts = posts.filter(x => x.id !== id);
+  renderPosts();
+  if (editingId === id) resetForm();
+}
+
+if (getPin()) {
+  unlock();
+}
+</script>
+</body>
+</html>

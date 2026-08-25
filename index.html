@@ -56,16 +56,49 @@
   <h2 style="margin-bottom:4px;">Class Tools</h2>
   <p class="hint" style="margin-top:0;">Separate tools used throughout the year.</p>
   <div class="tool-grid" id="tools-grid-root"></div>
+
+  <h2 style="margin-bottom:4px;">For Parents</h2>
+  <p class="hint" style="margin-top:0;">Class updates, posted here as they happen.</p>
+  <div id="newsletter-teaser"></div>
 </main>
 
 <footer class="site-footer">
   Social Circle High School &middot; Computer Science
 </footer>
 
+<script src="assets/api.js"></script>
 <script src="assets/nav.js"></script>
 <script>
 renderHeader({ current: "home" });
 renderToolsGrid();
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+async function renderNewsletterTeaser() {
+  const slot = document.getElementById('newsletter-teaser');
+  try {
+    const res = await apiGet('list');
+    const posts = res.posts || [];
+    if (posts.length === 0) {
+      slot.innerHTML = '<div class="card"><p class="hint" style="margin:0;">No updates posted yet.</p></div>';
+      return;
+    }
+    const latest = posts[0];
+    slot.innerHTML = `
+      <a class="tool-card" href="newsletter.html">
+        <h3>${escapeHtml(latest.title)}</h3>
+        <p>${escapeHtml(latest.body.slice(0, 140) + (latest.body.length > 140 ? '…' : ''))}</p>
+      </a>
+    `;
+  } catch (err) {
+    slot.innerHTML = '';
+  }
+}
+renderNewsletterTeaser();
 </script>
 </body>
 </html>
