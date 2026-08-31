@@ -89,6 +89,9 @@ function buildStaticSearchIndex() {
     { title: "Home", url: NAV_ROOT + "index.html", category: "Site" }
   ];
   COURSES.forEach((course) => {
+    entries.push({ title: course.name + " announcements", url: NAV_ROOT + "announcements.html?course=" + course.id, category: course.shortName });
+  });
+  COURSES.forEach((course) => {
     entries.push({ title: course.name + " — course home", url: NAV_ROOT + course.home, category: course.shortName });
     entries.push({ title: course.name + " — class docs / syllabus", url: NAV_ROOT + course.classDocs, category: course.shortName });
     course.units.forEach((u) => {
@@ -144,6 +147,22 @@ function courseDropdownMarkup(course) {
   `;
 }
 
+function announcementsDropdownMarkup() {
+  const courseLinks = COURSES.map(c =>
+    `<a href="${NAV_ROOT}announcements.html?course=${c.id}">${escapeHtmlNav(c.name)}</a>`
+  ).join("");
+
+  return `
+    <div class="nav-item" data-course="announcements">
+      <button type="button" class="nav-link" aria-haspopup="true" aria-expanded="false">Announcements &#9662;</button>
+      <div class="dropdown-panel">
+        <div class="dropdown-heading">Choose a class</div>
+        ${courseLinks}
+      </div>
+    </div>
+  `;
+}
+
 function toolsDropdownMarkup() {
   const toolLinks = TOOLS.map(t => {
     if (t.url) {
@@ -171,6 +190,7 @@ function renderHeader(opts) {
 
   const courseItems = COURSES.map(courseDropdownMarkup).join("");
   const toolsDropdown = toolsDropdownMarkup();
+  const announcementsDropdown = announcementsDropdownMarkup();
 
   root.innerHTML = `
     <header class="site-header">
@@ -188,6 +208,7 @@ function renderHeader(opts) {
           </div>
           ${courseItems}
           ${toolsDropdown}
+          ${announcementsDropdown}
         </nav>
         <div class="search-box">
           <input type="search" id="site-search-input" placeholder="Search the site&hellip;" autocomplete="off">

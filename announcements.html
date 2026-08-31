@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Announcements | SCHS Computer Science</title>
+<meta name="description" content="Dates and announcements for Intro to Software Technology, AP Computer Science Principles, and Embedded Computing at Social Circle High School.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<main>
+  <div id="announcements-slot" class="loading">Loading&hellip;</div>
+</main>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science
+</footer>
+
+<script src="assets/nav.js"></script>
+<script>
+renderHeader();
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+function formatDate(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function coursePickerHtml() {
+  return `
+    <h2 style="margin-top:0;">Announcements</h2>
+    <p class="hint" style="margin-top:-8px; margin-bottom:20px;">Choose a class to see its dates and announcements.</p>
+    <div class="course-grid">
+      ${COURSES.map(c => `
+        <a class="course-card" href="announcements.html?course=${encodeURIComponent(c.id)}">
+          <div class="body">
+            <p class="eyebrow">Announcements</p>
+            <h3>${escapeHtml(c.name)}</h3>
+            <div class="go">See announcements &rarr;</div>
+          </div>
+        </a>
+      `).join('')}
+    </div>
+  `;
+}
+
+async function renderAnnouncements() {
+  const slot = document.getElementById('announcements-slot');
+  const params = new URLSearchParams(location.search);
+  const course = params.get('course') || '';
+
+  if (!course) {
+    slot.innerHTML = coursePickerHtml();
+    return;
+  }
+
+  const courseInfo = COURSES.find(c => c.id === course);
+  if (!courseInfo) {
+    slot.innerHTML = coursePickerHtml();
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/announcements?action=list&course=' + encodeURIComponent(course));
+    const data = await res.json();
+    const items = data.announcements || [];
+
+    const backLink = `<a class="breadcrumb" href="announcements.html">&larr; Choose a different class</a>`;
+
+    if (items.length === 0) {
+      slot.innerHTML = `${backLink}<h2>${escapeHtml(courseInfo.name)} Announcements</h2><p class="hint">Nothing posted yet — check back soon.</p>`;
+      return;
+    }
+
+    slot.innerHTML = `
+      ${backLink}
+      <h2 style="margin-bottom:20px;">${escapeHtml(courseInfo.name)} Announcements</h2>
+      ${items.map(a => `
+        <div class="card announcement-card">
+          <p class="announcement-date">${escapeHtml(formatDate(a.date))}</p>
+          <p class="announcement-text">${escapeHtml(a.text)}</p>
+        </div>
+      `).join('')}
+    `;
+  } catch (err) {
+    slot.innerHTML = '<div class="alert alert-error">Could not load announcements. Please try again in a moment.</div>';
+  }
+}
+
+renderAnnouncements();
+</script>
+</body>
+</html>

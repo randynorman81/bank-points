@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Announcements — Teacher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<main>
+  <h2 style="margin-top:0;">Announcements — Teacher</h2>
+  <p class="hint" style="margin-top:-8px; margin-bottom:16px;">Post dates and announcements that show up on each class's public Announcements page.</p>
+
+  <div id="pin-gate" class="pin-gate">
+    <div class="card">
+      <h2 style="margin-top:0;">Enter Admin PIN</h2>
+      <div id="pin-alert"></div>
+      <form class="stack" id="pin-form">
+        <div class="field">
+          <label for="pin-input">PIN</label>
+          <input type="password" id="pin-input" inputmode="numeric" autocomplete="off" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Unlock</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="dashboard" style="display:none;">
+
+    <div class="card">
+      <h2 style="margin-top:0; display:flex; align-items:center; justify-content:space-between;">
+        Add Announcement
+        <span id="editing-badge"></span>
+      </h2>
+      <div id="form-alert"></div>
+      <form class="stack" id="announcement-form">
+        <input type="hidden" id="a-id">
+        <div class="field-row">
+          <div class="field">
+            <label for="a-course">Class</label>
+            <select id="a-course" required></select>
+          </div>
+          <div class="field">
+            <label for="a-date">Date</label>
+            <input type="date" id="a-date" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="a-text">Announcement</label>
+          <textarea id="a-text" rows="4" required placeholder="e.g. Unit 1 Test this Friday. Study guide posted on the class docs page."></textarea>
+        </div>
+        <div class="row-actions">
+          <button type="submit" class="btn btn-primary" id="a-submit-btn">Post</button>
+          <button type="button" class="btn btn-ghost" id="a-cancel-btn" style="display:none;">Cancel Edit</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0; display:flex; align-items:center; justify-content:space-between;">
+        Posted Announcements
+        <button class="btn btn-ghost btn-sm" onclick="loadAnnouncements()">Refresh</button>
+      </h2>
+      <div class="field" style="max-width:260px;">
+        <label for="a-filter">Show</label>
+        <select id="a-filter"></select>
+      </div>
+      <div id="announcements-slot" class="loading">Loading&hellip;</div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science
+</footer>
+
+<script src="assets/nav.js"></script>
+<script>
+renderHeader();
+
+const PIN_KEY = 'announcementsPin';
+let announcements = [];
+let editingId = null;
+
+const pinGate = document.getElementById('pin-gate');
+const dashboard = document.getElementById('dashboard');
+const pinForm = document.getElementById('pin-form');
+const pinAlert = document.getElementById('pin-alert');
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+function getPin() { return sessionStorage.getItem(PIN_KEY) || ''; }
+
+function setAlert(el, type, message) {
+  el.innerHTML = message ? `<div class="alert alert-${type}">${message}</div>` : '';
+}
+
+// This page talks to its own endpoint (/api/announcements) directly.
+async function rawPost(payload) {
+  const res = await fetch('/api/announcements', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error('Network error');
+  return res.json();
+}
+
+pinForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const pin = document.getElementById('pin-input').value.trim();
+  setAlert(pinAlert, 'info', 'Checking&hellip;');
+  try {
+    const res = await rawPost({ action: 'verifyPin', pin: pin });
+    if (res.ok) {
+      sessionStorage.setItem(PIN_KEY, pin);
+      pinAlert.innerHTML = '';
+      unlock();
+    } else {
+      setAlert(pinAlert, 'error', res.error || 'Incorrect PIN.');
+    }
+  } catch (err) {
+    setAlert(pinAlert, 'error', 'Could not reach the server. This page needs to be running on Netlify (with functions deployed) to work.');
+  }
+});
+
+async function authedPost(payload) {
+  const res = await rawPost(Object.assign({}, payload, { pin: getPin() }));
+  if (res.error === 'Invalid PIN') {
+    sessionStorage.removeItem(PIN_KEY);
+    dashboard.style.display = 'none';
+    pinGate.style.display = 'block';
+    setAlert(pinAlert, 'error', 'Your session expired. Please re-enter the PIN.');
+  }
+  return res;
+}
+
+function courseLabel(id) {
+  const c = COURSES.find(x => x.id === id);
+  return c ? c.shortName : id;
+}
+
+function unlock() {
+  pinGate.style.display = 'none';
+  dashboard.style.display = 'block';
+  document.getElementById('a-date').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('a-course').innerHTML =
+    '<option value="" disabled selected>Choose a class&hellip;</option>' +
+    COURSES.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.shortName)}</option>`).join('');
+  document.getElementById('a-filter').innerHTML =
+    '<option value="">All Classes</option>' +
+    COURSES.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.shortName)}</option>`).join('');
+  document.getElementById('a-filter').addEventListener('change', renderAnnouncements);
+  loadAnnouncements();
+}
+
+async function loadAnnouncements() {
+  const slot = document.getElementById('announcements-slot');
+  const res = await authedPost({ action: 'list' });
+  if (res.error) {
+    slot.innerHTML = `<div class="alert alert-error">${escapeHtml(res.error)}</div>`;
+    return;
+  }
+  announcements = res.announcements || [];
+  renderAnnouncements();
+}
+
+function formatDate(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function renderAnnouncements() {
+  const slot = document.getElementById('announcements-slot');
+  const filter = document.getElementById('a-filter').value;
+  const shown = filter ? announcements.filter(a => a.course === filter) : announcements;
+  if (shown.length === 0) {
+    slot.innerHTML = '<p class="hint">No announcements yet.</p>';
+    return;
+  }
+  slot.innerHTML = shown.map(a => `
+    <div class="announcement-list-item">
+      <div class="a-date">${escapeHtml(formatDate(a.date))} &middot; ${escapeHtml(courseLabel(a.course))}</div>
+      <div class="a-text">${escapeHtml(a.text)}</div>
+      <div class="row-actions">
+        <button class="btn btn-ghost btn-sm" onclick="editAnnouncement('${a.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="removeAnnouncement('${a.id}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function editAnnouncement(id) {
+  const a = announcements.find(x => x.id === id);
+  if (!a) return;
+  editingId = id;
+  document.getElementById('a-id').value = a.id;
+  document.getElementById('a-course').value = a.course;
+  document.getElementById('a-date').value = a.date;
+  document.getElementById('a-text').value = a.text;
+  document.getElementById('a-submit-btn').textContent = 'Save Changes';
+  document.getElementById('a-cancel-btn').style.display = 'inline-block';
+  document.getElementById('editing-badge').innerHTML = '<span class="badge">editing</span>';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetForm() {
+  editingId = null;
+  document.getElementById('announcement-form').reset();
+  document.getElementById('a-date').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('a-submit-btn').textContent = 'Post';
+  document.getElementById('a-cancel-btn').style.display = 'none';
+  document.getElementById('editing-badge').innerHTML = '';
+}
+
+document.getElementById('a-cancel-btn').addEventListener('click', resetForm);
+
+document.getElementById('announcement-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const alertEl = document.getElementById('form-alert');
+  const course = document.getElementById('a-course').value;
+  const date = document.getElementById('a-date').value;
+  const text = document.getElementById('a-text').value.trim();
+
+  if (!course) { setAlert(alertEl, 'error', 'Choose which class this is for.'); return; }
+  if (!text) { setAlert(alertEl, 'error', 'Announcement text is required.'); return; }
+
+  const payload = editingId
+    ? { action: 'editAnnouncement', id: editingId, date, text }
+    : { action: 'addAnnouncement', course, date, text };
+
+  const res = await authedPost(payload);
+  if (res.error) {
+    setAlert(alertEl, 'error', res.error);
+    return;
+  }
+  setAlert(alertEl, 'success', editingId ? 'Announcement updated.' : 'Posted.');
+  resetForm();
+  loadAnnouncements();
+});
+
+async function removeAnnouncement(id) {
+  if (!confirm('Delete this announcement?')) return;
+  const res = await authedPost({ action: 'deleteAnnouncement', id });
+  if (res.error) { alert(res.error); return; }
+  announcements = announcements.filter(a => a.id !== id);
+  renderAnnouncements();
+  if (editingId === id) resetForm();
+}
+
+if (getPin()) {
+  unlock();
+}
+</script>
+</body>
+</html>
