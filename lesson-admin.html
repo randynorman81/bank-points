@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Current Lesson — Teacher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<main>
+  <h2 style="margin-top:0;">Current Lesson — Teacher</h2>
+  <p class="hint" style="margin-top:-8px; margin-bottom:16px;">Shows as a banner at the top of the homepage &mdash; "what lesson are we on" for each class. Leave a class blank to hide it from the banner.</p>
+
+  <div id="pin-gate" class="pin-gate">
+    <div class="card">
+      <h2 style="margin-top:0;">Enter Admin PIN</h2>
+      <div id="pin-alert"></div>
+      <form class="stack" id="pin-form">
+        <div class="field">
+          <label for="pin-input">PIN</label>
+          <input type="password" id="pin-input" inputmode="numeric" autocomplete="off" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Unlock</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="dashboard" style="display:none;">
+    <div id="course-cards"></div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science
+</footer>
+
+<script src="assets/nav.js"></script>
+<script>
+renderHeader();
+
+const PIN_KEY = 'announcementsPin';
+
+const pinGate = document.getElementById('pin-gate');
+const dashboard = document.getElementById('dashboard');
+const pinForm = document.getElementById('pin-form');
+const pinAlert = document.getElementById('pin-alert');
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+function getPin() { return sessionStorage.getItem(PIN_KEY) || ''; }
+
+function setAlert(el, type, message) {
+  el.innerHTML = message ? `<div class="alert alert-${type}">${message}</div>` : '';
+}
+
+// Talks to the announcements endpoint directly -- the current-lesson data
+// lives in the same backend/store as announcements, just under its own key.
+async function rawPost(payload) {
+  const res = await fetch('/api/announcements', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error('Network error');
+  return res.json();
+}
+
+pinForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const pin = document.getElementById('pin-input').value.trim();
+  setAlert(pinAlert, 'info', 'Checking&hellip;');
+  try {
+    const res = await rawPost({ action: 'verifyPin', pin: pin });
+    if (res.ok) {
+      sessionStorage.setItem(PIN_KEY, pin);
+      pinAlert.innerHTML = '';
+      unlock();
+    } else {
+      setAlert(pinAlert, 'error', res.error || 'Incorrect PIN.');
+    }
+  } catch (err) {
+    setAlert(pinAlert, 'error', 'Could not reach the server. This page needs to be running on Netlify (with functions deployed) to work.');
+  }
+});
+
+async function authedPost(payload) {
+  const res = await rawPost(Object.assign({}, payload, { pin: getPin() }));
+  if (res.error === 'Invalid PIN') {
+    sessionStorage.removeItem(PIN_KEY);
+    dashboard.style.display = 'none';
+    pinGate.style.display = 'block';
+    setAlert(pinAlert, 'error', 'Your session expired. Please re-enter the PIN.');
+  }
+  return res;
+}
+
+function unlock() {
+  pinGate.style.display = 'none';
+  dashboard.style.display = 'block';
+  buildCourseCards();
+}
+
+// One card per class, each with its own single field and its own Save.
+function buildCourseCards() {
+  const root = document.getElementById('course-cards');
+  root.innerHTML = COURSES.map(c => `
+    <div class="card">
+      <h2 style="margin-top:0;">${escapeHtml(c.name)}</h2>
+      <div id="lesson-alert-${c.id}"></div>
+      <form class="stack" id="lesson-form-${c.id}">
+        <div class="field">
+          <label for="lesson-${c.id}">Lesson number &amp; title</label>
+          <input type="text" id="lesson-${c.id}" placeholder="e.g. Unit 1.4 &mdash; Copyright and Ethics">
+        </div>
+        <button type="submit" class="btn btn-primary" style="align-self:flex-start;">Save</button>
+      </form>
+    </div>
+  `).join('');
+
+  COURSES.forEach(c => {
+    document.getElementById('lesson-form-' + c.id).addEventListener('submit', (e) => saveLesson(e, c.id));
+  });
+
+  loadLessons();
+}
+
+async function loadLessons() {
+  const res = await authedPost({ action: 'currentLessons' });
+  if (res.error) {
+    COURSES.forEach(c => setAlert(document.getElementById('lesson-alert-' + c.id), 'error', res.error));
+    return;
+  }
+  const lessons = res.lessons || {};
+  COURSES.forEach(c => {
+    document.getElementById('lesson-' + c.id).value = lessons[c.id] || '';
+  });
+}
+
+async function saveLesson(e, courseId) {
+  e.preventDefault();
+  const alertEl = document.getElementById('lesson-alert-' + courseId);
+  const value = document.getElementById('lesson-' + courseId).value.trim();
+
+  setAlert(alertEl, 'info', 'Saving&hellip;');
+  // Read-modify-write against the current full set so saving one class's
+  // card doesn't wipe out what's saved for the other two.
+  const current = await authedPost({ action: 'currentLessons' });
+  if (current.error) { setAlert(alertEl, 'error', current.error); return; }
+  const lessons = Object.assign({}, current.lessons || {}, { [courseId]: value });
+
+  const res = await authedPost({ action: 'saveCurrentLessons', lessons });
+  if (res.error) {
+    setAlert(alertEl, 'error', res.error);
+  } else {
+    setAlert(alertEl, 'success', 'Saved.');
+  }
+}
+
+if (getPin()) {
+  unlock();
+}
+</script>
+</body>
+</html>
