@@ -50,10 +50,7 @@
           <label for="post-date">Date</label>
           <input type="date" id="post-date" required>
         </div>
-        <div class="field">
-          <label for="post-body">Message</label>
-          <textarea id="post-body" rows="8" required></textarea>
-        </div>
+        <div id="template-fields" style="display:flex; flex-direction:column; gap:14px;"></div>
         <div class="row-actions">
           <button type="submit" class="btn btn-primary" id="post-submit-btn">Publish</button>
           <button type="button" class="btn btn-ghost" id="post-cancel-btn" style="display:none;">Cancel Edit</button>
@@ -145,6 +142,79 @@ function getPin() {
   return sessionStorage.getItem(PIN_KEY) || '';
 }
 
+// ---- weekly template ----
+//
+// The Message box is really 8 labeled fields. On submit they're assembled
+// into one plain-text body (heading line, then the answer, blank line
+// between sections; empty sections are dropped entirely). On edit, the
+// stored body is parsed back into the same 8 fields by looking for these
+// exact heading lines -- a post from before this feature existed (or any
+// body that doesn't match) just lands whole in "Announcements" so nothing
+// is lost.
+const TEMPLATE_SECTIONS = [
+  { key: 'weekOf', heading: 'WEEK OF', label: 'Week Of', type: 'text', placeholder: 'e.g. August 25–29' },
+  { key: 'announcements', heading: 'ANNOUNCEMENTS', label: 'Announcements', type: 'textarea' },
+  { key: 'standards', heading: 'STANDARDS BEING ADDRESSED', label: 'Standards Being Addressed', type: 'textarea' },
+  { key: 'links', heading: 'IMPORTANT LINKS', label: 'Any Important Links', type: 'textarea' },
+  { key: 'assignments', heading: 'ASSIGNMENTS DUE THIS FRIDAY BY 11:59PM', label: 'Assignments Due This Friday by 11:59pm', type: 'textarea' },
+  { key: 'quizzes', heading: 'QUIZZES COMING UP', label: 'Any Quizzes Coming Up?', type: 'textarea' },
+  { key: 'unitTest', heading: 'UNIT TEST', label: 'When Is Unit Test?', type: 'textarea' },
+  { key: 'news', heading: 'WORLDWIDE NEWS CONNECTED TO OUR CONTENT', label: 'Any Worldwide News Connected to Our Current Content', type: 'textarea' }
+];
+
+function renderTemplateFields() {
+  const container = document.getElementById('template-fields');
+  container.innerHTML = TEMPLATE_SECTIONS.map(s => `
+    <div class="field">
+      <label for="section-${s.key}">${escapeHtml(s.label)}</label>
+      ${s.type === 'text'
+        ? `<input type="text" id="section-${s.key}" placeholder="${escapeHtml(s.placeholder || '')}">`
+        : `<textarea id="section-${s.key}" rows="3" placeholder="${escapeHtml(s.placeholder || '')}"></textarea>`}
+    </div>
+  `).join('');
+}
+
+function assembleBody() {
+  const parts = [];
+  TEMPLATE_SECTIONS.forEach(s => {
+    const val = document.getElementById('section-' + s.key).value.trim();
+    if (val) parts.push(s.heading + '\n' + val);
+  });
+  return parts.join('\n\n');
+}
+
+function fillTemplateFields(values) {
+  TEMPLATE_SECTIONS.forEach(s => {
+    document.getElementById('section-' + s.key).value = values[s.key] || '';
+  });
+}
+
+function clearTemplateFields() {
+  TEMPLATE_SECTIONS.forEach(s => {
+    document.getElementById('section-' + s.key).value = '';
+  });
+}
+
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+function parseBody(body) {
+  const values = {};
+  let matchedAny = false;
+  const headingPattern = TEMPLATE_SECTIONS.map(s => escapeRegex(s.heading)).join('|');
+  TEMPLATE_SECTIONS.forEach(s => {
+    const re = new RegExp(escapeRegex(s.heading) + '\\n([\\s\\S]*?)(?=\\n(?:' + headingPattern + ')\\n|$)');
+    const m = body.match(re);
+    if (m) {
+      matchedAny = true;
+      values[s.key] = m[1].trim();
+    } else {
+      values[s.key] = '';
+    }
+  });
+  if (!matchedAny) values.announcements = body.trim();
+  return values;
+}
+
 function setAlert(el, type, message) {
   el.innerHTML = message ? `<div class="alert alert-${type}">${message}</div>` : '';
 }
@@ -166,6 +236,8 @@ pinForm.addEventListener('submit', async (e) => {
     setAlert(pinAlert, 'error', 'Could not reach the server. This page needs to be running on Netlify (with functions deployed) to work.');
   }
 });
+
+renderTemplateFields();
 
 function unlock() {
   pinGate.style.display = 'none';
@@ -236,7 +308,7 @@ function editPost(id) {
   document.getElementById('post-id').value = p.id;
   document.getElementById('post-title').value = p.title;
   document.getElementById('post-date').value = p.date;
-  document.getElementById('post-body').value = p.body;
+  fillTemplateFields(parseBody(p.body));
   document.getElementById('post-submit-btn').textContent = 'Save Changes';
   document.getElementById('post-cancel-btn').style.display = 'inline-block';
   document.getElementById('editing-badge').innerHTML = '<span class="badge">editing</span>';
@@ -259,7 +331,11 @@ document.getElementById('post-form').addEventListener('submit', async (e) => {
   const alertEl = document.getElementById('form-alert');
   const title = document.getElementById('post-title').value.trim();
   const date = document.getElementById('post-date').value;
-  const body = document.getElementById('post-body').value.trim();
+  const body = assembleBody();
+  if (!body) {
+    setAlert(alertEl, 'error', 'Fill in at least one section before publishing.');
+    return;
+  }
 
   const payload = editingId
     ? { action: 'editPost', id: editingId, title, date, body }

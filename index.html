@@ -78,6 +78,16 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+// The Admin compose form assembles a post's body as labeled sections (e.g.
+// "ANNOUNCEMENTS\n..."). For this short teaser, pull just the Announcements
+// text if it's there; otherwise fall back to the raw body (an older,
+// free-text post).
+function teaserExcerpt(body) {
+  const m = body.match(/ANNOUNCEMENTS\n([\s\S]*?)(?=\n[A-Z0-9 ':]+\n|$)/);
+  const text = (m ? m[1] : body).trim();
+  return text.slice(0, 140) + (text.length > 140 ? '…' : '');
+}
+
 async function renderNewsletterTeaser() {
   const slot = document.getElementById('newsletter-teaser');
   try {
@@ -91,7 +101,7 @@ async function renderNewsletterTeaser() {
     slot.innerHTML = `
       <a class="tool-card" href="newsletter.html">
         <h3>${escapeHtml(latest.title)}</h3>
-        <p>${escapeHtml(latest.body.slice(0, 140) + (latest.body.length > 140 ? '…' : ''))}</p>
+        <p>${escapeHtml(teaserExcerpt(latest.body))}</p>
       </a>
     `;
   } catch (err) {

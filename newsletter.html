@@ -43,6 +43,36 @@ function formatDate(iso) {
   return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
+// The Admin compose form assembles a post's body as labeled sections (see
+// newsletter-admin.html). This renders those sections as actual headings
+// instead of plain uppercase text. A post from before that feature existed
+// (or any body that doesn't match) just falls back to one plain block.
+const SECTION_HEADINGS = [
+  { heading: 'WEEK OF', label: 'Week Of' },
+  { heading: 'ANNOUNCEMENTS', label: 'Announcements' },
+  { heading: 'STANDARDS BEING ADDRESSED', label: 'Standards Being Addressed' },
+  { heading: 'IMPORTANT LINKS', label: 'Important Links' },
+  { heading: 'ASSIGNMENTS DUE THIS FRIDAY BY 11:59PM', label: 'Assignments Due This Friday by 11:59pm' },
+  { heading: 'QUIZZES COMING UP', label: 'Quizzes Coming Up' },
+  { heading: 'UNIT TEST', label: 'Unit Test' },
+  { heading: 'WORLDWIDE NEWS CONNECTED TO OUR CONTENT', label: 'Worldwide News Connected to Our Content' }
+];
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+function formatBody(body) {
+  const headingPattern = SECTION_HEADINGS.map(s => escapeRegex(s.heading)).join('|');
+  let matchedAny = false;
+  const sectionsHtml = SECTION_HEADINGS.map(s => {
+    const re = new RegExp(escapeRegex(s.heading) + '\\n([\\s\\S]*?)(?=\\n(?:' + headingPattern + ')\\n|$)');
+    const m = body.match(re);
+    const val = m ? m[1].trim() : '';
+    if (!val) return '';
+    matchedAny = true;
+    return `<div class="post-section"><h4>${escapeHtml(s.label)}</h4><p>${escapeHtml(val)}</p></div>`;
+  }).join('');
+  return matchedAny ? sectionsHtml : `<p class="post-body">${escapeHtml(body)}</p>`;
+}
+
 async function loadPosts() {
   const slot = document.getElementById('posts-slot');
   try {
@@ -56,7 +86,7 @@ async function loadPosts() {
       <div class="card post-card">
         <p class="post-date">${escapeHtml(formatDate(p.date))}</p>
         <h3>${escapeHtml(p.title)}</h3>
-        <p class="post-body">${escapeHtml(p.body)}</p>
+        ${formatBody(p.body)}
       </div>
     `).join('');
   } catch (err) {
