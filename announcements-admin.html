@@ -44,46 +44,7 @@
       </form>
     </div>
 
-    <div class="card">
-      <h2 style="margin-top:0; display:flex; align-items:center; justify-content:space-between;">
-        Add Announcement
-        <span id="editing-badge"></span>
-      </h2>
-      <div id="form-alert"></div>
-      <form class="stack" id="announcement-form">
-        <input type="hidden" id="a-id">
-        <div class="field-row">
-          <div class="field">
-            <label for="a-course">Class</label>
-            <select id="a-course" required></select>
-          </div>
-          <div class="field">
-            <label for="a-date">Date</label>
-            <input type="date" id="a-date" required>
-          </div>
-        </div>
-        <div class="field">
-          <label for="a-text">Announcement</label>
-          <textarea id="a-text" rows="4" required placeholder="e.g. Unit 1 Test this Friday. Study guide posted on the class docs page."></textarea>
-        </div>
-        <div class="row-actions">
-          <button type="submit" class="btn btn-primary" id="a-submit-btn">Post</button>
-          <button type="button" class="btn btn-ghost" id="a-cancel-btn" style="display:none;">Cancel Edit</button>
-        </div>
-      </form>
-    </div>
-
-    <div class="card">
-      <h2 style="margin-top:0; display:flex; align-items:center; justify-content:space-between;">
-        Posted Announcements
-        <button class="btn btn-ghost btn-sm" onclick="loadAnnouncements()">Refresh</button>
-      </h2>
-      <div class="field" style="max-width:260px;">
-        <label for="a-filter">Show</label>
-        <select id="a-filter"></select>
-      </div>
-      <div id="announcements-slot" class="loading">Loading&hellip;</div>
-    </div>
+    <div id="course-cards"></div>
 
   </div>
 </main>
@@ -98,7 +59,7 @@ renderHeader();
 
 const PIN_KEY = 'announcementsPin';
 let announcements = [];
-let editingId = null;
+let editingId = {}; // per course: courseId -> announcement id being edited, or null
 
 const pinGate = document.getElementById('pin-gate');
 const dashboard = document.getElementById('dashboard');
@@ -157,24 +118,12 @@ async function authedPost(payload) {
   return res;
 }
 
-function courseLabel(id) {
-  const c = COURSES.find(x => x.id === id);
-  return c ? c.shortName : id;
-}
-
 function unlock() {
   pinGate.style.display = 'none';
   dashboard.style.display = 'block';
-  document.getElementById('a-date').value = new Date().toISOString().slice(0, 10);
-  document.getElementById('a-course').innerHTML =
-    '<option value="" disabled selected>Choose a class&hellip;</option>' +
-    COURSES.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.shortName)}</option>`).join('');
-  document.getElementById('a-filter').innerHTML =
-    '<option value="">All Classes</option>' +
-    COURSES.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.shortName)}</option>`).join('');
-  document.getElementById('a-filter').addEventListener('change', renderAnnouncements);
-  loadAnnouncements();
+  buildCourseCards();
   loadCurrentLessons();
+  loadAnnouncements();
 }
 
 async function loadCurrentLessons() {
@@ -209,15 +158,55 @@ document.getElementById('lesson-form').addEventListener('submit', async (e) => {
   }
 });
 
+// ---- one card per class, each with its own add-form and its own list ----
+
+function buildCourseCards() {
+  const root = document.getElementById('course-cards');
+  root.innerHTML = COURSES.map(c => `
+    <div class="card">
+      <h2 style="margin-top:0; display:flex; align-items:center; justify-content:space-between;">
+        ${escapeHtml(c.name)}
+        <span id="editing-badge-${c.id}"></span>
+      </h2>
+      <div id="form-alert-${c.id}"></div>
+      <form class="stack" id="form-${c.id}">
+        <input type="hidden" id="a-id-${c.id}">
+        <div class="field">
+          <label for="a-date-${c.id}">Date</label>
+          <input type="date" id="a-date-${c.id}" required>
+        </div>
+        <div class="field">
+          <label for="a-text-${c.id}">Announcement</label>
+          <textarea id="a-text-${c.id}" rows="3" required placeholder="e.g. Unit 1 Test this Friday. Study guide posted on the class docs page."></textarea>
+        </div>
+        <div class="row-actions">
+          <button type="submit" class="btn btn-primary" id="a-submit-${c.id}">Post</button>
+          <button type="button" class="btn btn-ghost" id="a-cancel-${c.id}" style="display:none;">Cancel Edit</button>
+        </div>
+      </form>
+      <h3 style="margin:20px 0 8px;">Posted</h3>
+      <div id="a-list-${c.id}" class="loading">Loading&hellip;</div>
+    </div>
+  `).join('');
+
+  COURSES.forEach(c => {
+    editingId[c.id] = null;
+    document.getElementById('a-date-' + c.id).value = new Date().toISOString().slice(0, 10);
+    document.getElementById('a-cancel-' + c.id).addEventListener('click', () => resetForm(c.id));
+    document.getElementById('form-' + c.id).addEventListener('submit', (e) => submitAnnouncement(e, c.id));
+  });
+}
+
 async function loadAnnouncements() {
-  const slot = document.getElementById('announcements-slot');
   const res = await authedPost({ action: 'list' });
   if (res.error) {
-    slot.innerHTML = `<div class="alert alert-error">${escapeHtml(res.error)}</div>`;
+    COURSES.forEach(c => {
+      document.getElementById('a-list-' + c.id).innerHTML = `<div class="alert alert-error">${escapeHtml(res.error)}</div>`;
+    });
     return;
   }
   announcements = res.announcements || [];
-  renderAnnouncements();
+  COURSES.forEach(c => renderCourseList(c.id));
 }
 
 function formatDate(iso) {
@@ -226,82 +215,78 @@ function formatDate(iso) {
   return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-function renderAnnouncements() {
-  const slot = document.getElementById('announcements-slot');
-  const filter = document.getElementById('a-filter').value;
-  const shown = filter ? announcements.filter(a => a.course === filter) : announcements;
+function renderCourseList(courseId) {
+  const slot = document.getElementById('a-list-' + courseId);
+  if (!slot) return;
+  const shown = announcements.filter(a => a.course === courseId);
   if (shown.length === 0) {
     slot.innerHTML = '<p class="hint">No announcements yet.</p>';
     return;
   }
   slot.innerHTML = shown.map(a => `
     <div class="announcement-list-item">
-      <div class="a-date">${escapeHtml(formatDate(a.date))} &middot; ${escapeHtml(courseLabel(a.course))}</div>
+      <div class="a-date">${escapeHtml(formatDate(a.date))}</div>
       <div class="a-text">${escapeHtml(a.text)}</div>
       <div class="row-actions">
-        <button class="btn btn-ghost btn-sm" onclick="editAnnouncement('${a.id}')">Edit</button>
-        <button class="btn btn-danger btn-sm" onclick="removeAnnouncement('${a.id}')">Delete</button>
+        <button class="btn btn-ghost btn-sm" onclick="editAnnouncement('${courseId}','${a.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="removeAnnouncement('${courseId}','${a.id}')">Delete</button>
       </div>
     </div>
   `).join('');
 }
 
-function editAnnouncement(id) {
+function editAnnouncement(courseId, id) {
   const a = announcements.find(x => x.id === id);
   if (!a) return;
-  editingId = id;
-  document.getElementById('a-id').value = a.id;
-  document.getElementById('a-course').value = a.course;
-  document.getElementById('a-date').value = a.date;
-  document.getElementById('a-text').value = a.text;
-  document.getElementById('a-submit-btn').textContent = 'Save Changes';
-  document.getElementById('a-cancel-btn').style.display = 'inline-block';
-  document.getElementById('editing-badge').innerHTML = '<span class="badge">editing</span>';
+  editingId[courseId] = id;
+  document.getElementById('a-id-' + courseId).value = a.id;
+  document.getElementById('a-date-' + courseId).value = a.date;
+  document.getElementById('a-text-' + courseId).value = a.text;
+  document.getElementById('a-submit-' + courseId).textContent = 'Save Changes';
+  document.getElementById('a-cancel-' + courseId).style.display = 'inline-block';
+  document.getElementById('editing-badge-' + courseId).innerHTML = '<span class="badge">editing</span>';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function resetForm() {
-  editingId = null;
-  document.getElementById('announcement-form').reset();
-  document.getElementById('a-date').value = new Date().toISOString().slice(0, 10);
-  document.getElementById('a-submit-btn').textContent = 'Post';
-  document.getElementById('a-cancel-btn').style.display = 'none';
-  document.getElementById('editing-badge').innerHTML = '';
+function resetForm(courseId) {
+  editingId[courseId] = null;
+  document.getElementById('form-' + courseId).reset();
+  document.getElementById('a-date-' + courseId).value = new Date().toISOString().slice(0, 10);
+  document.getElementById('a-submit-' + courseId).textContent = 'Post';
+  document.getElementById('a-cancel-' + courseId).style.display = 'none';
+  document.getElementById('editing-badge-' + courseId).innerHTML = '';
 }
 
-document.getElementById('a-cancel-btn').addEventListener('click', resetForm);
-
-document.getElementById('announcement-form').addEventListener('submit', async (e) => {
+async function submitAnnouncement(e, courseId) {
   e.preventDefault();
-  const alertEl = document.getElementById('form-alert');
-  const course = document.getElementById('a-course').value;
-  const date = document.getElementById('a-date').value;
-  const text = document.getElementById('a-text').value.trim();
+  const alertEl = document.getElementById('form-alert-' + courseId);
+  const date = document.getElementById('a-date-' + courseId).value;
+  const text = document.getElementById('a-text-' + courseId).value.trim();
 
-  if (!course) { setAlert(alertEl, 'error', 'Choose which class this is for.'); return; }
   if (!text) { setAlert(alertEl, 'error', 'Announcement text is required.'); return; }
 
-  const payload = editingId
-    ? { action: 'editAnnouncement', id: editingId, date, text }
-    : { action: 'addAnnouncement', course, date, text };
+  const editId = editingId[courseId];
+  const payload = editId
+    ? { action: 'editAnnouncement', id: editId, date, text }
+    : { action: 'addAnnouncement', course: courseId, date, text };
 
   const res = await authedPost(payload);
   if (res.error) {
     setAlert(alertEl, 'error', res.error);
     return;
   }
-  setAlert(alertEl, 'success', editingId ? 'Announcement updated.' : 'Posted.');
-  resetForm();
+  setAlert(alertEl, 'success', editId ? 'Announcement updated.' : 'Posted.');
+  resetForm(courseId);
   loadAnnouncements();
-});
+}
 
-async function removeAnnouncement(id) {
+async function removeAnnouncement(courseId, id) {
   if (!confirm('Delete this announcement?')) return;
   const res = await authedPost({ action: 'deleteAnnouncement', id });
   if (res.error) { alert(res.error); return; }
   announcements = announcements.filter(a => a.id !== id);
-  renderAnnouncements();
-  if (editingId === id) resetForm();
+  renderCourseList(courseId);
+  if (editingId[courseId] === id) resetForm(courseId);
 }
 
 if (getPin()) {
