@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Copyright Case File</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3EEE2;
+  --paper-dark:#E9E1CC;
+  --card:#FFFDF6;
+  --ink:#211D18;
+  --ink-soft:#5B5548;
+  --manila:#D9C9A0;
+  --rule:#D3C7A8;
+  --stamp:#B23A2E;
+  --stamp-tint:#F7E4E1;
+  --ok:#2E6B45;
+  --ok-tint:#E5F0E7;
+  --warn:#95651E;
+  --warn-tint:#F6EAD6;
+  --ind:#39506E;
+  --ind-tint:#E7ECF2;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:17px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:"Special Elite",ui-monospace,monospace; line-height:1.15; margin:0; letter-spacing:.01em;}
+p{margin:0 0 1em}
+p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+code{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.88em;background:var(--paper-dark);padding:1px 5px;border-radius:2px}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.backbar{display:block;background:var(--ink);color:#EFE9DA;font-family:"JetBrains Mono",monospace;font-size:12.5px;padding:9px 26px;text-decoration:none}
+.backbar:hover{background:#3a352b}
+
+.hero{background:var(--ink);color:#F3EEE2;padding:54px 0 46px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 3px);pointer-events:none}
+.case-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:#B7AF9B;letter-spacing:.06em;margin-bottom:14px}
+.hero h1{font-size:clamp(36px,7vw,64px);font-weight:400;max-width:14ch}
+.hero .deck{color:#D8D0BB;font-size:clamp(16px,2vw,19px);line-height:1.55;max-width:56ch;margin-top:18px;font-family:"Public Sans",sans-serif}
+.stamp{
+  display:inline-block;margin-top:22px;border:3px solid var(--stamp);color:var(--stamp);
+  font-family:"Special Elite",monospace;font-size:15px;letter-spacing:.12em;padding:6px 16px;
+  transform:rotate(-3deg);text-transform:uppercase;
+}
+
+.overview{background:var(--paper-dark);padding:0;border-bottom:1px solid var(--rule)}
+.overview-grid{display:grid;grid-template-columns:repeat(3,1fr)}
+.ov{padding:22px 24px;border-right:1px solid var(--rule)}
+.ov:last-child{border-right:0}
+.ov .tag{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+.ov h3{font-size:19px;font-weight:400;margin:6px 0 6px}
+.ov p{font-size:14.5px;color:var(--ink-soft);margin:0}
+
+.part{padding:56px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:26px}
+.part-num{font-family:"Special Elite",monospace;font-size:15px;color:var(--stamp);flex:none}
+.part-head h2{font-size:clamp(24px,4vw,32px);font-weight:400}
+.lede{font-size:18px;line-height:1.55;max-width:64ch;margin-bottom:28px;color:#3a352b}
+
+/* comparison cards */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:8px}
+.comp{background:var(--card);border:1px solid var(--rule);border-radius:2px;padding:20px 22px}
+.comp h4{font-family:"Public Sans",sans-serif;font-weight:700;font-size:15px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.comp.yes h4{color:var(--ok)}
+.comp.no h4{color:var(--stamp)}
+.comp ul{margin:0;padding-left:20px}
+.comp li{margin-bottom:7px;font-size:15px}
+.comp li:last-child{margin-bottom:0}
+
+.rights{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;background:var(--rule);border:1px solid var(--rule);margin:20px 0}
+.right{background:var(--card);padding:16px 14px;text-align:center}
+.right .ic{font-size:22px}
+.right .lbl{font-size:12.5px;font-weight:600;margin-top:6px}
+
+/* fair use factors */
+.factors{display:grid;gap:12px;margin:22px 0}
+.factor{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--ind);border-radius:2px;padding:16px 20px;display:grid;grid-template-columns:34px 1fr;gap:14px;align-items:start}
+.factor .n{font-family:"Special Elite",monospace;font-size:20px;color:var(--ind)}
+.factor h4{font-family:"Public Sans",sans-serif;font-weight:700;font-size:16px;margin-bottom:4px}
+.factor p{font-size:15px;color:var(--ink-soft)}
+
+.verdicts{display:grid;gap:10px;margin-top:22px}
+.verdict{background:var(--card);border:1px solid var(--rule);border-radius:2px;padding:16px 20px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}
+.verdict .sit{font-size:15.5px}
+.verdict .sit b{display:block;font-size:15.5px;margin-bottom:2px}
+.tagpill{font-family:"JetBrains Mono",monospace;font-size:11.5px;padding:5px 11px;border-radius:100px;white-space:nowrap;text-transform:uppercase;letter-spacing:.03em}
+.tagpill.ok{background:var(--ok-tint);color:var(--ok)}
+.tagpill.warn{background:var(--warn-tint);color:var(--warn)}
+.tagpill.no{background:var(--stamp-tint);color:var(--stamp)}
+
+/* CC license grid */
+.cc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0}
+.cc{background:var(--card);border:1px solid var(--rule);border-radius:2px;padding:16px 16px 18px}
+.cc .code{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ind);margin-bottom:6px}
+.cc h4{font-family:"Public Sans",sans-serif;font-weight:700;font-size:14.5px;margin-bottom:5px}
+.cc p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.source-list{display:grid;grid-template-columns:1fr 1fr;gap:0 30px;margin-top:16px;list-style:none;padding:0;counter-reset:s}
+.source-list li{counter-increment:s;padding:9px 0;border-bottom:1px solid var(--rule);font-size:14.5px;display:flex;gap:10px}
+.source-list li::before{content:counter(s,decimal-leading-zero);font-family:"JetBrains Mono",monospace;color:var(--ink-soft);font-size:12px;flex:none}
+
+/* case files (the sticky-note deck) */
+.files{display:grid;gap:14px;margin-top:8px}
+.file{background:var(--card);border:1px solid var(--rule);border-left:5px solid var(--manila);border-radius:2px;padding:18px 22px}
+.file .case-id{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--ink-soft);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.file p{font-size:15.5px;margin-bottom:8px}
+.file .ruling{display:flex;align-items:center;gap:10px;margin-top:10px}
+.file .ruling b{font-family:"Special Elite",monospace;font-size:13px}
+
+.consequence-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:8px}
+.cons{background:var(--card);border:1px solid var(--rule);border-radius:2px;padding:18px 20px}
+.cons h4{font-family:"Public Sans",sans-serif;font-weight:700;font-size:15.5px;margin-bottom:6px;color:var(--stamp)}
+.cons p{font-size:14.5px;color:var(--ink-soft);margin:0}
+
+.callout{background:var(--ink);color:#F3EEE2;padding:26px 28px;border-radius:2px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Special Elite",monospace}
+.callout span{color:#B7AF9B}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:2px;padding:24px}
+.box h3{font-size:19px;font-weight:400;margin-bottom:14px}
+.box ul{margin:0;padding-left:20px}
+.box li{margin-bottom:11px;font-size:15px;line-height:1.5}
+.box li:last-child{margin-bottom:0}
+
+.final{background:var(--ink);color:#F3EEE2;margin-top:60px;padding:56px 0 64px}
+.final h2{font-size:clamp(24px,3.6vw,34px);font-weight:400;max-width:24ch;line-height:1.2}
+.final p{margin-top:18px;color:#D8D0BB;font-size:16.5px;line-height:1.55;max-width:58ch;font-family:"Public Sans",sans-serif}
+.final .sig{margin-top:30px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#8b8368;border-top:1px solid rgba(255,255,255,.16);padding-top:14px}
+
+@media (max-width:820px){
+  .overview-grid,.compare,.cc-grid,.consequence-grid,.two{grid-template-columns:1fr}
+  .ov{border-right:0;border-bottom:1px solid var(--rule)}
+  .rights{grid-template-columns:repeat(2,1fr)}
+  .verdict{grid-template-columns:1fr}
+  .source-list{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<a class="backbar" href="1-4-copyright-and-ethics.html">&larr; Back to 1.4 lesson</a>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="case-no">CASE FILE NO. 1.4 &nbsp;/&nbsp; RE: WHOSE WORK IS IT</div>
+    <h1>The Copyright Case File</h1>
+    <p class="deck">You didn't write it, film it, draw it, or code it &mdash; so can you post it, remix it, or turn it in? The rules that decide, and the ones people break every single day without knowing it.</p>
+    <div class="stamp">Open Investigation</div>
+  </div>
+</header>
+
+<section class="overview">
+  <div class="wrap overview-grid">
+    <div class="ov"><div class="tag">Protected</div><h3>What's covered</h3><p>Original creative work &mdash; songs, photos, writing, art, code &mdash; the moment it's created.</p></div>
+    <div class="ov"><div class="tag">Sometimes allowed</div><h3>Fair use</h3><p>Limited use for commentary, criticism, parody, or education &mdash; with real limits.</p></div>
+    <div class="ov"><div class="tag">Free to use</div><h3>Public domain &amp; CC</h3><p>No permission needed &mdash; either the rights expired, or the creator gave them away.</p></div>
+  </div>
+</section>
+
+<!-- PART 1 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-num">CASE 01</div><h2>What copyright actually covers</h2></div>
+    <p class="lede">Copyright isn't something you apply for. The second you write it, film it, record it, or save it, it's automatically protected &mdash; no &copy; symbol, no registration, no fee.</p>
+
+    <div class="compare">
+      <div class="comp yes">
+        <h4>&#128737; Protected</h4>
+        <ul>
+          <li>A song you recorded</li>
+          <li>A photo you took</li>
+          <li>An essay, story, or poem you wrote</li>
+          <li>Fan art, digital art, comics</li>
+          <li>Code you wrote for an app or game</li>
+        </ul>
+      </div>
+      <div class="comp no">
+        <h4>&#128683; Not protected</h4>
+        <ul>
+          <li>Facts (the sky is blue)</li>
+          <li>Ideas alone (a story about a superhero)</li>
+          <li>Titles, names, short phrases</li>
+          <li>Methods or processes (how to bake bread)</li>
+          <li>Work whose copyright has expired</li>
+        </ul>
+      </div>
+    </div>
+
+    <p>Copyright protects the specific <em>expression</em> &mdash; the exact words, notes, or pixels &mdash; not the underlying idea. Two people can both write a vampire romance novel; only the exact text of each one is protected.</p>
+
+    <p style="margin-top:18px"><b>Owning the copyright hands you a bundle of exclusive rights:</b></p>
+    <div class="rights">
+      <div class="right"><div class="ic">&#128203;</div><div class="lbl">Copy it</div></div>
+      <div class="right"><div class="ic">&#128228;</div><div class="lbl">Distribute it</div></div>
+      <div class="right"><div class="ic">&#128065;</div><div class="lbl">Display it</div></div>
+      <div class="right"><div class="ic">&#127925;</div><div class="lbl">Perform it</div></div>
+      <div class="right"><div class="ic">&#9986;</div><div class="lbl">Remix / adapt it</div></div>
+    </div>
+    <p>Only the copyright holder can legally do these things &mdash; or give someone else permission to.</p>
+  </div>
+</section>
+
+<!-- PART 2 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-num">CASE 02</div><h2>The fair use test</h2></div>
+    <p class="lede">Fair use lets you use a piece of someone else's copyrighted work without asking &mdash; but only if it holds up against four factors. Courts weigh all four; no single one automatically wins.</p>
+
+    <div class="factors">
+      <div class="factor"><div class="n">1</div><div><h4>Purpose &amp; character</h4><p>Is it transformative &mdash; commentary, criticism, parody, education &mdash; or are you just reposting it as-is for entertainment or profit?</p></div></div>
+      <div class="factor"><div class="n">2</div><div><h4>Nature of the work</h4><p>Factual work (news, data) gets more leeway than highly creative work (a song, a movie).</p></div></div>
+      <div class="factor"><div class="n">3</div><div><h4>Amount used</h4><p>A short clip to make a point is safer than using the whole song, scene, or article.</p></div></div>
+      <div class="factor"><div class="n">4</div><div><h4>Effect on the market</h4><p>Does your use replace the need for anyone to pay for the original? That's the factor courts weigh heaviest.</p></div></div>
+    </div>
+
+    <p><b>How it plays out in real posts:</b></p>
+    <div class="verdicts">
+      <div class="verdict"><div class="sit"><b>A parody account</b>Making fun of a movie trailer using your own jokes over a few short clips.</div><span class="tagpill ok">Usually fair use</span></div>
+      <div class="verdict"><div class="sit"><b>A movie reaction video</b>Playing almost an entire 20-minute scene with only occasional comments.</div><span class="tagpill no">Usually not</span></div>
+      <div class="verdict"><div class="sit"><b>A review video</b>A few short clips of a game, mixed with your own analysis and opinion.</div><span class="tagpill ok">Usually fair use</span></div>
+      <div class="verdict"><div class="sit"><b>A full song as background music</b>Using someone's entire track, unedited, behind your video.</div><span class="tagpill no">Usually not</span></div>
+      <div class="verdict"><div class="sit"><b>A meme</b>A single cropped movie screenshot with a joke caption.</div><span class="tagpill warn">Grey area, usually tolerated</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 3 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-num">CASE 03</div><h2>Public domain &amp; Creative Commons</h2></div>
+    <p class="lede">Not everything needs permission. Some work is free to use because copyright expired; other work is free because the creator chose to give some rights away.</p>
+
+    <p><b>Public domain</b> &mdash; copyright has expired (in the U.S., generally anything published before 1929) or the creator released it with no restrictions. Work made by the U.S. federal government &mdash; like NASA photos &mdash; is automatically public domain too.</p>
+
+    <p style="margin-top:18px"><b>Creative Commons (CC)</b> &mdash; a creator keeps copyright but pre-approves certain reuse, as long as you follow the license terms:</p>
+    <div class="cc-grid">
+      <div class="cc"><div class="code">CC BY</div><h4>Attribution</h4><p>Use it for anything, just credit the creator.</p></div>
+      <div class="cc"><div class="code">CC BY-SA</div><h4>Share-Alike</h4><p>Credit the creator, and license your remix the same way.</p></div>
+      <div class="cc"><div class="code">CC BY-NC</div><h4>Non-Commercial</h4><p>Credit the creator, don't sell it or profit from it.</p></div>
+      <div class="cc"><div class="code">CC0</div><h4>Public Domain Dedication</h4><p>Creator waives all rights. Use it however you want.</p></div>
+    </div>
+
+    <p><b>Legit free-to-use sources:</b></p>
+    <ol class="source-list">
+      <li>Unsplash &amp; Pexels &mdash; free stock photos</li>
+      <li>YouTube Audio Library &mdash; free music &amp; sound effects</li>
+      <li>Wikimedia Commons &mdash; images, mostly CC or public domain</li>
+      <li>NASA Image Library &mdash; U.S. government, public domain</li>
+    </ol>
+  </div>
+</section>
+
+<!-- PART 4 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-num">CASE 04</div><h2>Where teens actually break the rules</h2></div>
+    <p class="lede">Nobody sets out to infringe copyright. It happens in ordinary moments &mdash; here's where it usually starts.</p>
+
+    <div class="files">
+      <div class="file">
+        <div class="case-id">Scenario &middot; social video</div>
+        <p>Using a trending song, full and unedited, as background audio on a public post.</p>
+        <div class="ruling"><b>Verdict:</b> <span class="tagpill warn">Platform-licensed only</span> Apps like TikTok license some music for in-app use &mdash; that license doesn't travel if you download and repost the video elsewhere.</div>
+      </div>
+      <div class="file">
+        <div class="case-id">Scenario &middot; school project</div>
+        <p>Grabbing an image from Google Images for a poster or slideshow.</p>
+        <div class="ruling"><b>Verdict:</b> <span class="tagpill warn">Risky habit</span> Usually fine for a private classroom assignment; becomes a real problem the moment that project gets posted publicly online.</div>
+      </div>
+      <div class="file">
+        <div class="case-id">Scenario &middot; reposting art</div>
+        <p>Sharing someone's digital art or photo with no credit, or worse, claiming you made it.</p>
+        <div class="ruling"><b>Verdict:</b> <span class="tagpill no">Infringement</span> Reposting without credit hurts the creator; claiming it as your own adds a second, separate ethics problem on top.</div>
+      </div>
+      <div class="file">
+        <div class="case-id">Scenario &middot; fan art &amp; fan fiction</div>
+        <p>Drawing or writing new stories using someone else's characters.</p>
+        <div class="ruling"><b>Verdict:</b> <span class="tagpill warn">Technically infringement, usually tolerated</span> Most creators/studios quietly allow non-commercial fan work &mdash; but the moment someone tries to sell it, that tolerance disappears fast.</div>
+      </div>
+      <div class="file">
+        <div class="case-id">Scenario &middot; AI-generated art</div>
+        <p>Asking an AI image tool to make art "in the style of" a specific living artist, then posting it as your own.</p>
+        <div class="ruling"><b>Verdict:</b> <span class="tagpill warn">Unsettled &amp; contested</span> Artists are actively suing AI companies over training data. Separately, the U.S. Copyright Office says purely AI-generated images can't be copyrighted by anyone &mdash; so it was never really "yours" to claim.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 5 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-num">CASE 05</div><h2>Plagiarism vs. copyright: not the same crime</h2></div>
+    <p class="lede">These two get mixed up constantly. They usually overlap, but they're judged by completely different people, for completely different reasons.</p>
+
+    <div class="compare">
+      <div class="comp no">
+        <h4>&#9878;&#65039; Copyright infringement</h4>
+        <ul>
+          <li>A <b>legal</b> issue between the creator and the user</li>
+          <li>Applies even if you fully credit the source</li>
+          <li>Can lead to takedowns, demonetization, lawsuits</li>
+        </ul>
+      </div>
+      <div class="comp warn" style="border-left:4px solid var(--warn)">
+        <h4 style="color:var(--warn)">&#127891; Plagiarism</h4>
+        <ul>
+          <li>An <b>ethics/academic</b> issue between you and your school</li>
+          <li>Solved by citing your source &mdash; copyright still applies even after you cite it</li>
+          <li>Can lead to a zero, a discipline referral, or worse</li>
+        </ul>
+      </div>
+    </div>
+    <p style="margin-top:16px">Copying three paragraphs from Wikipedia into your essay with no citation is plagiarism, whether or not Wikipedia's content happens to be free to reuse. The two rules run side by side, not instead of each other.</p>
+  </div>
+</section>
+
+<!-- PART 6 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-num">CASE 06</div><h2>What actually happens if you get it wrong</h2></div>
+    <div class="consequence-grid">
+      <div class="cons"><h4>DMCA takedown</h4><p>The platform removes your post after the copyright holder files a claim &mdash; no lawsuit required.</p></div>
+      <div class="cons"><h4>Demonetized or muted</h4><p>YouTube keeps the video up but strips the ad revenue, or silently mutes the audio track.</p></div>
+      <div class="cons"><h4>Account strikes</h4><p>Repeated claims can suspend or permanently ban an account.</p></div>
+      <div class="cons"><h4>Academic consequences</h4><p>At school, plagiarism or claiming someone else's work as your own is a zero and a conduct issue &mdash; separate from any copyright claim.</p></div>
+    </div>
+
+    <div class="callout">Most creators aren't trying to catch you. <span>The takedown, the mute, the zero &mdash; those all happen automatically, whether you meant to break the rule or not.</span></div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="two">
+      <div class="box">
+        <h3>Try this</h3>
+        <ul>
+          <li><b>The source check.</b> Pick any image on your phone right now that you didn't take. Could you say, in one sentence, why you're legally allowed to have it?</li>
+          <li><b>The four-factor test.</b> Take a video you've seen reposted or reacted to online. Walk it through all four fair-use factors yourself.</li>
+          <li><b>The license hunt.</b> Find one photo on Unsplash or Wikimedia Commons and read its exact license terms before using it.</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Talk about it</h3>
+        <ul>
+          <li>If a platform auto-licenses a song for in-app use, why doesn't that license travel when you download and repost the video?</li>
+          <li>Is fan art "stealing," or is it free advertising for the original creator? Does it depend on the fan artist?</li>
+          <li>Should AI companies have to pay artists whose work trained the model? Who decides?</li>
+          <li>Why does citing a source stop plagiarism but not stop copyright infringement?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Somebody made everything you didn't make.</h2>
+    <p>Copyright isn't a trap waiting to catch you &mdash; it's the deal that lets creators get paid for their work. Knowing the four fair-use factors, spotting public domain and CC-licensed work, and knowing the difference between plagiarism and infringement means you get to use the internet's creative work responsibly, instead of accidentally.</p>
+    <p class="sig">Case file 1.4 &nbsp;/&nbsp; keep this one</p>
+  </div>
+</footer>
+
+</body>
+</html>
