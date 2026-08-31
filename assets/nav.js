@@ -89,9 +89,11 @@ const TOOLS = [
 // available, so the box still works instantly even before that fetch lands.
 function buildStaticSearchIndex() {
   const entries = [
-    { title: "Home", url: NAV_ROOT + "index.html", category: "Site" },
-    { title: "Newsletter", url: NAV_ROOT + "newsletter.html", category: "Site" }
+    { title: "Home", url: NAV_ROOT + "index.html", category: "Site" }
   ];
+  COURSES.forEach((course) => {
+    entries.push({ title: course.name + " newsletter", url: NAV_ROOT + "newsletter.html?course=" + course.id, category: course.shortName });
+  });
   COURSES.forEach((course) => {
     entries.push({ title: course.name + " — course home", url: NAV_ROOT + course.home, category: course.shortName });
     entries.push({ title: course.name + " — class docs / syllabus", url: NAV_ROOT + course.classDocs, category: course.shortName });
@@ -113,7 +115,9 @@ let SEARCH_INDEX = buildStaticSearchIndex();
     .then((r) => r.json())
     .then((data) => {
       (data.posts || []).forEach((p) => {
-        SEARCH_INDEX.push({ title: p.title, url: NAV_ROOT + "newsletter.html", category: "Newsletter" });
+        const course = COURSES.find((c) => c.id === p.course);
+        const url = NAV_ROOT + "newsletter.html?course=" + encodeURIComponent(p.course) + "&post=" + encodeURIComponent(p.id);
+        SEARCH_INDEX.push({ title: p.title, url, category: course ? course.shortName + " Newsletter" : "Newsletter" });
       });
     })
     .catch(() => {});
@@ -159,6 +163,22 @@ function courseDropdownMarkup(course) {
   `;
 }
 
+function newsletterDropdownMarkup() {
+  const courseLinks = COURSES.map(c =>
+    `<a href="${NAV_ROOT}newsletter.html?course=${c.id}">${escapeHtmlNav(c.name)}</a>`
+  ).join("");
+
+  return `
+    <div class="nav-item" data-course="newsletter">
+      <button type="button" class="nav-link" aria-haspopup="true" aria-expanded="false">Newsletter &#9662;</button>
+      <div class="dropdown-panel">
+        <div class="dropdown-heading">Choose a class</div>
+        ${courseLinks}
+      </div>
+    </div>
+  `;
+}
+
 function toolsDropdownMarkup() {
   const toolLinks = TOOLS.map(t => {
     if (t.url) {
@@ -186,6 +206,7 @@ function renderHeader(opts) {
 
   const courseItems = COURSES.map(courseDropdownMarkup).join("");
   const toolsDropdown = toolsDropdownMarkup();
+  const newsletterDropdown = newsletterDropdownMarkup();
 
   root.innerHTML = `
     <header class="site-header">
@@ -203,9 +224,7 @@ function renderHeader(opts) {
           </div>
           ${courseItems}
           ${toolsDropdown}
-          <div class="nav-item${opts.current === "newsletter" ? " current" : ""}">
-            <a class="nav-link" href="${NAV_ROOT}newsletter.html">Newsletter</a>
-          </div>
+          ${newsletterDropdown}
         </nav>
         <div class="search-box">
           <input type="search" id="site-search-input" placeholder="Search the site&hellip;" autocomplete="off">

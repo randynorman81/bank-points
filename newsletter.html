@@ -15,11 +15,8 @@
 
 <div id="site-header-root"></div>
 
-<main>
-  <h2 style="margin-top:0;">Newsletter</h2>
-  <p class="hint" style="margin-top:-8px; margin-bottom:20px;">Updates for parents on what's happening in class.</p>
-
-  <div id="posts-slot" class="loading">Loading&hellip;</div>
+<main id="newsletter-main">
+  <div id="newsletter-slot" class="loading">Loading&hellip;</div>
 </main>
 
 <footer class="site-footer">
@@ -29,7 +26,7 @@
 <script src="assets/api.js"></script>
 <script src="assets/nav.js"></script>
 <script>
-renderHeader();
+renderHeader({ current: "newsletter" });
 
 function escapeHtml(str) {
   const div = document.createElement('div');
@@ -73,28 +70,111 @@ function formatBody(body) {
   return matchedAny ? sectionsHtml : `<p class="post-body">${escapeHtml(body)}</p>`;
 }
 
-async function loadPosts() {
-  const slot = document.getElementById('posts-slot');
-  try {
-    const res = await apiGet('list');
-    const posts = res.posts || [];
-    if (posts.length === 0) {
-      slot.innerHTML = '<p class="hint">No newsletter posts yet — check back soon.</p>';
-      return;
-    }
-    slot.innerHTML = posts.map(p => `
-      <div class="card post-card">
-        <p class="post-date">${escapeHtml(formatDate(p.date))}</p>
-        <h3>${escapeHtml(p.title)}</h3>
-        ${formatBody(p.body)}
-      </div>
-    `).join('');
-  } catch (err) {
-    slot.innerHTML = '<div class="alert alert-error">Could not load the newsletter. Please try again in a moment.</div>';
-  }
+function getParams() {
+  const params = new URLSearchParams(location.search);
+  return { course: params.get('course') || '', post: params.get('post') || '' };
 }
 
-loadPosts();
+function coursePickerHtml() {
+  return `
+    <h2 style="margin-top:0;">Newsletter</h2>
+    <p class="hint" style="margin-top:-8px; margin-bottom:20px;">Choose a class to see its weekly updates.</p>
+    <div class="course-grid">
+      ${COURSES.map(c => `
+        <a class="course-card" href="newsletter.html?course=${encodeURIComponent(c.id)}">
+          <div class="body">
+            <p class="eyebrow">Newsletter</p>
+            <h3>${escapeHtml(c.name)}</h3>
+            <div class="go">See updates &rarr;</div>
+          </div>
+        </a>
+      `).join('')}
+    </div>
+  `;
+}
+
+function postCardHtml(p) {
+  return `
+    <div class="card post-card">
+      <p class="post-date">${escapeHtml(formatDate(p.date))}</p>
+      <h3>${escapeHtml(p.title)}</h3>
+      ${formatBody(p.body)}
+    </div>
+  `;
+}
+
+async function renderNewsletter() {
+  const slot = document.getElementById('newsletter-slot');
+  const { course, post } = getParams();
+
+  if (!course) {
+    slot.innerHTML = coursePickerHtml();
+    return;
+  }
+
+  const courseInfo = COURSES.find(c => c.id === course);
+  if (!courseInfo) {
+    slot.innerHTML = coursePickerHtml();
+    return;
+  }
+
+  slot.innerHTML = `<p class="loading">Loading&hellip;</p>`;
+
+  let posts;
+  try {
+    const res = await apiGet('list');
+    posts = (res.posts || []).filter(p => p.course === course);
+  } catch (err) {
+    slot.innerHTML = '<div class="alert alert-error">Could not load the newsletter. Please try again in a moment.</div>';
+    return;
+  }
+
+  const backLink = `<a class="breadcrumb" href="newsletter.html">&larr; Choose a different class</a>`;
+
+  if (post) {
+    const match = posts.find(p => p.id === post);
+    if (!match) {
+      slot.innerHTML = `${backLink}<h2>${escapeHtml(courseInfo.name)} Newsletter</h2><p class="hint">That update couldn't be found.</p>`;
+      return;
+    }
+    slot.innerHTML = `
+      ${backLink}
+      <h2 style="margin-bottom:4px;">${escapeHtml(courseInfo.name)} Newsletter</h2>
+      <p class="hint" style="margin-top:0; margin-bottom:20px;"><a href="newsletter.html?course=${encodeURIComponent(course)}">&larr; Back to all ${escapeHtml(courseInfo.shortName)} updates</a></p>
+      ${postCardHtml(match)}
+    `;
+    return;
+  }
+
+  if (posts.length === 0) {
+    slot.innerHTML = `${backLink}<h2>${escapeHtml(courseInfo.name)} Newsletter</h2><p class="hint">No updates posted yet — check back soon.</p>`;
+    return;
+  }
+
+  const [latest, ...older] = posts;
+  const archiveHtml = older.length === 0 ? '' : `
+    <h3 style="margin-bottom:8px;">Previous Updates</h3>
+    <div class="card">
+      ${older.map(p => `
+        <div class="post-list-item">
+          <a href="newsletter.html?course=${encodeURIComponent(course)}&post=${encodeURIComponent(p.id)}">
+            <span class="title">${escapeHtml(p.title)}</span>
+            <span class="sub">${escapeHtml(formatDate(p.date))}</span>
+          </a>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  slot.innerHTML = `
+    ${backLink}
+    <h2 style="margin-bottom:20px;">${escapeHtml(courseInfo.name)} Newsletter</h2>
+    ${postCardHtml(latest)}
+    ${archiveHtml}
+  `;
+}
+
+renderNewsletter();
 </script>
 </body>
 </html>

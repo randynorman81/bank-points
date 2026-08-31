@@ -58,8 +58,8 @@
   <div class="tool-grid" id="tools-grid-root"></div>
 
   <h2 style="margin-bottom:4px;">For Parents</h2>
-  <p class="hint" style="margin-top:0;">Class updates, posted here as they happen.</p>
-  <div id="newsletter-teaser"></div>
+  <p class="hint" style="margin-top:0;">Weekly class updates &mdash; pick a class to see its newsletter.</p>
+  <div class="tool-grid" id="newsletter-teaser"></div>
 </main>
 
 <footer class="site-footer">
@@ -88,22 +88,31 @@ function teaserExcerpt(body) {
   return text.slice(0, 140) + (text.length > 140 ? '…' : '');
 }
 
+// One card per course -- there's a separate newsletter per class now, not
+// one site-wide feed, so the teaser shows each course's latest update (or
+// an invite to check back) rather than trying to pick a single "latest".
 async function renderNewsletterTeaser() {
   const slot = document.getElementById('newsletter-teaser');
   try {
     const res = await apiGet('list');
     const posts = res.posts || [];
-    if (posts.length === 0) {
-      slot.innerHTML = '<div class="card"><p class="hint" style="margin:0;">No updates posted yet.</p></div>';
-      return;
-    }
-    const latest = posts[0];
-    slot.innerHTML = `
-      <a class="tool-card" href="newsletter.html">
-        <h3>${escapeHtml(latest.title)}</h3>
-        <p>${escapeHtml(teaserExcerpt(latest.body))}</p>
-      </a>
-    `;
+    slot.innerHTML = COURSES.map(c => {
+      const latest = posts.filter(p => p.course === c.id)[0];
+      if (!latest) {
+        return `
+          <a class="tool-card" href="newsletter.html?course=${c.id}">
+            <h3>${escapeHtml(c.name)}</h3>
+            <p>No updates posted yet.</p>
+          </a>
+        `;
+      }
+      return `
+        <a class="tool-card" href="newsletter.html?course=${c.id}&post=${encodeURIComponent(latest.id)}">
+          <h3>${escapeHtml(c.name)}</h3>
+          <p>${escapeHtml(teaserExcerpt(latest.body))}</p>
+        </a>
+      `;
+    }).join('');
   } catch (err) {
     slot.innerHTML = '';
   }
