@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Google Classroom — Teacher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<main>
+  <h2 style="margin-top:0;">Google Classroom — Teacher</h2>
+  <p class="hint" style="margin-top:-8px; margin-bottom:16px;">Post assignments straight to Google Classroom from here.</p>
+
+  <div id="pin-gate" class="pin-gate">
+    <div class="card">
+      <h2 style="margin-top:0;">Enter Admin PIN</h2>
+      <div id="pin-alert"></div>
+      <form class="stack" id="pin-form">
+        <div class="field">
+          <label for="pin-input">PIN</label>
+          <input type="password" id="pin-input" inputmode="numeric" autocomplete="off" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Unlock</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="dashboard" style="display:none;">
+
+    <div class="card">
+      <h2 style="margin-top:0;">Connection</h2>
+      <div id="connect-alert"></div>
+      <div id="connect-status">Checking&hellip;</div>
+    </div>
+
+    <div class="card" id="course-links-card" style="display:none;">
+      <h2 style="margin-top:0; display:flex; align-items:center; justify-content:space-between;">
+        Course Links
+        <button class="btn btn-ghost btn-sm" onclick="loadCourseLinks()">Refresh</button>
+      </h2>
+      <p class="hint" style="margin-top:-8px;">Which Google Classroom course each class posts to. Set this once, or any time you teach a new section.</p>
+      <div id="course-links-alert"></div>
+      <div id="course-links-slot" class="loading">Loading&hellip;</div>
+    </div>
+
+    <div class="card" id="assignment-card" style="display:none;">
+      <h2 style="margin-top:0;">Create Assignment</h2>
+      <div id="assignment-alert"></div>
+      <form class="stack" id="assignment-form">
+        <div class="field-row">
+          <div class="field">
+            <label for="a-course">Class</label>
+            <select id="a-course" required></select>
+          </div>
+          <div class="field">
+            <label for="a-due">Due Date</label>
+            <input type="date" id="a-due">
+          </div>
+        </div>
+        <div class="field">
+          <label for="a-title">Title</label>
+          <input type="text" id="a-title" required>
+        </div>
+        <div class="field">
+          <label for="a-description">Instructions</label>
+          <textarea id="a-description" rows="4"></textarea>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="a-link">Link (optional — e.g. a quiz or exit ticket)</label>
+            <input type="url" id="a-link" placeholder="https://…">
+          </div>
+          <div class="field">
+            <label for="a-points">Points (optional)</label>
+            <input type="number" id="a-points" min="0" step="1">
+          </div>
+        </div>
+        <div class="row-actions">
+          <button type="submit" class="btn btn-primary" id="assignment-submit-btn">Post to Classroom</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science
+</footer>
+
+<script src="assets/nav.js"></script>
+<script>
+renderHeader();
+
+const PIN_KEY = 'classroomPin';
+const pinGate = document.getElementById('pin-gate');
+const dashboard = document.getElementById('dashboard');
+const pinForm = document.getElementById('pin-form');
+const pinAlert = document.getElementById('pin-alert');
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+function getPin() {
+  return sessionStorage.getItem(PIN_KEY) || '';
+}
+
+function setAlert(el, type, message) {
+  el.innerHTML = message ? `<div class="alert alert-${type}">${message}</div>` : '';
+}
+
+// This page talks to its own endpoint (/api/classroom), not the shared
+// assets/api.js helper (which is hardcoded to /api/newsletter for the
+// newsletter pages) -- so it has its own small fetch wrapper here instead.
+async function rawPost(payload) {
+  const res = await fetch('/api/classroom', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error('Network error');
+  return res.json();
+}
+
+pinForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const pin = document.getElementById('pin-input').value.trim();
+  setAlert(pinAlert, 'info', 'Checking&hellip;');
+  try {
+    const res = await rawPost({ action: 'verifyPin', pin: pin });
+    if (res.ok) {
+      sessionStorage.setItem(PIN_KEY, pin);
+      pinAlert.innerHTML = '';
+      unlock();
+    } else {
+      setAlert(pinAlert, 'error', res.error || 'Incorrect PIN.');
+    }
+  } catch (err) {
+    setAlert(pinAlert, 'error', 'Could not reach the server. This page needs to be running on Netlify (with functions deployed) to work.');
+  }
+});
+
+async function classroomPost(payload) {
+  const res = await rawPost(Object.assign({}, payload, { pin: getPin() }));
+  if (res.error === 'Invalid PIN') {
+    sessionStorage.removeItem(PIN_KEY);
+    dashboard.style.display = 'none';
+    pinGate.style.display = 'block';
+    setAlert(pinAlert, 'error', 'Your session expired. Please re-enter the PIN.');
+  }
+  return res;
+}
+
+function unlock() {
+  pinGate.style.display = 'none';
+  dashboard.style.display = 'block';
+  document.getElementById('a-course').innerHTML =
+    '<option value="" disabled selected>Choose a class&hellip;</option>' +
+    COURSES.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.shortName)}</option>`).join('');
+  checkConnection();
+  handleOAuthRedirect();
+}
+
+function handleOAuthRedirect() {
+  const params = new URLSearchParams(location.search);
+  const connect = params.get('connect');
+  if (connect === 'success') {
+    setAlert(document.getElementById('connect-alert'), 'success', 'Connected to Google Classroom.');
+  } else if (connect === 'error') {
+    setAlert(document.getElementById('connect-alert'), 'error', `Couldn't connect: ${escapeHtml(params.get('reason') || 'unknown error')}`);
+  }
+  if (connect) history.replaceState(null, '', location.pathname);
+}
+
+async function checkConnection() {
+  const statusEl = document.getElementById('connect-status');
+  const res = await classroomPost({ action: 'oauthStatus' });
+  if (res.error) {
+    statusEl.innerHTML = `<div class="alert alert-error">${escapeHtml(res.error)}</div>`;
+    return;
+  }
+  if (res.connected) {
+    const since = res.connectedAt ? new Date(res.connectedAt).toLocaleString() : 'unknown time';
+    statusEl.innerHTML = `
+      <p>Connected since ${escapeHtml(since)}. Google expires this after about a week (see setup notes) — reconnect any time below.</p>
+      <button class="btn btn-ghost" onclick="startConnect()">Reconnect Google Classroom</button>
+    `;
+    document.getElementById('course-links-card').style.display = 'block';
+    document.getElementById('assignment-card').style.display = 'block';
+    loadCourseLinks();
+  } else {
+    statusEl.innerHTML = `
+      <p>Not connected yet.</p>
+      <button class="btn btn-primary" onclick="startConnect()">Connect Google Classroom</button>
+    `;
+    document.getElementById('course-links-card').style.display = 'none';
+    document.getElementById('assignment-card').style.display = 'none';
+  }
+}
+
+async function startConnect() {
+  const res = await classroomPost({ action: 'getAuthUrl' });
+  if (res.error) { alert(res.error); return; }
+  location.href = res.url;
+}
+
+let classroomCourses = [];
+let courseMapping = {};
+
+async function loadCourseLinks() {
+  const slot = document.getElementById('course-links-slot');
+  const [coursesRes, mappingRes] = await Promise.all([
+    classroomPost({ action: 'listCourses' }),
+    classroomPost({ action: 'getCourseMapping' })
+  ]);
+  if (coursesRes.error) {
+    slot.innerHTML = `<div class="alert alert-error">${escapeHtml(coursesRes.error)}</div>`;
+    return;
+  }
+  classroomCourses = coursesRes.courses || [];
+  courseMapping = mappingRes.mapping || {};
+  renderCourseLinks();
+}
+
+function renderCourseLinks() {
+  const slot = document.getElementById('course-links-slot');
+  if (classroomCourses.length === 0) {
+    slot.innerHTML = '<p class="hint">No active courses found in Google Classroom for this account.</p>';
+    return;
+  }
+  const options = '<option value="">Not linked</option>' +
+    classroomCourses.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}</option>`).join('');
+  slot.innerHTML = COURSES.map(c => `
+    <div class="field">
+      <label for="map-${c.id}">${escapeHtml(c.name)}</label>
+      <select id="map-${c.id}">${options}</select>
+    </div>
+  `).join('') + '<button class="btn btn-primary" onclick="saveCourseLinks()">Save Course Links</button>';
+
+  COURSES.forEach(c => {
+    const sel = document.getElementById('map-' + c.id);
+    if (courseMapping[c.id]) sel.value = courseMapping[c.id];
+  });
+}
+
+async function saveCourseLinks() {
+  const alertEl = document.getElementById('course-links-alert');
+  const mapping = {};
+  COURSES.forEach(c => {
+    const val = document.getElementById('map-' + c.id).value;
+    if (val) mapping[c.id] = val;
+  });
+  setAlert(alertEl, 'info', 'Saving&hellip;');
+  const res = await classroomPost({ action: 'saveCourseMapping', mapping });
+  if (res.error) {
+    setAlert(alertEl, 'error', res.error);
+  } else {
+    courseMapping = mapping;
+    setAlert(alertEl, 'success', 'Saved.');
+  }
+}
+
+document.getElementById('assignment-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const alertEl = document.getElementById('assignment-alert');
+  const course = document.getElementById('a-course').value;
+  const title = document.getElementById('a-title').value.trim();
+  const description = document.getElementById('a-description').value.trim();
+  const dueDate = document.getElementById('a-due').value;
+  const link = document.getElementById('a-link').value.trim();
+  const points = document.getElementById('a-points').value;
+
+  if (!course) { setAlert(alertEl, 'error', 'Choose which class this is for.'); return; }
+  if (!title) { setAlert(alertEl, 'error', 'Title is required.'); return; }
+
+  const btn = document.getElementById('assignment-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Posting…';
+  setAlert(alertEl, 'info', 'Posting to Google Classroom&hellip;');
+  try {
+    const res = await classroomPost({ action: 'createAssignment', course, title, description, dueDate, link, points });
+    if (res.error) {
+      setAlert(alertEl, 'error', res.error);
+      return;
+    }
+    setAlert(alertEl, 'success', `Posted. <a href="${escapeHtml(res.alternateLink)}" target="_blank" rel="noopener">View it in Google Classroom &rarr;</a>`);
+    document.getElementById('assignment-form').reset();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Post to Classroom';
+  }
+});
+
+if (getPin()) {
+  unlock();
+} else if (new URLSearchParams(location.search).get('connect')) {
+  // Bounced back here from Google's OAuth redirect but the PIN session
+  // didn't survive the round trip (e.g. a different browser/tab) --
+  // still let the teacher unlock manually rather than losing the message.
+  setAlert(pinAlert, 'info', 'Enter your PIN to see the connection result.');
+}
+</script>
+</body>
+</html>
