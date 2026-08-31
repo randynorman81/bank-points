@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Who's Watching You</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#12233D;
+  --navy-soft:#2C4368;
+  --paper:#E6EAF0;
+  --card:#FFFFFF;
+  --grn:#1F9E4A;
+  --grn-tint:#E7F6EC;
+  --amb:#E07B00;
+  --amb-tint:#FDF1E1;
+  --ind:#4F4CD6;
+  --ind-tint:#ECECFB;
+  --red:#D8214A;
+  --red-tint:#FCE9ED;
+  --rule:#C8D0DC;
+  --muted:#5A6B84;
+  --wrap:1120px;
+  --col:66ch;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--navy);
+  font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:17px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:"Archivo","Public Sans",system-ui,sans-serif;line-height:1.06;letter-spacing:-.022em;margin:0}
+p{margin:0 0 1em}
+p:last-child{margin-bottom:0}
+strong{font-weight:600}
+code{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-size:.86em}
+
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 28px}
+
+/* ---------- status bar + hero ---------- */
+.statusbar{
+  background:var(--navy);color:#9FB0C8;
+  font-family:"JetBrains Mono",monospace;font-size:12px;
+  padding:9px 0;
+}
+.statusbar .wrap{display:flex;align-items:center;gap:10px}
+.statusbar .spacer{flex:1}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+.dot.mic{background:#FF9F0A;box-shadow:0 0 0 4px rgba(255,159,10,.22)}
+.dot.cam{background:#30D158;box-shadow:0 0 0 4px rgba(48,209,88,.2)}
+
+.hero{background:var(--navy);color:#fff;padding:64px 0 0}
+.hero h1{
+  font-size:clamp(52px,10.5vw,124px);font-weight:800;letter-spacing:-.045em;
+  max-width:11ch;
+}
+.hero .deck{
+  color:#A9BBD4;font-size:clamp(18px,2.4vw,23px);line-height:1.45;
+  max-width:44ch;margin-top:24px;font-weight:400;
+}
+.hero .meta{
+  margin-top:34px;padding-top:16px;border-top:1px solid rgba(255,255,255,.16);
+  font-family:"JetBrains Mono",monospace;font-size:12.5px;color:#7F94B4;
+}
+
+.layers{background:var(--navy);padding:52px 0 72px}
+.layers-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.14)}
+.layer{background:var(--navy);padding:24px 22px 26px}
+.layer .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:#6E85A8}
+.layer h3{font-size:24px;font-weight:700;color:#fff;margin:8px 0 10px}
+.layer p{font-size:15px;line-height:1.5;color:#A9BBD4}
+.layers .note{color:#7F94B4;font-size:15px;margin-top:26px;font-style:italic}
+
+/* ---------- part headers ---------- */
+.part{padding:78px 0 12px}
+.part-head{display:flex;align-items:baseline;gap:18px;border-bottom:3px solid var(--navy);padding-bottom:14px;margin-bottom:34px}
+.part-num{
+  font-family:"Archivo",sans-serif;font-weight:800;font-size:60px;line-height:.8;
+  color:var(--navy);opacity:.22;letter-spacing:-.05em;flex:none;
+}
+.part-head h2{font-size:clamp(34px,5.4vw,52px);font-weight:800}
+.part-head .sub{margin-left:auto;text-align:right;color:var(--muted);font-size:14.5px;line-height:1.35;max-width:26ch;flex:none}
+
+.lede{font-size:20px;line-height:1.5;max-width:56ch;margin-bottom:34px;color:var(--navy-soft)}
+
+/* ---------- sensor cards ---------- */
+.sensors{display:grid;gap:14px}
+.sensor{background:var(--card);border:1px solid var(--rule);border-radius:3px;overflow:hidden}
+.sensor-top{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--rule)}
+.sensor-top h3{font-size:24px;font-weight:700}
+.pill{
+  margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:11.5px;
+  padding:4px 10px;border-radius:100px;background:var(--paper);color:var(--muted);white-space:nowrap;
+}
+.pill.on{background:#FFF0DC;color:#9A5400}
+.faces{display:grid;grid-template-columns:1fr 1fr}
+.face{padding:18px 20px 20px}
+.face.good{background:var(--grn-tint)}
+.face.bad{background:var(--amb-tint);border-left:1px solid var(--rule)}
+.face .lbl{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;margin-bottom:7px}
+.face.good .lbl{color:var(--grn)}
+.face.bad .lbl{color:var(--amb)}
+.face p{font-size:15.5px;line-height:1.48}
+
+.receipt{
+  margin-top:26px;border-left:3px solid var(--ind);background:var(--ind-tint);
+  padding:18px 22px;font-size:15.5px;line-height:1.55;
+}
+
+/* ---------- app blocks ---------- */
+.apps{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.app{background:var(--card);border:1px solid var(--rule);border-radius:3px;padding:26px 26px 28px}
+.app h3{font-size:27px;font-weight:700;margin-bottom:4px}
+.app .tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--red);margin-bottom:16px}
+.app p{font-size:16px}
+.why{background:var(--navy);color:#C3D2E6;padding:22px 26px;margin-top:20px;font-size:16px;line-height:1.55;border-radius:3px}
+.why b{color:#fff;font-weight:600}
+
+/* ---------- auction ---------- */
+.auction{background:var(--card);border:1px solid var(--rule);border-radius:3px;padding:28px}
+.field{
+  position:relative;height:180px;border-radius:2px;
+  background-image:radial-gradient(circle at 3px 3px, rgba(224,123,0,.55) 2px, transparent 2.2px);
+  background-size:14px 14px;
+}
+.winner{
+  position:absolute;left:calc(50% - 24px);top:82px;width:18px;height:18px;border-radius:50%;
+  background:var(--grn);box-shadow:0 0 0 5px rgba(31,158,74,.22);
+}
+.field-cap{display:flex;gap:22px;flex-wrap:wrap;margin-top:16px;font-size:14.5px;color:var(--muted)}
+.key{display:flex;align-items:center;gap:8px}
+.key .sw{width:11px;height:11px;border-radius:50%}
+.steps{counter-reset:s;margin:30px 0 0;padding:0;list-style:none}
+.steps li{counter-increment:s;position:relative;padding:0 0 20px 54px;margin-bottom:20px;border-bottom:1px solid var(--rule)}
+.steps li:last-child{border-bottom:0;padding-bottom:0;margin-bottom:0}
+.steps li::before{
+  content:counter(s);position:absolute;left:0;top:-2px;
+  font-family:"Archivo",sans-serif;font-weight:800;font-size:30px;color:var(--red);opacity:.85;
+}
+.steps h4{font-size:19px;font-weight:700;margin-bottom:5px}
+.steps p{font-size:16px;color:var(--navy-soft)}
+
+.loophole{margin-top:16px;background:var(--red-tint);border:1px solid #F3C3CF;border-radius:3px;padding:28px}
+.loophole h3{font-size:27px;font-weight:700;margin-bottom:12px}
+.chain{
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:20px;
+  font-family:"JetBrains Mono",monospace;font-size:13.5px;
+}
+.chain span{background:#fff;border:1px solid #F3C3CF;padding:7px 13px;border-radius:2px}
+.chain b{color:var(--red);font-size:16px}
+
+/* ---------- settings ---------- */
+.settings{display:grid;gap:12px;counter-reset:g}
+.setting{
+  background:var(--card);border:1px solid var(--rule);border-radius:3px;
+  display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:start;padding:22px 24px;
+}
+.setting.hot{border-color:var(--amb);box-shadow:inset 3px 0 0 var(--amb)}
+.setting .g{counter-increment:g;font-family:"Archivo",sans-serif;font-weight:800;font-size:26px;color:var(--rule);line-height:1.2}
+.setting .g::before{content:counter(g)}
+.setting h4{font-size:20px;font-weight:700;margin-bottom:6px}
+.setting .path{
+  display:inline-block;font-family:"JetBrains Mono",monospace;font-size:13px;
+  background:var(--paper);padding:5px 9px;border-radius:2px;margin-bottom:9px;color:var(--navy-soft);
+}
+.setting p{font-size:15.5px;color:var(--navy-soft)}
+.toggle{
+  appearance:none;-webkit-appearance:none;margin:2px 0 0;flex:none;
+  width:50px;height:30px;border-radius:100px;background:#CBD3DF;position:relative;
+  cursor:pointer;transition:background .18s ease;border:0;
+}
+.toggle::after{
+  content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;
+  background:#fff;box-shadow:0 1px 3px rgba(18,35,61,.3);transition:transform .18s ease;
+}
+.toggle:checked{background:var(--grn)}
+.toggle:checked::after{transform:translateX(20px)}
+.toggle:focus-visible{outline:3px solid var(--ind);outline-offset:3px}
+.reality{margin-top:22px;font-size:16px;color:var(--muted);max-width:60ch}
+
+/* ---------- tools ---------- */
+.tier{margin-bottom:34px}
+.tier-bar{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.tier-bar h3{font-size:22px;font-weight:700}
+.tier-bar .bar{height:6px;flex:1;border-radius:100px}
+.tools{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tool{
+  display:flex;flex-direction:column;text-decoration:none;color:inherit;
+  background:var(--card);border:1px solid var(--rule);border-radius:3px;
+  padding:20px 22px;border-top:4px solid var(--rule);
+  transition:box-shadow .15s ease, transform .15s ease;
+}
+.tool:hover,.tool:focus-visible{box-shadow:0 6px 18px rgba(18,35,61,.14);transform:translateY(-2px)}
+.tool:focus-visible{outline:3px solid var(--ind);outline-offset:3px}
+.tool .num{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted)}
+.tool h4{font-size:21px;font-weight:700;margin:6px 0 8px}
+.tool p{font-size:15px;line-height:1.5;color:var(--navy-soft)}
+.tool .url{
+  margin-top:auto;padding-top:14px;display:flex;align-items:center;gap:7px;
+  font-family:"JetBrains Mono",monospace;font-size:12.5px;word-break:break-all;color:var(--ind);
+}
+.tool .url::before{content:"";width:7px;height:7px;border-radius:50%;flex:none;background:currentColor}
+.tool.t-ind{border-top-color:var(--ind)}
+.tool.t-amb{border-top-color:var(--amb)}
+.tool.t-amb .url{color:var(--amb)}
+.tool.t-red{border-top-color:var(--red)}
+.tool.t-red .url{color:var(--red)}
+.tool.t-nav{border-top-color:var(--navy-soft)}
+.tool.t-nav .url{color:var(--navy-soft)}
+
+.warnbox{
+  margin-top:14px;background:#FFF6E8;border:1px solid #F0D2A0;border-left:4px solid var(--amb);
+  border-radius:3px;padding:18px 22px;font-size:15.5px;line-height:1.55;
+}
+.warnbox b{color:#9A5400}
+
+.callout{
+  background:var(--navy);color:#fff;padding:30px 34px;border-radius:3px;margin:8px 0 34px;
+  font-size:21px;line-height:1.45;font-family:"Archivo",sans-serif;font-weight:500;letter-spacing:-.015em;
+}
+.callout span{color:#8FA8C8;font-weight:500}
+
+/* ---------- link index ---------- */
+.index{background:var(--card);border:1px solid var(--rule);border-radius:3px;padding:28px;margin-top:10px}
+.index h3{font-size:24px;font-weight:700;margin-bottom:6px}
+.index .isub{color:var(--muted);font-size:15.5px;margin-bottom:18px}
+.index ol{margin:0;padding:0;list-style:none;counter-reset:i;display:grid;grid-template-columns:1fr 1fr;gap:0 34px}
+.index li{
+  counter-increment:i;display:flex;gap:12px;align-items:baseline;
+  padding:11px 0;border-bottom:1px solid var(--rule);font-size:15px;
+}
+.index li::before{content:counter(i,decimal-leading-zero);font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);flex:none}
+.index li b{font-weight:600;flex:none}
+.index li a{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ind);margin-left:auto;text-align:right;word-break:break-all}
+
+/* ---------- closing ---------- */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:3px;padding:26px}
+.box h3{font-size:24px;font-weight:700;margin-bottom:16px}
+.box ul{margin:0;padding-left:20px}
+.box li{margin-bottom:13px;font-size:16px;line-height:1.5}
+.box li:last-child{margin-bottom:0}
+.box li b{font-weight:600}
+
+.final{background:var(--navy);color:#fff;margin-top:78px;padding:80px 0 90px}
+.final h2{font-size:clamp(30px,4.6vw,46px);font-weight:800;max-width:19ch;line-height:1.08}
+.final p{margin-top:24px;color:#A9BBD4;font-size:19px;line-height:1.55;max-width:54ch}
+.final .sig{margin-top:40px;font-family:"JetBrains Mono",monospace;font-size:12.5px;color:#6E85A8;border-top:1px solid rgba(255,255,255,.16);padding-top:16px}
+
+@media (max-width:860px){
+  body{font-size:16px}
+  .layers-grid,.apps,.tools,.two{grid-template-columns:1fr}
+  .index ol{grid-template-columns:1fr}
+  .index li{flex-wrap:wrap}
+  .index li a{margin-left:0;width:100%;text-align:left}
+  .faces{grid-template-columns:1fr}
+  .face.bad{border-left:0;border-top:1px solid var(--rule)}
+  .part-head{flex-wrap:wrap}
+  .part-head .sub{margin-left:0;text-align:left;width:100%}
+  .hero{padding-top:44px}
+  .setting{grid-template-columns:auto 1fr;gap:14px}
+  .toggle{grid-column:2}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{
+  body{background:#fff;font-size:11pt}
+  .hero,.layers,.final,.why,.callout,.layer{background:#fff!important;color:#000!important}
+  .hero h1,.final h2,.layer h3{color:#000!important}
+  .hero .deck,.final p,.layer p,.why{color:#333!important}
+  .part{page-break-inside:avoid;padding-top:30px}
+  .sensor,.app,.box,.tool,.setting,.index{page-break-inside:avoid}
+  .tool{box-shadow:none!important;transform:none!important}
+  .statusbar{display:none}
+}
+</style>
+</head>
+<body>
+
+<a href="1-3-how-hackers-track-you-online.html" style="display:block;background:#0a0a0a;color:#fff;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12.5px;padding:9px 28px;text-decoration:none;">&larr; Back to 1.3 lesson</a>
+
+<div class="statusbar">
+  <div class="wrap">
+    <span>9:41</span>
+    <span class="spacer"></span>
+    <span class="dot mic" title="microphone in use"></span>
+    <span class="dot cam" title="camera in use"></span>
+    <span>100%</span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Who's watching you</h1>
+    <p class="deck">Your phone is a microphone, a camera, a 3D scanner, an altitude gauge and a motion tracker. All of it runs whether or not you have an app open.</p>
+    <p class="meta">Phone sensors &nbsp;/&nbsp; app permissions &nbsp;/&nbsp; the data market &nbsp;/&nbsp; what to do about it</p>
+  </div>
+</header>
+
+<section class="layers">
+  <div class="wrap">
+    <div class="layers-grid">
+      <div class="layer">
+        <div class="n">Layer 1</div>
+        <h3>Hardware</h3>
+        <p>Built-in sensors, always on. Your accelerometer can identify you by the way you walk.</p>
+      </div>
+      <div class="layer">
+        <div class="n">Layer 2</div>
+        <h3>Software</h3>
+        <p>The apps you install and the permissions you hand them. Instagram's Friend Map broadcasts exactly where you are.</p>
+      </div>
+      <div class="layer">
+        <div class="n">Layer 3</div>
+        <h3>The market</h3>
+        <p>Brokers who buy and resell you. Federal agencies buy location data instead of getting a warrant.</p>
+      </div>
+    </div>
+    <p class="note">Most people only think about the middle one.</p>
+  </div>
+</section>
+
+<!-- PART 1 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head">
+      <div class="part-num">1</div>
+      <h2>The hardware</h2>
+      <div class="sub">Five sensors, each with a reason to exist and a way to be turned against you</div>
+    </div>
+    <p class="lede">Every sensor has two faces. There's the reason Apple put it in the phone, and there's what an app can do with it once you tap "Allow."</p>
+
+    <div class="sensors">
+      <div class="sensor">
+        <div class="sensor-top"><h3>LiDAR scanner</h3><span class="pill">Camera and AR apps</span></div>
+        <div class="faces">
+          <div class="face good"><div class="lbl"><span class="dot cam"></span>Why it's there</div><p>Focuses six times faster in the dark, so night photos come out sharp.</p></div>
+          <div class="face bad"><div class="lbl"><span class="dot mic"></span>What it can do to you</div><p>Scans the 3D layout and furniture of your bedroom.</p></div>
+        </div>
+      </div>
+
+      <div class="sensor">
+        <div class="sensor-top"><h3>Barometer</h3><span class="pill on">Always on</span></div>
+        <div class="faces">
+          <div class="face good"><div class="lbl"><span class="dot cam"></span>Why it's there</div><p>Tells 911 what floor you're on inside a 50-story building.</p></div>
+          <div class="face bad"><div class="lbl"><span class="dot mic"></span>What it can do to you</div><p>Estimates your family's income from whether you live in the penthouse or the basement.</p></div>
+        </div>
+      </div>
+
+      <div class="sensor">
+        <div class="sensor-top"><h3>TrueDepth camera</h3><span class="pill">Face ID and filters</span></div>
+        <div class="faces">
+          <div class="face good"><div class="lbl"><span class="dot cam"></span>Why it's there</div><p>The hardest passcode there is to crack. It keeps your phone locked to your face.</p></div>
+          <div class="face bad"><div class="lbl"><span class="dot mic"></span>What it can do to you</div><p>Reads micro-expressions to work out whether an ad made you happy or bored.</p></div>
+        </div>
+      </div>
+
+      <div class="sensor">
+        <div class="sensor-top"><h3>Ambient light sensor</h3><span class="pill on">Always on</span></div>
+        <div class="faces">
+          <div class="face good"><div class="lbl"><span class="dot cam"></span>Why it's there</div><p>Dims the screen so you don't fry your eyes and drain the battery.</p></div>
+          <div class="face bad"><div class="lbl"><span class="dot mic"></span>What it can do to you</div><p>Tells an app whether you're lying in bed or standing outside.</p></div>
+        </div>
+      </div>
+
+      <div class="sensor">
+        <div class="sensor-top"><h3>Accelerometer</h3><span class="pill on">Always on</span></div>
+        <div class="faces">
+          <div class="face good"><div class="lbl"><span class="dot cam"></span>Why it's there</div><p>Detects a high-speed crash and calls for help on its own.</p></div>
+          <div class="face bad"><div class="lbl"><span class="dot mic"></span>What it can do to you</div><p>Identifies you by the rhythm of your walk, which is as individual as a fingerprint.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="receipt">
+      <strong>This is not a conspiracy theory.</strong> Apple's own developer documentation describes LiDAR capturing 3D meshes of indoor spaces. Peer-reviewed studies have shown that iPhone accelerometer data can identify a specific person from their walking pattern. And the FCC's Z-axis mandate legally requires your phone to report vertical location to first responders.
+    </div>
+  </div>
+</section>
+
+<!-- PART 2 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head">
+      <div class="part-num">2</div>
+      <h2>The apps</h2>
+      <div class="sub">Social apps used to settle for your city. Now they want your room.</div>
+    </div>
+
+    <div class="apps">
+      <div class="app">
+        <h3>TikTok</h3>
+        <div class="tag">Scanning before you ever post</div>
+        <p>TikTok scans content during the pre-upload stage. Record a video and delete the draft, and your faceprint and voiceprint have already been captured. It happens the moment you hit record, not the moment you hit post.</p>
+        <p>The app also wants precise GPS rather than just your IP address, so its "Nearby" feed can push real foot traffic toward specific shops. Your location is inventory now.</p>
+      </div>
+      <div class="app">
+        <h3>Instagram</h3>
+        <div class="tag">Encryption removed from DMs</div>
+        <p>Meta is rolling back end-to-end encryption on Instagram DMs. Until now, even Meta couldn't read your messages. Afterward, every DM is a postcard: readable by Meta, scannable by their AI, and available to law enforcement on request.</p>
+        <p>The new Friend Map feature needs constant precise location so friends can watch each other move in real time.</p>
+      </div>
+    </div>
+
+    <div class="why">
+      <b>So why would Meta give up encryption?</b> The official answer is low adoption. The unofficial one is simpler: encrypted messages can't be scanned to train AI, can't be turned into ad targeting, and can't be handed to police without a warrant. Removing encryption fixes all three problems at once, for Meta.
+    </div>
+  </div>
+</section>
+
+<!-- PART 3 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head">
+      <div class="part-num">3</div>
+      <h2>The market</h2>
+      <div class="sub">Your data isn't shared like a file. It's auctioned.</div>
+    </div>
+
+    <div class="auction">
+      <p class="lede" style="margin-bottom:22px">Open any app with an ad and a packet of your data is broadcast to about a thousand companies in 50 milliseconds. That's roughly one blink.</p>
+
+      <div class="field"><div class="winner"></div></div>
+      <div class="field-cap">
+        <span class="key"><span class="sw" style="background:var(--grn)"></span>1 winner</span>
+        <span class="key"><span class="sw" style="background:var(--amb)"></span>999 losers, all of whom keep the data anyway</span>
+      </div>
+
+      <ol class="steps">
+        <li>
+          <h4>You open a weather app in a psychiatrist's waiting room</h4>
+          <p>Your GPS coordinates and advertising ID go out to roughly a thousand companies before the ad has even loaded on screen.</p>
+        </li>
+        <li>
+          <h4>A pharmacy wins the auction</h4>
+          <p>It pays the most and gets to show you an ad for vitamins. The system worked exactly as designed.</p>
+        </li>
+        <li>
+          <h4>The other 999 lost, and kept everything</h4>
+          <p>They didn't win, but they received the packet. They now know you were at a psychiatrist's office, and that fact goes into your file permanently.</p>
+        </li>
+      </ol>
+    </div>
+
+    <div class="loophole">
+      <h3>The warrant loophole</h3>
+      <p>Normally the government needs a judge to sign a warrant before it can track your movements. But this data is commercially available, and anyone with a credit card can buy it. So agencies argue no warrant is needed. They simply buy it, like any other customer.</p>
+      <div class="chain">
+        <span>Your app sells to a broker</span><b>&rsaquo;</b>
+        <span>The government buys from the broker</span><b>&rsaquo;</b>
+        <span>No warrant was ever required</span>
+      </div>
+      <p style="margin-top:20px">The Fourth Amendment gets skipped, not because the law changed, but because a private company stood in the middle.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PART 4 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head">
+      <div class="part-num">4</div>
+      <h2>Lock it down</h2>
+      <div class="sub">Ten minutes, no cost. Flip a switch as you finish each one.</div>
+    </div>
+    <p class="lede">You can't disappear, and pretending otherwise is a waste of your time. What you can do is make yourself expensive to follow.</p>
+
+    <div class="settings">
+      <div class="setting">
+        <div class="g"></div>
+        <div>
+          <h4>Turn off Precise Location for social apps</h4>
+          <span class="path">Settings &rsaquo; Privacy &amp; Security &rsaquo; Location Services</span>
+          <p>Go through Instagram, TikTok, Snapchat, X and Facebook one at a time. They'll still get your general area, but not your room. This is what blocks Friend Map and the Nearby feed from learning your address.</p>
+        </div>
+        <input type="checkbox" class="toggle" aria-label="Mark step 1 done">
+      </div>
+
+      <div class="setting">
+        <div class="g"></div>
+        <div>
+          <h4>Turn off Motion &amp; Fitness for social apps</h4>
+          <span class="path">Settings &rsaquo; Privacy &amp; Security &rsaquo; Motion &amp; Fitness</span>
+          <p>Switch it off for every social app. This is the one that shuts down gait identification.</p>
+        </div>
+        <input type="checkbox" class="toggle" aria-label="Mark step 2 done">
+      </div>
+
+      <div class="setting hot">
+        <div class="g"></div>
+        <div>
+          <h4>Stop your carrier from selling you</h4>
+          <span class="path">Settings &rsaquo; Cellular &rsaquo; Limit Data Broker Sharing</span>
+          <p>Major US carriers sell your movement data to brokers by default. Toggling this on tells them to stop, and it is the single most powerful setting on this page.</p>
+        </div>
+        <input type="checkbox" class="toggle" aria-label="Mark step 3 done">
+      </div>
+
+      <div class="setting">
+        <div class="g"></div>
+        <div>
+          <h4>Turn off tracking across apps</h4>
+          <span class="path">Settings &rsaquo; Privacy &amp; Security &rsaquo; Tracking</span>
+          <p>Switch off "Allow Apps to Request to Track." That kills the advertising ID feeding the whole auction system, and every future tracking popup gets denied automatically.</p>
+        </div>
+        <input type="checkbox" class="toggle" aria-label="Mark step 4 done">
+      </div>
+
+      <div class="setting">
+        <div class="g"></div>
+        <div>
+          <h4>Audit every permission you've granted</h4>
+          <span class="path">Settings &rsaquo; Privacy &amp; Security &rsaquo; Camera, Microphone, Photos, Contacts, Bluetooth</span>
+          <p>Work down each category. If a flashlight app has microphone access, something is wrong. Revoke anything an app doesn't need in order to function.</p>
+        </div>
+        <input type="checkbox" class="toggle" aria-label="Mark step 5 done">
+      </div>
+    </div>
+
+    <p class="reality">These reduce how much leaks out. They don't stop it. Every app you install is one more exit door, so the real decision happens before you tap "Get."</p>
+  </div>
+</section>
+
+<!-- PART 5 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head">
+      <div class="part-num">5</div>
+      <h2>See it yourself</h2>
+      <div class="sub">Nine free sites that prove all of the above on your own device</div>
+    </div>
+    <p class="lede">Tap any card to open it. Try each one in a normal tab, then again in Incognito, and compare. Sometimes Incognito changes nothing at all.</p>
+
+    <div class="tier">
+      <div class="tier-bar"><h3>Start here</h3><div class="bar" style="background:var(--ind)"></div></div>
+      <div class="tools">
+        <a class="tool t-ind" href="https://coveryourtracks.eff.org/" target="_blank" rel="noopener noreferrer">
+          <div class="num">01</div><h4>Cover Your Tracks</h4>
+          <p>From the Electronic Frontier Foundation. A plain-English report on how well your browser blocks trackers and ad networks.</p>
+          <span class="url">coveryourtracks.eff.org</span>
+        </a>
+        <a class="tool t-ind" href="https://amiunique.org/" target="_blank" rel="noopener noreferrer">
+          <div class="num">02</div><h4>AmIUnique?</h4>
+          <p>Compares your browser against millions of others and tells you how identifiable you are, with no cookies involved. Expect something like "unique among the 3.4 million we've seen."</p>
+          <span class="url">amiunique.org</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="tier">
+      <div class="tier-bar"><h3>Eye-openers</h3><div class="bar" style="background:var(--amb)"></div></div>
+      <div class="tools">
+        <a class="tool t-amb" href="https://webkay.robinlinus.com/" target="_blank" rel="noopener noreferrer">
+          <div class="num">03</div><h4>Webkay</h4>
+          <p>One page that guesses your location, your hardware, and which sites you're logged into right now.</p>
+          <span class="url">webkay.robinlinus.com</span>
+        </a>
+        <a class="tool t-amb" href="https://www.deviceinfo.me/" target="_blank" rel="noopener noreferrer">
+          <div class="num">04</div><h4>Device Info</h4>
+          <p>Lists nearly every sensor and spec on your device. Battery, GPU, screen size, installed fonts, connected speakers. Harmless one at a time; together they're a fingerprint.</p>
+          <span class="url">deviceinfo.me</span>
+        </a>
+        <a class="tool t-amb" href="https://clickclickclick.click/" target="_blank" rel="noopener noreferrer">
+          <div class="num">05</div><h4>Clickclickclick</h4>
+          <p>Narrates every move you make: clicks, scrolling, hesitation, hovering. A voice reads it out loud and gets creepier in real time. You'll laugh, then stop laughing.</p>
+          <span class="url">clickclickclick.click</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="callout">Everything these sites show you is information <span>every website you already visit has access to.</span> No hacking, no malware, no special permissions.</div>
+
+    <div class="tier">
+      <div class="tier-bar"><h3>The Incognito myth</h3><div class="bar" style="background:var(--red)"></div></div>
+      <div class="tools">
+        <a class="tool t-red" href="https://nothingprivate.gkr.pw/" target="_blank" rel="noopener noreferrer">
+          <div class="num">06</div><h4>Nothing Private</h4>
+          <p>Type your name in a normal tab. Open the site again in Incognito. It greets you by name.</p>
+          <span class="url">nothingprivate.gkr.pw</span>
+        </a>
+        <a class="tool t-red" href="https://demo.fingerprint.com/" target="_blank" rel="noopener noreferrer">
+          <div class="num">07</div><h4>Fingerprint.com demo</h4>
+          <p>Generates a Visitor ID that usually survives both Incognito and clearing your cookies. This is the real commercial technology ad networks and fraud systems run on.</p>
+          <span class="url">demo.fingerprint.com</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="callout">Incognito was never about hiding from websites. <span>It hides your history from other people using your computer.</span> Sites can still identify you with around 99% accuracy through fingerprinting, even if you never log in.</div>
+
+    <div class="tier">
+      <div class="tier-bar"><h3>Go deeper</h3><div class="bar" style="background:var(--navy-soft)"></div></div>
+      <div class="tools">
+        <a class="tool t-nav" href="https://browserleaks.com/" target="_blank" rel="noopener noreferrer">
+          <div class="num">08</div><h4>BrowserLeaks</h4>
+          <p>The actual techniques laid out one by one: IP, Canvas fingerprinting, WebGL fingerprinting, hardware leaks, each with an explanation of how it works.</p>
+          <span class="url">browserleaks.com</span>
+        </a>
+        <a class="tool t-nav" href="https://abrahamjuliot.github.io/creepjs/" target="_blank" rel="noopener noreferrer">
+          <div class="num">09</div><h4>CreepJS</h4>
+          <p>Detects whether you're on a VPN or faking your identity, and scores how trustworthy your browser looks. A VPN can make you <em>more</em> identifiable, because its claimed location clashes with your timezone and language.</p>
+          <span class="url">abrahamjuliot.github.io/creepjs</span>
+        </a>
+      </div>
+      <div class="warnbox">
+        <b>Use the exact CreepJS address above and no other.</b> The developer publishes it only on GitHub Pages. Copycat sites at other domains run modified versions of the code and exist to capture the fingerprint data they pretend to show you. Which is a fitting way to end the unit: even the tool that teaches you about fingerprinting has impostors trying to fingerprint you.
+      </div>
+    </div>
+
+    <div class="index">
+      <h3>All nine links</h3>
+      <p class="isub">For typing by hand, printing, or pasting into a slide.</p>
+      <ol>
+        <li><b>Cover Your Tracks</b><a href="https://coveryourtracks.eff.org/" target="_blank" rel="noopener noreferrer">coveryourtracks.eff.org</a></li>
+        <li><b>AmIUnique?</b><a href="https://amiunique.org/" target="_blank" rel="noopener noreferrer">amiunique.org</a></li>
+        <li><b>Webkay</b><a href="https://webkay.robinlinus.com/" target="_blank" rel="noopener noreferrer">webkay.robinlinus.com</a></li>
+        <li><b>Device Info</b><a href="https://www.deviceinfo.me/" target="_blank" rel="noopener noreferrer">deviceinfo.me</a></li>
+        <li><b>Clickclickclick</b><a href="https://clickclickclick.click/" target="_blank" rel="noopener noreferrer">clickclickclick.click</a></li>
+        <li><b>Nothing Private</b><a href="https://nothingprivate.gkr.pw/" target="_blank" rel="noopener noreferrer">nothingprivate.gkr.pw</a></li>
+        <li><b>Fingerprint demo</b><a href="https://demo.fingerprint.com/" target="_blank" rel="noopener noreferrer">demo.fingerprint.com</a></li>
+        <li><b>BrowserLeaks</b><a href="https://browserleaks.com/" target="_blank" rel="noopener noreferrer">browserleaks.com</a></li>
+        <li><b>CreepJS</b><a href="https://abrahamjuliot.github.io/creepjs/" target="_blank" rel="noopener noreferrer">abrahamjuliot.github.io/creepjs</a></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSING -->
+<section class="part">
+  <div class="wrap">
+    <div class="two">
+      <div class="box">
+        <h3>Try this</h3>
+        <ul>
+          <li><b>The Clickclickclick challenge.</b> Open it and try to make the narrator stop talking. You can't. If a site can do that in 30 seconds, what can one you use for six hours a day do?</li>
+          <li><b>The fingerprint compare.</b> Run AmIUnique on two devices you own. If you're identifiable on both, are you anonymous on either?</li>
+          <li><b>The permission audit.</b> Open Location Services right now. How many apps have Precise Location on that have no business with it?</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Talk about it</h3>
+        <ul>
+          <li>If your browser is unique among three million, how much did clearing your cookies actually accomplish?</li>
+          <li>What's the difference between a tracker, a cookie and a fingerprint?</li>
+          <li>If Incognito doesn't hide you from websites, what was it built for?</li>
+          <li>Should a site be legally required to tell you when it's fingerprinting you?</li>
+          <li>If a stranger followed you all day, wrote down every place you went and scanned every room you entered, would that be fine? Because that's the deal you've already agreed to.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>If the app is free, the price is the map of your life.</h2>
+    <p>Your hardware is a witness that never sleeps. Privacy isn't a switch you flip once. It's a trade you make every time a page loads. The goal was never to disappear. It's to know exactly what you're handing over, and to be the one deciding.</p>
+    <p class="sig">End of guide &nbsp;/&nbsp; keep this one</p>
+  </div>
+</footer>
+
+</body>
+</html>
