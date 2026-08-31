@@ -35,6 +35,16 @@
   <div id="dashboard" style="display:none;">
 
     <div class="card">
+      <h2 style="margin-top:0;">Current Lesson</h2>
+      <p class="hint" style="margin-top:-8px;">Shows as a banner on the homepage &mdash; "what lesson are we on" for each class. Leave a box blank to hide that class from the banner.</p>
+      <div id="lesson-alert"></div>
+      <form class="stack" id="lesson-form">
+        <div id="lesson-fields"></div>
+        <button type="submit" class="btn btn-primary" style="align-self:flex-start;">Save</button>
+      </form>
+    </div>
+
+    <div class="card">
       <h2 style="margin-top:0; display:flex; align-items:center; justify-content:space-between;">
         Add Announcement
         <span id="editing-badge"></span>
@@ -164,7 +174,40 @@ function unlock() {
     COURSES.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.shortName)}</option>`).join('');
   document.getElementById('a-filter').addEventListener('change', renderAnnouncements);
   loadAnnouncements();
+  loadCurrentLessons();
 }
+
+async function loadCurrentLessons() {
+  const fieldsEl = document.getElementById('lesson-fields');
+  const res = await authedPost({ action: 'currentLessons' });
+  if (res.error) {
+    fieldsEl.innerHTML = `<div class="alert alert-error">${escapeHtml(res.error)}</div>`;
+    return;
+  }
+  const lessons = res.lessons || {};
+  fieldsEl.innerHTML = COURSES.map(c => `
+    <div class="field">
+      <label for="lesson-${c.id}">${escapeHtml(c.name)}</label>
+      <input type="text" id="lesson-${c.id}" value="${escapeHtml(lessons[c.id] || '')}" placeholder="e.g. Unit 1.4 &mdash; Copyright and Ethics">
+    </div>
+  `).join('');
+}
+
+document.getElementById('lesson-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const alertEl = document.getElementById('lesson-alert');
+  const lessons = {};
+  COURSES.forEach(c => {
+    lessons[c.id] = document.getElementById('lesson-' + c.id).value.trim();
+  });
+  setAlert(alertEl, 'info', 'Saving&hellip;');
+  const res = await authedPost({ action: 'saveCurrentLessons', lessons });
+  if (res.error) {
+    setAlert(alertEl, 'error', res.error);
+  } else {
+    setAlert(alertEl, 'success', 'Saved.');
+  }
+});
 
 async function loadAnnouncements() {
   const slot = document.getElementById('announcements-slot');

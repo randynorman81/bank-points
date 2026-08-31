@@ -38,6 +38,26 @@ async function listAnnouncements(course) {
   return { announcements: forCourse.slice().sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt)) };
 }
 
+// "What lesson are we on" per class -- a single current value per course
+// (not a growing list like announcements), shown as a banner on the
+// homepage. Stored under its own key so it's independent of the
+// announcements array.
+async function getCurrentLessons() {
+  return { lessons: await readJSON("currentLessons", {}) };
+}
+
+async function saveCurrentLessons(body) {
+  const lessons = body.lessons && typeof body.lessons === "object" ? body.lessons : null;
+  if (!lessons) return { error: "Missing lessons" };
+  const cleaned = {};
+  Object.keys(lessons).forEach((k) => {
+    const v = (lessons[k] || "").trim();
+    if (v) cleaned[k] = v;
+  });
+  await updateJSON("currentLessons", {}, () => cleaned);
+  return { ok: true };
+}
+
 async function addAnnouncement(body) {
   const course = (body.course || "").trim();
   const date = (body.date || "").trim();
@@ -94,6 +114,7 @@ export default async (req) => {
       const url = new URL(req.url);
       const action = url.searchParams.get("action") || "list";
       if (action === "list") return ok(await listAnnouncements(url.searchParams.get("course") || ""));
+      if (action === "currentLessons") return ok(await getCurrentLessons());
       return ok({ error: "Unknown action" });
     }
 
@@ -117,6 +138,10 @@ export default async (req) => {
           return ok({ ok: true });
         case "list":
           return ok(await listAnnouncements(body.course || ""));
+        case "currentLessons":
+          return ok(await getCurrentLessons());
+        case "saveCurrentLessons":
+          return ok(await saveCurrentLessons(body));
         case "addAnnouncement":
           return ok(await addAnnouncement(body));
         case "editAnnouncement":
