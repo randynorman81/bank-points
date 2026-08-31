@@ -53,8 +53,9 @@
           </div>
         </div>
         <div class="field">
-          <label for="post-title">Title</label>
-          <input type="text" id="post-title" required>
+          <label for="post-week-of">Week Of</label>
+          <input type="text" id="post-week-of" required placeholder="e.g. August 25–29">
+          <div class="hint">This is the post's title — no separate title needed.</div>
         </div>
         <div id="template-fields" style="display:flex; flex-direction:column; gap:14px;"></div>
         <div class="row-actions">
@@ -117,12 +118,8 @@ function getPin() {
 // body that doesn't match) just lands whole in "Announcements" so nothing
 // is lost.
 const TEMPLATE_SECTIONS = [
-  { key: 'weekOf', heading: 'WEEK OF', label: 'Week Of', type: 'text', placeholder: 'e.g. August 25–29' },
   { key: 'announcements', heading: 'ANNOUNCEMENTS', label: 'Announcements', type: 'textarea' },
-  { key: 'standards', heading: 'STANDARDS BEING ADDRESSED', label: 'Standards Being Addressed', type: 'textarea' },
   { key: 'links', heading: 'IMPORTANT LINKS', label: 'Any Important Links', type: 'textarea' },
-  { key: 'assignments', heading: 'ASSIGNMENTS DUE THIS FRIDAY BY 11:59PM', label: 'Assignments Due This Friday by 11:59pm', type: 'textarea' },
-  { key: 'quizzes', heading: 'QUIZZES COMING UP', label: 'Any Quizzes Coming Up?', type: 'textarea' },
   { key: 'unitTest', heading: 'UNIT TEST', label: 'When Is Unit Test?', type: 'textarea' },
   { key: 'news', heading: 'WORLDWIDE NEWS CONNECTED TO OUR CONTENT', label: 'Any Worldwide News Connected to Our Current Content', type: 'textarea' }
 ];
@@ -275,7 +272,7 @@ function editPost(id) {
   editingId = id;
   document.getElementById('post-id').value = p.id;
   document.getElementById('post-course').value = p.course || '';
-  document.getElementById('post-title').value = p.title;
+  document.getElementById('post-week-of').value = p.title;
   document.getElementById('post-date').value = p.date;
   fillTemplateFields(parseBody(p.body));
   document.getElementById('post-submit-btn').textContent = 'Save Changes';
@@ -299,11 +296,15 @@ document.getElementById('post-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const alertEl = document.getElementById('form-alert');
   const course = document.getElementById('post-course').value;
-  const title = document.getElementById('post-title').value.trim();
+  const title = document.getElementById('post-week-of').value.trim();
   const date = document.getElementById('post-date').value;
   const body = assembleBody();
   if (!course) {
     setAlert(alertEl, 'error', 'Choose which class this update is for.');
+    return;
+  }
+  if (!title) {
+    setAlert(alertEl, 'error', 'Fill in Week Of.');
     return;
   }
   if (!body) {
