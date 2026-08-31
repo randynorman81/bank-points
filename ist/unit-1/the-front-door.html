@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Front Door</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0E3A5F;
+  --blue-deep:#0A2C49;
+  --panel:#134A76;
+  --card:#154E7C;
+  --line:#4A88BE;
+  --line-soft:#2E6699;
+  --ink:#EAF3FB;
+  --ink-soft:#9DC0DE;
+  --white:#FFFFFF;
+  --red:#E8594F;
+  --red-tint:#3A1F26;
+  --gold:#F0B94A;
+  --gold-tint:#3A2E15;
+  --green:#5FC98D;
+  --green-tint:#123527;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--blue); color:var(--ink);
+  font-family:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;
+  background-image:
+    linear-gradient(var(--line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+  background-size:34px 34px;
+  background-attachment:fixed;
+  background-color:var(--blue);
+}
+h1,h2,h3,h4{font-family:"Big Shoulders Display",sans-serif; line-height:1.05; margin:0; text-transform:uppercase; letter-spacing:.01em; text-wrap:balance}
+p{margin:0 0 1em}
+p:last-child{margin-bottom:0}
+strong,b{font-weight:600; color:var(--white)}
+code{font-family:"Roboto Mono",ui-monospace,monospace;font-size:.87em;background:var(--blue-deep);padding:1px 6px;border-radius:3px;color:#BEE0FF}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.backbar{display:block;background:var(--blue-deep);color:#9DC0DE;font-family:"Roboto Mono",monospace;font-size:12.5px;padding:9px 26px;text-decoration:none;border-bottom:1px solid var(--line-soft)}
+.backbar:hover{color:#fff}
+
+.hero{padding:58px 0 40px;border-bottom:2px solid var(--line)}
+.blueprint-tag{font-family:"Roboto Mono",monospace;font-size:12px;color:var(--ink-soft);letter-spacing:.1em;margin-bottom:16px;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.blueprint-tag::before{content:"";width:22px;height:1px;background:var(--line)}
+.hero h1{font-size:clamp(44px,8vw,80px);font-weight:800;color:var(--white);max-width:14ch}
+.hero .deck{color:var(--ink-soft);font-family:"Source Sans 3",sans-serif;text-transform:none;font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:58ch;margin-top:18px}
+
+/* four-lock overview strip */
+.locks{border-bottom:2px solid var(--line)}
+.locks-grid{display:grid;grid-template-columns:repeat(4,1fr)}
+.lock{padding:22px 22px;border-right:1px solid var(--line-soft)}
+.lock:last-child{border-right:0}
+.lock .glyph{font-family:"Roboto Mono",monospace;font-size:11px;color:var(--line);letter-spacing:.05em}
+.lock h3{font-size:22px;font-weight:700;color:var(--white);margin:8px 0 6px}
+.lock p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.part{padding:56px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:2px solid var(--line);padding-bottom:14px;margin-bottom:28px}
+.part-tag{font-family:"Roboto Mono",monospace;font-size:12px;color:var(--gold);letter-spacing:.05em;flex:none}
+.part-head h2{font-size:clamp(24px,4vw,36px);font-weight:800;color:var(--white)}
+.lede{font-size:18px;line-height:1.6;max-width:64ch;margin-bottom:28px;color:#CFE3F5}
+
+/* spec sheet rows */
+.spec{background:var(--card);border:1px solid var(--line-soft);border-radius:2px;padding:22px 26px;margin:20px 0}
+.spec h4{font-family:"Roboto Mono",monospace;font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px;font-weight:600}
+.spec-rows{display:grid;gap:12px}
+.spec-row{display:grid;grid-template-columns:170px 1fr;gap:16px;padding-bottom:12px;border-bottom:1px solid var(--line-soft)}
+.spec-row:last-child{border-bottom:0;padding-bottom:0}
+.spec-row .k{font-size:13.5px;color:var(--ink-soft);text-transform:none;font-weight:600}
+.spec-row .v{font-size:15px;color:var(--ink)}
+
+/* redline warning (the actual architecture term for a marked correction) */
+.redline{background:var(--red-tint);border:1px solid #6B2A2A;border-left:4px solid var(--red);border-radius:3px;padding:20px 24px;margin:20px 0}
+.redline h4{font-family:"Roboto Mono",monospace;font-size:12px;color:#FF9B92;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;font-weight:600}
+.redline p{font-size:15px;color:#F0CFCB;margin:0}
+
+/* factor grid (2fa) */
+.factors{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0}
+.factor{background:var(--card);border:1px solid var(--line-soft);border-radius:2px;padding:20px}
+.factor .tag{font-family:"Roboto Mono",monospace;font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.04em}
+.factor h4{font-size:19px;font-weight:700;color:var(--white);margin:8px 0 6px;text-transform:none}
+.factor p{font-size:14px;color:var(--ink-soft);margin:0}
+
+.ranked{display:grid;gap:10px;margin:20px 0}
+.rank{background:var(--card);border:1px solid var(--line-soft);border-radius:2px;padding:16px 20px;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center}
+.rank .n{font-family:"Big Shoulders Display",sans-serif;font-size:24px;font-weight:800;color:var(--line);width:26px}
+.rank h5{font-size:16px;font-weight:700;color:var(--white);text-transform:none;margin-bottom:2px}
+.rank p{font-size:13.5px;color:var(--ink-soft);margin:0}
+.strength{font-family:"Roboto Mono",monospace;font-size:11px;padding:5px 11px;border-radius:100px;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
+.strength.weak{background:var(--red-tint);color:#FF9B92}
+.strength.mid{background:var(--gold-tint);color:var(--gold)}
+.strength.strong{background:var(--green-tint);color:var(--green)}
+
+/* top 10 list */
+.top10{display:grid;gap:2px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:2px;overflow:hidden;margin:20px 0}
+.t10-row{background:var(--card);padding:16px 20px;display:grid;grid-template-columns:40px 1fr;gap:16px;align-items:center}
+.t10-row .rk{font-family:"Roboto Mono",monospace;font-size:13px;color:var(--gold);font-weight:600}
+.t10-row h5{font-size:16px;font-weight:700;color:var(--white);text-transform:none;margin-bottom:3px}
+.t10-row p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+/* diagnostic cards */
+.diag{display:grid;gap:12px;margin-top:8px}
+.dcard{background:var(--card);border:1px solid var(--line-soft);border-radius:2px;padding:18px 22px}
+.dcard .id{font-family:"Roboto Mono",monospace;font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.dcard p{font-size:15px;margin-bottom:10px}
+.dcard .finding{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--ink-soft);border-top:1px dashed var(--line-soft);padding-top:10px}
+.dcard .finding b{color:var(--gold);text-transform:uppercase;font-family:"Roboto Mono",monospace;font-size:11.5px;flex:none}
+
+.callout{background:var(--blue-deep);border:1px solid var(--line-soft);color:var(--white);padding:28px 30px;border-radius:2px;margin:10px 0 30px;font-family:"Big Shoulders Display",sans-serif;font-size:24px;font-weight:700;line-height:1.35;text-transform:none}
+.callout span{color:var(--ink-soft);font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--line-soft);border-radius:2px;padding:24px}
+.box h3{font-size:20px;font-weight:700;margin-bottom:14px;color:var(--white)}
+.box ul{margin:0;padding-left:20px}
+.box li{margin-bottom:11px;font-size:15px;line-height:1.5;color:#CFE3F5}
+.box li:last-child{margin-bottom:0}
+
+.final{border-top:2px solid var(--line);margin-top:56px;padding:52px 0 64px}
+.final h2{font-size:clamp(24px,3.6vw,38px);font-weight:800;max-width:22ch;line-height:1.15;color:var(--white)}
+.final p{margin-top:18px;color:var(--ink-soft);font-size:16.5px;line-height:1.6;max-width:58ch;font-family:"Source Sans 3",sans-serif}
+.final .sig{margin-top:28px;font-family:"Roboto Mono",monospace;font-size:12px;color:#5D89AC;border-top:1px solid var(--line-soft);padding-top:14px}
+
+@media (max-width:820px){
+  .locks-grid,.factors,.two{grid-template-columns:1fr}
+  .lock{border-right:0;border-bottom:1px solid var(--line-soft)}
+  .spec-row{grid-template-columns:1fr}
+  .rank{grid-template-columns:auto 1fr}
+  .strength{grid-column:2}
+  .t10-row{grid-template-columns:30px 1fr}
+}
+</style>
+</head>
+<body>
+
+<a class="backbar" href="1-6-common-security-problems.html">&larr; Back to 1.6 lesson</a>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="blueprint-tag">DWG 1.6 &nbsp;/&nbsp; SEC-ENVELOPE &nbsp;/&nbsp; REV. A</div>
+    <h1>The Front Door</h1>
+    <p class="deck">Every website you trust is a building with strangers walking up to the door all day. HTTPS, CAPTCHA, 2FA and OWASP are the four things standing between them and what's inside.</p>
+  </div>
+</header>
+
+<section class="locks">
+  <div class="wrap locks-grid">
+    <div class="lock"><div class="glyph">01 / TRANSIT</div><h3>HTTPS</h3><p>The lock on the connection itself &mdash; scrambles what you send so no one on the way can read it.</p></div>
+    <div class="lock"><div class="glyph">02 / ENTRY</div><h3>CAPTCHA</h3><p>The doorman &mdash; checks that whoever's knocking is a person, not a script.</p></div>
+    <div class="lock"><div class="glyph">03 / IDENTITY</div><h3>2FA</h3><p>The second deadbolt &mdash; a stolen key alone isn't enough to get in.</p></div>
+    <div class="lock"><div class="glyph">04 / INSPECTION</div><h3>OWASP</h3><p>The building code &mdash; the catalog of ways buildings like this one usually fail.</p></div>
+  </div>
+</section>
+
+<!-- PART 1: HTTPS -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>HTTPS &mdash; the lock on the connection</h2></div>
+    <p class="lede">Plain HTTP sends everything &mdash; your password, your messages, your search &mdash; as plain, readable text. Anyone else on the same network can read it as it passes by.</p>
+
+    <div class="spec">
+      <h4>What the padlock icon actually checks</h4>
+      <div class="spec-rows">
+        <div class="spec-row"><div class="k">Encryption</div><div class="v">Data is scrambled (via TLS) so it's unreadable to anyone intercepting it in transit &mdash; including on public Wi-Fi.</div></div>
+        <div class="spec-row"><div class="k">Certificate identity</div><div class="v">Confirms you're actually talking to the domain in the address bar, not an imposter server pretending to be it.</div></div>
+      </div>
+    </div>
+
+    <div class="redline">
+      <h4>Redline: the padlock is not a trust badge</h4>
+      <p>HTTPS proves your connection to a site can't be read by a stranger in the middle. It says nothing about whether the site itself is honest. A perfect copy of your bank's login page, built by a scammer at a look-alike domain, can carry a valid padlock too.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PART 2: CAPTCHA -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>CAPTCHA &mdash; the doorman</h2></div>
+    <p class="lede">CAPTCHA is actually an acronym: <b>C</b>ompletely <b>A</b>utomated <b>P</b>ublic <b>T</b>uring test to tell <b>C</b>omputers and <b>H</b>umans <b>A</b>part. Its entire job is to slow down software pretending to be a person.</p>
+
+    <div class="spec">
+      <h4>What bots do at a scale humans can't</h4>
+      <div class="spec-rows">
+        <div class="spec-row"><div class="k">Credential stuffing</div><div class="v">Trying millions of leaked username/password pairs against a login page in minutes.</div></div>
+        <div class="spec-row"><div class="k">Ticket &amp; sneaker bots</div><div class="v">Buying out an entire concert or shoe drop in the first second, before a real person can click.</div></div>
+        <div class="spec-row"><div class="k">Spam &amp; fake reviews</div><div class="v">Flooding comment sections and review pages faster than any moderator could keep up.</div></div>
+      </div>
+    </div>
+
+    <p><b>It's evolved fast:</b> distorted letters &rarr; "click every image with a crosswalk" &rarr; today's one-click "I'm not a robot" checkbox, which is quietly scoring your mouse movement and click timing in the background &mdash; the visible checkbox is almost a formality.</p>
+  </div>
+</section>
+
+<!-- PART 3: 2FA -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>2FA &mdash; the second deadbolt</h2></div>
+    <p class="lede">Security researchers group every way of proving identity into three "factors." Two-Factor Authentication just means combining two of them, so a leaked password alone isn't enough.</p>
+
+    <div class="factors">
+      <div class="factor"><div class="tag">Something you know</div><h4>Password / PIN</h4><p>The weakest factor alone &mdash; it can be guessed, leaked, or phished.</p></div>
+      <div class="factor"><div class="tag">Something you have</div><h4>Phone / security key</h4><p>A physical object an attacker would also need to steal.</p></div>
+      <div class="factor"><div class="tag">Something you are</div><h4>Fingerprint / face</h4><p>Biometric &mdash; tied to your body, not memorized or carried.</p></div>
+    </div>
+
+    <p><b>Not all second factors are equal:</b></p>
+    <div class="ranked">
+      <div class="rank"><div class="n">1</div><div><h5>SMS text code</h5><p>Vulnerable to SIM-swapping &mdash; an attacker convinces your carrier to move your number to their phone.</p></div><span class="strength weak">Weakest</span></div>
+      <div class="rank"><div class="n">2</div><div><h5>Authenticator app</h5><p>Generates a rotating code on your device itself &mdash; nothing to intercept over the phone network.</p></div><span class="strength mid">Better</span></div>
+      <div class="rank"><div class="n">3</div><div><h5>Hardware security key</h5><p>A physical key (like a YubiKey) that must be plugged in or tapped &mdash; virtually unphishable.</p></div><span class="strength strong">Strongest</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 4: OWASP -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>OWASP &mdash; the building code</h2></div>
+    <p class="lede">The <b>Open Web Application Security Project</b> is a nonprofit that studies how real websites get broken into, then publishes the patterns so builders can design around them &mdash; before an attacker finds them first.</p>
+
+    <p><b>Its best-known product is the OWASP Top 10</b> &mdash; a regularly updated list of the most critical risks to web applications. Two worth knowing by name:</p>
+
+    <div class="top10">
+      <div class="t10-row"><div class="rk">#1</div><div><h5>Broken access control</h5><p>The most common flaw on the list &mdash; a user can view or edit data they were never supposed to reach, often just by changing a number in a web address.</p></div></div>
+      <div class="t10-row"><div class="rk">#3</div><div><h5>Injection</h5><p>A form doesn't check what you type before running it &mdash; so instead of a name, you type a command, and the system obeys it.</p></div></div>
+    </div>
+
+    <p>OWASP isn't a company or a government body &mdash; it's the checklist real engineering teams actually build against before they ship.</p>
+  </div>
+</section>
+
+<!-- PART 5: DIAGNOSTIC -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">05</div><h2>Inspect the building</h2></div>
+    <p class="lede">Six situations. Before you read the finding, decide for yourself which of the four locks is missing, working, or being tested.</p>
+
+    <div class="diag">
+      <div class="dcard"><div class="id">Site A</div><p>A shopping site's address bar shows <code>http://</code>, not <code>https://</code>, and it's asking for a credit card number.</p><div class="finding"><b>Finding</b>No HTTPS &mdash; the card number would travel unencrypted, readable by anyone on the same network.</div></div>
+      <div class="dcard"><div class="id">Site B</div><p>A login page lets a script attempt ten thousand password guesses in one second with no slowdown.</p><div class="finding"><b>Finding</b>No bot protection &mdash; a CAPTCHA or rate limit would have stopped this outright.</div></div>
+      <div class="dcard"><div class="id">Site C</div><p>Someone's password leaks in a breach, but the attacker still can't log in &mdash; the account also asks for a code from their phone.</p><div class="finding"><b>Finding</b>2FA working as designed &mdash; the leaked factor alone wasn't enough.</div></div>
+      <div class="dcard"><div class="id">Site D</div><p>A search box lets visitors type raw commands, and the server just runs whatever it's given.</p><div class="finding"><b>Finding</b>Exactly the kind of flaw OWASP catalogs &mdash; an injection vulnerability.</div></div>
+      <div class="dcard"><div class="id">Site E</div><p>Someone gets a text asking them to "confirm" a 2FA code for a login they never attempted.</p><div class="finding"><b>Finding</b>A live attack in progress &mdash; someone already has the password and is trying to get past the second lock.</div></div>
+      <div class="dcard"><div class="id">Site F</div><p>The address bar shows a padlock and <code>https://</code> &mdash; but the domain is a near-perfect misspelling of a real bank.</p><div class="finding"><b>Finding</b>HTTPS present, site still fake &mdash; the padlock never promised the site was legitimate.</div></div>
+    </div>
+
+    <div class="callout">Four locks, four different jobs. <span>None of them cover for the other three &mdash; a building can pass three inspections and still fail on the fourth.</span></div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="two">
+      <div class="box">
+        <h3>Try this</h3>
+        <ul>
+          <li><b>Check the lock.</b> Visit any site you use daily and click the padlock icon in the address bar. Read what it actually claims to verify.</li>
+          <li><b>Time a CAPTCHA.</b> Notice how much less you're asked to click than you were a few years ago. What changed?</li>
+          <li><b>Look up your 2FA.</b> Check one account's security settings &mdash; is your second factor SMS, an app, or a key?</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Talk about it</h3>
+        <ul>
+          <li>If a fake site can get a valid HTTPS padlock, what's actually stopping scammers from using one?</li>
+          <li>Why do you think broken access control &mdash; changing a number in a URL &mdash; is the single most common flaw on OWASP's list?</li>
+          <li>Is it worth losing a few seconds to a CAPTCHA on every site, if it stops bots on all of them?</li>
+          <li>Why would a company choose to publish its own security weaknesses publicly, the way OWASP catalogs them?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>None of these locks were built to stop a person. They were built to stop everything else.</h2>
+    <p>HTTPS, CAPTCHA, 2FA and OWASP all exist because the internet is full of things that aren't people &mdash; scripts, bots, and scanners moving at a scale no lock on a physical door ever had to handle. Knowing what each one actually checks is how you tell a locked door from a safe one.</p>
+    <p class="sig">DWG 1.6 &nbsp;/&nbsp; end of sheet</p>
+  </div>
+</footer>
+
+</body>
+</html>
