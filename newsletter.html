@@ -52,6 +52,22 @@ const SECTION_HEADINGS = [
 ];
 const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
+// Runs on already-escaped text, so it's safe to insert an <a> around a URL
+// without any risk of the URL text itself containing live HTML. Trims
+// trailing sentence punctuation off the link so "...see https://x.com."
+// doesn't pull the period into the href.
+function linkify(escapedText) {
+  return escapedText.replace(/(https?:\/\/[^\s<]+)/g, (url) => {
+    let trail = '';
+    let clean = url;
+    while (clean && /[.,;:!?)]$/.test(clean)) {
+      trail = clean.slice(-1) + trail;
+      clean = clean.slice(0, -1);
+    }
+    return `<a href="${clean}" target="_blank" rel="noopener">${clean}</a>${trail}`;
+  });
+}
+
 function formatBody(body) {
   const headingPattern = SECTION_HEADINGS.map(s => escapeRegex(s.heading)).join('|');
   let matchedAny = false;
@@ -61,9 +77,9 @@ function formatBody(body) {
     const val = m ? m[1].trim() : '';
     if (!val) return '';
     matchedAny = true;
-    return `<div class="post-section"><h4>${escapeHtml(s.label)}</h4><p>${escapeHtml(val)}</p></div>`;
+    return `<div class="post-section"><h4>${escapeHtml(s.label)}</h4><p>${linkify(escapeHtml(val))}</p></div>`;
   }).join('');
-  return matchedAny ? sectionsHtml : `<p class="post-body">${escapeHtml(body)}</p>`;
+  return matchedAny ? sectionsHtml : `<p class="post-body">${linkify(escapeHtml(body))}</p>`;
 }
 
 function getParams() {
