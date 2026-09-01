@@ -219,6 +219,45 @@ function renderHeader(opts) {
   document.addEventListener("click", () => {
     root.querySelectorAll(".nav-item.open").forEach(o => { o.classList.remove("open"); o.querySelector("button.nav-link")?.setAttribute("aria-expanded", "false"); });
   });
+
+  renderLessonBanner();
+}
+
+// "What lesson are we on" per class -- one current value per course, set
+// from lesson-admin.html. Shown as a banner right under the header on
+// EVERY page (not just the homepage), so a student can see today's lesson
+// for their class no matter what page of the site they're already on.
+// Called automatically at the end of renderHeader() -- no per-page HTML
+// changes needed; it creates its own container if the page doesn't have
+// one already.
+async function renderLessonBanner() {
+  let bannerRoot = document.getElementById("lesson-banner-root");
+  if (!bannerRoot) {
+    bannerRoot = document.createElement("div");
+    bannerRoot.id = "lesson-banner-root";
+    const headerRoot = document.getElementById("site-header-root");
+    if (headerRoot && headerRoot.parentNode) {
+      headerRoot.parentNode.insertBefore(bannerRoot, headerRoot.nextSibling);
+    } else {
+      document.body.insertBefore(bannerRoot, document.body.firstChild);
+    }
+  }
+  try {
+    const res = await fetch("/api/announcements?action=currentLessons");
+    const data = await res.json();
+    const lessons = data.lessons || {};
+    const items = COURSES
+      .map(c => ({ course: c, text: lessons[c.id] }))
+      .filter(x => x.text);
+    if (items.length === 0) { bannerRoot.innerHTML = ""; return; }
+    bannerRoot.innerHTML = `
+      <div class="lesson-banner">
+        ${items.map(x => `<span class="lesson-banner-item"><b>${escapeHtmlNav(x.course.shortName)}:</b> ${escapeHtmlNav(x.text)}</span>`).join("")}
+      </div>
+    `;
+  } catch (err) {
+    bannerRoot.innerHTML = "";
+  }
 }
 
 // Wires the header's search box to SEARCH_INDEX: filters as you type (by
@@ -314,6 +353,7 @@ function renderToolsGrid(containerId) {
 }
 
 window.renderHeader = renderHeader;
+window.renderLessonBanner = renderLessonBanner;
 window.renderUnitGrid = renderUnitGrid;
 window.renderToolsGrid = renderToolsGrid;
 window.COURSES = COURSES;

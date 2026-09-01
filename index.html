@@ -14,7 +14,6 @@
 <body>
 
 <div id="site-header-root"></div>
-<div id="lesson-banner-root"></div>
 
 <main class="wide">
   <div class="hero">
@@ -67,33 +66,6 @@
 <script>
 renderHeader({ current: "home" });
 renderToolsGrid();
-
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str == null ? '' : String(str);
-  return div.innerHTML;
-}
-
-async function renderLessonBanner() {
-  const root = document.getElementById('lesson-banner-root');
-  try {
-    const res = await fetch('/api/announcements?action=currentLessons');
-    const data = await res.json();
-    const lessons = data.lessons || {};
-    const items = COURSES
-      .map(c => ({ course: c, text: lessons[c.id] }))
-      .filter(x => x.text);
-    if (items.length === 0) { root.innerHTML = ''; return; }
-    root.innerHTML = `
-      <div class="lesson-banner">
-        ${items.map(x => `<span class="lesson-banner-item"><b>${escapeHtml(x.course.shortName)}:</b> ${escapeHtml(x.text)}</span>`).join('')}
-      </div>
-    `;
-  } catch (err) {
-    root.innerHTML = '';
-  }
-}
-renderLessonBanner();
 </script>
 </body>
 </html>
