@@ -123,30 +123,6 @@ window.__placeholderLogo = function () {
   return `<span class="school-logo">${PLACEHOLDER_LOGO_SVG}</span>`;
 };
 
-function courseDropdownMarkup(course) {
-  const unitLinks = course.units.map(u => {
-    if (u.migrated) {
-      return `<a href="${NAV_ROOT}${u.path}">Unit ${u.n}: ${escapeHtmlNav(u.title)}</a>`;
-    }
-    return `<a class="external" href="${u.googleSite}" target="_blank" rel="noopener">Unit ${u.n}: ${escapeHtmlNav(u.title)}</a>`;
-  }).join("");
-
-  return `
-    <div class="nav-item" data-course="${course.id}">
-      <button type="button" class="nav-link" aria-haspopup="true" aria-expanded="false">${escapeHtmlNav(course.shortName)} &#9662;</button>
-      <div class="dropdown-panel">
-        <a href="${NAV_ROOT}${course.home}"><strong>${escapeHtmlNav(course.name)}</strong> &mdash; course home</a>
-        <a href="${NAV_ROOT}${course.classDocs}">Class docs / syllabus</a>
-        <hr>
-        <div class="dropdown-heading">Units</div>
-        ${unitLinks}
-        <hr>
-        <a class="external" href="${course.googleSite}" target="_blank" rel="noopener">Full course site (Google Sites)</a>
-      </div>
-    </div>
-  `;
-}
-
 function announcementsDropdownMarkup() {
   const courseLinks = COURSES.map(c =>
     `<a href="${NAV_ROOT}announcements.html?course=${c.id}">${escapeHtmlNav(c.name)}</a>`
@@ -188,7 +164,6 @@ function renderHeader(opts) {
 
   const logoMarkup = `<img src="${LOGO_SRC}" alt="${escapeHtmlNav(SCHOOL_NAME)} logo" class="school-logo" onerror="this.outerHTML=window.__placeholderLogo();">`;
 
-  const courseItems = COURSES.map(courseDropdownMarkup).join("");
   const toolsDropdown = toolsDropdownMarkup();
   const announcementsDropdown = announcementsDropdownMarkup();
 
@@ -206,16 +181,17 @@ function renderHeader(opts) {
           <div class="nav-item${opts.current === "home" ? " current" : ""}">
             <a class="nav-link" href="${NAV_ROOT}index.html">Home</a>
           </div>
-          ${courseItems}
           ${toolsDropdown}
           ${announcementsDropdown}
         </nav>
-        <div class="search-box">
-          <input type="search" id="site-search-input" placeholder="Search the site&hellip;" autocomplete="off">
-          <div class="search-results" id="site-search-results"></div>
-        </div>
       </div>
     </header>
+    <div class="site-search-bar">
+      <div class="search-box">
+        <input type="search" id="site-search-input" placeholder="Search the site&hellip;" autocomplete="off">
+        <div class="search-results" id="site-search-results"></div>
+      </div>
+    </div>
   `;
 
   setupSiteSearch(root);
