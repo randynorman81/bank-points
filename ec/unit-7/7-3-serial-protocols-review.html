@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7.3 Serial Protocols Review | Unit 7 | Embedded Computing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<div style="max-width:1200px;margin:0 auto;padding:24px 20px 0;">
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ec/index.html">Embedded Computing</a><span class="sep">/</span><a href="../../ec/unit-7/index.html">Unit 7: IoT Concepts</a><span class="sep">/</span>7.3 Serial Protocols Review</div>
+</div>
+
+  <div class="lesson-layout">
+    <aside class="lesson-sidebar" id="lesson-sidebar-root"></aside>
+
+    <article class="lesson-content">
+      <h1>7.3 &mdash; Serial Protocols Review: I2C, SPI, and More</h1>
+      <p class="hint">Consolidation, not new hands-on content &mdash; a side-by-side comparison of protocols you've already wired (I2C in 4.5, SPI in 5.3), plus a brief awareness-level look at UART.</p>
+
+      <h2>Intro</h2>
+      <p>Ask AI these questions; look over the answers.</p>
+      <ol>
+        <li>Now that you've actually built with both I2C and SPI this year, ask your AI: what are the most important practical differences between them that you experienced firsthand?</li>
+        <li>Explain to a middle schooler why a single embedded system, like the ones built this year, might use I2C for one component and SPI for a different component in the same project.</li>
+        <li>Create a simple diagram comparing I2C and SPI side by side &mdash; wire count, addressing approach, and relative speed.</li>
+        <li>What is UART, and how is it different from both I2C and SPI? Is it more or less complex than either?</li>
+        <li>Connect your own actual experience this year &mdash; your LCD (I2C) and your RC522 (SPI) &mdash; to explain in your own words why each component used a different protocol.</li>
+        <li>If you were designing a new embedded system from scratch, how would you decide which serial protocol to use for a given component?</li>
+      </ol>
+
+      <h2>Notes</h2>
+      <p>Look up these definitions and add them to your living glossary:</p>
+      <ul>
+        <li>UART (Universal Asynchronous Receiver-Transmitter)</li>
+        <li>Asynchronous communication</li>
+        <li>Protocol selection</li>
+      </ul>
+      <p class="hint">Lighter glossary day &mdash; also review your existing I2C and SPI entries and update their Comfort Ratings rather than adding new rows.</p>
+      <table style="border-collapse:collapse;width:100%;margin:12px 0;">
+        <tr style="border-bottom:1px solid var(--rule, #ccc);"><th style="text-align:left;padding:6px 12px 6px 0;"></th><th style="text-align:left;padding:6px 12px;">I2C</th><th style="text-align:left;padding:6px 12px;">SPI</th></tr>
+        <tr><td style="padding:6px 12px 6px 0;">Wire count</td><td style="padding:6px 12px;">2 (SDA, SCL)</td><td style="padding:6px 12px;">4 (MOSI, MISO, SCK, SS)</td></tr>
+        <tr><td style="padding:6px 12px 6px 0;">Data wires</td><td style="padding:6px 12px;">1 shared, both directions</td><td style="padding:6px 12px;">2 separate, one each direction</td></tr>
+        <tr><td style="padding:6px 12px 6px 0;">Addressing</td><td style="padding:6px 12px;">Shared address number</td><td style="padding:6px 12px;">Dedicated SS wire per device</td></tr>
+        <tr><td style="padding:6px 12px 6px 0;">Speed</td><td style="padding:6px 12px;">Generally slower</td><td style="padding:6px 12px;">Generally faster</td></tr>
+        <tr><td style="padding:6px 12px 6px 0;">Used here for</td><td style="padding:6px 12px;">LCD (4.5)</td><td style="padding:6px 12px;">RC522 (5.3)</td></tr>
+      </table>
+      <p class="hint">The LCD doesn't need fast communication (text updates infrequently), so I2C's slower speed was fine; the RC522 needs faster, more frequent communication for reliable card reading, so SPI fit better &mdash; real protocol selection, the same principle as Lesson 5.9's motor selection. <strong>UART</strong> is a simpler, 2-wire, <strong>asynchronous</strong> protocol (no shared clock) best for simple point-to-point communication between exactly two devices &mdash; this course hasn't built with it, awareness-level only.</p>
+
+      <h2>Assignments</h2>
+      <ul>
+        <li><strong>7.3 &mdash; I2C vs SPI Comparison + Diagram.</strong> Part 1: using your own actual Unit 4/Unit 5 experience, explain the wire-count and addressing differences between I2C and SPI, why this course used each where it did, and one hypothetical scenario for choosing each. Part 2: a side-by-side diagram labeling every wire in each protocol. Format: Doc or Slides.</li>
+        <li>Fill out your developer log on your Google Site every class period (graded at the end of the unit; timestamps checked).</li>
+        <li>Make sure you've added today's 3 terms to your living glossary, and reviewed your I2C/SPI Comfort Ratings.</li>
+      </ul>
+
+      <div id="prev-next-root" class="prev-next-nav"></div>
+    </article>
+  </div>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>
+renderHeader();
+
+const UNIT_TITLE = "Unit 7: IoT Concepts";
+const UNIT_BASE = "";
+const UNIT_LESSONS = [
+  { title: "7.1 What Is IoT?", file: "7-1-what-is-iot.html" },
+  { title: "7.2 RF Networking Technologies", file: "7-2-rf-networking-technologies.html" },
+  { title: "7.3 Serial Protocols Review", file: "7-3-serial-protocols-review.html" },
+  { title: "7.4 How Devices Connect: Cloud Architecture", file: "7-4-how-devices-connect-cloud-architecture.html" },
+  { title: "7.5 Case: Mirai Botnet", file: "7-5-case-mirai-botnet.html" },
+  { title: "7.6 Individual Arduino Cloud Lab", file: "7-6-individual-arduino-cloud-lab.html" },
+  { title: "7.7 Case: Ring Camera Hacks", file: "7-7-case-ring-camera-hacks.html" }
+];
+const CURRENT_FILE = "7-3-serial-protocols-review.html";
+</script>
+<script src="../../assets/course-nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4.3 Keypad: Wiring and Reading | Unit 4 | Embedded Computing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<div style="max-width:1200px;margin:0 auto;padding:24px 20px 0;">
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ec/index.html">Embedded Computing</a><span class="sep">/</span><a href="../../ec/unit-4/index.html">Unit 4: Input Systems</a><span class="sep">/</span>4.3 Keypad: Wiring and Reading</div>
+</div>
+
+  <div class="lesson-layout">
+    <aside class="lesson-sidebar" id="lesson-sidebar-root"></aside>
+
+    <article class="lesson-content">
+      <h1>4.3 &mdash; Keypad: Wiring and Reading</h1>
+      <p class="hint">Two-period lesson, new hardware: the 4x4 membrane keypad. Sprint 1 of the unit begins here.</p>
+
+      <h2>Intro</h2>
+      <p>Ask AI these questions; look over the answers.</p>
+      <ol>
+        <li>How does a 4x4 membrane keypad work internally? Why does it only need 8 wires to read 16 different keys?</li>
+        <li>Explain to a middle schooler how a "row and column" grid can identify exactly which key was pressed, using something like a tic-tac-toe board as a comparison.</li>
+        <li>Create a simple diagram showing a 4x4 grid of keys with rows and columns labeled, and how pressing one specific key creates one specific row-column connection.</li>
+        <li>Why might a programmer use a library to read a keypad instead of writing the row/column scanning logic from scratch?</li>
+        <li>Connect today's keypad to a real device you've used that has a similar keypad &mdash; what was it, and what was it used for?</li>
+        <li>What is "debounce" in the context of buttons and keypads, and why might a single key press accidentally register as multiple presses without it?</li>
+      </ol>
+
+      <h2>Notes</h2>
+      <p>Look up these definitions and add them to your living glossary:</p>
+      <ul>
+        <li>Matrix keypad</li>
+        <li>Row/column scanning</li>
+        <li>Debounce</li>
+        <li>char array</li>
+      </ul>
+      <p class="hint">Key idea: a 4x4 keypad's 16 keys sit at row/column intersections &mdash; one wire per row (4) + one per column (4) = 8 wires total, instead of 16 individual pins the Uno doesn't even have. Pressing a key connects its row to its column; the code <strong>scans</strong> each combination to find which key is down. A keypad library packages this scanning so you just call it. Each key press returns a single <code>char</code> (e.g. '5'); a <code>char</code> array accumulates several presses in sequence &mdash; direct prep for 4.4's PIN logic. <strong>Debounce</strong> filters the rapid, unintended multiple signals a mechanical key produces in its first few milliseconds &mdash; without it, one press can register as several.</p>
+
+      <h2>Assignments</h2>
+      <ul>
+        <li><strong>4.3 &mdash; Keypad: Wiring and Reading.</strong> Wire the keypad (4 row pins + 4 column pins), install the keypad library, and print each key press to Serial Monitor, confirming every key registers correctly. Then build a key-press logger: store each press into a char array as it happens and print the accumulated sequence each time a new key is added. Test rapid presses for debounce issues. Submit your annotated code and a photo of your working circuit.</li>
+        <li>Fill out your developer log every class period &mdash; one entry per day this lesson (graded at the end of the unit; timestamps checked).</li>
+        <li>Make sure you've added today's 4 terms to your living glossary.</li>
+      </ul>
+
+      <div id="prev-next-root" class="prev-next-nav"></div>
+    </article>
+  </div>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>
+renderHeader();
+
+const UNIT_TITLE = "Unit 4: Input Systems";
+const UNIT_BASE = "";
+const UNIT_LESSONS = [
+  { title: "4.1 Buttons: Wiring and Reading", file: "4-1-buttons-wiring-and-reading.html" },
+  { title: "4.2 Case: Target Data Breach", file: "4-2-case-target-data-breach.html" },
+  { title: "4.3 Keypad: Wiring and Reading", file: "4-3-keypad-wiring-and-reading.html" },
+  { title: "4.4 PIN Entry System", file: "4-4-pin-entry-system.html" },
+  { title: "4.5 LCD Display: I2C Serial Communication", file: "4-5-lcd-display-i2c.html" },
+  { title: "4.6 Keypad + LCD Combined", file: "4-6-keypad-and-lcd-combined.html" },
+  { title: "4.7 Case: Stuxnet", file: "4-7-case-stuxnet.html" },
+  { title: "4.8 Finite State Machine", file: "4-8-finite-state-machine.html" },
+  { title: "4.9 Sprint Retrospective + V2 Planning", file: "4-9-sprint-retrospective-and-v2-planning.html" }
+];
+const CURRENT_FILE = "4-3-keypad-wiring-and-reading.html";
+</script>
+<script src="../../assets/course-nav.js"></script>
+</body>
+</html>

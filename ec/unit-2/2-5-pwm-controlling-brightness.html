@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2.5 PWM: Controlling Brightness | Unit 2 | Embedded Computing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<div style="max-width:1200px;margin:0 auto;padding:24px 20px 0;">
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ec/index.html">Embedded Computing</a><span class="sep">/</span><a href="../../ec/unit-2/index.html">Unit 2: Arduino Foundations</a><span class="sep">/</span>2.5 PWM: Controlling Brightness</div>
+</div>
+
+  <div class="lesson-layout">
+    <aside class="lesson-sidebar" id="lesson-sidebar-root"></aside>
+
+    <article class="lesson-content">
+      <h1>2.5 &mdash; PWM: Controlling Brightness</h1>
+      <p class="hint">Two-period lesson. Day 1: move your LED to a PWM pin and try fixed brightness levels. Day 2: build a smooth fade effect.</p>
+
+      <h2>Intro</h2>
+      <p>Ask AI these questions; look over the answers.</p>
+      <ol>
+        <li>What is PWM (Pulse Width Modulation) and how does it let a digital pin simulate an analog effect like dimming a light?</li>
+        <li>Explain to a middle schooler how flicking a light switch on and off extremely fast could make a light look dimmer, even though it's technically only ever fully on or fully off.</li>
+        <li>Create a simple visual showing a PWM signal &mdash; what it looks like when a pin is rapidly switching on and off at different rates to create different brightness levels.</li>
+        <li>What is the difference between digitalWrite() and analogWrite() on an Arduino? Why can't digitalWrite() create a dimming effect?</li>
+        <li>Connect PWM to a real product I might use &mdash; where else besides LEDs is this same on/off-rapidly technique used to control something?</li>
+        <li>Why is PWM useful for controlling things like motors and servos later on, not just LEDs?</li>
+      </ol>
+
+      <h2>Notes</h2>
+      <p>Look up these definitions and add them to your living glossary:</p>
+      <ul>
+        <li>PWM (Pulse Width Modulation)</li>
+        <li>analogWrite()</li>
+        <li>PWM-capable pin</li>
+        <li>Duty cycle</li>
+      </ul>
+      <p class="hint">Key idea: PWM is not true analog output &mdash; a pin is still only ever fully on or fully off, it just switches so fast the LED (or your eye) perceives an average brightness. Duty cycle is the percent of each cycle spent "on": 0% = off, 100% = full brightness, 50% = half brightness. <code>analogWrite(pin, value)</code> takes 0&ndash;255 to set duty cycle, but only works on PWM-capable pins &mdash; on the Uno, these are marked with a <code>~</code> (commonly 3, 5, 6, 9, 10, 11). This same technique controls motor speed and servo position later in the course.</p>
+
+      <h2>Assignments</h2>
+      <ul>
+        <li><strong>2.5 &mdash; PWM: Controlling Brightness.</strong> Move your LED to a PWM-capable pin. Write code that sets it to three different fixed brightness levels in sequence (e.g. 50, 150, 255) with a delay between each. Then build a smooth fade effect &mdash; the LED gradually brightens 0&rarr;255 and back down, repeating. Annotate your code. Submit your annotated code and a photo or short video showing the fade in action.</li>
+        <li>Fill out your developer log every class period &mdash; one entry per day this lesson (graded at the end of the unit; timestamps checked).</li>
+        <li>Make sure you've added today's 4 terms to your living glossary.</li>
+      </ul>
+
+      <div id="prev-next-root" class="prev-next-nav"></div>
+    </article>
+  </div>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>
+renderHeader();
+
+const UNIT_TITLE = "Unit 2: Arduino Foundations";
+const UNIT_BASE = "";
+const UNIT_LESSONS = [
+  { title: "2.1 Meet the Arduino", file: "2-1-meet-the-arduino.html" },
+  { title: "2.2 TinkerCAD Setup and First Circuit", file: "2-2-tinkercad-setup-and-first-circuit.html" },
+  { title: "2.3 Your First Sketch: Blink", file: "2-3-your-first-sketch-blink.html" },
+  { title: "2.4 Variables and Data Types", file: "2-4-variables-and-data-types.html" },
+  { title: "2.5 PWM: Controlling Brightness", file: "2-5-pwm-controlling-brightness.html" },
+  { title: "2.6 Timing and Sequences", file: "2-6-timing-and-sequences.html" },
+  { title: "2.7 Circuit Fundamentals", file: "2-7-circuit-fundamentals.html" },
+  { title: "2.8 Interpreted vs Compiled", file: "2-8-interpreted-vs-compiled.html" },
+  { title: "2.9 Unit Build: Traffic Light", file: "2-9-unit-build-traffic-light.html" }
+];
+const CURRENT_FILE = "2-5-pwm-controlling-brightness.html";
+</script>
+<script src="../../assets/course-nav.js"></script>
+</body>
+</html>

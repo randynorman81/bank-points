@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3.5 Distance Sensor Lab | Unit 3 | Embedded Computing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<div style="max-width:1200px;margin:0 auto;padding:24px 20px 0;">
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ec/index.html">Embedded Computing</a><span class="sep">/</span><a href="../../ec/unit-3/index.html">Unit 3: Sensors and Reactive Programs</a><span class="sep">/</span>3.5 Distance Sensor Lab</div>
+</div>
+
+  <div class="lesson-layout">
+    <aside class="lesson-sidebar" id="lesson-sidebar-root"></aside>
+
+    <article class="lesson-content">
+      <h1>3.5 &mdash; Distance Sensor Lab</h1>
+      <p class="hint">Two-period lesson, first real hardware sensor of the unit &mdash; the HC-SR04 ultrasonic sensor and the buzzer.</p>
+
+      <h2>Intro</h2>
+      <p>Ask AI these questions; look over the answers.</p>
+      <ol>
+        <li>How does an ultrasonic distance sensor like the HC-SR04 actually measure distance? What is it sending out and listening for?</li>
+        <li>Explain to a middle schooler how echolocation works, using bats or dolphins as an example, before connecting it to how the sensor works.</li>
+        <li>Create a simple diagram showing sound waves traveling from the sensor to an object and back, with the round-trip time being used to calculate distance.</li>
+        <li>Why might a distance sensor occasionally give an inaccurate or "noisy" reading? What real-world conditions could cause this?</li>
+        <li>Connect today's distance sensor to a real product I might recognize &mdash; where is this exact kind of sensor used in cars, robots, or other devices?</li>
+        <li>If a self-parking car's distance sensor gave a wrong reading at the wrong moment, what could happen?</li>
+      </ol>
+
+      <h2>Notes</h2>
+      <p>Look up these definitions and add them to your living glossary:</p>
+      <ul>
+        <li>Ultrasonic sensor</li>
+        <li>Echolocation</li>
+        <li>pulseIn()</li>
+        <li>Sensor noise</li>
+      </ul>
+      <p class="hint">Key idea: the HC-SR04 sends a burst of ultrasonic sound and times how long it takes to bounce back &mdash; this is echolocation, the same principle bats and dolphins use. Distance = (speed of sound &times; time) &divide; 2 (divided by 2 because the timed trip is out AND back). <code>pulseIn()</code> measures how long the echo pin stays HIGH, in microseconds. Readings can be noisy &mdash; soft or angled surfaces scatter the sound, multiple objects can create confusing echoes. Treat raw sensor data as imperfect, same theme as the Jeep Cherokee case.</p>
+
+      <h2>Assignments</h2>
+      <ul>
+        <li><strong>3.5 &mdash; Distance Sensor Lab.</strong> Wire the HC-SR04 (VCC&rarr;5V, GND&rarr;GND, TRIG/ECHO to digital pins), use pulseIn() to measure echo duration, convert to a distance, and print it to Serial Monitor. Verify accuracy with a ruler at a few known distances. Then wire an active buzzer and add if/else logic so it sounds when something gets closer than a threshold you choose (e.g. 20cm). Debug any noisy or random triggering &mdash; check your comparison operator and threshold before assuming the hardware is broken. Submit your annotated code and a photo or short video of the working alert system.</li>
+        <li>Fill out your developer log every class period &mdash; one entry per day this lesson (graded at the end of the unit; timestamps checked).</li>
+        <li>Make sure you've added today's 4 terms to your living glossary.</li>
+      </ul>
+
+      <div id="prev-next-root" class="prev-next-nav"></div>
+    </article>
+  </div>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>
+renderHeader();
+
+const UNIT_TITLE = "Unit 3: Sensors and Reactive Programs";
+const UNIT_BASE = "";
+const UNIT_LESSONS = [
+  { title: "3.1 What Is a Sensor?", file: "3-1-what-is-a-sensor.html" },
+  { title: "3.2 Case: Jeep Cherokee Hack", file: "3-2-case-jeep-cherokee-hack.html" },
+  { title: "3.3 Light Sensor Lab", file: "3-3-light-sensor-lab.html" },
+  { title: "3.4 if/else: Making Decisions", file: "3-4-if-else-making-decisions.html" },
+  { title: "3.5 Distance Sensor Lab", file: "3-5-distance-sensor-lab.html" },
+  { title: "3.6 Loops: for and while", file: "3-6-loops-for-and-while.html" },
+  { title: "3.7 Motion Sensor Lab", file: "3-7-motion-sensor-lab.html" },
+  { title: "3.8 Case: Oldsmar Water Plant", file: "3-8-case-oldsmar-water-plant.html" },
+  { title: "3.9 Temperature Sensor Lab + Functions", file: "3-9-temperature-sensor-lab-and-functions.html" },
+  { title: "3.10 Debugging Methodology", file: "3-10-debugging-methodology.html" },
+  { title: "3.11 V1 and V2 Alarm System", file: "3-11-v1-and-v2-alarm-system.html" }
+];
+const CURRENT_FILE = "3-5-distance-sensor-lab.html";
+</script>
+<script src="../../assets/course-nav.js"></script>
+</body>
+</html>

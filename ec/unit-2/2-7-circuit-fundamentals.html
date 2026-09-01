@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2.7 Circuit Fundamentals | Unit 2 | Embedded Computing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<div style="max-width:1200px;margin:0 auto;padding:24px 20px 0;">
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ec/index.html">Embedded Computing</a><span class="sep">/</span><a href="../../ec/unit-2/index.html">Unit 2: Arduino Foundations</a><span class="sep">/</span>2.7 Circuit Fundamentals</div>
+</div>
+
+  <div class="lesson-layout">
+    <aside class="lesson-sidebar" id="lesson-sidebar-root"></aside>
+
+    <article class="lesson-content">
+      <h1>2.7 &mdash; Circuit Fundamentals: Source, Sink, Pull-Up, Ohm's Law</h1>
+      <p class="hint">Today includes actual math &mdash; the only day this unit you'll calculate with a formula instead of writing code.</p>
+
+      <h2>Intro</h2>
+      <p>Ask AI these questions; look over the answers.</p>
+      <ol>
+        <li>What does it mean for a microcontroller pin to "source" or "sink" current? Explain it to a middle schooler using water flowing through a pipe as a comparison.</li>
+        <li>Why does a button connected to a microcontroller need a pull-up or pull-down resistor? What happens if you don't use one?</li>
+        <li>Create a simple visual showing Ohm's Law (V = IR) and how it's used to calculate the resistor needed for an LED circuit.</li>
+        <li>What happens if too much current flows through a microcontroller pin? Why is there a maximum current limit per pin?</li>
+        <li>Connect the idea of a circuit having a maximum safe limit to something else in real life that also has a safe operating limit that shouldn't be exceeded.</li>
+        <li>Why do engineers need to calculate exact resistor values instead of just guessing or using whatever resistor they have on hand?</li>
+      </ol>
+
+      <h2>Notes</h2>
+      <p>Look up these definitions and add them to your living glossary:</p>
+      <ul>
+        <li>Source current</li>
+        <li>Sink current</li>
+        <li>Pull-up resistor</li>
+        <li>Floating pin</li>
+        <li>Ohm's Law</li>
+      </ul>
+      <p class="hint">Key idea: a pin <strong>sources</strong> current when it pushes current out (digitalWrite HIGH), and <strong>sinks</strong> current when current flows into it. A button wired with no defined HIGH/LOW when unpressed is <strong>floating</strong> &mdash; it picks up random noise and gives unreliable readings. A pull-up resistor fixes this by connecting the pin to 5V by default (the Uno has a built-in one via <code>pinMode(pin, INPUT_PULLUP)</code>). Ohm's Law: V = IR (voltage = current &times; resistance) &mdash; rearrange to R = V/I to find the resistor an LED circuit needs. The Uno's pins max out around 40mA &mdash; exceeding that can damage the pin or board, which is exactly why every LED gets a resistor.</p>
+
+      <h2>Assignments</h2>
+      <ul>
+        <li><strong>2.7 &mdash; Circuit Fundamentals and Ohm's Law.</strong> Wire a button to a digital input pin using <code>INPUT_PULLUP</code> and confirm you get consistent HIGH/LOW readings when you press and release it. Then complete these Ohm's Law calculations, showing your work: (1) 5V supply, 2V LED drop, 20mA desired &mdash; find the resistor. (2) Same supply/current, but a 1.8V LED drop &mdash; find the resistor. (3) Using the standard 220 ohm resistor with a 5V supply and 2V LED drop, calculate the actual current flowing &mdash; is it safe? Submit your calculations and a circuit diagram of your button-with-pull-up wiring.</li>
+        <li>Fill out your developer log on your Google Site every class period (graded at the end of the unit; timestamps checked).</li>
+        <li>Make sure you've added today's 5 terms to your living glossary.</li>
+      </ul>
+
+      <div id="prev-next-root" class="prev-next-nav"></div>
+    </article>
+  </div>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>
+renderHeader();
+
+const UNIT_TITLE = "Unit 2: Arduino Foundations";
+const UNIT_BASE = "";
+const UNIT_LESSONS = [
+  { title: "2.1 Meet the Arduino", file: "2-1-meet-the-arduino.html" },
+  { title: "2.2 TinkerCAD Setup and First Circuit", file: "2-2-tinkercad-setup-and-first-circuit.html" },
+  { title: "2.3 Your First Sketch: Blink", file: "2-3-your-first-sketch-blink.html" },
+  { title: "2.4 Variables and Data Types", file: "2-4-variables-and-data-types.html" },
+  { title: "2.5 PWM: Controlling Brightness", file: "2-5-pwm-controlling-brightness.html" },
+  { title: "2.6 Timing and Sequences", file: "2-6-timing-and-sequences.html" },
+  { title: "2.7 Circuit Fundamentals", file: "2-7-circuit-fundamentals.html" },
+  { title: "2.8 Interpreted vs Compiled", file: "2-8-interpreted-vs-compiled.html" },
+  { title: "2.9 Unit Build: Traffic Light", file: "2-9-unit-build-traffic-light.html" }
+];
+const CURRENT_FILE = "2-7-circuit-fundamentals.html";
+</script>
+<script src="../../assets/course-nav.js"></script>
+</body>
+</html>

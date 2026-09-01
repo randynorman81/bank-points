@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5.6 V2: Servo Door Lock | Unit 5 | Embedded Computing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<div style="max-width:1200px;margin:0 auto;padding:24px 20px 0;">
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ec/index.html">Embedded Computing</a><span class="sep">/</span><a href="../../ec/unit-5/index.html">Unit 5: RFID and Access Control</a><span class="sep">/</span>5.6 V2: Servo Door Lock</div>
+</div>
+
+  <div class="lesson-layout">
+    <aside class="lesson-sidebar" id="lesson-sidebar-root"></aside>
+
+    <article class="lesson-content">
+      <h1>5.6 &mdash; V2: Servo Door Lock</h1>
+      <p class="hint">Two-period lesson. New hardware: the servo motor &mdash; the first motor of the year. RC522 reading and whitelist logic are pure review from 5.3&ndash;5.4.</p>
+
+      <h2>Intro</h2>
+      <p>Ask AI these questions; look over the answers.</p>
+      <ol>
+        <li>How does a servo motor achieve precise position control, as opposed to a regular motor that just spins continuously?</li>
+        <li>Explain to a middle schooler how PWM, which we used to control LED brightness back in Unit 2, can also be used to control a servo's exact angle.</li>
+        <li>Create a simple diagram showing the relationship between a PWM signal's duty cycle and the resulting servo angle.</li>
+        <li>Why do servos have a limited rotation range (usually around 180 degrees) instead of spinning continuously like a regular motor?</li>
+        <li>Connect today's servo-controlled lock to a real product you might recognize that uses a servo for precise positioning.</li>
+        <li>Does adding a physical lock to an access control system fix a vulnerability like UID cloning, or does it add something different on top of an existing weakness?</li>
+      </ol>
+
+      <h2>Notes</h2>
+      <p>Look up these definitions and add them to your living glossary:</p>
+      <ul>
+        <li>Servo motor</li>
+        <li>Pulse width</li>
+        <li>Position control</li>
+        <li>Mechanical actuation</li>
+      </ul>
+      <p class="hint">Key idea: a servo moves to and holds a specific angle (usually within ~180&deg;) rather than spinning continuously. This uses the exact same PWM technique from Lesson 2.5 &mdash; back then duty cycle controlled brightness, today <strong>pulse width</strong> tells the servo what angle to move to. A servo has 3 wires (power, ground, signal) &mdash; signal goes to a PWM-capable pin, and a Servo library handles the angle math for you.</p>
+      <p class="hint" style="font-weight:600;">Be honest with yourself here: adding a servo lock is a real functional improvement (a physical mechanism now responds to the access decision), but it does <strong>not</strong> fix the UID-cloning vulnerability from 5.2/5.5 &mdash; a cloned card would still unlock this exact door. V2 improves functionality, not security.</p>
+
+      <h2>Assignments</h2>
+      <ul>
+        <li><strong>5.6 &mdash; V2: Servo Door Lock.</strong> Wire a servo (power, ground, signal to a PWM pin) and, independent of any RFID logic, move it between a "locked" and "unlocked" angle to confirm smooth, accurate movement. Then bring back your V1 whitelist code and integrate it: authorized card &rarr; servo unlocks; unauthorized &rarr; stays locked. Test thoroughly with both authorized cards and the unauthorized one, confirming the servo returns to locked correctly after each attempt.</li>
+        <li><strong>V1/V2 Retrospective.</strong> Before moving to V3, answer all three retrospective questions about V1 and V2 together: What went well? (be specific &mdash; a real moment or decision, not a general impression). What didn't go well? (be honest). What would you do differently for V3? (should genuinely shape your V3 integration approach, not just restate that V3 adds an LCD). This is added to your CodeHS submission as a third part alongside your code and photo.</li>
+        <li>Add your V2 build photo to Page 2.5 &mdash; Unit 5 on your Google Site, with 1&ndash;2 sentences on what V2 added beyond V1.</li>
+        <li>Fill out your developer log every class period &mdash; one entry per day this lesson (graded at the end of the unit; timestamps checked).</li>
+        <li>Make sure you've added today's 4 terms to your living glossary.</li>
+      </ul>
+
+      <div id="prev-next-root" class="prev-next-nav"></div>
+    </article>
+  </div>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>
+renderHeader();
+
+const UNIT_TITLE = "Unit 5: RFID and Access Control";
+const UNIT_BASE = "";
+const UNIT_LESSONS = [
+  { title: "5.1 What Is RFID?", file: "5-1-what-is-rfid.html" },
+  { title: "5.2 Case: Hotel Keycard Cloning", file: "5-2-case-hotel-keycard-cloning.html" },
+  { title: "5.3 RC522 Wiring Lab: SPI", file: "5-3-rc522-wiring-lab-spi.html" },
+  { title: "5.4 V1: Grant/Deny by UID", file: "5-4-v1-grant-deny-by-uid.html" },
+  { title: "5.5 Case: HID Corporate 1000 Exploit", file: "5-5-case-hid-corporate-1000-exploit.html" },
+  { title: "5.6 V2: Servo Door Lock", file: "5-6-v2-servo-door-lock.html" },
+  { title: "5.7 V3: Full System with LCD", file: "5-7-v3-full-system-with-lcd.html" },
+  { title: "5.8 Case: Defcon RFID Village", file: "5-8-case-defcon-rfid-village.html" },
+  { title: "5.9 Motor Types: Conceptual Overview", file: "5-9-motor-types-conceptual-overview.html" }
+];
+const CURRENT_FILE = "5-6-v2-servo-door-lock.html";
+</script>
+<script src="../../assets/course-nav.js"></script>
+</body>
+</html>

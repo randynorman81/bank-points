@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4.4 PIN Entry System | Unit 4 | Embedded Computing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<div style="max-width:1200px;margin:0 auto;padding:24px 20px 0;">
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ec/index.html">Embedded Computing</a><span class="sep">/</span><a href="../../ec/unit-4/index.html">Unit 4: Input Systems</a><span class="sep">/</span>4.4 PIN Entry System</div>
+</div>
+
+  <div class="lesson-layout">
+    <aside class="lesson-sidebar" id="lesson-sidebar-root"></aside>
+
+    <article class="lesson-content">
+      <h1>4.4 &mdash; PIN Entry System</h1>
+      <p class="hint">Two-period lesson, reuses your keypad from 4.3. This is the sprint's core logic &mdash; gets combined with the LCD in 4.6.</p>
+
+      <h2>Intro</h2>
+      <p>Ask AI these questions; look over the answers.</p>
+      <ol>
+        <li>How would a program compare a sequence of key presses against a stored correct PIN to decide whether access should be granted?</li>
+        <li>Explain to a middle schooler why a PIN entry system needs to reset itself after each attempt, whether the attempt was correct or incorrect.</li>
+        <li>Create a simple flowchart showing the decision process: enter digits, compare to stored PIN, grant or deny access, then reset.</li>
+        <li>What happens to a real PIN entry system (like a door lock or ATM) if too many incorrect attempts are entered in a row? Why might that matter?</li>
+        <li>Connect today's PIN comparison logic to something you already know how to do in code from earlier this course.</li>
+        <li>Why might storing a PIN directly in your code be considered a security weakness in a real product, even if it works fine for a classroom project?</li>
+      </ol>
+
+      <h2>Notes</h2>
+      <p>Look up these definitions and add them to your living glossary:</p>
+      <ul>
+        <li>String comparison</li>
+        <li>Access control</li>
+        <li>Hardcoded value</li>
+        <li>Lockout</li>
+      </ul>
+      <p class="hint">Key idea: use the <code>String</code> type (capital S) to compare your accumulated key presses against a stored correct PIN &mdash; String objects have built-in comparison methods. After every attempt (correct or not), <strong>reset</strong> the entered sequence so old digits don't bleed into the next attempt. Honest limitation: this build <strong>hardcodes</strong> the correct PIN directly in the code &mdash; fine for a classroom project, but a real security weakness in an actual product, since anyone reading the code (or firmware) would know the PIN instantly. A more security-conscious version tracks failed attempts and triggers a <strong>lockout</strong> after too many.</p>
+
+      <h2>Assignments</h2>
+      <ul>
+        <li><strong>4.4 &mdash; PIN Entry System.</strong> Wire a single LED as an "access granted" indicator. Set a hardcoded 4-digit PIN. Accumulate key presses (from 4.3) and compare against the stored PIN once 4 digits are entered, lighting the LED only on an exact match. Then add reset logic so the sequence clears after every attempt, and distinguish correct vs. incorrect in the LED's behavior (e.g. solid vs. blink). Optional stretch: track consecutive incorrect attempts and add a simple lockout. Submit your annotated code and a photo of your working circuit.</li>
+        <li>Fill out your developer log every class period &mdash; one entry per day this lesson (graded at the end of the unit; timestamps checked).</li>
+        <li>Make sure you've added today's 4 terms to your living glossary.</li>
+      </ul>
+
+      <div id="prev-next-root" class="prev-next-nav"></div>
+    </article>
+  </div>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>
+renderHeader();
+
+const UNIT_TITLE = "Unit 4: Input Systems";
+const UNIT_BASE = "";
+const UNIT_LESSONS = [
+  { title: "4.1 Buttons: Wiring and Reading", file: "4-1-buttons-wiring-and-reading.html" },
+  { title: "4.2 Case: Target Data Breach", file: "4-2-case-target-data-breach.html" },
+  { title: "4.3 Keypad: Wiring and Reading", file: "4-3-keypad-wiring-and-reading.html" },
+  { title: "4.4 PIN Entry System", file: "4-4-pin-entry-system.html" },
+  { title: "4.5 LCD Display: I2C Serial Communication", file: "4-5-lcd-display-i2c.html" },
+  { title: "4.6 Keypad + LCD Combined", file: "4-6-keypad-and-lcd-combined.html" },
+  { title: "4.7 Case: Stuxnet", file: "4-7-case-stuxnet.html" },
+  { title: "4.8 Finite State Machine", file: "4-8-finite-state-machine.html" },
+  { title: "4.9 Sprint Retrospective + V2 Planning", file: "4-9-sprint-retrospective-and-v2-planning.html" }
+];
+const CURRENT_FILE = "4-4-pin-entry-system.html";
+</script>
+<script src="../../assets/course-nav.js"></script>
+</body>
+</html>

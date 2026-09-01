@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5.4 V1: Grant/Deny by UID | Unit 5 | Embedded Computing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<div style="max-width:1200px;margin:0 auto;padding:24px 20px 0;">
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ec/index.html">Embedded Computing</a><span class="sep">/</span><a href="../../ec/unit-5/index.html">Unit 5: RFID and Access Control</a><span class="sep">/</span>5.4 V1: Grant/Deny by UID</div>
+</div>
+
+  <div class="lesson-layout">
+    <aside class="lesson-sidebar" id="lesson-sidebar-root"></aside>
+
+    <article class="lesson-content">
+      <h1>5.4 &mdash; V1: Grant/Deny by UID</h1>
+      <p class="hint">Two-period lesson, first version of this unit's V1&rarr;V2&rarr;V3 sprint. You're knowingly building the exact vulnerability from 5.2 &mdash; a deliberate starting point, not a mistake.</p>
+
+      <h2>Intro</h2>
+      <p>Ask AI these questions; look over the answers.</p>
+      <ol>
+        <li>How would a program compare a scanned RFID card's UID against a stored list of authorized UIDs to decide whether to grant access?</li>
+        <li>Explain to a middle schooler why a "whitelist" approach (only specifically listed items are allowed) might be safer than a "blacklist" approach (everything is allowed except specifically listed items) for something like building access.</li>
+        <li>Create a simple flowchart showing the decision process: scan card, read UID, compare to whitelist, grant or deny.</li>
+        <li>Why might storing authorized UIDs directly in code be a limitation for a real, large-scale access control system, even though it's fine for a small classroom project?</li>
+        <li>Connect today's whitelist logic to something you already built earlier this course that also compared a value against a stored correct answer.</li>
+        <li>Real access control systems sometimes log every entry attempt, not just grant or deny it. Why might that logging be valuable, even when access is correctly granted?</li>
+      </ol>
+
+      <h2>Notes</h2>
+      <p>Look up these definitions and add them to your living glossary:</p>
+      <ul>
+        <li>Whitelist</li>
+        <li>Blacklist</li>
+        <li>Byte comparison</li>
+        <li>Access log</li>
+      </ul>
+      <p class="hint">Key idea: a <strong>whitelist</strong> only allows specifically listed items (everything else denied by default) &mdash; the more secure default approach, and what V1 uses. A UID is made of several bytes, so comparing means checking every byte matches (same idea as Lesson 4.4's String comparison, different data type). V1's scope is intentionally limited &mdash; no servo yet (V2), no LCD yet (V3) &mdash; and it carries the exact vulnerability from 5.2: a cloned card with a matching UID gets in, with no way for V1 to tell the difference. That's a deliberate starting point to improve from.</p>
+
+      <h2>Assignments</h2>
+      <ul>
+        <li><strong>5.4 &mdash; V1: Grant/Deny by UID.</strong> Wire a single LED as an access indicator. Scan one card and hardcode its UID as an authorized whitelist entry. Write byte-by-byte comparison logic, lighting the LED only on a full match. Expand your whitelist to support at least 2 authorized UIDs, and test thoroughly: both authorized cards plus an unauthorized one. Submit your annotated code and a photo of your working setup.</li>
+        <li>Add your V1 build photo to Page 2.5 &mdash; Unit 5 on your Google Site, with 1&ndash;2 sentences describing what V1 does. (Your case connection from 5.2 should already be there.)</li>
+        <li>Fill out your developer log every class period &mdash; one entry per day this lesson (graded at the end of the unit; timestamps checked).</li>
+        <li>Make sure you've added today's 4 terms to your living glossary.</li>
+      </ul>
+
+      <div id="prev-next-root" class="prev-next-nav"></div>
+    </article>
+  </div>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>
+renderHeader();
+
+const UNIT_TITLE = "Unit 5: RFID and Access Control";
+const UNIT_BASE = "";
+const UNIT_LESSONS = [
+  { title: "5.1 What Is RFID?", file: "5-1-what-is-rfid.html" },
+  { title: "5.2 Case: Hotel Keycard Cloning", file: "5-2-case-hotel-keycard-cloning.html" },
+  { title: "5.3 RC522 Wiring Lab: SPI", file: "5-3-rc522-wiring-lab-spi.html" },
+  { title: "5.4 V1: Grant/Deny by UID", file: "5-4-v1-grant-deny-by-uid.html" },
+  { title: "5.5 Case: HID Corporate 1000 Exploit", file: "5-5-case-hid-corporate-1000-exploit.html" },
+  { title: "5.6 V2: Servo Door Lock", file: "5-6-v2-servo-door-lock.html" },
+  { title: "5.7 V3: Full System with LCD", file: "5-7-v3-full-system-with-lcd.html" },
+  { title: "5.8 Case: Defcon RFID Village", file: "5-8-case-defcon-rfid-village.html" },
+  { title: "5.9 Motor Types: Conceptual Overview", file: "5-9-motor-types-conceptual-overview.html" }
+];
+const CURRENT_FILE = "5-4-v1-grant-deny-by-uid.html";
+</script>
+<script src="../../assets/course-nav.js"></script>
+</body>
+</html>

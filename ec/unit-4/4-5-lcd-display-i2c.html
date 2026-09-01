@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4.5 LCD Display: I2C Serial Communication | Unit 4 | Embedded Computing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<div style="max-width:1200px;margin:0 auto;padding:24px 20px 0;">
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ec/index.html">Embedded Computing</a><span class="sep">/</span><a href="../../ec/unit-4/index.html">Unit 4: Input Systems</a><span class="sep">/</span>4.5 LCD Display: I2C Serial Communication</div>
+</div>
+
+  <div class="lesson-layout">
+    <aside class="lesson-sidebar" id="lesson-sidebar-root"></aside>
+
+    <article class="lesson-content">
+      <h1>4.5 &mdash; LCD Display: I2C Serial Communication</h1>
+      <p class="hint">New hardware: the I2C LCD 16x2 display &mdash; only 4 wires needed. This is the course's first formal communication protocol.</p>
+
+      <h2>Intro</h2>
+      <p>Ask AI these questions; look over the answers.</p>
+      <ol>
+        <li>What is I2C, and why can it let multiple devices communicate using only 2 wires, no matter how many devices are connected?</li>
+        <li>Explain to a middle schooler the difference between a "party line" phone system where everyone shares one line versus everyone having their own separate phone line, and connect that to how I2C works.</li>
+        <li>Create a simple diagram showing an Arduino connected to multiple I2C devices, all sharing the same 2 wires (SDA and SCL), each with its own unique address.</li>
+        <li>Why does every device on an I2C bus need a unique address? What would happen if two devices had the same address?</li>
+        <li>Connect I2C to a real product you might recognize that has multiple small chips or sensors communicating internally.</li>
+        <li>What does "master" and "slave" mean in the context of I2C communication, and which one is the Arduino usually acting as?</li>
+      </ol>
+
+      <h2>Notes</h2>
+      <p>Look up these definitions and add them to your living glossary:</p>
+      <ul>
+        <li>I2C (Inter-Integrated Circuit)</li>
+        <li>SDA (Serial Data)</li>
+        <li>SCL (Serial Clock)</li>
+        <li>I2C address</li>
+        <li>Master/slave</li>
+      </ul>
+      <p class="hint">Key idea: I2C lets many devices share just <strong>2</strong> wires &mdash; <strong>SDA</strong> carries the actual data, <strong>SCL</strong> is a shared clock signal keeping everyone synchronized. Every device has a unique <strong>I2C address</strong>; the <strong>master</strong> (the Arduino) includes that address when it wants to talk to a specific device, and only that device responds. Contrast with everything wired so far: the HC-SR04 needed 2 dedicated pins for itself, the keypad needed 8 &mdash; I2C devices only ever need 2 signal wires (plus power/ground), no matter how many are on the bus. This matters beyond the LCD: I2C shows up constantly in real products (sensors, real-time clocks, small displays).</p>
+
+      <h2>Assignments</h2>
+      <ul>
+        <li><strong>4.5 &mdash; LCD Display: I2C Serial Communication.</strong> Wire the I2C LCD (VCC&rarr;5V, GND&rarr;GND, SDA&rarr;Arduino's SDA pin, SCL&rarr;Arduino's SCL pin &mdash; only 4 connections). Install the LiquidCrystal_I2C library and write code to display text on both lines of the 16x2 screen, clearing and updating it. Submit your annotated code and a photo of your working display.</li>
+        <li>Fill out your developer log on your Google Site every class period (graded at the end of the unit; timestamps checked).</li>
+        <li>Make sure you've added today's 5 terms to your living glossary.</li>
+      </ul>
+
+      <div id="prev-next-root" class="prev-next-nav"></div>
+    </article>
+  </div>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>
+renderHeader();
+
+const UNIT_TITLE = "Unit 4: Input Systems";
+const UNIT_BASE = "";
+const UNIT_LESSONS = [
+  { title: "4.1 Buttons: Wiring and Reading", file: "4-1-buttons-wiring-and-reading.html" },
+  { title: "4.2 Case: Target Data Breach", file: "4-2-case-target-data-breach.html" },
+  { title: "4.3 Keypad: Wiring and Reading", file: "4-3-keypad-wiring-and-reading.html" },
+  { title: "4.4 PIN Entry System", file: "4-4-pin-entry-system.html" },
+  { title: "4.5 LCD Display: I2C Serial Communication", file: "4-5-lcd-display-i2c.html" },
+  { title: "4.6 Keypad + LCD Combined", file: "4-6-keypad-and-lcd-combined.html" },
+  { title: "4.7 Case: Stuxnet", file: "4-7-case-stuxnet.html" },
+  { title: "4.8 Finite State Machine", file: "4-8-finite-state-machine.html" },
+  { title: "4.9 Sprint Retrospective + V2 Planning", file: "4-9-sprint-retrospective-and-v2-planning.html" }
+];
+const CURRENT_FILE = "4-5-lcd-display-i2c.html";
+</script>
+<script src="../../assets/course-nav.js"></script>
+</body>
+</html>

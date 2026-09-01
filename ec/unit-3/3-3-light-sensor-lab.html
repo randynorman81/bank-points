@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3.3 Light Sensor Lab | Unit 3 | Embedded Computing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<div style="max-width:1200px;margin:0 auto;padding:24px 20px 0;">
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ec/index.html">Embedded Computing</a><span class="sep">/</span><a href="../../ec/unit-3/index.html">Unit 3: Sensors and Reactive Programs</a><span class="sep">/</span>3.3 Light Sensor Lab</div>
+</div>
+
+  <div class="lesson-layout">
+    <aside class="lesson-sidebar" id="lesson-sidebar-root"></aside>
+
+    <article class="lesson-content">
+      <h1>3.3 &mdash; Light Sensor Lab</h1>
+      <p class="hint">Two-period lesson, TinkerCAD simulation only &mdash; the one sensor this unit we don't use real hardware for.</p>
+
+      <h2>Intro</h2>
+      <p>Ask AI these questions; look over the answers.</p>
+      <ol>
+        <li>What is a photoresistor and how does its resistance change based on light level? Explain it to a middle schooler.</li>
+        <li>Why does an Arduino need to convert an analog sensor reading into a different range of numbers before using it? What does the map() function actually do?</li>
+        <li>Create a simple diagram showing how light hitting a photoresistor eventually becomes a number the Arduino can use in code.</li>
+        <li>What real products automatically respond to light levels the way we're about to build today? List at least 3.</li>
+        <li>Connect today's light sensor project to a real engineering challenge &mdash; where does getting light measurement wrong in a real product cause a real problem?</li>
+        <li>Why might a company choose to simulate a circuit like this instead of building it with real hardware first, even after they're confident in the design?</li>
+      </ol>
+
+      <h2>Notes</h2>
+      <p>Look up these definitions and add them to your living glossary:</p>
+      <ul>
+        <li>Photoresistor</li>
+        <li>analogRead()</li>
+        <li>map()</li>
+        <li>Calibration</li>
+      </ul>
+      <p class="hint">Key idea: a photoresistor's resistance drops as light increases &mdash; it's an analog sensor, reporting a continuous range, not just light/dark. <code>analogRead(pin)</code> returns a number 0&ndash;1023. <code>map(value, fromLow, fromHigh, toLow, toHigh)</code> converts that into a more useful range &mdash; e.g. <code>map(lightLevel, 0, 1023, 0, 255)</code> converts a raw reading into the 0&ndash;255 range analogWrite() expects. Calibration matters because the exact raw values a photoresistor produces depend on the room's actual lighting &mdash; a program tested in one location may need adjustment in another.</p>
+
+      <h2>Assignments</h2>
+      <ul>
+        <li><strong>3.3 &mdash; Light Sensor Lab.</strong> In TinkerCAD, build a circuit with a photoresistor, a fixed resistor (voltage divider), and an LED. Read the raw value with analogRead() and print it to Serial Monitor, adjusting the simulated light level to see it change. Then use map() to convert the raw reading into a 0&ndash;255 brightness range and drive the LED with analogWrite() so it responds to light level (e.g. dimmer room = brighter LED, like an automatic night light). Submit your annotated code and a screenshot of your working, light-responsive circuit.</li>
+        <li>Fill out your developer log every class period &mdash; one entry per day this lesson (graded at the end of the unit; timestamps checked).</li>
+        <li>Make sure you've added today's 4 terms to your living glossary.</li>
+      </ul>
+
+      <div id="prev-next-root" class="prev-next-nav"></div>
+    </article>
+  </div>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>
+renderHeader();
+
+const UNIT_TITLE = "Unit 3: Sensors and Reactive Programs";
+const UNIT_BASE = "";
+const UNIT_LESSONS = [
+  { title: "3.1 What Is a Sensor?", file: "3-1-what-is-a-sensor.html" },
+  { title: "3.2 Case: Jeep Cherokee Hack", file: "3-2-case-jeep-cherokee-hack.html" },
+  { title: "3.3 Light Sensor Lab", file: "3-3-light-sensor-lab.html" },
+  { title: "3.4 if/else: Making Decisions", file: "3-4-if-else-making-decisions.html" },
+  { title: "3.5 Distance Sensor Lab", file: "3-5-distance-sensor-lab.html" },
+  { title: "3.6 Loops: for and while", file: "3-6-loops-for-and-while.html" },
+  { title: "3.7 Motion Sensor Lab", file: "3-7-motion-sensor-lab.html" },
+  { title: "3.8 Case: Oldsmar Water Plant", file: "3-8-case-oldsmar-water-plant.html" },
+  { title: "3.9 Temperature Sensor Lab + Functions", file: "3-9-temperature-sensor-lab-and-functions.html" },
+  { title: "3.10 Debugging Methodology", file: "3-10-debugging-methodology.html" },
+  { title: "3.11 V1 and V2 Alarm System", file: "3-11-v1-and-v2-alarm-system.html" }
+];
+const CURRENT_FILE = "3-3-light-sensor-lab.html";
+</script>
+<script src="../../assets/course-nav.js"></script>
+</body>
+</html>

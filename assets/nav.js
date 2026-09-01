@@ -66,7 +66,14 @@ const COURSES = [
     classDocs: "ec/class-docs.html",
     googleSite: "https://sites.google.com/socialcircleschools.org/webdev/home",
     units: [
-      { n: 1, title: "What Is an Embedded System?", migrated: true, path: "ec/unit-1/index.html" }
+      { n: 1, title: "What Is an Embedded System?", migrated: true, path: "ec/unit-1/index.html" },
+      { n: 2, title: "Arduino Foundations", migrated: true, path: "ec/unit-2/index.html" },
+      { n: 3, title: "Sensors and Reactive Programs", migrated: true, path: "ec/unit-3/index.html" },
+      { n: 4, title: "Input Systems", migrated: true, path: "ec/unit-4/index.html" },
+      { n: 5, title: "RFID and Access Control", migrated: true, path: "ec/unit-5/index.html" },
+      { n: 6, title: "Multi-Sensor Design Projects", migrated: true, path: "ec/unit-6/index.html" },
+      { n: 7, title: "IoT Concepts", migrated: true, path: "ec/unit-7/index.html" },
+      { n: 8, title: "Capstone", migrated: true, path: "ec/unit-8/index.html" }
     ]
   }
 ];

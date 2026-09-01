@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5.3 RC522 Wiring Lab: SPI | Unit 5 | Embedded Computing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<div style="max-width:1200px;margin:0 auto;padding:24px 20px 0;">
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ec/index.html">Embedded Computing</a><span class="sep">/</span><a href="../../ec/unit-5/index.html">Unit 5: RFID and Access Control</a><span class="sep">/</span>5.3 RC522 Wiring Lab: SPI</div>
+</div>
+
+  <div class="lesson-layout">
+    <aside class="lesson-sidebar" id="lesson-sidebar-root"></aside>
+
+    <article class="lesson-content">
+      <h1>5.3 &mdash; RC522 Wiring Lab: SPI Serial Communication</h1>
+      <p class="hint" style="font-weight:600;">⚠ Safety: the RC522 module connects to 3.3V &mdash; NEVER 5V. Using 5V can permanently damage the module. Double-check you're on the Uno's dedicated 3.3V pin before uploading any code.</p>
+
+      <h2>Intro</h2>
+      <p>Ask AI these questions; look over the answers.</p>
+      <ol>
+        <li>What is SPI, and how is it different from I2C, which we learned about in Unit 4?</li>
+        <li>Explain to a middle schooler why SPI needs 4 wires while I2C only needed 2 &mdash; what extra job do those additional wires do?</li>
+        <li>Create a simple diagram showing the 4 SPI wires (MOSI, MISO, SCK, SS) and what each one's job is.</li>
+        <li>Why might a device like the RC522 RFID reader use SPI instead of I2C? What might make SPI a better fit for this specific job?</li>
+        <li>Connect the master/slave concept from I2C to how it also applies in SPI &mdash; is the relationship the same, different, or similar?</li>
+        <li>Why does the RC522 specifically require 3.3V instead of 5V? What might happen if you used the wrong voltage?</li>
+      </ol>
+
+      <h2>Notes</h2>
+      <p>Look up these definitions and add them to your living glossary:</p>
+      <ul>
+        <li>SPI (Serial Peripheral Interface)</li>
+        <li>MOSI (Master Out, Slave In)</li>
+        <li>MISO (Master In, Slave Out)</li>
+        <li>SCK (Serial Clock)</li>
+        <li>SS (Slave Select)</li>
+      </ul>
+      <p class="hint">Key idea: SPI is the course's second named communication protocol, contrasting with I2C from Unit 4. Where I2C shares one wire (SDA) for data in both directions and uses an address system, SPI uses <strong>4</strong> dedicated wires &mdash; <strong>MOSI</strong> (master&rarr;slave data), <strong>MISO</strong> (slave&rarr;master data), <strong>SCK</strong> (shared clock, like I2C's SCL), and <strong>SS</strong> (identifies which slave device, instead of an address number). More wires, but generally faster &mdash; a good fit for RFID's relatively fast, frequent communication. Same master/slave pattern as I2C: the Arduino is master, the RC522 is slave.</p>
+
+      <h2>Assignments</h2>
+      <ul>
+        <li><strong>5.3 &mdash; RC522 Wiring Lab.</strong> Wire the RC522 &mdash; 3.3V (never 5V!) to power, GND to ground, plus the 4 SPI wires and a reset connection. Install the MFRC522 library and write code to read a card's UID when scanned, printing it to Serial Monitor. Scan multiple different cards and confirm each produces a different, consistent UID. Submit your annotated code and a photo of your working setup.</li>
+        <li>Fill out your developer log on your Google Site every class period (graded at the end of the unit; timestamps checked).</li>
+        <li>Make sure you've added today's 5 terms to your living glossary.</li>
+      </ul>
+
+      <div id="prev-next-root" class="prev-next-nav"></div>
+    </article>
+  </div>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>
+renderHeader();
+
+const UNIT_TITLE = "Unit 5: RFID and Access Control";
+const UNIT_BASE = "";
+const UNIT_LESSONS = [
+  { title: "5.1 What Is RFID?", file: "5-1-what-is-rfid.html" },
+  { title: "5.2 Case: Hotel Keycard Cloning", file: "5-2-case-hotel-keycard-cloning.html" },
+  { title: "5.3 RC522 Wiring Lab: SPI", file: "5-3-rc522-wiring-lab-spi.html" },
+  { title: "5.4 V1: Grant/Deny by UID", file: "5-4-v1-grant-deny-by-uid.html" },
+  { title: "5.5 Case: HID Corporate 1000 Exploit", file: "5-5-case-hid-corporate-1000-exploit.html" },
+  { title: "5.6 V2: Servo Door Lock", file: "5-6-v2-servo-door-lock.html" },
+  { title: "5.7 V3: Full System with LCD", file: "5-7-v3-full-system-with-lcd.html" },
+  { title: "5.8 Case: Defcon RFID Village", file: "5-8-case-defcon-rfid-village.html" },
+  { title: "5.9 Motor Types: Conceptual Overview", file: "5-9-motor-types-conceptual-overview.html" }
+];
+const CURRENT_FILE = "5-3-rc522-wiring-lab-spi.html";
+</script>
+<script src="../../assets/course-nav.js"></script>
+</body>
+</html>
