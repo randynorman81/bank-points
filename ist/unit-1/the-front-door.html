@@ -72,6 +72,26 @@ code{font-family:"Roboto Mono",ui-monospace,monospace;font-size:.87em;background
 .example{background:var(--blue-deep);border-left:4px solid var(--gold);border-radius:0 2px 2px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#CFE3F5}
 .example b{color:var(--gold);text-transform:uppercase;font-family:"Roboto Mono",monospace;font-size:11.5px;letter-spacing:.04em}
 
+/* http vs https side-by-side demo */
+.url-demo{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
+.url-panel{border-radius:3px;overflow:hidden;border:1px solid var(--line-soft)}
+.url-panel.bad{background:var(--red-tint)}
+.url-panel.good{background:var(--green-tint)}
+.addr-bar{background:var(--blue-deep);padding:11px 14px;font-family:"Roboto Mono",monospace;font-size:12.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.url-panel.bad .addr-bar .flag{color:#FF9B92;font-weight:600;white-space:nowrap}
+.url-panel.good .addr-bar .flag{color:var(--green);font-weight:600;white-space:nowrap}
+.addr-text{color:var(--ink-soft);word-break:break-all}
+.peek{padding:14px}
+.peek .lbl{color:var(--white);display:block;margin-bottom:6px;font-weight:600;font-size:13px}
+.peek code{display:block;font-size:12.5px;word-break:break-all;color:#CFE3F5;background:transparent;padding:0}
+
+/* numbered type list (captcha types) */
+.typelist{display:grid;gap:2px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:2px;overflow:hidden;margin:20px 0}
+.type-row{background:var(--card);padding:16px 20px;display:grid;grid-template-columns:34px 1fr;gap:16px;align-items:center}
+.type-row .rk{font-family:"Big Shoulders Display",sans-serif;font-size:22px;color:var(--gold);font-weight:800}
+.type-row h5{font-size:16px;font-weight:700;color:var(--white);text-transform:none;margin-bottom:3px}
+.type-row p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
 /* spec sheet rows */
 .spec{background:var(--card);border:1px solid var(--line-soft);border-radius:2px;padding:22px 26px;margin:20px 0}
 .spec h4{font-family:"Roboto Mono",monospace;font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px;font-weight:600}
@@ -178,7 +198,18 @@ code{font-family:"Roboto Mono",ui-monospace,monospace;font-size:.87em;background
       </div>
     </div>
 
-    <div class="example"><b>Example:</b> You're at a coffee shop typing your email password into a site with plain <code>http://</code>. Someone else on that same Wi-Fi, using free tools, could actually see your exact password as it travels through the air. With <code>https://</code>, that same password looks like random scrambled junk to them instead.</div>
+    <p><b>Here's exactly what the difference looks like</b> &mdash; same website, same login, one small difference in the address bar that changes everything:</p>
+    <div class="url-demo">
+      <div class="url-panel bad">
+        <div class="addr-bar"><span class="flag">&#9888; Not Secure</span><span class="addr-text">http://coolgame-freebies.net/login</span></div>
+        <div class="peek"><span class="lbl">What a snooper on the same Wi-Fi actually sees:</span><code>username=jayden22&amp;password=Fluffy123</code></div>
+      </div>
+      <div class="url-panel good">
+        <div class="addr-bar"><span class="flag">&#128274; Secure</span><span class="addr-text">https://coolgame-freebies.net/login</span></div>
+        <div class="peek"><span class="lbl">What that same snooper sees instead:</span><code>4f3a9c8e2b7d1f6a9c3e8b2d7f1a4c9e5b8d2f7a1c...</code></div>
+      </div>
+    </div>
+    <div class="example"><b>Example:</b> You're at a coffee shop typing your email password into a site with plain <code>http://</code>. Someone else on that same Wi-Fi, using free tools, could actually see your exact password as it travels through the air, like in the panel above. With <code>https://</code>, that same password looks like random scrambled junk to them instead.</div>
 
     <div class="redline">
       <h4>Warning: the padlock is not a "trust me" badge</h4>
@@ -204,7 +235,15 @@ code{font-family:"Roboto Mono",ui-monospace,monospace;font-size:.87em;background
 
     <div class="example"><b>Example:</b> Ever notice sneakers or concert tickets selling out in literally two seconds? That's usually not real people &mdash; it's often bots built specifically to out-click every human on the page.</div>
 
-    <p><b>CAPTCHA has changed a lot over time:</b> distorted, hard-to-read letters &rarr; "click every image with a crosswalk" &rarr; today's simple one-click "I'm not a robot" checkbox. That modern checkbox is secretly watching how you move your mouse and how you click in the background &mdash; the visible checkbox itself is almost just for show.</p>
+    <p><b>5 kinds of CAPTCHA you've probably already seen:</b></p>
+    <div class="typelist">
+      <div class="type-row"><div class="rk">1</div><div><h5>Distorted text</h5><p>Type the wavy, stretched-out letters and numbers exactly as shown. The oldest, most familiar kind &mdash; you've probably seen this one the most.</p></div></div>
+      <div class="type-row"><div class="rk">2</div><div><h5>Image grid</h5><p>"Click every square with a traffic light, crosswalk, or bicycle in it." Bots are still bad at recognizing real-world objects in messy photos.</p></div></div>
+      <div class="type-row"><div class="rk">3</div><div><h5>The checkbox ("I'm not a robot")</h5><p>You just click one box. Behind the scenes, it's secretly watching how your mouse moved and how you clicked to decide if you're human.</p></div></div>
+      <div class="type-row"><div class="rk">4</div><div><h5>Invisible / behind-the-scenes</h5><p>No visible test at all. It silently scores your behavior on the page the whole time, and only shows you a real test if something looks suspicious.</p></div></div>
+      <div class="type-row"><div class="rk">5</div><div><h5>Slider or puzzle piece</h5><p>Drag a puzzle piece into the missing spot in a picture, or slide a bar all the way to one side, using a smooth, human-like motion.</p></div></div>
+    </div>
+    <p class="lede" style="font-size:15px;margin-top:14px;max-width:60ch;">There's also an <b>audio version</b> on most sites &mdash; it reads a code out loud instead of showing an image, for anyone who can't see well.</p>
   </div>
 </section>
 
@@ -220,11 +259,13 @@ code{font-family:"Roboto Mono",ui-monospace,monospace;font-size:.87em;background
       <div class="factor"><div class="tag">Something you are</div><h4>Fingerprint / face</h4><p>Biometric, meaning tied to your actual body &mdash; not something you can memorize or hand off.</p></div>
     </div>
 
-    <p><b>Not every second factor protects you equally well:</b></p>
+    <p><b>5 real examples of 2FA, ranked weakest to strongest:</b></p>
     <div class="ranked">
       <div class="rank"><div class="n">1</div><div><h5>SMS text code</h5><p>Can be stolen through "SIM-swapping" &mdash; an attacker tricks your phone carrier into moving your phone number onto their own phone.</p></div><span class="strength weak">Weakest</span></div>
-      <div class="rank"><div class="n">2</div><div><h5>Authenticator app</h5><p>Creates a rotating code right on your device &mdash; there's no phone call or text message for an attacker to intercept.</p></div><span class="strength mid">Better</span></div>
-      <div class="rank"><div class="n">3</div><div><h5>Hardware security key</h5><p>An actual physical key (like a YubiKey) you plug in or tap &mdash; almost impossible to trick or fake remotely.</p></div><span class="strength strong">Strongest</span></div>
+      <div class="rank"><div class="n">2</div><div><h5>Email verification code</h5><p>A code gets emailed to you instead of texted. If your email password is already weak or reused, this barely adds any protection at all.</p></div><span class="strength weak">Weak</span></div>
+      <div class="rank"><div class="n">3</div><div><h5>Authenticator app</h5><p>Creates a rotating code right on your device &mdash; there's no phone call or text message for an attacker to intercept.</p></div><span class="strength mid">Better</span></div>
+      <div class="rank"><div class="n">4</div><div><h5>Push notification approval</h5><p>Your phone gets a pop-up asking "Was this you? Approve or Deny." Fast and easy &mdash; just don't approve one you don't recognize.</p></div><span class="strength mid">Better</span></div>
+      <div class="rank"><div class="n">5</div><div><h5>Security key or fingerprint / Face ID</h5><p>A physical key (like a YubiKey) that must be plugged in or tapped, or your own fingerprint/face on your device &mdash; both are extremely hard to steal remotely.</p></div><span class="strength strong">Strongest</span></div>
     </div>
 
     <div class="example"><b>Example:</b> Two people both have their passwords leaked in the same breach. One only uses a password &mdash; the attacker logs right in. The other has 2FA turned on with an authenticator app &mdash; the attacker has the password but gets stuck, because they don't have that person's actual phone too.</div>
@@ -235,16 +276,20 @@ code{font-family:"Roboto Mono",ui-monospace,monospace;font-size:.87em;background
 <section class="part">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">04</div><h2>OWASP &mdash; the building code</h2></div>
-    <p class="lede">The <b>Open Web Application Security Project</b> (OWASP for short) is a nonprofit group that studies exactly how real websites get broken into, then publishes what they find so other people who build websites can design around those same mistakes &mdash; before a real attacker finds them first.</p>
+    <p class="lede">OWASP stands for <b>Open Web Application Security Project</b> &mdash; a big name for a simple idea. It's just a group of computer safety experts who write down the most common mistakes that get websites hacked, then hand that list to anyone building a website, so they know exactly which mistakes to avoid.</p>
 
-    <p><b>Its most famous product is the OWASP Top 10</b> &mdash; a regularly updated list of the most serious risks facing websites and apps. Two are worth knowing by name:</p>
+    <div class="example"><b>Think of it like this:</b> if burglars kept breaking into houses the same three ways, a smart home inspector would write those three ways down and hand the list to every builder in town, so new houses stop repeating the same mistakes. OWASP does exactly that, except for websites instead of houses.</div>
+
+    <p><b>Their most famous list is the OWASP Top 10</b> &mdash; literally the 10 biggest, most common mistakes, ranked from worst to less-worst. Two are worth knowing by name:</p>
 
     <div class="top10">
-      <div class="t10-row"><div class="rk">#1</div><div><h5>Broken access control</h5><p>The single most common flaw on the whole list &mdash; a user can view or edit data they were never supposed to be able to reach, often just by changing a number in a web address.</p></div></div>
-      <div class="t10-row"><div class="rk">#3</div><div><h5>Injection</h5><p>A form doesn't check what you actually typed before running it &mdash; so instead of typing a normal name, someone types a command, and the system just obeys it.</p></div></div>
+      <div class="t10-row"><div class="rk">#1</div><div><h5>Broken access control</h5><p>The single most common mistake on the whole list &mdash; a user can see or change stuff they were never supposed to be allowed to touch, often just by changing one number in a web address.</p></div></div>
+      <div class="t10-row"><div class="rk">#3</div><div><h5>Injection</h5><p>A website asks you to type something normal, like your name, but never checks what you actually typed before using it &mdash; so if you type a trick phrase instead, the website might just obey it like a command.</p></div></div>
     </div>
 
-    <div class="example"><b>Example (broken access control):</b> Imagine your grades are viewable at a web address like <code>school.com/grades/1042</code>, where 1042 is your student ID number. If the site doesn't double-check whose grades you're actually allowed to see, simply typing <code>1043</code> instead could show you a different student's grades.</div>
+    <div class="example"><b>Example (broken access control):</b> Say your grades live at a web address like <code>school.com/grades/1042</code>, where 1042 is your student ID number. If the site never double-checks whose grades you're actually allowed to see, just typing <code>1043</code> instead could show you a completely different student's grades.</div>
+
+    <div class="example"><b>Example (injection):</b> Imagine a website is like a genie that grants exactly whatever you type into a box, no questions asked. Normally you'd type a name, like "Alex." But if someone types a sneaky command instead of a name, the website "genie" might grant that command too &mdash; even something like "delete every student's data." A safe website always double-checks what you typed first, instead of blindly obeying it.</div>
 
     <p>OWASP isn't a company and it isn't the government &mdash; it's just the checklist that real engineering teams actually build against before they let a website go live.</p>
   </div>
