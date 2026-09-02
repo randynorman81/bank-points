@@ -84,7 +84,17 @@ const COURSES = [
 // null for a tool that's still being built -- it'll show as "coming soon"
 // instead of a link.
 const TOOLS = [
-  { id: "quizzes", name: "Quizzes", url: "https://quizzescomputerscience.netlify.app/student.html", description: "Sign in with your school Google account to take an open quiz." },
+  {
+    id: "quizzes", name: "Quizzes",
+    description: "Sign in with your school Google account to take an open quiz for your class.",
+    // Each course has its own quiz page so students only ever see quizzes for
+    // their own class -- see courseLinks below instead of a single `url`.
+    courseLinks: {
+      ist: "https://quizzescomputerscience.netlify.app/ist.html",
+      apcsp: "https://quizzescomputerscience.netlify.app/apcsp.html",
+      ec: "https://quizzescomputerscience.netlify.app/ec.html"
+    }
+  },
   { id: "exit-tickets", name: "Exit Tickets", url: "https://starlit-salmiakki-e2394f.netlify.app/", description: "Sign in with your school Google account to answer an open exit ticket." },
   { id: "bank", name: "Bank Points", url: "https://computer-science-bank.netlify.app/", description: "Check your extra credit points, or request to use some on an assignment." }
 ];
@@ -108,6 +118,12 @@ function buildStaticSearchIndex() {
   });
   TOOLS.forEach((t) => {
     if (t.url) entries.push({ title: t.name, url: t.url, category: "Tool" });
+    if (t.courseLinks) {
+      COURSES.forEach((course) => {
+        const link = t.courseLinks[course.id];
+        if (link) entries.push({ title: t.name + " — " + course.shortName, url: link, category: course.shortName });
+      });
+    }
   });
   return entries;
 }
@@ -148,6 +164,16 @@ function announcementsDropdownMarkup() {
 
 function toolsDropdownMarkup() {
   const toolLinks = TOOLS.map(t => {
+    if (t.courseLinks) {
+      // A tool with a separate page per course (right now, just Quizzes) --
+      // list it as a heading followed by one link per class, the same
+      // "pick your class" pattern the Announcements dropdown uses below.
+      const perCourse = COURSES.map(course => {
+        const link = t.courseLinks[course.id];
+        return link ? `<a class="external" href="${link}" target="_blank" rel="noopener">${escapeHtmlNav(t.name)} &mdash; ${escapeHtmlNav(course.shortName)}</a>` : "";
+      }).join("");
+      return `<div class="dropdown-heading">${escapeHtmlNav(t.name)}</div>${perCourse}<hr>`;
+    }
     if (t.url) {
       return `<a class="external" href="${t.url}" target="_blank" rel="noopener">${escapeHtmlNav(t.name)}</a>`;
     }
@@ -337,6 +363,18 @@ function renderToolsGrid(containerId) {
   if (!container) return;
 
   container.innerHTML = TOOLS.map(t => {
+    if (t.courseLinks) {
+      const perCourse = COURSES.map(course => {
+        const link = t.courseLinks[course.id];
+        return link ? `<a class="tool-card-course-link" href="${link}" target="_blank" rel="noopener">${escapeHtmlNav(course.shortName)} &#8599;</a>` : "";
+      }).join("");
+      return `
+        <div class="tool-card">
+          <h3>${escapeHtmlNav(t.name)}</h3>
+          <p>${escapeHtmlNav(t.description)}</p>
+          <div class="tool-card-courses">${perCourse}</div>
+        </div>`;
+    }
     if (t.url) {
       return `
         <a class="tool-card" href="${t.url}" target="_blank" rel="noopener">
