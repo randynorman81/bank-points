@@ -8,7 +8,11 @@ const GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.goo
 const SCHOOL_EMAIL_DOMAIN = "socialcircleschools.org";
 
 function store() {
-  return getStore("bank-points");
+  // Strong consistency: a roster edit (e.g. fixing a student's email) needs
+  // to be visible on the very next read, not after Blobs' default eventual-
+  // consistency window -- otherwise "My Points" sign-in can bounce off a
+  // stale copy of the roster right after a fix is made.
+  return getStore({ name: "bank-points", consistency: "strong" });
 }
 
 async function readJSON(key, fallback) {
