@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SAT English Trap Trainer</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --ink:#1c2230; --muted:#5b6474;
+    --line:#e4e7ec; --brand:#3b5bdb; --brand-soft:#e8edfb;
+    --good:#1f9d55; --good-soft:#e3f5ea; --bad:#d64545; --bad-soft:#fbe8e8;
+    --warn:#b9770e; --shadow:0 1px 2px rgba(16,24,40,.06),0 8px 24px rgba(16,24,40,.06);
+    --serif:Georgia,"Times New Roman",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#12151c; --panel:#1a1f29; --ink:#e7e9ee; --muted:#9aa3b2;
+      --line:#2b323f; --brand:#8aa0ff; --brand-soft:#232a3d;
+      --good:#4cc38a; --good-soft:#17301f; --bad:#f08a8a; --bad-soft:#331c1c;
+      --warn:#e0a850; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-text-size-adjust:100%}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 18px 80px}
+  h1{font-size:1.35rem;margin:0 0 2px}
+  h2{font-size:1.05rem;margin:0 0 10px}
+  .sub{color:var(--muted);font-size:.92rem;margin:0 0 20px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--ink);
+    font:inherit;font-weight:600;padding:11px 16px;border-radius:10px;cursor:pointer;transition:.12s}
+  .btn:hover{border-color:var(--brand)}
+  .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+  .btn.primary:hover{filter:brightness(1.05)}
+  .btn.ghost{background:transparent}
+  .btn.sm{padding:7px 11px;font-size:.85rem;font-weight:600}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .stat .k{font-size:1.5rem;font-weight:700;line-height:1.1}
+  .stat .l{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .chip{background:var(--brand-soft);color:var(--brand);border-radius:999px;padding:5px 12px;font-size:.82rem;font-weight:700}
+  .chip.n{background:var(--line);color:var(--muted)}
+  .bar{height:8px;background:var(--line);border-radius:999px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:var(--brand);border-radius:999px}
+  .qmeta{display:flex;justify-content:space-between;align-items:center;font-size:.82rem;color:var(--muted);margin-bottom:10px}
+  .dots{display:flex;gap:5px;align-items:center}
+  .dots b{width:9px;height:9px;border-radius:50%;background:var(--line);display:inline-block}
+  .dots b.on{background:var(--brand)}
+  .stem{font-family:var(--serif);font-size:1.18rem;line-height:1.7;margin:6px 0 18px}
+  .slot{border-bottom:2px solid var(--brand);padding:0 26px;margin:0 2px}
+  .fill{background:var(--good-soft);border-bottom:2px solid var(--good);padding:0 3px;border-radius:3px}
+  .fill.bad{background:var(--bad-soft);border-bottom-color:var(--bad)}
+  .choices{display:flex;flex-direction:column;gap:9px}
+  .choice{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;
+    border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:11px;
+    padding:12px 14px;cursor:pointer;font:inherit;transition:.1s}
+  .choice:hover{border-color:var(--brand)}
+  .choice .tag{flex:none;width:24px;height:24px;border-radius:6px;background:var(--line);color:var(--muted);
+    font-weight:700;font-size:.85rem;display:grid;place-items:center}
+  .choice.sel{border-color:var(--brand);background:var(--brand-soft)}
+  .choice.correct{border-color:var(--good);background:var(--good-soft)}
+  .choice.correct .tag{background:var(--good);color:#fff}
+  .choice.wrong{border-color:var(--bad);background:var(--bad-soft)}
+  .choice.wrong .tag{background:var(--bad);color:#fff}
+  .choice.locked{cursor:default}
+  .choice .txt{font-family:var(--serif);font-size:1.02rem}
+  .fb{margin-top:16px;border-top:1px dashed var(--line);padding-top:14px}
+  .fb .verdict{font-weight:800;font-size:1rem;margin-bottom:8px}
+  .fb .verdict.y{color:var(--good)} .fb .verdict.n{color:var(--bad)}
+  .fb h4{margin:14px 0 4px;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .fb p{margin:0 0 4px}
+  .fb .rule{background:var(--brand-soft);border-radius:10px;padding:10px 12px;font-size:.95rem}
+  .tbl{width:100%;border-collapse:collapse;font-size:.9rem}
+  .tbl th,.tbl td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+  .tbl th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .tbl td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .muted{color:var(--muted)}
+  .mini{font-size:.82rem;color:var(--muted)}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .topbar .lg{font-weight:800;letter-spacing:-.01em}
+  .cs > h1{margin-bottom:4px}
+  .cs-nav{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 22px}
+  .cs-nav a{font-size:.8rem;font-weight:700;color:var(--brand);background:var(--brand-soft);
+    border-radius:999px;padding:6px 12px;cursor:pointer;text-decoration:none;white-space:nowrap}
+  .cs-nav a:hover{filter:brightness(.96)}
+  .cs-sec{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:22px 22px 24px;margin-bottom:18px;box-shadow:var(--shadow);scroll-margin-top:14px}
+  .cs-sec h3{display:flex;align-items:center;gap:11px;margin:0 0 15px;font-size:1.08rem;color:var(--ink);line-height:1.35}
+  .cs-num{flex:none;width:27px;height:27px;border-radius:8px;background:var(--brand);color:#fff;
+    font-size:.82rem;font-weight:800;display:grid;place-items:center}
+  .cs-key{background:var(--brand-soft);border-radius:10px;padding:12px 15px;margin:0 0 16px;
+    font-weight:600;font-size:.96rem;line-height:1.55}
+  .cs-key b{color:var(--brand)}
+  .cs-sec > p{margin:14px 0 0;font-size:.92rem;line-height:1.65}
+  .cs-sec p.note{color:var(--muted);font-size:.86rem;background:var(--bg);border-radius:9px;padding:10px 13px;border:1px solid var(--line)}
+  .cs-list{margin:14px 0 0;padding-left:22px}
+  .cs-list li{margin:9px 0;line-height:1.65;font-size:.93rem}
+  .ctbl{width:100%;border-collapse:separate;border-spacing:0;font-size:.9rem;margin:8px 0 0;
+    border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .ctbl th{background:var(--brand-soft);color:var(--ink);text-align:left;font-size:.72rem;
+    text-transform:uppercase;letter-spacing:.05em;padding:10px 13px}
+  .ctbl td{padding:11px 13px;border-top:1px solid var(--line);vertical-align:top;line-height:1.6}
+  .ctbl tr td:first-child{font-weight:700}
+  .ctbl .ex{font-family:var(--serif);font-size:.95rem}
+  .exbox{display:flex;gap:11px;align-items:flex-start;font-family:var(--serif);font-size:.98rem;
+    line-height:1.6;padding:11px 13px;border-radius:10px;margin:10px 0 0;border:1px solid var(--line)}
+  .exbox .mk{flex:none;font-family:var(--sans);font-weight:800;font-size:.72rem;
+    width:19px;height:19px;border-radius:50%;display:grid;place-items:center;margin-top:3px}
+  .exbox.y{background:var(--good-soft);border-color:var(--good)}
+  .exbox.y .mk{background:var(--good);color:#fff}
+  .exbox.n{background:var(--bad-soft);border-color:var(--bad)}
+  .exbox.n .mk{background:var(--bad);color:#fff}
+  .exgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:8px}
+  .exgrid .exbox{margin:0}
+  @media(max-width:560px){.exgrid{grid-template-columns:1fr}}
+  .cs code{background:var(--brand-soft);padding:1px 5px;border-radius:5px;font-family:var(--serif);font-size:.95em}
+  .ex{font-family:var(--serif)}
+  .ok{color:var(--good);font-weight:700}
+  .no{color:var(--bad);font-weight:700}
+  a.link{color:var(--brand);cursor:pointer;text-decoration:underline;font-weight:600}
+  .kbdhint{font-size:.78rem;color:var(--muted);margin-top:10px}
+  kbd{background:var(--line);border-radius:5px;padding:1px 6px;font-family:var(--sans);font-size:.8rem}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script src="questions.js"></script>
+<script>
+(function(){
+"use strict";
+
+// ---------- config ----------
+var KEY = "sat-eng-trap-trainer/v1";
+var BATCH = 20;
+var CATS = [
+  {key:"semicolons", label:"Semicolons"},
+  {key:"colons",     label:"Colons"},
+  {key:"modifiers",  label:"Dangling / misplaced modifiers"},
+  {key:"sva",        label:"Subject–verb agreement"},
+  {key:"phrases",    label:"Phrases & how they're punctuated"},
+  {key:"clauses",    label:"Dependent clauses & punctuation"},
+  {key:"punct",      label:"Commas, dashes, splices & run-ons"}
+];
+var CATLABEL = {}; CATS.forEach(function(c){ CATLABEL[c.key]=c.label; });
+var Q = (window.QUESTIONS || []).slice();
+
+// ---------- state ----------
+var state = load();
+function load(){
+  try{
+    var s = JSON.parse(localStorage.getItem(KEY));
+    if(s && s.v===1) return s;
+  }catch(e){}
+  return { v:1, recent:[], perQ:{}, catStats:{}, batches:[] };
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+function seen(id){ return (state.perQ[id] && state.perQ[id].seen) || 0; }
+function catAcc(k){
+  var s = state.catStats[k];
+  if(!s || s.seen < 4) return 0.42;           // under-tested => treat as a weak spot
+  return s.right / s.seen;
+}
+function coverage(){ return Object.keys(state.perQ).length; }
+function overall(){
+  var t=0,r=0;
+  for(var k in state.catStats){ t+=state.catStats[k].seen; r+=state.catStats[k].right; }
+  return {t:t, r:r, acc: t? r/t : 0};
+}
+function record(id, cat, correct){
+  var p = state.perQ[id] || (state.perQ[id]={seen:0,right:0});
+  p.seen++; if(correct) p.right++;
+  var c = state.catStats[cat] || (state.catStats[cat]={seen:0,right:0});
+  c.seen++; if(correct) c.right++;
+  state.recent.push(!!correct);
+  if(state.recent.length>40) state.recent.shift();
+  save();
+}
+function startDiff(){
+  var r = state.recent;
+  if(r.length < 8) return 2;
+  var acc = r.reduce(function(a,b){return a+(b?1:0);},0)/r.length;
+  if(acc >= 0.82) return 3;
+  if(acc < 0.55) return 1;
+  return 2;
+}
+function weakCats(n){
+  return CATS.map(function(c){ return {k:c.key, a:catAcc(c.key), s:(state.catStats[c.key]||{}).seen||0}; })
+             .sort(function(x,y){ return x.a - y.a; })
+             .slice(0, n||3);
+}
+
+// ---------- helpers ----------
+var app = document.getElementById("app");
+function el(html){ var d=document.createElement("div"); d.innerHTML=html.trim(); return d.firstChild; }
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function uniqBy(a,f){ var seenk={},out=[]; a.forEach(function(x){ var k=f(x); if(!seenk[k]){ seenk[k]=1; out.push(x); } }); return out; }
+function pct(n){ return Math.round(n*100)+"%"; }
+function letter(i){ return "ABCD"[i]; }
+function normMark(p){
+  var t = String(p).trim();
+  if(t==="") return " ";
+  if(t===",") return ", ";
+  if(t===";") return "; ";
+  if(t===":") return ": ";
+  if(t==="—"||t==="–"||t==="-") return " — ";
+  return p; // multi-token marks like "; and " keep their own spacing
+}
+function stemHTML(text, fillWith, bad){
+  var segs = String(text).split("____");
+  if(segs.length===1) return esc(text);
+  var gaps = segs.length - 1;
+  var fills = [];
+  if(fillWith==null){
+    for(var g=0; g<gaps; g++) fills.push('<span class="slot">&nbsp;</span>');
+  }else{
+    var raw = String(fillWith).split("...");
+    if(raw.length !== gaps) raw = gaps===1 ? [fillWith] : raw.concat(new Array(Math.max(0,gaps-raw.length)).join(",").split(","));
+    for(var k=0;k<gaps;k++){
+      fills.push('<span class="fill'+(bad?' bad':'')+'">'+esc(normMark(raw[k]!=null?raw[k]:""))+'</span>');
+    }
+  }
+  var out = esc(segs[0]);
+  for(var i=0;i<gaps;i++){ out += fills[i] + esc(segs[i+1]); }
+  return out;
+}
+function choiceLabel(c){
+  c = String(c);
+  var m = function(x){
+    x = String(x).trim();
+    return x===""? "no punctuation" : x===","? "comma" : x===";"? "semicolon" :
+           x===":"? "colon" : (x==="—"||x==="–"||x==="-")? "dash" : x;
+  };
+  if(c.indexOf("...") < 0){
+    return c.trim()==="" ? "( no punctuation )" : c;
+  }
+  var p = c.split("...");
+  return m(p[0]) + "   …   " + m(p[1]);
+}
+
+// ---------- batch builder ----------
+function buildBatch(focus){
+  var cats = focus ? [focus] : CATS.map(function(c){return c.key;});
+  var slots = {};
+  if(focus){
+    slots[focus] = BATCH;
+  }else{
+    var w = cats.map(function(k){ return Math.max(0.08, 1 - catAcc(k)); });
+    var ws = w.reduce(function(a,b){return a+b;},0);
+    var tot = 0;
+    cats.forEach(function(k,i){ slots[k] = Math.max(1, Math.round(BATCH * w[i]/ws)); tot += slots[k]; });
+    while(tot > BATCH){
+      var hi = cats.slice().sort(function(a,b){ return (slots[b]-slots[a]) || (catAcc(b)-catAcc(a)); })[0];
+      if(slots[hi] <= 1) break;
+      slots[hi]--; tot--;
+    }
+    while(tot < BATCH){
+      var lo = cats.slice().sort(function(a,b){ return catAcc(a)-catAcc(b); })[0];
+      slots[lo]++; tot++;
+    }
+  }
+  var cand = [];
+  cats.forEach(function(k){
+    var qs = Q.filter(function(q){ return q.cat===k; });
+    shuffle(qs);
+    qs.sort(function(a,b){ return seen(a.id) - seen(b.id); });     // least-seen first, keeps rotation fresh
+    cand = cand.concat(qs.slice(0, Math.min(qs.length, slots[k]*2 + 3)));
+  });
+  cand = uniqBy(cand, function(q){ return q.id; });
+  return { cand:cand, slots:slots, focus:focus||null };
+}
+
+// ---------- screens ----------
+var view = { name:"home", focus:null };
+var quiz = null;
+
+function go(name, opts){ view.name=name; Object.assign(view, opts||{}); render(); window.scrollTo(0,0); }
+
+function render(){
+  if(view.name==="home") return renderHome();
+  if(view.name==="quiz") return renderQuiz();
+  if(view.name==="summary") return renderSummary();
+  if(view.name==="cheatsheet") return renderCheat();
+}
+
+function topbar(){
+  return '<div class="topbar"><span class="lg">SAT English Trap Trainer</span>'+
+         '<span class="row"><button class="btn sm ghost" data-act="cheatsheet">Cheat sheet</button></span></div>';
+}
+
+function renderHome(){
+  var o = overall();
+  var cov = coverage(), total = Q.length;
+  var wk = weakCats(3);
+  var recDone = state.recent.length>=8;
+  var chips = wk.map(function(x){
+    var lab = CATLABEL[x.k];
+    return '<span class="chip">'+esc(lab)+ (x.s? ' · '+pct(x.a) : ' · new') +'</span>';
+  }).join("");
+
+  var catBtns = CATS.map(function(c){
+    var s = state.catStats[c.key]||{seen:0,right:0};
+    var meta = s.seen ? (s.right+"/"+s.seen+" · "+pct(catAcc(c.key))) : "not started";
+    return '<button class="btn sm ghost" data-drill="'+c.key+'">'+esc(c.label)+' <span class="mini">('+meta+')</span></button>';
+  }).join("");
+
+  app.innerHTML =
+    topbar() +
+    '<div class="card">'+
+      '<h1>Drill the punctuation traps — 20 at a time.</h1>'+
+      '<p class="sub">400 questions on semicolons, colons, modifiers, subject&ndash;verb agreement, and how phrases &amp; clauses get punctuated. '+
+      'Every answer is followed by the specific trick the test is using. The batch adapts to how you\'re doing; your weak spots get more questions next time.</p>'+
+      '<div class="grid">'+
+        '<div class="stat"><div class="k">'+o.t+'</div><div class="l">Questions answered</div></div>'+
+        '<div class="stat"><div class="k">'+(o.t? pct(o.acc):"—")+'</div><div class="l">Overall accuracy</div></div>'+
+        '<div class="stat"><div class="k">'+state.batches.length+'</div><div class="l">Batches done</div></div>'+
+        '<div class="stat"><div class="k">'+cov+'/'+total+'</div><div class="l">Bank covered</div></div>'+
+      '</div>'+
+      '<div style="margin-top:14px">'+
+        '<div class="mini">'+(recDone? "Recommended focus (weakest first):" : "Focus once you\'ve done a batch or two:")+'</div>'+
+        '<div class="chips">'+chips+'</div>'+
+      '</div>'+
+      '<div class="row" style="margin-top:18px">'+
+        '<button class="btn primary" data-act="start">Start adaptive batch (20)</button>'+
+        (state.batches.length? '<button class="btn ghost" data-act="focusweak">Batch on my weakest area</button>':'')+
+      '</div>'+
+      '<div class="kbdhint">Keyboard: <kbd>1</kbd>&ndash;<kbd>4</kbd> pick &middot; <kbd>Enter</kbd> submit / next</div>'+
+    '</div>'+
+
+    '<div class="card">'+
+      '<h2>Drill one trap type (20 from just that category)</h2>'+
+      '<div class="row">'+catBtns+'</div>'+
+    '</div>'+
+
+    (state.batches.length ? recentBatches() : "") +
+
+    '<div class="card">'+
+      '<h2>Manage</h2>'+
+      '<div class="row">'+
+        '<button class="btn sm ghost" data-act="cheatsheet">Open cheat sheet</button>'+
+        '<button class="btn sm ghost" data-act="reset">Reset all progress</button>'+
+      '</div>'+
+    '</div>';
+
+  bind();
+}
+
+function recentBatches(){
+  var rows = state.batches.slice(-6).reverse().map(function(b){
+    var d = new Date(b.t);
+    var ds = (d.getMonth()+1)+"/"+d.getDate()+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
+    return '<tr><td>'+ds+'</td><td>'+(b.focus? esc(CATLABEL[b.focus]) : "Adaptive mix")+'</td>'+
+           '<td class="num">'+b.score+'/'+b.n+'</td><td class="num">'+pct(b.score/b.n)+'</td>'+
+           '<td class="num">L'+b.diffReached+'</td></tr>';
+  }).join("");
+  return '<div class="card"><h2>Recent batches</h2><table class="tbl">'+
+    '<tr><th>When</th><th>Set</th><th class="num">Score</th><th class="num">%</th><th class="num">Peak</th></tr>'+
+    rows+'</table></div>';
+}
+
+function beginBatch(focus){
+  var b = buildBatch(focus);
+  quiz = {
+    cand: b.cand, focus: b.focus,
+    n: Math.min(BATCH, b.cand.length),
+    i: 0,
+    diff: startDiff(),
+    peak: startDiff(),
+    sR:0, sW:0,
+    answers: [],
+    current:null, locked:false, sel:null
+  };
+  nextQuestion();
+}
+
+function nextQuestion(){
+  if(quiz.i >= quiz.n || quiz.cand.length===0){ return finishBatch(); }
+  quiz.cand.sort(function(a,b){
+    var da=Math.abs(a.diff-quiz.diff), db=Math.abs(b.diff-quiz.diff);
+    return da-db || (seen(a.id)-seen(b.id)) || (Math.random()-0.5);
+  });
+  quiz.current = quiz.cand.shift();
+  quiz.locked = false; quiz.sel = null;
+  go("quiz");
+}
+
+function renderQuiz(){
+  var q = quiz.current;
+  var dots = "";
+  for(var d=1; d<=3; d++) dots += '<b class="'+(d<=quiz.diff?"on":"")+'"></b>';
+  var choices = q.choices.map(function(c,i){
+    return '<button class="choice" data-i="'+i+'"><span class="tag">'+letter(i)+'</span>'+
+           '<span class="txt">'+esc(choiceLabel(c))+'</span></button>';
+  }).join("");
+
+  app.innerHTML =
+    topbar()+
+    '<div class="card">'+
+      '<div class="qmeta">'+
+        '<span>'+(quiz.focus? esc(CATLABEL[quiz.focus]) : "Adaptive") +
+          ' &middot; Q '+(quiz.i+1)+' / '+quiz.n+'</span>'+
+        '<span class="dots" title="difficulty">level '+dots+'</span>'+
+      '</div>'+
+      '<div class="bar"><i style="width:'+Math.round(quiz.i/quiz.n*100)+'%"></i></div>'+
+      '<p class="stem" id="stem">'+stemHTML(q.text, null)+'</p>'+
+      '<div class="choices" id="choices">'+choices+'</div>'+
+      '<div id="fb"></div>'+
+      '<div class="row" style="margin-top:16px">'+
+        '<button class="btn primary" id="go" disabled>Submit</button>'+
+        '<button class="btn ghost" data-act="quit">Quit batch</button>'+
+      '</div>'+
+      '<div class="kbdhint"><kbd>1</kbd>&ndash;<kbd>4</kbd> pick &middot; <kbd>Enter</kbd> '+
+        (quiz.locked?'next':'submit')+'</div>'+
+    '</div>'+
+    '<div class="card"><span class="tag" style="display:inline-grid;width:auto;padding:2px 8px;border-radius:6px">Category</span> '+
+      '<span class="mini">'+esc(CATLABEL[q.cat])+' &middot; difficulty '+q.diff+'/3 &middot; id '+esc(q.id)+'</span></div>';
+
+  bind();
+}
+
+function pickChoice(i){
+  if(quiz.locked) return;
+  quiz.sel = i;
+  document.querySelectorAll("#choices .choice").forEach(function(b){
+    b.classList.toggle("sel", +b.dataset.i===i);
+  });
+  document.getElementById("go").disabled = false;
+}
+
+function submitChoice(){
+  if(quiz.locked || quiz.sel==null) return;
+  var q = quiz.current, i = quiz.sel;
+  var correct = i === q.answer;
+  quiz.locked = true;
+  quiz.answers.push({id:q.id, cat:q.cat, diff:q.diff, correct:correct});
+  record(q.id, q.cat, correct);
+
+  if(correct){ quiz.sR++; quiz.sW=0; if(quiz.sR>=2){ quiz.diff=Math.min(3,quiz.diff+1); quiz.sR=0; } }
+  else { quiz.sW++; quiz.sR=0; if(quiz.sW>=2){ quiz.diff=Math.max(1,quiz.diff-1); quiz.sW=0; } }
+  quiz.peak = Math.max(quiz.peak, quiz.diff);
+  quiz.i++;
+
+  document.querySelectorAll("#choices .choice").forEach(function(b){
+    var bi = +b.dataset.i;
+    b.classList.add("locked");
+    b.disabled = true;
+    if(bi===q.answer) b.classList.add("correct");
+    if(bi===i && !correct) b.classList.add("wrong");
+  });
+  document.getElementById("stem").innerHTML =
+    stemHTML(q.text, q.choices[q.answer], false);
+
+  var whyWrong = "";
+  if(!correct){
+    whyWrong = '<h4>Your pick</h4><p><span class="no">'+letter(i)+'.</span> '+
+      esc(choiceLabel(q.choices[i]))+' &mdash; '+esc(q.wrong || "creates the error the question is testing.")+'</p>';
+  }
+
+  document.getElementById("fb").innerHTML =
+    '<div class="fb">'+
+      '<div class="verdict '+(correct?"y":"n")+'">'+(correct? "Correct" : "Not quite")+
+        ' &nbsp;&middot;&nbsp; answer: '+letter(q.answer)+'</div>'+
+      '<h4>The trap</h4><p>'+esc(q.trap)+'</p>'+
+      whyWrong+
+      '<h4>Rule</h4><div class="rule">'+esc(q.rule)+'</div>'+
+    '</div>';
+
+  var g = document.getElementById("go");
+  g.disabled = false;
+  g.textContent = (quiz.i >= quiz.n) ? "See results" : "Next question";
+  bindQuizButtons();
+}
+
+function finishBatch(){
+  var a = quiz.answers;
+  var score = a.reduce(function(s,x){ return s + (x.correct?1:0); }, 0);
+  var byCat = {};
+  a.forEach(function(x){
+    var c = byCat[x.cat] || (byCat[x.cat]={seen:0,right:0});
+    c.seen++; if(x.correct) c.right++;
+  });
+  var rec = { t:Date.now(), score:score, n:a.length, focus:quiz.focus, diffReached:quiz.peak, byCat:byCat };
+  state.batches.push(rec);
+  if(state.batches.length>40) state.batches.shift();
+  save();
+  view.lastBatch = rec;
+  go("summary");
+}
+
+function renderSummary(){
+  var b = view.lastBatch;
+  var acc = b.score/b.n;
+  var missIds = quiz ? quiz.answers.filter(function(x){return !x.correct;}).map(function(x){return x.id;}) : [];
+  var missQ = Q.filter(function(q){ return missIds.indexOf(q.id)>=0; });
+  var rules = uniqBy(missQ.map(function(q){ return {r:q.rule, c:CATLABEL[q.cat]}; }), function(x){ return x.r; });
+
+  var catRows = CATS.filter(function(c){ return b.byCat[c.key]; }).map(function(c){
+    var s = b.byCat[c.key];
+    return '<tr><td>'+esc(c.label)+'</td><td class="num">'+s.right+'/'+s.seen+'</td><td class="num">'+pct(s.right/s.seen)+'</td></tr>';
+  }).join("");
+
+  var ruleList = rules.length
+    ? '<ul>'+rules.map(function(x){ return '<li><b>'+esc(x.c)+':</b> '+esc(x.r)+'</li>'; }).join("")+'</ul>'
+    : '<p class="muted">Nothing missed this round. Bump the difficulty by keeping the streak going.</p>';
+
+  var msg = acc>=0.9 ? "Excellent round." : acc>=0.75 ? "Solid. Tighten the misses below." :
+            acc>=0.6 ? "Getting there — the trap notes below are where the points are." :
+            "This is exactly the stuff to grind. Read every trap note, then run it again.";
+
+  app.innerHTML =
+    topbar()+
+    '<div class="card">'+
+      '<h1>'+b.score+' / '+b.n+' &nbsp;<span class="muted" style="font-size:1rem">('+pct(acc)+')</span></h1>'+
+      '<p class="sub">'+esc(msg)+' Peak difficulty reached: level '+b.diffReached+'/3.</p>'+
+      '<div class="bar"><i style="width:'+Math.round(acc*100)+'%"></i></div>'+
+      '<h4 style="margin-top:18px;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">By category</h4>'+
+      '<table class="tbl"><tr><th>Category</th><th class="num">Right</th><th class="num">%</th></tr>'+catRows+'</table>'+
+      '<h4 style="margin-top:18px;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Traps that got you this round</h4>'+
+      ruleList+
+      '<div class="row" style="margin-top:18px">'+
+        '<button class="btn primary" data-act="start">Next adaptive batch</button>'+
+        (missQ.length ? '<button class="btn ghost" data-act="focusmiss">Redrill this round\'s weak category</button>' : '')+
+        '<button class="btn ghost" data-act="home">Home</button>'+
+      '</div>'+
+    '</div>';
+  bind();
+}
+
+function renderCheat(){
+  function sec(n, id, title, inner){
+    return '<div class="cs-sec" id="'+id+'"><h3><span class="cs-num">'+n+'</span><span>'+title+'</span></h3>'+inner+'</div>';
+  }
+  function key(html){ return '<div class="cs-key">'+html+'</div>'; }
+  function note(html){ return '<p class="note">'+html+'</p>'; }
+  function yes(html){ return '<div class="exbox y"><span class="mk">&#10003;</span><span>'+html+'</span></div>'; }
+  function no(html){ return '<div class="exbox n"><span class="mk">&times;</span><span>'+html+'</span></div>'; }
+  function grid(a,b){ return '<div class="exgrid">'+a+b+'</div>'; }
+  function tbl(head, rows){
+    var h = '<tr>'+head.map(function(x){return '<th>'+x+'</th>';}).join('')+'</tr>';
+    var r = rows.map(function(row){
+      return '<tr>'+row.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>';
+    }).join('');
+    return '<table class="ctbl">'+h+r+'</table>';
+  }
+  var E = function(s){ return '<span class="ex">'+s+'</span>'; }; // serif example inside a cell
+
+  var nav = '<div class="cs-nav">'+
+    [['cs1','Clause vs phrase'],['cs2','Semicolon'],['cs3','Colon'],['cs4','Joining two clauses'],
+     ['cs5','Intro comma'],['cs6','Trailing clause'],['cs7','Essential / nonessential'],
+     ['cs8','Appositives'],['cs9','Modifiers'],['cs10','Subject–verb'],['cs11','No comma']]
+    .map(function(x){ return '<a href="#'+x[0]+'">'+x[1]+'</a>'; }).join('')+'</div>';
+
+  var body =
+  '<h1>The punctuation cheat sheet</h1>'+
+  '<p class="sub">Eleven ideas cover almost every punctuation question on the test. Each one is a test you run, not a feel.</p>'+
+  nav +
+
+  sec(1,'cs1','First, name the piece on each side of the mark',
+    key('Almost every question is really <b>&ldquo;what is on the left, and what is on the right?&rdquo;</b> Sort each side into one of these three, then the rule is easy.')+
+    tbl(['Piece','Test','Example'],[
+      ['Independent clause','Has a subject + verb; could be its own sentence.', E('&ldquo;The tide rose.&rdquo;')],
+      ['Dependent clause','Subject + verb, but opens with <i>because, although, when, if, since, while, that, which, who&hellip;</i> &mdash; can&rsquo;t stand alone.', E('&ldquo;Because the tide rose&hellip;&rdquo;')],
+      ['Phrase','No subject&ndash;verb pair at all.', E('&ldquo;After the storm&hellip;&rdquo; &middot; &ldquo;rising fast&hellip;&rdquo;')]
+    ])
+  )+
+
+  sec(2,'cs2','Semicolon = a soft period',
+    key('Use a semicolon <b>only where a period would also work</b> &mdash; a complete sentence on <b>both</b> sides.')+
+    tbl(['Situation','Semicolon?','Example'],[
+      ['Two related independent clauses','<b class="ok">Yes</b>', E('&ldquo;The tide rose; the boats strained.&rdquo;')],
+      ['One side can&rsquo;t stand alone','<b class="no">No</b> &ndash; use a comma', E('&ldquo;The tide rose, straining the boats.&rdquo;')],
+      ['List items that themselves contain commas','<b class="ok">Yes</b> &ndash; as &ldquo;super-commas&rdquo;', E('&ldquo;Lima, Peru; Quito, Ecuador; and Bogot&aacute;, Colombia&rdquo;')],
+      ['Before <i>however / therefore / thus</i> joining two clauses','<b class="ok">Yes</b>, + comma after', E('&ldquo;It rained; however, we went.&rdquo;')]
+    ])
+  )+
+
+  sec(3,'cs3','Colon = &ldquo;here&rsquo;s what I mean&rdquo;',
+    key('The part <b>before</b> a colon must be a complete sentence. After it: a list, a single word, a phrase, or another clause &mdash; whatever delivers what the first part promised.')+
+    grid(
+      yes('&ldquo;She packed three things: a map, a knife, and rope.&rdquo;'),
+      no('&ldquo;She packed: a map, a knife, and rope.&rdquo;')
+    )+
+    no('&ldquo;The two reasons are: cost and time.&rdquo; &mdash; don&rsquo;t put a colon after <i>are</i>, <i>such as</i>, <i>including</i>, or any verb/preposition.')+
+    note('A dash does the same job: &ldquo;She packed three things &mdash; a map, a knife, and rope.&rdquo;')
+  )+
+
+  sec(4,'cs4','Joining two independent clauses &mdash; the five legal ways',
+    tbl(['Method','Example'],[
+      ['Period', E('&ldquo;The tide rose. The boats strained.&rdquo;')],
+      ['Semicolon', E('&ldquo;The tide rose; the boats strained.&rdquo;')],
+      ['Comma + FANBOYS<br><span class="mini">for, and, nor, but, or, yet, so</span>', E('&ldquo;The tide rose, and the boats strained.&rdquo;')],
+      ['Colon <span class="mini">(2nd explains 1st)</span>', E('&ldquo;One thing was clear: the tide was rising.&rdquo;')],
+      ['Dash <span class="mini">(2nd adds / explains)</span>', E('&ldquo;The tide rose &mdash; fast.&rdquo;')]
+    ])+
+    grid(
+      no('<b>Comma splice:</b> &ldquo;The tide rose, the boats strained.&rdquo;'),
+      no('<b>Run-on / fused:</b> &ldquo;The tide rose the boats strained.&rdquo;')
+    )+
+    note('Comma + FANBOYS is <b>only</b> for two independent clauses. &ldquo;The tide rose and flooded the pier.&rdquo; = one subject, two verbs &rarr; <b>no comma</b>.')
+  )+
+
+  sec(5,'cs5','Introductory element &rarr; comma after it',
+    key('The comma shows where the intro ends and the main clause&rsquo;s <b>subject</b> begins.')+
+    tbl(['Opener type','Example'],[
+      ['Dependent clause', E('&ldquo;<u>Because the tide rose</u>, the pier flooded.&rdquo;')],
+      ['Participial phrase', E('&ldquo;<u>Exhausted by the swim</u>, he slept.&rdquo;')],
+      ['Long / prepositional phrase', E('&ldquo;<u>After years at sea</u>, she craved land.&rdquo;')],
+      ['Transition word', E('&ldquo;<u>However</u>, the plan held.&rdquo; &middot; &ldquo;<u>In the end</u>, it worked.&rdquo;')]
+    ])
+  )+
+
+  sec(6,'cs6','Trailing dependent clause &rarr; usually NO comma',
+    grid(
+      yes('&ldquo;The pier flooded because the tide rose.&rdquo;'),
+      no('&ldquo;The pier flooded, because the tide rose.&rdquo;')
+    )+
+    note('<b>Exception:</b> a trailing clause of clear contrast with <i>though / although / whereas</i> often takes a comma: &ldquo;She stayed calm, although the boat was sinking.&rdquo;')
+  )+
+
+  sec(7,'cs7','Nonessential vs essential &mdash; the comma-pair test',
+    key('Can you delete it without changing <b>which</b> thing is meant? <b>Yes</b> &rarr; nonessential &rarr; fence it with a <b>matched pair</b>. <b>No</b> &rarr; essential &rarr; <b>no</b> punctuation.')+
+    tbl(['Type','Punctuation','Example'],[
+      ['Nonessential<br><span class="mini">extra info</span>','two commas &middot; two dashes &middot; two parentheses', E('&ldquo;My oldest sister, a marine biologist, studies coral.&rdquo;')],
+      ['Essential<br><span class="mini">says which one</span>','none', E('&ldquo;The biologist who discovered the reef will speak.&rdquo;')],
+      ['<i>which</i> clause','comma before it (nonessential)', E('&ldquo;the reef, which lies offshore, &hellip;&rdquo;')],
+      ['<i>that</i> clause','no comma (essential)', E('&ldquo;the reef that they discovered&hellip;&rdquo;')]
+    ])+
+    grid(
+      no('<b>One comma only:</b> &ldquo;My sister, a biologist studies coral.&rdquo;'),
+      no('<b>Mixed fence:</b> &ldquo;my sister, a biologist &mdash; studies coral.&rdquo;')
+    )+
+    note('One comma where a pair belongs is the <b>single most common</b> punctuation trap on the test.')
+  )+
+
+  sec(8,'cs8','Appositives &amp; interrupters',
+    tbl(['Case','Commas?','Example'],[
+      ['Nonessential appositive','<b class="ok">Yes</b> (pair)', E('&ldquo;Saturn, the ringed planet, &hellip;&rdquo;')],
+      ['Essential appositive','<b class="no">No</b>', E('&ldquo;the poet Keats&rdquo; &middot; &ldquo;her brother Sam&rdquo; (she has more than one brother)')],
+      ['Mid-sentence interrupter<br><span class="mini">however, in fact, of course, for example</span>','<b class="ok">Yes</b> (pair)', E('&ldquo;The plan, in fact, worked.&rdquo;')]
+    ])
+  )+
+
+  sec(9,'cs9','Dangling / misplaced modifiers',
+    key('An opening modifier latches onto the <b>first noun after the comma</b>. That noun must be the one actually doing the action.')+
+    grid(
+      no('&ldquo;Walking to school, the rain soaked me.&rdquo;<br><span class="mini">the rain wasn&rsquo;t walking</span>'),
+      yes('&ldquo;Walking to school, I got soaked by the rain.&rdquo;')
+    )+
+    note('<b>SAT trick:</b> 3 of the 4 choices keep the wrong subject after the comma. Check the subject first, then the punctuation. <br><b>Misplaced modifier:</b> a phrase parked next to the wrong noun &mdash; &ldquo;She served cake to the kids on paper plates.&rdquo;')
+  )+
+
+  sec(10,'cs10','Subject&ndash;verb agreement',
+    key('Find the <b>real</b> subject, then match the verb to it &mdash; the SAT buries the subject behind phrases so your ear skips it.')+
+    tbl(['Trigger','Verb','Example'],[
+      ['Phrase between subject &amp; verb','ignore it; match the real subject', E('&ldquo;The <b>box</b> of old letters <b>is</b> heavy.&rdquo;')],
+      ['each, every, either, neither, one, everyone, anybody, none (of it)','<b>singular</b>', E('&ldquo;Each of the plans <b>has</b> a flaw.&rdquo;')],
+      ['subjects joined by <i>and</i>','<b>plural</b>', E('&ldquo;The coach and the captain <b>were</b> late.&rdquo;')],
+      ['joined by <i>or / nor / either&hellip;or / neither&hellip;nor</i>','agrees with the <b>nearer</b> subject', E('&ldquo;Neither the coach nor the players <b>were</b> ready.&rdquo;')],
+      ['collective noun <span class="mini">(team, jury, committee)</span>','<b>singular</b> (US)', E('&ldquo;The jury <b>is</b> deadlocked.&rdquo;')],
+      ['<i>there / here</i> opener, inverted sentence','find the real subject <b>after</b> the verb', E('&ldquo;There <b>are</b> three <b>reasons</b>.&rdquo; &middot; &ldquo;Among the papers <b>was</b> a <b>letter</b>.&rdquo;')]
+    ])
+  )+
+
+  sec(11,'cs11','Commas that should NOT be there',
+    tbl(['Never put a comma&hellip;','Wrong','Fix'],[
+      ['between a subject and its verb', E('&ldquo;The long climb up the ridge, exhausted them.&rdquo;'),'drop the comma'],
+      ['between a verb and its object', E('&ldquo;She admitted, that she was late.&rdquo;'),'drop the comma'],
+      ['before a conjunction joining just two words/phrases', E('&ldquo;eggs, and milk&rdquo;'), E('&ldquo;eggs and milk&rdquo;')],
+      ['splitting a compound predicate', E('&ldquo;He turned, and left.&rdquo;'), E('&ldquo;He turned and left.&rdquo;')],
+      ['around an element that says <i>which one</i>', E('&ldquo;The student, who cheated, was expelled.&rdquo;'),'drop the commas']
+    ])+
+    key('<b>Default guess:</b> if you can&rsquo;t name the rule that <i>requires</i> a comma, pick the version without one.')
+  )+
+
+  '<div class="row" style="margin-top:22px"><button class="btn primary" data-act="home">Back to start</button></div>';
+
+  app.innerHTML = topbar() + '<div class="cs">' + body + '</div>';
+  bind();
+}
+
+// ---------- events ----------
+function bind(){
+  app.querySelectorAll("[data-act]").forEach(function(b){
+    b.onclick = function(){ act(b.dataset.act); };
+  });
+  app.querySelectorAll("[data-drill]").forEach(function(b){
+    b.onclick = function(){ beginBatch(b.dataset.drill); };
+  });
+  if(view.name==="quiz"){
+    app.querySelectorAll("#choices .choice").forEach(function(b){
+      b.onclick = function(){ pickChoice(+b.dataset.i); };
+    });
+    bindQuizButtons();
+  }
+}
+function bindQuizButtons(){
+  var g = document.getElementById("go");
+  if(g) g.onclick = function(){
+    if(!quiz.locked) submitChoice();
+    else nextQuestion();
+  };
+  var quit = app.querySelector('[data-act="quit"]');
+  if(quit) quit.onclick = function(){ if(confirm("Quit this batch? Progress on answered questions is saved.")) go("home"); };
+}
+
+function act(a){
+  if(a==="start" || a==="focusweak" && false) return beginBatch(null);
+  if(a==="focusweak") return beginBatch(weakCats(1)[0].k);
+  if(a==="focusmiss"){
+    var b = view.lastBatch, worst=null, wa=2;
+    for(var k in b.byCat){ var s=b.byCat[k]; var r=s.right/s.seen; if(r<wa){ wa=r; worst=k; } }
+    return beginBatch(worst || weakCats(1)[0].k);
+  }
+  if(a==="home") return go("home");
+  if(a==="cheatsheet") return go("cheatsheet");
+  if(a==="reset"){
+    if(confirm("Erase all progress, stats, and batch history on this device?")){
+      state = { v:1, recent:[], perQ:{}, catStats:{}, batches:[] }; save(); go("home");
+    }
+  }
+}
+
+document.addEventListener("keydown", function(e){
+  if(view.name!=="quiz") return;
+  if(e.key>="1" && e.key<="4"){ pickChoice(+e.key-1); e.preventDefault(); }
+  else if(e.key.toLowerCase()>="a" && e.key.toLowerCase()<="d" && e.key.length===1){ pickChoice("abcd".indexOf(e.key.toLowerCase())); }
+  else if(e.key==="Enter"){
+    if(!quiz.locked && quiz.sel!=null) submitChoice();
+    else if(quiz.locked) nextQuestion();
+    e.preventDefault();
+  }
+});
+
+// ---------- boot ----------
+if(!Q.length){
+  app.innerHTML = '<div class="card"><h1>No questions loaded</h1><p class="sub">questions.js failed to load. Make sure it sits next to index.html.</p></div>';
+}else{
+  render();
+}
+})();
+</script>
+</body>
+</html>
