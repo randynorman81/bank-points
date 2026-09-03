@@ -23,7 +23,7 @@ window.QUESTIONS = [
 
 {id:"SEMI-003",cat:"semicolons",diff:2,
  text:"The committee reviewed hundreds of applications____most were rejected within the first round.",
- choices:[", however "," however, ","; however, ", ", however "],answer:2,
+ choices:[", however "," however, ","; however, ",", however,"],answer:2,
  trap:"'However' is a conjunctive adverb, not a coordinating conjunction, so it cannot splice two sentences with just commas. Two independent clauses joined by 'however' need a semicolon before it and a comma after it.",
  wrong:"', however,' with commas on both sides is the classic trap: it still leaves two full sentences glued by a comma.",
  rule:"Two independent clauses + however/therefore/thus/moreover = semicolon before, comma after."},
@@ -51,14 +51,14 @@ window.QUESTIONS = [
 
 {id:"SEMI-007",cat:"semicolons",diff:2,
  text:"She trained for the marathon all winter____running before dawn in freezing rain.",
- choices:["; ",", "," ; ",". Running"],answer:1,
+ choices:["; ",", ",": ",". Running"],answer:1,
  trap:"'running before dawn...' is a participial phrase, not an independent clause — it has no subject. A semicolon (or period) requires a complete sentence on both sides, so it's wrong here. The phrase modifies the main clause and just needs a comma.",
  wrong:"'; running' looks parallel and tidy, but 'running before dawn in freezing rain' cannot stand as its own sentence.",
  rule:"A semicolon is legal only when BOTH sides could stand alone as sentences."},
 
 {id:"SEMI-008",cat:"semicolons",diff:3,
  text:"The novel was rejected by twelve publishers____before an editor at a small press finally took a chance on it.",
- choices:["; ",", "," ",";"],answer:2,
+ choices:["; ",", "," ",": "],answer:2,
  trap:"'before an editor...took a chance on it' is a dependent clause introduced by 'before.' It cannot follow a semicolon, which needs an independent clause. And because the dependent clause trails the main clause, it usually takes no comma at all.",
  wrong:"The semicolon feels like it adds weight to the reversal, but there's no independent clause after it to justify one.",
  rule:"A trailing dependent clause (because, before, when, if, since...) normally needs no punctuation before it and never a semicolon."},
@@ -93,7 +93,7 @@ window.QUESTIONS = [
 
 {id:"SEMI-013",cat:"semicolons",diff:2,
  text:"The startup burned through its funding in eight months____consequently, it laid off half its staff.",
- choices:[", ",". consequently ","; "," ; "],answer:2,
+ choices:[", ",". consequently ","; ",": "],answer:2,
  trap:"'consequently' is a conjunctive adverb linking two independent clauses. That requires a semicolon before it (the comma after 'consequently' is already in the sentence). A comma before it would be a splice.",
  wrong:"The comma before 'consequently' matches the comma after it visually, but symmetry isn't the rule — clause structure is.",
  rule:"Independent clause + 'consequently,' + independent clause needs a semicolon before 'consequently.'"},
@@ -107,7 +107,7 @@ window.QUESTIONS = [
 
 {id:"SEMI-015",cat:"semicolons",diff:2,
  text:"The orchestra tuned for several minutes____then, at the conductor's signal, the hall fell silent.",
- choices:[", "," ","; ",",  "],answer:2,
+ choices:[", "," ","; ",": "],answer:2,
  trap:"'then, at the conductor's signal, the hall fell silent' is a complete clause (subject 'the hall,' verb 'fell'). 'then' is an adverb, not a conjunction, so it can't fix a comma splice. Use a semicolon.",
  wrong:"'then' sounds like it's doing a connecting job, but adverbs like 'then,' 'thus,' and 'still' don't join sentences the way 'and' does.",
  rule:"'then' is an adverb; two clauses linked by 'then' still need a semicolon or period."},
@@ -135,7 +135,7 @@ window.QUESTIONS = [
 
 {id:"SEMI-019",cat:"semicolons",diff:2,
  text:"The glacier has retreated nearly a mile since 1980____in fact, its rate of loss has doubled in the past decade.",
- choices:[", ",". in fact ","; "," , "],answer:2,
+ choices:[", ",". in fact ","; ",": "],answer:2,
  trap:"'in fact' is a transitional phrase joining two independent clauses. A comma before it produces a splice; the semicolon is required. (The comma after 'in fact' is already there.)",
  wrong:"The comma before 'in fact' mirrors the comma after it, but two full clauses can't hang on a comma.",
  rule:"Transitional phrases (in fact, for example, on the other hand) between two clauses take a semicolon before them."},
@@ -156,7 +156,7 @@ window.QUESTIONS = [
 
 {id:"SEMI-022",cat:"semicolons",diff:2,
  text:"The film runs almost three hours____still, audiences rarely check their watches.",
- choices:[", ",". still ","; "," ; "],answer:2,
+ choices:[", ",". still ","; ",": "],answer:2,
  trap:"'still' here means 'nevertheless' — a conjunctive adverb between two independent clauses. It needs a semicolon before it and a comma after (the comma is already there). A comma before 'still' splices the clauses.",
  wrong:"'still' can be a plain adverb elsewhere, but joining two sentences it behaves like 'however' and needs a semicolon.",
  rule:"'still,' 'then,' 'thus,' 'hence' joining two clauses all require a semicolon before them."},
@@ -191,14 +191,14 @@ window.QUESTIONS = [
 
 {id:"SEMI-027",cat:"semicolons",diff:2,
  text:"Coral reefs cover less than one percent of the ocean floor____nevertheless, they shelter a quarter of all marine species.",
- choices:[", ",". nevertheless ","; "," ; "],answer:2,
+ choices:[", ",". nevertheless ","; ",": "],answer:2,
  trap:"'nevertheless' is a conjunctive adverb joining two independent clauses; it needs a semicolon before it. A comma before it is a splice even though the contrast it signals is genuine.",
  wrong:"The real contrast tempts you to treat 'nevertheless' like 'but,' but 'but' takes a comma and 'nevertheless' takes a semicolon.",
  rule:"'nevertheless,' like 'however,' needs a semicolon before it when it joins two clauses."},
 
 {id:"SEMI-028",cat:"semicolons",diff:2,
  text:"The author spent a decade in the Arctic____an experience that shaped every book she wrote afterward.",
- choices:["; ",", "," ",";  "],answer:1,
+ choices:["; ",", "," ",": "],answer:1,
  trap:"'an experience that shaped every book...' is a noun phrase (appositive) with no verb of its own for 'an experience.' It renames 'a decade in the Arctic' and takes a comma, not a semicolon.",
  wrong:"'; an experience...' reads like a punchy follow-up, but a semicolon needs a subject-plus-verb clause after it.",
  rule:"A phrase that renames the idea before it gets a comma (or dash), not a semicolon."},
@@ -324,10 +324,10 @@ window.QUESTIONS = [
 
 {id:"SEMI-046",cat:"semicolons",diff:2,
  text:"The negotiations collapsed at midnight____by morning, both sides had returned to the table.",
- choices:[", ",". By ","; "," ; "],answer:2,
- trap:"Two independent clauses. A period is grammatically fine but isn't offered cleanly (the option jams 'By' with odd spacing); the comma splices; the extra-spaced semicolon is malformed. The correctly spaced semicolon is the answer.",
- wrong:"Watch the spacing and capitalization inside each option — the SAT hides a right idea inside wrong formatting.",
- rule:"When comparing options, check punctuation AND spacing AND capitalization; only one will be fully correct."},
+ choices:[", "," ","; ",": "],answer:2,
+ trap:"Two independent clauses ('The negotiations collapsed at midnight' and 'by morning, both sides had returned to the table'). A comma alone splices them; no punctuation makes a run-on; a colon would promise that the second clause explains or itemizes something the first set up, which it doesn't. The semicolon links the two closely related events.",
+ wrong:"The comma feels like a natural beat before the turnaround, but both halves are complete sentences.",
+ rule:"Two independent clauses that simply continue the story take a semicolon, not a comma or a colon."},
 
 {id:"SEMI-047",cat:"semicolons",diff:3,
  text:"The paper's central claim is simple____that memory is reconstructive rather than a faithful recording.",
@@ -2559,7 +2559,7 @@ window.QUESTIONS = [
 
 {id:"PUNCT-004",cat:"punct",diff:2,
  text:"The kit includes a compass, a whistle____and a foil blanket.",
- choices:[", "," ","; ",""],answer:0,
+ choices:[", "," ","; ",": "],answer:0,
  trap:"This is a three-item list: 'a compass, a whistle, and a foil blanket.' The SAT uses the serial (Oxford) comma before 'and.' Dropping it is the tested error.",
  wrong:"'a whistle and a foil blanket' with no comma runs the last two items together; the SAT wants the serial comma.",
  rule:"In a list of three or more, put a comma before the final 'and' or 'or.'"},

@@ -69,6 +69,9 @@
   .choice.wrong .tag{background:var(--bad);color:#fff}
   .choice.locked{cursor:default}
   .choice .txt{font-family:var(--serif);font-size:1.02rem}
+  .pm{font-family:var(--sans);font-weight:800;color:var(--brand);font-size:1.12em;padding:0 .02em}
+  .choice.correct .pm{color:var(--good)} .choice.wrong .pm{color:var(--bad)}
+  .fb .pm{font-family:var(--sans);font-weight:800;color:var(--brand)}
   .fb{margin-top:16px;border-top:1px dashed var(--line);padding-top:14px}
   .fb .verdict{font-weight:800;font-size:1rem;margin-bottom:8px}
   .fb .verdict.y{color:var(--good)} .fb .verdict.n{color:var(--bad)}
@@ -230,18 +233,48 @@ function stemHTML(text, fillWith, bad){
   for(var i=0;i<gaps;i++){ out += fills[i] + esc(segs[i+1]); }
   return out;
 }
-function choiceLabel(c){
+// Render an answer choice using the ACTUAL punctuation, shown in the sentence
+// context it belongs to (never word labels like "comma ... comma").
+function choiceLabel(c, q){
   c = String(c);
-  var m = function(x){
-    x = String(x).trim();
-    return x===""? "no punctuation" : x===","? "comma" : x===";"? "semicolon" :
-           x===":"? "colon" : (x==="—"||x==="–"||x==="-")? "dash" : x;
-  };
-  if(c.indexOf("...") < 0){
-    return c.trim()==="" ? "( no punctuation )" : c;
+  var segs = (q && q.text) ? String(q.text).split("____") : [];
+  var norm = function(s){ return String(s).replace(/\s+/g," ").trim(); };
+  var isDash = function(s){ return s==="—" || s==="–" || s==="-"; };
+  var pm = function(s){ s = norm(s); return s ? '<span class="pm">'+esc(s)+'</span>' : ""; };
+
+  // Two-blank punctuation item:  "<m1> ... <m2>"  ->  <m1> [interrupting phrase] <m2>
+  if(c.indexOf("...") >= 0){
+    var p = c.split("...");
+    var m1 = norm(p[0]), m2 = norm(p[1] || "");
+    var phrase = (segs.length === 3) ? segs[1].replace(/^\s+|\s+$/g, "") : "…";
+    var head = m1 ? pm(m1) + " " : "";
+    var tail = m2 ? (isDash(m2) ? " " : "") + pm(m2) : "";
+    return head + esc(phrase) + tail;
   }
-  var p = c.split("...");
-  return m(p[0]) + "   …   " + m(p[1]);
+
+  // Full-clause choice (dangling-modifier rewrites, appositive baked into the choice):
+  // a real sentence fragment — show it as written.
+  var ct = norm(c);
+  if(ct.length > 22 || (/[a-z]/i.test(ct) && (/[.?!]$/.test(ct) || /^[A-Z]/.test(ct)))) return esc(ct);
+
+  // Single-blank mark: show it wedged between the words it actually sits between.
+  var mk = ct.replace(/^([.,;:])(\S)/, "$1 $2");   // ",the" -> ", the"
+  if(segs.length !== 2) return mk ? pm(mk) : '<span class="pm">no mark</span>';
+  var b4 = segs[0].trim().split(/\s+/);
+  var L = (b4.length > 2 ? "…" : "") + b4.slice(-2).join(" ");
+  // A mark that carries a connective word ("; and", ", which", ", being") hugs the
+  // left context and then trails off, so it can't collide with the words after it.
+  if(/[a-z]/i.test(mk)){
+    return esc(L) + (/^[.,;:]/.test(mk) ? "" : " ") + pm(mk) + " …";
+  }
+  var af = segs[1].trim().split(/\s+/);
+  var R = af.slice(0, 2).join(" ") + (af.length > 2 ? "…" : "");
+  if(mk === "") return esc(L) + " " + esc(R);
+  if(/^[.]/.test(mk)){                                            // period: end sentence, capitalize next
+    return esc(L) + pm(".") + " " + esc(R.charAt(0).toUpperCase() + R.slice(1));
+  }
+  if(/^[,;:]/.test(mk)) return esc(L) + pm(mk) + " " + esc(R);   // comma/semicolon/colon hug the left word
+  return esc(L) + " " + pm(mk) + " " + esc(R);                    // dash floats
 }
 
 // ---------- batch builder ----------
@@ -396,7 +429,7 @@ function renderQuiz(){
   for(var d=1; d<=3; d++) dots += '<b class="'+(d<=quiz.diff?"on":"")+'"></b>';
   var choices = q.choices.map(function(c,i){
     return '<button class="choice" data-i="'+i+'"><span class="tag">'+letter(i)+'</span>'+
-           '<span class="txt">'+esc(choiceLabel(c))+'</span></button>';
+           '<span class="txt">'+choiceLabel(c, q)+'</span></button>';
   }).join("");
 
   app.innerHTML =
@@ -459,7 +492,7 @@ function submitChoice(){
   var whyWrong = "";
   if(!correct){
     whyWrong = '<h4>Your pick</h4><p><span class="no">'+letter(i)+'.</span> '+
-      esc(choiceLabel(q.choices[i]))+' &mdash; '+esc(q.wrong || "creates the error the question is testing.")+'</p>';
+      choiceLabel(q.choices[i], q)+' &mdash; '+esc(q.wrong || "creates the error the question is testing.")+'</p>';
   }
 
   document.getElementById("fb").innerHTML =
