@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Late Work — Teacher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<main>
+  <h2 style="margin-top:0;">Late Work — Teacher</h2>
+  <p class="hint" style="margin-top:-8px; margin-bottom:16px;">Everything students have listed as turned in late, grouped by class. Check off what you've graded, then mark it graded so it drops out of the list &mdash; do this once at the end of each unit.</p>
+
+  <div id="pin-gate" class="pin-gate">
+    <div class="card">
+      <h2 style="margin-top:0;">Enter Admin PIN</h2>
+      <div id="pin-alert"></div>
+      <form class="stack" id="pin-form">
+        <div class="field">
+          <label for="pin-input">PIN</label>
+          <input type="password" id="pin-input" inputmode="numeric" autocomplete="off" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Unlock</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="dashboard" style="display:none;">
+    <div id="course-cards"></div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="assets/nav.js"></script>
+<script>
+renderHeader();
+
+const PIN_KEY = 'lateWorkAdminPin';
+let entries = [];
+let showGraded = {}; // per course: courseId -> bool
+
+const pinGate = document.getElementById('pin-gate');
+const dashboard = document.getElementById('dashboard');
+const pinForm = document.getElementById('pin-form');
+const pinAlert = document.getElementById('pin-alert');
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+function getPin() { return sessionStorage.getItem(PIN_KEY) || ''; }
+
+function setAlert(el, type, message) {
+  el.innerHTML = message ? `<div class="alert alert-${type}">${message}</div>` : '';
+}
+
+async function rawPost(payload) {
+  const res = await fetch('/api/latework', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error('Network error');
+  return res.json();
+}
+
+pinForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const pin = document.getElementById('pin-input').value.trim();
+  setAlert(pinAlert, 'info', 'Checking&hellip;');
+  try {
+    const res = await rawPost({ action: 'verifyPin', pin: pin });
+    if (res.ok) {
+      sessionStorage.setItem(PIN_KEY, pin);
+      pinAlert.innerHTML = '';
+      unlock();
+    } else {
+      setAlert(pinAlert, 'error', res.error || 'Incorrect PIN.');
+    }
+  } catch (err) {
+    setAlert(pinAlert, 'error', 'Could not reach the server. This page needs to be running on Netlify (with functions deployed) to work.');
+  }
+});
+
+async function authedPost(payload) {
+  const res = await rawPost(Object.assign({}, payload, { pin: getPin() }));
+  if (res.error === 'Invalid PIN') {
+    sessionStorage.removeItem(PIN_KEY);
+    dashboard.style.display = 'none';
+    pinGate.style.display = 'block';
+    setAlert(pinAlert, 'error', 'Your session expired. Please re-enter the PIN.');
+  }
+  return res;
+}
+
+function unlock() {
+  pinGate.style.display = 'none';
+  dashboard.style.display = 'block';
+  buildCourseCards();
+  loadEntries();
+}
+
+function buildCourseCards() {
+  const root = document.getElementById('course-cards');
+  root.innerHTML = COURSES.map(c => {
+    showGraded[c.id] = false;
+    return `
+      <div class="card">
+        <h2 style="margin-top:0;">${escapeHtml(c.name)}</h2>
+        <div class="row-actions" style="margin-bottom:12px; justify-content:space-between; align-items:center;">
+          <label class="hint" style="display:flex; align-items:center; gap:6px;">
+            <input type="checkbox" id="show-graded-${c.id}" onchange="toggleShowGraded('${c.id}', this.checked)">
+            Show already-graded entries
+          </label>
+          <button type="button" class="btn btn-primary btn-sm" onclick="markSelectedGraded('${c.id}')">Mark Checked as Graded</button>
+        </div>
+        <div id="list-${c.id}" class="loading">Loading&hellip;</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleShowGraded(courseId, checked) {
+  showGraded[courseId] = checked;
+  renderCourseList(courseId);
+}
+
+async function loadEntries() {
+  const res = await authedPost({ action: 'list', course: '' });
+  if (res.error) {
+    COURSES.forEach(c => {
+      document.getElementById('list-' + c.id).innerHTML = `<div class="alert alert-error">${escapeHtml(res.error)}</div>`;
+    });
+    return;
+  }
+  entries = res.entries || [];
+  COURSES.forEach(c => renderCourseList(c.id));
+}
+
+function formatDateTime(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' at ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+}
+
+function renderCourseList(courseId) {
+  const slot = document.getElementById('list-' + courseId);
+  if (!slot) return;
+  const forCourse = entries
+    .filter(e => e.course === courseId && (showGraded[courseId] || !e.graded))
+    .sort((a, b) => a.studentName.localeCompare(b.studentName) || a.submittedAt.localeCompare(b.submittedAt));
+
+  if (forCourse.length === 0) {
+    slot.innerHTML = '<p class="hint">Nothing listed for this class right now.</p>';
+    return;
+  }
+
+  slot.innerHTML = `
+    <div style="overflow-x:auto;">
+      <table class="roster">
+        <thead><tr><th></th><th>Student</th><th>Period</th><th>Assignment</th><th>Added</th><th></th></tr></thead>
+        <tbody>
+          ${forCourse.map(e => `
+            <tr style="${e.graded ? 'opacity:0.55;' : ''}">
+              <td><input type="checkbox" class="entry-check" data-course="${courseId}" data-id="${e.id}" ${e.graded ? 'disabled' : ''}></td>
+              <td>${escapeHtml(e.studentName)}<div class="hint">${escapeHtml(e.studentEmail)}</div></td>
+              <td>${escapeHtml(e.period)}</td>
+              <td>${escapeHtml(e.assignmentTitle)}${e.graded ? ' <span class="badge badge-open">Graded</span>' : ''}</td>
+              <td class="hint">${escapeHtml(formatDateTime(e.submittedAt))}</td>
+              <td class="row-actions">
+                ${e.graded ? `<button type="button" class="btn btn-ghost btn-sm" onclick="unmarkGraded('${e.id}','${courseId}')">Unmark</button>` : ''}
+                <button type="button" class="btn btn-danger btn-sm" onclick="deleteEntry('${e.id}','${courseId}')">Delete</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+async function markSelectedGraded(courseId) {
+  const boxes = document.querySelectorAll(`.entry-check[data-course="${courseId}"]:checked`);
+  const ids = Array.from(boxes).map(b => b.dataset.id);
+  if (ids.length === 0) { alert('Check off at least one entry first.'); return; }
+  const res = await authedPost({ action: 'markGraded', ids });
+  if (res.error) { alert(res.error); return; }
+  entries.forEach(e => { if (ids.includes(e.id)) { e.graded = true; e.gradedAt = new Date().toISOString(); } });
+  renderCourseList(courseId);
+}
+
+async function unmarkGraded(id, courseId) {
+  const res = await authedPost({ action: 'unmarkGraded', ids: [id] });
+  if (res.error) { alert(res.error); return; }
+  const e = entries.find(x => x.id === id);
+  if (e) { e.graded = false; e.gradedAt = null; }
+  renderCourseList(courseId);
+}
+window.unmarkGraded = unmarkGraded;
+window.toggleShowGraded = toggleShowGraded;
+window.markSelectedGraded = markSelectedGraded;
+
+async function deleteEntry(id, courseId) {
+  if (!confirm('Delete this entry entirely? This cannot be undone.')) return;
+  const res = await authedPost({ action: 'deleteEntryAdmin', id });
+  if (res.error) { alert(res.error); return; }
+  entries = entries.filter(e => e.id !== id);
+  renderCourseList(courseId);
+}
+window.deleteEntry = deleteEntry;
+
+if (getPin()) {
+  unlock();
+}
+</script>
+</body>
+</html>

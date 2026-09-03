@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Late Work</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<main>
+  <h2 style="margin-top:0;">Late Work</h2>
+  <p class="hint" style="margin-top:-8px; margin-bottom:16px;">List every assignment you've turned in late here. Your teacher grades late work once, at the end of each unit &mdash; this is how they know what to look for. You can add to this list any time during the unit.</p>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Add a Late Assignment</h2>
+    <div id="add-alert"></div>
+    <form class="stack" id="add-form">
+      <div class="field">
+        <label for="add-course">Class</label>
+        <select id="add-course" required>
+          <option value="">Choose a class&hellip;</option>
+          <option value="ist">Intro to Software Technology</option>
+          <option value="apcsp">AP Computer Science Principles</option>
+          <option value="ec">Embedded Computing</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="add-name">Your Name</label>
+          <input type="text" id="add-name" required autocomplete="name">
+        </div>
+        <div class="field">
+          <label for="add-period">Period</label>
+          <input type="text" id="add-period" placeholder="e.g. 3A" required>
+        </div>
+      </div>
+      <div class="field">
+        <label for="add-email">School Email</label>
+        <input type="email" id="add-email" placeholder="you@socialcircleschools.org" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="add-title">Assignment Name</label>
+        <input type="text" id="add-title" placeholder="e.g. 1.4 Copyright Infographic" required>
+      </div>
+      <div>
+        <button type="submit" class="btn btn-primary">Add to My List</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0;">Your List</h2>
+    <p class="hint" style="margin-top:-8px;">Fill in your class, name, period, and email above &mdash; your list appears here automatically.</p>
+    <div id="my-list" class="loading">&nbsp;</div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="assets/nav.js"></script>
+<script>
+renderHeader();
+
+const STORAGE_KEY = 'lateWorkIdentity';
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+function setAlert(el, type, message) {
+  el.innerHTML = message ? `<div class="alert alert-${type}">${message}</div>` : '';
+}
+
+async function api(payload) {
+  const res = await fetch('/api/latework', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error('Network error');
+  return res.json();
+}
+
+// Remembers name/period/email in this browser so a student doesn't have to
+// retype it every time they add another late assignment during the unit.
+function loadIdentity() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  } catch (err) {
+    return {};
+  }
+}
+
+function saveIdentity(identity) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(identity));
+  } catch (err) { /* private browsing, etc. -- fine to skip */ }
+}
+
+const courseInput = document.getElementById('add-course');
+const nameInput = document.getElementById('add-name');
+const periodInput = document.getElementById('add-period');
+const emailInput = document.getElementById('add-email');
+const titleInput = document.getElementById('add-title');
+
+const remembered = loadIdentity();
+if (remembered.course) courseInput.value = remembered.course;
+if (remembered.name) nameInput.value = remembered.name;
+if (remembered.period) periodInput.value = remembered.period;
+if (remembered.email) emailInput.value = remembered.email;
+
+function formatDateTime(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' at ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+}
+
+async function refreshMyList() {
+  const slot = document.getElementById('my-list');
+  const course = courseInput.value;
+  const email = emailInput.value.trim().toLowerCase();
+  if (!course || !email) {
+    slot.innerHTML = '<p class="hint">Nothing to show yet.</p>';
+    return;
+  }
+  slot.innerHTML = '<p class="loading">Loading&hellip;</p>';
+  try {
+    const res = await api({ action: 'list', course });
+    if (res.error) { slot.innerHTML = `<div class="alert alert-error">${escapeHtml(res.error)}</div>`; return; }
+    const mine = (res.entries || []).filter(e => e.studentEmail === email)
+      .sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
+    if (mine.length === 0) {
+      slot.innerHTML = '<p class="hint">Nothing listed yet for this class.</p>';
+      return;
+    }
+    slot.innerHTML = mine.map(e => `
+      <div class="announcement-list-item">
+        <div>
+          <div class="a-text">${escapeHtml(e.assignmentTitle)}${e.graded ? ' <span class="badge badge-open">Graded</span>' : ''}</div>
+          <div class="hint" style="margin-top:2px;">Added ${escapeHtml(formatDateTime(e.submittedAt))}</div>
+        </div>
+        ${e.graded ? '' : `<button type="button" class="btn btn-ghost btn-sm" onclick="removeEntry('${e.id}')">Remove</button>`}
+      </div>
+    `).join('');
+  } catch (err) {
+    slot.innerHTML = '<div class="alert alert-error">Could not reach the server. This page needs to be running on Netlify (with functions deployed) to work.</div>';
+  }
+}
+
+async function removeEntry(id) {
+  if (!confirm('Remove this from your list?')) return;
+  const email = emailInput.value.trim().toLowerCase();
+  const res = await api({ action: 'deleteOwnEntry', id, studentEmail: email });
+  if (res.error) { alert(res.error); return; }
+  refreshMyList();
+}
+window.removeEntry = removeEntry;
+
+document.getElementById('add-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const alertEl = document.getElementById('add-alert');
+  const payload = {
+    action: 'addEntry',
+    course: courseInput.value,
+    studentName: nameInput.value.trim(),
+    period: periodInput.value.trim(),
+    studentEmail: emailInput.value.trim().toLowerCase(),
+    assignmentTitle: titleInput.value.trim()
+  };
+  if (!payload.course || !payload.studentName || !payload.period || !payload.studentEmail || !payload.assignmentTitle) {
+    setAlert(alertEl, 'error', 'Please fill in every field.');
+    return;
+  }
+
+  setAlert(alertEl, 'info', 'Adding&hellip;');
+  const res = await api(payload);
+  if (res.error) { setAlert(alertEl, 'error', escapeHtml(res.error)); return; }
+
+  saveIdentity({ course: payload.course, name: payload.studentName, period: payload.period, email: payload.studentEmail });
+  setAlert(alertEl, 'success', 'Added to your list.');
+  titleInput.value = '';
+  titleInput.focus();
+  refreshMyList();
+});
+
+[courseInput, emailInput].forEach(el => el.addEventListener('change', refreshMyList));
+refreshMyList();
+</script>
+</body>
+</html>
