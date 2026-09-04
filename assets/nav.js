@@ -31,7 +31,7 @@ const COURSES = [
       { n: 1, title: "Digital Footprint", migrated: true, path: "ist/unit-1/index.html" },
       { n: 2, title: "Intro to Programming (Karel)", migrated: true, path: "ist/unit-2/index.html" },
       { n: 4, title: "Computing Basics", migrated: true, path: "ist/unit-4/index.html" },
-      { n: 5, title: "Operating Systems and Software", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/introtosoftwaretech/unit-5-operating-systems-and-software" },
+      { n: 5, title: "Operating Systems and Software", migrated: true, path: "ist/unit-5/index.html" },
       { n: 6, title: "Project: IT Professional", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/introtosoftwaretech/unit-6-project-it-professional" },
       { n: 7, title: "Web Design - HTML", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/introtosoftwaretech/unit-7-web-design-html" },
       { n: 8, title: "Intro to CSS", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/introtosoftwaretech/unit-8-intro-to-css" },
