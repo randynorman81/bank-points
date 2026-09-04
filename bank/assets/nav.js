@@ -39,6 +39,7 @@ function renderHeader() {
         <div class="header-actions">
           <a class="btn btn-primary" href="index.html">My Points</a>
           <a class="btn btn-ghost" href="request.html">Request to Use Points</a>
+          <a class="btn btn-ghost" href="admin.html">Admin</a>
         </div>
       </div>
     </header>
