@@ -97,6 +97,7 @@ const TOOLS = [
   },
   { id: "exit-tickets", name: "Exit Tickets", url: "https://starlit-salmiakki-e2394f.netlify.app/", description: "Sign in with your school Google account to answer an open exit ticket." },
   { id: "bank", name: "Bank Points", url: NAV_ROOT + "bank/index.html", description: "Sign in with your school Google account to see your own extra credit points, or request to use some on an assignment." },
+  { id: "arcade", name: "Extra Credit Arcade", url: "https://ist-extra-credit-games.netlify.app/", description: "Play classic NES games in your browser and earn Bank Points for how far you get, verified by your teacher." },
   { id: "latework", name: "Late Work", url: NAV_ROOT + "late-work.html", description: "List every assignment you've turned in late, so it's ready to grade at the end of the unit." }
 ];
 
