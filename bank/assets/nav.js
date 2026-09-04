@@ -29,7 +29,7 @@ function renderHeader() {
   root.innerHTML = `
     <header class="site-header">
       <div class="header-inner">
-        <a href="index.html" class="brand">
+        <a href="../index.html" class="brand">
           ${logoMarkup()}
           <span class="brand-text">
             <p class="brand-eyebrow">SCHS Computer Science</p>
