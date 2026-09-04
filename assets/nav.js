@@ -36,7 +36,7 @@ const COURSES = [
       { n: 7, title: "Web Design - HTML", migrated: true, path: "ist/unit-7/index.html" },
       { n: 8, title: "Intro to CSS", migrated: true, path: "ist/unit-8/index.html" },
       { n: 9, title: "Complete Website Project", migrated: true, path: "ist/unit-9/index.html" },
-      { n: 10, title: "Intro to JavaScript", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/introtosoftwaretech/unit-10-intro-to-javascript" },
+      { n: 10, title: "Intro to JavaScript", migrated: true, path: "ist/unit-10/index.html" },
       { n: 11, title: "Intro to Web Dev (jQuery / CMS)", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/introtosoftwaretech/unit-11-intro-to-web-development-jquery-cms" }
     ]
   },
