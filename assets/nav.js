@@ -34,7 +34,7 @@ const COURSES = [
       { n: 5, title: "Operating Systems and Software", migrated: true, path: "ist/unit-5/index.html" },
       { n: 6, title: "Project: IT Professional", migrated: true, path: "ist/unit-6/index.html" },
       { n: 7, title: "Web Design - HTML", migrated: true, path: "ist/unit-7/index.html" },
-      { n: 8, title: "Intro to CSS", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/introtosoftwaretech/unit-8-intro-to-css" },
+      { n: 8, title: "Intro to CSS", migrated: true, path: "ist/unit-8/index.html" },
       { n: 9, title: "Complete Website Project", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/introtosoftwaretech/unit-9-complete-website-project" },
       { n: 10, title: "Intro to JavaScript", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/introtosoftwaretech/unit-10-intro-to-javascript" },
       { n: 11, title: "Intro to Web Dev (jQuery / CMS)", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/introtosoftwaretech/unit-11-intro-to-web-development-jquery-cms" }
