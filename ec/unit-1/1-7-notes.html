@@ -42,8 +42,63 @@
       </table>
       <div class="note">Most real products aren't purely one or the other &mdash; a lot of devices do something simple and fast on the edge (like noticing a face is present at all) and hand off anything that needs real reasoning to the cloud (like figuring out <em>whose</em> face it is, or answering a spoken question).</div>
 
+      <h3>5 Examples of Edge AI</h3>
+      <dl>
+        <dt>1. Phone face/fingerprint unlock</dt>
+        <dd>Your face scan is matched against your stored face data right on the phone's chip. It has to be instant &mdash; nobody wants to wait on a network round-trip just to unlock a phone &mdash; and your biometric data staying on the device instead of traveling to a server is a real security requirement, not a nice-to-have.</dd>
+
+        <dt>2. Smart doorbell person-detection</dt>
+        <dd>Before it ever sends you a notification, the camera has to decide locally: is this a person, a car, or just a tree branch moving in the wind? Doing that filtering on-device means it doesn't waste your data plan (or the company's server costs) streaming every single motion event to the cloud.</dd>
+
+        <dt>3. Self-driving car object detection</dt>
+        <dd>Recognizing a pedestrian, a stop sign, or a car braking ahead has to happen in milliseconds. A cloud round-trip is simply too slow when a wrong decision happens at highway speed &mdash; and the car obviously can't just stop working the moment it loses signal.</dd>
+
+        <dt>4. Voice assistant wake-word detection</dt>
+        <dd>The always-listening part that catches "Hey Siri" or "Alexa" runs locally, on purpose &mdash; it would be a serious privacy problem (and drain the battery) if the device streamed every sound in your house to a server just waiting for you to say its name.</dd>
+
+        <dt>5. Factory equipment vibration monitoring</dt>
+        <dd>A sensor on a motor or bearing has to notice an abnormal vibration pattern the instant it starts, so the machine can shut down before it breaks. Factory floors also don't always have reliable internet, so a system that depends on the cloud to catch a failure isn't one you can actually trust.</dd>
+      </dl>
+
+      <h3>5 Examples of Cloud AI</h3>
+      <dl>
+        <dt>1. Voice assistants answering open-ended questions</dt>
+        <dd>Once you ask something that actually requires reasoning ("what's a good gift for someone who likes hiking?"), the request goes to a server running a massive language model &mdash; one far too large to ever fit on a speaker or phone.</dd>
+
+        <dt>2. Streaming recommendation engines</dt>
+        <dd>Netflix or Spotify suggesting what you'll like next works by comparing your habits against millions of other users' patterns at once. No single device could store or process a dataset that size &mdash; it only exists on a server.</dd>
+
+        <dt>3. Photo library content search</dt>
+        <dd>Searching your entire photo library for "dog at the beach" means scanning potentially years of photos. That's much more storage and processing than a phone can do continuously, so it happens on the cloud service's servers instead.</dd>
+
+        <dt>4. Large-scale email spam filtering</dt>
+        <dd>Catching a new phishing scam depends on recognizing patterns seen across millions of inboxes at once, and that shared threat model has to be updated constantly. Only a central server sees enough traffic to catch it early.</dd>
+
+        <dt>5. AI-assisted medical image analysis</dt>
+        <dd>Software that helps a radiologist spot something on an X-ray or CT scan runs on an extremely large, carefully validated model that needs continual retraining and serious computing power &mdash; not something a bedside device should be running alone.</dd>
+      </dl>
+
       <h2>Embedded AI</h2>
       <p><strong>Embedded AI</strong> is what you get when a trained Machine Learning model is shrunk down to actually fit and run on a small, dedicated embedded system &mdash; the exact kind of device you defined back in Lesson 1.1: a computer system built into a larger device to do one specific job, not a general-purpose computer. Embedded AI is just that same idea, with "thinking" as the specific job.</p>
+      <p class="hint">Embedded AI overlaps with edge AI &mdash; both mean "thinking happens locally." The difference is what kind of device it's running on: edge AI can run on a phone or a laptop, both general-purpose computers with plenty of power to spare. Embedded AI specifically means a tiny, dedicated, single-purpose chip, usually with real power and real-time constraints a phone never has to worry about.</p>
+
+      <h3>5 Examples of Embedded AI</h3>
+      <dl>
+        <dt>1. Learning thermostats</dt>
+        <dd>A small dedicated chip in the wall learns your household's temperature patterns and adjusts automatically. It has to keep controlling your heat and air even if your Wi-Fi goes down &mdash; a home's climate control can't depend on an internet connection to function at all.</dd>
+
+        <dt>2. Fall detection on a smartwatch</dt>
+        <dd>Recognizing a hard fall has to happen instantly, on the tiny low-power chip inside the watch itself, because the moment it matters most &mdash; someone alone on a trail with no signal &mdash; is exactly when a cloud connection can't be counted on.</dd>
+
+        <dt>3. Pacemaker rhythm monitoring</dt>
+        <dd>An AI-assisted pacemaker has to notice an irregular heartbeat and react within a fraction of a second, inside the body. There's no acceptable version of this that waits on a network request &mdash; and there's no acceptable version that streams your heart data off-device by default, either.</dd>
+
+        <dt>4. Robot vacuum obstacle recognition</dt>
+        <dd>Telling a wall apart from a pet or a person has to happen continuously and cheaply on a small onboard chip. A full general-purpose computer would make the vacuum far too expensive and drain its small battery in minutes.</dd>
+
+        <dt>5. Hearing aid noise cancellation</dt>
+        <dd>Cleaning up background noise from speech has to happen with essentially zero delay &mdash; any lag between a sound happening and you hearing it would be disorienting. That only works on a dedicated chip small enough to fit in the ear, running for days on a tiny battery.</dd>
+      </dl>
 
       <h2>Putting It Together</h2>
       <p>When you're investigating a real AI-powered product for today's assignment, ask yourself, in order:</p>
