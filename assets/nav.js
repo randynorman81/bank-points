@@ -33,7 +33,7 @@ const COURSES = [
       { n: 4, title: "Computing Basics", migrated: true, path: "ist/unit-4/index.html" },
       { n: 5, title: "Operating Systems and Software", migrated: true, path: "ist/unit-5/index.html" },
       { n: 6, title: "Project: IT Professional", migrated: true, path: "ist/unit-6/index.html" },
-      { n: 7, title: "Web Design - HTML", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/introtosoftwaretech/unit-7-web-design-html" },
+      { n: 7, title: "Web Design - HTML", migrated: true, path: "ist/unit-7/index.html" },
       { n: 8, title: "Intro to CSS", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/introtosoftwaretech/unit-8-intro-to-css" },
       { n: 9, title: "Complete Website Project", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/introtosoftwaretech/unit-9-complete-website-project" },
       { n: 10, title: "Intro to JavaScript", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/introtosoftwaretech/unit-10-intro-to-javascript" },
