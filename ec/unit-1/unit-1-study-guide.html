@@ -23,81 +23,97 @@
 
     <article class="lesson-content">
       <h1>Unit 1 Study Guide</h1>
-      <p class="hint">Covers lessons 1.1&ndash;1.3, 1.5, and 1.7. This mirrors the 20-question Unit 1 Test exactly &mdash; every fact and term below maps to a question on the test, and nothing on the test falls outside this guide. Know everything on this page and you will pass.</p>
+      <p class="hint">Covers lessons 1.1&ndash;1.3, 1.5, and 1.7. This mirrors the 25-question Unit 1 Test &mdash; every idea below maps to a question on the test, and nothing on the test falls outside this guide. The test asks you to reason with these ideas, not just recite a definition, so don't just memorize the bolded words &mdash; be able to explain <em>why</em> each one matters.</p>
 
       <h2>1.1 &mdash; What Is an Embedded System?</h2>
       <dl>
         <dt>Embedded system</dt>
-        <dd>A computer system built into a larger device to perform one specific, dedicated task &mdash; not a general-purpose computer. The control board inside a microwave oven is a good example.</dd>
+        <dd>A computer system built into a larger device to perform <b>one specific, dedicated task</b> &mdash; not a flexible, general-purpose computer. The control board inside a microwave oven is a good example: it will run its one program for the rest of its existence and nothing else.</dd>
+
+        <dt>The real distinguishing question</dt>
+        <dd>It's not about size or power &mdash; it's about whether the device was designed to run one fixed job decided at design time, or whether a user can install new, arbitrary software on it later. You can't turn a microwave's control board into a word processor. You can turn a laptop into almost anything.</dd>
 
         <dt>Microcontroller vs. microprocessor</dt>
-        <dd>A <b>microcontroller</b> has memory and I/O built in on one chip &mdash; used in embedded systems. A <b>microprocessor</b> (like the one in a laptop) needs separate memory and peripheral chips built around it.</dd>
+        <dd>A <b>microcontroller</b> packs the CPU, memory, and I/O onto a single chip &mdash; everything the one job needs, all in one place. Used in embedded systems. A <b>microprocessor</b> (like the one in a laptop) is just the CPU core; it needs separate memory and peripheral chips wired around it externally to do anything.</dd>
+
+        <dt>Why the distinction matters</dt>
+        <dd>An embedded system trades flexibility for reliability, low cost, low power use, and predictable, real-time behavior. That tradeoff is exactly why a pacemaker or a car's brake controller is built as a dedicated embedded system instead of a general-purpose computer &mdash; you want it to behave identically every single time, with no risk of a user-installed app introducing a bug.</dd>
+
+        <dt>Examples across categories</dt>
+        <dd>Household (microwave, washing machine, thermostat), medical (pacemaker, insulin pump), automotive (engine control unit, anti-lock brakes), industrial (factory floor sensors). Notice these span almost every part of daily life &mdash; embedded systems vastly outnumber general-purpose computers in the real world.</dd>
       </dl>
 
       <h2>1.2 &mdash; Forensic Auditing &amp; the Therac-25</h2>
       <dl>
         <dt>Purpose of a forensic audit</dt>
-        <dd>To determine <b>what technically went wrong</b>, and <b>who is responsible</b> for it.</dd>
+        <dd>To answer two separate questions: <b>what technically went wrong</b>, and <b>who is responsible</b> for it. These aren't the same question &mdash; a technical root cause and legal/professional accountability can point in different directions.</dd>
 
-        <dt>Therac-25</dt>
-        <dd>A computer-controlled <b>radiation therapy machine</b> used to treat cancer patients in the 1980s.</dd>
+        <dt>The Therac-25</dt>
+        <dd>A computer-controlled <b>radiation therapy machine</b> from the mid-1980s that could deliver treatment two ways: a low-power electron beam applied directly, or a high-power X-ray beam that required a physical beam-spreading attachment to be moved into place first, since the concentrated high-power beam was only safe once spread out.</dd>
 
-        <dt>What went wrong</dt>
-        <dd>A <b>software bug</b> caused it to deliver massive radiation overdoses to patients.</dd>
+        <dt>What actually went wrong</dt>
+        <dd>Between 1985 and 1987, at least six documented incidents delivered massive radiation overdoses &mdash; up to roughly 100 times the intended dose &mdash; causing severe radiation burns and multiple deaths. The cause was a <b>race condition</b>: if an experienced operator typed quickly enough to correct a setup mistake within about 8 seconds, the software's check for "is the beam-spreader correctly in position" could be skipped, letting the unspread, high-power beam fire directly at the patient.</dd>
 
         <dt>Race condition</dt>
-        <dd>A bug where the outcome depends on the <b>timing or order</b> of two things happening &mdash; like an operator typing faster than the software could check.</dd>
+        <dd>A bug where the outcome depends on the <b>relative timing or order</b> of two things happening, because that timing isn't properly controlled. In the Therac-25's case: the software's safety check and the operator's typing speed were racing each other, and typing fast enough won.</dd>
 
         <dt>The removed safety feature</dt>
-        <dd>Earlier radiation machines had <b>hardware safety interlocks</b> (physical safeguards). The Therac-25 removed them and relied on software instead.</dd>
+        <dd>Earlier machines (the Therac-6 and Therac-20) had <b>hardware safety interlocks</b> &mdash; physical, mechanical safeguards that made the dangerous state impossible regardless of what the software did. The Therac-25 removed those hardware interlocks and relied entirely on software to catch the same class of error, turning one single point of failure into a life-or-death risk.</dd>
+
+        <dt>Why this case anchors the whole course</dt>
+        <dd>It's the origin case for a theme you'll see again later this year: software alone is often not considered sufficient protection for a safety-critical system. A second, independent, physical layer of protection catches what software might miss &mdash; and removing that layer to save cost or complexity is exactly how a single bug becomes a disaster.</dd>
       </dl>
 
       <h2>1.3 &mdash; Embedded Systems All Around Us</h2>
       <dl>
         <dt>Arduino</dt>
-        <dd>An <b>umbrella term</b> for a board, its software, and its community &mdash; the microcontroller is the actual chip on the board. They are two different things.</dd>
+        <dd>An <b>umbrella term</b> for a board design, its software (the Arduino IDE), and the community around it &mdash; not the same thing as the microcontroller chip itself, which is the actual component doing the computing that happens to sit on the board.</dd>
 
         <dt>Raspberry Pi vs. Arduino</dt>
-        <dd>A Raspberry Pi is a <b>small full computer</b> that can run an operating system. An Arduino is a simpler <b>microcontroller board</b> built to run one program at a time.</dd>
+        <dd>A Raspberry Pi is a <b>small full computer</b> that runs a complete operating system and can multitask &mdash; closer to a general-purpose computer. An Arduino is a simpler <b>microcontroller board</b> built to run exactly one program, continuously, with no operating system in the traditional sense &mdash; closer to the strict definition of an embedded system.</dd>
 
         <dt>IoT</dt>
-        <dd>Stands for <b>Internet of Things</b>.</dd>
+        <dd>Stands for <b>Internet of Things</b> &mdash; physical, embedded devices connected to a network so they can send or receive data, and often be monitored or controlled remotely.</dd>
 
         <dt>Pacemaker</dt>
-        <dd>An example of an embedded system where a software failure could be <b>life-threatening</b>, since it directly controls a person's heart rhythm.</dd>
+        <dd>An example of an embedded system where a software failure could be <b>life-threatening</b>, since it directly and continuously controls a person's heart rhythm. Same underlying stakes as the Therac-25, just continuous and preventive rather than a single treatment event.</dd>
       </dl>
 
       <h2>1.5 &mdash; Take a Stand: GPS Ankle Monitor Failures</h2>
       <dl>
         <dt>GPS ankle monitor</dt>
-        <dd>Tracks a supervised person's <b>real-time location</b> and alerts officials if they leave an approved zone.</dd>
+        <dd>Tracks a supervised person's <b>real-time location</b> and sends zone-violation or tamper alerts to a monitoring service, which can escalate to the supervising government agency.</dd>
 
-        <dt>The three parties in the scenario</dt>
-        <dd><b>Meridian Trace Technologies</b> &mdash; the device manufacturer. <b>GuardLine Monitoring Services</b> &mdash; the monitoring company. <b>Millbrook County Office of Community Supervision</b> &mdash; the government supervision agency.</dd>
+        <dt>The three parties and their specific failure points</dt>
+        <dd><b>Meridian Trace Technologies</b> (device manufacturer) &mdash; kept shipping devices with a GPS drift bug it had already been warned about. <b>GuardLine Monitoring Services</b> (monitoring company) &mdash; skipped its own required second-confirmation-ping step before escalating an alert. <b>Millbrook County Office of Community Supervision</b> (government agency) &mdash; skipped a required verification phone call before acting on the alert, due to a new zero-tolerance policy.</dd>
+
+        <dt>Why three parties, not one</dt>
+        <dd>The point of the scenario: a real failure is rarely caused by one bad actor. It's usually a chain of smaller failures across the people who build a system, the people who operate it, and the people with authority to act on it &mdash; a pattern that reappears in every later case study this course.</dd>
 
         <dt>Real-world precedent cited</dt>
-        <dd>The <b>2015 Fitbit murder case</b> &mdash; wearable device data used as courtroom evidence.</dd>
+        <dd>The <b>2015 Fitbit murder case</b> &mdash; wearable device step and heart-rate data was used as courtroom evidence, helping to disprove a suspect's account of events. Establishes that personal device data can carry real legal weight, not just personal curiosity.</dd>
 
         <dt>Civil liability</dt>
-        <dd><b>Legal responsibility</b> for causing harm or loss to another person, which can require paying damages.</dd>
+        <dd><b>Legal responsibility</b> for causing harm or loss to another person, which can require paying monetary damages &mdash; distinct from criminal liability, which involves government prosecution and potential jail time.</dd>
       </dl>
 
       <h2>1.7 &mdash; AI in Embedded Computing and IoT</h2>
       <dl>
-        <dt>Edge AI vs. cloud AI</dt>
-        <dd><b>Edge AI</b> processes data directly on the device itself. <b>Cloud AI</b> sends data over the internet to be processed on remote servers.</dd>
+        <dt>Artificial Intelligence vs. Machine Learning</dt>
+        <dd><b>Artificial Intelligence</b> is the broad category: any system built to do something that normally requires human-like judgment. <b>Machine Learning</b> is the specific technique behind almost all modern AI &mdash; instead of a programmer writing an explicit rule for every situation, the system is shown many examples and learns the pattern itself.</dd>
 
-        <dt>Advantage of edge AI</dt>
-        <dd>It can work <b>without sending data over the internet</b> &mdash; often faster and more private (e.g. a smart camera recognizing a face on-device).</dd>
-
-        <dt>Machine Learning</dt>
-        <dd>A method where a computer <b>improves at a task by learning patterns from data</b>, rather than being explicitly programmed with fixed rules for every case.</dd>
+        <dt>Edge AI vs. Cloud AI</dt>
+        <dd><b>Edge AI</b> processes data directly on the device, which is faster and more private since nothing leaves the device, but limited by the device's small chip and battery. <b>Cloud AI</b> sends data to a remote server for processing, which is far more powerful but slower and requires an internet connection. Most real products use some mix of both.</dd>
 
         <dt>Embedded AI</dt>
-        <dd>Artificial intelligence that runs <b>directly on a small, dedicated device</b> rather than on a general-purpose computer or in the cloud.</dd>
-      </dl>
+        <dd>What you get when a trained Machine Learning model is shrunk down to run on a small, <b>dedicated</b> embedded system &mdash; the same kind of device defined in Lesson 1.1. It overlaps with edge AI, but edge AI can run on any local device (a phone counts); embedded AI specifically means a tiny, single-purpose chip.</dd>
 
-      <div class="note">The test is 20 multiple-choice questions pulled straight from this list &mdash; if a term or fact is above, expect a question on it.</div>
+        <dt>Why the location of "thinking" is a real design decision</dt>
+        <dd>A self-driving car's object detection has to run on the edge &mdash; a cloud round-trip is too slow at highway speed, and the car can't stop working the moment it loses signal. A voice assistant answering an open-ended question needs the cloud &mdash; the language model required is far too large to fit on a speaker. Neither choice is automatically "better"; it depends on what the device actually needs.</dd>
+      </dl>
+      <p class="hint">1.7's <a href="1-7-notes.html">full notes page</a> has 15 additional worked examples (5 edge, 5 cloud, 5 embedded) if you want more practice reasoning through <em>why</em> a product uses one over the other &mdash; that kind of reasoning is exactly what the test asks for.</p>
+
+      <div class="note">The test is 25 questions pulled from everything above. Several questions describe a short scenario and ask you to apply what you know, rather than just naming a term &mdash; make sure you understand <em>why</em> each fact is true, not just that it is.</div>
 
       <div id="prev-next-root" class="prev-next-nav"></div>
     </article>
