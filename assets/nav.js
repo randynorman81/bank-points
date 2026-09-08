@@ -55,7 +55,10 @@ const COURSES = [
       { n: 5, title: "Functions and Parameters", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/apcsp/unit-5-functions-and-parameters" },
       { n: 6, title: "Practice Performance Task", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/apcsp/unit-6-practice-performance-task" },
       { n: 7, title: "Data Structures", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/apcsp/unit-7-data-structures" },
-      { n: 8, title: "Digital Information", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/apcsp/unit-8-digital-information" }
+      { n: 8, title: "Digital Information", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/apcsp/unit-8-digital-information" },
+      { label: "Calendar", title: "Pacing Calendar", migrated: true, path: "apcsp/calendar.html" },
+      { label: "Vocab", title: "Vocabulary", migrated: true, path: "apcsp/vocab.html" },
+      { label: "Study Guides", title: "Study Guides & Books", migrated: true, path: "apcsp/study-guides.html" }
     ]
   },
   {

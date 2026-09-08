@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Calendar | AP Computer Science Principles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="../assets/logo.png">
+<style>
+  .week-card { margin-bottom: 14px; }
+  .week-card .field-row .field { flex: 1; min-width: 140px; }
+  .week-card textarea { min-height: 90px; font-family: inherit; }
+  .week-card .row-actions { margin-top: 10px; justify-content: space-between; }
+  #save-bar {
+    position: sticky; bottom: 0;
+    background: var(--white); border-top: 1.5px solid var(--border);
+    padding: 14px 0; margin-top: 8px;
+    display: flex; align-items: center; gap: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<main>
+  <div class="breadcrumb"><a href="../index.html">CS Home</a><span class="sep">/</span><a href="../apcsp/index.html">AP Computer Science Principles</a><span class="sep">/</span><a href="calendar.html">Calendar</a><span class="sep">/</span>Edit</div>
+
+  <h1 style="margin-bottom:4px;">Edit Calendar</h1>
+  <p class="hint" style="margin-top:0;">One card per week. Lines are one bullet per line. Order here is the order it shows on the calendar page &mdash; drag isn't supported, so to move a week, cut/paste its text into the right spot and use Delete on the empty one.</p>
+
+  <div id="pin-gate" class="pin-gate">
+    <div class="card">
+      <h2 style="margin-top:0;">Enter Admin PIN</h2>
+      <div id="pin-alert"></div>
+      <form class="stack" id="pin-form">
+        <div class="field">
+          <label for="pin-input">PIN</label>
+          <input type="password" id="pin-input" inputmode="numeric" autocomplete="off" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Unlock</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="dashboard" style="display:none;">
+    <div id="weeks-alert"></div>
+    <div id="weeks-root"></div>
+    <div id="save-bar">
+      <button class="btn btn-ghost" id="add-week-btn" type="button">+ Add Week</button>
+      <button class="btn btn-primary" id="save-all-btn" type="button">Save All</button>
+      <span id="save-status" class="hint"></span>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../assets/nav.js"></script>
+<script>
+renderHeader();
+
+const PIN_KEY = 'announcementsPin';
+const pinGate = document.getElementById('pin-gate');
+const dashboard = document.getElementById('dashboard');
+const pinForm = document.getElementById('pin-form');
+const pinAlert = document.getElementById('pin-alert');
+const weeksRoot = document.getElementById('weeks-root');
+const weeksAlert = document.getElementById('weeks-alert');
+const saveStatus = document.getElementById('save-status');
+
+let weeks = [];
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+function getPin() { return sessionStorage.getItem(PIN_KEY) || ''; }
+function setAlert(el, type, message) { el.innerHTML = message ? `<div class="alert alert-${type}">${message}</div>` : ''; }
+
+async function rawPost(payload) {
+  const res = await fetch('/api/announcements', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error('Network error');
+  return res.json();
+}
+
+async function authedPost(payload) {
+  const res = await rawPost(Object.assign({}, payload, { pin: getPin() }));
+  if (res.error === 'Invalid PIN') {
+    sessionStorage.removeItem(PIN_KEY);
+    dashboard.style.display = 'none';
+    pinGate.style.display = 'block';
+    setAlert(pinAlert, 'error', 'Your session expired. Please re-enter the PIN.');
+  }
+  return res;
+}
+
+pinForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const pin = document.getElementById('pin-input').value.trim();
+  setAlert(pinAlert, 'info', 'Checking&hellip;');
+  try {
+    const res = await rawPost({ action: 'verifyPin', pin });
+    if (res.ok) {
+      sessionStorage.setItem(PIN_KEY, pin);
+      pinAlert.innerHTML = '';
+      unlock();
+    } else {
+      setAlert(pinAlert, 'error', res.error || 'Incorrect PIN.');
+    }
+  } catch (err) {
+    setAlert(pinAlert, 'error', 'Could not reach the server.');
+  }
+});
+
+function unlock() {
+  pinGate.style.display = 'none';
+  dashboard.style.display = 'block';
+  loadWeeks();
+}
+
+async function loadWeeks() {
+  weeksRoot.innerHTML = '<div class="loading">Loading&hellip;</div>';
+  const res = await authedPost({ action: 'calendar', course: 'apcsp' });
+  if (res.error) { setAlert(weeksAlert, 'error', res.error); return; }
+  weeks = res.weeks || [];
+  render();
+}
+
+function render() {
+  weeksRoot.innerHTML = weeks.map((w, i) => `
+    <div class="card week-card" data-index="${i}">
+      <div class="field-row">
+        <div class="field">
+          <label>Week of</label>
+          <input type="text" class="w-label" value="${escapeHtml(w.label)}" placeholder="e.g. Aug 3">
+        </div>
+        <div class="field">
+          <label>Month header</label>
+          <input type="text" class="w-month" value="${escapeHtml(w.month)}" placeholder="e.g. August 2026">
+        </div>
+        <div class="field">
+          <label>Tag (optional)</label>
+          <input type="text" class="w-tag" value="${escapeHtml(w.tag)}" placeholder="QUIZ, BREAK, FLEX / BUFFER&hellip;">
+        </div>
+      </div>
+      <div class="field">
+        <label>Lines (one per line)</label>
+        <textarea class="w-lines">${escapeHtml(w.lines.join('\n'))}</textarea>
+      </div>
+      <div class="row-actions">
+        <span class="hint">#${i + 1}</span>
+        <button type="button" class="btn btn-ghost btn-sm w-delete">Delete this week</button>
+      </div>
+    </div>
+  `).join('');
+
+  weeksRoot.querySelectorAll('.week-card').forEach(card => {
+    const idx = Number(card.dataset.index);
+    card.querySelector('.w-delete').addEventListener('click', () => {
+      if (!confirm('Delete week "' + (weeks[idx].label || '(untitled)') + '"?')) return;
+      weeks.splice(idx, 1);
+      render();
+    });
+  });
+}
+
+// Reads whatever is currently in the form fields back into the `weeks`
+// array before saving/adding, so in-progress edits aren't lost.
+function syncFromForm() {
+  weeksRoot.querySelectorAll('.week-card').forEach(card => {
+    const idx = Number(card.dataset.index);
+    weeks[idx] = {
+      id: weeks[idx].id,
+      label: card.querySelector('.w-label').value.trim(),
+      month: card.querySelector('.w-month').value.trim(),
+      tag: card.querySelector('.w-tag').value.trim(),
+      lines: card.querySelector('.w-lines').value.split('\n').map(l => l.trim()).filter(Boolean)
+    };
+  });
+}
+
+document.getElementById('add-week-btn').addEventListener('click', () => {
+  syncFromForm();
+  weeks.push({ label: '', month: weeks.length ? weeks[weeks.length - 1].month : '', tag: '', lines: [] });
+  render();
+  weeksRoot.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
+
+document.getElementById('save-all-btn').addEventListener('click', async () => {
+  syncFromForm();
+  saveStatus.textContent = 'Saving…';
+  const res = await authedPost({ action: 'saveCalendar', course: 'apcsp', weeks });
+  if (res.error) {
+    saveStatus.textContent = '';
+    setAlert(weeksAlert, 'error', res.error);
+  } else {
+    setAlert(weeksAlert, '', '');
+    saveStatus.textContent = 'Saved.';
+    setTimeout(() => { saveStatus.textContent = ''; }, 2500);
+  }
+});
+
+if (getPin()) unlock();
+</script>
+</body>
+</html>

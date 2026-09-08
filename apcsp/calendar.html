@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendar | AP Computer Science Principles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="../assets/logo.png">
+<style>
+  .cal-month { margin: 32px 0 12px; }
+  .cal-month:first-of-type { margin-top: 8px; }
+  .cal-week {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .cal-week:last-child { border-bottom: none; }
+  .cal-week-when { font-weight: 700; }
+  .cal-week-when .hint { font-weight: 400; margin-top: 2px; }
+  .cal-tag {
+    display: inline-block;
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--black);
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+  .cal-tag.is-break { background: var(--red); }
+  .cal-week ul { margin: 0; padding-left: 20px; }
+  .cal-week li { margin-bottom: 3px; }
+  .cal-week.is-break-row { color: var(--gray-700); }
+</style>
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<main>
+  <div class="breadcrumb"><a href="../index.html">CS Home</a><span class="sep">/</span><a href="../apcsp/index.html">AP Computer Science Principles</a><span class="sep">/</span>Calendar</div>
+
+  <h1 style="margin-bottom:4px;">Calendar</h1>
+  <p class="hint" style="margin-top:0;">Week-by-week pacing through the CodeHS AP CSP in Python course &mdash; the Create Performance Task is due April 30, with the rest of the year building toward the AP exam in May. <a href="calendar-admin.html">Edit this calendar &rarr;</a></p>
+
+  <div id="cal-root" class="loading">Loading&hellip;</div>
+</main>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../assets/nav.js"></script>
+<script>
+renderHeader();
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+async function loadCalendar() {
+  const root = document.getElementById('cal-root');
+  try {
+    const res = await fetch('/api/announcements?action=calendar&course=apcsp');
+    if (!res.ok) throw new Error('Network error');
+    const data = await res.json();
+    const weeks = data.weeks || [];
+    if (weeks.length === 0) {
+      root.innerHTML = '<div class="hint">No calendar published yet.</div>';
+      return;
+    }
+
+    let html = '';
+    let lastMonth = null;
+    weeks.forEach(w => {
+      if (w.month !== lastMonth) {
+        html += `<h2 class="cal-month">${escapeHtml(w.month)}</h2>`;
+        lastMonth = w.month;
+      }
+      const isBreak = /break/i.test(w.tag) || (w.lines.length === 1 && /^--.*--$/.test(w.lines[0]));
+      const tag = w.tag ? `<span class="cal-tag${isBreak ? ' is-break' : ''}">${escapeHtml(w.tag)}</span><br>` : '';
+      html += `
+        <div class="cal-week${isBreak ? ' is-break-row' : ''}">
+          <div class="cal-week-when">Week of ${escapeHtml(w.label)}</div>
+          <div>
+            ${tag}
+            <ul>${w.lines.map(l => `<li>${escapeHtml(l)}</li>`).join('')}</ul>
+          </div>
+        </div>`;
+    });
+    root.innerHTML = html;
+  } catch (err) {
+    root.innerHTML = '<div class="alert alert-error">Could not load the calendar.</div>';
+  }
+}
+
+loadCalendar();
+</script>
+</body>
+</html>
