@@ -48,14 +48,36 @@ const COURSES = [
     classDocs: "apcsp/class-docs.html",
     googleSite: "https://sites.google.com/socialcircleschools.org/apcsp/home",
     units: [
+      // Titles below match the live CodeHS course ("Norman AP Computer Science
+      // Principles in Python (Refreshed 2026) 2026") exactly, verified lesson
+      // by lesson against the teacher's own CodeHS section on 2026-09-08 --
+      // this is the authoritative curriculum, not the older Google Site
+      // (whose unit titles had already drifted, e.g. "Data Structures" vs
+      // CodeHS's actual "Basic Data Structures"). Units 1-2 have real pages
+      // built on this site; 3-21 are taught directly in CodeHS (see
+      // apcsp-lives-on-codehs), so they link out to CodeHS itself with a
+      // "CodeHS" badge instead of "Google Sites".
       { n: 1, title: "Introduction to Programming", migrated: true, path: "apcsp/unit-1/index.html" },
-      { n: 2, title: "Paired Programming Project", migrated: true, path: "apcsp/unit-2/index.html" },
-      { n: 3, title: "Programming with Python", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/apcsp/unit-3-programming-with-python" },
-      { n: 4, title: "Python Control Structures", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/apcsp/unit-4-python-control-structures" },
-      { n: 5, title: "Functions and Parameters", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/apcsp/unit-5-functions-and-parameters" },
-      { n: 6, title: "Practice Performance Task", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/apcsp/unit-6-practice-performance-task" },
-      { n: 7, title: "Data Structures", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/apcsp/unit-7-data-structures" },
-      { n: 8, title: "Digital Information", migrated: false, googleSite: "https://sites.google.com/socialcircleschools.org/apcsp/unit-8-digital-information" },
+      { n: 2, title: "Practice PT: Pair-Programming Paint!", migrated: true, path: "apcsp/unit-2/index.html" },
+      { n: 3, title: "Programming with Python", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 4, title: "Python Control Structures", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 5, title: "Functions and Parameters", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 6, title: "Practice PT: Tell a Story", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 7, title: "Basic Data Structures", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 8, title: "Digital Information", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 9, title: "Practice PT: The Shopping List", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 10, title: "The Internet", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 11, title: "Project: The Effects of the Internet", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 12, title: "Data", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 13, title: "Project: Present a Data-Driven Insight", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 14, title: "Strings", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 15, title: "Practice PT: Personal Data Tracker", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 16, title: "Project: The Impact of Computing", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 17, title: "Create Performance Task", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 18, title: "AP Exam Review", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 19, title: "Creative Development", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 20, title: "Final", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 21, title: "Computer Science Principles Pretest", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
       { label: "Calendar", title: "Pacing Calendar", migrated: true, path: "apcsp/calendar.html" },
       { label: "Vocab", title: "Vocabulary", migrated: true, path: "apcsp/vocab.html" },
       { label: "Study Guides", title: "Study Guides & Books", migrated: true, path: "apcsp/study-guides.html" }
@@ -357,9 +379,10 @@ function renderUnitGrid(courseId, containerId) {
           <h3>${escapeHtmlNav(u.title)}</h3>
         </a>`;
     }
+    const badgeText = u.badge || "Google Sites";
     return `
       <a class="unit-card" href="${u.googleSite}" target="_blank" rel="noopener">
-        <div class="unit-label"><span>${escapeHtmlNav(label)}</span><span class="badge on-site">Google Sites</span></div>
+        <div class="unit-label"><span>${escapeHtmlNav(label)}</span><span class="badge on-site">${escapeHtmlNav(badgeText)}</span></div>
         <h3>${escapeHtmlNav(u.title)}</h3>
       </a>`;
   }).join("");
