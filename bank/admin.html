@@ -42,6 +42,15 @@
     </div>
 
     <div class="card">
+      <h2 style="margin-top:0; display:flex; align-items:center; justify-content:space-between;">
+        Extra Credit Submissions
+        <button class="btn btn-ghost btn-sm" id="refresh-ec">Refresh</button>
+      </h2>
+      <p class="hint" style="margin-top:-8px;">Students submit via the "Submit Extra Credit" form. Approving adds points to their bank &mdash; rejecting adds nothing.</p>
+      <div id="ec-slot" class="loading">Loading&hellip;</div>
+    </div>
+
+    <div class="card">
       <h2 style="margin-top:0;">Add a Student</h2>
       <div id="add-student-alert"></div>
       <form class="stack" id="add-student-form">
@@ -192,6 +201,7 @@ function unlock() {
   dashboard.style.display = 'block';
   loadRoster();
   loadRequests();
+  loadExtraCredit();
 }
 
 async function authedPost(payload) {
@@ -765,6 +775,105 @@ async function loadRequests() {
 }
 
 document.getElementById('refresh-requests').addEventListener('click', loadRequests);
+
+async function loadExtraCredit() {
+  const slot = document.getElementById('ec-slot');
+  try {
+    const data = await apiGet('ecSubmissions');
+    const submissions = data.submissions || [];
+    const pending = submissions.filter(s => s.status === 'pending');
+    const graded = submissions.filter(s => s.status !== 'pending').slice(0, 15);
+
+    if (pending.length === 0 && graded.length === 0) {
+      slot.innerHTML = '<div class="hint">No submissions yet.</div>';
+      return;
+    }
+
+    const fileLink = (s) => s.fileUrl
+      ? `<a href="${escapeHtml(s.fileUrl)}" target="_blank" rel="noopener">${escapeHtml(s.fileName || 'View file')}</a>`
+      : '<span class="hint">No file</span>';
+
+    let html = '';
+
+    if (pending.length > 0) {
+      html += `
+        <table class="roster">
+          <thead><tr><th>When</th><th>Name</th><th>Period</th><th>Assignment</th><th>File</th><th></th></tr></thead>
+          <tbody>
+            ${pending.map(s => `
+              <tr id="ec-row-${s.id}">
+                <td>${escapeHtml(new Date(s.timestamp).toLocaleString())}</td>
+                <td>${escapeHtml(s.name)}</td>
+                <td>${escapeHtml(s.period)}</td>
+                <td>${escapeHtml(s.assignment)}</td>
+                <td>${fileLink(s)}</td>
+                <td style="white-space:nowrap;">
+                  <button class="btn btn-primary btn-sm" onclick="approveExtraCredit('${s.id}')">Approve</button>
+                  <button class="btn btn-ghost btn-sm" onclick="rejectExtraCredit('${s.id}')">Reject</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    } else {
+      html += '<div class="hint">No pending submissions.</div>';
+    }
+
+    if (graded.length > 0) {
+      html += `
+        <h3 style="margin-bottom:8px;">Recently Graded</h3>
+        <table class="roster">
+          <thead><tr><th>When</th><th>Name</th><th>Period</th><th>Assignment</th><th>Result</th></tr></thead>
+          <tbody>
+            ${graded.map(s => `
+              <tr>
+                <td>${escapeHtml(new Date(s.gradedAt || s.timestamp).toLocaleString())}</td>
+                <td>${escapeHtml(s.name)}</td>
+                <td>${escapeHtml(s.period)}</td>
+                <td>${escapeHtml(s.assignment)}</td>
+                <td>${s.status === 'approved' ? `<strong>+${escapeHtml(s.points)} pts</strong>` : `<span class="hint">Rejected</span>`}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    slot.innerHTML = html;
+  } catch (err) {
+    slot.innerHTML = '<div class="alert alert-error">Could not load submissions.</div>';
+  }
+}
+
+async function approveExtraCredit(id) {
+  const points = prompt('How many points is this worth?');
+  if (points === null) return;
+  const amount = Number(points);
+  if (!amount || amount <= 0) {
+    alert('Enter a positive number of points.');
+    return;
+  }
+  const res = await authedPost({ action: 'gradeExtraCredit', id, decision: 'approve', points: amount });
+  if (res.error) {
+    alert(res.error);
+  } else {
+    loadExtraCredit();
+    loadRoster();
+  }
+}
+
+async function rejectExtraCredit(id) {
+  if (!confirm('Reject this submission? No points will be added.')) return;
+  const res = await authedPost({ action: 'gradeExtraCredit', id, decision: 'reject' });
+  if (res.error) {
+    alert(res.error);
+  } else {
+    loadExtraCredit();
+  }
+}
+
+document.getElementById('refresh-ec').addEventListener('click', loadExtraCredit);
 
 if (getPin()) {
   unlock();

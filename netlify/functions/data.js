@@ -233,6 +233,116 @@ async function handleRequestPoints(body) {
   return { ok: true };
 }
 
+// Logs a pending Extra Credit submission (student name/period/assignment +
+// a link to their uploaded file). Called two ways: directly from a student
+// via the site, or by the Apps Script trigger bound to the "Submit Extra
+// Credit" Google Form (which forwards the response the moment it's
+// submitted). Unauthenticated like requestPoints -- it only ever queues a
+// submission for review, it can never award points on its own.
+async function submitExtraCredit(body) {
+  const name = (body.name || "").trim();
+  const period = (body.period || "").trim();
+  const assignment = (body.assignment || "").trim();
+  const fileUrl = (body.fileUrl || "").trim();
+  const fileName = (body.fileName || "").trim();
+  if (!name || !period || !assignment) return { error: "Missing required fields" };
+
+  const submissions = await readJSON("ecSubmissions", []);
+  submissions.push({
+    id: newId(),
+    name,
+    period,
+    assignment,
+    fileUrl,
+    fileName,
+    status: "pending",
+    points: null,
+    note: "",
+    timestamp: new Date().toISOString(),
+    gradedAt: null
+  });
+  await writeJSON("ecSubmissions", submissions);
+  return { ok: true };
+}
+
+async function getExtraCreditSubmissions() {
+  const submissions = await readJSON("ecSubmissions", []);
+  return { submissions: submissions.slice(-200).reverse() };
+}
+
+// Finds the one roster student a graded submission's typed name/period
+// refers to. Tries an exact name+period match first (same case-insensitive
+// comparison bulkSetEmails uses); if that fails, falls back to a name-only
+// match so a typo'd or changed period doesn't block grading, but only when
+// it's unambiguous -- 0 or 2+ name-only matches is reported back rather
+// than guessed at.
+function findMatchingStudent(students, name, period) {
+  const nameLower = name.trim().toLowerCase();
+  const exact = students.find((s) => s.name.toLowerCase() === nameLower && s.period === period);
+  if (exact) return { student: exact };
+
+  const byName = students.filter((s) => s.name.toLowerCase() === nameLower);
+  if (byName.length === 1) return { student: byName[0] };
+  if (byName.length === 0) {
+    return { error: `No student named "${name}" found on the roster. Check the spelling, or add them first.` };
+  }
+  return { error: `More than one student named "${name}" is on the roster, and none are in period "${period}". Grade this one from the roster directly.` };
+}
+
+// Approves or rejects a pending Extra Credit submission. Approving awards
+// the given points as an EARNED transaction to the matching student and
+// marks the submission graded; rejecting marks it graded with 0 points and
+// never touches the bank. Either way the submission leaves the pending
+// queue for good -- it can't be graded twice.
+async function gradeExtraCredit(body) {
+  const id = body.id;
+  const decision = body.decision;
+  if (!id) return { error: "Missing submission id" };
+  if (decision !== "approve" && decision !== "reject") return { error: "Invalid decision" };
+
+  const submissions = await readJSON("ecSubmissions", []);
+  const submission = submissions.find((s) => s.id === id);
+  if (!submission) return { error: "Submission not found" };
+  if (submission.status !== "pending") return { error: "This submission has already been graded" };
+
+  const note = (body.note || "").trim();
+  const timestamp = new Date().toISOString();
+
+  if (decision === "reject") {
+    submission.status = "rejected";
+    submission.points = 0;
+    submission.note = note;
+    submission.gradedAt = timestamp;
+    await writeJSON("ecSubmissions", submissions);
+    return { ok: true };
+  }
+
+  const points = Number(body.points);
+  if (!points || points <= 0) return { error: "Points must be a positive number" };
+
+  const students = await readJSON("students", []);
+  const match = findMatchingStudent(students, submission.name, submission.period);
+  if (match.error) return { error: match.error };
+
+  const transactions = await readJSON("transactions", []);
+  transactions.push({
+    id: newId(),
+    studentId: match.student.id,
+    type: "EARNED",
+    amount: points,
+    description: `Extra Credit: ${submission.assignment}`,
+    timestamp
+  });
+  await writeJSON("transactions", transactions);
+
+  submission.status = "approved";
+  submission.points = points;
+  submission.note = note;
+  submission.gradedAt = timestamp;
+  await writeJSON("ecSubmissions", submissions);
+  return { ok: true, studentName: match.student.name };
+}
+
 // Verifies a Google Identity Services ID token server-side (signature, audience,
 // expiry all checked by Google) and returns the signed-in email, or null if the
 // token is invalid or isn't a verified @SCHOOL_EMAIL_DOMAIN account.
@@ -293,6 +403,7 @@ export default async (req) => {
       const action = url.searchParams.get("action") || "list";
       if (action === "list") return ok(await getRoster(false));
       if (action === "requests") return ok(await getRequests());
+      if (action === "ecSubmissions") return ok(await getExtraCreditSubmissions());
       return ok({ error: "Unknown action" });
     }
 
@@ -312,6 +423,10 @@ export default async (req) => {
 
       if (action === "myPoints") {
         return ok(await myPoints(body));
+      }
+
+      if (action === "submitExtraCredit") {
+        return ok(await submitExtraCredit(body));
       }
 
       const adminPin = process.env.ADMIN_PIN || "1234";
@@ -342,6 +457,8 @@ export default async (req) => {
           return ok(await addTransactionByEmail(body));
         case "bulkAddTransaction":
           return ok(await bulkAddTransaction(body));
+        case "gradeExtraCredit":
+          return ok(await gradeExtraCredit(body));
         default:
           return ok({ error: "Unknown action" });
       }
