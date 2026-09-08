@@ -116,7 +116,8 @@ function buildStaticSearchIndex() {
     entries.push({ title: course.name + " — class docs / syllabus", url: NAV_ROOT + course.classDocs, category: course.shortName });
     course.units.forEach((u) => {
       const url = u.migrated ? NAV_ROOT + u.path : u.googleSite;
-      entries.push({ title: "Unit " + u.n + ": " + u.title, url, category: course.shortName });
+      const label = u.label || ("Unit " + u.n);
+      entries.push({ title: label + ": " + u.title, url, category: course.shortName });
     });
   });
   TOOLS.forEach((t) => {
@@ -345,16 +346,17 @@ function renderUnitGrid(courseId, containerId) {
   if (!container || !course) return;
 
   container.innerHTML = course.units.map(u => {
+    const label = u.label || ("Unit " + u.n);
     if (u.migrated) {
       return `
         <a class="unit-card" href="${NAV_ROOT}${u.path}">
-          <div class="unit-label"><span>Unit ${u.n}</span></div>
+          <div class="unit-label"><span>${escapeHtmlNav(label)}</span></div>
           <h3>${escapeHtmlNav(u.title)}</h3>
         </a>`;
     }
     return `
       <a class="unit-card" href="${u.googleSite}" target="_blank" rel="noopener">
-        <div class="unit-label"><span>Unit ${u.n}</span><span class="badge on-site">Google Sites</span></div>
+        <div class="unit-label"><span>${escapeHtmlNav(label)}</span><span class="badge on-site">Google Sites</span></div>
         <h3>${escapeHtmlNav(u.title)}</h3>
       </a>`;
   }).join("");

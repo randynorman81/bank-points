@@ -58,6 +58,43 @@ async function saveCurrentLessons(body) {
   return { ok: true };
 }
 
+// Pacing calendars, one array of weeks per course -- e.g. the AP CSP page's
+// "Calendar" unit. Stored as { [courseId]: [week, ...] } under its own key,
+// same shape/pattern as currentLessons. A "week" is
+// { id, label, month, tag, lines } -- label/month are free text (e.g.
+// "Aug 3" / "August 2026"), tag is a short free-text badge (e.g. "QUIZ",
+// "FLEX / BUFFER", "BREAK", "PROJECT DUE", or "" for none), lines is an
+// array of plain-text bullet strings (assignment/lesson names for that
+// week). Display order is array order -- there's no separate sort key, so
+// the whole array is replaced in one write (see saveCalendar) rather than
+// supporting piecemeal inserts, which keeps reordering/inserting a week
+// simple instead of needing a fractional-index scheme.
+async function getCalendar(course) {
+  const all = await readJSON("calendars", {});
+  return { weeks: (course && all[course]) || [] };
+}
+
+async function saveCalendar(body) {
+  const course = (body.course || "").trim();
+  if (!course) return { error: "Missing course" };
+  const weeks = Array.isArray(body.weeks) ? body.weeks : null;
+  if (!weeks) return { error: "Missing weeks" };
+
+  const cleaned = weeks.map((w) => ({
+    id: (w.id || newId()),
+    label: (w.label || "").trim(),
+    month: (w.month || "").trim(),
+    tag: (w.tag || "").trim(),
+    lines: (Array.isArray(w.lines) ? w.lines : []).map((l) => String(l || "").trim()).filter(Boolean)
+  }));
+
+  await updateJSON("calendars", {}, (all) => {
+    all[course] = cleaned;
+    return all;
+  });
+  return { ok: true };
+}
+
 async function addAnnouncement(body) {
   const course = (body.course || "").trim();
   const date = (body.date || "").trim();
@@ -115,6 +152,7 @@ export default async (req) => {
       const action = url.searchParams.get("action") || "list";
       if (action === "list") return ok(await listAnnouncements(url.searchParams.get("course") || ""));
       if (action === "currentLessons") return ok(await getCurrentLessons());
+      if (action === "calendar") return ok(await getCalendar(url.searchParams.get("course") || ""));
       return ok({ error: "Unknown action" });
     }
 
@@ -148,6 +186,10 @@ export default async (req) => {
           return ok(await editAnnouncement(body));
         case "deleteAnnouncement":
           return ok(await deleteAnnouncement(body));
+        case "calendar":
+          return ok(await getCalendar(body.course || ""));
+        case "saveCalendar":
+          return ok(await saveCalendar(body));
         default:
           return ok({ error: "Unknown action" });
       }
