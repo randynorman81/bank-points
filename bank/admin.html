@@ -75,7 +75,10 @@
       </form>
     </div>
 
-    <div class="card">
+    <!-- Hidden for now (not needed mid-year) -- change style="display:none" to style="" on the
+         line below to bring it back for next year's roster import. Do not delete: the form
+         and its "bulkAddStudents" backend action are still fully intact underneath. -->
+    <div class="card" style="display:none">
       <h2 style="margin-top:0;">Import Roster</h2>
       <p class="hint" style="margin-top:-8px;">Upload a CSV exported from Infinite Campus, or paste rows copied from a Google Sheet. Works with extra columns (student ID, grade, course, etc.) &mdash; you'll pick which ones are Name and Period next.</p>
       <div id="import-alert"></div>
@@ -128,7 +131,10 @@
       </form>
     </div>
 
-    <div class="card">
+    <!-- Hidden for now -- this fills in/updates a student's school email so they can sign in
+         to "My Points" and see their own balance. Change style="display:none" to style="" to
+         bring it back. Do not delete: the form and "bulkSetEmails" backend action are intact. -->
+    <div class="card" style="display:none">
       <h2 style="margin-top:0;">Set Student Emails (for My Points sign-in)</h2>
       <p class="hint" style="margin-top:-8px;">Paste rows of <strong>Name, Period, Email</strong> (one per line, tab or comma separated) to fill in or update school emails for students already on the roster below. Rows for names that don't match an existing student are skipped.</p>
       <div id="set-emails-alert"></div>
@@ -237,6 +243,13 @@ function renderPeriodOptions() {
   list.innerHTML = periods.map(p => `<option value="${escapeHtml(p)}"></option>`).join('');
 }
 
+let selectedPeriod = null;
+
+function selectPeriod(period) {
+  selectedPeriod = period;
+  renderRoster();
+}
+
 function renderRoster() {
   const slot = document.getElementById('roster-slot');
   if (roster.length === 0) {
@@ -253,10 +266,21 @@ function renderRoster() {
     a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
   );
 
-  let html = '';
-  periodNames.forEach(period => {
-    const rows = periods[period].sort((a, b) => a.name.localeCompare(b.name));
-    html += `<section class="period-section">
+  if (!selectedPeriod || !periods[selectedPeriod]) {
+    selectedPeriod = periodNames[0];
+  }
+
+  const tabsHtml = `<div class="period-tabs" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+    ${periodNames.map(period => `
+      <button class="btn btn-sm ${period === selectedPeriod ? 'btn-primary' : 'btn-ghost'}" onclick="selectPeriod('${escapeHtml(period)}')">
+        ${escapeHtml(period)} <span style="opacity:0.7;">${periods[period].length}</span>
+      </button>
+    `).join('')}
+  </div>`;
+
+  const period = selectedPeriod;
+  const rows = periods[period].sort((a, b) => a.name.localeCompare(b.name));
+  const tableHtml = `<section class="period-section">
       <h2 style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
         <span>${escapeHtml(period)} <span class="count">${rows.length} student${rows.length === 1 ? '' : 's'}</span></span>
         <span class="row-actions">
@@ -290,8 +314,8 @@ function renderRoster() {
         </tbody>
       </table>
     </section>`;
-  });
-  slot.innerHTML = html;
+
+  slot.innerHTML = tabsHtml + tableHtml;
 }
 
 document.getElementById('add-student-form').addEventListener('submit', async (e) => {
