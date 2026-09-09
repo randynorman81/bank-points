@@ -9,6 +9,161 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="icon" href="../../assets/logo.png">
+<style>
+  /* ---- Page-local design layer for 1.7 Notes only: color + structure on
+     top of the shared black/white site system. Not applied anywhere else. ---- */
+  :root {
+    --edge: #0891b2;   --edge-ink: #0e7490;  --edge-bg: #ecfeff;  --edge-line: #a5f3fc;
+    --cloud: #7c3aed;  --cloud-ink: #6d28d9; --cloud-bg: #f5f3ff; --cloud-line: #ddd6fe;
+    --embed: #d97706;  --embed-ink: #b45309; --embed-bg: #fffbeb; --embed-line: #fde68a;
+    --concept: #334155; --concept-bg: #f1f5f9; --concept-line: #cbd5e1;
+  }
+
+  .lesson-hero {
+    position: relative;
+    overflow: hidden;
+    margin: 0 0 26px;
+    padding: 34px 32px 28px;
+    border-radius: var(--radius);
+    background:
+      radial-gradient(circle at 18% 22%, rgba(8,145,178,0.35), transparent 40%),
+      radial-gradient(circle at 84% 12%, rgba(124,58,237,0.30), transparent 42%),
+      radial-gradient(circle at 70% 90%, rgba(217,119,6,0.22), transparent 45%),
+      linear-gradient(135deg, #0b1120 0%, #111827 55%, #0b1120 100%);
+    color: #fff;
+  }
+  .lesson-hero::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: 26px 26px;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .lesson-hero > * { position: relative; }
+  .lesson-hero .eyebrow {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #a5b4c3;
+    margin-bottom: 10px;
+  }
+  .lesson-hero h1 {
+    margin: 0 0 10px;
+    font-size: 1.9rem;
+    line-height: 1.2;
+    color: #fff;
+  }
+  .lesson-hero .lede {
+    margin: 0 0 18px;
+    max-width: 640px;
+    color: #cbd5e1;
+    font-size: 1rem;
+  }
+  .lesson-hero .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    margin-bottom: 20px;
+    font-size: 0.8rem;
+    color: #93a3b8;
+  }
+  .lesson-hero .meta-row span { display: flex; align-items: center; gap: 6px; }
+  .lesson-hero .meta-row b { color: #e2e8f0; font-weight: 700; }
+
+  .lesson-hero .toc-nav {
+    background: none;
+    padding: 0;
+    margin: 0;
+  }
+  .lesson-hero .toc-nav .toc-label { color: #93a3b8; }
+  .lesson-hero .toc-nav a {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.25);
+    color: #fff;
+    backdrop-filter: blur(2px);
+  }
+  .lesson-hero .toc-nav a:hover { background: rgba(255,255,255,0.18); }
+
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 30px;
+  }
+  .section-head .icon-badge {
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    color: #fff;
+  }
+  .section-head .icon-badge svg { width: 20px; height: 20px; }
+  .section-head h2 { margin: 0; border: none; padding: 0; }
+  .lesson-content .section-head + p,
+  .lesson-content .section-head + .definition-grid,
+  .lesson-content .section-head + table { margin-top: 12px; }
+
+  .icon-badge.concept { background: var(--concept); }
+  .icon-badge.edge { background: var(--edge); }
+  .icon-badge.cloud { background: var(--cloud); }
+  .icon-badge.embed { background: var(--embed); }
+
+  .lesson-content .definition-card.cat-concept {
+    border-left-color: var(--concept);
+    background: var(--concept-bg);
+  }
+  .lesson-content .definition-card.cat-concept .term { color: var(--concept); }
+
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin: 22px 0 6px;
+  }
+  .section-tag.edge { background: var(--edge-bg); color: var(--edge-ink); }
+  .section-tag.cloud { background: var(--cloud-bg); color: var(--cloud-ink); }
+  .section-tag.embed { background: var(--embed-bg); color: var(--embed-ink); }
+
+  .lesson-content .example-card.cat-edge { border-color: var(--edge-line); border-top: 4px solid var(--edge); }
+  .lesson-content .example-card.cat-cloud { border-color: var(--cloud-line); border-top: 4px solid var(--cloud); }
+  .lesson-content .example-card.cat-embed { border-color: var(--embed-line); border-top: 4px solid var(--embed); }
+
+  .example-card.cat-edge .ex-num { background: var(--edge); }
+  .example-card.cat-cloud .ex-num { background: var(--cloud); }
+  .example-card.cat-embed .ex-num { background: var(--embed); }
+
+  .lesson-content table th.col-edge { background: var(--edge-bg); color: var(--edge-ink); }
+  .lesson-content table th.col-cloud { background: var(--cloud-bg); color: var(--cloud-ink); }
+  .lesson-content table td.col-edge { background: rgba(8,145,178,0.05); }
+  .lesson-content table td.col-cloud { background: rgba(124,58,237,0.05); }
+
+  .lesson-content .note.tradeoff {
+    border-left-color: var(--concept);
+    background: var(--concept-bg);
+  }
+
+  .wrap-panel {
+    margin-top: 16px;
+    padding: 20px 22px;
+    border-radius: var(--radius);
+    background: var(--concept-bg);
+    border: 1.5px solid var(--concept-line);
+  }
+  .wrap-panel ol { margin: 0; padding-left: 20px; }
+  .wrap-panel li { margin-bottom: 10px; color: var(--black); }
+  .wrap-panel li:last-child { margin-bottom: 0; }
+</style>
 </head>
 <body>
 
@@ -22,149 +177,185 @@
     <aside class="lesson-sidebar" id="lesson-sidebar-root"></aside>
 
     <article class="lesson-content">
-      <h1>1.7 Notes: AI in Embedded Computing and IoT</h1>
-      <p class="hint">Five terms, one real design question underneath all of them: when a device "thinks," where does that thinking actually happen?</p>
 
-      <nav class="toc-nav" aria-label="Jump to section">
-        <span class="toc-label">Jump to</span>
-        <a href="#what-counts-as-ai">What Counts as AI?</a>
-        <a href="#edge-vs-cloud">Edge vs. Cloud</a>
-        <a href="#embedded-ai">Embedded AI</a>
-        <a href="#putting-it-together">Putting It Together</a>
-      </nav>
+      <div class="lesson-hero">
+        <div class="eyebrow">Unit 1 &middot; Lesson 1.7 &middot; Notes</div>
+        <h1>AI in Embedded Computing and IoT</h1>
+        <p class="lede">Five terms, one real design question underneath all of them: when a device "thinks," where does that thinking actually happen?</p>
+        <div class="meta-row">
+          <span>&#9200; <b>5 min read</b></span>
+          <span>&#129504; <b>3 core concepts</b></span>
+          <span>&#128203; <b>15 real-world examples</b></span>
+        </div>
+        <nav class="toc-nav" aria-label="Jump to section">
+          <span class="toc-label">Jump to</span>
+          <a href="#what-counts-as-ai">What Counts as AI?</a>
+          <a href="#edge-vs-cloud">Edge vs. Cloud</a>
+          <a href="#embedded-ai">Embedded AI</a>
+          <a href="#putting-it-together">Putting It Together</a>
+        </nav>
+      </div>
 
-      <h2 id="what-counts-as-ai">What Counts as AI?</h2>
+      <div class="section-head" id="what-counts-as-ai">
+        <span class="icon-badge concept">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </span>
+        <h2 style="margin:0;">What Counts as AI?</h2>
+      </div>
       <div class="definition-grid">
-        <div class="definition-card">
+        <div class="definition-card cat-concept">
           <div class="term">Artificial Intelligence</div>
           <p>A broad field &mdash; any computer system built to do something that normally requires human-like judgment: recognizing a face, understanding speech, predicting what you'll type next. It's a category, not one specific technique.</p>
         </div>
-        <div class="definition-card">
+        <div class="definition-card cat-concept">
           <div class="term">Machine Learning</div>
           <p>The technique behind almost all modern AI. Instead of a human writing an explicit rule for every situation, the system is shown a large number of examples and learns the pattern itself &mdash; pattern-finding from data, instead of hand-written rules.</p>
         </div>
       </div>
 
-      <h2 id="edge-vs-cloud">Edge AI vs. Cloud AI</h2>
+      <div class="section-head" id="edge-vs-cloud">
+        <span class="icon-badge edge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+        </span>
+        <h2 style="margin:0;">Edge AI vs. Cloud AI</h2>
+      </div>
       <p>Once you've got a trained model, it has to run <em>somewhere</em>. That's the real design decision for anyone building an AI-powered embedded device &mdash; and it's a tradeoff, not a clear winner.</p>
       <table>
-        <tr><th></th><th>Edge AI</th><th>Cloud AI</th></tr>
-        <tr><td><strong>Where it thinks</strong></td><td>Directly on the device itself</td><td>On a remote server, over the internet</td></tr>
-        <tr><td><strong>Speed</strong></td><td>Fast &mdash; no round trip over a network</td><td>Slower &mdash; data has to travel there and back</td></tr>
-        <tr><td><strong>Privacy</strong></td><td>Stronger &mdash; nothing has to leave the device</td><td>Weaker &mdash; your data is sent somewhere else</td></tr>
-        <tr><td><strong>Processing power</strong></td><td>Limited by the device's tiny chip and battery</td><td>Effectively unlimited &mdash; real data centers</td></tr>
-        <tr><td><strong>Works offline?</strong></td><td>Yes</td><td>No &mdash; needs an internet connection</td></tr>
-        <tr><td><strong>Example</strong></td><td>A smart camera recognizing a face on-device</td><td>A voice assistant sending your question to a server for a full answer</td></tr>
+        <tr><th></th><th class="col-edge">Edge AI</th><th class="col-cloud">Cloud AI</th></tr>
+        <tr><td><strong>Where it thinks</strong></td><td class="col-edge">Directly on the device itself</td><td class="col-cloud">On a remote server, over the internet</td></tr>
+        <tr><td><strong>Speed</strong></td><td class="col-edge">Fast &mdash; no round trip over a network</td><td class="col-cloud">Slower &mdash; data has to travel there and back</td></tr>
+        <tr><td><strong>Privacy</strong></td><td class="col-edge">Stronger &mdash; nothing has to leave the device</td><td class="col-cloud">Weaker &mdash; your data is sent somewhere else</td></tr>
+        <tr><td><strong>Processing power</strong></td><td class="col-edge">Limited by the device's tiny chip and battery</td><td class="col-cloud">Effectively unlimited &mdash; real data centers</td></tr>
+        <tr><td><strong>Works offline?</strong></td><td class="col-edge">Yes</td><td class="col-cloud">No &mdash; needs an internet connection</td></tr>
+        <tr><td><strong>Example</strong></td><td class="col-edge">A smart camera recognizing a face on-device</td><td class="col-cloud">A voice assistant sending your question to a server for a full answer</td></tr>
       </table>
-      <div class="note">Most real products aren't purely one or the other &mdash; a lot of devices do something simple and fast on the edge (like noticing a face is present at all) and hand off anything that needs real reasoning to the cloud (like figuring out <em>whose</em> face it is, or answering a spoken question).</div>
+      <div class="note tradeoff">Most real products aren't purely one or the other &mdash; a lot of devices do something simple and fast on the edge (like noticing a face is present at all) and hand off anything that needs real reasoning to the cloud (like figuring out <em>whose</em> face it is, or answering a spoken question).</div>
 
       <div class="video-embed">
         <iframe src="https://www.youtube.com/embed/RT2XKDZGzxw" title="Cloud AI vs Edge AI Explained in 2 Minutes" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
       </div>
 
-      <p class="section-eyebrow">5 Examples</p>
-      <h3>Edge AI</h3>
+      <span class="section-tag edge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/></svg>
+        Edge AI &middot; 5 Examples
+      </span>
       <div class="example-grid">
-        <div class="example-card">
+        <div class="example-card cat-edge">
           <div class="ex-num">1</div>
           <h4>Phone face/fingerprint unlock</h4>
           <p>Your face scan is matched against your stored face data right on the phone's chip. It has to be instant, and your biometric data staying on the device instead of traveling to a server is a real security requirement, not a nice-to-have.</p>
         </div>
-        <div class="example-card">
+        <div class="example-card cat-edge">
           <div class="ex-num">2</div>
           <h4>Smart doorbell person-detection</h4>
           <p>Before it ever sends you a notification, the camera has to decide locally: is this a person, a car, or just a tree branch moving in the wind? Filtering on-device saves your data plan and the company's server costs.</p>
         </div>
-        <div class="example-card">
+        <div class="example-card cat-edge">
           <div class="ex-num">3</div>
           <h4>Self-driving car object detection</h4>
           <p>Recognizing a pedestrian, a stop sign, or a car braking ahead has to happen in milliseconds. A cloud round-trip is too slow at highway speed, and the car can't stop working the moment it loses signal.</p>
         </div>
-        <div class="example-card">
+        <div class="example-card cat-edge">
           <div class="ex-num">4</div>
           <h4>Voice assistant wake-word detection</h4>
           <p>The always-listening part that catches "Hey Siri" or "Alexa" runs locally on purpose &mdash; streaming every sound in your house to a server just to catch its name would be a privacy problem and a battery drain.</p>
         </div>
-        <div class="example-card">
+        <div class="example-card cat-edge">
           <div class="ex-num">5</div>
           <h4>Factory equipment vibration monitoring</h4>
           <p>A sensor on a motor or bearing has to notice an abnormal vibration the instant it starts, so the machine can shut down before it breaks. Factory floors don't always have reliable internet either.</p>
         </div>
       </div>
 
-      <p class="section-eyebrow">5 Examples</p>
-      <h3>Cloud AI</h3>
+      <span class="section-tag cloud">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+        Cloud AI &middot; 5 Examples
+      </span>
       <div class="example-grid">
-        <div class="example-card">
+        <div class="example-card cat-cloud">
           <div class="ex-num">1</div>
           <h4>Voice assistants answering open questions</h4>
           <p>Once you ask something that actually requires reasoning ("what's a good gift for a hiker?"), the request goes to a server running a massive language model &mdash; far too large to ever fit on a speaker or phone.</p>
         </div>
-        <div class="example-card">
+        <div class="example-card cat-cloud">
           <div class="ex-num">2</div>
           <h4>Streaming recommendation engines</h4>
           <p>Netflix or Spotify suggesting what you'll like next works by comparing your habits against millions of other users at once. No single device could store or process a dataset that size.</p>
         </div>
-        <div class="example-card">
+        <div class="example-card cat-cloud">
           <div class="ex-num">3</div>
           <h4>Photo library content search</h4>
           <p>Searching your entire photo library for "dog at the beach" means scanning potentially years of photos &mdash; far more storage and processing than a phone can do continuously.</p>
         </div>
-        <div class="example-card">
+        <div class="example-card cat-cloud">
           <div class="ex-num">4</div>
           <h4>Large-scale email spam filtering</h4>
           <p>Catching a new phishing scam depends on recognizing patterns seen across millions of inboxes at once, and that shared threat model has to update constantly. Only a central server sees enough traffic.</p>
         </div>
-        <div class="example-card">
+        <div class="example-card cat-cloud">
           <div class="ex-num">5</div>
           <h4>AI-assisted medical image analysis</h4>
           <p>Software that helps a radiologist spot something on an X-ray or CT scan runs on an extremely large, carefully validated model that needs continual retraining and serious computing power.</p>
         </div>
       </div>
 
-      <h2 id="embedded-ai">Embedded AI</h2>
+      <div class="section-head" id="embedded-ai">
+        <span class="icon-badge embed">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        </span>
+        <h2 style="margin:0;">Embedded AI</h2>
+      </div>
       <p><strong>Embedded AI</strong> is what you get when a trained Machine Learning model is shrunk down to actually fit and run on a small, dedicated embedded system &mdash; the exact kind of device you defined back in Lesson 1.1: a computer system built into a larger device to do one specific job, not a general-purpose computer. Embedded AI is just that same idea, with "thinking" as the specific job.</p>
       <p class="hint">Embedded AI overlaps with edge AI &mdash; both mean "thinking happens locally." The difference is what kind of device it's running on: edge AI can run on a phone or a laptop, both general-purpose computers with plenty of power to spare. Embedded AI specifically means a tiny, dedicated, single-purpose chip, usually with real power and real-time constraints a phone never has to worry about.</p>
 
-      <p class="section-eyebrow">5 Examples</p>
-      <h3>Embedded AI</h3>
+      <span class="section-tag embed">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+        Embedded AI &middot; 5 Examples
+      </span>
       <div class="example-grid">
-        <div class="example-card">
+        <div class="example-card cat-embed">
           <div class="ex-num">1</div>
           <h4>Learning thermostats</h4>
           <p>A small dedicated chip in the wall learns your household's temperature patterns and adjusts automatically. It has to keep controlling your heat and air even if your Wi-Fi goes down.</p>
         </div>
-        <div class="example-card">
+        <div class="example-card cat-embed">
           <div class="ex-num">2</div>
           <h4>Fall detection on a smartwatch</h4>
           <p>Recognizing a hard fall has to happen instantly, on the tiny low-power chip inside the watch itself, because the moment it matters most is exactly when a cloud connection can't be counted on.</p>
         </div>
-        <div class="example-card">
+        <div class="example-card cat-embed">
           <div class="ex-num">3</div>
           <h4>Pacemaker rhythm monitoring</h4>
           <p>An AI-assisted pacemaker has to notice an irregular heartbeat and react within a fraction of a second, inside the body &mdash; with no acceptable version that waits on a network request.</p>
         </div>
-        <div class="example-card">
+        <div class="example-card cat-embed">
           <div class="ex-num">4</div>
           <h4>Robot vacuum obstacle recognition</h4>
           <p>Telling a wall apart from a pet or a person has to happen continuously and cheaply on a small onboard chip. A full general-purpose computer would drain its small battery in minutes.</p>
         </div>
-        <div class="example-card">
+        <div class="example-card cat-embed">
           <div class="ex-num">5</div>
           <h4>Hearing aid noise cancellation</h4>
           <p>Cleaning up background noise from speech has to happen with essentially zero delay. That only works on a dedicated chip small enough to fit in the ear, running for days on a tiny battery.</p>
         </div>
       </div>
 
-      <h2 id="putting-it-together">Putting It Together</h2>
+      <div class="section-head" id="putting-it-together">
+        <span class="icon-badge concept">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </span>
+        <h2 style="margin:0;">Putting It Together</h2>
+      </div>
       <p>When you're investigating a real AI-powered product for today's assignment, ask yourself, in order:</p>
-      <ol>
-        <li>What is this device actually deciding or recognizing? (That's the AI part.)</li>
-        <li>Does it need an internet connection to do that, or does it still work offline? (That tells you Edge vs. Cloud.)</li>
-        <li>What's the tradeoff the company made, and why might they have made it that way &mdash; speed and privacy, or raw power?</li>
-      </ol>
+      <div class="wrap-panel">
+        <ol>
+          <li>What is this device actually deciding or recognizing? (That's the AI part.)</li>
+          <li>Does it need an internet connection to do that, or does it still work offline? (That tells you Edge vs. Cloud.)</li>
+          <li>What's the tradeoff the company made, and why might they have made it that way &mdash; speed and privacy, or raw power?</li>
+        </ol>
+      </div>
 
-      <a class="resource-link" href="1-7-ai-in-embedded-computing-and-iot.html">&#8592; Back to 1.7</a>
+      <p style="margin-top:24px;"><a class="resource-link" href="1-7-ai-in-embedded-computing-and-iot.html">&#8592; Back to 1.7</a></p>
 
     </article>
   </div>
