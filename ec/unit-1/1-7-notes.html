@@ -1,388 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>1.7 Notes: AI in Embedded Computing and IoT | Unit 1 | Embedded Computing</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI in Embedded Computing and IoT | Notes 1.7</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
-<link rel="stylesheet" href="../../assets/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="../../assets/logo.png">
 <style>
-  /* ---- Page-local design layer for 1.7 Notes only: color + structure on
-     top of the shared black/white site system. Not applied anywhere else. ---- */
-  :root {
-    --edge: #0891b2;   --edge-ink: #0e7490;  --edge-bg: #ecfeff;  --edge-line: #a5f3fc;
-    --cloud: #7c3aed;  --cloud-ink: #6d28d9; --cloud-bg: #f5f3ff; --cloud-line: #ddd6fe;
-    --embed: #d97706;  --embed-ink: #b45309; --embed-bg: #fffbeb; --embed-line: #fde68a;
-    --concept: #334155; --concept-bg: #f1f5f9; --concept-line: #cbd5e1;
-  }
+:root{
+  --bg:#0A0F1A;
+  --panel:#0F1826;
+  --card:#141F30;
+  --ink:#E9EFF7;
+  --ink-soft:#8FA1B7;
+  --rule:#223144;
 
-  .lesson-hero {
-    position: relative;
-    overflow: hidden;
-    margin: 0 0 26px;
-    padding: 34px 32px 28px;
-    border-radius: var(--radius);
-    background:
-      radial-gradient(circle at 18% 22%, rgba(8,145,178,0.35), transparent 40%),
-      radial-gradient(circle at 84% 12%, rgba(124,58,237,0.30), transparent 42%),
-      radial-gradient(circle at 70% 90%, rgba(217,119,6,0.22), transparent 45%),
-      linear-gradient(135deg, #0b1120 0%, #111827 55%, #0b1120 100%);
-    color: #fff;
-  }
-  .lesson-hero::before {
-    content: "";
-    position: absolute; inset: 0;
-    background-image:
-      linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
-    background-size: 26px 26px;
-    opacity: 0.5;
-    pointer-events: none;
-  }
-  .lesson-hero > * { position: relative; }
-  .lesson-hero .eyebrow {
-    display: inline-block;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    color: #a5b4c3;
-    margin-bottom: 10px;
-  }
-  .lesson-hero h1 {
-    margin: 0 0 10px;
-    font-size: 1.9rem;
-    line-height: 1.2;
-    color: #fff;
-  }
-  .lesson-hero .lede {
-    margin: 0 0 18px;
-    max-width: 640px;
-    color: #cbd5e1;
-    font-size: 1rem;
-  }
-  .lesson-hero .meta-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 22px;
-    margin-bottom: 20px;
-    font-size: 0.8rem;
-    color: #93a3b8;
-  }
-  .lesson-hero .meta-row span { display: flex; align-items: center; gap: 6px; }
-  .lesson-hero .meta-row b { color: #e2e8f0; font-weight: 700; }
+  --edge:#22D3EE; --edge-tint:rgba(34,211,238,.12); --edge-ink:#8FE9F8;
+  --cloud:#A78BFA; --cloud-tint:rgba(167,139,250,.14); --cloud-ink:#CBBBFB;
+  --embed:#FBBF24; --embed-tint:rgba(251,191,36,.13); --embed-ink:#FDD877;
 
-  .lesson-hero .toc-nav {
-    background: none;
-    padding: 0;
-    margin: 0;
-  }
-  .lesson-hero .toc-nav .toc-label { color: #93a3b8; }
-  .lesson-hero .toc-nav a {
-    background: rgba(255,255,255,0.08);
-    border-color: rgba(255,255,255,0.25);
-    color: #fff;
-    backdrop-filter: blur(2px);
-  }
-  .lesson-hero .toc-nav a:hover { background: rgba(255,255,255,0.18); }
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em}
+p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+em{color:var(--ink)}
+a{color:var(--edge-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
 
-  .section-head {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 30px;
-  }
-  .section-head .icon-badge {
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    width: 38px; height: 38px;
-    border-radius: 10px;
-    color: #fff;
-  }
-  .section-head .icon-badge svg { width: 20px; height: 20px; }
-  .section-head h2 { margin: 0; border: none; padding: 0; }
-  .lesson-content .section-head + p,
-  .lesson-content .section-head + .definition-grid,
-  .lesson-content .section-head + table { margin-top: 12px; }
+.backbar{display:block;background:var(--panel);color:#8FA1B7;font-family:"JetBrains Mono",monospace;font-size:12.5px;padding:10px 26px;text-decoration:none;border-bottom:1px solid var(--rule)}
+.backbar:hover{color:var(--ink)}
 
-  .icon-badge.concept { background: var(--concept); }
-  .icon-badge.edge { background: var(--edge); }
-  .icon-badge.cloud { background: var(--cloud); }
-  .icon-badge.embed { background: var(--embed); }
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 14% 18%, rgba(34,211,238,.16), transparent 38%),
+    radial-gradient(circle at 82% 8%, rgba(167,139,250,.15), transparent 40%),
+    radial-gradient(circle at 68% 95%, rgba(251,191,36,.12), transparent 42%);
+}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(34px,6vw,54px);font-weight:600;max-width:17ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:60ch;margin-top:18px}
+.hero .meta-row{display:flex;flex-wrap:wrap;gap:10px 24px;margin-top:22px;font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft)}
+.hero .meta-row b{color:var(--ink);font-weight:600}
 
-  .lesson-content .definition-card.cat-concept {
-    border-left-color: var(--concept);
-    background: var(--concept-bg);
-  }
-  .lesson-content .definition-card.cat-concept .term { color: var(--concept); }
+/* category legend */
+.legend{background:var(--panel);border-bottom:1px solid var(--rule)}
+.legend-grid{display:grid;grid-template-columns:repeat(3,1fr)}
+.leg{padding:24px 26px;border-right:1px solid var(--rule)}
+.leg:last-child{border-right:0}
+.leg .chip{display:inline-flex;align-items:center;gap:7px;font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;letter-spacing:.05em;padding:4px 10px;border-radius:100px;text-transform:uppercase}
+.leg .chip .dot{width:8px;height:8px;border-radius:50%}
+.leg.edge .chip{background:var(--edge-tint);color:var(--edge-ink)}
+.leg.edge .chip .dot{background:var(--edge)}
+.leg.cloud .chip{background:var(--cloud-tint);color:var(--cloud-ink)}
+.leg.cloud .chip .dot{background:var(--cloud)}
+.leg.embed .chip{background:var(--embed-tint);color:var(--embed-ink)}
+.leg.embed .chip .dot{background:var(--embed)}
+.leg h3{font-size:19px;font-weight:600;margin:12px 0 6px;color:#fff}
+.leg p{font-size:14.5px;color:var(--ink-soft);margin:0 0 8px}
+.leg .ex{font-size:13px;color:var(--ink-soft);border-top:1px dashed var(--rule);padding-top:8px;margin:0}
+.leg .ex b{color:var(--ink)}
 
-  .section-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding: 5px 12px;
-    border-radius: 999px;
-    margin: 22px 0 6px;
-  }
-  .section-tag.edge { background: var(--edge-bg); color: var(--edge-ink); }
-  .section-tag.cloud { background: var(--cloud-bg); color: var(--cloud-ink); }
-  .section-tag.embed { background: var(--embed-bg); color: var(--embed-ink); }
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--edge-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
 
-  .lesson-content .example-card.cat-edge { border-color: var(--edge-line); border-top: 4px solid var(--edge); }
-  .lesson-content .example-card.cat-cloud { border-color: var(--cloud-line); border-top: 4px solid var(--cloud); }
-  .lesson-content .example-card.cat-embed { border-color: var(--embed-line); border-top: 4px solid var(--embed); }
+.example{background:rgba(255,255,255,.04);border-left:4px solid var(--ink-soft);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#C4CDD8}
+.example b{color:#fff}
 
-  .example-card.cat-edge .ex-num { background: var(--edge); }
-  .example-card.cat-cloud .ex-num { background: var(--cloud); }
-  .example-card.cat-embed .ex-num { background: var(--embed); }
+/* two-box definitions */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+.box ul{margin:0;padding-left:20px}
+.box li{margin-bottom:11px;font-size:15px;line-height:1.5;color:#C4CDD8}
+.box li:last-child{margin-bottom:0}
 
-  .lesson-content table th.col-edge { background: var(--edge-bg); color: var(--edge-ink); }
-  .lesson-content table th.col-cloud { background: var(--cloud-bg); color: var(--cloud-ink); }
-  .lesson-content table td.col-edge { background: rgba(8,145,178,0.05); }
-  .lesson-content table td.col-cloud { background: rgba(124,58,237,0.05); }
+/* comparison table */
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp th.edge{color:var(--edge-ink)}
+table.cmp th.cloud{color:var(--cloud-ink)}
+table.cmp td.edge{background:var(--edge-tint)}
+table.cmp td.cloud{background:var(--cloud-tint)}
+table.cmp td b{color:#fff}
 
-  .lesson-content .note.tradeoff {
-    border-left-color: var(--concept);
-    background: var(--concept-bg);
-  }
+.video-embed{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:5px;border:1px solid var(--rule);margin:22px 0 8px}
+.video-embed iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
 
-  .wrap-panel {
-    margin-top: 16px;
-    padding: 20px 22px;
-    border-radius: var(--radius);
-    background: var(--concept-bg);
-    border: 1.5px solid var(--concept-line);
-  }
-  .wrap-panel ol { margin: 0; padding-left: 20px; }
-  .wrap-panel li { margin-bottom: 10px; color: var(--black); }
-  .wrap-panel li:last-child { margin-bottom: 0; }
+/* section tag + example card grid */
+.section-tag{display:inline-flex;align-items:center;gap:7px;font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;letter-spacing:.05em;padding:5px 12px;border-radius:100px;text-transform:uppercase;margin:30px 0 16px}
+.section-tag .dot{width:8px;height:8px;border-radius:50%}
+.section-tag.edge{background:var(--edge-tint);color:var(--edge-ink)}
+.section-tag.edge .dot{background:var(--edge)}
+.section-tag.cloud{background:var(--cloud-tint);color:var(--cloud-ink)}
+.section-tag.cloud .dot{background:var(--cloud)}
+.section-tag.embed{background:var(--embed-tint);color:var(--embed-ink)}
+.section-tag.embed .dot{background:var(--embed)}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:20px 20px 22px;border-top:3px solid var(--rule)}
+.cardx.edge{border-top-color:var(--edge)}
+.cardx.cloud{border-top-color:var(--cloud)}
+.cardx.embed{border-top-color:var(--embed)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:8px}
+.cardx.edge .num{color:var(--edge-ink)}
+.cardx.cloud .num{color:var(--cloud-ink)}
+.cardx.embed .num{color:var(--embed-ink)}
+.cardx h4{font-size:16.5px;font-weight:600;color:#fff;margin-bottom:8px;font-family:"Fraunces",serif}
+.cardx p{font-size:14px;color:var(--ink-soft);margin:0}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:26ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .legend-grid,.two,.cards{grid-template-columns:1fr}
+  .leg{border-right:0;border-bottom:1px solid var(--rule)}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
 </style>
 </head>
 <body>
 
-<div id="site-header-root"></div>
+<a class="backbar" href="1-7-ai-in-embedded-computing-and-iot.html">&larr; Back to 1.7 lesson</a>
 
-<div style="max-width:1200px;margin:0 auto;padding:24px 20px 0;">
-  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ec/index.html">Embedded Computing</a><span class="sep">/</span><a href="../../ec/unit-1/index.html">Unit 1: What Is an Embedded System?</a><span class="sep">/</span><a href="1-7-ai-in-embedded-computing-and-iot.html">1.7 AI in Embedded Computing and IoT</a><span class="sep">/</span>Notes</div>
-</div>
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">NOTES 1.7 &nbsp;/&nbsp; SUBJECT: WHERE THE THINKING HAPPENS</div>
+    <h1>AI in Embedded Computing and IoT</h1>
+    <p class="deck">Five terms, one real design question underneath all of them: when a device "thinks," where does that thinking actually happen?</p>
+    <div class="meta-row">
+      <span>&#9200; <b>5 min read</b></span>
+      &nbsp;&middot;&nbsp;
+      <span>&#129504; <b>3 core concepts</b></span>
+      &nbsp;&middot;&nbsp;
+      <span>&#128203; <b>15 real-world examples</b></span>
+    </div>
+  </div>
+</header>
 
-  <div class="lesson-layout">
-    <aside class="lesson-sidebar" id="lesson-sidebar-root"></aside>
+<section class="legend">
+  <div class="wrap legend-grid">
+    <div class="leg edge">
+      <span class="chip"><span class="dot"></span>Edge AI</span>
+      <h3>On the device</h3>
+      <p>Thinking happens directly on the device itself &mdash; fast, private, and it still works with zero internet connection.</p>
+      <p class="ex"><b>Example:</b> A smart camera recognizing a face without ever sending the image anywhere.</p>
+    </div>
+    <div class="leg cloud">
+      <span class="chip"><span class="dot"></span>Cloud AI</span>
+      <h3>On a server</h3>
+      <p>The device sends its data over the internet to a powerful remote server, which does the thinking and sends an answer back.</p>
+      <p class="ex"><b>Example:</b> A voice assistant sending your question to a server for a full answer.</p>
+    </div>
+    <div class="leg embed">
+      <span class="chip"><span class="dot"></span>Embedded AI</span>
+      <h3>On a dedicated chip</h3>
+      <p>A trained model shrunk down to run on a tiny, single-purpose chip &mdash; with real power and real-time limits a phone never worries about.</p>
+      <p class="ex"><b>Example:</b> A pacemaker reacting to an irregular heartbeat in a fraction of a second.</p>
+    </div>
+  </div>
+</section>
 
-    <article class="lesson-content">
-
-      <div class="lesson-hero">
-        <div class="eyebrow">Unit 1 &middot; Lesson 1.7 &middot; Notes</div>
-        <h1>AI in Embedded Computing and IoT</h1>
-        <p class="lede">Five terms, one real design question underneath all of them: when a device "thinks," where does that thinking actually happen?</p>
-        <div class="meta-row">
-          <span>&#9200; <b>5 min read</b></span>
-          <span>&#129504; <b>3 core concepts</b></span>
-          <span>&#128203; <b>15 real-world examples</b></span>
-        </div>
-        <nav class="toc-nav" aria-label="Jump to section">
-          <span class="toc-label">Jump to</span>
-          <a href="#what-counts-as-ai">What Counts as AI?</a>
-          <a href="#edge-vs-cloud">Edge vs. Cloud</a>
-          <a href="#embedded-ai">Embedded AI</a>
-          <a href="#putting-it-together">Putting It Together</a>
-        </nav>
+<!-- PART 01 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>What Counts as AI?</h2></div>
+    <p class="lede">Two terms get used almost interchangeably, but they're not the same thing &mdash; one is the category, the other is the technique that makes most of today's AI actually work.</p>
+    <div class="two">
+      <div class="box">
+        <h3>Artificial Intelligence</h3>
+        <p>A broad field &mdash; any computer system built to do something that normally requires human-like judgment: recognizing a face, understanding speech, predicting what you'll type next. It's a category, not one specific technique.</p>
       </div>
+      <div class="box">
+        <h3>Machine Learning</h3>
+        <p>The technique behind almost all modern AI. Instead of a human writing an explicit rule for every situation, the system is shown a large number of examples and learns the pattern itself &mdash; pattern-finding from data, instead of hand-written rules.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-      <div class="section-head" id="what-counts-as-ai">
-        <span class="icon-badge concept">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-        </span>
-        <h2 style="margin:0;">What Counts as AI?</h2>
-      </div>
-      <div class="definition-grid">
-        <div class="definition-card cat-concept">
-          <div class="term">Artificial Intelligence</div>
-          <p>A broad field &mdash; any computer system built to do something that normally requires human-like judgment: recognizing a face, understanding speech, predicting what you'll type next. It's a category, not one specific technique.</p>
-        </div>
-        <div class="definition-card cat-concept">
-          <div class="term">Machine Learning</div>
-          <p>The technique behind almost all modern AI. Instead of a human writing an explicit rule for every situation, the system is shown a large number of examples and learns the pattern itself &mdash; pattern-finding from data, instead of hand-written rules.</p>
-        </div>
-      </div>
+<!-- PART 02 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Edge AI vs. Cloud AI</h2></div>
+    <p class="lede">Once you've got a trained model, it has to run <em>somewhere</em>. That's the real design decision for anyone building an AI-powered embedded device &mdash; and it's a tradeoff, not a clear winner.</p>
 
-      <div class="section-head" id="edge-vs-cloud">
-        <span class="icon-badge edge">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-        </span>
-        <h2 style="margin:0;">Edge AI vs. Cloud AI</h2>
-      </div>
-      <p>Once you've got a trained model, it has to run <em>somewhere</em>. That's the real design decision for anyone building an AI-powered embedded device &mdash; and it's a tradeoff, not a clear winner.</p>
-      <table>
-        <tr><th></th><th class="col-edge">Edge AI</th><th class="col-cloud">Cloud AI</th></tr>
-        <tr><td><strong>Where it thinks</strong></td><td class="col-edge">Directly on the device itself</td><td class="col-cloud">On a remote server, over the internet</td></tr>
-        <tr><td><strong>Speed</strong></td><td class="col-edge">Fast &mdash; no round trip over a network</td><td class="col-cloud">Slower &mdash; data has to travel there and back</td></tr>
-        <tr><td><strong>Privacy</strong></td><td class="col-edge">Stronger &mdash; nothing has to leave the device</td><td class="col-cloud">Weaker &mdash; your data is sent somewhere else</td></tr>
-        <tr><td><strong>Processing power</strong></td><td class="col-edge">Limited by the device's tiny chip and battery</td><td class="col-cloud">Effectively unlimited &mdash; real data centers</td></tr>
-        <tr><td><strong>Works offline?</strong></td><td class="col-edge">Yes</td><td class="col-cloud">No &mdash; needs an internet connection</td></tr>
-        <tr><td><strong>Example</strong></td><td class="col-edge">A smart camera recognizing a face on-device</td><td class="col-cloud">A voice assistant sending your question to a server for a full answer</td></tr>
+    <div class="tblwrap">
+      <table class="cmp">
+        <tr><th></th><th class="edge">Edge AI</th><th class="cloud">Cloud AI</th></tr>
+        <tr><td><b>Where it thinks</b></td><td class="edge">Directly on the device itself</td><td class="cloud">On a remote server, over the internet</td></tr>
+        <tr><td><b>Speed</b></td><td class="edge">Fast &mdash; no round trip over a network</td><td class="cloud">Slower &mdash; data has to travel there and back</td></tr>
+        <tr><td><b>Privacy</b></td><td class="edge">Stronger &mdash; nothing has to leave the device</td><td class="cloud">Weaker &mdash; your data is sent somewhere else</td></tr>
+        <tr><td><b>Processing power</b></td><td class="edge">Limited by the device's tiny chip and battery</td><td class="cloud">Effectively unlimited &mdash; real data centers</td></tr>
+        <tr><td><b>Works offline?</b></td><td class="edge">Yes</td><td class="cloud">No &mdash; needs an internet connection</td></tr>
       </table>
-      <div class="note tradeoff">Most real products aren't purely one or the other &mdash; a lot of devices do something simple and fast on the edge (like noticing a face is present at all) and hand off anything that needs real reasoning to the cloud (like figuring out <em>whose</em> face it is, or answering a spoken question).</div>
+    </div>
+    <div class="example"><b>Most real products aren't purely one or the other.</b> A lot of devices do something simple and fast on the edge (like noticing a face is present at all) and hand off anything that needs real reasoning to the cloud (like figuring out <em>whose</em> face it is, or answering a spoken question).</div>
 
-      <div class="video-embed">
-        <iframe src="https://www.youtube.com/embed/RT2XKDZGzxw" title="Cloud AI vs Edge AI Explained in 2 Minutes" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-      </div>
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/RT2XKDZGzxw" title="Cloud AI vs Edge AI Explained in 2 Minutes" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
 
-      <span class="section-tag edge">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/></svg>
-        Edge AI &middot; 5 Examples
-      </span>
-      <div class="example-grid">
-        <div class="example-card cat-edge">
-          <div class="ex-num">1</div>
-          <h4>Phone face/fingerprint unlock</h4>
-          <p>Your face scan is matched against your stored face data right on the phone's chip. It has to be instant, and your biometric data staying on the device instead of traveling to a server is a real security requirement, not a nice-to-have.</p>
-        </div>
-        <div class="example-card cat-edge">
-          <div class="ex-num">2</div>
-          <h4>Smart doorbell person-detection</h4>
-          <p>Before it ever sends you a notification, the camera has to decide locally: is this a person, a car, or just a tree branch moving in the wind? Filtering on-device saves your data plan and the company's server costs.</p>
-        </div>
-        <div class="example-card cat-edge">
-          <div class="ex-num">3</div>
-          <h4>Self-driving car object detection</h4>
-          <p>Recognizing a pedestrian, a stop sign, or a car braking ahead has to happen in milliseconds. A cloud round-trip is too slow at highway speed, and the car can't stop working the moment it loses signal.</p>
-        </div>
-        <div class="example-card cat-edge">
-          <div class="ex-num">4</div>
-          <h4>Voice assistant wake-word detection</h4>
-          <p>The always-listening part that catches "Hey Siri" or "Alexa" runs locally on purpose &mdash; streaming every sound in your house to a server just to catch its name would be a privacy problem and a battery drain.</p>
-        </div>
-        <div class="example-card cat-edge">
-          <div class="ex-num">5</div>
-          <h4>Factory equipment vibration monitoring</h4>
-          <p>A sensor on a motor or bearing has to notice an abnormal vibration the instant it starts, so the machine can shut down before it breaks. Factory floors don't always have reliable internet either.</p>
-        </div>
-      </div>
+    <span class="section-tag edge"><span class="dot"></span>Edge AI &middot; 5 Examples</span>
+    <div class="cards">
+      <div class="cardx edge"><div class="num">01</div><h4>Phone face/fingerprint unlock</h4><p>Your face scan is matched against your stored face data right on the phone's chip. Biometric data staying on-device instead of a server is a real security requirement, not a nice-to-have.</p></div>
+      <div class="cardx edge"><div class="num">02</div><h4>Smart doorbell person-detection</h4><p>Before it ever sends a notification, the camera decides locally: person, car, or just a tree branch? Filtering on-device saves data plans and server costs.</p></div>
+      <div class="cardx edge"><div class="num">03</div><h4>Self-driving car object detection</h4><p>Recognizing a pedestrian or a braking car has to happen in milliseconds &mdash; a cloud round-trip is too slow at highway speed.</p></div>
+      <div class="cardx edge"><div class="num">04</div><h4>Voice assistant wake-word detection</h4><p>Catching "Hey Siri" runs locally on purpose &mdash; streaming every sound in your house to a server just to catch its name would be a privacy and battery problem.</p></div>
+      <div class="cardx edge"><div class="num">05</div><h4>Factory equipment vibration monitoring</h4><p>A sensor has to notice an abnormal vibration the instant it starts. Factory floors don't always have reliable internet either.</p></div>
+    </div>
 
-      <span class="section-tag cloud">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
-        Cloud AI &middot; 5 Examples
-      </span>
-      <div class="example-grid">
-        <div class="example-card cat-cloud">
-          <div class="ex-num">1</div>
-          <h4>Voice assistants answering open questions</h4>
-          <p>Once you ask something that actually requires reasoning ("what's a good gift for a hiker?"), the request goes to a server running a massive language model &mdash; far too large to ever fit on a speaker or phone.</p>
-        </div>
-        <div class="example-card cat-cloud">
-          <div class="ex-num">2</div>
-          <h4>Streaming recommendation engines</h4>
-          <p>Netflix or Spotify suggesting what you'll like next works by comparing your habits against millions of other users at once. No single device could store or process a dataset that size.</p>
-        </div>
-        <div class="example-card cat-cloud">
-          <div class="ex-num">3</div>
-          <h4>Photo library content search</h4>
-          <p>Searching your entire photo library for "dog at the beach" means scanning potentially years of photos &mdash; far more storage and processing than a phone can do continuously.</p>
-        </div>
-        <div class="example-card cat-cloud">
-          <div class="ex-num">4</div>
-          <h4>Large-scale email spam filtering</h4>
-          <p>Catching a new phishing scam depends on recognizing patterns seen across millions of inboxes at once, and that shared threat model has to update constantly. Only a central server sees enough traffic.</p>
-        </div>
-        <div class="example-card cat-cloud">
-          <div class="ex-num">5</div>
-          <h4>AI-assisted medical image analysis</h4>
-          <p>Software that helps a radiologist spot something on an X-ray or CT scan runs on an extremely large, carefully validated model that needs continual retraining and serious computing power.</p>
-        </div>
-      </div>
+    <span class="section-tag cloud"><span class="dot"></span>Cloud AI &middot; 5 Examples</span>
+    <div class="cards">
+      <div class="cardx cloud"><div class="num">01</div><h4>Voice assistants answering open questions</h4><p>A question that actually requires reasoning gets routed to a server running a massive language model &mdash; far too large to fit on a speaker or phone.</p></div>
+      <div class="cardx cloud"><div class="num">02</div><h4>Streaming recommendation engines</h4><p>Netflix or Spotify compares your habits against millions of other users at once. No single device could store or process a dataset that size.</p></div>
+      <div class="cardx cloud"><div class="num">03</div><h4>Photo library content search</h4><p>Searching "dog at the beach" across years of photos is far more storage and processing than a phone can do continuously.</p></div>
+      <div class="cardx cloud"><div class="num">04</div><h4>Large-scale email spam filtering</h4><p>Catching a new phishing scam depends on patterns seen across millions of inboxes at once, updated constantly. Only a central server sees enough traffic.</p></div>
+      <div class="cardx cloud"><div class="num">05</div><h4>AI-assisted medical image analysis</h4><p>Helping a radiologist spot something on a scan runs on an extremely large, carefully validated model needing continual retraining.</p></div>
+    </div>
+  </div>
+</section>
 
-      <div class="section-head" id="embedded-ai">
-        <span class="icon-badge embed">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
-        </span>
-        <h2 style="margin:0;">Embedded AI</h2>
-      </div>
-      <p><strong>Embedded AI</strong> is what you get when a trained Machine Learning model is shrunk down to actually fit and run on a small, dedicated embedded system &mdash; the exact kind of device you defined back in Lesson 1.1: a computer system built into a larger device to do one specific job, not a general-purpose computer. Embedded AI is just that same idea, with "thinking" as the specific job.</p>
-      <p class="hint">Embedded AI overlaps with edge AI &mdash; both mean "thinking happens locally." The difference is what kind of device it's running on: edge AI can run on a phone or a laptop, both general-purpose computers with plenty of power to spare. Embedded AI specifically means a tiny, dedicated, single-purpose chip, usually with real power and real-time constraints a phone never has to worry about.</p>
+<!-- PART 03 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Embedded AI</h2></div>
+    <p class="lede"><b>Embedded AI</b> is what you get when a trained Machine Learning model is shrunk down to actually fit and run on a small, dedicated embedded system &mdash; the exact kind of device you defined back in Lesson 1.1: a computer system built into a larger device to do one specific job, not a general-purpose computer.</p>
+    <div class="hint-panel">Embedded AI overlaps with edge AI &mdash; both mean "thinking happens locally." The difference is <em>what kind of device</em> it's running on: edge AI can run on a phone or laptop, general-purpose computers with power to spare. Embedded AI specifically means a tiny, dedicated, single-purpose chip, usually with real-time constraints a phone never has to worry about.</div>
 
-      <span class="section-tag embed">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
-        Embedded AI &middot; 5 Examples
-      </span>
-      <div class="example-grid">
-        <div class="example-card cat-embed">
-          <div class="ex-num">1</div>
-          <h4>Learning thermostats</h4>
-          <p>A small dedicated chip in the wall learns your household's temperature patterns and adjusts automatically. It has to keep controlling your heat and air even if your Wi-Fi goes down.</p>
-        </div>
-        <div class="example-card cat-embed">
-          <div class="ex-num">2</div>
-          <h4>Fall detection on a smartwatch</h4>
-          <p>Recognizing a hard fall has to happen instantly, on the tiny low-power chip inside the watch itself, because the moment it matters most is exactly when a cloud connection can't be counted on.</p>
-        </div>
-        <div class="example-card cat-embed">
-          <div class="ex-num">3</div>
-          <h4>Pacemaker rhythm monitoring</h4>
-          <p>An AI-assisted pacemaker has to notice an irregular heartbeat and react within a fraction of a second, inside the body &mdash; with no acceptable version that waits on a network request.</p>
-        </div>
-        <div class="example-card cat-embed">
-          <div class="ex-num">4</div>
-          <h4>Robot vacuum obstacle recognition</h4>
-          <p>Telling a wall apart from a pet or a person has to happen continuously and cheaply on a small onboard chip. A full general-purpose computer would drain its small battery in minutes.</p>
-        </div>
-        <div class="example-card cat-embed">
-          <div class="ex-num">5</div>
-          <h4>Hearing aid noise cancellation</h4>
-          <p>Cleaning up background noise from speech has to happen with essentially zero delay. That only works on a dedicated chip small enough to fit in the ear, running for days on a tiny battery.</p>
-        </div>
-      </div>
+    <span class="section-tag embed"><span class="dot"></span>Embedded AI &middot; 5 Examples</span>
+    <div class="cards">
+      <div class="cardx embed"><div class="num">01</div><h4>Learning thermostats</h4><p>A small dedicated chip in the wall learns your household's patterns and adjusts automatically &mdash; it has to keep working even if your Wi-Fi goes down.</p></div>
+      <div class="cardx embed"><div class="num">02</div><h4>Fall detection on a smartwatch</h4><p>Recognizing a hard fall has to happen instantly, on the watch's own chip, because the moment it matters most is exactly when a cloud connection can't be counted on.</p></div>
+      <div class="cardx embed"><div class="num">03</div><h4>Pacemaker rhythm monitoring</h4><p>An AI-assisted pacemaker has to notice an irregular heartbeat and react within a fraction of a second, inside the body &mdash; no version of this waits on a network request.</p></div>
+      <div class="cardx embed"><div class="num">04</div><h4>Robot vacuum obstacle recognition</h4><p>Telling a wall apart from a pet has to happen continuously and cheaply on a small onboard chip, not a full general-purpose computer.</p></div>
+      <div class="cardx embed"><div class="num">05</div><h4>Hearing aid noise cancellation</h4><p>Cleaning up background noise has to happen with essentially zero delay, on a chip small enough to fit in the ear, running for days on a tiny battery.</p></div>
+    </div>
+  </div>
+</section>
 
-      <div class="section-head" id="putting-it-together">
-        <span class="icon-badge concept">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        </span>
-        <h2 style="margin:0;">Putting It Together</h2>
-      </div>
-      <p>When you're investigating a real AI-powered product for today's assignment, ask yourself, in order:</p>
-      <div class="wrap-panel">
-        <ol>
+<!-- PART 04 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Putting It Together</h2></div>
+    <p class="lede">When you're investigating a real AI-powered product for today's assignment, work through these in order.</p>
+
+    <div class="callout">Every real product is a design decision someone made on purpose. <span>Your job today is to find that decision, and figure out why they made it.</span></div>
+
+    <div class="two">
+      <div class="box">
+        <h3>Investigate</h3>
+        <ul>
           <li>What is this device actually deciding or recognizing? (That's the AI part.)</li>
           <li>Does it need an internet connection to do that, or does it still work offline? (That tells you Edge vs. Cloud.)</li>
           <li>What's the tradeoff the company made, and why might they have made it that way &mdash; speed and privacy, or raw power?</li>
-        </ol>
+        </ul>
       </div>
-
-      <p style="margin-top:24px;"><a class="resource-link" href="1-7-ai-in-embedded-computing-and-iot.html">&#8592; Back to 1.7</a></p>
-
-    </article>
+      <div class="box">
+        <h3>Discuss</h3>
+        <ul>
+          <li>Would you trust a medical device more if it ran Embedded AI instead of Cloud AI? Why?</li>
+          <li>Name one product you own. Is it Edge, Cloud, or a hybrid &mdash; and how can you tell?</li>
+          <li>Why might a company choose Cloud AI even when Edge AI would be more private?</li>
+        </ul>
+      </div>
+    </div>
   </div>
+</section>
 
-<footer class="site-footer">
-  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+<footer class="final">
+  <div class="wrap">
+    <h2>The chip doesn't care where the thinking happens. The engineer building it always has to.</h2>
+    <p>Every AI-powered product you investigate today made this exact tradeoff on purpose &mdash; speed and privacy against raw power. Today's assignment asks you to find the reasoning behind someone else's choice.</p>
+    <p class="sig">Notes 1.7 &nbsp;/&nbsp; end of file</p>
+  </div>
 </footer>
 
-<script src="../../assets/nav.js"></script>
-<script>
-renderHeader();
-
-const UNIT_TITLE = "Unit 1: What Is an Embedded System?";
-const UNIT_BASE = "";
-const UNIT_LESSONS = [
-  { title: "1.1 What Is an Embedded System?", file: "1-1-what-is-an-embedded-system.html" },
-  { title: "1.2 Intro to Forensic Auditing", file: "1-2-intro-to-forensic-auditing.html" },
-  { title: "1.2 (Day 2) First Forensic Audit", file: "1-2-day-2-first-forensic-audit.html" },
-  { title: "1.3 Embedded Systems All Around Us", file: "1-3-embedded-systems-all-around-us.html" },
-  { title: "1.5 Take a Stand: GPS Ankle Monitor Failures", file: "1-5-forensic-audit-gps-ankle-monitor-failures.html" },
-  { title: "1.6 Resume + Polish Site", file: "1-6-resume-polish-site.html" },
-  { title: "1.7 AI in Embedded Computing and IoT", file: "1-7-ai-in-embedded-computing-and-iot.html" },
-  { title: "Study Guide", file: "unit-1-study-guide.html" },
-  { title: "1.8 Unit 1 Test", file: "1-8-unit-1-test.html" }
-];
-const CURRENT_FILE = "";
-</script>
-<script src="../../assets/course-nav.js"></script>
 </body>
 </html>
