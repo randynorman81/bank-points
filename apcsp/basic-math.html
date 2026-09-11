@@ -51,6 +51,8 @@ a{color:var(--acc-ink)}
 
 .example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F0DAC4}
 .example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
 
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
 .cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
@@ -107,11 +109,11 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
   </div>
 </header>
 
-<!-- PART 00 -->
+<!-- DEFINITION -->
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">00</div><h2>The Basic Operators</h2></div>
-    <p class="lede">Five operators cover most everyday math in Python. Four behave exactly like you'd expect.</p>
+    <div class="part-head"><div class="part-tag">00</div><h2>Definition</h2></div>
+    <p class="lede">Seven operators cover the entire AP CSP math toolkit. Five behave exactly like ordinary math class; two &mdash; floor division and modulus &mdash; are new.</p>
     <div class="tblwrap"><div class="tblscroll">
       <table class="cmp">
         <tr><th>Operator</th><th>Name</th><th>Example</th><th>Result</th></tr>
@@ -120,128 +122,104 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
         <tr><td><code>*</code></td><td>Multiplication</td><td><code>7 * 2</code></td><td><code>14</code></td></tr>
         <tr><td><code>/</code></td><td>Division</td><td><code>7 / 2</code></td><td><code>3.5</code></td></tr>
         <tr><td><code>**</code></td><td>Exponent</td><td><code>7 ** 2</code></td><td><code>49</code></td></tr>
+        <tr><td><code>//</code></td><td>Floor division</td><td><code>7 // 2</code></td><td><code>3</code></td></tr>
+        <tr><td><code>%</code></td><td>Modulus (remainder)</td><td><code>7 % 2</code></td><td><code>1</code></td></tr>
       </table>
     </div></div>
-    <div class="example"><b>The one that surprises people:</b> <code>/</code> always returns a <b>float</b> in Python, even when both numbers are integers and it divides evenly. <code>10 / 2</code> is <code>5.0</code>, not <code>5</code>.</div>
+    <p><b>Floor division (<code>//</code>)</b> keeps only the whole number of times one value fits into another. <b>Modulus (<code>%</code>)</b> gives you the remainder left over after that division. They're almost always taught together.</p>
   </div>
 </section>
 
-<!-- PART 01 -->
+<!-- EXAMPLES -->
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">01</div><h2>Order of Operations</h2></div>
-    <p class="lede">Python follows the same order you learned in math class &mdash; parentheses first, then exponents, then multiplication/division/floor-division/modulus (left to right), then addition/subtraction (left to right).</p>
+    <div class="part-head"><div class="part-tag">01</div><h2>Examples</h2></div>
+    <p class="lede">Python follows the same order of operations as math class &mdash; parentheses, then exponents, then <code>*</code> <code>/</code> <code>//</code> <code>%</code> left to right, then <code>+</code> <code>-</code> left to right.</p>
     <div class="code">result = 2 + 3 * 4
-print(result)          <span class="cm"># 14, not 20 -- multiplication happens first</span>
+print(result)          <span class="cm"># 14 -- multiplication happens first</span>
 
 result2 = (2 + 3) * 4
 print(result2)          <span class="cm"># 20 -- parentheses force the addition first</span></div>
-    <div class="hint-panel"><code>//</code> and <code>%</code> share the same priority as <code>*</code> and <code>/</code> &mdash; not addition's. <code>10 + 6 // 2</code> is <code>13</code> (the floor division runs first), not <code>8</code>.</div>
-  </div>
-</section>
-
-<!-- PART 02 -->
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">02</div><h2>Floor Division: //</h2></div>
-    <p class="lede"><code>//</code> divides two numbers and throws away anything after the decimal point &mdash; it keeps only the whole number of times one value fits into another.</p>
-    <div class="code">print(17 // 5)   <span class="cm"># 3 -- 5 fits into 17 three whole times</span>
-print(7 // 2)     <span class="cm"># 3</span>
-print(9 // 3)     <span class="cm"># 3 -- divides evenly, still floor division</span></div>
-    <div class="hint-panel">Good to know: with a negative number, <code>//</code> rounds <em>down</em> (toward negative infinity), not toward zero &mdash; <code>-7 // 2</code> is <code>-4</code>, not <code>-3</code>. AP CSP problems almost always stick to positive numbers, but it's worth knowing this isn't the same as chopping off the decimal.</div>
-  </div>
-</section>
-
-<!-- PART 03 -->
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">03</div><h2>Modulus: %</h2></div>
-    <p class="lede"><code>%</code> gives you the <b>remainder</b> left over after floor division &mdash; whatever doesn't divide evenly.</p>
-    <div class="code">print(17 % 5)    <span class="cm"># 2 -- 5 goes into 17 three times, with 2 left over</span></div>
 
     <div class="cards">
       <div class="cardx">
-        <div class="num">Use case</div>
+        <div class="num">// alone</div>
+        <h4>How many whole times</h4>
+        <code class="line">print(17 // 5)</code>
+        <p>Output: <code>3</code> &mdash; 5 fits into 17 three whole times.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">% alone</div>
         <h4>Even or odd?</h4>
         <code class="line">n = 8
 print(n % 2 == 0)</code>
-        <p>Output: <code>True</code>. Any number's remainder after dividing by 2 is only ever 0 or 1 &mdash; 0 means even.</p>
+        <p>Output: <code>True</code> &mdash; any number's remainder after &divide; 2 is only ever 0 or 1.</p>
       </div>
       <div class="cardx">
-        <div class="num">Use case</div>
+        <div class="num">% alone</div>
         <h4>Wrapping back around</h4>
         <code class="line">position = 11
 next_pos = (position + 1) % 8</code>
-        <p>Output: <code>4</code>. Once <code>position + 1</code> reaches 12, <code>% 8</code> wraps it back into the 0&ndash;7 range instead of running off the end.</p>
+        <p>Output: <code>4</code> &mdash; wraps back into the 0&ndash;7 range instead of running off the end.</p>
       </div>
       <div class="cardx">
-        <div class="num">Use case</div>
-        <h4>Pulling out the last digit</h4>
-        <code class="line">n = 137
-last_digit = n % 10</code>
-        <p>Output: <code>7</code>. Dividing by 10 and keeping the remainder always isolates the ones digit.</p>
+        <div class="num">// and % together</div>
+        <h4>Seconds into minutes:seconds</h4>
+        <code class="line">total = 200
+minutes = total // 60
+seconds = total % 60</code>
+        <p>Output: <code>3</code> and <code>20</code> &mdash; the classic pairing.</p>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- PART 04 -->
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">04</div><h2>Floor Division + Modulus, Together</h2></div>
-    <p class="lede">These two are used together constantly &mdash; to split one big number into two smaller, more meaningful ones. The classic example: turning a raw count of seconds into minutes and seconds.</p>
-    <div class="code">total_seconds = 200
-
-minutes = total_seconds // 60   <span class="cm"># 3  -- how many whole minutes</span>
-seconds = total_seconds % 60     <span class="cm"># 20 -- seconds left over</span>
-
-print(str(minutes) + ":" + str(seconds))
-<span class="cm"># 3:20</span></div>
-    <p>The same pattern works for any "big unit made of small units" problem &mdash; cents into dollars and cents, total minutes into hours and minutes, inches into feet and inches. <code>//</code> gets you the big unit, <code>%</code> gets you what's left over.</p>
-  </div>
-</section>
-
-<!-- PART 05 -->
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">05</div><h2>Mixing Integers and Floats</h2></div>
-    <p class="lede">You can freely combine an integer and a float in the same expression. The moment a float is involved <em>anywhere</em>, the result becomes a float &mdash; even if it could have come out as a whole number.</p>
+    <h3 style="margin-top:8px;">Mixing integers and floats</h3>
+    <p>The moment a float is involved anywhere in an expression, the whole result becomes a float &mdash; even if it could have come out as a whole number.</p>
     <div class="code">total = 10 + 2.0
-print(total)                 <span class="cm"># 12.0, not 12</span>
+print(total)   <span class="cm"># 12.0, not 12</span></div>
 
-average = (85 + 90 + 78) / 3
-print(average)                <span class="cm"># 84.33333333333333 -- / always gives a float</span></div>
-  </div>
-</section>
-
-<!-- PART 06 -->
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">06</div><h2>Compound Assignment Operators</h2></div>
-    <p class="lede">A shortcut for the "take a variable, do math on it, save the result back into itself" pattern from the Variables page's <code>x = x + 1</code>. Every math operator has a shorter version that combines the math and the assignment into one step.</p>
-    <div class="tblwrap"><div class="tblscroll">
-      <table class="cmp">
-        <tr><th>Shortcut</th><th>Means exactly</th></tr>
-        <tr><td><code>x += 1</code></td><td><code>x = x + 1</code></td></tr>
-        <tr><td><code>x -= 1</code></td><td><code>x = x - 1</code></td></tr>
-        <tr><td><code>x *= 2</code></td><td><code>x = x * 2</code></td></tr>
-        <tr><td><code>x /= 2</code></td><td><code>x = x / 2</code></td></tr>
-        <tr><td><code>x //= 2</code></td><td><code>x = x // 2</code></td></tr>
-        <tr><td><code>x %= 2</code></td><td><code>x = x % 2</code></td></tr>
-        <tr><td><code>x **= 2</code></td><td><code>x = x ** 2</code></td></tr>
-      </table>
-    </div></div>
+    <h3>Compound assignment operators</h3>
+    <p>A shortcut for "take a variable, do math on it, save the result back into itself" &mdash; the <code>x = x + 1</code> pattern from the Variables page, just shorter to type.</p>
     <div class="code">score = 0
-score += 10
+score += 10   <span class="cm"># same as score = score + 10</span>
 score += 10
 print(score)   <span class="cm"># 20</span></div>
+    <div class="hint-panel">Every operator has a compound version: <code>+=</code> <code>-=</code> <code>*=</code> <code>/=</code> <code>//=</code> <code>%=</code> <code>**=</code>.</div>
   </div>
 </section>
 
-<!-- PART 07 -->
+<!-- COMMON PROBLEMS / ERRORS -->
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">07</div><h2>Real World: How Spotify Would Use This Math</h2></div>
+    <div class="part-head"><div class="part-tag">02</div><h2>Common Problems / Errors</h2></div>
+    <div class="example"><b>The one that surprises people:</b> <code>/</code> always returns a <b>float</b> in Python, even when both numbers are integers and it divides evenly. <code>10 / 2</code> is <code>5.0</code>, not <code>5</code>. Need a whole-number result? Use <code>//</code> instead.</div>
+    <div class="warn"><b>Order-of-operations mistake:</b> <code>10 + 6 // 2</code> is <code>13</code>, not <code>8</code> &mdash; <code>//</code> and <code>%</code> share priority with <code>*</code> and <code>/</code>, not addition. If you want the addition to happen first, you need parentheses: <code>(10 + 6) // 2</code>.</div>
+    <div class="hint-panel">Good to know: with a negative number, <code>//</code> rounds <em>down</em> (toward negative infinity), not toward zero &mdash; <code>-7 // 2</code> is <code>-4</code>, not <code>-3</code>. AP CSP problems almost always stick to positive numbers, but it's worth knowing this isn't the same as just chopping off the decimal.</div>
+  </div>
+</section>
+
+<!-- PYTHON CODE VS PSEUDOCODE -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Python Code vs. Pseudocode</h2></div>
+    <p class="lede">Most of these operators look almost identical in both &mdash; except for one that pseudocode doesn't even have a symbol for.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Concept</th><th>AP CSP Pseudocode</th><th>Python</th></tr>
+        <tr><td>Add / Subtract / Multiply</td><td><code>a + b</code>, <code>a - b</code>, <code>a * b</code></td><td><code>a + b</code>, <code>a - b</code>, <code>a * b</code></td></tr>
+        <tr><td>Divide</td><td><code>a / b</code></td><td><code>a / b</code></td></tr>
+        <tr><td>Remainder</td><td><code>a MOD b</code></td><td><code>a % b</code></td></tr>
+        <tr><td>Whole-number-only division</td><td><em>no separate symbol &mdash; described in words</em></td><td><code>a // b</code></td></tr>
+        <tr><td>Add and reassign</td><td><code>a &larr; a + 1</code></td><td><code>a += 1</code></td></tr>
+      </table>
+    </div></div>
+    <div class="hint-panel"><code>MOD</code> and <code>%</code> are the exact same idea, just spelled differently. <code>//</code> is a Python-only convenience &mdash; on the exam, "give me just the whole-number part" is something pseudocode has to describe in a sentence, not write as one symbol. Pseudocode also has no shortcut for reassignment &mdash; it always spells out <code>a &larr; a + 1</code> in full; Python's <code>+=</code> family is purely a Python convenience too.</div>
+  </div>
+</section>
+
+<!-- SPOTIFY EXAMPLES -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Spotify Examples (5)</h2></div>
     <p class="lede">Five different real features, five different operators &mdash; this is the kind of math actually running behind a music app.</p>
 
     <div class="cards">
@@ -286,26 +264,6 @@ payout = round(streams * rate_per_stream, 2)</code>
     </div>
 
     <div class="callout">Every one of these is the exact same handful of operators from the top of this page.<span>Real products don't use fancier math than a classroom &mdash; they just apply the same +, -, *, /, //, and % to problems that actually matter to someone.</span></div>
-  </div>
-</section>
-
-<!-- PART 08 -->
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">08</div><h2>Quick Reference</h2></div>
-    <div class="tblwrap"><div class="tblscroll">
-      <table class="cmp">
-        <tr><th>Expression</th><th>Result</th></tr>
-        <tr><td><code>7 + 2</code></td><td><code>9</code></td></tr>
-        <tr><td><code>7 / 2</code></td><td><code>3.5</code> &mdash; always a float</td></tr>
-        <tr><td><code>7 // 2</code></td><td><code>3</code> &mdash; whole number of times it fits</td></tr>
-        <tr><td><code>7 % 2</code></td><td><code>1</code> &mdash; what's left over</td></tr>
-        <tr><td><code>7 ** 2</code></td><td><code>49</code></td></tr>
-        <tr><td><code>2 + 3 * 4</code></td><td><code>14</code> &mdash; multiplication before addition</td></tr>
-        <tr><td><code>10 + 2.0</code></td><td><code>12.0</code> &mdash; one float widens the whole result</td></tr>
-        <tr><td><code>x += 1</code></td><td>Same as <code>x = x + 1</code></td></tr>
-      </table>
-    </div></div>
   </div>
 </section>
 

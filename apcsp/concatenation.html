@@ -43,7 +43,6 @@ a{color:var(--acc-ink)}
 
 .code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
 .code .cm{color:var(--ink-soft)}
-.code .ok{color:var(--acc-ink);font-weight:600}
 .code .err{color:var(--bad-ink);font-weight:600}
 
 .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
@@ -58,7 +57,6 @@ a{color:var(--acc-ink)}
 .warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
 .warn b{color:#fff}
 
-/* recipe cards -- one per direction of conversion */
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
 .cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
 .cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
@@ -117,11 +115,11 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
   </div>
 </header>
 
-<!-- PART 00 -->
+<!-- DEFINITION -->
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">00</div><h2>What Concatenation Is</h2></div>
-    <p class="lede"><b>Concatenation</b> means joining two or more strings into one longer string, end to end, using <code>+</code>. It's the same <code>+</code> symbol used for addition &mdash; which side you land on depends entirely on what types you're combining.</p>
+    <div class="part-head"><div class="part-tag">00</div><h2>Definition</h2></div>
+    <p class="lede"><b>Concatenation</b> means joining two or more strings into one longer string, end to end, using <code>+</code>. It's the same <code>+</code> symbol used for addition &mdash; which job it does depends entirely on what types you're combining. Two strings? Concatenate. Two numbers? Add.</p>
     <div class="code">first = "Social"
 second = "Circle"
 print(first + second)         <span class="cm"># SocialCircle</span>
@@ -130,33 +128,11 @@ print(first + " " + second)   <span class="cm"># Social Circle</span></div>
   </div>
 </section>
 
-<!-- PART 01 -->
+<!-- EXAMPLES -->
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">01</div><h2>The Rule That Breaks Everything</h2></div>
-    <p class="lede">Python decides what <code>+</code> means by looking at <b>both sides at once</b>. Two strings? Concatenate. Two numbers? Add. One of each? <b>Error</b> &mdash; Python refuses to guess which one you meant.</p>
-    <div class="two">
-      <div class="box ok">
-        <h3>Same type &mdash; works</h3>
-        <p><code>"5" + "3"</code> &rarr; <code>"53"</code> (two strings, concatenates)<br><code>5 + 3</code> &rarr; <code>8</code> (two integers, adds)</p>
-      </div>
-      <div class="box bad">
-        <h3>Mixed type &mdash; fails</h3>
-        <p><code>"Age: " + 15</code> raises <code>TypeError: can only concatenate str (not "int") to str</code></p>
-      </div>
-    </div>
-    <div class="code">age = 15
-<span class="cm"># print("I am " + age)</span>
-<span class="err">TypeError: can only concatenate str (not "int") to str</span></div>
-    <p>This isn't a bug to work around &mdash; it's Python protecting you from an ambiguous instruction. The fix is always the same idea: <b>make both sides the same type before you combine them.</b></p>
-  </div>
-</section>
-
-<!-- PART 02 -->
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">02</div><h2>The Fix: str()</h2></div>
-    <p class="lede"><code>str()</code> converts whatever's inside its parentheses into a string, so it can safely sit next to other strings in a <code>+</code> expression. This works no matter which side of the <code>+</code> the number is on, and no matter whether it's an int or a float.</p>
+    <div class="part-head"><div class="part-tag">01</div><h2>Examples</h2></div>
+    <p class="lede"><code>str()</code> converts whatever's inside its parentheses into a string, so a number can safely join other strings &mdash; on either side of the <code>+</code>, whether it's an int or a float.</p>
 
     <div class="cards">
       <div class="cardx">
@@ -188,36 +164,9 @@ print(str(price) + " dollars")</code>
         <p>Output: <code>4.99 dollars</code></p>
       </div>
     </div>
-    <div class="example"><b>Same fix, every direction.</b> It doesn't matter if the number comes first or last, or whether it's an int or a float &mdash; <code>str()</code> is always the tool that lets it join a string.</div>
-  </div>
-</section>
 
-<!-- PART 03 -->
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">03</div><h2>Starting From a String Instead</h2></div>
-    <p class="lede">Sometimes the number starts out as text &mdash; anything typed into <code>input()</code> is always a string, even if it looks like a number. Converting it the <em>other</em> way, from string to a real number, uses <code>int()</code> or <code>float()</code> instead of <code>str()</code>.</p>
-    <div class="code">age_text = "15"          <span class="cm"># a string, from input()</span>
-age = int(age_text)      <span class="cm"># now a real integer</span>
-print("Next year you'll be " + str(age + 1))</div>
-    <p>Notice both conversions show up in one line here: <code>int()</code> to turn the input into a number you can do math with, then <code>str()</code> again to turn the math result back into text so it can concatenate. Going from string to number and from number to string are two separate, opposite tools &mdash; keep them straight:</p>
-    <div class="tblwrap"><div class="tblscroll">
-      <table class="cmp">
-        <tr><th>Direction</th><th>Function</th><th>Example</th></tr>
-        <tr><td>Number &rarr; String (to concatenate)</td><td><code>str()</code></td><td><code>str(15)</code> &rarr; <code>"15"</code></td></tr>
-        <tr><td>String &rarr; Integer (to do math)</td><td><code>int()</code></td><td><code>int("15")</code> &rarr; <code>15</code></td></tr>
-        <tr><td>String &rarr; Float (to do math)</td><td><code>float()</code></td><td><code>float("4.99")</code> &rarr; <code>4.99</code></td></tr>
-      </table>
-    </div></div>
-    <div class="hint-panel">This is exactly what happens every time you use <code>input()</code> &mdash; see the full <a href="user-input.html">User Input</a> walkthrough for every form of it.</div>
-  </div>
-</section>
-
-<!-- PART 04 -->
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">04</div><h2>Chaining Several Pieces Together</h2></div>
-    <p class="lede">Real programs rarely join just two things. Chain as many <code>+</code>s together as you need &mdash; string literals, string variables, and converted numbers, all in one expression.</p>
+    <h3 style="margin-top:8px;">Chaining several pieces together</h3>
+    <p>Real programs rarely join just two things. Chain as many <code>+</code>s together as you need &mdash; string literals, string variables, and converted numbers, all in one expression.</p>
     <div class="code">name = "Alex"
 age = 15
 gpa = 3.8
@@ -225,99 +174,88 @@ gpa = 3.8
 report = "Name: " + name + ", Age: " + str(age) + ", GPA: " + str(gpa)
 print(report)
 <span class="cm"># Name: Alex, Age: 15, GPA: 3.8</span></div>
-    <p>Read it piece by piece, left to right: <code>"Name: "</code> (literal) + <code>name</code> (string variable) + <code>", Age: "</code> (literal) + <code>str(age)</code> (int, converted) + <code>", GPA: "</code> (literal) + <code>str(gpa)</code> (float, converted). Every single piece has to be a string, or the whole line fails.</p>
-    <div class="warn"><b>Common mistake:</b> forgetting to convert just <em>one</em> number in a long chain. <code>"Age: " + age + str(gpa)</code> still crashes, even with the second number converted correctly &mdash; every non-string piece needs its own <code>str()</code>.</div>
+
+    <div class="hint-panel">A cleaner way to write all of this: an <b>f-string</b>. Put <code>f</code> before the opening quote and drop variables straight into <code>{ }</code> &mdash; <code>f"Name: {name}, Age: {age}, GPA: {gpa}"</code> gives the exact same result with no <code>str()</code> anywhere. Know both: <code>+</code> concatenation is what AP CSP pseudocode maps onto, f-strings are what you'll actually reach for in real Python.</div>
   </div>
 </section>
 
-<!-- PART 05 -->
+<!-- COMMON PROBLEMS / ERRORS -->
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">05</div><h2>A Cleaner Way: f-strings</h2></div>
-    <p class="lede">AP CSP mostly cares that you understand <code>+</code> concatenation and why type conversion is needed &mdash; but it's worth knowing real Python has a shortcut that skips <code>str()</code> entirely: an <b>f-string</b>. Put <code>f</code> right before the opening quote, and drop any variable straight into the text inside <code>{ }</code>.</p>
-    <div class="code">name = "Alex"
-age = 15
-gpa = 3.8
-
-report = f"Name: {name}, Age: {age}, GPA: {gpa}"
-print(report)
-<span class="cm"># Name: Alex, Age: 15, GPA: 3.8 -- same result, no str() anywhere</span></div>
-    <div class="hint-panel">f-strings automatically convert whatever's inside <code>{ }</code> to text for you &mdash; ints, floats, anything. They're not a different concept from concatenation, just a shorter way to write it. Know both: <code>+</code> concatenation is what AP CSP pseudocode maps onto directly, but f-strings are what you'll actually reach for once you're writing real Python.</div>
+    <div class="part-head"><div class="part-tag">02</div><h2>Common Problems / Errors</h2></div>
+    <p class="lede">Python decides what <code>+</code> means by looking at <b>both sides at once</b>. One string and one number, with no conversion, and it refuses to guess which one you meant.</p>
+    <div class="code">age = 15
+<span class="cm"># print("Age: " + age)</span>
+<span class="err">TypeError: can only concatenate str (not "int") to str</span></div>
+    <p>This isn't a bug to work around &mdash; it's Python protecting you from an ambiguous instruction. The fix is always the same idea: <b>make both sides the same type before you combine them</b>, using <code>str()</code>.</p>
+    <div class="warn"><b>Common mistake in a long chain:</b> converting some numbers but forgetting just <em>one</em>. <code>"Age: " + age + str(gpa)</code> still crashes, even with the second number converted correctly &mdash; every non-string piece needs its own <code>str()</code>.</div>
   </div>
 </section>
 
-<!-- PART 06 -->
+<!-- PYTHON CODE VS PSEUDOCODE -->
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">06</div><h2>Real World: How Spotify Would Use This</h2></div>
-    <p class="lede">This isn't just a classroom exercise. The exact ideas on this page are what actually builds the "Now Playing" bar you see every time you open a music app.</p>
-    <div class="code">song = "Blinding Lights"
-artist = "The Weeknd"
-streams = 3800000000
-duration_sec = 200
-rating = 4.8</div>
+    <div class="part-head"><div class="part-tag">03</div><h2>Python Code vs. Pseudocode</h2></div>
+    <p class="lede">Careful with this one &mdash; string concatenation is a <b>Python-specific</b> skill. It won't show up as an official pseudocode operator on the multiple-choice exam, because AP CSP's pseudocode is deliberately written to work no matter what language a class actually uses.</p>
+
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>What you're doing</th><th>AP CSP Pseudocode</th><th>Python</th></tr>
+        <tr><td>Store text</td><td><code>name &larr; "Alex"</code></td><td><code>name = "Alex"</code></td></tr>
+        <tr><td>Show text</td><td><code>DISPLAY(name)</code></td><td><code>print(name)</code></td></tr>
+        <tr><td>Combine two pieces of text</td><td><em>not defined in pseudocode</em></td><td><code>"Hello, " + name</code></td></tr>
+      </table>
+    </div></div>
+
+    <div class="hint-panel">On the exam, if a question needs you to reason about combined output, it's described in plain English, not written with a concatenation symbol. <code>+</code> for joining text is a real skill for your Create Performance Task and your Python coursework &mdash; just don't expect to see it written as pseudocode.</div>
+  </div>
+</section>
+
+<!-- SPOTIFY EXAMPLES -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Spotify Examples (5)</h2></div>
+    <p class="lede">Five different pieces of a real "Now Playing" screen, each built by joining strings together.</p>
 
     <div class="cards">
       <div class="cardx">
-        <div class="num">String + String</div>
+        <div class="num">01</div>
         <h4>The "Now Playing" line</h4>
-        <code class="line">"Now Playing: " + song + " — " + artist</code>
+        <code class="line">song = "Blinding Lights"
+artist = "The Weeknd"
+"Now Playing: " + song + " — " + artist</code>
         <p>Output: <code>Now Playing: Blinding Lights &mdash; The Weeknd</code></p>
       </div>
       <div class="cardx">
-        <div class="num">Int &rarr; String</div>
+        <div class="num">02</div>
         <h4>Displaying the stream count</h4>
-        <code class="line">song + " has " + str(streams) + " streams"</code>
+        <code class="line">streams = 3800000000
+song + " has " + str(streams) + " streams"</code>
         <p>Output: <code>Blinding Lights has 3800000000 streams</code></p>
       </div>
       <div class="cardx">
-        <div class="num">Float &rarr; String</div>
+        <div class="num">03</div>
         <h4>Showing the star rating</h4>
-        <code class="line">"Rating: " + str(rating) + " / 5.0"</code>
+        <code class="line">rating = 4.8
+"Rating: " + str(rating) + " / 5.0"</code>
         <p>Output: <code>Rating: 4.8 / 5.0</code></p>
       </div>
+      <div class="cardx">
+        <div class="num">04</div>
+        <h4>Formatting the duration</h4>
+        <code class="line">minutes = 3
+seconds = 20
+str(minutes) + ":" + str(seconds)</code>
+        <p>Output: <code>3:20</code></p>
+      </div>
+      <div class="cardx">
+        <div class="num">05</div>
+        <h4>Naming a user's playlist</h4>
+        <code class="line">username = "jordan23"
+playlist_name = username + "'s Daily Mix 1"</code>
+        <p>Output: <code>jordan23's Daily Mix 1</code></p>
+      </div>
     </div>
-
-    <p>The song length is stored as one plain number &mdash; total seconds &mdash; because that's what's easiest for the app to do math with. But nobody wants to see <code>"200 seconds"</code> under a song. This is exactly the job of <code>//</code> and <code>%</code> from the Integer page:</p>
-
-    <div class="code">minutes = duration_sec // 60   <span class="cm"># 3  -- how many whole minutes</span>
-seconds = duration_sec % 60     <span class="cm"># 20 -- seconds left over</span>
-
-duration_display = str(minutes) + ":" + str(seconds)
-print("Duration: " + duration_display)
-<span class="cm"># Duration: 3:20</span></div>
-
-    <p>Now put every piece from this page together into the one line that would actually build a real "Now Playing" bar &mdash; string concatenation, int-to-string, float-to-string, floor division, and modulus, all at once:</p>
-
-    <div class="code">now_playing = (song + " — " + artist
-    + "  |  " + str(minutes) + ":" + str(seconds)
-    + "  |  " + str(rating) + "★  |  " + str(streams) + " streams")
-print(now_playing)
-<span class="cm"># Blinding Lights -- The Weeknd  |  3:20  |  4.8*  |  3800000000 streams</span></div>
-
-    <div class="example"><b>Or, the f-string version</b> &mdash; the same bar, the way it would actually get written in a real codebase: <code>f"{song} — {artist}  |  {minutes}:{seconds}  |  {rating}★  |  {streams} streams"</code></div>
-  </div>
-</section>
-
-<!-- PART 07 -->
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">07</div><h2>Quick Reference</h2></div>
-    <p class="lede">Every case from this page, in one table.</p>
-    <div class="tblwrap"><div class="tblscroll">
-      <table class="cmp">
-        <tr><th>Expression</th><th>Result</th></tr>
-        <tr><td><code>"cat" + "dog"</code></td><td class="ok"><code>"catdog"</code></td></tr>
-        <tr><td><code>"5" + "3"</code></td><td class="ok"><code>"53"</code> &mdash; concatenation, not math</td></tr>
-        <tr><td><code>5 + 3</code></td><td class="ok"><code>8</code> &mdash; math, not concatenation</td></tr>
-        <tr><td><code>"Age: " + 15</code></td><td class="bad"><code>TypeError</code></td></tr>
-        <tr><td><code>"Age: " + str(15)</code></td><td class="ok"><code>"Age: 15"</code></td></tr>
-        <tr><td><code>str(15) + " years old"</code></td><td class="ok"><code>"15 years old"</code></td></tr>
-        <tr><td><code>"Price: $" + str(4.99)</code></td><td class="ok"><code>"Price: $4.99"</code></td></tr>
-        <tr><td><code>int("15") + 1</code></td><td class="ok"><code>16</code> &mdash; converted to int first, then math</td></tr>
-        <tr><td><code>f"Age: {15}"</code></td><td class="ok"><code>"Age: 15"</code> &mdash; f-string, no str() needed</td></tr>
-      </table>
-    </div></div>
 
     <div class="callout">One side a string, the other side not &mdash; that's always the error.<span>Make both sides strings with str(), or let an f-string do it for you, and the exact same join works every time.</span></div>
   </div>

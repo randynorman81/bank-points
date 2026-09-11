@@ -44,7 +44,6 @@ a{color:var(--acc-ink)}
 .code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
 .code .cm{color:var(--ink-soft)}
 .code .err{color:var(--bad-ink);font-weight:600}
-.code .in{color:var(--acc-ink);font-weight:600}
 
 .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
 .box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
@@ -116,52 +115,22 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
   </div>
 </header>
 
-<!-- PART 00 -->
+<!-- DEFINITION -->
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">00</div><h2>What Is input()?</h2></div>
+    <div class="part-head"><div class="part-tag">00</div><h2>Definition</h2></div>
     <p class="lede"><code>input()</code> pauses your program, shows the user a prompt, and waits. The instant they type something and press Enter, whatever they typed gets handed back to you.</p>
     <div class="code">name = input("What's your name? ")
 print("Hello, " + name)</div>
     <p>The text inside the parentheses &mdash; <code>"What's your name? "</code> &mdash; is the <b>prompt</b>. It's shown to the user so they know what to type, but it is <em>not</em> part of what gets stored. Only what the user actually types ends up in <code>name</code>.</p>
+    <div class="hint-panel"><b>The most important fact about input() for AP CSP:</b> no matter what the user types &mdash; even if it's only digits &mdash; Python stores it as a <b>string</b>. Always.</div>
   </div>
 </section>
 
-<!-- PART 01 -->
+<!-- EXAMPLES -->
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">01</div><h2>input() Always Returns a String</h2></div>
-    <p class="lede">This is the single most important fact about <code>input()</code> for AP CSP: <b>no matter what the user types &mdash; even if it's only digits &mdash; Python stores it as a string.</b> Always. There is no exception.</p>
-
-    <div class="two">
-      <div class="box">
-        <h3>What the user types</h3>
-        <p><code>15</code></p>
-      </div>
-      <div class="box ok">
-        <h3>What Python actually stores</h3>
-        <p><code>"15"</code> &mdash; a string containing the characters 1 and 5, not the number fifteen</p>
-      </div>
-    </div>
-
-    <p>Try to do math on it directly, and it breaks &mdash; the exact same <code>TypeError</code> from the Concatenation page:</p>
-    <div class="code">age = input("How old are you? ")   <span class="cm"># user types: 15</span>
-print(age + 1)
-<span class="err">TypeError: can only concatenate str (not "int") to str</span></div>
-
-    <div class="warn"><b>The sneaky version of this bug:</b> if you take in two numbers and add them without converting, Python doesn't crash &mdash; it just gives you the wrong answer, silently.
-<div class="code" style="margin:12px 0 0;">num1 = input("Enter a number: ")   <span class="cm"># user types: 4</span>
-num2 = input("Enter another: ")     <span class="cm"># user types: 5</span>
-print(num1 + num2)
-<span class="cm"># "45" -- concatenation, not addition. Never 9.</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- PART 02 -->
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">02</div><h2>Converting Input to a Number</h2></div>
+    <div class="part-head"><div class="part-tag">01</div><h2>Examples</h2></div>
     <p class="lede">To do real math with what the user typed, convert it the moment you receive it &mdash; wrap the whole <code>input()</code> call directly in <code>int()</code> or <code>float()</code>.</p>
     <div class="cards">
       <div class="cardx">
@@ -179,15 +148,9 @@ print(price * 1.08)</code>
         <p>Output (user types 10): <code>10.8</code> &mdash; 8% tax added</p>
       </div>
     </div>
-    <div class="hint-panel">Wrapping it directly &mdash; <code>int(input(...))</code> &mdash; is the standard pattern. It converts <em>before</em> storing, so the variable is already a real number, not a string you have to remember to fix later.</div>
-  </div>
-</section>
 
-<!-- PART 03 -->
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">03</div><h2>Concatenating Input With Other Types</h2></div>
-    <p class="lede">Since <code>input()</code> hands you a string, joining it with <b>other strings</b> &mdash; including more <code>input()</code> calls &mdash; works immediately with <code>+</code>. The moment you bring a converted number back into the mix, you're back to the exact same rule from the Concatenation page: <b>convert it to a string first with <code>str()</code>.</b></p>
+    <h3 style="margin-top:8px;">Concatenating input with other types</h3>
+    <p>Since <code>input()</code> hands you a string, joining it with <b>other strings</b> &mdash; including more <code>input()</code> calls &mdash; works immediately with <code>+</code>. The moment a converted number comes back into the mix, the same rule from the Concatenation page applies: <b>convert it to a string first with <code>str()</code>.</b></p>
     <div class="code">first = input("First name? ")
 last = input("Last name? ")
 full_name = first + " " + last        <span class="cm"># works directly -- both strings</span>
@@ -195,82 +158,113 @@ print("Hello, " + full_name)
 
 age = int(input("Age? "))              <span class="cm"># now a real int</span>
 print("You are " + str(age) + " years old.")   <span class="cm"># str() needed again</span></div>
-    <p>The rule never changes, only which values need it: <b>every non-string piece of a <code>+</code> expression needs its own <code>str()</code></b>, whether that piece came from a variable, a calculation, or an <code>int(input(...))</code> call.</p>
+    <div class="hint-panel">Same shortcut applies here too: <code>print(f"You are {age} years old.")</code> &mdash; an f-string converts <code>age</code> automatically, no <code>str()</code> needed to display it.</div>
   </div>
 </section>
 
-<!-- PART 04 -->
+<!-- COMMON PROBLEMS / ERRORS -->
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">04</div><h2>Common Mistakes</h2></div>
+    <div class="part-head"><div class="part-tag">02</div><h2>Common Problems / Errors</h2></div>
+    <p class="lede">Try to do math on raw input, and it breaks &mdash; the exact same <code>TypeError</code> from the Concatenation page:</p>
+    <div class="code">age = input("How old are you? ")   <span class="cm"># user types: 15</span>
+print(age + 1)
+<span class="err">TypeError: can only concatenate str (not "int") to str</span></div>
+
+    <div class="warn"><b>The sneaky version of this bug:</b> if you take in two numbers and add them without converting, Python doesn't crash &mdash; it just gives you the wrong answer, silently.
+<div class="code" style="margin:12px 0 0;">num1 = input("Enter a number: ")   <span class="cm"># user types: 4</span>
+num2 = input("Enter another: ")     <span class="cm"># user types: 5</span>
+print(num1 + num2)
+<span class="cm"># "45" -- concatenation, not addition. Never 9.</span></div>
+    </div>
+
     <div class="tblwrap"><div class="tblscroll">
       <table class="cmp">
         <tr><th>Code</th><th>What happens</th><th>Fix</th></tr>
         <tr><td><code>"Age: " + int(input())</code></td><td class="bad"><code>TypeError</code></td><td>Wrap the number in <code>str()</code> to concatenate it</td></tr>
         <tr><td><code>input() + input()</code> (meant as numbers)</td><td class="bad">Joins the text &mdash; wrong answer, no error</td><td>Convert both with <code>int()</code> or <code>float()</code> first</td></tr>
         <tr><td><code>int(input("Name? "))</code></td><td class="bad"><code>ValueError</code> if they type letters</td><td>Only convert input you actually expect to be a number</td></tr>
-        <tr><td><code>age = input(); age + 1</code></td><td class="bad"><code>TypeError</code></td><td>Convert at the moment you read it: <code>int(input())</code></td></tr>
       </table>
     </div></div>
   </div>
 </section>
 
-<!-- PART 05 -->
+<!-- PYTHON CODE VS PSEUDOCODE -->
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">05</div><h2>f-strings With Input</h2></div>
-    <p class="lede">Same shortcut as before &mdash; once a value is converted to the right type, an f-string can drop it straight into a message with no <code>str()</code> needed.</p>
-    <div class="code">age = int(input("Age? "))
-print(f"You are {age} years old.")</div>
-    <div class="hint-panel">f-strings don't skip the <code>int()</code> conversion &mdash; you still need a real number to do math with. They only skip the extra <code>str()</code> when you go to <em>display</em> it.</div>
-  </div>
-</section>
+    <div class="part-head"><div class="part-tag">03</div><h2>Python Code vs. Pseudocode</h2></div>
+    <p class="lede">This is where Python and AP CSP pseudocode really part ways &mdash; in a way that explains exactly why <code>input()</code> behaves the way it does.</p>
 
-<!-- PART 06 -->
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">06</div><h2>Real World: How Spotify Would Use This</h2></div>
-    <p class="lede">This is the exact pattern &mdash; ask, convert, concatenate &mdash; behind a real "Add to Playlist" or "Rate This Song" feature.</p>
-    <div class="code">song = input("Song title: ")
-artist = input("Artist: ")
-rating = float(input("Rate this song (1-5): "))
-plays = int(input("How many times have you played it today? "))</div>
-
-    <p>Four calls to <code>input()</code>, and already two different types are in play: <code>song</code> and <code>artist</code> are strings, straight from the user. <code>rating</code> and <code>plays</code> were converted the moment they came in, so they're a real float and a real int &mdash; ready for math, not ready to concatenate yet.</p>
-
-    <div class="warn"><b>The bug, if you forget to convert back:</b>
-<div class="code" style="margin:12px 0 0;">summary = "\"" + song + "\" by " + artist + " -- rated " + rating + "/5"
-<span class="err">TypeError: can only concatenate str (not "float") to str</span></div>
+    <div class="two">
+      <div class="box">
+        <h3>AP CSP Pseudocode</h3>
+        <div class="code" style="margin:0;">DISPLAY("What's your name?")
+name &larr; INPUT()</div>
+      </div>
+      <div class="box">
+        <h3>Python</h3>
+        <div class="code" style="margin:0;">name = input("What's your name? ")</div>
+      </div>
     </div>
+    <p>Pseudocode's <code>INPUT()</code> doesn't take a prompt &mdash; you <code>DISPLAY</code> one first, as its own separate step. Python's <code>input()</code> does both at once: show the prompt, then wait for an answer.</p>
 
-    <p>The fix is the same <code>str()</code> rule from every example on this page &mdash; wrap every non-string piece:</p>
-    <div class="code">summary = ("\"" + song + "\" by " + artist
-    + " -- rated " + str(rating) + "/5, played "
-    + str(plays) + " times today")
-print(summary)
-<span class="cm"># "Blinding Lights" by The Weeknd -- rated 4.5/5, played 3 times today</span></div>
-
-    <div class="example"><b>Or, the f-string version</b> &mdash; the way it would actually get written in a real codebase: <code>f'"{song}" by {artist} -- rated {rating}/5, played {plays} times today'</code></div>
-  </div>
-</section>
-
-<!-- PART 07 -->
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">07</div><h2>Quick Reference</h2></div>
     <div class="tblwrap"><div class="tblscroll">
       <table class="cmp">
-        <tr><th>Code</th><th>Returns</th></tr>
-        <tr><td><code>input("Name? ")</code></td><td class="ok">Always a <b>string</b>, no matter what's typed</td></tr>
-        <tr><td><code>int(input("Age? "))</code></td><td class="ok">A real <b>integer</b>, ready for math</td></tr>
-        <tr><td><code>float(input("Price? "))</code></td><td class="ok">A real <b>float</b>, ready for math</td></tr>
-        <tr><td><code>"Age: " + int(input())</code></td><td class="bad"><code>TypeError</code> &mdash; wrap the number in <code>str()</code></td></tr>
-        <tr><td><code>int(input("Name? "))</code> on text</td><td class="bad"><code>ValueError</code> &mdash; input wasn't a valid number</td></tr>
-        <tr><td><code>f"Age: {int(input())}"</code></td><td class="ok">Converts for math, no <code>str()</code> needed to display</td></tr>
+        <tr><th>What you're doing</th><th>AP CSP Pseudocode</th><th>Python</th></tr>
+        <tr><td>Get a value from the user</td><td><code>INPUT()</code></td><td><code>input("prompt")</code></td></tr>
+        <tr><td>What type comes back</td><td>Not specified</td><td>Always a string</td></tr>
+        <tr><td>Using it as a number</td><td>Used directly</td><td>Must convert: <code>int(input(...))</code></td></tr>
       </table>
     </div></div>
 
-    <div class="callout">Everything the user types starts as a string. What it becomes next is entirely up to you.<span>Convert it if you need to do math. Leave it alone if you're just displaying text. Either way, the moment you mix types in a <code>+</code>, someone needs a <code>str()</code>.</span></div>
+    <div class="hint-panel">That last row is the whole reason the Common Problems section above exists. AP CSP's pseudocode never has to deal with <code>INPUT()</code> returning "the wrong type," because it never promises a type at all. Python does promise one &mdash; always a string &mdash; which is exactly why you have to convert it yourself.</div>
+  </div>
+</section>
+
+<!-- SPOTIFY EXAMPLES -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Spotify Examples (5)</h2></div>
+    <p class="lede">The exact pattern &mdash; ask, convert if needed, concatenate &mdash; behind a real "Add to Playlist" or "Rate This Song" feature.</p>
+
+    <div class="cards">
+      <div class="cardx">
+        <div class="num">01 &middot; String, no conversion</div>
+        <h4>Getting the song title</h4>
+        <code class="line">song = input("Song title: ")</code>
+        <p>Stored exactly as typed &mdash; already a string, ready to concatenate.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">02 &middot; float(input())</div>
+        <h4>Getting a rating</h4>
+        <code class="line">rating = float(input(
+    "Rate this song (1-5): "))</code>
+        <p>Converted immediately, so it's ready for math &mdash; not ready to concatenate yet.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">03 &middot; int(input())</div>
+        <h4>Getting today's play count</h4>
+        <code class="line">plays = int(input(
+    "Plays today? "))</code>
+        <p>A real integer now, not the string <code>"3"</code>.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">04 &middot; Concatenating input directly</div>
+        <h4>Welcoming the user by name</h4>
+        <code class="line">artist = input("Artist: ")
+print("Now playing " + artist)</code>
+        <p>No conversion needed &mdash; <code>artist</code> is already a string.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">05 &middot; Putting it all together</div>
+        <h4>Building the full summary</h4>
+        <code class="line">summary = ("\"" + song + "\" by "
+    + artist + " -- rated "
+    + str(rating) + "/5, played "
+    + str(plays) + " times today")</code>
+        <p>Output: <code>"Blinding Lights" by The Weeknd -- rated 4.5/5, played 3 times today</code></p>
+      </div>
+    </div>
   </div>
 </section>
 
