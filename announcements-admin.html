@@ -121,9 +121,12 @@ function buildCourseCards() {
   const root = document.getElementById('course-cards');
   root.innerHTML = COURSES.map(c => `
     <div class="card">
-      <h2 style="margin-top:0; display:flex; align-items:center; justify-content:space-between;">
+      <h2 style="margin-top:0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
         ${escapeHtml(c.name)}
-        <span id="editing-badge-${c.id}"></span>
+        <span class="row-actions">
+          <span id="editing-badge-${c.id}"></span>
+          <button class="btn btn-ghost btn-sm" type="button" id="archived-btn-${c.id}" onclick="toggleArchived('${c.id}')">View Archived</button>
+        </span>
       </h2>
       <div id="form-alert-${c.id}"></div>
       <form class="stack" id="form-${c.id}">
@@ -142,7 +145,13 @@ function buildCourseCards() {
         </div>
       </form>
       <h3 style="margin:20px 0 8px;">Posted</h3>
+      <p class="hint" style="margin-top:-8px;">Archive old ones to keep this list short &mdash; they're not deleted, just tucked under "View Archived" above.</p>
       <div id="a-list-${c.id}" class="loading">Loading&hellip;</div>
+
+      <div id="archived-panel-${c.id}" hidden style="margin-top:20px; padding-top:16px; border-top:1px dashed var(--gray-300);">
+        <h3 style="margin:0 0 8px;">Archived</h3>
+        <div id="archived-list-${c.id}"></div>
+      </div>
     </div>
   `).join('');
 
@@ -186,7 +195,7 @@ function renderCourseList(courseId) {
       <div class="a-text">${escapeHtml(a.text)}</div>
       <div class="row-actions">
         <button class="btn btn-ghost btn-sm" onclick="editAnnouncement('${courseId}','${a.id}')">Edit</button>
-        <button class="btn btn-danger btn-sm" onclick="removeAnnouncement('${courseId}','${a.id}')">Delete</button>
+        <button class="btn btn-ghost btn-sm" onclick="archiveAnnouncementAction('${courseId}','${a.id}')">Archive</button>
       </div>
     </div>
   `).join('');
@@ -237,13 +246,64 @@ async function submitAnnouncement(e, courseId) {
   loadAnnouncements();
 }
 
-async function removeAnnouncement(courseId, id) {
-  if (!confirm('Delete this announcement?')) return;
-  const res = await authedPost({ action: 'deleteAnnouncement', id });
+async function archiveAnnouncementAction(courseId, id) {
+  const res = await authedPost({ action: 'archiveAnnouncement', id });
   if (res.error) { alert(res.error); return; }
   announcements = announcements.filter(a => a.id !== id);
   renderCourseList(courseId);
   if (editingId[courseId] === id) resetForm(courseId);
+  // If the archived panel is already open, keep it in sync.
+  const panel = document.getElementById('archived-panel-' + courseId);
+  if (panel && !panel.hidden) loadArchived(courseId);
+}
+
+// ---- archived panel, per course, loaded on demand ----
+
+async function toggleArchived(courseId) {
+  const panel = document.getElementById('archived-panel-' + courseId);
+  const btn = document.getElementById('archived-btn-' + courseId);
+  if (!panel) return;
+  const isOpen = !panel.hidden;
+  if (isOpen) {
+    panel.hidden = true;
+    btn.textContent = 'View Archived';
+    return;
+  }
+  panel.hidden = false;
+  btn.textContent = 'Hide Archived';
+  loadArchived(courseId);
+}
+
+async function loadArchived(courseId) {
+  const slot = document.getElementById('archived-list-' + courseId);
+  if (!slot) return;
+  slot.innerHTML = '<p class="hint">Loading&hellip;</p>';
+  const res = await authedPost({ action: 'list', course: courseId, filter: 'archived' });
+  if (res.error) {
+    slot.innerHTML = `<div class="alert alert-error">${escapeHtml(res.error)}</div>`;
+    return;
+  }
+  const items = res.announcements || [];
+  if (items.length === 0) {
+    slot.innerHTML = '<p class="hint">No archived announcements for this class yet.</p>';
+    return;
+  }
+  slot.innerHTML = items.map(a => `
+    <div class="announcement-list-item">
+      <div class="a-date">${escapeHtml(formatDate(a.date))}</div>
+      <div class="a-text">${escapeHtml(a.text)}</div>
+      <div class="row-actions">
+        <button class="btn btn-ghost btn-sm" onclick="unarchiveAnnouncementAction('${courseId}','${a.id}')">Unarchive</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function unarchiveAnnouncementAction(courseId, id) {
+  const res = await authedPost({ action: 'unarchiveAnnouncement', id });
+  if (res.error) { alert(res.error); return; }
+  loadArchived(courseId);
+  loadAnnouncements(); // it's back in the active list now
 }
 
 if (getPin()) {

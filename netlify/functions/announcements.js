@@ -32,9 +32,15 @@ function newId() {
   return "id-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
 }
 
-async function listAnnouncements(course) {
+// filter "active" (default) returns everything NOT archived -- what the
+// public announcements page and the admin's main "Posted" list show.
+// filter "archived" returns only archived ones -- what the admin's
+// "View Archived" panel shows, fetched separately so it never loads (or
+// slows down) the normal view.
+async function listAnnouncements(course, filter) {
   const all = await readJSON("announcements", []);
-  const forCourse = course ? all.filter((a) => a.course === course) : all;
+  let forCourse = course ? all.filter((a) => a.course === course) : all;
+  forCourse = filter === "archived" ? forCourse.filter((a) => a.archived === true) : forCourse.filter((a) => a.archived !== true);
   return { announcements: forCourse.slice().sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt)) };
 }
 
@@ -141,6 +147,39 @@ async function deleteAnnouncement(body) {
   return { ok: true };
 }
 
+// Archiving (not deleting) is what the admin UI's "Archive" button actually
+// calls -- keeps a full year's history around under "View Archived" instead
+// of losing it, while the main "Posted" list only shows what's still active
+// so it doesn't grow forever. deleteAnnouncement above is left intact for
+// true removals, it's just not wired to any button right now.
+async function archiveAnnouncement(body) {
+  let found = false;
+  await updateJSON("announcements", [], (list) => {
+    const a = list.find((x) => x.id === body.id);
+    if (!a) return list;
+    found = true;
+    a.archived = true;
+    a.archivedAt = new Date().toISOString();
+    return list;
+  });
+  if (!found) return { error: "Announcement not found" };
+  return { ok: true };
+}
+
+async function unarchiveAnnouncement(body) {
+  let found = false;
+  await updateJSON("announcements", [], (list) => {
+    const a = list.find((x) => x.id === body.id);
+    if (!a) return list;
+    found = true;
+    a.archived = false;
+    a.archivedAt = null;
+    return list;
+  });
+  if (!found) return { error: "Announcement not found" };
+  return { ok: true };
+}
+
 export default async (req) => {
   function ok(obj) {
     return new Response(JSON.stringify(obj), { status: 200, headers: JSON_HEADERS });
@@ -150,7 +189,7 @@ export default async (req) => {
     if (req.method === "GET") {
       const url = new URL(req.url);
       const action = url.searchParams.get("action") || "list";
-      if (action === "list") return ok(await listAnnouncements(url.searchParams.get("course") || ""));
+      if (action === "list") return ok(await listAnnouncements(url.searchParams.get("course") || "", url.searchParams.get("filter") || "active"));
       if (action === "currentLessons") return ok(await getCurrentLessons());
       if (action === "calendar") return ok(await getCalendar(url.searchParams.get("course") || ""));
       return ok({ error: "Unknown action" });
@@ -175,7 +214,7 @@ export default async (req) => {
         case "verifyPin":
           return ok({ ok: true });
         case "list":
-          return ok(await listAnnouncements(body.course || ""));
+          return ok(await listAnnouncements(body.course || "", body.filter || "active"));
         case "currentLessons":
           return ok(await getCurrentLessons());
         case "saveCurrentLessons":
@@ -186,6 +225,10 @@ export default async (req) => {
           return ok(await editAnnouncement(body));
         case "deleteAnnouncement":
           return ok(await deleteAnnouncement(body));
+        case "archiveAnnouncement":
+          return ok(await archiveAnnouncement(body));
+        case "unarchiveAnnouncement":
+          return ok(await unarchiveAnnouncement(body));
         case "calendar":
           return ok(await getCalendar(body.course || ""));
         case "saveCalendar":
