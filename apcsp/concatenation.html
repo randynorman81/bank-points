@@ -246,7 +246,60 @@ print(report)
 <!-- PART 06 -->
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">06</div><h2>Quick Reference</h2></div>
+    <div class="part-head"><div class="part-tag">06</div><h2>Real World: How Spotify Would Use This</h2></div>
+    <p class="lede">This isn't just a classroom exercise. The exact ideas on this page are what actually builds the "Now Playing" bar you see every time you open a music app.</p>
+    <div class="code">song = "Blinding Lights"
+artist = "The Weeknd"
+streams = 3800000000
+duration_sec = 200
+rating = 4.8</div>
+
+    <div class="cards">
+      <div class="cardx">
+        <div class="num">String + String</div>
+        <h4>The "Now Playing" line</h4>
+        <code class="line">"Now Playing: " + song + " — " + artist</code>
+        <p>Output: <code>Now Playing: Blinding Lights &mdash; The Weeknd</code></p>
+      </div>
+      <div class="cardx">
+        <div class="num">Int &rarr; String</div>
+        <h4>Displaying the stream count</h4>
+        <code class="line">song + " has " + str(streams) + " streams"</code>
+        <p>Output: <code>Blinding Lights has 3800000000 streams</code></p>
+      </div>
+      <div class="cardx">
+        <div class="num">Float &rarr; String</div>
+        <h4>Showing the star rating</h4>
+        <code class="line">"Rating: " + str(rating) + " / 5.0"</code>
+        <p>Output: <code>Rating: 4.8 / 5.0</code></p>
+      </div>
+    </div>
+
+    <p>The song length is stored as one plain number &mdash; total seconds &mdash; because that's what's easiest for the app to do math with. But nobody wants to see <code>"200 seconds"</code> under a song. This is exactly the job of <code>//</code> and <code>%</code> from the Integer page:</p>
+
+    <div class="code">minutes = duration_sec // 60   <span class="cm"># 3  -- how many whole minutes</span>
+seconds = duration_sec % 60     <span class="cm"># 20 -- seconds left over</span>
+
+duration_display = str(minutes) + ":" + str(seconds)
+print("Duration: " + duration_display)
+<span class="cm"># Duration: 3:20</span></div>
+
+    <p>Now put every piece from this page together into the one line that would actually build a real "Now Playing" bar &mdash; string concatenation, int-to-string, float-to-string, floor division, and modulus, all at once:</p>
+
+    <div class="code">now_playing = (song + " — " + artist
+    + "  |  " + str(minutes) + ":" + str(seconds)
+    + "  |  " + str(rating) + "★  |  " + str(streams) + " streams")
+print(now_playing)
+<span class="cm"># Blinding Lights -- The Weeknd  |  3:20  |  4.8*  |  3800000000 streams</span></div>
+
+    <div class="example"><b>Or, the f-string version</b> &mdash; the same bar, the way it would actually get written in a real codebase: <code>f"{song} — {artist}  |  {minutes}:{seconds}  |  {rating}★  |  {streams} streams"</code></div>
+  </div>
+</section>
+
+<!-- PART 07 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">07</div><h2>Quick Reference</h2></div>
     <p class="lede">Every case from this page, in one table.</p>
     <div class="tblwrap"><div class="tblscroll">
       <table class="cmp">
