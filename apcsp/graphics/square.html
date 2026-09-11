@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Square | Python Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#A3E635; --acc-tint:rgba(163,230,53,.14); --acc-ink:#D9F99D;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#1A2905;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:18ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .err{color:var(--bad-ink);font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.ok{border-top-color:var(--acc)}
+.box.bad{border-top-color:var(--bad)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#E5F5C8}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../study-guides.html">&larr; Bite-Sized Chunks</a>
+  <a href="index.html">Graphics</a>
+  <a href="circle.html">Circle</a>
+  <a href="rectangle.html">Rectangle</a>
+  <a href="square.html" class="current">Square</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">PYTHON NOTES &nbsp;/&nbsp; SHAPE: SQUARE</div>
+    <h1>Square</h1>
+    <p class="deck">There's no Square() function in this library at all &mdash; a square is just a Rectangle where you happen to pass the same number twice.</p>
+  </div>
+</header>
+
+<!-- DEFINITION -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>Definition</h2></div>
+    <p class="lede">CodeHS's graphics library has <code>Circle</code> and <code>Rectangle</code> &mdash; that's it. A <b>square</b> isn't its own shape; it's simply a <code>Rectangle(width, height)</code> call where <code>width</code> and <code>height</code> happen to be the same number.</p>
+    <div class="code">square = Rectangle(60, 60)      <span class="cm"># same number twice = a square</span>
+square.set_position(100, 100)    <span class="cm"># still the TOP-LEFT corner, same as any Rectangle</span>
+square.set_color(Color.green)
+add(square)</div>
+    <p>Everything you already know from the Rectangle page applies here without any changes &mdash; <code>set_position()</code> still means the corner, and it still has no built-in setter to resize it later.</p>
+  </div>
+</section>
+
+<!-- EXAMPLES -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Examples</h2></div>
+    <p class="lede">Use one variable for the side length, and pass it in twice &mdash; that guarantees the shape stays a square even if you change the size later.</p>
+    <div class="code">side = 60
+square = Rectangle(side, side)
+square.set_position(100, 100)
+add(square)</div>
+
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>What you want</th><th>Code</th></tr>
+        <tr><td>The side length</td><td><code>square.get_width()</code> (or <code>get_height()</code> &mdash; they're equal)</td></tr>
+        <tr><td>The corner's x position</td><td><code>square.get_x()</code></td></tr>
+        <tr><td>The corner's y position</td><td><code>square.get_y()</code></td></tr>
+        <tr><td>Move it</td><td><code>square.move(dx, dy)</code></td></tr>
+      </table>
+    </div></div>
+
+    <h3 style="margin-top:8px;">Centering a square</h3>
+    <p>Same correction as centering any Rectangle &mdash; but since width and height are the same value, you only need to calculate the offset once.</p>
+    <div class="code">side = 60
+square = Rectangle(side, side)
+x = get_width() / 2 - side / 2
+y = get_height() / 2 - side / 2
+square.set_position(x, y)</div>
+  </div>
+</section>
+
+<!-- COMMON PROBLEMS / ERRORS -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Common Problems / Errors</h2></div>
+    <div class="code">square = Square(60)
+<span class="err">NameError: name 'Square' is not defined</span></div>
+    <p>There is no <code>Square</code> function in this library &mdash; only <code>Circle</code> and <code>Rectangle</code>. Use <code>Rectangle(side, side)</code> instead.</p>
+    <div class="two">
+      <div class="box bad">
+        <h3>Accidentally a rectangle</h3>
+        <p><code>Rectangle(60, 90)</code> is not a square &mdash; the two numbers have to match exactly. A typo in either one quietly produces a rectangle instead.</p>
+      </div>
+      <div class="box ok">
+        <h3>Safer pattern</h3>
+        <p>Store the side length in <b>one variable</b> and pass it twice: <code>Rectangle(side, side)</code>. Now there's only one number to get right, and only one place to change it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PYTHON CODE VS PSEUDOCODE -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Python Code vs. Pseudocode</h2></div>
+    <p class="lede">Same answer as the rest of the Graphics section: this is all specific to CodeHS's Python graphics library, not the official AP CSP pseudocode.</p>
+    <div class="hint-panel">Worth noting here specifically: even the <em>idea</em> of "a square is a rectangle with equal sides" isn't something pseudocode defines &mdash; it's a modeling decision this particular library made. A different graphics library could just as easily have its own <code>Square</code> class. Always check what your actual tools provide rather than assuming.</div>
+  </div>
+</section>
+
+<!-- SPOTIFY EXAMPLES -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Spotify Examples (5)</h2></div>
+    <p class="lede">Squares show up constantly in music apps &mdash; almost every piece of cover art is one.</p>
+
+    <div class="cards">
+      <div class="cardx">
+        <div class="num">01</div>
+        <h4>The "Now Playing" cover art</h4>
+        <code class="line">side = 100
+cover = Rectangle(side, side)
+cover.set_position(20, 20)</code>
+        <p>The large square art shown for the currently playing song.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">02</div>
+        <h4>A row of playlist thumbnails</h4>
+        <code class="line">thumb1 = Rectangle(50, 50)
+thumb1.set_position(20, 140)
+thumb2 = Rectangle(50, 50)
+thumb2.set_position(80, 140)</code>
+        <p>Same side length, different x positions &mdash; a simple thumbnail row.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">03</div>
+        <h4>Centering the app icon</h4>
+        <code class="line">side = 64
+icon = Rectangle(side, side)
+x = get_width()/2 - side/2
+icon.set_position(x, 10)</code>
+        <p>True centering, using the same one-variable side length.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">04</div>
+        <h4>Checking it's really square</h4>
+        <code class="line">is_square = (cover.get_width()
+    == cover.get_height())</code>
+        <p>Compares the rectangle's own width and height to confirm it's actually a square.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">05</div>
+        <h4>A grid of album squares</h4>
+        <code class="line">side = 40
+gap = 10
+for i in range(4):
+    album = Rectangle(side, side)
+    album.set_position(20 + i * (side + gap), 200)
+    add(album)</code>
+        <p>Four evenly-spaced album squares in a row, using a loop and one side-length variable.</p>
+      </div>
+    </div>
+
+    <div class="callout">A square isn't a shape this library knows about &mdash; it's a pattern you create yourself.<span>Same width, same height, passed to Rectangle(). That's the entire idea behind every square on this page.</span></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>No Square() exists. Rectangle(side, side) is the whole trick.</h2>
+    <p>Keep the side length in one variable, and every square-related bug on this page becomes impossible by construction.</p>
+    <a class="back" href="rectangle.html">&larr; Rectangle</a>
+    <a class="back" href="index.html">All Graphics</a>
+    <p class="sig">Python Notes &nbsp;/&nbsp; Square &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+</body>
+</html>
