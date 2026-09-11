@@ -80,7 +80,8 @@ const COURSES = [
       { n: 21, title: "Computer Science Principles Pretest", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
       { label: "Calendar", title: "Pacing Calendar", migrated: true, path: "apcsp/calendar.html" },
       { label: "Vocab", title: "Vocabulary", migrated: true, path: "apcsp/vocab.html" },
-      { label: "Study Guides", title: "Study Guides & Books", migrated: true, path: "apcsp/study-guides.html" }
+      { label: "Study Guides", title: "Study Guides & Books", migrated: true, path: "apcsp/study-guides.html" },
+      { label: "Python Variables", title: "Python Variables Notes", migrated: true, path: "apcsp/python-variables/index.html" }
     ]
   },
   {

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strings | Python Variables | AP Computer Science Principles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<div class="lesson-layout" style="grid-template-columns:1fr; max-width:900px;">
+  <article class="lesson-content">
+    <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../index.html">AP Computer Science Principles</a><span class="sep">/</span><a href="index.html">Python Variables</a><span class="sep">/</span>String</div>
+
+    <h1>String</h1>
+    <p class="hint" style="margin-top:-8px;">Text data &mdash; letters, words, sentences, and any characters at all.</p>
+
+    <div class="sibling-nav">
+      <a href="index.html">&larr; All Variables</a>
+      <a href="strings.html" class="current">String</a>
+      <a href="integers.html">Integer</a>
+      <a href="floats.html">Float</a>
+      <a href="lists.html">List</a>
+    </div>
+
+    <h2 style="border-top:none; padding-top:0;">Quotes and the string literal</h2>
+    <p>A <b>string</b> is a sequence of characters &mdash; letters, numbers, symbols, spaces, anything &mdash; treated as <i>text</i> rather than code. Python only knows something is a string because it's wrapped in quotes: either double quotes <code>"like this"</code> or single quotes <code>'like this'</code>. Both work identically; just be consistent.</p>
+
+    <div class="code-block">name = "Alex"
+greeting = 'Hello there'</div>
+
+    <p>The quoted text typed directly into your code &mdash; <code>"Alex"</code>, <code>'Hello there'</code> &mdash; is called a <b>string literal</b>. It's "literally" that exact text, written right there in the code, as opposed to a variable that happens to be holding a string. In <code>name = "Alex"</code>, <code>"Alex"</code> is the string literal, and <code>name</code> is the variable it gets stored in.</p>
+
+    <div class="note">Need an apostrophe inside your string, like <code>it's</code>? Wrap the whole thing in double quotes instead: <code>"it's a nice day"</code>. If you used single quotes, Python would think the string ended right after the <code>it</code>.</div>
+
+    <h2>Numbers inside quotes are just characters</h2>
+    <p>This is the single most important idea about strings for AP CSP: <b>anything inside quotes is text, even if it looks like a number.</b> Python does not do math with it &mdash; it treats each digit as a character, the exact same way it treats a letter.</p>
+
+    <div class="example-grid">
+      <div class="example-card">
+        <div class="ex-num">1</div>
+        <h4>A number</h4>
+        <p><code>5</code> is an integer. Python can add it, subtract it, multiply it &mdash; it behaves like math.</p>
+      </div>
+      <div class="example-card">
+        <div class="ex-num">2</div>
+        <h4>A string that looks like a number</h4>
+        <p><code>"5"</code> is a string. To Python, it's just the character <code>5</code> &mdash; no different from the character <code>a</code>.</p>
+      </div>
+    </div>
+
+    <p>Watch what happens when you use <code>+</code> on two number-looking strings:</p>
+
+    <div class="code-block">print(5 + 3)       <span class="cm"># 8  (real addition, both are integers)</span>
+print("5" + "3")   <span class="cm"># 53  (joining two pieces of text)</span></div>
+
+    <p><code>"5" + "3"</code> does not add up to 8. Because both sides are strings, <code>+</code> switches jobs entirely &mdash; instead of doing math, it <b>joins the text together end to end</b>. This is called <b>string concatenation</b>, and it's a different operation from addition even though it uses the same <code>+</code> symbol.</p>
+
+    <h2>Concatenation</h2>
+    <p>Concatenation works on any strings, not just number-looking ones &mdash; it's how you build one longer piece of text out of smaller pieces:</p>
+
+    <div class="code-block">first = "Social"
+second = "Circle"
+school = first + " " + second
+print(school)   <span class="cm"># Social Circle</span></div>
+
+    <p>Notice the <code>" "</code> in the middle &mdash; a string literal that's just a single space. Concatenation doesn't add spaces for you; if you want one, you have to include it yourself.</p>
+
+    <h2>Mixing strings with numbers</h2>
+    <p>You cannot concatenate a string directly with an integer or float &mdash; Python will raise an error, because <code>+</code> can't decide whether you mean addition or joining:</p>
+
+    <div class="code-block">age = 15
+<span class="cm"># print("I am " + age)      &larr; ERROR: can't concatenate str and int</span>
+print("I am " + str(age))     <span class="cm"># works: converts 15 to "15" first</span></div>
+
+    <p>The fix is <code>str()</code> &mdash; it converts whatever is inside the parentheses into a string, so it can safely be joined with other text. This conversion comes up constantly in AP CSP any time you print a message that includes a number.</p>
+
+    <h2>Length and indexing</h2>
+    <p>A string is really a sequence of individual characters in order, and Python lets you work with it that way. Two tools you'll see often:</p>
+
+    <div class="definition-grid">
+      <div class="definition-card">
+        <div class="term">len()</div>
+        <p><code>len("hello")</code> returns <code>5</code> &mdash; the number of characters in the string.</p>
+      </div>
+      <div class="definition-card">
+        <div class="term">Indexing</div>
+        <p><code>"hello"[0]</code> returns <code>"h"</code> &mdash; the first character. Python counts positions starting at <b>0</b>, not 1.</p>
+      </div>
+    </div>
+
+    <div class="note">Zero-indexing trips a lot of people up: the <i>first</i> character of a string is at position <code>0</code>, the second is at position <code>1</code>, and so on. In a string with 5 characters, the last one is at position <code>4</code> &mdash; not 5.</div>
+
+  </article>
+</div>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>renderHeader();</script>
+</body>
+</html>

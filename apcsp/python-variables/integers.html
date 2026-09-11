@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Integers | Python Variables | AP Computer Science Principles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<div class="lesson-layout" style="grid-template-columns:1fr; max-width:900px;">
+  <article class="lesson-content">
+    <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../index.html">AP Computer Science Principles</a><span class="sep">/</span><a href="index.html">Python Variables</a><span class="sep">/</span>Integer</div>
+
+    <h1>Integer</h1>
+    <p class="hint" style="margin-top:-8px;">Whole numbers &mdash; no decimal point, ever.</p>
+
+    <div class="sibling-nav">
+      <a href="index.html">&larr; All Variables</a>
+      <a href="strings.html">String</a>
+      <a href="integers.html" class="current">Integer</a>
+      <a href="floats.html">Float</a>
+      <a href="lists.html">List</a>
+    </div>
+
+    <h2 style="border-top:none; padding-top:0;">What makes an integer different</h2>
+    <p>An <b>integer</b> (often shortened to <b>int</b>) is a whole number &mdash; positive, negative, or zero &mdash; with no decimal point. Unlike a string, an integer is written with <b>no quotes at all</b>. The moment you put quotes around a number, it stops being an integer and becomes a string instead.</p>
+
+    <div class="code-block">points = 10        <span class="cm"># an integer</span>
+label = "10"        <span class="cm"># a string that looks like ten, but isn't</span></div>
+
+    <p>Python tells these apart automatically just by whether quotes are present. That's why <code>points</code> above can be used in math, but <code>label</code> cannot &mdash; see the String page for what happens when you try.</p>
+
+    <h2>Math operators</h2>
+    <p>Integers support all of the operators you'd expect, plus two that don't exist in ordinary math class:</p>
+
+    <table>
+      <thead><tr><th>Operator</th><th>Name</th><th>Example</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td><code>+</code></td><td>Addition</td><td><code>7 + 2</code></td><td><code>9</code></td></tr>
+        <tr><td><code>-</code></td><td>Subtraction</td><td><code>7 - 2</code></td><td><code>5</code></td></tr>
+        <tr><td><code>*</code></td><td>Multiplication</td><td><code>7 * 2</code></td><td><code>14</code></td></tr>
+        <tr><td><code>/</code></td><td>Division</td><td><code>7 / 2</code></td><td><code>3.5</code></td></tr>
+        <tr><td><code>//</code></td><td>Floor (integer) division</td><td><code>7 // 2</code></td><td><code>3</code></td></tr>
+        <tr><td><code>%</code></td><td>Modulus (remainder)</td><td><code>7 % 2</code></td><td><code>1</code></td></tr>
+        <tr><td><code>**</code></td><td>Exponent</td><td><code>7 ** 2</code></td><td><code>49</code></td></tr>
+      </tbody>
+    </table>
+
+    <div class="note">Big AP CSP gotcha: <code>/</code> always gives you back a <b>float</b> in Python, even when both numbers are integers and it divides evenly. <code>10 / 2</code> is <code>5.0</code>, not <code>5</code>. If you need a whole-number result, use <code>//</code> instead.</div>
+
+    <h2>Floor division and modulus</h2>
+    <p>These two show up constantly on the AP CSP exam, usually together:</p>
+
+    <div class="example-grid">
+      <div class="example-card">
+        <div class="ex-num">1</div>
+        <h4>// &mdash; how many whole times</h4>
+        <p><code>17 // 5</code> is <code>3</code>. 5 goes into 17 three whole times, with some left over that gets thrown away.</p>
+      </div>
+      <div class="example-card">
+        <div class="ex-num">2</div>
+        <h4>% &mdash; what's left over</h4>
+        <p><code>17 % 5</code> is <code>2</code>. That's the remainder after dividing 17 by 5 as many whole times as possible.</p>
+      </div>
+    </div>
+
+    <p><code>%</code> is especially useful for questions like "is this number even or odd?" &mdash; <code>n % 2 == 0</code> is true only when <code>n</code> divides evenly by 2.</p>
+
+    <h2>Converting to an integer: int()</h2>
+    <p>Sometimes you have a value that isn't an integer yet but needs to be one &mdash; most often, text a user typed in, since <code>input()</code> always returns a string. <code>int()</code> converts it:</p>
+
+    <div class="code-block">age_text = "15"        <span class="cm"># a string</span>
+age = int(age_text)    <span class="cm"># now an integer: 15</span>
+print(age + 1)         <span class="cm"># 16 -- real math now works</span></div>
+
+    <div class="note">Converting a float to an integer with <code>int()</code> doesn't round &mdash; it <b>truncates</b>, meaning it just chops off everything after the decimal point. <code>int(9.9)</code> is <code>9</code>, not 10.</div>
+
+  </article>
+</div>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>renderHeader();</script>
+</body>
+</html>

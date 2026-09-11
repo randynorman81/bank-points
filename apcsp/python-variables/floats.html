@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Floats | Python Variables | AP Computer Science Principles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<div class="lesson-layout" style="grid-template-columns:1fr; max-width:900px;">
+  <article class="lesson-content">
+    <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../index.html">AP Computer Science Principles</a><span class="sep">/</span><a href="index.html">Python Variables</a><span class="sep">/</span>Float</div>
+
+    <h1>Float</h1>
+    <p class="hint" style="margin-top:-8px;">Numbers with a decimal point &mdash; short for "floating-point number."</p>
+
+    <div class="sibling-nav">
+      <a href="index.html">&larr; All Variables</a>
+      <a href="strings.html">String</a>
+      <a href="integers.html">Integer</a>
+      <a href="floats.html" class="current">Float</a>
+      <a href="lists.html">List</a>
+    </div>
+
+    <h2 style="border-top:none; padding-top:0;">What makes a float different</h2>
+    <p>A <b>float</b> is any number that has a decimal point &mdash; <code>3.14</code>, <code>0.5</code>, <code>-2.0</code>, even <code>7.0</code>. It's used for anything that isn't a whole number: money, averages, measurements, percentages. Like integers, floats are written with <b>no quotes</b>.</p>
+
+    <div class="code-block">price = 4.99      <span class="cm"># a float</span>
+count = 4          <span class="cm"># an integer</span></div>
+
+    <p>Notice <code>7.0</code> is still a float, not an integer &mdash; it's the decimal point that decides the type, not whether the value happens to be a whole number.</p>
+
+    <h2>Math operators</h2>
+    <p>Floats use the exact same operators as integers &mdash; <code>+</code> <code>-</code> <code>*</code> <code>/</code> <code>//</code> <code>%</code> <code>**</code> &mdash; and behave the way you'd expect from decimal math:</p>
+
+    <div class="code-block">print(2.5 + 1.5)     <span class="cm"># 4.0</span>
+print(5.0 / 2)        <span class="cm"># 2.5</span></div>
+
+    <h2>Mixing integers and floats</h2>
+    <p>You can freely do math between an integer and a float in the same expression &mdash; Python doesn't require you to convert first. But the moment a float is involved anywhere in the expression, the <b>result becomes a float</b>, even if it could have been a whole number:</p>
+
+    <div class="code-block">total = 10 + 2.0
+print(total)     <span class="cm"># 12.0, not 12</span></div>
+
+    <p>This is called <b>type coercion</b> &mdash; Python automatically converts the integer to match the "wider" type (float) so the math can happen, rather than raising an error the way it does when you mix a string with a number.</p>
+
+    <h2>Converting to a float: float()</h2>
+    <p>Just like <code>int()</code>, you can convert other types into a float on purpose:</p>
+
+    <div class="code-block">grade_text = "89.5"       <span class="cm"># a string</span>
+grade = float(grade_text)  <span class="cm"># now a float: 89.5</span></div>
+
+    <p>Converting an integer to a float just adds a <code>.0</code>: <code>float(6)</code> is <code>6.0</code>. Converting a float down to an integer with <code>int()</code> works too, but remember from the Integer page that it truncates instead of rounding.</p>
+
+    <h2>Rounding: round()</h2>
+    <p>If you actually want to round to the nearest value instead of truncating, use <code>round()</code> instead of <code>int()</code>:</p>
+
+    <div class="code-block">print(round(9.6))       <span class="cm"># 10</span>
+print(round(3.14159, 2)) <span class="cm"># 3.14 -- round to 2 decimal places</span></div>
+
+    <div class="note">Good to know, not something you'll be tested on directly: floats can sometimes show tiny rounding errors, because computers store decimal numbers in binary and some decimals (like 0.1) can't be represented exactly. Try <code>print(0.1 + 0.2)</code> sometime &mdash; it's <code>0.30000000000000004</code>, not a clean <code>0.3</code>. This is a property of floating-point math in every programming language, not a bug in your code.</div>
+
+  </article>
+</div>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>renderHeader();</script>
+</body>
+</html>
