@@ -1,69 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lists | Python Variables | AP Computer Science Principles</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>List | Python Notes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
-<link rel="stylesheet" href="../../assets/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#34D399; --acc-tint:rgba(52,211,153,.13); --acc-ink:#8EEFC7;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#052016;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:16ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .p0{color:#F472B6} .code .p1{color:#38BDF8} .code .p2{color:#FBBF24}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+</style>
 </head>
 <body>
 
-<div id="site-header-root"></div>
+<nav class="pillnav">
+  <a href="index.html">Variables</a>
+  <a href="strings.html">String</a>
+  <a href="integers.html">Integer</a>
+  <a href="floats.html">Float</a>
+  <a href="lists.html" class="current">List</a>
+</nav>
 
-<div class="lesson-layout" style="grid-template-columns:1fr; max-width:900px;">
-  <article class="lesson-content">
-    <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../index.html">AP Computer Science Principles</a><span class="sep">/</span><a href="index.html">Python Variables</a><span class="sep">/</span>List</div>
-
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">PYTHON NOTES &nbsp;/&nbsp; TYPE: LIST</div>
     <h1>List</h1>
-    <p class="hint" style="margin-top:-8px;">The basics for now &mdash; lists get their own full lesson later.</p>
+    <p class="deck">The basics for now &mdash; lists get their own full lesson later.</p>
+  </div>
+</header>
 
-    <div class="sibling-nav">
-      <a href="index.html">&larr; All Variables</a>
-      <a href="strings.html">String</a>
-      <a href="integers.html">Integer</a>
-      <a href="floats.html">Float</a>
-      <a href="lists.html" class="current">List</a>
-    </div>
-
-    <h2 style="border-top:none; padding-top:0;">What is a list?</h2>
-    <p>Every type on the last three pages &mdash; string, integer, float &mdash; holds exactly <b>one</b> value. A <b>list</b> is different: it's a single variable that holds <b>many</b> values at once, in order. You write a list with square brackets <code>[ ]</code>, separating each value with a comma.</p>
-
-    <div class="code-block">scores = [85, 92, 78, 100]
+<!-- PART 00 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>What Is a List?</h2></div>
+    <p class="lede">Every type on the last three pages &mdash; string, integer, float &mdash; holds exactly <b>one</b> value. A <b>list</b> is different: it's a single variable that holds <b>many</b> values at once, in order. Write one with square brackets <code>[ ]</code>, separating each value with a comma.</p>
+    <div class="code">scores = [85, 92, 78, 100]
 print(scores)</div>
-
     <p>Here, one variable &mdash; <code>scores</code> &mdash; is holding four separate integers at the same time.</p>
+  </div>
+</section>
 
-    <h2>A list can hold any type &mdash; even mixed together</h2>
-    <p>A list isn't limited to one type of data. It can hold strings, integers, and floats all in the very same list:</p>
-
-    <div class="code-block">student = ["Alex", 15, 3.8]
-<span class="cm">#           ^str  ^int ^float</span>
+<!-- PART 01 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Holds Any Type &mdash; Even Mixed</h2></div>
+    <p class="lede">A list isn't limited to one type of data. It can hold strings, integers, and floats all in the very same list.</p>
+    <div class="code">student = [<span class="p0">"Alex"</span>, <span class="p1">15</span>, <span class="p2">3.8</span>]
+<span class="cm">#           str   int  float</span>
 print(student)</div>
-
     <p>In <code>student</code> above, position 0 is a string (a name), position 1 is an integer (an age), and position 2 is a float (a GPA) &mdash; three different types, sitting together in one list.</p>
+  </div>
+</section>
 
-    <h2>Getting one value out: indexing</h2>
-    <p>Lists use the exact same indexing idea as strings &mdash; square brackets with a position number, counting from <b>0</b>:</p>
-
-    <div class="code-block">student = ["Alex", 15, 3.8]
+<!-- PART 02 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Getting One Value Out: Indexing</h2></div>
+    <p class="lede">Lists use the exact same indexing idea as strings &mdash; square brackets with a position number, counting from <b>0</b>.</p>
+    <div class="code">student = ["Alex", 15, 3.8]
 print(student[0])   <span class="cm"># Alex</span>
 print(student[1])   <span class="cm"># 15</span>
 print(student[2])   <span class="cm"># 3.8</span></div>
+    <div class="hint-panel">That's the basics for now: square brackets to create one, commas to separate values, and <code>[index]</code> to pull one value back out. A full lesson on lists is coming &mdash; adding and removing items, looping through them, and more.</div>
+  </div>
+</section>
 
-    <div class="note">That's the basics for now: square brackets to create one, commas to separate values, and <code>[index]</code> to pull one value back out. We'll come back with a full lesson on lists &mdash; adding and removing items, looping through them, and more.</div>
-
-  </article>
-</div>
-
-<footer class="site-footer">
-  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+<footer class="final">
+  <div class="wrap">
+    <h2>One variable, many values, in order &mdash; and any type at all.</h2>
+    <p>That's the whole idea for now. There's plenty more to a list than this, but this is everything you need to get started.</p>
+    <a class="back" href="index.html">&larr; All Variables</a>
+    <p class="sig">Python Notes &nbsp;/&nbsp; List &nbsp;/&nbsp; end of file</p>
+  </div>
 </footer>
 
-<script src="../../assets/nav.js"></script>
-<script>renderHeader();</script>
 </body>
 </html>

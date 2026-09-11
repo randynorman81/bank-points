@@ -1,80 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Floats | Python Variables | AP Computer Science Principles</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Float | Python Notes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
-<link rel="stylesheet" href="../../assets/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#FBBF24; --acc-tint:rgba(251,191,36,.14); --acc-ink:#FDD877;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#241A03;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:16ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#EFE0BE}
+.example b{color:#fff}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+</style>
 </head>
 <body>
 
-<div id="site-header-root"></div>
+<nav class="pillnav">
+  <a href="index.html">Variables</a>
+  <a href="strings.html">String</a>
+  <a href="integers.html">Integer</a>
+  <a href="floats.html" class="current">Float</a>
+  <a href="lists.html">List</a>
+</nav>
 
-<div class="lesson-layout" style="grid-template-columns:1fr; max-width:900px;">
-  <article class="lesson-content">
-    <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../index.html">AP Computer Science Principles</a><span class="sep">/</span><a href="index.html">Python Variables</a><span class="sep">/</span>Float</div>
-
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">PYTHON NOTES &nbsp;/&nbsp; TYPE: FLOAT</div>
     <h1>Float</h1>
-    <p class="hint" style="margin-top:-8px;">Numbers with a decimal point &mdash; short for "floating-point number."</p>
+    <p class="deck">Numbers with a decimal point &mdash; short for "floating-point number."</p>
+  </div>
+</header>
 
-    <div class="sibling-nav">
-      <a href="index.html">&larr; All Variables</a>
-      <a href="strings.html">String</a>
-      <a href="integers.html">Integer</a>
-      <a href="floats.html" class="current">Float</a>
-      <a href="lists.html">List</a>
-    </div>
-
-    <h2 style="border-top:none; padding-top:0;">What makes a float different</h2>
-    <p>A <b>float</b> is any number that has a decimal point &mdash; <code>3.14</code>, <code>0.5</code>, <code>-2.0</code>, even <code>7.0</code>. It's used for anything that isn't a whole number: money, averages, measurements, percentages. Like integers, floats are written with <b>no quotes</b>.</p>
-
-    <div class="code-block">price = 4.99      <span class="cm"># a float</span>
+<!-- PART 00 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>No Quotes Needed, Either</h2></div>
+    <p class="lede">A <b>float</b> is any number with a decimal point &mdash; <code>3.14</code>, <code>0.5</code>, <code>-2.0</code>, even <code>7.0</code>. It's used for anything that isn't a whole number: money, averages, measurements. Like integers, floats are written with no quotes.</p>
+    <div class="code">price = 4.99      <span class="cm"># a float</span>
 count = 4          <span class="cm"># an integer</span></div>
+    <p>Notice <code>7.0</code> is still a float, not an integer &mdash; the decimal point decides the type, not whether the value happens to be a whole number.</p>
+  </div>
+</section>
 
-    <p>Notice <code>7.0</code> is still a float, not an integer &mdash; it's the decimal point that decides the type, not whether the value happens to be a whole number.</p>
-
-    <h2>Math operators</h2>
-    <p>Floats use the exact same operators as integers &mdash; <code>+</code> <code>-</code> <code>*</code> <code>/</code> <code>//</code> <code>%</code> <code>**</code> &mdash; and behave the way you'd expect from decimal math:</p>
-
-    <div class="code-block">print(2.5 + 1.5)     <span class="cm"># 4.0</span>
-print(5.0 / 2)        <span class="cm"># 2.5</span></div>
-
-    <h2>Mixing integers and floats</h2>
-    <p>You can freely do math between an integer and a float in the same expression &mdash; Python doesn't require you to convert first. But the moment a float is involved anywhere in the expression, the <b>result becomes a float</b>, even if it could have been a whole number:</p>
-
-    <div class="code-block">total = 10 + 2.0
+<!-- PART 01 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Mixing Integers and Floats</h2></div>
+    <p class="lede">Floats use the exact same operators as integers &mdash; <code>+</code> <code>-</code> <code>*</code> <code>/</code> <code>//</code> <code>%</code> <code>**</code>. You can freely mix an integer and a float in the same expression without converting first.</p>
+    <div class="code">total = 10 + 2.0
 print(total)     <span class="cm"># 12.0, not 12</span></div>
+    <div class="example"><b>Type coercion:</b> the moment a float is involved anywhere in an expression, the <b>result becomes a float</b> &mdash; even if it could have been a whole number. Python widens the integer to match, instead of raising an error the way it does when you mix a string with a number.</div>
+  </div>
+</section>
 
-    <p>This is called <b>type coercion</b> &mdash; Python automatically converts the integer to match the "wider" type (float) so the math can happen, rather than raising an error the way it does when you mix a string with a number.</p>
-
-    <h2>Converting to a float: float()</h2>
-    <p>Just like <code>int()</code>, you can convert other types into a float on purpose:</p>
-
-    <div class="code-block">grade_text = "89.5"       <span class="cm"># a string</span>
+<!-- PART 02 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Converting &amp; Rounding</h2></div>
+    <p class="lede">Convert into a float on purpose with <code>float()</code>, the same way <code>int()</code> converts into an integer.</p>
+    <div class="code">grade_text = "89.5"        <span class="cm"># a string</span>
 grade = float(grade_text)  <span class="cm"># now a float: 89.5</span></div>
+    <p>If you actually want to round to the nearest value instead of truncating, use <code>round()</code>:</p>
+    <div class="code">print(round(9.6))         <span class="cm"># 10</span>
+print(round(3.14159, 2))   <span class="cm"># 3.14 -- 2 decimal places</span></div>
+    <div class="hint-panel">Good to know, not tested directly: floats can show tiny rounding errors, because computers store decimals in binary and some (like 0.1) can't be represented exactly. Try <code>print(0.1 + 0.2)</code> sometime &mdash; it's <code>0.30000000000000004</code>. That's a property of floating-point math in every language, not a bug in your code.</div>
+  </div>
+</section>
 
-    <p>Converting an integer to a float just adds a <code>.0</code>: <code>float(6)</code> is <code>6.0</code>. Converting a float down to an integer with <code>int()</code> works too, but remember from the Integer page that it truncates instead of rounding.</p>
-
-    <h2>Rounding: round()</h2>
-    <p>If you actually want to round to the nearest value instead of truncating, use <code>round()</code> instead of <code>int()</code>:</p>
-
-    <div class="code-block">print(round(9.6))       <span class="cm"># 10</span>
-print(round(3.14159, 2)) <span class="cm"># 3.14 -- round to 2 decimal places</span></div>
-
-    <div class="note">Good to know, not something you'll be tested on directly: floats can sometimes show tiny rounding errors, because computers store decimal numbers in binary and some decimals (like 0.1) can't be represented exactly. Try <code>print(0.1 + 0.2)</code> sometime &mdash; it's <code>0.30000000000000004</code>, not a clean <code>0.3</code>. This is a property of floating-point math in every programming language, not a bug in your code.</div>
-
-  </article>
-</div>
-
-<footer class="site-footer">
-  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+<footer class="final">
+  <div class="wrap">
+    <h2>One float anywhere in the math, and the whole answer becomes a float.</h2>
+    <p>That's type coercion &mdash; Python widening to the more precise type instead of throwing an error.</p>
+    <a class="back" href="index.html">&larr; All Variables</a>
+    <p class="sig">Python Notes &nbsp;/&nbsp; Float &nbsp;/&nbsp; end of file</p>
+  </div>
 </footer>
 
-<script src="../../assets/nav.js"></script>
-<script>renderHeader();</script>
 </body>
 </html>

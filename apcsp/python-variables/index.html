@@ -1,146 +1,277 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Python Variables | AP Computer Science Principles</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Variables | Python Notes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
-<link rel="stylesheet" href="../../assets/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14;
+  --panel:#10141C;
+  --card:#151A24;
+  --ink:#EAEFF6;
+  --ink-soft:#8B9AAE;
+  --rule:#232B38;
+
+  --str:#F472B6; --str-tint:rgba(244,114,182,.13); --str-ink:#FBC7DE;
+  --int:#38BDF8; --int-tint:rgba(56,189,248,.13); --int-ink:#9FE0FB;
+  --flt:#FBBF24; --flt-tint:rgba(251,191,36,.14); --flt-ink:#FDD877;
+  --lst:#34D399; --lst-tint:rgba(52,211,153,.13); --lst-ink:#8EEFC7;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em}
+p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--int-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:#fff;color:#0B0E14;border-color:#fff}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 12% 20%, rgba(244,114,182,.10), transparent 38%),
+    radial-gradient(circle at 55% 0%, rgba(56,189,248,.10), transparent 36%),
+    radial-gradient(circle at 82% 30%, rgba(251,191,36,.09), transparent 38%),
+    radial-gradient(circle at 96% 90%, rgba(52,211,153,.10), transparent 40%);
+}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:16ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--int-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .hl{color:#fff;font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+.box ul{margin:0;padding-left:20px}
+.box li{margin-bottom:10px;font-size:15px;line-height:1.5;color:#C4CDD8}
+.box li:last-child{margin-bottom:0}
+.box.ok{border-top:3px solid var(--lst)}
+.box.bad{border-top:3px solid var(--bad)}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp th.ok{color:var(--lst-ink)}
+table.cmp th.bad{color:var(--bad-ink)}
+table.cmp td.ok{background:var(--lst-tint)}
+table.cmp td.bad{background:var(--bad-tint)}
+table.cmp td b,table.cmp td code{color:#fff}
+table.cmp code,.box code,.lede code,p code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+/* type picker -- the big buttons */
+.picker{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:8px}
+.pick{display:block;background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:22px 22px 24px;border-top:3px solid var(--rule);text-decoration:none;color:var(--ink);transition:transform .15s ease,border-color .15s ease}
+.pick:hover{transform:translateY(-3px)}
+.pick.str{border-top-color:var(--str)} .pick.str:hover{border-color:var(--str)}
+.pick.int{border-top-color:var(--int)} .pick.int:hover{border-color:var(--int)}
+.pick.flt{border-top-color:var(--flt)} .pick.flt:hover{border-color:var(--flt)}
+.pick.lst{border-top-color:var(--lst)} .pick.lst:hover{border-color:var(--lst)}
+.pick .kind{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.pick.str .kind{color:var(--str-ink)} .pick.int .kind{color:var(--int-ink)} .pick.flt .kind{color:var(--flt-ink)} .pick.lst .kind{color:var(--lst-ink)}
+.pick h3{font-size:22px;font-weight:600;color:#fff;margin-bottom:8px}
+.pick p{font-size:14.5px;color:var(--ink-soft);margin:0 0 16px}
+.pick .go{font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:600}
+.pick.str .go{color:var(--str-ink)} .pick.int .go{color:var(--int-ink)} .pick.flt .go{color:var(--flt-ink)} .pick.lst .go{color:var(--lst-ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.picker{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+</style>
 </head>
 <body>
 
-<div id="site-header-root"></div>
+<nav class="pillnav">
+  <a href="index.html" class="current">Variables</a>
+  <a href="strings.html">String</a>
+  <a href="integers.html">Integer</a>
+  <a href="floats.html">Float</a>
+  <a href="lists.html">List</a>
+</nav>
 
-<div class="lesson-layout" style="grid-template-columns:1fr; max-width:900px;">
-  <article class="lesson-content">
-    <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../index.html">AP Computer Science Principles</a><span class="sep">/</span>Python Variables</div>
-
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">PYTHON NOTES &nbsp;/&nbsp; SUBJECT: STORING DATA</div>
     <h1>Variables</h1>
-    <p class="hint" style="margin-top:-8px;">Everything you need to know to start storing and using data in Python.</p>
+    <p class="deck">A named box that holds a piece of data. Naming one, filling it, and changing what's inside it is the single most-used skill in every Python program you'll ever write.</p>
+  </div>
+</header>
 
-    <h2 style="margin-top:20px; border-top:none; padding-top:0;">What is a variable?</h2>
-    <p>A <b>variable</b> is a named box that holds a piece of data in your program's memory while it runs. Instead of typing the number <code>15</code> over and over, you can store it once under a name &mdash; like <code>age</code> &mdash; and use that name anywhere in your code. When the value changes, you only have to change it in one place.</p>
-
-    <div class="code-block">age = 15
+<!-- PART 00 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>What Is a Variable?</h2></div>
+    <p class="lede">A <b>variable</b> is a named box that holds a piece of data in your program's memory while it runs. Instead of typing the number <code>15</code> over and over, you store it once under a name &mdash; like <code>age</code> &mdash; and use that name anywhere in your code.</p>
+    <div class="code">age = 15
 print(age)</div>
-
     <p>Here, <code>age</code> is the variable. It now holds the value <code>15</code>, and it will keep holding it until you tell Python to store something else there.</p>
+  </div>
+</section>
 
-    <h2>Naming a variable &mdash; what you can and can't do</h2>
-    <p>Python has strict rules about what a variable name is <i>allowed</i> to look like, and separate, looser conventions about what a <i>good</i> variable name looks like.</p>
+<!-- PART 01 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Naming a Variable</h2></div>
+    <p class="lede">Python has strict rules about what a name is <em>allowed</em> to look like, and separate, looser conventions about what a <em>good</em> name looks like.</p>
 
-    <div class="definition-grid">
-      <div class="definition-card">
-        <div class="term">Allowed</div>
-        <p>Letters, numbers, and underscores (<code>_</code>). Must start with a letter or an underscore &mdash; never a number.</p>
+    <div class="two">
+      <div class="box ok">
+        <h3>Allowed</h3>
+        <ul>
+          <li>Letters, numbers, and underscores (<code>_</code>)</li>
+          <li>Must start with a letter or underscore &mdash; never a number</li>
+          <li>Any length you want</li>
+        </ul>
       </div>
-      <div class="definition-card">
-        <div class="term">Not Allowed</div>
-        <p>Spaces, punctuation (<code>-</code> <code>@</code> <code>!</code> <code>#</code> etc.), and starting a name with a digit.</p>
-      </div>
-      <div class="definition-card">
-        <div class="term">Case-Sensitive</div>
-        <p><code>age</code>, <code>Age</code>, and <code>AGE</code> are three completely different variables to Python.</p>
-      </div>
-      <div class="definition-card">
-        <div class="term">Reserved Words</div>
-        <p>You can't name a variable after a word Python already uses for something else, like <code>if</code>, <code>for</code>, <code>while</code>, <code>True</code>, <code>False</code>, or <code>class</code>.</p>
+      <div class="box bad">
+        <h3>Not allowed</h3>
+        <ul>
+          <li>Spaces, or punctuation like <code>-</code> <code>@</code> <code>!</code> <code>#</code></li>
+          <li>Starting a name with a digit</li>
+          <li>Python's own reserved words &mdash; <code>if</code>, <code>for</code>, <code>while</code>, <code>True</code>, <code>class</code>, etc.</li>
+        </ul>
       </div>
     </div>
 
-    <div style="overflow-x:auto;">
-      <table>
-        <thead><tr><th>Valid names</th><th>Invalid names</th><th>Why the invalid ones fail</th></tr></thead>
-        <tbody>
-          <tr><td><code>score</code></td><td><code>2ndScore</code></td><td>Can't start with a number</td></tr>
-          <tr><td><code>student_name</code></td><td><code>student name</code></td><td>No spaces allowed</td></tr>
-          <tr><td><code>total_points</code></td><td><code>total-points</code></td><td>A hyphen isn't allowed &mdash; Python reads it as subtraction</td></tr>
-          <tr><td><code>isReady</code></td><td><code>is ready?</code></td><td>No spaces or question marks</td></tr>
-          <tr><td><code>_temp</code></td><td><code>class</code></td><td><code>class</code> is a reserved Python keyword</td></tr>
-        </tbody>
+    <div class="tblwrap">
+      <table class="cmp">
+        <tr><th class="ok">Valid</th><th class="bad">Invalid</th><th>Why the invalid one fails</th></tr>
+        <tr><td class="ok"><code>score</code></td><td class="bad"><code>2ndScore</code></td><td>Can't start with a number</td></tr>
+        <tr><td class="ok"><code>student_name</code></td><td class="bad"><code>student name</code></td><td>No spaces allowed</td></tr>
+        <tr><td class="ok"><code>total_points</code></td><td class="bad"><code>total-points</code></td><td>A hyphen reads as subtraction</td></tr>
+        <tr><td class="ok"><code>_temp</code></td><td class="bad"><code>class</code></td><td><code>class</code> is a reserved keyword</td></tr>
       </table>
     </div>
 
-    <div class="note">Good style: use lowercase letters, and separate words with underscores &mdash; <code>total_score</code>, not <code>totalscore</code> or <code>TotalScore</code>. This is called <b>snake_case</b>, and it's the standard convention in Python. It's not a rule Python enforces, but it's what the AP CSP exam and every Python style guide expects.</div>
+    <div class="hint-panel"><b>Also worth knowing:</b> Python is case-sensitive, so <code>age</code>, <code>Age</code>, and <code>AGE</code> are three completely different variables. Good style uses lowercase with underscores between words &mdash; called <b>snake_case</b> &mdash; like <code>total_score</code> rather than <code>TotalScore</code>.</div>
+  </div>
+</section>
 
-    <h2>The equals sign: <code>=</code></h2>
-    <p>This is the single most important thing to unlearn from math class. In math, <code>=</code> is a statement that two things are <i>equal</i> &mdash; it works both directions. In Python, <code>=</code> is the <b>assignment operator</b>: it means <i>"take whatever is on the right, and store it in the variable on the left."</i> It only works one direction.</p>
+<!-- PART 02 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>The Equals Sign</h2></div>
+    <p class="lede">This is the single most important thing to unlearn from math class. In Python, <code>=</code> is the <b>assignment operator</b>, and it only flows one direction: <em>take whatever is on the right, and store it in the name on the left.</em></p>
 
-    <div class="example-grid">
-      <div class="example-card">
-        <div class="ex-num">1</div>
-        <h4>In math</h4>
-        <p><code>x = 5</code> means x and 5 are the same value, always. You could just as easily write <code>5 = x</code> &mdash; it means the same thing.</p>
+    <div class="two">
+      <div class="box">
+        <h3>In math</h3>
+        <p><code>x = 5</code> means x and 5 are the same value, always &mdash; symmetric. Writing <code>5 = x</code> means the exact same thing.</p>
       </div>
-      <div class="example-card">
-        <div class="ex-num">2</div>
-        <h4>In Python</h4>
-        <p><code>x = 5</code> means <i>"store 5 in x."</i> Writing <code>5 = x</code> is a syntax error &mdash; you can't assign a value into the number 5.</p>
+      <div class="box">
+        <h3>In Python</h3>
+        <p><code>x = 5</code> means <em>"store 5 in x."</em> Writing <code>5 = x</code> is a syntax error &mdash; you can't assign into the number 5.</p>
       </div>
     </div>
 
-    <p>Because it only flows one direction, a line like this makes perfect sense in Python even though it would be impossible in math:</p>
-
-    <div class="code-block">x = 5
+    <p>Because it only flows one direction, this line makes perfect sense in Python even though it's impossible in math:</p>
+    <div class="code">x = 5
 x = x + 1
 print(x)   <span class="cm"># prints 6</span></div>
+    <p>Read the right side first: Python looks up the current value of <code>x</code> (5), adds 1 to get 6, then stores that new value back into <code>x</code>. No equation is "solved" &mdash; it's a two-step instruction: <em>compute the right side, then save it to the left side.</em> This exact pattern powers counters, running totals, and every loop you'll write.</p>
+  </div>
+</section>
 
-    <p>Read <code>x = x + 1</code> from the <b>right side first</b>: Python looks up the current value of <code>x</code> (5), adds 1 to get 6, and <i>then</i> stores that new value back into <code>x</code>. No equation is being "solved" &mdash; it's a two-step instruction: <i>compute the right side, then save it to the left side.</i> This exact pattern (take a variable, change it, save it back to itself) shows up constantly in AP CSP &mdash; counters, running totals, and loops all depend on it.</p>
+<!-- PART 03 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Types of Variables</h2></div>
+    <p class="lede">Every variable holds a <b>type</b> of data, and Python treats each type differently. Pick one below for everything you need to know about it for AP CSP.</p>
 
-    <h2>Types of variables</h2>
-    <p>Every variable holds a <b>type</b> of data, and Python treats each type differently. Click a type below for everything you need to know about it for AP CSP.</p>
-
-    <div class="topic-nav-grid">
-      <a class="topic-nav-btn" href="strings.html">
-        <div class="type-label">Text</div>
+    <div class="picker">
+      <a class="pick str" href="strings.html">
+        <div class="kind">Text</div>
         <h3>String</h3>
         <p>Text data, wrapped in quotes &mdash; <code>"hello"</code></p>
         <div class="go">See String notes &rarr;</div>
       </a>
-      <a class="topic-nav-btn" href="integers.html">
-        <div class="type-label">Whole numbers</div>
+      <a class="pick int" href="integers.html">
+        <div class="kind">Whole numbers</div>
         <h3>Integer</h3>
         <p>Numbers with no decimal point &mdash; <code>7</code>, <code>-3</code></p>
         <div class="go">See Integer notes &rarr;</div>
       </a>
-      <a class="topic-nav-btn" href="floats.html">
-        <div class="type-label">Decimal numbers</div>
+      <a class="pick flt" href="floats.html">
+        <div class="kind">Decimal numbers</div>
         <h3>Float</h3>
         <p>Numbers with a decimal point &mdash; <code>3.14</code></p>
         <div class="go">See Float notes &rarr;</div>
       </a>
-      <a class="topic-nav-btn" href="lists.html">
-        <div class="type-label">Collections</div>
+      <a class="pick lst" href="lists.html">
+        <div class="kind">Collections</div>
         <h3>List</h3>
         <p>An ordered group of values in one variable</p>
         <div class="go">See List notes &rarr;</div>
       </a>
     </div>
+  </div>
+</section>
 
-    <h2>Variables can change</h2>
-    <p>A variable isn't locked to one value, or even one <i>type</i>, forever. Assigning a new value with <code>=</code> always overwrites whatever used to be there &mdash; that's true even if the new value is a completely different type than the old one.</p>
+<!-- PART 04 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Variables Can Change</h2></div>
+    <p class="lede">A variable isn't locked to one value, or even one <em>type</em>, forever. Assigning a new value with <code>=</code> always overwrites whatever used to be there &mdash; even if the new value is a completely different type.</p>
+    <div class="code">data = "hello"      <span class="cm"># data is currently a string</span>
+print(data)          <span class="cm"># hello</span>
 
-    <div class="code-block">data = "hello"      <span class="cm"># data is currently a string</span>
-print(data)         <span class="cm"># hello</span>
+data = 42             <span class="cm"># now data is an integer instead</span>
+print(data)           <span class="cm"># 42</span></div>
 
-data = 42            <span class="cm"># now data is an integer instead</span>
-print(data)          <span class="cm"># 42</span></div>
+    <div class="callout">This is called <b>dynamic typing.</b><span>Python figures out a variable's type from whatever value is currently stored in it &mdash; and that can change every single time you reassign it with <code>=</code>.</span></div>
+  </div>
+</section>
 
-    <p>This is called <b>dynamic typing</b> &mdash; Python figures out a variable's type from whatever value is currently stored in it, and that can change every time you reassign it with <code>=</code>. Nothing about the name <code>data</code> changed; only what's stored inside it did.</p>
-
-    <div class="note">This is also why the naming rules matter so much: Python doesn't care what type of data a name is "supposed" to hold, so a clear, descriptive name is the only clue a reader gets about what a variable is for.</div>
-
-  </article>
-</div>
-
-<footer class="site-footer">
-  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+<footer class="final">
+  <div class="wrap">
+    <h2>The name never changes. What's stored inside it can, at any time.</h2>
+    <p>That's the whole idea of a variable: one label, pointed at whatever value you need right now. Pick a type below to go deeper.</p>
+    <p class="sig">Python Notes &nbsp;/&nbsp; Variables &nbsp;/&nbsp; end of file</p>
+  </div>
 </footer>
 
-<script src="../../assets/nav.js"></script>
-<script>renderHeader();</script>
 </body>
 </html>
