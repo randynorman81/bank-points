@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mouse Events | Python Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#E879F9; --acc-tint:rgba(232,121,249,.14); --acc-ink:#F5D0FE;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#360B3D;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:18ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .err{color:var(--bad-ink);font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.ok{border-top-color:var(--acc)}
+.box.bad{border-top-color:var(--bad)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3DCF9}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.bad{background:var(--bad-tint)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../study-guides.html">&larr; Bite-Sized Chunks</a>
+  <a href="index.html">Graphics</a>
+  <a href="circle.html">Circle</a>
+  <a href="rectangle.html">Rectangle</a>
+  <a href="square.html">Square</a>
+  <a href="mouse-events.html" class="current">Mouse Events</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">PYTHON NOTES &nbsp;/&nbsp; SUBJECT: RESPONDING TO CLICKS</div>
+    <h1>Mouse Events</h1>
+    <p class="deck">How to make a shape react when the user clicks the canvas &mdash; one function, one rule about parentheses, and every shape trick from the Graphics pages becomes interactive.</p>
+  </div>
+</header>
+
+<!-- DEFINITION -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>Definition</h2></div>
+    <p class="lede">A <b>mouse click event</b> lets your program run a function every time the user clicks anywhere on the canvas. You write a function that takes the click's <code>x</code> and <code>y</code> position, then register it with <code>add_mouse_click_handler()</code>.</p>
+    <div class="code"># General format
+def callback(x, y):
+    <span class="cm"># do something with the click position</span>
+
+add_mouse_click_handler(callback)</div>
+    <p>The function you write &mdash; here called <code>callback</code>, though you can name it anything &mdash; is called your <b>handler</b>. You never call it yourself; the canvas calls it for you, automatically, every time a click happens.</p>
+
+    <h3 style="margin-top:6px;">What do x and y actually mean?</h3>
+    <p><code>x</code> and <code>y</code> in <code>def draw_circle(x, y):</code> are <b>parameters</b> &mdash; empty slots in the function's parentheses that get filled in with real values every time the function runs. You never fill them in yourself here. The instant the user clicks, the canvas calls your function for you and drops in the exact pixel position of that click.</p>
+    <div class="code">def draw_circle(x, y):
+    <span class="cm"># x = how far right the click was, in pixels from the left edge</span>
+    <span class="cm"># y = how far down the click was, in pixels from the top edge</span>
+    circle = Circle(10)
+    circle.set_position(x, y)
+    add(circle)</div>
+    <p>Click near the top-left of the canvas, and <code>x</code> and <code>y</code> will both be small numbers. Click near the bottom-right, and they'll both be large. You didn't type those numbers anywhere &mdash; the canvas measured the click and handed them to your function through <code>x</code> and <code>y</code>.</p>
+    <div class="hint-panel">You can name these parameters anything &mdash; <code>def draw_circle(mouse_x, mouse_y):</code> would work exactly the same way. <code>x</code> and <code>y</code> are just the conventional names, because that's literally what values they'll always hold: a click's horizontal and vertical position.</div>
+
+    <h3>Dot notation: circle.set_position(x, y)</h3>
+    <p>The dot in <code>circle.set_position(x, y)</code> means <em>"tell this specific object to do something."</em> Everything before the dot is <b>which object</b> you're talking to; everything after the dot is the <b>method</b> &mdash; an action that object knows how to perform.</p>
+    <div class="two">
+      <div class="box">
+        <h3>With a dot &mdash; a method</h3>
+        <p><code>circle.set_position(x, y)</code> belongs to one specific circle. It only affects <code>circle</code> &mdash; nothing else on the canvas moves.</p>
+      </div>
+      <div class="box">
+        <h3>No dot &mdash; a plain function</h3>
+        <p><code>add(circle)</code> isn't tied to any one object. Instead, you hand the circle to it as an argument, the same way you'd pass a number to <code>str()</code>.</p>
+      </div>
+    </div>
+    <p>Read <code>circle.set_position(x, y)</code> left to right like a sentence: <b>"circle</b>, <b>set your position</b> to <b>(x, y)</b>." If your program had two circles, <code>circle_one.set_position(...)</code> and <code>circle_two.set_position(...)</code> would each move only the one named before its own dot &mdash; never both at once. That's the whole point of the dot: it says exactly which object the instruction is for.</p>
+
+    <div class="hint-panel">Notice <code>add_mouse_click_handler(callback)</code> has <b>no parentheses</b> after <code>callback</code>. You're handing over the function itself, not the result of calling it &mdash; the canvas will do the calling, later, every time it needs to.</div>
+  </div>
+</section>
+
+<!-- EXAMPLES -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Examples</h2></div>
+    <p class="lede">The canvas still has to exist before any of this works &mdash; set it up first, exactly like every other Graphics page.</p>
+    <div class="code">set_size(400, 300)
+
+<span class="cm"># Create a circle with a radius of 10, centered at the click</span>
+def make_circle(x, y):
+    circle = Circle(10)
+    circle.set_position(x, y)
+    add(circle)
+
+add_mouse_click_handler(make_circle)</div>
+    <p>This is the library's own official example: a new circle appears at whatever point you click, every single time.</p>
+
+    <h3 style="margin-top:8px;">Moving an existing shape to the click</h3>
+    <p>The handler doesn't have to create something new &mdash; it can just as easily move a shape that already exists:</p>
+    <div class="code">dial = Circle(12)
+dial.set_position(200, 150)
+add(dial)
+
+def move_dial(x, y):
+    dial.set_position(x, y)   <span class="cm"># just reposition it -- no "global" needed</span>
+
+add_mouse_click_handler(move_dial)</div>
+    <div class="example">Calling a method on <code>dial</code> (like <code>set_position()</code>) works inside the handler with no extra setup, because you're not reassigning the variable <code>dial</code> itself &mdash; just changing something about the object it already points to.</div>
+  </div>
+</section>
+
+<!-- COMMON PROBLEMS / ERRORS -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Common Problems / Errors</h2></div>
+
+    <div class="warn"><b>Adding parentheses by accident:</b> <code>add_mouse_click_handler(make_circle())</code> calls <code>make_circle</code> immediately &mdash; once, right then, and almost certainly with the wrong number of arguments &mdash; instead of registering it to run later on every click.</div>
+    <div class="code">add_mouse_click_handler(make_circle())
+<span class="err">TypeError: make_circle() missing 2 required positional arguments: 'x' and 'y'</span></div>
+
+    <div class="two">
+      <div class="box bad">
+        <h3>Wrong parameter count</h3>
+        <p><code>def callback():</code> with no parameters will crash the moment a click happens &mdash; the canvas always passes <code>x</code> and <code>y</code> to your handler, whether you use them or not.</p>
+      </div>
+      <div class="box ok">
+        <h3>Reassigning a variable inside the handler</h3>
+        <p>Unlike calling a method, <em>reassigning</em> a variable declared outside the function (like a click counter) needs the <code>global</code> keyword &mdash; see below.</p>
+      </div>
+    </div>
+
+    <div class="code">click_count = 0
+
+def count_clicks(x, y):
+    click_count = click_count + 1   <span class="cm"># fails without "global"</span>
+    print(click_count)
+
+add_mouse_click_handler(count_clicks)
+<span class="err">UnboundLocalError: local variable 'click_count' referenced before assignment</span></div>
+    <div class="hint-panel">The fix: add <code>global click_count</code> as the first line inside the function. Python treats any variable you <em>assign to</em> inside a function as local by default &mdash; <code>global</code> tells it "no, use the one from outside."</div>
+  </div>
+</section>
+
+<!-- PYTHON CODE VS PSEUDOCODE -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Python Code vs. Pseudocode</h2></div>
+    <p class="lede">Same answer as the rest of the Graphics section: mouse events aren't part of the official AP CSP pseudocode at all.</p>
+    <div class="hint-panel">The multiple-choice exam's pseudocode has no concept of "the user clicked here" &mdash; it only reacts to values you already have, like <code>INPUT()</code>. Responding to a live click in real time is a graphics-library-specific skill, specific to whichever library your class happens to use. <code>add_mouse_click_handler()</code> is real code for your <b>Create Performance Task</b>, not something you'll see written as pseudocode.</div>
+  </div>
+</section>
+
+<!-- SPOTIFY EXAMPLES -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Spotify Examples (5)</h2></div>
+    <p class="lede">Five click interactions from a real music app, all built on the exact same handler pattern.</p>
+
+    <div class="cards">
+      <div class="cardx">
+        <div class="num">01</div>
+        <h4>Toggling play / pause</h4>
+        <code class="line">is_playing = False
+
+def toggle_play(x, y):
+    global is_playing
+    is_playing = not is_playing
+    if is_playing:
+        play_btn.set_color(Color.green)
+    else:
+        play_btn.set_color(Color.red)
+
+add_mouse_click_handler(toggle_play)</code>
+        <p>A click flips a boolean and recolors the button to match.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">02</div>
+        <h4>Seeking the progress bar</h4>
+        <code class="line">def seek(x, y):
+    marker.set_position(x, 180)
+
+add_mouse_click_handler(seek)</code>
+        <p>The marker jumps straight to wherever the user clicked along the bar.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">03</div>
+        <h4>Adding a song to the queue</h4>
+        <code class="line">def add_to_queue(x, y):
+    song = Rectangle(60, 60)
+    song.set_position(x, y)
+    add(song)
+
+add_mouse_click_handler(add_to_queue)</code>
+        <p>Every click drops a new square "song tile" right where you clicked.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">04</div>
+        <h4>Counting skips</h4>
+        <code class="line">skip_count = 0
+
+def count_skips(x, y):
+    global skip_count
+    skip_count = skip_count + 1
+    print("Skipped " + str(skip_count) + " times")
+
+add_mouse_click_handler(count_skips)</code>
+        <p>Needs <code>global</code> &mdash; the count is being reassigned, not just read.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">05</div>
+        <h4>Adjusting the volume dial</h4>
+        <code class="line">def set_volume(x, y):
+    dial.set_position(get_width() - 30, y)
+
+add_mouse_click_handler(set_volume)</code>
+        <p>Only the y-coordinate of the click is used &mdash; the dial always stays pinned to the right edge.</p>
+      </div>
+    </div>
+
+    <div class="callout">Every click handler is the same shape: a function that takes x and y, and a single line registering it.<span>What changes is only what you do inside the function &mdash; move something, recolor something, count something, or create something new.</span></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>One handler function. No parentheses when you register it. The canvas does the rest.</h2>
+    <p>Every interactive graphics program comes down to writing what should happen, then handing that function over and stepping back.</p>
+    <a class="back" href="index.html">&larr; All Graphics</a>
+    <p class="sig">Python Notes &nbsp;/&nbsp; Mouse Events &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+</body>
+</html>
