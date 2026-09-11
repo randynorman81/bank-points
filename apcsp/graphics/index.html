@@ -132,21 +132,22 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
 <section class="part">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">00</div><h2>Definition</h2></div>
-    <p class="lede">CodeHS's graphics library draws shapes as <b>objects</b> on a canvas. You create a shape, tell it where to go, and <code>add()</code> it to the screen so it actually shows up. Nothing appears until you add it.</p>
-    <div class="code">circle = Circle(50)          <span class="cm"># create a circle with radius 50</span>
-circle.set_position(100, 100) <span class="cm"># place it</span>
-circle.set_color(Color.blue)  <span class="cm"># color it</span>
-add(circle)                    <span class="cm"># now it actually shows up</span></div>
-
-    <h3 style="margin-top:6px;">The canvas</h3>
-    <p>The canvas is the drawing surface itself. Its coordinate system is flipped from ordinary math: <b>(0, 0) is the top-left corner</b>, x increases moving right, and <b>y increases moving down</b> &mdash; not up.</p>
+    <p class="lede">Before you can draw anything, you need a <b>canvas</b> &mdash; the drawing surface itself. Every shape you place afterward is positioned relative to it, so it comes first, every time.</p>
     <div class="code"># Set the canvas to 400 wide by 300 tall
 set_size(400, 300)
 
 # Ask the canvas how big it currently is
 canvas_width = get_width()
 canvas_height = get_height()</div>
-    <div class="hint-panel"><code>get_width()</code> and <code>get_height()</code> aren't methods on a shape here &mdash; called by themselves like this, they return the <b>canvas's</b> current size. Every shape below also has its own <code>get_width()</code>/<code>get_height()</code>/<code>get_radius()</code>, called on the shape instead.</div>
+    <p>Its coordinate system is flipped from ordinary math: <b>(0, 0) is the top-left corner</b>, x increases moving right, and <b>y increases moving down</b> &mdash; not up.</p>
+    <div class="hint-panel">Called by themselves like this, <code>get_width()</code> and <code>get_height()</code> aren't methods on a shape &mdash; they return the <b>canvas's</b> current size. Every shape has its own <code>get_width()</code>/<code>get_height()</code>/<code>get_radius()</code> too, called on the shape instead once one exists.</div>
+
+    <h3 style="margin-top:6px;">Now, a shape</h3>
+    <p>Once a canvas exists, CodeHS's graphics library draws shapes as <b>objects</b> on top of it. You create a shape, tell it where to go, and <code>add()</code> it to the screen so it actually shows up. Nothing appears until you add it.</p>
+    <div class="code">circle = Circle(50)          <span class="cm"># create a circle with radius 50</span>
+circle.set_position(100, 100) <span class="cm"># place it</span>
+circle.set_color(Color.blue)  <span class="cm"># color it</span>
+add(circle)                    <span class="cm"># now it actually shows up</span></div>
   </div>
 </section>
 
@@ -154,17 +155,24 @@ canvas_height = get_height()</div>
 <section class="part">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">01</div><h2>Examples</h2></div>
-    <p class="lede">Every shape in this library follows the same four moves, no matter which one it is.</p>
+    <p class="lede">Canvas first, then a shape &mdash; put together, that's the standard opening of nearly every graphics program you'll write.</p>
+    <div class="code">set_size(400, 300)             <span class="cm"># 1. canvas exists first</span>
+
+shape = Circle(50)              <span class="cm"># 2. now a shape can be created</span>
+shape.set_position(100, 100)    <span class="cm"># 3. positioned</span>
+shape.set_color(Color.red)      <span class="cm"># 4. styled</span>
+add(shape)                       <span class="cm"># 5. shown</span></div>
     <div class="tblwrap"><div class="tblscroll">
       <table class="cmp">
         <tr><th>Step</th><th>Code</th></tr>
-        <tr><td>1. Create it</td><td><code>shape = Circle(50)</code></td></tr>
+        <tr><td>0. Set up the canvas</td><td><code>set_size(width, height)</code></td></tr>
+        <tr><td>1. Create a shape</td><td><code>shape = Circle(50)</code></td></tr>
         <tr><td>2. Position it</td><td><code>shape.set_position(x, y)</code></td></tr>
         <tr><td>3. Style it</td><td><code>shape.set_color(Color.red)</code></td></tr>
         <tr><td>4. Show it</td><td><code>add(shape)</code></td></tr>
       </table>
     </div></div>
-    <p>Pick a shape below for the details specific to it &mdash; each one has its own rules for what <code>set_position()</code> actually means, and its own way of reporting its size back to you.</p>
+    <p>Every shape in this library follows the same four moves after the canvas is set up, no matter which one it is. Pick a shape below for the details specific to it &mdash; each one has its own rules for what <code>set_position()</code> actually means, and its own way of reporting its size back to you.</p>
 
     <div class="picker">
       <a class="pick cir" href="circle.html">
