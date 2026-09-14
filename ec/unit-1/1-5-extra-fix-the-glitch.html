@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.5 Extra: Fix the Glitch | Unit 1 | Embedded Computing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+  .worksheet-box { border:1px solid var(--rule, #ccc); border-radius:8px; padding:16px 18px; margin:16px 0; background:rgba(0,0,0,0.015); }
+  .worksheet-box h3 { margin-top:0; }
+  .worksheet-field { margin:14px 0; }
+  .worksheet-field label { display:block; font-weight:bold; margin-bottom:4px; }
+  .worksheet-field textarea, .worksheet-field input[type="text"] {
+    width:100%; box-sizing:border-box; font:inherit; padding:8px 10px;
+    border:1px solid var(--rule, #ccc); border-radius:6px; resize:vertical;
+  }
+  .worksheet-field textarea { min-height:70px; }
+  .sketch-tools { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:8px 0 10px; }
+  .sketch-tools label { font-size:0.9em; }
+  #sketchCanvas { border:1px solid var(--rule, #ccc); border-radius:6px; touch-action:none; background:#fff; max-width:100%; display:block; }
+  .btn { cursor:pointer; border:1px solid var(--rule, #ccc); background:#fff; border-radius:6px; padding:6px 12px; font:inherit; }
+  .btn:hover { background:#f0f0f0; }
+  .timer-widget { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin:10px 0; }
+  #timerDisplay { font-size:2em; font-weight:bold; font-variant-numeric:tabular-nums; min-width:1.6em; }
+  .timeline-check-cell { text-align:center; width:48px; }
+  .save-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:18px 0; padding:10px 14px; border-radius:6px; background:rgba(0,0,0,0.03); font-size:0.9em; }
+  #saveStatus { color:#555; }
+  @media print {
+    #site-header-root, #lesson-sidebar-root, .breadcrumb, .save-bar, .sketch-tools,
+    #timerStart, #timerReset, .site-footer, #prev-next-root { display:none !important; }
+    .lesson-layout { display:block !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<div style="max-width:1200px;margin:0 auto;padding:24px 20px 0;">
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ec/index.html">Embedded Computing</a><span class="sep">/</span><a href="../../ec/unit-1/index.html">Unit 1: What Is an Embedded System?</a><span class="sep">/</span>1.5 Extra: Fix the Glitch</div>
+</div>
+
+  <div class="lesson-layout">
+    <aside class="lesson-sidebar" id="lesson-sidebar-root"></aside>
+
+    <article class="lesson-content">
+      <h1>1.5 Extra &mdash; Fix the Glitch</h1>
+      <p class="hint"><strong>DRAFT &mdash; not yet added to the unit or linked anywhere on the site.</strong> Bonus/extension activity for today, for whenever Take a Stand wraps up early or as an optional add-on. Flips the earlier activity around: instead of arguing about who's to blame, you're the engineer who has to make sure it never happens again. This page is a living worksheet &mdash; everything you type or draw below saves automatically in your browser as you go.</p>
+
+      <div class="save-bar">
+        <span id="saveStatus">Not saved yet &mdash; your answers save automatically as you type.</span>
+        <span>
+          <button class="btn" id="printBtn" type="button">&#128424; Print / Save as PDF</button>
+          <button class="btn" id="clearWork" type="button">Clear my work</button>
+        </span>
+      </div>
+
+      <h2>The pitch</h2>
+      <p>You just got hired as an embedded systems engineer at <strong>Meridian Trace Technologies</strong> &mdash; yes, the company from earlier that knew about the GPS drift glitch and shipped it anyway. Your new boss is done being sued. Your job: walk into Friday's engineering review with an actual fix, not another excuse.</p>
+      <p>You don't get to just say "make the GPS better." You have to propose <strong>one hardware change and one software/logic change</strong>, and explain exactly how each one would have stopped today's wrongful arrest from happening.</p>
+
+      <h2>Intro</h2>
+      <p>Ask AI these questions; look over the answers &mdash; these are more technical than this morning's, on purpose.</p>
+      <ol>
+        <li>What causes GPS "drift" or multipath error, and why does it happen more in some locations (cities, forests, indoors) than others?</li>
+        <li>What is sensor fusion, and how do phones and cars combine GPS with other signals (cell tower triangulation, Wi-Fi positioning, accelerometer data) to get a more reliable location?</li>
+        <li>What is a confidence threshold in a sensor system, and how could requiring "two bad readings in a row" instead of one prevent a false alarm?</li>
+        <li>What's a watchdog timer or sanity-check logic in embedded systems, and how might one apply to a device that suddenly reports an impossible jump in location?</li>
+        <li>Explain to a middle schooler why "just make the sensor perfect" isn't a realistic engineering fix, and why systems are usually designed to expect errors instead.</li>
+      </ol>
+
+      <div class="worksheet-field">
+        <label for="researchNotes">Your notes &mdash; key things you learned from AI's answers:</label>
+        <textarea id="researchNotes" placeholder="Jot down whatever stood out from the 5 questions above..."></textarea>
+      </div>
+
+      <h2>Notes</h2>
+      <p>Add these to your living glossary:</p>
+      <ul>
+        <li>Sensor fusion</li>
+        <li>Redundancy</li>
+        <li>Confidence threshold</li>
+        <li>False positive</li>
+      </ul>
+
+      <h2>Today's Activity &mdash; Fix the Glitch</h2>
+      <p>Working solo or with a partner, design your fix using the form below. It needs:</p>
+      <ul>
+        <li><strong>One hardware fix</strong> &mdash; something physically different about the monitor itself (example categories to research, not answers: a second positioning method as backup, a better antenna, an onboard sanity-check chip &mdash; you don't have to use these).</li>
+        <li><strong>One software/logic fix</strong> &mdash; something different about how the device or GuardLine's system decides a reading is real (example categories: requiring confirmation pings, comparing against the person's recent movement history, flagging &mdash; not auto-escalating &mdash; a single suspicious reading).</li>
+        <li><strong>A one-line "before vs. after"</strong> for each fix: what exactly would have happened differently in this morning's scenario if your fix had already shipped.</li>
+        <li>A quick sketch of your hardware fix using the drawing pad below.</li>
+      </ul>
+      <p class="hint">Constraint that makes this harder (and more realistic): your fix can't make the monitor take longer than 60 seconds to report a real zone violation. A fix that's so cautious it lets someone actually run also fails &mdash; Meridian's other customer is public safety, not just the wrongly accused.</p>
+
+      <div class="worksheet-box">
+        <h3>Your proposal</h3>
+        <div class="worksheet-field">
+          <label for="hardwareFix">Hardware fix &mdash; what's physically different?</label>
+          <textarea id="hardwareFix" placeholder="Describe the hardware change..."></textarea>
+        </div>
+        <div class="worksheet-field">
+          <label for="hardwareBeforeAfter">Before vs. after (hardware fix):</label>
+          <input type="text" id="hardwareBeforeAfter" placeholder="With this fix, today's arrest would have played out differently because...">
+        </div>
+        <div class="worksheet-field">
+          <label for="softwareFix">Software/logic fix &mdash; what's different about the decision-making?</label>
+          <textarea id="softwareFix" placeholder="Describe the software/logic change..."></textarea>
+        </div>
+        <div class="worksheet-field">
+          <label for="softwareBeforeAfter">Before vs. after (software fix):</label>
+          <input type="text" id="softwareBeforeAfter" placeholder="With this fix, today's arrest would have played out differently because...">
+        </div>
+
+        <div class="worksheet-field">
+          <label>Sketch your hardware fix:</label>
+          <div class="sketch-tools">
+            <label>Color <input type="color" id="sketchColor" value="#1a1a1a"></label>
+            <label>Brush size <input type="range" id="sketchSize" min="1" max="12" value="3"></label>
+            <button class="btn" id="sketchClear" type="button">Clear sketch</button>
+            <button class="btn" id="sketchDownload" type="button">Download sketch</button>
+          </div>
+          <canvas id="sketchCanvas" width="600" height="280"></canvas>
+        </div>
+      </div>
+
+      <h2>Pitch it</h2>
+      <p>Two minutes, no slides required. To the "engineering review board" (the class): what's broken, what you're changing, and why your fix beats just "add more testing." Best pitches get bonus points for a fix nobody else thought of.</p>
+      <div class="timer-widget">
+        <span id="timerDisplay">2:00</span>
+        <button class="btn" id="timerStart" type="button">Start pitch timer</button>
+        <button class="btn" id="timerReset" type="button">Reset</button>
+      </div>
+
+      <p><strong>Suggested timeline (30&ndash;35 min, as an add-on):</strong></p>
+      <table style="border-collapse:collapse;width:100%;margin:12px 0;">
+        <tr style="border-bottom:1px solid var(--rule, #ccc);">
+          <th style="text-align:left;padding:6px 12px 6px 0;">Time</th>
+          <th style="text-align:left;padding:6px 12px;">What happens</th>
+          <th class="timeline-check-cell">Done</th>
+        </tr>
+        <tr><td style="padding:6px 12px 6px 0;">0:00&ndash;0:10</td><td style="padding:6px 12px;">AI research &mdash; today's 5 technical questions</td><td class="timeline-check-cell"><input type="checkbox" class="timeline-check" data-step="research"></td></tr>
+        <tr><td style="padding:6px 12px 6px 0;">0:10&ndash;0:22</td><td style="padding:6px 12px;">Design your hardware fix + software fix, sketch it, write the before/after lines</td><td class="timeline-check-cell"><input type="checkbox" class="timeline-check" data-step="design"></td></tr>
+        <tr><td style="padding:6px 12px 6px 0;">0:22&ndash;0:32</td><td style="padding:6px 12px;">Pitches &mdash; 2 minutes each, rapid-fire</td><td class="timeline-check-cell"><input type="checkbox" class="timeline-check" data-step="pitches"></td></tr>
+        <tr><td style="padding:6px 12px 6px 0;">0:32&ndash;0:35</td><td style="padding:6px 12px;">Vote: which fix would you actually trust your own ankle to?</td><td class="timeline-check-cell"><input type="checkbox" class="timeline-check" data-step="vote"></td></tr>
+      </table>
+
+      <h2>Assignments</h2>
+      <ul>
+        <li>Turn in your one-page proposal &mdash; use "Print / Save as PDF" above once your form and sketch are filled in.</li>
+        <li>Fill out your developer report and submit it in Google Classroom (graded at the end of the unit). Answer these specifically:
+          <ul>
+            <li>What tradeoff did you run into between making the monitor more accurate and making it still respond fast enough to be useful?</li>
+            <li>Did hearing other pitches change your mind about your own fix? Why or why not?</li>
+            <li>Is a "perfect" embedded sensor actually possible, or does every fix just trade one kind of error for another?</li>
+          </ul>
+        </li>
+        <li>Add today's 4 terms to your living glossary if you haven't already.</li>
+      </ul>
+
+      <div id="prev-next-root" class="prev-next-nav"></div>
+    </article>
+  </div>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>
+renderHeader();
+
+const UNIT_TITLE = "Unit 1: What Is an Embedded System?";
+const UNIT_BASE = "";
+const UNIT_LESSONS = [
+  { title: "1.1 What Is an Embedded System?", file: "1-1-what-is-an-embedded-system.html" },
+  { title: "1.2 Intro to Forensic Auditing", file: "1-2-intro-to-forensic-auditing.html" },
+  { title: "1.2 (Day 2) First Forensic Audit", file: "1-2-day-2-first-forensic-audit.html" },
+  { title: "1.3 Embedded Systems All Around Us", file: "1-3-embedded-systems-all-around-us.html" },
+  { title: "1.5 Take a Stand: GPS Ankle Monitor Failures", file: "1-5-forensic-audit-gps-ankle-monitor-failures.html" },
+  { title: "1.6 Resume + Polish Site", file: "1-6-resume-polish-site.html" },
+  { title: "1.7 AI in Embedded Computing and IoT", file: "1-7-ai-in-embedded-computing-and-iot.html" },
+  { title: "1.8 Unit 1 Test", file: "1-8-unit-1-test.html" }
+];
+const CURRENT_FILE = "1-5-forensic-audit-gps-ankle-monitor-failures.html";
+</script>
+<script src="../../assets/course-nav.js"></script>
+
+<script>
+(function () {
+  const STORAGE_KEY = "ec_1_5_extra_fix_the_glitch";
+  const fieldIds = ["researchNotes", "hardwareFix", "hardwareBeforeAfter", "softwareFix", "softwareBeforeAfter"];
+  const els = {};
+  fieldIds.forEach(id => { els[id] = document.getElementById(id); });
+  const checkboxes = document.querySelectorAll(".timeline-check");
+  const canvas = document.getElementById("sketchCanvas");
+  const ctx = canvas ? canvas.getContext("2d") : null;
+
+  function updateSaveStatus(iso) {
+    const el = document.getElementById("saveStatus");
+    if (!el) return;
+    if (!iso) { el.textContent = "Not saved yet â€” your answers save automatically as you type."; return; }
+    const t = new Date(iso);
+    el.textContent = "Saved automatically at " + t.toLocaleTimeString();
+  }
+
+  function save() {
+    const data = {};
+    fieldIds.forEach(id => { if (els[id]) data[id] = els[id].value; });
+    data.timeline = {};
+    checkboxes.forEach(cb => { data.timeline[cb.dataset.step] = cb.checked; });
+    if (ctx && canvas) {
+      try { data.sketch = canvas.toDataURL("image/png"); } catch (e) {}
+    }
+    data.savedAt = new Date().toISOString();
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+    updateSaveStatus(data.savedAt);
+  }
+
+  function load() {
+    let data = {};
+    try { data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch (e) { data = {}; }
+    fieldIds.forEach(id => { if (els[id] && data[id]) els[id].value = data[id]; });
+    checkboxes.forEach(cb => { if (data.timeline && data.timeline[cb.dataset.step]) cb.checked = true; });
+    if (ctx && canvas && data.sketch) {
+      const img = new Image();
+      img.onload = () => ctx.drawImage(img, 0, 0);
+      img.src = data.sketch;
+    }
+    updateSaveStatus(data.savedAt);
+  }
+
+  fieldIds.forEach(id => { if (els[id]) els[id].addEventListener("input", save); });
+  checkboxes.forEach(cb => cb.addEventListener("change", save));
+
+  // Sketch pad
+  if (canvas && ctx) {
+    let drawing = false;
+    let last = null;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    function pos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: (clientX - rect.left) * (canvas.width / rect.width),
+        y: (clientY - rect.top) * (canvas.height / rect.height)
+      };
+    }
+    function start(e) { drawing = true; last = pos(e); e.preventDefault(); }
+    function move(e) {
+      if (!drawing) return;
+      const p = pos(e);
+      const colorInput = document.getElementById("sketchColor");
+      const sizeInput = document.getElementById("sketchSize");
+      ctx.strokeStyle = colorInput ? colorInput.value : "#1a1a1a";
+      ctx.lineWidth = sizeInput ? sizeInput.value : 3;
+      ctx.beginPath();
+      ctx.moveTo(last.x, last.y);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      last = p;
+      e.preventDefault();
+    }
+    function end() { if (drawing) { drawing = false; save(); } }
+
+    canvas.addEventListener("mousedown", start);
+    canvas.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", end);
+    canvas.addEventListener("touchstart", start, { passive: false });
+    canvas.addEventListener("touchmove", move, { passive: false });
+    canvas.addEventListener("touchend", end);
+
+    const clearBtn = document.getElementById("sketchClear");
+    if (clearBtn) clearBtn.addEventListener("click", () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      save();
+    });
+    const downloadBtn = document.getElementById("sketchDownload");
+    if (downloadBtn) downloadBtn.addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href = canvas.toDataURL("image/png");
+      a.download = "fix-the-glitch-sketch.png";
+      a.click();
+    });
+  }
+
+  // Pitch timer
+  const timerDisplay = document.getElementById("timerDisplay");
+  let timerSeconds = 120;
+  let timerInterval = null;
+  function renderTimer() {
+    if (!timerDisplay) return;
+    const m = Math.floor(timerSeconds / 60);
+    const s = timerSeconds % 60;
+    timerDisplay.textContent = m + ":" + String(s).padStart(2, "0");
+    timerDisplay.style.color = timerSeconds <= 30 ? "#c0392b" : "";
+  }
+  const timerStartBtn = document.getElementById("timerStart");
+  if (timerStartBtn) timerStartBtn.addEventListener("click", () => {
+    if (timerInterval) return;
+    timerInterval = setInterval(() => {
+      if (timerSeconds > 0) { timerSeconds--; renderTimer(); }
+      else { clearInterval(timerInterval); timerInterval = null; if (timerDisplay) timerDisplay.textContent = "Time!"; }
+    }, 1000);
+  });
+  const timerResetBtn = document.getElementById("timerReset");
+  if (timerResetBtn) timerResetBtn.addEventListener("click", () => {
+    clearInterval(timerInterval); timerInterval = null; timerSeconds = 120; renderTimer();
+  });
+  renderTimer();
+
+  const printBtn = document.getElementById("printBtn");
+  if (printBtn) printBtn.addEventListener("click", () => window.print());
+
+  const clearWorkBtn = document.getElementById("clearWork");
+  if (clearWorkBtn) clearWorkBtn.addEventListener("click", () => {
+    if (confirm("Clear everything you've entered on this page? This can't be undone.")) {
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    }
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>
