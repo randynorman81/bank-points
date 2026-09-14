@@ -9,17 +9,94 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
 <link rel="stylesheet" href="assets/style.css">
 <link rel="icon" href="assets/logo.png">
+<style>
+  .qg-name-field { position: relative; }
+  .qg-selected-chip {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: var(--gray-100);
+    border: 1px solid var(--gray-300);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+  }
+  .qg-selected-chip.show { display: flex; }
+  .qg-selected-chip .qg-chip-name { font-weight: 600; }
+  .qg-selected-chip .qg-chip-period { color: var(--gray-500); font-size: 0.82rem; margin-left: 6px; }
+  .qg-selected-chip button {
+    background: none; border: none; color: var(--gray-500); cursor: pointer;
+    font-size: 0.8rem; text-decoration: underline; padding: 0;
+  }
+  .qg-suggest-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0; right: 0;
+    background: var(--white);
+    border: 1px solid var(--gray-300);
+    border-radius: 8px;
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 20;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    display: none;
+  }
+  .qg-suggest-list.show { display: block; }
+  .qg-suggest-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .qg-suggest-item:last-child { border-bottom: none; }
+  .qg-suggest-item:hover, .qg-suggest-item.active { background: var(--gray-100); }
+  .qg-suggest-item .qg-s-period { color: var(--gray-500); font-size: 0.8rem; white-space: nowrap; }
+  .qg-suggest-empty { padding: 12px 14px; color: var(--gray-500); font-size: 0.85rem; }
+  .qg-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .qg-preset-btn {
+    border: 1px solid var(--gray-300);
+    background: var(--white);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  .qg-preset-btn:hover, .qg-preset-btn.active { background: var(--black); color: var(--white); border-color: var(--black); }
+  .qg-submit { width: 100%; padding: 14px; font-size: 1.05rem; margin-top: 4px; }
+  .qg-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .qg-flash {
+    display: none;
+    background: var(--black);
+    color: var(--white);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+  }
+  .qg-flash.show { display: block; }
+  .qg-log-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 0.85rem;
+  }
+  .qg-log-row:last-child { border-bottom: none; }
+  .qg-log-row .qg-log-pts { white-space: nowrap; font-weight: 600; }
+</style>
 </head>
 <body>
 
 <div id="site-header-root"></div>
 
 <main>
-  <h2 style="margin-top:0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-    Admin
-    <a href="quick-give.html" class="btn btn-primary btn-sm">Quick Give &rarr;</a>
-  </h2>
-  <p class="hint" style="margin-top:-8px; margin-bottom:16px;">Add students, award or use points, and see requests. Need to hand out points fast for something a student just did? Use <a href="quick-give.html">Quick Give</a> instead.</p>
+  <h2 style="margin-top:0;">Admin</h2>
+  <p class="hint" style="margin-top:-8px; margin-bottom:16px;">Add students, award or use points, and see requests.</p>
   <div id="pin-gate" class="pin-gate">
     <div class="card">
       <h2 style="margin-top:0;">Enter Admin PIN</h2>
@@ -35,6 +112,49 @@
   </div>
 
   <div id="dashboard" style="display:none;">
+    <div class="card">
+      <h2 style="margin-top:0;">Quick Give</h2>
+      <p class="hint" style="margin-top:-8px;">Type a name, what it's for, how many points &mdash; done. Works across every period.</p>
+
+      <div id="qg-flash" class="qg-flash"></div>
+      <div id="qg-alert"></div>
+      <form class="stack" id="qg-form" autocomplete="off">
+        <div class="field qg-name-field">
+          <label for="qg-name-input">Student</label>
+          <input type="text" id="qg-name-input" placeholder="Start typing a name&hellip;" autocomplete="off">
+          <div id="qg-suggest-list" class="qg-suggest-list"></div>
+          <div id="qg-selected-chip" class="qg-selected-chip">
+            <span><span class="qg-chip-name" id="qg-chip-name"></span><span class="qg-chip-period" id="qg-chip-period"></span></span>
+            <button type="button" id="qg-chip-change">change</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="qg-desc-input">What did they do?</label>
+          <input type="text" id="qg-desc-input" placeholder="e.g. Helped a classmate debug their code">
+        </div>
+
+        <div class="field">
+          <label for="qg-points-input">Points</label>
+          <input type="number" id="qg-points-input" min="1" step="1" placeholder="0" style="text-align:center; font-size:1.3rem; font-weight:600;">
+          <div class="qg-presets" id="qg-presets">
+            <button type="button" class="qg-preset-btn" data-pts="1">1</button>
+            <button type="button" class="qg-preset-btn" data-pts="3">3</button>
+            <button type="button" class="qg-preset-btn" data-pts="5">5</button>
+            <button type="button" class="qg-preset-btn" data-pts="10">10</button>
+            <button type="button" class="qg-preset-btn" data-pts="25">25</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary qg-submit" id="qg-submit" disabled>Give Points</button>
+      </form>
+
+      <div id="qg-log" style="margin-top:16px; display:none;">
+        <h3 style="margin-bottom:8px;">Just Given</h3>
+        <div id="qg-log-list"></div>
+      </div>
+    </div>
+
     <div class="card">
       <h2 style="margin-top:0; display:flex; align-items:center; justify-content:space-between;">
         Recent Point Requests
@@ -901,6 +1021,193 @@ async function rejectExtraCredit(id) {
 }
 
 document.getElementById('refresh-ec').addEventListener('click', loadExtraCredit);
+
+// ---- Quick Give ----
+let qgSelectedStudent = null;
+let qgActiveIndex = -1;
+let qgMatches = [];
+let qgLog = [];
+
+const qgNameInput = document.getElementById('qg-name-input');
+const qgSuggestList = document.getElementById('qg-suggest-list');
+const qgSelectedChip = document.getElementById('qg-selected-chip');
+const qgChipName = document.getElementById('qg-chip-name');
+const qgChipPeriod = document.getElementById('qg-chip-period');
+const qgChipChange = document.getElementById('qg-chip-change');
+const qgDescInput = document.getElementById('qg-desc-input');
+const qgPointsInput = document.getElementById('qg-points-input');
+const qgForm = document.getElementById('qg-form');
+const qgAlert = document.getElementById('qg-alert');
+const qgSubmit = document.getElementById('qg-submit');
+const qgFlash = document.getElementById('qg-flash');
+const qgLogWrap = document.getElementById('qg-log');
+const qgLogList = document.getElementById('qg-log-list');
+
+function qgClearSelection() {
+  qgSelectedStudent = null;
+  qgSelectedChip.classList.remove('show');
+  qgNameInput.style.display = '';
+  qgNameInput.value = '';
+  qgUpdateSubmitState();
+}
+
+function qgSelectStudent(student) {
+  qgSelectedStudent = student;
+  qgChipName.textContent = student.name;
+  qgChipPeriod.textContent = ` — ${student.period}`;
+  qgSelectedChip.classList.add('show');
+  qgNameInput.style.display = 'none';
+  qgCloseSuggestions();
+  qgUpdateSubmitState();
+  qgDescInput.focus();
+}
+
+qgChipChange.addEventListener('click', () => {
+  qgClearSelection();
+  qgNameInput.focus();
+});
+
+function qgCloseSuggestions() {
+  qgSuggestList.classList.remove('show');
+  qgSuggestList.innerHTML = '';
+  qgActiveIndex = -1;
+  qgMatches = [];
+}
+
+function qgRenderSuggestions(matches) {
+  qgMatches = matches;
+  qgActiveIndex = matches.length ? 0 : -1;
+  if (matches.length === 0) {
+    qgSuggestList.innerHTML = '<div class="qg-suggest-empty">No matching student</div>';
+    qgSuggestList.classList.add('show');
+    return;
+  }
+  qgSuggestList.innerHTML = matches.map((s, i) => `
+    <div class="qg-suggest-item${i === 0 ? ' active' : ''}" data-idx="${i}">
+      <span>${escapeHtml(s.name)}</span>
+      <span class="qg-s-period">${escapeHtml(s.period)}</span>
+    </div>
+  `).join('');
+  qgSuggestList.classList.add('show');
+}
+
+qgNameInput.addEventListener('input', () => {
+  const q = qgNameInput.value.trim().toLowerCase();
+  if (!q) { qgCloseSuggestions(); return; }
+  const matches = roster.filter(s => s.name.toLowerCase().includes(q)).slice(0, 8);
+  qgRenderSuggestions(matches);
+});
+
+qgNameInput.addEventListener('keydown', (e) => {
+  if (!qgSuggestList.classList.contains('show')) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (qgMatches.length === 0) return;
+    qgActiveIndex = (qgActiveIndex + 1) % qgMatches.length;
+    qgHighlightActive();
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (qgMatches.length === 0) return;
+    qgActiveIndex = (qgActiveIndex - 1 + qgMatches.length) % qgMatches.length;
+    qgHighlightActive();
+  } else if (e.key === 'Enter') {
+    if (qgActiveIndex >= 0 && qgMatches[qgActiveIndex]) {
+      e.preventDefault();
+      qgSelectStudent(qgMatches[qgActiveIndex]);
+    }
+  } else if (e.key === 'Escape') {
+    qgCloseSuggestions();
+  }
+});
+
+function qgHighlightActive() {
+  [...qgSuggestList.querySelectorAll('.qg-suggest-item')].forEach((el, i) => {
+    el.classList.toggle('active', i === qgActiveIndex);
+  });
+}
+
+qgSuggestList.addEventListener('click', (e) => {
+  const item = e.target.closest('.qg-suggest-item');
+  if (!item) return;
+  const idx = Number(item.dataset.idx);
+  if (qgMatches[idx]) qgSelectStudent(qgMatches[idx]);
+});
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.qg-name-field')) qgCloseSuggestions();
+});
+
+document.getElementById('qg-presets').addEventListener('click', (e) => {
+  const btn = e.target.closest('.qg-preset-btn');
+  if (!btn) return;
+  qgPointsInput.value = btn.dataset.pts;
+  [...document.querySelectorAll('.qg-preset-btn')].forEach(b => b.classList.toggle('active', b === btn));
+  qgUpdateSubmitState();
+});
+
+qgPointsInput.addEventListener('input', () => {
+  [...document.querySelectorAll('.qg-preset-btn')].forEach(b => b.classList.toggle('active', b.dataset.pts === qgPointsInput.value));
+  qgUpdateSubmitState();
+});
+qgDescInput.addEventListener('input', qgUpdateSubmitState);
+
+function qgUpdateSubmitState() {
+  const amount = Number(qgPointsInput.value);
+  const ok = qgSelectedStudent && qgDescInput.value.trim() && amount > 0;
+  qgSubmit.disabled = !ok;
+}
+
+function qgShowFlash(student, amount, description) {
+  qgFlash.innerHTML = `<strong>+${escapeHtml(amount)} points</strong> &rarr; ${escapeHtml(student.name)} (${escapeHtml(student.period)})<br><span style="opacity:0.8;">${escapeHtml(description)}</span>`;
+  qgFlash.classList.add('show');
+  clearTimeout(qgShowFlash._t);
+  qgShowFlash._t = setTimeout(() => qgFlash.classList.remove('show'), 4000);
+}
+
+function qgAddToLog(student, amount, description) {
+  qgLog.unshift({ student, amount, description });
+  qgLogWrap.style.display = 'block';
+  qgLogList.innerHTML = qgLog.map(entry => `
+    <div class="qg-log-row">
+      <div>
+        <strong>${escapeHtml(entry.student.name)}</strong>
+        <span class="hint" style="margin:0;">${escapeHtml(entry.student.period)}</span><br>
+        <span class="hint" style="margin:0;">${escapeHtml(entry.description)}</span>
+      </div>
+      <div class="qg-log-pts">+${escapeHtml(entry.amount)}</div>
+    </div>
+  `).join('');
+}
+
+qgForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!qgSelectedStudent) return;
+  const amount = Number(qgPointsInput.value);
+  const description = qgDescInput.value.trim();
+  if (!amount || amount <= 0 || !description) return;
+
+  qgSubmit.disabled = true;
+  qgSubmit.textContent = 'Giving&hellip;';
+  const res = await authedPost({ action: 'addTransaction', studentId: qgSelectedStudent.id, type: 'EARNED', amount, description });
+  qgSubmit.textContent = 'Give Points';
+
+  if (res.error) {
+    setAlert(qgAlert, 'error', res.error);
+    qgUpdateSubmitState();
+    return;
+  }
+
+  qgShowFlash(qgSelectedStudent, amount, description);
+  qgAddToLog(qgSelectedStudent, amount, description);
+
+  qgClearSelection();
+  qgDescInput.value = '';
+  qgPointsInput.value = '';
+  [...document.querySelectorAll('.qg-preset-btn')].forEach(b => b.classList.remove('active'));
+  qgAlert.innerHTML = '';
+  qgNameInput.focus();
+  loadRoster();
+});
 
 if (getPin()) {
   unlock();
