@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Booleans | Python Notes</title>
+<title>Comparison Operators | Python Notes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -11,7 +11,7 @@
 <style>
 :root{
   --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
-  --acc:#60A5FA; --acc-tint:rgba(96,165,250,.14); --acc-ink:#BFDBFE;
+  --acc:#4ADE80; --acc-tint:rgba(74,222,128,.14); --acc-ink:#BBF7D0;
   --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
   --wrap:1080px;
 }
@@ -26,7 +26,7 @@ a{color:var(--acc-ink)}
 .pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
 .pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
 .pillnav a:hover{color:var(--ink);border-color:#3A4658}
-.pillnav a.current{background:var(--acc);color:#0B2340;border-color:var(--acc)}
+.pillnav a.current{background:var(--acc);color:#052E16;border-color:var(--acc)}
 
 .hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
 .hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
@@ -52,7 +52,7 @@ a{color:var(--acc-ink)}
 .box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
 .box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
 
-.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#DCEAFB}
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#DFFBE9}
 .example b{color:#fff}
 .warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
 .warn b{color:#fff}
@@ -99,9 +99,9 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
 
 <nav class="pillnav">
   <a href="study-guides.html">&larr; Bite-Sized Chunks</a>
-  <a href="booleans.html" class="current">Booleans</a>
+  <a href="booleans.html">Booleans</a>
   <a href="logical-operators.html">Logical Operators</a>
-  <a href="comparison-operators.html">Comparison Operators</a>
+  <a href="comparison-operators.html" class="current">Comparison Operators</a>
   <a href="if-statements.html">If Statements</a>
   <a href="if-elif-else.html">If, Elif, Else</a>
   <a href="key-events.html">Key Events</a>
@@ -114,9 +114,9 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
 
 <header class="hero">
   <div class="wrap">
-    <div class="brief-no">PYTHON NOTES &nbsp;/&nbsp; SUBJECT: TRUE OR FALSE</div>
-    <h1>Booleans</h1>
-    <p class="deck">The data type behind every decision your program makes &mdash; and the exact thing every if statement, while loop, and mouse click handler you've written has secretly been built on.</p>
+    <div class="brief-no">PYTHON NOTES &nbsp;/&nbsp; SUBJECT: A CLOSER LOOK AT ==, !=, &gt;, &lt;</div>
+    <h1>Comparison Operators</h1>
+    <p class="deck">The Booleans page introduced these six &mdash; this page is the deep dive: what they can compare, what breaks, and a shortcut Python allows that most languages don't.</p>
   </div>
 </header>
 
@@ -124,32 +124,37 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
 <section class="part">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">00</div><h2>Definition</h2></div>
-    <p class="lede">A <b>boolean</b> is a data type with exactly two possible values: <code>True</code> or <code>False</code> &mdash; capitalized, always, in Python. Comparing two values with a relational operator (<code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code>) is what produces one.</p>
-    <div class="code">is_raining = True
-print(is_raining)        <span class="cm"># True</span>
-print(type(is_raining))  <span class="cm"># &lt;class 'bool'&gt;</span>
+    <p class="lede">A <b>comparison operator</b> takes two values and produces a boolean. Python has six, and they work on more than just numbers.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Operator</th><th>Meaning</th><th>Numbers</th><th>Strings</th></tr>
+        <tr><td><code>==</code></td><td>Equal to</td><td><code>5 == 5.0</code> &rarr; <code>True</code></td><td><code>"cat" == "cat"</code> &rarr; <code>True</code></td></tr>
+        <tr><td><code>!=</code></td><td>Not equal to</td><td><code>5 != 6</code> &rarr; <code>True</code></td><td><code>"cat" != "Cat"</code> &rarr; <code>True</code></td></tr>
+        <tr><td><code>&gt;</code> / <code>&lt;</code></td><td>Greater / less than</td><td><code>7 &gt; 2</code> &rarr; <code>True</code></td><td><code>"banana" &gt; "apple"</code> &rarr; <code>True</code></td></tr>
+        <tr><td><code>&gt;=</code> / <code>&lt;=</code></td><td>At least / at most</td><td><code>7 &gt;= 7</code> &rarr; <code>True</code></td><td><code>"a" &lt;= "b"</code> &rarr; <code>True</code></td></tr>
+      </table>
+    </div></div>
+    <p>Numbers compare by value &mdash; <code>5</code> and <code>5.0</code> are <code>==</code> even though one's an int and one's a float. Strings compare <b>alphabetically, letter by letter</b> (this is called <b>lexicographic order</b>), and it's <b>case-sensitive</b>: every uppercase letter counts as "smaller" than every lowercase letter, so <code>"Zebra" &lt; "apple"</code> is actually <code>True</code>.</p>
 
-score = 85
-passed = score &gt;= 60
-print(passed)             <span class="cm"># True -- the comparison itself IS the boolean</span></div>
+    <h3 style="margin-top:6px;">Comparisons happen after the math</h3>
+    <p>Python fully evaluates both sides &mdash; running any <code>+</code>, <code>*</code>, <code>//</code>, etc. &mdash; <b>before</b> comparing them. Comparison operators sit at the very bottom of the order-of-operations list.</p>
+    <div class="code">x = 3
+result = x + 2 &gt; x * 2
+<span class="cm"># Python computes:  (x + 2) &gt; (x * 2)   ->   5 &gt; 6   ->   False</span></div>
 
-    <h3 style="margin-top:6px;">This is what your if statements have been running on</h3>
-    <p>Every <code>if</code> you've written &mdash; back in Karel, and again with mouse clicks &mdash; needs its condition to boil down to exactly one <code>True</code> or <code>False</code>. You can write the comparison directly inside the <code>if</code>, or compute it ahead of time and store it in a variable. Both do the exact same thing.</p>
+    <h3>Python's shortcut: chaining</h3>
+    <p>Most languages force you to repeat the variable when checking a range (see the Logical Operators page). Python actually allows a shortcut most languages don't: <b>chained comparisons</b>.</p>
     <div class="two">
       <div class="box">
-        <h3>Comparison written inline</h3>
-        <div class="code" style="margin:0;">if score &gt;= 60:
-    print("Passed")</div>
+        <h3>The long way (always works)</h3>
+        <div class="code" style="margin:0;">0 &lt;= volume and volume &lt;= 100</div>
       </div>
       <div class="box ok">
-        <h3>Comparison stored first</h3>
-        <div class="code" style="margin:0;">passed = score &gt;= 60
-if passed:
-    print("Passed")</div>
+        <h3>Python's shortcut</h3>
+        <div class="code" style="margin:0;">0 &lt;= volume &lt;= 100</div>
       </div>
     </div>
-    <p>The second version should look familiar &mdash; it's exactly the pattern from Mouse Events, where <code>is_playing</code> got flipped with <code>is_playing = not is_playing</code> and then checked with a plain <code>if is_playing:</code>. No comparison needed inside the <code>if</code> at all once a variable is already holding a boolean.</p>
-    <div class="hint-panel">This is also what a <code>while</code> loop condition is doing every single time it checks whether to keep going &mdash; <code>while is_running:</code> re-evaluates a boolean before every trip through the loop, exactly like an <code>if</code> does once.</div>
+    <div class="hint-panel">Both lines do the exact same thing. The chained version only works in Python &mdash; if you ever write code in Java or JavaScript, you'll need the <code>and</code>-joined version instead. Either is fine to use here, but know that the chained version is a Python-only convenience, not something you'll see on the language-agnostic parts of the AP exam.</div>
   </div>
 </section>
 
@@ -157,51 +162,32 @@ if passed:
 <section class="part">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">01</div><h2>Examples</h2></div>
-    <p class="lede">Six relational operators cover every comparison you'll ever need to make.</p>
-    <div class="tblwrap"><div class="tblscroll">
-      <table class="cmp">
-        <tr><th>Operator</th><th>Meaning</th><th>Example</th><th>Result</th></tr>
-        <tr><td><code>==</code></td><td>Equal to</td><td><code>5 == 5</code></td><td><code>True</code></td></tr>
-        <tr><td><code>!=</code></td><td>Not equal to</td><td><code>5 != 5</code></td><td><code>False</code></td></tr>
-        <tr><td><code>&gt;</code></td><td>Greater than</td><td><code>7 &gt; 2</code></td><td><code>True</code></td></tr>
-        <tr><td><code>&lt;</code></td><td>Less than</td><td><code>7 &lt; 2</code></td><td><code>False</code></td></tr>
-        <tr><td><code>&gt;=</code></td><td>Greater than or equal to</td><td><code>7 &gt;= 7</code></td><td><code>True</code></td></tr>
-        <tr><td><code>&lt;=</code></td><td>Less than or equal to</td><td><code>3 &lt;= 2</code></td><td><code>False</code></td></tr>
-      </table>
-    </div></div>
-
+    <p class="lede">Comparisons plug directly into everything from the last two pages &mdash; storing a boolean, or dropping straight into an <code>if</code>.</p>
     <div class="cards">
       <div class="cardx">
-        <div class="num">strings compare too</div>
-        <h4>Not just numbers</h4>
-        <code class="line">name = "Karel"
-print(name == "Karel")</code>
-        <p>Output: <code>True</code>. <code>==</code> and <code>!=</code> work on strings, not just numbers.</p>
+        <div class="num">numbers</div>
+        <h4>Different types, same value</h4>
+        <code class="line">print(5 == 5.0)</code>
+        <p>Output: <code>True</code>. Python compares the value, not the type.</p>
       </div>
       <div class="cardx">
-        <div class="num">function return value</div>
-        <h4>A function can hand back a boolean</h4>
-        <code class="line">def is_even(n):
-    return n % 2 == 0
-
-print(is_even(8))</code>
-        <p>Output: <code>True</code>. The <code>return</code>ed value is itself a boolean.</p>
+        <div class="num">strings</div>
+        <h4>Case sensitivity</h4>
+        <code class="line">print("Apple" == "apple")</code>
+        <p>Output: <code>False</code>. Capital <code>A</code> and lowercase <code>a</code> are different characters.</p>
       </div>
       <div class="cardx">
-        <div class="num">while loop</div>
-        <h4>Controlling a loop</h4>
-        <code class="line">beepers_left = True
-while beepers_left:
-    <span class="cm"># ... pick up a beeper ...</span>
-    beepers_left = beeper_count &gt; 0</code>
-        <p>The loop keeps running as long as this boolean stays <code>True</code>.</p>
+        <div class="num">strings</div>
+        <h4>Alphabetical order</h4>
+        <code class="line">print("apple" &lt; "banana")</code>
+        <p>Output: <code>True</code>. <code>a</code> comes before <code>b</code>, so the whole string does too.</p>
       </div>
       <div class="cardx">
-        <div class="num">printing directly</div>
-        <h4>No if statement needed at all</h4>
-        <code class="line">is_admin = False
-print(is_admin)</code>
-        <p>A boolean is a real value &mdash; you can print it, store it, or pass it around just like a number or string.</p>
+        <div class="num">chained</div>
+        <h4>A clean range check</h4>
+        <code class="line">grade = 85
+print(80 &lt;= grade &lt; 90)</code>
+        <p>Output: <code>True</code>. Reads almost exactly like the math-class version.</p>
       </div>
     </div>
   </div>
@@ -212,24 +198,23 @@ print(is_admin)</code>
   <div class="wrap">
     <div class="part-head"><div class="part-tag">02</div><h2>Common Problems / Errors</h2></div>
 
-    <div class="warn"><b>Lowercase <code>true</code>/<code>false</code>:</b> Python's boolean values are <code>True</code> and <code>False</code> &mdash; capitalized, no exceptions. Lowercase versions aren't booleans at all, they're undefined names.</div>
-    <div class="code">is_ready = true
-<span class="err">NameError: name 'true' is not defined</span></div>
+    <div class="warn"><b>Comparing incompatible types:</b> Python allows <code>int</code> vs. <code>float</code>, but comparing a number to a string with <code>&lt;</code>/<code>&gt;</code> is an error &mdash; there's no sensible way to say a number is "less than" a word.</div>
+    <div class="code">age = 15
+print(age &gt; "10")
+<span class="err">TypeError: '&gt;' not supported between instances of 'int' and 'str'</span></div>
 
     <div class="two">
       <div class="box bad">
-        <h3><code>=</code> vs <code>==</code></h3>
-        <p>One equals sign <b>assigns</b> a value. Two equals signs <b>compare</b> two values. Using <code>=</code> inside a condition is an immediate syntax error in Python &mdash; it won't silently do the wrong thing, it just won't run.</p>
-        <div class="code" style="margin:10px 0 0;">if score = 100:
-<span class="err">SyntaxError: invalid syntax</span></div>
+        <h3>Assuming string length matters</h3>
+        <p><code>"z" &lt; "aa"</code> is <code>False</code> &mdash; Python compares character by character, not by length. <code>"z"</code> just comes after <code>"a"</code>, so it's "bigger" regardless of how long either string is.</p>
       </div>
       <div class="box">
-        <h3>Redundant comparison</h3>
-        <p><code>if is_playing == True:</code> works, but it's redundant &mdash; <code>is_playing</code> is already a boolean. Just write <code>if is_playing:</code>. Comparing a boolean to <code>True</code> or <code>False</code> is a style flag, not a bug, but it's worth breaking the habit early.</p>
+        <h3><code>=</code> vs <code>==</code>, again</h3>
+        <p>Still the single most common mistake with comparisons &mdash; one equals sign assigns, two compares. If Python throws a <code>SyntaxError</code> on a line with an <code>if</code>, check this first.</p>
       </div>
     </div>
 
-    <div class="hint-panel">Comparing two <b>floats</b> with <code>==</code> can surprise you &mdash; tiny rounding errors mean <code>0.1 + 0.2 == 0.3</code> is actually <code>False</code> in Python. This rarely comes up in AP CSP problems, but it's a real thing that trips up beginners the first time they see it.</div>
+    <div class="hint-panel">Reading input with <code>input()</code> always gives you back a <b>string</b>, even if the user typed a number. <code>input("Age: ") &gt; 18</code> compares a string to an int and crashes &mdash; wrap it in <code>int(...)</code> first: <code>int(input("Age: ")) &gt; 18</code>.</div>
   </div>
 </section>
 
@@ -237,18 +222,17 @@ print(is_admin)</code>
 <section class="part">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">03</div><h2>Python Code vs. Pseudocode</h2></div>
-    <p class="lede">The values themselves are written differently &mdash; the comparison operators mostly aren't.</p>
+    <p class="lede">The same table from the Booleans page, worth repeating here since this whole page is about these six symbols.</p>
     <div class="tblwrap"><div class="tblscroll">
       <table class="cmp">
         <tr><th>Concept</th><th>AP CSP Pseudocode</th><th>Python</th></tr>
-        <tr><td>The two boolean values</td><td><code>true</code>, <code>false</code></td><td><code>True</code>, <code>False</code></td></tr>
         <tr><td>Equal to</td><td><code>=</code></td><td><code>==</code></td></tr>
         <tr><td>Not equal to</td><td><code>&ne;</code></td><td><code>!=</code></td></tr>
         <tr><td>Greater / less than</td><td><code>&gt;</code>, <code>&lt;</code></td><td><code>&gt;</code>, <code>&lt;</code></td></tr>
         <tr><td>Greater / less than or equal to</td><td><code>&ge;</code>, <code>&le;</code></td><td><code>&gt;=</code>, <code>&lt;=</code></td></tr>
       </table>
     </div></div>
-    <div class="hint-panel">The one that trips people up on the multiple-choice exam: pseudocode's <code>=</code> means <b>equal to</b> (a comparison), not assignment &mdash; pseudocode assignment is written with an arrow, <code>a &larr; 5</code>. Python flips this: <code>=</code> assigns, <code>==</code> compares. Read pseudocode's <code>=</code> as Python's <code>==</code>, every time.</div>
+    <div class="hint-panel">Pseudocode has no chained-comparison shortcut at all &mdash; a range check is always written out in full, e.g. <code>IF (0 &le; volume AND volume &le; 100)</code>. Chaining (<code>0 &lt;= volume &lt;= 100</code>) is purely a Python convenience.</div>
   </div>
 </section>
 
@@ -256,63 +240,53 @@ print(is_admin)</code>
 <section class="part">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">04</div><h2>Spotify Examples (5)</h2></div>
-    <p class="lede">Five real on/off switches from a music app, each one just a boolean.</p>
+    <p class="lede">Five real comparisons, from plain numbers to alphabetical sorting.</p>
 
     <div class="cards">
       <div class="cardx">
-        <div class="num">a stored flag</div>
-        <h4>Premium account status</h4>
-        <code class="line">is_premium = True
-
-if is_premium:
-    print("Ad-free")</code>
-        <p>One boolean gates an entire feature.</p>
+        <div class="num">chained</div>
+        <h4>Valid volume range</h4>
+        <code class="line">is_valid = 0 &lt;= volume &lt;= 100</code>
+        <p>One clean line instead of two joined with <code>and</code>.</p>
       </div>
       <div class="cardx">
-        <div class="num">a comparison</div>
-        <h4>Has this song been liked?</h4>
-        <code class="line">song_likes = 3
-is_liked = song_likes &gt; 0</code>
-        <p>Output: <code>True</code>. The heart icon fills in based on this one value.</p>
+        <div class="num">strings</div>
+        <h4>Sorting artist names</h4>
+        <code class="line">print("Adele" &lt; "Beyonc&eacute;")</code>
+        <p>Output: <code>True</code> &mdash; this is exactly how an alphabetical artist list gets sorted under the hood.</p>
       </div>
       <div class="cardx">
-        <div class="num">flipped by a click</div>
-        <h4>Shuffle toggle</h4>
-        <code class="line">is_shuffle_on = False
-
-def toggle_shuffle(x, y):
-    global is_shuffle_on
-    is_shuffle_on = not is_shuffle_on
-
-add_mouse_click_handler(toggle_shuffle)</code>
-        <p>Same pattern as the play/pause button from Mouse Events.</p>
+        <div class="num">case-sensitive</div>
+        <h4>Matching a typed username</h4>
+        <code class="line">print(typed_name == stored_name)</code>
+        <p>A login that's case-sensitive on purpose &mdash; <code>"Alex"</code> and <code>"alex"</code> won't match.</p>
       </div>
       <div class="cardx">
-        <div class="num">comparing to a limit</div>
-        <h4>Has the song ended?</h4>
-        <code class="line">is_song_over = current_time &gt;= song_duration</code>
-        <p>Once <code>current_time</code> catches up to <code>song_duration</code>, this flips to <code>True</code> and the next track can start.</p>
+        <div class="num">int() conversion</div>
+        <h4>Comparing typed input</h4>
+        <code class="line">age = int(input("Age: "))
+is_teen = 13 &lt;= age &lt;= 19</code>
+        <p>Without <code>int()</code>, this comparison would crash &mdash; <code>input()</code> always returns a string.</p>
       </div>
       <div class="cardx">
-        <div class="num">a returned boolean</div>
-        <h4>Checking explicit content</h4>
-        <code class="line">def is_explicit(song):
-    return song.rating == "explicit"</code>
-        <p>The function's entire job is to answer one true/false question.</p>
+        <div class="num">not equal</div>
+        <h4>Detecting a song change</h4>
+        <code class="line">song_changed = current_song != last_song</code>
+        <p>Used to decide whether to refresh the "Now Playing" screen.</p>
       </div>
     </div>
 
-    <div class="callout">A boolean is just a value &mdash; True or False, nothing else.<span>Every <code>if</code>, every <code>while</code>, and (next page) every <code>and</code>/<code>or</code>/<code>not</code> is really just different ways of producing or reacting to one of these two values.</span></div>
+    <div class="callout">Six operators, and they work on numbers and strings alike.<span>The one new trick on this page &mdash; chaining &mdash; is optional. The <code>and</code>-joined version from Logical Operators always works too, in Python or anywhere else.</span></div>
   </div>
 </section>
 
 <footer class="final">
   <div class="wrap">
-    <h2>Two values. That's the entire data type &mdash; and it's what every decision in your code comes down to.</h2>
-    <p>Next up: combining more than one boolean at once with <code>and</code>, <code>or</code>, and <code>not</code>.</p>
-    <a class="back" href="logical-operators.html">Logical Operators &rarr;</a>
+    <h2>Comparisons are the raw material. If statements are what you build with it.</h2>
+    <p>Next: using these comparisons &mdash; and the booleans they produce &mdash; to actually branch your code.</p>
+    <a class="back" href="if-statements.html">If Statements &rarr;</a>
     <a class="back" href="study-guides.html">&larr; Bite-Sized Chunks</a>
-    <p class="sig">Python Notes &nbsp;/&nbsp; Booleans &nbsp;/&nbsp; end of file</p>
+    <p class="sig">Python Notes &nbsp;/&nbsp; Comparison Operators &nbsp;/&nbsp; end of file</p>
   </div>
 </footer>
 

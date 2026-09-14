@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>If, Elif, Else | Python Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#FB923C; --acc-tint:rgba(251,146,60,.14); --acc-ink:#FDC79B;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#431407;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:18ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .err{color:var(--bad-ink);font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.ok{border-top-color:var(--acc)}
+.box.bad{border-top-color:var(--bad)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#FEE9D6}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.bad{background:var(--bad-tint)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="study-guides.html">&larr; Bite-Sized Chunks</a>
+  <a href="booleans.html">Booleans</a>
+  <a href="logical-operators.html">Logical Operators</a>
+  <a href="comparison-operators.html">Comparison Operators</a>
+  <a href="if-statements.html">If Statements</a>
+  <a href="if-elif-else.html" class="current">If, Elif, Else</a>
+  <a href="key-events.html">Key Events</a>
+  <a href="for-loops.html">For Loops</a>
+  <a href="general-for-loops.html">General For Loops</a>
+  <a href="while-loops.html">While Loops</a>
+  <a href="loop-and-a-half.html">Loop and a Half</a>
+  <a href="random-numbers.html">Random Numbers</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">PYTHON NOTES &nbsp;/&nbsp; SUBJECT: MORE THAN TWO OUTCOMES</div>
+    <h1>If, Elif, Else</h1>
+    <p class="deck">Checking one thing gets you an if statement. Checking several things, in order, and picking exactly one outcome &mdash; that's what elif and else are for.</p>
+  </div>
+</header>
+
+<!-- DEFINITION -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>Definition</h2></div>
+    <p class="lede">An <b>elif</b> ("else if") chain checks conditions <b>in order, top to bottom</b>, and runs the block under the <b>first one that's true</b> &mdash; then skips everything else in the chain, even if a later condition would also have been true. An <b>else</b> at the end catches whatever didn't match any condition above it, no condition needed.</p>
+    <div class="code">grade = 85
+
+if grade &gt;= 90:
+    print("A")
+elif grade &gt;= 80:
+    print("B")
+elif grade &gt;= 70:
+    print("C")
+else:
+    print("Needs improvement")</div>
+    <p>With <code>grade = 85</code>: Python checks <code>grade &gt;= 90</code> first &mdash; false, skip it. Then <code>grade &gt;= 80</code> &mdash; true, so <code>"B"</code> prints, and Python stops right there. It never even looks at the <code>&gt;= 70</code> check or the <code>else</code>, even though <code>85</code> would technically satisfy <code>&gt;= 70</code> too.</p>
+
+    <h3 style="margin-top:6px;">Order matters &mdash; a lot</h3>
+    <p>Because Python stops at the first match, checks that could overlap need to go from <b>most specific to least specific</b> &mdash; here, highest grade range first. Flip the order and the logic breaks:</p>
+    <div class="two">
+      <div class="box bad">
+        <h3>Wrong order</h3>
+        <div class="code" style="margin:0;">if grade &gt;= 70:
+    print("C")
+elif grade &gt;= 80:
+    print("B")
+elif grade &gt;= 90:
+    print("A")</div>
+        <p style="margin-top:10px;">A <code>95</code> prints <code>"C"</code> &mdash; the very first check (<code>&gt;= 70</code>) already matches, so the more specific <code>&gt;= 90</code> check never runs.</p>
+      </div>
+      <div class="box ok">
+        <h3>Correct order</h3>
+        <div class="code" style="margin:0;">if grade &gt;= 90:
+    print("A")
+elif grade &gt;= 80:
+    print("B")
+elif grade &gt;= 70:
+    print("C")</div>
+        <p style="margin-top:10px;">A <code>95</code> correctly prints <code>"A"</code> &mdash; the tightest, highest condition is checked first.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXAMPLES -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Examples</h2></div>
+    <p class="lede">The key thing an elif chain guarantees: exactly one branch runs, never more than one.</p>
+
+    <div class="two">
+      <div class="box">
+        <h3>elif chain &mdash; only one runs</h3>
+        <div class="code" style="margin:0;">x = 5
+if x &gt; 0:
+    print("positive")
+elif x &gt; -10:
+    print("small negative")</div>
+        <p style="margin-top:10px;">Prints only <code>"positive"</code>. Once the first condition matched, the chain stops.</p>
+      </div>
+      <div class="box ok">
+        <h3>separate ifs &mdash; both can run</h3>
+        <div class="code" style="margin:0;">x = 5
+if x &gt; 0:
+    print("positive")
+if x &gt; -10:
+    print("small negative")</div>
+        <p style="margin-top:10px;">Prints <b>both</b> lines &mdash; two separate <code>if</code>s each get checked independently, with no connection to each other at all.</p>
+      </div>
+    </div>
+    <div class="hint-panel">This is the single biggest difference between an <code>elif</code> chain and a stack of separate <code>if</code> statements. Use <code>elif</code> when the branches represent mutually exclusive categories (a letter grade can only be one letter); use separate <code>if</code>s when more than one thing might independently need to happen.</div>
+
+    <h3>An if/elif chain doesn't need an else</h3>
+    <p><code>else</code> is optional. Without one, if none of the conditions match, the whole chain just does nothing &mdash; same as a plain <code>if</code> with no match.</p>
+    <div class="code">day = "Sunday"
+
+if day == "Saturday":
+    print("Weekend!")
+elif day == "Sunday":
+    print("Weekend!")
+<span class="cm"># no else -- any other day just prints nothing</span></div>
+  </div>
+</section>
+
+<!-- COMMON PROBLEMS / ERRORS -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Common Problems / Errors</h2></div>
+
+    <div class="warn"><b>Using separate <code>if</code>s by accident:</b> the most common bug on this page. If you meant "check these conditions in order, run only one branch" but wrote a stack of plain <code>if</code>s instead of <code>if</code>/<code>elif</code>, more than one block can run when you only expected one.</div>
+
+    <div class="two">
+      <div class="box bad">
+        <h3><code>else</code> with a condition</h3>
+        <div class="code" style="margin:0;">else grade &gt;= 60:
+<span class="err">SyntaxError: invalid syntax</span></div>
+        <p style="margin-top:10px;"><code>else</code> never takes a condition &mdash; it's the catch-all. A condition after it belongs on an <code>elif</code> instead.</p>
+      </div>
+      <div class="box">
+        <h3>Two words, not one</h3>
+        <div class="code" style="margin:0;">else if grade &gt;= 60:
+<span class="err">SyntaxError: invalid syntax</span></div>
+        <p style="margin-top:10px;">Python's keyword is one word: <code>elif</code>. Writing it as two words (common if you've seen JavaScript's <code>else if</code>) doesn't work.</p>
+      </div>
+    </div>
+
+    <div class="hint-panel">An <code>elif</code> or <code>else</code> has to line up at the <b>same indentation</b> as the <code>if</code> it belongs to, and can't have anything else between them. An extra blank line is fine; an extra statement at that indentation breaks the chain into two separate, unrelated conditionals.</div>
+  </div>
+</section>
+
+<!-- PYTHON CODE VS PSEUDOCODE -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Python Code vs. Pseudocode</h2></div>
+    <p class="lede">Pseudocode nests its "otherwise" checks; Python flattens them into one chain.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Concept</th><th>AP CSP Pseudocode</th><th>Python</th></tr>
+        <tr><td>First check</td><td><code>IF (condition)</code></td><td><code>if condition:</code></td></tr>
+        <tr><td>Next check, only if the first failed</td><td><code>ELSE IF (condition)</code></td><td><code>elif condition:</code></td></tr>
+        <tr><td>Catch-all, no condition</td><td><code>ELSE</code></td><td><code>else:</code></td></tr>
+      </table>
+    </div></div>
+    <div class="hint-panel">Pseudocode writes <code>ELSE IF</code> as two separate capitalized words; Python squashes it into the single keyword <code>elif</code>. Functionally, they mean exactly the same thing: check this next, only because everything above it already failed.</div>
+  </div>
+</section>
+
+<!-- SPOTIFY EXAMPLES -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Spotify Examples (5)</h2></div>
+    <p class="lede">Five real multi-branch decisions, each with exactly one outcome.</p>
+
+    <div class="cards">
+      <div class="cardx">
+        <div class="num">3-way chain</div>
+        <h4>Subscription tier badge</h4>
+        <code class="line">if tier == "family":
+    show_badge("Family")
+elif tier == "premium":
+    show_badge("Premium")
+else:
+    show_badge("Free")</code>
+        <p>Every account lands in exactly one tier.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">ranges, ordered</div>
+        <h4>Volume icon</h4>
+        <code class="line">if volume == 0:
+    icon = "muted"
+elif volume &lt; 50:
+    icon = "low"
+else:
+    icon = "high"</code>
+        <p>Checked most-specific (<code>== 0</code>) first, then the rest.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">no else</div>
+        <h4>Special-day themes</h4>
+        <code class="line">if is_holiday:
+    apply_theme("festive")
+elif is_birthday:
+    apply_theme("confetti")
+<span class="cm"># any other day: default theme, nothing to do</span></code>
+        <p>Perfectly fine to leave off <code>else</code> when "do nothing" is the correct default.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">combined condition</div>
+        <h4>Audio quality</h4>
+        <code class="line">if is_premium and on_wifi:
+    quality = "lossless"
+elif is_premium:
+    quality = "high"
+else:
+    quality = "standard"</code>
+        <p>Each branch's condition builds on the ones already ruled out above it.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">why not separate ifs</div>
+        <h4>Skip-limit warning levels</h4>
+        <code class="line">if skip_count &gt;= 10:
+    lock_skipping()
+elif skip_count &gt;= 6:
+    show_warning()</code>
+        <p>With separate <code>if</code>s, hitting 10 skips would trigger <b>both</b> messages. <code>elif</code> guarantees only the more serious one fires.</p>
+      </div>
+    </div>
+
+    <div class="callout">elif chains pick exactly one branch. Separate ifs can run any number of them.<span>Reach for elif whenever the outcomes are mutually exclusive categories &mdash; a grade, a tier, a warning level. That's almost always what "otherwise, check this" actually means.</span></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Order top to bottom, first match wins, else catches the rest.</h2>
+    <p>Next: this exact same branching logic, but triggered by which key the user presses.</p>
+    <a class="back" href="key-events.html">Key Events &rarr;</a>
+    <a class="back" href="study-guides.html">&larr; Bite-Sized Chunks</a>
+    <p class="sig">Python Notes &nbsp;/&nbsp; If, Elif, Else &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+</body>
+</html>
