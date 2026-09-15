@@ -93,7 +93,7 @@ const COURSES = [
     units: [
       { n: 1, title: "What Is an Embedded System?", migrated: true, path: "ec/unit-1/index.html" },
       { n: 2, title: "Arduino Foundations", migrated: true, path: "ec/unit-2/index.html" },
-      { n: 3, title: "Arduino Foundations: Real Hardware", migrated: true, path: "ec/unit-3/index.html" },
+      { n: 3, title: "Arduino Foundations II", migrated: true, path: "ec/unit-3/index.html" },
       { n: 4, title: "Sensors and Reactive Programs", migrated: true, path: "ec/unit-4/index.html" },
       { n: 5, title: "Input Systems", migrated: true, path: "ec/unit-5/index.html" },
       { n: 6, title: "RFID and Access Control", migrated: true, path: "ec/unit-6/index.html" },

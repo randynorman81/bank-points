@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3.5 PWM: Controlling Brightness (Real Hardware) | Unit 3 | Embedded Computing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<div style="max-width:1200px;margin:0 auto;padding:24px 20px 0;">
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ec/index.html">Embedded Computing</a><span class="sep">/</span><a href="../../ec/unit-3/index.html">Unit 3: Arduino Foundations II</a><span class="sep">/</span>3.5 PWM: Controlling Brightness (Real Hardware)</div>
+</div>
+
+  <div class="lesson-layout">
+    <aside class="lesson-sidebar" id="lesson-sidebar-root"></aside>
+
+    <article class="lesson-content">
+      <h1>3.5 &mdash; PWM: Controlling Brightness (Real Hardware)</h1>
+
+      <div class="bell-ringer">
+        <div class="bell-ringer-label">&#128276; Bell Ringer &mdash; Think About It</div>
+        <ol>
+          <li>In 3.4, turning a potentiometer changed timing (milliseconds). Today it'll change brightness (a PWM value). Same physical action, two completely different effects on your program &mdash; why does that make sense given what each value is used for?</li>
+          <li>Real PWM brightness and simulated PWM brightness are supposed to look identical to your eyes. If you compare your real LED fading to your TinkerCAD version side by side, what's actually different, if anything?</li>
+          <li><code>map()</code> has to convert a 0&ndash;1023 potentiometer reading into a 0&ndash;255 PWM value. Why couldn't you just use the potentiometer's raw 0&ndash;1023 reading directly in <code>analogWrite()</code>?</li>
+          <li>If you turn the potentiometer all the way and the LED doesn't reach full brightness, what are two different things &mdash; one about wiring, one about code &mdash; that could cause that?</li>
+        </ol>
+      </div>
+
+      <h2>Notes</h2>
+      <p>Look up these definitions:</p>
+      <ul>
+        <li>PWM (Pulse Width Modulation)</li>
+        <li>analogWrite()</li>
+        <li>Duty cycle</li>
+      </ul>
+      <p class="hint">Key idea: same PWM concept as 2.5 &mdash; a pin is still only ever fully on or fully off, switching fast enough to look like a smooth brightness level. Instead of a pre-scripted fade, wire a real potentiometer to an analog pin and use <code>map(analogRead(pin), 0, 1023, 0, 255)</code> to convert its reading directly into a value for <code>analogWrite()</code>. Now brightness responds instantly to a physical knob instead of following a timed loop &mdash; the same <code>map()</code> pattern from 3.4, applied to a different real-world output.</p>
+
+      <h2>Assignments</h2>
+      <ul>
+        <li><strong>3.5 &mdash; PWM: Potentiometer-Controlled Brightness.</strong> Found on Google Classroom.</li>
+      </ul>
+
+      <div id="prev-next-root" class="prev-next-nav"></div>
+    </article>
+  </div>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>
+renderHeader();
+
+const UNIT_TITLE = "Unit 3: Arduino Foundations II";
+const UNIT_BASE = "";
+const UNIT_LESSONS = [
+  { title: "3.1 Meet the Arduino: Real Hardware", file: "3-1-meet-the-arduino.html" },
+  { title: "3.2 Your First Real Circuit", file: "3-2-first-circuit.html" },
+  { title: "3.3 Your First Sketch: Blink (Real Hardware)", file: "3-3-your-first-sketch-blink.html" },
+  { title: "3.4 Variables and Data Types (Real Hardware)", file: "3-4-variables-and-data-types.html" },
+  { title: "3.5 PWM: Controlling Brightness (Real Hardware)", file: "3-5-pwm-controlling-brightness.html" },
+  { title: "3.6 Timing and Sequences (Real Hardware)", file: "3-6-timing-and-sequences.html" },
+  { title: "3.7 Circuit Fundamentals (Real Hardware)", file: "3-7-circuit-fundamentals.html" },
+  { title: "3.8 Interpreted vs Compiled (Real Hardware)", file: "3-8-interpreted-vs-compiled.html" },
+  { title: "3.9 Unit Build: Traffic Light (Real Hardware)", file: "3-9-unit-build-traffic-light.html" }
+];
+const CURRENT_FILE = "3-5-pwm-controlling-brightness.html";
+</script>
+<script src="../../assets/course-nav.js"></script>
+</body>
+</html>
