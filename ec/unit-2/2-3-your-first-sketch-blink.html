@@ -43,6 +43,7 @@
         <li>digitalWrite()</li>
       </ul>
       <p class="hint">Key idea: every Arduino sketch has exactly two required functions &mdash; setup() runs once when the board powers on (use it to configure pins with pinMode()), and loop() runs forever after that. digitalWrite(pin, HIGH) turns a pin on (5V); digitalWrite(pin, LOW) turns it off (0V). delay(1000) pauses the program for 1000 milliseconds &mdash; without it, the blink would happen too fast to see. Common first-upload problems: wrong board or port selected in the IDE, missing semicolons/unmatched braces, or an LED wired backwards.</p>
+      <p class="hint">Why the wiring changed from 2.2: your LED there was wired straight to the 5V and GND pins &mdash; always on, no code involved. Today it's wired to a digital pin and GND instead, and it still works because a digital pin isn't just for reading input &mdash; set to <code>OUTPUT</code> with <code>pinMode()</code> and driven <code>HIGH</code>, that pin becomes its own tiny 5V source, exactly like the 5V pin, except your code controls it. <code>digitalWrite(pin, LOW)</code> drops that same pin to 0V, just like GND. That's the actual trick behind Blink: the pin itself is doing the powering, switched on a schedule your code controls, instead of a fixed always-on connection.</p>
 
       <h2>Assignments</h2>
       <ul>
