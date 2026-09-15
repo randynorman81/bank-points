@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4.9 Temperature Sensor Lab + Functions | Unit 4 | Embedded Computing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<div style="max-width:1200px;margin:0 auto;padding:24px 20px 0;">
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ec/index.html">Embedded Computing</a><span class="sep">/</span><a href="../../ec/unit-4/index.html">Unit 4: Sensors and Reactive Programs</a><span class="sep">/</span>4.9 Temperature Sensor Lab + Functions</div>
+</div>
+
+  <div class="lesson-layout">
+    <aside class="lesson-sidebar" id="lesson-sidebar-root"></aside>
+
+    <article class="lesson-content">
+      <h1>4.9 &mdash; Temperature Sensor Lab + Functions</h1>
+
+      <div class="bell-ringer">
+        <div class="bell-ringer-label">&#128276; Bell Ringer &mdash; Think About It</div>
+        <ol>
+          <li>You've been calling built-in functions like analogRead() and digitalWrite() all course without a second thought. Now that you're writing your own, does knowing what's happening "under the hood" change how much you trust the built-in ones, or should it?</li>
+          <li>A function is a named block of code you can call from multiple places instead of retyping it. Where in your own life do you already do something similar &mdash; repeating a routine instead of reinventing it each time?</li>
+          <li>If your getTemperature() function had a mistake buried inside it, and you called it from five different places in your program, how far could that one small bug spread? Is that a reason to fear functions, or a reason to trust them more once they're tested?</li>
+          <li>Humidity and temperature are measured together by the same sensor. Why might a device &mdash; like a greenhouse controller or a smart thermostat &mdash; actually need both numbers together instead of just temperature alone?</li>
+        </ol>
+      </div>
+
+      <h3>Directions</h3>
+      <ol>
+        <li>Wire the DHT11 and install its library.</li>
+        <li>Print temperature and humidity to Serial Monitor.</li>
+        <li>Write your own getTemperature() and getHumidity() functions.</li>
+        <li>Call each function from at least two places in your program.</li>
+        <li>Submit your code and a photo.</li>
+      </ol>
+      <p class="hint">Two-period lesson, new sensor: the DHT11 (temperature + humidity). Also the first time you write your own function.</p>
+
+      <h2>Notes</h2>
+      <p>Look up these definitions:</p>
+      <ul>
+        <li>Function</li>
+        <li>Function call</li>
+        <li>Return value</li>
+        <li>Humidity</li>
+      </ul>
+      <p class="hint">Key idea: the DHT11 measures temperature and humidity together, using a timing protocol complex enough that you'll use a library (<code>dht.readTemperature()</code>, <code>dht.readHumidity()</code>) instead of a raw digitalRead/analogRead. A <strong>function</strong> is a named, reusable block of code &mdash; you've been calling built-in ones (analogRead, digitalWrite, pulseIn) all course, but today you write your own: <code>float getTemperature() { return dht.readTemperature(); }</code> then call it with <code>float currentTemp = getTemperature();</code>. The <strong>return value</strong> is the data it hands back. A function only runs when called by name; a loop repeats automatically &mdash; they often work together.</p>
+
+      <h2>Assignments</h2>
+      <ul>
+        <li><strong>4.9 &mdash; Temperature Sensor Lab + Functions.</strong> Wire the DHT11 (VCC&rarr;5V, GND&rarr;GND, DATA to a digital pin), install its library, and print both temperature and humidity to Serial Monitor. Then write your own <code>getTemperature()</code> and <code>getHumidity()</code> functions and call each from at least two different places in your program (e.g. printing the value AND using it in an if/else threshold check). Submit your annotated code and a photo of your working setup.</li>
+      </ul>
+
+      <h3>How much is it worth?</h3>
+      <p>100 points &mdash; this is a two-period assignment. Take the <strong>4.9 Quiz</strong> below for extra credit &mdash; 3 points for a 100, 2 for a 90 or higher, 1 just for finishing it.</p>
+
+      <h3>Where do you turn it in?</h3>
+      <p><strong>Google Classroom.</strong></p>
+
+      <h2>Extra Credit Quiz</h2>
+      <p class="hint">Access this extra credit quiz at <strong>schscomputerscience.com</strong> &mdash; click <strong>Class Tools</strong>, then the Quizzes link for your class.</p>
+
+      <div id="prev-next-root" class="prev-next-nav"></div>
+    </article>
+  </div>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>
+renderHeader();
+
+const UNIT_TITLE = "Unit 4: Sensors and Reactive Programs";
+const UNIT_BASE = "";
+const UNIT_LESSONS = [
+  { title: "4.1 What Is a Sensor?", file: "4-1-what-is-a-sensor.html" },
+  { title: "4.2 Case: Jeep Cherokee Hack", file: "4-2-case-jeep-cherokee-hack.html" },
+  { title: "4.3 Light Sensor Lab", file: "4-3-light-sensor-lab.html" },
+  { title: "4.4 if/else: Making Decisions", file: "4-4-if-else-making-decisions.html" },
+  { title: "4.5 Distance Sensor Lab", file: "4-5-distance-sensor-lab.html" },
+  { title: "4.6 Loops: for and while", file: "4-6-loops-for-and-while.html" },
+  { title: "4.7 Motion Sensor Lab", file: "4-7-motion-sensor-lab.html" },
+  { title: "4.8 Case: Oldsmar Water Plant", file: "4-8-case-oldsmar-water-plant.html" },
+  { title: "4.9 Temperature Sensor Lab + Functions", file: "4-9-temperature-sensor-lab-and-functions.html" },
+  { title: "4.10 Debugging Methodology", file: "4-10-debugging-methodology.html" },
+  { title: "4.11 V1 and V2 Alarm System", file: "4-11-v1-and-v2-alarm-system.html" },
+  { title: "4.12 Case: Toyota Unintended Acceleration", file: "4-12-case-toyota-unintended-acceleration.html" }
+];
+const CURRENT_FILE = "4-9-temperature-sensor-lab-and-functions.html";
+</script>
+<script src="../../assets/course-nav.js"></script>
+</body>
+</html>
