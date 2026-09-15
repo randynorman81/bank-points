@@ -9,6 +9,12 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
 <link rel="stylesheet" href="assets/style.css">
 <link rel="icon" href="assets/logo.png">
+<style>
+  .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .filter-tabs .btn { border-radius: 999px; }
+  .filter-tabs .btn.is-active { background: var(--black); color: var(--white); }
+  .filter-tabs .btn .count { opacity: 0.7; margin-left: 4px; }
+</style>
 </head>
 <body>
 
@@ -16,7 +22,7 @@
 
 <main>
   <h2 style="margin-top:0;">Late Work — Teacher</h2>
-  <p class="hint" style="margin-top:-8px; margin-bottom:16px;">Everything students have listed as turned in late, grouped by class. Check off what you've graded, then mark it graded so it drops out of the list &mdash; do this once at the end of each unit.</p>
+  <p class="hint" style="margin-top:-8px; margin-bottom:16px;">Everything students have listed as turned in late. Pick a class, then a period. Check off what you've graded, then mark it graded so it drops out of the list &mdash; do this once at the end of each unit.</p>
 
   <div id="pin-gate" class="pin-gate">
     <div class="card">
@@ -33,7 +39,20 @@
   </div>
 
   <div id="dashboard" style="display:none;">
-    <div id="course-cards"></div>
+    <div id="course-tabs" class="filter-tabs"></div>
+    <div id="period-tabs" class="filter-tabs"></div>
+
+    <div class="card">
+      <h2 id="list-heading" style="margin-top:0;"></h2>
+      <div class="row-actions" style="margin-bottom:12px; justify-content:space-between; align-items:center;">
+        <label class="hint" style="display:flex; align-items:center; gap:6px;">
+          <input type="checkbox" id="show-graded" onchange="toggleShowGraded(this.checked)">
+          Show already-graded entries
+        </label>
+        <button type="button" class="btn btn-primary btn-sm" onclick="markSelectedGraded()">Mark Checked as Graded</button>
+      </div>
+      <div id="list-slot" class="loading">Loading&hellip;</div>
+    </div>
   </div>
 </main>
 
@@ -47,7 +66,9 @@ renderHeader();
 
 const PIN_KEY = 'lateWorkAdminPin';
 let entries = [];
-let showGraded = {}; // per course: courseId -> bool
+let showGraded = false;
+let currentCourse = COURSES[0].id;
+let currentPeriod = 'all'; // 'all' or a specific period string
 
 const pinGate = document.getElementById('pin-gate');
 const dashboard = document.getElementById('dashboard');
@@ -108,46 +129,79 @@ async function authedPost(payload) {
 function unlock() {
   pinGate.style.display = 'none';
   dashboard.style.display = 'block';
-  buildCourseCards();
   loadEntries();
 }
 
-function buildCourseCards() {
-  const root = document.getElementById('course-cards');
-  root.innerHTML = COURSES.map(c => {
-    showGraded[c.id] = false;
-    return `
-      <div class="card">
-        <h2 style="margin-top:0;">${escapeHtml(c.name)}</h2>
-        <div class="row-actions" style="margin-bottom:12px; justify-content:space-between; align-items:center;">
-          <label class="hint" style="display:flex; align-items:center; gap:6px;">
-            <input type="checkbox" id="show-graded-${c.id}" onchange="toggleShowGraded('${c.id}', this.checked)">
-            Show already-graded entries
-          </label>
-          <button type="button" class="btn btn-primary btn-sm" onclick="markSelectedGraded('${c.id}')">Mark Checked as Graded</button>
-        </div>
-        <div id="list-${c.id}" class="loading">Loading&hellip;</div>
-      </div>
-    `;
-  }).join('');
-}
-
-function toggleShowGraded(courseId, checked) {
-  showGraded[courseId] = checked;
-  renderCourseList(courseId);
-}
-
 async function loadEntries() {
+  document.getElementById('list-slot').innerHTML = '<div class="loading">Loading&hellip;</div>';
   const res = await authedPost({ action: 'list', course: '' });
   if (res.error) {
-    COURSES.forEach(c => {
-      document.getElementById('list-' + c.id).innerHTML = `<div class="alert alert-error">${escapeHtml(res.error)}</div>`;
-    });
+    document.getElementById('list-slot').innerHTML = `<div class="alert alert-error">${escapeHtml(res.error)}</div>`;
     return;
   }
   entries = res.entries || [];
-  COURSES.forEach(c => renderCourseList(c.id));
+  renderCourseTabs();
+  renderPeriodTabs();
+  renderList();
 }
+
+// Count of not-yet-graded entries for a course (optionally narrowed to one
+// period too) -- drives the little badge on each tab button.
+function pendingCount(courseId, period) {
+  return entries.filter(e => e.course === courseId && (period === undefined || e.period === period) && !e.graded).length;
+}
+
+function renderCourseTabs() {
+  const root = document.getElementById('course-tabs');
+  root.innerHTML = COURSES.map(c => `
+    <button type="button" class="btn btn-ghost btn-sm${c.id === currentCourse ? ' is-active' : ''}" onclick="selectCourse('${c.id}')">
+      ${escapeHtml(c.shortName)}<span class="count">${pendingCount(c.id)}</span>
+    </button>
+  `).join('');
+}
+
+function selectCourse(courseId) {
+  currentCourse = courseId;
+  currentPeriod = 'all';
+  renderCourseTabs();
+  renderPeriodTabs();
+  renderList();
+}
+window.selectCourse = selectCourse;
+
+function renderPeriodTabs() {
+  const root = document.getElementById('period-tabs');
+  const periods = [...new Set(entries.filter(e => e.course === currentCourse).map(e => e.period))]
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+
+  if (periods.length === 0) {
+    root.innerHTML = '';
+    return;
+  }
+
+  const allBtn = `
+    <button type="button" class="btn btn-ghost btn-sm${currentPeriod === 'all' ? ' is-active' : ''}" onclick="selectPeriod('all')">
+      All Periods<span class="count">${pendingCount(currentCourse)}</span>
+    </button>`;
+  const periodBtns = periods.map(p => `
+    <button type="button" class="btn btn-ghost btn-sm${currentPeriod === p ? ' is-active' : ''}" onclick="selectPeriod('${escapeHtml(p)}')">
+      ${escapeHtml(p)}<span class="count">${pendingCount(currentCourse, p)}</span>
+    </button>`).join('');
+  root.innerHTML = allBtn + periodBtns;
+}
+
+function selectPeriod(period) {
+  currentPeriod = period;
+  renderPeriodTabs();
+  renderList();
+}
+window.selectPeriod = selectPeriod;
+
+function toggleShowGraded(checked) {
+  showGraded = checked;
+  renderList();
+}
+window.toggleShowGraded = toggleShowGraded;
 
 function formatDateTime(iso) {
   const d = new Date(iso);
@@ -155,15 +209,18 @@ function formatDateTime(iso) {
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' at ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 }
 
-function renderCourseList(courseId) {
-  const slot = document.getElementById('list-' + courseId);
-  if (!slot) return;
-  const forCourse = entries
-    .filter(e => e.course === courseId && (showGraded[courseId] || !e.graded))
+function renderList() {
+  const course = COURSES.find(c => c.id === currentCourse);
+  document.getElementById('list-heading').textContent =
+    (course ? course.name : currentCourse) + (currentPeriod !== 'all' ? ' — ' + currentPeriod : ' — All Periods');
+
+  const slot = document.getElementById('list-slot');
+  const forView = entries
+    .filter(e => e.course === currentCourse && (currentPeriod === 'all' || e.period === currentPeriod) && (showGraded || !e.graded))
     .sort((a, b) => a.studentName.localeCompare(b.studentName) || a.submittedAt.localeCompare(b.submittedAt));
 
-  if (forCourse.length === 0) {
-    slot.innerHTML = '<p class="hint">Nothing listed for this class right now.</p>';
+  if (forView.length === 0) {
+    slot.innerHTML = '<p class="hint">Nothing listed here right now.</p>';
     return;
   }
 
@@ -172,16 +229,16 @@ function renderCourseList(courseId) {
       <table class="roster">
         <thead><tr><th></th><th>Student</th><th>Period</th><th>Assignment</th><th>Added</th><th></th></tr></thead>
         <tbody>
-          ${forCourse.map(e => `
+          ${forView.map(e => `
             <tr style="${e.graded ? 'opacity:0.55;' : ''}">
-              <td><input type="checkbox" class="entry-check" data-course="${courseId}" data-id="${e.id}" ${e.graded ? 'disabled' : ''}></td>
+              <td><input type="checkbox" class="entry-check" data-id="${e.id}" ${e.graded ? 'disabled' : ''}></td>
               <td>${escapeHtml(e.studentName)}<div class="hint">${escapeHtml(e.studentEmail)}</div></td>
               <td>${escapeHtml(e.period)}</td>
               <td>${escapeHtml(e.assignmentTitle)}${e.graded ? ' <span class="badge badge-open">Graded</span>' : ''}</td>
               <td class="hint">${escapeHtml(formatDateTime(e.submittedAt))}</td>
               <td class="row-actions">
-                ${e.graded ? `<button type="button" class="btn btn-ghost btn-sm" onclick="unmarkGraded('${e.id}','${courseId}')">Unmark</button>` : ''}
-                <button type="button" class="btn btn-danger btn-sm" onclick="deleteEntry('${e.id}','${courseId}')">Delete</button>
+                ${e.graded ? `<button type="button" class="btn btn-ghost btn-sm" onclick="unmarkGraded('${e.id}')">Unmark</button>` : ''}
+                <button type="button" class="btn btn-danger btn-sm" onclick="deleteEntry('${e.id}')">Delete</button>
               </td>
             </tr>
           `).join('')}
@@ -191,33 +248,38 @@ function renderCourseList(courseId) {
   `;
 }
 
-async function markSelectedGraded(courseId) {
-  const boxes = document.querySelectorAll(`.entry-check[data-course="${courseId}"]:checked`);
+async function markSelectedGraded() {
+  const boxes = document.querySelectorAll('.entry-check:checked');
   const ids = Array.from(boxes).map(b => b.dataset.id);
   if (ids.length === 0) { alert('Check off at least one entry first.'); return; }
   const res = await authedPost({ action: 'markGraded', ids });
   if (res.error) { alert(res.error); return; }
   entries.forEach(e => { if (ids.includes(e.id)) { e.graded = true; e.gradedAt = new Date().toISOString(); } });
-  renderCourseList(courseId);
+  renderCourseTabs();
+  renderPeriodTabs();
+  renderList();
 }
+window.markSelectedGraded = markSelectedGraded;
 
-async function unmarkGraded(id, courseId) {
+async function unmarkGraded(id) {
   const res = await authedPost({ action: 'unmarkGraded', ids: [id] });
   if (res.error) { alert(res.error); return; }
   const e = entries.find(x => x.id === id);
   if (e) { e.graded = false; e.gradedAt = null; }
-  renderCourseList(courseId);
+  renderCourseTabs();
+  renderPeriodTabs();
+  renderList();
 }
 window.unmarkGraded = unmarkGraded;
-window.toggleShowGraded = toggleShowGraded;
-window.markSelectedGraded = markSelectedGraded;
 
-async function deleteEntry(id, courseId) {
+async function deleteEntry(id) {
   if (!confirm('Delete this entry entirely? This cannot be undone.')) return;
   const res = await authedPost({ action: 'deleteEntryAdmin', id });
   if (res.error) { alert(res.error); return; }
   entries = entries.filter(e => e.id !== id);
-  renderCourseList(courseId);
+  renderCourseTabs();
+  renderPeriodTabs();
+  renderList();
 }
 window.deleteEntry = deleteEntry;
 
