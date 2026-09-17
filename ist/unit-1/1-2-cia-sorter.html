@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CIA Triad Case Sorter | Intro to Software Technology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+
+  --conf:#38BDF8; --conf-tint:rgba(56,189,248,.14); --conf-ink:#9FE0FB;
+  --inte:#34D399; --inte-tint:rgba(52,211,153,.14); --inte-ink:#86EFC0;
+  --avail:#FBBF24; --avail-tint:rgba(251,191,36,.14); --avail-ink:#FDD877;
+  --good:#34D399; --bad:#F87171; --bad-tint:rgba(248,113,113,.14); --bad-ink:#FCA5A5;
+  --acc:#38BDF8; --acc-ink:#9FE0FB;
+
+  --wrap:760px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.16; margin:0; text-wrap:balance}
+p{margin:0 0 1em}
+p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:#fff;color:#0B0E14;border-color:#fff}
+
+.hero{padding:44px 0 30px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(56,189,248,.13), transparent 38%),
+    radial-gradient(circle at 55% 0%, rgba(52,211,153,.11), transparent 36%),
+    radial-gradient(circle at 90% 40%, rgba(251,191,36,.12), transparent 40%);
+}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:14px;text-transform:uppercase}
+.hero h1{font-size:clamp(26px,4.6vw,38px);font-weight:600;max-width:20ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(15px,2vw,17px);line-height:1.6;max-width:60ch;margin-top:12px}
+
+.dash{background:var(--panel);border-bottom:1px solid var(--rule);padding:14px 0}
+.dash-row{display:flex;justify-content:space-between;align-items:center;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-soft)}
+.progress-track{flex:1;height:6px;background:#05070B;border-radius:100px;margin:0 16px;overflow:hidden}
+.progress-fill{height:100%;background:var(--acc);border-radius:100px;transition:width .4s ease}
+.score{color:var(--ink);font-weight:700}
+
+.stage{padding:48px 0 70px}
+.cardbox{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:34px 32px}
+.scenario{font-family:"Fraunces",serif;font-size:clamp(20px,3.4vw,25px);font-weight:600;color:#fff;line-height:1.4;margin-bottom:30px;text-align:center}
+
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.choice{border-radius:8px;padding:20px 10px;text-align:center;cursor:pointer;font-family:"JetBrains Mono",monospace;font-weight:700;font-size:13px;letter-spacing:.03em;text-transform:uppercase;border:2px solid var(--rule);background:var(--panel);color:var(--ink);transition:transform .1s, border-color .15s}
+.choice:hover{transform:translateY(-2px)}
+.choice .letter{display:block;font-family:"Fraunces",serif;font-size:26px;font-weight:600;margin-bottom:6px}
+.choice.conf{color:var(--conf-ink)} .choice.conf:hover{border-color:var(--conf)}
+.choice.inte{color:var(--inte-ink)} .choice.inte:hover{border-color:var(--inte)}
+.choice.avail{color:var(--avail-ink)} .choice.avail:hover{border-color:var(--avail)}
+.choice[disabled]{cursor:default; opacity:.55; transform:none}
+.choice.correct-pick{border-color:var(--good); background:rgba(52,211,153,.12); opacity:1}
+.choice.wrong-pick{border-color:var(--bad); background:var(--bad-tint); opacity:1}
+
+.feedback{margin-top:22px; padding:16px 20px; border-radius:8px; font-size:14.5px; line-height:1.55; display:none}
+.feedback.show{display:block}
+.feedback.ok{background:rgba(52,211,153,.1); border:1px solid var(--good); color:#D5F5E6}
+.feedback.no{background:var(--bad-tint); border:1px solid var(--bad); color:#F3D2D2}
+.feedback b{color:#fff}
+
+.nextrow{margin-top:22px; text-align:center}
+.btn{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;text-decoration:none;color:#0B0E14;border:none;border-radius:100px;padding:12px 26px;background:#fff;cursor:pointer}
+.btn:hover{background:#e7e7e7}
+.btn[disabled]{opacity:.3; cursor:default}
+
+.donebox{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:40px 32px;text-align:center}
+.donebox .big{font-family:"Fraunces",serif;font-size:44px;font-weight:600;color:#fff;margin-bottom:6px}
+.donebox p{color:var(--ink-soft);font-size:15px;max-width:46ch;margin:0 auto 20px}
+.donebox .btnrow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn.outline{background:transparent;color:var(--acc-ink);border:1px solid var(--acc)}
+.btn.outline:hover{background:var(--conf-tint)}
+
+@media (max-width:560px){
+  .choices{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Intro to Software Technology</a>
+  <a href="1-2-intro-to-ist-and-dig-footprint-cia-triad.html">1.2 Lesson Page</a>
+  <a href="1-2-notes.html">Notes</a>
+  <a href="1-2-cia-sorter.html" class="current">Case Sorter</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">IST GAME &nbsp;/&nbsp; LESSON 1.2</div>
+    <h1>CIA Triad Case Sorter</h1>
+    <p class="deck">You're a junior agent on your first day. 15 real-life cases just came in &mdash; sort each one into the right file: Confidentiality, Integrity, or Availability.</p>
+  </div>
+</header>
+
+<div class="dash">
+  <div class="wrap dash-row">
+    <span id="progLabel">Case 1 of 15</span>
+    <div class="progress-track"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+    <span class="score">Score: <span id="scoreVal">0</span>/15</span>
+  </div>
+</div>
+
+<section class="stage">
+  <div class="wrap" id="stage"></div>
+</section>
+
+<script>
+const cases = [
+  { text: "Someone reads your text messages without your permission.", answer: "conf", explain: "Confidentiality &mdash; information that was supposed to stay between the right people got seen by someone else." },
+  { text: "You use Face ID so only you can unlock your phone.", answer: "conf", explain: "Confidentiality &mdash; it makes sure only the right person (you) can get in." },
+  { text: "A stranger guesses your Instagram password and logs into your account.", answer: "conf", explain: "Confidentiality &mdash; someone who shouldn't have access just got it." },
+  { text: "You set your TikTok profile to private so only approved followers see your videos.", answer: "conf", explain: "Confidentiality &mdash; you're controlling exactly who's allowed to see your content." },
+  { text: "A classmate looks over your shoulder to see your test answers.", answer: "conf", explain: "Confidentiality &mdash; information meant to be private (your answers) was seen by someone who shouldn't see it." },
+
+  { text: "Someone secretly changes your grade in the school portal.", answer: "inte", explain: "Integrity &mdash; the data was changed by someone who wasn't supposed to touch it, so you can no longer trust it's accurate." },
+  { text: "A friend edits a screenshot before sending it to make it look like you said something you didn't.", answer: "inte", explain: "Integrity &mdash; the content was altered, so it no longer reflects what actually happened." },
+  { text: "Your Venmo balance shows a totally different amount than it should.", answer: "inte", explain: "Integrity &mdash; the number was changed and no longer matches reality." },
+  { text: "Someone photoshops a picture to make it look real when it isn't.", answer: "inte", explain: "Integrity &mdash; the image has been altered to misrepresent the truth." },
+  { text: "A virus corrupts the files on the school's grading system.", answer: "inte", explain: "Integrity &mdash; the data itself got damaged/changed, so it's no longer trustworthy." },
+
+  { text: "The school Wi-Fi goes down right before your project is due.", answer: "avail", explain: "Availability &mdash; the network isn't gone forever, it's just not accessible right when you needed it." },
+  { text: "Your favorite game's servers crash and you get kicked out mid-match.", answer: "avail", explain: "Availability &mdash; the service wasn't there when you needed it." },
+  { text: "Ransomware locks a hospital's computer system so doctors can't use it.", answer: "avail", explain: "Availability &mdash; the files still exist, they're just locked away and inaccessible." },
+  { text: "Instagram has a nationwide outage and nobody can post.", answer: "avail", explain: "Availability &mdash; the app and your account are fine, the service just isn't reachable." },
+  { text: "Your phone dies right when you need to show your bus pass.", answer: "avail", explain: "Availability &mdash; the pass still exists, it's just not available to you in that moment." }
+];
+
+const labels = { conf: "Confidentiality", inte: "Integrity", avail: "Availability" };
+const shortLabels = { conf: "C", inte: "I", avail: "A" };
+
+let order = [];
+let idx = 0;
+let score = 0;
+let answered = false;
+
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function updateDash(){
+  document.getElementById("progLabel").textContent = "Case " + Math.min(idx+1, cases.length) + " of " + cases.length;
+  document.getElementById("progFill").style.width = ((idx / cases.length) * 100) + "%";
+  document.getElementById("scoreVal").textContent = score;
+}
+
+function start(){
+  order = shuffle(cases);
+  idx = 0;
+  score = 0;
+  answered = false;
+  updateDash();
+  render();
+}
+
+function pick(key, btnEl){
+  if (answered) return;
+  answered = true;
+  const c = order[idx];
+  const correct = key === c.answer;
+  if (correct) score++;
+
+  document.querySelectorAll(".choice").forEach(b => b.setAttribute("disabled", "true"));
+  btnEl.classList.add(correct ? "correct-pick" : "wrong-pick");
+  if (!correct) {
+    document.querySelector('.choice[data-key="' + c.answer + '"]').classList.add("correct-pick");
+  }
+
+  const fb = document.getElementById("feedback");
+  fb.className = "feedback show " + (correct ? "ok" : "no");
+  fb.innerHTML = (correct ? "<b>Correct!</b> " : "<b>Not quite.</b> ") + c.explain;
+
+  document.getElementById("nextBtn").removeAttribute("disabled");
+  updateDash();
+}
+
+function next(){
+  idx++;
+  answered = false;
+  if (idx >= order.length) {
+    updateDash();
+    renderDone();
+  } else {
+    render();
+  }
+}
+
+function render(){
+  const c = order[idx];
+  const stage = document.getElementById("stage");
+  stage.innerHTML = `
+    <div class="cardbox">
+      <div class="scenario">&ldquo;${c.text}&rdquo;</div>
+      <div class="choices">
+        <button class="choice conf" data-key="conf" onclick="pick('conf', this)"><span class="letter">C</span>Confidentiality</button>
+        <button class="choice inte" data-key="inte" onclick="pick('inte', this)"><span class="letter">I</span>Integrity</button>
+        <button class="choice avail" data-key="avail" onclick="pick('avail', this)"><span class="letter">A</span>Availability</button>
+      </div>
+      <div class="feedback" id="feedback"></div>
+      <div class="nextrow">
+        <button class="btn" id="nextBtn" onclick="next()" disabled>Next Case &rarr;</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderDone(){
+  const stage = document.getElementById("stage");
+  let msg = "Solid work.";
+  if (score === 15) msg = "Perfect score &mdash; every case filed correctly.";
+  else if (score >= 12) msg = "Great instincts on this one.";
+  else if (score >= 8) msg = "Good start &mdash; a replay will lock it in.";
+  else msg = "Worth a replay before you screenshot your score.";
+
+  stage.innerHTML = `
+    <div class="donebox">
+      <div class="big">${score} / 15</div>
+      <p>${msg} Take a screenshot of this screen and submit it in Google Classroom.</p>
+      <div class="btnrow">
+        <button class="btn" onclick="start()">&#8635; Play Again</button>
+        <a class="btn outline" href="1-2-intro-to-ist-and-dig-footprint-cia-triad.html">Back to 1.2</a>
+      </div>
+    </div>
+  `;
+}
+
+start();
+</script>
+
+</body>
+</html>
