@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OSINT Guide | Intro to Software Technology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+
+  --conf:#38BDF8; --conf-tint:rgba(56,189,248,.14); --conf-ink:#9FE0FB;
+  --inte:#34D399; --inte-tint:rgba(52,211,153,.14); --inte-ink:#86EFC0;
+  --avail:#FBBF24; --avail-tint:rgba(251,191,36,.14); --avail-ink:#FDD877;
+  --good:#34D399; --good-tint:rgba(52,211,153,.13); --good-ink:#86EFC0;
+  --neutral:#A78BFA; --neutral-tint:rgba(167,139,250,.14); --neutral-ink:#CBBBFB;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.14); --bad-ink:#FCA5A5;
+  --acc:#38BDF8; --acc-ink:#9FE0FB;
+
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.16; margin:0; text-wrap:balance}
+p{margin:0 0 1em}
+p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{position:sticky; top:0; z-index:20; display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:#fff;color:#0B0E14;border-color:#fff}
+
+.jumpnav{background:var(--bg);border-bottom:1px solid var(--rule); padding:12px 0; overflow-x:auto}
+.jumpnav .wrap{display:flex; gap:8px; white-space:nowrap}
+.jumpnav a{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:6px 12px;letter-spacing:.02em; flex:none}
+.jumpnav a:hover{color:var(--ink);border-color:var(--acc)}
+
+.hero{padding:54px 0 38px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(56,189,248,.13), transparent 38%),
+    radial-gradient(circle at 55% 0%, rgba(167,139,250,.11), transparent 36%),
+    radial-gradient(circle at 90% 40%, rgba(251,191,36,.11), transparent 40%);
+}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(30px,5.2vw,48px);font-weight:600;max-width:20ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18px);line-height:1.6;max-width:68ch;margin-top:16px}
+.hero .meta-row{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:20px;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-soft)}
+.hero .meta-row b{color:var(--ink);font-weight:600}
+
+.part{padding:54px 0 8px}
+.part + .part{border-top:1px solid var(--rule)}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(21px,3.4vw,29px);font-weight:600;color:#fff}
+.lede{font-size:17px;line-height:1.6;max-width:70ch;margin-bottom:26px;color:#C4CDD8}
+
+/* generic cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:18px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:20px 20px 22px;border-top:3px solid var(--rule)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;margin-bottom:8px;color:var(--ink-soft)}
+.cardx h4{font-size:16px;font-weight:600;color:#fff;margin-bottom:8px;font-family:"Fraunces",serif}
+.cardx p{font-size:13.8px;color:var(--ink-soft);margin:0}
+
+/* two box */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:22px}
+.box h3{font-size:17px;font-weight:600;margin-bottom:10px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:14.5px;line-height:1.55;color:#C4CDD8;margin:0}
+
+/* spectrum (who uses osint) */
+.spectrum{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:10px}
+.spec-col{border-radius:6px;padding:18px}
+.spec-col.good{background:var(--good-tint);border:1px solid var(--good)}
+.spec-col.neutral{background:var(--neutral-tint);border:1px solid var(--neutral)}
+.spec-col.bad{background:var(--bad-tint);border:1px solid var(--bad)}
+.spec-col h4{font-family:"JetBrains Mono",monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+.spec-col.good h4{color:var(--good-ink)}
+.spec-col.neutral h4{color:var(--neutral-ink)}
+.spec-col.bad h4{color:var(--bad-ink)}
+.spec-item{margin-bottom:14px}
+.spec-item:last-child{margin-bottom:0}
+.spec-item b{display:block;color:#fff;font-size:14.5px;margin-bottom:3px}
+.spec-item p{font-size:13.3px;color:#C4CDD8;margin:0}
+
+/* jordan story */
+.storyline{display:flex; flex-direction:column; gap:12px}
+.storycard{display:grid; grid-template-columns:44px 1fr; gap:16px; background:var(--card); border:1px solid var(--rule); border-radius:6px; padding:16px 18px}
+.storycard .dot{width:44px;height:44px;border-radius:50%;background:var(--neutral-tint);border:1px solid var(--neutral);display:flex;align-items:center;justify-content:center;font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--neutral-ink)}
+.storycard .cap{font-style:italic; color:var(--ink-soft); font-size:14px; margin-bottom:6px}
+.storycard .learn{font-size:14.5px; color:#C4CDD8}
+.storycard .learn b{color:#fff}
+
+/* triad tension table */
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14px}
+table.cmp th,table.cmp td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp th.conf{color:var(--conf-ink)} table.cmp th.inte{color:var(--inte-ink)} table.cmp th.avail{color:var(--avail-ink)}
+table.cmp td b{color:#fff}
+
+.pillar3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:8px}
+.pcard{border-radius:6px; padding:20px; border-top:3px solid var(--rule)}
+.pcard.conf{background:var(--conf-tint); border-top-color:var(--conf)}
+.pcard.inte{background:var(--inte-tint); border-top-color:var(--inte)}
+.pcard.avail{background:var(--avail-tint); border-top-color:var(--avail)}
+.pcard h4{font-family:"JetBrains Mono",monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.pcard.conf h4{color:var(--conf-ink)} .pcard.inte h4{color:var(--inte-ink)} .pcard.avail h4{color:var(--avail-ink)}
+.pcard .tension{font-size:14px;color:#fff;margin-bottom:10px;line-height:1.5}
+.pcard ul{margin:0;padding-left:18px}
+.pcard li{font-size:13.3px;color:#C4CDD8;margin-bottom:7px;line-height:1.45}
+.pcard li:last-child{margin-bottom:0}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:26px 28px;border-radius:5px;margin:10px 0 30px;font-size:18px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:15px;display:block;margin-top:10px}
+
+/* accordion for toolkit */
+.accordion{border:1px solid var(--rule); border-radius:6px; overflow:hidden; margin-bottom:12px}
+.acc-head{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 20px; background:var(--card); cursor:pointer; user-select:none}
+.acc-head:hover{background:#1A2130}
+.acc-head .title{display:flex; align-items:center; gap:12px}
+.acc-head h3{font-size:16.5px; font-weight:600; color:#fff; font-family:"Fraunces",serif}
+.acc-head .count{font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--ink-soft); background:var(--panel); border:1px solid var(--rule); border-radius:100px; padding:3px 10px}
+.acc-head .arrow{font-family:"JetBrains Mono",monospace; color:var(--acc-ink); transition:transform .2s; flex:none}
+.accordion.open .acc-head .arrow{transform:rotate(90deg)}
+.acc-body{max-height:0; overflow:hidden; transition:max-height .35s ease; background:var(--panel)}
+.accordion.open .acc-body{max-height:2400px}
+.acc-body-inner{padding:18px 20px 22px}
+.acc-body p.desc{font-size:13.5px; color:var(--ink-soft); margin-bottom:14px}
+.toolgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.tool{background:var(--card); border:1px solid var(--rule); border-radius:5px; padding:13px 15px}
+.tool .tname{font-size:14px; font-weight:700; color:#fff; margin-bottom:4px; font-family:"JetBrains Mono",monospace}
+.tool .tname a{color:var(--acc-ink)}
+.tool .tdesc{font-size:12.8px; color:var(--ink-soft); line-height:1.45}
+
+/* checklist (interactive) */
+.checklist{display:flex; flex-direction:column; gap:10px; margin-bottom:8px}
+.chk{display:flex; gap:14px; align-items:flex-start; background:var(--card); border:1px solid var(--rule); border-radius:6px; padding:14px 16px; cursor:pointer; transition:border-color .15s}
+.chk:hover{border-color:#3A4658}
+.chk.done{border-color:var(--good); background:var(--good-tint)}
+.chk .box{width:22px;height:22px;border-radius:5px;border:2px solid var(--rule);flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:transparent;margin-top:2px}
+.chk.done .box{border-color:var(--good); background:var(--good); color:#06110B}
+.chk .txt b{display:block; color:#fff; font-size:14.5px; margin-bottom:3px}
+.chk .txt p{font-size:13.5px; color:var(--ink-soft); margin:0}
+.chk-progress{font-family:"JetBrains Mono",monospace; font-size:12px; color:var(--ink-soft); margin-top:10px}
+.chk-progress b{color:var(--good-ink)}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:40px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:32ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:62ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--conf-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.spectrum,.pillar3,.storycard{grid-template-columns:1fr}
+  .storycard{grid-template-columns:36px 1fr}
+  table.cmp{font-size:12.5px}
+  table.cmp th,table.cmp td{padding:9px 10px}
+}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Intro to Software Technology</a>
+  <a href="1-2-1-23-1-25-osint.html">1.2 Lesson Page</a>
+  <a href="1-2-osint-guide.html" class="current">OSINT Guide</a>
+</nav>
+
+<div class="jumpnav">
+  <div class="wrap">
+    <a href="#what">What Is OSINT?</a>
+    <a href="#sources">5 Sources</a>
+    <a href="#who">Who Uses It</a>
+    <a href="#jordan">Real Example</a>
+    <a href="#triad">CIA Triad</a>
+    <a href="#registries">Registries &amp; Blotters</a>
+    <a href="#toolkit">The Toolkit</a>
+    <a href="#defend">Defend Yourself</a>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">IST GUIDE &nbsp;/&nbsp; LESSON 1.2</div>
+    <h1>OSINT: Open Source Intelligence</h1>
+    <p class="deck">Everything from the OSINT Study Guide, the OSINT Links directory, and OSINT Basics (registries, blotters, and the sex offender registry) &mdash; combined into one guide. Nothing here required hacking anything. That's exactly the point.</p>
+    <div class="meta-row">
+      <span>&#128269; <b>5 sources</b></span>
+      &nbsp;&middot;&nbsp;
+      <span>&#129504; <b>3 CIA Triad tensions</b></span>
+      &nbsp;&middot;&nbsp;
+      <span>&#128736; <b>30+ real tools</b></span>
+      &nbsp;&middot;&nbsp;
+      <span>&#9989; <b>6-step self-defense checklist</b></span>
+    </div>
+  </div>
+</header>
+
+<!-- 00 WHAT IS OSINT -->
+<section class="part" id="what">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>What Is OSINT?</h2></div>
+    <p class="lede">When most people hear "intelligence," they picture spies and hidden cameras. The reality is way less dramatic &mdash; and a lot more interesting. Most of what investigators, journalists, and even hackers know about people comes from sources that are completely public.</p>
+    <div class="two">
+      <div class="box">
+        <h3>The definition</h3>
+        <p><b>OSINT</b> stands for <b>Open Source Intelligence</b>: the practice of gathering information from publicly available sources &mdash; websites, social media, news articles, public records, photos, videos &mdash; anything anyone can access without hacking, stealing, or breaking a rule.</p>
+      </div>
+      <div class="box">
+        <h3>What "open source" means</h3>
+        <p>Open source doesn't mean "leaked" or "hacked." It means the information is available to anyone who knows where to look. A Google search is OSINT. Looking up someone's LinkedIn is OSINT. The skill isn't finding the data &mdash; it's knowing what to do with it once you have it.</p>
+      </div>
+    </div>
+    <div class="hint-panel">Before a hacker tries to break into a system, they almost always do OSINT first. The flip side: once you understand OSINT, you can use it to protect yourself &mdash; seeing what strangers can already find about you, and cleaning up the footprint you didn't know you had.</div>
+  </div>
+</section>
+
+<!-- 01 FIVE SOURCES -->
+<section class="part" id="sources">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>The Five Main Sources</h2></div>
+    <p class="lede">OSINT can come from almost anywhere on the open internet. None of these require hacking. All of it is technically public.</p>
+    <div class="cards">
+      <div class="cardx"><div class="num">01</div><h4>Search Engines &amp; the Open Web</h4><p>Google, Bing, DuckDuckGo, and specialty engines like Shodan (which searches internet-connected devices instead of websites). A creative search can turn up PDFs, employee names, and forgotten pages.</p></div>
+      <div class="cardx"><div class="num">02</div><h4>Social Media</h4><p>Instagram, TikTok, LinkedIn, X, Facebook, YouTube, Reddit, Discord. People voluntarily post location, workplace, routine, and family &mdash; often without realizing how much it adds up.</p></div>
+      <div class="cardx"><div class="num">03</div><h4>Public Records &amp; Government Databases</h4><p>Court records, property deeds, marriage licenses, business filings, voter rolls, police blotters. Most are public by law, many free to search with just a name.</p></div>
+      <div class="cardx"><div class="num">04</div><h4>News, Blogs &amp; Archives</h4><p>Local newspapers, school newsletters, obituaries, blog posts, and archived pages on the Wayback Machine. Old forgotten information is still sitting there, waiting.</p></div>
+      <div class="cardx"><div class="num">05</div><h4>Data Aggregators &amp; People-Search Sites</h4><p>FastPeopleSearch, Spokeo, BeenVerified, Whitepages, and dozens more. These sites scrape all of the above into one searchable profile on almost every American adult.</p></div>
+    </div>
+    <div class="hint-panel"><b>The combined effect:</b> Any one source alone might seem harmless. Combine all five, and a stranger can build a frighteningly complete picture of you in under an hour &mdash; without ever "hacking" anything.</div>
+  </div>
+</section>
+
+<!-- 02 WHO USES OSINT -->
+<section class="part" id="who">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Who Uses OSINT?</h2></div>
+    <p class="lede">OSINT is a tool, not a weapon &mdash; like a kitchen knife. The same techniques that help a journalist expose corruption can help a stalker find someone's home. The information is identical. The intent is what changes.</p>
+    <div class="spectrum">
+      <div class="spec-col good">
+        <h4>The Good Guys (Public Interest)</h4>
+        <div class="spec-item"><b>Journalists</b><p>Verify stories and uncover things people in power want hidden &mdash; from the Panama Papers to war-crime documentation.</p></div>
+        <div class="spec-item"><b>Law Enforcement</b><p>Find missing persons and identify suspects in viral videos, often without needing a warrant because the data is already public.</p></div>
+        <div class="spec-item"><b>Cybersecurity Professionals</b><p>Run OSINT on their own companies to find what an attacker would see first &mdash; and fix it before a real hacker exploits it.</p></div>
+      </div>
+      <div class="spec-col neutral">
+        <h4>Everyday Users (You)</h4>
+        <div class="spec-item"><b>Employers</b><p>Hiring managers Google candidates and check public social media. What you posted in 9th grade can affect a job offer years later.</p></div>
+        <div class="spec-item"><b>Curious Friends, Family &amp; Dates</b><p>A first date will probably Google you. A new coworker might check your Instagram. This is OSINT, even if no one calls it that.</p></div>
+      </div>
+      <div class="spec-col bad">
+        <h4>The Concerning Side (Bad Actors)</h4>
+        <div class="spec-item"><b>Scammers &amp; Social Engineers</b><p>OSINT lets a scammer learn your boss's name and your schedule, then send a fake email that looks shockingly real &mdash; called spear phishing.</p></div>
+        <div class="spec-item"><b>Stalkers &amp; Doxxers</b><p>The same tools can find your home address, school, and family. Doxxing &mdash; publishing private info to harass someone &mdash; is built almost entirely on OSINT.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 JORDAN STORY -->
+<section class="part" id="jordan">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>A Real Example: Just Five Public Posts</h2></div>
+    <p class="lede">Jordan, a high school student, has never been hacked and never had a data breach. Jordan just posts normally, like everyone else. Here's what a stranger could learn from five completely public Instagram posts.</p>
+    <div class="storyline">
+      <div class="storycard"><div class="dot">1</div><div><div class="cap">"Friday night lights with my @SocialCircleHS Redskins!"</div><div class="learn"><b>What a stranger learns:</b> Jordan's school, which day they have games, and a face-tagged photo of their friend group.</div></div></div>
+      <div class="storycard"><div class="dot">2</div><div><div class="cap">A dog photo with a street sign visible &mdash; "Walking Buddy on a beautiful morning ❤"</div><div class="learn"><b>What a stranger learns:</b> The dog's name (often used in passwords), the neighborhood, and from the photo's hidden EXIF data, the exact GPS coordinates.</div></div></div>
+      <div class="storycard"><div class="dot">3</div><div><div class="cap">A "happy birthday Mom!" post</div><div class="learn"><b>What a stranger learns:</b> Mom's name, her face, and her birthday &mdash; one of the most common bank security questions.</div></div></div>
+      <div class="storycard"><div class="dot">4</div><div><div class="cap">A car selfie</div><div class="learn"><b>What a stranger learns:</b> The make, model, color, and partial plate of the family car &mdash; combined with the street sign, it can be located.</div></div></div>
+      <div class="storycard"><div class="dot">5</div><div><div class="cap">"UGH I have a Java test 3rd period Tuesday" &mdash; shared in a story</div><div class="learn"><b>What a stranger learns:</b> Jordan's daily routine, what time they're where, and what classes they take.</div></div></div>
+    </div>
+    <div class="callout">In under twenty minutes, with zero hacking, a stranger now knows Jordan's full name, school, neighborhood, family, daily schedule, car, and common password material. <span>None of it was stolen. All of it was given away.</span></div>
+  </div>
+</section>
+
+<!-- 04 CIA TRIAD -->
+<section class="part" id="triad">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>OSINT and the CIA Triad</h2></div>
+    <p class="lede">OSINT pushes against all three pillars of the CIA Triad at once &mdash; sometimes in good ways, sometimes in scary ways. Understanding this connection is what turns "cool internet trick" into real cybersecurity thinking.</p>
+    <div class="pillar3">
+      <div class="pcard conf">
+        <h4>Confidentiality &mdash; Is it secret?</h4>
+        <div class="tension">Every piece of public data is, by definition, <b>not</b> confidential. OSINT is built on the slow erosion of privacy.</div>
+        <p style="font-size:13px;color:#C4CDD8;"><b>Real example:</b> a "private" thought you posted at 14 is still Googleable at 25.</p>
+      </div>
+      <div class="pcard inte">
+        <h4>Integrity &mdash; Is it accurate?</h4>
+        <div class="tension">Public sources are full of errors. An OSINT investigator can confidently report something completely wrong.</div>
+        <p style="font-size:13px;color:#C4CDD8;"><b>Real example:</b> a typo in a public arrest record names the wrong person.</p>
+      </div>
+      <div class="pcard avail">
+        <h4>Availability &mdash; Is it there?</h4>
+        <div class="tension">Once data is public, it's too available. It gets cached, mirrored, and copied &mdash; and it lives forever.</div>
+        <p style="font-size:13px;color:#C4CDD8;"><b>Real example:</b> you delete a tweet, but it's already been screenshotted and archived.</p>
+      </div>
+    </div>
+    <div class="hint-panel"><b>The big takeaway:</b> OSINT isn't just a skill or a hobby &mdash; it's the single biggest reason cybersecurity is hard in the modern world. Every post, every public record, every leaked email turns into a free clue for whoever wants to find it. Cybersecurity isn't just about firewalls anymore &mdash; it's about understanding the trail you leave behind.</div>
+  </div>
+</section>
+
+<!-- 05 REGISTRIES & BLOTTERS -->
+<section class="part" id="registries">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">05</div><h2>Case Study: Registries &amp; Blotters</h2></div>
+    <p class="lede">A huge part of cybersecurity involves public data. Registries and blotters are official (and sometimes unofficial) collections of information about people, open for anyone to see.</p>
+
+    <div class="two" style="grid-template-columns:repeat(3,1fr);">
+      <div class="box"><h3>The Police Blotter</h3><p>A daily "news feed" of arrests and calls for service. Run by local police departments and small-town newspapers.</p></div>
+      <div class="box"><h3>The Sex Offender Registry</h3><p>A government safety database tracking the location and personal information of individuals convicted of specific crimes. Run by state and federal agencies.</p></div>
+      <div class="box"><h3>Data Aggregators</h3><p>Private, for-profit sites (like FastPeopleSearch) that scrape the internet to build a giant digital folder on almost everyone. They make money from your data.</p></div>
+    </div>
+
+    <h3 style="margin:34px 0 14px; font-size:19px; color:#fff;">How Do They Get Your Data?</h3>
+    <div class="two" style="grid-template-columns:repeat(3,1fr);">
+      <div class="box"><h3 style="font-size:15.5px;">Public Records</h3><p style="font-size:13.5px;">Buying a house, getting married, voting, a speeding ticket &mdash; each creates a public record. Aggregators pull millions of these into searchable profiles.</p></div>
+      <div class="box"><h3 style="font-size:15.5px;">Social Media Scraping</h3><p style="font-size:13.5px;">Bots crawl for your bio, friends list, and geotagged posts. Even "private" profiles leak through friends' public posts and tagged photos.</p></div>
+      <div class="box"><h3 style="font-size:15.5px;">Buying &amp; Selling Data</h3><p style="font-size:13.5px;">Everyday apps sell "anonymized" data to brokers, who connect it back to your real name and resell the complete profile.</p></div>
+    </div>
+    <div class="hint-panel">You don't need to be famous, rich, or important to have a digital file on you. If you've ever signed up for anything online, voted, or had a public address, you have a profile out there &mdash; whether you know it or not.</div>
+
+    <h3 style="margin:34px 0 14px; font-size:19px; color:#fff;">Where Each Pillar Breaks</h3>
+    <div class="pillar3">
+      <div class="pcard conf">
+        <h4>Confidentiality Conflict</h4>
+        <div class="tension">Registries and blotters are the opposite of confidentiality &mdash; their entire purpose is taking private information public.</div>
+        <ul>
+          <li>Your home address is searchable by anyone, for free.</li>
+          <li>Your family connections get mapped &mdash; relatives, roommates, neighbors.</li>
+          <li>A minor offense from years ago can show up in Google results forever, even after charges were dropped.</li>
+        </ul>
+      </div>
+      <div class="pcard inte">
+        <h4>Integrity Conflict</h4>
+        <div class="tension">You need to trust the data is 100% accurate, but because it's scraped, copied, and re-shared automatically, errors happen constantly.</div>
+        <ul>
+          <li>A typo on a police blotter lists the wrong name for an arrest &mdash; the correction gets buried, the original stays forever.</li>
+          <li>An outdated address causes a failed delivery, background check, or court summons.</li>
+          <li>Two people with similar names get mixed up, and clearing it up can take years.</li>
+        </ul>
+      </div>
+      <div class="pcard avail">
+        <h4>Availability Conflict</h4>
+        <div class="tension">Society needs this data to always be online for safety &mdash; but individuals want the right to be forgotten when it's wrong or outdated.</div>
+        <ul>
+          <li>If a Sex Offender Registry site crashes, parents can't check their neighborhood.</li>
+          <li>Someone proven innocent finds their mugshot impossible to remove &mdash; some sites even charge a fee to take it down.</li>
+          <li>Even after removal, Google's cache and the Wayback Machine may still have copies.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tblwrap" style="margin-top:20px;"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th class="conf">Pillar</th><th>How it applies</th><th>Real-life consequence</th></tr>
+        <tr><td><b>Confidentiality</b></td><td>These sites intentionally leak your private info to the public.</td><td>Someone finds your home address on FastPeopleSearch.</td></tr>
+        <tr><td><b>Integrity</b></td><td>The data must be 100% true to be fair to the people listed.</td><td>A blotter lists you for a crime you didn't commit, due to a typo.</td></tr>
+        <tr><td><b>Availability</b></td><td>The data must be accessible for public safety to work.</td><td>A registry site goes down during an important background check.</td></tr>
+      </table>
+    </div></div>
+
+    <div class="callout">Are registries, blotters, and data aggregators a good thing or a bad thing?
+      <span><b>For:</b> blotters keep communities informed, registries help parents protect kids, public records promote transparency. <b>Against:</b> errors ruin innocent people's lives, old mistakes follow people forever, private companies profit off your data without consent. Maybe some data should be public but harder to find &mdash; maybe there should be a "right to be forgotten." There's no easy answer, and that's exactly why this debate matters.</span>
+    </div>
+  </div>
+</section>
+
+<!-- 06 TOOLKIT -->
+<section class="part" id="toolkit">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">06</div><h2>The OSINT Toolkit</h2></div>
+    <p class="lede">Every category of tool a real OSINT investigator uses &mdash; click a category to expand it. These are the same tools journalists, cybersecurity professionals, and yes, people you'd rather avoid, all use every day.</p>
+
+    <div id="accordions"></div>
+  </div>
+</section>
+
+<!-- 07 DEFEND YOURSELF -->
+<section class="part" id="defend">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">07</div><h2>Defend Yourself: Practical OSINT Hygiene</h2></div>
+    <p class="lede">The best defense against OSINT is knowing what someone could already find. The tools cost nothing, and the techniques take about an hour to learn. Click each item off as you actually do it.</p>
+
+    <div class="checklist" id="checklist"></div>
+    <div class="chk-progress" id="chkProgress"></div>
+
+    <div class="hint-panel" style="margin-top:22px;">You can't become invisible &mdash; and that's OK. The goal of OSINT hygiene isn't to disappear. It's to make sure that what's out there about you is something you chose to put there. <b>That's real digital self-defense</b> &mdash; and it's the foundation for every cybersecurity topic you'll study after this one.</div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>You don't need to hack anyone to know almost everything about them.</h2>
+    <p>That's the entire point of OSINT &mdash; and once you understand how it works against other people, you can use it to see exactly what the internet already knows about you.</p>
+    <a class="back" href="1-2-1-23-1-25-osint.html">&larr; Back to 1.2</a>
+    <a class="back" href="../index.html">&larr; Intro to Software Technology</a>
+    <p class="sig">Intro to Software Technology Guide &nbsp;/&nbsp; Lesson 1.2 &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+<script>
+const toolCategories = [
+  {
+    title: "Data Aggregators &amp; Public Records",
+    desc: "The everyday \"people-search\" sites and government databases. This is where most digital files on regular people actually live.",
+    tools: [
+      { name: "FastPeopleSearch", url: "https://www.fastpeoplesearch.com", desc: "Quick name and address lookup." },
+      { name: "TruePeopleSearch", url: "https://www.truepeoplesearch.com", desc: "Deep history of previous addresses and phone numbers." },
+      { name: "Busted Newspaper", desc: "Aggregated local arrest records and mugshots." },
+      { name: "Georgia Felon Search", desc: "Official state criminal history." },
+      { name: "NSOPW", url: "https://www.nsopw.gov", desc: "National Sex Offender Public Website &mdash; the official government registry." },
+      { name: "Open Georgia", desc: "State-level salary and travel data." },
+      { name: "GSCCCA", url: "https://www.gsccca.org", desc: "Georgia court and land deed records." },
+      { name: "VoterRecords.com", desc: "Publicly available voter registration data." },
+      { name: "Zillow", url: "https://www.zillow.com", desc: "Price/tax history and home ownership dates." },
+      { name: "PublicEmailRecords", desc: "Scans for emails associated with a name." }
+    ]
+  },
+  {
+    title: "Security &amp; Verification Tools",
+    desc: "Tools for checking whether your own data has already leaked, or for pivoting from one clue to the next.",
+    tools: [
+      { name: "HaveIBeenPwned", url: "https://haveibeenpwned.com", desc: "Checks if an email address was exposed in a known data breach." },
+      { name: "Shodan.io", url: "https://www.shodan.io", desc: "A search engine for internet-connected devices, like cameras and printers." },
+      { name: "WhatsMyName.app", url: "https://whatsmyname.app", desc: "Scans 300+ sites to find where a username is registered." },
+      { name: "UserSearch.org", desc: "Aggregates social profile handles across the web." },
+      { name: "NameCheckr", desc: "Checks username availability and history across platforms." },
+      { name: "FlightAware", url: "https://www.flightaware.com", desc: "Real-time aircraft tracking." },
+      { name: "Osint.industries", desc: "Real-time social profile and account lookup by email." },
+      { name: "Yandex Images", url: "https://yandex.com/images", desc: "A reverse image search often stronger than Google's for faces and locations." },
+      { name: "Wigle.net", desc: "A global map of Wi-Fi networks, built from crowdsourced scans." }
+    ]
+  },
+  {
+    title: "Photo Metadata (EXIF) Tools",
+    desc: "A single photo secretly contains coordinates, device info, and timestamps. These tools read &mdash; or remove &mdash; that hidden data.",
+    tools: [
+      { name: "ExifMeta", desc: "A general EXIF data extractor." },
+      { name: "Jeffrey's Metadata Viewer", desc: "Plots a photo's hidden GPS data directly onto a map." },
+      { name: "Metadata2Go", desc: "A deep document and file metadata viewer." },
+      { name: "Verexif", desc: "Views and removes EXIF data to sanitize a photo before posting." },
+      { name: "Metadata-Viewer", desc: "Simple browser-based metadata extraction, no install needed." }
+    ]
+  },
+  {
+    title: "Device Fingerprinting Demos",
+    desc: "Your browser leaks small, unique details about itself to every site you visit &mdash; these demos show exactly how, tied to the CIA Triad.",
+    tools: [
+      { name: "Font Fingerprint Test", desc: "Lists your unique set of installed fonts &mdash; a Confidentiality problem, since it turns your software setup into a unique identifier." },
+      { name: "Battery Status Test", desc: "Shows how your battery percentage can act as a short-term tracking ID as you move across sites &mdash; an Integrity-adjacent trick using data that's supposed to be harmless." },
+      { name: "Screen Resolution Test", desc: "Broadcasts your exact monitor metadata to every site &mdash; an Availability problem, since it's shared constantly without asking." }
+    ]
+  },
+  {
+    title: "The Eternal Web (Archives)",
+    desc: "Even deleted content rarely disappears completely. These tools prove it.",
+    tools: [
+      { name: "Wayback Machine", url: "https://web.archive.org", desc: "The internet's largest historical archive of old web pages." },
+      { name: "Archive.is / Archive-It", desc: "Snapshots pages even if they try to block bots." },
+      { name: "Library of Congress Web Archive", desc: "Culturally significant, curated digital snapshots." },
+      { name: "Oldweb.today", desc: "Runs legacy browsers inside your current one, to view sites the way they used to look." },
+      { name: "Ghostery", desc: "A database of tracked digital ads and the trackers behind them." }
+    ]
+  }
+];
+
+function renderAccordions(){
+  const el = document.getElementById("accordions");
+  el.innerHTML = toolCategories.map((cat, i) => `
+    <div class="accordion" id="acc-${i}">
+      <div class="acc-head" onclick="toggleAcc(${i})">
+        <div class="title">
+          <h3>${cat.title}</h3>
+          <span class="count">${cat.tools.length} tools</span>
+        </div>
+        <span class="arrow">&#9656;</span>
+      </div>
+      <div class="acc-body">
+        <div class="acc-body-inner">
+          <p class="desc">${cat.desc}</p>
+          <div class="toolgrid">
+            ${cat.tools.map(t => `
+              <div class="tool">
+                <div class="tname">${t.url ? `<a href="${t.url}" target="_blank" rel="noopener">${t.name}</a>` : t.name}</div>
+                <div class="tdesc">${t.desc}</div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function toggleAcc(i){
+  document.getElementById("acc-" + i).classList.toggle("open");
+}
+
+const hygieneSteps = [
+  { title: "Google Yourself (Seriously)", desc: "Open a private/incognito window and search your full name, your name in quotes, your name plus your school, and your name plus your town." },
+  { title: "Check the People-Search Sites", desc: "Search yourself on FastPeopleSearch, Spokeo, and Whitepages. Most have a free \"opt-out\" link buried in the footer." },
+  { title: "Lock Down Your Social Media", desc: "Set Instagram to private, restrict who can tag you on Facebook, make TikTok friends-only. Remember: your friends' public posts can still leak your info." },
+  { title: "Strip EXIF Data from Photos", desc: "Phone photos often include exact GPS coordinates. Turn this off in camera settings, or strip it before posting with a tool like ImageOptim." },
+  { title: "Mind the Background of Your Photos", desc: "Street signs, school logos, license plates, mailbox numbers, the view from your window &mdash; all of it is OSINT. Look at every photo like a stranger would." },
+  { title: "Use Different Usernames Across Sites", desc: "If your username is the same on Reddit, Discord, GitHub, and Steam, an investigator can link all of them with one search." }
+];
+
+function renderChecklist(){
+  const el = document.getElementById("checklist");
+  el.innerHTML = hygieneSteps.map((s, i) => `
+    <div class="chk" id="chk-${i}" onclick="toggleChk(${i})">
+      <div class="box">&#10003;</div>
+      <div class="txt"><b>${i+1}. ${s.title}</b><p>${s.desc}</p></div>
+    </div>
+  `).join("");
+  updateProgress();
+}
+
+function toggleChk(i){
+  document.getElementById("chk-" + i).classList.toggle("done");
+  updateProgress();
+}
+
+function updateProgress(){
+  const done = document.querySelectorAll(".chk.done").length;
+  document.getElementById("chkProgress").innerHTML = "<b>" + done + " / " + hygieneSteps.length + "</b> steps completed";
+}
+
+renderAccordions();
+renderChecklist();
+</script>
+
+</body>
+</html>
