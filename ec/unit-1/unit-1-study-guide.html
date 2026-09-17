@@ -23,7 +23,7 @@
 
     <article class="lesson-content">
       <h1>Unit 1 Study Guide</h1>
-      <p class="hint">Covers lessons 1.1&ndash;1.3, 1.4, and 1.6. This mirrors the 25-question Unit 1 Test &mdash; every idea below maps to a question on the test, and nothing on the test falls outside this guide. The test asks you to reason with these ideas, not just recite a definition, so don't just memorize the bolded words &mdash; be able to explain <em>why</em> each one matters.</p>
+      <p class="hint">Covers lessons 1.1&ndash;1.6. This mirrors the 25-question Unit 1 Test &mdash; every idea below maps to a question on the test, and nothing on the test falls outside this guide. The test asks you to reason with these ideas, not just recite a definition, so don't just memorize the bolded words &mdash; be able to explain <em>why</em> each one matters.</p>
 
       <h2>1.1 &mdash; What Is an Embedded System?</h2>
       <dl>
@@ -49,19 +49,34 @@
         <dd>To answer two separate questions: <b>what technically went wrong</b>, and <b>who is responsible</b> for it. These aren't the same question &mdash; a technical root cause and legal/professional accountability can point in different directions.</dd>
 
         <dt>The Therac-25</dt>
-        <dd>A computer-controlled <b>radiation therapy machine</b> from the mid-1980s that could deliver treatment two ways: a low-power electron beam applied directly, or a high-power X-ray beam that required a physical beam-spreading attachment to be moved into place first, since the concentrated high-power beam was only safe once spread out.</dd>
+        <dd>A computer-controlled <b>radiation therapy machine</b> from the mid-1980s that could deliver treatment two ways: a low-power electron beam applied directly, or a high-power X-ray beam that required a physical beam-spreading attachment to be moved into place first, since the concentrated high-power beam was only safe once spread out. Between 1985 and 1987, at least six documented incidents delivered massive radiation overdoses &mdash; up to roughly 100 times the intended dose &mdash; causing severe radiation burns and multiple deaths.</dd>
 
-        <dt>What actually went wrong</dt>
-        <dd>Between 1985 and 1987, at least six documented incidents delivered massive radiation overdoses &mdash; up to roughly 100 times the intended dose &mdash; causing severe radiation burns and multiple deaths. The cause was a <b>race condition</b>: if an experienced operator typed quickly enough to correct a setup mistake within about 8 seconds, the software's check for "is the beam-spreader correctly in position" could be skipped, letting the unspread, high-power beam fire directly at the patient.</dd>
+        <dt>Safety-critical system</dt>
+        <dd>A system where a failure can directly cause serious injury or death, not just an inconvenience. The Therac-25 is the defining example: it's literally the device delivering a patient's radiation dose, so a software bug in it isn't just an annoying glitch.</dd>
+
+        <dt>Real-time system</dt>
+        <dd>A system where the <b>timing</b> of an action matters as much as the action itself &mdash; a correct response delivered too late is a failure. Timing details that would be irrelevant in a normal phone app (like exactly how fast someone types) directly caused the Therac-25's overdoses.</dd>
 
         <dt>Race condition</dt>
-        <dd>A bug where the outcome depends on the <b>relative timing or order</b> of two things happening, because that timing isn't properly controlled. In the Therac-25's case: the software's safety check and the operator's typing speed were racing each other, and typing fast enough won.</dd>
+        <dd>A bug where the outcome depends on the <b>relative timing or order</b> of two things happening, because that timing isn't properly controlled. In the Therac-25's case: if an experienced operator typed quickly enough to correct a setup mistake within about 8 seconds, the software's safety check and the operator's typing speed ended up racing each other &mdash; and typing fast enough won, letting the unspread, high-power beam fire directly at the patient.</dd>
 
-        <dt>The removed safety feature</dt>
-        <dd>Earlier machines (the Therac-6 and Therac-20) had <b>hardware safety interlocks</b> &mdash; physical, mechanical safeguards that made the dangerous state impossible regardless of what the software did. The Therac-25 removed those hardware interlocks and relied entirely on software to catch the same class of error, turning one single point of failure into a life-or-death risk.</dd>
+        <dt>Hardware interlock</dt>
+        <dd>A <b>physical, mechanical safeguard</b> that makes a dangerous state impossible no matter what the software does. Earlier machines (the Therac-6 and Therac-20) had one for exactly this failure; the Therac-25 removed it and relied entirely on software to catch the same class of error.</dd>
+
+        <dt>Redundancy</dt>
+        <dd>Having more than one independent safety check for the same danger, so one failing doesn't mean the whole system fails. The Therac-25 had none left for this specific check once its hardware interlock was removed &mdash; the software check was the only thing standing between a setup mistake and a massive overdose.</dd>
+
+        <dt>Single point of failure</dt>
+        <dd>Any one part of a system that, if it fails, takes down or exposes everything depending on it, with nothing else in place to catch the failure. Once the Therac-25's hardware interlock was gone, its one remaining software safety check became exactly this.</dd>
+
+        <dt>Fail-safe</dt>
+        <dd>A design where, if something does go wrong, the system defaults to a <b>safe</b> state rather than a dangerous one. The Therac-25 was not fail-safe: when its one safety check got skipped by the race condition, the result was the most dangerous possible outcome, not a safe shutdown.</dd>
+
+        <dt>Firmware</dt>
+        <dd>The low-level software running directly on a device's hardware &mdash; for the Therac-25, the firmware was where the race condition actually lived, deciding in real time whether the beam-spreader was safely in position before allowing the beam to fire.</dd>
 
         <dt>Why this case anchors the whole course</dt>
-        <dd>It's the origin case for a theme you'll see again later this year: software alone is often not considered sufficient protection for a safety-critical system. A second, independent, physical layer of protection catches what software might miss &mdash; and removing that layer to save cost or complexity is exactly how a single bug becomes a disaster.</dd>
+        <dd>It's the origin case for a theme you'll see again later this unit and this year: software alone is often not considered sufficient protection for a safety-critical system. A second, independent, physical layer of protection catches what software might miss &mdash; and removing that layer to save cost or complexity is exactly how a single bug becomes a disaster.</dd>
       </dl>
 
       <h2>1.3 &mdash; Embedded Systems All Around Us</h2>
@@ -75,13 +90,25 @@
         <dt>IoT</dt>
         <dd>Stands for <b>Internet of Things</b> &mdash; physical, embedded devices connected to a network so they can send or receive data, and often be monitored or controlled remotely.</dd>
 
-        <dt>Pacemaker</dt>
-        <dd>An example of an embedded system where a software failure could be <b>life-threatening</b>, since it directly and continuously controls a person's heart rhythm. Same underlying stakes as the Therac-25, just continuous and preventive rather than a single treatment event.</dd>
+        <dt>Firmware Developer</dt>
+        <dd>Writes the low-level software that runs directly on a specific chip &mdash; the code that talks straight to the hardware's registers and peripherals. Deeply focused on one piece of software, running on one specific device.</dd>
+
+        <dt>Embedded Systems Engineer</dt>
+        <dd>Owns the bigger picture &mdash; choosing the chip itself, designing how hardware and software fit together, and making sure the whole system, not just the code, actually works as one product.</dd>
       </dl>
 
       <h2>1.4 &mdash; Take a Stand: GPS Ankle Monitor Failures</h2>
       <dl>
-        <dt>GPS ankle monitor</dt>
+        <dt>GPS</dt>
+        <dd>A network of satellites that lets a small receiver calculate its own location on Earth. It isn't perfect &mdash; buildings, weather, and hardware bugs can all cause <b>GPS drift</b>, a known error where a device briefly reports a wrong location before correcting itself.</dd>
+
+        <dt>Data transmission</dt>
+        <dd>How a calculated location (or any reading) actually leaves a device and reaches a human who can act on it &mdash; usually over a cellular network. Transmission takes time and isn't perfectly reliable, and a delay can make an already-corrected reading look like an active, ongoing problem.</dd>
+
+        <dt>Monitoring system</dt>
+        <dd>The combination of software and staff that receives every transmitted alert, decides which ones are real, and escalates the real ones to whoever has authority to act. It's only as reliable as the protocol its human operators actually follow under pressure.</dd>
+
+        <dt>GPS ankle monitor (the scenario)</dt>
         <dd>Tracks a supervised person's <b>real-time location</b> and sends zone-violation or tamper alerts to a monitoring service, which can escalate to the supervising government agency.</dd>
 
         <dt>The three parties and their specific failure points</dt>
@@ -95,6 +122,36 @@
 
         <dt>Civil liability</dt>
         <dd><b>Legal responsibility</b> for causing harm or loss to another person, which can require paying monetary damages &mdash; distinct from criminal liability, which involves government prosecution and potential jail time.</dd>
+      </dl>
+
+      <h2>1.5 &mdash; Smart City Simulator</h2>
+      <dl>
+        <dt>Data granularity</dt>
+        <dd>How fine-grained or detailed a piece of collected data is. A meter that reports once a day has low granularity; one that reports every 15 minutes has high granularity &mdash; detailed enough to reveal exactly when someone is home.</dd>
+
+        <dt>Centralized system</dt>
+        <dd>A system where one central point &mdash; one database, one server, one control room &mdash; holds the data or control for everything underneath it. Easier to manage and search, but one point of failure can affect everything connected to it at once.</dd>
+
+        <dt>Attack surface</dt>
+        <dd>Every possible point where an outside attacker could try to get in &mdash; every network connection, every login, every device that talks to the outside world. More connected features usually mean a bigger attack surface, even when each one seems harmless alone.</dd>
+
+        <dt>Edge computing (on-device processing)</dt>
+        <dd>Processing data right where it's collected, on the device itself, instead of sending it somewhere else first &mdash; the same idea as Edge AI from Lesson 1.6, just not always AI-specific.</dd>
+
+        <dt>Air-gapped</dt>
+        <dd>A system that is physically disconnected from any outside network &mdash; not just hard to reach, but not connected at all. The only way to change it is to be physically present.</dd>
+
+        <dt>Security by design</dt>
+        <dd>Building security into a system from the very first decision, instead of patching it on afterward. A staggered, tested rollout is security by design; auto-updating everything overnight because it's faster to build is the opposite.</dd>
+
+        <dt>SCADA</dt>
+        <dd>The control system used to run major infrastructure like a water treatment plant or a power grid &mdash; Supervisory Control and Data Acquisition. Whether a SCADA system is connected to the internet or air-gapped is one of the highest-stakes versions of the convenience-vs-security tradeoff.</dd>
+
+        <dt>Single point of failure (recurring theme)</dt>
+        <dd>Same idea from the Therac-25 in Lesson 1.2, now applied to a whole city: a system where every device trusts the same central update path has built a single point of failure, even if each individual decision that led there seemed reasonable on its own.</dd>
+
+        <dt>Why the simulator uses 20 separate decisions</dt>
+        <dd>A city isn't broken by one bad choice &mdash; it's shaped by dozens of small, specific tradeoffs between convenience, privacy, and security, made one system at a time. Centralizing critical infrastructure (traffic cameras, the power grid, emergency alerts) around the same convenience-first choices is what turns many small decisions into one very large risk.</dd>
       </dl>
 
       <h2>1.6 &mdash; The Double Life of a Raspberry Pi</h2>
