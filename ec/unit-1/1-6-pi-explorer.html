@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raspberry Pi Field Guide | Embedded Computing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0A0F1A; --panel:#0F1826; --card:#141F30; --ink:#E9EFF7; --ink-soft:#8FA1B7; --rule:#223144;
+
+  --edge:#22D3EE; --edge-tint:rgba(34,211,238,.13); --edge-ink:#8FE9F8;
+  --cloud:#A78BFA; --cloud-tint:rgba(167,139,250,.15); --cloud-ink:#CBBBFB;
+  --hybrid:#FB923C; --hybrid-tint:rgba(251,146,60,.15); --hybrid-ink:#FDBA84;
+  --none:#8FA1B7; --none-tint:rgba(143,161,183,.13); --none-ink:#C2CEDB;
+  --sbc:#34D399; --sbc-tint:rgba(52,211,153,.14); --sbc-ink:#86EFC0;
+  --embed:#FBBF24; --embed-tint:rgba(251,191,36,.13); --embed-ink:#FDD877;
+  --acc:#22D3EE; --acc-ink:#8FE9F8;
+
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.16; margin:0; text-wrap:balance}
+p{margin:0 0 1em}
+p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:#fff;color:#0B0E14;border-color:#fff}
+
+.hero{padding:52px 0 34px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(52,211,153,.13), transparent 38%),
+    radial-gradient(circle at 55% 0%, rgba(34,211,238,.12), transparent 36%),
+    radial-gradient(circle at 90% 40%, rgba(167,139,250,.12), transparent 40%);
+}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:14px;text-transform:uppercase}
+.hero h1{font-size:clamp(28px,5vw,42px);font-weight:600;max-width:22ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(15px,2vw,17px);line-height:1.6;max-width:66ch;margin-top:14px}
+
+/* LEGEND KEY */
+.key{background:var(--panel);border-bottom:1px solid var(--rule);padding:18px 0}
+.key-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-family:"JetBrains Mono",monospace;font-size:11.5px}
+.key-label{color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-right:4px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:4px 11px;border-radius:100px;border:1px solid}
+.chip .dot{width:7px;height:7px;border-radius:50%}
+.chip.sbc{color:var(--sbc-ink);border-color:var(--sbc);background:var(--sbc-tint)} .chip.sbc .dot{background:var(--sbc)}
+.chip.embed{color:var(--embed-ink);border-color:var(--embed);background:var(--embed-tint)} .chip.embed .dot{background:var(--embed)}
+.chip.edge{color:var(--edge-ink);border-color:var(--edge);background:var(--edge-tint)} .chip.edge .dot{background:var(--edge)}
+.chip.cloud{color:var(--cloud-ink);border-color:var(--cloud);background:var(--cloud-tint)} .chip.cloud .dot{background:var(--cloud)}
+.chip.hybrid{color:var(--hybrid-ink);border-color:var(--hybrid);background:var(--hybrid-tint)} .chip.hybrid .dot{background:var(--hybrid)}
+.chip.none{color:var(--none-ink);border-color:var(--none);background:var(--none-tint)} .chip.none .dot{background:var(--none)}
+
+/* GRID */
+.stage{padding:44px 0 70px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.pcard{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:22px 24px;cursor:pointer;transition:border-color .15s}
+.pcard:hover{border-color:#3A4658}
+.pcard.open{border-color:var(--acc)}
+.pcard-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.pcard h3{font-size:18px;font-weight:600;color:#fff;margin-bottom:8px}
+.pcard .blurb{font-size:14px;color:var(--ink-soft);margin-bottom:0}
+.pcard .tags{display:flex;gap:6px;flex-wrap:wrap;flex:none}
+.pcard .toggle{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--acc-ink);margin-top:14px;display:flex;align-items:center;gap:6px}
+.pcard .toggle .arrow{transition:transform .2s}
+.pcard.open .toggle .arrow{transform:rotate(90deg)}
+.pcard .detail{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.pcard.open .detail{max-height:600px;margin-top:16px}
+.detail-inner{border-top:1px solid var(--rule);padding-top:16px;font-size:14px;line-height:1.6;color:#C4CDD8}
+.detail-inner .dlabel{font-family:"JetBrains Mono",monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin-bottom:4px;margin-top:12px}
+.detail-inner .dlabel:first-child{margin-top:0}
+.detail-inner b{color:#fff}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:20px;padding:48px 0 56px}
+.final h2{font-size:clamp(21px,3vw,28px);font-weight:600;max-width:30ch;line-height:1.25;color:#fff}
+.final p{margin-top:14px;color:var(--ink-soft);font-size:15.5px;line-height:1.6;max-width:62ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--edge-tint)}
+.final .sig{margin-top:24px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:760px){
+  .grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Embedded Computing</a>
+  <a href="1-6-raspberry-pi-sbc-and-embedded.html">1.6 Lesson Page</a>
+  <a href="1-6-notes.html">Notes</a>
+  <a href="1-6-pi-explorer.html" class="current">Field Guide</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">EMBEDDED COMPUTING FIELD GUIDE &nbsp;/&nbsp; LESSON 1.6</div>
+    <h1>Raspberry Pi Field Guide</h1>
+    <p class="deck">Same board, same chip, ten completely different real-world jobs. Click each project to see how it's classified &mdash; single-board computer or embedded system, and Edge AI, Cloud AI, Hybrid, or no AI at all &mdash; and why.</p>
+  </div>
+</header>
+
+<div class="key">
+  <div class="wrap key-row">
+    <span class="key-label">Role:</span>
+    <span class="chip sbc"><span class="dot"></span>SBC</span>
+    <span class="chip embed"><span class="dot"></span>Embedded</span>
+    <span class="key-label" style="margin-left:14px;">AI:</span>
+    <span class="chip edge"><span class="dot"></span>Edge</span>
+    <span class="chip cloud"><span class="dot"></span>Cloud</span>
+    <span class="chip hybrid"><span class="dot"></span>Hybrid</span>
+    <span class="chip none"><span class="dot"></span>None</span>
+  </div>
+</div>
+
+<section class="stage">
+  <div class="wrap">
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Notice what's missing: no "SBC + Cloud AI" card, and only one "SBC + Edge AI" card.</h2>
+    <p>That's not an accident of this list &mdash; when a project already has a full computer's worth of power sitting right there, there's usually less reason to send anything to the cloud at all. Cloud AI shows up far more often on the embedded side, wired into one small dedicated job. Keep that pattern in mind while you write your own Build Proposal Dossier.</p>
+    <a class="back" href="1-6-raspberry-pi-sbc-and-embedded.html">&larr; Back to 1.6</a>
+    <a class="back" href="1-6-notes.html">Notes</a>
+    <p class="sig">Embedded Computing Field Guide &nbsp;/&nbsp; Lesson 1.6 &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+<script>
+const projects = [
+  {
+    title: "RetroPie Game Console",
+    blurb: "A Pi loaded with an emulator frontend that plays classic console games off a TV.",
+    role: "sbc", ai: "none",
+    roleWhy: "It runs a full Linux OS, juggles dozens of separate emulator programs, and the whole point is that a user can keep installing new games and software whenever they want. That's general-purpose behavior, not one fixed job.",
+    aiWhy: "There's no recognition, prediction, or learning happening anywhere &mdash; it's just software faithfully replaying old game code. No AI at all."
+  },
+  {
+    title: "Self-Hosted Photo Server with Local Face Tagging",
+    blurb: "A home NAS that stores your photo library and automatically tags faces in every photo &mdash; without a cloud service.",
+    role: "sbc", ai: "edge",
+    roleWhy: "It's running a full server OS, handling file storage, a web dashboard, and multiple background services at once &mdash; classic single-board-computer territory.",
+    aiWhy: "The face-recognition model runs directly on the Pi's own chip against your local photo library. Nothing is ever uploaded anywhere, and it works with the internet unplugged &mdash; that's Edge AI, running on a board that's also acting as a full computer."
+  },
+  {
+    title: "Pi-hole Network Ad Blocker",
+    blurb: "A Pi that sits on your home network and blocks ads and trackers for every device connected to it.",
+    role: "sbc", ai: "none",
+    roleWhy: "It runs a full OS acting as a DNS server for the whole household, usually alongside other self-hosted services on the same board. General-purpose, multitasking machine.",
+    aiWhy: "It blocks requests by checking them against a downloaded blocklist &mdash; a simple lookup, not a learned pattern. No AI involved."
+  },
+  {
+    title: "Magic Mirror Smart Display",
+    blurb: "A two-way mirror with a screen behind it showing the weather, calendar, and news headlines.",
+    role: "sbc", ai: "none",
+    roleWhy: "It runs a full OS with a browser-based dashboard pulling from multiple different sources at once, and a user can add or remove modules any time. General-purpose behavior on a dedicated-looking piece of furniture.",
+    aiWhy: "It's just displaying data pulled from regular weather and calendar APIs &mdash; no recognition or prediction, just information display. No AI."
+  },
+  {
+    title: "Raspberry Pi Cluster",
+    blurb: "Several Pis networked together to learn how real data-center computing clusters work.",
+    role: "sbc", ai: "none",
+    roleWhy: "Every single node is a full, general-purpose Linux computer capable of running any software you install &mdash; the whole project is about general-purpose computing at a small scale.",
+    aiWhy: "The cluster itself is just infrastructure &mdash; what you choose to run on it might include AI, but the cluster's own job has nothing to do with recognition or prediction. No AI."
+  },
+  {
+    title: "AI Bird Feeder Camera",
+    blurb: "A camera aimed at a backyard bird feeder that identifies the species of every bird that visits.",
+    role: "embed", ai: "edge",
+    roleWhy: "It boots straight into one dedicated program &mdash; watch the feeder, identify birds &mdash; and does that one job forever. No desktop, no general use.",
+    aiWhy: "A lightweight species-recognition model (often TensorFlow Lite) runs directly on the Pi's own chip, so it can identify a bird the instant it lands, even with no internet connection. That's Edge AI."
+  },
+  {
+    title: "Cloud-Connected Security Doorbell",
+    blurb: "A DIY doorbell camera that alerts your phone whenever it sees a person or package.",
+    role: "embed", ai: "cloud",
+    roleWhy: "It has exactly one job &mdash; watch the door and alert someone &mdash; and never does anything else. A textbook dedicated embedded system.",
+    aiWhy: "Video clips get uploaded to a cloud AI service that does the actual person/package detection and sends a result back. Without an internet connection, the detection stops working &mdash; that's Cloud AI."
+  },
+  {
+    title: "DIY Voice Assistant Hub",
+    blurb: "A custom voice assistant built on a Pi that answers spoken questions and controls smart home devices.",
+    role: "embed", ai: "cloud",
+    roleWhy: "It's built to do one job, permanently: listen and respond. It doesn't run other general-purpose software once it's deployed.",
+    aiWhy: "Understanding an open-ended spoken question requires a large language model far too big to fit on a Pi's chip, so the audio gets sent to a cloud speech/AI service for the actual answer. Cloud AI."
+  },
+  {
+    title: "Smart Wildlife Trail Camera",
+    blurb: "A motion-triggered camera in the woods that identifies animal species and shares notable sightings.",
+    role: "embed", ai: "hybrid",
+    roleWhy: "One dedicated job, running unattended for weeks at a time with no user interaction &mdash; a real embedded system, built to survive with no one around to maintain it.",
+    aiWhy: "Basic species detection runs on-device (Edge) so it keeps working with no signal deep in the woods &mdash; but when it flags something notable, that specific clip gets uploaded to the cloud for logging and sharing. Both at once: Hybrid."
+  },
+  {
+    title: "3D Printer / CNC Controller",
+    blurb: "A Pi running dedicated software that controls a 3D printer or CNC machine over its whole print job.",
+    role: "embed", ai: "none",
+    roleWhy: "It boots straight into one controller application and does nothing else for as long as it's deployed &mdash; even though the same board could run a full desktop if set up differently.",
+    aiWhy: "It's following exact, pre-written instructions (G-code) line by line &mdash; precise execution, not recognition or learning. No AI involved."
+  }
+];
+
+const roleLabel = { sbc: "SBC", embed: "Embedded" };
+const aiLabel = { edge: "Edge", cloud: "Cloud", hybrid: "Hybrid", none: "None" };
+
+function render(){
+  const grid = document.getElementById("grid");
+  grid.innerHTML = projects.map((p, i) => `
+    <div class="pcard" id="card-${i}" onclick="toggle(${i})">
+      <div class="pcard-top">
+        <div>
+          <h3>${p.title}</h3>
+          <p class="blurb">${p.blurb}</p>
+        </div>
+        <div class="tags">
+          <span class="chip ${p.role}"><span class="dot"></span>${roleLabel[p.role]}</span>
+          <span class="chip ${p.ai}"><span class="dot"></span>${aiLabel[p.ai]}</span>
+        </div>
+      </div>
+      <div class="toggle"><span class="arrow">&#9656;</span> <span>Why it's classified this way</span></div>
+      <div class="detail">
+        <div class="detail-inner">
+          <div class="dlabel">Why ${roleLabel[p.role]}</div>
+          <div>${p.roleWhy}</div>
+          <div class="dlabel">Why ${aiLabel[p.ai]} AI</div>
+          <div>${p.aiWhy}</div>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function toggle(i){
+  document.getElementById("card-" + i).classList.toggle("open");
+}
+
+render();
+</script>
+
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AI in Embedded Computing and IoT | Notes 1.7</title>
+<title>The Double Life of a Raspberry Pi | Notes 1.6</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -20,6 +20,7 @@
   --edge:#22D3EE; --edge-tint:rgba(34,211,238,.12); --edge-ink:#8FE9F8;
   --cloud:#A78BFA; --cloud-tint:rgba(167,139,250,.14); --cloud-ink:#CBBBFB;
   --embed:#FBBF24; --embed-tint:rgba(251,191,36,.13); --embed-ink:#FDD877;
+  --sbc:#34D399; --sbc-tint:rgba(52,211,153,.14); --sbc-ink:#86EFC0;
 
   --wrap:1080px;
 }
@@ -68,6 +69,8 @@ a{color:var(--edge-ink)}
 .leg.cloud .chip .dot{background:var(--cloud)}
 .leg.embed .chip{background:var(--embed-tint);color:var(--embed-ink)}
 .leg.embed .chip .dot{background:var(--embed)}
+.leg.sbc .chip{background:var(--sbc-tint);color:var(--sbc-ink)}
+.leg.sbc .chip .dot{background:var(--sbc)}
 .leg h3{font-size:19px;font-weight:600;margin:12px 0 6px;color:#fff}
 .leg p{font-size:14.5px;color:var(--ink-soft);margin:0 0 8px}
 .leg .ex{font-size:13px;color:var(--ink-soft);border-top:1px dashed var(--rule);padding-top:8px;margin:0}
@@ -115,16 +118,20 @@ table.cmp td b{color:#fff}
 .section-tag.cloud .dot{background:var(--cloud)}
 .section-tag.embed{background:var(--embed-tint);color:var(--embed-ink)}
 .section-tag.embed .dot{background:var(--embed)}
+.section-tag.sbc{background:var(--sbc-tint);color:var(--sbc-ink)}
+.section-tag.sbc .dot{background:var(--sbc)}
 
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-bottom:8px}
 .cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:20px 20px 22px;border-top:3px solid var(--rule)}
 .cardx.edge{border-top-color:var(--edge)}
 .cardx.cloud{border-top-color:var(--cloud)}
 .cardx.embed{border-top-color:var(--embed)}
+.cardx.sbc{border-top-color:var(--sbc)}
 .cardx .num{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:8px}
 .cardx.edge .num{color:var(--edge-ink)}
 .cardx.cloud .num{color:var(--cloud-ink)}
 .cardx.embed .num{color:var(--embed-ink)}
+.cardx.sbc .num{color:var(--sbc-ink)}
 .cardx h4{font-size:16.5px;font-weight:600;color:#fff;margin-bottom:8px;font-family:"Fraunces",serif}
 .cardx p{font-size:14px;color:var(--ink-soft);margin:0}
 
@@ -148,17 +155,17 @@ table.cmp td b{color:#fff}
 </head>
 <body>
 
-<a class="backbar" href="1-7-ai-in-embedded-computing-and-iot.html">&larr; Back to 1.7 lesson</a>
+<a class="backbar" href="1-6-raspberry-pi-sbc-and-embedded.html">&larr; Back to 1.6 lesson</a>
 
 <header class="hero">
   <div class="wrap">
-    <div class="brief-no">NOTES 1.7 &nbsp;/&nbsp; SUBJECT: WHERE THE THINKING HAPPENS</div>
-    <h1>AI in Embedded Computing and IoT</h1>
-    <p class="deck">Five terms, one real design question underneath all of them: when a device "thinks," where does that thinking actually happen?</p>
+    <div class="brief-no">NOTES 1.6 &nbsp;/&nbsp; SUBJECT: WHERE THE THINKING HAPPENS</div>
+    <h1>The Double Life of a Raspberry Pi</h1>
+    <p class="deck">Six terms, one real design question underneath all of them: when a device "thinks," where does that thinking actually happen &mdash; and is the board it's running on even a dedicated embedded system in the first place?</p>
     <div class="meta-row">
-      <span>&#9200; <b>5 min read</b></span>
+      <span>&#9200; <b>6 min read</b></span>
       &nbsp;&middot;&nbsp;
-      <span>&#129504; <b>3 core concepts</b></span>
+      <span>&#129504; <b>4 core concepts</b></span>
       &nbsp;&middot;&nbsp;
       <span>&#128203; <b>15 real-world examples</b></span>
     </div>
@@ -167,6 +174,12 @@ table.cmp td b{color:#fff}
 
 <section class="legend">
   <div class="wrap legend-grid">
+    <div class="leg sbc">
+      <span class="chip"><span class="dot"></span>Single-Board Computer</span>
+      <h3>General-purpose</h3>
+      <p>A complete computer on one board, running a full operating system that can multitask &mdash; browse the web, run a server, and log data all at once.</p>
+      <p class="ex"><b>Example:</b> A Raspberry Pi running a home media server, file share, and website simultaneously.</p>
+    </div>
     <div class="leg edge">
       <span class="chip"><span class="dot"></span>Edge AI</span>
       <h3>On the device</h3>
@@ -179,12 +192,25 @@ table.cmp td b{color:#fff}
       <p>The device sends its data over the internet to a powerful remote server, which does the thinking and sends an answer back.</p>
       <p class="ex"><b>Example:</b> A voice assistant sending your question to a server for a full answer.</p>
     </div>
-    <div class="leg embed">
-      <span class="chip"><span class="dot"></span>Embedded AI</span>
-      <h3>On a dedicated chip</h3>
-      <p>A trained model shrunk down to run on a tiny, single-purpose chip &mdash; with real power and real-time limits a phone never worries about.</p>
-      <p class="ex"><b>Example:</b> A pacemaker reacting to an irregular heartbeat in a fraction of a second.</p>
+  </div>
+</section>
+
+<!-- PART 00 -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>One Board, Two Identities</h2></div>
+    <p class="lede">A Raspberry Pi is genuinely both things this course has talked about all unit &mdash; a general-purpose computer <em>and</em> a dedicated embedded system &mdash; depending entirely on how it's set up. The chip never changes. What changes is the job you give it.</p>
+    <div class="two">
+      <div class="box">
+        <h3>As a single-board computer</h3>
+        <p>Boot it into a full desktop OS (usually Linux), and a Raspberry Pi behaves exactly like a tiny general-purpose computer: a file system, a browser, multiple programs running at once, a user who can install anything they want, any time. This is the same definition of "general-purpose" you've used since Lesson 1.1, just shrunk onto a board the size of a deck of cards.</p>
+      </div>
+      <div class="box">
+        <h3>As an embedded system</h3>
+        <p>Strip the desktop away, boot it straight into one dedicated program, and give it exactly one job to do forever &mdash; and that same board is now a real embedded system by the strict definition: purpose-built, not user-reconfigurable, running one fixed task decided at design time.</p>
+      </div>
     </div>
+    <div class="hint-panel">This is exactly why the Raspberry Pi is worth studying on its own: unlike an Arduino (which is <em>always</em> an embedded microcontroller) or a laptop (which is <em>always</em> general-purpose), the Pi can genuinely be either one &mdash; and real products make that choice on purpose, for real engineering reasons.</div>
   </div>
 </section>
 
@@ -270,25 +296,25 @@ table.cmp td b{color:#fff}
 <section class="part">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">04</div><h2>Putting It Together</h2></div>
-    <p class="lede">When you're investigating a real AI-powered product for today's assignment, work through these in order.</p>
+    <p class="lede">Today's Build Proposal Dossier asks you to design two real Raspberry Pi projects and classify how each one thinks. Work through these in order for each build.</p>
 
-    <div class="callout">Every real product is a design decision someone made on purpose. <span>Your job today is to find that decision, and figure out why they made it.</span></div>
+    <div class="callout">Every real Pi project is a design decision someone made on purpose &mdash; both which identity to give the board, and where to put the thinking. <span>Your job today is to make those same two decisions yourself, and defend them.</span></div>
 
     <div class="two">
       <div class="box">
-        <h3>Investigate</h3>
+        <h3>Decide the identity</h3>
         <ul>
-          <li>What is this device actually deciding or recognizing? (That's the AI part.)</li>
-          <li>Does it need an internet connection to do that, or does it still work offline? (That tells you Edge vs. Cloud.)</li>
-          <li>What's the tradeoff the company made, and why might they have made it that way &mdash; speed and privacy, or raw power?</li>
+          <li>Does this project need to multitask, run a full OS, or let a user install new software later? That's single-board-computer territory.</li>
+          <li>Does it boot into exactly one job and never need to be anything else? That's embedded-system territory.</li>
+          <li>What would the project lose by picking the other identity instead?</li>
         </ul>
       </div>
       <div class="box">
-        <h3>Discuss</h3>
+        <h3>Decide where it thinks</h3>
         <ul>
-          <li>Would you trust a medical device more if it ran Embedded AI instead of Cloud AI? Why?</li>
-          <li>Name one product you own. Is it Edge, Cloud, or a hybrid &mdash; and how can you tell?</li>
-          <li>Why might a company choose Cloud AI even when Edge AI would be more private?</li>
+          <li>Does this project involve any AI or machine learning at all &mdash; or is it just sensors and logic?</li>
+          <li>If there's AI, does it still work with the internet unplugged? (Edge.) Does it stop working without a connection? (Cloud.)</li>
+          <li>What's the tradeoff behind that choice &mdash; speed and privacy, or raw power?</li>
         </ul>
       </div>
     </div>
@@ -297,9 +323,9 @@ table.cmp td b{color:#fff}
 
 <footer class="final">
   <div class="wrap">
-    <h2>The chip doesn't care where the thinking happens. The engineer building it always has to.</h2>
-    <p>Every AI-powered product you investigate today made this exact tradeoff on purpose &mdash; speed and privacy against raw power. Today's assignment asks you to find the reasoning behind someone else's choice.</p>
-    <p class="sig">Notes 1.7 &nbsp;/&nbsp; end of file</p>
+    <h2>The chip doesn't care which identity it's given, or where the thinking happens. The engineer building it always has to.</h2>
+    <p>Every real Raspberry Pi project made both of these decisions on purpose. Today's Build Proposal Dossier asks you to make them yourself, twice, and defend both.</p>
+    <p class="sig">Notes 1.6 &nbsp;/&nbsp; end of file</p>
   </div>
 </footer>
 
