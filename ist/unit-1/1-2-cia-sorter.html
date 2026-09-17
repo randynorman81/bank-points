@@ -108,15 +108,15 @@ a{color:var(--acc-ink)}
   <div class="wrap">
     <div class="brief-no">IST GAME &nbsp;/&nbsp; LESSON 1.2</div>
     <h1>CIA Triad Case Sorter</h1>
-    <p class="deck">You're a junior agent on your first day. 15 real-life cases just came in &mdash; sort each one into the right file: Confidentiality, Integrity, or Availability.</p>
+    <p class="deck">You're a junior agent on your first day. 50 real-life cases just came in &mdash; sort each one into the right file: Confidentiality, Integrity, or Availability.</p>
   </div>
 </header>
 
 <div class="dash">
   <div class="wrap dash-row">
-    <span id="progLabel">Case 1 of 15</span>
+    <span id="progLabel">Case 1 of 50</span>
     <div class="progress-track"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
-    <span class="score">Score: <span id="scoreVal">0</span>/15</span>
+    <span class="score">Score: <span id="scoreVal">0</span>/50</span>
   </div>
 </div>
 
@@ -131,18 +131,53 @@ const cases = [
   { text: "A stranger guesses your Instagram password and logs into your account.", answer: "conf", explain: "Confidentiality &mdash; someone who shouldn't have access just got it." },
   { text: "You set your TikTok profile to private so only approved followers see your videos.", answer: "conf", explain: "Confidentiality &mdash; you're controlling exactly who's allowed to see your content." },
   { text: "A classmate looks over your shoulder to see your test answers.", answer: "conf", explain: "Confidentiality &mdash; information meant to be private (your answers) was seen by someone who shouldn't see it." },
+  { text: "You use a passcode on your school Chromebook so classmates can't get into your files.", answer: "conf", explain: "Confidentiality &mdash; a lock that keeps the wrong people out of your files." },
+  { text: "Someone finds your unlocked phone and reads your private messages.", answer: "conf", explain: "Confidentiality &mdash; private messages were seen by someone who wasn't supposed to see them." },
+  { text: "You send a \"for your eyes only\" Snapchat that disappears after it's viewed.", answer: "conf", explain: "Confidentiality &mdash; built to be seen by exactly one person, for a limited time." },
+  { text: "A hacker breaks into a store's database and steals customers' credit card numbers.", answer: "conf", explain: "Confidentiality &mdash; private financial information got seen by someone who shouldn't have access." },
+  { text: "You whisper an answer to a friend instead of saying it out loud so the whole class doesn't hear.", answer: "conf", explain: "Confidentiality &mdash; controlling exactly who gets to hear the information." },
+  { text: "Your email account gets hacked and someone reads years of old messages.", answer: "conf", explain: "Confidentiality &mdash; private messages, old or new, got seen by someone who shouldn't have access." },
+  { text: "A teacher accidentally posts the whole class's grades where anyone can see them.", answer: "conf", explain: "Confidentiality &mdash; private information was exposed to people who shouldn't see it, even by accident." },
+  { text: "You use a VPN so your internet provider can't see which websites you visit.", answer: "conf", explain: "Confidentiality &mdash; you're hiding your activity from someone who could otherwise see it." },
+  { text: "A friend shares a screenshot of your private group chat with people outside the group.", answer: "conf", explain: "Confidentiality &mdash; information meant for a specific group reached people outside it." },
+  { text: "You keep your diary locked with a key so your little sibling can't read it.", answer: "conf", explain: "Confidentiality &mdash; a low-tech lock, same idea as a passcode." },
+  { text: "Someone shoulder-surfs your PIN at an ATM.", answer: "conf", explain: "Confidentiality &mdash; a secret (your PIN) was seen by someone who shouldn't have seen it." },
+  { text: "A company's employee database gets leaked online, exposing everyone's home addresses.", answer: "conf", explain: "Confidentiality &mdash; private personal information became visible to the public." },
 
   { text: "Someone secretly changes your grade in the school portal.", answer: "inte", explain: "Integrity &mdash; the data was changed by someone who wasn't supposed to touch it, so you can no longer trust it's accurate." },
   { text: "A friend edits a screenshot before sending it to make it look like you said something you didn't.", answer: "inte", explain: "Integrity &mdash; the content was altered, so it no longer reflects what actually happened." },
   { text: "Your Venmo balance shows a totally different amount than it should.", answer: "inte", explain: "Integrity &mdash; the number was changed and no longer matches reality." },
   { text: "Someone photoshops a picture to make it look real when it isn't.", answer: "inte", explain: "Integrity &mdash; the image has been altered to misrepresent the truth." },
   { text: "A virus corrupts the files on the school's grading system.", answer: "inte", explain: "Integrity &mdash; the data itself got damaged/changed, so it's no longer trustworthy." },
+  { text: "Someone edits a Wikipedia page to include false information.", answer: "inte", explain: "Integrity &mdash; accurate information was replaced with something untrue." },
+  { text: "A hacker changes the final score of a game after it already ended.", answer: "inte", explain: "Integrity &mdash; the real result was altered after the fact." },
+  { text: "Your friend forwards a text but deletes part of it, changing what it originally meant.", answer: "inte", explain: "Integrity &mdash; the message no longer accurately reflects what was actually sent." },
+  { text: "Someone signs your name on a permission slip without your parent actually agreeing.", answer: "inte", explain: "Integrity &mdash; the document no longer reflects what actually happened or who actually agreed." },
+  { text: "A student changes another student's answers on a shared class spreadsheet.", answer: "inte", explain: "Integrity &mdash; someone else's work was altered without permission." },
+  { text: "Fake reviews are posted online to make a bad product look good.", answer: "inte", explain: "Integrity &mdash; the information no longer accurately reflects reality." },
+  { text: "Someone tampers with a package before it's delivered to you.", answer: "inte", explain: "Integrity &mdash; the contents were changed from what they were supposed to be." },
+  { text: "A rumor spreads because someone retells a story leaving out key details.", answer: "inte", explain: "Integrity &mdash; the story has been changed from what actually happened." },
+  { text: "A hacker alters flight records so a plane shows the wrong departure gate.", answer: "inte", explain: "Integrity &mdash; accurate information was changed to something false." },
+  { text: "Your group project doc gets edited by someone outside your group, deleting your work.", answer: "inte", explain: "Integrity &mdash; the document was changed by someone who wasn't supposed to touch it." },
+  { text: "A deepfake video makes it look like someone said something they never said.", answer: "inte", explain: "Integrity &mdash; fabricated content is being presented as if it's real and accurate." },
+  { text: "Someone changes the price tag on an item at a store to pay less than they should.", answer: "inte", explain: "Integrity &mdash; the real, correct information (the price) was tampered with." },
 
   { text: "The school Wi-Fi goes down right before your project is due.", answer: "avail", explain: "Availability &mdash; the network isn't gone forever, it's just not accessible right when you needed it." },
   { text: "Your favorite game's servers crash and you get kicked out mid-match.", answer: "avail", explain: "Availability &mdash; the service wasn't there when you needed it." },
   { text: "Ransomware locks a hospital's computer system so doctors can't use it.", answer: "avail", explain: "Availability &mdash; the files still exist, they're just locked away and inaccessible." },
   { text: "Instagram has a nationwide outage and nobody can post.", answer: "avail", explain: "Availability &mdash; the app and your account are fine, the service just isn't reachable." },
-  { text: "Your phone dies right when you need to show your bus pass.", answer: "avail", explain: "Availability &mdash; the pass still exists, it's just not available to you in that moment." }
+  { text: "Your phone dies right when you need to show your bus pass.", answer: "avail", explain: "Availability &mdash; the pass still exists, it's just not available to you in that moment." },
+  { text: "A website crashes because too many people try to buy concert tickets at once.", answer: "avail", explain: "Availability &mdash; the site couldn't handle the demand and became unreachable." },
+  { text: "Your streaming show buffers and won't load during the best part of the episode.", answer: "avail", explain: "Availability &mdash; the content exists, it's just not accessible right now." },
+  { text: "A power outage shuts down the whole school's computer lab.", answer: "avail", explain: "Availability &mdash; without power, nothing in the lab is reachable at all." },
+  { text: "Your laptop's hard drive fails and you can't access any of your saved files.", answer: "avail", explain: "Availability &mdash; the files may still exist somewhere, but you can no longer reach them." },
+  { text: "A DDoS attack floods a company's website with fake traffic until it crashes.", answer: "avail", explain: "Availability &mdash; real visitors can no longer reach the site because it's overwhelmed." },
+  { text: "Your school's grading app is down during finals week and no one can check grades.", answer: "avail", explain: "Availability &mdash; the information is fine, it's just unreachable when everyone needs it most." },
+  { text: "You forget your charger and your Chromebook dies in the middle of a test.", answer: "avail", explain: "Availability &mdash; your work becomes inaccessible the moment the device loses power." },
+  { text: "An airline's booking system crashes and no one can check in for their flight.", answer: "avail", explain: "Availability &mdash; the system is down right when people need to use it." },
+  { text: "A construction crew accidentally cuts an internet cable, and the whole neighborhood loses Wi-Fi.", answer: "avail", explain: "Availability &mdash; a physical failure that makes a service unreachable for everyone connected to it." },
+  { text: "A flood damages a company's servers, and their website is down for a week.", answer: "avail", explain: "Availability &mdash; physical damage kept the service offline for an extended time." },
+  { text: "Your favorite app requires an update, but the app store is down so you can't install it.", answer: "avail", explain: "Availability &mdash; the update exists, it's just not reachable right now." }
 ];
 
 const labels = { conf: "Confidentiality", inte: "Integrity", avail: "Availability" };
@@ -230,15 +265,17 @@ function render(){
 
 function renderDone(){
   const stage = document.getElementById("stage");
+  const total = cases.length;
+  const pct = score / total;
   let msg = "Solid work.";
-  if (score === 15) msg = "Perfect score &mdash; every case filed correctly.";
-  else if (score >= 12) msg = "Great instincts on this one.";
-  else if (score >= 8) msg = "Good start &mdash; a replay will lock it in.";
+  if (score === total) msg = "Perfect score &mdash; every case filed correctly.";
+  else if (pct >= 0.8) msg = "Great instincts on this one.";
+  else if (pct >= 0.5) msg = "Good start &mdash; a replay will lock it in.";
   else msg = "Worth a replay before you screenshot your score.";
 
   stage.innerHTML = `
     <div class="donebox">
-      <div class="big">${score} / 15</div>
+      <div class="big">${score} / ${total}</div>
       <p>${msg} Take a screenshot of this screen and submit it in Google Classroom.</p>
       <div class="btnrow">
         <button class="btn" onclick="start()">&#8635; Play Again</button>
