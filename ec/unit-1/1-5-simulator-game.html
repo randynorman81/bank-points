@@ -18,6 +18,8 @@
   --danger:#F87171; --danger-tint:rgba(248,113,113,.14); --danger-ink:#FCA5A5;
   --acc:#38BDF8; --acc-ink:#9FE0FB;
 
+  --minor:#8B9AAE; --moderate:#38BDF8; --major:#FBBF24; --critical:#F87171;
+
   --wrap:900px;
 }
 *{box-sizing:border-box}
@@ -38,7 +40,7 @@ a{color:var(--acc-ink)}
 .pillnav a:hover{color:var(--ink);border-color:#3A4658}
 .pillnav a.current{background:#fff;color:#0B0E14;border-color:#fff}
 
-.hero{padding:48px 0 30px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero{padding:44px 0 26px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
 .hero::before{
   content:"";position:absolute;inset:0;pointer-events:none;
   background:
@@ -48,11 +50,11 @@ a{color:var(--acc-ink)}
 }
 .hero .wrap{position:relative}
 .brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:14px;text-transform:uppercase}
-.hero h1{font-size:clamp(28px,5vw,42px);font-weight:600;max-width:22ch;color:#fff}
-.hero .deck{color:var(--ink-soft);font-size:clamp(15px,2vw,17px);line-height:1.6;max-width:64ch;margin-top:14px}
+.hero h1{font-size:clamp(26px,4.6vw,38px);font-weight:600;max-width:22ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(14.5px,1.9vw,16.5px);line-height:1.6;max-width:64ch;margin-top:12px}
 
 /* DASHBOARD */
-.dash{background:var(--panel);border-bottom:1px solid var(--rule);padding:20px 0}
+.dash{background:var(--panel);border-bottom:1px solid var(--rule);padding:16px 0;position:sticky;top:0;z-index:5}
 .meters{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .meter .mlabel{display:flex;justify-content:space-between;font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin-bottom:6px}
 .meter .mtrack{background:#05070B;border:1px solid var(--rule);border-radius:100px;height:9px;overflow:hidden}
@@ -63,18 +65,26 @@ a{color:var(--acc-ink)}
 .meter.conv .mlabel span:first-child{color:var(--conv-ink)}
 .meter.priv .mlabel span:first-child{color:var(--priv-ink)}
 .meter.sec .mlabel span:first-child{color:var(--sec-ink)}
+.progress-row{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--ink-soft)}
+.progress-track{flex:1;height:4px;background:#05070B;border-radius:100px;margin:0 12px;overflow:hidden}
+.progress-fill{height:100%;background:var(--acc);border-radius:100px;transition:width .4s ease}
 
 /* STAGE */
-.stage{padding:50px 0 70px}
-.step-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;margin-bottom:18px}
-.stage h2{font-size:clamp(22px,3.4vw,28px);font-weight:600;color:#fff;margin-bottom:18px}
-.narrative{font-size:16.5px;line-height:1.65;color:#C4CDD8;max-width:66ch;margin-bottom:32px}
+.stage{padding:40px 0 70px}
+.step-tag{display:flex;align-items:center;gap:10px;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;margin-bottom:16px}
+.badge{font-family:"JetBrains Mono",monospace;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:100px;border:1px solid}
+.badge.minor{color:var(--minor);border-color:var(--minor);background:rgba(139,154,174,.1)}
+.badge.moderate{color:var(--moderate);border-color:var(--moderate);background:var(--sec-tint)}
+.badge.major{color:var(--major);border-color:var(--major);background:var(--conv-tint)}
+.badge.critical{color:var(--critical);border-color:var(--critical);background:var(--danger-tint)}
+.stage h2{font-size:clamp(20px,3.2vw,26px);font-weight:600;color:#fff;margin-bottom:16px}
+.narrative{font-size:15.5px;line-height:1.65;color:#C4CDD8;max-width:66ch;margin-bottom:28px}
 
 .choices{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.choice{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:22px 24px;text-align:left;cursor:pointer;font-family:inherit;color:var(--ink);transition:border-color .15s, transform .1s}
+.choice{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:20px 22px;text-align:left;cursor:pointer;font-family:inherit;color:var(--ink);transition:border-color .15s, transform .1s}
 .choice:hover{border-color:var(--acc);transform:translateY(-2px)}
-.choice .clabel{font-family:"Fraunces",serif;font-size:18px;font-weight:600;color:#fff;margin-bottom:8px}
-.choice .cdesc{font-size:14px;line-height:1.55;color:var(--ink-soft)}
+.choice .clabel{font-family:"Fraunces",serif;font-size:17px;font-weight:600;color:#fff;margin-bottom:8px}
+.choice .cdesc{font-size:13.5px;line-height:1.55;color:var(--ink-soft)}
 
 .ending{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:36px 34px}
 .ending .etag{font-family:"JetBrains Mono",monospace;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--danger-ink);margin-bottom:10px}
@@ -86,9 +96,14 @@ a{color:var(--acc-ink)}
 .callout b{color:var(--ink)}
 
 .recap{margin-top:26px;padding-top:20px;border-top:1px solid var(--rule)}
-.recap .rlabel{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin-bottom:10px}
-.recap ul{margin:0;padding-left:20px}
-.recap li{font-size:14px;color:#C4CDD8;margin-bottom:4px}
+.recap .rlabel{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin-bottom:12px}
+.recap ol{margin:0;padding-left:20px}
+.recap li{font-size:13.5px;line-height:1.6;color:#C4CDD8;margin-bottom:7px}
+.recap li .rbadge{font-family:"JetBrains Mono",monospace;font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:1px 7px;border-radius:100px;border:1px solid;margin-right:6px;display:inline-block}
+.recap li .rbadge.minor{color:var(--minor);border-color:var(--minor)}
+.recap li .rbadge.moderate{color:var(--moderate);border-color:var(--moderate)}
+.recap li .rbadge.major{color:var(--major);border-color:var(--major)}
+.recap li .rbadge.critical{color:var(--critical);border-color:var(--critical)}
 
 .btnrow{margin-top:28px;display:flex;gap:10px;flex-wrap:wrap}
 .btn{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;text-decoration:none;color:var(--acc-ink);border:1px solid var(--acc);border-radius:100px;padding:10px 20px;background:transparent;cursor:pointer}
@@ -106,6 +121,7 @@ a{color:var(--acc-ink)}
 <nav class="pillnav">
   <a href="../index.html">&larr; Embedded Computing</a>
   <a href="1-5-smart-city-simulator.html">1.5 Lesson Page</a>
+  <a href="1-5-notes.html">Notes</a>
   <a href="1-5-simulator-game.html" class="current">Play the Simulator</a>
 </nav>
 
@@ -113,7 +129,7 @@ a{color:var(--acc-ink)}
   <div class="wrap">
     <div class="brief-no">EMBEDDED COMPUTING SIMULATOR &nbsp;/&nbsp; LESSON 1.5</div>
     <h1>Smart City Simulator</h1>
-    <p class="deck">You're Ridgefield's newly hired Chief IoT Engineer. The mayor wants the town smarter this year. You'll make 4 real decisions &mdash; each one trades convenience, privacy, and security a little differently. There's no perfect answer, only tradeoffs. See where yours lead.</p>
+    <p class="deck">You're Ridgefield's newly hired Chief IoT Engineer. Over the next year you'll make 20 decisions &mdash; some tiny, some enormous, all of them yours. Every one trades convenience, privacy, and security a little differently. There's no perfect answer, only tradeoffs.</p>
   </div>
 </header>
 
@@ -133,6 +149,11 @@ a{color:var(--acc-ink)}
         <div class="mtrack"><div class="mfill" id="secFill" style="width:50%"></div></div>
       </div>
     </div>
+    <div class="progress-row">
+      <span id="progLabel">Decision 1 of 20</span>
+      <div class="progress-track"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+      <span>Ridgefield, Year 1</span>
+    </div>
   </div>
 </div>
 
@@ -142,53 +163,179 @@ a{color:var(--acc-ink)}
 
 <script>
 const decisions = [
-  {
-    title: "Streetlights",
-    narrative: "Ridgefield's streetlights are due for an upgrade. You can outfit them with motion sensors and networked control so the city can see pedestrian and traffic patterns block by block on a live dashboard &mdash; useful for planning, but every light becomes a networked device reporting on who's walking where. Or you can use simple motion-triggered lights that turn on for anyone nearby and report nothing to anyone.",
-    options: [
+  { scale:"MINOR", critical:false, title:"Digital Bus Stop Signs",
+    narrative:"Ridgefield wants digital signs at bus stops showing real-time arrival times. The ad-funded version pays for itself by counting nearby phones' Wi-Fi signals to sell targeted ads based on foot traffic. The plain version just shows the schedule, funded directly by the transit budget.",
+    options:[
+      { key:"A", label:"Ad-funded signs with foot-traffic counting", desc:"Signs pay for themselves by tracking nearby phone signals for targeted ads.", delta:{conv:1, priv:-1, sec:0} },
+      { key:"B", label:"Plain schedule signs, no sensing", desc:"Costs the transit budget more directly, but the signs don't sense anything nearby.", delta:{conv:0, priv:1, sec:0} }
+    ]
+  },
+  { scale:"MINOR", critical:false, title:"Smart Bike-Share Docks",
+    narrative:"The new bike-share program can log a rider's full GPS route for &ldquo;route optimization,&rdquo; or just record which dock a bike left from and which dock it returned to.",
+    options:[
+      { key:"A", label:"Full GPS route logging", desc:"Every ride's exact path is stored indefinitely to help plan future bike lanes.", delta:{conv:1, priv:-1, sec:0} },
+      { key:"B", label:"Dock-to-dock logging only", desc:"Only start and end docks are recorded &mdash; no route in between.", delta:{conv:0, priv:1, sec:0} }
+    ]
+  },
+  { scale:"MINOR", critical:false, title:"QR-Code Restroom Reports",
+    narrative:"Public restroom QR codes let visitors report cleanliness issues instantly. Tying a report to a phone number lets staff follow up with the reporter directly; an anonymous option gets more honest reports but no way to ask a clarifying question.",
+    options:[
+      { key:"A", label:"Reports linked to phone number", desc:"Staff can follow up on any report, but every complaint is tied to a real person.", delta:{conv:1, priv:-1, sec:0} },
+      { key:"B", label:"Fully anonymous reports", desc:"More people report issues honestly, but staff can never follow up for details.", delta:{conv:0, priv:1, sec:1} }
+    ]
+  },
+  { scale:"MINOR", critical:false, title:"Smart Vending Machines",
+    narrative:"New vending machines in city buildings can go cashless-only, keeping a full purchase history per card, or keep a cash option alongside it that leaves no record at all.",
+    options:[
+      { key:"A", label:"Cashless-only machines", desc:"Faster checkout, but every purchase is tied to a card and stored.", delta:{conv:1, priv:-1, sec:0} },
+      { key:"B", label:"Keep a cash option", desc:"Slower for some buyers, but cash purchases are never logged to anyone.", delta:{conv:0, priv:1, sec:0} }
+    ]
+  },
+  { scale:"MODERATE", critical:false, title:"Noise-Level Sensors",
+    narrative:"New sensors in the nightlife district can help enforce noise ordinances. One version keeps a short rolling audio buffer that gets uploaded to the cloud for AI classification of the sound; the other only ever reports a single decibel number, with no audio ever leaving the device.",
+    options:[
+      { key:"A", label:"Cloud audio classification", desc:"Sensors can tell music from shouting from breaking glass &mdash; but audio leaves the device.", delta:{conv:2, priv:-2, sec:-1} },
+      { key:"B", label:"Decibel-only reporting", desc:"Sensors can only measure loudness, not what's causing it &mdash; but no audio is ever recorded.", delta:{conv:1, priv:2, sec:1} }
+    ]
+  },
+  { scale:"MODERATE", critical:false, title:"Library RFID Tracking",
+    narrative:"New RFID tags on library books can be linked to each patron's account to build personalized reading recommendations, or used purely for inventory, with no record of who checked out what after a book is returned.",
+    options:[
+      { key:"A", label:"Linked to patron accounts", desc:"Powers a &ldquo;recommended for you&rdquo; feature, but builds a permanent reading history per person.", delta:{conv:2, priv:-2, sec:0} },
+      { key:"B", label:"Inventory-only tracking", desc:"No personalized features, but nobody's reading history is ever stored.", delta:{conv:1, priv:1, sec:0} }
+    ]
+  },
+  { scale:"MODERATE", critical:false, title:"City Hall Smart Thermostats",
+    narrative:"New smart thermostats for city hall can connect straight to the internet so the vendor can remotely monitor and support them, or stay on an isolated internal network with no direct outside access.",
+    options:[
+      { key:"A", label:"Direct internet connection", desc:"Vendor can remotely diagnose issues instantly &mdash; but the thermostats are reachable from outside the building.", delta:{conv:2, priv:0, sec:-2} },
+      { key:"B", label:"Isolated internal network", desc:"Vendor support requires a city IT staffer in the loop &mdash; but nothing outside can reach the thermostats.", delta:{conv:1, priv:0, sec:2} }
+    ]
+  },
+  { scale:"MODERATE", critical:false, title:"Smart Park Irrigation",
+    narrative:"New soil-moisture sensors for city parks can upload usage data to the vendor's cloud dashboard, or run through a controller the city owns outright, keeping the data on city servers.",
+    options:[
+      { key:"A", label:"Vendor cloud dashboard", desc:"Easier setup and support &mdash; but the vendor keeps a permanent copy of the city's water usage data.", delta:{conv:2, priv:-1, sec:-1} },
+      { key:"B", label:"City-owned local controller", desc:"More setup work for city IT &mdash; but the data never leaves city servers.", delta:{conv:1, priv:1, sec:1} }
+    ]
+  },
+  { scale:"MODERATE", critical:false, title:"Code Enforcement Body Cameras",
+    narrative:"Code enforcement officers are getting body cameras. Footage can auto-upload to a searchable cloud archive kept indefinitely, or stay on the device and auto-delete after 30 days unless an officer flags a specific incident.",
+    options:[
+      { key:"A", label:"Cloud archive, kept indefinitely", desc:"Any past footage is searchable later &mdash; but it's a permanent, ever-growing record.", delta:{conv:1, priv:-2, sec:-1} },
+      { key:"B", label:"On-device, 30-day auto-delete", desc:"Old footage disappears on its own &mdash; but only flagged incidents can be reviewed later.", delta:{conv:0, priv:2, sec:1} }
+    ]
+  },
+  { scale:"MAJOR", critical:false, title:"Public Wi-Fi Network",
+    narrative:"Free public Wi-Fi is coming to Ridgefield's parks and downtown. Fully open Wi-Fi needs no login, so nobody's identity is tied to their usage &mdash; but an open, unencrypted network is also easier for an attacker to snoop on. Requiring a one-time login secures the connection, but now usage is tied to an account.",
+    options:[
+      { key:"A", label:"Fully open, no login", desc:"Anyone can connect anonymously &mdash; but the open network is easier to snoop on or attack.", delta:{conv:2, priv:1, sec:-2} },
+      { key:"B", label:"Login required, encrypted", desc:"The connection itself is far more secure &mdash; but every session is now tied to an account.", delta:{conv:1, priv:-1, sec:2} }
+    ]
+  },
+  { scale:"MAJOR", critical:false, title:"School Bus GPS Tracking",
+    narrative:"The district wants live bus tracking. One option is a public-facing app showing each bus's exact live location updated every few seconds, plus which students boarded which bus. The other only tells a parent &ldquo;your bus is 5 minutes away,&rdquo; with no per-student log kept anywhere.",
+    options:[
+      { key:"A", label:"Live tracking + per-student boarding log", desc:"Parents see everything in real time &mdash; but a permanent log ties each student to each ride.", delta:{conv:2, priv:-2, sec:-1} },
+      { key:"B", label:"Simple arrival-time notifications", desc:"Less detail for parents &mdash; but no student-level data is ever logged.", delta:{conv:1, priv:2, sec:1} }
+    ]
+  },
+  { scale:"MAJOR", critical:false, title:"Smart Parking Meters",
+    narrative:"New parking meters can bill automatically by scanning license plates, so nobody has to walk up and pay &mdash; but every plate gets logged with a time and location, city-wide. Or meters can use an anonymous prepaid token or app code that never captures a plate at all.",
+    options:[
+      { key:"A", label:"License-plate camera billing", desc:"No more walking up to pay &mdash; but the city now logs every plate, every time, everywhere.", delta:{conv:2, priv:-2, sec:0} },
+      { key:"B", label:"Anonymous token/app payment", desc:"Slightly more setup for drivers &mdash; but no plate is ever recorded.", delta:{conv:1, priv:1, sec:0} }
+    ]
+  },
+  { scale:"MAJOR", critical:false, title:"Digital Permits & Inspections",
+    narrative:"The new building-permit system can plug straight into the county's shared cloud platform, so any department can pull a file with one click. Or it can stay on a separate, city-only server, requiring a manual request whenever the county needs something.",
+    options:[
+      { key:"A", label:"Integrated with county's shared cloud", desc:"Instant cross-department access &mdash; but the system now trusts an outside platform the city doesn't fully control.", delta:{conv:2, priv:0, sec:-2} },
+      { key:"B", label:"Separate, city-only server", desc:"Slower for cross-department requests &mdash; but the city's permit data stays fully in its own hands.", delta:{conv:1, priv:0, sec:2} }
+    ]
+  },
+  { scale:"MAJOR", critical:false, title:"Streetlights",
+    narrative:"Ridgefield's streetlights are due for an upgrade. You can outfit them with motion sensors and networked control so the city can see pedestrian and traffic patterns block by block on a live dashboard &mdash; useful for planning, but every light becomes a networked device reporting on who's walking where. Or you can use simple motion-triggered lights that turn on for anyone nearby and report nothing to anyone.",
+    options:[
       { key:"A", label:"Networked smart streetlights", desc:"Full traffic and foot-traffic analytics for city planning &mdash; every light is online and logging.", delta:{conv:2, priv:-2, sec:-1} },
       { key:"B", label:"Simple motion-sensor lights", desc:"No logging, no network connection &mdash; lights just turn on for whoever's there.", delta:{conv:1, priv:1, sec:2} }
     ]
   },
-  {
-    title: "Water Meters",
-    narrative: "The water department wants smart meters that catch leaks before they become expensive. The vendor offers two modes: real-time reporting every 15 minutes, which can alert a homeowner to a leak almost immediately, or a daily batch upload, which is slower to catch a leak but reveals far less about any one household's routine.",
-    options: [
+  { scale:"MAJOR", critical:false, title:"Water Meters",
+    narrative:"The water department wants smart meters that catch leaks before they become expensive. The vendor offers two modes: real-time reporting every 15 minutes, which can alert a homeowner to a leak almost immediately, or a daily batch upload, which is slower to catch a leak but reveals far less about any one household's routine.",
+    options:[
       { key:"A", label:"Real-time reporting (every 15 min)", desc:"Fast leak alerts, but usage data is granular enough to reveal daily routines.", delta:{conv:2, priv:-2, sec:-1} },
       { key:"B", label:"Daily batch upload", desc:"Leaks take longer to catch, but only one data point per household leaves the meter each day.", delta:{conv:1, priv:1, sec:1} }
     ]
   },
-  {
-    title: "Traffic Cameras",
-    narrative: "The police department wants automated enforcement at Ridgefield's worst intersections. One option is a networked camera system with license-plate recognition tied to a central database, storing footage indefinitely for any future investigation. The other processes each violation locally on the camera itself, auto-deletes footage after 24 hours, and only sends data anywhere when a violation is actually confirmed.",
-    options: [
+  { scale:"CRITICAL", critical:true, title:"Emergency Alert System",
+    narrative:"Ridgefield is building its emergency alert system. One design pushes alerts directly through residents' existing smart home devices and phones for the fastest possible reach &mdash; but that means every one of those everyday devices now has a channel that can trigger an emergency action. The other uses a separate, dedicated emergency-broadcast channel that never touches any other smart device, at the cost of slower integration and narrower reach.",
+    options:[
+      { key:"A", label:"Push through existing smart home devices", desc:"Fastest possible reach in a real emergency &mdash; but every smart device in town now shares one emergency-triggering channel.", delta:{conv:3, priv:-1, sec:-3} },
+      { key:"B", label:"Separate dedicated broadcast channel", desc:"Slower to build and narrower reach &mdash; but completely isolated from every other device in the city.", delta:{conv:1, priv:1, sec:3} }
+    ]
+  },
+  { scale:"CRITICAL", critical:true, title:"Water Treatment Plant Control System",
+    narrative:"The water treatment plant's control system (its SCADA system) can connect to the internet so engineers can monitor and adjust it remotely from anywhere &mdash; or it can be air-gapped, physically disconnected from any outside network, requiring staff to be on-site for every change.",
+    options:[
+      { key:"A", label:"Connect to the internet for remote access", desc:"Engineers can respond to an issue from anywhere &mdash; but the plant supplying the city's drinking water is now reachable from outside.", delta:{conv:3, priv:0, sec:-4} },
+      { key:"B", label:"Air-gapped, no internet connection", desc:"Every change requires someone on-site &mdash; but nothing outside the building can ever reach the plant's controls.", delta:{conv:0, priv:0, sec:3} }
+    ]
+  },
+  { scale:"CRITICAL", critical:true, title:"Power Grid Substation Control",
+    narrative:"The utility vendor offers automatic remote firmware updates for substation controllers, the same way it patches ordinary household smart meters. The alternative is requiring every substation controller update to be manually verified and installed on-site by city engineers.",
+    options:[
+      { key:"A", label:"Automatic remote vendor updates", desc:"Substations patch themselves overnight, same as consumer meters &mdash; but they now trust the same remote update path as every other device.", delta:{conv:2, priv:0, sec:-3} },
+      { key:"B", label:"Manual, on-site verified updates", desc:"Slower and far more staff time &mdash; but the power grid's controllers are never patched by anything outside the city's direct control.", delta:{conv:0, priv:0, sec:3} }
+    ]
+  },
+  { scale:"CRITICAL", critical:true, title:"Traffic Cameras",
+    narrative:"The police department wants automated enforcement at Ridgefield's worst intersections. One option is a networked camera system with license-plate recognition tied to a central database, storing footage indefinitely for any future investigation. The other processes each violation locally on the camera itself, auto-deletes footage after 24 hours, and only sends data anywhere when a violation is actually confirmed.",
+    options:[
       { key:"A", label:"Central database, indefinite storage", desc:"Every plate, every camera, one searchable database &mdash; kept forever, just in case.", delta:{conv:2, priv:-3, sec:-1} },
       { key:"B", label:"On-device processing, 24-hour auto-delete", desc:"Each camera judges violations locally; footage disappears after a day unless it's needed.", delta:{conv:1, priv:2, sec:2} }
     ]
   },
-  {
-    title: "Security Patch Policy",
-    narrative: "Every smart device you've deployed this year needs a way to get security patches. The vendor can push updates to every device in the city automatically and simultaneously from one central server &mdash; fast, hands-off, and always current. Or your team can roll updates out manually, neighborhood by neighborhood, testing each batch before it spreads further.",
-    options: [
+  { scale:"CRITICAL", critical:true, title:"Security Patch Policy",
+    narrative:"Every smart device you've deployed this year needs a way to get security patches. The vendor can push updates to every device in the city automatically and simultaneously from one central server &mdash; fast, hands-off, and always current. Or your team can roll updates out manually, neighborhood by neighborhood, testing each batch before it spreads further.",
+    options:[
       { key:"A", label:"Automatic updates from one central server", desc:"Every device patches itself overnight, no city staff required &mdash; and every device trusts that one server completely.", delta:{conv:2, priv:0, sec:-3} },
       { key:"B", label:"Staggered manual rollout", desc:"Slower and more staff time, but a bad &mdash; or compromised &mdash; update only reaches part of the city before anyone notices.", delta:{conv:0, priv:0, sec:2} }
     ]
   }
 ];
 
+function computeRange(key){
+  let lo = 0, hi = 0;
+  decisions.forEach(d => {
+    const vals = d.options.map(o => o.delta[key]);
+    lo += Math.min(...vals);
+    hi += Math.max(...vals);
+  });
+  return { lo, hi };
+}
+const ranges = { conv: computeRange("conv"), priv: computeRange("priv"), sec: computeRange("sec") };
+
+function normFrac(key, val){
+  const r = ranges[key];
+  if (r.hi === r.lo) return 0.5;
+  return (val - r.lo) / (r.hi - r.lo);
+}
+
 let step = 0;
 let score = { conv:0, priv:0, sec:0 };
 let path = [];
-
-function pct(v){ return Math.max(4, Math.min(96, 50 + v*6)); }
+let criticalRisk = 0;
 
 function updateDash(){
-  document.getElementById("convFill").style.width = pct(score.conv) + "%";
-  document.getElementById("privFill").style.width = pct(score.priv) + "%";
-  document.getElementById("secFill").style.width = pct(score.sec) + "%";
+  document.getElementById("convFill").style.width = (normFrac("conv", score.conv) * 100) + "%";
+  document.getElementById("privFill").style.width = (normFrac("priv", score.priv) * 100) + "%";
+  document.getElementById("secFill").style.width = (normFrac("sec", score.sec) * 100) + "%";
   document.getElementById("convVal").textContent = (score.conv>0?"+":"") + score.conv;
   document.getElementById("privVal").textContent = (score.priv>0?"+":"") + score.priv;
   document.getElementById("secVal").textContent = (score.sec>0?"+":"") + score.sec;
+  document.getElementById("progLabel").textContent = "Decision " + Math.min(step+1, decisions.length) + " of " + decisions.length;
+  document.getElementById("progFill").style.width = ((step / decisions.length) * 100) + "%";
 }
 
 function choose(i){
@@ -197,51 +344,56 @@ function choose(i){
   score.conv += opt.delta.conv;
   score.priv += opt.delta.priv;
   score.sec += opt.delta.sec;
-  path.push({ title:d.title, choice:opt.label, key:opt.key });
+  if (d.critical && opt.key === "A") criticalRisk++;
+  path.push({ title:d.title, choice:opt.label, key:opt.key, scale:d.scale });
   step++;
   updateDash();
   render();
+  window.scrollTo({top:0, behavior:"smooth"});
 }
 
 function restart(){
   step = 0;
   score = { conv:0, priv:0, sec:0 };
   path = [];
+  criticalRisk = 0;
   updateDash();
   render();
 }
 
 function computeEnding(){
-  const c3 = path[2] ? path[2].key : null;
-  const c4 = path[3] ? path[3].key : null;
-  if (c3 === "A" && c4 === "A") {
+  if (criticalRisk >= 4) {
     return {
       cls: "bad",
       tag: "Six Months Later",
       title: "The Hacked City",
-      body: `<p>Ridgefield is being featured in trade magazines as a model smart city. The traffic cameras run city-wide license-plate recognition tied to one central database. Every intersection, streetlight, and water meter still gets its firmware patched the same way: automatically, overnight, from a single vendor server you approved to save time.</p>
-      <p>Then an attacker doesn't have to touch a single camera. They find one hole in that central update server, and by morning, every device in Ridgefield that trusted it is compromised at once &mdash; including the plate-recognition database. It isn't a hardware failure, and it isn't really even the cameras' fault. It's what happens when the fastest way to patch everything is also the fastest way to break everything.</p>`,
-      callout: `This is the same failure shape as the Therac-25 from earlier this unit: one safeguard doing the job that used to take two. <b>Centralizing control makes a system easier to manage &mdash; and easier to destroy in a single stroke.</b> That tradeoff doesn't disappear just because the button says "smart."`
+      body: `<p>Ridgefield is being featured in trade magazines as a model smart city. Its most critical systems &mdash; the ones running emergency alerts, water treatment, the power grid, traffic enforcement, and every day-to-day device in between &mdash; were each built for speed and convenience, one decision at a time. Almost none of them stayed isolated from the others.</p>
+      <p>Then an attacker doesn't have to touch critical infrastructure directly. They find one hole in a single shared update path, and by morning, devices across Ridgefield that trusted it are compromised at once. It isn't any one decision's fault. It's what happens when every "just this once, let's make it easier" adds up across a city's most important systems.</p>`,
+      callout: `This is the same failure shape as the Therac-25 from earlier this unit: one safeguard doing the job that used to take two, repeated over and over until nothing was independent anymore. <b>Centralizing control makes each individual system easier to manage &mdash; and makes the whole city easier to break in one stroke.</b> That tradeoff doesn't disappear just because each decision, on its own, seemed small.`
     };
   }
-  const diff = score.conv - (score.priv + score.sec);
-  if (diff >= 4) {
+  const convF = normFrac("conv", score.conv);
+  const privF = normFrac("priv", score.priv);
+  const secF = normFrac("sec", score.sec);
+  const diff = convF - (privF + secF) / 2;
+
+  if (diff >= 0.22) {
     return {
       cls: "mixed",
       tag: "One Year Later",
       title: "The Efficient City",
-      body: `<p>Ridgefield gets fast. Streetlights adapt to traffic in real time, water leaks get caught before a bill doubles, and the mayor cuts the ribbon on "the most connected small town in the state." Local news runs a glowing feature.</p>
-      <p>A few months later, a records request reveals just how much the city's systems actually know about individual households &mdash; foot traffic past specific homes, water usage down to the hour, plate scans logged indefinitely. Nothing illegal happened. But a city council meeting turns into a long, uncomfortable conversation about who gets to see that data, and why nobody asked residents first.</p>`,
-      callout: `Convenience and data collection often arrive as a package deal. <b>The engineering question isn't "can we collect this?"</b> &mdash; it's whether the value delivered is worth exactly how much you're now able to see.`
+      body: `<p>Ridgefield gets fast. Streetlights adapt to traffic in real time, buses report themselves down to the second, water leaks get caught before a bill doubles, and the mayor cuts the ribbon on "the most connected small town in the state." Local news runs a glowing feature.</p>
+      <p>A few months later, a records request reveals just how much the city's systems actually know about individual residents, stitched together across two dozen small conveniences nobody thought to question one at a time. Nothing illegal happened. But a city council meeting turns into a long, uncomfortable conversation about who gets to see all of that, and why nobody asked residents first.</p>`,
+      callout: `Convenience and data collection often arrive as a package deal, and it rarely happens in one big decision &mdash; it happens twenty small times. <b>The engineering question isn't "can we collect this?"</b> &mdash; it's whether the value delivered is worth exactly how much you're now able to see, added up across every system at once.`
     };
   }
-  if (diff <= -4) {
+  if (diff <= -0.22) {
     return {
       cls: "good",
       tag: "One Year Later",
       title: "The Locked-Down City",
       body: `<p>Ridgefield's rollout is slower and a lot less flashy. Devices process what they can on their own instead of phoning everything home, updates roll out neighborhood by neighborhood instead of all at once, and city council meetings feature fewer applause lines about "innovation."</p>
-      <p>Then a nearby town's centralized traffic system gets breached in a widely covered story, and Ridgefield's mayor fields press calls asking how the city avoided the same fate. The honest answer: it was never fast enough to be that exposed in the first place.</p>`,
+      <p>Then a nearby town's centralized systems get breached in a widely covered story, and Ridgefield's mayor fields press calls asking how the city avoided the same fate. The honest answer: no single system, from the streetlights to the water plant, was ever fast enough or connected enough to be that exposed in the first place.</p>`,
       callout: `Security by design usually looks boring in the press release and looks smart a year later. <b>Edge computing and staggered rollouts cost you speed up front &mdash; what they buy back is a smaller blast radius when something eventually goes wrong.</b>`
     };
   }
@@ -249,9 +401,9 @@ function computeEnding(){
     cls: "mixed",
     tag: "One Year Later",
     title: "The Balanced City",
-    body: `<p>Ridgefield lands in the middle: some systems lean toward convenience, others toward caution, and nobody can quite agree if the rollout was a success. Some residents love the real-time water alerts; others are uneasy about the traffic cameras. The tech press doesn't write about Ridgefield at all &mdash; it's not flashy enough for a headline, and not broken enough for a scandal.</p>
-    <p>That's not a failure. It's what most real infrastructure decisions actually look like: a series of specific, defensible tradeoffs made one system at a time, instead of one philosophy applied to everything.</p>`,
-    callout: `There's rarely one right answer for an entire city. <b>The skill worth building is making each tradeoff on its own terms</b> &mdash; instead of picking "convenient" or "locked-down" as a personality and applying it everywhere.`
+    body: `<p>Ridgefield lands in the middle: some systems lean toward convenience, others toward caution, and nobody can quite agree if the rollout was a success. Some residents love the real-time water alerts and bus tracking; others are uneasy about the cameras and the library's reading history feature. The tech press doesn't write about Ridgefield at all &mdash; it's not flashy enough for a headline, and not broken enough for a scandal.</p>
+    <p>That's not a failure. It's what most real infrastructure decisions actually look like: dozens of specific, defensible tradeoffs, made one system at a time, instead of one philosophy applied to everything.</p>`,
+    callout: `There's rarely one right answer for an entire city. <b>The skill worth building is making each tradeoff on its own terms</b> &mdash; instead of picking "convenient" or "locked-down" as a personality and applying it to all twenty decisions.`
   };
 }
 
@@ -260,7 +412,7 @@ function render(){
   if (step < decisions.length) {
     const d = decisions[step];
     stage.innerHTML = `
-      <div class="step-tag">Decision ${step+1} of ${decisions.length}</div>
+      <div class="step-tag"><span>Decision ${step+1} of ${decisions.length}</span><span class="badge ${d.scale.toLowerCase()}">${d.scale}</span></div>
       <h2>${d.title}</h2>
       <p class="narrative">${d.narrative}</p>
       <div class="choices">
@@ -281,10 +433,10 @@ function render(){
         ${e.body}
         <div class="callout">${e.callout}</div>
         <div class="recap">
-          <div class="rlabel">Your path</div>
-          <ul>
-            ${path.map(p => `<li><b>${p.title}:</b> ${p.choice}</li>`).join("")}
-          </ul>
+          <div class="rlabel">Your 20 decisions, in order</div>
+          <ol>
+            ${path.map(p => `<li><span class="rbadge ${p.scale.toLowerCase()}">${p.scale}</span><b>${p.title}:</b> ${p.choice}</li>`).join("")}
+          </ol>
         </div>
       </div>
       <div class="btnrow">
