@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Interrogation Room | Intro to Software Technology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+
+  --good:#34D399; --good-tint:rgba(52,211,153,.14); --good-ink:#86EFC0;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.14); --bad-ink:#FCA5A5;
+  --warn:#FBBF24; --warn-tint:rgba(251,191,36,.14); --warn-ink:#FDD877;
+  --acc:#38BDF8; --acc-tint:rgba(56,189,248,.14); --acc-ink:#9FE0FB;
+
+  --wrap:820px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.16; margin:0; text-wrap:balance}
+p{margin:0 0 1em}
+p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:#fff;color:#0B0E14;border-color:#fff}
+
+.hero{padding:44px 0 30px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background: radial-gradient(circle at 20% 10%, rgba(251,191,36,.12), transparent 40%), radial-gradient(circle at 80% 30%, rgba(56,189,248,.10), transparent 40%);
+}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:14px;text-transform:uppercase}
+.hero h1{font-size:clamp(26px,4.6vw,38px);font-weight:600;max-width:22ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(15px,2vw,17px);line-height:1.6;max-width:60ch;margin-top:12px}
+
+.progress-row{background:var(--panel); border-bottom:1px solid var(--rule); padding:12px 0; font-family:"JetBrains Mono",monospace; font-size:11.5px; color:var(--ink-soft)}
+.progress-track{height:5px; background:#05070B; border-radius:100px; overflow:hidden; margin-top:8px}
+.progress-fill{height:100%; background:var(--acc); border-radius:100px; transition:width .4s ease}
+
+.stage{padding:44px 0 70px}
+.roombox{background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:30px 30px}
+.speaker{font-family:"JetBrains Mono",monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--warn-ink); margin-bottom:10px}
+.narrative{font-family:"Fraunces",serif; font-size:clamp(17px,2.6vw,20px); line-height:1.55; color:#fff; margin-bottom:28px}
+.narrative i{color:#C4CDD8; font-style:italic}
+
+.choices{display:flex; flex-direction:column; gap:10px}
+.choice{background:var(--panel); border:2px solid var(--rule); border-radius:8px; padding:16px 18px; text-align:left; cursor:pointer; font-family:"Manrope",sans-serif; font-size:14.5px; color:var(--ink); transition:border-color .15s}
+.choice:hover{border-color:var(--acc)}
+.choice[disabled]{cursor:default; opacity:.5}
+.choice .qlabel{font-family:"JetBrains Mono",monospace; font-size:10px; color:var(--acc-ink); text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px; display:block}
+.choice.picked{border-color:var(--acc); background:var(--acc-tint)}
+
+.feedback{margin-top:22px; padding:18px 20px; border-radius:8px; font-size:14.5px; line-height:1.55; display:none; background:rgba(255,255,255,.04); border:1px solid var(--rule)}
+.feedback.show{display:block}
+.feedback b{color:#fff}
+
+.nextrow{margin-top:22px; text-align:right}
+.btn{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;text-decoration:none;color:#0B0E14;border:none;border-radius:100px;padding:12px 26px;background:#fff;cursor:pointer}
+.btn:hover{background:#e7e7e7}
+.btn.outline{background:transparent;color:var(--acc-ink);border:1px solid var(--acc)}
+.btn.outline:hover{background:var(--acc-tint)}
+
+.endingbox{background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:36px 34px}
+.endingbox.good{border-color:var(--good)}
+.endingbox.bad{border-color:var(--bad)}
+.endingbox.mixed{border-color:var(--warn)}
+.etag{font-family:"JetBrains Mono",monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px}
+.endingbox.good .etag{color:var(--good-ink)}
+.endingbox.bad .etag{color:var(--bad-ink)}
+.endingbox.mixed .etag{color:var(--warn-ink)}
+.endingbox h2{font-size:clamp(22px,3.6vw,30px); font-weight:600; color:#fff; margin-bottom:16px}
+.endingbox p{font-size:15.5px; line-height:1.6; color:#C4CDD8}
+.lesson{margin-top:18px; padding:16px 18px; border-radius:6px; background:rgba(255,255,255,.03); border:1px dashed var(--rule); font-size:14px; color:var(--ink-soft)}
+.lesson b{color:#fff}
+
+.recap{margin-top:24px; padding-top:20px; border-top:1px solid var(--rule)}
+.recap .rlabel{font-family:"JetBrains Mono",monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); margin-bottom:10px}
+.recap ol{margin:0; padding-left:20px}
+.recap li{font-size:13.5px; color:#C4CDD8; margin-bottom:6px}
+
+.btnrow{margin-top:26px; display:flex; gap:10px; flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Intro to Software Technology</a>
+  <a href="1-3-4th-amendment-rights.html">1.3 Lesson Page</a>
+  <a href="1-3-notes.html">Notes</a>
+  <a href="1-3-interrogation-room.html" class="current">The Interrogation Room</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">IST SIMULATOR &nbsp;/&nbsp; LESSON 1.3</div>
+    <h1>The Interrogation Room</h1>
+    <p class="deck">This is a fictional scenario &mdash; no real crime, no real people. Every option you're given is legally accurate to how Georgia interrogations actually work. Make your choices and see where they lead.</p>
+  </div>
+</header>
+
+<div class="progress-row">
+  <div class="wrap">
+    <span id="progLabel">Decision 1 of 3</span>
+    <div class="progress-track"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+</div>
+
+<section class="stage">
+  <div class="wrap" id="stage"></div>
+</section>
+
+<script>
+const tree = {
+  start: {
+    speaker: "Detective Reyes",
+    narrative: "You're sitting in a small room at the police station. An officer slides a folder across the table. <i>\"We pulled the security footage. It clearly shows your face near the scoreboard around midnight last Saturday.\"</i> They watch your reaction.",
+    options: [
+      { key:"argue", label:"Argue / Explain", text:"\"That's not possible &mdash; let me explain where I actually was.\"",
+        feedback:"Legally, officers are allowed to claim they have evidence they don't actually have &mdash; footage, DNA, fingerprints, anything. It's a well-known, legal tactic. The moment you start explaining, you've started talking, and now there's more material to work with, not less.",
+        next:"arguePath" },
+      { key:"invoke", label:"Invoke Your Rights", text:"\"I'm invoking my right to remain silent. I want a lawyer.\"",
+        feedback:"This is exactly the legally correct move. The instant you say this clearly, all legal questioning is supposed to stop.",
+        next:"invokePath" },
+      { key:"partial", label:"Partial Admission", text:"\"Okay, fine &mdash; I was there, but I didn't spray anything.\"",
+        feedback:"You've just placed yourself at the scene, on the record, in your own words. Even a partial admission like this can become part of a larger case later.",
+        next:"partialPath" }
+    ]
+  },
+  arguePath: {
+    speaker: "Detective Reyes",
+    narrative: "The officer nods slowly. <i>\"That's interesting &mdash; because your friend Jordan already told us you were the one holding the can.\"</i> They wait.",
+    options: [
+      { key:"keepExplaining", label:"Keep Explaining", text:"\"That's insane, Jordan wouldn't say that &mdash; here's what actually happened that night...\"",
+        feedback:"Claiming a friend already \"told on you\" is another completely legal bluff &mdash; officers can say this whether or not it's true. The more you explain to disprove it, the more of your own story ends up on the record, in your own words.",
+        next:"ending:buried" },
+      { key:"invokeNow", label:"Stop and Invoke Now", text:"\"Wait. I want to stop talking. I'm invoking my right to remain silent and I want a lawyer.\"",
+        feedback:"You can invoke your rights at any point in an interrogation, even after you've already started talking. It's not too late &mdash; the moment you say this clearly, questioning has to stop.",
+        next:"ending:lateSave" }
+    ]
+  },
+  invokePath: {
+    speaker: "Detective Reyes",
+    narrative: "The officer leans back. <i>\"Look, it's just us here, off the record. No need to make this a whole legal thing &mdash; just tell me what actually happened and we'll figure it out.\"</i>",
+    options: [
+      { key:"cave", label:"Go Off the Record", text:"\"Okay... off the record, then, here's what happened...\"",
+        feedback:"There's no such thing as \"off the record\" in an interrogation room. Once you start talking again, you've voluntarily un-invoked your own rights &mdash; everything from this point is back on the record.",
+        next:"ending:talkedBackIn" },
+      { key:"holdFirm", label:"Hold Firm", text:"\"I already said I'm invoking my rights. I'm not answering any questions.\"",
+        feedback:"This is the move. Officers aren't allowed to keep pushing after a clear invocation, but they're allowed to keep trying softer angles &mdash; holding firm, every time, is what actually makes the invocation work.",
+        next:"ending:rightsRespected" }
+    ]
+  },
+  partialPath: {
+    speaker: "Detective Reyes",
+    narrative: "The officer's tone softens. <i>\"Look, if you just tell me the whole thing right now, I can make sure this doesn't go any further than a warning &mdash; no charges, I promise.\"</i>",
+    options: [
+      { key:"takeDeal", label:"Take the Deal", text:"\"Okay &mdash; if you promise that, then here's everything that happened...\"",
+        feedback:"That promise is illegal &mdash; it's called a \"hope of benefit,\" and officers aren't allowed to trade leniency for a confession like that. But the promise being illegal doesn't erase the confession itself; getting it thrown out is a real legal fight, not automatic.",
+        next:"ending:emptyPromise" },
+      { key:"stopNow", label:"Stop and Invoke", text:"\"Wait &mdash; I want to stop talking. I'm invoking my right to remain silent and I want a lawyer.\"",
+        feedback:"Good catch. An explicit promise like that is exactly the kind of illegal tactic that should make you more cautious, not less &mdash; the safest response is still the same one sentence, every time.",
+        next:"ending:smartCatch" }
+    ]
+  }
+};
+
+const endings = {
+  buried: { cls:"bad", tag:"Case Closed", title:"Buried in Your Own Words",
+    body:"By the end of the interrogation, you've given a full, detailed account of your whereabouts that night &mdash; all of it in response to bluffs that were never actually backed by real evidence. None of what the officer claimed had to be true for you to talk. Your own words are now the most complete account on file.",
+    lesson:"Every legal bluff is designed to get a reaction. Explaining, correcting, or arguing all count as a reaction &mdash; even when you're completely innocent." },
+  lateSave: { cls:"mixed", tag:"Case Closed", title:"Late Save",
+    body:"You talked for a bit before catching yourself &mdash; but the moment you clearly invoked your rights, the questioning stopped. What you already said is still on the record, but nothing further was added.",
+    lesson:"It's never too late to invoke your rights during an interrogation. The earlier you do it, the less material there is &mdash; but doing it late is still far better than not doing it at all." },
+  talkedBackIn: { cls:"bad", tag:"Case Closed", title:"Talked Yourself Back In",
+    body:"You invoked your rights correctly &mdash; and then un-invoked them yourself the moment the officer offered a friendlier tone. \"Off the record\" isn't a real legal protection in an interrogation room. Everything you said afterward is fully on the record.",
+    lesson:"Invoking your rights only works as long as you hold the line. You can always waive your own rights again just by choosing to keep talking &mdash; no matter how the offer is framed." },
+  rightsRespected: { cls:"good", tag:"Case Closed", title:"Rights Respected",
+    body:"You invoked your rights clearly, and when the officer tried a softer angle to get you talking anyway, you held the line. Legally, questioning has to stop here. This is an interrogation working exactly the way the 4th and 5th Amendments are supposed to make it work.",
+    lesson:"The hardest part of invoking your rights isn't the first sentence &mdash; it's staying quiet afterward, even when the pressure changes shape." },
+  emptyPromise: { cls:"bad", tag:"Case Closed", title:"The Empty Promise",
+    body:"You confessed in exchange for a promise that was never legally allowed to be made in the first place. That illegality might help your case later in court &mdash; but it doesn't erase what you already said, and getting a confession thrown out is a real legal fight, not something automatic.",
+    lesson:"An illegal promise is a warning sign, not a safe deal. The right response to an illegal tactic is still the same one sentence &mdash; not taking the bait to see if it's real." },
+  smartCatch: { cls:"good", tag:"Case Closed", title:"Smart Catch",
+    body:"You recognized an explicit promise of leniency for exactly what it was &mdash; a tactic officers aren't legally allowed to use &mdash; and you stopped talking instead of testing it. Questioning has to stop here.",
+    lesson:"You don't have to know the exact law in the moment to protect yourself. If an offer sounds too convenient in an interrogation room, the safest move is always the same script, regardless of how good the deal sounds." }
+};
+
+let currentNode = "start";
+let step = 1;
+let picked = false;
+let path = [];
+
+function updateProgress(){
+  document.getElementById("progLabel").textContent = "Decision " + Math.min(step, 3) + " of 3";
+  document.getElementById("progFill").style.width = (((step-1) / 3) * 100) + "%";
+}
+
+function render(){
+  const node = tree[currentNode];
+  const stage = document.getElementById("stage");
+  picked = false;
+  stage.innerHTML = `
+    <div class="roombox">
+      <div class="speaker">${node.speaker}</div>
+      <div class="narrative">${node.narrative}</div>
+      <div class="choices" id="choices">
+        ${node.options.map((o,i) => `
+          <button class="choice" onclick="choose(${i})">
+            <span class="qlabel">${o.label}</span>
+            ${o.text}
+          </button>
+        `).join("")}
+      </div>
+      <div class="feedback" id="feedback"></div>
+      <div class="nextrow" id="nextrow" style="display:none;">
+        <button class="btn" onclick="advance()">Continue &rarr;</button>
+      </div>
+    </div>
+  `;
+  updateProgress();
+}
+
+function choose(i){
+  if (picked) return;
+  picked = true;
+  const node = tree[currentNode];
+  const opt = node.options[i];
+  path.push({ node: currentNode, label: opt.label });
+
+  document.querySelectorAll(".choice").forEach((b, idx) => {
+    b.setAttribute("disabled", "true");
+    if (idx === i) b.classList.add("picked");
+  });
+
+  const fb = document.getElementById("feedback");
+  fb.className = "feedback show";
+  fb.innerHTML = "<b>What actually happens:</b> " + opt.feedback;
+
+  document.getElementById("nextrow").style.display = "block";
+  window._pendingNext = opt.next;
+}
+
+function advance(){
+  const next = window._pendingNext;
+  if (next.startsWith("ending:")) {
+    step = 4;
+    renderEnding(next.split(":")[1]);
+  } else {
+    currentNode = next;
+    step++;
+    render();
+  }
+}
+
+function renderEnding(id){
+  const e = endings[id];
+  const stage = document.getElementById("stage");
+  document.getElementById("progLabel").textContent = "Case Closed";
+  document.getElementById("progFill").style.width = "100%";
+  stage.innerHTML = `
+    <div class="endingbox ${e.cls}">
+      <div class="etag">${e.tag}</div>
+      <h2>${e.title}</h2>
+      <p>${e.body}</p>
+      <div class="lesson"><b>The takeaway:</b> ${e.lesson}</div>
+      <div class="recap">
+        <div class="rlabel">Your path</div>
+        <ol>
+          ${path.map(p => `<li>${p.label}</li>`).join("")}
+        </ol>
+      </div>
+    </div>
+    <div class="btnrow">
+      <button class="btn outline" onclick="restart()">&#8635; Try a Different Path</button>
+      <a class="btn" href="1-3-4th-amendment-rights.html">Back to 1.3 &amp; the reflection</a>
+    </div>
+  `;
+}
+
+function restart(){
+  currentNode = "start";
+  step = 1;
+  path = [];
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
