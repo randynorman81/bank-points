@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The CIA Triad | Intro to Software Technology Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+
+  --conf:#38BDF8; --conf-tint:rgba(56,189,248,.14); --conf-ink:#9FE0FB;
+  --inte:#34D399; --inte-tint:rgba(52,211,153,.14); --inte-ink:#86EFC0;
+  --avail:#FBBF24; --avail-tint:rgba(251,191,36,.14); --avail-ink:#FDD877;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.14); --bad-ink:#FCA5A5;
+  --acc:#38BDF8; --acc-ink:#9FE0FB;
+
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em}
+p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:#fff;color:#0B0E14;border-color:#fff}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(56,189,248,.14), transparent 38%),
+    radial-gradient(circle at 55% 0%, rgba(52,211,153,.12), transparent 36%),
+    radial-gradient(circle at 90% 40%, rgba(251,191,36,.12), transparent 40%);
+}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(32px,5.6vw,52px);font-weight:600;max-width:20ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:66ch;margin-top:18px}
+
+/* PILLAR LEGEND */
+.legend{background:var(--panel);border-bottom:1px solid var(--rule)}
+.legend-grid{display:grid;grid-template-columns:repeat(3,1fr)}
+.leg{padding:24px 26px;border-right:1px solid var(--rule)}
+.leg:last-child{border-right:0}
+.leg .chip{display:inline-flex;align-items:center;gap:7px;font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;letter-spacing:.05em;padding:4px 10px;border-radius:100px;text-transform:uppercase}
+.leg .chip .dot{width:8px;height:8px;border-radius:50%}
+.leg.conf .chip{background:var(--conf-tint);color:var(--conf-ink)} .leg.conf .chip .dot{background:var(--conf)}
+.leg.inte .chip{background:var(--inte-tint);color:var(--inte-ink)} .leg.inte .chip .dot{background:var(--inte)}
+.leg.avail .chip{background:var(--avail-tint);color:var(--avail-ink)} .leg.avail .chip .dot{background:var(--avail)}
+.leg h3{font-size:19px;font-weight:600;margin:12px 0 6px;color:#fff}
+.leg p{font-size:14.5px;color:var(--ink-soft);margin:0 0 8px}
+.leg .an{font-size:13px;color:var(--ink-soft);border-top:1px dashed var(--rule);padding-top:8px;margin:0}
+.leg .an b{color:var(--ink)}
+
+.part{padding:56px 0 8px}
+.part + .part{border-top:1px solid var(--rule)}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:68ch;margin-bottom:26px;color:#C4CDD8}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+
+.numlist{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:8px}
+.numcard{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:16px 18px;border-left:3px solid var(--rule)}
+.numcard.conf{border-left-color:var(--conf)}
+.numcard.inte{border-left-color:var(--inte)}
+.numcard.avail{border-left-color:var(--avail)}
+.numcard .n{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;margin-bottom:6px}
+.numcard.conf .n{color:var(--conf-ink)}
+.numcard.inte .n{color:var(--inte-ink)}
+.numcard.avail .n{color:var(--avail-ink)}
+.numcard h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:6px;font-family:"Fraunces",serif}
+.numcard p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+.example{background:rgba(255,255,255,.04);border-left:4px solid var(--ink-soft);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#C4CDD8}
+.example b{color:#fff}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.checklist{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:8px 26px;margin-bottom:8px}
+.checklist li{padding:14px 0;border-bottom:1px solid var(--rule);font-size:15px;line-height:1.55;color:#C4CDD8}
+.checklist li:last-child{border-bottom:0}
+.checklist li b{color:#fff}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:40px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:30ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--conf-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .legend-grid,.numlist{grid-template-columns:1fr}
+  .leg{border-right:0;border-bottom:1px solid var(--rule)}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Intro to Software Technology</a>
+  <a href="1-2-intro-to-ist-and-dig-footprint-cia-triad.html">1.2 Lesson Page</a>
+  <a href="1-2-notes.html" class="current">Notes</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">IST NOTES &nbsp;/&nbsp; LESSON 1.2</div>
+    <h1>The CIA Triad: Digital Self-Defense in Three Parts</h1>
+    <p class="deck">"Cybersecurity" sounds like a word for big companies and governments. But you already practice it every day &mdash; locking your phone, checking your bank balance, getting annoyed when Wi-Fi drops. Every one of those moments is really about one of three things: <b>Confidentiality</b>, <b>Integrity</b>, or <b>Availability</b>.</p>
+  </div>
+</header>
+
+<section class="legend">
+  <div class="wrap legend-grid">
+    <div class="leg conf">
+      <span class="chip"><span class="dot"></span>Confidentiality</span>
+      <h3>Is it secret?</h3>
+      <p>Only the right people can see it. It's about <b>privacy</b>.</p>
+      <p class="an"><b>Analogy:</b> A sealed letter or a diary with a lock.</p>
+    </div>
+    <div class="leg inte">
+      <span class="chip"><span class="dot"></span>Integrity</span>
+      <h3>Is it accurate?</h3>
+      <p>It hasn't been changed by someone who shouldn't have touched it. It's about <b>trust</b>.</p>
+      <p class="an"><b>Analogy:</b> A safety seal on a food container.</p>
+    </div>
+    <div class="leg avail">
+      <span class="chip"><span class="dot"></span>Availability</span>
+      <h3>Is it there when I need it?</h3>
+      <p>It works and is accessible right when you actually need it. It's about <b>access</b>.</p>
+      <p class="an"><b>Analogy:</b> The power and water at your house.</p>
+    </div>
+  </div>
+</section>
+
+<!-- WHY IT MATTERS -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>Why You Should Care</h2></div>
+    <p class="lede">Your entire life already runs through this triangle, whether you think about it or not: your <b>reputation</b> (social media, DMs, photos), your <b>money</b> (banking apps, Venmo, Cash App), and your <b>identity</b> (school records, personal info). Learning the CIA Triad is learning to recognize which of the three you're actually protecting &mdash; or which one just failed &mdash; in any situation you run into online.</p>
+    <div class="hint-panel">Every real cybersecurity decision, from choosing a stronger password to backing up your files to spotting a phishing text, is really about protecting one (or more) of these three pillars. Once you can name which pillar is involved, you can actually reason about the tradeoff being made &mdash; instead of just feeling vaguely like "something online is unsafe."</div>
+  </div>
+</section>
+
+<!-- CONFIDENTIALITY -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>C &mdash; Confidentiality</h2></div>
+    <p class="lede">Confidentiality means making sure that <b>only the right people can see your information</b>. It's the pillar you already practice the most without thinking about it.</p>
+
+    <div class="numlist">
+      <div class="numcard conf"><div class="n">01</div><h4>Your phone's passcode / Face ID</h4><p>Locks out parents, friends, and strangers from your texts, photos, and logged-in apps &mdash; the most basic confidentiality control you own.</p></div>
+      <div class="numcard conf"><div class="n">02</div><h4>A private Instagram or TikTok account</h4><p>Only approved followers can see what you post &mdash; you're choosing exactly who's "the right people."</p></div>
+      <div class="numcard conf"><div class="n">03</div><h4>Your Google Classroom / school portal login</h4><p>Keeps your grades and assignments away from every other student in the building.</p></div>
+      <div class="numcard conf"><div class="n">04</div><h4>A disappearing Snapchat photo</h4><p>Designed to be seen once, by one specific person &mdash; confidentiality with a built-in expiration date.</p></div>
+      <div class="numcard conf"><div class="n">05</div><h4>Incognito / private browsing mode</h4><p>Hides your search history from anyone else who uses the same shared device.</p></div>
+      <div class="numcard conf"><div class="n">06</div><h4>Two-factor authentication (2FA)</h4><p>A text code that stops someone from logging into your account with just your stolen password.</p></div>
+      <div class="numcard conf"><div class="n">07</div><h4>A password-protected notes app entry</h4><p>The digital version of a locked diary &mdash; same idea, just typed instead of handwritten.</p></div>
+      <div class="numcard conf"><div class="n">08</div><h4>Encrypted messaging (iMessage, Signal)</h4><p>Scrambles your message so only the intended reader's device can decode it, even if it's intercepted in transit.</p></div>
+      <div class="numcard conf"><div class="n">09</div><h4>What you tell a school counselor</h4><p>Confidentiality isn't only digital &mdash; a counselor protecting what you share is the same principle in a conversation instead of a login.</p></div>
+      <div class="numcard conf"><div class="n">10</div><h4>Not letting a friend "borrow your phone"</h4><p>The single fastest way confidentiality actually breaks for a teenager &mdash; not a hacker, just a phone left unlocked in the wrong hands.</p></div>
+    </div>
+
+    <div class="warn"><b>When it fails:</b> A hacker guesses your password and reads your DMs. A friend grabs your unlocked phone and screenshots a private conversation. Either way, information that was supposed to stay between the right people didn't.</div>
+  </div>
+</section>
+
+<!-- INTEGRITY -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>I &mdash; Integrity</h2></div>
+    <p class="lede">Integrity means making sure your data is <b>accurate and hasn't been changed</b> by someone who wasn't supposed to touch it. It's the pillar most people don't think about until it's already been broken.</p>
+
+    <div class="numlist">
+      <div class="numcard inte"><div class="n">01</div><h4>Your grade in the school portal</h4><p>Needs to match exactly what your teacher actually entered &mdash; not what anyone else decided it should say.</p></div>
+      <div class="numcard inte"><div class="n">02</div><h4>Google Docs version history on a group project</h4><p>Exists specifically to catch someone quietly deleting or rewriting a teammate's paragraph without saying anything.</p></div>
+      <div class="numcard inte"><div class="n">03</div><h4>A screenshot used as "proof" someone said something</h4><p>Screenshots can be edited before they're sent &mdash; the image itself can be an integrity problem, not just what's happening in it.</p></div>
+      <div class="numcard inte"><div class="n">04</div><h4>A verified checkmark on an account</h4><p>Helps confirm an account actually belongs to who it claims &mdash; not an impersonator posting under someone else's name.</p></div>
+      <div class="numcard inte"><div class="n">05</div><h4>Wikipedia edits</h4><p>Anyone can change a page, which is exactly why teachers tell you to check sources &mdash; it's an integrity risk built directly into how the site works.</p></div>
+      <div class="numcard inte"><div class="n">06</div><h4>A text thread screenshotted out of context</h4><p>Forwarding only part of a conversation can completely change what someone "really said," even without editing a single word.</p></div>
+      <div class="numcard inte"><div class="n">07</div><h4>Autocorrect changing what you actually typed</h4><p>An accidental, non-malicious integrity problem &mdash; the message still got changed without your real permission.</p></div>
+      <div class="numcard inte"><div class="n">08</div><h4>A deepfaked video or a Photoshopped photo</h4><p>Makes something look like it really happened when it didn't &mdash; a deliberate integrity attack on what you believe is real.</p></div>
+      <div class="numcard inte"><div class="n">09</div><h4>Verifying a file after downloading an app</h4><p>Confirms the file wasn't secretly altered or infected between the developer and your device.</p></div>
+      <div class="numcard inte"><div class="n">10</div><h4>Your Venmo or Cash App balance being exactly right</h4><p>You're trusting that no one quietly changed the number without your knowledge.</p></div>
+    </div>
+
+    <div class="warn"><b>When it fails:</b> A hacker gets into an account and deletes photos that can't be recovered. Someone edits a text before forwarding it to start a rumor. Either way, you can no longer trust that what you're looking at is what was really there.</div>
+  </div>
+</section>
+
+<!-- AVAILABILITY -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>A &mdash; Availability</h2></div>
+    <p class="lede">Availability means your data and services are <b>there for you when you actually need them</b>. A system can be perfectly private and perfectly accurate and still be useless if it's down.</p>
+
+    <div class="numlist">
+      <div class="numcard avail"><div class="n">01</div><h4>School Wi-Fi going down before a deadline</h4><p>The network isn't gone forever &mdash; it's just not available right when you needed it most.</p></div>
+      <div class="numcard avail"><div class="n">02</div><h4>A streaming service outage</h4><p>Netflix or YouTube going down mid-show is a small, familiar taste of an availability failure.</p></div>
+      <div class="numcard avail"><div class="n">03</div><h4>Instagram or TikTok having a full outage</h4><p>Nobody can post, scroll, or message &mdash; the app and your account are both still fine, just unreachable.</p></div>
+      <div class="numcard avail"><div class="n">04</div><h4>A game server crashing mid-match</h4><p>You get kicked out of Fortnite or Roblox right when it mattered &mdash; the service wasn't there when you needed it.</p></div>
+      <div class="numcard avail"><div class="n">05</div><h4>Ransomware locking a school's computer system</h4><p>Files aren't deleted, just locked behind a password nobody has &mdash; unavailable unless the school pays a ransom.</p></div>
+      <div class="numcard avail"><div class="n">06</div><h4>A DDoS attack flooding a website with fake traffic</h4><p>So much junk traffic hits the server that real visitors can't get through &mdash; the site is "up" but functionally unreachable.</p></div>
+      <div class="numcard avail"><div class="n">07</div><h4>Your phone dying right when you need a QR ticket</h4><p>The ticket still exists &mdash; it's just not available to you at the one moment it mattered.</p></div>
+      <div class="numcard avail"><div class="n">08</div><h4>A Google Doc losing connection mid-edit</h4><p>Your latest changes don't save, and the document isn't available in its most current form.</p></div>
+      <div class="numcard avail"><div class="n">09</div><h4>Overloaded Wi-Fi at a concert or airport</h4><p>So many devices connect at once that the network becomes too slow for anyone to actually use.</p></div>
+      <div class="numcard avail"><div class="n">10</div><h4>A power outage taking down your home router</h4><p>Every device in the house loses internet at once &mdash; the most old-fashioned availability failure there is.</p></div>
+    </div>
+
+    <div class="warn"><b>When it fails:</b> A hospital's system gets hit with ransomware and doctors can't pull up patient records. A DDoS attack takes a website offline right when it's needed most. The data or service still technically exists &mdash; it's just not reachable.</div>
+  </div>
+</section>
+
+<!-- PUTTING IT TOGETHER -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Putting It Together</h2></div>
+    <p class="lede">A strong security setup balances all three pillars &mdash; you can't protect your digital life with just one, and pushing one pillar too hard often costs you another.</p>
+
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Pillar</th><th>What it protects</th><th>The analogy</th><th>A real example for you</th></tr>
+        <tr><td><b>Confidentiality</b></td><td>Keeping data secret</td><td>A locked diary</td><td>Your passcode keeps people out of your DMs</td></tr>
+        <tr><td><b>Integrity</b></td><td>Keeping data accurate</td><td>A safety seal on food</td><td>Your bank balance is correct and unchanged</td></tr>
+        <tr><td><b>Availability</b></td><td>Keeping data accessible</td><td>Power and water at home</td><td>School Wi-Fi works so you can submit homework</td></tr>
+      </table>
+    </div></div>
+
+    <div class="hint-panel">The three pillars can pull against each other. A system so locked down that even the right person struggles to get in has traded away availability for confidentiality &mdash; think of a hospital's records being so secured that a doctor can't pull them up fast enough during an emergency. There's rarely a version of security that maxes out all three at once; good security is about choosing the right balance for the situation, not chasing a perfect score on every pillar.</div>
+
+    <p class="lede" style="margin-top:34px;">A quick way to practice: whenever you hear about a real breach in the news, try to name which pillar actually failed.</p>
+    <ul class="checklist">
+      <li><b>"A company's customer database was leaked online."</b> &mdash; That's a <b>Confidentiality</b> failure. Information that should have stayed private got seen by the wrong people.</li>
+      <li><b>"Hackers secretly altered financial records before anyone noticed."</b> &mdash; That's an <b>Integrity</b> failure. The data was changed by someone who shouldn't have been able to touch it.</li>
+      <li><b>"A major website was knocked offline for hours by an attack."</b> &mdash; That's an <b>Availability</b> failure. Nothing was stolen or changed &mdash; it just couldn't be reached.</li>
+    </ul>
+    <div class="example"><b>Real case worth knowing:</b> In 2017, the credit bureau Equifax suffered a breach that exposed the personal data (including Social Security numbers) of about 147 million people &mdash; a textbook, massive-scale Confidentiality failure, and a reminder that this isn't just a school-scale idea.</div>
+
+    <div class="callout">Every cybersecurity decision &mdash; choosing a password, backing up a file, spotting a phishing text &mdash; is really about protecting one of these three pillars. <span>Once you can name the pillar, you understand the foundation of all digital self-defense.</span></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Locking your phone, checking your balance, getting mad at bad Wi-Fi &mdash; you were already doing cybersecurity.</h2>
+    <p>Confidentiality, Integrity, and Availability aren't three separate ideas to memorize &mdash; they're the same three questions you already ask about your own digital life, just with names attached.</p>
+    <a class="back" href="1-2-intro-to-ist-and-dig-footprint-cia-triad.html">&larr; Back to 1.2</a>
+    <a class="back" href="../index.html">&larr; Intro to Software Technology</a>
+    <p class="sig">Intro to Software Technology Notes &nbsp;/&nbsp; Lesson 1.2 &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+</body>
+</html>
