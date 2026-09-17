@@ -47,25 +47,29 @@ a{color:var(--acc-ink)}
 .hero h1{font-size:clamp(26px,4.6vw,38px);font-weight:600;max-width:22ch;color:#fff}
 .hero .deck{color:var(--ink-soft);font-size:clamp(15px,2vw,17px);line-height:1.6;max-width:60ch;margin-top:12px}
 
-.progress-row{background:var(--panel); border-bottom:1px solid var(--rule); padding:12px 0; font-family:"JetBrains Mono",monospace; font-size:11.5px; color:var(--ink-soft)}
-.progress-track{height:5px; background:#05070B; border-radius:100px; overflow:hidden; margin-top:8px}
+.progress-row{background:var(--panel); border-bottom:1px solid var(--rule); padding:12px 0}
+.progress-inner{display:flex; justify-content:space-between; align-items:center; font-family:"JetBrains Mono",monospace; font-size:11.5px; color:var(--ink-soft)}
+.progress-track{flex:1; height:5px; background:#05070B; border-radius:100px; overflow:hidden; margin:0 16px}
 .progress-fill{height:100%; background:var(--acc); border-radius:100px; transition:width .4s ease}
+.score{color:var(--ink); font-weight:700}
 
 .stage{padding:44px 0 70px}
 .roombox{background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:30px 30px}
-.speaker{font-family:"JetBrains Mono",monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--warn-ink); margin-bottom:10px}
+.arena{display:inline-flex; align-items:center; gap:7px; font-family:"JetBrains Mono",monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--warn-ink); background:var(--warn-tint); border:1px solid var(--warn); border-radius:100px; padding:4px 12px; margin-bottom:16px}
 .narrative{font-family:"Fraunces",serif; font-size:clamp(17px,2.6vw,20px); line-height:1.55; color:#fff; margin-bottom:28px}
 .narrative i{color:#C4CDD8; font-style:italic}
 
 .choices{display:flex; flex-direction:column; gap:10px}
 .choice{background:var(--panel); border:2px solid var(--rule); border-radius:8px; padding:16px 18px; text-align:left; cursor:pointer; font-family:"Manrope",sans-serif; font-size:14.5px; color:var(--ink); transition:border-color .15s}
 .choice:hover{border-color:var(--acc)}
-.choice[disabled]{cursor:default; opacity:.5}
-.choice .qlabel{font-family:"JetBrains Mono",monospace; font-size:10px; color:var(--acc-ink); text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px; display:block}
-.choice.picked{border-color:var(--acc); background:var(--acc-tint)}
+.choice[disabled]{cursor:default; opacity:.6}
+.choice.correct-pick{border-color:var(--good); background:var(--good-tint); opacity:1}
+.choice.wrong-pick{border-color:var(--bad); background:var(--bad-tint); opacity:1}
 
 .feedback{margin-top:22px; padding:18px 20px; border-radius:8px; font-size:14.5px; line-height:1.55; display:none; background:rgba(255,255,255,.04); border:1px solid var(--rule)}
 .feedback.show{display:block}
+.feedback.ok{background:var(--good-tint); border-color:var(--good)}
+.feedback.no{background:var(--bad-tint); border-color:var(--bad)}
 .feedback b{color:#fff}
 
 .nextrow{margin-top:22px; text-align:right}
@@ -74,25 +78,23 @@ a{color:var(--acc-ink)}
 .btn.outline{background:transparent;color:var(--acc-ink);border:1px solid var(--acc)}
 .btn.outline:hover{background:var(--acc-tint)}
 
-.endingbox{background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:36px 34px}
-.endingbox.good{border-color:var(--good)}
-.endingbox.bad{border-color:var(--bad)}
-.endingbox.mixed{border-color:var(--warn)}
-.etag{font-family:"JetBrains Mono",monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px}
-.endingbox.good .etag{color:var(--good-ink)}
-.endingbox.bad .etag{color:var(--bad-ink)}
-.endingbox.mixed .etag{color:var(--warn-ink)}
-.endingbox h2{font-size:clamp(22px,3.6vw,30px); font-weight:600; color:#fff; margin-bottom:16px}
-.endingbox p{font-size:15.5px; line-height:1.6; color:#C4CDD8}
-.lesson{margin-top:18px; padding:16px 18px; border-radius:6px; background:rgba(255,255,255,.03); border:1px dashed var(--rule); font-size:14px; color:var(--ink-soft)}
-.lesson b{color:#fff}
+.donebox{background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:40px 34px; text-align:center}
+.donebox .big{font-family:"Fraunces",serif; font-size:46px; font-weight:600; color:#fff; margin-bottom:6px}
+.donebox p{color:var(--ink-soft); font-size:15px; max-width:48ch; margin:0 auto 20px}
 
-.recap{margin-top:24px; padding-top:20px; border-top:1px solid var(--rule)}
+.recap{margin-top:26px; padding-top:20px; border-top:1px solid var(--rule); text-align:left}
 .recap .rlabel{font-family:"JetBrains Mono",monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); margin-bottom:10px}
-.recap ol{margin:0; padding-left:20px}
-.recap li{font-size:13.5px; color:#C4CDD8; margin-bottom:6px}
+.recap li{font-size:13.5px; color:#C4CDD8; margin-bottom:7px; line-height:1.5; list-style:none; padding-left:22px; position:relative}
+.recap li::before{content:"\2717"; position:absolute; left:0; color:var(--bad-ink); font-weight:700}
+.recap li.right::before{content:"\2713"; color:var(--good-ink)}
+.recap ol{margin:0; padding:0}
 
-.btnrow{margin-top:26px; display:flex; gap:10px; flex-wrap:wrap}
+.btnrow{margin-top:26px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center}
+
+@media (max-width:560px){
+  .progress-inner{flex-wrap:wrap; gap:8px}
+  .progress-track{order:3; width:100%; margin:0}
+}
 </style>
 </head>
 <body>
@@ -108,14 +110,15 @@ a{color:var(--acc-ink)}
   <div class="wrap">
     <div class="brief-no">IST SIMULATOR &nbsp;/&nbsp; LESSON 1.3</div>
     <h1>The Interrogation Room</h1>
-    <p class="deck">This is a fictional scenario &mdash; no real crime, no real people. Every option you're given is legally accurate to how Georgia interrogations actually work. Make your choices and see where they lead.</p>
+    <p class="deck">10 fictional scenarios &mdash; no real crimes, no real people &mdash; across traffic stops, your front door, school grounds, online chats, and the interrogation room itself. Every option is legally accurate. Pick the safest move in each one.</p>
   </div>
 </header>
 
 <div class="progress-row">
-  <div class="wrap">
-    <span id="progLabel">Decision 1 of 3</span>
+  <div class="wrap progress-inner">
+    <span id="progLabel">Scenario 1 of 10</span>
     <div class="progress-track"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+    <span class="score">Score: <span id="scoreVal">0</span>/10</span>
   </div>
 </div>
 
@@ -124,181 +127,222 @@ a{color:var(--acc-ink)}
 </section>
 
 <script>
-const tree = {
-  start: {
-    speaker: "Detective Reyes",
-    narrative: "You're sitting in a small room at the police station. An officer slides a folder across the table. <i>\"We pulled the security footage. It clearly shows your face near the scoreboard around midnight last Saturday.\"</i> They watch your reaction.",
+const scenarios = [
+  {
+    arena: "Station Room",
+    narrative: "An officer slides a folder across the table. <i>\"We already found your fingerprints at the scene.\"</i> You're not sure if that's even true.",
     options: [
-      { key:"argue", label:"Argue / Explain", text:"\"That's not possible &mdash; let me explain where I actually was.\"",
-        feedback:"Legally, officers are allowed to claim they have evidence they don't actually have &mdash; footage, DNA, fingerprints, anything. It's a well-known, legal tactic. The moment you start explaining, you've started talking, and now there's more material to work with, not less.",
-        next:"arguePath" },
-      { key:"invoke", label:"Invoke Your Rights", text:"\"I'm invoking my right to remain silent. I want a lawyer.\"",
-        feedback:"This is exactly the legally correct move. The instant you say this clearly, all legal questioning is supposed to stop.",
-        next:"invokePath" },
-      { key:"partial", label:"Partial Admission", text:"\"Okay, fine &mdash; I was there, but I didn't spray anything.\"",
-        feedback:"You've just placed yourself at the scene, on the record, in your own words. Even a partial admission like this can become part of a larger case later.",
-        next:"partialPath" }
+      { label:"\"That's impossible &mdash; let me explain exactly where I was.\"", correct:false,
+        feedback:"Officers are legally allowed to claim they have evidence they don't have. Explaining gives the interrogation more material to work with, whether the claimed evidence is real or not." },
+      { label:"\"I'm invoking my right to remain silent. I want a lawyer.\"", correct:true,
+        feedback:"This is a classic, legal bluff. The safest response is always the same one sentence, no matter what they claim to have." },
+      { label:"\"Okay, I was there, but I didn't do anything.\"", correct:false,
+        feedback:"You've just placed yourself at the scene, on the record, in your own words &mdash; even a partial admission can become part of a larger case." }
     ]
   },
-  arguePath: {
-    speaker: "Detective Reyes",
-    narrative: "The officer nods slowly. <i>\"That's interesting &mdash; because your friend Jordan already told us you were the one holding the can.\"</i> They wait.",
+  {
+    arena: "Station Room",
+    narrative: "The officer says, <i>\"Look, your friend Jordan already told us everything. It'll go a lot better for you if you just confirm it.\"</i>",
     options: [
-      { key:"keepExplaining", label:"Keep Explaining", text:"\"That's insane, Jordan wouldn't say that &mdash; here's what actually happened that night...\"",
-        feedback:"Claiming a friend already \"told on you\" is another completely legal bluff &mdash; officers can say this whether or not it's true. The more you explain to disprove it, the more of your own story ends up on the record, in your own words.",
-        next:"ending:buried" },
-      { key:"invokeNow", label:"Stop and Invoke Now", text:"\"Wait. I want to stop talking. I'm invoking my right to remain silent and I want a lawyer.\"",
-        feedback:"You can invoke your rights at any point in an interrogation, even after you've already started talking. It's not too late &mdash; the moment you say this clearly, questioning has to stop.",
-        next:"ending:lateSave" }
+      { label:"\"Wait, Jordan said that? Okay, here's what really happened...\"", correct:false,
+        feedback:"Whether Jordan actually said anything or not, you've now given your own account, on the record, in response to a claim that didn't have to be true." },
+      { label:"\"I'm not answering questions. I want a lawyer.\"", correct:true,
+        feedback:"Claiming someone else already confessed or blamed you is a legal tactic, true or not. Confirming or denying it both mean you're talking." }
     ]
   },
-  invokePath: {
-    speaker: "Detective Reyes",
-    narrative: "The officer leans back. <i>\"Look, it's just us here, off the record. No need to make this a whole legal thing &mdash; just tell me what actually happened and we'll figure it out.\"</i>",
+  {
+    arena: "Station Room",
+    narrative: "The officer leans in: <i>\"Just tell me the truth right now, and I promise this won't go any further than a warning.\"</i>",
     options: [
-      { key:"cave", label:"Go Off the Record", text:"\"Okay... off the record, then, here's what happened...\"",
-        feedback:"There's no such thing as \"off the record\" in an interrogation room. Once you start talking again, you've voluntarily un-invoked your own rights &mdash; everything from this point is back on the record.",
-        next:"ending:talkedBackIn" },
-      { key:"holdFirm", label:"Hold Firm", text:"\"I already said I'm invoking my rights. I'm not answering any questions.\"",
-        feedback:"This is the move. Officers aren't allowed to keep pushing after a clear invocation, but they're allowed to keep trying softer angles &mdash; holding firm, every time, is what actually makes the invocation work.",
-        next:"ending:rightsRespected" }
+      { label:"\"Okay &mdash; if you promise that, here's everything.\"", correct:false,
+        feedback:"That promise was illegal to make in the first place &mdash; which doesn't erase your confession or guarantee it gets thrown out later." },
+      { label:"\"That's not something you can legally promise. I'm invoking my right to remain silent.\"", correct:true,
+        feedback:"Trading leniency for a confession is an illegal \"hope of benefit.\" Treat any deal offered mid-interrogation as a red flag, not a relief." }
     ]
   },
-  partialPath: {
-    speaker: "Detective Reyes",
-    narrative: "The officer's tone softens. <i>\"Look, if you just tell me the whole thing right now, I can make sure this doesn't go any further than a warning &mdash; no charges, I promise.\"</i>",
+  {
+    arena: "Station Room",
+    narrative: "After you invoke your rights, the officer says, <i>\"C'mon, it's just us here. Off the record, what actually happened?\"</i>",
     options: [
-      { key:"takeDeal", label:"Take the Deal", text:"\"Okay &mdash; if you promise that, then here's everything that happened...\"",
-        feedback:"That promise is illegal &mdash; it's called a \"hope of benefit,\" and officers aren't allowed to trade leniency for a confession like that. But the promise being illegal doesn't erase the confession itself; getting it thrown out is a real legal fight, not automatic.",
-        next:"ending:emptyPromise" },
-      { key:"stopNow", label:"Stop and Invoke", text:"\"Wait &mdash; I want to stop talking. I'm invoking my right to remain silent and I want a lawyer.\"",
-        feedback:"Good catch. An explicit promise like that is exactly the kind of illegal tactic that should make you more cautious, not less &mdash; the safest response is still the same one sentence, every time.",
-        next:"ending:smartCatch" }
+      { label:"\"Okay... off the record, then...\"", correct:false,
+        feedback:"There's no real \"off the record\" in an interrogation room. The moment you start talking again, you've un-invoked your own rights." },
+      { label:"\"I already invoked my rights. I'm not answering anything.\"", correct:true,
+        feedback:"Holding the line after you've already invoked is what actually makes the invocation work &mdash; officers are allowed to try softer angles, but you don't have to answer them." }
+    ]
+  },
+  {
+    arena: "Traffic Stop",
+    narrative: "You're pulled over for a broken taillight. After checking your license, the officer asks, <i>\"Mind if I take a look in your trunk?\"</i>",
+    options: [
+      { label:"\"Sure, go ahead.\"", correct:false,
+        feedback:"Consenting gives up a protection you didn't have to give up. If they have real probable cause, they don't need your permission anyway." },
+      { label:"\"I don't consent to a search.\"", correct:true,
+        feedback:"You only owe ID, registration, and insurance during a routine stop. Officers need probable cause or your consent to search &mdash; you're allowed to simply not give it." }
+    ]
+  },
+  {
+    arena: "At Your Door",
+    narrative: "Officers knock and say they're <i>\"just checking on a noise complaint,\"</i> but something feels off. They ask to come inside to talk.",
+    options: [
+      { label:"\"Sure, come on in.\"", correct:false,
+        feedback:"Officers can lie about why they're at your door specifically to get an invitation inside. Once inside, anything they see in plain view becomes fair game." },
+      { label:"\"I'd rather talk out here.\"", correct:true,
+        feedback:"The doorway isn't a protected space the way the inside of your home is. Stepping outside instead of inviting them in keeps your home's stronger protections intact." }
+    ]
+  },
+  {
+    arena: "School Grounds",
+    narrative: "An administrator searches your backpack and finds something concerning, then calls in a school resource officer to ask you questions.",
+    options: [
+      { label:"\"It's school, so I guess I have to answer whatever they ask.\"", correct:false,
+        feedback:"Lower search standards for administrators don't remove your separate right to stay silent once an officer starts asking questions." },
+      { label:"\"I still have the right to remain silent, even here.\"", correct:true,
+        feedback:"Administrators have looser search rules than police do on campus &mdash; but once a police officer starts questioning you, your right to remain silent is exactly the same as anywhere else." }
+    ]
+  },
+  {
+    arena: "Undercover / Online",
+    narrative: "Someone online is pushing you for details about something that could get you in trouble. You ask them directly, <i>\"wait, are you a cop?\"</i>",
+    options: [
+      { label:"\"They said no, so I can trust that and keep talking.\"", correct:false,
+        feedback:"A \"no\" from someone who legally doesn't have to tell you the truth about this is not actually reassurance." },
+      { label:"\"It doesn't matter what they say &mdash; I'm not confirming anything either way.\"", correct:true,
+        feedback:"Police don't have to admit they're police, even if directly asked, especially online or undercover. The only safe assumption is that anyone could be." }
+    ]
+  },
+  {
+    arena: "Station Room",
+    narrative: "Frustrated, the officer says, <i>\"If you don't start talking, this is going to go a lot worse for you physically, trust me.\"</i>",
+    options: [
+      { label:"\"Okay, okay &mdash; I'll talk, just don't hurt me.\"", correct:false,
+        feedback:"A confession given because of an illegal threat is exactly the kind of statement courts can throw out &mdash; but you still said it, and still have to fight to undo that." },
+      { label:"\"That's not legal for you to say. I want a lawyer.\"", correct:true,
+        feedback:"Threatening physical harm or illegal consequences (\"fear of injury\") is explicitly not allowed, unlike bluffing about evidence. Invoke your rights and raise it later, with a lawyer." }
+    ]
+  },
+  {
+    arena: "Station Room",
+    narrative: "After a while, the officer says, <i>\"Alright, you're free to go &mdash; but can I just ask you one more quick thing before you head out?\"</i>",
+    options: [
+      { label:"\"Sure, one more question is fine.\"", correct:false,
+        feedback:"Every \"one more thing\" can restart the same dynamic as before &mdash; there's no limit on how many times that line gets used." },
+      { label:"\"Am I actually free to leave? If so, I'm going to go.\"", correct:true,
+        feedback:"\"Free to go, but one more thing\" is a common way to keep a voluntary conversation going past the point where you'd otherwise leave. Confirming your status and actually leaving is the safest move." }
     ]
   }
-};
+];
 
-const endings = {
-  buried: { cls:"bad", tag:"Case Closed", title:"Buried in Your Own Words",
-    body:"By the end of the interrogation, you've given a full, detailed account of your whereabouts that night &mdash; all of it in response to bluffs that were never actually backed by real evidence. None of what the officer claimed had to be true for you to talk. Your own words are now the most complete account on file.",
-    lesson:"Every legal bluff is designed to get a reaction. Explaining, correcting, or arguing all count as a reaction &mdash; even when you're completely innocent." },
-  lateSave: { cls:"mixed", tag:"Case Closed", title:"Late Save",
-    body:"You talked for a bit before catching yourself &mdash; but the moment you clearly invoked your rights, the questioning stopped. What you already said is still on the record, but nothing further was added.",
-    lesson:"It's never too late to invoke your rights during an interrogation. The earlier you do it, the less material there is &mdash; but doing it late is still far better than not doing it at all." },
-  talkedBackIn: { cls:"bad", tag:"Case Closed", title:"Talked Yourself Back In",
-    body:"You invoked your rights correctly &mdash; and then un-invoked them yourself the moment the officer offered a friendlier tone. \"Off the record\" isn't a real legal protection in an interrogation room. Everything you said afterward is fully on the record.",
-    lesson:"Invoking your rights only works as long as you hold the line. You can always waive your own rights again just by choosing to keep talking &mdash; no matter how the offer is framed." },
-  rightsRespected: { cls:"good", tag:"Case Closed", title:"Rights Respected",
-    body:"You invoked your rights clearly, and when the officer tried a softer angle to get you talking anyway, you held the line. Legally, questioning has to stop here. This is an interrogation working exactly the way the 4th and 5th Amendments are supposed to make it work.",
-    lesson:"The hardest part of invoking your rights isn't the first sentence &mdash; it's staying quiet afterward, even when the pressure changes shape." },
-  emptyPromise: { cls:"bad", tag:"Case Closed", title:"The Empty Promise",
-    body:"You confessed in exchange for a promise that was never legally allowed to be made in the first place. That illegality might help your case later in court &mdash; but it doesn't erase what you already said, and getting a confession thrown out is a real legal fight, not something automatic.",
-    lesson:"An illegal promise is a warning sign, not a safe deal. The right response to an illegal tactic is still the same one sentence &mdash; not taking the bait to see if it's real." },
-  smartCatch: { cls:"good", tag:"Case Closed", title:"Smart Catch",
-    body:"You recognized an explicit promise of leniency for exactly what it was &mdash; a tactic officers aren't legally allowed to use &mdash; and you stopped talking instead of testing it. Questioning has to stop here.",
-    lesson:"You don't have to know the exact law in the moment to protect yourself. If an offer sounds too convenient in an interrogation room, the safest move is always the same script, regardless of how good the deal sounds." }
-};
+let order = [];
+let idx = 0;
+let score = 0;
+let answered = false;
+let log = [];
 
-let currentNode = "start";
-let step = 1;
-let picked = false;
-let path = [];
-
-function updateProgress(){
-  document.getElementById("progLabel").textContent = "Decision " + Math.min(step, 3) + " of 3";
-  document.getElementById("progFill").style.width = (((step-1) / 3) * 100) + "%";
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
-function render(){
-  const node = tree[currentNode];
-  const stage = document.getElementById("stage");
-  picked = false;
-  stage.innerHTML = `
-    <div class="roombox">
-      <div class="speaker">${node.speaker}</div>
-      <div class="narrative">${node.narrative}</div>
-      <div class="choices" id="choices">
-        ${node.options.map((o,i) => `
-          <button class="choice" onclick="choose(${i})">
-            <span class="qlabel">${o.label}</span>
-            ${o.text}
-          </button>
-        `).join("")}
-      </div>
-      <div class="feedback" id="feedback"></div>
-      <div class="nextrow" id="nextrow" style="display:none;">
-        <button class="btn" onclick="advance()">Continue &rarr;</button>
-      </div>
-    </div>
-  `;
-  updateProgress();
+function updateDash(){
+  document.getElementById("progLabel").textContent = "Scenario " + Math.min(idx+1, scenarios.length) + " of " + scenarios.length;
+  document.getElementById("progFill").style.width = ((idx / scenarios.length) * 100) + "%";
+  document.getElementById("scoreVal").textContent = score;
 }
 
-function choose(i){
-  if (picked) return;
-  picked = true;
-  const node = tree[currentNode];
-  const opt = node.options[i];
-  path.push({ node: currentNode, label: opt.label });
+function start(){
+  order = shuffle(scenarios);
+  idx = 0;
+  score = 0;
+  answered = false;
+  log = [];
+  updateDash();
+  render();
+}
 
-  document.querySelectorAll(".choice").forEach((b, idx) => {
-    b.setAttribute("disabled", "true");
-    if (idx === i) b.classList.add("picked");
-  });
+function choose(i, btnEl){
+  if (answered) return;
+  answered = true;
+  const s = order[idx];
+  const opt = s.options[i];
+  if (opt.correct) score++;
+  log.push({ arena: s.arena, label: opt.label, correct: opt.correct });
+
+  document.querySelectorAll(".choice").forEach(b => b.setAttribute("disabled", "true"));
+  btnEl.classList.add(opt.correct ? "correct-pick" : "wrong-pick");
+  if (!opt.correct) {
+    const correctIdx = s.options.findIndex(o => o.correct);
+    const correctBtn = document.querySelectorAll(".choice")[correctIdx];
+    if (correctBtn) correctBtn.classList.add("correct-pick");
+  }
 
   const fb = document.getElementById("feedback");
-  fb.className = "feedback show";
-  fb.innerHTML = "<b>What actually happens:</b> " + opt.feedback;
+  fb.className = "feedback show " + (opt.correct ? "ok" : "no");
+  fb.innerHTML = (opt.correct ? "<b>Safest move.</b> " : "<b>Riskier move.</b> ") + opt.feedback;
 
-  document.getElementById("nextrow").style.display = "block";
-  window._pendingNext = opt.next;
+  document.getElementById("nextBtn").removeAttribute("disabled");
+  updateDash();
 }
 
-function advance(){
-  const next = window._pendingNext;
-  if (next.startsWith("ending:")) {
-    step = 4;
-    renderEnding(next.split(":")[1]);
+function next(){
+  idx++;
+  answered = false;
+  if (idx >= order.length) {
+    updateDash();
+    renderDone();
   } else {
-    currentNode = next;
-    step++;
     render();
   }
 }
 
-function renderEnding(id){
-  const e = endings[id];
+function render(){
+  const s = order[idx];
   const stage = document.getElementById("stage");
-  document.getElementById("progLabel").textContent = "Case Closed";
-  document.getElementById("progFill").style.width = "100%";
   stage.innerHTML = `
-    <div class="endingbox ${e.cls}">
-      <div class="etag">${e.tag}</div>
-      <h2>${e.title}</h2>
-      <p>${e.body}</p>
-      <div class="lesson"><b>The takeaway:</b> ${e.lesson}</div>
-      <div class="recap">
-        <div class="rlabel">Your path</div>
-        <ol>
-          ${path.map(p => `<li>${p.label}</li>`).join("")}
-        </ol>
+    <div class="roombox">
+      <div class="arena">${s.arena}</div>
+      <div class="narrative">${s.narrative}</div>
+      <div class="choices">
+        ${s.options.map((o,i) => `<button class="choice" onclick="choose(${i}, this)">${o.label}</button>`).join("")}
       </div>
-    </div>
-    <div class="btnrow">
-      <button class="btn outline" onclick="restart()">&#8635; Try a Different Path</button>
-      <a class="btn" href="1-3-4th-amendment-rights.html">Back to 1.3 &amp; the reflection</a>
+      <div class="feedback" id="feedback"></div>
+      <div class="nextrow">
+        <button class="btn" id="nextBtn" onclick="next()" disabled>Next Scenario &rarr;</button>
+      </div>
     </div>
   `;
 }
 
-function restart(){
-  currentNode = "start";
-  step = 1;
-  path = [];
-  render();
+function renderDone(){
+  const stage = document.getElementById("stage");
+  let msg = "Solid instincts.";
+  if (score === 10) msg = "Perfect &mdash; you picked the safest move in all 10 scenarios.";
+  else if (score >= 8) msg = "Strong run &mdash; just a couple of risky moves in there.";
+  else if (score >= 5) msg = "A mixed bag &mdash; worth another run to lock in the pattern.";
+  else msg = "Rough round &mdash; the pattern is more consistent than it feels. Try again.";
+
+  stage.innerHTML = `
+    <div class="donebox">
+      <div class="big">${score} / 10</div>
+      <p>${msg}</p>
+      <div class="btnrow">
+        <button class="btn" onclick="start()">&#8635; Play Again</button>
+        <a class="btn outline" href="1-3-4th-amendment-rights.html">Back to 1.3 &amp; the reflection</a>
+      </div>
+      <div class="recap">
+        <div class="rlabel">Your 10 scenarios</div>
+        <ol>
+          ${log.map(l => `<li class="${l.correct ? 'right' : ''}"><b>${l.arena}:</b> ${l.label}</li>`).join("")}
+        </ol>
+      </div>
+    </div>
+  `;
 }
 
-render();
+start();
 </script>
 
 </body>
