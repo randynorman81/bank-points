@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DemoBank &mdash; Phishing Simulation | Intro to Software Technology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --bank:#1E4FA0; --bank-dark:#163B7A; --bank-tint:rgba(30,79,160,.12);
+  --warn:#F59E0B; --warn-tint:rgba(245,158,11,.15);
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.14); --bad-ink:#FCA5A5;
+  --good:#34D399; --good-ink:#86EFC0;
+  --acc:#38BDF8; --acc-ink:#9FE0FB;
+  --wrap:900px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16px; line-height:1.6;
+}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 20px}
+a{color:var(--acc-ink)}
+
+/* PERMANENT, UNMISSABLE SIMULATION BANNER */
+.simbanner{position:sticky; top:0; z-index:100; background:var(--warn); color:#1a1200; text-align:center; padding:10px 16px; font-family:"JetBrains Mono",monospace; font-size:13px; font-weight:700; letter-spacing:.02em}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+
+.intro{padding:30px 0 10px}
+.intro h1{font-size:26px; color:#fff; margin:0 0 10px}
+.intro p{color:var(--ink-soft); font-size:15px; max-width:70ch}
+.intro .warnbox{background:var(--bad-tint); border:1px solid var(--bad); border-radius:8px; padding:14px 18px; margin-top:16px; font-size:14px; color:#F3D2D2}
+.intro .warnbox b{color:#fff}
+
+/* THE FAKE BANK PAGE ITSELF */
+.demo-frame{margin:30px 0 50px; border:3px dashed var(--warn); border-radius:10px; overflow:hidden}
+.demo-label{background:var(--warn); color:#1a1200; font-family:"JetBrains Mono",monospace; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:6px 16px; text-align:center}
+
+.bankpage{background:#f4f6fa; color:#1a1a2e}
+.bankheader{background:var(--bank); padding:16px 30px; display:flex; align-items:center; gap:12px}
+.bankheader .logo{width:32px; height:32px; border-radius:6px; background:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--bank); font-family:"JetBrains Mono",monospace; font-size:15px}
+.bankheader .bankname{color:#fff; font-weight:700; font-size:19px; font-family:"Manrope",sans-serif}
+.bankheader .fakeflag{margin-left:auto; font-family:"JetBrains Mono",monospace; font-size:10.5px; color:rgba(255,255,255,.75); border:1px solid rgba(255,255,255,.35); border-radius:100px; padding:3px 10px}
+
+.bankbody{padding:50px 30px 60px; display:flex; justify-content:center}
+.loginbox{background:#fff; border-radius:10px; box-shadow:0 6px 24px rgba(0,0,0,.08); padding:38px 36px; width:100%; max-width:380px}
+.loginbox h2{margin:0 0 6px; font-size:21px; color:#16213e}
+.loginbox .sub{color:#6b7280; font-size:13.5px; margin-bottom:24px}
+.field{margin-bottom:16px}
+.field label{display:block; font-size:12.5px; font-weight:600; color:#374151; margin-bottom:6px}
+.field input{width:100%; padding:11px 13px; border:1.5px solid #d1d5db; border-radius:7px; font-size:14.5px; font-family:inherit}
+.field input:focus{outline:none; border-color:var(--bank)}
+.signinbtn{width:100%; background:var(--bank); color:#fff; border:none; border-radius:7px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; margin-top:6px}
+.signinbtn:hover{background:var(--bank-dark)}
+.loginbox .fineprint{margin-top:18px; font-size:11.5px; color:#9ca3af; text-align:center}
+
+/* CAPTURE REVEAL */
+.capture{display:none; background:#05070B; border-top:2px solid var(--bad)}
+.capture.show{display:block}
+.capture-inner{padding:30px}
+.capture-tag{font-family:"JetBrains Mono",monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--bad-ink); margin-bottom:12px}
+.capture h3{color:#fff; font-size:19px; margin:0 0 14px; font-family:"Manrope",sans-serif}
+.capture-log{background:#0D1219; border:1px solid var(--rule); border-radius:8px; padding:18px 20px; font-family:"JetBrains Mono",monospace; font-size:14px; color:var(--good-ink); line-height:1.8}
+.capture-log .lbl{color:var(--ink-soft)}
+.capture-explain{margin-top:18px; color:#C4CDD8; font-size:14.5px; line-height:1.6; max-width:70ch}
+.capture-explain b{color:#fff}
+
+.reveal-btnrow{text-align:center; margin-top:18px}
+.btn{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;text-decoration:none;color:#0B0E14;border:none;border-radius:100px;padding:11px 24px;background:#fff;cursor:pointer}
+.btn:hover{background:#e7e7e7}
+.btn.outline{background:transparent;color:var(--acc-ink);border:1px solid var(--acc)}
+
+.debrief{padding:10px 0 60px}
+.debrief h2{color:#fff; font-size:22px; margin-bottom:14px}
+.debrief .clues{display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:16px}
+.clue{background:var(--card); border:1px solid var(--rule); border-radius:8px; padding:16px 18px}
+.clue b{display:block; color:#fff; font-size:14.5px; margin-bottom:5px}
+.clue p{margin:0; color:var(--ink-soft); font-size:13.5px}
+
+@media (max-width:600px){
+  .debrief .clues{grid-template-columns:1fr}
+  .bankbody{padding:34px 16px 44px}
+}
+</style>
+</head>
+<body>
+
+<div class="simbanner">&#9888; THIS IS A CLASSROOM SIMULATION &mdash; NOT A REAL BANK &mdash; NEVER ENTER A REAL PASSWORD HERE &#9888;</div>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Intro to Software Technology</a>
+  <a href="1-5-how-strong-is-your-password.html">1.5 Lesson Page</a>
+</nav>
+
+<div class="intro wrap">
+  <h1>Phishing Simulation: DemoBank</h1>
+  <p>"DemoBank" isn't a real company &mdash; it's a fake login page built for this one lesson, to show you exactly what a phishing attack actually looks like from the inside. Type any made-up username and password into the box below and hit "Sign In" to see what happens.</p>
+  <div class="warnbox"><b>Nothing you type here is sent anywhere.</b> Everything happens inside your own browser, on this page, the same way the CipherLab keylogger demo works. Still &mdash; use a fake username and password, not a real one, just to build the habit.</div>
+</div>
+
+<div class="wrap">
+  <div class="demo-frame">
+    <div class="demo-label">&#9888; Simulated login page &mdash; not a real financial institution</div>
+    <div class="bankpage">
+      <div class="bankheader">
+        <div class="logo">DB</div>
+        <div class="bankname">DemoBank</div>
+        <div class="fakeflag">FICTIONAL &middot; CLASSROOM ONLY</div>
+      </div>
+      <div class="bankbody">
+        <div class="loginbox">
+          <h2>Sign In</h2>
+          <div class="sub">Access your DemoBank account</div>
+          <div class="field">
+            <label for="fakeuser">Username</label>
+            <input type="text" id="fakeuser" placeholder="try any fake username" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="fakepass">Password</label>
+            <input type="password" id="fakepass" placeholder="try any fake password" autocomplete="off">
+          </div>
+          <button class="signinbtn" onclick="captureIt()">Sign In</button>
+          <div class="fineprint">This is a simulation. DemoBank is not a real bank.</div>
+        </div>
+      </div>
+
+      <div class="capture" id="capture">
+        <div class="capture-inner">
+          <div class="capture-tag">Attacker's View</div>
+          <h3>Here's what just got captured</h3>
+          <div class="capture-log">
+            <div><span class="lbl">username:</span> <span id="capUser"></span></div>
+            <div><span class="lbl">password:</span> <span id="capPass"></span></div>
+            <div><span class="lbl">page you typed into:</span> a fake page, not DemoBank's real servers (because DemoBank isn't real)</div>
+          </div>
+          <div class="capture-explain">
+            <b>This is exactly how real phishing works.</b> You didn't get "hacked" &mdash; nothing broke, no password was guessed or cracked. You just typed your real credentials directly into a page built to look like the real thing, and it worked because the page looked convincing enough.
+            The only reason this was safe is that this whole page told you up front it was fake. A real phishing page never does that &mdash; it copies a real company's logo, colors, and layout exactly, and hopes you don't look closely enough to notice you're not actually on their site.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap debrief">
+  <h2>What Should Have Tipped You Off? (On a Real Phishing Site)</h2>
+  <p style="color:var(--ink-soft); max-width:70ch;">This page told you outright it was fake. A real attacker's page won't. Here's what to actually check:</p>
+  <div class="clues">
+    <div class="clue"><b>The actual URL</b><p>A real bank's login lives on their exact domain. A phishing link often uses a lookalike domain, an unrelated domain, or a shortened link hiding where it really goes.</p></div>
+    <div class="clue"><b>How you got the link</b><p>Did you type the bank's address yourself, or click a link from a text/email you weren't expecting? Legitimate logins rarely start from an unsolicited link.</p></div>
+    <div class="clue"><b>Urgency and pressure</b><p>"Your account will be suspended in 1 hour" is a classic phishing pressure tactic designed to make you skip checking the URL.</p></div>
+    <div class="clue"><b>What happens after you "sign in"</b><p>A real login either works or gives a real error. A phishing page often just redirects you to the real site afterward, so you never notice anything was wrong.</p></div>
+  </div>
+</div>
+
+<script>
+function captureIt(){
+  const u = document.getElementById("fakeuser").value || "(nothing typed)";
+  const p = document.getElementById("fakepass").value || "(nothing typed)";
+  document.getElementById("capUser").textContent = u;
+  document.getElementById("capPass").textContent = p;
+  document.getElementById("capture").classList.add("show");
+  document.getElementById("capture").scrollIntoView({behavior:"smooth", block:"start"});
+}
+</script>
+
+</body>
+</html>

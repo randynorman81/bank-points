@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Password Security: Study Guide | Intro to Software Technology Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+
+  --crack:#F87171; --crack-tint:rgba(248,113,113,.14); --crack-ink:#FCA5A5;
+  --defend:#34D399; --defend-tint:rgba(52,211,153,.14); --defend-ink:#86EFC0;
+  --acc:#38BDF8; --acc-tint:rgba(56,189,248,.14); --acc-ink:#9FE0FB;
+
+  --wrap:980px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.16; margin:0; text-wrap:balance}
+p{margin:0 0 1em}
+p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:#fff;color:#0B0E14;border-color:#fff}
+
+.hero{padding:54px 0 38px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background: radial-gradient(circle at 15% 20%, rgba(248,113,113,.12), transparent 38%), radial-gradient(circle at 85% 10%, rgba(52,211,153,.11), transparent 38%);
+}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:14px;text-transform:uppercase}
+.hero h1{font-size:clamp(28px,5vw,44px);font-weight:600;max-width:20ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18px);line-height:1.6;max-width:66ch;margin-top:16px}
+
+.legend{padding:18px 0; background:var(--panel); border-bottom:1px solid var(--rule)}
+.legend-row{display:flex; gap:20px; flex-wrap:wrap; font-family:"JetBrains Mono",monospace; font-size:11.5px}
+.chip{display:inline-flex; align-items:center; gap:7px; text-transform:uppercase; letter-spacing:.05em; padding:4px 12px; border-radius:100px; border:1px solid}
+.chip.crack{color:var(--crack-ink); border-color:var(--crack); background:var(--crack-tint)}
+.chip.defend{color:var(--defend-ink); border-color:var(--defend); background:var(--defend-tint)}
+.chip .dot{width:7px; height:7px; border-radius:50%}
+.chip.crack .dot{background:var(--crack)} .chip.defend .dot{background:var(--defend)}
+
+.stage{padding:44px 0 70px}
+.termgrid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px}
+.term{background:var(--card); border:1px solid var(--rule); border-radius:8px; padding:22px 24px; border-top:3px solid var(--rule)}
+.term.crack{border-top-color:var(--crack)}
+.term.defend{border-top-color:var(--defend)}
+.term .ttag{font-family:"JetBrains Mono",monospace; font-size:10px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px}
+.term.crack .ttag{color:var(--crack-ink)}
+.term.defend .ttag{color:var(--defend-ink)}
+.term h3{font-size:17px; font-weight:600; color:#fff; margin-bottom:8px; font-family:"Fraunces",serif}
+.term p{font-size:14px; line-height:1.55; color:#C4CDD8; margin:0}
+.term code{font-family:"JetBrains Mono",monospace; background:rgba(255,255,255,.08); padding:1px 6px; border-radius:3px; font-size:.9em}
+
+.callout{background:var(--panel); border:1px solid var(--rule); color:#fff; padding:26px 28px; border-radius:6px; margin:34px 0 8px; font-size:18px; line-height:1.5; font-family:"Fraunces",serif; font-weight:500}
+.callout span{color:var(--ink-soft); font-weight:400; font-family:"Manrope",sans-serif; font-size:15px; display:block; margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:40px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:32ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:62ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:720px){
+  .termgrid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Intro to Software Technology</a>
+  <a href="1-5-how-strong-is-your-password.html">1.5 Lesson Page</a>
+  <a href="1-5-notes.html" class="current">Study Guide</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">IST STUDY GUIDE &nbsp;/&nbsp; LESSON 1.5</div>
+    <h1>Password Security: Every Term You Need</h1>
+    <p class="deck">10 terms, split into two sides of the same coin: how attackers actually crack passwords, and what actually stops them. You'll use every one of these in today's CipherLab lab.</p>
+  </div>
+</header>
+
+<div class="legend">
+  <div class="wrap legend-row">
+    <span class="chip crack"><span class="dot"></span>How Attackers Crack Passwords</span>
+    <span class="chip defend"><span class="dot"></span>What Actually Defends You</span>
+  </div>
+</div>
+
+<section class="stage">
+  <div class="wrap">
+
+    <div class="termgrid">
+      <div class="term crack">
+        <div class="ttag">Attack</div>
+        <h3>Entropy</h3>
+        <p>A measure of how <b>unpredictable</b> a password is. More possible characters and more length both raise entropy &mdash; and entropy, not "looking complicated," is what actually determines how many guesses an attacker needs.</p>
+      </div>
+
+      <div class="term crack">
+        <div class="ttag">Attack</div>
+        <h3>Brute-Force Attack</h3>
+        <p>Trying every possible combination of characters, one by one, until one works. Short passwords fall fast because there simply aren't many combinations to try &mdash; each extra character multiplies the total.</p>
+      </div>
+
+      <div class="term crack">
+        <div class="ttag">Attack</div>
+        <h3>Dictionary Attack</h3>
+        <p>Instead of guessing randomly, the attacker starts from real words (and leaked password lists) and applies predictable tweaks &mdash; capitalizing a letter, adding "123," swapping symbols in. Much faster than brute force against passwords based on real words.</p>
+      </div>
+
+      <div class="term crack">
+        <div class="ttag">Attack</div>
+        <h3>Leetspeak Substitution</h3>
+        <p>Swapping look-alike characters into a word, like <code>@</code> for <code>a</code> or <code>0</code> for <code>o</code> (e.g. <code>P@ssw0rd!</code>). Feels clever, but cracking tools check these substitutions automatically &mdash; it barely slows an attacker down.</p>
+      </div>
+
+      <div class="term crack">
+        <div class="ttag">Attack</div>
+        <h3>Hash &amp; Rainbow Table</h3>
+        <p>Sites don't store your actual password &mdash; they store a scrambled version of it called a <b>hash</b>. But if your password is common, an attacker can pre-compute the hashes of common passwords into a lookup chart (a <b>rainbow table</b>) and find yours instantly.</p>
+      </div>
+
+      <div class="term crack">
+        <div class="ttag">Attack</div>
+        <h3>Credential Stuffing</h3>
+        <p>When one site gets breached, attackers try that same username + password on every other site they can think of. Reusing a password turns a single leak into access to all of your accounts.</p>
+      </div>
+
+      <div class="term crack">
+        <div class="ttag">Attack</div>
+        <h3>Keylogger</h3>
+        <p>Software that secretly records every key you press, including passwords, and sends the log to an attacker. No password is "strong enough" to beat this, since the attacker never has to guess &mdash; they just read what you typed.</p>
+      </div>
+
+      <div class="term defend">
+        <div class="ttag">Defense</div>
+        <h3>MFA (Multi-Factor Authentication)</h3>
+        <p>A second proof of identity beyond your password &mdash; usually a code sent to your phone or an app. Even if an attacker has your exact password, MFA can still stop them from logging in.</p>
+      </div>
+
+      <div class="term defend">
+        <div class="ttag">Defense</div>
+        <h3>Passphrase</h3>
+        <p>A string of random, unrelated words (like <code>river-comet-anchor</code>) instead of one word with substitutions. Longer than a typical password, easier to remember, and usually far harder to crack.</p>
+      </div>
+
+      <div class="term defend">
+        <div class="ttag">Defense</div>
+        <h3>Password Manager</h3>
+        <p>A tool that generates and remembers a unique, random password for every site behind one master password you memorize. Solves the reuse problem that makes credential stuffing possible.</p>
+      </div>
+    </div>
+
+    <div class="callout">7 ways in, 3 ways to actually stop them. <span>Notice the imbalance &mdash; that's exactly why layering multiple defenses (a passphrase, a password manager, and MFA together) beats trying to out-clever any single attack on its own.</span></div>
+
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Every attack here works because most people reuse, shorten, or "cleverify" instead of actually lengthening.</h2>
+    <p>Keep these 10 terms in mind as you run the real tools in CipherLab today &mdash; you'll see several of them in action.</p>
+    <a class="back" href="1-5-how-strong-is-your-password.html">&larr; Back to 1.5</a>
+    <a class="back" href="../index.html">&larr; Intro to Software Technology</a>
+    <p class="sig">Intro to Software Technology Notes &nbsp;/&nbsp; Lesson 1.5 &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+</body>
+</html>
