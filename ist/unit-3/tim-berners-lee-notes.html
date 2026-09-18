@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tim Berners-Lee &amp; the Birth of the Web | Computing Basics Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#F0B94A; --acc-tint:rgba(240,185,74,.13); --acc-ink:#FBD68A;
+  --blue:#38BDF8; --blue-tint:rgba(56,189,248,.13); --blue-ink:#9FE0FB;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13);
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#3A2E15;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%),radial-gradient(circle at 88% 10%, var(--blue-tint), transparent 40%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(32px,5.6vw,50px);font-weight:600;max-width:20ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:64ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:68ch;margin-bottom:26px;color:#C4CDD8}
+.story{font-family:"Fraunces",Georgia,serif;font-style:italic;font-size:19px;line-height:1.55;max-width:62ch;color:#DCE4EE;margin-bottom:22px;padding-left:18px;border-left:3px solid rgba(240,185,74,.4)}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:20px 22px 22px;border-top:3px solid var(--bad)}
+.cardx h4{font-size:16px;font-weight:600;color:#fff;margin-bottom:8px;font-family:"Fraunces",serif}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:18px 0}
+.pillar{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:26px;text-align:center;border-top:3px solid var(--blue)}
+.pillar .pic{width:64px;height:64px;margin:0 auto 14px;color:var(--blue-ink)}
+.pillar .pic svg{width:100%;height:100%}
+.pillar h3{font-size:19px;color:#fff;font-family:"Fraunces",serif;margin-bottom:4px}
+.pillar .role{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--acc-ink);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px}
+.pillar p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:13.5px;color:#FCEBC7}
+.example b{color:#fff}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+/* --- what-if reveal --- */
+.whatif{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:28px;margin:18px 0;cursor:pointer}
+.whatif .tap{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em;margin-top:10px}
+.whatif .after{display:none}
+.whatif.revealed .before{display:none}
+.whatif.revealed .after{display:block}
+.whatif.revealed{border-color:var(--acc)}
+.wgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+.wbox{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:18px}
+.wbox.bad{border-top:3px solid var(--bad)}
+.wbox.good{border-top:3px solid var(--blue)}
+.wbox h4{font-size:14px;color:#fff;margin-bottom:8px;font-family:"JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.03em}
+.wbox p{font-size:13.5px;color:var(--ink-soft);margin:0}
+@media (max-width:640px){.wgrid{grid-template-columns:1fr}}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:30ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:62ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){ .cards{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="index.html">&larr; Unit 3: Computing Basics</a>
+  <a href="tim-berners-lee-notes.html" class="current">Tim Berners-Lee</a>
+  <a href="three-parts-of-the-internet-notes.html">3 Parts of the Internet</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">COMPUTING BASICS NOTES &nbsp;/&nbsp; SUBJECT: HOW THE WEB WAS BORN</div>
+    <h1>Tim Berners-Lee &amp; the Birth of the Web</h1>
+    <p class="deck">The scientist who connected the world's information &mdash; and then, at the exact moment he could have become one of the richest people alive, chose to give it away for free instead.</p>
+  </div>
+</header>
+
+<!-- PART 00: THE MESS -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>Before the Web: The Mess</h2></div>
+    <p class="story">It's the 1980s, at CERN &mdash; one of the world's biggest physics labs. The internet already exists. It just doesn't work the way you'd expect: it's like a library where every book is written in a different language and locked in a different, incompatible room.</p>
+    <p class="lede">Tim Berners-Lee was a scientist there, and he wasn't trying to change the world. He was just trying to solve his own team's information problem.</p>
+
+    <div class="cards">
+      <div class="cardx"><h4>Data Silos</h4><p>Scientists at CERN had information trapped on different computers that couldn't "talk" to each other at all.</p></div>
+      <div class="cardx"><h4>Physical Barrier</h4><p>To see a colleague's work, you had to learn their specific computer's commands &mdash; or physically walk to their desk and look at their screen.</p></div>
+      <div class="cardx"><h4>No Connections</h4><p>Information lived in total isolation. There was no way to "click" from one paper to a related one.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 01: THE FIX -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>The Original Idea Was Small</h2></div>
+    <p class="lede">Tim didn't set out to invent something that would run modern life. He just wanted two things:</p>
+    <div class="cards">
+      <div class="cardx" style="border-top-color:var(--blue)"><h4>Linking Research</h4><p>A system where scientists could browse research results and notes across different computers as if they were one giant document.</p></div>
+      <div class="cardx" style="border-top-color:var(--blue)"><h4>Universal Access</h4><p>A system that would work on any computer, regardless of brand or software &mdash; no exceptions.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 02: THE 3 PILLARS -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>How He Built It: The 3 Pillars</h2></div>
+    <p class="lede">Working on a "NeXT" computer at CERN, Tim coded three core technologies &mdash; the exact three that let you read this page today.</p>
+
+    <div class="pillars">
+      <div class="pillar">
+        <div class="pic"><svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="8" width="48" height="48" rx="4" stroke="currentColor" stroke-width="3"/><line x1="8" y1="20" x2="56" y2="20" stroke="currentColor" stroke-width="2.5"/><line x1="16" y1="30" x2="48" y2="30" stroke="currentColor" stroke-width="2.5" opacity="0.6"/><line x1="16" y1="38" x2="40" y2="38" stroke="currentColor" stroke-width="2.5" opacity="0.6"/><line x1="16" y1="46" x2="44" y2="46" stroke="currentColor" stroke-width="2.5" opacity="0.6"/></svg></div>
+        <h3>HTML</h3>
+        <div class="role">The Skeleton</div>
+        <p>The language used to build and style web pages &mdash; the structure everything else hangs on.</p>
+      </div>
+      <div class="pillar">
+        <div class="pic"><svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="26" width="34" height="18" rx="2" stroke="currentColor" stroke-width="3"/><path d="M40 30h10l8 8v6H40z" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><circle cx="18" cy="46" r="5" stroke="currentColor" stroke-width="3"/><circle cx="48" cy="46" r="5" stroke="currentColor" stroke-width="3"/></svg></div>
+        <h3>HTTP</h3>
+        <div class="role">The Delivery Truck</div>
+        <p>The protocol that moves data from a server to your browser, every time a page loads.</p>
+      </div>
+      <div class="pillar">
+        <div class="pic"><svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M32 6c-11 0-20 9-20 20 0 15 20 32 20 32s20-17 20-32c0-11-9-20-20-20z" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><circle cx="32" cy="26" r="8" stroke="currentColor" stroke-width="3"/></svg></div>
+        <h3>URLs</h3>
+        <div class="role">The Address</div>
+        <p>The unique name that tells your computer exactly where to find one specific page.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 03: THE DECISION -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>The World-Changing Decision</h2></div>
+    <p class="story">In 1993, Tim made the single most consequential choice of his life. People around him urged him to patent the Web and charge money for it. If he had, he'd be one of the richest people who ever lived.</p>
+    <p class="lede">Instead, he and CERN released the source code for the World Wide Web into the <b>public domain</b>, for free. Anyone, anywhere, could build a website without asking permission or paying a cent.</p>
+
+    <div class="example"><b>That single decision is why the Web exploded.</b> A small lab tool for physicists became the global force that runs modern life &mdash; because nobody had to ask permission first.</div>
+
+    <div class="callout">"This is for everyone."<span>&mdash; Sir Tim Berners-Lee</span></div>
+
+    <div class="whatif" onclick="this.classList.toggle('revealed')">
+      <div class="before">
+        <h3>What if he had patented it instead?</h3>
+        <p>Click to compare the web we actually got with the one we might have gotten.</p>
+        <div class="tap">Click to reveal</div>
+      </div>
+      <div class="after">
+        <h3>Two very different webs</h3>
+        <div class="wgrid">
+          <div class="wbox bad">
+            <h4>The Patented Web</h4>
+            <p>Every website would owe Tim (or CERN) a license fee. Small creators, students, and hobbyists likely couldn't afford to build anything. Growth would be slow and controlled by whoever held the patent.</p>
+          </div>
+          <div class="wbox good">
+            <h4>The Web We Got</h4>
+            <p>Anyone with a computer could build a site for free. Millions did &mdash; which is exactly why the Web grew from a physics lab tool into something billions of people use every day.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Three simple technologies, one enormous decision to give them away.</h2>
+    <p>HTML gave every page a structure. HTTP gave every page a way to travel. URLs gave every page an address. And the choice to make all three free, for everyone, is the entire reason the Web became the Web instead of staying a physics lab's internal tool.</p>
+    <a class="back" href="3-5-impact-of-the-internet.html">&larr; Back to 3.5</a>
+    <a class="back" href="index.html">Unit 3 Overview</a>
+    <p class="sig">Computing Basics Notes &nbsp;/&nbsp; Tim Berners-Lee &amp; the Birth of the Web &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+</body>
+</html>

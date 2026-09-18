@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Deep Web | Computing Basics Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#08101F; --panel:#0C1628; --card:#101B31; --ink:#EAEFF6; --ink-soft:#8FA3C4; --rule:#1E2E4C;
+  --acc:#60A5FA; --acc-tint:rgba(96,165,250,.14); --acc-ink:#A9CDFB;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#2E4570}
+.pillnav a.current{background:var(--acc);color:#0A1B33;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 45%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(32px,5.6vw,50px);font-weight:600;max-width:20ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:64ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:68ch;margin-bottom:26px;color:#C4CDD8}
+.story{font-family:"Fraunces",Georgia,serif;font-style:italic;font-size:19px;line-height:1.55;max-width:62ch;color:#DCE4EE;margin-bottom:22px;padding-left:18px;border-left:3px solid rgba(96,165,250,.4)}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:8px;font-family:"Fraunces",serif}
+.cardx p{font-size:13px;color:var(--ink-soft);margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:13.5px;color:#DEEBFE}
+.example b{color:#fff}
+
+.stats{display:flex;gap:16px;flex-wrap:wrap;margin:18px 0}
+.stat{flex:1;min-width:180px;background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:18px;text-align:center}
+.stat .num{font-family:"Fraunces",serif;font-size:28px;font-weight:700;color:var(--acc-ink)}
+.stat .lbl{font-size:12.5px;color:var(--ink-soft);margin-top:4px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:30ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:62ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D7099;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){ .cards{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="index.html">&larr; Unit 3</a>
+  <a href="three-parts-of-the-internet-notes.html">3 Parts Overview</a>
+  <a href="surface-web-notes.html">Surface Web</a>
+  <a href="deep-web-notes.html" class="current">Deep Web</a>
+  <a href="dark-web-notes.html">Dark Web</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">COMPUTING BASICS NOTES &nbsp;/&nbsp; LAYER 2 OF 3</div>
+    <h1>The Deep Web</h1>
+    <p class="deck">The engine of the digital world &mdash; by far the largest part of the internet, and you're already using it right now.</p>
+  </div>
+</header>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>What It Is</h2></div>
+    <p class="lede">Everything on the internet that's <b>not</b> indexed by a standard search engine. This is, by far, the largest part of the internet &mdash; and almost none of it is scary or secret.</p>
+    <div class="stats">
+      <div class="stat"><div class="num">90&ndash;95%</div><div class="lbl">of all internet content</div></div>
+      <div class="stat"><div class="num">400&ndash;500x</div><div class="lbl">larger than the Surface Web</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Why Is It "Deep"? It's About Access, Not Secrecy</h2></div>
+    <p class="lede">Content isn't indexed for several completely legitimate reasons &mdash; none of them inherently malicious. A search crawler simply can't "see" it.</p>
+    <div class="cards">
+      <div class="cardx"><h4>Access Control</h4><p>Protected behind a password, a subscription paywall, or other login &mdash; like your email or a Netflix account.</p></div>
+      <div class="cardx"><h4>Dynamic Content</h4><p>Pages generated in response to a specific query. The content lives in a database, not as a static page a crawler can find &mdash; like flight search results.</p></div>
+      <div class="cardx"><h4>Unlinked Content</h4><p>Pages not linked to from any other indexed page. A crawler has no path to ever discover them.</p></div>
+      <div class="cardx"><h4>Technical Barriers</h4><p>A site's robots.txt file can explicitly forbid crawlers from indexing certain pages, or the entire site.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Your Daily Life in the Deep Web</h2></div>
+    <p class="lede">You use it every single day &mdash; it's the private, personalized web running in the background of your digital life.</p>
+    <div class="cards">
+      <div class="cardx"><h4>Communications</h4><p>Your personal email inbox and private social media messages.</p></div>
+      <div class="cardx"><h4>Finance</h4><p>Online banking portals, transaction histories, financial records.</p></div>
+      <div class="cardx"><h4>Health</h4><p>Medical records stored in secure patient portals.</p></div>
+      <div class="cardx"><h4>Work &amp; Storage</h4><p>Private company intranets and documents in cloud services like Dropbox or Google Drive.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>The Powerhouse: Professional &amp; Academic Content</h2></div>
+    <p class="lede">Beyond personal accounts, the Deep Web holds vast, high-quality databases essential to professionals and researchers worldwide.</p>
+    <div class="cards">
+      <div class="cardx"><h4>Academic &amp; Scholarly Research</h4><p>Subscription-based journals and databases like JSTOR, Science.gov, and PubMed.</p></div>
+      <div class="cardx"><h4>Government Archives</h4><p>Massive datasets from agencies like OSTI.gov, census data, and patent libraries.</p></div>
+      <div class="cardx"><h4>Legal &amp; Financial Databases</h4><p>Professional services like LexisNexis, containing legal documents and case law.</p></div>
+      <div class="cardx"><h4>Corporate Data</h4><p>Internal corporate networks (intranets) with proprietary documents, research, and employee information.</p></div>
+    </div>
+    <div class="example"><b>The takeaway:</b> the Deep Web isn't hiding from you on purpose &mdash; it's just not built to be publicly crawled. It's the private, working half of the internet that makes modern life function.</div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Not secret. Just not public.</h2>
+    <p>Hidden inside this massive private layer is one much smaller, much stranger corner &mdash; built specifically to hide who's using it.</p>
+    <a class="back" href="dark-web-notes.html">Dark Web &rarr;</a>
+    <a class="back" href="three-parts-of-the-internet-notes.html">&larr; 3 Parts Overview</a>
+    <p class="sig">Computing Basics Notes &nbsp;/&nbsp; The Deep Web &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+</body>
+</html>
