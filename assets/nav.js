@@ -30,7 +30,7 @@ const COURSES = [
     units: [
       { n: 1, title: "Digital Footprint", migrated: true, path: "ist/unit-1/index.html" },
       { n: 2, title: "Intro to Programming (Karel)", migrated: true, path: "ist/unit-2/index.html" },
-      { n: 4, title: "Computing Basics", migrated: true, path: "ist/unit-4/index.html" },
+      { n: 3, title: "Computing Basics", migrated: true, path: "ist/unit-3/index.html" },
       { n: 5, title: "Operating Systems and Software", migrated: true, path: "ist/unit-5/index.html" },
       { n: 6, title: "Project: IT Professional", migrated: true, path: "ist/unit-6/index.html" },
       { n: 7, title: "Web Design - HTML", migrated: true, path: "ist/unit-7/index.html" },
