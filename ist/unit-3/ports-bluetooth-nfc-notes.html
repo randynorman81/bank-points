@@ -144,6 +144,26 @@ table.cmp td b{color:#fff}
 .kingicon svg{width:100%;height:auto;color:var(--gold-ink)}
 .kingtext{flex:1;min-width:240px}
 
+/* --- apple pay spotlight (biggest element in the NFC section) --- */
+.paybig{display:flex;gap:32px;align-items:center;background:linear-gradient(160deg, var(--gold-tint), var(--card) 55%);border:1.5px solid rgba(240,185,74,.45);border-radius:10px;padding:32px;margin:22px 0 18px;flex-wrap:wrap}
+.paybig-gfx{flex:none;width:130px;display:flex;justify-content:center}
+.paybig-gfx svg{width:100%;height:auto;color:var(--gold-ink)}
+.paybig-body{flex:1;min-width:280px}
+.paybig-tag{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--gold-ink);text-transform:uppercase;margin-bottom:8px}
+.paybig-body h3{font-size:clamp(24px,3.4vw,30px);font-weight:600;color:#fff;margin-bottom:12px;font-family:"Fraunces",serif}
+.paybig-body p{font-size:15px;line-height:1.6;color:#DCE4EE;margin:0 0 14px}
+.paybig-body ul{margin:0;padding-left:20px}
+.paybig-body li{font-size:14.5px;line-height:1.65;color:#C4CDD8;margin-bottom:9px}
+.paybig-body li:last-child{margin-bottom:0}
+.paybig-body b{color:#fff}
+
+.alsorow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.alsolabel{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--ink-soft);letter-spacing:.03em;text-transform:uppercase}
+.alsobadge{display:inline-flex;align-items:center;gap:7px;font-family:"Manrope",sans-serif;font-size:13px;font-weight:600;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:6px 14px 6px 10px}
+.alsobadge svg{width:16px;height:16px;color:var(--ink-soft)}
+
+@media (max-width:640px){.paybig{padding:22px}}
+
 .final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
 .final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:30ch;line-height:1.25;color:#fff}
 .final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:62ch}
@@ -461,8 +481,39 @@ table.cmp td b{color:#fff}
 <section class="part gold">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">04</div><h2>NFC: Near Field Communication</h2></div>
-    <p class="story">Six years after Bluetooth got its Viking name, Sony and Philips built something almost the opposite of it on purpose &mdash; a wireless signal so short-range it's barely wireless at all. That was the point.</p>
-    <p class="lede">The technology behind every "tap to pay" you've ever done. The name is literal &mdash; it's wireless communication that only works when devices are extremely close, usually within 4 inches (10 cm) or less.</p>
+    <p class="story">You've done this a hundred times without thinking about it: pull out your phone, hold it near a little symbol on the checkout terminal, feel a buzz, walk away with lunch. That entire interaction &mdash; the one you already know better than almost anyone reading this page &mdash; is NFC.</p>
+    <p class="lede">NFC is the technology behind every "tap to pay" you've ever done. The name is literal &mdash; it's wireless communication that only works when devices are extremely close, usually within 4 inches (10 cm) or less.</p>
+
+    <div class="paybig">
+      <div class="paybig-gfx">
+        <svg viewBox="0 0 160 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="38" y="14" width="72" height="140" rx="14" stroke="currentColor" stroke-width="4"/>
+          <rect x="60" y="24" width="26" height="7" rx="3.5" fill="currentColor" opacity="0.6"/>
+          <path d="M118,58 Q132,74 118,90" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+          <path d="M128,46 Q150,74 128,102" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity="0.55"/>
+          <path d="M138,34 Q168,74 138,114" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity="0.3"/>
+          <circle cx="74" cy="140" r="15" fill="currentColor" opacity="0.16"/>
+          <path d="M67,140 L72,146 L83,132" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="paybig-body">
+        <div class="paybig-tag">THE ONE YOU ALREADY USE</div>
+        <h3>Apple Pay</h3>
+        <p>When Apple put NFC into the iPhone for payments in 2014, tap-to-pay went from a rare novelty to something basically every phone in this room can do. It's the single biggest reason NFC matters to you personally &mdash; here's exactly what happens in that half-second tap:</p>
+        <ul>
+          <li><b>Face ID or Touch ID first.</b> Your phone won't release payment info to the terminal until it confirms it's actually you holding it.</li>
+          <li><b>Your real card number is never sent.</b> Apple Pay swaps it for a one-time <b>token</b> &mdash; a throwaway stand-in number. Even the store never sees your actual card.</li>
+          <li><b>The 4-inch range is the security.</b> The terminal can only read that token if your phone is close enough to physically touch it &mdash; nobody's skimming it from across the room.</li>
+          <li><b>It's the same NFC chip</b> doing this that reads a smart tag or unlocks a hotel room &mdash; payments are just one job it does.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="alsorow">
+      <span class="alsolabel">Same idea, different phone:</span>
+      <span class="alsobadge"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="2" width="16" height="20" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M16,9 Q19,12 16,15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Google Pay</span>
+      <span class="alsobadge"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="2" width="16" height="20" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M16,9 Q19,12 16,15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Samsung Pay</span>
+    </div>
 
     <div class="example gold"><b>Where NFC came from:</b> developed in 2002 by Sony and Philips, built on older RFID technology used for decades in security badges and library books. Sony/Philips launched the NFC Forum in 2004 with Nokia to set standards. First NFC phones arrived in 2006, but it didn't really take off until <b>Apple Pay launched in 2014</b> &mdash; the moment NFC became a household technology.</div>
 
