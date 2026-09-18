@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Does an Operating System Actually Do? | Unit 5 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="notes.css">
+<style>:root{--acc:#818CF8;--acc-tint:rgba(129,140,248,.14);--acc-ink:#C7D2FE}</style></head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 5</a><a href="5-1-what-an-os-does.html">Back to 5.1</a><a href="os-job-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 5 Notes &nbsp;/&nbsp; Lesson 5.1</div>
+  <h1>What Does an Operating System Actually Do?</h1>
+  <p class="deck">You tap an icon and an app opens in half a second. Behind that half-second, dozens of decisions get made for you. Meet the thing making them.</p>
+  <span class="stdchip">Georgia IT-IST-5.3 &middot; IT-IST-6.1</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">00</div><h2>The Middle Manager Nobody Sees</h2></div>
+  <p class="story">Imagine a huge company where every employee (your apps) wants something: a desk, a phone line, some cash, a key to a locked room. None of them are allowed to just grab it. Everything goes through one manager who decides who gets what, when. That manager is the operating system.</p>
+  <p class="lede">An <b>operating system (OS)</b> is the software that manages a computer's hardware and gives every other program a safe, fair way to use it. Apps never talk to the hardware directly &mdash; they ask the OS.</p>
+  <svg viewBox="0 0 560 230" style="width:100%;max-width:560px;display:block;margin:6px auto 18px" fill="none">
+    <rect x="20" y="10" width="520" height="56" rx="8" fill="var(--acc-tint)" stroke="var(--acc)" stroke-width="2"/>
+    <text x="280" y="34" text-anchor="middle" fill="#fff" font-family="JetBrains Mono,monospace" font-size="14" font-weight="700">APPS</text>
+    <text x="280" y="54" text-anchor="middle" fill="var(--ink-soft)" font-family="Manrope,sans-serif" font-size="12">Chrome &middot; Spotify &middot; Minecraft &middot; Google Docs</text>
+    <path d="M280 70v20M270 82l10 10 10-10" stroke="var(--acc-ink)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="20" y="96" width="520" height="56" rx="8" fill="var(--acc)" stroke="var(--acc)" stroke-width="2"/>
+    <text x="280" y="120" text-anchor="middle" fill="#0B0E14" font-family="JetBrains Mono,monospace" font-size="14" font-weight="700">OPERATING SYSTEM</text>
+    <text x="280" y="140" text-anchor="middle" fill="#0B0E14" font-family="Manrope,sans-serif" font-size="12" font-weight="600">Windows &middot; macOS &middot; Linux &middot; Android &middot; iOS</text>
+    <path d="M280 156v20M270 168l10 10 10-10" stroke="var(--acc-ink)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="20" y="182" width="520" height="40" rx="8" fill="rgba(255,255,255,.04)" stroke="var(--rule)" stroke-width="2"/>
+    <text x="280" y="207" text-anchor="middle" fill="#fff" font-family="JetBrains Mono,monospace" font-size="13" font-weight="700">HARDWARE &nbsp;(CPU &middot; RAM &middot; storage &middot; screen &middot; keyboard)</text>
+  </svg>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>The Six Jobs of Every OS</h2></div>
+  <p class="lede">Every operating system, on every device, does these six things. Click through them.</p>
+  <div class="tabs">
+    <button class="active" data-tabgroup="jobs" data-tab="cpu" onclick="tab(this)">1. Processes</button>
+    <button data-tabgroup="jobs" data-tab="mem" onclick="tab(this)">2. Memory</button>
+    <button data-tabgroup="jobs" data-tab="file" onclick="tab(this)">3. Files</button>
+    <button data-tabgroup="jobs" data-tab="dev" onclick="tab(this)">4. Devices</button>
+    <button data-tabgroup="jobs" data-tab="ui" onclick="tab(this)">5. Interface</button>
+    <button data-tabgroup="jobs" data-tab="sec" onclick="tab(this)">6. Security</button>
+  </div>
+  <div class="tabpanel active" data-tabgroup="jobs" data-panel="cpu"><div class="gfx"><svg viewBox="0 0 64 64" fill="none"><rect x="18" y="18" width="28" height="28" rx="3" stroke="currentColor" stroke-width="3"/><path d="M26 10v8M38 10v8M26 46v8M38 46v8M10 26h8M10 38h8M46 26h8M46 38h8" stroke="currentColor" stroke-width="3"/></svg></div><div><h3>Process &amp; CPU management</h3><p>A <b>process</b> is a running program. You have dozens open at once, but a CPU core can only run one thing at a time. The OS switches between them thousands of times a second so fast it looks simultaneous &mdash; that's <b>multitasking</b>.</p><p><b>Real example:</b> music playing while you type a paper while a download runs.</p></div></div>
+  <div class="tabpanel" data-tabgroup="jobs" data-panel="mem"><div class="gfx"><svg viewBox="0 0 64 64" fill="none"><rect x="8" y="20" width="48" height="24" rx="3" stroke="currentColor" stroke-width="3"/><path d="M16 44v8M26 44v8M38 44v8M48 44v8" stroke="currentColor" stroke-width="3"/><rect x="14" y="26" width="8" height="12" fill="currentColor" opacity=".5"/><rect x="28" y="26" width="8" height="12" fill="currentColor" opacity=".3"/></svg></div><div><h3>Memory (RAM) management</h3><p>The OS hands each program its own slice of RAM and makes sure no program reads or overwrites another's. When RAM fills up, it moves the least-used data to storage (called <b>virtual memory</b>) &mdash; which is why a computer with too many tabs gets slow.</p></div></div>
+  <div class="tabpanel" data-tabgroup="jobs" data-panel="file"><div class="gfx"><svg viewBox="0 0 64 64" fill="none"><path d="M8 18a4 4 0 0 1 4-4h14l6 6h20a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4z" stroke="currentColor" stroke-width="3"/></svg></div><div><h3>File management</h3><p>The OS keeps the index of every file and folder, remembers where each one physically lives on the drive, and controls who can open, edit, or delete it. (You met this in Unit 3.)</p></div></div>
+  <div class="tabpanel" data-tabgroup="jobs" data-panel="dev"><div class="gfx"><svg viewBox="0 0 64 64" fill="none"><rect x="10" y="12" width="44" height="28" rx="3" stroke="currentColor" stroke-width="3"/><path d="M24 52h16M32 40v12" stroke="currentColor" stroke-width="3"/></svg></div><div><h3>Device management</h3><p>Every keyboard, mouse, printer, and screen speaks its own language. The OS uses small programs called <b>drivers</b> as translators, so an app can just say &ldquo;print this&rdquo; without knowing which printer brand you own.</p></div></div>
+  <div class="tabpanel" data-tabgroup="jobs" data-panel="ui"><div class="gfx"><svg viewBox="0 0 64 64" fill="none"><rect x="8" y="12" width="48" height="40" rx="4" stroke="currentColor" stroke-width="3"/><path d="M8 24h48" stroke="currentColor" stroke-width="3"/><path d="M18 34l6 5-6 5M30 44h12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></div><div><h3>User interface</h3><p>How you talk to the computer. A <b>GUI</b> (graphical user interface) uses windows, icons, and a mouse or touch. A <b>CLI</b> (command-line interface) uses typed commands. Most people live in the GUI; most IT professionals also live in the CLI.</p></div></div>
+  <div class="tabpanel" data-tabgroup="jobs" data-panel="sec"><div class="gfx"><svg viewBox="0 0 64 64" fill="none"><path d="M32 8l20 8v14c0 12-8 22-20 26C20 52 12 42 12 30V16z" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M23 32l7 7 12-14" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><h3>Security &amp; permissions</h3><p>User accounts, passwords, admin vs. standard users, and permission prompts (&ldquo;this app wants your camera&rdquo;) all come from the OS. It's the gatekeeper deciding what each app and each person is allowed to touch.</p></div></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>What Happens When You Open an App</h2></div>
+  <p class="lede">Step through the half-second between double-clicking Spotify and hearing music.</p>
+  <div class="stepper">
+    <div class="stepnav"><button data-i="0" onclick="step(this)">1. Click</button><button data-i="1" onclick="step(this)">2. Load</button><button data-i="2" onclick="step(this)">3. Schedule</button><button data-i="3" onclick="step(this)">4. Permission</button><button data-i="4" onclick="step(this)">5. Draw</button></div>
+    <div class="stepbody"></div>
+    <template><b>Your click reaches the OS.</b> The mouse driver reports &ldquo;click at these coordinates.&rdquo; The OS works out which icon that was and which program it belongs to.</template>
+    <template><b>File + memory management.</b> The OS finds Spotify's files in storage, copies them into a free chunk of RAM, and hands that chunk to the new process.</template>
+    <template><b>Process management.</b> The OS adds Spotify to the CPU's schedule, giving it tiny time slices between everything else that's running.</template>
+    <template><b>Security.</b> When Spotify asks for the internet or your speakers, the OS checks its permissions first. Deny it and the request simply fails.</template>
+    <template><b>User interface + devices.</b> The OS draws Spotify's window and sends sound through the audio driver to your speakers. Total time: well under a second.</template>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Plain-English meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>Operating system</b></td><td>Software that manages hardware and runs every other program</td></tr>
+      <tr><td><b>Kernel</b></td><td>The core of the OS &mdash; the part that talks directly to hardware</td></tr>
+      <tr><td><b>Process</b></td><td>A program that is currently running</td></tr>
+      <tr><td><b>Multitasking</b></td><td>Rapidly switching between processes so many seem to run at once</td></tr>
+      <tr><td><b>Driver</b></td><td>A translator that lets the OS control one specific piece of hardware</td></tr>
+      <tr><td><b>GUI / CLI</b></td><td>Graphical interface (click) vs. command-line interface (type)</td></tr>
+    </tbody></table></div></div>
+  <div class="callout">The OS is why a program you've never seen can run on hardware its author never touched.<span>Apps ask, the OS decides. That one rule is the whole unit.</span></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>Six jobs, one manager, zero applause.</h2><p>Next up: the three big desktop operating systems and why they all still exist.</p><a class="back" href="5-1-what-an-os-does.html">&larr; Back to 5.1</a><a class="back" href="index.html">Unit 5</a><p class="sig">Unit 5 Notes / Lesson 5.1 / end of file</p></div></footer>
+<script src="notes.js"></script></body></html>

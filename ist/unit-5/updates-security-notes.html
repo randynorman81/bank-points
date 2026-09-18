@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Updates, Patches &amp; Staying Safe | Unit 5 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="notes.css">
+<style>:root{--acc:#F87171;--acc-tint:rgba(248,113,113,.14);--acc-ink:#FECACA}
+.clock{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+.clock div{flex:1;min-width:120px;background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:12px;text-align:center;font-size:13px}
+.clock div b{display:block;color:#fff;font-family:"JetBrains Mono",monospace;font-size:13px;margin-bottom:4px}
+.clock .on{border-color:var(--acc);background:var(--acc-tint)}</style></head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 5</a><a href="5-6-updates-and-security.html">Back to 5.6</a><a href="updates-security-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 5 Notes &nbsp;/&nbsp; Lesson 5.6</div>
+  <h1>Updates, Patches &amp; Staying Safe</h1>
+  <p class="deck">&ldquo;Remind me tomorrow&rdquo; is the most dangerous button on your computer. Here's what's actually inside an update, and why attackers love people who click it.</p>
+  <span class="stdchip">Georgia IT-IST-5.3 &middot; IT-IST-6.2 &middot; IT-IST-6.3</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">00</div><h2>The Unlocked Window</h2></div>
+  <p class="story">In May 2017, a worm called WannaCry locked up hospitals, shipping companies, and factories in over 150 countries in a single weekend. The hole it used had already been fixed by Microsoft &mdash; two months earlier. The victims hadn't installed the update. The door was repaired; nobody walked through the repaired door.</p>
+  <p class="lede">A <b>vulnerability</b> is a flaw in software that an attacker can exploit. A <b>patch</b> is a fix for it. Software is written by humans, so flaws are guaranteed &mdash; what matters is how fast the fix reaches you.</p>
+  <div class="clock">
+    <div class="on"><b>Day 0</b>Flaw is discovered</div><div><b>Day X</b>Patch is released</div><div><b>Day X+?</b>You install it</div>
+  </div>
+  <div class="warn"><b>The danger zone</b> is the gap between the patch being published and you installing it. Publishing a patch also tells attackers exactly where the flaw was &mdash; so they race to hit everyone who hasn't updated yet.</div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>What's Inside an Update?</h2></div>
+  <div class="tabs"><button class="active" data-tabgroup="up" data-tab="sec" onclick="tab(this)">Security patch</button><button data-tabgroup="up" data-tab="bug" onclick="tab(this)">Bug fix</button><button data-tabgroup="up" data-tab="feat" onclick="tab(this)">Feature update</button><button data-tabgroup="up" data-tab="drv" onclick="tab(this)">Driver update</button></div>
+  <div class="tabpanel active" data-tabgroup="up" data-panel="sec"><div class="gfx"><svg viewBox="0 0 64 64" fill="none"><path d="M32 8l20 8v14c0 12-8 22-20 26C20 52 12 42 12 30V16z" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></svg></div><div><h3>Security patch</h3><p>Closes a known hole. <b>Highest priority.</b> Install these as soon as possible.</p></div></div>
+  <div class="tabpanel" data-tabgroup="up" data-panel="bug"><div class="gfx"><svg viewBox="0 0 64 64" fill="none"><ellipse cx="32" cy="36" rx="12" ry="16" stroke="currentColor" stroke-width="3"/><path d="M20 30H8M44 30h12M20 42H8M44 42h12M26 20l-6-8M38 20l6-8" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></div><div><h3>Bug fix</h3><p>Fixes crashes, glitches, and things that just don't work right. Not an attack risk, but it makes software more reliable.</p></div></div>
+  <div class="tabpanel" data-tabgroup="up" data-panel="feat"><div class="gfx"><svg viewBox="0 0 64 64" fill="none"><path d="M32 8l6 16h16l-13 10 5 16-14-10-14 10 5-16L10 24h16z" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></svg></div><div><h3>Feature update</h3><p>Adds new things: a redesigned menu, a new tool, AI features. Bigger, less urgent, and occasionally introduces new bugs of its own.</p></div></div>
+  <div class="tabpanel" data-tabgroup="up" data-panel="drv"><div class="gfx"><svg viewBox="0 0 64 64" fill="none"><rect x="18" y="18" width="28" height="28" rx="3" stroke="currentColor" stroke-width="3"/><path d="M26 10v8M38 10v8M26 46v8M38 46v8" stroke="currentColor" stroke-width="3"/></svg></div><div><h3>Driver update</h3><p>A new translator for your hardware (graphics card, Wi-Fi, printer). Often improves speed or fixes hardware problems.</p></div></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>Spot the Threat</h2></div>
+  <p class="lede">Malware comes in many shapes. Match the behavior, then tap.</p>
+  <div class="guessgrid">
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Copies itself to every computer on the network without anyone clicking anything.</div><div class="tap">Tap to reveal</div><div class="answer"><h4>Worm</h4><p>Self-spreading. This is how WannaCry moved.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Looks like a free game download but secretly opens a back door.</div><div class="tap">Tap to reveal</div><div class="answer"><h4>Trojan</h4><p>Named for the wooden horse. Needs you to run it.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Locks all your files and demands payment to unlock them.</div><div class="tap">Tap to reveal</div><div class="answer"><h4>Ransomware</h4><p>Encrypts your data. Backups are the best defense.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Quietly records what you type, including passwords.</div><div class="tap">Tap to reveal</div><div class="answer"><h4>Spyware / keylogger</h4><p>Works in secret, so you may never notice.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Attaches itself to a legitimate file and spreads when that file is shared.</div><div class="tap">Tap to reveal</div><div class="answer"><h4>Virus</h4><p>Needs a host file to travel on.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Floods you with pop-up ads and changes your browser homepage.</div><div class="tap">Tap to reveal</div><div class="answer"><h4>Adware</h4><p>Annoying more than deadly, but often a sign of something worse.</p></div></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>Your Five-Habit Defense</h2></div>
+  <div class="cards">
+    <div class="cardx"><div class="num">Habit 1</div><h4>Turn on auto-update</h4><p>Let the OS, browser, and apps patch themselves.</p></div>
+    <div class="cardx"><div class="num">Habit 2</div><h4>Only install from trusted sources</h4><p>Official stores and developer sites (Lesson 5.5).</p></div>
+    <div class="cardx"><div class="num">Habit 3</div><h4>Use security software</h4><p>Windows Security is built in and solid. Don't stack five antivirus programs.</p></div>
+    <div class="cardx"><div class="num">Habit 4</div><h4>Back up what matters</h4><p>3 copies, 2 kinds of storage, 1 somewhere else. Ransomware can't hold a copy hostage that it can't reach.</p></div>
+    <div class="cardx"><div class="num">Habit 5</div><h4>Think before you click</h4><p>Phishing tricks the human, not the software.</p></div>
+  </div>
+  <div class="callout">Software support has an expiration date.<span>When Windows 10 support ended in October 2025, it stopped receiving free security patches &mdash; an &ldquo;end-of-life&rdquo; system is an unlocked window with a sign on it.</span></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>Patches only protect the people who install them.</h2><p>Next: who actually owns software &mdash; and what you're legally allowed to do with it.</p><a class="back" href="5-6-updates-and-security.html">&larr; Back to 5.6</a><a class="back" href="index.html">Unit 5</a><p class="sig">Unit 5 Notes / Lesson 5.6 / end of file</p></div></footer>
+<script src="notes.js"></script></body></html>
