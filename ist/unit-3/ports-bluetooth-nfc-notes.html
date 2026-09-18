@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ports, Bluetooth &amp; NFC | Computing Basics Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#38BDF8; --acc-tint:rgba(56,189,248,.13); --acc-ink:#9FE0FB;
+  --gold:#F0B94A; --gold-tint:rgba(240,185,74,.13); --gold-ink:#FBD68A;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#082F49;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%),radial-gradient(circle at 88% 10%, var(--gold-tint), transparent 40%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(34px,6vw,54px);font-weight:600;max-width:20ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:64ch;margin-top:18px}
+
+.halfnote{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.chip{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:6px 14px;border-radius:100px;display:inline-flex;align-items:center;gap:8px}
+.chip.a{color:var(--acc-ink);background:var(--acc-tint);border:1px solid rgba(56,189,248,.35)}
+.chip.g{color:var(--gold-ink);background:var(--gold-tint);border:1px solid rgba(240,185,74,.35)}
+.chip .dot{width:7px;height:7px;border-radius:50%}
+.chip.a .dot{background:var(--acc)} .chip.g .dot{background:var(--gold)}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part.gold .part-tag{color:var(--gold-ink)}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:68ch;margin-bottom:26px;color:#C4CDD8}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.ok{border-top-color:var(--acc)}
+.box.gold{border-top-color:var(--gold)}
+.box.bad{border-top-color:var(--bad)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0 0 10px}
+.box p:last-child{margin-bottom:0}
+.box ul{margin:0;padding-left:20px}
+.box li{font-size:14.5px;line-height:1.6;color:#C4CDD8;margin-bottom:6px}
+.box li:last-child{margin-bottom:0}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:20px 22px 22px;border-top:3px solid var(--acc)}
+.cardx.gold{border-top-color:var(--gold)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx.gold .num{color:var(--gold-ink)}
+.cardx h4{font-size:16px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:13.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:13.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:13.5px;color:#DEF3FC}
+.example b{color:#fff}
+.example.gold{background:var(--gold-tint);border-left-color:var(--gold);color:#FCEBC7}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:13.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:30ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:62ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="index.html">&larr; Unit 3: Computing Basics</a>
+  <a href="ports-bluetooth-nfc-notes.html" class="current">Ports, Bluetooth &amp; NFC</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">COMPUTING BASICS NOTES &nbsp;/&nbsp; SUBJECT: HOW DEVICES ACTUALLY CONNECT</div>
+    <h1>Ports, Bluetooth &amp; NFC</h1>
+    <p class="deck">Every device you own connects to the world two ways: through a physical cable, or over the air. This page covers both halves of 3.2 &mdash; the wired ports you plug in every day, and the two wireless technologies (Bluetooth and NFC) that quietly run your earbuds, your smartwatch, and every tap-to-pay you've ever done.</p>
+    <div class="halfnote">
+      <span class="chip a"><span class="dot"></span>3.2a &mdash; Ports (wired)</span>
+      <span class="chip g"><span class="dot"></span>3.2b &mdash; Bluetooth &amp; NFC (wireless)</span>
+    </div>
+  </div>
+</header>
+
+<!-- PART 00: WHAT CABLES DO -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>What Cables Actually Do</h2></div>
+    <p class="lede">Every cable on the back of every device on Earth does one of two jobs &mdash; and usually a combination of both: it moves <b>power</b> (electricity from a wall outlet, battery, or computer, so a device can run or charge), and it moves <b>data</b> (files, video, audio, button presses, so devices can talk to each other).</p>
+
+    <div class="hint-panel">If the job is just "move power and data," why are there so many shaped plugs? Cables were invented at different times, for different jobs, by different companies &mdash; each new shape solved a problem the old ones couldn't. Think of it like sports equipment: a bat, a racket, and a hockey stick all do a similar thing (hit something), but each is shaped for its specific game.</div>
+
+    <div class="two">
+      <div class="box ok">
+        <h3>USB &mdash; Universal Serial Bus</h3>
+        <p>The all-purpose cable. Charges your phone, connects your keyboard, transfers files, plugs in your headphones &mdash; a little of everything.</p>
+      </div>
+      <div class="box ok">
+        <h3>HDMI &mdash; High-Definition Multimedia Interface</h3>
+        <p>The TV cable. One job: send high-quality video and audio from a source to a screen. That's pretty much all it does.</p>
+      </div>
+    </div>
+
+    <div class="tblwrap" style="margin-top:20px">
+      <div class="tblscroll">
+        <table class="cmp">
+          <thead><tr><th>Question</th><th>USB</th><th>HDMI</th></tr></thead>
+          <tbody>
+            <tr><td><b>What does it do?</b></td><td>Power and data &mdash; anything from charging a phone to transferring files.</td><td>One job: send video + audio from a source to a display.</td></tr>
+            <tr><td><b>How many shapes?</b></td><td>Three main shapes: USB-A, USB-B, USB-C.</td><td>Basically one shape &mdash; a flat trapezoid.</td></tr>
+            <tr><td><b>Carries power?</b></td><td>Yes &mdash; a huge part of what USB does.</td><td>Not really &mdash; only tiny amounts for the cable itself.</td></tr>
+            <tr><td><b>Carries video?</b></td><td>Sometimes &mdash; USB-C can. USB-A/B usually don't.</td><td>Always &mdash; that's the main job, up to 8K.</td></tr>
+            <tr><td><b>Where you find it</b></td><td>Phones, laptops, keyboards, mice, controllers, printers &mdash; everywhere.</td><td>TVs, consoles, streaming boxes, monitors, projectors.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="example"><b>Simplest way to remember it:</b> USB is the everyday all-purpose cable. HDMI is the cable that connects to a screen.</div>
+  </div>
+</section>
+
+<!-- PART 01: USB SHAPES -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>The Three Shapes of USB</h2></div>
+    <p class="lede">Same name, three completely different plugs &mdash; each one built for a different job and a different era.</p>
+
+    <div class="two">
+      <div class="box ok">
+        <h3>USB-A &mdash; The Classic Rectangle</h3>
+        <p>The original USB plug, invented in 1996 &mdash; the flat rectangle on the side of most laptops and desktops for 25 years. It only fits <b>one way</b>; flip it and it won't go in (the classic "USB flip").</p>
+        <p><b>Connects:</b> computers, keyboards/mice/controllers, flash drives, wall chargers.</p>
+        <p><b>Can't:</b> charge most modern laptops, send video to a screen reliably, fit in upside-down.</p>
+      </div>
+      <div class="box ok">
+        <h3>USB-B &mdash; The Square-ish Printer Plug</h3>
+        <p>A chunky, almost-square plug that looks like a tiny house with a sloped roof. Built thicker and sturdier on purpose, for devices that don't move around &mdash; most famously printers.</p>
+        <p><b>Connects:</b> printers, scanners, older external hard drives, audio/MIDI gear.</p>
+        <p><b>Can't:</b> plug into phones or most laptops directly, charge modern devices.</p>
+      </div>
+    </div>
+    <div class="two" style="margin-top:16px">
+      <div class="box ok">
+        <h3>USB-C &mdash; The Modern Oval</h3>
+        <p>The newest shape, slowly replacing all the others. <b>Symmetrical</b> &mdash; no upside-down, flip it any direction. One USB-C port can charge a laptop, send video to a 4K monitor, transfer huge files, and connect headphones, all at once.</p>
+        <p><b>Connects:</b> modern phones, laptops made after 2018, tablets, headphones, the Nintendo Switch.</p>
+        <p><b>Catch:</b> the shape is identical on every device, but not every USB-C port does every trick &mdash; some only charge, others also carry video and high-speed data.</p>
+      </div>
+      <div class="box gold">
+        <h3>HDMI &mdash; The Video &amp; Audio Specialist</h3>
+        <p>A flat, 6-sided trapezoid built for one job: moving high-quality video and sound from a source to a screen. It bundles picture <b>and</b> sound into a single cable &mdash; older TV setups needed two separate cables for that.</p>
+        <p><b>Connects:</b> game consoles, streaming boxes, external monitors, Blu-ray players, projectors.</p>
+        <p><b>Can't:</b> charge anything, plug into a USB port, carry data files like USB does.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 02: BIG PICTURE + REAL DEVICES -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>The Big Picture &amp; Real Devices</h2></div>
+    <p class="lede">Side by side, then a real-world cheat sheet for the devices you actually own.</p>
+
+    <div class="tblwrap">
+      <div class="tblscroll">
+        <table class="cmp">
+          <thead><tr><th>Cable</th><th>Shape</th><th>Main Job</th><th>Where You See It</th></tr></thead>
+          <tbody>
+            <tr><td><b>USB-A</b></td><td>Flat rectangle</td><td>All-purpose data &amp; charging</td><td>Computers, wall chargers, flash drives</td></tr>
+            <tr><td><b>USB-B</b></td><td>Chunky "house" shape</td><td>Connecting big stationary devices</td><td>Printers, audio gear, scanners</td></tr>
+            <tr><td><b>USB-C</b></td><td>Small oval, reversible</td><td>Modern do-everything port</td><td>Phones, laptops, tablets, controllers</td></tr>
+            <tr><td><b>HDMI</b></td><td>Flat trapezoid</td><td>Video + audio to a screen</td><td>TVs, monitors, consoles, projectors</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tblwrap" style="margin-top:16px">
+      <div class="tblscroll">
+        <table class="cmp">
+          <thead><tr><th>Device</th><th>Port It Uses</th></tr></thead>
+          <tbody>
+            <tr><td>iPhone (2023+, iPhone 15 and later)</td><td>USB-C</td></tr>
+            <tr><td>Older iPhones (2012&ndash;2023)</td><td>Lightning (Apple's own proprietary port)</td></tr>
+            <tr><td>Most modern Android phones (Samsung, Pixel, OnePlus)</td><td>USB-C</td></tr>
+            <tr><td>PS5 / Xbox Series X/S controllers</td><td>USB-C</td></tr>
+            <tr><td>PS4 / Xbox One controllers (older)</td><td>Micro-USB</td></tr>
+            <tr><td>Any console, laptop, or streaming box &rarr; TV/monitor</td><td>HDMI</td></tr>
+            <tr><td>Most printers and scanners</td><td>USB-B (or USB-C on newer models)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3 style="margin-top:26px;">Common Mistakes to Avoid</h3>
+    <div class="cards">
+      <div class="cardx"><div class="num">01</div><h4>Forcing it in upside down</h4><p>If a USB-A or HDMI cable doesn't fit, don't push harder &mdash; flip it. The pins inside are delicate and bend easily.</p></div>
+      <div class="cardx"><div class="num">02</div><h4>Assuming all USB-C is equal</h4><p>The shape is identical everywhere, but capabilities vary &mdash; one port might charge AND carry video, another (cheaper) might only trickle-charge.</p></div>
+      <div class="cardx"><div class="num">03</div><h4>Trying to charge with HDMI</h4><p>HDMI doesn't carry meaningful power &mdash; it's a video cable, not a charger.</p></div>
+      <div class="cardx"><div class="num">04</div><h4>Mixing up USB-B and USB-C</h4><p>Both are "not USB-A," but they're completely different &mdash; USB-B is big and chunky for printers, USB-C is small and oval for modern devices.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 03: BLUETOOTH -->
+<section class="part gold">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03 &middot; 3.2b</div><h2>Bluetooth: The Story Behind the Name</h2></div>
+    <p class="lede">In 1996, three tech companies &mdash; Intel, Ericsson, and Nokia &mdash; were trying to agree on a single wireless standard so their devices could all talk to each other. Intel engineer Jim Kardach suggested a temporary code name: <b>Bluetooth.</b></p>
+
+    <div class="example gold"><b>Why "Bluetooth"?</b> The name comes from King Harald "Bluetooth" Gormsson, a 10th-century Viking king who united the warring tribes of Denmark and Norway into a single kingdom. Kardach saw the parallel: just as King Harald united rival tribes, this technology would unite rival communication protocols. The codename was supposed to be temporary &mdash; it stuck. Even the Bluetooth logo is a Viking rune, made by combining King Harald's initials (H and B) into one merged shape.</div>
+
+    <div class="two">
+      <div class="box gold">
+        <h3>What Bluetooth CAN Do</h3>
+        <ul>
+          <li>Connect over short-to-medium range &mdash; up to ~30 feet (newer versions up to 300 feet)</li>
+          <li>Stream audio &mdash; wireless earbuds, headphones, car speakers</li>
+          <li>Stay paired &mdash; once connected, devices remember each other</li>
+          <li>Connect peripherals &mdash; keyboards, mice, controllers, fitness trackers</li>
+          <li>Run for hours on a small battery (especially Bluetooth Low Energy)</li>
+        </ul>
+      </div>
+      <div class="box bad">
+        <h3>What Bluetooth CAN'T Do</h3>
+        <ul>
+          <li>Connect to the internet &mdash; device-to-device only</li>
+          <li>Stream HD video &mdash; not enough bandwidth</li>
+          <li>Reach reliably across a room &mdash; walls and bodies block it</li>
+          <li>Connect more than ~7&ndash;8 active devices at once</li>
+          <li>Transfer large files quickly &mdash; Wi-Fi is about 100x faster</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="margin-top:26px;">Wait &mdash; Isn't Bluetooth Just Wi-Fi?</h3>
+    <p>Both are wireless, but built for completely different jobs &mdash; like confusing a walkie-talkie with a phone.</p>
+    <div class="tblwrap">
+      <div class="tblscroll">
+        <table class="cmp">
+          <thead><tr><th>Feature</th><th>Bluetooth</th><th>Wi-Fi</th></tr></thead>
+          <tbody>
+            <tr><td><b>Main purpose</b></td><td>Connect two nearby devices to each other</td><td>Connect devices to the internet</td></tr>
+            <tr><td><b>Range</b></td><td>~30 feet (typical)</td><td>~150 feet indoors, more outdoors</td></tr>
+            <tr><td><b>Speed</b></td><td>Slow (~3 MB/sec max)</td><td>Fast (100+ MB/sec)</td></tr>
+            <tr><td><b>Power use</b></td><td>Very low &mdash; hours on tiny batteries</td><td>High &mdash; drains your phone battery</td></tr>
+            <tr><td><b>Needs a router?</b></td><td>No &mdash; devices talk directly</td><td>Yes &mdash; goes through a router/access point</td></tr>
+            <tr><td><b>Good for</b></td><td>Earbuds, mice, fitness trackers, car audio</td><td>Streaming, browsing, video calls</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 04: NFC -->
+<section class="part gold">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>NFC: Near Field Communication</h2></div>
+    <p class="lede">The technology behind every "tap to pay" you've ever done. The name is literal &mdash; it's wireless communication that only works when devices are extremely close, usually within 4 inches (10 cm) or less.</p>
+
+    <div class="example gold"><b>Where NFC came from:</b> developed in 2002 by Sony and Philips, built on older RFID technology used for decades in security badges and library books. Sony/Philips launched the NFC Forum in 2004 with Nokia to set standards. First NFC phones arrived in 2006, but it didn't really take off until <b>Apple Pay launched in 2014</b> &mdash; the moment NFC became a household technology.</div>
+
+    <div class="two">
+      <div class="box gold">
+        <h3>What NFC CAN Do</h3>
+        <ul>
+          <li>Connect instantly &mdash; no pairing, no passwords, just tap</li>
+          <li>Run without batteries &mdash; passive tags get power from the tap itself</li>
+          <li>Handle payments securely &mdash; Apple Pay, Google Pay, Samsung Pay</li>
+          <li>Read smart tags &mdash; stickers that launch apps or websites</li>
+          <li>Work as ID/access cards &mdash; school IDs, hotel keys, transit passes</li>
+        </ul>
+      </div>
+      <div class="box bad">
+        <h3>What NFC CAN'T Do</h3>
+        <ul>
+          <li>Work at any real distance &mdash; both devices must be within ~4 inches</li>
+          <li>Transfer large files &mdash; ~0.4 Mbps, slower than Bluetooth</li>
+          <li>Stay connected &mdash; built for quick taps, not ongoing connections</li>
+          <li>Stream audio or video &mdash; far too slow</li>
+          <li>Connect through much &mdash; even a thick phone case can block it</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="margin-top:26px;">Why Is NFC So Popular Now?</h3>
+    <div class="tblwrap">
+      <div class="tblscroll">
+        <table class="cmp">
+          <thead><tr><th>Reason</th><th>Why It Matters</th></tr></thead>
+          <tbody>
+            <tr><td><b>Zero setup</b></td><td>No pairing, no password, no app &mdash; perfect for a checkout line or turnstile where every second counts.</td></tr>
+            <tr><td><b>Built into every modern phone</b></td><td>Since 2014, basically every iPhone and Android phone has NFC built in, for free.</td></tr>
+            <tr><td><b>Apple Pay &amp; Google Pay</b></td><td>Once NFC went into the iPhone for payments, every retailer had a reason to install tap-to-pay terminals.</td></tr>
+            <tr><td><b>Built-in security</b></td><td>The 4-inch range <em>is</em> the security feature &mdash; a pickpocket can't read your card from across a room.</td></tr>
+            <tr><td><b>Cheap and tiny</b></td><td>NFC chips cost pennies and fit in stickers, cards, even wristbands &mdash; passive tags need no battery at all.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 05: HEAD TO HEAD -->
+<section class="part gold">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">05</div><h2>Bluetooth vs. NFC: Head to Head</h2></div>
+    <p class="lede">They aren't actually competitors &mdash; they solve different problems, and often work together.</p>
+
+    <div class="tblwrap">
+      <div class="tblscroll">
+        <table class="cmp">
+          <thead><tr><th>Feature</th><th>Bluetooth</th><th>NFC</th></tr></thead>
+          <tbody>
+            <tr><td><b>Range</b></td><td>Up to 30 feet (newer versions further)</td><td>Less than 4 inches</td></tr>
+            <tr><td><b>Speed</b></td><td>~3 MB/sec</td><td>~0.4 Mbps (much slower)</td></tr>
+            <tr><td><b>Setup time</b></td><td>Pair once (10&ndash;30 seconds)</td><td>Instant &mdash; just tap</td></tr>
+            <tr><td><b>Power source</b></td><td>Both devices need a battery</td><td>Passive tags need NO battery</td></tr>
+            <tr><td><b>Stays connected?</b></td><td>Yes &mdash; ongoing connection</td><td>No &mdash; one quick burst, then done</td></tr>
+            <tr><td><b>Security model</b></td><td>Encrypted pairing, but vulnerable if hacked from a distance</td><td>Distance IS the security &mdash; can't be read from far away</td></tr>
+            <tr><td><b>Year invented</b></td><td>1996 (Intel, Ericsson, Nokia)</td><td>2002 (Sony, Philips)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3 style="margin-top:26px;">Real-World Scenarios: Which One Is Being Used?</h3>
+    <div class="tblwrap">
+      <div class="tblscroll">
+        <table class="cmp">
+          <thead><tr><th>Scenario</th><th>Technology</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>Listening to music on AirPods</td><td>Bluetooth</td><td>Continuous audio streaming over a few feet</td></tr>
+            <tr><td>Tap-to-pay at the lunch line</td><td>NFC</td><td>Quick, secure, no setup &mdash; perfect for transactions</td></tr>
+            <tr><td>Connecting a Bluetooth speaker</td><td>Bluetooth (sometimes started via an NFC tap)</td><td>Audio streaming requires Bluetooth's bandwidth</td></tr>
+            <tr><td>Tapping your school ID at the door</td><td>NFC (or older RFID)</td><td>Single-tap identity check &mdash; no pairing needed</td></tr>
+            <tr><td>Wireless gaming controller</td><td>Bluetooth</td><td>Needs a continuous, low-latency connection</td></tr>
+            <tr><td>Apple Pay at a store</td><td>NFC</td><td>Ultra-short range = security; instant tap = convenience</td></tr>
+            <tr><td>Fitness tracker syncing to phone</td><td>Bluetooth (Low Energy)</td><td>Ongoing data sync at low battery cost</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout">Bluetooth = farther, faster, longer connections. NFC = closer, simpler, more secure.<span>They're not rivals &mdash; they're teammates. Many wireless speakers even use an NFC tap just to start a Bluetooth connection, which then handles the actual audio streaming.</span></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Wired or wireless, every connection was built to solve one specific problem.</h2>
+    <p>USB-A made universal connections possible. USB-C fixed "which way is up" and added real power and speed. HDMI stripped video and audio down to one cable. Bluetooth unites devices for ongoing connections. NFC handles the one-tap moments. Knowing which is which means you'll never be stuck staring at a port, wondering what goes where.</p>
+    <a class="back" href="3-2-peripheral-devices.html">&larr; Back to 3.2</a>
+    <a class="back" href="index.html">Unit 3 Overview</a>
+    <p class="sig">Computing Basics Notes &nbsp;/&nbsp; Ports, Bluetooth &amp; NFC &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+</body>
+</html>
