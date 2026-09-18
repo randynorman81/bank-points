@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>File &amp; Folder Management | Computing Basics Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --file:#2DD4BF; --file-tint:rgba(45,212,191,.13); --file-ink:#8DECDD;
+  --ghost:#FB7185; --ghost-tint:rgba(251,113,133,.14); --ghost-ink:#FDA4AF;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13);
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--file-ink)}
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--file);color:#062622;border-color:var(--file)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--file-tint), transparent 42%),radial-gradient(circle at 88% 10%, var(--ghost-tint), transparent 40%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(34px,6vw,54px);font-weight:600;max-width:22ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:64ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--file-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part.ghost .part-tag{color:var(--ghost-ink)}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:68ch;margin-bottom:26px;color:#C4CDD8}
+.story{font-family:"Fraunces",Georgia,serif;font-style:italic;font-size:19px;line-height:1.55;max-width:62ch;color:#DCE4EE;margin-bottom:22px;padding-left:18px;border-left:3px solid rgba(45,212,191,.4)}
+.part.ghost .story{border-left-color:rgba(251,113,133,.4)}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.file{border-top-color:var(--file)}
+.box.ghost{border-top-color:var(--ghost)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0 0 10px}
+.box p:last-child{margin-bottom:0}
+.box ul{margin:0;padding-left:20px}
+.box li{font-size:14.5px;line-height:1.6;color:#C4CDD8;margin-bottom:6px}
+.box li:last-child{margin-bottom:0}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--file)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--file-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:8px;font-family:"Fraunces",serif}
+.cardx p{font-size:13px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:13.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td code{white-space:nowrap}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:13.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+.example{background:var(--file-tint);border-left:4px solid var(--file);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:13.5px;color:#DFFBF6}
+.example b{color:#fff}
+.example.ghost{background:var(--ghost-tint);border-left-color:var(--ghost);color:#FEE4E7}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+/* --- pantry vs counter icons --- */
+.kitchenwrap{display:flex;gap:20px;align-items:stretch;flex-wrap:wrap;margin:18px 0}
+.kbox{flex:1;min-width:220px;background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:20px;text-align:center;border-top:3px solid var(--rule)}
+.kbox.pantry{border-top-color:var(--file)}
+.kbox.counter{border-top-color:var(--ghost)}
+.kbox svg{width:70px;height:auto;margin-bottom:10px}
+.kbox.pantry svg{color:var(--file-ink)}
+.kbox.counter svg{color:var(--ghost-ink)}
+.kbox h4{font-size:16px;color:#fff;font-family:"Fraunces",serif;margin-bottom:6px}
+.kbox p{font-size:13px;color:var(--ink-soft);margin:0}
+.karrow{flex:none;display:flex;align-items:center;font-size:24px;color:var(--ink-soft)}
+
+/* --- file tree (interactive path builder) --- */
+.treewrap{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:24px;margin:18px 0}
+.pathreadout{font-family:"JetBrains Mono",monospace;font-size:14px;background:var(--panel);border:1px solid var(--rule);border-radius:5px;padding:12px 16px;margin-bottom:18px;color:var(--file-ink);min-height:20px;word-break:break-all}
+.pathreadout .ph{color:var(--ink-soft)}
+.tree{font-size:14.5px}
+.tree ul{list-style:none;margin:0;padding-left:22px;border-left:1px dashed var(--rule)}
+.tree > ul{padding-left:0;border-left:0}
+.tree li{position:relative;padding:5px 0 5px 20px}
+.tree li::before{content:"";position:absolute;left:0;top:15px;width:16px;height:1px;background:var(--rule)}
+.tree .folder{color:var(--ink-soft);display:inline-flex;align-items:center;gap:6px}
+.tree .folder svg{width:16px;height:16px;color:var(--file-ink);flex:none}
+.tree .file{cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:#C4CDD8;border-radius:4px;padding:2px 6px;margin-left:-6px;transition:.12s}
+.tree .file svg{width:15px;height:15px;color:var(--ink-soft);flex:none}
+.tree .file:hover{background:var(--file-tint);color:#fff}
+.tree .file:hover svg{color:var(--file-ink)}
+.tree .file.active{background:var(--file);color:#062622;font-weight:700}
+.tree .file.active svg{color:#062622}
+
+/* --- name anatomy --- */
+.nameanatomy{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:32px 24px;margin:18px 0;text-align:center;overflow-x:auto}
+.nameanatomy .fname{font-family:"JetBrains Mono",monospace;font-size:clamp(18px,4vw,28px);white-space:nowrap;display:inline-block}
+.nameanatomy .base{color:var(--file-ink)}
+.nameanatomy .dot{color:#fff;font-weight:700}
+.nameanatomy .ext{color:var(--ghost-ink)}
+.namelabels{display:flex;justify-content:center;gap:40px;margin-top:18px;flex-wrap:wrap}
+.namelabels div{max-width:200px}
+.namelabels .lk{font-family:"JetBrains Mono",monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.namelabels .lk.b{color:var(--file-ink)} .namelabels .lk.e{color:var(--ghost-ink)}
+.namelabels p{font-size:12.5px;color:var(--ink-soft);margin:0}
+
+/* --- ghost file reveal --- */
+.ghostcard{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:26px;margin:18px 0;cursor:pointer;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.ghostcard .gicon{flex:none;width:64px}
+.ghostcard .gicon svg{width:100%;height:auto;color:var(--ink-soft);opacity:0.5;transition:.2s}
+.ghostcard.revealed .gicon svg{color:var(--ghost-ink);opacity:1}
+.ghostcard .gtext{flex:1;min-width:220px}
+.ghostcard .before{display:block}
+.ghostcard .after{display:none}
+.ghostcard.revealed .before{display:none}
+.ghostcard.revealed .after{display:block}
+.ghostcard .tap{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--ink-soft);letter-spacing:.03em;text-transform:uppercase;margin-top:6px}
+
+/* --- extension picker (reused tab pattern) --- */
+.picker-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.picker-tabs button{font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:700;letter-spacing:.03em;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:9px 18px;cursor:pointer;transition:.15s}
+.picker-tabs button:hover{color:var(--ink);border-color:#3A4658}
+.picker-tabs button.active{background:var(--file);color:#062622;border-color:var(--file)}
+.ext-panel{display:none}
+.ext-panel.active{display:block}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:30ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:62ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--file-ink);text-decoration:none;border:1px solid var(--file);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--file-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="index.html">&larr; Unit 3: Computing Basics</a>
+  <a href="file-folder-management-notes.html" class="current">File &amp; Folder Management</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">COMPUTING BASICS NOTES &nbsp;/&nbsp; SUBJECT: WHERE YOUR STUFF ACTUALLY LIVES</div>
+    <h1>File &amp; Folder Management</h1>
+    <p class="deck">Every photo, document, app, and song on your computer is a file, and every file has an exact address. Here's how your computer actually creates, finds, saves, and (not really) deletes them &mdash; and why the file nobody wanted to keep is sometimes the one that gets someone caught.</p>
+  </div>
+</header>
+
+<!-- PART 00: EVERYTHING STARTS AT THE ROOT -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>Everything Starts at the Root</h2></div>
+    <p class="story">Picture your computer's storage as a tree, flipped upside down. The trunk is at the top &mdash; one single starting point called the <b>root</b>. Every folder branches off it, every file hangs off a folder, and no matter how deep you go, you can always trace a path back to that one trunk.</p>
+    <p class="lede">Folders (also called <b>directories</b>) are just labeled buckets. A <b>file path</b> is the full set of directions from the root to one exact file &mdash; like a street address, except every step of the way is a folder name.</p>
+
+    <div class="tblwrap">
+      <div class="tblscroll">
+        <table class="cmp">
+          <thead><tr><th>Operating System</th><th>What "Root" Looks Like</th><th>Example Path</th></tr></thead>
+          <tbody>
+            <tr><td><b>Windows</b></td><td>Each drive has its own root: a letter + backslash (<code>C:\</code>, <code>D:\</code>). <code>C:\</code> is usually where Windows itself lives.</td><td><code>C:\Users\Randy\Documents\report.docx</code></td></tr>
+            <tr><td><b>macOS / Linux</b></td><td>Just one root for everything, written as a single forward slash: <code>/</code></td><td><code>/Users/randy/Documents/report.docx</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3 style="margin-top:26px;">Click a File to Build Its Path</h3>
+    <p class="lede" style="font-size:15px;margin-bottom:16px;">This is a real Windows folder tree. Click any file (not a folder) and watch its exact path appear above.</p>
+
+    <div class="treewrap">
+      <div class="pathreadout" id="pathReadout"><span class="ph">Click a file below to see its path&hellip;</span></div>
+      <div class="tree">
+        <ul>
+          <li><span class="folder"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z" stroke="currentColor" stroke-width="2"/></svg>C:\</span>
+            <ul>
+              <li><span class="folder"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z" stroke="currentColor" stroke-width="2"/></svg>Users\</span>
+                <ul>
+                  <li><span class="folder"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z" stroke="currentColor" stroke-width="2"/></svg>Randy\</span>
+                    <ul>
+                      <li><span class="folder"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z" stroke="currentColor" stroke-width="2"/></svg>Documents\</span>
+                        <ul>
+                          <li><span class="file" data-path="C:\Users\Randy\Documents\essay_draft.docx" onclick="pickFile(this)"><svg viewBox="0 0 24 24" fill="none"><path d="M6 2h9l5 5v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="2"/><path d="M15 2v5h5" stroke="currentColor" stroke-width="2"/></svg>essay_draft.docx</span></li>
+                          <li><span class="file" data-path="C:\Users\Randy\Documents\budget_2026.xlsx" onclick="pickFile(this)"><svg viewBox="0 0 24 24" fill="none"><path d="M6 2h9l5 5v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="2"/><path d="M15 2v5h5" stroke="currentColor" stroke-width="2"/></svg>budget_2026.xlsx</span></li>
+                        </ul>
+                      </li>
+                      <li><span class="folder"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z" stroke="currentColor" stroke-width="2"/></svg>Pictures\</span>
+                        <ul>
+                          <li><span class="file" data-path="C:\Users\Randy\Pictures\vacation_01.jpg" onclick="pickFile(this)"><svg viewBox="0 0 24 24" fill="none"><path d="M6 2h9l5 5v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="2"/><path d="M15 2v5h5" stroke="currentColor" stroke-width="2"/></svg>vacation_01.jpg</span></li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li><span class="folder"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z" stroke="currentColor" stroke-width="2"/></svg>Windows\ <span style="opacity:.6;font-size:12px;">(OS files live here)</span></span></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="example"><b>The path is the address.</b> <code>C:\Users\Randy\Documents\essay_draft.docx</code> is giving directions from the root: "start at the C: drive, go into Users, then Randy, then Documents &mdash; there's the file." That whole string is the <b>file path</b>.</div>
+  </div>
+</section>
+
+<!-- PART 01: THE FOUR THINGS COMPUTERS DO WITH FILES -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>The Four Things Computers Do With Files</h2></div>
+    <p class="lede">Every single interaction you have with a file &mdash; ever &mdash; is one of exactly four actions.</p>
+    <div class="tblwrap">
+      <div class="tblscroll">
+        <table class="cmp">
+          <thead><tr><th>Action</th><th>What Happens Behind the Scenes</th><th>How You Do It</th></tr></thead>
+          <tbody>
+            <tr><td><b>CREATE</b></td><td>The OS reserves a spot on the drive, writes the file's data, and adds an entry to the file system index (like adding a book to a library catalog).</td><td>Save a new doc, take a photo, download something</td></tr>
+            <tr><td><b>USE (Open)</b></td><td>The OS looks up the file in the index, finds where it lives on disk, and loads its contents into RAM so a program can read or edit it.</td><td>Double-click an icon, open a project</td></tr>
+            <tr><td><b>STORE (Save)</b></td><td>Changes held in RAM get written back to the disk. Until you save, your edits live only in temporary memory and vanish if power is lost.</td><td>Ctrl+S / Cmd+S</td></tr>
+            <tr><td><b>DELETE</b></td><td>Most systems just remove the index entry and mark the space "available." The actual data often stays until something new overwrites it.</td><td>Drag to Trash, then empty it</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3 style="margin-top:26px;">Why "Save" Feels Instant: the Pantry &amp; the Counter</h3>
+    <p class="lede" style="font-size:15px;">You don't keep every can of food on your kitchen counter &mdash; you store it in the pantry, and only pull out what you're using right now.</p>
+    <div class="kitchenwrap">
+      <div class="kbox pantry">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="18" y="12" width="64" height="76" rx="3" stroke="currentColor" stroke-width="4"/>
+          <line x1="18" y1="38" x2="82" y2="38" stroke="currentColor" stroke-width="3"/>
+          <line x1="18" y1="64" x2="82" y2="64" stroke="currentColor" stroke-width="3"/>
+          <circle cx="32" cy="25" r="6" fill="currentColor" opacity="0.3"/><circle cx="50" cy="25" r="6" fill="currentColor" opacity="0.3"/><circle cx="68" cy="25" r="6" fill="currentColor" opacity="0.3"/>
+          <circle cx="32" cy="51" r="6" fill="currentColor" opacity="0.3"/><circle cx="50" cy="51" r="6" fill="currentColor" opacity="0.3"/>
+        </svg>
+        <h4>Pantry &mdash; Storage (HDD/SSD)</h4>
+        <p>Permanent. Everything stays here, organized on shelves, until you actually need it.</p>
+      </div>
+      <div class="karrow">&harr;</div>
+      <div class="kbox counter">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="10" y1="55" x2="90" y2="55" stroke="currentColor" stroke-width="4"/>
+          <line x1="18" y1="55" x2="18" y2="78" stroke="currentColor" stroke-width="4"/>
+          <line x1="82" y1="55" x2="82" y2="78" stroke="currentColor" stroke-width="4"/>
+          <rect x="30" y="34" width="16" height="21" rx="2" stroke="currentColor" stroke-width="3"/>
+          <circle cx="62" cy="46" r="9" stroke="currentColor" stroke-width="3"/>
+        </svg>
+        <h4>Counter &mdash; RAM</h4>
+        <p>Temporary workspace. Fast to use, but whatever's on it disappears when the power goes out.</p>
+      </div>
+    </div>
+    <div class="hint-panel"><b>Open</b> a file and it gets copied from the pantry onto the counter. <b>Edit</b> it and only the counter version changes. <b>Save</b> and the updated counter version gets copied back into the pantry, replacing the old one &mdash; that half-used box of noodles goes back on the shelf.</div>
+
+    <h3 style="margin-top:26px;">HDD vs. SSD &mdash; Why One Feels Faster</h3>
+    <div class="two">
+      <div class="box">
+        <h3>HDD (Hard Disk Drive)</h3>
+        <p>Takes longer, because a physical needle has to scrape along a spinning disk, physically searching for where the file was stored.</p>
+      </div>
+      <div class="box file">
+        <h3>SSD (Solid State Drive)</h3>
+        <p>All digital, no moving parts. The computer knows exactly where the file is instantly &mdash; which is why SSDs are so much faster.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 02: GHOST FILES -->
+<section class="part ghost">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>The Deletion Mystery: Ghost Files</h2></div>
+    <p class="story">A suspect deletes a search history, a photo, a document &mdash; confident it's gone. It isn't. Not yet, and maybe not for a long time. This exact mistake is how a lot of real criminals get caught.</p>
+    <p class="lede">When you delete a file, the drive doesn't actually erase the data. It just marks that space as "available for reuse." The old file is still physically sitting there &mdash; recoverable with the right software &mdash; until something new happens to get written into that exact spot.</p>
+
+    <div class="ghostcard" onclick="this.classList.toggle('revealed')">
+      <div class="gicon">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 4h26l12 12v40a2 2 0 0 1-2 2H14a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="3" stroke-dasharray="5 4"/>
+          <path d="M40 4v12h12" stroke="currentColor" stroke-width="3" stroke-dasharray="5 4"/>
+        </svg>
+      </div>
+      <div class="gtext">
+        <div class="before"><b>vacation_receipt.pdf &mdash; DELETED</b><p>Emptied from the Recycle Bin three weeks ago. Click to check if it's really gone.</p></div>
+        <div class="after"><b>Still recoverable.</b><p>The index entry is gone, and the icon disappeared from view &mdash; but the actual 1s and 0s are still sitting on the drive, untouched, waiting for new data to overwrite that exact spot. Forensic software can read them directly off the disk, no icon required.</p></div>
+        <div class="tap">Click to check</div>
+      </div>
+    </div>
+
+    <div class="example ghost"><b>Forensic computing</b> has tools that find these "ghost" files even when regular people can't. Your digital trail is almost always longer than you think &mdash; you can't choose which new file overwrites the old one, so there's no way to know for sure if a deleted file can still be recovered.</div>
+  </div>
+</section>
+
+<!-- PART 03: NAMING -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>The Anatomy of a File Name</h2></div>
+    <p class="lede">Every file name has two parts, split by a dot &mdash; and each part is written for a completely different reader.</p>
+
+    <div class="nameanatomy">
+      <div class="fname"><span class="base">project_proposal_v2</span><span class="dot">.</span><span class="ext">docx</span></div>
+      <div class="namelabels">
+        <div><div class="lk b">Base name</div><p>The descriptive part <b>you</b> choose. Tells you what the file contains.</p></div>
+        <div><div class="lk e">Extension</div><p>Tells the <b>operating system</b> what type of file it is, so it knows which app should open it.</p></div>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="box file">
+        <h3>&#10003; Do</h3>
+        <ul>
+          <li>Be descriptive but short &mdash; a name should answer "what is this?" at a glance</li>
+          <li>Use underscores or hyphens instead of spaces (<code>my_essay.docx</code>)</li>
+          <li>Use dates as YYYY-MM-DD so files sort correctly (<code>2026-05-07_notes</code>)</li>
+          <li>Use version numbers for drafts: <code>_v1</code>, <code>_v2</code>, <code>_final</code></li>
+          <li>Stay consistent &mdash; one style, every file, every time</li>
+          <li>Group related files into clearly labeled folders</li>
+        </ul>
+      </div>
+      <div class="box ghost">
+        <h3>&#10005; Don't</h3>
+        <ul>
+          <li>Don't use spaces or symbols like <code>/ \ : * ? " &lt; &gt; |</code> &mdash; the OS reserves these</li>
+          <li>Don't use vague names like <code>doc1.docx</code> or <code>final_FINAL_v3.docx</code></li>
+          <li>Don't change the extension by hand &mdash; renaming <code>.docx</code> to <code>.pdf</code> doesn't convert it, just confuses the OS</li>
+          <li>Don't make names too long &mdash; some systems cap paths at 255 characters</li>
+          <li>Don't dump everything on the desktop &mdash; build folders</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hint-panel"><b>Build folders like a filing cabinet.</b> Group by subject (<code>School\CS_Principles\Unit4\</code>) or by file type (Photos, Videos, Documents) &mdash; whichever helps you find things faster later.</div>
+  </div>
+</section>
+
+<!-- PART 04: EXTENSIONS -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>The Extensions You'll Actually See</h2></div>
+    <p class="lede">When you double-click a file, the OS reads its extension to decide which program should open it. That's the whole reason Windows sometimes asks "what app do you want to use?" &mdash; the extension was missing or unfamiliar. Pick a category:</p>
+
+    <div class="picker-tabs">
+      <button class="active" onclick="showExt('doc')" id="etab-doc">Documents</button>
+      <button onclick="showExt('img')" id="etab-img">Images</button>
+      <button onclick="showExt('av')" id="etab-av">Audio / Video</button>
+      <button onclick="showExt('code')" id="etab-code">Web / Code</button>
+      <button onclick="showExt('other')" id="etab-other">Other</button>
+    </div>
+
+    <div class="ext-panel active" id="epanel-doc">
+      <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+        <thead><tr><th>Extension</th><th>What It Is</th></tr></thead>
+        <tbody>
+          <tr><td><code>.txt</code></td><td>Plain text, no formatting. Opens in Notepad or any text editor &mdash; the simplest file type that exists.</td></tr>
+          <tr><td><code>.docx</code></td><td>Microsoft Word document. Holds formatted text, images, tables.</td></tr>
+          <tr><td><code>.pdf</code></td><td>Portable Document Format &mdash; locks the layout so it looks identical on every screen.</td></tr>
+          <tr><td><code>.xlsx</code></td><td>Microsoft Excel spreadsheet. Rows, columns, formulas, charts.</td></tr>
+          <tr><td><code>.pptx</code></td><td>Microsoft PowerPoint slides.</td></tr>
+          <tr><td><code>.csv</code></td><td>Comma-separated values &mdash; a spreadsheet in its simplest plain-text form.</td></tr>
+        </tbody>
+      </table></div></div>
+    </div>
+
+    <div class="ext-panel" id="epanel-img">
+      <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+        <thead><tr><th>Extension</th><th>What It Is</th></tr></thead>
+        <tbody>
+          <tr><td><code>.jpg</code> / <code>.jpeg</code></td><td>Compressed photo format. Small file size, slight quality loss &mdash; used for nearly every photo online.</td></tr>
+          <tr><td><code>.png</code></td><td>Lossless, with transparency support. Best for screenshots, logos, graphics.</td></tr>
+          <tr><td><code>.gif</code></td><td>Supports simple animation &mdash; the format behind every meme reaction.</td></tr>
+          <tr><td><code>.svg</code></td><td>Math-based, scalable vector image &mdash; stays sharp at any size. Common in web design and icons.</td></tr>
+        </tbody>
+      </table></div></div>
+    </div>
+
+    <div class="ext-panel" id="epanel-av">
+      <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+        <thead><tr><th>Extension</th><th>What It Is</th></tr></thead>
+        <tbody>
+          <tr><td><code>.mp3</code></td><td>Compressed audio &mdash; the standard for music files for over 25 years.</td></tr>
+          <tr><td><code>.wav</code></td><td>Uncompressed, high-quality audio. Big file sizes &mdash; used by audio engineers and game developers.</td></tr>
+          <tr><td><code>.mp4</code></td><td>The most common video format &mdash; plays in browsers, phones, almost everywhere.</td></tr>
+          <tr><td><code>.mov</code></td><td>Apple's QuickTime format. iPhone videos save as <code>.mov</code> by default.</td></tr>
+        </tbody>
+      </table></div></div>
+    </div>
+
+    <div class="ext-panel" id="epanel-code">
+      <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+        <thead><tr><th>Extension</th><th>What It Is</th></tr></thead>
+        <tbody>
+          <tr><td><code>.html</code></td><td>HyperText Markup Language &mdash; the structure of every web page.</td></tr>
+          <tr><td><code>.css</code></td><td>Cascading Style Sheets &mdash; tells HTML what to look like: colors, fonts, layout.</td></tr>
+          <tr><td><code>.js</code></td><td>JavaScript &mdash; the code that makes web pages interactive.</td></tr>
+          <tr><td><code>.py</code></td><td>Python source code, run by the Python interpreter.</td></tr>
+        </tbody>
+      </table></div></div>
+    </div>
+
+    <div class="ext-panel" id="epanel-other">
+      <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+        <thead><tr><th>Extension</th><th>What It Is</th></tr></thead>
+        <tbody>
+          <tr><td><code>.zip</code></td><td>A compressed bundle of multiple files &mdash; saves space and lets you send many files as one.</td></tr>
+          <tr><td><code>.exe</code></td><td>Windows executable &mdash; an actual program. Only run <code>.exe</code> files from sources you trust.</td></tr>
+        </tbody>
+      </table></div></div>
+    </div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Every file has an address, a name with two jobs, and a past it doesn't fully let go of.</h2>
+    <p>The path traces it back to the root. The base name is for you; the extension is for the OS. And "deleted" almost never means gone &mdash; just marked as space somebody else can use eventually. Future-you (and possibly a forensic investigator) will thank present-you for naming things clearly.</p>
+    <a class="back" href="3-4-file-and-folder-management.html">&larr; Back to 3.4</a>
+    <a class="back" href="index.html">Unit 3 Overview</a>
+    <p class="sig">Computing Basics Notes &nbsp;/&nbsp; File &amp; Folder Management &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+<script>
+function pickFile(el){
+  document.querySelectorAll('.tree .file').forEach(function(f){ f.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('pathReadout').textContent = el.getAttribute('data-path');
+}
+function showExt(id){
+  document.querySelectorAll('.ext-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.picker-tabs button').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('epanel-' + id).classList.add('active');
+  document.getElementById('etab-' + id).classList.add('active');
+}
+</script>
+
+</body>
+</html>
