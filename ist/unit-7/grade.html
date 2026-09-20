@@ -130,29 +130,50 @@ $("pin").onkeydown = function (e) { if (e.key === "Enter") $("go").click(); };
 if (pin) openApp();
 
 /* ---------- originality: typing vs. pasting ---------- */
+var PASTE_MIN = 25;   // characters. Pasting less than this (a hex code, a web address) is fine.
+var PENALTY = 0.5;    // 50% off when content copied from outside is still in the page
 var LV = { red: "\uD83D\uDD34", yellow: "\uD83D\uDFE1", green: "\uD83D\uDFE2", none: "\u26AA" }, LVN = { red: 3, yellow: 2, green: 1, none: 0 };
 function analyzeOrigin(r) {
   var act = (r.sub && r.sub.activity) || (r.draft && r.draft.activity) || null, code = r.code || "", css = r.css || "";
-  var o = { has: !!act, level: "none", act: act, ranges: [], inFinal: 0, total: code.length + css.length, unexplained: 0, minutes: 0, words: 0, wpm: 0, pct: 0, reasons: [], events: [], paras: [] };
+  var o = { penalize: false, has: !!act, level: "none", act: act, ranges: [], inFinal: 0, total: code.length + css.length, unexplained: 0, minutes: 0, words: 0, wpm: 0, pct: 0, reasons: [], events: [], paras: [] };
   var c = H.analyze(code), body = c.all("body")[0]; o.words = body ? c.words(body) : 0;
   c.all("p").forEach(function (p) { var t = c.text(p).replace(/\s+/g, " ").trim(), w = t ? t.split(" ") : []; if (w.length >= 15) o.paras.push({ len: w.length, q: w.slice(0, 14).join(" ") }); });
   o.paras.sort(function (a, b) { return b.len - a.len; }); o.paras = o.paras.slice(0, 8);
   if (!act) return o;
+  function findRanges(text, hay) {
+    var t = text.trim(), rs = [], W = 25, step = 8;
+    if (t.length < W) return rs;
+    for (var i = 0; i + W <= t.length && rs.length < 400; i += step) { var w = t.slice(i, i + W), at = hay.indexOf(w); if (at > -1) rs.push([at, at + W]); }
+    var last = t.slice(-W), la = hay.indexOf(last); if (la > -1) rs.push([la, la + W]);
+    return rs;
+  }
+  var allRanges = [];
   act.events.forEach(function (e) {
-    if (!e.ext) return; var t = (e.txt || "").trim(), inF = false;
-    if (t.length >= 20) { var i = code.indexOf(t); if (i > -1) { o.ranges.push([i, i + t.length]); inF = true; } else if (css.indexOf(t) > -1) inF = true; }
-    o.events.push({ e: e, inFinal: inF }); if (inF) o.inFinal += t.length;
+    if (!e.ext) return; var t = (e.txt || ""), inF = false;
+    var rc = findRanges(t, code), rcss = findRanges(t, css), total = 0;
+    var hitsNeeded = Math.max(1, Math.ceil(((t.trim().length - 25) / 8 + 1) * 0.25));
+    if (rc.length >= hitsNeeded || rcss.length >= hitsNeeded) inF = true;
+    if (inF) { rc.forEach(function (g) { allRanges.push(g); }); }
+    o.events.push({ e: e, inFinal: inF });
   });
+  // merge overlapping ranges so highlighting and character counts are accurate
+  allRanges.sort(function (a, b) { return a[0] - b[0]; });
+  var merged = []; allRanges.forEach(function (g) { var m = merged[merged.length - 1]; if (m && g[0] <= m[1]) m[1] = Math.max(m[1], g[1]); else merged.push([g[0], g[1]]); });
+  o.ranges = merged; o.inFinal = merged.reduce(function (n, g) { return n + (g[1] - g[0]); }, 0);
+  if (!o.inFinal) o.events.forEach(function (x) { if (x.inFinal) o.inFinal += Math.min(x.e.n, 60); });
+  o.penalize = o.inFinal >= PASTE_MIN;
   o.pct = o.total ? o.inFinal / o.total : 0;
   o.unexplained = o.total - (act.base + act.typed + act.pasted + act.auto + act.loaded);
   o.minutes = act.activeMs / 60000; o.wpm = o.minutes > 0.3 ? o.words / o.minutes : 0;
   var lvl = "green";
   function raise(l, msg) { o.reasons.push(msg); if (LVN[l] > LVN[lvl]) lvl = l; }
+  if (o.penalize && o.level !== "red") lvl = "yellow";
   if (o.pct >= 0.4 || o.inFinal >= 600) raise("red", "About " + Math.round(o.pct * 100) + "% of the page (" + o.inFinal + " characters) was pasted from outside the editor.");
   else if (o.pct >= 0.15 || o.inFinal >= 200) raise("yellow", "About " + Math.round(o.pct * 100) + "% of the page (" + o.inFinal + " characters) was pasted from outside the editor.");
   if (o.unexplained > Math.max(800, o.total * 0.6)) raise("red", o.unexplained + " characters of the page appeared without being typed or pasted here.");
   else if (o.unexplained > Math.max(300, o.total * 0.3)) raise("yellow", o.unexplained + " characters of the page appeared without being typed or pasted here.");
   if (o.wpm > 90 && o.words >= 150) raise("yellow", "Wrote " + o.words + " words in only " + o.minutes.toFixed(1) + " active minutes (" + Math.round(o.wpm) + " words per minute).");
+  if (o.penalize) o.reasons.unshift("Copied content is still in the page, so the 50% originality penalty applies.");
   if (!o.reasons.length) o.reasons.push("Looks like the student typed this page themselves.");
   o.level = lvl; return o;
 }
@@ -204,7 +225,7 @@ function render() {
     var g = r.teacher && r.teacher.score != null ? r.teacher.score : "";
     h += '<tr class="row' + (r.email === selEmail ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td><b>' + esc(r.name) + '</b><br><small style="color:var(--soft)">' + esc(r.period) + "</small></td><td>" +
       (r.status === "submitted" ? '<span class="pill s">Submitted</span><br><small style="color:var(--soft)">' + esc(fmt(r.sub.submittedAt)) + (r.sub.count > 1 ? " (#" + r.sub.count + ")" : "") + "</small>" : '<span class="pill d">Draft only</span>') +
-      '</td><td class="num">' + r.rep.score + (r.rep.errors.length ? '<br><small style="color:var(--bad)">' + r.rep.errors.length + " err</small>" : "") + '</td><td title="' + esc(r.org.reasons.join(" ")) + '">' + LV[r.org.level] + '</td><td class="num">' + (g !== "" ? '<span class="pill g">' + esc(g) + "</span>" : "") + "</td></tr>";
+      '</td><td class="num">' + r.rep.score + (r.rep.errors.length ? '<br><small style="color:var(--bad)">' + r.rep.errors.length + " err</small>" : "") + '</td><td title="' + esc(r.org.reasons.join(" ")) + '">' + LV[r.org.level] + (r.org.penalize ? '<br><small style="color:#FCA5A5">-50%</small>' : '') + '</td><td class="num">' + (g !== "" ? '<span class="pill g">' + esc(g) + "</span>" : "") + "</td></tr>";
   });
   $("rows").innerHTML = h; $("noRows").style.display = a.length ? "none" : "block";
   var subs = rowsData.filter(function (r) { return r.status === "submitted"; }).length, graded = rowsData.filter(function (r) { return r.teacher && r.teacher.score != null; }).length;
@@ -216,7 +237,8 @@ document.querySelector(".list thead").onclick = function (e) { var th = e.target
 /* ---------- detail ---------- */
 function select(email) {
   selEmail = email; var r = rowsData.filter(function (x) { return x.email === email; })[0]; if (!r) return;
-  var g = r.teacher && r.teacher.score != null ? r.teacher.score : r.rep.score;
+  var penOn = r.teacher ? !!r.teacher.penalty : r.org.penalize;
+  var g = r.teacher && r.teacher.score != null ? r.teacher.score : Math.round(r.rep.score * (r.org.penalize ? PENALTY : 1) * 10) / 10;
   var d = $("detail");
   d.innerHTML = '<div class="dhead"><h2>' + esc(r.name) + '</h2><small>' + esc(r.email) + " · Period " + esc(r.period || "?") + " · " + (r.status === "submitted" ? "Submitted " + esc(fmt(r.sub.submittedAt)) : "Draft only (not submitted). Last saved " + esc(fmt(r.draft && r.draft.savedAt))) + '</small><span class="sp"></span><button class="btn sm" id="prevS">◀ Prev</button><button class="btn sm" id="nextS">Next ▶</button></div>' +
     '<div class="dtabs"><button class="btn sm' + (view === "code" ? " on" : "") + '" data-v="code">index.html</button><button class="btn sm' + (view === "css" ? " on" : "") + '" data-v="css">style.css' + (r.css.trim() ? "" : " (empty)") + '</button><button class="btn sm' + (view === "prev" ? " on" : "") + '" data-v="prev">Website</button></div>' +
@@ -242,12 +264,13 @@ function select(email) {
       (evh ? "<h3>Outside pastes</h3>" + evh : "") + (sh ? '<h3>Check a paragraph on the web</h3><div class="srch">' + sh + "</div>" : "");
   }
   $("right").innerHTML = ohtml + '<div class="grade"><h3>Grade</h3><div>Auto check: <span class="big">' + r.rep.score + '</span> / ' + r.rep.total + " <small style=\"color:var(--soft)\">(" + r.rep.passed + "/" + r.rep.count + " checks)</small></div>" +
-    '<div style="margin-top:8px">Your score: <input type="number" id="gScore" min="0" step="0.5" value="' + esc(g) + '"> / ' + r.rep.total + '</div><textarea id="gComment" placeholder="Comment for the student (optional)">' + esc(r.teacher ? r.teacher.comment : "") + '</textarea>' +
+    '<div style="margin-top:8px">Your score: <input type="number" id="gScore" min="0" step="0.5" value="' + esc(g) + '"> / ' + r.rep.total + '</div><label style="display:flex;gap:6px;align-items:flex-start;margin:6px 0;font-size:12.5px;color:' + (penOn ? '#FCA5A5' : 'var(--soft)') + '"><input type="checkbox" id="gPen"' + (penOn ? " checked" : "") + '> <span><b>50% originality penalty</b> (content copied from outside the editor). Uncheck if this paste was okay.</span></label><textarea id="gComment" placeholder="Comment for the student (optional)">' + esc(r.teacher ? r.teacher.comment : (penOn ? "50% off: text was copied from outside the editor." : "")) + '</textarea>' +
     '<button class="btn pri" id="gSave"' + (r.status !== "submitted" ? " disabled title=\"Only submitted work can be graded\"" : "") + '>Save grade</button> <span id="gInfo" style="color:var(--soft);font-size:12px">' + (r.teacher && r.teacher.gradedAt ? "Saved " + esc(fmt(r.teacher.gradedAt)) : "") + "</span></div>" +
     "<h3>This lesson's requirements</h3>" + (nw || "<small>None</small>") + (old ? '<h3>Carried over</h3>' + old : "") + "<h3>Problems</h3>" + (pr || "<small>None</small>") + "<h3>Tags used</h3><div class=\"chips\">" + (tg || "<small>None</small>") + "</div>";
+  $("gPen").onchange = function () { $("gScore").value = Math.round(r.rep.score * (this.checked ? PENALTY : 1) * 10) / 10; if (this.checked && !$("gComment").value.trim()) $("gComment").value = "50% off: text was copied from outside the editor."; };
   $("gSave").onclick = function () {
     var sc = $("gScore").value; this.disabled = true;
-    api({ action: "adminGrade", lesson: $("lesson").value, email: r.email, score: sc, comment: $("gComment").value }).then(function (j) {
+    api({ action: "adminGrade", lesson: $("lesson").value, email: r.email, score: sc, comment: $("gComment").value, penalty: $("gPen").checked }).then(function (j) {
       $("gSave").disabled = false;
       if (j.ok) { r.teacher = j.teacher; toast("Saved"); $("gInfo").textContent = "Saved " + fmt(j.teacher.gradedAt); render(); } else toast(j.error || "Error");
     });
@@ -261,8 +284,8 @@ document.addEventListener("keydown", function (e) { if (/INPUT|TEXTAREA|SELECT/.
 
 /* ---------- export + bulk ---------- */
 $("csv").onclick = function () {
-  var lesson = $("lesson").value, out = [["Name", "Email", "Period", "Lesson", "Status", "Submitted", "Auto score", "Teacher score", "Comment"]];
-  visible().forEach(function (r) { out.push([r.name, r.email, r.period, lesson, r.status, r.sub ? r.sub.submittedAt : "", r.rep.score, r.teacher && r.teacher.score != null ? r.teacher.score : "", r.teacher ? r.teacher.comment : ""]); });
+  var lesson = $("lesson").value, out = [["Name", "Email", "Period", "Lesson", "Status", "Submitted", "Auto score", "Originality", "Penalty applied", "Teacher score", "Comment"]];
+  visible().forEach(function (r) { out.push([r.name, r.email, r.period, lesson, r.status, r.sub ? r.sub.submittedAt : "", r.rep.score, r.org.level, r.teacher ? (r.teacher.penalty ? "yes" : "no") : (r.org.penalize ? "suggested" : ""), r.teacher && r.teacher.score != null ? r.teacher.score : "", r.teacher ? r.teacher.comment : ""]); });
   var csv = out.map(function (row) { return row.map(function (c) { c = String(c == null ? "" : c); return /[",\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(","); }).join("\n");
   var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "unit7-" + lesson + "-grades.csv"; a.click();
 };
@@ -274,7 +297,7 @@ $("bulk").onclick = function () {
   (function next() {
     if (i >= todo.length) { toast("Done"); render(); return; }
     var r = todo[i++]; $("count").textContent = "Saving " + i + " of " + todo.length + "…";
-    api({ action: "adminGrade", lesson: lesson, email: r.email, score: r.rep.score, comment: r.teacher ? r.teacher.comment : "" }).then(function (j) { if (j.ok) r.teacher = j.teacher; next(); });
+    api({ action: "adminGrade", lesson: lesson, email: r.email, score: Math.round(r.rep.score * (r.org.penalize ? PENALTY : 1) * 10) / 10, comment: r.org.penalize ? "50% off: text was copied from outside the editor." : (r.teacher ? r.teacher.comment : ""), penalty: r.org.penalize }).then(function (j) { if (j.ok) r.teacher = j.teacher; next(); });
   })();
 };
 </script>

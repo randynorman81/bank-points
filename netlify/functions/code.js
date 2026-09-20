@@ -171,7 +171,7 @@ async function adminGrade(body) {
   if (!rec) return { error: "No submission found" };
   const score = body.score === "" || body.score == null ? null : Number(body.score);
   if (score !== null && (isNaN(score) || score < 0 || score > 1000)) return { error: "Score must be a number" };
-  rec.teacher = { score, comment: String(body.comment || "").slice(0, 2000), gradedAt: now() };
+  rec.teacher = { score, comment: String(body.comment || "").slice(0, 2000), penalty: !!body.penalty, gradedAt: now() };
   await store().setJSON(key, rec);
   return { ok: true, teacher: rec.teacher };
 }

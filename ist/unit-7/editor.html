@@ -165,7 +165,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
     <div class="sec" id="secTeacher" style="display:none"></div>
     <div class="sec"><h3>Requirements</h3><div id="rulesNew"></div><details id="oldWrap"><summary>The basics (every page needs these)</summary><div id="rulesOld"></div></details></div>
     <div class="sec"><h3>Problems to fix</h3><div id="probs"><span style="color:var(--soft)">None so far.</span></div></div>
-    <div class="sec"><h3>Honesty check</h3><div style="font-size:13px;color:var(--soft)">This editor records what you type and what you paste. Text pasted from outside is shown to your teacher. Write your own code and your own words.</div><div id="honest" style="margin-top:8px;font-size:13px"></div></div>
+    <div class="sec"><h3>Honesty check</h3><div style="font-size:13px;color:var(--soft)">This editor records what you type and what you paste. <b>Copying content from outside this page (another website, a document, a classmate, or AI) takes 50% off the assignment.</b> Short things like a color code or a web address are fine. Type your own code and write your own words.</div><div id="honest" style="margin-top:8px;font-size:13px"></div></div>
     <div class="sec"><h3>Tags you used</h3><div class="chips" id="tags"></div></div>
     <div class="sec"><h3>My images</h3>
       <div style="font-size:12px;color:var(--soft);margin-bottom:8px">Upload a picture, then click <b>Insert</b> to add it to your code. Sign in first.</div>
@@ -209,11 +209,11 @@ function logPaste(t) {
   if (!internal) {
     ACT.ext += t.length;
     if (ACT.events.length < 25) ACT.events.push({ t: Date.now(), n: t.length, w: wordsOf(t), ext: true, file: S.file, kind: "paste", txt: t.slice(0, 3000) });
-    if (!warned && t.length >= 30) { warned = true; toast("Heads up: text pasted from outside this editor is recorded for your teacher."); }
+    if (!warned && t.length >= 25) { warned = true; toast("Heads up: pasting from outside the editor is recorded and takes 50% off the assignment."); }
   }
   saveAct(); updateHonesty();
 }
-function updateHonesty() { var el = $("honest"); if (!el) return; el.innerHTML = ACT.ext ? "You pasted <b>" + ACT.ext + "</b> characters from outside the editor (" + ACT.events.length + " paste" + (ACT.events.length === 1 ? "" : "s") + "). Your teacher can see this." : "No outside pasting so far. Great."; }
+function updateHonesty() { var el = $("honest"); if (!el) return; el.innerHTML = ACT.ext ? "You pasted <b>" + ACT.ext + "</b> characters from outside the editor (" + ACT.events.length + " paste" + (ACT.events.length === 1 ? "" : "s") + "). Your teacher can see this, and long pastes take 50% off." : "No outside pasting so far. Great."; }
 
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -495,7 +495,7 @@ function afterLessonChange() {
 function showTeacher(subs) {
   var t = $("secTeacher");
   if (subs && subs.teacher && (subs.teacher.score !== null || subs.teacher.comment)) {
-    t.style.display = ""; t.innerHTML = '<div class="teach"><b>Teacher feedback</b><br>' + (subs.teacher.score !== null ? "Score: <b>" + esc(subs.teacher.score) + "</b><br>" : "") + (subs.teacher.comment ? esc(subs.teacher.comment) : "") + "</div>";
+    t.style.display = ""; t.innerHTML = '<div class="teach"><b>Teacher feedback</b><br>' + (subs.teacher.score !== null ? "Score: <b>" + esc(subs.teacher.score) + "</b><br>" : "") + (subs.teacher.penalty ? "<span style=\"color:#FCA5A5\"><b>50% originality penalty applied.</b></span><br>" : "") + (subs.teacher.comment ? esc(subs.teacher.comment) : "") + "</div>";
   } else t.style.display = "none";
 }
 var lastCloud = "";
