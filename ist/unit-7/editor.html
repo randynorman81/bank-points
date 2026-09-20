@@ -37,13 +37,29 @@ button,select{font:inherit}
 .tabsm{display:none;gap:6px;padding:6px 12px;background:var(--panel);border-bottom:1px solid var(--rule)}
 .tabsm button{flex:1}
 .tabsm button.on{background:var(--acc);color:#0B0E14;border-color:var(--acc)}
-main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+main{flex:1;min-height:0;display:grid;grid-template-columns:var(--codew,55%) 9px minmax(0,1fr);transition:grid-template-columns .18s ease}
+main.dragging{transition:none}
+main.dragging iframe{pointer-events:none}
+main[data-view="code"]{grid-template-columns:minmax(0,1fr) 0 46px}
+main[data-view="prev"]{grid-template-columns:46px 0 minmax(0,1fr)}
+.split{background:var(--rule);cursor:col-resize;position:relative;touch-action:none;transition:background .15s}
+.split::after{content:"";position:absolute;left:2px;right:2px;top:50%;height:44px;margin-top:-22px;border-radius:3px;background:#5a6a92;opacity:.7}
+.split:hover,main.dragging .split{background:var(--acc)}
+.split:hover::after,main.dragging .split::after{background:#0B0E14;opacity:.8}
+main[data-view="code"] .split,main[data-view="prev"] .split{display:none}
+.pane{position:relative}
+.stripbtn{display:none;flex:1;width:100%;border:0;background:var(--panel);color:var(--acc);cursor:pointer;font:700 12px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;writing-mode:vertical-rl;align-items:center;justify-content:center;gap:8px;padding:14px 0}
+.stripbtn:hover{background:var(--card);color:#fff}
+.pane.min>h2,.pane.min>.edwrap,.pane.min>.prevwrap{display:none}
+.pane.min .stripbtn{display:flex}
+.winbtns{display:flex;gap:4px}
 .pane{min-width:0;min-height:0;display:flex;flex-direction:column;border-right:1px solid var(--rule)}
-.pane h2{margin:0;padding:0 12px;min-height:36px;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--soft);background:var(--panel);border-bottom:1px solid var(--rule);font-family:"JetBrains Mono",monospace;font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.ftabs{display:flex;gap:4px;align-self:flex-end}
+.pane h2{margin:0;padding:3px 12px 0;min-height:36px;flex-wrap:wrap;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--soft);background:var(--panel);border-bottom:1px solid var(--rule);font-family:"JetBrains Mono",monospace;font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ftabs{display:flex;gap:4px;align-self:flex-end;flex:0 0 auto}
 .ftabs button{background:transparent;border:1px solid transparent;border-bottom:0;border-radius:6px 6px 0 0;color:var(--soft);padding:7px 12px;cursor:pointer;font:600 12px "JetBrains Mono",monospace;text-transform:none;letter-spacing:0}
 .ftabs button.on{background:#080B11;color:#fff;border-color:var(--rule)}
-.tools{display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font:600 12px "Manrope",sans-serif}
+.tools{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:4px 10px;min-width:0;text-transform:none;letter-spacing:0;font:600 12px "Manrope",sans-serif}
+.tools *{white-space:nowrap}
 .tools label{display:flex;align-items:center;gap:5px;cursor:pointer;color:var(--soft)}
 .edwrap{flex:1;min-height:0;display:flex;background:#080B11;position:relative}
 .gut{flex:0 0 46px;overflow:hidden;background:#0D1220;border-right:1px solid var(--rule);color:#4E5B78;font:13px/21px "JetBrains Mono",monospace;text-align:right;padding:10px 6px 10px 0;user-select:none}
@@ -90,7 +106,11 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
 .modal .row{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
 .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111c;color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;z-index:60;display:none}
 @media(max-width:1100px){
-  main{grid-template-columns:1fr}
+  main,main[data-view]{grid-template-columns:1fr}
+  .split{display:none!important}
+  .winbtns,.stripbtn{display:none!important}
+  .pane.min>h2,.pane.min>.edwrap,.pane.min>.prevwrap{display:flex}
+  .pane.min>.prevwrap{display:block}
   .tabsm{display:flex}
   .pane{display:none;border-right:0}
   main[data-tab="code"] #paneCode,main[data-tab="prev"] #panePrev{display:flex}
@@ -122,13 +142,16 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   <section class="pane" id="paneCode">
     <h2>
       <span class="ftabs" id="ftabs"><button class="on" data-f="html">index.html</button><button data-f="css">style.css</button></span>
-      <span class="tools"><label title="Adds the closing tag and closing quote for you"><input type="checkbox" id="auto" checked> Auto-close</label><button class="btn sm" id="btnSkel" title="Start this file over with a fresh skeleton">New skeleton</button><span id="lineinfo">Line 1</span></span>
+      <span class="tools"><label title="Adds the closing tag and closing quote for you"><input type="checkbox" id="auto" checked> Auto-close</label><button class="btn sm" id="btnSkel" title="Start this file over with a fresh skeleton">New skeleton</button><span id="lineinfo">Line 1</span><span class="winbtns"><button class="btn sm" id="minCode" title="Shrink the code panel">– Minimize</button><button class="btn sm" id="maxCode" title="Make the code panel fill the screen">⤢ Maximize</button></span></span>
     </h2>
     <div class="edwrap"><div class="gut" id="gut"></div><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="soft" aria-label="Code editor"></textarea><div id="mirror" aria-hidden="true"></div></div>
+    <button class="stripbtn" data-restore="both" aria-label="Show the code panel">▸ Code</button>
   </section>
+  <div class="split" id="split" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize. Double-click to reset."></div>
   <section class="pane" id="panePrev">
-    <h2><span>Your website</span><button class="btn sm" id="btnRun">Refresh</button></h2>
+    <h2><span>Your website</span><span class="tools"><button class="btn sm" id="btnRun">Refresh</button><span class="winbtns"><button class="btn sm" id="minPrev" title="Shrink the website panel">– Minimize</button><button class="btn sm" id="maxPrev" title="Make the website panel fill the screen">⤢ Maximize</button></span></span></h2>
     <div class="prevwrap"><iframe id="prev" sandbox="allow-popups" title="Preview of your website"></iframe></div>
+    <button class="stripbtn" data-restore="both" aria-label="Show the website panel">▸ Website</button>
   </section>
   <div class="scrim" id="scrim"></div>
   <aside class="side" id="side" aria-label="Checks and images">
@@ -165,7 +188,7 @@ var API = "/api/code";
 var GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
 var $ = function (id) { return document.getElementById(id); };
 var H = window.HTMLCheck;
-var S = { cred: null, name: "", email: "", cloud: null, lesson: "7.1", file: "html", buf: { html: "", css: "" } };
+var S = { cred: null, name: "", email: "", cloud: null, lesson: "7.1", file: "html", view: "both", buf: { html: "", css: "" } };
 
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -331,6 +354,46 @@ $("probs").addEventListener("click", function (e) {
   openSide(false); setTab("code");
   ta.focus(); ta.setSelectionRange(pos, pos + (lines[line - 1] || "").length);
 });
+
+/* ---------- drag the divider to resize the panels ---------- */
+var RATIO_KEY = "u7:ratio";
+function setRatio(r, save) {
+  r = Math.max(0.15, Math.min(0.85, r)); S.ratio = r;
+  $("main").style.setProperty("--codew", (r * 100).toFixed(2) + "%");
+  if (save) lsSet(RATIO_KEY, String(r));
+}
+(function () {
+  var main = $("main"), split = $("split"), dragging = false, raf = 0;
+  var saved = parseFloat(lsGet(RATIO_KEY)); setRatio(saved > 0 ? saved : 0.55, false);
+  function move(clientX) { var b = main.getBoundingClientRect(); setRatio((clientX - b.left) / b.width, false); if (!raf) raf = requestAnimationFrame(function () { raf = 0; layoutGutter(); }); }
+  function onMove(e) { if (dragging) move(e.clientX); }
+  function end() { if (!dragging) return; dragging = false; main.classList.remove("dragging"); document.removeEventListener("pointermove", onMove); document.removeEventListener("pointerup", end); document.removeEventListener("pointercancel", end); lsSet(RATIO_KEY, String(S.ratio)); layoutGutter(); }
+  split.addEventListener("pointerdown", function (e) {
+    dragging = true; main.classList.add("dragging");
+    try { split.setPointerCapture(e.pointerId); } catch (er) {}
+    document.addEventListener("pointermove", onMove); document.addEventListener("pointerup", end); document.addEventListener("pointercancel", end);
+    e.preventDefault();
+  });
+  split.addEventListener("dblclick", function () { setRatio(0.55, true); setTimeout(layoutGutter, 220); });
+  split.addEventListener("keydown", function (e) { if (e.key === "ArrowLeft") { setRatio(S.ratio - 0.03, true); layoutGutter(); e.preventDefault(); } else if (e.key === "ArrowRight") { setRatio(S.ratio + 0.03, true); layoutGutter(); e.preventDefault(); } });
+})();
+
+/* ---------- minimize / maximize the two panels ---------- */
+function setView(v) {
+  S.view = v; lsSet("u7:view", v);
+  $("main").setAttribute("data-view", v);
+  $("paneCode").classList.toggle("min", v === "prev");
+  $("panePrev").classList.toggle("min", v === "code");
+  $("maxCode").textContent = v === "code" ? "⤡ Restore" : "⤢ Maximize";
+  $("maxPrev").textContent = v === "prev" ? "⤡ Restore" : "⤢ Maximize";
+  setTimeout(layoutGutter, 220);
+}
+$("maxCode").addEventListener("click", function () { setView(S.view === "code" ? "both" : "code"); });
+$("maxPrev").addEventListener("click", function () { setView(S.view === "prev" ? "both" : "prev"); });
+$("minCode").addEventListener("click", function () { setView(S.view === "prev" ? "both" : "prev"); });
+$("minPrev").addEventListener("click", function () { setView(S.view === "code" ? "both" : "code"); });
+[].forEach.call(document.querySelectorAll(".stripbtn"), function (b) { b.addEventListener("click", function () { setView("both"); }); });
+setView(lsGet("u7:view") === "code" || lsGet("u7:view") === "prev" ? lsGet("u7:view") : "both");
 
 /* ---------- the checks drawer ---------- */
 function openSide(open) { $("side").classList.toggle("open", open); $("scrim").classList.toggle("show", open); if (open) refresh(); }

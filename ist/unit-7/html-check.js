@@ -390,11 +390,14 @@
 
   // Which tags are still open at the end of this text? (used by the editor to auto-close tags)
   function openTags(src) { var p = parse(String(src || "")); return { open: p.open, raw: p.openRaw }; }
-  // Builds what the preview shows: swaps <link href="style.css"> for the student's CSS file
+  // Builds what the preview shows: swaps <link href="style.css"> for the student's CSS file, and adds a tiny
+  // starter style (page margins + text that always wraps) BEFORE their own styles so theirs still win.
+  var BASE_STYLE = "<style id=\"__base\">html{overflow-wrap:anywhere;word-wrap:break-word}body{margin:0;padding:16px 20px}</style>";
   function previewDoc(html, css) {
     html = String(html || ""); css = String(css || "");
-    if (!css.trim()) return html;
-    return html.replace(/<link\b[^>]*\bhref\s*=\s*["']?style\.css["']?[^>]*>/i, function () { return "<style>" + css.replace(/<\/style/gi, "<\\/style") + "</style>"; });
+    if (css.trim()) html = html.replace(/<link\b[^>]*\bhref\s*=\s*["']?style\.css["']?[^>]*>/i, function () { return "<style>" + css.replace(/<\/style/gi, "<\\/style") + "</style>"; });
+    if (/<head\b[^>]*>/i.test(html)) return html.replace(/<head\b[^>]*>/i, function (m) { return m + BASE_STYLE; });
+    return BASE_STYLE + html;
   }
   var API = { analyze: analyze, check: check, openTags: openTags, previewDoc: previewDoc, VOID: VOID, LESSONS: LESSONS, ORDER: ORDER, TOTAL_POINTS: TOTAL_POINTS };
   if (typeof module !== "undefined" && module.exports) module.exports = API; else root.HTMLCheck = API;
