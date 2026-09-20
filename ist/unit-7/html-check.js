@@ -243,7 +243,7 @@
       }, "Save the other tags for later lessons.", true),
       r("Every tag is closed and nested correctly", function (c) { return c.errors.length === 0 && c.has("html"); }, "See the Problems list for exactly which line to fix.", false, true)
     ] },
-    "7.2": { name: "Creation Tags + Inline Styling", rules: [
+    "7.2": { name: "The Style Attribute", rules: [
       r("Uses at least 2 different heading levels (h1, h2, h3...)", function (c) { var n = 0; ["h1", "h2", "h3", "h4", "h5", "h6"].forEach(function (h) { if (c.has(h)) n++; }); return n >= 2; }),
       r("Has at least 3 <p> paragraphs", function (c) { return c.count("p") >= 3; }),
       r("Uses the style attribute with color", function (c) { return c.inline.some(function (d) { return d.prop === "color"; }); }),
