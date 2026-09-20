@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Grade Unit 7 Websites | Teacher</title>
+<link rel="icon" href="../../assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0B0E14;--panel:#121722;--card:#171D2B;--rule:#26304A;--ink:#E8ECF3;--soft:#93A0B8;--acc:#FB923C;--ok:#34D399;--bad:#F87171;--warn:#FBBF24}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 "Manrope",system-ui,sans-serif;display:flex;flex-direction:column;overflow:hidden}
+a{color:#FDBA74}button,select,input,textarea{font:inherit}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.brand{font-weight:800}
+select,input,textarea{background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:6px 8px}
+.btn{background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:7px 12px;cursor:pointer;font-weight:600}
+.btn:hover{border-color:var(--acc)}.btn.pri{background:var(--acc);color:#0B0E14;border-color:var(--acc);font-weight:800}.btn.sm{padding:3px 8px;font-size:12px}
+.btn[disabled]{opacity:.5}
+.sp{flex:1}
+#login{max-width:340px;margin:12vh auto;background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:24px}
+#login h1{margin:0 0 10px;font-size:20px}
+#login input{width:100%;margin:8px 0 12px}
+#app{display:none;flex:1;min-height:0;grid-template-columns:400px 1fr}
+#app.show{display:grid}
+.list{border-right:1px solid var(--rule);overflow:auto;background:var(--bg)}
+.list table{width:100%;border-collapse:collapse;font-size:13px}
+.list th{position:sticky;top:0;background:var(--panel);text-align:left;padding:7px 8px;font:700 11px "JetBrains Mono",monospace;color:var(--soft);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--rule);cursor:pointer}
+.list td{padding:8px;border-bottom:1px solid #1b2337;vertical-align:top}
+.list tr.row{cursor:pointer}.list tr.row:hover{background:#141a29}.list tr.row.sel{background:#1c2540;outline:1px solid var(--acc)}
+.pill{display:inline-block;border-radius:100px;padding:1px 8px;font-size:11px;font-weight:700}
+.pill.s{background:#0F2A22;color:#6EE7B7}.pill.d{background:#2A2110;color:#FCD34D}.pill.g{background:#14213D;color:#93C5FD}
+.num{font-family:"JetBrains Mono",monospace}
+.detail{display:flex;flex-direction:column;min-width:0;min-height:0}
+.dhead{padding:10px 14px;border-bottom:1px solid var(--rule);display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--panel)}
+.dhead h2{margin:0;font-size:17px}
+.dhead small{color:var(--soft)}
+.dtabs{display:flex;gap:6px;padding:8px 14px;border-bottom:1px solid var(--rule)}
+.dtabs button.on{background:var(--acc);color:#0B0E14;border-color:var(--acc)}
+.dbody{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 320px}
+.view{min-height:0;overflow:auto;position:relative}
+.code{display:flex;font:13px/20px "JetBrains Mono",monospace;background:#080B11;min-height:100%}
+.code .g{flex:0 0 46px;text-align:right;color:#4E5B78;padding:10px 8px 10px 0;border-right:1px solid var(--rule);user-select:none;white-space:pre}
+.code .g div.err{background:#7f1d1d;color:#fff}
+.code pre{margin:0;padding:10px 14px;white-space:pre;color:#E6EAF2;flex:1;min-width:0;overflow:visible}
+iframe{width:100%;height:100%;border:0;background:#fff;display:block}
+.right{border-left:1px solid var(--rule);overflow:auto;padding:12px;background:var(--bg)}
+.right h3{margin:14px 0 6px;font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}
+.right h3:first-child{margin-top:0}
+.rule{display:flex;gap:7px;padding:4px 0;font-size:12.5px;line-height:1.35}
+.rule .m{flex:0 0 17px;height:17px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;font-weight:800;margin-top:1px}
+.rule.ok .m{background:var(--ok);color:#04210f}.rule.no .m{background:#3a1c1c;color:var(--bad);border:1px solid var(--bad)}
+.rule.ok{color:#B7F1D4}
+.old{opacity:.7}
+.prob{padding:5px 8px;border-radius:6px;margin:5px 0;font-size:12px}
+.prob.e{background:#2A1414;border-left:3px solid var(--bad)}.prob.w{background:#2A2110;border-left:3px solid var(--warn)}
+.chips{display:flex;flex-wrap:wrap;gap:4px}.chips span{background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:1px 8px;font:11.5px "JetBrains Mono",monospace}.chips b{color:var(--acc)}
+.grade input[type=number]{width:90px}
+.grade textarea{width:100%;min-height:90px;margin:6px 0}
+.big{font-size:30px;font-weight:800;color:var(--acc)}
+.empty{padding:40px;color:var(--soft);text-align:center}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111c;color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;display:none;z-index:9}
+@media(max-width:1000px){#app{grid-template-columns:1fr}.list{max-height:34vh}.dbody{grid-template-columns:1fr}.right{border-left:0}}
+</style>
+</head>
+<body>
+<div id="login">
+  <h1>Teacher: Grade Unit 7 Websites</h1>
+  <div style="color:var(--soft);font-size:13px">Enter the teacher PIN.</div>
+  <input id="pin" type="password" placeholder="PIN" autocomplete="off">
+  <button class="btn pri" id="go" style="width:100%">Open</button>
+  <div id="lerr" style="color:var(--bad);margin-top:10px;font-size:13px"></div>
+  <div style="margin-top:14px"><a href="index.html">&larr; Unit 7</a></div>
+</div>
+
+<div class="top" id="top" style="display:none">
+  <span class="brand">🧑‍🏫 Grade Websites</span>
+  <label>Lesson <select id="lesson"></select></label>
+  <label>Period <select id="period"><option value="">All</option></select></label>
+  <label><input type="checkbox" id="onlySub"> Submitted only</label>
+  <button class="btn" id="reload">Reload</button>
+  <button class="btn" id="csv">Export CSV</button>
+  <button class="btn" id="bulk" title="Fill in the teacher score for every ungraded submission with the auto score">Use auto score for ungraded</button>
+  <span class="sp"></span>
+  <span id="count" style="color:var(--soft);font-size:13px"></span>
+  <a class="btn" href="index.html">Unit 7</a>
+</div>
+
+<div id="app">
+  <div class="list"><table><thead><tr><th data-k="name">Student</th><th data-k="status">Status</th><th data-k="auto">Auto</th><th data-k="teacher">Grade</th></tr></thead><tbody id="rows"></tbody></table><div class="empty" id="noRows" style="display:none">No work for this lesson yet.</div></div>
+  <div class="detail" id="detail"><div class="empty">Pick a student on the left.</div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="html-check.js"></script>
+<script>
+"use strict";
+var API = "/api/code", $ = function (i) { return document.getElementById(i); }, H = window.HTMLCheck;
+var pin = sessionStorage.getItem("u7pin") || "", rowsData = [], selEmail = null, sortKey = "name", sortDir = 1, view = "code";
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+function toast(t) { var x = $("toast"); x.textContent = t; x.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(function () { x.style.display = "none"; }, 2000); }
+function fmt(iso) { try { return new Date(iso).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return iso || ""; } }
+function api(b) { b.pin = pin; return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }).then(function (r) { return r.json(); }); }
+
+/* ---------- login ---------- */
+function openApp() {
+  api({ action: "adminCounts" }).then(function (j) {
+    if (j.error) { $("lerr").textContent = j.error; sessionStorage.removeItem("u7pin"); return; }
+    sessionStorage.setItem("u7pin", pin);
+    $("login").style.display = "none"; $("top").style.display = ""; $("app").classList.add("show");
+    var sel = $("lesson"); sel.innerHTML = "";
+    H.ORDER.forEach(function (l) { var o = document.createElement("option"); o.value = l; o.textContent = l + " " + H.LESSONS[l].name + "  (" + (j.counts[l] || 0) + ")"; sel.appendChild(o); });
+    var q = new URLSearchParams(location.search).get("lesson"); if (q && H.LESSONS[q]) sel.value = q;
+    load();
+  }).catch(function () { $("lerr").textContent = "Could not reach the server."; });
+}
+$("go").onclick = function () { pin = $("pin").value; openApp(); };
+$("pin").onkeydown = function (e) { if (e.key === "Enter") $("go").click(); };
+if (pin) openApp();
+
+/* ---------- load + compute ---------- */
+function load() {
+  var lesson = $("lesson").value;
+  $("rows").innerHTML = ""; $("count").textContent = "Loading…";
+  api({ action: "adminList", lesson: lesson }).then(function (j) {
+    if (j.error) { toast(j.error); return; }
+    rowsData = j.students.map(function (s) {
+      var code = s.submission ? s.submission.code : (s.draft ? s.draft.code : "");
+      var rep = H.check(lesson, code);
+      return { email: s.email, name: s.name || s.email, period: s.period || (s.submission && s.submission.period) || "", sub: s.submission, draft: s.draft, code: code, rep: rep, status: s.submission ? "submitted" : "draft", teacher: s.submission ? s.submission.teacher : null };
+    });
+    var periods = {}; rowsData.forEach(function (r) { if (r.period) periods[r.period] = 1; });
+    var ps = $("period"), cur = ps.value; ps.innerHTML = '<option value="">All</option>' + Object.keys(periods).sort().map(function (p) { return "<option>" + esc(p) + "</option>"; }).join(""); ps.value = cur;
+    render();
+  });
+}
+$("lesson").onchange = function () { selEmail = null; $("detail").innerHTML = '<div class="empty">Pick a student on the left.</div>'; load(); };
+$("period").onchange = render; $("onlySub").onchange = render; $("reload").onclick = load;
+
+function visible() {
+  var p = $("period").value, only = $("onlySub").checked;
+  var a = rowsData.filter(function (r) { return (!p || r.period === p) && (!only || r.status === "submitted"); });
+  a.sort(function (x, y) {
+    var kx, ky;
+    if (sortKey === "name") { kx = x.name.toLowerCase(); ky = y.name.toLowerCase(); }
+    else if (sortKey === "status") { kx = x.status; ky = y.status; }
+    else if (sortKey === "auto") { kx = x.rep.score; ky = y.rep.score; }
+    else { kx = x.teacher && x.teacher.score != null ? x.teacher.score : -1; ky = y.teacher && y.teacher.score != null ? y.teacher.score : -1; }
+    return (kx < ky ? -1 : kx > ky ? 1 : 0) * sortDir;
+  });
+  return a;
+}
+function render() {
+  var a = visible(), h = "";
+  a.forEach(function (r) {
+    var g = r.teacher && r.teacher.score != null ? r.teacher.score : "";
+    h += '<tr class="row' + (r.email === selEmail ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td><b>' + esc(r.name) + '</b><br><small style="color:var(--soft)">' + esc(r.period) + "</small></td><td>" +
+      (r.status === "submitted" ? '<span class="pill s">Submitted</span><br><small style="color:var(--soft)">' + esc(fmt(r.sub.submittedAt)) + (r.sub.count > 1 ? " (#" + r.sub.count + ")" : "") + "</small>" : '<span class="pill d">Draft only</span>') +
+      '</td><td class="num">' + r.rep.score + (r.rep.errors.length ? '<br><small style="color:var(--bad)">' + r.rep.errors.length + " err</small>" : "") + '</td><td class="num">' + (g !== "" ? '<span class="pill g">' + esc(g) + "</span>" : "") + "</td></tr>";
+  });
+  $("rows").innerHTML = h; $("noRows").style.display = a.length ? "none" : "block";
+  var subs = rowsData.filter(function (r) { return r.status === "submitted"; }).length, graded = rowsData.filter(function (r) { return r.teacher && r.teacher.score != null; }).length;
+  $("count").textContent = subs + " submitted, " + graded + " graded, " + (rowsData.length - subs) + " draft only";
+}
+$("rows").onclick = function (e) { var t = e.target.closest("tr.row"); if (t) select(t.getAttribute("data-e")); };
+document.querySelector(".list thead").onclick = function (e) { var th = e.target.closest("th"); if (!th) return; var k = th.getAttribute("data-k"); if (sortKey === k) sortDir = -sortDir; else { sortKey = k; sortDir = 1; } render(); };
+
+/* ---------- detail ---------- */
+function select(email) {
+  selEmail = email; var r = rowsData.filter(function (x) { return x.email === email; })[0]; if (!r) return;
+  var g = r.teacher && r.teacher.score != null ? r.teacher.score : r.rep.score;
+  var d = $("detail");
+  d.innerHTML = '<div class="dhead"><h2>' + esc(r.name) + '</h2><small>' + esc(r.email) + " · Period " + esc(r.period || "?") + " · " + (r.status === "submitted" ? "Submitted " + esc(fmt(r.sub.submittedAt)) : "Draft only (not submitted). Last saved " + esc(fmt(r.draft && r.draft.savedAt))) + '</small><span class="sp"></span><button class="btn sm" id="prevS">◀ Prev</button><button class="btn sm" id="nextS">Next ▶</button></div>' +
+    '<div class="dtabs"><button class="btn sm' + (view === "code" ? " on" : "") + '" data-v="code">Code</button><button class="btn sm' + (view === "prev" ? " on" : "") + '" data-v="prev">Website</button></div>' +
+    '<div class="dbody"><div class="view" id="view"></div><div class="right" id="right"></div></div>';
+  var errLines = {}; r.rep.errors.forEach(function (e) { errLines[e.line] = 1; });
+  var lines = r.code.split("\n"), gut = "";
+  for (var i = 1; i <= lines.length; i++) gut += '<div' + (errLines[i] ? ' class="err"' : "") + ">" + i + "</div>";
+  var v = $("view");
+  if (view === "code") { v.innerHTML = '<div class="code"><div class="g">' + gut + "</div><pre></pre></div>"; v.querySelector("pre").textContent = r.code || "(empty)"; }
+  else { v.innerHTML = '<iframe sandbox="allow-popups" title="Student website"></iframe>'; v.querySelector("iframe").srcdoc = r.code; }
+  var nw = "", old = "";
+  r.rep.results.forEach(function (x) { var h = '<div class="rule ' + (x.ok ? "ok" : "no") + (x.isNew ? "" : " old") + '"><span class="m">' + (x.ok ? "✓" : "!") + "</span><span>" + esc(x.label) + "</span></div>"; if (x.isNew) nw += h; else old += h; });
+  var pr = ""; r.rep.errors.forEach(function (e) { pr += '<div class="prob e"><b>Line ' + e.line + "</b> " + esc(e.msg) + "</div>"; }); r.rep.warnings.forEach(function (w) { pr += '<div class="prob w"><b>Line ' + w.line + "</b> " + esc(w.msg) + "</div>"; });
+  var tg = Object.keys(r.rep.tags).sort().map(function (n) { return "<span>&lt;" + esc(n) + "&gt; <b>" + r.rep.tags[n] + "</b></span>"; }).join("");
+  $("right").innerHTML = '<div class="grade"><h3>Grade</h3><div>Auto check: <span class="big">' + r.rep.score + '</span> / ' + r.rep.total + " <small style=\"color:var(--soft)\">(" + r.rep.passed + "/" + r.rep.count + " checks)</small></div>" +
+    '<div style="margin-top:8px">Your score: <input type="number" id="gScore" min="0" step="0.5" value="' + esc(g) + '"> / ' + r.rep.total + '</div><textarea id="gComment" placeholder="Comment for the student (optional)">' + esc(r.teacher ? r.teacher.comment : "") + '</textarea>' +
+    '<button class="btn pri" id="gSave"' + (r.status !== "submitted" ? " disabled title=\"Only submitted work can be graded\"" : "") + '>Save grade</button> <span id="gInfo" style="color:var(--soft);font-size:12px">' + (r.teacher && r.teacher.gradedAt ? "Saved " + esc(fmt(r.teacher.gradedAt)) : "") + "</span></div>" +
+    "<h3>This lesson's requirements</h3>" + (nw || "<small>None</small>") + (old ? '<h3>Carried over</h3>' + old : "") + "<h3>Problems</h3>" + (pr || "<small>None</small>") + "<h3>Tags used</h3><div class=\"chips\">" + (tg || "<small>None</small>") + "</div>";
+  $("gSave").onclick = function () {
+    var sc = $("gScore").value; this.disabled = true;
+    api({ action: "adminGrade", lesson: $("lesson").value, email: r.email, score: sc, comment: $("gComment").value }).then(function (j) {
+      $("gSave").disabled = false;
+      if (j.ok) { r.teacher = j.teacher; toast("Saved"); $("gInfo").textContent = "Saved " + fmt(j.teacher.gradedAt); render(); } else toast(j.error || "Error");
+    });
+  };
+  $("prevS").onclick = function () { step(-1); }; $("nextS").onclick = function () { step(1); };
+  [].forEach.call(d.querySelectorAll(".dtabs button"), function (b) { b.onclick = function () { view = b.getAttribute("data-v"); select(email); }; });
+  render();
+}
+function step(dir) { var a = visible(), i = a.map(function (x) { return x.email; }).indexOf(selEmail); var n = a[i + dir]; if (n) select(n.email); }
+document.addEventListener("keydown", function (e) { if (/INPUT|TEXTAREA|SELECT/.test((e.target.tagName || ""))) return; if (e.key === "ArrowDown" || e.key === "ArrowRight") step(1); if (e.key === "ArrowUp" || e.key === "ArrowLeft") step(-1); });
+
+/* ---------- export + bulk ---------- */
+$("csv").onclick = function () {
+  var lesson = $("lesson").value, out = [["Name", "Email", "Period", "Lesson", "Status", "Submitted", "Auto score", "Teacher score", "Comment"]];
+  visible().forEach(function (r) { out.push([r.name, r.email, r.period, lesson, r.status, r.sub ? r.sub.submittedAt : "", r.rep.score, r.teacher && r.teacher.score != null ? r.teacher.score : "", r.teacher ? r.teacher.comment : ""]); });
+  var csv = out.map(function (row) { return row.map(function (c) { c = String(c == null ? "" : c); return /[",\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(","); }).join("\n");
+  var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "unit7-" + lesson + "-grades.csv"; a.click();
+};
+$("bulk").onclick = function () {
+  var todo = visible().filter(function (r) { return r.status === "submitted" && !(r.teacher && r.teacher.score != null); });
+  if (!todo.length) { toast("Nothing to fill in"); return; }
+  if (!confirm("Give " + todo.length + " ungraded submission(s) their auto score as the teacher score? You can still change any of them.")) return;
+  var lesson = $("lesson").value, i = 0;
+  (function next() {
+    if (i >= todo.length) { toast("Done"); render(); return; }
+    var r = todo[i++]; $("count").textContent = "Saving " + i + " of " + todo.length + "…";
+    api({ action: "adminGrade", lesson: lesson, email: r.email, score: r.rep.score, comment: r.teacher ? r.teacher.comment : "" }).then(function (j) { if (j.ok) r.teacher = j.teacher; next(); });
+  })();
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Editor | Unit 7</title>
+<link rel="icon" href="../../assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root{--bg:#0B0E14;--panel:#121722;--card:#171D2B;--rule:#26304A;--ink:#E8ECF3;--soft:#93A0B8;--acc:#FB923C;--ok:#34D399;--bad:#F87171;--warn:#FBBF24}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 "Manrope",system-ui,sans-serif;display:flex;flex-direction:column;overflow:hidden}
+a{color:#FDBA74}
+button,select{font:inherit}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.top .brand{font-weight:800;letter-spacing:.02em;margin-right:6px}
+.top select{background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:6px 8px}
+.top .sp{flex:1}
+.btn{background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:7px 12px;cursor:pointer;font-weight:600}
+.btn:hover{border-color:var(--acc)}
+.btn.pri{background:var(--acc);color:#0B0E14;border-color:var(--acc);font-weight:800}
+.btn.sm{padding:3px 8px;font-size:12px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.status{font-size:12px;color:var(--soft);min-width:120px}
+.who{font-size:13px;color:var(--soft)}
+#gbtn{min-height:34px}
+.note{background:#2A2110;border-bottom:1px solid #4a3a12;color:#F5D98B;padding:6px 12px;font-size:13px;display:none}
+.note.show{display:block}
+.cloud{background:#0F2A22;border-bottom:1px solid #1d5a49;color:#A7F3D0;padding:6px 12px;font-size:13px;display:none;gap:10px;align-items:center;flex-wrap:wrap}
+.cloud.show{display:flex}
+.banner{padding:8px 12px;font-size:13px;display:none;border-bottom:1px solid var(--rule)}
+.banner.show{display:block}
+.banner.good{background:#0F2A22;color:#A7F3D0}.banner.err{background:#2A1414;color:#FCA5A5}
+.tabsm{display:none;gap:6px;padding:6px 12px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.tabsm button{flex:1}
+.tabsm button.on{background:var(--acc);color:#0B0E14;border-color:var(--acc)}
+main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) 330px}
+.pane{min-width:0;min-height:0;display:flex;flex-direction:column;border-right:1px solid var(--rule)}
+.pane h2{margin:0;padding:7px 12px;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--soft);background:var(--panel);border-bottom:1px solid var(--rule);font-family:"JetBrains Mono",monospace;font-weight:700;display:flex;align-items:center;justify-content:space-between}
+.edwrap{flex:1;min-height:0;display:flex;background:#080B11}
+.gut{flex:0 0 46px;overflow:hidden;background:#0D1220;border-right:1px solid var(--rule);color:#4E5B78;font:13px/21px "JetBrains Mono",monospace;text-align:right;padding:10px 6px 10px 0;user-select:none;white-space:pre}
+.gut div{height:21px;padding-right:4px}
+.gut .err{color:#fff;background:#7f1d1d;border-radius:3px}
+#code{flex:1;min-width:0;resize:none;border:0;outline:0;background:transparent;color:#E6EAF2;font:14px/21px "JetBrains Mono",monospace;padding:10px 12px;white-space:pre;overflow:auto;tab-size:2;caret-color:var(--acc)}
+#code::selection{background:#3B4A72}
+.prevwrap{flex:1;min-height:0;background:#fff}
+#prev{width:100%;height:100%;border:0;background:#fff;display:block}
+.side{overflow:auto;background:var(--bg)}
+.sec{border-bottom:1px solid var(--rule);padding:12px}
+.sec h3{margin:0 0 8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);font-family:"JetBrains Mono",monospace}
+.score{display:flex;align-items:baseline;gap:8px}
+.score b{font-size:30px;color:var(--acc)}
+.bar{height:6px;background:#1c2438;border-radius:3px;overflow:hidden;margin:6px 0 4px}.bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .25s}
+.rule{display:flex;gap:8px;padding:5px 0;font-size:13px;line-height:1.4}
+.rule .m{flex:0 0 18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800;margin-top:1px}
+.rule.ok .m{background:var(--ok);color:#04210f}.rule.no .m{background:#3a1c1c;color:var(--bad);border:1px solid var(--bad)}
+.rule small{display:block;color:var(--soft);font-size:12px}
+.rule.ok{color:#B7F1D4}
+details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
+.prob{padding:6px 8px;border-radius:6px;margin:6px 0;font-size:12.5px;cursor:pointer}
+.prob.e{background:#2A1414;border-left:3px solid var(--bad)}.prob.w{background:#2A2110;border-left:3px solid var(--warn)}
+.prob b{font-family:"JetBrains Mono",monospace;color:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:5px}.chips span{background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:2px 9px;font:12px "JetBrains Mono",monospace}
+.chips span b{color:var(--acc)}
+.imgrow{display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--rule)}
+.imgrow img{width:44px;height:44px;object-fit:cover;border-radius:4px;background:#222}
+.imgrow .nm{flex:1;min-width:0;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.teach{background:#14213D;border:1px solid #2b4a86;border-radius:8px;padding:10px 12px;font-size:13px}
+.modal{position:fixed;inset:0;background:#000a;display:none;place-items:center;z-index:50}
+.modal.show{display:grid}
+.modal .box{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:22px;max-width:440px;width:92%}
+.modal h3{margin:0 0 8px;font-size:18px}
+.modal .row{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111c;color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;z-index:60;display:none}
+@media(max-width:1100px){
+  main{grid-template-columns:1fr}
+  .tabsm{display:flex}
+  .pane,.side{display:none;border-right:0}
+  main[data-tab="code"] #paneCode,main[data-tab="prev"] #panePrev,main[data-tab="side"] .side{display:flex}
+  main[data-tab="side"] .side{display:block}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <span class="brand">🧑‍💻 Web Editor</span>
+  <label>Lesson <select id="lesson"></select></label>
+  <label>Period <select id="period"><option value="">Choose…</option><option>1A</option><option>2B</option><option>3A</option><option>3B</option><option>4A</option><option>4B</option></select></label>
+  <span class="status" id="status"></span>
+  <span class="sp"></span>
+  <span class="who" id="who"></span>
+  <span id="gbtn"></span>
+  <button class="btn" id="btnCopy" title="Copy your code">Copy code</button>
+  <button class="btn pri" id="btnSubmit">Submit</button>
+  <a class="btn" id="linkGuide" href="study-guide.html" target="_blank" rel="noopener">Study guide</a>
+  <a class="btn" href="index.html">Unit 7</a>
+</div>
+<div class="note show" id="note">Your work saves automatically in this browser. <b>Sign in with your school Google account</b> to save to the cloud (so you can switch computers) and to submit.</div>
+<div class="cloud" id="cloud"></div>
+<div class="banner" id="banner"></div>
+<div class="tabsm" id="tabsm"><button class="btn on" data-t="code">Code</button><button class="btn" data-t="prev">Preview</button><button class="btn" data-t="side">Checks</button></div>
+
+<main id="main" data-tab="code">
+  <section class="pane" id="paneCode">
+    <h2><span>index.html</span><span id="lineinfo">Line 1</span></h2>
+    <div class="edwrap"><div class="gut" id="gut"></div><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="HTML code editor"></textarea></div>
+  </section>
+  <section class="pane" id="panePrev">
+    <h2><span>Your website</span><button class="btn sm" id="btnRun">Refresh</button></h2>
+    <div class="prevwrap"><iframe id="prev" sandbox="allow-popups" title="Preview of your website"></iframe></div>
+  </section>
+  <aside class="side" id="side">
+    <div class="sec" id="secScore">
+      <h3 id="lname">Lesson</h3>
+      <div class="score"><b id="scoreNum">0</b><span>/ <span id="scoreTot">50</span> points (auto check)</span></div>
+      <div class="bar"><i id="scoreBar"></i></div>
+      <div style="font-size:12px;color:var(--soft)" id="scoreNote"></div>
+    </div>
+    <div class="sec" id="secTeacher" style="display:none"></div>
+    <div class="sec"><h3>Requirements</h3><div id="rulesNew"></div><details id="oldWrap"><summary>Parts from earlier lessons</summary><div id="rulesOld"></div></details></div>
+    <div class="sec"><h3>Problems to fix</h3><div id="probs"><span style="color:var(--soft)">None so far.</span></div></div>
+    <div class="sec"><h3>Tags you used</h3><div class="chips" id="tags"></div></div>
+    <div class="sec"><h3>My images</h3>
+      <div style="font-size:12px;color:var(--soft);margin-bottom:8px">Upload a picture, then click <b>Insert</b> to add it to your code. Sign in first.</div>
+      <input type="file" id="file" accept="image/png,image/jpeg,image/gif,image/webp">
+      <div id="imgs"></div>
+    </div>
+  </aside>
+</main>
+
+<div class="modal" id="mSubmit"><div class="box">
+  <h3>Submit this lesson?</h3>
+  <div id="mSubmitBody" style="color:var(--soft)"></div>
+  <div class="row"><button class="btn" id="mCancel">Not yet</button><button class="btn pri" id="mGo">Submit it</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script src="html-check.js"></script>
+<script>
+"use strict";
+var API = "/api/code";
+var GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
+var $ = function (id) { return document.getElementById(id); };
+var S = { cred: null, name: "", email: "", cloudSavedCode: null, cloud: null, lesson: "7.1", dirty: false };
+
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function toast(t) { var x = $("toast"); x.textContent = t; x.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(function () { x.style.display = "none"; }, 2200); }
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+function fmtTime(iso) { try { return new Date(iso).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return iso; } }
+function banner(msg, kind) { var b = $("banner"); b.className = "banner show " + (kind || "good"); b.textContent = msg; }
+
+/* ---------- lessons ---------- */
+(function initLessons() {
+  var sel = $("lesson"), H = window.HTMLCheck;
+  H.ORDER.forEach(function (l) { var o = document.createElement("option"); o.value = l; o.textContent = l + "  " + H.LESSONS[l].name; sel.appendChild(o); });
+  var q = new URLSearchParams(location.search).get("lesson");
+  S.lesson = (q && H.LESSONS[q]) ? q : (lsGet("u7:lesson") || "7.1");
+  if (!H.LESSONS[S.lesson]) S.lesson = "7.1";
+  sel.value = S.lesson;
+  $("period").value = lsGet("u7:period") || "";
+})();
+
+/* ---------- editor ---------- */
+var ta = $("code");
+function loadLocal() { ta.value = lsGet("u7:code:" + S.lesson) || ""; S.dirty = false; refresh(); }
+function updateGutter(errLines) {
+  var n = ta.value.split("\n").length, g = $("gut"), html = "";
+  for (var i = 1; i <= n; i++) html += '<div' + (errLines && errLines[i] ? ' class="err" title="Problem on this line"' : "") + ">" + i + "</div>";
+  g.innerHTML = html; g.scrollTop = ta.scrollTop;
+}
+ta.addEventListener("scroll", function () { $("gut").scrollTop = ta.scrollTop; });
+ta.addEventListener("keydown", function (e) {
+  if (e.key === "Tab") { e.preventDefault(); ta.setRangeText("  ", ta.selectionStart, ta.selectionEnd, "end"); onEdit(); }
+  else if (e.key === "Enter" && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+    var pos = ta.selectionStart, before = ta.value.slice(0, pos), line = before.slice(before.lastIndexOf("\n") + 1);
+    var indent = (/^[ \t]*/.exec(line) || [""])[0];
+    e.preventDefault(); ta.setRangeText("\n" + indent, pos, ta.selectionEnd, "end"); onEdit();
+  } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") { e.preventDefault(); saveNow(true); }
+  else if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); renderPreview(); }
+});
+ta.addEventListener("input", onEdit);
+ta.addEventListener("keyup", cursorInfo); ta.addEventListener("click", cursorInfo);
+function cursorInfo() { var b = ta.value.slice(0, ta.selectionStart).split("\n"); $("lineinfo").textContent = "Line " + b.length + ", Col " + (b[b.length - 1].length + 1); }
+var tPrev, tChk, tSave;
+function onEdit() {
+  S.dirty = true; $("status").textContent = "Typing…";
+  clearTimeout(tPrev); tPrev = setTimeout(renderPreview, 450);
+  clearTimeout(tChk); tChk = setTimeout(refresh, 250);
+  clearTimeout(tSave); tSave = setTimeout(function () { saveNow(false); }, 900);
+  updateGutter();
+}
+function renderPreview() { $("prev").srcdoc = ta.value; }
+function saveNow(show) {
+  lsSet("u7:code:" + S.lesson, ta.value); lsSet("u7:lesson", S.lesson);
+  $("status").textContent = "Saved " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  if (show) toast("Saved");
+}
+
+/* ---------- checker panel ---------- */
+var lastReport = null;
+function refresh() {
+  var H = window.HTMLCheck, rep = H.check(S.lesson, ta.value); lastReport = rep;
+  $("lname").textContent = S.lesson + " " + H.LESSONS[S.lesson].name;
+  $("scoreNum").textContent = rep.score; $("scoreTot").textContent = rep.total;
+  $("scoreBar").style.width = Math.min(100, rep.score / rep.total * 100) + "%";
+  $("scoreNote").textContent = rep.empty ? "Start typing to see your checklist fill in." : rep.passed + " of " + rep.count + " checks passed. This is an automatic estimate. Your teacher gives the final grade.";
+  var nw = "", old = "", nNew = 0, nOld = 0;
+  rep.results.forEach(function (x) {
+    var h = '<div class="rule ' + (x.ok ? "ok" : "no") + '"><span class="m">' + (x.ok ? "✓" : "!") + '</span><span>' + esc(x.label) + (x.tip && !x.ok ? "<small>" + esc(x.tip) + "</small>" : "") + "</span></div>";
+    if (x.isNew) { nw += h; nNew++; } else { old += h; nOld++; }
+  });
+  $("rulesNew").innerHTML = nw || '<span style="color:var(--soft)">No rules yet.</span>';
+  $("rulesOld").innerHTML = old; $("oldWrap").style.display = nOld ? "" : "none";
+  var errLines = {}, ph = "";
+  rep.errors.forEach(function (e) { errLines[e.line] = 1; ph += '<div class="prob e" data-line="' + e.line + '"><b>Line ' + e.line + "</b> " + esc(e.msg) + "</div>"; });
+  rep.warnings.forEach(function (w) { ph += '<div class="prob w" data-line="' + w.line + '"><b>Line ' + w.line + "</b> " + esc(w.msg) + "</div>"; });
+  $("probs").innerHTML = ph || '<span style="color:var(--soft)">None so far.</span>';
+  var tg = "", names = Object.keys(rep.tags).sort();
+  names.forEach(function (n) { tg += "<span>&lt;" + esc(n) + "&gt; <b>" + rep.tags[n] + "</b></span>"; });
+  $("tags").innerHTML = tg || '<span style="color:var(--soft);border:0;background:none">No tags yet.</span>';
+  updateGutter(errLines);
+}
+$("probs").addEventListener("click", function (e) {
+  var p = e.target.closest(".prob"); if (!p) return;
+  var line = +p.getAttribute("data-line"), lines = ta.value.split("\n"), pos = 0;
+  for (var i = 0; i < line - 1 && i < lines.length; i++) pos += lines[i].length + 1;
+  ta.focus(); ta.setSelectionRange(pos, pos + (lines[line - 1] || "").length); ta.scrollTop = Math.max(0, (line - 4) * 21);
+  if (matchMedia("(max-width:1100px)").matches) setTab("code");
+});
+
+/* ---------- controls ---------- */
+$("lesson").addEventListener("change", function () { saveNow(false); cloudSave(); S.lesson = this.value; lastCloud = ""; lsSet("u7:lesson", S.lesson); history.replaceState(null, "", "?lesson=" + S.lesson); updateGuideLink(); loadLocal(); renderPreview(); afterLessonChange(); });
+$("period").addEventListener("change", function () { lsSet("u7:period", this.value); });
+$("btnRun").addEventListener("click", renderPreview);
+$("btnCopy").addEventListener("click", function () { ta.select(); try { navigator.clipboard.writeText(ta.value); toast("Copied"); } catch (e) { document.execCommand("copy"); toast("Copied"); } });
+function setTab(t) { $("main").setAttribute("data-tab", t); [].forEach.call(document.querySelectorAll("#tabsm button"), function (b) { b.classList.toggle("on", b.getAttribute("data-t") === t); }); }
+$("tabsm").addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) setTab(b.getAttribute("data-t")); });
+function updateGuideLink() { $("linkGuide").href = "study-guide.html#l" + S.lesson.replace(".", "-"); }
+
+/* ---------- Google sign-in + cloud ---------- */
+function decodeJwt(t) { try { var p = t.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"); return JSON.parse(decodeURIComponent(escape(atob(p)))); } catch (e) { return {}; } }
+function initGoogle() {
+  if (!window.google || !google.accounts || !google.accounts.id) { setTimeout(initGoogle, 300); return; }
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onCredential, hd: "socialcircleschools.org", auto_select: true });
+  showSignInButton();
+  if (!S.cred) google.accounts.id.prompt();
+}
+function showSignInButton() {
+  var g = $("gbtn"); g.innerHTML = "";
+  if (window.google && google.accounts && google.accounts.id) google.accounts.id.renderButton(g, { theme: "filled_blue", size: "medium", text: "signin_with", shape: "rectangular" });
+}
+function onCredential(resp) {
+  var p = decodeJwt(resp.credential);
+  if ((p.hd || "").toLowerCase() !== "socialcircleschools.org") { banner("Please sign in with your school account (@socialcircleschools.org).", "err"); return; }
+  S.cred = resp.credential; S.name = p.name || ""; S.email = (p.email || "").toLowerCase();
+  $("who").textContent = "Signed in: " + (S.name || S.email); $("gbtn").innerHTML = ""; $("note").className = "note";
+  banner("", ""); $("banner").className = "banner";
+  afterLessonChange(true);
+}
+function api(body) {
+  body.credential = S.cred;
+  return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(function (r) { return r.json(); }).then(function (j) {
+    if (j && j.needLogin) { S.cred = null; $("who").textContent = ""; showSignInButton(); $("note").className = "note show"; $("note").innerHTML = "Your sign-in timed out. <b>Sign in again</b> (your code is safe)."; }
+    return j;
+  });
+}
+function afterLessonChange(first) {
+  if (!S.cred) return;
+  updateGuideLink();
+  api({ action: "mine", lesson: S.lesson }).then(function (j) {
+    if (!j || j.error) return;
+    S.cloud = j; renderImages(j.images || []);
+    var local = ta.value, subs = j.submission, dr = j.draft, opts = "";
+    if (!local.trim() && (dr || subs)) { ta.value = (dr ? dr.code : subs.code); saveNow(false); refresh(); renderPreview(); toast("Loaded your saved work"); }
+    else if (dr && dr.code !== local && dr.code.trim()) opts += '<span>Cloud draft from ' + esc(fmtTime(dr.savedAt)) + ' differs from what is on this screen.</span> <button class="btn sm" id="ldDraft">Load cloud draft</button>';
+    if (subs && subs.code !== local) opts += ' <button class="btn sm" id="ldSub">Load my last submission (' + esc(fmtTime(subs.submittedAt)) + ')</button>';
+    var c = $("cloud"); c.innerHTML = opts; c.className = "cloud" + (opts ? " show" : "");
+    var d = $("ldDraft"); if (d) d.onclick = function () { ta.value = dr.code; onEdit(); c.className = "cloud"; };
+    var s = $("ldSub"); if (s) s.onclick = function () { ta.value = subs.code; onEdit(); c.className = "cloud"; };
+    if (j.draft && !$("period").value && j.draft.period) { $("period").value = j.draft.period; lsSet("u7:period", j.draft.period); }
+    if (subs && !$("period").value && subs.period) { $("period").value = subs.period; lsSet("u7:period", subs.period); }
+    showTeacher(subs);
+    if (subs) $("status").textContent = "Submitted " + fmtTime(subs.submittedAt) + (subs.count > 1 ? " (#" + subs.count + ")" : "");
+  });
+}
+function showTeacher(subs) {
+  var t = $("secTeacher");
+  if (subs && subs.teacher && (subs.teacher.score !== null || subs.teacher.comment)) {
+    t.style.display = ""; t.innerHTML = '<div class="teach"><b>Teacher feedback</b><br>' + (subs.teacher.score !== null ? "Score: <b>" + esc(subs.teacher.score) + "</b><br>" : "") + (subs.teacher.comment ? esc(subs.teacher.comment) : "") + "</div>";
+  } else t.style.display = "none";
+}
+var lastCloud = "";
+function cloudSave() {
+  if (!S.cred || ta.value === lastCloud || !ta.value.trim()) return Promise.resolve();
+  var code = ta.value;
+  return api({ action: "saveDraft", lesson: S.lesson, code: code, period: $("period").value }).then(function (j) { if (j && j.ok) lastCloud = code; });
+}
+setInterval(cloudSave, 60000); // every 60 seconds, only when the code changed
+document.addEventListener("visibilitychange", function () { if (document.hidden) { saveNow(false); cloudSave(); } });
+window.addEventListener("beforeunload", function () { saveNow(false); });
+
+/* ---------- submit ---------- */
+$("btnSubmit").addEventListener("click", function () {
+  if (!ta.value.trim()) { toast("Write some code first"); return; }
+  if (!S.cred) { banner("Sign in with your school Google account (top right) to submit.", "err"); return; }
+  if (!$("period").value) { banner("Choose your class period at the top before you submit.", "err"); $("period").focus(); return; }
+  var r = lastReport || HTMLCheck.check(S.lesson, ta.value), bad = r.errors.length;
+  $("mSubmitBody").innerHTML = "<p>Lesson <b>" + esc(S.lesson) + "</b> for period <b>" + esc($("period").value) + "</b>.</p><p>Auto check: <b>" + r.score + " / " + r.total + "</b> (" + r.passed + " of " + r.count + " checks).</p>" +
+    (bad ? '<p style="color:#FCA5A5">You still have ' + bad + " problem" + (bad > 1 ? "s" : "") + " with your tags. You can still submit, or fix them first.</p>" : "") + "<p>You can submit again later to replace this one.</p>";
+  $("mSubmit").classList.add("show");
+});
+$("mCancel").addEventListener("click", function () { $("mSubmit").classList.remove("show"); });
+$("mGo").addEventListener("click", function () {
+  var btn = this; btn.disabled = true;
+  api({ action: "submit", lesson: S.lesson, code: ta.value, period: $("period").value }).then(function (j) {
+    btn.disabled = false; $("mSubmit").classList.remove("show");
+    if (j && j.ok) { lastCloud = ta.value; banner("Submitted " + fmtTime(j.submittedAt) + ". (Submission #" + j.count + ") Auto score: " + (lastReport ? lastReport.score : "") + " / 50. Your teacher will review it.", "good"); $("status").textContent = "Submitted " + fmtTime(j.submittedAt); }
+    else if (j && j.error && !j.needLogin) banner(j.error, "err");
+    else banner("Could not submit. Sign in again and try once more.", "err");
+  }).catch(function () { btn.disabled = false; $("mSubmit").classList.remove("show"); banner("Could not reach the server. Check your internet and try again. Your code is saved on this computer.", "err"); });
+});
+
+/* ---------- images ---------- */
+function renderImages(list) {
+  var h = "";
+  list.forEach(function (im) {
+    var url = location.origin + API + "?img=" + im.id;
+    h += '<div class="imgrow"><img src="' + esc(url) + '" alt=""><div class="nm" title="' + esc(im.name) + '">' + esc(im.name) + '</div><button class="btn sm" data-ins="' + esc(im.id) + '">Insert</button><button class="btn sm" data-cp="' + esc(im.id) + '">URL</button><button class="btn sm" data-del="' + esc(im.id) + '">✕</button></div>';
+  });
+  $("imgs").innerHTML = h;
+}
+$("imgs").addEventListener("click", function (e) {
+  var b = e.target.closest("button"); if (!b) return;
+  var id = b.getAttribute("data-ins") || b.getAttribute("data-cp") || b.getAttribute("data-del"), url = location.origin + API + "?img=" + id;
+  if (b.hasAttribute("data-ins")) { ta.focus(); ta.setRangeText('<img src="' + url + '" alt="describe your image here" width="300">', ta.selectionStart, ta.selectionEnd, "end"); onEdit(); toast("Inserted. Now write a real alt description."); }
+  else if (b.hasAttribute("data-cp")) { try { navigator.clipboard.writeText(url); toast("URL copied"); } catch (er) {} }
+  else if (confirm("Delete this image?")) api({ action: "deleteImage", id: id }).then(function (j) { if (j && j.ok) { S.cloud.images = S.cloud.images.filter(function (i) { return i.id !== id; }); renderImages(S.cloud.images); } else if (j && j.error) toast(j.error); });
+});
+function shrink(file) {
+  return new Promise(function (res, rej) {
+    if (file.type === "image/gif") return (file.size < 1400000) ? res({ blob: file, type: file.type }) : rej(new Error("That GIF is too big. Try a smaller one."));
+    var img = new Image(), u = URL.createObjectURL(file);
+    img.onload = function () {
+      var max = 1200, w = img.naturalWidth, h = img.naturalHeight, k = Math.min(1, max / Math.max(w, h));
+      if (k === 1 && file.size < 350000) { URL.revokeObjectURL(u); return res({ blob: file, type: file.type }); }
+      var c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      var keepPng = file.type === "image/png"; // keeps transparency
+      c.toBlob(function (b) { URL.revokeObjectURL(u); b ? res({ blob: b, type: keepPng ? "image/png" : "image/jpeg" }) : rej(new Error("Could not read that image.")); }, keepPng ? "image/png" : "image/jpeg", 0.85);
+    };
+    img.onerror = function () { rej(new Error("Could not read that image.")); };
+    img.src = u;
+  });
+}
+$("file").addEventListener("change", function () {
+  var f = this.files[0]; this.value = ""; if (!f) return;
+  if (!S.cred) { banner("Sign in first, then upload your image.", "err"); return; }
+  shrink(f).then(function (o) {
+    var fr = new FileReader();
+    fr.onload = function () {
+      var data = String(fr.result).split(",")[1];
+      api({ action: "uploadImage", name: f.name, type: o.type, data: data }).then(function (j) {
+        if (j && j.ok) { S.cloud = S.cloud || { images: [] }; S.cloud.images = (S.cloud.images || []).concat([j.image]); renderImages(S.cloud.images); toast("Image uploaded"); }
+        else if (j && j.error) banner(j.error, "err");
+      });
+    };
+    fr.readAsDataURL(o.blob);
+  }).catch(function (e) { banner(e.message, "err"); });
+});
+
+/* ---------- start ---------- */
+updateGuideLink(); loadLocal(); renderPreview(); cursorInfo(); initGoogle();
+</script>
+</body>
+</html>
