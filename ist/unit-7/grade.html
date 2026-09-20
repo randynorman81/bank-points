@@ -61,6 +61,14 @@ iframe{width:100%;height:100%;border:0;background:#fff;display:block}
 .grade input[type=number]{width:90px}
 .grade textarea{width:100%;min-height:90px;margin:6px 0}
 .big{font-size:30px;font-weight:800;color:var(--acc)}
+.code pre mark{background:#7a4a00;color:#fff;border-radius:2px;box-shadow:0 0 0 1px #f59e0b}
+.org{border-radius:10px;padding:10px 12px;margin:0 0 10px;font-size:12.5px}
+.org.red{background:#2A1414;border:1px solid #F87171}.org.yellow{background:#2A2110;border:1px solid #FBBF24}.org.green{background:#0F2A22;border:1px solid #34D399}.org.none{background:#171D2B;border:1px solid var(--rule)}
+.org b.t{display:block;font-size:14px;margin-bottom:4px}
+.org ul{margin:6px 0 0 16px;padding:0}.org li{margin:3px 0}
+.kv{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:12px;margin:6px 0}.kv span:nth-child(odd){color:var(--soft)}
+.ev{border-top:1px solid var(--rule);padding:6px 0;font-size:12px}.ev code{display:block;color:#FCD34D;white-space:pre-wrap;word-break:break-word;margin-top:2px}
+.srch a{display:block;padding:4px 0;font-size:12px;border-top:1px solid var(--rule)}
 .empty{padding:40px;color:var(--soft);text-align:center}
 .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111c;color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;display:none;z-index:9}
 @media(max-width:1000px){#app{grid-template-columns:1fr}.list{max-height:34vh}.dbody{grid-template-columns:1fr}.right{border-left:0}}
@@ -90,7 +98,7 @@ iframe{width:100%;height:100%;border:0;background:#fff;display:block}
 </div>
 
 <div id="app">
-  <div class="list"><table><thead><tr><th data-k="name">Student</th><th data-k="status">Status</th><th data-k="auto">Auto</th><th data-k="teacher">Grade</th></tr></thead><tbody id="rows"></tbody></table><div class="empty" id="noRows" style="display:none">No work for this lesson yet.</div></div>
+  <div class="list"><table><thead><tr><th data-k="name">Student</th><th data-k="status">Status</th><th data-k="auto">Auto</th><th data-k="orig" title="Originality flag from copy/paste tracking">Orig.</th><th data-k="teacher">Grade</th></tr></thead><tbody id="rows"></tbody></table><div class="empty" id="noRows" style="display:none">No work for this lesson yet.</div></div>
   <div class="detail" id="detail"><div class="empty">Pick a student on the left.</div></div>
 </div>
 <div class="toast" id="toast"></div>
@@ -121,6 +129,40 @@ $("go").onclick = function () { pin = $("pin").value; openApp(); };
 $("pin").onkeydown = function (e) { if (e.key === "Enter") $("go").click(); };
 if (pin) openApp();
 
+/* ---------- originality: typing vs. pasting ---------- */
+var LV = { red: "\uD83D\uDD34", yellow: "\uD83D\uDFE1", green: "\uD83D\uDFE2", none: "\u26AA" }, LVN = { red: 3, yellow: 2, green: 1, none: 0 };
+function analyzeOrigin(r) {
+  var act = (r.sub && r.sub.activity) || (r.draft && r.draft.activity) || null, code = r.code || "", css = r.css || "";
+  var o = { has: !!act, level: "none", act: act, ranges: [], inFinal: 0, total: code.length + css.length, unexplained: 0, minutes: 0, words: 0, wpm: 0, pct: 0, reasons: [], events: [], paras: [] };
+  var c = H.analyze(code), body = c.all("body")[0]; o.words = body ? c.words(body) : 0;
+  c.all("p").forEach(function (p) { var t = c.text(p).replace(/\s+/g, " ").trim(), w = t ? t.split(" ") : []; if (w.length >= 15) o.paras.push({ len: w.length, q: w.slice(0, 14).join(" ") }); });
+  o.paras.sort(function (a, b) { return b.len - a.len; }); o.paras = o.paras.slice(0, 8);
+  if (!act) return o;
+  act.events.forEach(function (e) {
+    if (!e.ext) return; var t = (e.txt || "").trim(), inF = false;
+    if (t.length >= 20) { var i = code.indexOf(t); if (i > -1) { o.ranges.push([i, i + t.length]); inF = true; } else if (css.indexOf(t) > -1) inF = true; }
+    o.events.push({ e: e, inFinal: inF }); if (inF) o.inFinal += t.length;
+  });
+  o.pct = o.total ? o.inFinal / o.total : 0;
+  o.unexplained = o.total - (act.base + act.typed + act.pasted + act.auto + act.loaded);
+  o.minutes = act.activeMs / 60000; o.wpm = o.minutes > 0.3 ? o.words / o.minutes : 0;
+  var lvl = "green";
+  function raise(l, msg) { o.reasons.push(msg); if (LVN[l] > LVN[lvl]) lvl = l; }
+  if (o.pct >= 0.4 || o.inFinal >= 600) raise("red", "About " + Math.round(o.pct * 100) + "% of the page (" + o.inFinal + " characters) was pasted from outside the editor.");
+  else if (o.pct >= 0.15 || o.inFinal >= 200) raise("yellow", "About " + Math.round(o.pct * 100) + "% of the page (" + o.inFinal + " characters) was pasted from outside the editor.");
+  if (o.unexplained > Math.max(800, o.total * 0.6)) raise("red", o.unexplained + " characters of the page appeared without being typed or pasted here.");
+  else if (o.unexplained > Math.max(300, o.total * 0.3)) raise("yellow", o.unexplained + " characters of the page appeared without being typed or pasted here.");
+  if (o.wpm > 90 && o.words >= 150) raise("yellow", "Wrote " + o.words + " words in only " + o.minutes.toFixed(1) + " active minutes (" + Math.round(o.wpm) + " words per minute).");
+  if (!o.reasons.length) o.reasons.push("Looks like the student typed this page themselves.");
+  o.level = lvl; return o;
+}
+function highlight(code, ranges) {
+  ranges = ranges.slice().sort(function (a, b) { return a[0] - b[0]; });
+  var out = "", pos = 0;
+  ranges.forEach(function (g) { if (g[0] < pos) return; out += esc(code.slice(pos, g[0])) + '<mark title="Pasted from outside the editor">' + esc(code.slice(g[0], g[1])) + "</mark>"; pos = g[1]; });
+  return out + esc(code.slice(pos));
+}
+
 /* ---------- load + compute ---------- */
 function load() {
   var lesson = $("lesson").value;
@@ -128,9 +170,11 @@ function load() {
   api({ action: "adminList", lesson: lesson }).then(function (j) {
     if (j.error) { toast(j.error); return; }
     rowsData = j.students.map(function (s) {
+      var _row;
       var code = s.submission ? s.submission.code : (s.draft ? s.draft.code : ""), css = s.submission ? (s.submission.css || "") : (s.draft ? (s.draft.css || "") : "");
       var rep = H.check(lesson, code);
-      return { email: s.email, name: s.name || s.email, period: s.period || (s.submission && s.submission.period) || "", sub: s.submission, draft: s.draft, code: code, css: css, rep: rep, status: s.submission ? "submitted" : "draft", teacher: s.submission ? s.submission.teacher : null };
+      _row = { email: s.email, name: s.name || s.email, period: s.period || (s.submission && s.submission.period) || "", sub: s.submission, draft: s.draft, code: code, css: css, rep: rep, status: s.submission ? "submitted" : "draft", teacher: s.submission ? s.submission.teacher : null };
+      _row.org = analyzeOrigin(_row); return _row;
     });
     var periods = {}; rowsData.forEach(function (r) { if (r.period) periods[r.period] = 1; });
     var ps = $("period"), cur = ps.value; ps.innerHTML = '<option value="">All</option>' + Object.keys(periods).sort().map(function (p) { return "<option>" + esc(p) + "</option>"; }).join(""); ps.value = cur;
@@ -148,6 +192,7 @@ function visible() {
     if (sortKey === "name") { kx = x.name.toLowerCase(); ky = y.name.toLowerCase(); }
     else if (sortKey === "status") { kx = x.status; ky = y.status; }
     else if (sortKey === "auto") { kx = x.rep.score; ky = y.rep.score; }
+    else if (sortKey === "orig") { kx = LVN[x.org.level]; ky = LVN[y.org.level]; }
     else { kx = x.teacher && x.teacher.score != null ? x.teacher.score : -1; ky = y.teacher && y.teacher.score != null ? y.teacher.score : -1; }
     return (kx < ky ? -1 : kx > ky ? 1 : 0) * sortDir;
   });
@@ -159,14 +204,14 @@ function render() {
     var g = r.teacher && r.teacher.score != null ? r.teacher.score : "";
     h += '<tr class="row' + (r.email === selEmail ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td><b>' + esc(r.name) + '</b><br><small style="color:var(--soft)">' + esc(r.period) + "</small></td><td>" +
       (r.status === "submitted" ? '<span class="pill s">Submitted</span><br><small style="color:var(--soft)">' + esc(fmt(r.sub.submittedAt)) + (r.sub.count > 1 ? " (#" + r.sub.count + ")" : "") + "</small>" : '<span class="pill d">Draft only</span>') +
-      '</td><td class="num">' + r.rep.score + (r.rep.errors.length ? '<br><small style="color:var(--bad)">' + r.rep.errors.length + " err</small>" : "") + '</td><td class="num">' + (g !== "" ? '<span class="pill g">' + esc(g) + "</span>" : "") + "</td></tr>";
+      '</td><td class="num">' + r.rep.score + (r.rep.errors.length ? '<br><small style="color:var(--bad)">' + r.rep.errors.length + " err</small>" : "") + '</td><td title="' + esc(r.org.reasons.join(" ")) + '">' + LV[r.org.level] + '</td><td class="num">' + (g !== "" ? '<span class="pill g">' + esc(g) + "</span>" : "") + "</td></tr>";
   });
   $("rows").innerHTML = h; $("noRows").style.display = a.length ? "none" : "block";
   var subs = rowsData.filter(function (r) { return r.status === "submitted"; }).length, graded = rowsData.filter(function (r) { return r.teacher && r.teacher.score != null; }).length;
   $("count").textContent = subs + " submitted, " + graded + " graded, " + (rowsData.length - subs) + " draft only";
 }
 $("rows").onclick = function (e) { var t = e.target.closest("tr.row"); if (t) select(t.getAttribute("data-e")); };
-document.querySelector(".list thead").onclick = function (e) { var th = e.target.closest("th"); if (!th) return; var k = th.getAttribute("data-k"); if (sortKey === k) sortDir = -sortDir; else { sortKey = k; sortDir = 1; } render(); };
+document.querySelector(".list thead").onclick = function (e) { var th = e.target.closest("th"); if (!th) return; var k = th.getAttribute("data-k"); if (sortKey === k) sortDir = -sortDir; else { sortKey = k; sortDir = (k === "orig") ? -1 : 1; } render(); };
 
 /* ---------- detail ---------- */
 function select(email) {
@@ -180,14 +225,23 @@ function select(email) {
   var lines = r.code.split("\n"), gut = "";
   for (var i = 1; i <= lines.length; i++) gut += '<div' + (errLines[i] ? ' class="err"' : "") + ">" + i + "</div>";
   var v = $("view");
-  if (view === "code") { v.innerHTML = '<div class="code"><div class="g">' + gut + "</div><pre></pre></div>"; v.querySelector("pre").textContent = r.code || "(empty)"; }
+  if (view === "code") { v.innerHTML = '<div class="code"><div class="g">' + gut + "</div><pre></pre></div>"; v.querySelector("pre").innerHTML = r.code ? highlight(r.code, r.org.ranges) : "(empty)"; }
   else if (view === "css") { var cl = (r.css || "").split("\n"), cg = ""; for (var j = 1; j <= cl.length; j++) cg += "<div>" + j + "</div>"; v.innerHTML = '<div class="code"><div class="g">' + cg + "</div><pre></pre></div>"; v.querySelector("pre").textContent = r.css || "(empty: no CSS file)"; }
   else { v.innerHTML = '<iframe sandbox="allow-popups" title="Student website"></iframe>'; v.querySelector("iframe").srcdoc = H.previewDoc(r.code, r.css); }
   var nw = "", old = "";
   r.rep.results.forEach(function (x) { var h = '<div class="rule ' + (x.ok ? "ok" : "no") + (x.isNew ? "" : " old") + '"><span class="m">' + (x.ok ? "✓" : "!") + "</span><span>" + esc(x.label) + "</span></div>"; if (x.isNew) nw += h; else old += h; });
   var pr = ""; r.rep.errors.forEach(function (e) { pr += '<div class="prob e"><b>Line ' + e.line + "</b> " + esc(e.msg) + "</div>"; }); r.rep.warnings.forEach(function (w) { pr += '<div class="prob w"><b>Line ' + w.line + "</b> " + esc(w.msg) + "</div>"; });
   var tg = Object.keys(r.rep.tags).sort().map(function (n) { return "<span>&lt;" + esc(n) + "&gt; <b>" + r.rep.tags[n] + "</b></span>"; }).join("");
-  $("right").innerHTML = '<div class="grade"><h3>Grade</h3><div>Auto check: <span class="big">' + r.rep.score + '</span> / ' + r.rep.total + " <small style=\"color:var(--soft)\">(" + r.rep.passed + "/" + r.rep.count + " checks)</small></div>" +
+  var og = r.org, ohtml;
+  if (!og.has) ohtml = '<div class="org none"><b class="t">' + LV.none + " No paste data</b>This work was saved before copy/paste tracking, or by an older version of the editor.</div>";
+  else {
+    var evh = og.events.map(function (x) { return '<div class="ev"><b>' + esc(fmt(new Date(x.e.t).toISOString())) + "</b> · " + x.e.n + " characters, " + x.e.w + " words · " + esc(x.e.file === "css" ? "style.css" : "index.html") + " · " + (x.inFinal ? '<span style="color:#FCA5A5">still in the page</span>' : "not found in final code") + "<code>" + esc(x.e.txt.slice(0, 140)) + (x.e.txt.length > 140 ? "…" : "") + "</code></div>"; }).join("");
+    var sh = og.paras.map(function (p) { return '<a target="_blank" rel="noopener" href="https://www.google.com/search?q=' + encodeURIComponent('"' + p.q + '"') + '">Search: &ldquo;' + esc(p.q.slice(0, 70)) + '&hellip;&rdquo; (' + p.len + " words)</a>"; }).join("");
+    ohtml = '<div class="org ' + og.level + '"><b class="t">' + LV[og.level] + " Originality</b>" + "<ul>" + og.reasons.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul></div>" +
+      '<div class="kv"><span>Typed by hand</span><span>' + og.act.typed + '</span><span>Pasted from outside</span><span>' + og.act.ext + '</span><span>Still in the final page</span><span>' + og.inFinal + '</span><span>Active writing time</span><span>' + og.minutes.toFixed(1) + ' min</span><span>Words on the page</span><span>' + og.words + '</span><span>Words per active minute</span><span>' + (og.wpm ? Math.round(og.wpm) : "n/a") + '</span></div>' +
+      (evh ? "<h3>Outside pastes</h3>" + evh : "") + (sh ? '<h3>Check a paragraph on the web</h3><div class="srch">' + sh + "</div>" : "");
+  }
+  $("right").innerHTML = ohtml + '<div class="grade"><h3>Grade</h3><div>Auto check: <span class="big">' + r.rep.score + '</span> / ' + r.rep.total + " <small style=\"color:var(--soft)\">(" + r.rep.passed + "/" + r.rep.count + " checks)</small></div>" +
     '<div style="margin-top:8px">Your score: <input type="number" id="gScore" min="0" step="0.5" value="' + esc(g) + '"> / ' + r.rep.total + '</div><textarea id="gComment" placeholder="Comment for the student (optional)">' + esc(r.teacher ? r.teacher.comment : "") + '</textarea>' +
     '<button class="btn pri" id="gSave"' + (r.status !== "submitted" ? " disabled title=\"Only submitted work can be graded\"" : "") + '>Save grade</button> <span id="gInfo" style="color:var(--soft);font-size:12px">' + (r.teacher && r.teacher.gradedAt ? "Saved " + esc(fmt(r.teacher.gradedAt)) : "") + "</span></div>" +
     "<h3>This lesson's requirements</h3>" + (nw || "<small>None</small>") + (old ? '<h3>Carried over</h3>' + old : "") + "<h3>Problems</h3>" + (pr || "<small>None</small>") + "<h3>Tags used</h3><div class=\"chips\">" + (tg || "<small>None</small>") + "</div>";

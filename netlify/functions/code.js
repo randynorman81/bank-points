@@ -56,6 +56,17 @@ function newId() {
   const b = new Uint8Array(12); crypto.getRandomValues(b);
   return Array.from(b, (x) => x.toString(16).padStart(2, "0")).join("");
 }
+// Typing / pasting activity sent by the editor. Everything is clamped so it can't be abused.
+function cleanActivity(a) {
+  if (!a || typeof a !== "object") return null;
+  const n = (x, max) => Math.max(0, Math.min(max, Number(x) || 0));
+  const ev = Array.isArray(a.events) ? a.events.slice(0, 25).map((e) => ({
+    t: n(e && e.t, 4e12), n: n(e && e.n, 1e6), w: n(e && e.w, 1e5), ext: !!(e && e.ext),
+    file: e && e.file === "css" ? "css" : "html", kind: e && e.kind === "drop" ? "drop" : "paste",
+    txt: String((e && e.txt) || "").slice(0, 3000)
+  })) : [];
+  return { typed: n(a.typed, 1e7), pasted: n(a.pasted, 1e7), ext: n(a.ext, 1e7), auto: n(a.auto, 1e7), loaded: n(a.loaded, 1e7), base: n(a.base, 1e4), activeMs: n(a.activeMs, 1e9), events: ev };
+}
 function cleanPeriod(p) { return String(p || "").slice(0, 12).replace(/[^A-Za-z0-9 ]/g, ""); }
 
 /* ---------------- student actions ---------------- */
@@ -76,7 +87,7 @@ async function saveDraft(body, user) {
   const css = String(body.css == null ? "" : body.css);
   if (code.length > MAX_CODE || css.length > MAX_CSS) return { error: "That file is too big to save." };
   await store().setJSON("draft:" + body.lesson + ":" + enc(user.email), {
-    email: user.email, name: user.name, period: cleanPeriod(body.period), lesson: body.lesson, code, css, savedAt: now()
+    email: user.email, name: user.name, period: cleanPeriod(body.period), lesson: body.lesson, code, css, activity: cleanActivity(body.activity), savedAt: now()
   });
   return { ok: true };
 }
@@ -90,7 +101,7 @@ async function submit(body, user) {
   const key = "sub:" + body.lesson + ":" + enc(user.email);
   const prev = await readJSON(key, null);
   const rec = {
-    email: user.email, name: user.name, period: cleanPeriod(body.period), lesson: body.lesson, code, css,
+    email: user.email, name: user.name, period: cleanPeriod(body.period), lesson: body.lesson, code, css, activity: cleanActivity(body.activity),
     submittedAt: now(), count: (prev && prev.count ? prev.count : 0) + 1,
     teacher: prev && prev.teacher ? prev.teacher : null
   };
