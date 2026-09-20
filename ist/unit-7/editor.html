@@ -142,7 +142,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   <section class="pane" id="paneCode">
     <h2>
       <span class="ftabs" id="ftabs"><button class="on" data-f="html">index.html</button><button data-f="css">style.css</button></span>
-      <span class="tools"><label title="Adds the closing tag and closing quote for you"><input type="checkbox" id="auto" checked> Auto-close</label><button class="btn sm" id="btnSkel" title="Start this file over with a fresh skeleton">New skeleton</button><span id="lineinfo">Line 1</span><span class="winbtns"><button class="btn sm" id="minCode" title="Shrink the code panel">– Minimize</button><button class="btn sm" id="maxCode" title="Make the code panel fill the screen">⤢ Maximize</button></span></span>
+      <span class="tools"><label title="Adds the closing tag and closing quote for you"><input type="checkbox" id="auto" checked> Auto-close</label><span id="lineinfo">Line 1</span><span class="winbtns"><button class="btn sm" id="minCode" title="Shrink the code panel">– Minimize</button><button class="btn sm" id="maxCode" title="Make the code panel fill the screen">⤢ Maximize</button></span></span>
     </h2>
     <div class="edwrap"><div class="gut" id="gut"></div><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="soft" aria-label="Code editor"></textarea><div id="mirror" aria-hidden="true"></div></div>
     <button class="stripbtn" data-restore="both" aria-label="Show the code panel">▸ Code</button>
@@ -222,10 +222,14 @@ function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&
 function fmtTime(iso) { try { return new Date(iso).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return iso; } }
 function banner(msg, kind) { var b = $("banner"); b.className = "banner show " + (kind || "good"); b.textContent = msg; }
 
-/* ---------- the starter skeleton (created for you) ---------- */
-var SKEL = '<!DOCTYPE html>\n<html>\n  <head>\n    <title>My Page</title>\n    <link rel="stylesheet" href="style.css">\n  </head>\n  <body>\n    \n  </body>\n</html>\n';
-var SKEL_CARET = SKEL.indexOf("<body>\n    ") + "<body>\n    ".length;
-function isBlank(code) { return !code.trim() || code === SKEL; }
+/* ---------- students build the skeleton themselves ---------- */
+function isBlank(code) { return !code.trim(); }
+function hasCssLink() { return /<link\b[^>]*href\s*=\s*["']?style\.css/i.test(S.buf.html || ""); }
+function syncCssTab() {
+  var t = $("ftabs").querySelector('[data-f="css"]'); if (!t) return;
+  t.style.display = hasCssLink() ? "" : "none";
+  if (!hasCssLink() && S.file === "css") { S.buf.css = ta.value; S.file = "html"; ta.value = S.buf.html; markTabs(); layoutGutter(); }
+}
 
 /* ---------- lessons ---------- */
 (function initLessons() {
@@ -247,21 +251,17 @@ function setCaret(pos) { ta.focus(); ta.setSelectionRange(pos, pos); }
 
 function loadLocal() {
   loadAct(); warned = false; updateHonestyLater();
-  S.buf.html = lsGet("u7:code:" + S.lesson) || SKEL;
+  S.buf.html = lsGet("u7:code:" + S.lesson) || "";
   S.buf.css = lsGet("u7:css:" + S.lesson) || "";
   S.file = "html"; ta.value = S.buf.html; markTabs();
-  refresh(); renderPreview();
-  if (S.buf.html === SKEL) setCaret(SKEL_CARET);
+  refresh(); renderPreview(); syncCssTab();
+  if (!S.buf.html) ta.focus();
 }
 function updateHonestyLater() { setTimeout(updateHonesty, 0); }
 function markTabs() { [].forEach.call($("ftabs").querySelectorAll("button"), function (b) { b.classList.toggle("on", b.getAttribute("data-f") === S.file); }); }
 $("ftabs").addEventListener("click", function (e) {
   var b = e.target.closest("button"); if (!b) return; var f = b.getAttribute("data-f"); if (f === S.file) return;
   S.buf[S.file] = ta.value; S.file = f; ta.value = S.buf[f]; markTabs(); layoutGutter(); cursorInfo(); refresh(); ta.focus();
-});
-$("btnSkel").addEventListener("click", function () {
-  if (S.file === "css") { if (!ta.value.trim() || confirm("Clear your CSS file?")) { ta.value = ""; onEdit(); } return; }
-  if (isBlank(ta.value) || confirm("Start over with a fresh skeleton? This replaces everything in index.html.")) { noteAuto(SKEL.length); ta.value = SKEL; onEdit(); setCaret(SKEL_CARET); }
 });
 $("auto").addEventListener("change", function () { lsSet("u7:auto", this.checked ? "1" : "0"); });
 
@@ -362,7 +362,7 @@ function refresh() {
   $("lname").textContent = S.lesson + " " + H.LESSONS[S.lesson].name;
   $("scoreNum").textContent = rep.score; $("scoreTot").textContent = rep.total;
   $("scoreBar").style.width = Math.min(100, rep.score / rep.total * 100) + "%";
-  $("scoreNote").textContent = isBlank(getHtml()) ? "Start typing inside the <body> to see your checklist fill in." : rep.passed + " of " + rep.count + " checks passed. This is an automatic estimate. Your teacher gives the final grade.";
+  $("scoreNote").textContent = isBlank(getHtml()) ? "Start by typing <!DOCTYPE html> on the first line. Your checklist fills in as you go." : rep.passed + " of " + rep.count + " checks passed. This is an automatic estimate. Your teacher gives the final grade.";
   var nw = "", old = "", nOld = 0;
   rep.results.forEach(function (x) {
     var h = '<div class="rule ' + (x.ok ? "ok" : "no") + '"><span class="m">' + (x.ok ? "✓" : "!") + '</span><span>' + esc(x.label) + (x.tip && !x.ok ? "<small>" + esc(x.tip) + "</small>" : "") + "</span></div>";
@@ -377,7 +377,7 @@ function refresh() {
   var tg = "", names = Object.keys(rep.tags).sort();
   names.forEach(function (n) { tg += "<span>&lt;" + esc(n) + "&gt; <b>" + rep.tags[n] + "</b></span>"; });
   $("tags").innerHTML = tg || '<span style="color:var(--soft);border:0;background:none">No tags yet.</span>';
-  layoutGutter.errs = errLines; layoutGutter();
+  layoutGutter.errs = errLines; layoutGutter(); syncCssTab();
   $("chkScore").textContent = rep.score + "/" + rep.total;
   $("btnChecks").classList.toggle("hasErr", rep.errors.length > 0);
 }
@@ -504,7 +504,7 @@ function cloudSave() {
   var key = S.buf.html + " " + S.buf.css;
   if (!S.cred || key === lastCloud || isBlank(S.buf.html)) return Promise.resolve();
   var html = S.buf.html, css = S.buf.css;
-  return api({ action: "saveDraft", lesson: S.lesson, code: html, css: css, period: $("period").value, activity: Object.assign({}, ACT, { base: SKEL.length }) }).then(function (j) { if (j && j.ok) lastCloud = html + " " + css; });
+  return api({ action: "saveDraft", lesson: S.lesson, code: html, css: css, period: $("period").value, activity: ACT }).then(function (j) { if (j && j.ok) lastCloud = html + " " + css; });
 }
 setInterval(cloudSave, 60000); // every 60 seconds, only when something changed
 document.addEventListener("visibilitychange", function () { if (document.hidden) { saveNow(false); cloudSave(); } });
@@ -524,7 +524,7 @@ $("btnSubmit").addEventListener("click", function () {
 $("mCancel").addEventListener("click", function () { $("mSubmit").classList.remove("show"); });
 $("mGo").addEventListener("click", function () {
   var btn = this; btn.disabled = true;
-  api({ action: "submit", lesson: S.lesson, code: S.buf.html, css: S.buf.css, period: $("period").value, activity: Object.assign({}, ACT, { base: SKEL.length }) }).then(function (j) {
+  api({ action: "submit", lesson: S.lesson, code: S.buf.html, css: S.buf.css, period: $("period").value, activity: ACT }).then(function (j) {
     btn.disabled = false; $("mSubmit").classList.remove("show");
     if (j && j.ok) { lastCloud = S.buf.html + " " + S.buf.css; banner("Submitted " + fmtTime(j.submittedAt) + ". (Submission #" + j.count + ") Auto score: " + (lastReport ? lastReport.score : "") + " / 50. Your teacher will review it.", "good"); $("status").textContent = "Submitted " + fmtTime(j.submittedAt); }
     else if (j && j.error && !j.needLogin) banner(j.error, "err");

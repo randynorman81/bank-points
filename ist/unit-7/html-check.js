@@ -229,11 +229,17 @@
         var t = c.all("title"); return t.length === 1 && !!c.ancestor(t[0], ["head"]) && c.text(t[0]).length > 0;
       }, "The title is the text that shows in the browser tab.", false, true),
       r("Exactly one <h1> in the <body>", function (c) { var a = c.all("h1"); return a.length === 1 && !!c.ancestor(a[0], ["body"]) && c.text(a[0]).length > 0; }, "An h1 is the main title, so use it once.", false, true),
+      r("At least 3 section headings (<h2> or <h3>)", function (c) { return c.count("h2") + c.count("h3") >= 3; }, "Wikipedia pages are split into sections, and each section starts with a heading.", true),
+      r("Headings follow the outline order (no <h3> before an <h2>, and no skipped levels)", function (c) {
+        var hs = []; (function w(n) { n.children.forEach(function (x) { if (x.tag === "#text") return; if (/^h[1-6]$/.test(x.tag)) hs.push(+x.tag.charAt(1)); w(x); }); })(c.tree);
+        if (!hs.length || hs[0] !== 1) return false;
+        for (var i = 1; i < hs.length; i++) if (hs[i] > hs[i - 1] + 1) return false; return true;
+      }, "Like an outline: h1 first, then h2 sections, and h3 only inside an h2.", true),
       r("At least 10 <p> paragraphs, all inside the <body>", function (c) { var a = c.all("p"); return a.length >= 10 && a.every(function (n) { return !!c.ancestor(n, ["body"]); }); }, "", true),
       r("At least 8 of your paragraphs have 25 words or more", function (c) { return c.all("p").filter(function (n) { return c.words(n) >= 25; }).length >= 8; }, "Write full paragraphs of 3 to 5 sentences.", true),
       r("At least 300 words of text on the page", function (c) { var b = c.all("body")[0]; return !!b && c.words(b) >= 300; }, "A long page, like a real encyclopedia article.", true),
-      r("Uses only the tags from this lesson: html, head, title, body, h1, p (plus the link to style.css)", function (c) {
-        var ok = { html: 1, head: 1, title: 1, body: 1, h1: 1, p: 1, link: 1, meta: 1 }; return Object.keys(c.tags).length > 0 && Object.keys(c.tags).every(function (t) { return ok[t]; });
+      r("Uses only the tags from this lesson: html, head, title, body, headings (h1 to h6), and p", function (c) {
+        var ok = { html: 1, head: 1, title: 1, body: 1, h1: 1, h2: 1, h3: 1, h4: 1, h5: 1, h6: 1, p: 1 }; return Object.keys(c.tags).length > 0 && Object.keys(c.tags).every(function (t) { return ok[t]; });
       }, "Save the other tags for later lessons.", true),
       r("Every tag is closed and nested correctly", function (c) { return c.errors.length === 0 && c.has("html"); }, "See the Problems list for exactly which line to fix.", false, true)
     ] },
