@@ -176,7 +176,6 @@
 
     var warnings = p.warnings.slice();
     soft.forEach(function (i) { warnings.push(i); });
-    if (!p.hasDoctype && tags.html) warnings.push({ line: 1, msg: "Tip: most pages start with <!DOCTYPE html> on line 1." });
     walk(tree, function (n) {
       if (n.tag === "img" && n.attrs.alt === undefined) warnings.push({ line: n.line, msg: "<img> on line " + n.line + " has no alt attribute." });
       if (n.tag === "a" && n.attrs.href === undefined) warnings.push({ line: n.line, msg: "<a> on line " + n.line + " has no href, so it is not a link." });
@@ -196,13 +195,14 @@
       propValues: function (name) { return allDecls.filter(function (d) { return d.prop === name; }).map(function (d) { return d.value; }); },
       selector: function (sel) { return sheetRules.filter(function (r) { return r.selector.toLowerCase() === sel.toLowerCase(); }); },
       text: textOf,
-      ancestor: ancestor
+      ancestor: ancestor,
+      words: function (node) { var t = textOf(node).replace(/\s+/g, " ").trim(); return t ? t.split(" ").length : 0; }
     };
     return ctx;
   }
 
   /* ---------- rule helper ---------- */
-  function r(label, test, tip) { return { label: label, test: test, tip: tip || "" }; }
+  function r(label, test, tip, only) { return { label: label, test: test, tip: tip || "", only: !!only }; }
   function anyValue(c, prop, fn) { return c.propValues(prop).some(fn); }
   var HEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
   function colorTokens(c) {
@@ -218,6 +218,7 @@
      ===================================================================== */
   var LESSONS = {
     "7.1": { name: "Intro to HTML and the HTML Skeleton", rules: [
+      r("First line is <!DOCTYPE html>", function (c) { return /^\s*<!doctype html>/i.test(c.src); }, "Every real web page starts with this line."),
       r("Has the skeleton: <html> containing <head> and then <body>", function (c) {
         var h = c.all("html")[0]; if (!h) return false;
         var kids = h.children.filter(function (n) { return n.tag !== "#text"; }).map(function (n) { return n.tag; });
@@ -226,9 +227,13 @@
       r("Exactly one <title> inside <head> with text in it", function (c) {
         var t = c.all("title"); return t.length === 1 && !!c.ancestor(t[0], ["head"]) && c.text(t[0]).length > 0;
       }, "The title is the text that shows in the browser tab."),
-      r("Has at least one <h1> in the <body>", function (c) { var a = c.all("h1"); return a.length >= 1 && a.every(function (n) { return !!c.ancestor(n, ["body"]); }); }),
-      r("Has at least one <p> in the <body>", function (c) { var a = c.all("p"); return a.length >= 1 && a.every(function (n) { return !!c.ancestor(n, ["body"]); }); }),
-      r("Only one <h1> on the page", function (c) { return c.count("h1") === 1; }, "An h1 is the main title, so use it once."),
+      r("Exactly one <h1> in the <body> (your topic name)", function (c) { var a = c.all("h1"); return a.length === 1 && !!c.ancestor(a[0], ["body"]) && c.text(a[0]).length > 0; }, "An h1 is the main title, so use it once."),
+      r("At least 10 <p> paragraphs, all inside the <body>", function (c) { var a = c.all("p"); return a.length >= 10 && a.every(function (n) { return !!c.ancestor(n, ["body"]); }); }),
+      r("At least 8 of your paragraphs have 25 words or more", function (c) { return c.all("p").filter(function (n) { return c.words(n) >= 25; }).length >= 8; }, "Write full paragraphs of 3 to 5 sentences."),
+      r("At least 300 words of text on the page", function (c) { var b = c.all("body")[0]; return !!b && c.words(b) >= 300; }, "A long page, like a real encyclopedia article."),
+      r("Uses only the tags from this lesson: html, head, title, body, h1, p", function (c) {
+        var ok = { html: 1, head: 1, title: 1, body: 1, h1: 1, p: 1 }; return Object.keys(c.tags).length > 0 && Object.keys(c.tags).every(function (t) { return ok[t]; });
+      }, "Save the other tags for later lessons.", true),
       r("Every tag is closed and nested correctly", function (c) { return c.errors.length === 0 && c.has("html"); }, "See the Problems list for exactly which line to fix.")
     ] },
     "7.2": { name: "Creation Tags + Inline Styling", rules: [
@@ -358,7 +363,7 @@
     ORDER.forEach(function (l, i) {
       if (i > idx) return;
       var isNew = (i === idx) || lesson === "7.13";
-      (LESSONS[l].rules || []).forEach(function (rule, j) { out.push({ id: l + "-" + j, lesson: l, label: rule.label, tip: rule.tip, test: rule.test, isNew: isNew }); });
+      (LESSONS[l].rules || []).forEach(function (rule, j) { if (rule.only && l !== lesson) return; out.push({ id: l + "-" + j, lesson: l, label: rule.label, tip: rule.tip, test: rule.test, isNew: isNew }); });
     });
     return out;
   }
