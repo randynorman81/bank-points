@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intro to HTML and the HTML Skeleton | Unit 7 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-5/notes.css">
+<style>:root{--acc:#FB923C;--acc-tint:rgba(251,146,60,.13);--acc-ink:#FED7AA}
+.codeblk{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:14px 18px;margin:8px 0 14px;font-family:"JetBrains Mono",monospace;font-size:13.5px;line-height:1.7;color:#E8ECF3;overflow-x:auto;white-space:pre}
+.codeblk .t{color:#FDBA74}.codeblk .a{color:#93C5FD}.codeblk .v{color:#86EFAC}.codeblk .c{color:#7B8799}
+.demo{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:8px 0 18px}
+.demo .box{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:16px 18px}
+.demo .box h4{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:10px}
+.demo .out{background:#fff;color:#111;border-radius:6px;padding:16px;margin-top:10px;font-family:Georgia,serif;font-size:15px}
+.nest{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:18px;margin:8px 0 16px;font-family:"JetBrains Mono",monospace;font-size:13px}
+.nest .b1{border:2px solid var(--acc);border-radius:8px;padding:12px 14px;background:var(--acc-tint)}
+.nest .b2{border:2px dashed #93C5FD;border-radius:8px;padding:10px 12px;margin-top:10px;background:rgba(147,197,253,.08)}
+.nest .b3{border:2px dashed #86EFAC;border-radius:8px;padding:10px 12px;margin-top:10px;background:rgba(134,239,172,.08)}
+.nest small{display:block;color:var(--ink-soft);font-family:"Manrope",sans-serif;font-size:12.5px;margin-top:3px}
+.tabmock{display:inline-flex;align-items:center;gap:10px;background:#2B3544;color:#fff;border-radius:8px 8px 0 0;padding:8px 14px;font:13px "Manrope",sans-serif;margin-top:6px}
+.tabmock i{opacity:.6;font-style:normal}
+.tabbar{background:#111827;border:1px solid var(--rule);border-radius:8px;padding:10px 12px 0;margin:8px 0 12px}
+.tryit{display:block;text-align:center;margin:16px 0;background:var(--acc);color:#0B0E14;font-weight:800;border-radius:8px;padding:14px;text-decoration:none}
+</style></head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 7</a><a href="7-1-intro-to-html-and-html-skeleton.html">Back to 7.1</a><a href="html-intro-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 7 Notes &nbsp;/&nbsp; Lesson 7.1</div>
+  <h1>Intro to HTML and the HTML Skeleton</h1>
+  <p class="deck">Every website you have ever visited is built from a few simple pieces. This page has everything for 7.1 in one place: the three languages of the web, tags, the skeleton, and the title tag.</p>
+  <span class="stdchip">HTML Foundations</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>The Three Languages of the Web</h2></div>
+  <p class="lede">Every website is built from a combination of three languages. Think of building a house.</p>
+  <div class="tabs">
+    <button class="active" data-tabgroup="lang" data-tab="html" onclick="tab(this)">HTML</button>
+    <button data-tabgroup="lang" data-tab="css" onclick="tab(this)">CSS</button>
+    <button data-tabgroup="lang" data-tab="js" onclick="tab(this)">JavaScript</button>
+    <button data-tabgroup="lang" data-tab="py" onclick="tab(this)">Where's Python?</button>
+  </div>
+  <div class="tabpanel active" data-tabgroup="lang" data-panel="html"><div class="gfx"><span style="font-size:44px">🧱</span></div><div><h3>HTML: the structure</h3><p><b>HyperText Markup Language.</b> Like the wood framing, walls, and foundation of a house. It defines <b>what the content is</b>.</p></div></div>
+  <div class="tabpanel" data-tabgroup="lang" data-panel="css"><div class="gfx"><span style="font-size:44px">🎨</span></div><div><h3>CSS: the presentation</h3><p><b>Cascading Style Sheets.</b> Like the paint, wallpaper, and floor tiles. It defines <b>how the content looks</b>.</p></div></div>
+  <div class="tabpanel" data-tabgroup="lang" data-panel="js"><div class="gfx"><span style="font-size:44px">💡</span></div><div><h3>JavaScript: the behavior</h3><p>Like the doorbell, light switches, and plumbing. It makes the page <b>do things</b>.</p></div></div>
+  <div class="tabpanel" data-tabgroup="lang" data-panel="py"><div class="gfx"><span style="font-size:44px">🐍</span></div><div><h3>Python: the server</h3><p>Unlike the others, Python usually runs on the <b>server</b> (the computer far away). HTML, CSS, and JavaScript work inside your browser. Python handles logic like checking your password or searching a database.</p></div></div>
+  <div class="callout">This unit focuses on HTML and CSS.<span>They rely on each other. HTML is the skeleton (the frame of the house), and CSS is the styling (the paint, the siding, and the interior design). We learn both at the same time.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>Tags, Elements, and Attributes</h2></div>
+  <p class="lede">HTML is built with <b>tags</b>. Most tags come in pairs that wrap around content.</p>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Type</th><th>Syntax</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><b>Opening tag</b></td><td><code>&lt;tagname&gt;</code></td><td>Starts the element</td></tr>
+      <tr><td><b>Closing tag</b></td><td><code>&lt;/tagname&gt;</code></td><td>Ends the element (always has a forward slash <code>/</code>)</td></tr>
+    </tbody></table></div></div>
+  <p class="lede">When you put tags and content together, you create an <b>element</b>.</p>
+<div class="codeblk"><span class="t">&lt;p&gt;</span> Hello, World! <span class="t">&lt;/p&gt;</span></div>
+  <ul style="margin:0 0 16px 22px">
+    <li><b>Opening tag:</b> tells the browser, "A paragraph starts here."</li>
+    <li><b>Content:</b> the actual text or image visible to the user.</li>
+    <li><b>Closing tag:</b> tells the browser, "The paragraph is finished."</li>
+  </ul>
+  <h3 style="color:#fff;margin:22px 0 8px">Attributes live in the opening tag</h3>
+  <p class="lede">Opening tags do more than name the element. They are where you give extra instructions, called <b>attributes</b>. An image tag does not work without a source, so the file path goes in the opening tag.</p>
+<div class="codeblk"><span class="t">&lt;img</span> <span class="a">src</span>=<span class="v">"logo.png"</span> <span class="a">alt</span>=<span class="v">"Company Logo"</span><span class="t">&gt;</span>
+<span class="t">&lt;a</span> <span class="a">href</span>=<span class="v">"https://google.com"</span><span class="t">&gt;</span>Click Me<span class="t">&lt;/a&gt;</span></div>
+  <div class="callout">Always look at the opening tag first.<span>That is where the ID, class, and source will live when we start making sites interactive.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>Rules HTML Does Not Follow</h2></div>
+  <p class="lede">HTML is <b>whitespace insensitive</b>, which means it ignores much of how you format your code.</p>
+  <div class="cards">
+    <div class="cardx"><div class="num">Rule 01</div><h4>Extra spaces are ignored</h4><p>Ten spaces between words in your code show up as one space on the page.</p></div>
+    <div class="cardx"><div class="num">Rule 02</div><h4>Line breaks are ignored</h4><p>Pressing Enter in your code does not make a new line on the page. You need a specific tag, like <code>&lt;br&gt;</code>.</p></div>
+    <div class="cardx"><div class="num">Rule 03</div><h4>Code lines are not page lines</h4><p>A paragraph might span lines 4 to 10 in your editor but look like one single line in the browser.</p></div>
+  </div>
+  <div class="demo">
+    <div class="box"><h4>Your code</h4><div class="codeblk" style="margin:0"><span class="c">1</span>  <span class="t">&lt;p&gt;</span>
+<span class="c">2</span>    This text is on line 2 in code,
+<span class="c">3</span>    but it will stay on one line
+<span class="c">4</span>    in the browser.
+<span class="c">5</span>  <span class="t">&lt;/p&gt;</span></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out"><p style="margin:0">
+    This text is on line 2 in code,
+    but it will stay on one line
+    in the browser.
+    </p></div></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>The HTML + CSS Duo</h2></div>
+  <p class="lede">HTML defines <b>what the content is</b>. CSS defines <b>how it looks</b>. With <b>inline styling</b>, you put the CSS right inside the HTML tag using the <code>style</code> attribute.</p>
+  <div class="demo">
+    <div class="box"><h4>1. HTML only (the skeleton)</h4>
+<div class="codeblk" style="margin:0"><span class="t">&lt;p&gt;</span> Hello! This is a plain paragraph. <span class="t">&lt;/p&gt;</span></div>
+      <div class="out"><p style="margin:0">Hello! This is a plain paragraph.</p></div>
+      <p style="font-size:13px;color:var(--ink-soft);margin:10px 0 0">It uses the browser's default black text and standard font.</p></div>
+    <div class="box"><h4>2. HTML + inline CSS (the style)</h4>
+<div class="codeblk" style="margin:0;white-space:pre-wrap"><span class="t">&lt;p</span> <span class="a">style</span>=<span class="v">"color: white; background-color: navy; border: 4px solid orange; padding: 15px; border-radius: 15px;"</span><span class="t">&gt;</span> Hello! <span class="t">&lt;/p&gt;</span></div>
+      <div class="out" style="background:#fff"><p style="margin:0;color:white;background-color:navy;border:4px solid orange;padding:15px;border-radius:15px">Hello! This is a styled paragraph.</p></div></div>
+  </div>
+  <div class="callout">HTML builds the furniture. Inline CSS is the paint you apply directly to it.<span>The HTML tag stays the same in both examples. The <code>style</code> attribute completely transforms the result.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">05</div><h2>The HTML Skeleton</h2></div>
+  <p class="lede">A <b>container tag</b> is a tag designed to hold, create, or edit other tags. Its primary job is to provide structure by wrapping around other elements.</p>
+  <div class="callout">The box analogy.<span>You open the main box and find the product, plus a smaller box holding the charger and accessories. The small box is <b>nested</b> inside the bigger box. The HTML skeleton is a combination of container tags nested inside each other.</span></div>
+  <div class="nest">
+    <div class="b1"><b>&lt;html&gt;</b> The Master Box (the big outer box)
+      <div class="b2"><b>&lt;head&gt;</b> Container #1: hidden page data<small>Nested inside html.</small></div>
+      <div class="b3"><b>&lt;body&gt;</b> Container #2: visible content<small>Also nested inside html, placed below head.</small></div>
+      <b style="display:block;margin-top:10px">&lt;/html&gt;</b>
+    </div>
+  </div>
+  <p class="lede">In code, we use indentation (extra space) to show that one box is inside another.</p>
+<div class="codeblk"><span class="t">&lt;html&gt;</span>            <span class="c">&lt;!-- Outer box opens --&gt;</span>
+  <span class="t">&lt;head&gt;</span>          <span class="c">&lt;!-- Nested inside html --&gt;</span>
+    <span class="c">&lt;!-- Info about the page goes here --&gt;</span>
+  <span class="t">&lt;/head&gt;</span>
+  <span class="t">&lt;body&gt;</span>          <span class="c">&lt;!-- Also nested inside html, below head --&gt;</span>
+    <span class="c">&lt;!-- Everything you see goes here --&gt;</span>
+  <span class="t">&lt;/body&gt;</span>
+<span class="t">&lt;/html&gt;</span>           <span class="c">&lt;!-- Outer box closes --&gt;</span></div>
+  <ul style="margin:0 0 16px 22px">
+    <li>The <code>&lt;head&gt;</code> tag is always inside the <code>&lt;html&gt;</code> tags.</li>
+    <li>The <code>&lt;body&gt;</code> tag is also inside the <code>&lt;html&gt;</code> tags, but it is placed below the head.</li>
+    <li>Coming later: more container tags like <code>&lt;div&gt;</code>, <code>&lt;section&gt;</code>, and <code>&lt;footer&gt;</code>.</li>
+  </ul>
+  <div class="callout">HTML is a series of containers that hold other tags.</div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">06</div><h2>The &lt;title&gt; Tag</h2></div>
+  <p class="lede">The <code>&lt;title&gt;</code> tag defines the text that appears in the browser tab and in search engine results. It is the only part of the <code>&lt;head&gt;</code> that a user actually interacts with regularly.</p>
+<div class="codeblk"><span class="t">&lt;head&gt;</span>
+  <span class="t">&lt;title&gt;</span>My Awesome Portfolio<span class="t">&lt;/title&gt;</span>
+<span class="t">&lt;/head&gt;</span></div>
+  <div class="tabbar"><div class="tabmock">My Awesome Portfolio <i>&times;</i></div></div>
+  <p class="hint">What the browser tab looks like with that title tag.</p>
+  <div class="cards">
+    <div class="cardx"><div class="num">Where 01</div><h4>Browser tabs</h4><p>It provides the name on the tab so users can find your site when they have many tabs open.</p></div>
+    <div class="cardx"><div class="num">Where 02</div><h4>Search results (SEO)</h4><p>The big blue link you click in a Google search is usually pulled from the title tag.</p></div>
+    <div class="cardx"><div class="num">Where 03</div><h4>Bookmarks</h4><p>When someone saves your site as a favorite, the default name is the text inside the title tag.</p></div>
+  </div>
+  <div class="callout">The title is like the filename of a Word document.<span>If the <code>&lt;head&gt;</code> is the Page Setup menu, the <code>&lt;title&gt;</code> is the filename you give the document before you save it. It identifies the page but is not part of the essay content. Rule: only <b>one</b> title tag per page.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">07</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Plain-English meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>HTML</b></td><td>HyperText Markup Language: the structure of a web page</td></tr>
+      <tr><td><b>CSS</b></td><td>Cascading Style Sheets: how a web page looks</td></tr>
+      <tr><td><b>Tag</b></td><td>A piece of HTML in angle brackets. Most come as an opening and closing pair</td></tr>
+      <tr><td><b>Element</b></td><td>An opening tag, its content, and the closing tag together</td></tr>
+      <tr><td><b>Attribute</b></td><td>Extra instructions inside an opening tag, like <code>src</code> or <code>style</code></td></tr>
+      <tr><td><b>Container tag</b></td><td>A tag that holds, creates, or edits other tags</td></tr>
+      <tr><td><b>HTML skeleton</b></td><td>The required set of nested container tags: html, head, and body</td></tr>
+      <tr><td><b>Inline styling</b></td><td>CSS written directly inside an HTML tag with the style attribute</td></tr>
+      <tr><td><b>Whitespace insensitive</b></td><td>HTML ignores extra spaces and line breaks in your code</td></tr>
+    </tbody></table></div></div>
+  <a class="tryit" href="https://onecompiler.com/html" target="_blank" rel="noopener">Practice with OneCompiler &rarr;</a>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>Structure first. Style second.</h2><p>Ready to build? Head back to 7.1 for the assignment.</p><a class="back" href="7-1-intro-to-html-and-html-skeleton.html">&larr; Back to 7.1</a><a class="back" href="index.html">Unit 7</a><p class="sig">Unit 7 Notes / Lesson 7.1 / end of file</p></div></footer>
+<script src="../unit-5/notes.js"></script></body></html>
