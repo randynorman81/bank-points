@@ -202,7 +202,7 @@
   }
 
   /* ---------- rule helper ---------- */
-  function r(label, test, tip, only) { return { label: label, test: test, tip: tip || "", only: !!only }; }
+  function r(label, test, tip, only, base) { return { label: label, test: test, tip: tip || "", only: !!only, base: !!base }; }
   function anyValue(c, prop, fn) { return c.propValues(prop).some(fn); }
   var HEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
   function colorTokens(c) {
@@ -218,23 +218,23 @@
      ===================================================================== */
   var LESSONS = {
     "7.1": { name: "Intro to HTML and the HTML Skeleton", rules: [
-      r("First line is <!DOCTYPE html>", function (c) { return /^\s*<!doctype html>/i.test(c.src); }, "Every real web page starts with this line."),
+      r("First line is <!DOCTYPE html>", function (c) { return /^\s*<!doctype html>/i.test(c.src); }, "Every real web page starts with this line.", false, true),
       r("Has the skeleton: <html> containing <head> and then <body>", function (c) {
         var h = c.all("html")[0]; if (!h) return false;
         var kids = h.children.filter(function (n) { return n.tag !== "#text"; }).map(function (n) { return n.tag; });
         return kids.indexOf("head") > -1 && kids.indexOf("body") > -1 && kids.indexOf("head") < kids.indexOf("body");
-      }, "head and body both go inside html, with head first."),
+      }, "head and body both go inside html, with head first.", false, true),
       r("Exactly one <title> inside <head> with text in it", function (c) {
         var t = c.all("title"); return t.length === 1 && !!c.ancestor(t[0], ["head"]) && c.text(t[0]).length > 0;
-      }, "The title is the text that shows in the browser tab."),
-      r("Exactly one <h1> in the <body> (your topic name)", function (c) { var a = c.all("h1"); return a.length === 1 && !!c.ancestor(a[0], ["body"]) && c.text(a[0]).length > 0; }, "An h1 is the main title, so use it once."),
-      r("At least 10 <p> paragraphs, all inside the <body>", function (c) { var a = c.all("p"); return a.length >= 10 && a.every(function (n) { return !!c.ancestor(n, ["body"]); }); }),
-      r("At least 8 of your paragraphs have 25 words or more", function (c) { return c.all("p").filter(function (n) { return c.words(n) >= 25; }).length >= 8; }, "Write full paragraphs of 3 to 5 sentences."),
-      r("At least 300 words of text on the page", function (c) { var b = c.all("body")[0]; return !!b && c.words(b) >= 300; }, "A long page, like a real encyclopedia article."),
+      }, "The title is the text that shows in the browser tab.", false, true),
+      r("Exactly one <h1> in the <body>", function (c) { var a = c.all("h1"); return a.length === 1 && !!c.ancestor(a[0], ["body"]) && c.text(a[0]).length > 0; }, "An h1 is the main title, so use it once.", false, true),
+      r("At least 10 <p> paragraphs, all inside the <body>", function (c) { var a = c.all("p"); return a.length >= 10 && a.every(function (n) { return !!c.ancestor(n, ["body"]); }); }, "", true),
+      r("At least 8 of your paragraphs have 25 words or more", function (c) { return c.all("p").filter(function (n) { return c.words(n) >= 25; }).length >= 8; }, "Write full paragraphs of 3 to 5 sentences.", true),
+      r("At least 300 words of text on the page", function (c) { var b = c.all("body")[0]; return !!b && c.words(b) >= 300; }, "A long page, like a real encyclopedia article.", true),
       r("Uses only the tags from this lesson: html, head, title, body, h1, p", function (c) {
         var ok = { html: 1, head: 1, title: 1, body: 1, h1: 1, p: 1 }; return Object.keys(c.tags).length > 0 && Object.keys(c.tags).every(function (t) { return ok[t]; });
       }, "Save the other tags for later lessons.", true),
-      r("Every tag is closed and nested correctly", function (c) { return c.errors.length === 0 && c.has("html"); }, "See the Problems list for exactly which line to fix.")
+      r("Every tag is closed and nested correctly", function (c) { return c.errors.length === 0 && c.has("html"); }, "See the Problems list for exactly which line to fix.", false, true)
     ] },
     "7.2": { name: "Creation Tags + Inline Styling", rules: [
       r("Uses at least 2 different heading levels (h1, h2, h3...)", function (c) { var n = 0; ["h1", "h2", "h3", "h4", "h5", "h6"].forEach(function (h) { if (c.has(h)) n++; }); return n >= 2; }),
@@ -358,12 +358,18 @@
   var CARRY_WEIGHT = 0.4;     // rules from earlier lessons count this much as new ones
 
   function rulesFor(lesson) {
+    // Every lesson is its own project. Only the "base" rules (the basics: DOCTYPE, skeleton, title,
+    // one h1, tags closed correctly) carry into later lessons. The unit test (7.13) uses everything.
     var idx = ORDER.indexOf(lesson), out = [];
     if (idx < 0) return out;
     ORDER.forEach(function (l, i) {
       if (i > idx) return;
       var isNew = (i === idx) || lesson === "7.13";
-      (LESSONS[l].rules || []).forEach(function (rule, j) { if (rule.only && l !== lesson) return; out.push({ id: l + "-" + j, lesson: l, label: rule.label, tip: rule.tip, test: rule.test, isNew: isNew }); });
+      (LESSONS[l].rules || []).forEach(function (rule, j) {
+        if (rule.only && l !== lesson) return;
+        if (!isNew && !rule.base) return;
+        out.push({ id: l + "-" + j, lesson: l, label: rule.label, tip: rule.tip, test: rule.test, isNew: isNew });
+      });
     });
     return out;
   }
