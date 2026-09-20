@@ -54,7 +54,7 @@
   /* ---------- tokenize + build tree ---------- */
   function parse(src) {
     var root = { tag: "#root", attrs: {}, children: [], parent: null, line: 1 };
-    var errors = [], warnings = [], stack = [root], text = [], forced = {};
+    var errors = [], warnings = [], stack = [root], text = [], forced = {}, openRaw = null;
     var re = /<!--[\s\S]*?-->|<!doctype[^>]*>|<\/\s*([a-zA-Z][a-zA-Z0-9-]*)\s*>|<([a-zA-Z][a-zA-Z0-9-]*)((?:"[^"]*"|'[^']*'|[^>"'])*)>/gi;
     var last = 0, m, hasDoctype = false;
 
@@ -96,14 +96,15 @@
         var endRe = new RegExp("</\\s*" + tag + "\\s*>", "ig"); endRe.lastIndex = last;
         var em = endRe.exec(src);
         if (em) { node.rawText = src.slice(last, em.index); node.closeLine = lineOf(src, em.index); last = em.index + em[0].length; re.lastIndex = last; }
-        else { errors.push({ line: line, msg: "<" + tag + "> is never closed. Add </" + tag + ">." }); node.rawText = src.slice(last); last = src.length; re.lastIndex = last; }
+        else { errors.push({ line: line, msg: "<" + tag + "> is never closed. Add </" + tag + ">." }); node.rawText = src.slice(last); openRaw = tag; last = src.length; re.lastIndex = last; }
         continue;
       }
       stack.push(node);
     }
     addText(src.slice(last), last);
+    var openNames = stack.slice(1).map(function (n) { return n.tag; });
     for (var k = stack.length - 1; k > 0; k--) errors.push({ line: stack[k].line, msg: "<" + stack[k].tag + "> on line " + stack[k].line + " is never closed. Add </" + stack[k].tag + ">." });
-    return { root: root, errors: errors, warnings: warnings, hasDoctype: hasDoctype };
+    return { root: root, errors: errors, warnings: warnings, hasDoctype: hasDoctype, open: openNames, openRaw: openRaw };
   }
 
   /* ---------- walk helpers ---------- */
@@ -231,8 +232,8 @@
       r("At least 10 <p> paragraphs, all inside the <body>", function (c) { var a = c.all("p"); return a.length >= 10 && a.every(function (n) { return !!c.ancestor(n, ["body"]); }); }, "", true),
       r("At least 8 of your paragraphs have 25 words or more", function (c) { return c.all("p").filter(function (n) { return c.words(n) >= 25; }).length >= 8; }, "Write full paragraphs of 3 to 5 sentences.", true),
       r("At least 300 words of text on the page", function (c) { var b = c.all("body")[0]; return !!b && c.words(b) >= 300; }, "A long page, like a real encyclopedia article.", true),
-      r("Uses only the tags from this lesson: html, head, title, body, h1, p", function (c) {
-        var ok = { html: 1, head: 1, title: 1, body: 1, h1: 1, p: 1 }; return Object.keys(c.tags).length > 0 && Object.keys(c.tags).every(function (t) { return ok[t]; });
+      r("Uses only the tags from this lesson: html, head, title, body, h1, p (plus the link to style.css)", function (c) {
+        var ok = { html: 1, head: 1, title: 1, body: 1, h1: 1, p: 1, link: 1, meta: 1 }; return Object.keys(c.tags).length > 0 && Object.keys(c.tags).every(function (t) { return ok[t]; });
       }, "Save the other tags for later lessons.", true),
       r("Every tag is closed and nested correctly", function (c) { return c.errors.length === 0 && c.has("html"); }, "See the Problems list for exactly which line to fix.", false, true)
     ] },
@@ -387,6 +388,14 @@
     return { lesson: lesson, results: results, errors: c.errors, warnings: c.warnings, tags: c.tags, score: empty ? 0 : score, total: TOTAL_POINTS, passed: results.filter(function (x) { return x.ok; }).length, count: results.length, empty: empty };
   }
 
-  var API = { analyze: analyze, check: check, LESSONS: LESSONS, ORDER: ORDER, TOTAL_POINTS: TOTAL_POINTS };
+  // Which tags are still open at the end of this text? (used by the editor to auto-close tags)
+  function openTags(src) { var p = parse(String(src || "")); return { open: p.open, raw: p.openRaw }; }
+  // Builds what the preview shows: swaps <link href="style.css"> for the student's CSS file
+  function previewDoc(html, css) {
+    html = String(html || ""); css = String(css || "");
+    if (!css.trim()) return html;
+    return html.replace(/<link\b[^>]*\bhref\s*=\s*["']?style\.css["']?[^>]*>/i, function () { return "<style>" + css.replace(/<\/style/gi, "<\\/style") + "</style>"; });
+  }
+  var API = { analyze: analyze, check: check, openTags: openTags, previewDoc: previewDoc, VOID: VOID, LESSONS: LESSONS, ORDER: ORDER, TOTAL_POINTS: TOTAL_POINTS };
   if (typeof module !== "undefined" && module.exports) module.exports = API; else root.HTMLCheck = API;
 })(typeof window !== "undefined" ? window : globalThis);

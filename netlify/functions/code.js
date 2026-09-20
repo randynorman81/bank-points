@@ -10,6 +10,7 @@ const GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.goo
 const SCHOOL_EMAIL_DOMAIN = "socialcircleschools.org";
 const LESSONS = ["7.1", "7.2", "7.3", "7.4", "7.5", "7.6", "7.7", "7.8", "7.9", "7.10", "7.11", "7.12", "7.13"];
 const MAX_CODE = 120000;            // characters of HTML per submission
+const MAX_CSS = 60000;              // characters of CSS (style.css) per submission
 const MAX_IMG_BYTES = 1500000;      // decoded image size
 const MAX_IMGS = 15;                // images per student
 const IMG_TYPES = { "image/png": 1, "image/jpeg": 1, "image/gif": 1, "image/webp": 1 };
@@ -72,9 +73,10 @@ async function mine(body, user) {
 async function saveDraft(body, user) {
   if (!goodLesson(body.lesson)) return { error: "Unknown lesson" };
   const code = String(body.code == null ? "" : body.code);
-  if (code.length > MAX_CODE) return { error: "That file is too big to save." };
+  const css = String(body.css == null ? "" : body.css);
+  if (code.length > MAX_CODE || css.length > MAX_CSS) return { error: "That file is too big to save." };
   await store().setJSON("draft:" + body.lesson + ":" + enc(user.email), {
-    email: user.email, name: user.name, period: cleanPeriod(body.period), lesson: body.lesson, code, savedAt: now()
+    email: user.email, name: user.name, period: cleanPeriod(body.period), lesson: body.lesson, code, css, savedAt: now()
   });
   return { ok: true };
 }
@@ -83,11 +85,12 @@ async function submit(body, user) {
   if (!goodLesson(body.lesson)) return { error: "Unknown lesson" };
   const code = String(body.code == null ? "" : body.code);
   if (!code.trim()) return { error: "Your code is empty. Write something first!" };
-  if (code.length > MAX_CODE) return { error: "That file is too big to submit." };
+  const css = String(body.css == null ? "" : body.css);
+  if (code.length > MAX_CODE || css.length > MAX_CSS) return { error: "That file is too big to submit." };
   const key = "sub:" + body.lesson + ":" + enc(user.email);
   const prev = await readJSON(key, null);
   const rec = {
-    email: user.email, name: user.name, period: cleanPeriod(body.period), lesson: body.lesson, code,
+    email: user.email, name: user.name, period: cleanPeriod(body.period), lesson: body.lesson, code, css,
     submittedAt: now(), count: (prev && prev.count ? prev.count : 0) + 1,
     teacher: prev && prev.teacher ? prev.teacher : null
   };

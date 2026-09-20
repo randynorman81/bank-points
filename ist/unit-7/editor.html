@@ -37,18 +37,32 @@ button,select{font:inherit}
 .tabsm{display:none;gap:6px;padding:6px 12px;background:var(--panel);border-bottom:1px solid var(--rule)}
 .tabsm button{flex:1}
 .tabsm button.on{background:var(--acc);color:#0B0E14;border-color:var(--acc)}
-main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) 330px}
+main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
 .pane{min-width:0;min-height:0;display:flex;flex-direction:column;border-right:1px solid var(--rule)}
-.pane h2{margin:0;padding:7px 12px;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--soft);background:var(--panel);border-bottom:1px solid var(--rule);font-family:"JetBrains Mono",monospace;font-weight:700;display:flex;align-items:center;justify-content:space-between}
-.edwrap{flex:1;min-height:0;display:flex;background:#080B11}
-.gut{flex:0 0 46px;overflow:hidden;background:#0D1220;border-right:1px solid var(--rule);color:#4E5B78;font:13px/21px "JetBrains Mono",monospace;text-align:right;padding:10px 6px 10px 0;user-select:none;white-space:pre}
-.gut div{height:21px;padding-right:4px}
+.pane h2{margin:0;padding:0 12px;min-height:36px;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--soft);background:var(--panel);border-bottom:1px solid var(--rule);font-family:"JetBrains Mono",monospace;font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ftabs{display:flex;gap:4px;align-self:flex-end}
+.ftabs button{background:transparent;border:1px solid transparent;border-bottom:0;border-radius:6px 6px 0 0;color:var(--soft);padding:7px 12px;cursor:pointer;font:600 12px "JetBrains Mono",monospace;text-transform:none;letter-spacing:0}
+.ftabs button.on{background:#080B11;color:#fff;border-color:var(--rule)}
+.tools{display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font:600 12px "Manrope",sans-serif}
+.tools label{display:flex;align-items:center;gap:5px;cursor:pointer;color:var(--soft)}
+.edwrap{flex:1;min-height:0;display:flex;background:#080B11;position:relative}
+.gut{flex:0 0 46px;overflow:hidden;background:#0D1220;border-right:1px solid var(--rule);color:#4E5B78;font:13px/21px "JetBrains Mono",monospace;text-align:right;padding:10px 6px 10px 0;user-select:none}
+.gut div{padding-right:4px}
 .gut .err{color:#fff;background:#7f1d1d;border-radius:3px}
-#code{flex:1;min-width:0;resize:none;border:0;outline:0;background:transparent;color:#E6EAF2;font:14px/21px "JetBrains Mono",monospace;padding:10px 12px;white-space:pre;overflow:auto;tab-size:2;caret-color:var(--acc)}
+#code,#mirror{font:14px/21px "JetBrains Mono",monospace;padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:2}
+#code{flex:1;min-width:0;resize:none;border:0;outline:0;background:transparent;color:#E6EAF2;overflow:auto;caret-color:var(--acc)}
 #code::selection{background:#3B4A72}
+#mirror{position:absolute;visibility:hidden;pointer-events:none;top:0;left:0;height:auto}
 .prevwrap{flex:1;min-height:0;background:#fff}
 #prev{width:100%;height:100%;border:0;background:#fff;display:block}
-.side{overflow:auto;background:var(--bg)}
+.side{position:fixed;top:0;right:0;bottom:0;width:min(380px,92vw);overflow:auto;background:var(--bg);border-left:1px solid var(--rule);box-shadow:-12px 0 40px #000a;transform:translateX(105%);transition:transform .22s ease;z-index:40}
+.side.open{transform:translateX(0)}
+.dh{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--panel);border-bottom:1px solid var(--rule);font-weight:800}
+.scrim{position:fixed;inset:0;background:#0006;z-index:39;display:none}
+.scrim.show{display:block}
+#btnChecks b{color:var(--acc)}
+#btnChecks .dot{color:var(--bad);margin-left:4px;display:none}
+#btnChecks.hasErr .dot{display:inline}
 .sec{border-bottom:1px solid var(--rule);padding:12px}
 .sec h3{margin:0 0 8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);font-family:"JetBrains Mono",monospace}
 .score{display:flex;align-items:baseline;gap:8px}
@@ -78,9 +92,8 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
 @media(max-width:1100px){
   main{grid-template-columns:1fr}
   .tabsm{display:flex}
-  .pane,.side{display:none;border-right:0}
-  main[data-tab="code"] #paneCode,main[data-tab="prev"] #panePrev,main[data-tab="side"] .side{display:flex}
-  main[data-tab="side"] .side{display:block}
+  .pane{display:none;border-right:0}
+  main[data-tab="code"] #paneCode,main[data-tab="prev"] #panePrev{display:flex}
 }
 </style>
 </head>
@@ -94,7 +107,8 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   <span class="sp"></span>
   <span class="who" id="who"></span>
   <span id="gbtn"></span>
-  <button class="btn" id="btnCopy" title="Copy your code">Copy code</button>
+  <button class="btn" id="btnChecks" title="Open your checklist, problems, and images">✓ Checks <b id="chkScore">0/50</b><span class="dot">●</span></button>
+  <button class="btn" id="btnCopy" title="Copy the file you are editing">Copy code</button>
   <button class="btn pri" id="btnSubmit">Submit</button>
   <a class="btn" id="linkGuide" href="study-guide.html" target="_blank" rel="noopener">Study guide</a>
   <a class="btn" href="index.html">Unit 7</a>
@@ -102,18 +116,23 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
 <div class="note show" id="note">Your work saves automatically in this browser. <b>Sign in with your school Google account</b> to save to the cloud (so you can switch computers) and to submit.</div>
 <div class="cloud" id="cloud"></div>
 <div class="banner" id="banner"></div>
-<div class="tabsm" id="tabsm"><button class="btn on" data-t="code">Code</button><button class="btn" data-t="prev">Preview</button><button class="btn" data-t="side">Checks</button></div>
+<div class="tabsm" id="tabsm"><button class="btn on" data-t="code">Code</button><button class="btn" data-t="prev">Preview</button></div>
 
 <main id="main" data-tab="code">
   <section class="pane" id="paneCode">
-    <h2><span>index.html</span><span id="lineinfo">Line 1</span></h2>
-    <div class="edwrap"><div class="gut" id="gut"></div><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="HTML code editor"></textarea></div>
+    <h2>
+      <span class="ftabs" id="ftabs"><button class="on" data-f="html">index.html</button><button data-f="css">style.css</button></span>
+      <span class="tools"><label title="Adds the closing tag and closing quote for you"><input type="checkbox" id="auto" checked> Auto-close</label><button class="btn sm" id="btnSkel" title="Start this file over with a fresh skeleton">New skeleton</button><span id="lineinfo">Line 1</span></span>
+    </h2>
+    <div class="edwrap"><div class="gut" id="gut"></div><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="soft" aria-label="Code editor"></textarea><div id="mirror" aria-hidden="true"></div></div>
   </section>
   <section class="pane" id="panePrev">
     <h2><span>Your website</span><button class="btn sm" id="btnRun">Refresh</button></h2>
     <div class="prevwrap"><iframe id="prev" sandbox="allow-popups" title="Preview of your website"></iframe></div>
   </section>
-  <aside class="side" id="side">
+  <div class="scrim" id="scrim"></div>
+  <aside class="side" id="side" aria-label="Checks and images">
+    <div class="dh"><span>Checks, problems &amp; images</span><button class="btn sm" id="btnCloseSide" aria-label="Close">✕ Close</button></div>
     <div class="sec" id="secScore">
       <h3 id="lname">Lesson</h3>
       <div class="score"><b id="scoreNum">0</b><span>/ <span id="scoreTot">50</span> points (auto check)</span></div>
@@ -121,7 +140,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
       <div style="font-size:12px;color:var(--soft)" id="scoreNote"></div>
     </div>
     <div class="sec" id="secTeacher" style="display:none"></div>
-    <div class="sec"><h3>Requirements</h3><div id="rulesNew"></div><details id="oldWrap"><summary>Parts from earlier lessons</summary><div id="rulesOld"></div></details></div>
+    <div class="sec"><h3>Requirements</h3><div id="rulesNew"></div><details id="oldWrap"><summary>The basics (every page needs these)</summary><div id="rulesOld"></div></details></div>
     <div class="sec"><h3>Problems to fix</h3><div id="probs"><span style="color:var(--soft)">None so far.</span></div></div>
     <div class="sec"><h3>Tags you used</h3><div class="chips" id="tags"></div></div>
     <div class="sec"><h3>My images</h3>
@@ -145,7 +164,8 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
 var API = "/api/code";
 var GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
 var $ = function (id) { return document.getElementById(id); };
-var S = { cred: null, name: "", email: "", cloudSavedCode: null, cloud: null, lesson: "7.1", dirty: false };
+var H = window.HTMLCheck;
+var S = { cred: null, name: "", email: "", cloud: null, lesson: "7.1", file: "html", buf: { html: "", css: "" } };
 
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -154,49 +174,125 @@ function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&
 function fmtTime(iso) { try { return new Date(iso).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return iso; } }
 function banner(msg, kind) { var b = $("banner"); b.className = "banner show " + (kind || "good"); b.textContent = msg; }
 
+/* ---------- the starter skeleton (created for you) ---------- */
+var SKEL = '<!DOCTYPE html>\n<html>\n  <head>\n    <title>My Page</title>\n    <link rel="stylesheet" href="style.css">\n  </head>\n  <body>\n    \n  </body>\n</html>\n';
+var SKEL_CARET = SKEL.indexOf("<body>\n    ") + "<body>\n    ".length;
+function isBlank(code) { return !code.trim() || code === SKEL; }
+
 /* ---------- lessons ---------- */
 (function initLessons() {
-  var sel = $("lesson"), H = window.HTMLCheck;
+  var sel = $("lesson");
   H.ORDER.forEach(function (l) { var o = document.createElement("option"); o.value = l; o.textContent = l + "  " + H.LESSONS[l].name; sel.appendChild(o); });
   var q = new URLSearchParams(location.search).get("lesson");
   S.lesson = (q && H.LESSONS[q]) ? q : (lsGet("u7:lesson") || "7.1");
   if (!H.LESSONS[S.lesson]) S.lesson = "7.1";
   sel.value = S.lesson;
   $("period").value = lsGet("u7:period") || "";
+  $("auto").checked = lsGet("u7:auto") !== "0";
 })();
 
 /* ---------- editor ---------- */
 var ta = $("code");
-function loadLocal() { ta.value = lsGet("u7:code:" + S.lesson) || ""; S.dirty = false; refresh(); }
-function updateGutter(errLines) {
-  var n = ta.value.split("\n").length, g = $("gut"), html = "";
-  for (var i = 1; i <= n; i++) html += '<div' + (errLines && errLines[i] ? ' class="err" title="Problem on this line"' : "") + ">" + i + "</div>";
-  g.innerHTML = html; g.scrollTop = ta.scrollTop;
+function getHtml() { return S.file === "html" ? ta.value : S.buf.html; }
+function getCss() { return S.file === "css" ? ta.value : S.buf.css; }
+function setCaret(pos) { ta.focus(); ta.setSelectionRange(pos, pos); }
+
+function loadLocal() {
+  S.buf.html = lsGet("u7:code:" + S.lesson) || SKEL;
+  S.buf.css = lsGet("u7:css:" + S.lesson) || "";
+  S.file = "html"; ta.value = S.buf.html; markTabs();
+  refresh(); renderPreview();
+  if (S.buf.html === SKEL) setCaret(SKEL_CARET);
 }
+function markTabs() { [].forEach.call($("ftabs").querySelectorAll("button"), function (b) { b.classList.toggle("on", b.getAttribute("data-f") === S.file); }); }
+$("ftabs").addEventListener("click", function (e) {
+  var b = e.target.closest("button"); if (!b) return; var f = b.getAttribute("data-f"); if (f === S.file) return;
+  S.buf[S.file] = ta.value; S.file = f; ta.value = S.buf[f]; markTabs(); layoutGutter(); cursorInfo(); refresh(); ta.focus();
+});
+$("btnSkel").addEventListener("click", function () {
+  if (S.file === "css") { if (!ta.value.trim() || confirm("Clear your CSS file?")) { ta.value = ""; onEdit(); } return; }
+  if (isBlank(ta.value) || confirm("Start over with a fresh skeleton? This replaces everything in index.html.")) { ta.value = SKEL; onEdit(); setCaret(SKEL_CARET); }
+});
+$("auto").addEventListener("change", function () { lsSet("u7:auto", this.checked ? "1" : "0"); });
+
+/* wrapped text + a line-number gutter that lines up with wrapped lines */
+var mirror = $("mirror");
+function layoutGutter() {
+  var errs = layoutGutter.errs || {};
+  mirror.style.width = ta.clientWidth + "px";
+  var lines = ta.value.split("\n"), frag = document.createDocumentFragment(), i;
+  mirror.innerHTML = "";
+  for (i = 0; i < lines.length; i++) { var d = document.createElement("div"); d.textContent = lines[i] === "" ? " " : lines[i]; mirror.appendChild(d); }
+  var html = "";
+  for (i = 0; i < lines.length; i++) { var h = mirror.children[i].offsetHeight || 21; html += '<div style="height:' + h + 'px"' + ((S.file === "html" && errs[i + 1]) ? ' class="err"' : "") + ">" + (i + 1) + "</div>"; }
+  $("gut").innerHTML = html; $("gut").scrollTop = ta.scrollTop;
+}
+window.addEventListener("resize", function () { layoutGutter(); });
 ta.addEventListener("scroll", function () { $("gut").scrollTop = ta.scrollTop; });
+
+function cursorInfo() { var b = ta.value.slice(0, ta.selectionStart).split("\n"); $("lineinfo").textContent = "Line " + b.length + ", Col " + (b[b.length - 1].length + 1); }
+ta.addEventListener("keyup", cursorInfo); ta.addEventListener("click", cursorInfo);
+
+/* auto-close tags, quotes, and smart Enter (index.html only) */
+function insertAt(pos, text, caretAfter) { ta.setRangeText(text, pos, pos, "preserve"); ta.setSelectionRange(caretAfter, caretAfter); }
+function insideTag(before) { var lt = before.lastIndexOf("<"), gt = before.lastIndexOf(">"); return lt > gt && before.charAt(lt + 1) !== "/" && before.charAt(lt + 1) !== "!"; }
+function handleAuto(ch) {
+  if (!$("auto").checked || S.file !== "html") return;
+  var pos = ta.selectionStart, v = ta.value, before = v.slice(0, pos);
+  if (ch === ">") {
+    var m = /<([a-zA-Z][a-zA-Z0-9-]*)(?:\s[^<>]*)?>$/.exec(before);
+    if (!m || /\/>$/.test(before)) return;
+    var name = m[1].toLowerCase(); if (H.VOID[name]) return;
+    var st = H.openTags(before.slice(0, before.length - m[0].length));
+    if (st.raw) return;
+    if (v.slice(pos).indexOf("</" + name + ">") === 0) return;
+    insertAt(pos, "</" + name + ">", pos);
+  } else if (ch === "/" && before.slice(-2) === "</") {
+    var st2 = H.openTags(before.slice(0, -2));
+    if (st2.raw) return;
+    var open = st2.open[st2.open.length - 1];
+    if (!open || v.charAt(pos) === ">") return;
+    var after = v.slice(pos), opens = (after.match(new RegExp("<" + open + "[\\s>]", "gi")) || []).length, closes = (after.match(new RegExp("</" + open + "\\s*>", "gi")) || []).length;
+    if (closes > opens) return; // this tag is already closed further down (for example by auto-close)
+    insertAt(pos, open + ">", pos + open.length + 1);
+  } else if (ch === '"') {
+    if (!insideTag(before.slice(0, -1))) return;
+    if (v.charAt(pos) === '"') { ta.setRangeText("", pos - 1, pos, "preserve"); ta.setSelectionRange(pos, pos); }
+    else insertAt(pos, '"', pos);
+  }
+}
+ta.addEventListener("input", function (e) {
+  if (e.inputType === "insertText" && e.data && e.data.length === 1) handleAuto(e.data);
+  onEdit();
+});
 ta.addEventListener("keydown", function (e) {
   if (e.key === "Tab") { e.preventDefault(); ta.setRangeText("  ", ta.selectionStart, ta.selectionEnd, "end"); onEdit(); }
   else if (e.key === "Enter" && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
-    var pos = ta.selectionStart, before = ta.value.slice(0, pos), line = before.slice(before.lastIndexOf("\n") + 1);
+    var pos = ta.selectionStart, v = ta.value, before = v.slice(0, pos), line = before.slice(before.lastIndexOf("\n") + 1);
     var indent = (/^[ \t]*/.exec(line) || [""])[0];
-    e.preventDefault(); ta.setRangeText("\n" + indent, pos, ta.selectionEnd, "end"); onEdit();
+    e.preventDefault();
+    if ($("auto").checked && S.file === "html" && before.slice(-1) === ">" && v.slice(pos, pos + 2) === "</") {
+      var mid = "\n" + indent + "  ";
+      ta.setRangeText(mid + "\n" + indent, pos, ta.selectionEnd, "preserve"); ta.setSelectionRange(pos + mid.length, pos + mid.length);
+    } else ta.setRangeText("\n" + indent, pos, ta.selectionEnd, "end");
+    onEdit();
   } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") { e.preventDefault(); saveNow(true); }
   else if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); renderPreview(); }
 });
-ta.addEventListener("input", onEdit);
-ta.addEventListener("keyup", cursorInfo); ta.addEventListener("click", cursorInfo);
-function cursorInfo() { var b = ta.value.slice(0, ta.selectionStart).split("\n"); $("lineinfo").textContent = "Line " + b.length + ", Col " + (b[b.length - 1].length + 1); }
-var tPrev, tChk, tSave;
+
+var tPrev, tChk, tSave, tLay;
 function onEdit() {
-  S.dirty = true; $("status").textContent = "Typing…";
+  S.buf[S.file] = ta.value; $("status").textContent = "Typing…";
   clearTimeout(tPrev); tPrev = setTimeout(renderPreview, 450);
   clearTimeout(tChk); tChk = setTimeout(refresh, 250);
   clearTimeout(tSave); tSave = setTimeout(function () { saveNow(false); }, 900);
-  updateGutter();
+  clearTimeout(tLay); tLay = setTimeout(layoutGutter, 30);
+  cursorInfo();
 }
-function renderPreview() { $("prev").srcdoc = ta.value; }
+function renderPreview() { $("prev").srcdoc = H.previewDoc(getHtml(), getCss()); }
 function saveNow(show) {
-  lsSet("u7:code:" + S.lesson, ta.value); lsSet("u7:lesson", S.lesson);
+  S.buf[S.file] = ta.value;
+  lsSet("u7:code:" + S.lesson, S.buf.html); lsSet("u7:css:" + S.lesson, S.buf.css); lsSet("u7:lesson", S.lesson);
   $("status").textContent = "Saved " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   if (show) toast("Saved");
 }
@@ -204,15 +300,15 @@ function saveNow(show) {
 /* ---------- checker panel ---------- */
 var lastReport = null;
 function refresh() {
-  var H = window.HTMLCheck, rep = H.check(S.lesson, ta.value); lastReport = rep;
+  var rep = H.check(S.lesson, getHtml()); lastReport = rep;
   $("lname").textContent = S.lesson + " " + H.LESSONS[S.lesson].name;
   $("scoreNum").textContent = rep.score; $("scoreTot").textContent = rep.total;
   $("scoreBar").style.width = Math.min(100, rep.score / rep.total * 100) + "%";
-  $("scoreNote").textContent = rep.empty ? "Start typing to see your checklist fill in." : rep.passed + " of " + rep.count + " checks passed. This is an automatic estimate. Your teacher gives the final grade.";
-  var nw = "", old = "", nNew = 0, nOld = 0;
+  $("scoreNote").textContent = isBlank(getHtml()) ? "Start typing inside the <body> to see your checklist fill in." : rep.passed + " of " + rep.count + " checks passed. This is an automatic estimate. Your teacher gives the final grade.";
+  var nw = "", old = "", nOld = 0;
   rep.results.forEach(function (x) {
     var h = '<div class="rule ' + (x.ok ? "ok" : "no") + '"><span class="m">' + (x.ok ? "✓" : "!") + '</span><span>' + esc(x.label) + (x.tip && !x.ok ? "<small>" + esc(x.tip) + "</small>" : "") + "</span></div>";
-    if (x.isNew) { nw += h; nNew++; } else { old += h; nOld++; }
+    if (x.isNew) nw += h; else { old += h; nOld++; }
   });
   $("rulesNew").innerHTML = nw || '<span style="color:var(--soft)">No rules yet.</span>';
   $("rulesOld").innerHTML = old; $("oldWrap").style.display = nOld ? "" : "none";
@@ -223,23 +319,33 @@ function refresh() {
   var tg = "", names = Object.keys(rep.tags).sort();
   names.forEach(function (n) { tg += "<span>&lt;" + esc(n) + "&gt; <b>" + rep.tags[n] + "</b></span>"; });
   $("tags").innerHTML = tg || '<span style="color:var(--soft);border:0;background:none">No tags yet.</span>';
-  updateGutter(errLines);
+  layoutGutter.errs = errLines; layoutGutter();
+  $("chkScore").textContent = rep.score + "/" + rep.total;
+  $("btnChecks").classList.toggle("hasErr", rep.errors.length > 0);
 }
 $("probs").addEventListener("click", function (e) {
   var p = e.target.closest(".prob"); if (!p) return;
+  if (S.file !== "html") { S.buf.css = ta.value; S.file = "html"; ta.value = S.buf.html; markTabs(); layoutGutter(); }
   var line = +p.getAttribute("data-line"), lines = ta.value.split("\n"), pos = 0;
   for (var i = 0; i < line - 1 && i < lines.length; i++) pos += lines[i].length + 1;
-  ta.focus(); ta.setSelectionRange(pos, pos + (lines[line - 1] || "").length); ta.scrollTop = Math.max(0, (line - 4) * 21);
-  if (matchMedia("(max-width:1100px)").matches) setTab("code");
+  openSide(false); setTab("code");
+  ta.focus(); ta.setSelectionRange(pos, pos + (lines[line - 1] || "").length);
 });
 
+/* ---------- the checks drawer ---------- */
+function openSide(open) { $("side").classList.toggle("open", open); $("scrim").classList.toggle("show", open); if (open) refresh(); }
+$("btnChecks").addEventListener("click", function () { openSide(!$("side").classList.contains("open")); });
+$("btnCloseSide").addEventListener("click", function () { openSide(false); });
+$("scrim").addEventListener("click", function () { openSide(false); });
+document.addEventListener("keydown", function (e) { if (e.key === "Escape") openSide(false); });
+
 /* ---------- controls ---------- */
-$("lesson").addEventListener("change", function () { saveNow(false); cloudSave(); S.lesson = this.value; lastCloud = ""; lsSet("u7:lesson", S.lesson); history.replaceState(null, "", "?lesson=" + S.lesson); updateGuideLink(); loadLocal(); renderPreview(); afterLessonChange(); });
+$("lesson").addEventListener("change", function () { saveNow(false); cloudSave(); S.lesson = this.value; lastCloud = ""; lsSet("u7:lesson", S.lesson); history.replaceState(null, "", "?lesson=" + S.lesson); updateGuideLink(); loadLocal(); afterLessonChange(); });
 $("period").addEventListener("change", function () { lsSet("u7:period", this.value); });
 $("btnRun").addEventListener("click", renderPreview);
-$("btnCopy").addEventListener("click", function () { ta.select(); try { navigator.clipboard.writeText(ta.value); toast("Copied"); } catch (e) { document.execCommand("copy"); toast("Copied"); } });
+$("btnCopy").addEventListener("click", function () { ta.select(); try { navigator.clipboard.writeText(ta.value); toast("Copied " + (S.file === "css" ? "style.css" : "index.html")); } catch (e) { document.execCommand("copy"); toast("Copied"); } });
 function setTab(t) { $("main").setAttribute("data-tab", t); [].forEach.call(document.querySelectorAll("#tabsm button"), function (b) { b.classList.toggle("on", b.getAttribute("data-t") === t); }); }
-$("tabsm").addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) setTab(b.getAttribute("data-t")); });
+$("tabsm").addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) { setTab(b.getAttribute("data-t")); if (b.getAttribute("data-t") === "code") layoutGutter(); } });
 function updateGuideLink() { $("linkGuide").href = "study-guide.html#l" + S.lesson.replace(".", "-"); }
 
 /* ---------- Google sign-in + cloud ---------- */
@@ -259,7 +365,7 @@ function onCredential(resp) {
   if ((p.hd || "").toLowerCase() !== "socialcircleschools.org") { banner("Please sign in with your school account (@socialcircleschools.org).", "err"); return; }
   S.cred = resp.credential; S.name = p.name || ""; S.email = (p.email || "").toLowerCase();
   $("who").textContent = "Signed in: " + (S.name || S.email); $("gbtn").innerHTML = ""; $("note").className = "note";
-  banner("", ""); $("banner").className = "banner";
+  $("banner").className = "banner";
   afterLessonChange(true);
 }
 function api(body) {
@@ -269,21 +375,21 @@ function api(body) {
     return j;
   });
 }
-function afterLessonChange(first) {
+function applyRecord(rec) { S.buf.html = rec.code; S.buf.css = rec.css || ""; S.file = "html"; ta.value = S.buf.html; markTabs(); saveNow(false); refresh(); renderPreview(); }
+function afterLessonChange() {
   if (!S.cred) return;
   updateGuideLink();
   api({ action: "mine", lesson: S.lesson }).then(function (j) {
     if (!j || j.error) return;
     S.cloud = j; renderImages(j.images || []);
-    var local = ta.value, subs = j.submission, dr = j.draft, opts = "";
-    if (!local.trim() && (dr || subs)) { ta.value = (dr ? dr.code : subs.code); saveNow(false); refresh(); renderPreview(); toast("Loaded your saved work"); }
-    else if (dr && dr.code !== local && dr.code.trim()) opts += '<span>Cloud draft from ' + esc(fmtTime(dr.savedAt)) + ' differs from what is on this screen.</span> <button class="btn sm" id="ldDraft">Load cloud draft</button>';
-    if (subs && subs.code !== local) opts += ' <button class="btn sm" id="ldSub">Load my last submission (' + esc(fmtTime(subs.submittedAt)) + ')</button>';
+    var mineHtml = getHtml(), subs = j.submission, dr = j.draft, opts = "";
+    if (isBlank(mineHtml) && (dr || subs)) { applyRecord(dr && !isBlank(dr.code) ? dr : subs); toast("Loaded your saved work"); }
+    else if (dr && dr.code !== mineHtml && !isBlank(dr.code)) opts += '<span>Cloud draft from ' + esc(fmtTime(dr.savedAt)) + ' differs from what is on this screen.</span> <button class="btn sm" id="ldDraft">Load cloud draft</button>';
+    if (subs && subs.code !== getHtml()) opts += ' <button class="btn sm" id="ldSub">Load my last submission (' + esc(fmtTime(subs.submittedAt)) + ')</button>';
     var c = $("cloud"); c.innerHTML = opts; c.className = "cloud" + (opts ? " show" : "");
-    var d = $("ldDraft"); if (d) d.onclick = function () { ta.value = dr.code; onEdit(); c.className = "cloud"; };
-    var s = $("ldSub"); if (s) s.onclick = function () { ta.value = subs.code; onEdit(); c.className = "cloud"; };
-    if (j.draft && !$("period").value && j.draft.period) { $("period").value = j.draft.period; lsSet("u7:period", j.draft.period); }
-    if (subs && !$("period").value && subs.period) { $("period").value = subs.period; lsSet("u7:period", subs.period); }
+    var d = $("ldDraft"); if (d) d.onclick = function () { applyRecord(dr); c.className = "cloud"; };
+    var s = $("ldSub"); if (s) s.onclick = function () { applyRecord(subs); c.className = "cloud"; };
+    [dr, subs].forEach(function (r) { if (r && !$("period").value && r.period) { $("period").value = r.period; lsSet("u7:period", r.period); } });
     showTeacher(subs);
     if (subs) $("status").textContent = "Submitted " + fmtTime(subs.submittedAt) + (subs.count > 1 ? " (#" + subs.count + ")" : "");
   });
@@ -296,20 +402,23 @@ function showTeacher(subs) {
 }
 var lastCloud = "";
 function cloudSave() {
-  if (!S.cred || ta.value === lastCloud || !ta.value.trim()) return Promise.resolve();
-  var code = ta.value;
-  return api({ action: "saveDraft", lesson: S.lesson, code: code, period: $("period").value }).then(function (j) { if (j && j.ok) lastCloud = code; });
+  S.buf[S.file] = ta.value;
+  var key = S.buf.html + " " + S.buf.css;
+  if (!S.cred || key === lastCloud || isBlank(S.buf.html)) return Promise.resolve();
+  var html = S.buf.html, css = S.buf.css;
+  return api({ action: "saveDraft", lesson: S.lesson, code: html, css: css, period: $("period").value }).then(function (j) { if (j && j.ok) lastCloud = html + " " + css; });
 }
-setInterval(cloudSave, 60000); // every 60 seconds, only when the code changed
+setInterval(cloudSave, 60000); // every 60 seconds, only when something changed
 document.addEventListener("visibilitychange", function () { if (document.hidden) { saveNow(false); cloudSave(); } });
 window.addEventListener("beforeunload", function () { saveNow(false); });
 
 /* ---------- submit ---------- */
 $("btnSubmit").addEventListener("click", function () {
-  if (!ta.value.trim()) { toast("Write some code first"); return; }
+  S.buf[S.file] = ta.value;
+  if (isBlank(S.buf.html)) { toast("Write some code first"); return; }
   if (!S.cred) { banner("Sign in with your school Google account (top right) to submit.", "err"); return; }
   if (!$("period").value) { banner("Choose your class period at the top before you submit.", "err"); $("period").focus(); return; }
-  var r = lastReport || HTMLCheck.check(S.lesson, ta.value), bad = r.errors.length;
+  var r = lastReport || H.check(S.lesson, S.buf.html), bad = r.errors.length;
   $("mSubmitBody").innerHTML = "<p>Lesson <b>" + esc(S.lesson) + "</b> for period <b>" + esc($("period").value) + "</b>.</p><p>Auto check: <b>" + r.score + " / " + r.total + "</b> (" + r.passed + " of " + r.count + " checks).</p>" +
     (bad ? '<p style="color:#FCA5A5">You still have ' + bad + " problem" + (bad > 1 ? "s" : "") + " with your tags. You can still submit, or fix them first.</p>" : "") + "<p>You can submit again later to replace this one.</p>";
   $("mSubmit").classList.add("show");
@@ -317,9 +426,9 @@ $("btnSubmit").addEventListener("click", function () {
 $("mCancel").addEventListener("click", function () { $("mSubmit").classList.remove("show"); });
 $("mGo").addEventListener("click", function () {
   var btn = this; btn.disabled = true;
-  api({ action: "submit", lesson: S.lesson, code: ta.value, period: $("period").value }).then(function (j) {
+  api({ action: "submit", lesson: S.lesson, code: S.buf.html, css: S.buf.css, period: $("period").value }).then(function (j) {
     btn.disabled = false; $("mSubmit").classList.remove("show");
-    if (j && j.ok) { lastCloud = ta.value; banner("Submitted " + fmtTime(j.submittedAt) + ". (Submission #" + j.count + ") Auto score: " + (lastReport ? lastReport.score : "") + " / 50. Your teacher will review it.", "good"); $("status").textContent = "Submitted " + fmtTime(j.submittedAt); }
+    if (j && j.ok) { lastCloud = S.buf.html + " " + S.buf.css; banner("Submitted " + fmtTime(j.submittedAt) + ". (Submission #" + j.count + ") Auto score: " + (lastReport ? lastReport.score : "") + " / 50. Your teacher will review it.", "good"); $("status").textContent = "Submitted " + fmtTime(j.submittedAt); }
     else if (j && j.error && !j.needLogin) banner(j.error, "err");
     else banner("Could not submit. Sign in again and try once more.", "err");
   }).catch(function () { btn.disabled = false; $("mSubmit").classList.remove("show"); banner("Could not reach the server. Check your internet and try again. Your code is saved on this computer.", "err"); });
@@ -337,8 +446,10 @@ function renderImages(list) {
 $("imgs").addEventListener("click", function (e) {
   var b = e.target.closest("button"); if (!b) return;
   var id = b.getAttribute("data-ins") || b.getAttribute("data-cp") || b.getAttribute("data-del"), url = location.origin + API + "?img=" + id;
-  if (b.hasAttribute("data-ins")) { ta.focus(); ta.setRangeText('<img src="' + url + '" alt="describe your image here" width="300">', ta.selectionStart, ta.selectionEnd, "end"); onEdit(); toast("Inserted. Now write a real alt description."); }
-  else if (b.hasAttribute("data-cp")) { try { navigator.clipboard.writeText(url); toast("URL copied"); } catch (er) {} }
+  if (b.hasAttribute("data-ins")) {
+    if (S.file !== "html") { S.buf.css = ta.value; S.file = "html"; ta.value = S.buf.html; markTabs(); }
+    ta.focus(); ta.setRangeText('<img src="' + url + '" alt="describe your image here" width="300">', ta.selectionStart, ta.selectionEnd, "end"); onEdit(); toast("Inserted. Now write a real alt description.");
+  } else if (b.hasAttribute("data-cp")) { try { navigator.clipboard.writeText(url); toast("URL copied"); } catch (er) {} }
   else if (confirm("Delete this image?")) api({ action: "deleteImage", id: id }).then(function (j) { if (j && j.ok) { S.cloud.images = S.cloud.images.filter(function (i) { return i.id !== id; }); renderImages(S.cloud.images); } else if (j && j.error) toast(j.error); });
 });
 function shrink(file) {
@@ -350,7 +461,7 @@ function shrink(file) {
       if (k === 1 && file.size < 350000) { URL.revokeObjectURL(u); return res({ blob: file, type: file.type }); }
       var c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
       c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-      var keepPng = file.type === "image/png"; // keeps transparency
+      var keepPng = file.type === "image/png";
       c.toBlob(function (b) { URL.revokeObjectURL(u); b ? res({ blob: b, type: keepPng ? "image/png" : "image/jpeg" }) : rej(new Error("Could not read that image.")); }, keepPng ? "image/png" : "image/jpeg", 0.85);
     };
     img.onerror = function () { rej(new Error("Could not read that image.")); };
@@ -374,7 +485,7 @@ $("file").addEventListener("change", function () {
 });
 
 /* ---------- start ---------- */
-updateGuideLink(); loadLocal(); renderPreview(); cursorInfo(); initGoogle();
+updateGuideLink(); loadLocal(); cursorInfo(); initGoogle();
 </script>
 </body>
 </html>

@@ -128,9 +128,9 @@ function load() {
   api({ action: "adminList", lesson: lesson }).then(function (j) {
     if (j.error) { toast(j.error); return; }
     rowsData = j.students.map(function (s) {
-      var code = s.submission ? s.submission.code : (s.draft ? s.draft.code : "");
+      var code = s.submission ? s.submission.code : (s.draft ? s.draft.code : ""), css = s.submission ? (s.submission.css || "") : (s.draft ? (s.draft.css || "") : "");
       var rep = H.check(lesson, code);
-      return { email: s.email, name: s.name || s.email, period: s.period || (s.submission && s.submission.period) || "", sub: s.submission, draft: s.draft, code: code, rep: rep, status: s.submission ? "submitted" : "draft", teacher: s.submission ? s.submission.teacher : null };
+      return { email: s.email, name: s.name || s.email, period: s.period || (s.submission && s.submission.period) || "", sub: s.submission, draft: s.draft, code: code, css: css, rep: rep, status: s.submission ? "submitted" : "draft", teacher: s.submission ? s.submission.teacher : null };
     });
     var periods = {}; rowsData.forEach(function (r) { if (r.period) periods[r.period] = 1; });
     var ps = $("period"), cur = ps.value; ps.innerHTML = '<option value="">All</option>' + Object.keys(periods).sort().map(function (p) { return "<option>" + esc(p) + "</option>"; }).join(""); ps.value = cur;
@@ -174,14 +174,15 @@ function select(email) {
   var g = r.teacher && r.teacher.score != null ? r.teacher.score : r.rep.score;
   var d = $("detail");
   d.innerHTML = '<div class="dhead"><h2>' + esc(r.name) + '</h2><small>' + esc(r.email) + " · Period " + esc(r.period || "?") + " · " + (r.status === "submitted" ? "Submitted " + esc(fmt(r.sub.submittedAt)) : "Draft only (not submitted). Last saved " + esc(fmt(r.draft && r.draft.savedAt))) + '</small><span class="sp"></span><button class="btn sm" id="prevS">◀ Prev</button><button class="btn sm" id="nextS">Next ▶</button></div>' +
-    '<div class="dtabs"><button class="btn sm' + (view === "code" ? " on" : "") + '" data-v="code">Code</button><button class="btn sm' + (view === "prev" ? " on" : "") + '" data-v="prev">Website</button></div>' +
+    '<div class="dtabs"><button class="btn sm' + (view === "code" ? " on" : "") + '" data-v="code">index.html</button><button class="btn sm' + (view === "css" ? " on" : "") + '" data-v="css">style.css' + (r.css.trim() ? "" : " (empty)") + '</button><button class="btn sm' + (view === "prev" ? " on" : "") + '" data-v="prev">Website</button></div>' +
     '<div class="dbody"><div class="view" id="view"></div><div class="right" id="right"></div></div>';
   var errLines = {}; r.rep.errors.forEach(function (e) { errLines[e.line] = 1; });
   var lines = r.code.split("\n"), gut = "";
   for (var i = 1; i <= lines.length; i++) gut += '<div' + (errLines[i] ? ' class="err"' : "") + ">" + i + "</div>";
   var v = $("view");
   if (view === "code") { v.innerHTML = '<div class="code"><div class="g">' + gut + "</div><pre></pre></div>"; v.querySelector("pre").textContent = r.code || "(empty)"; }
-  else { v.innerHTML = '<iframe sandbox="allow-popups" title="Student website"></iframe>'; v.querySelector("iframe").srcdoc = r.code; }
+  else if (view === "css") { var cl = (r.css || "").split("\n"), cg = ""; for (var j = 1; j <= cl.length; j++) cg += "<div>" + j + "</div>"; v.innerHTML = '<div class="code"><div class="g">' + cg + "</div><pre></pre></div>"; v.querySelector("pre").textContent = r.css || "(empty: no CSS file)"; }
+  else { v.innerHTML = '<iframe sandbox="allow-popups" title="Student website"></iframe>'; v.querySelector("iframe").srcdoc = H.previewDoc(r.code, r.css); }
   var nw = "", old = "";
   r.rep.results.forEach(function (x) { var h = '<div class="rule ' + (x.ok ? "ok" : "no") + (x.isNew ? "" : " old") + '"><span class="m">' + (x.ok ? "✓" : "!") + "</span><span>" + esc(x.label) + "</span></div>"; if (x.isNew) nw += h; else old += h; });
   var pr = ""; r.rep.errors.forEach(function (e) { pr += '<div class="prob e"><b>Line ' + e.line + "</b> " + esc(e.msg) + "</div>"; }); r.rep.warnings.forEach(function (w) { pr += '<div class="prob w"><b>Line ' + w.line + "</b> " + esc(w.msg) + "</div>"; });
