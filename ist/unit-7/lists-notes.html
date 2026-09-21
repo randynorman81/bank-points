@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lists | Unit 7 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-5/notes.css">
+<style>:root{--acc:#A3E635;--acc-tint:rgba(163,230,53,.13);--acc-ink:#D9F99D}
+.part{padding:64px 0 16px}
+.lede{margin:0 0 20px;line-height:1.7}
+.codeblk{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:14px 18px;margin:12px 0 26px;font-family:"JetBrains Mono",monospace;font-size:13.5px;line-height:1.7;color:#E8ECF3;overflow-x:auto;white-space:pre}
+.codeblk .t{color:#FDBA74}.codeblk .c{color:#7B8799}
+.demo{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin:14px 0 30px}
+.demo .box{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:16px 18px;min-width:0}
+.demo .box h4{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:10px}
+.demo .out{background:#fff;color:#111;border-radius:6px;padding:16px;font-family:Georgia,serif;font-size:15px}
+.demo .out p{color:#111;margin:.6em 0}.demo .out h1{color:#111;font-size:28px;margin:.3em 0;font-family:Georgia,serif}
+.demo .out h2{color:#111;font-size:22px;margin:.3em 0;font-family:Georgia,serif}.demo .out h3{color:#111;font-size:18px;margin:.3em 0;font-family:Georgia,serif}.demo .out h4{color:#111;font-size:15px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}.demo .out h5{color:#111;font-size:13px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}.demo .out h6{color:#111;font-size:11px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}
+.demo .codeblk{margin:0}
+.nest{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:18px;margin:12px 0 26px;font-family:"JetBrains Mono",monospace;font-size:13px}
+.nest .b1{border:2px solid var(--acc);border-radius:8px;padding:12px 14px;background:var(--acc-tint)}
+.nest .b2{border:2px dashed #93C5FD;border-radius:8px;padding:10px 12px;margin-top:10px;background:rgba(147,197,253,.08)}
+.nest .b3{border:2px dashed #86EFAC;border-radius:8px;padding:10px 12px;margin-top:10px;background:rgba(134,239,172,.08)}
+.nest small{display:block;color:var(--ink-soft);font-family:"Manrope",sans-serif;font-size:12.5px;margin-top:3px}
+.tabmock{display:inline-flex;align-items:center;gap:10px;background:#2B3544;color:#fff;border-radius:8px 8px 0 0;padding:8px 14px;font:13px "Manrope",sans-serif;margin-top:6px}
+.tabmock i{opacity:.6;font-style:normal}
+.tabbar{background:#111827;border:1px solid var(--rule);border-radius:8px;padding:10px 12px 0;margin:10px 0 14px}
+.tryit{display:block;text-align:center;margin:20px 0;background:var(--acc);color:#0B0E14;font-weight:800;border-radius:8px;padding:14px;text-decoration:none}
+
+/* ---- the lab ---- */
+.lab{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:0;border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:14px 0 26px;background:var(--card)}
+.lab .pane h4{margin:0;padding:8px 14px;font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);background:#0F1420;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center}
+.lab textarea{display:block;width:100%;height:240px;background:#05070B;color:#E8ECF3;border:0;outline:0;resize:vertical;padding:12px 14px;font:13.5px/1.7 "JetBrains Mono",monospace;white-space:pre;tab-size:2;overflow:auto}
+.lab iframe{display:block;width:100%;height:240px;border:0;background:#fff}
+.lab .pane+.pane{border-left:1px solid var(--rule)}
+.lab button.rst{background:transparent;border:1px solid var(--rule);color:var(--acc-ink);border-radius:6px;padding:2px 9px;cursor:pointer;font:600 11px "JetBrains Mono",monospace}
+.steps{display:grid;gap:14px;margin:6px 0 10px}
+.step{border:1px solid var(--rule);border-radius:10px;padding:16px 18px;background:var(--card);display:grid;grid-template-columns:38px 1fr;gap:14px}
+.step .n{width:34px;height:34px;border-radius:50%;border:2px solid var(--rule);display:grid;place-items:center;font:800 14px "JetBrains Mono",monospace;color:var(--ink-soft)}
+.step h4{margin:0 0 4px;color:#fff;font-size:16px}
+.step p{margin:0 0 6px;color:#C4CDD8;font-size:14.5px}
+.step .why{display:none;margin-top:10px;background:var(--acc-tint);border:1px solid var(--acc);border-radius:8px;padding:10px 14px;font-size:14px;color:#fff}
+.step.done{border-color:#34D399;background:rgba(52,211,153,.06)}
+.step.done .n{background:#34D399;border-color:#34D399;color:#04210f}
+.step.done .why{display:block}
+.prog{font:700 12px "JetBrains Mono",monospace;color:var(--acc-ink);letter-spacing:.05em;margin:0 0 10px}
+@media(max-width:760px){.lab{grid-template-columns:1fr}.lab .pane+.pane{border-left:0;border-top:1px solid var(--rule)}}
+
+.sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;margin:14px 0 26px}
+.sw div{border-radius:8px;padding:26px 8px 8px;font:600 12px "JetBrains Mono",monospace;color:#fff;text-shadow:0 1px 2px #0008;text-align:center}
+.demo .out .k{font-family:"JetBrains Mono",monospace;font-size:12px;color:#666;display:block;margin:10px 0 2px}
+.wrongright{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:12px 0 22px}
+.wrongright .w,.wrongright .r{border-radius:8px;padding:14px 16px;background:var(--card);border:1px solid var(--rule)}
+.wrongright .w{border-top:3px solid #F87171}.wrongright .r{border-top:3px solid #34D399}
+.wrongright h4{font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;margin:0 0 8px}
+.wrongright .w h4{color:#FCA5A5}.wrongright .r h4{color:#6EE7B7}
+.wrongright .codeblk{margin:0}
+.pt{color:#93C5FD}.vl{color:#86EFAC}.at{color:#FDBA74}
+.shellbig{font:700 clamp(18px,4.6vw,34px) "JetBrains Mono",monospace;background:#05070B;border:1px solid var(--rule);border-radius:10px;padding:26px 18px;margin:14px 0 10px;text-align:center;overflow-x:auto;white-space:nowrap}
+.shellbig.sm{font-size:clamp(15px,3.6vw,22px);padding:16px 14px;margin:0 0 12px;text-align:left}
+.sh-a{color:#F472B6}.sh-eq{color:#E8ECF3}.sh-q{color:#FBBF24}.sh-tag{color:#FB7185}.sh-ghost{color:#3A4560}
+.sh-slot{color:#86EFAC;background:rgba(134,239,172,.08);border:2px dashed #86EFAC;border-radius:6px;padding:4px 10px;margin:0 4px}
+.shelllegend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--ink-soft);margin:0 0 6px}.shelllegend i{font-style:normal;font-family:"JetBrains Mono",monospace;font-weight:700}
+.guessgrid .prompt code{font-size:13px;word-break:break-word}
+</style>
+<style>
+.pickrow{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.pickrow button{background:var(--card);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer;font:600 13px "JetBrains Mono",monospace}
+.pickrow button.on{border-color:var(--acc);background:var(--acc-tint);color:#fff}
+.out ul,.out ol{margin:0;padding-left:28px;line-height:1.7}
+.out li{margin:2px 0}
+.sample{width:100%;height:560px;border:1px solid var(--rule);border-radius:10px;background:#fff;display:block}
+details.showcode{margin:12px 0 22px}
+details.showcode summary{cursor:pointer;color:var(--acc-ink);font:700 13px "JetBrains Mono",monospace;padding:8px 0}
+.wire{display:grid;gap:8px;margin:14px 0 22px;font:600 12.5px "JetBrains Mono",monospace}
+.wire div{border-radius:6px;padding:10px 14px;border:1px solid var(--rule);background:var(--card);color:var(--ink)}
+.wire .h{background:rgba(163,230,53,.14);border-color:var(--acc)}
+.wire .l{background:rgba(255,255,255,.03);border-style:dashed}
+.wire .x{border-color:#F87171;color:#FCA5A5}
+.wire small{display:block;font:400 12px "Manrope",sans-serif;color:var(--ink-soft);margin-top:2px}
+</style>
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 7</a><a href="7-5-lists.html">Back to 7.5</a><a href="lists-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 7 Notes &nbsp;/&nbsp; Lesson 7.5</div>
+  <h1>Lists</h1>
+  <p class="deck">Top 10s, recipes, packing lists, and playlists all run on the same three tags. Learn how ordered and unordered lists work, how to change their markers, and how to lay out a whole page that looks great.</p>
+  <span class="stdchip">ul &middot; ol &middot; li &middot; list-style-type</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>Two Kinds of List</h2></div>
+  <p class="story">A recipe says &ldquo;1, 2, 3&rdquo; because the order matters. If you bake the cake before you mix the batter, you get soup. A grocery list uses bullets because you can buy the eggs before the milk. Same idea, two different tags. HTML makes you choose because the choice tells readers whether order matters.</p>
+  <div class="pickrow" id="kind"><button class="on" data-k="ol">&lt;ol&gt; ordered</button><button data-k="ul">&lt;ul&gt; unordered</button></div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk" id="kindCode" style="margin:0"></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out" id="kindOut"></div></div>
+  </div>
+  <div class="cards">
+    <div class="cardx"><div class="num">Tag 01</div><h4><code>&lt;ol&gt;</code> ordered list</h4><p>Numbered. <b>Order matters:</b> steps, rankings, countdowns. &ldquo;ol&rdquo; stands for ordered list.</p></div>
+    <div class="cardx"><div class="num">Tag 02</div><h4><code>&lt;ul&gt;</code> unordered list</h4><p>Bulleted. <b>Order does not matter:</b> ingredients, features, favorites. &ldquo;ul&rdquo; stands for unordered list.</p></div>
+    <div class="cardx"><div class="num">Tag 03</div><h4><code>&lt;li&gt;</code> list item</h4><p>One entry in the list. <b>Every item gets its own <code>&lt;li&gt;</code></b> with an opening and a closing tag.</p></div>
+  </div>
+  <div class="callout">The list tag is the wrapper. The li tags are the items.<span>Only <code>&lt;li&gt;</code> tags go directly inside a <code>&lt;ul&gt;</code> or <code>&lt;ol&gt;</code>. Text placed straight inside the wrapper breaks the list.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>Change the Marker: list-style-type</h2></div>
+  <p class="lede">The bullet or number in front of each item is called the <b>marker</b>. Change it with the <code>list-style-type</code> property, written in the shell on the <b>list tag</b> (<code>&lt;ul&gt;</code> or <code>&lt;ol&gt;</code>), not on each li.</p>
+  <div class="pickrow" id="mk"></div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk" id="mkCode" style="margin:0"></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out" id="mkOut"></div></div>
+  </div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>List tag</th><th>Values you can use</th></tr></thead>
+    <tbody>
+      <tr><td><code>&lt;ul&gt;</code></td><td><code>disc</code> (the default dot), <code>circle</code>, <code>square</code>, <code>none</code></td></tr>
+      <tr><td><code>&lt;ol&gt;</code></td><td><code>decimal</code> (1, 2, 3), <code>upper-roman</code> (I, II, III), <code>lower-roman</code>, <code>upper-alpha</code> (A, B, C), <code>lower-alpha</code></td></tr>
+    </tbody></table></div></div>
+  <div class="callout">Type the shell first.<span><code>&lt;ul style=""&gt;</code>, then <code>list-style-type: square;</code> between the quotes. It is a style property, so it needs the shell just like <code>color</code>.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>Make a List Look Good</h2></div>
+  <p class="lede">A list is an element like any other, so everything you already know works on it. Put styles on the list tag to style the whole list. Put <code>&lt;strong&gt;</code> and <code>&lt;em&gt;</code> inside the items.</p>
+  <div class="demo">
+    <div class="box"><h4>Plain</h4><div class="codeblk"><span class="t">&lt;ol&gt;</span>
+  <span class="t">&lt;li&gt;</span>Mix the batter<span class="t">&lt;/li&gt;</span>
+  <span class="t">&lt;li&gt;</span>Bake it<span class="t">&lt;/li&gt;</span>
+<span class="t">&lt;/ol&gt;</span></div><div class="out"><ol><li>Mix the batter</li><li>Bake it</li></ol></div></div>
+    <div class="box"><h4>Styled</h4><div class="codeblk"><span class="t">&lt;ol</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">list-style-type</span>: <span class="vl">upper-roman</span>; <span class="pt">background-color</span>: <span class="vl">#ECFCCB</span>; <span class="pt">border</span>: <span class="vl">2px solid #65A30D</span>;<span class="t">"</span><span class="t">&gt;</span>
+  <span class="t">&lt;li&gt;&lt;strong&gt;</span>Mix<span class="t">&lt;/strong&gt;</span> <span class="t">&lt;em&gt;</span>the batter<span class="t">&lt;/em&gt;&lt;/li&gt;</span>
+<span class="t">&lt;/ol&gt;</span></div><div class="out"><ol style="list-style-type:upper-roman;background-color:#ECFCCB;border:2px solid #65A30D;padding:10px 10px 10px 40px"><li><strong>Mix</strong> <em>the batter</em></li><li><strong>Bake</strong> <em>until golden</em></li></ol></div></div>
+  </div>
+  <div class="hint-panel"><b>Pro tip:</b> put a bold name and an italic description in every item, like <code>&lt;li&gt;&lt;strong&gt;Pepperoni&lt;/strong&gt; - &lt;em&gt;the classic&lt;/em&gt;&lt;/li&gt;</code>. Readers can skim the bold words and read the italic ones if they want more.</div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>Design the Whole Page</h2></div>
+  <p class="story">A page with every tag thrown on it looks like a junk drawer. A page with a plan looks professional. For the 7.5 assignment you will build a two-section guide page. Follow this blueprint and every tag gets a job.</p>
+  <div class="wire">
+    <div class="h">&lt;h1&gt; Title banner<small>Colored background, light text, centered, big font, fancy border-bottom</small></div>
+    <div>&lt;p&gt; Tagline (centered)<small>An <code>&lt;em&gt;</code> phrase with <code>&lt;span&gt;</code> highlights, and a <code>&lt;br&gt;</code> to break the line</small></div>
+    <div class="x">&lt;hr&gt; Divider #1<small>Styled with a border</small></div>
+    <div class="h">&lt;h2&gt; Section 1<small>Same color family as the banner</small></div>
+    <div>&lt;p&gt; Short intro<small>One or two sentences</small></div>
+    <div class="l">&lt;h3&gt; label + &lt;ol&gt; ranked list<small>Border + background + list-style-type. Bold name + italic description in each item</small></div>
+    <div class="l">&lt;h3&gt; label + &lt;ul&gt; bullet list<small>A different list-style-type, same border and background colors</small></div>
+    <div class="x">&lt;hr&gt; Divider #2</div>
+    <div class="h">&lt;h2&gt; Section 2</div>
+    <div>&lt;p&gt; Short intro</div>
+    <div class="l">&lt;h3&gt; label + &lt;ol&gt; steps list</div>
+    <div class="l">&lt;h3&gt; label + &lt;ul&gt; things-you-need list</div>
+    <div>&lt;p&gt; Footer<small>Two lines separated by a <code>&lt;br&gt;</code>, small centered text</small></div>
+  </div>
+  <div class="cards">
+    <div class="cardx"><div class="num">Rule 01</div><h4>Pick a palette</h4><p>Use 2 main colors plus a neutral. Repeat them: the banner, the h2s, and the list borders all share the palette.</p></div>
+    <div class="cardx"><div class="num">Rule 02</div><h4>Pick 2 fonts</h4><p>One family for headings (like <code>serif</code>) and another for body text (<code>sans-serif</code>). Two is a pair. Three is a mess.</p></div>
+    <div class="cardx"><div class="num">Rule 03</div><h4>Size shows importance</h4><p>Biggest: h1. Medium: h2. Small caps-style: h3. Body: 16 to 20px.</p></div>
+    <div class="cardx"><div class="num">Rule 04</div><h4>Center the top, left-align the rest</h4><p>Center the banner and tagline. Keep lists and paragraphs left-aligned so they are easy to read.</p></div>
+  </div>
+
+  <h3 style="color:#fff;margin:26px 0 8px">A finished example</h3>
+  <p class="lede">This page follows the blueprint (the topic is pizza night). Yours will be about your own topic.</p>
+  <iframe class="sample" id="sample" title="Example finished page" sandbox></iframe>
+  <details class="showcode"><summary>Show the code</summary><div class="codeblk" id="sampleCode"></div></details>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">05</div><h2>Common Mistakes</h2></div>
+  <div class="wrongright">
+    <div class="w"><h4>Wrong: text directly in the list</h4><div class="codeblk"><span class="t">&lt;ul&gt;</span>
+  Pepperoni
+<span class="t">&lt;/ul&gt;</span></div></div>
+    <div class="r"><h4>Right: use li</h4><div class="codeblk"><span class="t">&lt;ul&gt;</span>
+  <span class="t">&lt;li&gt;</span>Pepperoni<span class="t">&lt;/li&gt;</span>
+<span class="t">&lt;/ul&gt;</span></div></div>
+    <div class="w"><h4>Wrong: style on the li</h4><div class="codeblk"><span class="t">&lt;li</span> style="list-style-type: square;"<span class="t">&gt;</span></div></div>
+    <div class="r"><h4>Right: style on the ul or ol</h4><div class="codeblk"><span class="t">&lt;ul</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">list-style-type</span>: <span class="vl">square</span>;<span class="t">"</span><span class="t">&gt;</span></div></div>
+    <div class="w"><h4>Wrong: forgot the closing li</h4><div class="codeblk"><span class="t">&lt;li&gt;</span>Pepperoni
+<span class="t">&lt;li&gt;</span>Sausage</div></div>
+    <div class="r"><h4>Right</h4><div class="codeblk"><span class="t">&lt;li&gt;</span>Pepperoni<span class="t">&lt;/li&gt;</span>
+<span class="t">&lt;li&gt;</span>Sausage<span class="t">&lt;/li&gt;</span></div></div>
+    <div class="w"><h4>Wrong: roman numerals on a ul</h4><div class="codeblk"><span class="t">&lt;ul</span> style="list-style-type: upper-roman;"<span class="t">&gt;</span></div></div>
+    <div class="r"><h4>Right: roman numbers belong to ol</h4><div class="codeblk"><span class="t">&lt;ol</span> style="list-style-type: upper-roman;"<span class="t">&gt;</span></div></div>
+  </div>
+  <h3 style="color:#fff;margin:26px 0 8px">Which list?</h3>
+  <div class="guessgrid">
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">The steps to make a sandwich.</div><div class="tap">Tap to reveal</div><div class="answer"><h4>&lt;ol&gt;</h4><p>Order matters: bread before toppings.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Your five favorite songs, in no particular order.</div><div class="tap">Tap to reveal</div><div class="answer"><h4>&lt;ul&gt;</h4><p>No ranking, so bullets.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">The top 10 best movies of the year.</div><div class="tap">Tap to reveal</div><div class="answer"><h4>&lt;ol&gt;</h4><p>A ranking is an order.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Things to pack for a trip.</div><div class="tap">Tap to reveal</div><div class="answer"><h4>&lt;ul&gt;</h4><p>Pack them in any order.</p></div></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">06</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>Ordered list (ol)</b></td><td>A numbered list, used when order matters</td></tr>
+      <tr><td><b>Unordered list (ul)</b></td><td>A bulleted list, used when order does not matter</td></tr>
+      <tr><td><b>List item (li)</b></td><td>One entry in a list. The only tag allowed directly inside a ul or ol</td></tr>
+      <tr><td><b>Marker</b></td><td>The bullet or number in front of each item</td></tr>
+      <tr><td><b>list-style-type</b></td><td>The style property that changes the marker. Goes on the ul or ol</td></tr>
+    </tbody></table></div></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>Order tells the reader what matters.</h2><p>Ready to build? Head back to 7.5 for the assignment.</p><a class="back" href="7-5-lists.html">&larr; Back to 7.5</a><a class="back" href="index.html">Unit 7</a><p class="sig">Unit 7 Notes / Lesson 7.5 / end of file</p></div></footer>
+
+<script src="../unit-5/notes.js"></script>
+<script>
+(function(){
+  var ITEMS = ["Mix the batter", "Bake it", "Frost it"];
+  var kind = document.getElementById("kind");
+  function draw(k) {
+    Array.prototype.forEach.call(kind.children, function (b) { b.classList.toggle("on", b.getAttribute("data-k") === k); });
+    document.getElementById("kindCode").innerHTML = '<span class="t">&lt;' + k + '&gt;</span>\n' + ITEMS.map(function (i) { return '  <span class="t">&lt;li&gt;</span>' + i + '<span class="t">&lt;/li&gt;</span>'; }).join("\n") + '\n<span class="t">&lt;/' + k + '&gt;</span>';
+    document.getElementById("kindOut").innerHTML = "<" + k + ">" + ITEMS.map(function (i) { return "<li>" + i + "</li>"; }).join("") + "</" + k + ">";
+  }
+  Array.prototype.forEach.call(kind.children, function (b) { b.onclick = function () { draw(b.getAttribute("data-k")); }; });
+  draw("ol");
+})();
+(function(){
+  var TY = [["ul","disc"],["ul","circle"],["ul","square"],["ul","none"],["ol","decimal"],["ol","upper-roman"],["ol","upper-alpha"],["ol","lower-alpha"]], row = document.getElementById("mk"), cur = 2;
+  TY.forEach(function (t, i) { var b = document.createElement("button"); b.textContent = t[0] + ": " + t[1]; b.onclick = function () { cur = i; draw(); }; row.appendChild(b); });
+  function draw() {
+    Array.prototype.forEach.call(row.children, function (b, i) { b.classList.toggle("on", i === cur); });
+    var tag = TY[cur][0], v = TY[cur][1];
+    document.getElementById("mkCode").innerHTML = '<span class="t">&lt;' + tag + '</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">list-style-type</span>: <span class="vl">' + v + '</span>;<span class="t">"</span><span class="t">&gt;</span>\n  <span class="t">&lt;li&gt;</span>Pepperoni<span class="t">&lt;/li&gt;</span>\n  <span class="t">&lt;li&gt;</span>Sausage<span class="t">&lt;/li&gt;</span>\n  <span class="t">&lt;li&gt;</span>Mushroom<span class="t">&lt;/li&gt;</span>\n<span class="t">&lt;/' + tag + '&gt;</span>';
+    document.getElementById("mkOut").innerHTML = "<" + tag + ' style="list-style-type:' + v + '"><li>Pepperoni</li><li>Sausage</li><li>Mushroom</li></' + tag + ">";
+  }
+  draw();
+})();
+(function(){
+  var H = '<!DOCTYPE html>\n<html>\n<head>\n<title>Lists | Unit 7 Notes</title>\n</head>\n<body style="background-color: #FFFDF5; font-family: sans-serif; font-size: 17px;">\n\n<h1 style="background-color: #7F1D1D; color: #FEF3C7; font-family: serif; font-size: 42px; text-align: center; border-bottom: 6px double #F59E0B;">Pizza Night Guide</h1>\n<p style="text-align: center; font-size: 20px;"><em>Everything you need for the <span style="color: #B91C1C;">perfect</span> pie.</em><br>Ranked, tested, and <span style="color: #B91C1C;">approved</span> by friends.</p>\n<hr style="border: 3px dashed #F59E0B;">\n\n<h2 style="color: #7F1D1D; font-family: serif; font-size: 30px; border-bottom: 3px solid #F59E0B;">The Topping Countdown</h2>\n<p>Not all toppings are created equal. These are the ones that <span style="color: #B91C1C;">always</span> get eaten first.</p>\n<h3 style="color: #92400E; font-size: 16px; text-transform: uppercase;">Top 3 toppings</h3>\n<ol style="list-style-type: upper-roman; background-color: #FFFBEB; border: 2px solid #F59E0B;">\n  <li><strong>Pepperoni</strong> - <em>the undefeated classic</em></li>\n  <li><strong>Sausage</strong> - <em>hearty and savory</em></li>\n  <li><strong>Mushroom</strong> - <em>the underrated hero</em></li>\n</ol>\n<h3 style="color: #92400E; font-size: 16px; text-transform: uppercase;">Honorable mentions</h3>\n<ul style="list-style-type: square; background-color: #FFFBEB; border: 2px solid #F59E0B;">\n  <li><strong>Olives</strong> - <em>salty and bold</em></li>\n  <li><strong>Pineapple</strong> - <em>you know it is divisive</em></li>\n  <li><strong>Jalapenos</strong> - <em>for the brave</em></li>\n</ul>\n<hr style="border: 3px dashed #F59E0B;">\n\n<h2 style="color: #7F1D1D; font-family: serif; font-size: 30px; border-bottom: 3px solid #F59E0B;">The Game Plan</h2>\n<p>Follow the steps in order and dinner is a <span style="color: #B91C1C;">guaranteed</span> win.</p>\n<h3 style="color: #92400E; font-size: 16px; text-transform: uppercase;">Steps</h3>\n<ol style="list-style-type: decimal; background-color: #FFFBEB; border: 2px solid #F59E0B;">\n  <li><strong>Preheat</strong> - <em>the oven to 450 degrees</em></li>\n  <li><strong>Stretch</strong> - <em>the dough into a circle</em></li>\n  <li><strong>Top it</strong> - <em>sauce, cheese, toppings</em></li>\n</ol>\n<h3 style="color: #92400E; font-size: 16px; text-transform: uppercase;">What you need</h3>\n<ul style="list-style-type: circle; background-color: #FFFBEB; border: 2px solid #F59E0B;">\n  <li><strong>Dough</strong> - <em>store bought is fine</em></li>\n  <li><strong>Sauce</strong> - <em>a big spoonful</em></li>\n  <li><strong>Cheese</strong> - <em>more than you think</em></li>\n</ul>\n\n<p style="text-align: center; font-size: 14px; color: #92400E;">Made by Mr. Norman\'s class<br>Social Circle High School</p>\n</body>\n</html>';
+  var f = document.getElementById("sample");
+  f.srcdoc = H.replace("<body ", '<body ').replace("</head>", "<style>body{margin:0;padding:14px 20px}</style></head>");
+  document.getElementById("sampleCode").textContent = H;
+  window.__SAMPLE_75 = H;
+})();
+</script>
+</body></html>

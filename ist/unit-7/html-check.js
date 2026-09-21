@@ -285,10 +285,31 @@
       }, "Try solid, dashed, dotted, double, groove, or ridge."),
       r("Uses a border on just one side (border-top, border-bottom, border-left, or border-right)", function (c) { return c.prop("border-top") + c.prop("border-bottom") + c.prop("border-left") + c.prop("border-right") > 0; }, "Same three parts, one side only: border-bottom: 3px solid navy;")
     ] },
-    "7.5": { name: "Lists", rules: [
-      r("Has a <ul> or <ol> list with at least 3 <li> items", function (c) { return c.all("ul").concat(c.all("ol")).some(function (l) { return l.children.filter(function (n) { return n.tag === "li"; }).length >= 3; }); }),
-      r("Only <li> tags sit directly inside the list", function (c) { var l = c.all("ul").concat(c.all("ol")); return l.length > 0 && l.every(function (x) { return x.children.every(function (n) { return n.tag === "li"; }); }); }),
-      r("Uses list-style-type on the <ul> or <ol> (not on the li)", function (c) { return c.inline.some(function (d) { return d.prop === "list-style-type" && (d.el.tag === "ul" || d.el.tag === "ol"); }); })
+    "7.5": { name: "Lists + Everything So Far", rules: [
+      r("Has at least 2 <ol> and at least 2 <ul> lists", function (c) { return c.count("ol") >= 2 && c.count("ul") >= 2; }, "Plan one ordered and one bullet list in each section."),
+      r("Every list has at least 3 <li> items", function (c) { var l = c.all("ul").concat(c.all("ol")); return l.length > 0 && l.every(function (x) { return x.children.filter(function (n) { return n.tag === "li"; }).length >= 3; }); }),
+      r("Only <li> tags sit directly inside a list", function (c) { var l = c.all("ul").concat(c.all("ol")); return l.length > 0 && l.every(function (x) { return x.children.every(function (n) { return n.tag === "li"; }); }); }),
+      r("Uses list-style-type on at least 2 lists (on the <ul> or <ol>, not the li)", function (c) { return c.inline.filter(function (d) { return d.prop === "list-style-type" && (d.el.tag === "ul" || d.el.tag === "ol"); }).length >= 2; }),
+      r("Has at least 2 <h2> and at least 2 <h3> headings, in outline order (no skipping levels)", function (c) {
+        if (c.count("h2") < 2 || c.count("h3") < 2) return false;
+        var hs = []; (function w(n) { n.children.forEach(function (x) { if (x.tag === "#text") return; if (/^h[1-6]$/.test(x.tag)) hs.push(+x.tag.charAt(1)); w(x); }); })(c.tree);
+        if (!hs.length || hs[0] !== 1) return false;
+        for (var i = 1; i < hs.length; i++) if (hs[i] > hs[i - 1] + 1) return false; return true;
+      }, "h1 first, then h2 sections, with h3 labels inside them."),
+      r("Has at least 2 <p> paragraphs", function (c) { return c.count("p") >= 2; }),
+      r("Uses <strong> (or <b>) at least 2 times", function (c) { return c.count("strong") + c.count("b") >= 2; }),
+      r("Uses <em> (or <i>) at least 2 times", function (c) { return c.count("em") + c.count("i") >= 2; }),
+      r("Uses <br> at least 2 times", function (c) { return c.count("br") >= 2; }),
+      r("Uses <hr> at least 2 times", function (c) { return c.count("hr") >= 2; }),
+      r("Uses <span> with a style attribute at least 2 times", function (c) { return c.all("span").filter(function (s) { return s.attrs.style !== undefined; }).length >= 2; }),
+      r("Uses color at least 2 times", function (c) { return c.prop("color") >= 2; }),
+      r("Uses background-color at least 2 times", function (c) { return c.prop("background-color") >= 2; }),
+      r("Uses font-size in pixels at least 2 times", function (c) { return c.propValues("font-size").filter(function (v) { return /^\d+(\.\d+)?px$/i.test(v); }).length >= 2; }),
+      r("Uses text-align or text-transform at least 2 times", function (c) { return c.prop("text-align") + c.prop("text-transform") >= 2; }),
+      r("Uses font-family (serif, sans-serif, or monospace) at least 2 times", function (c) { return c.propValues("font-family").filter(function (v) { return /(^|[\s,'"])(serif|sans-serif|monospace)\s*$/i.test(v.replace(/;$/, "")); }).length >= 2; }),
+      r("Puts the border shortcut (thickness, style, color) on at least 2 different elements", function (c) {
+        var els = []; c.inline.forEach(function (d) { if (/^border(-top|-bottom|-left|-right)?$/.test(d.prop) && /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(d.value) && els.indexOf(d.el) < 0) els.push(d.el); }); return els.length >= 2;
+      })
     ] },
     "7.6": { name: "Links", rules: [
       r("Has an <a> link with an href that starts with https://", function (c) { return c.all("a").some(function (a) { return /^https:\/\//i.test(a.attrs.href || ""); }); }),
