@@ -892,6 +892,20 @@ async function deleteStudent(studentId) {
   }
 }
 
+let reqRoster = [];
+function reqNorm(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
+// The bank balance for the student who made a request (matched by name and period).
+function availableFor(r) {
+  let m = reqRoster.filter(s => reqNorm(s.name) === reqNorm(r.name) && reqNorm(s.period) === reqNorm(r.period));
+  if (m.length === 0) m = reqRoster.filter(s => reqNorm(s.name) === reqNorm(r.name));
+  return m.length === 1 ? m[0].available : null;
+}
+function availableCell(r) {
+  const av = availableFor(r);
+  if (av === null) return '<span class="hint">not found</span>';
+  const low = Number(av) < Number(r.points);
+  return `<strong style="${low ? 'color:#b91c1c;' : ''}">${escapeHtml(av)}</strong>${low ? ' <span style="color:#b91c1c;font-size:0.8rem;">too few</span>' : ''}`;
+}
 let allRequests = [];
 let reqPeriod = 'ALL';
 
@@ -909,7 +923,7 @@ function renderRequests() {
   if (shown.length === 0) { slot.innerHTML = '<div class="hint">No requests for this period.</div>'; return; }
   slot.innerHTML = `
     <table class="roster">
-      <thead><tr><th>When</th><th>Name</th><th>Period</th><th>Points</th><th>Assignment</th><th></th></tr></thead>
+      <thead><tr><th>When</th><th>Name</th><th>Period</th><th>Points</th><th>Assignment</th><th>Available</th><th></th></tr></thead>
       <tbody>
         ${shown.map(({ r, i }) => `
           <tr>
@@ -918,6 +932,7 @@ function renderRequests() {
             <td>${escapeHtml(r.period)}</td>
             <td>${escapeHtml(r.points)}</td>
             <td>${escapeHtml(r.assignment)}</td>
+            <td>${availableCell(r)}</td>
             <td><button type="button" class="btn btn-danger btn-sm" data-req-del="${i}">Delete</button></td>
           </tr>
         `).join('')}
@@ -931,6 +946,10 @@ async function loadRequests() {
   try {
     const data = await apiGet('requests');
     allRequests = data.requests || [];
+    try {
+      const ro = await authedPost({ action: 'adminRoster' });
+      reqRoster = (ro && ro.students) || [];
+    } catch (e) { reqRoster = []; }
     renderRequests();
   } catch (err) {
     slot.innerHTML = '<div class="alert alert-error">Could not load requests.</div>';
