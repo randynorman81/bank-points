@@ -341,7 +341,11 @@
       r("Uses list-style-type on a <ul> or <ol>", function (c) { return c.prop("list-style-type") > 0; }),
       r("Uses a <span> with a style attribute (an inline exception)", function (c) { return c.all("span").some(function (s) { return s.attrs.style !== undefined; }); }),
       r("Uses color, background-color, and font-size in pixels", function (c) { return c.prop("color") > 0 && c.prop("background-color") > 0 && c.propValues("font-size").some(function (v) { return /^\d+(\.\d+)?px$/i.test(v); }); }),
-      r("Uses text-align or text-transform, and font-family (serif, sans-serif, or monospace)", function (c) { return c.prop("text-align") + c.prop("text-transform") > 0 && c.propValues("font-family").some(function (v) { return /(^|[\s,'"])(serif|sans-serif|monospace)\s*$/i.test(v.replace(/;$/, "")); }); }),
+      r("Uses text-align or text-transform", function (c) { return c.prop("text-align") + c.prop("text-transform") > 0; }),
+      r("Uses at least 2 different font families (serif, sans-serif, monospace)", function (c) {
+        var seen = {}; c.propValues("font-family").forEach(function (v) { var m = /(^|[\s,'"])(serif|sans-serif|monospace)\s*$/i.exec(v.replace(/;$/, "")); if (m) seen[m[2].toLowerCase()] = 1; }); return Object.keys(seen).length >= 2;
+      }, "Try serif for headings, sans-serif for the body, and monospace for the footer."),
+      r("Uses the style attribute on at least 2 different tags (your inline exceptions)", function (c) { var els = []; c.inline.forEach(function (d) { if (els.indexOf(d.el) < 0) els.push(d.el); }); return els.length >= 2; }, "Example: a colored span, and a footer paragraph."),
       r("Uses the border shortcut: thickness, style, color (like 2px solid black)", function (c) { return ["border", "border-top", "border-bottom", "border-left", "border-right"].some(function (p) { return anyValue(c, p, function (v) { return /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(v); }); }); })
     ] },
     "7.7": { name: "Images", rules: [
