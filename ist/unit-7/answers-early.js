@@ -48,7 +48,6 @@
 
     { h: "Step 6: Check and submit" },
     { build: [
-      "Use only these tags: html, head, title, body, headings, and paragraphs",
       "Fix anything in the **Problems** list (click a problem to jump to that line)",
       "Make sure **Checks** shows 50 / 50",
       "Choose your class period at the top, then click **Submit**"

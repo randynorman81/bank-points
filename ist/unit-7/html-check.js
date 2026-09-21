@@ -238,9 +238,6 @@
       r("At least 10 <p> paragraphs, all inside the <body>", function (c) { var a = c.all("p"); return a.length >= 10 && a.every(function (n) { return !!c.ancestor(n, ["body"]); }); }, "", true),
       r("At least 8 of your paragraphs have 25 words or more", function (c) { return c.all("p").filter(function (n) { return c.words(n) >= 25; }).length >= 8; }, "Write full paragraphs of 3 to 5 sentences.", true),
       r("At least 300 words of text on the page", function (c) { var b = c.all("body")[0]; return !!b && c.words(b) >= 300; }, "A long page, like a real encyclopedia article.", true),
-      r("Uses only the tags from this lesson: html, head, title, body, headings (h1 to h6), and p", function (c) {
-        var ok = { html: 1, head: 1, title: 1, body: 1, h1: 1, h2: 1, h3: 1, h4: 1, h5: 1, h6: 1, p: 1 }; return Object.keys(c.tags).length > 0 && Object.keys(c.tags).every(function (t) { return ok[t]; });
-      }, "Save the other tags for later lessons.", true),
       r("Every tag is closed and nested correctly", function (c) { return c.errors.length === 0 && c.has("html"); }, "See the Problems list for exactly which line to fix.", false, true)
     ] },
     "7.2": { name: "The Style Attribute", rules: [
