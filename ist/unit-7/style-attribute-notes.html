@@ -54,7 +54,14 @@
 .wrongright h4{font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;margin:0 0 8px}
 .wrongright .w h4{color:#FCA5A5}.wrongright .r h4{color:#6EE7B7}
 .wrongright .codeblk{margin:0}
-.pt{color:#93C5FD}.vl{color:#86EFAC}.at{color:#FDBA74}</style></head>
+.pt{color:#93C5FD}.vl{color:#86EFAC}.at{color:#FDBA74}
+.shellbig{font:700 clamp(18px,4.6vw,34px) "JetBrains Mono",monospace;background:#05070B;border:1px solid var(--rule);border-radius:10px;padding:26px 18px;margin:14px 0 10px;text-align:center;overflow-x:auto;white-space:nowrap}
+.shellbig.sm{font-size:clamp(15px,3.6vw,22px);padding:16px 14px;margin:0 0 12px;text-align:left}
+.sh-a{color:#F472B6}.sh-eq{color:#E8ECF3}.sh-q{color:#FBBF24}.sh-tag{color:#FB7185}.sh-ghost{color:#3A4560}
+.sh-slot{color:#86EFAC;background:rgba(134,239,172,.08);border:2px dashed #86EFAC;border-radius:6px;padding:4px 10px;margin:0 4px}
+.shelllegend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--ink-soft);margin:0 0 6px}.shelllegend i{font-style:normal;font-family:"JetBrains Mono",monospace;font-weight:700}
+.guessgrid .prompt code{font-size:13px;word-break:break-word}
+</style></head>
 <body>
 <nav class="pillnav"><a href="index.html">&larr; Unit 7</a><a href="7-2-creation-tags-inline-styling.html">Back to 7.2</a><a href="style-attribute-notes.html" class="current">Notes</a></nav>
 
@@ -66,6 +73,39 @@
 </div></header>
 
 <section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">Rule #1</div><h2>The Shell Comes First: style=" "</h2></div>
+  <p class="story">Before the browser will listen to a single color or size, it needs to hear one thing: <b>&ldquo;design instructions are coming.&rdquo;</b> That is the job of the word <code>style</code>. It needs its own equals sign and its own pair of quotes. The colors and sizes go <em>inside</em> those quotes. Never outside, and never without the shell.</p>
+  <div class="shellbig" aria-label="The style attribute shell">
+    <span class="sh-a">style</span><span class="sh-eq">=</span><span class="sh-q">"</span><span class="sh-slot">property: value;</span><span class="sh-q">"</span>
+  </div>
+  <div class="shelllegend"><span><i class="sh-a">style</i> says what is coming</span><span><i class="sh-eq">=</i> connects it</span><span><i class="sh-q">" "</i> the box that holds the instructions</span><span><i class="sh-slot">property: value;</i> goes only in the box</span></div>
+
+  <h3 style="color:#fff;margin:30px 0 8px">Build it in the right order</h3>
+  <p class="lede">Click through the five steps. Notice that the property and value come <b>last</b>.</p>
+  <div class="stepper">
+    <div class="stepnav"><button data-i="0" onclick="step(this)">1 style</button><button data-i="1" onclick="step(this)">2 =</button><button data-i="2" onclick="step(this)">3 " "</button><button data-i="3" onclick="step(this)">4 Inside</button><button data-i="4" onclick="step(this)">5 In the tag</button></div>
+    <div class="stepbody"></div>
+    <template><div class="shellbig sm"><span class="sh-a">style</span><span class="sh-ghost">=""</span></div><b>Type the word <code>style</code>.</b> This is the attribute name. If you skip it, nothing that follows will work.</template>
+    <template><div class="shellbig sm"><span class="sh-a">style</span><span class="sh-eq">=</span><span class="sh-ghost">""</span></div><b>Add an equals sign right after it.</b> No spaces needed. <code>style=</code> means &ldquo;here is what the style is.&rdquo;</template>
+    <template><div class="shellbig sm"><span class="sh-a">style</span><span class="sh-eq">=</span><span class="sh-q">"</span><span class="sh-q">"</span></div><b>Type BOTH quotation marks now.</b> Make the empty box before you fill it. This is how you never forget the closing quote.</template>
+    <template><div class="shellbig sm"><span class="sh-a">style</span><span class="sh-eq">=</span><span class="sh-q">"</span><span class="sh-slot">color: tomato;</span><span class="sh-q">"</span></div><b>Now, and only now, click between the quotes</b> and type the property, a colon, the value, and a semicolon.</template>
+    <template><div class="shellbig sm"><span class="sh-tag">&lt;h1</span> <span class="sh-a">style</span><span class="sh-eq">=</span><span class="sh-q">"</span><span class="sh-slot">color: tomato;</span><span class="sh-q">"</span><span class="sh-tag">&gt;</span></div><b>Place the finished attribute inside the opening tag,</b> after the tag name and one space.</template>
+  </div>
+
+  <h3 style="color:#fff;margin:30px 0 8px">Is the shell there?</h3>
+  <p class="lede">Each of these tries to style a heading. Decide what is wrong, then tap to check.</p>
+  <div class="guessgrid">
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;h1 color: tomato;&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>No shell at all</h4><p>There is no <code>style=</code> and no quotes. The browser has no idea these are design instructions.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;h1 "color: tomato;"&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Quotes but no <code>style=</code></h4><p>The quotes are there, but nothing says what they hold. Always start with <code>style=</code>.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;h1 style=color: tomato;&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Missing quotes</h4><p>You have <code>style=</code> but the instructions are not inside a pair of quotes.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;h1 color="tomato"&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Wrong attribute name</h4><p><code>color</code> is a <em>property</em>, not an attribute. The attribute is always <code>style</code>, and <code>color</code> goes inside it.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;h1 style: "color: tomato;"&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Colon instead of equals</h4><p>After <code>style</code> comes an equals sign <code>=</code>. Colons only live inside the quotes, between property and value.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;h1 style="color: tomato;"&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Correct</h4><p><code>style</code>, an equals sign, quotes around everything, and the property and value inside. That is the whole shell.</p></div></div>
+  </div>
+  <div class="callout">No <code>style=" "</code>, no styling.<span>Every time you want to change how something looks, type the shell first, then fill in the box.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
   <div class="part-head"><div class="part-tag">Try it</div><h2>Style It, Break It, Fix It</h2></div>
   <p class="lede">Type in the left box and watch the page change. Work through the six steps in order. Each one turns green when you finish it.</p>
   <div class="prog" id="prog">0 OF 6 STEPS DONE</div>
@@ -74,7 +114,7 @@
     <div class="pane"><h4><span>The page</span></h4><iframe id="labprev" sandbox title="Live preview"></iframe></div>
   </div>
   <div class="steps">
-    <div class="step" id="s1"><div class="n">1</div><div><h4>Add a color</h4><p>Change <code>&lt;h1&gt;</code> to <code>&lt;h1 style="color: tomato;"&gt;</code>. Then try other color names, like teal, navy, or hotpink.</p><div class="why"><b>You just used the style attribute.</b> The <code>style</code> attribute goes inside the opening tag and changes how that one element looks.</div></div></div>
+    <div class="step" id="s1"><div class="n">1</div><div><h4>Add a color</h4><p>Type the shell first: <code>style=""</code> inside the opening <code>&lt;h1&gt;</code> tag. Then click between the quotes and add <code>color: tomato;</code>, so you have <code>&lt;h1 style="color: tomato;"&gt;</code>. Then try other color names, like teal, navy, or hotpink.</p><div class="why"><b>You just used the style attribute.</b> The shell <code>style=" "</code> goes inside the opening tag, and the property and value go inside the quotes.</div></div></div>
     <div class="step" id="s2"><div class="n">2</div><div><h4>Change the size</h4><p>Add a second property to the h1: <code>font-size: 48px;</code> right after the color, inside the same quotes.</p><div class="why"><b>Two properties, one style attribute.</b> Each property ends with a semicolon, which lets you chain as many as you want.</div></div></div>
     <div class="step" id="s3"><div class="n">3</div><div><h4>Style a paragraph</h4><p>Give the paragraph its own style with at least two properties, like a color and a font-size.</p><div class="why"><b>Every element has its own style.</b> Styling the h1 did not change the paragraph. You style each element you want to change.</div></div></div>
     <div class="step" id="s4"><div class="n">4</div><div><h4>Break it</h4><p>Delete the semicolon between two of your properties. Look at the page. What happened to the second property?</p><div class="why"><b>The browser got confused.</b> Without the semicolon it cannot tell where one property ends and the next begins, so it may ignore the whole style.</div></div></div>
@@ -89,9 +129,9 @@
   <p class="lede">An <b>attribute</b> gives an HTML tag extra instructions. The <b>style attribute</b> changes how an element looks. Using it inside a tag is called <b>inline styling</b>. It always follows this formula:</p>
 <div class="codeblk"><span class="t">&lt;h1</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">color</span>: <span class="vl">tomato</span>;<span class="t">"</span><span class="t">&gt;</span>Hello<span class="t">&lt;/h1&gt;</span></div>
   <div class="cards">
-    <div class="cardx"><div class="num">Part 1</div><h4>style</h4><p>The <b>attribute name</b>. It tells the browser, "design instructions are coming."</p></div>
-    <div class="cardx"><div class="num">Part 2</div><h4>property</h4><p>The <b>feature</b> you want to change, like color or font-size.</p></div>
-    <div class="cardx"><div class="num">Part 3</div><h4>value</h4><p>The <b>setting</b>, like tomato or 48px.</p></div>
+    <div class="cardx"><div class="num">Part 1</div><h4>style=" "</h4><p>The <b>shell</b>: the attribute name, an equals sign, and a pair of quotes. It tells the browser, "design instructions are coming." Type it <b>first</b>.</p></div>
+    <div class="cardx"><div class="num">Part 2</div><h4>property</h4><p>Goes <b>inside the quotes</b>. The feature you want to change, like color or font-size.</p></div>
+    <div class="cardx"><div class="num">Part 3</div><h4>value</h4><p>Also <b>inside the quotes</b>. The setting, like tomato or 48px.</p></div>
   </div>
   <h3 style="color:#fff;margin:26px 0 10px">Three punctuation rules</h3>
   <div class="cards">
