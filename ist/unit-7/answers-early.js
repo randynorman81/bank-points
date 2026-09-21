@@ -57,17 +57,19 @@
   /* ===================== 7.2 ===================== */
   A["7.2"] = [
     { h: "What you are building" },
-    { p: "An **epic poster** for the biggest event of the year (a band's world tour, a movie premiere, an esports tournament, a made-up holiday). Make the name HUGE and give it color. Your starter page already has the skeleton. Click **Checks** any time to see your score." },
+    { p: "An **epic poster** for the biggest event of the year (a band's world tour, a movie premiere, an esports tournament, a made-up holiday). Make the name HUGE and give it color. You type the skeleton yourself, every time. Click **Checks** any time to see your score." },
     { map: [
+      "The skeleton: doctype, html, head, and body (typed by you)",
       "Heading 1: the event name",
       "Heading 2: a tagline or the date",
       "3 paragraphs: when, where, and how to get tickets"
     ] },
     { p: "Every style goes in a **style attribute**: the word style, an equals sign, and quotes, with the property and value **inside** the quotes and a semicolon after each. Stuck? Read the notes: schscomputerscience.com/ist/unit-7/style-attribute-notes.html" },
 
-    { h: "Step 1: Title and heading" },
+    { h: "Step 1: Skeleton, title and heading" },
     { build: [
-      "Change the page **title** (in the head) to your poster's name",
+      "Type the **skeleton** first: the doctype line, then **html** with a **head** and a **body** inside it (the head comes first)",
+      "Inside the head, add a **title** with your poster's name",
       "Add a **heading 1** at the top of the body with the event name"
     ] },
 
@@ -102,8 +104,9 @@
   /* ===================== 7.3 ===================== */
   A["7.3"] = [
     { h: "What you are building" },
-    { p: "The **menu** for your dream restaurant (a taco truck, a bakery, a cafe in space, anything school-appropriate). Your starter page already has the skeleton. Click **Checks** any time to see your score." },
+    { p: "The **menu** for your dream restaurant (a taco truck, a bakery, a cafe in space, anything school-appropriate). You type the skeleton yourself, every time. Click **Checks** any time to see your score." },
     { map: [
+      "The skeleton: doctype, html, head, and body (typed by you)",
       "Heading 1: the restaurant's name",
       "Paragraph: address or hours on separate lines",
       "Horizontal line",
@@ -115,9 +118,10 @@
     ] },
     { p: "Stuck? Read the notes: schscomputerscience.com/ist/unit-7/editing-tags-notes.html" },
 
-    { h: "Step 1: Title and name" },
+    { h: "Step 1: Skeleton, title and name" },
     { build: [
-      "Change the page **title** (in the head) to your restaurant's name",
+      "Type the **skeleton** first: the doctype line, then **html** with a **head** and a **body** inside it (the head comes first)",
+      "Inside the head, add a **title** with your restaurant's name",
       "Add a **heading 1** at the top of the body with the same name"
     ] },
 
@@ -155,8 +159,9 @@
   /* ===================== 7.4 ===================== */
   A["7.4"] = [
     { h: "What you are building" },
-    { p: "The **ultimate Wanted poster** for an outlaw on the loose (a villain, your pet who stole the snacks, a made-up criminal). This is a build day: use every tag and style you know at least **3 times each**, plus borders. Your starter page already has the skeleton. **Checks** counts everything for you." },
+    { p: "The **ultimate Wanted poster** for an outlaw on the loose (a villain, your pet who stole the snacks, a made-up criminal). This is a build day: use every tag and style you know at least **3 times each**, plus borders. You type the skeleton yourself, every time. **Checks** counts everything for you." },
     { map: [
+      "The skeleton: doctype, html, head, and body (typed by you)",
       "Heading 1: WANTED",
       "Paragraph: the crime, then a horizontal line",
       "Heading 2: Description, with paragraphs, then a horizontal line",
@@ -165,9 +170,10 @@
     ] },
     { p: "Stuck? Read the notes: schscomputerscience.com/ist/unit-7/borders-notes.html" },
 
-    { h: "Step 1: Title and heading" },
+    { h: "Step 1: Skeleton, title and heading" },
     { build: [
-      "Change the page **title** (in the head) to your poster's name",
+      "Type the **skeleton** first: the doctype line, then **html** with a **head** and a **body** inside it (the head comes first)",
+      "Inside the head, add a **title** with your poster's name",
       "Add a **heading 1** that says WANTED (or the outlaw's name)"
     ] },
 
@@ -210,8 +216,9 @@
   /* ===================== 7.5 ===================== */
   A["7.5"] = [
     { h: "What you are building" },
-    { p: "The **ultimate guide page**: a two-section guide about something you know better than anyone (a game, your team, a road trip, finals, pizza night). It has a banner, a menu bar, ranked lists, bullet lists, and a footer, and it uses every tag and style you know at least **2 times each**. Your starter page already has the skeleton. **Checks** counts everything for you." },
+    { p: "The **ultimate guide page**: a two-section guide about something you know better than anyone (a game, your team, a road trip, finals, pizza night). It has a banner, a menu bar, ranked lists, bullet lists, and a footer, and it uses every tag and style you know at least **2 times each**. You type the skeleton yourself, every time. **Checks** counts everything for you." },
     { map: [
+      "The skeleton: doctype, html, head, and body (typed by you)",
       "Heading 1: your guide's name (a banner)",
       "Menu bar: 3 items in a row",
       "Tagline paragraph, then a horizontal line",
@@ -222,9 +229,10 @@
     ] },
     { p: "Stuck? Read the notes: schscomputerscience.com/ist/unit-7/lists-notes.html" },
 
-    { h: "Step 1: Title and banner" },
+    { h: "Step 1: Skeleton, title and banner" },
     { build: [
-      "Change the page **title** (in the head) to your guide's name",
+      "Type the **skeleton** first: the doctype line, then **html** with a **head** and a **body** inside it (the head comes first)",
+      "Inside the head, add a **title** with your guide's name",
       "Add a **heading 1** with the name. Style it like a banner: a background color, light text, centered, a big font size, and a border under it"
     ] },
 

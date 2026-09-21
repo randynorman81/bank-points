@@ -18,6 +18,7 @@
     { h: "What you are building" },
     { p: "A **link hub**: a one-page website that points people to the best sites about something you love (games, careers, music, anything school-appropriate). Follow the steps from top to bottom. Click **Checks** any time to see your score." },
     { map: [
+      "The skeleton: doctype, html, head, and body (typed by you)",
       "Heading 1 (your hub's name)",
       "Tagline paragraph, then a horizontal line",
       "Heading 2 + heading 3 + bullet list: 3 links that open in a NEW tab",
@@ -27,10 +28,11 @@
     ] },
     { p: "Stuck? Read the notes: schscomputerscience.com/ist/unit-7/links-notes.html" },
 
-    { h: "Step 1: Title and heading" },
+    { h: "Step 1: Skeleton, title and heading" },
     { build: [
       "Pick a topic and a name for your hub",
-      "Change the page **title** (in the head) to that name",
+      "Type the **skeleton** first: the doctype line, then **html** with a **head** and a **body** inside it (the head comes first)",
+      "Inside the head, add a **title** with that name",
       "Add a **heading 1** at the top of the body with the same name"
     ] },
 
