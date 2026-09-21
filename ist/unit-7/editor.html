@@ -80,6 +80,8 @@ main[data-view="code"] .split,main[data-view="prev"] .split{display:none}
 #ansPane .prog{height:8px;background:#0D1220;border-radius:6px;overflow:hidden;margin:4px 0 14px}
 #ansPane .prog i{display:block;height:100%;background:var(--ok);width:0;transition:width .2s}
 #ansPane h3{margin:20px 0 8px;font-size:14px;color:#FDBA74}
+#ansPane h3.stp{margin-top:260px;padding-top:22px;border-top:2px solid var(--rule);font-size:16px}
+#ansPane h3.first{margin-top:6px}
 #ansPane .q{margin:0 0 12px}
 #ansPane .q label{display:block;font-weight:600;margin-bottom:4px}
 #ansPane input[type=text],#ansPane textarea,#ansPane select{width:100%;background:#0D1220;color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:8px 10px;font:inherit}
@@ -827,7 +829,7 @@ function ansRender() {
   if (!sc) { pane.innerHTML = ""; setAns(false); return; }
   var h = '<p class="ah">Read each step, type your plan in the boxes, then build that part in index.html. Everything saves automatically and is submitted with your code.</p><div class="prog"><i id="ansProg"></i></div>';
   sc.forEach(function (it) {
-    if (it.h) h += "<h3>" + wtText(it.h) + "</h3>";
+    if (it.h) h += '<h3 class="' + (/^Step /.test(it.h) ? "stp" : "first") + '">' + wtText(it.h) + "</h3>";
     else if (it.p) h += '<p class="tx">' + wtText(it.p) + "</p>";
     else if (it.make) h += '<div class="cb make"><b>You are creating</b>' + wtText(it.make) + "</div>";
     else if (it.where) h += '<div class="cb where"><b>Where it goes</b>' + wtText(it.where) + "</div>";

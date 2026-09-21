@@ -43,10 +43,9 @@
       "<h2> + <h3> + <ol>  3 links that open in the SAME tab (Step 4)",
       "<p>  a small footer with your name and period (Step 5)"
     ] },
-    { p: "**How to use the tabs, left to right:**" },
+    { p: "**How to use the tabs:**" },
     { build: [
-      "**Setting up your page** (this tab): read each step, type your plan in the boxes, then follow the \"Now build it\" bullets.",
-      "**Walkthrough**: a checklist. Check off each item as you finish it.",
+      "**Setting up your page** (this tab): read each step, type your plan in the boxes, then follow the \"Now build it\" bullets. Do the steps in order from top to bottom.",
       "**index.html**: where you type your page's code. The preview on the right updates as you go."
     ] },
     { p: "**Your page must have:** an `h1`, `h2`, `h3`, `p`, `strong`, `em`, `br`, `hr`, a `ul` and an `ol` (3 `li` each), a `span` with a style attribute, 2 or more font families, a border, and a style block in the head. The **Checks** button shows your score out of 50. Aim for 50/50." },
@@ -163,62 +162,7 @@
     ] }
   ];
 
-  /* Walkthrough: only a checklist. The instructions live in Setting up your page. */
-  W["7.6"] = [
-    { h: "Step 1: Name your hub", items: [
-      { id: "a1", t: "Type your topic and hub name (Setting up your page)" },
-      { id: "a2", t: "Change the `<title>`" },
-      { id: "a3", t: "Add the `<h1>`" }
-    ] },
-    { h: "Step 2: Tagline", items: [
-      { id: "b1", t: "Fill in your tagline plan" },
-      { id: "b2", t: "Add the `<p>` under the `<h1>`" },
-      { id: "b3", t: "Add an `<em>` phrase" },
-      { id: "b4", t: "Add a `<span style=\"color: ...;\">` word" },
-      { id: "b5", t: "Add a `<br>` in the paragraph" },
-      { id: "b6", t: "Add the first `<hr>`" }
-    ] },
-    { h: "Step 3: 3 new-tab links", items: [
-      { id: "c1", t: "Fill in the 3 website cards" },
-      { id: "c2", t: "Add the `<h2>` and `<h3>`" },
-      { id: "c3", t: "Add the `<ul>` with 3 `<li>` links using `target=\"_blank\"`" },
-      { id: "c4", t: "Use `<strong>` and `<em>` in each item" }
-    ] },
-    { h: "Step 4: 3 same-tab links", items: [
-      { id: "d1", t: "Fill in the 3 website cards" },
-      { id: "d2", t: "Add the second `<hr>`, `<h2>`, and `<h3>`" },
-      { id: "d3", t: "Add the `<ol>` with 3 `<li>` links (no `target`)" }
-    ] },
-    { h: "Step 5: Footer", items: [
-      { id: "e1", t: "Fill in your footer lines" },
-      { id: "e2", t: "Add the footer `<p>` with a `<br>` and a `style` attribute" }
-    ] },
-    { h: "Step 6: Colors and fonts", items: [
-      { id: "f1", t: "Pick your colors and font families" }
-    ] },
-    { h: "Step 7: Link states and style block", items: [
-      { id: "g1", t: "Fill in the 4 link-state cards" },
-      { id: "g2", t: "Add `<style>` in the `<head>`" },
-      { id: "g3", t: "Write `a:link`, `a:visited`, `a:hover`, `a:active` in that order" },
-      { id: "g4", t: "Make `a:hover` change 2 things" }
-    ] },
-    { h: "Step 8: Style the rest", items: [
-      { id: "h1", t: "Add `h1` and `h2` rules" },
-      { id: "h2", t: "Add `ul` and `ol` rules with `list-style-type`" },
-      { id: "h3", t: "Add a `body` rule" },
-      { id: "h4", t: "Click **Checks** and fix anything red" }
-    ] },
-    { h: "Step 9: Test", items: [
-      { id: "i1", t: "Hover over every link" },
-      { id: "i2", t: "Click one new-tab link and one same-tab link" },
-      { id: "i3", t: "Answer the four test questions" }
-    ] },
-    { h: "Step 10: Reflect and submit", items: [
-      { id: "j1", t: "Answer the 3 reflection questions" },
-      { id: "j2", t: "Checks shows 50 / 50" },
-      { id: "j3", t: "Choose your period and click **Submit**" }
-    ] }
-  ];
+  /* Optional check-off list tab: add W["7.x"] = [ { h, items: [ { id, t } ] } ] to turn it on for a lesson. */
 
   function leaves(list) {
     var out = [];
