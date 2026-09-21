@@ -255,12 +255,13 @@ function ansSummary(r) {
 function ansHtml(r) {
   var sc = window.U7_ANSWERS && window.U7_ANSWERS[$("lesson").value], a = ansOf(r);
   if (!sc) return '<div class="ansv"><div class="sum">This lesson has no typed answers.</div></div>';
-  function one(f) { var v = String(a[f.id] || "").trim(); return '<div class="a1"><div class="k">' + esc(f.q) + '</div><div class="v' + (v ? "" : " e") + '">' + (v ? esc(v) : "(no answer)") + "</div></div>"; }
+  function plain(s) { return String(s || "").replace(/[`*]/g, ""); }
+  function one(f) { var v = String(a[f.id] || "").trim(); return '<div class="a1"><div class="k">' + esc(plain(f.q)) + '</div><div class="v' + (v ? "" : " e") + '">' + (v ? esc(v) : "(no answer)") + "</div></div>"; }
   var h = '<div class="ansv"><div class="sum">' + (r.sub ? "Submitted answers" : "Draft answers (not submitted yet)") + " &middot; " + esc(ansSummary(r)) + " answered</div>";
   sc.forEach(function (it) {
-    if (it.h) h += "<h3>" + esc(it.h) + "</h3>";
+    if (it.h) h += "<h3>" + esc(plain(it.h)) + "</h3>";
     else if (it.grp) h += '<div class="g"><b>' + esc(it.grp) + "</b>" + it.fields.map(one).join("") + "</div>";
-    else h += one(it);
+    else if (it.id) h += one(it);
   });
   return h + "</div>";
 }

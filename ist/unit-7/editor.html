@@ -102,6 +102,17 @@ main[data-view="code"] .split,main[data-view="prev"] .split{display:none}
 #wtPane label.it.done span{color:var(--soft);text-decoration:line-through}
 #wtPane code{background:#0D1220;border:1px solid var(--rule);border-radius:4px;padding:0 5px;font:12.5px "JetBrains Mono",monospace;color:#FDBA74}
 #wtBadge{background:var(--ok);color:#052e1f;border-radius:10px;padding:0 7px;font-size:11px;margin-left:6px;font-weight:800}
+#ansPane .tx{margin:8px 0;line-height:1.55}
+#ansPane .cb{border-radius:8px;padding:10px 14px;margin:0 0 10px;line-height:1.5}
+#ansPane .cb>b{display:block;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px}
+#ansPane .cb.make{background:rgba(56,189,248,.10);border-left:4px solid #38BDF8}#ansPane .cb.make>b{color:#7DD3FC}
+#ansPane .cb.where{background:rgba(251,191,36,.10);border-left:4px solid #FBBF24}#ansPane .cb.where>b{color:#FCD34D}
+#ansPane .cb.build{background:rgba(52,211,153,.08);border-left:4px solid #34D399}#ansPane .cb.build>b{color:#6EE7B7}
+#ansPane .cb ul{margin:4px 0 0 20px;padding:0}#ansPane .cb li{margin:3px 0}
+#ansPane code{background:#0D1220;border:1px solid var(--rule);border-radius:4px;padding:0 5px;font:12.5px "JetBrains Mono",monospace;color:#FDBA74}
+#ansPane pre.pat{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:10px 12px;margin:0 0 12px;font:12.5px/1.6 "JetBrains Mono",monospace;color:#E6EAF2;white-space:pre-wrap;overflow-wrap:anywhere;user-select:none}
+#ansPane .pmap{border:1px dashed var(--rule);border-radius:10px;padding:8px;margin:0 0 12px;display:grid;gap:6px}
+#ansPane .pmap div{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:6px 10px;font:12.5px "JetBrains Mono",monospace}
 #ansBadge{background:var(--acc);color:#0B0E14;border-radius:10px;padding:0 7px;font-size:11px;margin-left:6px;font-weight:800}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;padding:5px 12px;background:#0D1220;border-bottom:1px solid var(--rule);font:11.5px "JetBrains Mono",monospace;color:var(--soft)}
 .legend i{font-style:normal}
@@ -804,7 +815,7 @@ $("wtPane").addEventListener("change", function (e) {
 });
 
 function ansField(f) {
-  var id = "ans_" + f.id, v = S.ans[f.id] || "", h = '<div class="q"><label for="' + id + '">' + esc(f.q) + "</label>";
+  var id = "ans_" + f.id, v = S.ans[f.id] || "", h = '<div class="q"><label for="' + id + '">' + wtText(f.q) + "</label>";
   if (f.t === "area") h += '<textarea id="' + id + '" data-a="' + f.id + '" placeholder="Type your answer">' + esc(v) + "</textarea>";
   else if (f.t === "yn" || f.t === "sel") { var o = f.t === "yn" ? ["Yes", "No"] : f.opts; h += '<select id="' + id + '" data-a="' + f.id + '"><option value="">Choose</option>' + o.map(function (x) { return "<option" + (x === v ? " selected" : "") + ">" + esc(x) + "</option>"; }).join("") + "</select>"; }
   else h += '<input type="text" id="' + id + '" data-a="' + f.id + '" value="' + esc(v) + '" placeholder="Type here" autocomplete="off">';
@@ -814,11 +825,17 @@ function ansRender() {
   var sc = ansSchema(), pane = $("ansPane"), tab = $("ansTab");
   if (tab) tab.style.display = sc ? "" : "none";
   if (!sc) { pane.innerHTML = ""; setAns(false); return; }
-  var h = '<p class="ah">Start here. Fill this out first and use it to plan your page. Then open the Walkthrough tab, then build index.html. Everything saves automatically and is submitted with your code.</p><div class="prog"><i id="ansProg"></i></div>';
+  var h = '<p class="ah">Read each step, type your plan in the boxes, then build that part in index.html. Everything saves automatically and is submitted with your code.</p><div class="prog"><i id="ansProg"></i></div>';
   sc.forEach(function (it) {
-    if (it.h) h += "<h3>" + esc(it.h) + "</h3>";
+    if (it.h) h += "<h3>" + wtText(it.h) + "</h3>";
+    else if (it.p) h += '<p class="tx">' + wtText(it.p) + "</p>";
+    else if (it.make) h += '<div class="cb make"><b>You are creating</b>' + wtText(it.make) + "</div>";
+    else if (it.where) h += '<div class="cb where"><b>Where it goes</b>' + wtText(it.where) + "</div>";
+    else if (it.build) h += '<div class="cb build"><b>Now build it in index.html</b><ul>' + it.build.map(function (x) { return "<li>" + wtText(x) + "</li>"; }).join("") + "</ul></div>";
+    else if (it.code) h += '<pre class="pat">' + esc(it.code) + "</pre>";
+    else if (it.map) h += '<div class="pmap">' + it.map.map(function (x) { return "<div>" + esc(x) + "</div>"; }).join("") + "</div>";
     else if (it.grp) h += '<div class="grp"><b>' + esc(it.grp) + '</b><div class="gg">' + it.fields.map(ansField).join("") + "</div></div>";
-    else h += ansField(it);
+    else if (it.id) h += ansField(it);
   });
   pane.innerHTML = h; ansBadge();
 }
