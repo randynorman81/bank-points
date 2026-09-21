@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Borders | Unit 7 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-5/notes.css">
+<style>:root{--acc:#FBBF24;--acc-tint:rgba(251,191,36,.13);--acc-ink:#FDE68A}
+.part{padding:64px 0 16px}
+.lede{margin:0 0 20px;line-height:1.7}
+.codeblk{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:14px 18px;margin:12px 0 26px;font-family:"JetBrains Mono",monospace;font-size:13.5px;line-height:1.7;color:#E8ECF3;overflow-x:auto;white-space:pre}
+.codeblk .t{color:#FDBA74}.codeblk .c{color:#7B8799}
+.demo{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin:14px 0 30px}
+.demo .box{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:16px 18px;min-width:0}
+.demo .box h4{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:10px}
+.demo .out{background:#fff;color:#111;border-radius:6px;padding:16px;font-family:Georgia,serif;font-size:15px}
+.demo .out p{color:#111;margin:.6em 0}.demo .out h1{color:#111;font-size:28px;margin:.3em 0;font-family:Georgia,serif}
+.demo .out h2{color:#111;font-size:22px;margin:.3em 0;font-family:Georgia,serif}.demo .out h3{color:#111;font-size:18px;margin:.3em 0;font-family:Georgia,serif}.demo .out h4{color:#111;font-size:15px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}.demo .out h5{color:#111;font-size:13px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}.demo .out h6{color:#111;font-size:11px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}
+.demo .codeblk{margin:0}
+.nest{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:18px;margin:12px 0 26px;font-family:"JetBrains Mono",monospace;font-size:13px}
+.nest .b1{border:2px solid var(--acc);border-radius:8px;padding:12px 14px;background:var(--acc-tint)}
+.nest .b2{border:2px dashed #93C5FD;border-radius:8px;padding:10px 12px;margin-top:10px;background:rgba(147,197,253,.08)}
+.nest .b3{border:2px dashed #86EFAC;border-radius:8px;padding:10px 12px;margin-top:10px;background:rgba(134,239,172,.08)}
+.nest small{display:block;color:var(--ink-soft);font-family:"Manrope",sans-serif;font-size:12.5px;margin-top:3px}
+.tabmock{display:inline-flex;align-items:center;gap:10px;background:#2B3544;color:#fff;border-radius:8px 8px 0 0;padding:8px 14px;font:13px "Manrope",sans-serif;margin-top:6px}
+.tabmock i{opacity:.6;font-style:normal}
+.tabbar{background:#111827;border:1px solid var(--rule);border-radius:8px;padding:10px 12px 0;margin:10px 0 14px}
+.tryit{display:block;text-align:center;margin:20px 0;background:var(--acc);color:#0B0E14;font-weight:800;border-radius:8px;padding:14px;text-decoration:none}
+
+/* ---- the lab ---- */
+.lab{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:0;border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:14px 0 26px;background:var(--card)}
+.lab .pane h4{margin:0;padding:8px 14px;font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);background:#0F1420;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center}
+.lab textarea{display:block;width:100%;height:240px;background:#05070B;color:#E8ECF3;border:0;outline:0;resize:vertical;padding:12px 14px;font:13.5px/1.7 "JetBrains Mono",monospace;white-space:pre;tab-size:2;overflow:auto}
+.lab iframe{display:block;width:100%;height:240px;border:0;background:#fff}
+.lab .pane+.pane{border-left:1px solid var(--rule)}
+.lab button.rst{background:transparent;border:1px solid var(--rule);color:var(--acc-ink);border-radius:6px;padding:2px 9px;cursor:pointer;font:600 11px "JetBrains Mono",monospace}
+.steps{display:grid;gap:14px;margin:6px 0 10px}
+.step{border:1px solid var(--rule);border-radius:10px;padding:16px 18px;background:var(--card);display:grid;grid-template-columns:38px 1fr;gap:14px}
+.step .n{width:34px;height:34px;border-radius:50%;border:2px solid var(--rule);display:grid;place-items:center;font:800 14px "JetBrains Mono",monospace;color:var(--ink-soft)}
+.step h4{margin:0 0 4px;color:#fff;font-size:16px}
+.step p{margin:0 0 6px;color:#C4CDD8;font-size:14.5px}
+.step .why{display:none;margin-top:10px;background:var(--acc-tint);border:1px solid var(--acc);border-radius:8px;padding:10px 14px;font-size:14px;color:#fff}
+.step.done{border-color:#34D399;background:rgba(52,211,153,.06)}
+.step.done .n{background:#34D399;border-color:#34D399;color:#04210f}
+.step.done .why{display:block}
+.prog{font:700 12px "JetBrains Mono",monospace;color:var(--acc-ink);letter-spacing:.05em;margin:0 0 10px}
+@media(max-width:760px){.lab{grid-template-columns:1fr}.lab .pane+.pane{border-left:0;border-top:1px solid var(--rule)}}
+
+.sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;margin:14px 0 26px}
+.sw div{border-radius:8px;padding:26px 8px 8px;font:600 12px "JetBrains Mono",monospace;color:#fff;text-shadow:0 1px 2px #0008;text-align:center}
+.demo .out .k{font-family:"JetBrains Mono",monospace;font-size:12px;color:#666;display:block;margin:10px 0 2px}
+.wrongright{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:12px 0 22px}
+.wrongright .w,.wrongright .r{border-radius:8px;padding:14px 16px;background:var(--card);border:1px solid var(--rule)}
+.wrongright .w{border-top:3px solid #F87171}.wrongright .r{border-top:3px solid #34D399}
+.wrongright h4{font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;margin:0 0 8px}
+.wrongright .w h4{color:#FCA5A5}.wrongright .r h4{color:#6EE7B7}
+.wrongright .codeblk{margin:0}
+.pt{color:#93C5FD}.vl{color:#86EFAC}.at{color:#FDBA74}
+.shellbig{font:700 clamp(18px,4.6vw,34px) "JetBrains Mono",monospace;background:#05070B;border:1px solid var(--rule);border-radius:10px;padding:26px 18px;margin:14px 0 10px;text-align:center;overflow-x:auto;white-space:nowrap}
+.shellbig.sm{font-size:clamp(15px,3.6vw,22px);padding:16px 14px;margin:0 0 12px;text-align:left}
+.sh-a{color:#F472B6}.sh-eq{color:#E8ECF3}.sh-q{color:#FBBF24}.sh-tag{color:#FB7185}.sh-ghost{color:#3A4560}
+.sh-slot{color:#86EFAC;background:rgba(134,239,172,.08);border:2px dashed #86EFAC;border-radius:6px;padding:4px 10px;margin:0 4px}
+.shelllegend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--ink-soft);margin:0 0 6px}.shelllegend i{font-style:normal;font-family:"JetBrains Mono",monospace;font-weight:700}
+.guessgrid .prompt code{font-size:13px;word-break:break-word}
+</style>
+<style>
+.pickrow{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.pickrow button{background:var(--card);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer;font:600 13px "JetBrains Mono",monospace}
+.pickrow button.on{border-color:var(--acc);background:var(--acc-tint);color:#fff}
+.bxs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:12px 0 20px}
+.bxs div{background:#fff;color:#111;border-radius:6px;padding:16px 10px;text-align:center;font:600 13px "JetBrains Mono",monospace}
+.side{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.side label{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:8px 12px;cursor:pointer;font:600 13px "JetBrains Mono",monospace}
+</style>
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 7</a><a href="7-4-borders.html">Back to 7.4</a><a href="borders-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 7 Notes &nbsp;/&nbsp; Lesson 7.4</div>
+  <h1>Borders</h1>
+  <p class="deck">A border is a picture frame for your content. Learn the six styles, then learn to frame just one side to make underlines, dividers, and accents.</p>
+  <span class="stdchip">border &middot; border styles &middot; one-sided borders</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>Border Formula Recap</h2></div>
+  <p class="lede">You met <code>border</code> in 7.2. It is a style property, so it always lives inside the shell: <code>style=" "</code>. It has <b>three parts in order</b>: thickness, style, color.</p>
+  <div class="shellbig"><span class="sh-a">style</span><span class="sh-eq">=</span><span class="sh-q">"</span><span class="sh-slot"><span style="color:#FDBA74">border</span>: 4px solid navy;</span><span class="sh-q">"</span></div>
+  <div class="callout">No style word, no border.<span><code>border: 4px navy;</code> draws nothing. The style (<code>solid</code>, <code>dashed</code>...) is the part the browser needs most.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>The Six Border Styles</h2></div>
+  <p class="lede">The middle part of the shortcut picks the look. Click a style to see all six live at your chosen thickness.</p>
+  <div class="pickrow" id="thk"></div>
+  <div class="bxs" id="styles"></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Style</th><th>Looks like</th><th>Good for</th></tr></thead>
+    <tbody>
+      <tr><td><code>solid</code></td><td>One unbroken line</td><td>Clean, everyday frames</td></tr>
+      <tr><td><code>dashed</code></td><td>A row of dashes</td><td>Coupons, cut here lines</td></tr>
+      <tr><td><code>dotted</code></td><td>A row of dots</td><td>Soft, playful dividers</td></tr>
+      <tr><td><code>double</code></td><td>Two parallel lines</td><td>Certificates, old-time posters</td></tr>
+      <tr><td><code>groove</code></td><td>Looks carved into the page</td><td>3D "engraved" boxes</td></tr>
+      <tr><td><code>ridge</code></td><td>Looks raised off the page</td><td>3D "embossed" boxes</td></tr>
+    </tbody></table></div></div>
+  <p class="lede"><code>double</code>, <code>groove</code>, and <code>ridge</code> need at least 3px to look right. At 1px they just look like a plain line.</p>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>One Side at a Time</h2></div>
+  <p class="story">Sometimes you do not want a full frame. A newspaper headline gets a line underneath. A quote gets a bar on the left. To frame just one side, use <code>border-top</code>, <code>border-right</code>, <code>border-bottom</code>, or <code>border-left</code>. They use the same three parts.</p>
+  <p class="lede">Toggle the sides and see the code.</p>
+  <div class="side" id="sides">
+    <label><input type="checkbox" value="top"> top</label><label><input type="checkbox" value="right"> right</label><label><input type="checkbox" value="bottom" checked> bottom</label><label><input type="checkbox" value="left"> left</label>
+  </div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk" id="sideCode" style="margin:0"></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out"><h2 id="sideOut" style="margin:0;font-size:24px">Breaking News</h2></div></div>
+  </div>
+  <div class="cards">
+    <div class="cardx"><div class="num">Use 01</div><h4>Underline a heading</h4><p><code>border-bottom: 3px solid navy;</code></p></div>
+    <div class="cardx"><div class="num">Use 02</div><h4>Quote bar</h4><p><code>border-left: 6px solid gold;</code></p></div>
+    <div class="cardx"><div class="num">Use 03</div><h4>Divider line</h4><p><code>border-top: 2px dashed gray;</code></p></div>
+  </div>
+  <div class="callout"><code>border</code> is all four sides. <code>border-bottom</code> is one side.<span>Do not use both on the same element unless you want the bottom to be different from the rest.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>Put It Together</h2></div>
+  <p class="lede">Borders work best with the properties you already know.</p>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk"><span class="t">&lt;h1</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">color</span>: <span class="vl">maroon</span>; <span class="pt">border-bottom</span>: <span class="vl">4px double maroon</span>;<span class="t">"</span><span class="t">&gt;</span>WANTED<span class="t">&lt;/h1&gt;</span>
+<span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">background-color</span>: <span class="vl">tan</span>; <span class="pt">border</span>: <span class="vl">6px ridge saddlebrown</span>;<span class="t">"</span><span class="t">&gt;</span>
+  Reward: $500
+<span class="t">&lt;/p&gt;</span></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out"><h1 style="color:maroon;border-bottom:4px double maroon;margin:0 0 10px">WANTED</h1><p style="background-color:tan;border:6px ridge saddlebrown;margin:0;padding:8px">Reward: $500</p></div></div>
+  </div>
+
+  <h3 style="color:#fff;margin:26px 0 8px">Spot the bug</h3>
+  <div class="guessgrid">
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>border: 4px navy;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>No style word</h4><p>Nothing shows. Add <code>solid</code>.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>border-bottom: solid;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Thickness missing</h4><p>Give it a size and color: <code>border-bottom: 3px solid black;</code></p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>border: 1px double black;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Too thin</h4><p><code>double</code> needs about 3px or more, or it looks like a single line.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;h2 border-bottom: 2px solid red;&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>No shell</h4><p>Wrap it: <code>&lt;h2 style="border-bottom: 2px solid red;"&gt;</code></p></div></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">05</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>border</b></td><td>A line around all four sides of an element: thickness, style, color</td></tr>
+      <tr><td><b>border style</b></td><td>solid, dashed, dotted, double, groove, or ridge</td></tr>
+      <tr><td><b>border-top / -right / -bottom / -left</b></td><td>The same border, on one side only</td></tr>
+    </tbody></table></div></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>Frame it right.</h2><p>Ready to build? Head back to 7.4 for the Wanted poster.</p><a class="back" href="7-4-borders.html">&larr; Back to 7.4</a><a class="back" href="index.html">Unit 7</a><p class="sig">Unit 7 Notes / Lesson 7.4 / end of file</p></div></footer>
+
+<script src="../unit-5/notes.js"></script>
+<script>
+(function(){
+  var W = "4px", ST = ["solid","dashed","dotted","double","groove","ridge"], box = document.getElementById("styles"), thk = document.getElementById("thk");
+  ["1px","3px","6px","10px"].forEach(function (w) { var b = document.createElement("button"); b.textContent = w; b.onclick = function () { W = w; draw(); }; thk.appendChild(b); });
+  function draw() {
+    Array.prototype.forEach.call(thk.children, function (b) { b.classList.toggle("on", b.textContent === W); });
+    box.innerHTML = ST.map(function (s) { return '<div style="border:' + W + " " + s + ' #1E3A8A">' + s + "</div>"; }).join("");
+  }
+  draw();
+})();
+(function(){
+  var out = document.getElementById("sideOut"), code = document.getElementById("sideCode"), boxes = document.querySelectorAll("#sides input");
+  function up() {
+    var on = []; Array.prototype.forEach.call(boxes, function (b) { if (b.checked) on.push(b.value); });
+    out.style.border = "0";
+    var parts = on.map(function (s) { out.style["border" + s.charAt(0).toUpperCase() + s.slice(1)] = "4px solid navy"; return '<span class="pt">border-' + s + '</span>: <span class="vl">4px solid navy</span>;'; });
+    code.innerHTML = '<span class="t">&lt;h2</span> <span class="at">style</span>=<span class="t">"</span>' + (parts.join(" ") || "") + '<span class="t">"</span><span class="t">&gt;</span>Breaking News<span class="t">&lt;/h2&gt;</span>';
+  }
+  Array.prototype.forEach.call(boxes, function (b) { b.onchange = up; }); up();
+})();
+</script>
+</body></html>

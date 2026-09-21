@@ -249,6 +249,8 @@
       r("Uses the style attribute with color", function (c) { return c.inline.some(function (d) { return d.prop === "color"; }); }),
       r("Uses font-size in pixels (like 24px)", function (c) { return anyValue(c, "font-size", function (v) { return /^\d+(\.\d+)?px$/i.test(v); }); }),
       r("Uses text-align or text-transform", function (c) { return c.prop("text-align") + c.prop("text-transform") > 0; }),
+      r("Uses background-color (the color behind the text)", function (c) { return c.prop("background-color") > 0; }),
+      r("Uses the border shortcut: thickness, style, color (like 2px solid black)", function (c) { return anyValue(c, "border", function (v) { return /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(v); }); }),
       r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\"")
     ] },
     "7.3": { name: "Editing Tags + Span + Font Families", rules: [
@@ -259,12 +261,17 @@
         var e = c.all("strong").concat(c.all("em")); return e.length > 0 && e.every(function (n) { return !!c.ancestor(n, ["p", "h1", "h2", "h3", "h4", "h5", "h6", "li"]); });
       }),
       r("Uses a <span> with a style attribute", function (c) { return c.all("span").some(function (s) { return s.attrs.style !== undefined; }); }),
-      r("Uses font-family with serif, sans-serif, or monospace", function (c) { return anyValue(c, "font-family", function (v) { return /(^|[\s,'"])(serif|sans-serif|monospace)\s*$/i.test(v.replace(/;$/, "")); }); })
+      r("Uses font-family with serif, sans-serif, or monospace", function (c) { return anyValue(c, "font-family", function (v) { return /(^|[\s,'"])(serif|sans-serif|monospace)\s*$/i.test(v.replace(/;$/, "")); }); }),
+      r("Uses the border shortcut: thickness, style, color (like 2px solid black)", function (c) { return anyValue(c, "border", function (v) { return /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(v); }); })
     ] },
-    "7.4": { name: "More Useful Styling Properties", rules: [
-      r("Uses background-color", function (c) { return c.prop("background-color") > 0; }),
-      r("Uses the border shortcut: thickness, style, color (like 2px solid black)", function (c) { return anyValue(c, "border", function (v) { return /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(v); }); }),
-      r("Styles an <hr> with a border", function (c) { return c.all("hr").some(function (h) { return c.inline.some(function (d) { return d.el === h && d.prop === "border"; }); }); })
+    "7.4": { name: "Borders", rules: [
+      r("Uses at least 2 different border styles (like solid and dashed)", function (c) {
+        var seen = {}; ["border","border-top","border-bottom","border-left","border-right"].forEach(function (p) { c.propValues(p).forEach(function (v) { var m = /\b(solid|dashed|dotted|double|groove|ridge)\b/i.exec(v); if (m) seen[m[1].toLowerCase()] = 1; }); }); return Object.keys(seen).length >= 2;
+      }, "Try solid, dashed, dotted, double, groove, or ridge."),
+      r("Uses a border on just one side (border-top, border-bottom, border-left, or border-right)", function (c) { return c.prop("border-top") + c.prop("border-bottom") + c.prop("border-left") + c.prop("border-right") > 0; }, "Same three parts, one side only: border-bottom: 3px solid navy;"),
+      r("Puts a border on at least 3 different elements", function (c) {
+        var els = []; c.inline.forEach(function (d) { if (/^border(-top|-bottom|-left|-right)?$/.test(d.prop) && els.indexOf(d.el) < 0) els.push(d.el); }); return els.length >= 3;
+      })
     ] },
     "7.5": { name: "Lists", rules: [
       r("Has a <ul> or <ol> list with at least 3 <li> items", function (c) { return c.all("ul").concat(c.all("ol")).some(function (l) { return l.children.filter(function (n) { return n.tag === "li"; }).length >= 3; }); }),
