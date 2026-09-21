@@ -67,6 +67,19 @@ function cleanActivity(a) {
   })) : [];
   return { typed: n(a.typed, 1e7), pasted: n(a.pasted, 1e7), ext: n(a.ext, 1e7), auto: n(a.auto, 1e7), loaded: n(a.loaded, 1e7), base: n(a.base, 1e4), activeMs: n(a.activeMs, 1e9), events: ev };
 }
+// Typed answers from the editor's Answers tab: a flat map of short ids to text. Everything is clamped.
+function cleanAnswers(a) {
+  const out = {};
+  if (!a || typeof a !== "object" || Array.isArray(a)) return out;
+  let n = 0;
+  for (const k of Object.keys(a)) {
+    if (n >= 150) break;
+    if (!/^[A-Za-z0-9_]{1,30}$/.test(k)) continue;
+    out[k] = String(a[k] == null ? "" : a[k]).slice(0, 2000);
+    n++;
+  }
+  return out;
+}
 function cleanPeriod(p) { return String(p || "").slice(0, 12).replace(/[^A-Za-z0-9 ]/g, ""); }
 
 /* ---------------- student actions ---------------- */
@@ -87,7 +100,7 @@ async function saveDraft(body, user) {
   const css = String(body.css == null ? "" : body.css);
   if (code.length > MAX_CODE || css.length > MAX_CSS) return { error: "That file is too big to save." };
   await store().setJSON("draft:" + body.lesson + ":" + enc(user.email), {
-    email: user.email, name: user.name, period: cleanPeriod(body.period), lesson: body.lesson, code, css, activity: cleanActivity(body.activity), savedAt: now()
+    email: user.email, name: user.name, period: cleanPeriod(body.period), lesson: body.lesson, code, css, answers: cleanAnswers(body.answers), activity: cleanActivity(body.activity), savedAt: now()
   });
   return { ok: true };
 }
@@ -102,6 +115,7 @@ async function submit(body, user) {
   const prev = await readJSON(key, null);
   const rec = {
     email: user.email, name: user.name, period: cleanPeriod(body.period), lesson: body.lesson, code, css, activity: cleanActivity(body.activity),
+    answers: body.answers === undefined && prev && prev.answers ? prev.answers : cleanAnswers(body.answers),
     submittedAt: now(), count: (prev && prev.count ? prev.count : 0) + 1,
     teacher: prev && prev.teacher ? prev.teacher : null
   };

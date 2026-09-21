@@ -38,6 +38,16 @@ select,input,textarea{background:var(--card);color:var(--ink);border:1px solid v
 .dhead{padding:10px 14px;border-bottom:1px solid var(--rule);display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--panel)}
 .dhead h2{margin:0;font-size:17px}
 .dhead small{color:var(--soft)}
+.ansv{padding:16px 18px;overflow:auto;height:100%}
+.ansv h3{margin:18px 0 8px;font-size:14px;color:#FDBA74}.ansv h3:first-child{margin-top:0}
+.ansv .a1{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:8px 12px;margin:0 0 8px}
+.ansv .a1 .k{color:var(--soft);font-size:12px;margin-bottom:2px}
+.ansv .a1 .v{white-space:pre-wrap;word-break:break-word}
+.ansv .a1 .v.e{color:#F87171;font-style:italic}
+.ansv .g{background:#101627;border:1px solid var(--rule);border-radius:10px;padding:10px 12px;margin:0 0 10px}
+.ansv .g>b{display:block;color:#fff;margin-bottom:6px}
+.ansv .g .a1{margin:0 0 6px}
+.ansv .sum{color:var(--soft);font-size:13px;margin:0 0 12px}
 .dtabs{display:flex;gap:6px;padding:8px 14px;border-bottom:1px solid var(--rule)}
 .dtabs button.on{background:var(--acc);color:#0B0E14;border-color:var(--acc)}
 .dbody{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 320px}
@@ -103,6 +113,7 @@ iframe{width:100%;height:100%;border:0;background:#fff;display:block}
 </div>
 <div class="toast" id="toast"></div>
 
+<script src="answers.js"></script>
 <script src="html-check.js"></script>
 <script>
 "use strict";
@@ -234,6 +245,26 @@ function render() {
 $("rows").onclick = function (e) { var t = e.target.closest("tr.row"); if (t) select(t.getAttribute("data-e")); };
 document.querySelector(".list thead").onclick = function (e) { var th = e.target.closest("th"); if (!th) return; var k = th.getAttribute("data-k"); if (sortKey === k) sortDir = -sortDir; else { sortKey = k; sortDir = (k === "orig") ? -1 : 1; } render(); };
 
+/* ---------- typed answers ---------- */
+function ansOf(r) { return (r.sub && r.sub.answers) || (r.draft && r.draft.answers) || {}; }
+function ansSummary(r) {
+  var sc = window.U7_ANSWERS && window.U7_ANSWERS[$("lesson").value]; if (!sc) return "";
+  var L = window.U7_ANSWER_LEAVES(sc), a = ansOf(r), n = 0; L.forEach(function (f) { if (String(a[f.id] || "").trim()) n++; });
+  return "(" + n + "/" + L.length + ")";
+}
+function ansHtml(r) {
+  var sc = window.U7_ANSWERS && window.U7_ANSWERS[$("lesson").value], a = ansOf(r);
+  if (!sc) return '<div class="ansv"><div class="sum">This lesson has no typed answers.</div></div>';
+  function one(f) { var v = String(a[f.id] || "").trim(); return '<div class="a1"><div class="k">' + esc(f.q) + '</div><div class="v' + (v ? "" : " e") + '">' + (v ? esc(v) : "(no answer)") + "</div></div>"; }
+  var h = '<div class="ansv"><div class="sum">' + (r.sub ? "Submitted answers" : "Draft answers (not submitted yet)") + " &middot; " + esc(ansSummary(r)) + " answered</div>";
+  sc.forEach(function (it) {
+    if (it.h) h += "<h3>" + esc(it.h) + "</h3>";
+    else if (it.grp) h += '<div class="g"><b>' + esc(it.grp) + "</b>" + it.fields.map(one).join("") + "</div>";
+    else h += one(it);
+  });
+  return h + "</div>";
+}
+
 /* ---------- detail ---------- */
 function select(email) {
   selEmail = email; var r = rowsData.filter(function (x) { return x.email === email; })[0]; if (!r) return;
@@ -241,7 +272,7 @@ function select(email) {
   var g = r.teacher && r.teacher.score != null ? r.teacher.score : Math.round(r.rep.score * (r.org.penalize ? PENALTY : 1) * 10) / 10;
   var d = $("detail");
   d.innerHTML = '<div class="dhead"><h2>' + esc(r.name) + '</h2><small>' + esc(r.email) + " · Period " + esc(r.period || "?") + " · " + (r.status === "submitted" ? "Submitted " + esc(fmt(r.sub.submittedAt)) : "Draft only (not submitted). Last saved " + esc(fmt(r.draft && r.draft.savedAt))) + '</small><span class="sp"></span><button class="btn sm" id="prevS">◀ Prev</button><button class="btn sm" id="nextS">Next ▶</button></div>' +
-    '<div class="dtabs"><button class="btn sm' + (view === "code" ? " on" : "") + '" data-v="code">index.html</button><button class="btn sm' + (view === "css" ? " on" : "") + '" data-v="css">style.css' + (r.css.trim() ? "" : " (empty)") + '</button><button class="btn sm' + (view === "prev" ? " on" : "") + '" data-v="prev">Website</button></div>' +
+    '<div class="dtabs"><button class="btn sm' + (view === "code" ? " on" : "") + '" data-v="code">index.html</button><button class="btn sm' + (view === "css" ? " on" : "") + '" data-v="css">style.css' + (r.css.trim() ? "" : " (empty)") + '</button><button class="btn sm' + (view === "prev" ? " on" : "") + '" data-v="prev">Website</button>' + (window.U7_ANSWERS && window.U7_ANSWERS[$("lesson").value] ? '<button class="btn sm' + (view === "ans" ? " on" : "") + '" data-v="ans">Answers ' + ansSummary(r) + "</button>" : "") + '</div>' +
     '<div class="dbody"><div class="view" id="view"></div><div class="right" id="right"></div></div>';
   var errLines = {}; r.rep.errors.forEach(function (e) { errLines[e.line] = 1; });
   var lines = r.code.split("\n"), gut = "";
@@ -249,6 +280,7 @@ function select(email) {
   var v = $("view");
   if (view === "code") { v.innerHTML = '<div class="code"><div class="g">' + gut + "</div><pre></pre></div>"; v.querySelector("pre").innerHTML = r.code ? highlight(r.code, r.org.ranges) : "(empty)"; }
   else if (view === "css") { var cl = (r.css || "").split("\n"), cg = ""; for (var j = 1; j <= cl.length; j++) cg += "<div>" + j + "</div>"; v.innerHTML = '<div class="code"><div class="g">' + cg + "</div><pre></pre></div>"; v.querySelector("pre").textContent = r.css || "(empty: no CSS file)"; }
+  else if (view === "ans") { v.innerHTML = ansHtml(r); }
   else { v.innerHTML = '<iframe sandbox="allow-popups" title="Student website"></iframe>'; v.querySelector("iframe").srcdoc = H.previewDoc(r.code, r.css); }
   var nw = "", old = "";
   r.rep.results.forEach(function (x) { var h = '<div class="rule ' + (x.ok ? "ok" : "no") + (x.isNew ? "" : " old") + '"><span class="m">' + (x.ok ? "✓" : "!") + "</span><span>" + esc(x.label) + "</span></div>"; if (x.isNew) nw += h; else old += h; });

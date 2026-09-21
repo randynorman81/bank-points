@@ -74,6 +74,23 @@ main[data-view="code"] .split,main[data-view="prev"] .split{display:none}
 #hl{position:absolute;top:0;left:46px;height:100%;margin:0;overflow:hidden;pointer-events:none;z-index:1;color:#E6EAF2;font:14px/21px "JetBrains Mono",monospace;padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:2;box-sizing:border-box}
 .t-tag{color:#FB7185}.t-style{color:#F472B6}.t-attr{color:#FBBF24}.t-id{color:#22D3EE}.t-id-v{color:#67E8F9}.t-class{color:#A78BFA}.t-class-v{color:#C4B5FD}.t-val{color:#86EFAC}.t-br{color:#7C8AA5}.t-eq{color:#7C8AA5}
 .c-prop{color:#60A5FA}.c-hex{color:#FDBA74}.c-num{color:#FDBA74}.c-pun{color:#7C8AA5}.c-cm{color:#5B6B85;font-style:italic}
+#ansPane{display:none;position:absolute;inset:0;z-index:6;background:#080B11;overflow:auto;padding:14px 16px 40px}
+#ansPane.show{display:block}
+#ansPane .ah{color:var(--soft);font-size:12.5px;margin:0 0 6px}
+#ansPane .prog{height:8px;background:#0D1220;border-radius:6px;overflow:hidden;margin:4px 0 14px}
+#ansPane .prog i{display:block;height:100%;background:var(--ok);width:0;transition:width .2s}
+#ansPane h3{margin:20px 0 8px;font-size:14px;color:#FDBA74}
+#ansPane .q{margin:0 0 12px}
+#ansPane .q label{display:block;font-weight:600;margin-bottom:4px}
+#ansPane input[type=text],#ansPane textarea,#ansPane select{width:100%;background:#0D1220;color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:8px 10px;font:inherit}
+#ansPane textarea{min-height:70px;resize:vertical}
+#ansPane input:focus,#ansPane textarea:focus,#ansPane select:focus{outline:0;border-color:var(--acc)}
+#ansPane .grp{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:12px 14px;margin:0 0 12px}
+#ansPane .grp>b{display:block;color:#fff;margin-bottom:8px}
+#ansPane .gg{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}
+#ansPane .gg .q{margin:0}
+@media(max-width:760px){#ansPane .gg{grid-template-columns:1fr}}
+#ansBadge{background:var(--acc);color:#0B0E14;border-radius:10px;padding:0 7px;font-size:11px;margin-left:6px;font-weight:800}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;padding:5px 12px;background:#0D1220;border-bottom:1px solid var(--rule);font:11.5px "JetBrains Mono",monospace;color:var(--soft)}
 .legend i{font-style:normal}
 .pane.min>.legend{display:none}
@@ -155,11 +172,11 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
 <main id="main" data-tab="code">
   <section class="pane" id="paneCode">
     <h2>
-      <span class="ftabs" id="ftabs"><button class="on" data-f="html">index.html</button><button data-f="css">style.css</button></span>
+      <span class="ftabs" id="ftabs"><button class="on" data-f="html">index.html</button><button data-f="css">style.css</button><button data-f="ans" id="ansTab" style="display:none">Answers<span id="ansBadge"></span></button></span>
       <span class="tools"><label title="Adds the closing tag and closing quote for you"><input type="checkbox" id="auto" checked> Auto-close</label><span id="lineinfo">Line 1</span><span class="winbtns"><button class="btn sm" id="minCode" title="Shrink the code panel">– Minimize</button><button class="btn sm" id="maxCode" title="Make the code panel fill the screen">⤢ Maximize</button></span></span>
     </h2>
     <div class="legend" id="legend"><span><i class="t-tag">&lt;tag&gt;</i></span><span><i class="t-style">style</i></span><span><i class="t-id">id</i></span><span><i class="t-class">class</i></span><span><i class="t-attr">attribute</i></span><span><i class="t-val">"value"</i></span><span><i class="c-prop">css-property</i></span><span><i class="c-hex">#hex / 12px</i></span><span>plain white = not a keyword I know, check your spelling</span></div>
-    <div class="edwrap"><div class="gut" id="gut"></div><div id="hl" aria-hidden="true"></div><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="soft" aria-label="Code editor"></textarea><div id="mirror" aria-hidden="true"></div></div>
+    <div class="edwrap"><div class="gut" id="gut"></div><div id="hl" aria-hidden="true"></div><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="soft" aria-label="Code editor"></textarea><div id="mirror" aria-hidden="true"></div><div id="ansPane" aria-label="Typed answers"></div></div>
     <button class="stripbtn" data-restore="both" aria-label="Show the code panel">▸ Code</button>
   </section>
   <div class="split" id="split" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize. Double-click to reset."></div>
@@ -199,6 +216,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
 </div></div>
 <div class="toast" id="toast"></div>
 
+<script src="answers.js"></script>
 <script src="html-check.js"></script>
 <script>
 "use strict";
@@ -206,7 +224,8 @@ var API = "/api/code";
 var GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
 var $ = function (id) { return document.getElementById(id); };
 var H = window.HTMLCheck;
-var S = { cred: null, name: "", email: "", cloud: null, lesson: "7.1", file: "html", view: "both", buf: { html: "", css: "" } };
+var ansOn = false;
+var S = { ans: {}, cred: null, name: "", email: "", cloud: null, lesson: "7.1", file: "html", view: "both", buf: { html: "", css: "" } };
 
 /* ---------- honest tracking: typing vs pasting (shown to the teacher, and to the student) ---------- */
 var ACT = { typed: 0, pasted: 0, ext: 0, auto: 0, loaded: 0, base: 0, activeMs: 0, events: [] };
@@ -270,14 +289,14 @@ function loadLocal() {
   loadAct(); warned = false; updateHonestyLater();
   S.buf.html = lsGet("u7:code:" + S.lesson) || "";
   S.buf.css = lsGet("u7:css:" + S.lesson) || "";
-  S.file = "html"; ta.value = S.buf.html; markTabs();
+  S.file = "html"; ta.value = S.buf.html; ansInit(); markTabs();
   refresh(); renderPreview(); syncCssTab();
   if (!S.buf.html) ta.focus();
 }
 function updateHonestyLater() { setTimeout(updateHonesty, 0); }
-function markTabs() { [].forEach.call($("ftabs").querySelectorAll("button"), function (b) { b.classList.toggle("on", b.getAttribute("data-f") === S.file); }); }
+function markTabs() { [].forEach.call($("ftabs").querySelectorAll("button"), function (b) { b.classList.toggle("on", b.getAttribute("data-f") === (ansOn ? "ans" : S.file)); }); }
 $("ftabs").addEventListener("click", function (e) {
-  var b = e.target.closest("button"); if (!b) return; var f = b.getAttribute("data-f"); if (f === S.file) return;
+  var b = e.target.closest("button"); if (!b) return; var f = b.getAttribute("data-f"); if (f === "ans") { setAns(true); return; } if (ansOn) { setAns(false); } if (f === S.file) return;
   S.buf[S.file] = ta.value; S.file = f; ta.value = S.buf[f]; markTabs(); layoutGutter(); cursorInfo(); refresh(); ta.focus();
 });
 $("auto").addEventListener("change", function () { lsSet("u7:auto", this.checked ? "1" : "0"); });
@@ -490,7 +509,7 @@ function api(body) {
     return j;
   });
 }
-function applyRecord(rec) { if (rec.activity) { ACT = Object.assign(freshAct(), rec.activity); ACT.base = 0; } else { ACT.loaded += rec.code.length + (rec.css || "").length; } S.buf.html = rec.code; S.buf.css = rec.css || ""; S.file = "html"; ta.value = S.buf.html; markTabs(); saveNow(false); refresh(); renderPreview(); }
+function applyRecord(rec) { ansMerge(rec); if (rec.activity) { ACT = Object.assign(freshAct(), rec.activity); ACT.base = 0; } else { ACT.loaded += rec.code.length + (rec.css || "").length; } S.buf.html = rec.code; S.buf.css = rec.css || ""; S.file = "html"; ta.value = S.buf.html; markTabs(); saveNow(false); refresh(); renderPreview(); }
 function afterLessonChange() {
   if (!S.cred) return;
   updateGuideLink();
@@ -518,10 +537,10 @@ function showTeacher(subs) {
 var lastCloud = "";
 function cloudSave() {
   S.buf[S.file] = ta.value;
-  var key = S.buf.html + " " + S.buf.css;
-  if (!S.cred || key === lastCloud || isBlank(S.buf.html)) return Promise.resolve();
+  var key = cloudKey();
+  if (!S.cred || key === lastCloud || (isBlank(S.buf.html) && !ansCount().n)) return Promise.resolve();
   var html = S.buf.html, css = S.buf.css;
-  return api({ action: "saveDraft", lesson: S.lesson, code: html, css: css, period: $("period").value, activity: ACT }).then(function (j) { if (j && j.ok) lastCloud = html + " " + css; });
+  return api({ action: "saveDraft", lesson: S.lesson, code: html, css: css, answers: S.ans, period: $("period").value, activity: ACT }).then(function (j) { if (j && j.ok) lastCloud = key; });
 }
 setInterval(cloudSave, 60000); // every 60 seconds, only when something changed
 document.addEventListener("visibilitychange", function () { if (document.hidden) { saveNow(false); cloudSave(); } });
@@ -535,15 +554,15 @@ $("btnSubmit").addEventListener("click", function () {
   if (!$("period").value) { banner("Choose your class period at the top before you submit.", "err"); $("period").focus(); return; }
   var r = lastReport || H.check(S.lesson, S.buf.html), bad = r.errors.length;
   $("mSubmitBody").innerHTML = "<p>Lesson <b>" + esc(S.lesson) + "</b> for period <b>" + esc($("period").value) + "</b>.</p><p>Auto check: <b>" + r.score + " / " + r.total + "</b> (" + r.passed + " of " + r.count + " checks).</p>" +
-    (bad ? '<p style="color:#FCA5A5">You still have ' + bad + " problem" + (bad > 1 ? "s" : "") + " with your tags. You can still submit, or fix them first.</p>" : "") + "<p>You can submit again later to replace this one.</p>";
+    (bad ? '<p style="color:#FCA5A5">You still have ' + bad + " problem" + (bad > 1 ? "s" : "") + " with your tags. You can still submit, or fix them first.</p>" : "") + ansSubmitNote() + "<p>You can submit again later to replace this one.</p>";
   $("mSubmit").classList.add("show");
 });
 $("mCancel").addEventListener("click", function () { $("mSubmit").classList.remove("show"); });
 $("mGo").addEventListener("click", function () {
   var btn = this; btn.disabled = true;
-  api({ action: "submit", lesson: S.lesson, code: S.buf.html, css: S.buf.css, period: $("period").value, activity: ACT }).then(function (j) {
+  api({ action: "submit", lesson: S.lesson, code: S.buf.html, css: S.buf.css, answers: S.ans, period: $("period").value, activity: ACT }).then(function (j) {
     btn.disabled = false; $("mSubmit").classList.remove("show");
-    if (j && j.ok) { lastCloud = S.buf.html + " " + S.buf.css; banner("Submitted " + fmtTime(j.submittedAt) + ". (Submission #" + j.count + ") Auto score: " + (lastReport ? lastReport.score : "") + " / 50. Your teacher will review it.", "good"); $("status").textContent = "Submitted " + fmtTime(j.submittedAt); }
+    if (j && j.ok) { lastCloud = cloudKey(); banner("Submitted " + fmtTime(j.submittedAt) + ". (Submission #" + j.count + ") Auto score: " + (lastReport ? lastReport.score : "") + " / 50. Your teacher will review it.", "good"); $("status").textContent = "Submitted " + fmtTime(j.submittedAt); }
     else if (j && j.error && !j.needLogin) banner(j.error, "err");
     else banner("Could not submit. Sign in again and try once more.", "err");
   }).catch(function () { btn.disabled = false; $("mSubmit").classList.remove("show"); banner("Could not reach the server. Check your internet and try again. Your code is saved on this computer.", "err"); });
@@ -726,6 +745,60 @@ setInterval(paintHL, 120); paintHL();
   function up() { d = null; pop.classList.remove("drag"); }
   head.addEventListener("pointerup", up); head.addEventListener("pointercancel", up);
 })();
+
+/* ---------- typed answers (the Answers tab) ---------- */
+var tAns;
+function ansSchema() { return (window.U7_ANSWERS || {})[S.lesson] || null; }
+function ansLeaves() { return window.U7_ANSWER_LEAVES ? window.U7_ANSWER_LEAVES(ansSchema()) : []; }
+function ansCount() { var L = ansLeaves(), n = 0; L.forEach(function (f) { if (String(S.ans[f.id] || "").trim()) n++; }); return { n: n, total: L.length }; }
+function cloudKey() { return S.buf.html + " " + S.buf.css + "" + JSON.stringify(S.ans || {}); }
+function ansSaveLocal() { lsSet("u7:ans:" + S.lesson, JSON.stringify(S.ans || {})); }
+function ansMerge(rec) {
+  if (!rec || !rec.answers || typeof rec.answers !== "object") return;
+  S.ans = Object.assign({}, S.ans, rec.answers); ansSaveLocal(); ansRender();
+}
+function ansBadge() {
+  var c = ansCount(), b = $("ansBadge"); if (b) b.textContent = c.total ? c.n + "/" + c.total : "";
+  var p = $("ansProg"); if (p) p.style.width = (c.total ? 100 * c.n / c.total : 0) + "%";
+}
+function setAns(on) { ansOn = !!on && !!ansSchema(); $("ansPane").classList.toggle("show", ansOn); markTabs(); if (!ansOn && document.activeElement && document.activeElement.closest && document.activeElement.closest("#ansPane")) ta.focus(); }
+function ansField(f) {
+  var id = "ans_" + f.id, v = S.ans[f.id] || "", h = '<div class="q"><label for="' + id + '">' + esc(f.q) + "</label>";
+  if (f.t === "area") h += '<textarea id="' + id + '" data-a="' + f.id + '" placeholder="Type your answer">' + esc(v) + "</textarea>";
+  else if (f.t === "yn" || f.t === "sel") { var o = f.t === "yn" ? ["Yes", "No"] : f.opts; h += '<select id="' + id + '" data-a="' + f.id + '"><option value="">Choose</option>' + o.map(function (x) { return "<option" + (x === v ? " selected" : "") + ">" + esc(x) + "</option>"; }).join("") + "</select>"; }
+  else h += '<input type="text" id="' + id + '" data-a="' + f.id + '" value="' + esc(v) + '" placeholder="Type here" autocomplete="off">';
+  return h + "</div>";
+}
+function ansRender() {
+  var sc = ansSchema(), pane = $("ansPane"), tab = $("ansTab");
+  if (tab) tab.style.display = sc ? "" : "none";
+  if (!sc) { pane.innerHTML = ""; setAns(false); return; }
+  var h = '<p class="ah">Type your answers to the lesson questions here. They save automatically and are submitted with your code.</p><div class="prog"><i id="ansProg"></i></div>';
+  sc.forEach(function (it) {
+    if (it.h) h += "<h3>" + esc(it.h) + "</h3>";
+    else if (it.grp) h += '<div class="grp"><b>' + esc(it.grp) + '</b><div class="gg">' + it.fields.map(ansField).join("") + "</div></div>";
+    else h += ansField(it);
+  });
+  pane.innerHTML = h; ansBadge();
+}
+function ansInit() {
+  var a = null; try { a = JSON.parse(lsGet("u7:ans:" + S.lesson) || "null"); } catch (e) {}
+  S.ans = a && typeof a === "object" ? a : {};
+  ansOn = false; $("ansPane").classList.remove("show"); ansRender();
+}
+$("ansPane").addEventListener("input", function (e) {
+  var id = e.target.getAttribute && e.target.getAttribute("data-a"); if (!id) return;
+  S.ans[id] = e.target.value; ansSaveLocal(); ansBadge(); touch(); $("status").textContent = "Typing…";
+  clearTimeout(tAns); tAns = setTimeout(function () { saveNow(false); }, 800);
+});
+$("ansPane").addEventListener("change", function (e) {
+  var id = e.target.getAttribute && e.target.getAttribute("data-a"); if (!id) return;
+  S.ans[id] = e.target.value; ansSaveLocal(); ansBadge();
+});
+function ansSubmitNote() {
+  var c = ansCount(); if (!c.total) return "";
+  return "<p>Answers tab: <b>" + c.n + " of " + c.total + "</b> answered." + (c.n < c.total ? ' <span style="color:#FCA5A5">Some questions are still empty. You can submit anyway, or finish them first.</span>' : "") + "</p>";
+}
 
 /* ---------- start ---------- */
 updateGuideLink(); loadLocal(); cursorInfo(); initGoogle();
