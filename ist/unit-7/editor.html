@@ -115,6 +115,14 @@ main[data-view="code"] .split,main[data-view="prev"] .split{display:none}
 #ansPane pre.pat{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:10px 12px;margin:0 0 12px;font:12.5px/1.6 "JetBrains Mono",monospace;color:#E6EAF2;white-space:pre-wrap;overflow-wrap:anywhere;user-select:none}
 #ansPane .pmap{border:1px dashed var(--rule);border-radius:10px;padding:8px;margin:0 0 12px;display:grid;gap:6px}
 #ansPane .pmap div{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:6px 10px;font:12.5px "JetBrains Mono",monospace}
+#ansPane{font-size:15px;line-height:1.55}
+#ansPane h3,#ansPane h3.first{color:#fff;font-size:17px;margin:6px 0 10px}
+#ansPane h3.stp{margin-top:260px;padding-top:22px;border-top:1px solid var(--rule);font-size:18px}
+#ansPane .tx{margin:0 0 12px;color:var(--ink)}
+#ansPane ul.sb,#ansPane ol.sb{margin:0 0 12px;padding-left:22px}
+#ansPane ul.sb li,#ansPane ol.sb li{margin:7px 0}
+#ansPane code{background:none;border:0;padding:0;color:var(--ink);font:inherit}
+#ansBadge:empty,#wtBadge:empty{display:none}
 #ansBadge{background:var(--acc);color:#0B0E14;border-radius:10px;padding:0 7px;font-size:11px;margin-left:6px;font-weight:800}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;padding:5px 12px;background:#0D1220;border-bottom:1px solid var(--rule);font:11.5px "JetBrains Mono",monospace;color:var(--soft)}
 .legend i{font-style:normal}
@@ -828,15 +836,15 @@ function ansRender() {
   var sc = ansSchema(), pane = $("ansPane"), tab = $("ansTab");
   if (tab) tab.style.display = sc ? "" : "none";
   if (!sc) { pane.innerHTML = ""; setAns(false); return; }
-  var h = '<p class="ah">Read each step, type your plan in the boxes, then build that part in index.html. Everything saves automatically and is submitted with your code.</p><div class="prog"><i id="ansProg"></i></div>';
+  var h = ansLeaves().length ? '<p class="ah">Fill in your answers here. They save automatically and are submitted with your code.</p><div class="prog"><i id="ansProg"></i></div>' : "";
   sc.forEach(function (it) {
     if (it.h) h += '<h3 class="' + (/^Step /.test(it.h) ? "stp" : "first") + '">' + wtText(it.h) + "</h3>";
     else if (it.p) h += '<p class="tx">' + wtText(it.p) + "</p>";
-    else if (it.make) h += '<div class="cb make"><b>You are creating</b>' + wtText(it.make) + "</div>";
-    else if (it.where) h += '<div class="cb where"><b>Where it goes</b>' + wtText(it.where) + "</div>";
-    else if (it.build) h += '<div class="cb build"><b>Now build it in index.html</b><ul>' + it.build.map(function (x) { return "<li>" + wtText(x) + "</li>"; }).join("") + "</ul></div>";
+    else if (it.make) h += '<p class="tx">' + wtText(it.make) + "</p>";
+    else if (it.where) h += '<p class="tx">' + wtText(it.where) + "</p>";
+    else if (it.build) h += '<ul class="sb">' + it.build.map(function (x) { return "<li>" + wtText(x) + "</li>"; }).join("") + "</ul>";
     else if (it.code) h += '<pre class="pat">' + esc(it.code) + "</pre>";
-    else if (it.map) h += '<div class="pmap">' + it.map.map(function (x) { return "<div>" + esc(x) + "</div>"; }).join("") + "</div>";
+    else if (it.map) h += '<ol class="sb map">' + it.map.map(function (x) { return "<li>" + wtText(x) + "</li>"; }).join("") + "</ol>";
     else if (it.grp) h += '<div class="grp"><b>' + esc(it.grp) + '</b><div class="gg">' + it.fields.map(ansField).join("") + "</div></div>";
     else if (it.id) h += ansField(it);
   });
