@@ -207,7 +207,16 @@ function load() {
       var code = s.submission ? s.submission.code : (s.draft ? s.draft.code : ""), css = s.submission ? (s.submission.css || "") : (s.draft ? (s.draft.css || "") : "");
       var rep = H.check(lesson, code);
       _row = { email: s.email, name: s.name || s.email, period: s.period || (s.submission && s.submission.period) || "", sub: s.submission, draft: s.draft, code: code, css: css, rep: rep, status: s.submission ? "submitted" : "draft", teacher: s.submission ? s.submission.teacher : null };
-      _row.org = analyzeOrigin(_row); return _row;
+      _row.org = analyzeOrigin(_row);
+      _row.pasteBad = !!_row.org.penalize;
+      _row.wq = H.quality(code);
+      if (_row.wq.severe) {
+        _row.org.penalize = true;
+        if (!_row.org.has || !_row.org.reasons.length || _row.org.reasons[0] === "Looks like the student typed this page themselves.") _row.org.reasons = [];
+        _row.org.reasons.unshift("Writing check: the writing looks like nonsense or the same content repeated, so the 50% penalty applies.");
+        _row.org.level = "red";
+      }
+      return _row;
     });
     var periods = {}; rowsData.forEach(function (r) { if (r.period) periods[r.period] = 1; });
     var ps = $("period"), cur = ps.value; ps.innerHTML = '<option value="">All</option>' + Object.keys(periods).sort().map(function (p) { return "<option>" + esc(p) + "</option>"; }).join(""); ps.value = cur;
@@ -267,6 +276,23 @@ function ansHtml(r) {
   return h + "</div>";
 }
 
+/* ---------- writing quality ---------- */
+function penComment(r) {
+  var parts = []; if (r.pasteBad) parts.push("text was copied from outside the editor"); if (r.wq && r.wq.severe) parts.push("the writing is nonsense or the same content repeated");
+  return "50% off: " + (parts.length ? parts.join(" and ") : "see the originality notes") + ".";
+}
+function wqHtml(r) {
+  var q = r.wq; if (!q) return "";
+  var lvl = q.severe ? "red" : (q.flags.length ? "yellow" : "green");
+  var flags = q.flags.map(function (f) { return '<li style="color:' + (f.sev === "high" ? "#FCA5A5" : "#FCD34D") + '">' + esc(f.msg) + "</li>"; }).join("");
+  var topic = q.topicWords && q.topicWords.length ? " &middot; topic words: " + esc(q.topicWords.join(", ")) + " (" + (q.topicMentions == null ? "?" : q.topicMentions) + " mentions in paragraphs)" : "";
+  return '<div class="org ' + lvl + '"><b class="t">' + LV[lvl] + " Writing check</b>" +
+    (q.n < 15 ? "<small>Not enough text to check yet.</small>" : (flags ? "<ul>" + flags + "</ul>" : "<small>Real words, real sentences, and nothing repeated. Looks good.</small>")) +
+    '<div class="kv"><span>Words</span><span>' + q.n + "</span><span>Different words</span><span>" + Math.round(q.uniqueRatio * 100) + "%</span><span>Normal sentence words</span><span>" + Math.round(q.stopRatio * 100) + "%</span><span>Nonsense words</span><span>" + q.gibberish + "</span><span>Copied paragraphs</span><span>" + q.dupParas + "</span></div>" +
+    (topic ? '<small style="color:var(--soft)">' + topic.replace(/^ &middot; /, "") + "</small>" : "") +
+    '<details style="margin-top:8px;font-size:12px;color:var(--soft)"><summary style="cursor:pointer">Grading policy</summary><div style="margin-top:6px;line-height:1.5"><b>Red (severe)</b> = keyboard mashing or nonsense words, filler text (lorem ipsum, asdf), paragraphs of random words with no sentences, the same word over and over, mostly the same few words, copied paragraphs, or the same sentence or phrase repeated many times. Red takes 50% off and also fails the editor checks for real writing. <b>Yellow</b> = a warning only (one repeated sentence, a couple odd words): read it yourself. <b>Topic</b>: the words in the title should show up in the paragraphs. Every flag is a recommendation. You can uncheck the penalty and change the score.</div></details></div>';
+}
+
 /* ---------- detail ---------- */
 function select(email) {
   selEmail = email; var r = rowsData.filter(function (x) { return x.email === email; })[0]; if (!r) return;
@@ -297,11 +323,11 @@ function select(email) {
       '<div class="kv"><span>Typed by hand</span><span>' + og.act.typed + '</span><span>Pasted from outside</span><span>' + og.act.ext + '</span><span>Still in the final page</span><span>' + og.inFinal + '</span><span>Active writing time</span><span>' + og.minutes.toFixed(1) + ' min</span><span>Words on the page</span><span>' + og.words + '</span><span>Words per active minute</span><span>' + (og.wpm ? Math.round(og.wpm) : "n/a") + '</span></div>' +
       (evh ? "<h3>Outside pastes</h3>" + evh : "") + (sh ? '<h3>Check a paragraph on the web</h3><div class="srch">' + sh + "</div>" : "");
   }
-  $("right").innerHTML = ohtml + '<div class="grade"><h3>Grade</h3><div>Auto check: <span class="big">' + r.rep.score + '</span> / ' + r.rep.total + " <small style=\"color:var(--soft)\">(" + r.rep.passed + "/" + r.rep.count + " checks)</small></div>" +
-    '<div style="margin-top:8px">Your score: <input type="number" id="gScore" min="0" step="0.5" value="' + esc(g) + '"> / ' + r.rep.total + '</div><label style="display:flex;gap:6px;align-items:flex-start;margin:6px 0;font-size:12.5px;color:' + (penOn ? '#FCA5A5' : 'var(--soft)') + '"><input type="checkbox" id="gPen"' + (penOn ? " checked" : "") + '> <span><b>50% originality penalty</b> (content copied from outside the editor). Uncheck if this paste was okay.</span></label><textarea id="gComment" placeholder="Comment for the student (optional)">' + esc(r.teacher ? r.teacher.comment : (penOn ? "50% off: text was copied from outside the editor." : "")) + '</textarea>' +
+  $("right").innerHTML = ohtml + wqHtml(r) + '<div class="grade"><h3>Grade</h3><div>Auto check: <span class="big">' + r.rep.score + '</span> / ' + r.rep.total + " <small style=\"color:var(--soft)\">(" + r.rep.passed + "/" + r.rep.count + " checks)</small></div>" +
+    '<div style="margin-top:8px">Your score: <input type="number" id="gScore" min="0" step="0.5" value="' + esc(g) + '"> / ' + r.rep.total + '</div><label style="display:flex;gap:6px;align-items:flex-start;margin:6px 0;font-size:12.5px;color:' + (penOn ? '#FCA5A5' : 'var(--soft)') + '"><input type="checkbox" id="gPen"' + (penOn ? " checked" : "") + '> <span><b>50% penalty</b> (copied from outside the editor, or nonsense/repeated writing). Uncheck if you decide it was okay.</span></label><textarea id="gComment" placeholder="Comment for the student (optional)">' + esc(r.teacher ? r.teacher.comment : (penOn ? penComment(r) : "")) + '</textarea>' +
     '<button class="btn pri" id="gSave"' + (r.status !== "submitted" ? " disabled title=\"Only submitted work can be graded\"" : "") + '>Save grade</button> <span id="gInfo" style="color:var(--soft);font-size:12px">' + (r.teacher && r.teacher.gradedAt ? "Saved " + esc(fmt(r.teacher.gradedAt)) : "") + "</span></div>" +
     "<h3>This lesson's requirements</h3>" + (nw || "<small>None</small>") + (old ? '<h3>Carried over</h3>' + old : "") + "<h3>Problems</h3>" + (pr || "<small>None</small>") + "<h3>Tags used</h3><div class=\"chips\">" + (tg || "<small>None</small>") + "</div>";
-  $("gPen").onchange = function () { $("gScore").value = Math.round(r.rep.score * (this.checked ? PENALTY : 1) * 10) / 10; if (this.checked && !$("gComment").value.trim()) $("gComment").value = "50% off: text was copied from outside the editor."; };
+  $("gPen").onchange = function () { $("gScore").value = Math.round(r.rep.score * (this.checked ? PENALTY : 1) * 10) / 10; if (this.checked && !$("gComment").value.trim()) $("gComment").value = penComment(r); };
   $("gSave").onclick = function () {
     var sc = $("gScore").value; this.disabled = true;
     api({ action: "adminGrade", lesson: $("lesson").value, email: r.email, score: sc, comment: $("gComment").value, penalty: $("gPen").checked }).then(function (j) {
@@ -331,7 +357,7 @@ $("bulk").onclick = function () {
   (function next() {
     if (i >= todo.length) { toast("Done"); render(); return; }
     var r = todo[i++]; $("count").textContent = "Saving " + i + " of " + todo.length + "…";
-    api({ action: "adminGrade", lesson: lesson, email: r.email, score: Math.round(r.rep.score * (r.org.penalize ? PENALTY : 1) * 10) / 10, comment: r.org.penalize ? "50% off: text was copied from outside the editor." : (r.teacher ? r.teacher.comment : ""), penalty: r.org.penalize }).then(function (j) { if (j.ok) r.teacher = j.teacher; next(); });
+    api({ action: "adminGrade", lesson: lesson, email: r.email, score: Math.round(r.rep.score * (r.org.penalize ? PENALTY : 1) * 10) / 10, comment: r.org.penalize ? penComment(r) : (r.teacher ? r.teacher.comment : ""), penalty: r.org.penalize }).then(function (j) { if (j.ok) r.teacher = j.teacher; next(); });
   })();
 };
 </script>

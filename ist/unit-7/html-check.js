@@ -213,6 +213,95 @@
   }
 
   /* =====================================================================
+     WRITING QUALITY  (catches nonsense words, keyboard mashing, and the same content over and over)
+     quality(ctx) reads the paragraphs, headings and list items and returns numbers plus flags.
+     Flags marked severe are the ones that should cost points; the rest are warnings for the teacher.
+     ===================================================================== */
+  var STOP = {}; ("a about after all also am an and any are as at be because been before being but by can could did do does down each few for from had has have he her here him his how i if in into is it its just like me more most my no not now of on one only or other our out over own said she so some such than that the their them then there these they this those through to too up us very was we were what when where which while who why will with would you your").split(" ").forEach(function (w) { STOP[w] = 1; });
+  var KEYROWS = ["qwer", "wert", "erty", "rtyu", "tyui", "yuio", "uiop", "asdf", "sdfg", "dfgh", "fghj", "ghjk", "hjkl", "zxcv", "xcvb", "cvbn", "vbnm"];
+  function isGibberish(w) {
+    if (w.length < 3) return false;
+    if (!/[aeiouy]/.test(w)) return true;                 // no vowels at all
+    if (/(.)\1{3,}/.test(w)) return true;                  // aaaa
+    if (/[^aeiouy]{6,}/.test(w)) return true;              // bcdfgh
+    for (var i = 0; i < KEYROWS.length; i++) if (w.indexOf(KEYROWS[i]) > -1) return true;
+    return false;
+  }
+  function stemOf(w) { return w.replace(/(ing|ed|es|s)$/, ""); }
+  function quality(c) {
+    var texts = [];
+    ["p", "h1", "h2", "h3", "h4", "h5", "h6", "li", "td", "th"].forEach(function (t) { c.all(t).forEach(function (n) { var s = textOf(n).replace(/\s+/g, " ").trim(); if (s) texts.push({ tag: t, s: s }); }); });
+    var whole = texts.map(function (x) { return x.s; }).join(" ").toLowerCase();
+    var words = (whole.match(/[a-z']+/g) || []).map(function (w) { return w.replace(/^'+|'+$/g, ""); }).filter(function (w) { return w.length > 0; });
+    var n = words.length, q = { n: n, flags: [], severe: false, uniqueRatio: 1, stopRatio: 1, gibberish: 0, dupParas: 0, topicMentions: null, topicWords: [] };
+    function flag(id, sev, msg) { q.flags.push({ id: id, sev: sev, msg: msg }); if (sev === "high") q.severe = true; }
+    if (n < 15) return q;
+
+    var uniq = {}; words.forEach(function (w) { uniq[w] = 1; });
+    q.uniqueRatio = Object.keys(uniq).length / n;
+    var stops = 0; words.forEach(function (w) { if (STOP[w]) stops++; }); q.stopRatio = stops / n;
+    var gib = words.filter(isGibberish); q.gibberish = gib.length;
+
+    // 1. nonsense words / keyboard mashing
+    if (gib.length >= 3 && gib.length / n >= 0.06) flag("gibberish", "high", gib.length + " words look like keyboard mashing or nonsense (like \"" + gib.slice(0, 3).join("\", \"") + "\").");
+    else if (gib.length >= 2) flag("gibberish-few", "warn", gib.length + " words look like nonsense (like \"" + gib.slice(0, 2).join("\", \"") + "\").");
+    // 2. filler text
+    if (/lorem ipsum|dolor sit amet|blah blah|test test|asdf|qwerty|your text here|sample text goes here|type here/i.test(whole)) flag("filler", "high", "The page contains placeholder or filler text (like lorem ipsum, asdf, or blah blah).");
+    // 3. word salad: lots of words but almost no sentence glue words
+    var pOnly = (texts.filter(function (x) { return x.tag === "p"; }).map(function (x) { return x.s; }).join(" ").toLowerCase().match(/[a-z']+/g) || []), pStops = 0; pOnly.forEach(function (w) { if (STOP[w]) pStops++; });
+    var pStopRatio = pOnly.length ? pStops / pOnly.length : 1;
+    if (pOnly.length >= 40 && pStopRatio < 0.12) flag("salad", "high", "Only " + Math.round(pStopRatio * 100) + "% of the words in the paragraphs are normal sentence words (the, and, of, is...). It reads like a list of random words, not sentences.");
+    // 4. same word again and again
+    var runs = 0, longest = 0, run = 1;
+    for (var i = 1; i < n; i++) { if (words[i] === words[i - 1] && words[i].length > 1) { run++; if (run === 3) runs++; if (run > longest) longest = run; } else run = 1; }
+    if (runs >= 2 || longest >= 5) flag("word-run", "high", "The same word is repeated in a row many times (up to " + Math.max(longest, 3) + " times in a row).");
+    else if (runs === 1) flag("word-run-1", "warn", "The same word is repeated 3 times in a row once.");
+    // 5. low variety
+    var minRatio = n >= 150 ? 0.26 : 0.34;
+    if (n >= 60 && q.uniqueRatio < minRatio * 0.75) flag("variety", "high", "Only " + Math.round(q.uniqueRatio * 100) + "% of the words are different. The writing uses the same words over and over.");
+    else if (n >= 60 && q.uniqueRatio < minRatio) flag("variety-low", "warn", "Only " + Math.round(q.uniqueRatio * 100) + "% of the words are different. The writing may be repetitive.");
+    // 6. repeated paragraphs (exact or nearly the same)
+    var paras = texts.filter(function (x) { return x.tag === "p"; }).map(function (x) { return x.s.toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim(); }).filter(function (s) { return s.split(" ").length >= 8; });
+    function shingles(s) { var w = s.split(" "), o = {}; for (var k = 0; k + 4 <= w.length; k++) o[w.slice(k, k + 4).join(" ")] = 1; return o; }
+    var sh = paras.map(shingles), dup = {};
+    for (var a = 0; a < paras.length; a++) for (var b = a + 1; b < paras.length; b++) {
+      if (dup[b]) continue;
+      if (paras[a] === paras[b]) { dup[b] = 1; continue; }
+      var ka = Object.keys(sh[a]), inter = 0; ka.forEach(function (k) { if (sh[b][k]) inter++; });
+      var uni = ka.length + Object.keys(sh[b]).length - inter;
+      if (uni > 0 && inter / uni >= 0.6) dup[b] = 1;
+    }
+    q.dupParas = Object.keys(dup).length;
+    if (q.dupParas >= 2) flag("dup-paras", "high", q.dupParas + " paragraphs are copies (or near copies) of another paragraph.");
+    else if (q.dupParas === 1) flag("dup-para-1", "warn", "One paragraph is a copy of another paragraph.");
+    // 7. repeated sentences
+    var sents = whole.split(/[.!?]+/).map(function (s) { return s.replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim(); }).filter(function (s) { return s.split(" ").length >= 4; }), sc = {}, repS = 0;
+    sents.forEach(function (s) { sc[s] = (sc[s] || 0) + 1; }); Object.keys(sc).forEach(function (s) { if (sc[s] >= 3) repS += 2; else if (sc[s] === 2) repS += 1; });
+    if (repS >= 3) flag("dup-sents", "high", "The same sentences appear more than once (some 3 or more times).");
+    else if (repS >= 1) flag("dup-sent-1", "warn", "A sentence is repeated.");
+    // 8. the same long phrase over and over
+    var gram = {}, worst = 0, worstP = ""; for (var g = 0; g + 6 <= n; g++) { var ph = words.slice(g, g + 6).join(" "); gram[ph] = (gram[ph] || 0) + 1; if (gram[ph] > worst) { worst = gram[ph]; worstP = ph; } }
+    if (worst >= 4) flag("phrase", "high", "The same phrase (\"" + worstP + "\") shows up " + worst + " times.");
+    else if (worst === 3) flag("phrase-3", "warn", "The phrase \"" + worstP + "\" shows up 3 times.");
+
+    // 9. does the writing match the topic in the title / heading 1?
+    var tw = [];
+    var tt = c.all("title")[0], h1 = c.all("h1")[0];
+    [tt ? textOf(tt) : "", h1 ? textOf(h1) : ""].join(" ").toLowerCase().split(/[^a-z']+/).forEach(function (w) { if (w.length >= 4 && !STOP[w] && tw.indexOf(w) < 0) tw.push(w); });
+    q.topicWords = tw;
+    if (tw.length) {
+      var stems = tw.map(stemOf).filter(function (s) { return s.length >= 3; }), hits = 0;
+      var pw = (texts.filter(function (x) { return x.tag === "p" || x.tag === "li"; }).map(function (x) { return x.s; }).join(" ").toLowerCase().match(/[a-z']+/g) || []);
+      pw.forEach(function (w) { for (var z = 0; z < stems.length; z++) if (w.indexOf(stems[z]) === 0) { hits++; break; } });
+      // the title and heading 1 themselves are in "whole" once each, so remove them
+      q.topicMentions = hits;
+    }
+    q.level = q.severe ? "red" : (q.flags.length ? "yellow" : "green");
+    return q;
+  }
+  function qualityOk(c) { var q = quality(c); return !q.severe; }
+
+  /* =====================================================================
      LESSON REQUIREMENTS  (edit these to match what you assign)
      Each lesson lists ONLY its new rules. Earlier lessons carry over automatically
      (they count a little less, so students keep the earlier parts of their site).
@@ -238,6 +327,9 @@
       r("At least 10 <p> paragraphs, all inside the <body>", function (c) { var a = c.all("p"); return a.length >= 10 && a.every(function (n) { return !!c.ancestor(n, ["body"]); }); }, "", true),
       r("At least 8 of your paragraphs have 25 words or more", function (c) { return c.all("p").filter(function (n) { return c.words(n) >= 25; }).length >= 8; }, "Write full paragraphs of 3 to 5 sentences.", true),
       r("At least 300 words of text on the page", function (c) { var b = c.all("body")[0]; return !!b && c.words(b) >= 300; }, "A long page, like a real encyclopedia article.", true),
+      r("Your writing is real: no keyboard mashing, nonsense words, or filler text", function (c) { var q = quality(c); return !q.flags.some(function (f) { return f.sev === "high" && /^(gibberish|filler|salad)$/.test(f.id); }); }, "Write real sentences in your own words.", true),
+      r("Your writing is not the same content over and over (no repeated paragraphs, sentences, or phrases)", function (c) { var q = quality(c); return !q.flags.some(function (f) { return f.sev === "high" && /^(dup-paras|dup-sents|phrase|word-run|variety)$/.test(f.id); }); }, "Every paragraph should say something new.", true),
+      r("Your paragraphs are about your topic (the words in your title show up in them)", function (c) { var q = quality(c); return q.topicMentions === null || q.n < 60 || q.topicMentions >= 3; }, "Use your topic's name and related words in your paragraphs.", true),
       r("Every tag is closed and nested correctly", function (c) { return c.errors.length === 0 && c.has("html"); }, "See the Problems list for exactly which line to fix.", false, true)
     ] },
     "7.2": { name: "The Style Attribute", rules: [
@@ -248,7 +340,8 @@
       r("Uses text-align or text-transform", function (c) { return c.prop("text-align") + c.prop("text-transform") > 0; }),
       r("Uses background-color (the color behind the text)", function (c) { return c.prop("background-color") > 0; }),
       r("Uses the border shortcut: thickness, style, color (like 2px solid black)", function (c) { return anyValue(c, "border", function (v) { return /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(v); }); }),
-      r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\"")
+      r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\""),
+      r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
     "7.3": { name: "Editing Tags + Span + Font Families", rules: [
       r("Uses <strong> and <em>", function (c) { return c.has("strong") && c.has("em"); }),
@@ -259,7 +352,8 @@
       }),
       r("Uses a <span> with a style attribute", function (c) { return c.all("span").some(function (s) { return s.attrs.style !== undefined; }); }),
       r("Uses font-family with serif, sans-serif, or monospace", function (c) { return anyValue(c, "font-family", function (v) { return /(^|[\s,'"])(serif|sans-serif|monospace)\s*$/i.test(v.replace(/;$/, "")); }); }),
-      r("Uses the border shortcut: thickness, style, color (like 2px solid black)", function (c) { return anyValue(c, "border", function (v) { return /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(v); }); })
+      r("Uses the border shortcut: thickness, style, color (like 2px solid black)", function (c) { return anyValue(c, "border", function (v) { return /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(v); }); }),
+      r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
     "7.4": { name: "Borders + Everything So Far", rules: [
       r("Has at least 3 headings, using at least 2 different levels (only one h1)", function (c) { var lv = 0, n = 0; ["h1", "h2", "h3", "h4", "h5", "h6"].forEach(function (h) { if (c.has(h)) lv++; n += c.count(h); }); return n >= 3 && lv >= 2; }, "One h1 for WANTED, then h2 and h3 for the rest."),
@@ -280,7 +374,8 @@
       r("Uses at least 2 different border styles (like solid and dashed)", function (c) {
         var seen = {}; ["border", "border-top", "border-bottom", "border-left", "border-right"].forEach(function (p) { c.propValues(p).forEach(function (v) { var m = /\b(solid|dashed|dotted|double|groove|ridge)\b/i.exec(v); if (m) seen[m[1].toLowerCase()] = 1; }); }); return Object.keys(seen).length >= 2;
       }, "Try solid, dashed, dotted, double, groove, or ridge."),
-      r("Uses a border on just one side (border-top, border-bottom, border-left, or border-right)", function (c) { return c.prop("border-top") + c.prop("border-bottom") + c.prop("border-left") + c.prop("border-right") > 0; }, "Same three parts, one side only: border-bottom: 3px solid navy;")
+      r("Uses a border on just one side (border-top, border-bottom, border-left, or border-right)", function (c) { return c.prop("border-top") + c.prop("border-bottom") + c.prop("border-left") + c.prop("border-right") > 0; }, "Same three parts, one side only: border-bottom: 3px solid navy;"),
+      r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
     "7.5": { name: "Lists + Everything So Far", rules: [
       r("Has at least 2 <ol> and at least 2 <ul> lists", function (c) { return c.count("ol") >= 2 && c.count("ul") >= 2; }, "Plan one ordered and one bullet list in each section."),
@@ -309,7 +404,8 @@
       }),
       r("Makes one list horizontal: display: inline on at least 3 <li> (block turned into inline)", function (c) {
         return c.inline.filter(function (d) { return d.prop === "display" && /^inline$/i.test(d.value.replace(/;$/, "").trim()) && d.el.tag === "li"; }).length >= 3;
-      }, "Put style=\"display: inline;\" on each li of one list, and add list-style-type: none; to the ul.")
+      }, "Put style=\"display: inline;\" on each li of one list, and add list-style-type: none; to the ul."),
+      r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
     "7.6": { name: "Links + Everything So Far", rules: [
       r("Has at least 6 <a> links, and every href starts with https://", function (c) { var a = c.all("a"); return a.length >= 6 && a.every(function (x) { return /^https:\/\//i.test(x.attrs.href || ""); }); }, "Copy the whole address from the browser, including https://"),
@@ -346,7 +442,8 @@
         var seen = {}; c.propValues("font-family").forEach(function (v) { var m = /(^|[\s,'"])(serif|sans-serif|monospace)\s*$/i.exec(v.replace(/;$/, "")); if (m) seen[m[2].toLowerCase()] = 1; }); return Object.keys(seen).length >= 2;
       }, "Try serif for headings, sans-serif for the body, and monospace for the footer."),
       r("Uses the style attribute on at least 2 different tags (your inline exceptions)", function (c) { var els = []; c.inline.forEach(function (d) { if (els.indexOf(d.el) < 0) els.push(d.el); }); return els.length >= 2; }, "Example: a colored span, and a footer paragraph."),
-      r("Uses the border shortcut: thickness, style, color (like 2px solid black)", function (c) { return ["border", "border-top", "border-bottom", "border-left", "border-right"].some(function (p) { return anyValue(c, p, function (v) { return /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(v); }); }); })
+      r("Uses the border shortcut: thickness, style, color (like 2px solid black)", function (c) { return ["border", "border-top", "border-bottom", "border-left", "border-right"].some(function (p) { return anyValue(c, p, function (v) { return /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(v); }); }); }),
+      r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
     "7.7": { name: "Images (Clickable, Resized)", rules: [
       r("Has at least 3 <img> tags, each with a src", function (c) { var im = c.all("img"); return im.length >= 3 && im.every(function (i) { return (i.attrs.src || "").length > 0; }); }),
@@ -488,6 +585,6 @@
     if (/<head\b[^>]*>/i.test(html)) return html.replace(/<head\b[^>]*>/i, function (m) { return m + BASE_STYLE; });
     return BASE_STYLE + html;
   }
-  var API = { analyze: analyze, check: check, openTags: openTags, previewDoc: previewDoc, VOID: VOID, LESSONS: LESSONS, ORDER: ORDER, TOTAL_POINTS: TOTAL_POINTS };
+  var API = { quality: function (src) { return quality(analyze(String(src || ""))); }, analyze: analyze, check: check, openTags: openTags, previewDoc: previewDoc, VOID: VOID, LESSONS: LESSONS, ORDER: ORDER, TOTAL_POINTS: TOTAL_POINTS };
   if (typeof module !== "undefined" && module.exports) module.exports = API; else root.HTMLCheck = API;
 })(typeof window !== "undefined" ? window : globalThis);
