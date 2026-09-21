@@ -311,16 +311,38 @@
         var els = []; c.inline.forEach(function (d) { if (/^border(-top|-bottom|-left|-right)?$/.test(d.prop) && /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(d.value) && els.indexOf(d.el) < 0) els.push(d.el); }); return els.length >= 2;
       })
     ] },
-    "7.6": { name: "Links", rules: [
-      r("Has an <a> link with an href that starts with https://", function (c) { return c.all("a").some(function (a) { return /^https:\/\//i.test(a.attrs.href || ""); }); }),
-      r("A link opens in a new tab with target=\"_blank\"", function (c) { return c.all("a").some(function (a) { return a.attrs.target === "_blank"; }); }),
+    "7.6": { name: "Links + Everything So Far", rules: [
+      r("Has at least 6 <a> links, and every href starts with https://", function (c) { var a = c.all("a"); return a.length >= 6 && a.every(function (x) { return /^https:\/\//i.test(x.attrs.href || ""); }); }, "Copy the whole address from the browser, including https://"),
+      r("At least 3 links open in a NEW tab (target=\"_blank\")", function (c) { return c.all("a").filter(function (a) { return a.attrs.target === "_blank"; }).length >= 3; }, "Links that leave your site open in a new tab."),
+      r("At least 3 links open in the CURRENT tab (no target, or target=\"_self\")", function (c) { return c.all("a").filter(function (a) { return a.attrs.target === undefined || a.attrs.target === "_self"; }).length >= 3; }, "Leave off target, or write target=\"_self\"."),
+      r("Link text says where the link goes (no \"click here\", \"here\", or \"link\")", function (c) { var a = c.all("a"); return a.length > 0 && a.every(function (x) { var s = c.text(x).trim().toLowerCase(); return s.length >= 3 && !/^(click here|here|link|this|click)$/.test(s); }); }),
+      r("Every link sits inside a <li> or <p>, not loose in the body", function (c) { var a = c.all("a"); return a.length > 0 && a.every(function (x) { return !!c.ancestor(x, ["li", "p"]); }); }),
       r("Has an internal <style> block inside <head>", function (c) { return c.all("style").some(function (s) { return !!c.ancestor(s, ["head"]); }); }),
-      r("Styles a:hover with a color", function (c) { return c.selector("a:hover").some(function (rl) { return rl.decls.some(function (d) { return d.prop === "color"; }); }); }),
+      r("Styles all four link states: a:link, a:visited, a:hover, a:active", function (c) { return ["a:link", "a:visited", "a:hover", "a:active"].every(function (s) { return c.selector(s).length > 0; }); }),
       r("Link states are in LVHA order (link, visited, hover, active)", function (c) {
         var order = ["a:link", "a:visited", "a:hover", "a:active"], pos = [];
-        c.sheetRules.forEach(function (rl, i) { var k = order.indexOf(rl.selector.toLowerCase()); if (k > -1) pos.push(k); });
-        if (pos.length < 2) return false; for (var i = 1; i < pos.length; i++) if (pos[i] < pos[i - 1]) return false; return true;
-      }, "Love, Visit, Hate, Always: :link, :visited, :hover, :active")
+        c.sheetRules.forEach(function (rl) { var k = order.indexOf(rl.selector.toLowerCase()); if (k > -1) pos.push(k); });
+        if (pos.length < 4) return false; for (var i = 1; i < pos.length; i++) if (pos[i] < pos[i - 1]) return false; return true;
+      }, "Love, Visit, Hate, Always: :link, :visited, :hover, :active"),
+      r("a:hover changes at least 2 things (like color and background-color)", function (c) { return c.selector("a:hover").some(function (rl) { return rl.decls.length >= 2; }); }),
+      r("The style block also styles at least 2 non-link tags (like h2 or p) so the page is styled from the head", function (c) {
+        var tags = {}; c.sheetRules.forEach(function (rl) { if (/^[a-z][a-z0-9]*$/i.test(rl.selector.trim())) tags[rl.selector.trim().toLowerCase()] = 1; }); return Object.keys(tags).length >= 2;
+      }, "Try h1 { ... } and h2 { ... }."),
+      r("Has an h1, an h2, and an h3 in outline order", function (c) {
+        if (!c.has("h1") || !c.has("h2") || !c.has("h3")) return false;
+        var hs = []; (function w(n) { n.children.forEach(function (x) { if (x.tag === "#text") return; if (/^h[1-6]$/.test(x.tag)) hs.push(+x.tag.charAt(1)); w(x); }); })(c.tree);
+        if (hs[0] !== 1) return false; for (var i = 1; i < hs.length; i++) if (hs[i] > hs[i - 1] + 1) return false; return true;
+      }),
+      r("Uses <p>, <strong>, and <em>", function (c) { return c.has("p") && (c.has("strong") || c.has("b")) && (c.has("em") || c.has("i")); }),
+      r("Uses <br> and <hr> (never closed)", function (c) { return c.has("br") && c.has("hr"); }),
+      r("Has a <ul> and an <ol>, each with at least 3 <li> items and only li directly inside", function (c) {
+        var l = c.all("ul").concat(c.all("ol")); return c.has("ul") && c.has("ol") && l.every(function (x) { return x.children.filter(function (n) { return n.tag === "li"; }).length >= 3 && x.children.every(function (n) { return n.tag === "li"; }); });
+      }),
+      r("Uses list-style-type on a <ul> or <ol>", function (c) { return c.prop("list-style-type") > 0; }),
+      r("Uses a <span> with a style attribute (an inline exception)", function (c) { return c.all("span").some(function (s) { return s.attrs.style !== undefined; }); }),
+      r("Uses color, background-color, and font-size in pixels", function (c) { return c.prop("color") > 0 && c.prop("background-color") > 0 && c.propValues("font-size").some(function (v) { return /^\d+(\.\d+)?px$/i.test(v); }); }),
+      r("Uses text-align or text-transform, and font-family (serif, sans-serif, or monospace)", function (c) { return c.prop("text-align") + c.prop("text-transform") > 0 && c.propValues("font-family").some(function (v) { return /(^|[\s,'"])(serif|sans-serif|monospace)\s*$/i.test(v.replace(/;$/, "")); }); }),
+      r("Uses the border shortcut: thickness, style, color (like 2px solid black)", function (c) { return ["border", "border-top", "border-bottom", "border-left", "border-right"].some(function (p) { return anyValue(c, p, function (v) { return /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(v); }); }); })
     ] },
     "7.7": { name: "Images", rules: [
       r("Has an <img> with a src", function (c) { return c.all("img").some(function (i) { return (i.attrs.src || "").length > 0; }); }),
