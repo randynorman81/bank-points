@@ -264,14 +264,26 @@
       r("Uses font-family with serif, sans-serif, or monospace", function (c) { return anyValue(c, "font-family", function (v) { return /(^|[\s,'"])(serif|sans-serif|monospace)\s*$/i.test(v.replace(/;$/, "")); }); }),
       r("Uses the border shortcut: thickness, style, color (like 2px solid black)", function (c) { return anyValue(c, "border", function (v) { return /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(v); }); })
     ] },
-    "7.4": { name: "Borders", rules: [
+    "7.4": { name: "Borders + Everything So Far", rules: [
+      r("Has at least 3 headings, using at least 2 different levels (only one h1)", function (c) { var lv = 0, n = 0; ["h1", "h2", "h3", "h4", "h5", "h6"].forEach(function (h) { if (c.has(h)) lv++; n += c.count(h); }); return n >= 3 && lv >= 2; }, "One h1 for WANTED, then h2 and h3 for the rest."),
+      r("Has at least 3 <p> paragraphs", function (c) { return c.count("p") >= 3; }),
+      r("Uses <strong> (or <b>) at least 3 times", function (c) { return c.count("strong") + c.count("b") >= 3; }),
+      r("Uses <em> (or <i>) at least 3 times", function (c) { return c.count("em") + c.count("i") >= 3; }),
+      r("Uses <br> at least 3 times", function (c) { return c.count("br") >= 3; }),
+      r("Uses <hr> at least 3 times", function (c) { return c.count("hr") >= 3; }),
+      r("Uses <span> with a style attribute at least 3 times", function (c) { return c.all("span").filter(function (s) { return s.attrs.style !== undefined; }).length >= 3; }),
+      r("Uses color at least 3 times", function (c) { return c.prop("color") >= 3; }),
+      r("Uses background-color at least 3 times", function (c) { return c.prop("background-color") >= 3; }),
+      r("Uses font-size in pixels at least 3 times", function (c) { return c.propValues("font-size").filter(function (v) { return /^\d+(\.\d+)?px$/i.test(v); }).length >= 3; }),
+      r("Uses text-align or text-transform at least 3 times", function (c) { return c.prop("text-align") + c.prop("text-transform") >= 3; }),
+      r("Uses font-family (serif, sans-serif, or monospace) at least 3 times", function (c) { return c.propValues("font-family").filter(function (v) { return /(^|[\s,'"])(serif|sans-serif|monospace)\s*$/i.test(v.replace(/;$/, "")); }).length >= 3; }),
+      r("Puts the border shortcut (thickness, style, color) on at least 3 different elements", function (c) {
+        var els = []; c.inline.forEach(function (d) { if (/^border(-top|-bottom|-left|-right)?$/.test(d.prop) && /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(d.value) && els.indexOf(d.el) < 0) els.push(d.el); }); return els.length >= 3;
+      }),
       r("Uses at least 2 different border styles (like solid and dashed)", function (c) {
-        var seen = {}; ["border","border-top","border-bottom","border-left","border-right"].forEach(function (p) { c.propValues(p).forEach(function (v) { var m = /\b(solid|dashed|dotted|double|groove|ridge)\b/i.exec(v); if (m) seen[m[1].toLowerCase()] = 1; }); }); return Object.keys(seen).length >= 2;
+        var seen = {}; ["border", "border-top", "border-bottom", "border-left", "border-right"].forEach(function (p) { c.propValues(p).forEach(function (v) { var m = /\b(solid|dashed|dotted|double|groove|ridge)\b/i.exec(v); if (m) seen[m[1].toLowerCase()] = 1; }); }); return Object.keys(seen).length >= 2;
       }, "Try solid, dashed, dotted, double, groove, or ridge."),
-      r("Uses a border on just one side (border-top, border-bottom, border-left, or border-right)", function (c) { return c.prop("border-top") + c.prop("border-bottom") + c.prop("border-left") + c.prop("border-right") > 0; }, "Same three parts, one side only: border-bottom: 3px solid navy;"),
-      r("Puts a border on at least 3 different elements", function (c) {
-        var els = []; c.inline.forEach(function (d) { if (/^border(-top|-bottom|-left|-right)?$/.test(d.prop) && els.indexOf(d.el) < 0) els.push(d.el); }); return els.length >= 3;
-      })
+      r("Uses a border on just one side (border-top, border-bottom, border-left, or border-right)", function (c) { return c.prop("border-top") + c.prop("border-bottom") + c.prop("border-left") + c.prop("border-right") > 0; }, "Same three parts, one side only: border-bottom: 3px solid navy;")
     ] },
     "7.5": { name: "Lists", rules: [
       r("Has a <ul> or <ol> list with at least 3 <li> items", function (c) { return c.all("ul").concat(c.all("ol")).some(function (l) { return l.children.filter(function (n) { return n.tag === "li"; }).length >= 3; }); }),
