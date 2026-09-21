@@ -71,6 +71,16 @@ async function getStudentHistory(body) {
   return { ok: true, name: student.name, period: student.period, earnedCount, usedCount, history };
 }
 
+// Removes one queued point request (admin only). Requests have no id, so match on every field.
+async function deleteRequest(body) {
+  const requests = await readJSON("requests", []);
+  const idx = requests.findIndex((r) => r.timestamp === body.timestamp && r.name === body.name && Number(r.points) === Number(body.points) && String(r.assignment) === String(body.assignment));
+  if (idx < 0) return { error: "That request was not found (it may already be deleted)." };
+  requests.splice(idx, 1);
+  await writeJSON("requests", requests);
+  return { ok: true };
+}
+
 async function getRequests() {
   const requests = await readJSON("requests", []);
   return { requests: requests.slice(-50).reverse() };
@@ -457,6 +467,8 @@ export default async (req) => {
           return ok(await addTransactionByEmail(body));
         case "bulkAddTransaction":
           return ok(await bulkAddTransaction(body));
+        case "deleteRequest":
+          return ok(await deleteRequest(body));
         case "gradeExtraCredit":
           return ok(await gradeExtraCredit(body));
         default:

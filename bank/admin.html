@@ -160,7 +160,8 @@
         Recent Point Requests
         <button class="btn btn-ghost btn-sm" id="refresh-requests">Refresh</button>
       </h2>
-      <p class="hint" style="margin-top:-8px;">You also get an email for every request &mdash; check your Netlify site's Forms tab if you ever need the full history.</p>
+      <p class="hint" style="margin-top:-8px;">Filter by class period, and delete a request once you have handled it. Deleting only removes it from this list and never changes bank points. You also get an email for every request, so check your Netlify site's Forms tab for the full history.</p>
+      <div id="req-filter" style="display:flex; flex-wrap:wrap; gap:8px; margin:0 0 12px;"></div>
       <div id="requests-slot" class="loading">Loading&hellip;</div>
     </div>
 
@@ -891,37 +892,72 @@ async function deleteStudent(studentId) {
   }
 }
 
+let allRequests = [];
+let reqPeriod = 'ALL';
+
+function renderRequests() {
+  const slot = document.getElementById('requests-slot');
+  const bar = document.getElementById('req-filter');
+  const periods = Array.from(new Set(allRequests.map(r => String(r.period || '?')))).sort();
+  if (reqPeriod !== 'ALL' && periods.indexOf(reqPeriod) < 0) reqPeriod = 'ALL';
+  const count = p => allRequests.filter(r => p === 'ALL' || String(r.period || '?') === p).length;
+  bar.innerHTML = ['ALL'].concat(periods).map(p =>
+    `<button type="button" class="btn btn-sm ${p === reqPeriod ? 'btn-primary' : 'btn-ghost'}" data-req-period="${escapeHtml(p)}">${p === 'ALL' ? 'All' : 'Period ' + escapeHtml(p)} (${count(p)})</button>`
+  ).join('');
+  const shown = allRequests.map((r, i) => ({ r, i })).filter(x => reqPeriod === 'ALL' || String(x.r.period || '?') === reqPeriod);
+  if (allRequests.length === 0) { slot.innerHTML = '<div class="hint">No requests submitted yet.</div>'; return; }
+  if (shown.length === 0) { slot.innerHTML = '<div class="hint">No requests for this period.</div>'; return; }
+  slot.innerHTML = `
+    <table class="roster">
+      <thead><tr><th>When</th><th>Name</th><th>Period</th><th>Points</th><th>Assignment</th><th></th></tr></thead>
+      <tbody>
+        ${shown.map(({ r, i }) => `
+          <tr>
+            <td>${escapeHtml(new Date(r.timestamp).toLocaleString())}</td>
+            <td>${escapeHtml(r.name)}</td>
+            <td>${escapeHtml(r.period)}</td>
+            <td>${escapeHtml(r.points)}</td>
+            <td>${escapeHtml(r.assignment)}</td>
+            <td><button type="button" class="btn btn-danger btn-sm" data-req-del="${i}">Delete</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
 async function loadRequests() {
   const slot = document.getElementById('requests-slot');
   try {
     const data = await apiGet('requests');
-    const requests = data.requests || [];
-    if (requests.length === 0) {
-      slot.innerHTML = '<div class="hint">No requests submitted yet.</div>';
-      return;
-    }
-    slot.innerHTML = `
-      <table class="roster">
-        <thead><tr><th>When</th><th>Name</th><th>Period</th><th>Points</th><th>Assignment</th></tr></thead>
-        <tbody>
-          ${requests.map(r => `
-            <tr>
-              <td>${escapeHtml(new Date(r.timestamp).toLocaleString())}</td>
-              <td>${escapeHtml(r.name)}</td>
-              <td>${escapeHtml(r.period)}</td>
-              <td>${escapeHtml(r.points)}</td>
-              <td>${escapeHtml(r.assignment)}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    `;
+    allRequests = data.requests || [];
+    renderRequests();
   } catch (err) {
     slot.innerHTML = '<div class="alert alert-error">Could not load requests.</div>';
   }
 }
 
+document.getElementById('req-filter').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-req-period]');
+  if (!b) return;
+  reqPeriod = b.getAttribute('data-req-period');
+  renderRequests();
+});
+
+document.getElementById('requests-slot').addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-req-del]');
+  if (!b) return;
+  const r = allRequests[Number(b.getAttribute('data-req-del'))];
+  if (!r) return;
+  if (!confirm(`Delete this request?\n\n${r.name} (Period ${r.period}): ${r.points} points on ${r.assignment}\n\nThis only removes it from the list. It does not change any bank points.`)) return;
+  b.disabled = true;
+  const res = await authedPost({ action: 'deleteRequest', timestamp: r.timestamp, name: r.name, points: r.points, assignment: r.assignment });
+  if (res.error) { alert(res.error); b.disabled = false; return; }
+  loadRequests();
+});
+
 document.getElementById('refresh-requests').addEventListener('click', loadRequests);
+
 
 async function loadExtraCredit() {
   const slot = document.getElementById('ec-slot');
