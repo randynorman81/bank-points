@@ -155,7 +155,49 @@
 </div></section>
 
 <section class="part"><div class="wrap">
-  <div class="part-head"><div class="part-tag">03</div><h2>Font Size</h2></div>
+  <div class="part-head"><div class="part-tag">03</div><h2>Background Color</h2></div>
+  <p class="lede">There are two different color properties, and they do two different jobs. Mixing them up is one of the most common mistakes in this unit.</p>
+  <div class="cards">
+    <div class="cardx"><div class="num">Job 1</div><h4><code>color</code></h4><p>The <b>font color</b>. It changes the color of the <b>text</b> (the letters themselves).</p></div>
+    <div class="cardx"><div class="num">Job 2</div><h4><code>background-color</code></h4><p>The <b>background color</b>. It fills the space <b>behind</b> the text.</p></div>
+  </div>
+  <div class="callout"><code>color</code> = the letters. <code>background-color</code> = behind the letters.<span>Just <code>color</code> on its own never changes a background, and <code>background-color</code> never changes the text.</span></div>
+
+  <h3 style="color:#fff;margin:26px 0 8px">Try both at once</h3>
+  <p class="lede">Pick a font color and a background color. The code updates so you can see the shell with both properties inside the quotes.</p>
+  <div class="demo">
+    <div class="box"><h4>Choose</h4>
+      <label style="display:block;font-size:13px;color:var(--ink-soft);margin-bottom:4px">Font color (<code>color</code>)</label>
+      <select id="bgFont" style="width:100%;margin-bottom:12px;background:#05070B;color:#E8ECF3;border:1px solid var(--rule);border-radius:6px;padding:8px"><option>white</option><option>black</option><option>yellow</option><option>navy</option><option>tomato</option><option>teal</option></select>
+      <label style="display:block;font-size:13px;color:var(--ink-soft);margin-bottom:4px">Background color (<code>background-color</code>)</label>
+      <select id="bgBack" style="width:100%;margin-bottom:12px;background:#05070B;color:#E8ECF3;border:1px solid var(--rule);border-radius:6px;padding:8px"><option>blue</option><option>black</option><option>lightblue</option><option>gold</option><option>hotpink</option><option>green</option></select>
+      <div class="codeblk" id="bgCode" style="margin:0"></div>
+    </div>
+    <div class="box"><h4>What the browser shows</h4><div class="out" id="bgOut" style="padding:0"><p id="bgSample" style="margin:0;padding:22px;font-size:20px">Hello, I am a paragraph.</p></div><p id="bgWarn" style="margin:10px 0 0;font-size:13.5px;color:#FCA5A5;min-height:20px"></p></div>
+  </div>
+
+  <h3 style="color:#fff;margin:26px 0 8px">Changing the color of the whole page</h3>
+  <p class="lede">To change the background of the <b>entire page</b>, put the style attribute on the <code>&lt;body&gt;</code> tag. Everything you see on the page lives inside <code>&lt;body&gt;</code>, so its background becomes the page background.</p>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk"><span class="t">&lt;body</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">background-color</span>: <span class="vl">blue</span>;<span class="t">"</span><span class="t">&gt;</span>
+  <span class="t">&lt;h1</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">color</span>: <span class="vl">white</span>;<span class="t">"</span><span class="t">&gt;</span>Hello<span class="t">&lt;/h1&gt;</span>
+<span class="t">&lt;/body&gt;</span></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out" style="background:blue;padding:18px"><h1 style="color:white;margin:0">Hello</h1></div></div>
+  </div>
+  <ul style="margin:0 0 20px 26px;line-height:1.75"><li>The shell is the same: <code>style=" "</code>, then the property and value inside.</li><li>The <code>background-color</code> goes on <code>&lt;body&gt;</code> for the page. Put it on a <code>&lt;p&gt;</code> or <code>&lt;h1&gt;</code> and only that element gets the color.</li><li>You can use both properties in one style attribute, separated by a semicolon: <code>style="background-color: blue; color: white;"</code></li></ul>
+
+  <h3 style="color:#fff;margin:26px 0 8px">Which property?</h3>
+  <div class="guessgrid">
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Make the words on the page red.</div><div class="tap">Tap to reveal</div><div class="answer"><h4><code>color: red;</code></h4><p>The words are the font, so use <code>color</code>.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Make the whole page blue.</div><div class="tap">Tap to reveal</div><div class="answer"><h4><code>background-color: blue;</code></h4><p>On the <code>&lt;body&gt;</code> tag. This fills the page behind everything.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Highlight one paragraph in yellow.</div><div class="tap">Tap to reveal</div><div class="answer"><h4><code>background-color: yellow;</code></h4><p>On that <code>&lt;p&gt;</code> tag only, so just that paragraph gets the yellow.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;body style="color: blue;"&gt;</code> should make the page blue. Does it?</div><div class="tap">Tap to reveal</div><div class="answer"><h4>No</h4><p><code>color</code> only changes the text. For the page use <code>background-color: blue;</code>.</p></div></div>
+  </div>
+  <div class="callout">Keep the text readable.<span>Blue text on a blue background disappears. Pick a font color and a background color that stand apart, like white on blue or black on yellow.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>Font Size</h2></div>
   <p class="lede">The <code>font-size</code> property changes how big the text is. Size is measured in <b>pixels</b>, written <code>px</code>. A pixel is one tiny dot on your screen. Regular text is usually 16px.</p>
   <div class="demo">
     <div class="box"><h4>Code</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">font-size</span>: <span class="vl">14px</span>;<span class="t">"</span><span class="t">&gt;</span>Small<span class="t">&lt;/p&gt;</span>
@@ -167,7 +209,7 @@
 </div></section>
 
 <section class="part"><div class="wrap">
-  <div class="part-head"><div class="part-tag">04</div><h2>Chaining Properties</h2></div>
+  <div class="part-head"><div class="part-tag">05</div><h2>Chaining Properties</h2></div>
   <p class="lede">You can put many properties in one style attribute. Finish each one with a semicolon, and keep them all inside the same pair of quotes.</p>
   <div class="demo">
     <div class="box"><h4>Code</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">color</span>: <span class="vl">orange</span>; <span class="pt">font-size</span>: <span class="vl">24px</span>;<span class="t">"</span><span class="t">&gt;</span>
@@ -179,7 +221,7 @@
 </div></section>
 
 <section class="part"><div class="wrap">
-  <div class="part-head"><div class="part-tag">05</div><h2>Alignment and Letter Case</h2></div>
+  <div class="part-head"><div class="part-tag">06</div><h2>Alignment and Letter Case</h2></div>
   <div class="tblwrap"><div class="tblscroll"><table class="cmp">
     <thead><tr><th>Property</th><th>Values</th><th>What it does</th></tr></thead>
     <tbody>
@@ -197,7 +239,7 @@
 </div></section>
 
 <section class="part"><div class="wrap">
-  <div class="part-head"><div class="part-tag">06</div><h2>Common Mistakes</h2></div>
+  <div class="part-head"><div class="part-tag">07</div><h2>Common Mistakes</h2></div>
   <div class="wrongright">
     <div class="w"><h4>Wrong: no semicolon between properties</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span>color: red font-size: 20px;<span class="t">"</span><span class="t">&gt;</span></div></div>
     <div class="r"><h4>Right</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span>color: red; font-size: 20px;<span class="t">"</span><span class="t">&gt;</span></div></div>
@@ -214,7 +256,7 @@
 </div></section>
 
 <section class="part"><div class="wrap">
-  <div class="part-head"><div class="part-tag">07</div><h2>Vocab You Need</h2></div>
+  <div class="part-head"><div class="part-tag">08</div><h2>Vocab You Need</h2></div>
   <div class="tblwrap"><div class="tblscroll"><table class="cmp">
     <thead><tr><th>Term</th><th>Plain-English meaning</th></tr></thead>
     <tbody>
@@ -225,6 +267,8 @@
       <tr><td><b>Property</b></td><td>The feature you want to change, like <code>color</code> or <code>font-size</code></td></tr>
       <tr><td><b>Value</b></td><td>The setting you give a property, like <code>tomato</code> or <code>24px</code></td></tr>
       <tr><td><b>Pixel (px)</b></td><td>The unit for size on a screen: one tiny dot</td></tr>
+      <tr><td><b>color</b></td><td>The property for the <b>font color</b> (the text)</td></tr>
+      <tr><td><b>background-color</b></td><td>The property for the <b>background color</b> (behind the text, or the whole page when used on <code>&lt;body&gt;</code>)</td></tr>
       <tr><td><b>Visual hierarchy</b></td><td>Using size and color so the most important text stands out</td></tr>
     </tbody></table></div></div>
   <a class="tryit" href="7-2-creation-tags-inline-styling.html#assignments">Next: build your poster &rarr;</a>
@@ -256,6 +300,18 @@
   ta.addEventListener("input", function () { clearTimeout(t); t = setTimeout(run, 250); });
   ta.addEventListener("keydown", function (e) { if (e.key === "Tab") { e.preventDefault(); ta.setRangeText("  ", ta.selectionStart, ta.selectionEnd, "end"); } });
   document.getElementById("rst").onclick = function () { ta.value = START; broke = false; run(); };
+})();
+</script>
+<script>
+(function(){
+  var f=document.getElementById("bgFont"),b=document.getElementById("bgBack"),o=document.getElementById("bgSample"),c=document.getElementById("bgCode"),w=document.getElementById("bgWarn");
+  function up(){
+    o.style.color=f.value;o.style.backgroundColor=b.value;
+    c.innerHTML='<span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">color</span>: <span class="vl">'+f.value+'</span>; <span class="pt">background-color</span>: <span class="vl">'+b.value+'</span>;<span class="t">"</span><span class="t">&gt;</span>';
+    w.textContent=f.value===b.value?"Same color for both. The text has disappeared!":"";
+    if((f.value==="navy"&&b.value==="blue")||(f.value==="black"&&b.value==="black")) w.textContent="Very hard to read. Pick colors that stand apart.";
+  }
+  f.onchange=up;b.onchange=up;up();
 })();
 </script>
 </body></html>
