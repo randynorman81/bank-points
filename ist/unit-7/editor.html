@@ -90,6 +90,18 @@ main[data-view="code"] .split,main[data-view="prev"] .split{display:none}
 #ansPane .gg{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}
 #ansPane .gg .q{margin:0}
 @media(max-width:760px){#ansPane .gg{grid-template-columns:1fr}}
+#wtPane{display:none;position:absolute;inset:0;z-index:6;background:#080B11;overflow:auto;padding:14px 16px 40px}
+#wtPane.show{display:block}
+#wtPane .ah{color:var(--soft);font-size:12.5px;margin:0 0 6px}
+#wtPane .prog{height:8px;background:#0D1220;border-radius:6px;overflow:hidden;margin:4px 0 14px}
+#wtPane .prog i{display:block;height:100%;background:var(--ok);width:0;transition:width .2s}
+#wtPane h3{margin:20px 0 8px;font-size:14px;color:#FDBA74}
+#wtPane label.it{display:flex;gap:10px;align-items:flex-start;padding:7px 10px;border-radius:8px;cursor:pointer;line-height:1.45}
+#wtPane label.it:hover{background:#101627}
+#wtPane label.it input{margin-top:3px;width:18px;height:18px;accent-color:var(--ok);flex:0 0 auto}
+#wtPane label.it.done span{color:var(--soft);text-decoration:line-through}
+#wtPane code{background:#0D1220;border:1px solid var(--rule);border-radius:4px;padding:0 5px;font:12.5px "JetBrains Mono",monospace;color:#FDBA74}
+#wtBadge{background:var(--ok);color:#052e1f;border-radius:10px;padding:0 7px;font-size:11px;margin-left:6px;font-weight:800}
 #ansBadge{background:var(--acc);color:#0B0E14;border-radius:10px;padding:0 7px;font-size:11px;margin-left:6px;font-weight:800}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;padding:5px 12px;background:#0D1220;border-bottom:1px solid var(--rule);font:11.5px "JetBrains Mono",monospace;color:var(--soft)}
 .legend i{font-style:normal}
@@ -172,11 +184,11 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
 <main id="main" data-tab="code">
   <section class="pane" id="paneCode">
     <h2>
-      <span class="ftabs" id="ftabs"><button class="on" data-f="html">index.html</button><button data-f="css">style.css</button><button data-f="ans" id="ansTab" style="display:none">Answers<span id="ansBadge"></span></button></span>
+      <span class="ftabs" id="ftabs"><button data-f="ans" id="ansTab" style="display:none">Setting up your page<span id="ansBadge"></span></button><button data-f="wt" id="wtTab" style="display:none">Walkthrough<span id="wtBadge"></span></button><button class="on" data-f="html">index.html</button><button data-f="css">style.css</button></span>
       <span class="tools"><label title="Adds the closing tag and closing quote for you"><input type="checkbox" id="auto" checked> Auto-close</label><span id="lineinfo">Line 1</span><span class="winbtns"><button class="btn sm" id="minCode" title="Shrink the code panel">– Minimize</button><button class="btn sm" id="maxCode" title="Make the code panel fill the screen">⤢ Maximize</button></span></span>
     </h2>
     <div class="legend" id="legend"><span><i class="t-tag">&lt;tag&gt;</i></span><span><i class="t-style">style</i></span><span><i class="t-id">id</i></span><span><i class="t-class">class</i></span><span><i class="t-attr">attribute</i></span><span><i class="t-val">"value"</i></span><span><i class="c-prop">css-property</i></span><span><i class="c-hex">#hex / 12px</i></span><span>plain white = not a keyword I know, check your spelling</span></div>
-    <div class="edwrap"><div class="gut" id="gut"></div><div id="hl" aria-hidden="true"></div><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="soft" aria-label="Code editor"></textarea><div id="mirror" aria-hidden="true"></div><div id="ansPane" aria-label="Typed answers"></div></div>
+    <div class="edwrap"><div class="gut" id="gut"></div><div id="hl" aria-hidden="true"></div><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="soft" aria-label="Code editor"></textarea><div id="mirror" aria-hidden="true"></div><div id="ansPane" aria-label="Setting up your page"></div><div id="wtPane" aria-label="Walkthrough"></div></div>
     <button class="stripbtn" data-restore="both" aria-label="Show the code panel">▸ Code</button>
   </section>
   <div class="split" id="split" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize. Double-click to reset."></div>
@@ -224,7 +236,7 @@ var API = "/api/code";
 var GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
 var $ = function (id) { return document.getElementById(id); };
 var H = window.HTMLCheck;
-var ansOn = false;
+var ansOn = false, wtOn = false;
 var S = { ans: {}, cred: null, name: "", email: "", cloud: null, lesson: "7.1", file: "html", view: "both", buf: { html: "", css: "" } };
 
 /* ---------- honest tracking: typing vs pasting (shown to the teacher, and to the student) ---------- */
@@ -294,9 +306,9 @@ function loadLocal() {
   if (!S.buf.html) ta.focus();
 }
 function updateHonestyLater() { setTimeout(updateHonesty, 0); }
-function markTabs() { [].forEach.call($("ftabs").querySelectorAll("button"), function (b) { b.classList.toggle("on", b.getAttribute("data-f") === (ansOn ? "ans" : S.file)); }); }
+function markTabs() { [].forEach.call($("ftabs").querySelectorAll("button"), function (b) { b.classList.toggle("on", b.getAttribute("data-f") === (ansOn ? "ans" : wtOn ? "wt" : S.file)); }); }
 $("ftabs").addEventListener("click", function (e) {
-  var b = e.target.closest("button"); if (!b) return; var f = b.getAttribute("data-f"); if (f === "ans") { setAns(true); return; } if (ansOn) { setAns(false); } if (f === S.file) return;
+  var b = e.target.closest("button"); if (!b) return; var f = b.getAttribute("data-f"); if (f === "ans") { setAns(true); return; } if (f === "wt") { setWt(true); return; } if (ansOn || wtOn) { closeSide(); } if (f === S.file) return;
   S.buf[S.file] = ta.value; S.file = f; ta.value = S.buf[f]; markTabs(); layoutGutter(); cursorInfo(); refresh(); ta.focus();
 });
 $("auto").addEventListener("change", function () { lsSet("u7:auto", this.checked ? "1" : "0"); });
@@ -538,7 +550,7 @@ var lastCloud = "";
 function cloudSave() {
   S.buf[S.file] = ta.value;
   var key = cloudKey();
-  if (!S.cred || key === lastCloud || (isBlank(S.buf.html) && !ansCount().n)) return Promise.resolve();
+  if (!S.cred || key === lastCloud || (isBlank(S.buf.html) && !ansCount().n && !wtCount().n)) return Promise.resolve();
   var html = S.buf.html, css = S.buf.css;
   return api({ action: "saveDraft", lesson: S.lesson, code: html, css: css, answers: S.ans, period: $("period").value, activity: ACT }).then(function (j) { if (j && j.ok) lastCloud = key; });
 }
@@ -755,13 +767,42 @@ function cloudKey() { return S.buf.html + " " + S.buf.css + "" + JSON.stringify
 function ansSaveLocal() { lsSet("u7:ans:" + S.lesson, JSON.stringify(S.ans || {})); }
 function ansMerge(rec) {
   if (!rec || !rec.answers || typeof rec.answers !== "object") return;
-  S.ans = Object.assign({}, S.ans, rec.answers); ansSaveLocal(); ansRender();
+  S.ans = Object.assign({}, S.ans, rec.answers); ansSaveLocal(); ansRender(); wtRender();
 }
 function ansBadge() {
   var c = ansCount(), b = $("ansBadge"); if (b) b.textContent = c.total ? c.n + "/" + c.total : "";
   var p = $("ansProg"); if (p) p.style.width = (c.total ? 100 * c.n / c.total : 0) + "%";
 }
-function setAns(on) { ansOn = !!on && !!ansSchema(); $("ansPane").classList.toggle("show", ansOn); markTabs(); if (!ansOn && document.activeElement && document.activeElement.closest && document.activeElement.closest("#ansPane")) ta.focus(); }
+function closeSide() { ansOn = false; wtOn = false; $("ansPane").classList.remove("show"); $("wtPane").classList.remove("show"); markTabs(); }
+function setAns(on) { if (!on || !ansSchema()) { ansOn = false; $("ansPane").classList.remove("show"); markTabs(); return; } wtOn = false; $("wtPane").classList.remove("show"); ansOn = true; $("ansPane").classList.add("show"); markTabs(); }
+function setWt(on) { if (!on || !wtSchema()) { wtOn = false; $("wtPane").classList.remove("show"); markTabs(); return; } ansOn = false; $("ansPane").classList.remove("show"); wtOn = true; $("wtPane").classList.add("show"); markTabs(); }
+function wtSchema() { return (window.U7_WALK || {})[S.lesson] || null; }
+function wtItems() { var o = []; (wtSchema() || []).forEach(function (g) { g.items.forEach(function (i) { o.push(i); }); }); return o; }
+function wtCount() { var L = wtItems(), n = 0; L.forEach(function (i) { if (S.ans["wt_" + i.id] === "1") n++; }); return { n: n, total: L.length }; }
+function wtText(s) { return esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>"); }
+function wtRender() {
+  var sc = wtSchema(), pane = $("wtPane"), tab = $("wtTab");
+  if (tab) tab.style.display = sc ? "" : "none";
+  if (!sc) { pane.innerHTML = ""; return; }
+  var h = '<p class="ah">Follow these in order, left to right across the tabs. Check each box as you finish it. Your checks save automatically.</p><div class="prog"><i id="wtProg"></i></div>';
+  sc.forEach(function (g) {
+    h += "<h3>" + wtText(g.h) + "</h3>";
+    g.items.forEach(function (i) { var on = S.ans["wt_" + i.id] === "1"; h += '<label class="it' + (on ? " done" : "") + '"><input type="checkbox" data-w="' + i.id + '"' + (on ? " checked" : "") + "><span>" + wtText(i.t) + "</span></label>"; });
+  });
+  pane.innerHTML = h; wtBadge();
+}
+function wtBadge() {
+  var c = wtCount(), b = $("wtBadge"); if (b) b.textContent = c.total ? c.n + "/" + c.total : "";
+  var p = $("wtProg"); if (p) p.style.width = (c.total ? 100 * c.n / c.total : 0) + "%";
+}
+$("wtPane").addEventListener("change", function (e) {
+  var id = e.target.getAttribute && e.target.getAttribute("data-w"); if (!id) return;
+  S.ans["wt_" + id] = e.target.checked ? "1" : ""; ansSaveLocal();
+  var lab = e.target.closest("label"); if (lab) lab.classList.toggle("done", e.target.checked);
+  wtBadge(); touch(); $("status").textContent = "Typing…";
+  clearTimeout(tAns); tAns = setTimeout(function () { saveNow(false); }, 800);
+});
+
 function ansField(f) {
   var id = "ans_" + f.id, v = S.ans[f.id] || "", h = '<div class="q"><label for="' + id + '">' + esc(f.q) + "</label>";
   if (f.t === "area") h += '<textarea id="' + id + '" data-a="' + f.id + '" placeholder="Type your answer">' + esc(v) + "</textarea>";
@@ -773,7 +814,7 @@ function ansRender() {
   var sc = ansSchema(), pane = $("ansPane"), tab = $("ansTab");
   if (tab) tab.style.display = sc ? "" : "none";
   if (!sc) { pane.innerHTML = ""; setAns(false); return; }
-  var h = '<p class="ah">Type your answers to the lesson questions here. They save automatically and are submitted with your code.</p><div class="prog"><i id="ansProg"></i></div>';
+  var h = '<p class="ah">Start here. Fill this out first and use it to plan your page. Then open the Walkthrough tab, then build index.html. Everything saves automatically and is submitted with your code.</p><div class="prog"><i id="ansProg"></i></div>';
   sc.forEach(function (it) {
     if (it.h) h += "<h3>" + esc(it.h) + "</h3>";
     else if (it.grp) h += '<div class="grp"><b>' + esc(it.grp) + '</b><div class="gg">' + it.fields.map(ansField).join("") + "</div></div>";
@@ -784,7 +825,9 @@ function ansRender() {
 function ansInit() {
   var a = null; try { a = JSON.parse(lsGet("u7:ans:" + S.lesson) || "null"); } catch (e) {}
   S.ans = a && typeof a === "object" ? a : {};
-  ansOn = false; $("ansPane").classList.remove("show"); ansRender();
+  ansOn = false; wtOn = false; $("ansPane").classList.remove("show"); $("wtPane").classList.remove("show");
+  ansRender(); wtRender();
+  if (ansSchema() && !ansCount().n && !wtCount().n) { ansOn = true; $("ansPane").classList.add("show"); }
 }
 $("ansPane").addEventListener("input", function (e) {
   var id = e.target.getAttribute && e.target.getAttribute("data-a"); if (!id) return;

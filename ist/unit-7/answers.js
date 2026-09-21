@@ -58,6 +58,54 @@
     });
     return out;
   }
+  /* Walkthrough (the checklist tab): short bullets with checkboxes. Backticks make code text. */
+  var W = {};
+  W["7.6"] = [
+    { h: "1. Set up your page (the Setting up your page tab)", items: [
+      { id: "a1", t: "Type your topic and your hub name" },
+      { id: "a2", t: "Fill in all 6 Website cards: 3 that open in a **new tab**, 3 in the **same tab**" },
+      { id: "a3", t: "Pick 2 main colors, 1 neutral color, and your fonts" },
+      { id: "a4", t: "Fill in the 4 link-state cards in this order: link, visited, hover, active" }
+    ] },
+    { h: "2. Start index.html", items: [
+      { id: "b1", t: "Change the `<title>` to your hub name" },
+      { id: "b2", t: "Add an `<h1>` with your hub name" },
+      { id: "b3", t: "Add a `<p>` tagline with an `<em>` phrase" },
+      { id: "b4", t: "Put a `<span style=\"color: tomato;\">` around one word in the tagline" },
+      { id: "b5", t: "Add a `<br>` inside the tagline" },
+      { id: "b6", t: "Add an `<hr>` under it" }
+    ] },
+    { h: "3. Section 1: links that open in a NEW tab", items: [
+      { id: "c1", t: "Add an `<h2>` and an `<h3>`" },
+      { id: "c2", t: "Add a `<ul>` with 3 `<li>` items" },
+      { id: "c3", t: "Make each item a link: `<a href=\"https://...\" target=\"_blank\">`" },
+      { id: "c4", t: "Put the site name in `<strong>` and a short note in `<em>`" }
+    ] },
+    { h: "4. Section 2: links that open in the SAME tab", items: [
+      { id: "d1", t: "Add a second `<hr>`, then an `<h2>` and an `<h3>`" },
+      { id: "d2", t: "Add an `<ol>` with 3 `<li>` items" },
+      { id: "d3", t: "Make each item a link with an `https://` address and **no** target" }
+    ] },
+    { h: "5. The footer", items: [
+      { id: "e1", t: "Add a `<p>` with 2 lines separated by a `<br>` (your name and period)" },
+      { id: "e2", t: "Give it `style=\"text-align: center; font-family: monospace; font-size: 14px;\"`" }
+    ] },
+    { h: "6. The style block (put it in the `<head>`, under the `<title>`)", items: [
+      { id: "f1", t: "Add a `<style>` tag in the head" },
+      { id: "f2", t: "Write `a:link`, `a:visited`, `a:hover`, `a:active` in that order" },
+      { id: "f3", t: "Make `a:hover` change 2 things (text color **and** background color)" },
+      { id: "f4", t: "Add rules for `h1` and `h2` (color, font-size, text-align, font-family, a border)" },
+      { id: "f5", t: "Add `ul` and `ol` rules with `list-style-type`" },
+      { id: "f6", t: "Add a `body` rule with a `background-color` and a `font-family`" }
+    ] },
+    { h: "7. Test and turn in", items: [
+      { id: "g1", t: "Click **Checks** and fix anything red until it says 50 / 50" },
+      { id: "g2", t: "Hover over every link. Click one new-tab link and one same-tab link" },
+      { id: "g3", t: "Finish the Reflect questions in Setting up your page" },
+      { id: "g4", t: "Choose your period at the top, then click **Submit**" }
+    ] }
+  ];
+  root.U7_WALK = W;
   root.U7_ANSWERS = A;
   root.U7_ANSWER_LEAVES = leaves;
 })(typeof window !== "undefined" ? window : globalThis);
