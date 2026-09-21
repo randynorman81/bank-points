@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Images | Unit 6 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css">
+<style>:root{--acc:#FB7185;--acc-tint:rgba(251,113,133,.13);--acc-ink:#FECDD3}
+.part{padding:64px 0 16px}
+.lede{margin:0 0 20px;line-height:1.7}
+.codeblk{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:14px 18px;margin:12px 0 26px;font-family:"JetBrains Mono",monospace;font-size:13.5px;line-height:1.7;color:#E8ECF3;overflow-x:auto;white-space:pre}
+.codeblk .t{color:#FDBA74}.codeblk .c{color:#7B8799}
+.demo{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin:14px 0 30px}
+.demo .box{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:16px 18px;min-width:0}
+.demo .box h4{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:10px}
+.demo .out{background:#fff;color:#111;border-radius:6px;padding:16px;font-family:Georgia,serif;font-size:15px}
+.demo .out p{color:#111;margin:.6em 0}.demo .out h1{color:#111;font-size:28px;margin:.3em 0;font-family:Georgia,serif}
+.demo .out h2{color:#111;font-size:22px;margin:.3em 0;font-family:Georgia,serif}.demo .out h3{color:#111;font-size:18px;margin:.3em 0;font-family:Georgia,serif}.demo .out h4{color:#111;font-size:15px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}.demo .out h5{color:#111;font-size:13px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}.demo .out h6{color:#111;font-size:11px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}
+.demo .codeblk{margin:0}
+.nest{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:18px;margin:12px 0 26px;font-family:"JetBrains Mono",monospace;font-size:13px}
+.nest .b1{border:2px solid var(--acc);border-radius:8px;padding:12px 14px;background:var(--acc-tint)}
+.nest .b2{border:2px dashed #93C5FD;border-radius:8px;padding:10px 12px;margin-top:10px;background:rgba(147,197,253,.08)}
+.nest .b3{border:2px dashed #86EFAC;border-radius:8px;padding:10px 12px;margin-top:10px;background:rgba(134,239,172,.08)}
+.nest small{display:block;color:var(--ink-soft);font-family:"Manrope",sans-serif;font-size:12.5px;margin-top:3px}
+.tabmock{display:inline-flex;align-items:center;gap:10px;background:#2B3544;color:#fff;border-radius:8px 8px 0 0;padding:8px 14px;font:13px "Manrope",sans-serif;margin-top:6px}
+.tabmock i{opacity:.6;font-style:normal}
+.tabbar{background:#111827;border:1px solid var(--rule);border-radius:8px;padding:10px 12px 0;margin:10px 0 14px}
+.tryit{display:block;text-align:center;margin:20px 0;background:var(--acc);color:#0B0E14;font-weight:800;border-radius:8px;padding:14px;text-decoration:none}
+
+/* ---- the lab ---- */
+.lab{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:0;border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:14px 0 26px;background:var(--card)}
+.lab .pane h4{margin:0;padding:8px 14px;font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);background:#0F1420;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center}
+.lab textarea{display:block;width:100%;height:240px;background:#05070B;color:#E8ECF3;border:0;outline:0;resize:vertical;padding:12px 14px;font:13.5px/1.7 "JetBrains Mono",monospace;white-space:pre;tab-size:2;overflow:auto}
+.lab iframe{display:block;width:100%;height:240px;border:0;background:#fff}
+.lab .pane+.pane{border-left:1px solid var(--rule)}
+.lab button.rst{background:transparent;border:1px solid var(--rule);color:var(--acc-ink);border-radius:6px;padding:2px 9px;cursor:pointer;font:600 11px "JetBrains Mono",monospace}
+.steps{display:grid;gap:14px;margin:6px 0 10px}
+.step{border:1px solid var(--rule);border-radius:10px;padding:16px 18px;background:var(--card);display:grid;grid-template-columns:38px 1fr;gap:14px}
+.step .n{width:34px;height:34px;border-radius:50%;border:2px solid var(--rule);display:grid;place-items:center;font:800 14px "JetBrains Mono",monospace;color:var(--ink-soft)}
+.step h4{margin:0 0 4px;color:#fff;font-size:16px}
+.step p{margin:0 0 6px;color:#C4CDD8;font-size:14.5px}
+.step .why{display:none;margin-top:10px;background:var(--acc-tint);border:1px solid var(--acc);border-radius:8px;padding:10px 14px;font-size:14px;color:#fff}
+.step.done{border-color:#34D399;background:rgba(52,211,153,.06)}
+.step.done .n{background:#34D399;border-color:#34D399;color:#04210f}
+.step.done .why{display:block}
+.prog{font:700 12px "JetBrains Mono",monospace;color:var(--acc-ink);letter-spacing:.05em;margin:0 0 10px}
+@media(max-width:760px){.lab{grid-template-columns:1fr}.lab .pane+.pane{border-left:0;border-top:1px solid var(--rule)}}
+
+.sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;margin:14px 0 26px}
+.sw div{border-radius:8px;padding:26px 8px 8px;font:600 12px "JetBrains Mono",monospace;color:#fff;text-shadow:0 1px 2px #0008;text-align:center}
+.demo .out .k{font-family:"JetBrains Mono",monospace;font-size:12px;color:#666;display:block;margin:10px 0 2px}
+.wrongright{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:12px 0 22px}
+.wrongright .w,.wrongright .r{border-radius:8px;padding:14px 16px;background:var(--card);border:1px solid var(--rule)}
+.wrongright .w{border-top:3px solid #F87171}.wrongright .r{border-top:3px solid #34D399}
+.wrongright h4{font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;margin:0 0 8px}
+.wrongright .w h4{color:#FCA5A5}.wrongright .r h4{color:#6EE7B7}
+.wrongright .codeblk{margin:0}
+.pt{color:#93C5FD}.vl{color:#86EFAC}.at{color:#FDBA74}
+.shellbig{font:700 clamp(18px,4.6vw,34px) "JetBrains Mono",monospace;background:#05070B;border:1px solid var(--rule);border-radius:10px;padding:26px 18px;margin:14px 0 10px;text-align:center;overflow-x:auto;white-space:nowrap}
+.shellbig.sm{font-size:clamp(15px,3.6vw,22px);padding:16px 14px;margin:0 0 12px;text-align:left}
+.sh-a{color:#F472B6}.sh-eq{color:#E8ECF3}.sh-q{color:#FBBF24}.sh-tag{color:#FB7185}.sh-ghost{color:#3A4560}
+.sh-slot{color:#86EFAC;background:rgba(134,239,172,.08);border:2px dashed #86EFAC;border-radius:6px;padding:4px 10px;margin:0 4px}
+.shelllegend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--ink-soft);margin:0 0 6px}.shelllegend i{font-style:normal;font-family:"JetBrains Mono",monospace;font-weight:700}
+.guessgrid .prompt code{font-size:13px;word-break:break-word}
+</style>
+<style>
+.pickrow{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.pickrow button{background:var(--card);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer;font:600 13px "JetBrains Mono",monospace}
+.pickrow button.on{border-color:var(--acc);background:var(--acc-tint);color:#fff}
+.rng{display:flex;align-items:center;gap:12px;margin:0 0 12px;font:600 13px "JetBrains Mono",monospace;color:var(--ink-soft)}
+.rng input{flex:1;accent-color:var(--acc)}
+.rng b{color:#fff;min-width:64px;text-align:right}
+.out img{vertical-align:baseline}
+.frame{border:2px dashed #94A3B8;padding:8px;background:#F8FAFC}
+.chips2{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.chips2 label{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:7px 12px;cursor:pointer;font:600 13px "JetBrains Mono",monospace}
+.steps2{counter-reset:s;display:grid;gap:10px;margin:8px 0 16px}
+.steps2 div{position:relative;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:12px 16px 12px 54px}
+.steps2 div::before{counter-increment:s;content:counter(s);position:absolute;left:14px;top:11px;width:28px;height:28px;border-radius:50%;background:var(--acc);color:#0B0E14;display:grid;place-items:center;font:800 14px "JetBrains Mono",monospace}
+</style>
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 6</a><a href="6-7-images.html">Back to 6.7</a><a href="images-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 6 Notes &nbsp;/&nbsp; Lesson 6.7</div>
+  <h1>Images</h1>
+  <p class="deck">Upload your own pictures, drop them on a page, and resize them without squishing. Then make every one of them a clickable link, the way real websites do it.</p>
+  <span class="stdchip">img &middot; src &middot; alt &middot; width / height &middot; images as links</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>The Image Tag</h2></div>
+  <p class="story">A web page is just text. When you see a picture, the page is really pointing at a picture file stored somewhere else. The <code>&lt;img&gt;</code> tag is the pointer: it says <b>where the picture lives</b> and <b>what it shows</b>. It uses the same attribute shell you know from <code>style=" "</code> and <code>href=" "</code>.</p>
+  <div class="shellbig"><span class="sh-tag">&lt;img</span> <span class="sh-a">src</span><span class="sh-eq">=</span><span class="sh-q">"</span><span class="sh-slot">https://.../dog.png</span><span class="sh-q">"</span> <span class="sh-a">alt</span><span class="sh-eq">=</span><span class="sh-q">"</span><span class="sh-slot">A bulldog in a cowboy hat</span><span class="sh-q">"</span><span class="sh-tag">&gt;</span></div>
+  <div class="cards">
+    <div class="cardx"><div class="num">Tag</div><h4><code>&lt;img&gt;</code></h4><p>The image tag. It is a <b>one-tag tag</b> like <code>&lt;br&gt;</code> and <code>&lt;hr&gt;</code>: there is nothing to wrap, so <b>no closing tag</b>.</p></div>
+    <div class="cardx"><div class="num">Attribute 1</div><h4><code>src</code></h4><p>The <b>source</b>: the web address of the picture file. No src, no picture.</p></div>
+    <div class="cardx"><div class="num">Attribute 2</div><h4><code>alt</code></h4><p>The <b>alternative text</b>: words that describe the picture. Screen readers read it aloud, and it shows if the picture cannot load.</p></div>
+  </div>
+  <div class="callout">Good alt text says what is in the picture.<span>&ldquo;Rex the bulldog wearing a cowboy hat&rdquo; is good. &ldquo;image1&rdquo; or &ldquo;picture&rdquo; is not.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>Upload Your Own Pictures</h2></div>
+  <p class="lede">The browser can only show a picture that has a <b>web address</b>. A file on your computer does not have one. The Web Editor fixes that: it stores your picture online and gives you the address.</p>
+  <div class="steps2">
+    <div><b>Open Checks</b> in the Web Editor and find the <b>My images</b> section. (Sign in first.)</div>
+    <div><b>Upload a picture</b> from your computer. JPG, PNG, GIF, and WEBP work. The editor shrinks big photos for you.</div>
+    <div>Click your picture's <b>Insert</b> button. The editor types the whole tag into your code, wrapped in a link.</div>
+    <div><b>Change the two placeholders:</b> write a real <code>alt</code> description, and change the example link address to a real website (Section 04 explains why).</div>
+  </div>
+  <h3 style="color:#fff;margin:26px 0 8px">Will it show?</h3>
+  <div class="guessgrid">
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>src="C:\Users\me\Pictures\dog.jpg"</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>No</h4><p>That file is only on your computer. Nobody else (and no website) can reach it.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>src="dog.jpg"</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>No, not here</h4><p>The editor has no file called dog.jpg. Upload it, then use the address the editor gives you.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">The address the editor inserts after you upload</div><div class="tap">Tap to reveal</div><div class="answer"><h4>Yes</h4><p>That is a real web address that works for everyone who opens your page.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>src="https://images.example.org/cat.png"</code> (a real hosted picture)</div><div class="tap">Tap to reveal</div><div class="answer"><h4>Yes</h4><p>Any picture with a web address that starts with https:// works, but for this class, upload your own.</p></div></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>Change the Size</h2></div>
+  <p class="lede">Pictures come in all sizes. You set the size with the <code>width</code> style property, in the shell: <code>style="width: 200px;"</code>. Drag the slider.</p>
+  <div class="rng"><span>width</span><input type="range" id="wSlider" min="40" max="320" value="180"><b id="wVal">180px</b></div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk" id="wCode" style="margin:0"></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out" id="wOut" style="min-height:130px"></div></div>
+  </div>
+
+  <h3 style="color:#fff;margin:26px 0 8px">Set width OR height, not both</h3>
+  <p class="lede">A picture has a natural shape (its <b>aspect ratio</b>). If you set only <code>width</code>, the browser works out the height so nothing is distorted. If you set <b>both</b>, you can squish or stretch it.</p>
+  <div class="pickrow" id="ar"><button class="on" data-a="one">width only (good)</button><button data-a="both">width AND height (squished)</button></div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk" id="arCode" style="margin:0"></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out" id="arOut" style="min-height:130px"></div><p id="arNote" style="margin:10px 0 0;font-size:13.5px"></p></div>
+  </div>
+
+  <h3 style="color:#fff;margin:26px 0 8px">Pixels or percent?</h3>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Write</th><th>Meaning</th><th>Use it when</th></tr></thead>
+    <tbody>
+      <tr><td><code>width: 200px;</code></td><td>Exactly 200 pixels wide, on any screen</td><td>You want an exact size, like a thumbnail</td></tr>
+      <tr><td><code>width: 50%;</code></td><td>Half as wide as the space it sits in</td><td>You want it to shrink and grow with the page</td></tr>
+    </tbody></table></div></div>
+  <div class="pickrow" id="pc"><button class="on" data-p="25">25%</button><button data-p="50">50%</button><button data-p="100">100%</button></div>
+  <div class="out frame" id="pcOut"></div>
+  <div class="callout">Pick one dimension and let the browser do the math.<span>Size the width, and the height follows. It keeps faces looking like faces.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>Every Image Is a Link</h2></div>
+  <p class="story">Click almost any picture on the internet and something happens: a product page opens, a bigger version appears, a profile loads. That is because the picture is wrapped in an anchor tag. From now on, <b>every image you add to your pages will be a clickable link.</b></p>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk"><span class="t">&lt;a</span> <span class="at">href</span>=<span class="t">"</span><span class="vl">https://www.nasa.gov</span><span class="t">"</span> <span class="at">target</span>=<span class="t">"</span><span class="vl">_blank</span><span class="t">"</span><span class="t">&gt;</span>
+  <span class="t">&lt;img</span> <span class="at">src</span>=<span class="t">"</span><span class="vl">.../rocket.png</span><span class="t">"</span> <span class="at">alt</span>=<span class="t">"</span><span class="vl">A rocket launching</span><span class="t">"</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">width</span>: <span class="vl">200px</span>;<span class="t">"</span><span class="t">&gt;</span>
+<span class="t">&lt;/a&gt;</span></div></div>
+    <div class="box"><h4>Try clicking it</h4><div class="out"><a href="https://www.nasa.gov" target="_blank" rel="noopener" id="demoLink"><img id="demoImg" alt="A rocket launching" style="width:200px;border-radius:10px;display:block"></a><p style="margin:8px 0 0;font-size:13px;color:#555">This picture is a link. It opens NASA in a new tab.</p></div></div>
+  </div>
+  <div class="cards">
+    <div class="cardx"><div class="num">Step 1</div><h4>Start the link</h4><p><code>&lt;a href="https://..."&gt;</code>, with <code>target="_blank"</code> if it leaves your site.</p></div>
+    <div class="cardx"><div class="num">Step 2</div><h4>Put the image inside</h4><p>The whole <code>&lt;img ...&gt;</code> tag goes between the opening and closing anchor tags.</p></div>
+    <div class="cardx"><div class="num">Step 3</div><h4>Close the link</h4><p><code>&lt;/a&gt;</code> goes <b>after</b> the image. The image tag itself still has no closing tag.</p></div>
+  </div>
+  <div class="hint-panel"><b>The editor helps:</b> when you click Insert, it writes the link around your image and puts a placeholder address (example.com) in it. <b>Change that address to a real website</b> that makes sense for the picture. The Checks list will not accept example.com.</div>
+  <div class="callout">The link goes on the outside. The picture goes on the inside.<span>Same rules as before: <code>https://</code> at the start, <code>target="_blank"</code> for links that leave your site, and no target to stay in the current tab.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">05</div><h2>Images Are Inline</h2></div>
+  <p class="lede">Remember block vs. inline from 6.5? An image is <b>inline</b>, so it sits in the line of text like one giant letter. That is why text lines up next to it at the bottom. To put an image on its own line, switch it to block.</p>
+  <div class="pickrow" id="il"><button class="on" data-i="inline">Default (inline)</button><button data-i="block">display: block;</button></div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk" id="ilCode" style="margin:0"></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out" id="ilOut"></div></div>
+  </div>
+  <div class="callout">Inline: sits in the line with the words. Block: gets its own line.<span>Use <code>display: block;</code> when you want a picture on its own line, like a poster's main image.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">06</div><h2>Finishing Touches</h2></div>
+  <p class="lede">Put a frame on it, round the corners, or turn it into a circle. All of these go inside the shell on the <code>&lt;img&gt;</code>.</p>
+  <div class="pickrow" id="fx"><button class="on" data-f="">plain</button><button data-f="border: 4px solid #1E3A8A;">border</button><button data-f="border-radius: 20px;">border-radius: 20px</button><button data-f="border-radius: 50%;">border-radius: 50% (circle)</button></div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk" id="fxCode" style="margin:0"></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out" id="fxOut"></div></div>
+  </div>
+  <div class="hint-panel"><b>For a perfect circle:</b> start with a square picture (crop it before you upload), give it one width, and use <code>border-radius: 50%;</code>.</div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">07</div><h2>Common Mistakes</h2></div>
+  <div class="wrongright">
+    <div class="w"><h4>Wrong: closing the img tag</h4><div class="codeblk"><span class="t">&lt;img</span> src="..." alt="Dog"<span class="t">&gt;&lt;/img&gt;</span></div></div>
+    <div class="r"><h4>Right: no closing tag</h4><div class="codeblk"><span class="t">&lt;img</span> src="..." alt="Dog"<span class="t">&gt;</span></div></div>
+    <div class="w"><h4>Wrong: squished with both sizes</h4><div class="codeblk"><span class="t">&lt;img</span> style="width: 300px; height: 40px;"<span class="t">&gt;</span></div></div>
+    <div class="r"><h4>Right: one size only</h4><div class="codeblk"><span class="t">&lt;img</span> style="width: 300px;"<span class="t">&gt;</span></div></div>
+    <div class="w"><h4>Wrong: image outside the link</h4><div class="codeblk"><span class="t">&lt;a</span> href="https://..."<span class="t">&gt;&lt;/a&gt;</span>
+<span class="t">&lt;img</span> src="..." alt="Dog"<span class="t">&gt;</span></div></div>
+    <div class="r"><h4>Right: image inside the link</h4><div class="codeblk"><span class="t">&lt;a</span> href="https://..."<span class="t">&gt;</span>
+  <span class="t">&lt;img</span> src="..." alt="Dog"<span class="t">&gt;</span>
+<span class="t">&lt;/a&gt;</span></div></div>
+    <div class="w"><h4>Wrong: leaving the placeholders</h4><div class="codeblk">href="https://www.example.com"
+alt="describe your image here"</div></div>
+    <div class="r"><h4>Right: real address, real description</h4><div class="codeblk">href="https://www.nasa.gov"
+alt="A rocket launching at sunrise"</div></div>
+    <div class="w"><h4>Wrong: no alt</h4><div class="codeblk"><span class="t">&lt;img</span> src="..."<span class="t">&gt;</span></div></div>
+    <div class="r"><h4>Right: always include alt</h4><div class="codeblk"><span class="t">&lt;img</span> src="..." alt="Rex the bulldog"<span class="t">&gt;</span></div></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">08</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>img tag</b></td><td>The tag that puts a picture on the page. One tag, no closing tag</td></tr>
+      <tr><td><b>src</b></td><td>The attribute holding the picture's web address</td></tr>
+      <tr><td><b>alt</b></td><td>The attribute that describes the picture in words</td></tr>
+      <tr><td><b>Upload</b></td><td>Sending a file from your computer to the web so it gets a web address</td></tr>
+      <tr><td><b>Aspect ratio</b></td><td>The natural shape of a picture (how wide it is compared to how tall)</td></tr>
+      <tr><td><b>width / height</b></td><td>Style properties that set a picture's size. Use one, not both</td></tr>
+      <tr><td><b>Image link</b></td><td>An image inside an anchor tag, so clicking the picture opens a page</td></tr>
+      <tr><td><b>border-radius</b></td><td>Rounds the corners. 50% on a square makes a circle</td></tr>
+    </tbody></table></div></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>A picture is a link waiting to be clicked.</h2><p>Ready to build? Head back to 6.7 for the assignment.</p><a class="back" href="6-7-images.html">&larr; Back to 6.7</a><a class="back" href="index.html">Unit 6</a><p class="sig">Unit 6 Notes / Lesson 6.7 / end of file</p></div></footer>
+
+<script src="../unit-4/notes.js"></script>
+<script>
+function pic(w, h, c1, c2, glyph) {
+  var s = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + " " + h + '"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + c1 + '"/><stop offset="1" stop-color="' + c2 + '"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#g)"/><circle cx="' + w * 0.72 + '" cy="' + h * 0.28 + '" r="' + h * 0.13 + '" fill="#FDE68A"/><path d="M0 ' + h + " L" + w * 0.35 + " " + h * 0.45 + " L" + w * 0.6 + " " + h * 0.8 + " L" + w * 0.78 + " " + h * 0.6 + " L" + w + " " + h + ' Z" fill="rgba(0,0,0,.28)"/></svg>';
+  return "data:image/svg+xml;utf8," + encodeURIComponent(s);
+}
+var WIDE = pic(400, 300, "#38BDF8", "#6366F1"), SQ = pic(300, 300, "#F472B6", "#F59E0B");
+(function(){
+  var s = document.getElementById("wSlider");
+  function up() { var v = s.value; document.getElementById("wVal").textContent = v + "px"; document.getElementById("wOut").innerHTML = '<img src="' + WIDE + '" alt="Sample landscape" style="width:' + v + 'px">'; document.getElementById("wCode").innerHTML = '<span class="t">&lt;img</span> <span class="at">src</span>=<span class="t">"</span><span class="vl">...</span><span class="t">"</span> <span class="at">alt</span>=<span class="t">"</span><span class="vl">Landscape</span><span class="t">"</span>\n     <span class="at">style</span>=<span class="t">"</span><span class="pt">width</span>: <span class="vl">' + v + 'px</span>;<span class="t">"</span><span class="t">&gt;</span>'; }
+  s.oninput = up; up();
+})();
+(function(){
+  var row = document.getElementById("ar");
+  function draw(k) {
+    Array.prototype.forEach.call(row.children, function (b) { b.classList.toggle("on", b.getAttribute("data-a") === k); });
+    var both = k === "both", st = both ? "width: 200px; height: 60px;" : "width: 200px;";
+    document.getElementById("arOut").innerHTML = '<img src="' + WIDE + '" alt="Sample" style="' + st + '">';
+    document.getElementById("arCode").innerHTML = '<span class="t">&lt;img</span> ... <span class="at">style</span>=<span class="t">"</span><span class="pt">width</span>: <span class="vl">200px</span>;' + (both ? ' <span class="pt">height</span>: <span class="vl">60px</span>;' : "") + '<span class="t">"</span><span class="t">&gt;</span>';
+    document.getElementById("arNote").innerHTML = both ? '<b style="color:#B91C1C">Squished!</b> The shape no longer matches the picture. Do not set both.' : '<b style="color:#166534">Good.</b> The browser sets the height (150px) so the picture keeps its shape.';
+  }
+  Array.prototype.forEach.call(row.children, function (b) { b.onclick = function () { draw(b.getAttribute("data-a")); }; }); draw("one");
+})();
+(function(){
+  var row = document.getElementById("pc");
+  function draw(p) { Array.prototype.forEach.call(row.children, function (b) { b.classList.toggle("on", b.getAttribute("data-p") === p); }); document.getElementById("pcOut").innerHTML = '<img src="' + SQ + '" alt="Sample" style="width:' + p + '%;display:block"><p style="margin:6px 0 0;font:600 12px \'JetBrains Mono\',monospace;color:#475569">width: ' + p + '% of this dashed box</p>'; }
+  Array.prototype.forEach.call(row.children, function (b) { b.onclick = function () { draw(b.getAttribute("data-p")); }; }); draw("25");
+})();
+document.getElementById("demoImg").src = pic(400, 300, "#0EA5E9", "#7C3AED");
+(function(){
+  var row = document.getElementById("il");
+  function draw(k) {
+    Array.prototype.forEach.call(row.children, function (b) { b.classList.toggle("on", b.getAttribute("data-i") === k); });
+    var b = k === "block";
+    document.getElementById("ilOut").innerHTML = '<p style="margin:0;font-size:16px">Some text before the picture <img src="' + SQ + '" alt="Sample" style="width:70px;' + (b ? "display:block;" : "") + '"> and some text after it.</p>';
+    document.getElementById("ilCode").innerHTML = '<span class="t">&lt;img</span> ... <span class="at">style</span>=<span class="t">"</span><span class="pt">width</span>: <span class="vl">70px</span>;' + (b ? ' <span class="pt">display</span>: <span class="vl">block</span>;' : "") + '<span class="t">"</span><span class="t">&gt;</span>';
+  }
+  Array.prototype.forEach.call(row.children, function (bt) { bt.onclick = function () { draw(bt.getAttribute("data-i")); }; }); draw("inline");
+})();
+(function(){
+  var row = document.getElementById("fx"), cur = "";
+  function draw() {
+    Array.prototype.forEach.call(row.children, function (b) { b.classList.toggle("on", b.getAttribute("data-f") === cur); });
+    document.getElementById("fxOut").innerHTML = '<img src="' + SQ + '" alt="Sample" style="width:140px;' + cur + '">';
+    document.getElementById("fxCode").innerHTML = '<span class="t">&lt;img</span> ... <span class="at">style</span>=<span class="t">"</span><span class="pt">width</span>: <span class="vl">140px</span>;' + (cur ? " " + cur.replace(/^([a-z-]+):\s*([^;]+);$/, '<span class="pt">$1</span>: <span class="vl">$2</span>;') : "") + '<span class="t">"</span><span class="t">&gt;</span>';
+  }
+  Array.prototype.forEach.call(row.children, function (b) { b.onclick = function () { cur = b.getAttribute("data-f"); draw(); }; }); draw();
+})();
+</script>
+</body></html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Style Attribute | Unit 6 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css">
+<style>:root{--acc:#F472B6;--acc-tint:rgba(244,114,182,.13);--acc-ink:#FBCFE8}
+.part{padding:64px 0 16px}
+.lede{margin:0 0 20px;line-height:1.7}
+.codeblk{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:14px 18px;margin:12px 0 26px;font-family:"JetBrains Mono",monospace;font-size:13.5px;line-height:1.7;color:#E8ECF3;overflow-x:auto;white-space:pre}
+.codeblk .t{color:#FDBA74}.codeblk .c{color:#7B8799}
+.demo{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin:14px 0 30px}
+.demo .box{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:16px 18px;min-width:0}
+.demo .box h4{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:10px}
+.demo .out{background:#fff;color:#111;border-radius:6px;padding:16px;font-family:Georgia,serif;font-size:15px}
+.demo .out p{color:#111;margin:.6em 0}.demo .out h1{color:#111;font-size:28px;margin:.3em 0;font-family:Georgia,serif}
+.demo .out h2{color:#111;font-size:22px;margin:.3em 0;font-family:Georgia,serif}.demo .out h3{color:#111;font-size:18px;margin:.3em 0;font-family:Georgia,serif}.demo .out h4{color:#111;font-size:15px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}.demo .out h5{color:#111;font-size:13px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}.demo .out h6{color:#111;font-size:11px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}
+.demo .codeblk{margin:0}
+.nest{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:18px;margin:12px 0 26px;font-family:"JetBrains Mono",monospace;font-size:13px}
+.nest .b1{border:2px solid var(--acc);border-radius:8px;padding:12px 14px;background:var(--acc-tint)}
+.nest .b2{border:2px dashed #93C5FD;border-radius:8px;padding:10px 12px;margin-top:10px;background:rgba(147,197,253,.08)}
+.nest .b3{border:2px dashed #86EFAC;border-radius:8px;padding:10px 12px;margin-top:10px;background:rgba(134,239,172,.08)}
+.nest small{display:block;color:var(--ink-soft);font-family:"Manrope",sans-serif;font-size:12.5px;margin-top:3px}
+.tabmock{display:inline-flex;align-items:center;gap:10px;background:#2B3544;color:#fff;border-radius:8px 8px 0 0;padding:8px 14px;font:13px "Manrope",sans-serif;margin-top:6px}
+.tabmock i{opacity:.6;font-style:normal}
+.tabbar{background:#111827;border:1px solid var(--rule);border-radius:8px;padding:10px 12px 0;margin:10px 0 14px}
+.tryit{display:block;text-align:center;margin:20px 0;background:var(--acc);color:#0B0E14;font-weight:800;border-radius:8px;padding:14px;text-decoration:none}
+
+/* ---- the lab ---- */
+.lab{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:0;border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:14px 0 26px;background:var(--card)}
+.lab .pane h4{margin:0;padding:8px 14px;font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);background:#0F1420;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center}
+.lab textarea{display:block;width:100%;height:240px;background:#05070B;color:#E8ECF3;border:0;outline:0;resize:vertical;padding:12px 14px;font:13.5px/1.7 "JetBrains Mono",monospace;white-space:pre;tab-size:2;overflow:auto}
+.lab iframe{display:block;width:100%;height:240px;border:0;background:#fff}
+.lab .pane+.pane{border-left:1px solid var(--rule)}
+.lab button.rst{background:transparent;border:1px solid var(--rule);color:var(--acc-ink);border-radius:6px;padding:2px 9px;cursor:pointer;font:600 11px "JetBrains Mono",monospace}
+.steps{display:grid;gap:14px;margin:6px 0 10px}
+.step{border:1px solid var(--rule);border-radius:10px;padding:16px 18px;background:var(--card);display:grid;grid-template-columns:38px 1fr;gap:14px}
+.step .n{width:34px;height:34px;border-radius:50%;border:2px solid var(--rule);display:grid;place-items:center;font:800 14px "JetBrains Mono",monospace;color:var(--ink-soft)}
+.step h4{margin:0 0 4px;color:#fff;font-size:16px}
+.step p{margin:0 0 6px;color:#C4CDD8;font-size:14.5px}
+.step .why{display:none;margin-top:10px;background:var(--acc-tint);border:1px solid var(--acc);border-radius:8px;padding:10px 14px;font-size:14px;color:#fff}
+.step.done{border-color:#34D399;background:rgba(52,211,153,.06)}
+.step.done .n{background:#34D399;border-color:#34D399;color:#04210f}
+.step.done .why{display:block}
+.prog{font:700 12px "JetBrains Mono",monospace;color:var(--acc-ink);letter-spacing:.05em;margin:0 0 10px}
+@media(max-width:760px){.lab{grid-template-columns:1fr}.lab .pane+.pane{border-left:0;border-top:1px solid var(--rule)}}
+
+.sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;margin:14px 0 26px}
+.sw div{border-radius:8px;padding:26px 8px 8px;font:600 12px "JetBrains Mono",monospace;color:#fff;text-shadow:0 1px 2px #0008;text-align:center}
+.demo .out .k{font-family:"JetBrains Mono",monospace;font-size:12px;color:#666;display:block;margin:10px 0 2px}
+.wrongright{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:12px 0 22px}
+.wrongright .w,.wrongright .r{border-radius:8px;padding:14px 16px;background:var(--card);border:1px solid var(--rule)}
+.wrongright .w{border-top:3px solid #F87171}.wrongright .r{border-top:3px solid #34D399}
+.wrongright h4{font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;margin:0 0 8px}
+.wrongright .w h4{color:#FCA5A5}.wrongright .r h4{color:#6EE7B7}
+.wrongright .codeblk{margin:0}
+.pt{color:#93C5FD}.vl{color:#86EFAC}.at{color:#FDBA74}
+.shellbig{font:700 clamp(18px,4.6vw,34px) "JetBrains Mono",monospace;background:#05070B;border:1px solid var(--rule);border-radius:10px;padding:26px 18px;margin:14px 0 10px;text-align:center;overflow-x:auto;white-space:nowrap}
+.shellbig.sm{font-size:clamp(15px,3.6vw,22px);padding:16px 14px;margin:0 0 12px;text-align:left}
+.sh-a{color:#F472B6}.sh-eq{color:#E8ECF3}.sh-q{color:#FBBF24}.sh-tag{color:#FB7185}.sh-ghost{color:#3A4560}
+.sh-slot{color:#86EFAC;background:rgba(134,239,172,.08);border:2px dashed #86EFAC;border-radius:6px;padding:4px 10px;margin:0 4px}
+.shelllegend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--ink-soft);margin:0 0 6px}.shelllegend i{font-style:normal;font-family:"JetBrains Mono",monospace;font-weight:700}
+.guessgrid .prompt code{font-size:13px;word-break:break-word}
+</style></head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 6</a><a href="6-2-creation-tags-inline-styling.html">Back to 6.2</a><a href="style-attribute-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 6 Notes &nbsp;/&nbsp; Lesson 6.2</div>
+  <h1>The Style Attribute</h1>
+  <p class="deck">Plain black text on a white page gets old fast. In this lesson you will learn the one tool that changes how anything looks: the style attribute. Start by styling a page, then break your styles on purpose, then read the rules.</p>
+  <span class="stdchip">Inline Styling</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">Rule #1</div><h2>The Shell Comes First: style=" "</h2></div>
+  <p class="story">Before the browser will listen to a single color or size, it needs to hear one thing: <b>&ldquo;design instructions are coming.&rdquo;</b> That is the job of the word <code>style</code>. It needs its own equals sign and its own pair of quotes. The colors and sizes go <em>inside</em> those quotes. Never outside, and never without the shell.</p>
+  <div class="shellbig" aria-label="The style attribute shell">
+    <span class="sh-a">style</span><span class="sh-eq">=</span><span class="sh-q">"</span><span class="sh-slot">property: value;</span><span class="sh-q">"</span>
+  </div>
+  <div class="shelllegend"><span><i class="sh-a">style</i> says what is coming</span><span><i class="sh-eq">=</i> connects it</span><span><i class="sh-q">" "</i> the box that holds the instructions</span><span><i class="sh-slot">property: value;</i> goes only in the box</span></div>
+
+  <h3 style="color:#fff;margin:30px 0 8px">Build it in the right order</h3>
+  <p class="lede">Click through the five steps. Notice that the property and value come <b>last</b>.</p>
+  <div class="stepper">
+    <div class="stepnav"><button data-i="0" onclick="step(this)">1 style</button><button data-i="1" onclick="step(this)">2 =</button><button data-i="2" onclick="step(this)">3 " "</button><button data-i="3" onclick="step(this)">4 Inside</button><button data-i="4" onclick="step(this)">5 In the tag</button></div>
+    <div class="stepbody"></div>
+    <template><div class="shellbig sm"><span class="sh-a">style</span><span class="sh-ghost">=""</span></div><b>Type the word <code>style</code>.</b> This is the attribute name. If you skip it, nothing that follows will work.</template>
+    <template><div class="shellbig sm"><span class="sh-a">style</span><span class="sh-eq">=</span><span class="sh-ghost">""</span></div><b>Add an equals sign right after it.</b> No spaces needed. <code>style=</code> means &ldquo;here is what the style is.&rdquo;</template>
+    <template><div class="shellbig sm"><span class="sh-a">style</span><span class="sh-eq">=</span><span class="sh-q">"</span><span class="sh-q">"</span></div><b>Type BOTH quotation marks now.</b> Make the empty box before you fill it. This is how you never forget the closing quote.</template>
+    <template><div class="shellbig sm"><span class="sh-a">style</span><span class="sh-eq">=</span><span class="sh-q">"</span><span class="sh-slot">color: tomato;</span><span class="sh-q">"</span></div><b>Now, and only now, click between the quotes</b> and type the property, a colon, the value, and a semicolon.</template>
+    <template><div class="shellbig sm"><span class="sh-tag">&lt;h1</span> <span class="sh-a">style</span><span class="sh-eq">=</span><span class="sh-q">"</span><span class="sh-slot">color: tomato;</span><span class="sh-q">"</span><span class="sh-tag">&gt;</span></div><b>Place the finished attribute inside the opening tag,</b> after the tag name and one space.</template>
+  </div>
+
+  <h3 style="color:#fff;margin:30px 0 8px">Is the shell there?</h3>
+  <p class="lede">Each of these tries to style a heading. Decide what is wrong, then tap to check.</p>
+  <div class="guessgrid">
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;h1 color: tomato;&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>No shell at all</h4><p>There is no <code>style=</code> and no quotes. The browser has no idea these are design instructions.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;h1 "color: tomato;"&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Quotes but no <code>style=</code></h4><p>The quotes are there, but nothing says what they hold. Always start with <code>style=</code>.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;h1 style=color: tomato;&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Missing quotes</h4><p>You have <code>style=</code> but the instructions are not inside a pair of quotes.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;h1 color="tomato"&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Wrong attribute name</h4><p><code>color</code> is a <em>property</em>, not an attribute. The attribute is always <code>style</code>, and <code>color</code> goes inside it.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;h1 style: "color: tomato;"&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Colon instead of equals</h4><p>After <code>style</code> comes an equals sign <code>=</code>. Colons only live inside the quotes, between property and value.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;h1 style="color: tomato;"&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Correct</h4><p><code>style</code>, an equals sign, quotes around everything, and the property and value inside. That is the whole shell.</p></div></div>
+  </div>
+  <div class="callout">No <code>style=" "</code>, no styling.<span>Every time you want to change how something looks, type the shell first, then fill in the box.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">Try it</div><h2>Style It, Break It, Fix It</h2></div>
+  <p class="lede">Type in the left box and watch the page change. Work through the six steps in order. Each one turns green when you finish it.</p>
+  <div class="prog" id="prog">0 OF 6 STEPS DONE</div>
+  <div class="lab">
+    <div class="pane"><h4><span>Your code</span><button class="rst" id="rst">Reset</button></h4><textarea id="labcode" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Practice code"></textarea></div>
+    <div class="pane"><h4><span>The page</span></h4><iframe id="labprev" sandbox title="Live preview"></iframe></div>
+  </div>
+  <div class="steps">
+    <div class="step" id="s1"><div class="n">1</div><div><h4>Add a color</h4><p>Type the shell first: <code>style=""</code> inside the opening <code>&lt;h1&gt;</code> tag. Then click between the quotes and add <code>color: tomato;</code>, so you have <code>&lt;h1 style="color: tomato;"&gt;</code>. Then try other color names, like teal, navy, or hotpink.</p><div class="why"><b>You just used the style attribute.</b> The shell <code>style=" "</code> goes inside the opening tag, and the property and value go inside the quotes.</div></div></div>
+    <div class="step" id="s2"><div class="n">2</div><div><h4>Change the size</h4><p>Add a second property to the h1: <code>font-size: 48px;</code> right after the color, inside the same quotes.</p><div class="why"><b>Two properties, one style attribute.</b> Each property ends with a semicolon, which lets you chain as many as you want.</div></div></div>
+    <div class="step" id="s3"><div class="n">3</div><div><h4>Style a paragraph</h4><p>Give the paragraph its own style with at least two properties, like a color and a font-size.</p><div class="why"><b>Every element has its own style.</b> Styling the h1 did not change the paragraph. You style each element you want to change.</div></div></div>
+    <div class="step" id="s4"><div class="n">4</div><div><h4>Break it</h4><p>Delete the semicolon between two of your properties. Look at the page. What happened to the second property?</p><div class="why"><b>The browser got confused.</b> Without the semicolon it cannot tell where one property ends and the next begins, so it may ignore the whole style.</div></div></div>
+    <div class="step" id="s5"><div class="n">5</div><div><h4>Fix it</h4><p>Put the semicolon back. Both properties should work again.</p><div class="why"><b>Fixed.</b> Debugging styles is mostly checking for a missing colon, semicolon, or quote.</div></div></div>
+    <div class="step" id="s6"><div class="n">6</div><div><h4>Align and change the case</h4><p>Add <code>text-align: center;</code> and <code>text-transform: uppercase;</code> to the h1.</p><div class="why"><b>You changed alignment and letter case.</b> Neither one needed you to retype the words.</div></div></div>
+  </div>
+  <div class="callout">You just wrote CSS.<span>Now let's put names to the pieces.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>The Style Attribute Formula</h2></div>
+  <p class="lede">An <b>attribute</b> gives an HTML tag extra instructions. The <b>style attribute</b> changes how an element looks. Using it inside a tag is called <b>inline styling</b>. It always follows this formula:</p>
+<div class="codeblk"><span class="t">&lt;h1</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">color</span>: <span class="vl">tomato</span>;<span class="t">"</span><span class="t">&gt;</span>Hello<span class="t">&lt;/h1&gt;</span></div>
+  <div class="cards">
+    <div class="cardx"><div class="num">Part 1</div><h4>style=" "</h4><p>The <b>shell</b>: the attribute name, an equals sign, and a pair of quotes. It tells the browser, "design instructions are coming." Type it <b>first</b>.</p></div>
+    <div class="cardx"><div class="num">Part 2</div><h4>property</h4><p>Goes <b>inside the quotes</b>. The feature you want to change, like color or font-size.</p></div>
+    <div class="cardx"><div class="num">Part 3</div><h4>value</h4><p>Also <b>inside the quotes</b>. The setting, like tomato or 48px.</p></div>
+  </div>
+  <h3 style="color:#fff;margin:26px 0 10px">Three punctuation rules</h3>
+  <div class="cards">
+    <div class="cardx"><div class="num">Rule 01</div><h4>A colon <code>:</code></h4><p>Goes between the property and the value.</p></div>
+    <div class="cardx"><div class="num">Rule 02</div><h4>A semicolon <code>;</code></h4><p>Goes after every value. It locks the setting in and lets you add more.</p></div>
+    <div class="cardx"><div class="num">Rule 03</div><h4>Double quotes <code>" "</code></h4><p>Wrap the whole style value.</p></div>
+  </div>
+  <div class="callout">The style attribute goes in the opening tag only.<span>Put it after the tag name and one space. Never put it in the closing tag.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>Color</h2></div>
+  <p class="lede">The <code>color</code> property changes the color of the <b>text</b>. Use a color name as the value. Here are twelve safe ones to start with. (You will learn all 140 names and exact hex codes later in the unit.)</p>
+  <div class="sw"><div style="background:red">red</div><div style="background:orange">orange</div><div style="background:gold">gold</div><div style="background:green">green</div><div style="background:teal">teal</div><div style="background:dodgerblue">dodgerblue</div><div style="background:navy">navy</div><div style="background:purple">purple</div><div style="background:hotpink">hotpink</div><div style="background:tomato">tomato</div><div style="background:brown">brown</div><div style="background:gray">gray</div></div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">color</span>: <span class="vl">teal</span>;<span class="t">"</span><span class="t">&gt;</span>Teal text<span class="t">&lt;/p&gt;</span>
+<span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">color</span>: <span class="vl">hotpink</span>;<span class="t">"</span><span class="t">&gt;</span>Hot pink text<span class="t">&lt;/p&gt;</span></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out"><p style="color:teal;margin-top:0">Teal text</p><p style="color:hotpink;margin-bottom:0">Hot pink text</p></div></div>
+  </div>
+  <div class="callout">Make sure people can read it.<span>Light yellow text on a white page is nearly invisible. Pick colors that stand out from the background.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>Background Color</h2></div>
+  <p class="lede">There are two different color properties, and they do two different jobs. Mixing them up is one of the most common mistakes in this unit.</p>
+  <div class="cards">
+    <div class="cardx"><div class="num">Job 1</div><h4><code>color</code></h4><p>The <b>font color</b>. It changes the color of the <b>text</b> (the letters themselves).</p></div>
+    <div class="cardx"><div class="num">Job 2</div><h4><code>background-color</code></h4><p>The <b>background color</b>. It fills the space <b>behind</b> the text.</p></div>
+  </div>
+  <div class="callout"><code>color</code> = the letters. <code>background-color</code> = behind the letters.<span>Just <code>color</code> on its own never changes a background, and <code>background-color</code> never changes the text.</span></div>
+
+  <h3 style="color:#fff;margin:26px 0 8px">Try both at once</h3>
+  <p class="lede">Pick a font color and a background color. The code updates so you can see the shell with both properties inside the quotes.</p>
+  <div class="demo">
+    <div class="box"><h4>Choose</h4>
+      <label style="display:block;font-size:13px;color:var(--ink-soft);margin-bottom:4px">Font color (<code>color</code>)</label>
+      <select id="bgFont" style="width:100%;margin-bottom:12px;background:#05070B;color:#E8ECF3;border:1px solid var(--rule);border-radius:6px;padding:8px"><option>white</option><option>black</option><option>yellow</option><option>navy</option><option>tomato</option><option>teal</option></select>
+      <label style="display:block;font-size:13px;color:var(--ink-soft);margin-bottom:4px">Background color (<code>background-color</code>)</label>
+      <select id="bgBack" style="width:100%;margin-bottom:12px;background:#05070B;color:#E8ECF3;border:1px solid var(--rule);border-radius:6px;padding:8px"><option>blue</option><option>black</option><option>lightblue</option><option>gold</option><option>hotpink</option><option>green</option></select>
+      <div class="codeblk" id="bgCode" style="margin:0"></div>
+    </div>
+    <div class="box"><h4>What the browser shows</h4><div class="out" id="bgOut" style="padding:0"><p id="bgSample" style="margin:0;padding:22px;font-size:20px">Hello, I am a paragraph.</p></div><p id="bgWarn" style="margin:10px 0 0;font-size:13.5px;color:#FCA5A5;min-height:20px"></p></div>
+  </div>
+
+  <h3 style="color:#fff;margin:26px 0 8px">Changing the color of the whole page</h3>
+  <p class="lede">To change the background of the <b>entire page</b>, put the style attribute on the <code>&lt;body&gt;</code> tag. Everything you see on the page lives inside <code>&lt;body&gt;</code>, so its background becomes the page background.</p>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk"><span class="t">&lt;body</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">background-color</span>: <span class="vl">blue</span>;<span class="t">"</span><span class="t">&gt;</span>
+  <span class="t">&lt;h1</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">color</span>: <span class="vl">white</span>;<span class="t">"</span><span class="t">&gt;</span>Hello<span class="t">&lt;/h1&gt;</span>
+<span class="t">&lt;/body&gt;</span></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out" style="background:blue;padding:18px"><h1 style="color:white;margin:0">Hello</h1></div></div>
+  </div>
+  <ul style="margin:0 0 20px 26px;line-height:1.75"><li>The shell is the same: <code>style=" "</code>, then the property and value inside.</li><li>The <code>background-color</code> goes on <code>&lt;body&gt;</code> for the page. Put it on a <code>&lt;p&gt;</code> or <code>&lt;h1&gt;</code> and only that element gets the color.</li><li>You can use both properties in one style attribute, separated by a semicolon: <code>style="background-color: blue; color: white;"</code></li></ul>
+
+  <h3 style="color:#fff;margin:26px 0 8px">Which property?</h3>
+  <div class="guessgrid">
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Make the words on the page red.</div><div class="tap">Tap to reveal</div><div class="answer"><h4><code>color: red;</code></h4><p>The words are the font, so use <code>color</code>.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Make the whole page blue.</div><div class="tap">Tap to reveal</div><div class="answer"><h4><code>background-color: blue;</code></h4><p>On the <code>&lt;body&gt;</code> tag. This fills the page behind everything.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Highlight one paragraph in yellow.</div><div class="tap">Tap to reveal</div><div class="answer"><h4><code>background-color: yellow;</code></h4><p>On that <code>&lt;p&gt;</code> tag only, so just that paragraph gets the yellow.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;body style="color: blue;"&gt;</code> should make the page blue. Does it?</div><div class="tap">Tap to reveal</div><div class="answer"><h4>No</h4><p><code>color</code> only changes the text. For the page use <code>background-color: blue;</code>.</p></div></div>
+  </div>
+  <div class="callout">Keep the text readable.<span>Blue text on a blue background disappears. Pick a font color and a background color that stand apart, like white on blue or black on yellow.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>Border</h2></div>
+  <p class="lede">A <b>border</b> is a line drawn around an element. Like every style, it goes inside the shell: <code>style=" "</code>. The <code>border</code> property is a shortcut with <b>three parts, always in this order</b>.</p>
+  <div class="shellbig" aria-label="The border shortcut"><span class="sh-a">border</span><span class="sh-eq">:</span> <span class="sh-slot" style="border-color:#FDBA74;color:#FDBA74">2px</span> <span class="sh-slot" style="border-color:#93C5FD;color:#93C5FD">solid</span> <span class="sh-slot" style="border-color:#86EFAC;color:#86EFAC">black</span><span class="sh-eq">;</span></div>
+  <div class="cards">
+    <div class="cardx"><div class="num">Part 1</div><h4>Thickness</h4><p>How wide the line is, in pixels: <code>1px</code>, <code>4px</code>, <code>10px</code>. Always include <code>px</code>.</p></div>
+    <div class="cardx"><div class="num">Part 2</div><h4>Style</h4><p>What the line looks like: <code>solid</code>, <code>dashed</code>, <code>dotted</code>, <code>double</code>, <code>groove</code>, <code>ridge</code>.</p></div>
+    <div class="cardx"><div class="num">Part 3</div><h4>Color</h4><p>Any color name, like <code>black</code>, <code>tomato</code>, or <code>navy</code>.</p></div>
+  </div>
+  <div class="callout">No style, no border.<span>If you leave out the style word (<code>border: 2px black;</code>), the browser draws nothing at all. Always include <code>solid</code>, <code>dashed</code>, or another style.</span></div>
+
+  <h3 style="color:#fff;margin:26px 0 8px">Build a border</h3>
+  <p class="lede">Pick each part and watch the box and the code update.</p>
+  <div class="demo">
+    <div class="box"><h4>Choose</h4>
+      <label style="display:block;font-size:13px;color:var(--ink-soft);margin-bottom:4px">Thickness</label>
+      <select id="bdW" style="width:100%;margin-bottom:12px;background:#05070B;color:#E8ECF3;border:1px solid var(--rule);border-radius:6px;padding:8px"><option>1px</option><option selected>4px</option><option>8px</option><option>12px</option></select>
+      <label style="display:block;font-size:13px;color:var(--ink-soft);margin-bottom:4px">Style</label>
+      <select id="bdS" style="width:100%;margin-bottom:12px;background:#05070B;color:#E8ECF3;border:1px solid var(--rule);border-radius:6px;padding:8px"><option>solid</option><option>dashed</option><option>dotted</option><option>double</option><option>groove</option><option>ridge</option></select>
+      <label style="display:block;font-size:13px;color:var(--ink-soft);margin-bottom:4px">Color</label>
+      <select id="bdC" style="width:100%;margin-bottom:12px;background:#05070B;color:#E8ECF3;border:1px solid var(--rule);border-radius:6px;padding:8px"><option>black</option><option>tomato</option><option>navy</option><option>green</option><option>purple</option><option>gold</option></select>
+      <div class="codeblk" id="bdCode" style="margin:0"></div>
+    </div>
+    <div class="box"><h4>What the browser shows</h4><div class="out"><p id="bdSample" style="margin:0;padding:16px;font-size:18px">A paragraph with a border.</p></div></div>
+  </div>
+  <ul style="margin:0 0 20px 26px;line-height:1.75"><li>You can put a border on any element: a heading, a paragraph, or even the page's <code>&lt;body&gt;</code>.</li><li>Combine it with the other properties: <code>style="color: navy; background-color: lightyellow; border: 3px solid navy;"</code></li></ul>
+
+  <h3 style="color:#fff;margin:26px 0 8px">Spot the bug</h3>
+  <div class="guessgrid">
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>border: 2px black;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Missing the style</h4><p>Nothing will show. Add <code>solid</code> between the thickness and the color.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>border: 2 solid black;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Missing <code>px</code></h4><p>The thickness needs its unit: <code>2px</code>.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>border: black solid 2px;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Wrong order</h4><p>In this class, always write thickness, style, then color: <code>2px solid black;</code>.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;p border="2px solid black"&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>No shell</h4><p>Border is a style property. It goes inside <code>style=" "</code>: <code>&lt;p style="border: 2px solid black;"&gt;</code></p></div></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">05</div><h2>Font Size</h2></div>
+  <p class="lede">The <code>font-size</code> property changes how big the text is. Size is measured in <b>pixels</b>, written <code>px</code>. A pixel is one tiny dot on your screen. Regular text is usually 16px.</p>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">font-size</span>: <span class="vl">14px</span>;<span class="t">"</span><span class="t">&gt;</span>Small<span class="t">&lt;/p&gt;</span>
+<span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">font-size</span>: <span class="vl">28px</span>;<span class="t">"</span><span class="t">&gt;</span>Medium<span class="t">&lt;/p&gt;</span>
+<span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">font-size</span>: <span class="vl">56px</span>;<span class="t">"</span><span class="t">&gt;</span>Big<span class="t">&lt;/p&gt;</span></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out"><p style="font-size:14px;margin:0">Small</p><p style="font-size:28px;margin:0">Medium</p><p style="font-size:56px;margin:0">Big</p></div></div>
+  </div>
+  <ul style="margin:0 0 20px 26px;line-height:1.75"><li>Always write the number and <code>px</code> together with no space: <code>28px</code>, not <code>28</code> or <code>28 px</code>.</li><li>The biggest, most important text should have the biggest size. That is called a <b>visual hierarchy</b>.</li></ul>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">06</div><h2>Chaining Properties</h2></div>
+  <p class="lede">You can put many properties in one style attribute. Finish each one with a semicolon, and keep them all inside the same pair of quotes.</p>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">color</span>: <span class="vl">orange</span>; <span class="pt">font-size</span>: <span class="vl">24px</span>;<span class="t">"</span><span class="t">&gt;</span>
+  Large and colorful text!
+<span class="t">&lt;/p&gt;</span></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out"><p style="color:orange;font-size:24px;margin:0">Large and colorful text!</p></div></div>
+  </div>
+  <div class="callout">The semicolon is a separator.<span>Every time you finish a property and value, add a semicolon. Then you can start the next one before the closing quote.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">07</div><h2>Alignment and Letter Case</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Property</th><th>Values</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>text-align</code></td><td><code>left</code>, <code>center</code>, <code>right</code></td><td>Sets where the text sits across the width of the page. Left is the default.</td></tr>
+      <tr><td><code>text-transform</code></td><td><code>uppercase</code>, <code>lowercase</code>, <code>capitalize</code></td><td>Changes the letter case. <code>capitalize</code> makes the first letter of every word a capital.</td></tr>
+    </tbody></table></div></div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk"><span class="t">&lt;h2</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">text-align</span>: <span class="vl">center</span>; <span class="pt">text-transform</span>: <span class="vl">uppercase</span>; <span class="pt">color</span>: <span class="vl">navy</span>;<span class="t">"</span><span class="t">&gt;</span>
+  breaking news
+<span class="t">&lt;/h2&gt;</span>
+<span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">text-align</span>: <span class="vl">right</span>;<span class="t">"</span><span class="t">&gt;</span>Signed, the reporter<span class="t">&lt;/p&gt;</span></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out"><h2 style="text-align:center;text-transform:uppercase;color:navy;margin-top:0">breaking news</h2><p style="text-align:right;margin-bottom:0">Signed, the reporter</p></div></div>
+  </div>
+  <p class="lede">Why use <code>text-transform</code> instead of typing in capitals? If your teacher wants all headings to look normal instead of ALL CAPS, you change one word in the style instead of retyping everything.</p>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">08</div><h2>Common Mistakes</h2></div>
+  <div class="wrongright">
+    <div class="w"><h4>Wrong: no semicolon between properties</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span>color: red font-size: 20px;<span class="t">"</span><span class="t">&gt;</span></div></div>
+    <div class="r"><h4>Right</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span>color: red; font-size: 20px;<span class="t">"</span><span class="t">&gt;</span></div></div>
+    <div class="w"><h4>Wrong: missing quotes</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">style</span>=color: red;<span class="t">&gt;</span></div></div>
+    <div class="r"><h4>Right</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span>color: red;<span class="t">"</span><span class="t">&gt;</span></div></div>
+    <div class="w"><h4>Wrong: forgot px</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span>font-size: 20;<span class="t">"</span><span class="t">&gt;</span></div></div>
+    <div class="r"><h4>Right</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span>font-size: 20px;<span class="t">"</span><span class="t">&gt;</span></div></div>
+    <div class="w"><h4>Wrong: misspelled property</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span>colour: red;<span class="t">"</span><span class="t">&gt;</span></div></div>
+    <div class="r"><h4>Right</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span>color: red;<span class="t">"</span><span class="t">&gt;</span></div></div>
+    <div class="w"><h4>Wrong: style in the closing tag</h4><div class="codeblk"><span class="t">&lt;/p</span> <span class="at">style</span>=<span class="t">"</span>color: red;<span class="t">"</span><span class="t">&gt;</span></div></div>
+    <div class="r"><h4>Right: opening tag only</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span>color: red;<span class="t">"</span><span class="t">&gt;</span>text<span class="t">&lt;/p&gt;</span></div></div>
+  </div>
+  <p class="lede">The Web Editor's <b>Problems to fix</b> list catches most of these and tells you the line number.</p>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">09</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Plain-English meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>Attribute</b></td><td>Extra instructions inside an opening tag</td></tr>
+      <tr><td><b>Style attribute</b></td><td>The attribute that changes how an element looks</td></tr>
+      <tr><td><b>Inline styling</b></td><td>Writing CSS right inside an HTML tag with the style attribute</td></tr>
+      <tr><td><b>CSS</b></td><td>Cascading Style Sheets: the language that controls how a page looks</td></tr>
+      <tr><td><b>Property</b></td><td>The feature you want to change, like <code>color</code> or <code>font-size</code></td></tr>
+      <tr><td><b>Value</b></td><td>The setting you give a property, like <code>tomato</code> or <code>24px</code></td></tr>
+      <tr><td><b>Pixel (px)</b></td><td>The unit for size on a screen: one tiny dot</td></tr>
+      <tr><td><b>color</b></td><td>The property for the <b>font color</b> (the text)</td></tr>
+      <tr><td><b>border</b></td><td>A line around an element. Three parts in order: thickness, style, color, like <code>2px solid black</code></td></tr>
+      <tr><td><b>background-color</b></td><td>The property for the <b>background color</b> (behind the text, or the whole page when used on <code>&lt;body&gt;</code>)</td></tr>
+      <tr><td><b>Visual hierarchy</b></td><td>Using size and color so the most important text stands out</td></tr>
+    </tbody></table></div></div>
+  <a class="tryit" href="6-2-creation-tags-inline-styling.html#assignments">Next: build your poster &rarr;</a>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>Same tags. New look.</h2><p>Ready to design? Head back to 6.2 for the assignment.</p><a class="back" href="6-2-creation-tags-inline-styling.html">&larr; Back to 6.2</a><a class="back" href="index.html">Unit 6</a><p class="sig">Unit 6 Notes / Lesson 6.2 / end of file</p></div></footer>
+
+<script src="html-check.js"></script>
+<script src="../unit-4/notes.js"></script>
+<script>
+(function () {
+  var START = '<html>\n  <body>\n    <h1>My Cool Page</h1>\n    <p>Style me!</p>\n  </body>\n</html>';
+  var ta = document.getElementById("labcode"), pv = document.getElementById("labprev"), done = {}, broke = false, t;
+  function mark(n) { if (done[n]) return; done[n] = 1; document.getElementById("s" + n).classList.add("done"); var c = Object.keys(done).length; document.getElementById("prog").textContent = c + " OF 6 STEPS DONE" + (c === 6 ? "  ·  NICE WORK" : ""); }
+  function run() {
+    pv.srcdoc = HTMLCheck.previewDoc(ta.value, "");
+    var c = HTMLCheck.analyze(ta.value), d = c.inline;
+    var bad = c.errors.some(function (e) { return /On </.test(e.msg); }) || c.warnings.some(function (w) { return /double quotes/.test(w.msg); });
+    function per(el) { return d.filter(function (x) { return x.el === el; }).length; }
+    var h1 = c.all("h1")[0], p = c.all("p")[0];
+    if (d.some(function (x) { return x.prop === "color"; })) mark(1);
+    if (h1 && d.some(function (x) { return x.el === h1 && x.prop === "font-size" && /px$/.test(x.value); }) && d.some(function (x) { return x.el === h1 && x.prop === "color"; })) mark(2);
+    if (p && per(p) >= 2) mark(3);
+    if (bad) { broke = true; mark(4); }
+    if (broke && !bad && c.all("h1").concat(c.all("p")).some(function (el) { return per(el) >= 2; })) mark(5);
+    if (h1 && d.some(function (x) { return x.el === h1 && x.prop === "text-align"; }) && d.some(function (x) { return x.el === h1 && x.prop === "text-transform"; })) mark(6);
+  }
+  ta.value = START; run();
+  ta.addEventListener("input", function () { clearTimeout(t); t = setTimeout(run, 250); });
+  ta.addEventListener("keydown", function (e) { if (e.key === "Tab") { e.preventDefault(); ta.setRangeText("  ", ta.selectionStart, ta.selectionEnd, "end"); } });
+  document.getElementById("rst").onclick = function () { ta.value = START; broke = false; run(); };
+})();
+</script>
+<script>
+(function(){
+  var f=document.getElementById("bgFont"),b=document.getElementById("bgBack"),o=document.getElementById("bgSample"),c=document.getElementById("bgCode"),w=document.getElementById("bgWarn");
+  function up(){
+    o.style.color=f.value;o.style.backgroundColor=b.value;
+    c.innerHTML='<span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">color</span>: <span class="vl">'+f.value+'</span>; <span class="pt">background-color</span>: <span class="vl">'+b.value+'</span>;<span class="t">"</span><span class="t">&gt;</span>';
+    w.textContent=f.value===b.value?"Same color for both. The text has disappeared!":"";
+    if((f.value==="navy"&&b.value==="blue")||(f.value==="black"&&b.value==="black")) w.textContent="Very hard to read. Pick colors that stand apart.";
+  }
+  f.onchange=up;b.onchange=up;up();
+})();
+</script>
+<script>
+(function(){
+  var w=document.getElementById("bdW"),s=document.getElementById("bdS"),c=document.getElementById("bdC"),o=document.getElementById("bdSample"),k=document.getElementById("bdCode");
+  function up(){
+    var v=w.value+" "+s.value+" "+c.value;
+    o.style.border=v;
+    k.innerHTML='<span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">border</span>: <span class="vl">'+v+'</span>;<span class="t">"</span><span class="t">&gt;</span>';
+  }
+  w.onchange=up;s.onchange=up;c.onchange=up;up();
+})();
+</script>
+</body></html>

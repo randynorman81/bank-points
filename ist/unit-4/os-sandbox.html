@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OS Sandbox: Windows, macOS &amp; Linux | Unit 4</title>
+<link rel="icon" href="../../assets/logo.png">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0f1218;color:#e8ebf2;font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:#a5b4fc}
+.top{max-width:1240px;margin:0 auto;padding:16px 20px 0}
+.top nav a{margin-right:14px;font-size:14px}
+h1{margin:10px 0 4px;font-size:28px}
+.sub{color:#9aa3b5;margin:0 0 14px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.tabs button{background:#1a2030;color:#e8ebf2;border:1px solid #2b3550;border-radius:8px;padding:9px 18px;font:inherit;font-weight:600;cursor:pointer}
+.tabs button.on{background:#4f46e5;border-color:#6366f1}
+.stage{max-width:1240px;margin:0 auto;padding:0 20px 30px;display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:18px;align-items:start}
+@media(max-width:980px){.stage{grid-template-columns:1fr}}
+.side{background:#161b28;border:1px solid #2b3550;border-radius:10px;padding:14px 16px}
+.side h3{margin:0 0 4px;font-size:16px}
+.side .prog{color:#9aa3b5;font-size:13px;margin-bottom:8px}
+.bar{height:6px;background:#252d44;border-radius:3px;overflow:hidden;margin-bottom:10px}
+.bar i{display:block;height:100%;background:#22c55e;width:0;transition:width .3s}
+.mis{list-style:none;margin:0;padding:0}
+.mis li{display:flex;gap:9px;padding:7px 0;border-top:1px solid #222a40;font-size:14px}
+.mis li .ck{flex:0 0 20px;height:20px;border:2px solid #4b5675;border-radius:50%;display:grid;place-items:center;font-size:12px;color:transparent;margin-top:1px}
+.mis li.done{color:#7ee2a0}
+.mis li.done .ck{background:#22c55e;border-color:#22c55e;color:#04210f}
+.mis small{display:block;color:#8892a8;font-size:12.5px}
+.side button.reset{margin-top:10px;background:#252d44;color:#e8ebf2;border:1px solid #3a4568;border-radius:6px;padding:6px 12px;cursor:pointer;font:inherit;font-size:13px}
+.who{width:100%;padding:7px 10px;margin:0 0 10px;border-radius:6px;border:1px solid #3a4568;background:#0f1218;color:#e8ebf2;font:inherit}
+.chips{display:flex;gap:6px;margin-bottom:10px}
+.chips span{flex:1;text-align:center;font-size:12px;padding:4px 0;border-radius:6px;background:#252d44;color:#8892a8}
+.chips span.ok{background:#12351f;color:#7ee2a0}
+.final{display:none;margin-top:12px;border:2px solid #22c55e;background:#0d2b18;border-radius:10px;padding:12px;text-align:center}
+.final b{display:block;font-size:17px;color:#7ee2a0}
+.final .nm{font-size:20px;margin:6px 0;color:#fff;font-weight:700}
+.final small{color:#9adbb2}
+.win-msg{display:none;margin-top:10px;background:#12351f;border:1px solid #22c55e;color:#b6f5cd;padding:8px 10px;border-radius:6px;font-size:14px}
+
+/* ---------- monitor ---------- */
+.monitor{position:relative;height:620px;border:10px solid #05070b;border-radius:14px;overflow:hidden;background:#000;box-shadow:0 12px 40px #0008;user-select:none}
+.desk{position:absolute;inset:0;display:none;overflow:hidden;font-size:13px}
+.desk.on{display:block}
+.wall{position:absolute;inset:0;background-size:cover}
+.layer{position:absolute}
+.icons{display:flex;flex-direction:column;flex-wrap:wrap;align-content:flex-start;gap:6px;padding:10px;overflow:hidden}
+.icon{width:84px;text-align:center;padding:6px 2px;border-radius:6px;cursor:default;color:#fff;text-shadow:0 1px 3px #000c}
+.icon .g{font-size:34px;line-height:1.1}
+.icon .n{font-size:12px;word-break:break-word;line-height:1.2;max-height:2.4em;overflow:hidden}
+.icon:hover{background:#ffffff26}
+.icon.sel{background:#3b82f68c}
+.wins{position:absolute;overflow:hidden;pointer-events:none}
+.w{position:absolute;pointer-events:auto;display:flex;flex-direction:column;background:var(--wbg);color:var(--wfg);border-radius:var(--rad);box-shadow:0 8px 30px #0006,0 0 0 1px #0003;min-width:260px;min-height:160px;resize:both;overflow:hidden}
+.w.max{inset:0!important;width:auto!important;height:auto!important;border-radius:0;resize:none}
+.w.min{display:none}
+.w:not(.focus){box-shadow:0 4px 14px #0004,0 0 0 1px #0003;opacity:.97}
+.tb{display:flex;align-items:center;gap:8px;height:34px;padding:0 6px 0 10px;background:var(--tbg);color:var(--tfg);flex:0 0 auto;cursor:default}
+.tb .t{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-weight:500}
+.ctl{display:flex}
+.ctl button{border:0;background:transparent;color:inherit;width:40px;height:34px;font-size:14px;cursor:pointer}
+.ctl button:hover{background:#7773}
+.ctl button.x:hover{background:#e81123;color:#fff}
+.wb{flex:1;overflow:auto;position:relative;min-height:0}
+.menu{position:absolute;z-index:9999;background:var(--wbg);color:var(--wfg);border:1px solid #0004;border-radius:8px;box-shadow:0 6px 24px #0007;padding:4px;min-width:170px;font-size:13px}
+.menu div{padding:6px 12px;border-radius:5px;cursor:default;white-space:nowrap}
+.menu div:hover{background:#3b82f6;color:#fff}
+.menu hr{border:0;border-top:1px solid #7774;margin:4px 2px}
+.toast{position:absolute;left:50%;bottom:64px;transform:translateX(-50%);background:#111c;color:#fff;padding:8px 16px;border-radius:20px;z-index:99999;font-size:13px;backdrop-filter:blur(6px)}
+.modal{position:absolute;inset:0;background:#0007;z-index:9998;display:grid;place-items:center}
+.modal .box{background:var(--wbg);color:var(--wfg);padding:16px;border-radius:10px;width:300px;box-shadow:0 8px 30px #0008}
+.modal input{width:100%;padding:7px;margin:8px 0 10px;border:1px solid #7776;border-radius:6px;background:transparent;color:inherit;font:inherit}
+.modal .row{display:flex;justify-content:flex-end;gap:8px}
+.btn{background:#4f46e5;color:#fff;border:0;border-radius:6px;padding:6px 14px;cursor:pointer;font:inherit}
+.btn.g{background:#7774;color:inherit}
+
+/* per-OS variables */
+.os-win{--wbg:#f3f3f3;--wfg:#1b1b1b;--tbg:#e9edf5;--tfg:#111;--rad:8px;--sel:#cce4ff;--side:#ececec;font-family:"Segoe UI",system-ui,sans-serif}
+.os-mac{--wbg:#f6f6f6;--wfg:#222;--tbg:#e6e6e8;--tfg:#333;--rad:11px;--sel:#b7d3ff;--side:#e9e9ec;font-family:-apple-system,"SF Pro Text",system-ui,sans-serif}
+.os-lin{--wbg:#fafafa;--wfg:#2e3436;--tbg:#ebebeb;--tfg:#2e3436;--rad:10px 10px 4px 4px;--sel:#c9dcf7;--side:#f0f0f0;font-family:Ubuntu,Cantarell,system-ui,sans-serif}
+.dark{--wbg:#272727;--wfg:#eee;--tbg:#1e1e1e;--tfg:#eee;--sel:#3d4f73;--side:#202020}
+.os-mac .tb{flex-direction:row-reverse;padding:0 10px}
+.os-mac .tb .t{text-align:center;font-weight:600}
+.os-mac .ctl{order:-1;gap:8px;margin-right:6px}
+.os-mac .ctl button{width:13px;height:13px;border-radius:50%;font-size:0;padding:0}
+.os-mac .ctl .x{background:#ff5f57;order:1}.os-mac .ctl .n{background:#febc2e;order:2}.os-mac .ctl .m{background:#28c840;order:3}
+.os-mac .ctl button:hover{filter:brightness(1.15);background:inherit}
+.os-mac .ctl .x:hover{background:#ff5f57}
+.os-mac .tb{position:relative}
+.os-mac .tb .t{position:absolute;left:70px;right:70px;top:0;line-height:34px}
+.os-lin .ctl button{width:26px;height:26px;border-radius:50%;margin:4px 2px;font-size:12px;background:#0001}
+.os-lin .ctl .x{background:#e95420;color:#fff}
+
+/* ---------- Windows shell ---------- */
+.os-win .wall{background-image:radial-gradient(ellipse at 30% 70%,#1e88e5 0,transparent 55%),radial-gradient(ellipse at 75% 30%,#7c4dff 0,transparent 50%),linear-gradient(135deg,#0d2a5c,#0a1633)}
+.os-win .icons{left:0;top:0;bottom:48px;right:0}
+.os-win .wins{left:0;top:0;right:0;bottom:48px}
+.tskbar{position:absolute;left:0;right:0;bottom:0;height:48px;background:#e9eef7ee;backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;gap:4px;border-top:1px solid #0002;z-index:5000}
+.tskbar .tb-b{width:42px;height:40px;border-radius:6px;display:grid;place-items:center;font-size:22px;cursor:default;position:relative;border:0;background:transparent}
+.tskbar .tb-b:hover{background:#0001}
+.tskbar .tb-b.run::after{content:"";position:absolute;bottom:2px;left:50%;width:8px;height:3px;margin-left:-4px;border-radius:2px;background:#888}
+.tskbar .tb-b.act::after{width:16px;margin-left:-8px;background:#0067c0}
+.tskbar .tray{position:absolute;right:10px;top:0;height:48px;display:flex;align-items:center;text-align:right;font-size:12px;line-height:1.25;color:#111;gap:10px}
+.tskbar .searchbox{background:#fff;border:1px solid #0002;border-radius:16px;padding:4px 12px;font-size:12px;color:#666;width:150px;margin-right:4px}
+.startmenu{position:absolute;left:50%;bottom:56px;transform:translateX(-50%);width:430px;background:#eef1f8f2;backdrop-filter:blur(20px);border:1px solid #0002;border-radius:10px;box-shadow:0 10px 40px #0007;padding:16px;z-index:6000;color:#111}
+.startmenu input{width:100%;padding:8px 12px;border-radius:18px;border:1px solid #0003;font:inherit;margin-bottom:12px}
+.startmenu h4{margin:6px 4px 8px;font-size:13px}
+.appgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.appgrid .app{padding:10px 4px;text-align:center;border-radius:8px;cursor:default;font-size:12px}
+.appgrid .app:hover{background:#0001}
+.appgrid .app .g{font-size:30px}
+
+/* ---------- macOS shell ---------- */
+.os-mac .wall{background-image:radial-gradient(ellipse at 20% 20%,#ff9a8b 0,transparent 50%),radial-gradient(ellipse at 80% 70%,#5b6cff 0,transparent 55%),linear-gradient(135deg,#a855f7,#3b82f6)}
+.os-mac .icons{right:0;top:26px;bottom:0;left:0;align-content:flex-end;flex-direction:column;flex-wrap:wrap-reverse}
+.os-mac .wins{left:0;right:0;top:26px;bottom:0}
+.menubar{position:absolute;left:0;right:0;top:0;height:26px;background:#ffffff59;backdrop-filter:blur(18px);display:flex;align-items:center;padding:0 10px;font-size:13px;color:#000;gap:16px;z-index:5000}
+.menubar .ap{cursor:default;font-size:15px}
+.menubar b{font-weight:700}
+.menubar .m{opacity:.85}
+.menubar .r{margin-left:auto}
+.dock{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);display:flex;gap:6px;padding:6px 10px;background:#ffffff40;backdrop-filter:blur(18px);border:1px solid #fff5;border-radius:18px;z-index:5000}
+.dock .d{width:48px;height:48px;font-size:32px;display:grid;place-items:center;position:relative;border-radius:10px;cursor:default;transition:transform .12s}
+.dock .d:hover{transform:translateY(-8px) scale(1.25)}
+.dock .d.run::after{content:"";position:absolute;bottom:-4px;width:4px;height:4px;border-radius:50%;background:#000a}
+.launchpad{position:absolute;inset:0;background:#0009;backdrop-filter:blur(30px);z-index:6000;display:grid;place-items:center;color:#fff}
+.launchpad .appgrid{grid-template-columns:repeat(4,110px);gap:24px}
+.launchpad .appgrid .app:hover{background:#fff2}
+.launchpad .appgrid .app .g{font-size:52px}
+.launchpad .appgrid .app{font-size:13px}
+
+/* ---------- Linux shell ---------- */
+.os-lin .wall{background-image:radial-gradient(ellipse at 25% 25%,#f4732f 0,transparent 55%),radial-gradient(ellipse at 80% 80%,#77216f 0,transparent 60%),linear-gradient(135deg,#5e2750,#2c001e)}
+.os-lin .icons{left:60px;top:28px;bottom:0;right:0}
+.os-lin .wins{left:56px;top:28px;right:0;bottom:0}
+.gbar{position:absolute;left:0;right:0;top:0;height:28px;background:#000;color:#fff;display:flex;align-items:center;padding:0 10px;font-size:13px;z-index:5000}
+.gbar .act{font-weight:600;cursor:default;padding:2px 10px;border-radius:12px}
+.gbar .act:hover{background:#fff2}
+.gbar .c{position:absolute;left:50%;transform:translateX(-50%)}
+.gbar .r{margin-left:auto;cursor:default;padding:2px 10px;border-radius:12px}
+.gbar .r:hover{background:#fff2}
+.ldock{position:absolute;left:0;top:28px;bottom:0;width:56px;background:#000000b8;display:flex;flex-direction:column;align-items:center;padding:6px 0;gap:4px;z-index:4000}
+.ldock .d{width:44px;height:44px;font-size:26px;display:grid;place-items:center;border-radius:8px;cursor:default;position:relative}
+.ldock .d:hover{background:#fff2}
+.ldock .d.run::before{content:"";position:absolute;left:-6px;top:19px;width:4px;height:4px;border-radius:50%;background:#e95420}
+.ldock .sp{flex:1}
+.overview{position:absolute;left:0;right:0;top:28px;bottom:0;background:#150912ee;z-index:6000;padding:20px 60px;color:#fff;display:flex;flex-direction:column;align-items:center}
+.overview input{width:320px;padding:8px 14px;border-radius:20px;border:1px solid #fff4;background:#fff2;color:#fff;font:inherit;margin-bottom:22px}
+.overview .appgrid{grid-template-columns:repeat(4,120px);gap:16px}
+.overview .appgrid .app:hover{background:#fff2}
+.overview .appgrid .app .g{font-size:46px}
+
+/* ---------- app content ---------- */
+.fm{display:flex;flex-direction:column;height:100%}
+.fm-bar{display:flex;gap:6px;align-items:center;padding:6px 8px;border-bottom:1px solid #7774;flex:0 0 auto}
+.fm-bar button{background:#7772;border:0;border-radius:5px;padding:3px 9px;cursor:pointer;color:inherit;font:inherit}
+.fm-bar .crumbs{flex:1;background:#7771;border:1px solid #7773;border-radius:5px;padding:3px 8px;overflow:hidden;white-space:nowrap}
+.crumbs span{cursor:pointer}.crumbs span:hover{text-decoration:underline}
+.fm-main{display:flex;flex:1;min-height:0}
+.fm-side{flex:0 0 140px;background:var(--side);padding:8px 4px;overflow:auto;border-right:1px solid #7773}
+.fm-side h5{margin:4px 8px 4px;font-size:11px;text-transform:uppercase;opacity:.6}
+.fm-side div.p{padding:5px 10px;border-radius:5px;cursor:default}
+.fm-side div.p:hover{background:#7772}.fm-side div.p.on{background:var(--sel)}
+.fm-grid{flex:1;padding:8px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:4px;overflow:auto}
+.fi{width:88px;text-align:center;padding:6px 3px;border-radius:6px;cursor:default;height:88px}
+.fi .g{font-size:34px;line-height:1.15}
+.fi .n{font-size:12px;line-height:1.2;word-break:break-word;max-height:2.4em;overflow:hidden}
+.fi:hover{background:#7772}.fi.sel{background:var(--sel)}
+.fm-empty{opacity:.55;padding:20px}
+.fm-status{padding:3px 10px;font-size:12px;opacity:.7;border-top:1px solid #7773;flex:0 0 auto}
+.notes{display:flex;flex-direction:column;height:100%}
+.notes .tools{padding:5px 8px;border-bottom:1px solid #7773;display:flex;gap:8px;align-items:center}
+.notes textarea{flex:1;border:0;outline:0;resize:none;padding:10px;background:transparent;color:inherit;font:14px/1.5 "Cascadia Mono",Menlo,Consolas,monospace}
+.calc{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px;height:100%;align-content:start}
+.calc .scr{grid-column:1/-1;background:#7772;border-radius:6px;padding:12px 10px;text-align:right;font-size:26px;min-height:56px;overflow:hidden}
+.calc button{padding:12px 0;border:0;border-radius:6px;background:#7773;color:inherit;font:inherit;font-size:16px;cursor:pointer}
+.calc button:hover{background:#7775}.calc button.op{background:#4f46e5;color:#fff}
+.term{height:100%;background:#0c0c0c;color:#ddd;font:13px/1.35 "Cascadia Mono",Menlo,Consolas,monospace;padding:8px;overflow:auto;white-space:pre-wrap;word-break:break-all}
+.os-lin .term{background:#300a24;color:#eee}
+.os-mac .term{background:#fff;color:#222}
+.term .ln{display:flex}.term input{flex:1;background:transparent;border:0;outline:0;color:inherit;font:inherit;min-width:0}
+.term .d{color:#5aa9ff}.os-mac .term .d{color:#0a5fd0}
+.set{display:flex;height:100%}
+.set .nav{flex:0 0 150px;background:var(--side);padding:8px 4px;border-right:1px solid #7773}
+.set .nav div{padding:8px 12px;border-radius:6px;cursor:default}
+.set .nav div:hover{background:#7772}.set .nav div.on{background:var(--sel)}
+.set .pane{flex:1;padding:14px 18px;overflow:auto}
+.set h3{margin:0 0 10px}
+.walls{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
+.walls .wp{height:70px;border-radius:8px;cursor:pointer;border:3px solid transparent;display:flex;align-items:flex-end;padding:3px 6px;color:#fff;font-size:11px;text-shadow:0 1px 2px #000}
+.walls .wp.on{border-color:#3b82f6}
+.kv{display:grid;grid-template-columns:130px 1fr;gap:6px 10px;font-size:13px}.kv b{opacity:.7;font-weight:600}
+.brow{display:flex;flex-direction:column;height:100%}
+.brow .ab{display:flex;gap:6px;padding:6px 8px;border-bottom:1px solid #7773}
+.brow input{flex:1;padding:5px 12px;border-radius:14px;border:1px solid #7774;background:transparent;color:inherit;font:inherit}
+.brow .pg{flex:1;padding:24px;overflow:auto;text-align:center}
+.img{height:100%;display:grid;place-items:center;font-size:18px;color:#fff;text-shadow:0 1px 4px #000}
+
+/* compare */
+.cmp{max-width:1240px;margin:0 auto;padding:0 20px 40px}
+.cmp h2{margin:0 0 8px}
+.cmp table{width:100%;border-collapse:collapse;font-size:14px;background:#161b28;border-radius:10px;overflow:hidden}
+.cmp th,.cmp td{padding:9px 12px;border-bottom:1px solid #222a40;text-align:left;vertical-align:top}
+.cmp th{background:#1d2438}
+.cmp .tw{overflow-x:auto}
+</style>
+</head>
+<body>
+<div class="top">
+  <nav><a href="4-2-windows-macos-linux.html">&larr; Back to 4.2</a><a href="os-compare-notes.html">Notes</a><a href="index.html">Unit 4</a></nav>
+  <h1>OS Sandbox</h1>
+  <p class="sub">Three real-feeling computers, no install needed. Click around, break nothing. Finish the missions on each one and notice what is the same and what is different.</p>
+  <div class="tabs" id="tabs"></div>
+</div>
+
+<div class="stage">
+  <div class="monitor" id="monitor"></div>
+  <aside class="side">
+    <input class="who" id="who" placeholder="Type your name here" maxlength="40"><div class="chips" id="chips"></div>
+    <h3 id="mtitle">Missions</h3>
+    <div class="prog" id="mprog"></div>
+    <div class="bar"><i id="mbar"></i></div>
+    <ul class="mis" id="mlist"></ul>
+    <div class="win-msg" id="mwin">All missions complete! Now try the other two computers.</div>
+    <div class="final" id="final"><b>✅ ALL 3 COMPUTERS COMPLETE</b><div class="nm" id="fname"></div><small id="ftime"></small></div>
+    <button class="reset" id="reset">Reset this computer</button>
+  </aside>
+</div>
+
+<section class="cmp">
+  <h2>Same jobs, different look</h2>
+  <div class="tw"><table>
+    <thead><tr><th></th><th>Windows</th><th>macOS</th><th>Linux (Ubuntu-style)</th></tr></thead>
+    <tbody>
+      <tr><th>Launch apps</th><td>Start button (center of taskbar)</td><td>Dock + Launchpad</td><td>Left dock + Activities / Show Applications</td></tr>
+      <tr><th>Window buttons</th><td>Top right: &minus; &#9633; &times;</td><td>Top left: red, yellow, green dots</td><td>Top right circles</td></tr>
+      <tr><th>File manager</th><td>File Explorer</td><td>Finder</td><td>Files</td></tr>
+      <tr><th>File path looks like</th><td><code>C:\Users\Student\Documents</code></td><td><code>/Users/student/Documents</code></td><td><code>/home/student/Documents</code></td></tr>
+      <tr><th>Deleted files go to</th><td>Recycle Bin</td><td>Trash</td><td>Trash</td></tr>
+      <tr><th>Command line</th><td>Command Prompt: <code>dir</code>, <code>cd</code>, <code>type</code></td><td>Terminal (zsh): <code>ls</code>, <code>cd</code>, <code>cat</code></td><td>Terminal (bash): <code>ls</code>, <code>cd</code>, <code>cat</code></td></tr>
+      <tr><th>Wallpaper lives in</th><td>Settings &rarr; Personalization</td><td>System Settings &rarr; Wallpaper</td><td>Settings &rarr; Background</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<script>
+/* ============ helpers ============ */
+const Store={get(k,d){try{const v=localStorage.getItem('ossb_'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('ossb_'+k,JSON.stringify(v))}catch(e){}}};
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const D=ch=>({type:'dir',children:ch||{}});
+const F=c=>({type:'file',content:c||''});
+const clone=n=>JSON.parse(JSON.stringify(n));
+function home(){return D({
+  Desktop:D({'Class Notes.txt':F('Operating systems manage hardware, run programs, store files,\nand keep everything secure.\n\nTry editing this and pressing Save.')}),
+  Documents:D({'Homework.txt':F('4.1 Under the Hood\n- Processes\n- Memory\n- Files\n- Devices\n- User interface\n- Security'),
+    'Recipes':D({'Cookies.txt':F('2 cups flour\n1 cup sugar\n1 cup chocolate chips')})}),
+  Downloads:D({'installer.exe':F('[binary data]'),'syllabus.pdf':F('[pdf]')}),
+  Pictures:D({'vacation.png':F('img'),'my-cat.png':F('img'),'screenshot.png':F('img')}),
+  Music:D({'song.mp3':F('[audio]')})});}
+const WALLS=[
+ {n:'Sunrise',c:'linear-gradient(135deg,#f6d365,#fda085)'},
+ {n:'Ocean',c:'linear-gradient(135deg,#0f2027,#2c5364 50%,#4ca1af)'},
+ {n:'Forest',c:'linear-gradient(135deg,#134e5e,#71b280)'},
+ {n:'Grape',c:'linear-gradient(135deg,#41295a,#a855f7)'},
+ {n:'Candy',c:'linear-gradient(135deg,#ff9a9e,#fad0c4 50%,#a1c4fd)'},
+ {n:'Midnight',c:'linear-gradient(135deg,#0f0c29,#302b63 60%,#24243e)'}];
+
+const APPS=['files','notes','term','browser','calc','settings','trash'];
+const ICON={files:'📁',notes:'📝',term:'⌨️',browser:'🌐',calc:'🧮',settings:'⚙️',trash:'🗑️'};
+
+const CFG={
+ win:{id:'win',label:'Windows',ver:'Windows 11',names:{files:'File Explorer',notes:'Notepad',term:'Command Prompt',browser:'Microsoft Edge',calc:'Calculator',settings:'Settings',trash:'Recycle Bin'},
+  home:['C:','Users','Student'],ci:true,rootLabel:'This PC',places:'Quick access',delLabel:'Delete',
+  mkfs:()=>D({'C:':D({Users:D({Student:home()}),'Program Files':D({}),Windows:D({System32:D({})})})}),
+  clock:d=>d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})+'<br>'+d.toLocaleDateString(),
+  missions:[
+   ['launcher','Open the Start menu','Click the Windows button in the middle of the taskbar.'],
+   ['files','Open File Explorer','Click the folder on the taskbar, or open it from Start.'],
+   ['openfile','Open Homework.txt','It is inside Documents in your user folder.'],
+   ['mkdir','Make a new folder','Right-click empty space in File Explorer, or on the desktop.'],
+   ['trash','Delete a file','Right-click a file &rarr; Delete. It goes to the Recycle Bin.'],
+   ['wallpaper','Change the wallpaper','Right-click the desktop &rarr; Personalize, or open Settings.'],
+   ['ls','List files in Command Prompt','Open Command Prompt and type <b>dir</b>.'],
+   ['about','Find the &quot;About&quot; page','Settings &rarr; About shows your system info.']]},
+ mac:{id:'mac',label:'macOS',ver:'macOS Sequoia',names:{files:'Finder',notes:'TextEdit',term:'Terminal',browser:'Safari',calc:'Calculator',settings:'System Settings',trash:'Trash'},
+  home:['Users','student'],ci:false,rootLabel:'Macintosh HD',places:'Favorites',delLabel:'Move to Trash',
+  mkfs:()=>D({Applications:D({}),System:D({}),Users:D({student:home()})}),
+  clock:d=>d.toLocaleDateString([], {weekday:'short',month:'short',day:'numeric'})+'&nbsp;&nbsp;'+d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}),
+  missions:[
+   ['launcher','Open Launchpad','Click the app-grid icon in the Dock.'],
+   ['files','Open Finder','Click the first icon in the Dock.'],
+   ['openfile','Open Homework.txt','It is inside Documents in your home folder.'],
+   ['mkdir','Make a new folder','Right-click empty space in Finder or on the desktop &rarr; New Folder.'],
+   ['trash','Move a file to the Trash','Right-click a file &rarr; Move to Trash.'],
+   ['wallpaper','Change the wallpaper','Right-click the desktop &rarr; Change Desktop Background.'],
+   ['ls','List files in Terminal','Open Terminal and type <b>ls</b>.'],
+   ['about','Open &quot;About This Mac&quot;','Click the apple in the top-left corner.']]},
+ lin:{id:'lin',label:'Linux',ver:'Ubuntu 24.04 LTS',names:{files:'Files',notes:'Text Editor',term:'Terminal',browser:'Firefox',calc:'Calculator',settings:'Settings',trash:'Trash'},
+  home:['home','student'],ci:false,rootLabel:'Computer',places:'Places',delLabel:'Move to Trash',
+  mkfs:()=>D({bin:D({}),etc:D({}),usr:D({}),var:D({}),home:D({student:home()})}),
+  clock:d=>d.toLocaleDateString([], {month:'short',day:'numeric'})+'&nbsp;&nbsp;'+d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',hour12:false}),
+  missions:[
+   ['launcher','Open Activities / Show Applications','Click Activities (top-left) or the grid at the bottom of the dock.'],
+   ['files','Open Files','Click the folder in the left dock.'],
+   ['openfile','Open Homework.txt','It is inside Documents in your home folder.'],
+   ['mkdir','Make a new folder','Right-click empty space in Files or on the desktop.'],
+   ['trash','Move a file to the Trash','Right-click a file &rarr; Move to Trash.'],
+   ['wallpaper','Change the background','Right-click the desktop &rarr; Change Background.'],
+   ['ls','List files in Terminal','Open Terminal and type <b>ls</b>.'],
+   ['about','Find the &quot;About&quot; page','Settings &rarr; About.']]}
+};
+
+/* ============ Desktop engine ============ */
+class Desk{
+ constructor(cfg,mount){
+  this.cfg=cfg;this.fs=cfg.mkfs();this.trash=[];this.wins=[];this.z=10;this.done=new Set(Store.get('done_'+cfg.id,[]));this.dark=false;this.wallIdx=null;this.focused=null;
+  this.root=el('div','desk os-'+(cfg.id==='lin'?'lin':cfg.id));mount.appendChild(this.root);
+  this.build();
+ }
+ /* ---- filesystem ---- */
+ child(dir,name){const k=Object.keys(dir.children);if(dir.children[name])return name;if(this.cfg.ci){const l=name.toLowerCase();return k.find(x=>x.toLowerCase()===l)||null}return null}
+ walk(parts){let n=this.fs,out=[];for(const p of parts){if(n.type!=='dir')return null;const k=this.child(n,p);if(!k)return null;out.push(k);n=n.children[k]}return {path:out,node:n}}
+ nodeAt(path){const r=this.walk(path);return r?r.node:null}
+ uniq(dir,name){if(!dir.children[name])return name;const m=name.match(/^(.*?)(\.[^.]*)?$/);let i=2,b=m[1],e=m[2]||'';while(dir.children[b+' '+i+e])i++;return b+' '+i+e}
+ pathStr(p){return this.cfg.id==='win'?(p.length?p.join('\\'):'This PC'):'/'+p.join('/')}
+ /* ---- missions ---- */
+ emit(ev){if(this.cfg.missions.some(m=>m[0]===ev)&&!this.done.has(ev)){this.done.add(ev);Store.set('done_'+this.cfg.id,[...this.done]);if(!Store.get('t_'+this.cfg.id,0)&&this.cfg.missions.every(m=>this.done.has(m[0])))Store.set('t_'+this.cfg.id,Date.now());App.renderMissions()}}
+ /* ---- ui bits ---- */
+ toast(t){const x=el('div','toast',esc(t));this.root.appendChild(x);setTimeout(()=>x.remove(),2400)}
+ ask(title,def,cb){const m=el('div','modal'),b=el('div','box');b.innerHTML='<b>'+esc(title)+'</b><input><div class="row"><button class="btn g">Cancel</button><button class="btn">OK</button></div>';
+  const i=b.querySelector('input');i.value=def||'';m.appendChild(b);this.root.appendChild(m);i.focus();i.select();
+  const ok=()=>{const v=i.value.trim();m.remove();if(v)cb(v)};
+  b.querySelectorAll('button')[0].onclick=()=>m.remove();b.querySelectorAll('button')[1].onclick=ok;i.onkeydown=e=>{if(e.key==='Enter')ok();if(e.key==='Escape')m.remove()};m.onmousedown=e=>{if(e.target===m)m.remove()}}
+ menu(x,y,items){this.closeMenu();const m=el('div','menu');m.id='ctx';
+  items.forEach(it=>{if(it==='-'){m.appendChild(el('hr'));return}const d=el('div','',esc(it[0]));d.onclick=e=>{e.stopPropagation();this.closeMenu();it[1]()};m.appendChild(d)});
+  const r=this.root.getBoundingClientRect();this.root.appendChild(m);
+  m.style.left=Math.min(x-r.left,r.width-190)+'px';m.style.top=Math.min(y-r.top,r.height-30-items.length*28)+'px'}
+ closeMenu(){const m=this.root.querySelector('#ctx');if(m)m.remove()}
+ /* ---- wallpaper / theme ---- */
+ setWall(css){this.wall.style.backgroundImage=css;this.emit('wallpaper')}
+ /* ---- build shell ---- */
+ build(){
+  const c=this.cfg,r=this.root;
+  this.wall=el('div','wall');r.appendChild(this.wall);
+  this.icons=el('div','layer icons');r.appendChild(this.icons);
+  this.wl=el('div','wins');r.appendChild(this.wl);
+  const bg=[this.wall,this.icons];
+  this.icons.addEventListener('contextmenu',e=>{if(e.target!==this.icons)return;e.preventDefault();this.desktopMenu(e.clientX,e.clientY)});
+  this.wall.addEventListener('contextmenu',e=>{e.preventDefault();this.desktopMenu(e.clientX,e.clientY)});
+  r.addEventListener('mousedown',e=>{if(!e.target.closest('.menu'))this.closeMenu();if(e.target===this.wall||e.target===this.icons){this.closeLauncher();this.icons.querySelectorAll('.sel').forEach(x=>x.classList.remove('sel'))}});
+  if(c.id==='win')this.buildWin();else if(c.id==='mac')this.buildMac();else this.buildLin();
+  this.renderIcons();this.tick();this.renderBars();
+ }
+ tick(){const f=()=>{const t=this.root.querySelector('.clk');if(t)t.innerHTML=this.cfg.clock(new Date())};f();this.clockTimer=setInterval(f,10000)}
+ desktopMenu(x,y){
+  const c=this.cfg,p=this.cfg.home.concat('Desktop');
+  const nf=()=>this.newItem(p,'dir');const nt=()=>this.newItem(p,'file');
+  if(c.id==='win')this.menu(x,y,[['New folder',nf],['New text document',nt],'-',['Personalize',()=>this.openApp('settings')],['Refresh',()=>this.renderIcons()]]);
+  else if(c.id==='mac')this.menu(x,y,[['New Folder',nf],'-',['Change Desktop Background…',()=>this.openApp('settings')]]);
+  else this.menu(x,y,[['New Folder',nf],'-',['Open in Terminal',()=>this.openApp('term')],['Change Background…',()=>this.openApp('settings')]]);
+ }
+ renderIcons(){
+  const c=this.cfg;this.icons.innerHTML='';
+  const add=(g,n,open,ctx)=>{const i=el('div','icon','<div class="g">'+g+'</div><div class="n">'+esc(n)+'</div>');
+   i.onmousedown=()=>{this.icons.querySelectorAll('.sel').forEach(x=>x.classList.remove('sel'));i.classList.add('sel')};
+   i.ondblclick=open;if(ctx)i.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();i.onmousedown();this.menu(e.clientX,e.clientY,ctx)};this.icons.appendChild(i)};
+  if(c.id==='win'){add('🖥️','This PC',()=>this.openApp('files'));add('🗑️','Recycle Bin',()=>this.openApp('trash'))}
+  if(c.id==='lin'){add('🏠','Home',()=>this.openApp('files'));add('🗑️','Trash',()=>this.openApp('trash'))}
+  const dp=c.home.concat('Desktop'),d=this.nodeAt(dp);
+  if(d)Object.keys(d.children).sort().forEach(k=>{const n=d.children[k];
+    add(this.glyph(k,n),k,()=>this.openNode(dp,k),[['Open',()=>this.openNode(dp,k)],[c.delLabel,()=>this.trashItem(dp,k)]])});
+ }
+ glyph(name,n){if(n.type==='dir')return '📁';if(/\.txt$/i.test(name))return '📄';if(/\.(png|jpg)$/i.test(name))return '🖼️';if(/\.mp3$/i.test(name))return '🎵';return '📦'}
+ /* ---- launcher ---- */
+ closeLauncher(){const l=this.root.querySelector('.startmenu,.launchpad,.overview');if(l){l.remove();return true}return false}
+ launcher(kind){
+  if(this.closeLauncher())return;this.emit('launcher');
+  const c=this.cfg;const box=el('div',kind);
+  const grid=el('div','appgrid');
+  const fill=q=>{grid.innerHTML='';APPS.filter(a=>!q||c.names[a].toLowerCase().includes(q.toLowerCase())).forEach(a=>{
+    const t=el('div','app','<div class="g">'+ICON[a]+'</div>'+esc(c.names[a]));t.onclick=e=>{e.stopPropagation();this.closeLauncher();this.openApp(a)};grid.appendChild(t)})};
+  fill('');
+  if(kind==='startmenu'){box.innerHTML='<input placeholder="Search for apps, settings, and documents">';box.appendChild(el('h4','','Pinned'));box.appendChild(grid);
+    box.querySelector('input').oninput=e=>fill(e.target.value);box.onmousedown=e=>e.stopPropagation()}
+  else{if(kind==='overview'){box.innerHTML='<input placeholder="Type to search">';box.querySelector('input').oninput=e=>fill(e.target.value)}box.appendChild(grid);box.onmousedown=e=>{if(e.target===box)this.closeLauncher()}}
+  this.root.appendChild(box);const i=box.querySelector('input');if(i)i.focus();
+ }
+ /* ---- windows ---- */
+ makeWin(app,title,w,h,opts){
+  const c=this.cfg,win={app,id:Math.random(),title};
+  const e=el('div','w'+(this.dark?' dark':''));win.el=e;
+  const n=this.wins.length%6;e.style.cssText='left:'+(50+n*28)+'px;top:'+(24+n*26)+'px;width:'+w+'px;height:'+h+'px';
+  e.innerHTML='<div class="tb"><span class="t"></span><div class="ctl"><button class="n" title="Minimize">&#8212;</button><button class="m" title="Maximize">&#9633;</button><button class="x" title="Close">&#10005;</button></div></div><div class="wb"></div>';
+  win.body=e.querySelector('.wb');win.setTitle=t=>{win.title=t;e.querySelector('.t').textContent=t;this.renderBars()};win.setTitle(title);
+  const tb=e.querySelector('.tb');
+  e.addEventListener('mousedown',()=>this.focus(win));
+  e.querySelector('.n').onclick=()=>{e.classList.add('min');this.focus(null)};
+  e.querySelector('.m').onclick=()=>{e.classList.toggle('max')};
+  e.querySelector('.x').onclick=()=>this.closeWin(win);
+  tb.ondblclick=ev=>{if(!ev.target.closest('.ctl'))e.classList.toggle('max')};
+  tb.onmousedown=ev=>{if(ev.target.closest('.ctl')||e.classList.contains('max'))return;const sx=ev.clientX-e.offsetLeft,sy=ev.clientY-e.offsetTop;
+   const mv=m=>{const L=this.wl.clientWidth,H=this.wl.clientHeight;e.style.left=Math.max(-e.offsetWidth+80,Math.min(L-60,m.clientX-sx))+'px';e.style.top=Math.max(0,Math.min(H-34,m.clientY-sy))+'px'};
+   const up=()=>{document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up)};document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);ev.preventDefault()};
+  this.wl.appendChild(e);this.wins.push(win);this.focus(win);return win;
+ }
+ focus(win){this.wins.forEach(w=>w.el.classList.remove('focus'));this.focused=win;if(win){win.el.classList.remove('min');win.el.style.zIndex=++this.z;win.el.classList.add('focus')}this.renderBars()}
+ closeWin(win){win.el.remove();this.wins=this.wins.filter(w=>w!==win);if(this.focused===win)this.focused=this.wins[this.wins.length-1]||null;if(this.focused)this.focus(this.focused);this.renderBars()}
+ winsOf(app){return this.wins.filter(w=>w.app===app)}
+ dockClick(app){const ws=this.winsOf(app);if(!ws.length){this.openApp(app);return}const w=ws[ws.length-1];
+  if(this.cfg.id==='win'&&this.focused===w&&!w.el.classList.contains('min')){w.el.classList.add('min');this.focused=null;this.renderBars()}else this.focus(w)}
+ /* ---- bars ---- */
+ buildWin(){
+  const b=el('div','tskbar');this.bar=b;this.root.appendChild(b);
+ }
+ buildMac(){
+  const m=el('div','menubar');this.mbar=m;this.root.appendChild(m);
+  const d=el('div','dock');this.bar=d;this.root.appendChild(d);
+ }
+ buildLin(){
+  const g=el('div','gbar','<span class="act">Activities</span><span class="c clk"></span><span class="r">🔊 📶 🔋 ▾</span>');this.root.appendChild(g);
+  g.querySelector('.act').onclick=()=>this.launcher('overview');
+  g.querySelector('.r').onclick=e=>{const r=e.currentTarget.getBoundingClientRect();this.menu(r.left-60,r.bottom+4,[['Settings',()=>this.openApp('settings')],['Terminal',()=>this.openApp('term')],'-',['Power Off…',()=>this.toast('Nice try! The sandbox stays on.')]])};
+  this.bar=el('div','ldock');this.root.appendChild(this.bar);
+ }
+ renderBars(){
+  const c=this.cfg,b=this.bar;if(!b)return;b.innerHTML='';
+  const run=a=>this.winsOf(a).length>0;
+  if(c.id==='win'){
+    const mk=(g,cls,fn,t)=>{const x=el('button','tb-b '+(cls||''),g);x.title=t||'';x.onclick=fn;b.appendChild(x);return x};
+    mk('⊞','',()=>this.launcher('startmenu'),'Start');
+    b.appendChild(el('div','searchbox','🔍 Search'));
+    APPS.filter(a=>a!=='trash').forEach(a=>mk(ICON[a],(run(a)?'run ':'')+(this.focused&&this.focused.app===a&&!this.focused.el.classList.contains('min')?'act':''),()=>this.dockClick(a),c.names[a]));
+    b.appendChild(el('div','tray','<span>^ 🔊 📶</span><span class="clk"></span>'));
+  }else if(c.id==='mac'){
+    const lp=el('div','d','🚀');lp.title='Launchpad';lp.onclick=()=>this.launcher('launchpad');b.appendChild(lp);
+    APPS.forEach(a=>{const x=el('div','d'+(run(a)?' run':''),ICON[a]);x.title=c.names[a];x.onclick=()=>this.dockClick(a);b.appendChild(x)});
+    const m=this.mbar;const fa=this.focused?c.names[this.focused.app]:'Finder';
+    m.innerHTML='<span class="ap" title="Apple menu">🍎</span><b>'+esc(fa)+'</b><span class="m">File</span><span class="m">Edit</span><span class="m">View</span><span class="m">Window</span><span class="m">Help</span><span class="r clk"></span>';
+    m.querySelector('.ap').onclick=e=>{const r=e.currentTarget.getBoundingClientRect();this.menu(r.left,r.bottom+2,[['About This Mac',()=>this.openApp('settings',{pane:'about'})],'-',['System Settings…',()=>this.openApp('settings')],['Force Quit (close front window)',()=>{if(this.focused)this.closeWin(this.focused)}]])};
+  }else{
+    APPS.filter(a=>a!=='trash').forEach(a=>{const x=el('div','d'+(run(a)?' run':''),ICON[a]);x.title=c.names[a];x.onclick=()=>this.dockClick(a);b.appendChild(x)});
+    b.appendChild(el('div','sp'));const s=el('div','d','▦▦');s.style.fontSize='16px';s.title='Show Applications';s.onclick=()=>this.launcher('overview');b.appendChild(s);
+  }
+  const t=this.root.querySelector('.clk');if(t)t.innerHTML=c.clock(new Date());
+ }
+ /* ---- opening things ---- */
+ openApp(a,o){o=o||{};this.closeLauncher();
+  if(a==='files')return this.appFiles(o);
+  if(a==='trash')return this.appFiles({trash:true});
+  if(a==='notes')return this.appNotes(o);
+  if(a==='term')return this.appTerm();
+  if(a==='calc')return this.appCalc();
+  if(a==='browser')return this.appBrowser();
+  if(a==='settings')return this.appSettings(o);
+ }
+ openNode(path,name){
+  const d=this.nodeAt(path),n=d&&d.children[name];if(!n)return;
+  if(n.type==='dir'){this.appFiles({path:path.concat(name)});return}
+  if(/\.txt$/i.test(name))return this.appNotes({path,name});
+  if(/\.(png|jpg)$/i.test(name))return this.appImage(name);
+  this.toast('This sandbox has no app for '+name.split('.').pop()+' files. A real OS would ask which app to use.');
+ }
+ newItem(path,type){
+  const d=this.nodeAt(path);if(!d)return;
+  const def=type==='dir'?(this.cfg.id==='win'?'New folder':'untitled folder'):(this.cfg.id==='win'?'New Text Document.txt':'Untitled.txt');
+  this.ask(type==='dir'?'Name for the new folder':'Name for the new file',this.uniq(d,def),v=>{
+    const nm=this.uniq(d,v);d.children[nm]=type==='dir'?D():F('');if(type==='dir')this.emit('mkdir');this.refresh()})
+ }
+ trashItem(path,name){const d=this.nodeAt(path);if(!d||!d.children[name])return;this.trash.push({name,node:d.children[name],from:path.slice()});delete d.children[name];this.emit('trash');this.refresh()}
+ refresh(){this.renderIcons();this.wins.filter(w=>w.app==='files'||w.app==='trash').forEach(w=>w.render&&w.render())}
+ /* ---- apps ---- */
+ appFiles(o){
+  const c=this.cfg;
+  const w=this.makeWin('files',c.names.files,640,400);this.emit('files');
+  w.path=o.path||c.home.slice();w.trash=!!o.trash;w.hist=[];w.sel=null;
+  const go=(p,tr)=>{w.hist.push({p:w.path,t:w.trash});w.path=p;w.trash=!!tr;w.render()};
+  w.render=()=>{
+   const b=w.body;b.innerHTML='';const fm=el('div','fm');
+   const bar=el('div','fm-bar');const back=el('button','','◀');back.onclick=()=>{const h=w.hist.pop();if(h){w.path=h.p;w.trash=h.t;w.render()}};
+   const up=el('button','','▲');up.onclick=()=>{if(!w.trash&&w.path.length)go(w.path.slice(0,-1))};
+   const cr=el('div','crumbs');
+   if(w.trash){cr.innerHTML='<span>'+esc(c.names.trash)+'</span>'}
+   else{const r=el('span','',esc(c.rootLabel));r.onclick=()=>go([]);cr.appendChild(r);w.path.forEach((seg,i)=>{cr.appendChild(document.createTextNode(' › '));const s=el('span','',esc(seg));s.onclick=()=>go(w.path.slice(0,i+1));cr.appendChild(s)})}
+   bar.append(back,up,cr);fm.appendChild(bar);
+   const main=el('div','fm-main'),side=el('div','fm-side');side.appendChild(el('h5','',c.places));
+   const H=c.home,places=[['Home',H],['Desktop',H.concat('Desktop')],['Documents',H.concat('Documents')],['Downloads',H.concat('Downloads')],['Pictures',H.concat('Pictures')],['Music',H.concat('Music')]];
+   const ico={Home:'🏠',Desktop:'🖥️',Documents:'📄',Downloads:'⬇️',Pictures:'🖼️',Music:'🎵'};
+   places.forEach(([n,p])=>{const d=el('div','p'+(!w.trash&&p.join('/')===w.path.join('/')?' on':''),ico[n]+' '+n);d.onclick=()=>go(p);side.appendChild(d)});
+   const t=el('div','p'+(w.trash?' on':''),'🗑️ '+c.names.trash);t.onclick=()=>go(w.path,true);side.appendChild(t);
+   const grid=el('div','fm-grid');let count=0;
+   if(w.trash){
+     w.setTitle(c.names.trash);
+     this.trash.forEach((it,i)=>{const f=el('div','fi','<div class="g">'+this.glyph(it.name,it.node)+'</div><div class="n">'+esc(it.name)+'</div>');
+       f.onclick=e=>{grid.querySelectorAll('.sel').forEach(x=>x.classList.remove('sel'));f.classList.add('sel')};
+       f.oncontextmenu=e=>{e.preventDefault();f.onclick();this.menu(e.clientX,e.clientY,[['Put Back',()=>this.restore(i)],['Delete Permanently',()=>{this.trash.splice(i,1);w.render()}]])};
+       f.ondblclick=()=>this.restore(i);grid.appendChild(f);count++});
+     if(!count)grid.appendChild(el('div','fm-empty',esc(c.names.trash)+' is empty.'));
+     else{const em=el('button','btn','Empty '+c.names.trash);em.style.cssText='position:absolute;right:12px;bottom:34px';em.onclick=()=>{this.trash=[];w.render()};fm.style.position='relative';fm.appendChild(em)}
+   }else{
+     const dir=this.nodeAt(w.path);w.setTitle(w.path.length?w.path[w.path.length-1]:c.rootLabel);
+     const keys=dir?Object.keys(dir.children).sort((a,b)=>(dir.children[a].type===dir.children[b].type?a.localeCompare(b):dir.children[a].type==='dir'?-1:1)):[];
+     keys.forEach(k=>{const n=dir.children[k];const f=el('div','fi','<div class="g">'+this.glyph(k,n)+'</div><div class="n">'+esc(k)+'</div>');
+       f.onclick=e=>{e.stopPropagation();grid.querySelectorAll('.sel').forEach(x=>x.classList.remove('sel'));f.classList.add('sel')};
+       f.ondblclick=()=>{if(n.type==='dir')go(w.path.concat(k));else this.openNode(w.path,k)};
+       f.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();f.onclick(e);this.menu(e.clientX,e.clientY,[['Open',()=>f.ondblclick()],['Rename',()=>this.ask('Rename',k,v=>{if(v!==k&&!dir.children[v]){dir.children[v]=dir.children[k];delete dir.children[k];this.refresh()}})],'-',[c.delLabel,()=>this.trashItem(w.path,k)]])};
+       grid.appendChild(f);count++});
+     if(!count)grid.appendChild(el('div','fm-empty','This folder is empty. Right-click to make something.'));
+     grid.oncontextmenu=e=>{if(e.target!==grid)return;e.preventDefault();this.menu(e.clientX,e.clientY,[[c.id==='win'?'New folder':'New Folder',()=>this.newItem(w.path,'dir')],['New text file',()=>this.newItem(w.path,'file')]])};
+     grid.onclick=()=>grid.querySelectorAll('.sel').forEach(x=>x.classList.remove('sel'));
+   }
+   main.append(side,grid);fm.appendChild(main);
+   fm.appendChild(el('div','fm-status',w.trash?count+' item(s)':count+' item(s)  •  '+esc(this.pathStr(w.path))));b.appendChild(fm);
+  };
+  w.render();return w;
+ }
+ restore(i){const it=this.trash[i];if(!it)return;let d=this.nodeAt(it.from);if(!d)d=this.nodeAt(this.cfg.home.concat('Documents'));d.children[this.uniq(d,it.name)]=it.node;this.trash.splice(i,1);this.refresh()}
+ appNotes(o){
+  const c=this.cfg;const w=this.makeWin('notes',c.names.notes,460,320);
+  let path=o.path||null,name=o.name||null;
+  const d=path?this.nodeAt(path):null,n=d&&name?d.children[name]:null;if(n)this.emit('openfile');
+  w.body.innerHTML='<div class="notes"><div class="tools"><button class="btn">Save</button><span class="st" style="opacity:.6;font-size:12px"></span></div><textarea spellcheck="false" placeholder="Start typing…"></textarea></div>';
+  const ta=w.body.querySelector('textarea'),st=w.body.querySelector('.st');ta.value=n?n.content:'';w.setTitle((name||'Untitled')+' - '+c.names.notes);
+  const save=()=>{
+    if(n){n.content=ta.value;st.textContent='Saved.';setTimeout(()=>st.textContent='',1500)}
+    else this.ask('Save as (file name)','My note.txt',v=>{if(!/\.txt$/i.test(v))v+='.txt';const dd=this.nodeAt(c.home.concat('Documents'));const nm=this.uniq(dd,v);dd.children[nm]=F(ta.value);name=nm;path=c.home.concat('Documents');
+      const nn=dd.children[nm];w.setTitle(nm+' - '+c.names.notes);st.textContent='Saved in Documents.';this.refresh();
+      w.body.querySelector('.btn').onclick=()=>{nn.content=ta.value;st.textContent='Saved.'}})};
+  w.body.querySelector('.btn').onclick=save;ta.onkeydown=e=>{if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();save()}};ta.focus();return w;
+ }
+ appImage(name){const w=this.makeWin('files',name,420,300);w.body.innerHTML='<div class="img" style="background:'+WALLS[Math.floor(Math.random()*WALLS.length)].c+'">🖼️ '+esc(name)+'</div>'}
+ appCalc(){
+  const c=this.cfg;const w=this.makeWin('calc',c.names.calc,260,330);let s='';
+  const keys=['C','(',')','/','7','8','9','*','4','5','6','-','1','2','3','+','0','.','⌫','='];
+  w.body.innerHTML='<div class="calc"><div class="scr">0</div></div>';const g=w.body.firstChild,scr=g.firstChild;
+  keys.forEach(k=>{const b=el('button',/[\/*\-+=]/.test(k)?'op':'',k==='*'?'×':k==='/'?'÷':k);b.onclick=()=>{
+    if(k==='C')s='';else if(k==='⌫')s=s.slice(0,-1);else if(k==='='){try{if(/^[0-9+\-*/.() ]+$/.test(s))s=String(+Function('"use strict";return ('+s+')')().toFixed(10));}catch(e){s='Error'}}else{if(s==='Error')s='';s+=k}scr.textContent=s||'0'};g.appendChild(b)});
+ }
+ appBrowser(){
+  const c=this.cfg;const w=this.makeWin('browser',c.names.browser,560,360);
+  w.body.innerHTML='<div class="brow"><div class="ab"><input value="https://start.page"><button class="btn">Go</button></div><div class="pg"></div></div>';
+  const pg=w.body.querySelector('.pg'),inp=w.body.querySelector('input');
+  const show=u=>{pg.innerHTML=u?'<h2>🌐 '+esc(u)+'</h2><p>This sandbox is offline, so it can&rsquo;t load real websites.<br>A real browser is an <b>app</b>: the OS gives it network access, memory, and permission to draw on your screen.</p>':'<h2>Start page</h2><p>Type an address above and press Go.</p>'};show('');
+  w.body.querySelector('.btn').onclick=()=>show(inp.value);inp.onkeydown=e=>{if(e.key==='Enter')show(inp.value)};
+ }
+ appSettings(o){
+  const c=this.cfg;const w=this.makeWin('settings',c.names.settings,600,400);
+  const panes={
+   look:()=>{const p=el('div','');p.innerHTML='<h3>'+(c.id==='win'?'Personalization':c.id==='mac'?'Wallpaper':'Background')+'</h3><div>Pick a picture:</div><div class="walls"></div><div>Or pick your own color: <input type="color" value="#3b82f6" id="pc"></div><p><label><input type="checkbox" id="dk"'+(this.dark?' checked':'')+'> Dark mode for windows</label></p>';
+     const wg=p.querySelector('.walls');WALLS.forEach((x,i)=>{const t=el('div','wp'+(this.wallIdx===i?' on':''),esc(x.n));t.style.background=x.c;t.onclick=()=>{this.wallIdx=i;this.setWall(x.c);wg.querySelectorAll('.wp').forEach(y=>y.classList.remove('on'));t.classList.add('on')};wg.appendChild(t)});
+     p.querySelector('#pc').oninput=e=>{this.wallIdx=null;this.setWall('linear-gradient('+e.target.value+','+e.target.value+')')};
+     p.querySelector('#dk').onchange=e=>{this.dark=e.target.checked;this.wins.forEach(x=>x.el.classList.toggle('dark',this.dark))};return p},
+   about:()=>{this.emit('about');const p=el('div','');p.innerHTML='<h3>About</h3><div class="kv"><b>Device name</b><span>'+(c.id==='win'?'DESKTOP-SCHS01':c.id==='mac'?'Students-MacBook':'ubuntu-lab')+'</span><b>Operating system</b><span>'+c.ver+'</span><b>Processor</b><span>Sandbox CPU @ 3.0 GHz (8 cores)</span><b>Memory (RAM)</b><span>16 GB</span><b>Storage</b><span>512 GB SSD</span><b>User</b><span>'+c.home[c.home.length-1]+'</span></div><p style="opacity:.7;margin-top:14px">Kernel, drivers, and memory manager all report in here. This is the OS describing its own hardware.</p>';return p},
+   storage:()=>{const p=el('div','');let n=0;(function cnt(d){Object.values(d.children).forEach(x=>{if(x.type==='file')n++;else cnt(x)})})(this.fs);p.innerHTML='<h3>Storage</h3><p>Files stored in this sandbox: <b>'+n+'</b></p><div style="height:14px;background:#7773;border-radius:7px;overflow:hidden"><div style="height:100%;width:'+Math.min(100,8+n)+'%;background:#3b82f6"></div></div><p style="opacity:.7">The OS file system keeps track of where every file lives on the drive.</p>';return p}};
+  const nav=[['look','🎨 '+(c.id==='win'?'Personalization':c.id==='mac'?'Wallpaper':'Background')],['storage','💾 Storage'],['about','ℹ️ About']];
+  w.body.innerHTML='<div class="set"><div class="nav"></div><div class="pane"></div></div>';
+  const nv=w.body.querySelector('.nav'),pane=w.body.querySelector('.pane');
+  const show=k=>{nv.querySelectorAll('div').forEach(d=>d.classList.toggle('on',d.dataset.k===k));pane.innerHTML='';pane.appendChild(panes[k]())};
+  nav.forEach(([k,t])=>{const d=el('div','',t);d.dataset.k=k;d.onclick=()=>show(k);nv.appendChild(d)});show(o.pane||'look');
+ }
+ appTerm(){
+  const c=this.cfg;const w=this.makeWin('term',c.names.term,560,340);
+  const t=el('div','term');w.body.appendChild(t);
+  let cwd=c.home.slice();const hist=[];let hi=0;
+  const print=(s,cls)=>{const d=el('div',cls||'');d.textContent=s;t.insertBefore(d,t.lastElementChild&&t.lastElementChild.classList.contains('ln')?t.lastElementChild:null)};
+  const prompt=()=>{if(c.id==='win')return this.pathStr(cwd)+'>';const h=c.home.join('/');let p='/'+cwd.join('/');if(p==='/'+h)p='~';else if(p.startsWith('/'+h+'/'))p='~'+p.slice(h.length+1);
+    return c.id==='mac'?'student@Students-MacBook '+(p==='~'?'~':p.split('/').pop()||'/')+' %':'student@ubuntu:'+p+'$'};
+  const banner=c.id==='win'?'Microsoft Windows [Version 10.0.26100]\n(c) Microsoft Corporation. All rights reserved.\n':c.id==='mac'?'Last login: '+new Date().toDateString()+' on ttys000\n':'Welcome to '+c.ver+' (GNU/Linux 6.8 x86_64)\n';
+  const resolve=arg=>{let base,parts;
+   if(c.id==='win'){base=/^[a-z]:/i.test(arg)?[]:cwd.slice();parts=arg.split(/[\\/]+/)}
+   else{if(arg==='~'||arg.startsWith('~/')){base=c.home.slice();arg=arg.slice(1)}else if(arg.startsWith('/'))base=[];else base=cwd.slice();parts=arg.split('/')}
+   for(const p of parts){if(!p||p==='.')continue;if(p==='..')base.pop();else base.push(p)}return this.walk(base)};
+  const line=()=>{const l=el('div','ln');const p=el('span','',esc(prompt())+'&nbsp;');const i=el('input');i.spellcheck=false;l.append(p,i);t.appendChild(l);i.focus();t.scrollTop=t.scrollHeight;
+   i.onkeydown=e=>{if(e.key==='ArrowUp'){if(hi>0)i.value=hist[--hi]||''}else if(e.key==='ArrowDown'){if(hi<hist.length)i.value=hist[++hi]||''}else if(e.key==='Enter'){const v=i.value;l.remove();print(prompt()+' '+v);if(v.trim()){hist.push(v);hi=hist.length}run(v.trim());line()}}};
+  const run=cmd=>{if(!cmd)return;const a=cmd.split(/\s+/),k=a[0].toLowerCase(),arg=a.slice(1).join(' ');const win=c.id==='win';
+   const cur=()=>this.nodeAt(cwd);
+   if(k==='help'){print(win?'dir  cd  cd..  mkdir  type  del  echo  cls  ver  whoami  date  help':'ls  cd  pwd  mkdir  touch  cat  rm  echo  clear  whoami  uname  date  help\n(Tip: rm deletes permanently. It skips the Trash!)');return}
+   if((win&&k==='dir')||(!win&&k==='ls')){const dd=arg?resolve(arg):{node:cur()};if(!dd||dd.node.type!=='dir'){print(win?'File Not Found':'ls: cannot access \''+arg+'\': No such file or directory');return}this.emit('ls');const ks=Object.keys(dd.node.children).sort();
+     if(win){print(' Directory of '+this.pathStr(dd.path||cwd)+'\n\n'+ks.map(x=>(dd.node.children[x].type==='dir'?'<DIR>          ':'              ')+x).join('\n')+'\n              '+ks.length+' item(s)')}else print(ks.map(x=>dd.node.children[x].type==='dir'?x+'/':x).join('   '));return}
+   if(k==='cd'||(win&&k==='cd..')){if(win&&!arg&&k==='cd'){print(this.pathStr(cwd));return}if(!arg&&!win){cwd=c.home.slice();return}const r=resolve(win&&k==='cd..'?'..':arg);if(r&&r.node.type==='dir')cwd=r.path;else print(win?'The system cannot find the path specified.':(c.id==='mac'?'cd: no such file or directory: ':'bash: cd: ')+arg+(c.id==='lin'?': No such file or directory':''));return}
+   if(k==='pwd'&&!win){print('/'+cwd.join('/'));return}
+   if(k==='mkdir'){if(!arg){print(win?'The syntax of the command is incorrect.':'usage: mkdir directory');return}const d=cur();if(d.children[arg]){print(win?'A subdirectory or file '+arg+' already exists.':'mkdir: cannot create directory \''+arg+'\': File exists');return}d.children[arg]=D();this.emit('mkdir');this.refresh();return}
+   if(k==='touch'&&!win){if(!arg){print('usage: touch file');return}const d=cur();if(!d.children[arg])d.children[arg]=F('');this.refresh();return}
+   if((win&&k==='type')||(!win&&k==='cat')){const r=resolve(arg);if(!r||r.node.type!=='file'){print(win?'The system cannot find the file specified.':'cat: '+arg+': No such file or directory');return}print(r.node.content);return}
+   if((win&&k==='del')||(!win&&k==='rm')){const r=resolve(arg);if(!arg||!r||r.node.type!=='file'){print(win?'Could Not Find '+arg:'rm: cannot remove \''+arg+'\': No such file (or is a directory)');return}const par=this.nodeAt(r.path.slice(0,-1));delete par.children[r.path[r.path.length-1]];this.refresh();return}
+   if(k==='echo'){print(arg);return}
+   if(k==='clear'||k==='cls'){t.querySelectorAll('div:not(.ln)').forEach(x=>x.remove());return}
+   if(k==='whoami'){print(win?'desktop-schs01\\student':'student');return}
+   if(k==='date'){print(new Date().toString());return}
+   if(k==='ver'&&win){print('Microsoft Windows [Version 10.0.26100]');return}
+   if(k==='uname'&&!win){print(c.id==='mac'?'Darwin':'Linux'+(arg.includes('a')?' ubuntu 6.8.0-generic #1 SMP x86_64 GNU/Linux':''));return}
+   if(k==='sudo'&&!win){print('student is not in the sudoers file. This incident will be reported.');return}
+   print(win?"'"+a[0]+"' is not recognized as an internal or external command,\noperable program or batch file.":c.id==='mac'?'zsh: command not found: '+a[0]:'Command \''+a[0]+'\' not found. Try: help');
+  };
+  print(banner);line();t.onclick=e=>{const i=t.querySelector('input');if(i&&getSelection().isCollapsed)i.focus()};
+ }
+}
+
+/* ============ page controller ============ */
+const App={desks:{},cur:null,mount:document.getElementById('monitor'),
+ init(){
+  const tabs=document.getElementById('tabs');
+  ['win','mac','lin'].forEach(k=>{const b=el('button','',{win:'🪟 Windows',mac:'🍎 macOS',lin:'🐧 Linux'}[k]);b.dataset.k=k;b.onclick=()=>this.show(k);tabs.appendChild(b)});
+  document.getElementById('reset').onclick=()=>{const k=this.cur.cfg.id;this.cur.root.remove();clearInterval(this.cur.clockTimer);delete this.desks[k];this.show(k)};
+  const who=document.getElementById('who');who.value=Store.get('name','');who.oninput=()=>{Store.set('name',who.value);this.renderMissions()};
+  const h=location.hash.replace('#','');this.show(['win','mac','lin'].includes(h)?h:'win');
+ },
+ show(k){
+  if(!this.desks[k])this.desks[k]=new Desk(CFG[k],this.mount);
+  this.cur=this.desks[k];Object.values(this.desks).forEach(d=>d.root.classList.toggle('on',d===this.cur));
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
+  history.replaceState(null,'','#'+k);this.renderMissions();
+ },
+ renderMissions(){
+  const d=this.cur,m=d.cfg.missions,l=document.getElementById('mlist');l.innerHTML='';
+  document.getElementById('mtitle').textContent=d.cfg.label+' missions';
+  m.forEach(([id,t,h])=>{const li=el('li',d.done.has(id)?'done':'','<span class="ck">✓</span><span>'+t+'<small>'+h+'</small></span>');l.appendChild(li)});
+  const n=m.filter(x=>d.done.has(x[0])).length;
+  document.getElementById('mprog').textContent=n+' of '+m.length+' complete';
+  document.getElementById('mbar').style.width=(n/m.length*100)+'%';
+  document.getElementById('mwin').style.display=n===m.length?'block':'none';
+  const all=Object.keys(CFG).map(k=>({k,ok:CFG[k].missions.every(x=>Store.get('done_'+k,[]).includes(x[0]))}));
+  document.getElementById('chips').innerHTML=all.map(a=>'<span class="'+(a.ok?'ok':'')+'">'+(a.ok?'✓ ':'')+CFG[a.k].label+'</span>').join('');
+  const fin=document.getElementById('final'),nm=document.getElementById('who').value.trim();
+  const ok=all.every(a=>a.ok);fin.style.display=ok?'block':'none';
+  if(ok){const ts=Math.max(...Object.keys(CFG).map(k=>Store.get('t_'+k,0)));document.getElementById('fname').textContent=nm||'(type your name above!)';document.getElementById('ftime').textContent='Finished '+new Date(ts||Date.now()).toLocaleString()}
+ }};
+App.init();
+</script>
+</body>
+</html>

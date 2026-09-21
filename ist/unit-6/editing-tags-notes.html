@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editing Tags, Span and Font Families | Unit 6 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css">
+<style>:root{--acc:#2DD4BF;--acc-tint:rgba(45,212,191,.13);--acc-ink:#99F6E4}
+.part{padding:64px 0 16px}
+.lede{margin:0 0 20px;line-height:1.7}
+.codeblk{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:14px 18px;margin:12px 0 26px;font-family:"JetBrains Mono",monospace;font-size:13.5px;line-height:1.7;color:#E8ECF3;overflow-x:auto;white-space:pre}
+.codeblk .t{color:#FDBA74}.codeblk .c{color:#7B8799}
+.demo{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin:14px 0 30px}
+.demo .box{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:16px 18px;min-width:0}
+.demo .box h4{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:10px}
+.demo .out{background:#fff;color:#111;border-radius:6px;padding:16px;font-family:Georgia,serif;font-size:15px}
+.demo .out p{color:#111;margin:.6em 0}.demo .out h1{color:#111;font-size:28px;margin:.3em 0;font-family:Georgia,serif}
+.demo .out h2{color:#111;font-size:22px;margin:.3em 0;font-family:Georgia,serif}.demo .out h3{color:#111;font-size:18px;margin:.3em 0;font-family:Georgia,serif}.demo .out h4{color:#111;font-size:15px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}.demo .out h5{color:#111;font-size:13px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}.demo .out h6{color:#111;font-size:11px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}
+.demo .codeblk{margin:0}
+.nest{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:18px;margin:12px 0 26px;font-family:"JetBrains Mono",monospace;font-size:13px}
+.nest .b1{border:2px solid var(--acc);border-radius:8px;padding:12px 14px;background:var(--acc-tint)}
+.nest .b2{border:2px dashed #93C5FD;border-radius:8px;padding:10px 12px;margin-top:10px;background:rgba(147,197,253,.08)}
+.nest .b3{border:2px dashed #86EFAC;border-radius:8px;padding:10px 12px;margin-top:10px;background:rgba(134,239,172,.08)}
+.nest small{display:block;color:var(--ink-soft);font-family:"Manrope",sans-serif;font-size:12.5px;margin-top:3px}
+.tabmock{display:inline-flex;align-items:center;gap:10px;background:#2B3544;color:#fff;border-radius:8px 8px 0 0;padding:8px 14px;font:13px "Manrope",sans-serif;margin-top:6px}
+.tabmock i{opacity:.6;font-style:normal}
+.tabbar{background:#111827;border:1px solid var(--rule);border-radius:8px;padding:10px 12px 0;margin:10px 0 14px}
+.tryit{display:block;text-align:center;margin:20px 0;background:var(--acc);color:#0B0E14;font-weight:800;border-radius:8px;padding:14px;text-decoration:none}
+
+/* ---- the lab ---- */
+.lab{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:0;border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:14px 0 26px;background:var(--card)}
+.lab .pane h4{margin:0;padding:8px 14px;font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);background:#0F1420;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center}
+.lab textarea{display:block;width:100%;height:240px;background:#05070B;color:#E8ECF3;border:0;outline:0;resize:vertical;padding:12px 14px;font:13.5px/1.7 "JetBrains Mono",monospace;white-space:pre;tab-size:2;overflow:auto}
+.lab iframe{display:block;width:100%;height:240px;border:0;background:#fff}
+.lab .pane+.pane{border-left:1px solid var(--rule)}
+.lab button.rst{background:transparent;border:1px solid var(--rule);color:var(--acc-ink);border-radius:6px;padding:2px 9px;cursor:pointer;font:600 11px "JetBrains Mono",monospace}
+.steps{display:grid;gap:14px;margin:6px 0 10px}
+.step{border:1px solid var(--rule);border-radius:10px;padding:16px 18px;background:var(--card);display:grid;grid-template-columns:38px 1fr;gap:14px}
+.step .n{width:34px;height:34px;border-radius:50%;border:2px solid var(--rule);display:grid;place-items:center;font:800 14px "JetBrains Mono",monospace;color:var(--ink-soft)}
+.step h4{margin:0 0 4px;color:#fff;font-size:16px}
+.step p{margin:0 0 6px;color:#C4CDD8;font-size:14.5px}
+.step .why{display:none;margin-top:10px;background:var(--acc-tint);border:1px solid var(--acc);border-radius:8px;padding:10px 14px;font-size:14px;color:#fff}
+.step.done{border-color:#34D399;background:rgba(52,211,153,.06)}
+.step.done .n{background:#34D399;border-color:#34D399;color:#04210f}
+.step.done .why{display:block}
+.prog{font:700 12px "JetBrains Mono",monospace;color:var(--acc-ink);letter-spacing:.05em;margin:0 0 10px}
+@media(max-width:760px){.lab{grid-template-columns:1fr}.lab .pane+.pane{border-left:0;border-top:1px solid var(--rule)}}
+
+.sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;margin:14px 0 26px}
+.sw div{border-radius:8px;padding:26px 8px 8px;font:600 12px "JetBrains Mono",monospace;color:#fff;text-shadow:0 1px 2px #0008;text-align:center}
+.demo .out .k{font-family:"JetBrains Mono",monospace;font-size:12px;color:#666;display:block;margin:10px 0 2px}
+.wrongright{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:12px 0 22px}
+.wrongright .w,.wrongright .r{border-radius:8px;padding:14px 16px;background:var(--card);border:1px solid var(--rule)}
+.wrongright .w{border-top:3px solid #F87171}.wrongright .r{border-top:3px solid #34D399}
+.wrongright h4{font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;margin:0 0 8px}
+.wrongright .w h4{color:#FCA5A5}.wrongright .r h4{color:#6EE7B7}
+.wrongright .codeblk{margin:0}
+.pt{color:#93C5FD}.vl{color:#86EFAC}.at{color:#FDBA74}
+.shellbig{font:700 clamp(18px,4.6vw,34px) "JetBrains Mono",monospace;background:#05070B;border:1px solid var(--rule);border-radius:10px;padding:26px 18px;margin:14px 0 10px;text-align:center;overflow-x:auto;white-space:nowrap}
+.shellbig.sm{font-size:clamp(15px,3.6vw,22px);padding:16px 14px;margin:0 0 12px;text-align:left}
+.sh-a{color:#F472B6}.sh-eq{color:#E8ECF3}.sh-q{color:#FBBF24}.sh-tag{color:#FB7185}.sh-ghost{color:#3A4560}
+.sh-slot{color:#86EFAC;background:rgba(134,239,172,.08);border:2px dashed #86EFAC;border-radius:6px;padding:4px 10px;margin:0 4px}
+.shelllegend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--ink-soft);margin:0 0 6px}.shelllegend i{font-style:normal;font-family:"JetBrains Mono",monospace;font-weight:700}
+.guessgrid .prompt code{font-size:13px;word-break:break-word}
+</style>
+
+<style>
+.sw2{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.sw2 button{width:34px;height:34px;border-radius:50%;border:2px solid var(--rule);cursor:pointer;padding:0}
+.sw2 button.on{border-color:#fff;box-shadow:0 0 0 2px var(--acc)}
+.sw2 .clr{width:auto;border-radius:6px;padding:0 10px;background:var(--card);color:var(--ink-soft);font:600 12px "JetBrains Mono",monospace}
+.hl-words{background:#fff;color:#111;border-radius:8px;padding:18px;font:18px/2 Georgia,serif}
+.hl-words .w{cursor:pointer;border-radius:3px;padding:0 1px}
+.hl-words .w:hover{outline:2px dashed #999}
+.fam button{background:var(--card);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:12px 16px;cursor:pointer;font:600 14px "Manrope",sans-serif}
+.fam button.on{border-color:var(--acc);background:var(--acc-tint);color:#fff}
+.famout{background:#fff;color:#111;border-radius:8px;padding:20px;font-size:24px;line-height:1.4}
+.pill{display:inline-block;background:var(--acc-tint);border:1px solid var(--acc);color:#fff;border-radius:99px;padding:2px 12px;font:700 12px "JetBrains Mono",monospace;margin:0 6px 6px 0}
+</style>
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 6</a><a href="6-3-editing-tags-span-font-families.html">Back to 6.3</a><a href="editing-tags-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 6 Notes &nbsp;/&nbsp; Lesson 6.3</div>
+  <h1>Editing Tags, Span &amp; Font Families</h1>
+  <p class="deck">Four tags that change how words look, one tag that does nothing until you tell it to, and the three font families every font belongs to. Together they let you style part of a sentence, not just the whole thing.</p>
+  <span class="stdchip">Bold &middot; Italic &middot; hr &middot; br &middot; span &middot; font-family</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>Editing Tags</h2></div>
+  <p class="lede"><b>Editing tags</b> change how text looks or how a page is laid out, without any style attribute. Click each one.</p>
+  <div class="tabs">
+    <button class="active" data-tabgroup="ed" data-tab="b" onclick="tab(this)">Bold</button>
+    <button data-tabgroup="ed" data-tab="i" onclick="tab(this)">Italic</button>
+    <button data-tabgroup="ed" data-tab="hr" onclick="tab(this)">Horizontal line</button>
+    <button data-tabgroup="ed" data-tab="br" onclick="tab(this)">Line break</button>
+  </div>
+  <div class="tabpanel active" data-tabgroup="ed" data-panel="b"><div class="gfx"><svg viewBox="0 0 64 64" fill="none"><path d="M22 12h14a9 9 0 0 1 0 18H22zM22 30h16a9 9 0 0 1 0 18H22z" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/></svg></div><div><h3>Bold</h3><p>Wrap text in <code>&lt;b&gt;</code> or <code>&lt;strong&gt;</code>. It has an opening tag <b>and</b> a closing tag.</p><div class="codeblk" style="margin:8px 0"><span class="t">&lt;p&gt;</span>This is <span class="t">&lt;b&gt;</span>important<span class="t">&lt;/b&gt;</span> text.<span class="t">&lt;/p&gt;</span></div><p>Shows: This is <b>important</b> text.</p><p><code>&lt;b&gt;</code> just makes it look bold. <code>&lt;strong&gt;</code> means it is important, which also helps screen readers. Both look the same.</p></div></div>
+  <div class="tabpanel" data-tabgroup="ed" data-panel="i"><div class="gfx"><svg viewBox="0 0 64 64" fill="none"><path d="M26 12h18M20 52h18M35 12l-6 40" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></div><div><h3>Italic</h3><p>Wrap text in <code>&lt;i&gt;</code> or <code>&lt;em&gt;</code>. Opening tag and closing tag again.</p><div class="codeblk" style="margin:8px 0"><span class="t">&lt;p&gt;</span>I <span class="t">&lt;i&gt;</span>love<span class="t">&lt;/i&gt;</span> this song.<span class="t">&lt;/p&gt;</span></div><p>Shows: I <i>love</i> this song.</p><p><code>&lt;em&gt;</code> means emphasis, like stressing a word when you say it. Use it for titles, thoughts, or words you want to lean on.</p></div></div>
+  <div class="tabpanel" data-tabgroup="ed" data-panel="hr"><div class="gfx"><svg viewBox="0 0 64 64" fill="none"><path d="M8 32h48" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M14 16h36M14 48h36" stroke="currentColor" stroke-width="2" stroke-dasharray="4 5" stroke-linecap="round"/></svg></div><div><h3>Horizontal line</h3><p><code>&lt;hr&gt;</code> draws a line across the page to separate sections. It has <b>only one tag</b>. There is nothing to wrap, so there is no closing tag.</p><div class="codeblk" style="margin:8px 0"><span class="t">&lt;h2&gt;</span>Appetizers<span class="t">&lt;/h2&gt;</span>
+<span class="t">&lt;hr&gt;</span>
+<span class="t">&lt;p&gt;</span>Fries<span class="t">&lt;/p&gt;</span></div></div></div>
+  <div class="tabpanel" data-tabgroup="ed" data-panel="br"><div class="gfx"><svg viewBox="0 0 64 64" fill="none"><path d="M12 20h40M12 32h24M44 32v14H26M32 40l-8 6 8 6" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><h3>Line break</h3><p><code>&lt;br&gt;</code> ends the line and starts the next one, like pressing Enter. It also has <b>only one tag</b>.</p><div class="codeblk" style="margin:8px 0"><span class="t">&lt;p&gt;</span>Roses are red,<span class="t">&lt;br&gt;</span>Violets are blue.<span class="t">&lt;/p&gt;</span></div><p>Shows:<br>Roses are red,<br>Violets are blue.</p><p>Pressing Enter in your code does <b>not</b> break the line on the page. Only <code>&lt;br&gt;</code> does.</p></div></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Tag</th><th>What it does</th><th>Closing tag?</th></tr></thead>
+    <tbody>
+      <tr><td><code>&lt;b&gt;</code> / <code>&lt;strong&gt;</code></td><td>Bold text</td><td>Yes: <code>&lt;/b&gt;</code></td></tr>
+      <tr><td><code>&lt;i&gt;</code> / <code>&lt;em&gt;</code></td><td>Italic text</td><td>Yes: <code>&lt;/i&gt;</code></td></tr>
+      <tr><td><code>&lt;hr&gt;</code></td><td>A line across the page</td><td>No</td></tr>
+      <tr><td><code>&lt;br&gt;</code></td><td>A line break</td><td>No</td></tr>
+    </tbody></table></div></div>
+
+  <h3 style="color:#fff;margin:26px 0 8px">What happens if you forget to close it?</h3>
+  <div class="btnrow"><button onclick="closeDemo(true)">Closed with &lt;/b&gt;</button><button onclick="closeDemo(false)">Forgot &lt;/b&gt;</button></div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk" id="cdCode" style="margin:0"></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out" id="cdOut"></div></div>
+  </div>
+  <div class="callout">Tags that wrap need a closing tag. Tags that stand alone do not.<span><code>&lt;b&gt;</code> and <code>&lt;i&gt;</code> wrap text, so they close. <code>&lt;hr&gt;</code> and <code>&lt;br&gt;</code> stand alone, so they never do.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>The Span Tag</h2></div>
+  <p class="story">A highlighter pen does nothing until you drag it across a word. The <code>&lt;span&gt;</code> tag works the same way. On its own it changes nothing at all. Add a style attribute and it styles only the words you wrapped.</p>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk"><span class="t">&lt;p&gt;</span>My favorite color is
+<span class="t">&lt;span</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">color</span>: <span class="vl">tomato</span>;<span class="t">"</span><span class="t">&gt;</span>tomato<span class="t">&lt;/span&gt;</span>.
+<span class="t">&lt;/p&gt;</span></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out"><p style="margin:0">My favorite color is <span style="color:tomato">tomato</span>.</p></div></div>
+  </div>
+  <div class="cards">
+    <div class="cardx"><div class="num">Fact 01</div><h4>It styles part of a line</h4><p>Put the style on a <code>&lt;p&gt;</code> and the whole paragraph changes. Put it on a <code>&lt;span&gt;</code> and only the wrapped words change.</p></div>
+    <div class="cardx"><div class="num">Fact 02</div><h4>It stays in the line</h4><p>A span does not start a new line. It sits right inside the sentence, which is why it is called an <b>inline</b> tag.</p></div>
+    <div class="cardx"><div class="num">Fact 03</div><h4>It has no look of its own</h4><p>Without a style attribute, a span is invisible. It is a blank highlighter waiting for you.</p></div>
+    <div class="cardx"><div class="num">Fact 04</div><h4>It goes inside another tag</h4><p>A span lives inside a <code>&lt;p&gt;</code>, <code>&lt;h1&gt;</code>, or another block. Open it, wrap the words, close it.</p></div>
+  </div>
+
+  <h3 style="color:#fff;margin:26px 0 8px">Be the highlighter</h3>
+  <p class="lede">Pick a color, then click words in the sentence. Each word you click gets its own span. Click a word again to remove it.</p>
+  <div class="sw2" id="sw"></div>
+  <div class="hl-words" id="hlWords"></div>
+  <div class="codeblk" id="hlCode" style="margin-top:12px"></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>The 3 Basic Font Families</h2></div>
+  <p class="story">There are thousands of fonts, but they all fall into just three families. If a computer does not have the font you asked for, it falls back to the family and picks something similar. That is why the family is the safe choice.</p>
+  <div class="fam btnrow" id="famBtns"></div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk" id="famCode" style="margin:0"></div><p id="famNote" style="margin:12px 0 0;font-size:14px;color:#C4CDD8"></p></div>
+    <div class="box"><h4>What the browser shows</h4><div class="famout" id="famOut">The quick brown fox jumps over the lazy dog.</div></div>
+  </div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Family</th><th>Look</th><th>Feels like</th><th>Good for</th></tr></thead>
+    <tbody>
+      <tr><td><code>serif</code></td><td>Small feet on the letters</td><td>Traditional, formal</td><td>Books, newspapers, essays</td></tr>
+      <tr><td><code>sans-serif</code></td><td>Clean letters, no feet ("sans" means without)</td><td>Modern, simple</td><td>Websites, headings, apps</td></tr>
+      <tr><td><code>monospace</code></td><td>Every letter is the same width</td><td>Technical, typewriter</td><td>Code, data, "hacker" looks</td></tr>
+    </tbody></table></div></div>
+  <div class="callout">It is a property, so it goes inside the shell.<span><code>style="font-family: serif;"</code>. Type <code>style=""</code> first, then <code>font-family: serif;</code> between the quotes.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>Which Tool Do I Need?</h2></div>
+  <div class="guessgrid">
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Make one word in a sentence red.</div><div class="tap">Tap to reveal</div><div class="answer"><h4>&lt;span&gt; with <code>color: red;</code></h4><p>A span styles part of a line.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Start the next line of a poem.</div><div class="tap">Tap to reveal</div><div class="answer"><h4>&lt;br&gt;</h4><p>A line break. One tag, no closing tag.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Separate the menu sections with a line.</div><div class="tap">Tap to reveal</div><div class="answer"><h4>&lt;hr&gt;</h4><p>A horizontal line. Also one tag only.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Make a price stand out with heavy letters.</div><div class="tap">Tap to reveal</div><div class="answer"><h4>&lt;b&gt; or &lt;strong&gt;</h4><p>Bold. Wrap the price and close the tag.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Make a whole paragraph look like code.</div><div class="tap">Tap to reveal</div><div class="answer"><h4><code>font-family: monospace;</code></h4><p>Put it in the style attribute on the paragraph.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">A dish name in fancy italics.</div><div class="tap">Tap to reveal</div><div class="answer"><h4>&lt;i&gt; or &lt;em&gt;</h4><p>Italic. Wrap the name.</p></div></div>
+  </div>
+
+  <h3 style="color:#fff;margin:26px 0 8px">Common mistakes</h3>
+  <div class="wrongright">
+    <div class="w"><h4>Wrong: closing a one-tag tag</h4><div class="codeblk"><span class="t">Line one&lt;/br&gt;Line two</span></div></div>
+    <div class="r"><h4>Right</h4><div class="codeblk"><span class="t">Line one&lt;br&gt;Line two</span></div></div>
+    <div class="w"><h4>Wrong: forgot to close bold</h4><div class="codeblk"><span class="t">&lt;b&gt;</span>Sale<span class="t">&lt;/p&gt;</span></div></div>
+    <div class="r"><h4>Right</h4><div class="codeblk"><span class="t">&lt;b&gt;</span>Sale<span class="t">&lt;/b&gt;</span></div></div>
+    <div class="w"><h4>Wrong: font-family with no shell</h4><div class="codeblk"><span class="t">&lt;p</span> font-family: serif;<span class="t">&gt;</span></div></div>
+    <div class="r"><h4>Right</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">font-family</span>: <span class="vl">serif</span>;<span class="t">"</span><span class="t">&gt;</span></div></div>
+    <div class="w"><h4>Wrong: span with no style</h4><div class="codeblk"><span class="t">&lt;span&gt;</span>red<span class="t">&lt;/span&gt;</span></div></div>
+    <div class="r"><h4>Right: give it a style</h4><div class="codeblk"><span class="t">&lt;span</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">color</span>: <span class="vl">red</span>;<span class="t">"</span><span class="t">&gt;</span>red<span class="t">&lt;/span&gt;</span></div></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">05</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>Editing tags</b></td><td>Tags that change how text looks or where lines fall: bold, italic, horizontal line, line break</td></tr>
+      <tr><td><b>Span tag</b></td><td>An inline tag with no look of its own. Add a style attribute to style just part of a line</td></tr>
+      <tr><td><b>Inline</b></td><td>Stays inside the line instead of starting a new one</td></tr>
+      <tr><td><b>Font family</b></td><td>The group a font belongs to: serif, sans-serif, or monospace</td></tr>
+      <tr><td><b>font-family</b></td><td>The CSS property that sets the font family, used inside <code>style=" "</code></td></tr>
+    </tbody></table></div></div>
+  <div class="callout">Wrap it, style it, close it.<span>Tags that wrap need a closing tag. Every style goes inside <code>style=" "</code>.</span></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>Small tags, big control.</h2><p>Ready to build? Head back to 6.3 for the menu assignment.</p><a class="back" href="6-3-editing-tags-span-font-families.html">&larr; Back to 6.3</a><a class="back" href="index.html">Unit 6</a><p class="sig">Unit 6 Notes / Lesson 6.3 / end of file</p></div></footer>
+
+<script src="../unit-4/notes.js"></script>
+<script>
+function closeDemo(closed){
+  document.getElementById("cdCode").innerHTML = closed
+    ? '<span class="t">&lt;p&gt;</span>Buy <span class="t">&lt;b&gt;</span>two<span class="t">&lt;/b&gt;</span> now.<span class="t">&lt;/p&gt;</span>\n<span class="t">&lt;p&gt;</span>Free shipping.<span class="t">&lt;/p&gt;</span>'
+    : '<span class="t">&lt;p&gt;</span>Buy <span class="t">&lt;b&gt;</span>two now.<span class="t">&lt;/p&gt;</span>\n<span class="t">&lt;p&gt;</span>Free shipping.<span class="t">&lt;/p&gt;</span>';
+  document.getElementById("cdOut").innerHTML = closed
+    ? '<p style="margin:0 0 6px">Buy <b>two</b> now.</p><p style="margin:0">Free shipping.</p>'
+    : '<p style="margin:0 0 6px">Buy <b>two now.</b></p><p style="margin:0"><b>Free shipping.</b></p><span class="k">Oops. The bold never stopped.</span>';
+}
+closeDemo(true);
+
+(function(){
+  var COLORS = ["tomato","orange","gold","green","teal","dodgerblue","purple","hotpink"], cur = "tomato";
+  var WORDS = "My dog thinks every day is the best day ever".split(" "), state = {};
+  var sw = document.getElementById("sw"), box = document.getElementById("hlWords"), code = document.getElementById("hlCode");
+  COLORS.forEach(function (c) { var b = document.createElement("button"); b.style.background = c; b.title = c; b.setAttribute("aria-label", c); b.onclick = function () { cur = c; draw(); }; sw.appendChild(b); });
+  var clr = document.createElement("button"); clr.className = "clr"; clr.textContent = "clear all"; clr.onclick = function () { state = {}; draw(); }; sw.appendChild(clr);
+  function draw() {
+    Array.prototype.forEach.call(sw.querySelectorAll("button"), function (b) { b.classList.toggle("on", b.title === cur); });
+    box.innerHTML = WORDS.map(function (w, i) { return '<span class="w" data-i="' + i + '"' + (state[i] ? ' style="color:' + state[i] + '"' : "") + ">" + w + "</span>"; }).join(" ");
+    var inner = WORDS.map(function (w, i) { return state[i] ? '<span class="t">&lt;span</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">color</span>: <span class="vl">' + state[i] + '</span>;<span class="t">"</span><span class="t">&gt;</span>' + w + '<span class="t">&lt;/span&gt;</span>' : w; }).join(" ");
+    code.innerHTML = '<span class="t">&lt;p&gt;</span>' + inner + '<span class="t">&lt;/p&gt;</span>';
+  }
+  box.addEventListener("click", function (e) { var w = e.target.closest(".w"); if (!w) return; var i = w.getAttribute("data-i"); if (state[i] === cur) delete state[i]; else state[i] = cur; draw(); });
+  draw();
+})();
+
+(function(){
+  var F = {
+    "serif": { css: "serif", note: "Small feet on the letters. Classic and formal, like a book or newspaper." },
+    "sans-serif": { css: "sans-serif", note: "No feet (sans means without). Clean and modern. Most websites use this." },
+    "monospace": { css: "monospace", note: "Every letter takes the same width. It looks like typed code." }
+  };
+  var btns = document.getElementById("famBtns"), out = document.getElementById("famOut"), code = document.getElementById("famCode"), note = document.getElementById("famNote");
+  Object.keys(F).forEach(function (k) { var b = document.createElement("button"); b.textContent = k; b.onclick = function () { pick(k); }; btns.appendChild(b); });
+  function pick(k) {
+    Array.prototype.forEach.call(btns.children, function (b) { b.classList.toggle("on", b.textContent === k); });
+    out.style.fontFamily = F[k].css; note.textContent = F[k].note;
+    code.innerHTML = '<span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">font-family</span>: <span class="vl">' + k + '</span>;<span class="t">"</span><span class="t">&gt;</span>\n  The quick brown fox...\n<span class="t">&lt;/p&gt;</span>';
+  }
+  pick("serif");
+})();
+</script>
+</body></html>

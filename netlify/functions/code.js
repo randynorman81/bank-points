@@ -8,7 +8,7 @@ import { getStore } from "@netlify/blobs";
 const JSON_HEADERS = { "Content-Type": "application/json" };
 const GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
 const SCHOOL_EMAIL_DOMAIN = "socialcircleschools.org";
-const LESSONS = ["7.1", "7.2", "7.3", "7.4", "7.5", "7.6", "7.7", "7.8", "7.9", "7.10", "7.11", "7.12", "7.13"];
+const LESSONS = ["6.1", "6.2", "6.3", "6.4", "6.5", "6.6", "6.7", "6.8", "6.9", "6.10", "6.11", "6.12", "6.13"];
 const MAX_CODE = 120000;            // characters of HTML per submission
 const MAX_CSS = 60000;              // characters of CSS (style.css) per submission
 const MAX_IMG_BYTES = 1500000;      // decoded image size
@@ -178,6 +178,27 @@ async function adminCounts() {
   return { ok: true, counts };
 }
 
+// One-time helper after the Unit 7 -> Unit 6 renumber: copies sub:/draft: records from lesson 7.N to 6.N. Never deletes.
+async function adminMigrate() {
+  let copied = 0, skipped = 0;
+  for (const kind of ["sub", "draft"]) {
+    for (let n = 1; n <= 13; n++) {
+      const keys = await listPrefix(kind + ":7." + n + ":");
+      for (const k of keys) {
+        const rec = await store().get(k, { type: "json" });
+        if (!rec) continue;
+        const target = k.replace(kind + ":7." + n + ":", kind + ":6." + n + ":");
+        const exists = await store().get(target, { type: "json" });
+        if (exists) { skipped++; continue; }
+        rec.lesson = "6." + n;
+        await store().setJSON(target, rec);
+        copied++;
+      }
+    }
+  }
+  return { ok: true, copied, skipped };
+}
+
 async function adminGrade(body) {
   if (!goodLesson(body.lesson)) return { error: "Unknown lesson" };
   const key = "sub:" + body.lesson + ":" + enc(String(body.email || "").toLowerCase());
@@ -211,10 +232,11 @@ export default async (req) => {
     try { body = await req.json(); } catch (e) { return ok({ error: "Malformed request" }); }
     const action = body.action;
 
-    if (["adminList", "adminCounts", "adminGrade"].indexOf(action) > -1) {
+    if (["adminList", "adminCounts", "adminGrade", "adminMigrate"].indexOf(action) > -1) {
       if (!isAdmin(body)) return ok({ error: "Invalid PIN" });
       if (action === "adminList") return ok(await adminList(body));
       if (action === "adminCounts") return ok(await adminCounts());
+      if (action === "adminMigrate") return ok(await adminMigrate());
       return ok(await adminGrade(body));
     }
 

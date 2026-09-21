@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lists | Unit 6 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css">
+<style>:root{--acc:#A3E635;--acc-tint:rgba(163,230,53,.13);--acc-ink:#D9F99D}
+.part{padding:64px 0 16px}
+.lede{margin:0 0 20px;line-height:1.7}
+.codeblk{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:14px 18px;margin:12px 0 26px;font-family:"JetBrains Mono",monospace;font-size:13.5px;line-height:1.7;color:#E8ECF3;overflow-x:auto;white-space:pre}
+.codeblk .t{color:#FDBA74}.codeblk .c{color:#7B8799}
+.demo{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin:14px 0 30px}
+.demo .box{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:16px 18px;min-width:0}
+.demo .box h4{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:10px}
+.demo .out{background:#fff;color:#111;border-radius:6px;padding:16px;font-family:Georgia,serif;font-size:15px}
+.demo .out p{color:#111;margin:.6em 0}.demo .out h1{color:#111;font-size:28px;margin:.3em 0;font-family:Georgia,serif}
+.demo .out h2{color:#111;font-size:22px;margin:.3em 0;font-family:Georgia,serif}.demo .out h3{color:#111;font-size:18px;margin:.3em 0;font-family:Georgia,serif}.demo .out h4{color:#111;font-size:15px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}.demo .out h5{color:#111;font-size:13px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}.demo .out h6{color:#111;font-size:11px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}
+.demo .codeblk{margin:0}
+.nest{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:18px;margin:12px 0 26px;font-family:"JetBrains Mono",monospace;font-size:13px}
+.nest .b1{border:2px solid var(--acc);border-radius:8px;padding:12px 14px;background:var(--acc-tint)}
+.nest .b2{border:2px dashed #93C5FD;border-radius:8px;padding:10px 12px;margin-top:10px;background:rgba(147,197,253,.08)}
+.nest .b3{border:2px dashed #86EFAC;border-radius:8px;padding:10px 12px;margin-top:10px;background:rgba(134,239,172,.08)}
+.nest small{display:block;color:var(--ink-soft);font-family:"Manrope",sans-serif;font-size:12.5px;margin-top:3px}
+.tabmock{display:inline-flex;align-items:center;gap:10px;background:#2B3544;color:#fff;border-radius:8px 8px 0 0;padding:8px 14px;font:13px "Manrope",sans-serif;margin-top:6px}
+.tabmock i{opacity:.6;font-style:normal}
+.tabbar{background:#111827;border:1px solid var(--rule);border-radius:8px;padding:10px 12px 0;margin:10px 0 14px}
+.tryit{display:block;text-align:center;margin:20px 0;background:var(--acc);color:#0B0E14;font-weight:800;border-radius:8px;padding:14px;text-decoration:none}
+
+/* ---- the lab ---- */
+.lab{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:0;border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:14px 0 26px;background:var(--card)}
+.lab .pane h4{margin:0;padding:8px 14px;font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);background:#0F1420;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center}
+.lab textarea{display:block;width:100%;height:240px;background:#05070B;color:#E8ECF3;border:0;outline:0;resize:vertical;padding:12px 14px;font:13.5px/1.7 "JetBrains Mono",monospace;white-space:pre;tab-size:2;overflow:auto}
+.lab iframe{display:block;width:100%;height:240px;border:0;background:#fff}
+.lab .pane+.pane{border-left:1px solid var(--rule)}
+.lab button.rst{background:transparent;border:1px solid var(--rule);color:var(--acc-ink);border-radius:6px;padding:2px 9px;cursor:pointer;font:600 11px "JetBrains Mono",monospace}
+.steps{display:grid;gap:14px;margin:6px 0 10px}
+.step{border:1px solid var(--rule);border-radius:10px;padding:16px 18px;background:var(--card);display:grid;grid-template-columns:38px 1fr;gap:14px}
+.step .n{width:34px;height:34px;border-radius:50%;border:2px solid var(--rule);display:grid;place-items:center;font:800 14px "JetBrains Mono",monospace;color:var(--ink-soft)}
+.step h4{margin:0 0 4px;color:#fff;font-size:16px}
+.step p{margin:0 0 6px;color:#C4CDD8;font-size:14.5px}
+.step .why{display:none;margin-top:10px;background:var(--acc-tint);border:1px solid var(--acc);border-radius:8px;padding:10px 14px;font-size:14px;color:#fff}
+.step.done{border-color:#34D399;background:rgba(52,211,153,.06)}
+.step.done .n{background:#34D399;border-color:#34D399;color:#04210f}
+.step.done .why{display:block}
+.prog{font:700 12px "JetBrains Mono",monospace;color:var(--acc-ink);letter-spacing:.05em;margin:0 0 10px}
+@media(max-width:760px){.lab{grid-template-columns:1fr}.lab .pane+.pane{border-left:0;border-top:1px solid var(--rule)}}
+
+.sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;margin:14px 0 26px}
+.sw div{border-radius:8px;padding:26px 8px 8px;font:600 12px "JetBrains Mono",monospace;color:#fff;text-shadow:0 1px 2px #0008;text-align:center}
+.demo .out .k{font-family:"JetBrains Mono",monospace;font-size:12px;color:#666;display:block;margin:10px 0 2px}
+.wrongright{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:12px 0 22px}
+.wrongright .w,.wrongright .r{border-radius:8px;padding:14px 16px;background:var(--card);border:1px solid var(--rule)}
+.wrongright .w{border-top:3px solid #F87171}.wrongright .r{border-top:3px solid #34D399}
+.wrongright h4{font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;margin:0 0 8px}
+.wrongright .w h4{color:#FCA5A5}.wrongright .r h4{color:#6EE7B7}
+.wrongright .codeblk{margin:0}
+.pt{color:#93C5FD}.vl{color:#86EFAC}.at{color:#FDBA74}
+.shellbig{font:700 clamp(18px,4.6vw,34px) "JetBrains Mono",monospace;background:#05070B;border:1px solid var(--rule);border-radius:10px;padding:26px 18px;margin:14px 0 10px;text-align:center;overflow-x:auto;white-space:nowrap}
+.shellbig.sm{font-size:clamp(15px,3.6vw,22px);padding:16px 14px;margin:0 0 12px;text-align:left}
+.sh-a{color:#F472B6}.sh-eq{color:#E8ECF3}.sh-q{color:#FBBF24}.sh-tag{color:#FB7185}.sh-ghost{color:#3A4560}
+.sh-slot{color:#86EFAC;background:rgba(134,239,172,.08);border:2px dashed #86EFAC;border-radius:6px;padding:4px 10px;margin:0 4px}
+.shelllegend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--ink-soft);margin:0 0 6px}.shelllegend i{font-style:normal;font-family:"JetBrains Mono",monospace;font-weight:700}
+.guessgrid .prompt code{font-size:13px;word-break:break-word}
+</style>
+<style>
+.pickrow{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.pickrow button{background:var(--card);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer;font:600 13px "JetBrains Mono",monospace}
+.pickrow button.on{border-color:var(--acc);background:var(--acc-tint);color:#fff}
+.out ul,.out ol{margin:0;padding-left:28px;line-height:1.7}
+.out li{margin:2px 0}
+.sample{width:100%;height:560px;border:1px solid var(--rule);border-radius:10px;background:#fff;display:block}
+details.showcode{margin:12px 0 22px}
+details.showcode summary{cursor:pointer;color:var(--acc-ink);font:700 13px "JetBrains Mono",monospace;padding:8px 0}
+.wire{display:grid;gap:8px;margin:14px 0 22px;font:600 12.5px "JetBrains Mono",monospace}
+.wire div{border-radius:6px;padding:10px 14px;border:1px solid var(--rule);background:var(--card);color:var(--ink)}
+.wire .h{background:rgba(163,230,53,.14);border-color:var(--acc)}
+.wire .l{background:rgba(255,255,255,.03);border-style:dashed}
+.wire .x{border-color:#F87171;color:#FCA5A5}
+.wire small{display:block;font:400 12px "Manrope",sans-serif;color:var(--ink-soft);margin-top:2px}
+</style>
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 6</a><a href="6-5-lists.html">Back to 6.5</a><a href="lists-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 6 Notes &nbsp;/&nbsp; Lesson 6.5</div>
+  <h1>Lists</h1>
+  <p class="deck">Top 10s, recipes, packing lists, and playlists all run on the same three tags. Learn how ordered and unordered lists work, how to change their markers, and how block and inline tags behave (the key to links and images).</p>
+  <span class="stdchip">ul &middot; ol &middot; li &middot; list-style-type &middot; block vs. inline</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>Two Kinds of List</h2></div>
+  <p class="story">A recipe says &ldquo;1, 2, 3&rdquo; because the order matters. If you bake the cake before you mix the batter, you get soup. A grocery list uses bullets because you can buy the eggs before the milk. Same idea, two different tags. HTML makes you choose because the choice tells readers whether order matters.</p>
+  <div class="pickrow" id="kind"><button class="on" data-k="ol">&lt;ol&gt; ordered</button><button data-k="ul">&lt;ul&gt; unordered</button></div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk" id="kindCode" style="margin:0"></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out" id="kindOut"></div></div>
+  </div>
+  <div class="cards">
+    <div class="cardx"><div class="num">Tag 01</div><h4><code>&lt;ol&gt;</code> ordered list</h4><p>Numbered. <b>Order matters:</b> steps, rankings, countdowns. &ldquo;ol&rdquo; stands for ordered list.</p></div>
+    <div class="cardx"><div class="num">Tag 02</div><h4><code>&lt;ul&gt;</code> unordered list</h4><p>Bulleted. <b>Order does not matter:</b> ingredients, features, favorites. &ldquo;ul&rdquo; stands for unordered list.</p></div>
+    <div class="cardx"><div class="num">Tag 03</div><h4><code>&lt;li&gt;</code> list item</h4><p>One entry in the list. <b>Every item gets its own <code>&lt;li&gt;</code></b> with an opening and a closing tag.</p></div>
+  </div>
+  <div class="callout">The list tag is the wrapper. The li tags are the items.<span>Only <code>&lt;li&gt;</code> tags go directly inside a <code>&lt;ul&gt;</code> or <code>&lt;ol&gt;</code>. Text placed straight inside the wrapper breaks the list.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>Change the Marker: list-style-type</h2></div>
+  <p class="lede">The bullet or number in front of each item is called the <b>marker</b>. Change it with the <code>list-style-type</code> property, written in the shell on the <b>list tag</b> (<code>&lt;ul&gt;</code> or <code>&lt;ol&gt;</code>), not on each li.</p>
+  <div class="pickrow" id="mk"></div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk" id="mkCode" style="margin:0"></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out" id="mkOut"></div></div>
+  </div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>List tag</th><th>Values you can use</th></tr></thead>
+    <tbody>
+      <tr><td><code>&lt;ul&gt;</code></td><td><code>disc</code> (the default dot), <code>circle</code>, <code>square</code>, <code>none</code></td></tr>
+      <tr><td><code>&lt;ol&gt;</code></td><td><code>decimal</code> (1, 2, 3), <code>upper-roman</code> (I, II, III), <code>lower-roman</code>, <code>upper-alpha</code> (A, B, C), <code>lower-alpha</code></td></tr>
+    </tbody></table></div></div>
+  <div class="callout">Type the shell first.<span><code>&lt;ul style=""&gt;</code>, then <code>list-style-type: square;</code> between the quotes. It is a style property, so it needs the shell just like <code>color</code>.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>Make a List Look Good</h2></div>
+  <p class="lede">A list is an element like any other, so everything you already know works on it. Put styles on the list tag to style the whole list. Put <code>&lt;strong&gt;</code> and <code>&lt;em&gt;</code> inside the items.</p>
+  <div class="demo">
+    <div class="box"><h4>Plain</h4><div class="codeblk"><span class="t">&lt;ol&gt;</span>
+  <span class="t">&lt;li&gt;</span>Mix the batter<span class="t">&lt;/li&gt;</span>
+  <span class="t">&lt;li&gt;</span>Bake it<span class="t">&lt;/li&gt;</span>
+<span class="t">&lt;/ol&gt;</span></div><div class="out"><ol><li>Mix the batter</li><li>Bake it</li></ol></div></div>
+    <div class="box"><h4>Styled</h4><div class="codeblk"><span class="t">&lt;ol</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">list-style-type</span>: <span class="vl">upper-roman</span>; <span class="pt">background-color</span>: <span class="vl">#ECFCCB</span>; <span class="pt">border</span>: <span class="vl">2px solid #65A30D</span>;<span class="t">"</span><span class="t">&gt;</span>
+  <span class="t">&lt;li&gt;&lt;strong&gt;</span>Mix<span class="t">&lt;/strong&gt;</span> <span class="t">&lt;em&gt;</span>the batter<span class="t">&lt;/em&gt;&lt;/li&gt;</span>
+<span class="t">&lt;/ol&gt;</span></div><div class="out"><ol style="list-style-type:upper-roman;background-color:#ECFCCB;border:2px solid #65A30D;padding:10px 10px 10px 40px"><li><strong>Mix</strong> <em>the batter</em></li><li><strong>Bake</strong> <em>until golden</em></li></ol></div></div>
+  </div>
+  <div class="hint-panel"><b>Pro tip:</b> put a bold name and an italic description in every item, like <code>&lt;li&gt;&lt;strong&gt;Pepperoni&lt;/strong&gt; - &lt;em&gt;the classic&lt;/em&gt;&lt;/li&gt;</code>. Readers can skim the bold words and read the italic ones if they want more.</div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>Block vs. Inline</h2></div>
+  <p class="story">Every tag on your page behaves in one of two ways. Some tags act like <b>paragraphs in a book</b>: each one starts on a new line and stretches all the way across the page. Others act like <b>words in a sentence</b>: they sit side by side and only take up as much room as they need. Knowing which is which explains why your list items stack up, why your <code>&lt;span&gt;</code> stays inside a sentence, and (coming up next) how links and images behave.</p>
+  <div class="cards">
+    <div class="cardx"><div class="num">Type 1</div><h4>Block tags</h4><p>Start on a <b>new line</b> and take the <b>whole width</b>. Stack on top of each other like bricks.</p><p style="margin-top:8px"><code>h1</code> to <code>h6</code>, <code>p</code>, <code>ul</code>, <code>ol</code>, <code>li</code>, <code>hr</code></p></div>
+    <div class="cardx"><div class="num">Type 2</div><h4>Inline tags</h4><p>Stay <b>inside the line</b> and only take the space they need. Flow next to each other like words.</p><p style="margin-top:8px"><code>span</code>, <code>strong</code>, <code>em</code>, <code>a</code> (links), <code>img</code> (images)</p></div>
+  </div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk"><span class="t">&lt;p&gt;</span>I am a block. <span class="t">&lt;strong&gt;</span>I am inline<span class="t">&lt;/strong&gt;</span> and <span class="t">&lt;em&gt;</span>so am I<span class="t">&lt;/em&gt;</span>.<span class="t">&lt;/p&gt;</span>
+<span class="t">&lt;p&gt;</span>I am another block.<span class="t">&lt;/p&gt;</span></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out"><p style="margin:0 0 6px;background:#DBEAFE">I am a block. <strong style="background:#FDE68A">I am inline</strong> and <em style="background:#FDE68A">so am I</em>.</p><p style="margin:0;background:#DBEAFE">I am another block.</p></div><p style="margin:10px 0 0;font-size:13px;color:var(--ink-soft)">Blue = block boxes, stretched across the page. Yellow = inline, only as wide as the words.</p></div>
+  </div>
+
+  <h3 style="color:#fff;margin:26px 0 8px">Flip it with <code>display</code></h3>
+  <p class="lede">The <code>display</code> property lets you change a tag's behavior. <code>display: inline;</code> makes a block act like a word. <code>display: block;</code> makes an inline act like a paragraph. Click to see it on a list.</p>
+  <div class="pickrow" id="dsp"><button class="on" data-d="block">li: block (default)</button><button data-d="inline">li: display: inline;</button></div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk" id="dspCode" style="margin:0"></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out" id="dspOut"></div></div>
+  </div>
+  <div class="hint-panel"><b>Horizontal menu recipe:</b> every menu bar on the internet is a list turned sideways. Put <code>list-style-type: none;</code> on the <code>&lt;ul&gt;</code> to remove the bullets, and <code>display: inline;</code> on every <code>&lt;li&gt;</code> so they sit in a row. (Lesson 6.10 goes much deeper on <code>display</code>.)</div>
+
+  <h3 style="color:#fff;margin:26px 0 8px">Block or inline?</h3>
+  <div class="guessgrid">
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;h2&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Block</h4><p>Headings get their own line.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;span&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Inline</h4><p>It stays inside the sentence, which is why it can color one word.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;li&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Block</h4><p>Each list item is on its own line. That is why lists stack.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;em&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Inline</h4><p>Italic words flow with the sentence around them.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;a&gt;</code> (a link)</div><div class="tap">Tap to reveal</div><div class="answer"><h4>Inline</h4><p>Links sit inside sentences. You will use this in 6.6.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;img&gt;</code> (an image)</div><div class="tap">Tap to reveal</div><div class="answer"><h4>Inline</h4><p>Surprise: images sit in the line like a giant letter. You will use this in 6.7.</p></div></div>
+  </div>
+  <div class="callout">Block starts a new line. Inline stays in the line.<span>Links and images are inline. That one fact explains most of what you will see in the next two lessons.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">05</div><h2>Common Mistakes</h2></div>
+  <div class="wrongright">
+    <div class="w"><h4>Wrong: text directly in the list</h4><div class="codeblk"><span class="t">&lt;ul&gt;</span>
+  Pepperoni
+<span class="t">&lt;/ul&gt;</span></div></div>
+    <div class="r"><h4>Right: use li</h4><div class="codeblk"><span class="t">&lt;ul&gt;</span>
+  <span class="t">&lt;li&gt;</span>Pepperoni<span class="t">&lt;/li&gt;</span>
+<span class="t">&lt;/ul&gt;</span></div></div>
+    <div class="w"><h4>Wrong: style on the li</h4><div class="codeblk"><span class="t">&lt;li</span> style="list-style-type: square;"<span class="t">&gt;</span></div></div>
+    <div class="r"><h4>Right: style on the ul or ol</h4><div class="codeblk"><span class="t">&lt;ul</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">list-style-type</span>: <span class="vl">square</span>;<span class="t">"</span><span class="t">&gt;</span></div></div>
+    <div class="w"><h4>Wrong: forgot the closing li</h4><div class="codeblk"><span class="t">&lt;li&gt;</span>Pepperoni
+<span class="t">&lt;li&gt;</span>Sausage</div></div>
+    <div class="r"><h4>Right</h4><div class="codeblk"><span class="t">&lt;li&gt;</span>Pepperoni<span class="t">&lt;/li&gt;</span>
+<span class="t">&lt;li&gt;</span>Sausage<span class="t">&lt;/li&gt;</span></div></div>
+    <div class="w"><h4>Wrong: roman numerals on a ul</h4><div class="codeblk"><span class="t">&lt;ul</span> style="list-style-type: upper-roman;"<span class="t">&gt;</span></div></div>
+    <div class="r"><h4>Right: roman numbers belong to ol</h4><div class="codeblk"><span class="t">&lt;ol</span> style="list-style-type: upper-roman;"<span class="t">&gt;</span></div></div>
+  </div>
+  <h3 style="color:#fff;margin:26px 0 8px">Which list?</h3>
+  <div class="guessgrid">
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">The steps to make a sandwich.</div><div class="tap">Tap to reveal</div><div class="answer"><h4>&lt;ol&gt;</h4><p>Order matters: bread before toppings.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Your five favorite songs, in no particular order.</div><div class="tap">Tap to reveal</div><div class="answer"><h4>&lt;ul&gt;</h4><p>No ranking, so bullets.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">The top 10 best movies of the year.</div><div class="tap">Tap to reveal</div><div class="answer"><h4>&lt;ol&gt;</h4><p>A ranking is an order.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Things to pack for a trip.</div><div class="tap">Tap to reveal</div><div class="answer"><h4>&lt;ul&gt;</h4><p>Pack them in any order.</p></div></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">06</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>Ordered list (ol)</b></td><td>A numbered list, used when order matters</td></tr>
+      <tr><td><b>Unordered list (ul)</b></td><td>A bulleted list, used when order does not matter</td></tr>
+      <tr><td><b>List item (li)</b></td><td>One entry in a list. The only tag allowed directly inside a ul or ol</td></tr>
+      <tr><td><b>Marker</b></td><td>The bullet or number in front of each item</td></tr>
+      <tr><td><b>list-style-type</b></td><td>The style property that changes the marker. Goes on the ul or ol</td></tr>
+      <tr><td><b>Block</b></td><td>A tag that starts on a new line and takes the full width (h1, p, ul, li, hr)</td></tr>
+      <tr><td><b>Inline</b></td><td>A tag that stays inside the line and only takes the space it needs (span, strong, em, a, img)</td></tr>
+      <tr><td><b>display</b></td><td>The style property that switches a tag between block and inline</td></tr>
+    </tbody></table></div></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>Order tells the reader what matters.</h2><p>Ready to build? Head back to 6.5 for the assignment.</p><a class="back" href="6-5-lists.html">&larr; Back to 6.5</a><a class="back" href="index.html">Unit 6</a><p class="sig">Unit 6 Notes / Lesson 6.5 / end of file</p></div></footer>
+
+<script src="../unit-4/notes.js"></script>
+<script>
+(function(){
+  var out = document.getElementById("dspOut"), code = document.getElementById("dspCode"), row = document.getElementById("dsp");
+  function draw(d) {
+    Array.prototype.forEach.call(row.children, function (b) { b.classList.toggle("on", b.getAttribute("data-d") === d); });
+    var inl = d === "inline", st = inl ? ' style="display: inline;"' : "";
+    var li = ["Pizza", "Tacos", "Sushi"];
+    code.innerHTML = '<span class="t">&lt;ul' + (inl ? '</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">list-style-type</span>: <span class="vl">none</span>;<span class="t">"</span><span class="t">&gt;</span>' : '&gt;</span>') + "\n" + li.map(function (x) { return '  <span class="t">&lt;li' + (inl ? '</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">display</span>: <span class="vl">inline</span>;<span class="t">"</span><span class="t">&gt;</span>' : '&gt;</span>') + x + '<span class="t">&lt;/li&gt;</span>'; }).join("\n") + '\n<span class="t">&lt;/ul&gt;</span>';
+    out.innerHTML = "<ul" + (inl ? ' style="list-style-type:none;padding:0;margin:0"' : "") + ">" + li.map(function (x) { return "<li" + (inl ? ' style="display:inline;background:#FDE68A;margin-right:10px;padding:4px 10px;border-radius:6px"' : ' style="background:#DBEAFE;margin-bottom:4px"') + ">" + x + "</li>"; }).join("") + "</ul>";
+  }
+  Array.prototype.forEach.call(row.children, function (b) { b.onclick = function () { draw(b.getAttribute("data-d")); }; });
+  draw("block");
+})();
+(function(){
+  var ITEMS = ["Mix the batter", "Bake it", "Frost it"];
+  var kind = document.getElementById("kind");
+  function draw(k) {
+    Array.prototype.forEach.call(kind.children, function (b) { b.classList.toggle("on", b.getAttribute("data-k") === k); });
+    document.getElementById("kindCode").innerHTML = '<span class="t">&lt;' + k + '&gt;</span>\n' + ITEMS.map(function (i) { return '  <span class="t">&lt;li&gt;</span>' + i + '<span class="t">&lt;/li&gt;</span>'; }).join("\n") + '\n<span class="t">&lt;/' + k + '&gt;</span>';
+    document.getElementById("kindOut").innerHTML = "<" + k + ">" + ITEMS.map(function (i) { return "<li>" + i + "</li>"; }).join("") + "</" + k + ">";
+  }
+  Array.prototype.forEach.call(kind.children, function (b) { b.onclick = function () { draw(b.getAttribute("data-k")); }; });
+  draw("ol");
+})();
+(function(){
+  var TY = [["ul","disc"],["ul","circle"],["ul","square"],["ul","none"],["ol","decimal"],["ol","upper-roman"],["ol","upper-alpha"],["ol","lower-alpha"]], row = document.getElementById("mk"), cur = 2;
+  TY.forEach(function (t, i) { var b = document.createElement("button"); b.textContent = t[0] + ": " + t[1]; b.onclick = function () { cur = i; draw(); }; row.appendChild(b); });
+  function draw() {
+    Array.prototype.forEach.call(row.children, function (b, i) { b.classList.toggle("on", i === cur); });
+    var tag = TY[cur][0], v = TY[cur][1];
+    document.getElementById("mkCode").innerHTML = '<span class="t">&lt;' + tag + '</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">list-style-type</span>: <span class="vl">' + v + '</span>;<span class="t">"</span><span class="t">&gt;</span>\n  <span class="t">&lt;li&gt;</span>Pepperoni<span class="t">&lt;/li&gt;</span>\n  <span class="t">&lt;li&gt;</span>Sausage<span class="t">&lt;/li&gt;</span>\n  <span class="t">&lt;li&gt;</span>Mushroom<span class="t">&lt;/li&gt;</span>\n<span class="t">&lt;/' + tag + '&gt;</span>';
+    document.getElementById("mkOut").innerHTML = "<" + tag + ' style="list-style-type:' + v + '"><li>Pepperoni</li><li>Sausage</li><li>Mushroom</li></' + tag + ">";
+  }
+  draw();
+})();
+</script>
+</body></html>

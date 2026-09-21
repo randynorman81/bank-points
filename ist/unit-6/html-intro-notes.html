@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intro to HTML and the HTML Skeleton | Unit 6 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css">
+<style>:root{--acc:#FB923C;--acc-tint:rgba(251,146,60,.13);--acc-ink:#FED7AA}
+.part{padding:64px 0 16px}
+.lede{margin:0 0 20px;line-height:1.7}
+.codeblk{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:14px 18px;margin:12px 0 26px;font-family:"JetBrains Mono",monospace;font-size:13.5px;line-height:1.7;color:#E8ECF3;overflow-x:auto;white-space:pre}
+.codeblk .t{color:#FDBA74}.codeblk .c{color:#7B8799}
+.demo{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin:14px 0 30px}
+.demo .box{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:16px 18px;min-width:0}
+.demo .box h4{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:10px}
+.demo .out{background:#fff;color:#111;border-radius:6px;padding:16px;font-family:Georgia,serif;font-size:15px}
+.demo .out p{color:#111;margin:.6em 0}.demo .out h1{color:#111;font-size:28px;margin:.3em 0;font-family:Georgia,serif}
+.demo .out h2{color:#111;font-size:22px;margin:.3em 0;font-family:Georgia,serif}.demo .out h3{color:#111;font-size:18px;margin:.3em 0;font-family:Georgia,serif}.demo .out h4{color:#111;font-size:15px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}.demo .out h5{color:#111;font-size:13px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}.demo .out h6{color:#111;font-size:11px;margin:.3em 0;font-family:Georgia,serif;text-transform:none;letter-spacing:0}
+.demo .codeblk{margin:0}
+.nest{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:18px;margin:12px 0 26px;font-family:"JetBrains Mono",monospace;font-size:13px}
+.nest .b1{border:2px solid var(--acc);border-radius:8px;padding:12px 14px;background:var(--acc-tint)}
+.nest .b2{border:2px dashed #93C5FD;border-radius:8px;padding:10px 12px;margin-top:10px;background:rgba(147,197,253,.08)}
+.nest .b3{border:2px dashed #86EFAC;border-radius:8px;padding:10px 12px;margin-top:10px;background:rgba(134,239,172,.08)}
+.nest small{display:block;color:var(--ink-soft);font-family:"Manrope",sans-serif;font-size:12.5px;margin-top:3px}
+.tabmock{display:inline-flex;align-items:center;gap:10px;background:#2B3544;color:#fff;border-radius:8px 8px 0 0;padding:8px 14px;font:13px "Manrope",sans-serif;margin-top:6px}
+.tabmock i{opacity:.6;font-style:normal}
+.tabbar{background:#111827;border:1px solid var(--rule);border-radius:8px;padding:10px 12px 0;margin:10px 0 14px}
+.tryit{display:block;text-align:center;margin:20px 0;background:var(--acc);color:#0B0E14;font-weight:800;border-radius:8px;padding:14px;text-decoration:none}
+
+/* ---- the lab ---- */
+.lab{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:0;border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:14px 0 26px;background:var(--card)}
+.lab .pane h4{margin:0;padding:8px 14px;font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);background:#0F1420;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center}
+.lab textarea{display:block;width:100%;height:240px;background:#05070B;color:#E8ECF3;border:0;outline:0;resize:vertical;padding:12px 14px;font:13.5px/1.7 "JetBrains Mono",monospace;white-space:pre;tab-size:2;overflow:auto}
+.lab iframe{display:block;width:100%;height:240px;border:0;background:#fff}
+.lab .pane+.pane{border-left:1px solid var(--rule)}
+.lab button.rst{background:transparent;border:1px solid var(--rule);color:var(--acc-ink);border-radius:6px;padding:2px 9px;cursor:pointer;font:600 11px "JetBrains Mono",monospace}
+.steps{display:grid;gap:14px;margin:6px 0 10px}
+.step{border:1px solid var(--rule);border-radius:10px;padding:16px 18px;background:var(--card);display:grid;grid-template-columns:38px 1fr;gap:14px}
+.step .n{width:34px;height:34px;border-radius:50%;border:2px solid var(--rule);display:grid;place-items:center;font:800 14px "JetBrains Mono",monospace;color:var(--ink-soft)}
+.step h4{margin:0 0 4px;color:#fff;font-size:16px}
+.step p{margin:0 0 6px;color:#C4CDD8;font-size:14.5px}
+.step .why{display:none;margin-top:10px;background:var(--acc-tint);border:1px solid var(--acc);border-radius:8px;padding:10px 14px;font-size:14px;color:#fff}
+.step.done{border-color:#34D399;background:rgba(52,211,153,.06)}
+.step.done .n{background:#34D399;border-color:#34D399;color:#04210f}
+.step.done .why{display:block}
+.prog{font:700 12px "JetBrains Mono",monospace;color:var(--acc-ink);letter-spacing:.05em;margin:0 0 10px}
+@media(max-width:760px){.lab{grid-template-columns:1fr}.lab .pane+.pane{border-left:0;border-top:1px solid var(--rule)}}
+</style></head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 6</a><a href="6-1-intro-to-html-and-html-skeleton.html">Back to 6.1</a><a href="html-intro-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 6 Notes &nbsp;/&nbsp; Lesson 6.1</div>
+  <h1>Intro to HTML and the HTML Skeleton</h1>
+  <p class="deck">You will start by typing, not reading. Change a page, break it on purpose, and fix it. Then the rest of these notes will give names to everything you just did.</p>
+  <span class="stdchip">HTML Foundations</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">Try it</div><h2>See It, Change It, Break It</h2></div>
+  <p class="lede">This is a real web page, written in 6 lines. Type in the left box and watch the page on the right change instantly. Work through the five steps in order.</p>
+  <div class="prog" id="prog">0 OF 5 STEPS DONE</div>
+  <div class="lab">
+    <div class="pane"><h4><span>Your code</span><button class="rst" id="rst">Reset</button></h4><textarea id="labcode" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Practice code"></textarea></div>
+    <div class="pane"><h4><span>The page</span></h4><iframe id="labprev" sandbox title="Live preview"></iframe></div>
+  </div>
+  <div class="steps">
+    <div class="step" id="s1"><div class="n">1</div><div><h4>Change it</h4><p>Change <b>Hello, world!</b> to your own first name. Only change the words. Leave the angle brackets alone.</p><div class="why"><b>You edited an element.</b> The words between the tags are the content. Change the content and the page changes.</div></div></div>
+    <div class="step" id="s2"><div class="n">2</div><div><h4>Add to it</h4><p>Add a new line under the paragraph with your favorite food inside <b>&lt;p&gt;</b> and <b>&lt;/p&gt;</b>, like <code>&lt;p&gt;My favorite food is pizza.&lt;/p&gt;</code></p><div class="why"><b>You made a second paragraph.</b> Each <code>&lt;p&gt;</code> paragraph starts on its own line, and you started and ended it yourself.</div></div></div>
+    <div class="step" id="s3"><div class="n">3</div><div><h4>Break it</h4><p>Delete the <b>&lt;/h1&gt;</b> at the end of your heading line. Look at the page. What changed?</p><div class="why"><b>The browser did not know where the heading ended.</b> So it kept going, and other text may have turned big and bold. The closing tag is the stop sign.</div></div></div>
+    <div class="step" id="s4"><div class="n">4</div><div><h4>Fix it</h4><p>Put <b>&lt;/h1&gt;</b> back where it belongs. The page should go back to normal.</p><div class="why"><b>Fixed.</b> Every opening tag needs its closing tag. Finding and fixing missing tags is most of what debugging HTML is.</div></div></div>
+    <div class="step" id="s5"><div class="n">5</div><div><h4>Try to trick it</h4><p>Inside one of your paragraphs, press <b>Enter</b> in the middle of a sentence and type a bunch of extra spaces between two words. Does the page show them?</p><div class="why"><b>The browser ignored your spaces and line breaks.</b> HTML does not care how you format your code. You will see why this matters later in these notes.</div></div></div>
+  </div>
+  <div class="callout">You just wrote HTML.<span>Now let's put names to what you did.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>What Is HTML?</h2></div>
+  <p class="lede"><b>HTML</b> stands for <b>HyperText Markup Language</b>. It is the language that gives every web page its <b>structure</b>: which part is a heading, which part is a paragraph, which part is a list. Think of it as the framing of a house: the walls and rooms, before any paint.</p>
+  <p class="lede">Later in this unit you will add <b>CSS</b>, the language that controls how a page looks (the paint and the furniture). For now, we only build the frame.</p>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>Tags and Elements</h2></div>
+  <p class="lede">HTML is built out of <b>tags</b>. Most tags come in pairs, and each pair wraps around some content. That is what you were typing in the lab.</p>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Part</th><th>Looks like</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><b>Opening tag</b></td><td><code>&lt;p&gt;</code></td><td>Starts the element. Tells the browser, "A paragraph starts here."</td></tr>
+      <tr><td><b>Content</b></td><td>Hello, World!</td><td>The words (or other stuff) people see.</td></tr>
+      <tr><td><b>Closing tag</b></td><td><code>&lt;/p&gt;</code></td><td>Ends the element. Always has a forward slash <code>/</code>. Tells the browser, "The paragraph is finished."</td></tr>
+    </tbody></table></div></div>
+<div class="codeblk"><span class="t">&lt;p&gt;</span>Hello, World!<span class="t">&lt;/p&gt;</span></div>
+  <div class="callout">Opening tag + content + closing tag = an element.<span>In the lab, you deleted a closing tag and the browser got confused. That is why every opening tag needs its partner.</span></div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk"><span class="t">&lt;h1&gt;</span>My Page<span class="t">&lt;/h1&gt;</span>
+<span class="t">&lt;p&gt;</span>This is a paragraph.<span class="t">&lt;/p&gt;</span></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out"><h1 style="margin-top:0">My Page</h1><p style="margin-bottom:0">This is a paragraph.</p></div></div>
+  </div>
+  <ul style="margin:0 0 16px 26px;line-height:1.7">
+    <li><code>&lt;h1&gt;</code> is a <b>heading</b>: the biggest title on the page. Use it once.</li>
+    <li><code>&lt;p&gt;</code> is a <b>paragraph</b>: regular text.</li>
+  </ul>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>The HTML Skeleton</h2></div>
+  <p class="lede">In the lab, your page had an <code>&lt;html&gt;</code> tag and a <code>&lt;body&gt;</code> tag around your content. Every web page is built the same way. It is called the <b>HTML skeleton</b>. It is made of <b>container tags</b>: tags that hold other tags.</p>
+  <div class="callout">The box analogy.<span>You open a big box and find a smaller box inside. The small box is <b>nested</b> inside the big box. The skeleton is boxes inside boxes.</span></div>
+  <div class="nest">
+    <div class="b1"><b>&lt;html&gt;</b> The big outer box
+      <div class="b2"><b>&lt;head&gt;</b> Hidden information about the page<small>Nested inside html. Not shown on the page itself.</small></div>
+      <div class="b3"><b>&lt;body&gt;</b> Everything you can see on the page<small>Also inside html, and placed below head.</small></div>
+      <b style="display:block;margin-top:10px">&lt;/html&gt;</b>
+    </div>
+  </div>
+  <p class="lede">In code, we use indentation (extra spaces) to show which box is inside which. Here is the complete skeleton, with the one line you have not seen yet at the very top:</p>
+<div class="codeblk"><span class="t">&lt;!DOCTYPE html&gt;</span>
+<span class="t">&lt;html&gt;</span>
+  <span class="t">&lt;head&gt;</span>
+    <span class="t">&lt;title&gt;</span>My First Page<span class="t">&lt;/title&gt;</span>
+  <span class="t">&lt;/head&gt;</span>
+  <span class="t">&lt;body&gt;</span>
+    <span class="t">&lt;h1&gt;</span>Hello, world!<span class="t">&lt;/h1&gt;</span>
+    <span class="t">&lt;p&gt;</span>I made this page.<span class="t">&lt;/p&gt;</span>
+  <span class="t">&lt;/body&gt;</span>
+<span class="t">&lt;/html&gt;</span></div>
+  <ul style="margin:0 0 20px 26px;line-height:1.75">
+    <li><code>&lt;!DOCTYPE html&gt;</code> goes on the very first line of every real web page. It tells the browser, "This page uses modern HTML." It is not a box, so it has no closing tag.</li>
+    <li><code>&lt;html&gt;</code> is the big outer box. Everything else goes inside it.</li>
+    <li><code>&lt;head&gt;</code> is inside html. It holds information about the page that people do not see on the page itself.</li>
+    <li><code>&lt;body&gt;</code> is inside html, below head. It holds everything you can see: headings, paragraphs, and more.</li>
+  </ul>
+  <div class="callout">You will type this skeleton yourself, every time.<span>The Web Editor does not create it for you. Learn the pattern now: DOCTYPE, html, head with a title, and body. The editor will close your tags to help, but you decide what goes in.</span></div>
+  <div class="callout">HTML is a series of containers that hold other tags.<span>We will meet many more containers later, like div, section, and footer.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>The &lt;title&gt; Tag</h2></div>
+  <p class="lede">The <code>&lt;title&gt;</code> tag sets the text on your browser tab. It goes inside <code>&lt;head&gt;</code>, not in the body, because it is information about the page, not part of the page itself.</p>
+<div class="codeblk"><span class="t">&lt;head&gt;</span>
+  <span class="t">&lt;title&gt;</span>My Awesome Portfolio<span class="t">&lt;/title&gt;</span>
+<span class="t">&lt;/head&gt;</span></div>
+  <div class="tabbar"><div class="tabmock">My Awesome Portfolio <i>&times;</i></div></div>
+  <p class="hint" style="margin-bottom:26px">What the browser tab looks like with that title tag.</p>
+  <ul style="margin:0 0 16px 26px;line-height:1.75">
+    <li>The title shows in the <b>browser tab</b>, in <b>search results</b>, and as the default name when someone <b>bookmarks</b> your page.</li>
+    <li>Use only <b>one</b> title per page. Think of it as the filename of a Word document.</li>
+  </ul>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">05</div><h2>Headings and Paragraphs</h2></div>
+  <p class="lede">You already used two <b>creation tags</b>: tags that add visible content to the page. Every creation tag lives inside a container, and the <code>&lt;body&gt;</code> counts. Here are the two you will use the most.</p>
+  <div class="cards">
+    <div class="cardx"><div class="num">Tag</div><h4>&lt;p&gt; Paragraph</h4><p>Regular body text. It starts on its own line, with space above and below.</p></div>
+    <div class="cardx"><div class="num">Tags</div><h4>&lt;h1&gt; to &lt;h6&gt; Headings</h4><p>Titles and section names. h1 is the largest and h6 is the smallest. They are bold by default and also start on their own line.</p></div>
+  </div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk"><span class="t">&lt;h1&gt;</span>Heading 1<span class="t">&lt;/h1&gt;</span>
+<span class="t">&lt;h2&gt;</span>Heading 2<span class="t">&lt;/h2&gt;</span>
+<span class="t">&lt;h3&gt;</span>Heading 3<span class="t">&lt;/h3&gt;</span>
+<span class="t">&lt;h4&gt;</span>Heading 4<span class="t">&lt;/h4&gt;</span>
+<span class="t">&lt;h5&gt;</span>Heading 5<span class="t">&lt;/h5&gt;</span>
+<span class="t">&lt;h6&gt;</span>Heading 6<span class="t">&lt;/h6&gt;</span>
+<span class="t">&lt;p&gt;</span>A paragraph.<span class="t">&lt;/p&gt;</span></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out"><h1 style="margin-top:0">Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3><h4>Heading 4</h4><h5>Heading 5</h5><h6>Heading 6</h6><p style="margin-bottom:0">A paragraph.</p></div></div>
+  </div>
+  <h3 style="color:#fff;margin:26px 0 10px">Headings are an outline</h3>
+  <p class="lede">Think about an outline from English class. The h1 is the title of the whole page. Each h2 is a main section. An h3 is a smaller part inside a section. Follow the order and do not skip levels.</p>
+<div class="codeblk"><span class="t">&lt;h1&gt;</span>Honey Bee<span class="t">&lt;/h1&gt;</span>
+  <span class="t">&lt;h2&gt;</span>Life in the Colony<span class="t">&lt;/h2&gt;</span>
+    <span class="t">&lt;h3&gt;</span>The Queen<span class="t">&lt;/h3&gt;</span>
+    <span class="t">&lt;h3&gt;</span>Workers and Drones<span class="t">&lt;/h3&gt;</span>
+  <span class="t">&lt;h2&gt;</span>Honey<span class="t">&lt;/h2&gt;</span></div>
+  <ul style="margin:0 0 20px 26px;line-height:1.75">
+    <li>Use <b>one</b> h1 per page: the name of your topic.</li>
+    <li>Use h2 for main sections, like History or How It Works. Use h3 for smaller parts inside a section.</li>
+    <li>Do not skip levels. An h3 without an h2 above it breaks the outline.</li>
+    <li>Choose a heading by <b>meaning</b> (how important it is), not by how big it looks. You will change how big text looks later with CSS.</li>
+  </ul>
+  <div class="callout">A heading names a section. A paragraph fills it in.<span>A real encyclopedia page is an h1, then a few h2 sections, each with several paragraphs.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">06</div><h2>HTML Ignores Your Formatting</h2></div>
+  <p class="lede">In step 5 of the lab, the browser ignored your extra spaces and Enter keys. HTML is <b>whitespace insensitive</b>: it does not care how you space out your code.</p>
+  <div class="cards">
+    <div class="cardx"><div class="num">Rule 01</div><h4>Extra spaces are ignored</h4><p>Ten spaces between two words in your code show up as one space on the page.</p></div>
+    <div class="cardx"><div class="num">Rule 02</div><h4>Line breaks are ignored</h4><p>Pressing Enter in your code does not start a new line on the page.</p></div>
+    <div class="cardx"><div class="num">Rule 03</div><h4>Code lines are not page lines</h4><p>A paragraph can take up four lines in your editor and still show as one line in the browser.</p></div>
+  </div>
+  <div class="demo">
+    <div class="box"><h4>Your code (5 lines)</h4><div class="codeblk"><span class="t">&lt;p&gt;</span>
+  This text is on line 2 in code,
+  but it will stay on one line
+  in the browser.
+<span class="t">&lt;/p&gt;</span></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out"><p style="margin:0">This text is on line 2 in code, but it will stay on one line in the browser.</p></div></div>
+  </div>
+  <div class="callout">Format your code so <em>you</em> can read it. The browser will ignore it.<span>Use indentation and separate lines to keep your tags easy to read and easy to fix.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">07</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Plain-English meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>HTML</b></td><td>HyperText Markup Language. The language that gives a web page its structure</td></tr>
+      <tr><td><b>Tag</b></td><td>A piece of HTML in angle brackets, like <code>&lt;p&gt;</code>. Most come as an opening and closing pair</td></tr>
+      <tr><td><b>Opening tag / Closing tag</b></td><td><code>&lt;p&gt;</code> starts an element. <code>&lt;/p&gt;</code> ends it (it has a slash)</td></tr>
+      <tr><td><b>Element</b></td><td>An opening tag, its content, and its closing tag together</td></tr>
+      <tr><td><b>Creation tag</b></td><td>A tag that adds visible content to the page, like a heading (<code>&lt;h1&gt;</code> to <code>&lt;h6&gt;</code>) or a paragraph (<code>&lt;p&gt;</code>)</td></tr>
+      <tr><td><b>Heading</b></td><td>A title or section name. h1 is the biggest and most important. h6 is the smallest</td></tr>
+      <tr><td><b>Container tag</b></td><td>A tag that holds other tags, like html, head, and body</td></tr>
+      <tr><td><b>HTML skeleton</b></td><td>The required set of nested container tags: html, head, and body</td></tr>
+      <tr><td><b>DOCTYPE</b></td><td><code>&lt;!DOCTYPE html&gt;</code>, the first line of a web page. It tells the browser to use modern HTML</td></tr>
+      <tr><td><b>Whitespace insensitive</b></td><td>HTML ignores extra spaces and line breaks in your code</td></tr>
+    </tbody></table></div></div>
+  <a class="tryit" href="6-1-intro-to-html-and-html-skeleton.html#assignments">Next: build your first website &rarr;</a>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>Structure first. Style second.</h2><p>Ready to build? Head back to 6.1 for the assignment.</p><a class="back" href="6-1-intro-to-html-and-html-skeleton.html">&larr; Back to 6.1</a><a class="back" href="index.html">Unit 6</a><p class="sig">Unit 6 Notes / Lesson 6.1 / end of file</p></div></footer>
+
+<script src="html-check.js"></script>
+<script src="../unit-4/notes.js"></script>
+<script>
+(function () {
+  var START = '<html>\n  <body>\n    <h1>Hello, world!</h1>\n    <p>I made this page.</p>\n  </body>\n</html>';
+  var ta = document.getElementById("labcode"), pv = document.getElementById("labprev"), done = {}, broke = false, t;
+  function mark(n) { if (done[n]) return; done[n] = 1; document.getElementById("s" + n).classList.add("done"); var c = Object.keys(done).length; document.getElementById("prog").textContent = c + " OF 5 STEPS DONE" + (c === 5 ? "  ·  NICE WORK" : ""); }
+  function run() {
+    pv.srcdoc = ta.value;
+    var c = HTMLCheck.analyze(ta.value), h1 = c.all("h1")[0], p = c.all("p");
+    var h1open = /<h1>/i.test(ta.value), h1close = /<\/h1>/i.test(ta.value);
+    if (h1 && c.errors.length === 0 && c.text(h1) && c.text(h1) !== "Hello, world!") mark(1);
+    if (c.errors.length === 0 && p.length >= 2) mark(2);
+    if (h1open && !h1close) { broke = true; mark(3); }
+    if (broke && h1open && h1close && c.errors.length === 0) mark(4);
+    var spacey = p.some(function (x) { return x.children.some(function (n) { return n.tag === "#text" && (/\n/.test(n.text.trim()) || /\S {3,}\S/.test(n.text)); }); });
+    if (spacey && c.errors.length === 0) mark(5);
+  }
+  ta.value = START; run();
+  ta.addEventListener("input", function () { clearTimeout(t); t = setTimeout(run, 250); });
+  ta.addEventListener("keydown", function (e) { if (e.key === "Tab") { e.preventDefault(); ta.setRangeText("  ", ta.selectionStart, ta.selectionEnd, "end"); } });
+  document.getElementById("rst").onclick = function () { ta.value = START; run(); };
+})();
+</script>
+</body></html>
