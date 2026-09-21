@@ -69,6 +69,20 @@ main[data-view="code"] .split,main[data-view="prev"] .split{display:none}
 #code{flex:1;min-width:0;resize:none;border:0;outline:0;background:transparent;color:#E6EAF2;overflow:auto;caret-color:var(--acc)}
 #code::selection{background:#3B4A72}
 #mirror{position:absolute;visibility:hidden;pointer-events:none;top:0;left:0;height:auto}
+#code{color:transparent!important;position:relative;z-index:2}
+#code::selection{background:rgba(96,130,220,.38)!important;color:transparent}
+#hl{position:absolute;top:0;left:46px;height:100%;margin:0;overflow:hidden;pointer-events:none;z-index:1;color:#E6EAF2;font:14px/21px "JetBrains Mono",monospace;padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:2;box-sizing:border-box}
+.t-tag{color:#FB7185}.t-style{color:#F472B6}.t-attr{color:#FBBF24}.t-id{color:#22D3EE}.t-id-v{color:#67E8F9}.t-class{color:#A78BFA}.t-class-v{color:#C4B5FD}.t-val{color:#86EFAC}.t-br{color:#7C8AA5}.t-eq{color:#7C8AA5}
+.c-prop{color:#60A5FA}.c-hex{color:#FDBA74}.c-num{color:#FDBA74}.c-pun{color:#7C8AA5}.c-cm{color:#5B6B85;font-style:italic}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;padding:5px 12px;background:#0D1220;border-bottom:1px solid var(--rule);font:11.5px "JetBrains Mono",monospace;color:var(--soft)}
+.legend i{font-style:normal}
+.pane.min>.legend{display:none}
+#guidePop{position:fixed;right:16px;bottom:16px;width:min(520px,92vw);height:min(70vh,640px);min-width:300px;min-height:220px;background:var(--panel);border:1px solid var(--acc);border-radius:10px;box-shadow:0 18px 50px rgba(0,0,0,.6);z-index:500;display:none;flex-direction:column;resize:both;overflow:hidden}
+#guidePop.show{display:flex}
+#guidePop .gh{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--card);border-bottom:1px solid var(--rule);cursor:move;user-select:none;touch-action:none}
+#guidePop .gh b{flex:1;font-size:13px}
+#guidePop iframe{flex:1;border:0;width:100%;background:#0B0E14}
+#guidePop.drag iframe{pointer-events:none}
 .prevwrap{flex:1;min-height:0;background:#fff}
 #prev{width:100%;height:100%;border:0;background:#fff;display:block}
 .side{position:fixed;top:0;right:0;bottom:0;width:min(380px,92vw);overflow:auto;background:var(--bg);border-left:1px solid var(--rule);box-shadow:-12px 0 40px #000a;transform:translateX(105%);transition:transform .22s ease;z-index:40}
@@ -144,7 +158,8 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
       <span class="ftabs" id="ftabs"><button class="on" data-f="html">index.html</button><button data-f="css">style.css</button></span>
       <span class="tools"><label title="Adds the closing tag and closing quote for you"><input type="checkbox" id="auto" checked> Auto-close</label><span id="lineinfo">Line 1</span><span class="winbtns"><button class="btn sm" id="minCode" title="Shrink the code panel">– Minimize</button><button class="btn sm" id="maxCode" title="Make the code panel fill the screen">⤢ Maximize</button></span></span>
     </h2>
-    <div class="edwrap"><div class="gut" id="gut"></div><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="soft" aria-label="Code editor"></textarea><div id="mirror" aria-hidden="true"></div></div>
+    <div class="legend" id="legend"><span><i class="t-tag">&lt;tag&gt;</i></span><span><i class="t-style">style</i></span><span><i class="t-id">id</i></span><span><i class="t-class">class</i></span><span><i class="t-attr">attribute</i></span><span><i class="t-val">"value"</i></span><span><i class="c-prop">css-property</i></span><span><i class="c-hex">#hex / 12px</i></span><span>plain white = not a keyword I know, check your spelling</span></div>
+    <div class="edwrap"><div class="gut" id="gut"></div><div id="hl" aria-hidden="true"></div><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="soft" aria-label="Code editor"></textarea><div id="mirror" aria-hidden="true"></div></div>
     <button class="stripbtn" data-restore="both" aria-label="Show the code panel">▸ Code</button>
   </section>
   <div class="split" id="split" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize. Double-click to reset."></div>
@@ -174,6 +189,8 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
     </div>
   </aside>
 </main>
+<div id="guidePop" role="dialog" aria-label="Study guide"><div class="gh" id="guideHead"><b>Study guide</b><a class="btn sm" id="guideFull" href="study-guide.html" target="_blank" rel="noopener">Open full page</a><button class="btn sm" id="guideClose" aria-label="Close study guide">&#10005;</button></div><iframe id="guideFrame" title="Study guide"></iframe></div>
+
 
 <div class="modal" id="mSubmit"><div class="box">
   <h3>Submit this lesson?</h3>
@@ -581,6 +598,134 @@ $("file").addEventListener("change", function () {
     fr.readAsDataURL(o.blob);
   }).catch(function (e) { banner(e.message, "err"); });
 });
+
+/* ---------- syntax colors: right keywords light up, wrong ones stay plain ---------- */
+var HL = (function () {
+  function set(s) { var o = {}; s.split(" ").forEach(function (k) { o[k] = 1; }); return o; }
+  var TAGS = set("html head body title meta link style script h1 h2 h3 h4 h5 h6 p br hr div span a img ul ol li table thead tbody tfoot tr th td caption b i u em strong small mark sub sup code pre blockquote q abbr cite header footer nav main section article aside figure figcaption form input button label select option textarea iframe video audio source canvas svg center font");
+  var ATTRS = set("id class style href src alt title width height type name value lang charset content rel colspan rowspan target border align bgcolor color size face placeholder for action method disabled checked controls autoplay loop");
+  var PROPS = set("color background background-color background-image background-size background-position background-repeat border border-color border-style border-width border-radius border-top border-bottom border-left border-right margin margin-top margin-bottom margin-left margin-right padding padding-top padding-bottom padding-left padding-right width height min-width max-width min-height max-height display font font-family font-size font-weight font-style text-align text-decoration text-transform text-indent line-height letter-spacing word-spacing list-style list-style-type list-style-position float clear position top bottom left right overflow opacity visibility box-shadow text-shadow cursor z-index vertical-align white-space border-collapse border-spacing flex flex-direction justify-content align-items gap grid");
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function sp(c, s) { return s === "" ? "" : '<span class="' + c + '">' + esc(s) + "</span>"; }
+
+  /* the inside of a { } block or style="" attribute: property: value; */
+  function decls(t) {
+    return t.replace(/(\/\*[\s\S]*?(?:\*\/|$))|([^:;{}\/]+)(:)|(#[0-9a-fA-F]{3,8}\b)|(-?\d*\.?\d+(?:px|em|rem|%|pt|vh|vw)?)|([;{}:])|(\s+)|([\s\S])/g,
+      function (m, cm, prop, colon, hex, num, punc, ws, other) {
+        if (cm) return sp("c-cm", cm);
+        if (prop) { var p = prop.trim(); var lead = prop.match(/^\s*/)[0], trail = prop.match(/\s*$/)[0]; return esc(lead) + (PROPS[p.toLowerCase()] ? sp("c-prop", p) : esc(p)) + esc(trail) + sp("c-pun", colon); }
+        if (hex) return sp("c-hex", hex);
+        if (num) return sp("c-num", num);
+        if (punc) return sp("c-pun", punc);
+        return esc(m);
+      });
+  }
+  function css(t) {
+    var out = "", re = /\/\*[\s\S]*?(?:\*\/|$)|[^{}]*\{|\}|[^{}]+$/g, m, depth = 0, pos = 0;
+    var parts = [];
+    /* walk: selector text up to "{", then declarations up to "}" */
+    var i = 0, n = t.length;
+    while (i < n) {
+      var open = t.indexOf("{", i);
+      if (open < 0) { out += selectors(t.slice(i)); break; }
+      out += selectors(t.slice(i, open)) + sp("c-pun", "{");
+      var close = t.indexOf("}", open);
+      if (close < 0) { out += decls(t.slice(open + 1)); break; }
+      out += decls(t.slice(open + 1, close)) + sp("c-pun", "}");
+      i = close + 1;
+    }
+    return out;
+  }
+  function selectors(t) {
+    return t.replace(/(\/\*[\s\S]*?(?:\*\/|$))|(@[\w-]+)|(#[\w-]+)|(\.[\w-]+)|([a-zA-Z][\w-]*)|([,>+~*:]+)|([\s\S])/g,
+      function (m, cm, at, id, cls, el, pun) {
+        if (cm) return sp("c-cm", cm);
+        if (at) return sp("t-style", at);
+        if (id) return sp("t-id", id);
+        if (cls) return sp("t-class", cls);
+        if (el) return TAGS[el.toLowerCase()] ? sp("t-tag", el) : esc(el);
+        if (pun) return sp("c-pun", pun);
+        return esc(m);
+      });
+  }
+
+  function tag(m) {
+    var mm = /^(<\/?)([^\s>\/]*)([\s\S]*)$/.exec(m), open = mm[1], name = mm[2], rest = mm[3], lname = name.toLowerCase();
+    var out = sp("t-br", open);
+    out += !TAGS[lname] ? esc(name) : (lname === "style" ? sp("t-style", name) : sp("t-tag", name));
+    out += rest.replace(/([^\s=\/>"']+)(\s*=\s*)?("[^"]*"?|'[^']*'?|[^\s>"']+)?|(\/?>)|(\s+)|([\s\S])/g,
+      function (x, an, eq, av, close) {
+        if (close) return sp("t-br", close);
+        if (an === undefined) return esc(x);
+        var l = an.toLowerCase(), known = ATTRS[l], cls = !known ? "" : (l === "id" ? "t-id" : l === "class" ? "t-class" : l === "style" ? "t-style" : "t-attr");
+        var s = cls ? sp(cls, an) : esc(an);
+        if (eq) s += sp("t-eq", eq);
+        if (av !== undefined) {
+          if (l === "style" && /^["']/.test(av)) { var q = av.charAt(0), end = av.length > 1 && av.slice(-1) === q ? q : ""; s += sp("t-val", q) + decls(av.slice(1, av.length - end.length)) + sp("t-val", end); }
+          else s += sp(cls === "t-id" ? "t-id-v" : cls === "t-class" ? "t-class-v" : "t-val", av);
+        }
+        return s;
+      });
+    return out;
+  }
+
+  function html(t) {
+    var out = "", re = /<!--[\s\S]*?(?:-->|$)|<![^>]*>?|<\/?[a-zA-Z][^>]*>?/g, last = 0, m;
+    while ((m = re.exec(t))) {
+      out += esc(t.slice(last, m.index)); last = re.lastIndex;
+      if (m[0].slice(0, 4) === "<!--") out += sp("c-cm", m[0]);
+      else if (m[0].charAt(1) === "!") out += sp("c-cm", m[0]);
+      else {
+        out += tag(m[0]);
+        if (/^<style[\s>]/i.test(m[0]) && m[0].slice(-1) === ">") {
+          var close = t.toLowerCase().indexOf("</style", last); if (close < 0) close = t.length;
+          out += css(t.slice(last, close)); last = close; re.lastIndex = close;
+        }
+      }
+    }
+    return out + esc(t.slice(last));
+  }
+  return { html: html, css: css };
+})();
+
+var hlEl = $("hl"), hlKey = null;
+function paintHL() {
+  var key = S.file + "\u0001" + ta.value + "\u0001" + ta.clientWidth;
+  if (key !== hlKey) {
+    hlKey = key; hlEl.style.width = ta.clientWidth + "px";
+    hlEl.innerHTML = (S.file === "css" ? HL.css(ta.value) : HL.html(ta.value)) + "\n ";
+  }
+  hlEl.scrollTop = ta.scrollTop; hlEl.scrollLeft = ta.scrollLeft;
+}
+ta.addEventListener("scroll", paintHL); ta.addEventListener("input", paintHL);
+setInterval(paintHL, 120); paintHL();
+
+/* study guide opens in a floating window so the code stays visible */
+(function () {
+  var pop = $("guidePop"), frame = $("guideFrame"), head = $("guideHead");
+  function url() { return "study-guide.html#l" + S.lesson.replace(".", "-"); }
+  $("linkGuide").addEventListener("click", function (e) {
+    if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+    e.preventDefault();
+    var u = url(); if (frame.getAttribute("data-u") !== u) { frame.src = u; frame.setAttribute("data-u", u); }
+    $("guideFull").href = u; pop.classList.add("show");
+  });
+  $("guideClose").addEventListener("click", function () { pop.classList.remove("show"); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && pop.classList.contains("show")) pop.classList.remove("show"); });
+  var d = null;
+  head.addEventListener("pointerdown", function (e) {
+    if (e.target.closest("button,a")) return;
+    var r = pop.getBoundingClientRect(); d = { x: e.clientX - r.left, y: e.clientY - r.top };
+    pop.style.left = r.left + "px"; pop.style.top = r.top + "px"; pop.style.right = "auto"; pop.style.bottom = "auto";
+    pop.classList.add("drag"); head.setPointerCapture(e.pointerId);
+  });
+  head.addEventListener("pointermove", function (e) {
+    if (!d) return;
+    pop.style.left = Math.max(0, Math.min(innerWidth - 80, e.clientX - d.x)) + "px"; pop.style.top = Math.max(0, Math.min(innerHeight - 40, e.clientY - d.y)) + "px";
+  });
+  function up() { d = null; pop.classList.remove("drag"); }
+  head.addEventListener("pointerup", up); head.addEventListener("pointercancel", up);
+})();
 
 /* ---------- start ---------- */
 updateGuideLink(); loadLocal(); cursorInfo(); initGoogle();
