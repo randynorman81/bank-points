@@ -85,8 +85,8 @@ details.showcode summary{cursor:pointer;color:var(--acc-ink);font:700 13px "JetB
 <header class="hero"><div class="wrap">
   <div class="brief-no">Unit 7 Notes &nbsp;/&nbsp; Lesson 7.5</div>
   <h1>Lists</h1>
-  <p class="deck">Top 10s, recipes, packing lists, and playlists all run on the same three tags. Learn how ordered and unordered lists work, how to change their markers, and how to lay out a whole page that looks great.</p>
-  <span class="stdchip">ul &middot; ol &middot; li &middot; list-style-type</span>
+  <p class="deck">Top 10s, recipes, packing lists, and playlists all run on the same three tags. Learn how ordered and unordered lists work, how to change their markers, and how block and inline tags behave (the key to links and images).</p>
+  <span class="stdchip">ul &middot; ol &middot; li &middot; list-style-type &middot; block vs. inline</span>
 </div></header>
 
 <section class="part"><div class="wrap">
@@ -138,34 +138,37 @@ details.showcode summary{cursor:pointer;color:var(--acc-ink);font:700 13px "JetB
 </div></section>
 
 <section class="part"><div class="wrap">
-  <div class="part-head"><div class="part-tag">04</div><h2>Design the Whole Page</h2></div>
-  <p class="story">A page with every tag thrown on it looks like a junk drawer. A page with a plan looks professional. For the 7.5 assignment you will build a two-section guide page. Follow this blueprint and every tag gets a job.</p>
-  <div class="wire">
-    <div class="h">&lt;h1&gt; Title banner<small>Colored background, light text, centered, big font, fancy border-bottom</small></div>
-    <div>&lt;p&gt; Tagline (centered)<small>An <code>&lt;em&gt;</code> phrase with <code>&lt;span&gt;</code> highlights, and a <code>&lt;br&gt;</code> to break the line</small></div>
-    <div class="x">&lt;hr&gt; Divider #1<small>Styled with a border</small></div>
-    <div class="h">&lt;h2&gt; Section 1<small>Same color family as the banner</small></div>
-    <div>&lt;p&gt; Short intro<small>One or two sentences</small></div>
-    <div class="l">&lt;h3&gt; label + &lt;ol&gt; ranked list<small>Border + background + list-style-type. Bold name + italic description in each item</small></div>
-    <div class="l">&lt;h3&gt; label + &lt;ul&gt; bullet list<small>A different list-style-type, same border and background colors</small></div>
-    <div class="x">&lt;hr&gt; Divider #2</div>
-    <div class="h">&lt;h2&gt; Section 2</div>
-    <div>&lt;p&gt; Short intro</div>
-    <div class="l">&lt;h3&gt; label + &lt;ol&gt; steps list</div>
-    <div class="l">&lt;h3&gt; label + &lt;ul&gt; things-you-need list</div>
-    <div>&lt;p&gt; Footer<small>Two lines separated by a <code>&lt;br&gt;</code>, small centered text</small></div>
-  </div>
+  <div class="part-head"><div class="part-tag">04</div><h2>Block vs. Inline</h2></div>
+  <p class="story">Every tag on your page behaves in one of two ways. Some tags act like <b>paragraphs in a book</b>: each one starts on a new line and stretches all the way across the page. Others act like <b>words in a sentence</b>: they sit side by side and only take up as much room as they need. Knowing which is which explains why your list items stack up, why your <code>&lt;span&gt;</code> stays inside a sentence, and (coming up next) how links and images behave.</p>
   <div class="cards">
-    <div class="cardx"><div class="num">Rule 01</div><h4>Pick a palette</h4><p>Use 2 main colors plus a neutral. Repeat them: the banner, the h2s, and the list borders all share the palette.</p></div>
-    <div class="cardx"><div class="num">Rule 02</div><h4>Pick 2 fonts</h4><p>One family for headings (like <code>serif</code>) and another for body text (<code>sans-serif</code>). Two is a pair. Three is a mess.</p></div>
-    <div class="cardx"><div class="num">Rule 03</div><h4>Size shows importance</h4><p>Biggest: h1. Medium: h2. Small caps-style: h3. Body: 16 to 20px.</p></div>
-    <div class="cardx"><div class="num">Rule 04</div><h4>Center the top, left-align the rest</h4><p>Center the banner and tagline. Keep lists and paragraphs left-aligned so they are easy to read.</p></div>
+    <div class="cardx"><div class="num">Type 1</div><h4>Block tags</h4><p>Start on a <b>new line</b> and take the <b>whole width</b>. Stack on top of each other like bricks.</p><p style="margin-top:8px"><code>h1</code> to <code>h6</code>, <code>p</code>, <code>ul</code>, <code>ol</code>, <code>li</code>, <code>hr</code></p></div>
+    <div class="cardx"><div class="num">Type 2</div><h4>Inline tags</h4><p>Stay <b>inside the line</b> and only take the space they need. Flow next to each other like words.</p><p style="margin-top:8px"><code>span</code>, <code>strong</code>, <code>em</code>, <code>a</code> (links), <code>img</code> (images)</p></div>
+  </div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk"><span class="t">&lt;p&gt;</span>I am a block. <span class="t">&lt;strong&gt;</span>I am inline<span class="t">&lt;/strong&gt;</span> and <span class="t">&lt;em&gt;</span>so am I<span class="t">&lt;/em&gt;</span>.<span class="t">&lt;/p&gt;</span>
+<span class="t">&lt;p&gt;</span>I am another block.<span class="t">&lt;/p&gt;</span></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out"><p style="margin:0 0 6px;background:#DBEAFE">I am a block. <strong style="background:#FDE68A">I am inline</strong> and <em style="background:#FDE68A">so am I</em>.</p><p style="margin:0;background:#DBEAFE">I am another block.</p></div><p style="margin:10px 0 0;font-size:13px;color:var(--ink-soft)">Blue = block boxes, stretched across the page. Yellow = inline, only as wide as the words.</p></div>
   </div>
 
-  <h3 style="color:#fff;margin:26px 0 8px">A finished example</h3>
-  <p class="lede">This page follows the blueprint (the topic is pizza night). Yours will be about your own topic.</p>
-  <iframe class="sample" id="sample" title="Example finished page" sandbox></iframe>
-  <details class="showcode"><summary>Show the code</summary><div class="codeblk" id="sampleCode"></div></details>
+  <h3 style="color:#fff;margin:26px 0 8px">Flip it with <code>display</code></h3>
+  <p class="lede">The <code>display</code> property lets you change a tag's behavior. <code>display: inline;</code> makes a block act like a word. <code>display: block;</code> makes an inline act like a paragraph. Click to see it on a list.</p>
+  <div class="pickrow" id="dsp"><button class="on" data-d="block">li: block (default)</button><button data-d="inline">li: display: inline;</button></div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk" id="dspCode" style="margin:0"></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out" id="dspOut"></div></div>
+  </div>
+  <div class="hint-panel"><b>Horizontal menu recipe:</b> every menu bar on the internet is a list turned sideways. Put <code>list-style-type: none;</code> on the <code>&lt;ul&gt;</code> to remove the bullets, and <code>display: inline;</code> on every <code>&lt;li&gt;</code> so they sit in a row. (Lesson 7.10 goes much deeper on <code>display</code>.)</div>
+
+  <h3 style="color:#fff;margin:26px 0 8px">Block or inline?</h3>
+  <div class="guessgrid">
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;h2&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Block</h4><p>Headings get their own line.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;span&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Inline</h4><p>It stays inside the sentence, which is why it can color one word.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;li&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Block</h4><p>Each list item is on its own line. That is why lists stack.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;em&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Inline</h4><p>Italic words flow with the sentence around them.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;a&gt;</code> (a link)</div><div class="tap">Tap to reveal</div><div class="answer"><h4>Inline</h4><p>Links sit inside sentences. You will use this in 7.6.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;img&gt;</code> (an image)</div><div class="tap">Tap to reveal</div><div class="answer"><h4>Inline</h4><p>Surprise: images sit in the line like a giant letter. You will use this in 7.7.</p></div></div>
+  </div>
+  <div class="callout">Block starts a new line. Inline stays in the line.<span>Links and images are inline. That one fact explains most of what you will see in the next two lessons.</span></div>
 </div></section>
 
 <section class="part"><div class="wrap">
@@ -205,6 +208,9 @@ details.showcode summary{cursor:pointer;color:var(--acc-ink);font:700 13px "JetB
       <tr><td><b>List item (li)</b></td><td>One entry in a list. The only tag allowed directly inside a ul or ol</td></tr>
       <tr><td><b>Marker</b></td><td>The bullet or number in front of each item</td></tr>
       <tr><td><b>list-style-type</b></td><td>The style property that changes the marker. Goes on the ul or ol</td></tr>
+      <tr><td><b>Block</b></td><td>A tag that starts on a new line and takes the full width (h1, p, ul, li, hr)</td></tr>
+      <tr><td><b>Inline</b></td><td>A tag that stays inside the line and only takes the space it needs (span, strong, em, a, img)</td></tr>
+      <tr><td><b>display</b></td><td>The style property that switches a tag between block and inline</td></tr>
     </tbody></table></div></div>
 </div></section>
 
@@ -212,6 +218,18 @@ details.showcode summary{cursor:pointer;color:var(--acc-ink);font:700 13px "JetB
 
 <script src="../unit-5/notes.js"></script>
 <script>
+(function(){
+  var out = document.getElementById("dspOut"), code = document.getElementById("dspCode"), row = document.getElementById("dsp");
+  function draw(d) {
+    Array.prototype.forEach.call(row.children, function (b) { b.classList.toggle("on", b.getAttribute("data-d") === d); });
+    var inl = d === "inline", st = inl ? ' style="display: inline;"' : "";
+    var li = ["Pizza", "Tacos", "Sushi"];
+    code.innerHTML = '<span class="t">&lt;ul' + (inl ? '</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">list-style-type</span>: <span class="vl">none</span>;<span class="t">"</span><span class="t">&gt;</span>' : '&gt;</span>') + "\n" + li.map(function (x) { return '  <span class="t">&lt;li' + (inl ? '</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">display</span>: <span class="vl">inline</span>;<span class="t">"</span><span class="t">&gt;</span>' : '&gt;</span>') + x + '<span class="t">&lt;/li&gt;</span>'; }).join("\n") + '\n<span class="t">&lt;/ul&gt;</span>';
+    out.innerHTML = "<ul" + (inl ? ' style="list-style-type:none;padding:0;margin:0"' : "") + ">" + li.map(function (x) { return "<li" + (inl ? ' style="display:inline;background:#FDE68A;margin-right:10px;padding:4px 10px;border-radius:6px"' : ' style="background:#DBEAFE;margin-bottom:4px"') + ">" + x + "</li>"; }).join("") + "</ul>";
+  }
+  Array.prototype.forEach.call(row.children, function (b) { b.onclick = function () { draw(b.getAttribute("data-d")); }; });
+  draw("block");
+})();
 (function(){
   var ITEMS = ["Mix the batter", "Bake it", "Frost it"];
   var kind = document.getElementById("kind");
@@ -233,13 +251,6 @@ details.showcode summary{cursor:pointer;color:var(--acc-ink);font:700 13px "JetB
     document.getElementById("mkOut").innerHTML = "<" + tag + ' style="list-style-type:' + v + '"><li>Pepperoni</li><li>Sausage</li><li>Mushroom</li></' + tag + ">";
   }
   draw();
-})();
-(function(){
-  var H = '<!DOCTYPE html>\n<html>\n<head>\n<title>Lists | Unit 7 Notes</title>\n</head>\n<body style="background-color: #FFFDF5; font-family: sans-serif; font-size: 17px;">\n\n<h1 style="background-color: #7F1D1D; color: #FEF3C7; font-family: serif; font-size: 42px; text-align: center; border-bottom: 6px double #F59E0B;">Pizza Night Guide</h1>\n<p style="text-align: center; font-size: 20px;"><em>Everything you need for the <span style="color: #B91C1C;">perfect</span> pie.</em><br>Ranked, tested, and <span style="color: #B91C1C;">approved</span> by friends.</p>\n<hr style="border: 3px dashed #F59E0B;">\n\n<h2 style="color: #7F1D1D; font-family: serif; font-size: 30px; border-bottom: 3px solid #F59E0B;">The Topping Countdown</h2>\n<p>Not all toppings are created equal. These are the ones that <span style="color: #B91C1C;">always</span> get eaten first.</p>\n<h3 style="color: #92400E; font-size: 16px; text-transform: uppercase;">Top 3 toppings</h3>\n<ol style="list-style-type: upper-roman; background-color: #FFFBEB; border: 2px solid #F59E0B;">\n  <li><strong>Pepperoni</strong> - <em>the undefeated classic</em></li>\n  <li><strong>Sausage</strong> - <em>hearty and savory</em></li>\n  <li><strong>Mushroom</strong> - <em>the underrated hero</em></li>\n</ol>\n<h3 style="color: #92400E; font-size: 16px; text-transform: uppercase;">Honorable mentions</h3>\n<ul style="list-style-type: square; background-color: #FFFBEB; border: 2px solid #F59E0B;">\n  <li><strong>Olives</strong> - <em>salty and bold</em></li>\n  <li><strong>Pineapple</strong> - <em>you know it is divisive</em></li>\n  <li><strong>Jalapenos</strong> - <em>for the brave</em></li>\n</ul>\n<hr style="border: 3px dashed #F59E0B;">\n\n<h2 style="color: #7F1D1D; font-family: serif; font-size: 30px; border-bottom: 3px solid #F59E0B;">The Game Plan</h2>\n<p>Follow the steps in order and dinner is a <span style="color: #B91C1C;">guaranteed</span> win.</p>\n<h3 style="color: #92400E; font-size: 16px; text-transform: uppercase;">Steps</h3>\n<ol style="list-style-type: decimal; background-color: #FFFBEB; border: 2px solid #F59E0B;">\n  <li><strong>Preheat</strong> - <em>the oven to 450 degrees</em></li>\n  <li><strong>Stretch</strong> - <em>the dough into a circle</em></li>\n  <li><strong>Top it</strong> - <em>sauce, cheese, toppings</em></li>\n</ol>\n<h3 style="color: #92400E; font-size: 16px; text-transform: uppercase;">What you need</h3>\n<ul style="list-style-type: circle; background-color: #FFFBEB; border: 2px solid #F59E0B;">\n  <li><strong>Dough</strong> - <em>store bought is fine</em></li>\n  <li><strong>Sauce</strong> - <em>a big spoonful</em></li>\n  <li><strong>Cheese</strong> - <em>more than you think</em></li>\n</ul>\n\n<p style="text-align: center; font-size: 14px; color: #92400E;">Made by Mr. Norman\'s class<br>Social Circle High School</p>\n</body>\n</html>';
-  var f = document.getElementById("sample");
-  f.srcdoc = H.replace("<body ", '<body ').replace("</head>", "<style>body{margin:0;padding:14px 20px}</style></head>");
-  document.getElementById("sampleCode").textContent = H;
-  window.__SAMPLE_75 = H;
 })();
 </script>
 </body></html>

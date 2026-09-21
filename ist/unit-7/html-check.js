@@ -309,7 +309,10 @@
       r("Uses font-family (serif, sans-serif, or monospace) at least 2 times", function (c) { return c.propValues("font-family").filter(function (v) { return /(^|[\s,'"])(serif|sans-serif|monospace)\s*$/i.test(v.replace(/;$/, "")); }).length >= 2; }),
       r("Puts the border shortcut (thickness, style, color) on at least 2 different elements", function (c) {
         var els = []; c.inline.forEach(function (d) { if (/^border(-top|-bottom|-left|-right)?$/.test(d.prop) && /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(d.value) && els.indexOf(d.el) < 0) els.push(d.el); }); return els.length >= 2;
-      })
+      }),
+      r("Makes one list horizontal: display: inline on at least 3 <li> (block turned into inline)", function (c) {
+        return c.inline.filter(function (d) { return d.prop === "display" && /^inline$/i.test(d.value.replace(/;$/, "").trim()) && d.el.tag === "li"; }).length >= 3;
+      }, "Put style=\"display: inline;\" on each li of one list, and add list-style-type: none; to the ul.")
     ] },
     "7.6": { name: "Links + Everything So Far", rules: [
       r("Has at least 6 <a> links, and every href starts with https://", function (c) { var a = c.all("a"); return a.length >= 6 && a.every(function (x) { return /^https:\/\//i.test(x.attrs.href || ""); }); }, "Copy the whole address from the browser, including https://"),
@@ -348,19 +351,36 @@
       r("Uses the style attribute on at least 2 different tags (your inline exceptions)", function (c) { var els = []; c.inline.forEach(function (d) { if (els.indexOf(d.el) < 0) els.push(d.el); }); return els.length >= 2; }, "Example: a colored span, and a footer paragraph."),
       r("Uses the border shortcut: thickness, style, color (like 2px solid black)", function (c) { return ["border", "border-top", "border-bottom", "border-left", "border-right"].some(function (p) { return anyValue(c, p, function (v) { return /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(v); }); }); })
     ] },
-    "7.7": { name: "Images", rules: [
-      r("Has an <img> with a src", function (c) { return c.all("img").some(function (i) { return (i.attrs.src || "").length > 0; }); }),
-      r("The image has an alt description", function (c) { var im = c.all("img"); return im.length > 0 && im.every(function (i) { return (i.attrs.alt || "").trim().length > 0; }); }),
-      r("The image src is a web address (uploaded here or hosted online), not a file on your computer", function (c) { var im = c.all("img"); return im.length > 0 && im.every(function (i) { return /^(https?:)?\/\//i.test(i.attrs.src || "") || /^\/api\/code\?img=/.test(i.attrs.src || ""); }); }),
-      r("Sets width OR height, but not both (keeps the aspect ratio)", function (c) {
+    "7.7": { name: "Images (Clickable, Resized)", rules: [
+      r("Has at least 3 <img> tags, each with a src", function (c) { var im = c.all("img"); return im.length >= 3 && im.every(function (i) { return (i.attrs.src || "").length > 0; }); }),
+      r("Every image has a real alt description (not the placeholder text)", function (c) { var im = c.all("img"); return im.length > 0 && im.every(function (i) { var a = (i.attrs.alt || "").trim().toLowerCase(); return a.length >= 3 && a !== "describe your image here"; }); }, "Say what is in the picture, like alt=\"Rex the bulldog wearing a cowboy hat\"."),
+      r("At least 2 images were uploaded with the editor (Checks > My images > Insert)", function (c) { return c.all("img").filter(function (i) { return /\/api\/code\?img=/.test(i.attrs.src || ""); }).length >= 2; }, "Upload your own pictures. Open Checks, find My images, upload, then click Insert."),
+      r("Every image src is a web address, not a file on your computer", function (c) { var im = c.all("img"); return im.length > 0 && im.every(function (i) { return /^(https?:)?\/\//i.test(i.attrs.src || "") || /^\/api\/code\?img=/.test(i.attrs.src || ""); }); }),
+      r("Every image sets width OR height, but not both (keeps the shape)", function (c) {
         var im = c.all("img"); if (!im.length) return false;
         return im.every(function (i) {
           var st = {}; (i.attrs.style || "").split(";").forEach(function (p) { var k = p.split(":"); if (k[1]) st[k[0].trim().toLowerCase()] = k[1].trim(); });
           var w = i.attrs.width !== undefined || st.width !== undefined, h = i.attrs.height !== undefined || (st.height !== undefined && st.height !== "auto");
-          return !(w && h);
+          return (w || h) && !(w && h);
         });
-      }, "Choose one: the browser calculates the other."),
-      r("Uses border-radius on something", function (c) { return c.prop("border-radius") > 0; })
+      }, "Choose one: the browser figures out the other. Example: style=\"width: 300px;\""),
+      r("Uses at least 2 different image sizes, and at least one size is a percentage (like width: 50%)", function (c) {
+        var sizes = {}, pct = false; c.all("img").forEach(function (i) {
+          var st = {}; (i.attrs.style || "").split(";").forEach(function (p) { var k = p.split(":"); if (k[1]) st[k[0].trim().toLowerCase()] = k[1].trim(); });
+          var v = st.width || st.height || i.attrs.width || i.attrs.height; if (v) { sizes[String(v).replace(/\s/g, "")] = 1; if (/%$/.test(String(v).trim())) pct = true; }
+        }); return Object.keys(sizes).length >= 2 && pct;
+      }, "Try one big image (width: 300px), one small one (width: 100px), and one that is width: 50%."),
+      r("Every image is a clickable link: the <img> sits inside an <a> with an https:// href", function (c) { var im = c.all("img"); return im.length > 0 && im.every(function (i) { var a = c.ancestor(i, ["a"]); return !!a && /^https:\/\//i.test(a.attrs.href || "") && !/example\.com/i.test(a.attrs.href); }); }, "Change the example link the editor inserts to a real website."),
+      r("At least one image link opens in a new tab (target=\"_blank\") and at least one opens in the current tab", function (c) {
+        var a = []; c.all("img").forEach(function (i) { var l = c.ancestor(i, ["a"]); if (l) a.push(l); });
+        return a.some(function (l) { return l.attrs.target === "_blank"; }) && a.some(function (l) { return l.attrs.target === undefined || l.attrs.target === "_self"; });
+      }),
+      r("Uses border-radius on an image", function (c) { return c.all("img").some(function (i) { return c.inline.some(function (d) { return d.el === i && d.prop === "border-radius"; }); }) || c.selector("img").some(function (rl) { return rl.decls.some(function (d) { return d.prop === "border-radius"; }); }); }),
+      r("Uses a border on an image", function (c) { return c.all("img").some(function (i) { return c.inline.some(function (d) { return d.el === i && /^border/.test(d.prop); }); }) || c.selector("img").some(function (rl) { return rl.decls.some(function (d) { return /^border/.test(d.prop); }); }); }),
+      r("Uses display: block on at least one image (so it sits on its own line)", function (c) { return c.all("img").some(function (i) { return c.inline.some(function (d) { return d.el === i && d.prop === "display" && /^block$/i.test(d.value.replace(/;$/, "").trim()); }); }) || c.selector("img").some(function (rl) { return rl.decls.some(function (d) { return d.prop === "display" && /^block$/i.test(d.value.replace(/;$/, "").trim()); }); }); }, "Images are inline by default. display: block puts one on its own line."),
+      r("Has an <h1> and at least 2 more headings, and at least 3 <p> paragraphs", function (c) { var n = 0; ["h1", "h2", "h3", "h4", "h5", "h6"].forEach(function (h) { n += c.count(h); }); return c.has("h1") && n >= 3 && c.count("p") >= 3; }),
+      r("Has an internal <style> block in the head with at least 2 rules", function (c) { return c.all("style").some(function (s) { return !!c.ancestor(s, ["head"]); }) && c.sheetRules.length >= 2; }),
+      r("Uses text-align: center on something", function (c) { return c.propValues("text-align").some(function (v) { return /center/i.test(v); }); })
     ] },
     "7.8": { name: "Box Model", rules: [
       r("Uses padding", function (c) { return c.prop("padding") + c.prop("padding-top") + c.prop("padding-left") + c.prop("padding-right") + c.prop("padding-bottom") > 0; }),

@@ -563,7 +563,7 @@ $("imgs").addEventListener("click", function (e) {
   var id = b.getAttribute("data-ins") || b.getAttribute("data-cp") || b.getAttribute("data-del"), url = location.origin + API + "?img=" + id;
   if (b.hasAttribute("data-ins")) {
     if (S.file !== "html") { S.buf.css = ta.value; S.file = "html"; ta.value = S.buf.html; markTabs(); }
-    noteAuto(80 + url.length); ta.focus(); ta.setRangeText('<img src="' + url + '" alt="describe your image here" width="300">', ta.selectionStart, ta.selectionEnd, "end"); onEdit(); toast("Inserted. Now write a real alt description.");
+    noteAuto(140 + url.length); ta.focus(); ta.setRangeText('<a href="https://www.example.com" target="_blank"><img src="' + url + '" alt="describe your image here" style="width: 300px;"></a>', ta.selectionStart, ta.selectionEnd, "end"); onEdit(); toast("Inserted a clickable image. Change the link address and write a real alt description.");
   } else if (b.hasAttribute("data-cp")) { try { navigator.clipboard.writeText(url); toast("URL copied"); } catch (er) {} }
   else if (confirm("Delete this image?")) api({ action: "deleteImage", id: id }).then(function (j) { if (j && j.ok) { S.cloud.images = S.cloud.images.filter(function (i) { return i.id !== id; }); renderImages(S.cloud.images); } else if (j && j.error) toast(j.error); });
 });
