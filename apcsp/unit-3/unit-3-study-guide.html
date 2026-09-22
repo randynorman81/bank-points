@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 3 Study Guide: Programming with Python | AP CSP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#FB923C; --acc-tint:rgba(251,146,60,.14); --acc-ink:#FDC79B;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --lst:#34D399; --lst-tint:rgba(52,211,153,.13); --lst-ink:#6EE7B7;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#2B1706;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(32px,6vw,52px);font-weight:600;max-width:22ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:66ch;margin-top:18px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.chip{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:6px 14px}
+.chip b{color:var(--acc-ink)}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.part-head .les{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-soft);white-space:nowrap}
+.lede{font-size:17.5px;line-height:1.6;max-width:70ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--acc)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F0DAC4}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+.good{background:var(--lst-tint);border-left:4px solid var(--lst);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#D3F5E6}
+.good b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.checklist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 20px}
+.checklist li{font-size:14.5px;color:#C4CDD8;padding:8px 0 8px 26px;position:relative;border-bottom:1px solid var(--rule)}
+.checklist li::before{content:"\2610";position:absolute;left:0;color:var(--acc-ink);font-size:15px}
+
+.qbox{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:22px 24px;margin-bottom:14px}
+.qbox .qn{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--acc-ink);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.qbox p{font-size:15px;color:#EAEFF6}
+.qbox details{margin-top:12px}
+.qbox summary{cursor:pointer;font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--acc-ink);font-weight:600}
+.qbox .ans{margin-top:10px;font-size:14.5px;color:#C4CDD8;border-top:1px solid var(--rule);padding-top:10px}
+.qbox .ans b{color:var(--lst-ink)}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:30ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:64ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+  .checklist{grid-template-columns:1fr}
+  .part-head{flex-wrap:wrap} .part-head .les{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../study-guides.html">&larr; Study Guides</a>
+  <a href="../unit-1/index.html">Unit 1</a>
+  <a href="unit-3-study-guide.html" class="current">Unit 3 Study Guide</a>
+  <a href="../python-variables/index.html">Variables</a>
+  <a href="../user-input.html">User Input</a>
+  <a href="../basic-math.html">Basic Math</a>
+  <a href="../graphics/index.html">Graphics</a>
+  <a href="../graphics/mouse-events.html">Mouse Events</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">AP CSP &nbsp;/&nbsp; UNIT 3 &nbsp;/&nbsp; PROGRAMMING WITH PYTHON</div>
+    <h1>Unit 3 Study Guide: Programming with Python</h1>
+    <p class="deck">100% complete review for the 3.9 Programming with Python Test &mdash; every concept from 3.1 through 3.8, in the order CodeHS teaches it. Nothing on the test falls outside this guide.</p>
+    <div class="meta">
+      <span class="chip">Covers <b>3.1&ndash;3.8</b></span>
+      <span class="chip">Tests on <b>3.9</b></span>
+      <span class="chip">First real Python unit &mdash; <b>Karel is gone</b></span>
+    </div>
+  </div>
+</header>
+
+<!-- 3.1 / 3.2 WHAT IS CODE / USES OF PROGRAMS -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>What Is Code, and What Do Programs Do?</h2><div class="les">3.1&ndash;3.2</div></div>
+    <p class="lede">Before any Python syntax, Unit 3 opens with two conceptual lessons: what code actually is, and the four things every program is ultimately doing underneath.</p>
+
+    <div class="two">
+      <div class="box">
+        <h3>What is code?</h3>
+        <p>Code is a set of instructions written in a programming language that a computer can follow, step by step, in order. A programming language is a formal language &mdash; unlike English, it has strict, unambiguous rules (its <b>syntax</b>) so a computer never has to guess what you meant.</p>
+      </div>
+      <div class="box">
+        <h3>Program vs. algorithm</h3>
+        <p>An <b>algorithm</b> is the plan &mdash; a finite list of steps to solve a problem, which could be written in plain English. A <b>program</b> is that algorithm actually written in a language a computer can run. Every program implements an algorithm; not every algorithm has been turned into a program yet.</p>
+      </div>
+    </div>
+
+    <h3 style="margin-top:26px;">The four things every program does</h3>
+    <p>The AP CSP framework groups everything a program does into four categories. Nearly any line of code you write this year is doing one of these:</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Category</th><th>What it means</th><th>Python example</th></tr>
+        <tr><td><b>Input</b></td><td>Getting data from outside the program (a user, a sensor, a file)</td><td><code>input()</code></td></tr>
+        <tr><td><b>Output</b></td><td>Sending data back out (screen, speaker, file)</td><td><code>print()</code></td></tr>
+        <tr><td><b>Storage</b></td><td>Keeping data around to use later</td><td>a variable</td></tr>
+        <tr><td><b>Computation / Processing</b></td><td>Doing something with the data &mdash; math, decisions, repetition</td><td>an operator, an <code>if</code>, a loop</td></tr>
+      </table>
+    </div></div>
+
+    <div class="example"><b>Test tip:</b> if a question describes a real program (an ATM, a thermostat, a video game score) and asks you to identify input/output/storage/computation, match the plain-English description to these four categories &mdash; don't overthink it. "The screen shows your balance" is output. "It remembers how many lives you have left" is storage.</div>
+  </div>
+</section>
+
+<!-- 3.3 HELLO WORLD -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Hello World: Your First Python Program</h2><div class="les">3.3</div></div>
+    <p class="lede">Every program in this unit starts the same way: print something to the screen. This is also the first time this year you're writing real Python instead of dragging Karel commands.</p>
+
+    <div class="code">print("Hello, world!")</div>
+
+    <div class="two">
+      <div class="box">
+        <h3><code>print()</code></h3>
+        <p>Displays whatever is inside the parentheses to the console. Text (a <b>string</b>) must be wrapped in quotation marks &mdash; either <code>"double"</code> or <code>'single'</code>, as long as you're consistent on both ends.</p>
+      </div>
+      <div class="box">
+        <h3>Comments: <code>#</code></h3>
+        <p>Anything after a <code>#</code> on a line is ignored by Python entirely &mdash; it's a note for humans reading the code, not an instruction. Used to explain <em>why</em> code does something, not just restate what it does.</p>
+      </div>
+    </div>
+
+    <div class="code">print("Score: 100")   <span class="cm"># prints the text Score: 100</span>
+print(100)             <span class="cm"># prints the number 100 (no quotes needed for numbers)</span>
+print("Line one")
+print("Line two")      <span class="cm"># each print() starts on a new line automatically</span></div>
+
+    <div class="warn"><b>Common mistake:</b> forgetting a closing quotation mark, or mixing <code>"</code> and <code>'</code> to open and close the same string. Python reads to the end of the line looking for the matching quote and throws a <code>SyntaxError</code> if it never finds one.</div>
+  </div>
+</section>
+
+<!-- 3.4 VARIABLES -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Variables</h2><div class="les">3.4</div></div>
+    <p class="lede">A variable is a named box that holds a piece of data. Instead of typing a value over and over, you store it once under a name and reuse the name.</p>
+
+    <div class="code">name = "Ada"
+age = 16
+print(name)
+print(age)</div>
+
+    <div class="two">
+      <div class="box">
+        <h3>The <code>=</code> sign</h3>
+        <p>In Python, <code>=</code> is the <b>assignment operator</b> &mdash; it only flows one direction. It means "take whatever is on the right, and store it in the name on the left." It is <em>not</em> the same as <code>=</code> in math class.</p>
+      </div>
+      <div class="box">
+        <h3>Naming rules</h3>
+        <p>A variable name can contain letters, numbers, and underscores (<code>_</code>) &mdash; but can't start with a number and can't contain spaces or punctuation like <code>-</code> <code>@</code> <code>!</code>.</p>
+      </div>
+    </div>
+
+    <h3 style="margin-top:26px;">The three types you need cold</h3>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Type</th><th>Holds</th><th>Example</th><th>Written with quotes?</th></tr>
+        <tr><td><b>string (str)</b></td><td>Text</td><td><code>name = "Ada"</code></td><td>Yes</td></tr>
+        <tr><td><b>integer (int)</b></td><td>Whole numbers</td><td><code>age = 16</code></td><td>No</td></tr>
+        <tr><td><b>float</b></td><td>Decimal numbers</td><td><code>gpa = 3.75</code></td><td>No</td></tr>
+      </table>
+    </div></div>
+
+    <p>Python figures out a variable's type automatically from what you assign it &mdash; you never declare the type yourself, unlike some other languages.</p>
+
+    <div class="good"><b><code>str()</code> and <code>int()</code>:</b> Python's <code>+</code> can join two strings (concatenation) or add two numbers, but never mix a string and a number. Convert a number to text with <code>str()</code>, or text to a number with <code>int()</code>, before combining them.</div>
+
+    <div class="code">name = "Alex"
+age = 15
+print(name + " is " + str(age) + " years old")   <span class="cm"># str() lets age join the string</span></div>
+
+    <div class="hint-panel">Full deep-dive with more examples, string methods, and concatenation practice: <a href="../python-variables/index.html">Variables reference &rarr;</a> and <a href="../concatenation.html">String Concatenation &rarr;</a></div>
+  </div>
+</section>
+
+<!-- 3.5 USER INPUT -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>User Input</h2><div class="les">3.5</div></div>
+    <p class="lede"><code>input()</code> pauses the program, shows the person a prompt, and waits for them to type something before continuing.</p>
+
+    <div class="code">name = input("What's your name? ")
+print("Hello, " + name)</div>
+
+    <div class="warn"><b>The #1 fact to know cold:</b> <code>input()</code> always returns a <b>string</b> &mdash; even if the user types a number. If you need to do math with it, you must convert it first with <code>int()</code> or <code>float()</code>.</div>
+
+    <div class="code">age_text = input("How old are you? ")   <span class="cm"># age_text is a string, like "15"</span>
+age = int(age_text)                       <span class="cm"># now it's a real number you can add to</span>
+next_year = age + 1
+print(next_year)</div>
+
+    <div class="hint-panel">Full deep-dive: <a href="../user-input.html">User Input reference &rarr;</a></div>
+  </div>
+</section>
+
+<!-- 3.6 BASIC MATH -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Basic Math in Python</h2><div class="les">3.6</div></div>
+    <p class="lede">Seven operators. Five work exactly like math class; two are new.</p>
+
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Operator</th><th>Name</th><th>Example</th><th>Result</th></tr>
+        <tr><td><code>+</code></td><td>Addition</td><td><code>7 + 2</code></td><td><code>9</code></td></tr>
+        <tr><td><code>-</code></td><td>Subtraction</td><td><code>7 - 2</code></td><td><code>5</code></td></tr>
+        <tr><td><code>*</code></td><td>Multiplication</td><td><code>7 * 2</code></td><td><code>14</code></td></tr>
+        <tr><td><code>/</code></td><td>Division (always returns a float)</td><td><code>7 / 2</code></td><td><code>3.5</code></td></tr>
+        <tr><td><code>**</code></td><td>Exponent</td><td><code>7 ** 2</code></td><td><code>49</code></td></tr>
+        <tr><td><code>//</code></td><td>Floor division (whole number only)</td><td><code>7 // 2</code></td><td><code>3</code></td></tr>
+        <tr><td><code>%</code></td><td>Modulus (the remainder)</td><td><code>7 % 2</code></td><td><code>1</code></td></tr>
+      </table>
+    </div></div>
+
+    <div class="warn"><b>The trap that catches everyone:</b> <code>/</code> always returns a float in Python, even <code>10 / 2</code> gives <code>5.0</code>, not <code>5</code>. Need a clean whole number? Use <code>//</code>.</div>
+    <div class="example">Order of operations matches math class: parentheses, then <code>**</code>, then <code>* / // %</code> left to right, then <code>+ -</code> left to right. <code>10 + 6 // 2</code> is <code>13</code>, not <code>8</code>.</div>
+
+    <div class="hint-panel">Full deep-dive with real examples of <code>//</code> and <code>%</code> together, compound operators (<code>+=</code>), and mixing int/float: <a href="../basic-math.html">Basic Math reference &rarr;</a></div>
+  </div>
+</section>
+
+<!-- 3.7 GRAPHICS -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">05</div><h2>Using Graphics in Python</h2><div class="les">3.7</div></div>
+    <p class="lede">CodeHS's graphics library: size a canvas, then create, position, color, and <code>add()</code> a shape to it.</p>
+
+    <div class="code">set_size(400, 300)              <span class="cm"># canvas always comes first</span>
+
+circle = Circle(50)              <span class="cm"># create a circle, radius 50</span>
+circle.set_position(100, 100)    <span class="cm"># place it</span>
+circle.set_color(Color.blue)     <span class="cm"># color it</span>
+add(circle)                      <span class="cm"># now it actually shows up on screen</span></div>
+
+    <div class="warn"><b>The #1 mistake:</b> creating and positioning a shape, then forgetting <code>add(shape)</code>. The shape exists in the program's memory, but nothing appears on the canvas &mdash; and Python won't throw an error, so it's easy to miss.</div>
+
+    <div class="two">
+      <div class="box">
+        <h3>Coordinates</h3>
+        <p>The canvas uses (0, 0) at the <b>top-left</b> corner. X increases to the right; y increases <em>downward</em> &mdash; the opposite of a normal math graph.</p>
+      </div>
+      <div class="box">
+        <h3>Not on the AP multiple-choice exam</h3>
+        <p>Graphics is real, testable content for this unit and your CodeHS coursework, but it isn't part of the official AP CSP Exam Reference Sheet used on the multiple-choice exam in May. Know it cold for 3.9 anyway.</p>
+      </div>
+    </div>
+
+    <div class="hint-panel">Full deep-dive plus Circle / Rectangle / Square-specific pages: <a href="../graphics/index.html">Graphics reference &rarr;</a></div>
+  </div>
+</section>
+
+<!-- 3.8 MOUSE EVENTS -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">06</div><h2>Mouse Events: Mouse Clicked</h2><div class="les">3.8</div></div>
+    <p class="lede">Makes a shape react to a click &mdash; one function that takes the click's x and y, registered with <code>add_mouse_click_handler()</code>.</p>
+
+    <div class="code">def callback(x, y):
+    circle.set_position(x, y)   <span class="cm"># runs every time the canvas is clicked</span>
+
+add_mouse_click_handler(callback)</div>
+
+    <div class="two">
+      <div class="box">
+        <h3>Dot notation</h3>
+        <p><code>circle.set_position(x, y)</code> &mdash; everything before the dot is <em>which object</em>; everything after is the <b>method</b>, an action that object knows how to do. Compare to <code>add(circle)</code>, a plain function that isn't tied to one object.</p>
+      </div>
+      <div class="box">
+        <h3>Parameter count matters</h3>
+        <p>A click handler must accept exactly the parameters the canvas passes it &mdash; <code>x</code> and <code>y</code>. <code>def callback():</code> with none will crash the instant a click happens, whether you use the values or not.</p>
+      </div>
+    </div>
+
+    <div class="hint-panel">Full deep-dive: <a href="../graphics/mouse-events.html">Mouse Events reference &rarr;</a></div>
+  </div>
+</section>
+
+<!-- VOCAB CHECKLIST -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">07</div><h2>Vocabulary Checklist</h2></div>
+    <p class="lede">Every term from 3.1&ndash;3.8 you should be able to define in your own words, not just recognize.</p>
+    <ul class="checklist">
+      <li>Code / program</li>
+      <li>Programming language</li>
+      <li>Syntax</li>
+      <li>Algorithm</li>
+      <li>Input</li>
+      <li>Output</li>
+      <li>Storage</li>
+      <li>Computation</li>
+      <li><code>print()</code></li>
+      <li>Comment (<code>#</code>)</li>
+      <li>String</li>
+      <li>Variable</li>
+      <li>Assignment operator (<code>=</code>)</li>
+      <li>Integer</li>
+      <li>Float</li>
+      <li>Type</li>
+      <li>Concatenation</li>
+      <li><code>str()</code> / <code>int()</code></li>
+      <li><code>input()</code></li>
+      <li>Arithmetic operator</li>
+      <li>Floor division (<code>//</code>)</li>
+      <li>Modulus (<code>%</code>)</li>
+      <li>Order of operations</li>
+      <li>Canvas</li>
+      <li><code>set_size()</code></li>
+      <li>Shape (Circle / Rectangle / Square)</li>
+      <li><code>add()</code></li>
+      <li>Coordinate (x, y)</li>
+      <li>Method vs. function</li>
+      <li>Dot notation</li>
+      <li>Parameter</li>
+      <li>Event / event handler</li>
+      <li><code>add_mouse_click_handler()</code></li>
+    </ul>
+  </div>
+</section>
+
+<!-- SELF-CHECK QUESTIONS -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">08</div><h2>Self-Check Questions</h2></div>
+    <p class="lede">The style of question the 3.9 test actually asks: predict the output, or spot the bug. Cover the answer before you look.</p>
+
+    <div class="qbox">
+      <div class="qn">Predict the output</div>
+      <p><code>x = "5"<br>y = 3<br>print(x + y)</code></p>
+      <details><summary>Show answer</summary><div class="ans"><b>Error</b> (TypeError). <code>x</code> is a string ("5"), <code>y</code> is an integer. Python won't guess whether you meant to add them as numbers or join them as text &mdash; you'd need <code>int(x) + y</code> or <code>x + str(y)</code>.</div></details>
+    </div>
+
+    <div class="qbox">
+      <div class="qn">Predict the output</div>
+      <p><code>print(10 // 3)<br>print(10 % 3)</code></p>
+      <details><summary>Show answer</summary><div class="ans"><b>3</b>, then <b>1</b>. 3 fits into 10 three whole times (<code>//</code>), with 1 left over (<code>%</code>).</div></details>
+    </div>
+
+    <div class="qbox">
+      <div class="qn">Find the bug</div>
+      <p><code>circle = Circle(30)<br>circle.set_position(50, 50)<br>circle.set_color(Color.red)</code></p>
+      <details><summary>Show answer</summary><div class="ans">Missing <b><code>add(circle)</code></b>. The circle is created and configured but never added to the canvas, so nothing appears &mdash; and Python won't raise an error for it.</div></details>
+    </div>
+
+    <div class="qbox">
+      <div class="qn">Predict the output</div>
+      <p><code>age = input("Age: ")<br>print(age + 1)</code></p>
+      <details><summary>Show answer</summary><div class="ans"><b>Error.</b> <code>input()</code> always returns a string, even if the user types a number, so <code>age</code> is text and can't be added to the integer <code>1</code> without converting it first: <code>int(age) + 1</code>.</div></details>
+    </div>
+
+    <div class="qbox">
+      <div class="qn">Identify the category</div>
+      <p>A thermostat app displays the current temperature on screen. Which of the four program categories (input / output / storage / computation) is that?</p>
+      <details><summary>Show answer</summary><div class="ans"><b>Output</b> &mdash; the program is sending data (the temperature) out to the screen.</div></details>
+    </div>
+
+    <div class="qbox">
+      <div class="qn">Predict the output</div>
+      <p><code>def callback():<br>&nbsp;&nbsp;&nbsp;&nbsp;print("clicked")<br><br>add_mouse_click_handler(callback)</code></p>
+      <details><summary>Show answer</summary><div class="ans"><b>Crashes on the first click.</b> The canvas always passes <code>x</code> and <code>y</code> to the handler function; <code>callback()</code> needs to accept them, even if it never uses them: <code>def callback(x, y):</code></div></details>
+    </div>
+  </div>
+</section>
+
+<!-- FASTEST WAY TO STUDY -->
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">09</div><h2>Fastest Way to Study (Night Before)</h2></div>
+    <div class="cards">
+      <div class="cardx">
+        <div class="num">5 min</div>
+        <h4>Say the 4 program categories</h4>
+        <p>Input, output, storage, computation &mdash; and one Python keyword for each, out loud, without looking.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">5 min</div>
+        <h4>Write the 7 math operators from memory</h4>
+        <p>Especially <code>//</code> and <code>%</code> &mdash; those two trip up almost everyone.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">5 min</div>
+        <h4>Re-read the 6 self-check questions above</h4>
+        <p>Cover the answer, predict the output, then check. If you miss one, re-read that section.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">5 min</div>
+        <h4>Trace the graphics "recipe"</h4>
+        <p>Canvas &rarr; create shape &rarr; position &rarr; color &rarr; <code>add()</code>. Say all five steps without looking.</p>
+      </div>
+    </div>
+    <div class="callout">Nothing on 3.9 is outside 3.1&ndash;3.8.<span>If a self-check question above feels shaky, that's exactly what to re-read before the test &mdash; not the whole guide again.</span></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Eight lessons, one test: input/output/storage/computation, print, variables, input(), math, graphics, and mouse events.</h2>
+    <p>Every one of those is a skill you'll keep using for the rest of the year &mdash; Unit 4 (Python Control Structures) builds if/else and loops directly on top of the variables and math from this unit.</p>
+    <a class="back" href="../study-guides.html">&larr; Study Guides</a>
+    <a class="back" href="../calendar.html">&larr; Calendar</a>
+    <a class="back" href="../index.html">&larr; AP CSP Home</a>
+    <p class="sig">AP CSP &nbsp;/&nbsp; Unit 3 Study Guide &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+</body>
+</html>
