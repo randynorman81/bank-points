@@ -94,12 +94,21 @@ const COURSES = [
       { n: 1, title: "What Is an Embedded System?", migrated: true, path: "ec/unit-1/index.html" },
       { n: 2, title: "Arduino Foundations", migrated: true, path: "ec/unit-2/index.html" },
       { n: 3, title: "Outputs: Light, Sound, and Motion", migrated: true, path: "ec/unit-3/index.html" },
-      { n: 4, title: "Sensors and Reactive Programs", migrated: true, path: "ec/unit-4/index.html" },
-      { n: 5, title: "Input Systems", migrated: true, path: "ec/unit-5/index.html" },
-      { n: 6, title: "RFID and Access Control", migrated: true, path: "ec/unit-6/index.html" },
-      { n: 7, title: "Multi-Sensor Design Projects", migrated: true, path: "ec/unit-7/index.html" },
-      { n: 8, title: "IoT Concepts", migrated: true, path: "ec/unit-8/index.html" },
-      { n: 9, title: "Capstone", migrated: true, path: "ec/unit-9/index.html" }
+      { n: 4, title: "Intro to C++", migrated: true, path: "ec/unit-4/index.html" },
+      { n: 5, title: "Vectors and Functions", migrated: true, path: "ec/unit-5/index.html" },
+      { n: 6, title: "Classes and Objects", migrated: true, path: "ec/unit-6/index.html" },
+      { n: 7, title: "Turtle Graphics", migrated: true, path: "ec/unit-7/index.html" },
+      { n: 8, title: "Basic Python and Console Interaction", migrated: true, path: "ec/unit-8/index.html" },
+      { n: 9, title: "Conditionals", migrated: true, path: "ec/unit-9/index.html" },
+      { n: 10, title: "Looping", migrated: true, path: "ec/unit-10/index.html" },
+      { n: 11, title: "Functions and Exceptions", migrated: true, path: "ec/unit-11/index.html" },
+      { n: 12, title: "Sensors — Program Control with Arduino", migrated: true, path: "ec/unit-12/index.html" },
+      { n: 13, title: "Advanced Arduino", migrated: true, path: "ec/unit-13/index.html" },
+      { n: 14, title: "Strings", migrated: true, path: "ec/unit-14/index.html" },
+      { n: 15, title: "Creating and Altering Data Structures", migrated: true, path: "ec/unit-15/index.html" },
+      { n: 16, title: "Extending Data Structures", migrated: true, path: "ec/unit-16/index.html" },
+      { n: 17, title: "Project: Guess the Word", migrated: true, path: "ec/unit-17/index.html" },
+      { n: 18, title: "Final Exam", migrated: true, path: "ec/unit-18/index.html" }
     ]
   }
 ];
