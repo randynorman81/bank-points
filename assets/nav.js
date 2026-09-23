@@ -285,6 +285,7 @@ function renderHeader(opts) {
   });
 
   renderLessonBanner();
+  renderAnnouncementBanner();
 }
 
 // "What lesson are we on" per class -- one current value per course, set
@@ -316,7 +317,47 @@ async function renderLessonBanner() {
     if (items.length === 0) { bannerRoot.innerHTML = ""; return; }
     bannerRoot.innerHTML = `
       <div class="lesson-banner">
+        <span class="site-banner-label">Current Lesson</span>
         ${items.map(x => `<span class="lesson-banner-item"><b>${escapeHtmlNav(x.course.shortName)}:</b> ${escapeHtmlNav(x.text)}</span>`).join("")}
+      </div>
+    `;
+  } catch (err) {
+    bannerRoot.innerHTML = "";
+  }
+}
+
+// Sitewide "Announcements" banner -- shows every active (non-archived)
+// announcement across all courses, set from announcements-admin.html
+// (same PIN gate as the lesson banner's lesson-admin.html). Shown right
+// above the Current Lesson banner on EVERY page. Called automatically
+// from renderHeader(); creates its own container if needed, same pattern
+// as renderLessonBanner().
+async function renderAnnouncementBanner() {
+  let bannerRoot = document.getElementById("announcement-banner-root");
+  if (!bannerRoot) {
+    bannerRoot = document.createElement("div");
+    bannerRoot.id = "announcement-banner-root";
+    const headerRoot = document.getElementById("site-header-root");
+    if (headerRoot && headerRoot.parentNode) {
+      headerRoot.parentNode.insertBefore(bannerRoot, headerRoot.nextSibling);
+    } else {
+      document.body.insertBefore(bannerRoot, document.body.firstChild);
+    }
+  }
+  try {
+    const res = await fetch("/api/announcements?action=list&filter=active");
+    const data = await res.json();
+    const list = data.announcements || [];
+    const courseById = {};
+    COURSES.forEach(c => { courseById[c.id] = c; });
+    const items = list
+      .map(a => ({ announcement: a, course: courseById[a.course] }))
+      .filter(x => x.course);
+    if (items.length === 0) { bannerRoot.innerHTML = ""; return; }
+    bannerRoot.innerHTML = `
+      <div class="announcement-banner">
+        <span class="site-banner-label">Announcements</span>
+        ${items.map(x => `<span class="announcement-banner-item"><b>${escapeHtmlNav(x.course.shortName)}:</b> ${escapeHtmlNav(x.announcement.text)}</span>`).join("")}
       </div>
     `;
   } catch (err) {
@@ -432,6 +473,7 @@ function renderToolsGrid(containerId) {
 
 window.renderHeader = renderHeader;
 window.renderLessonBanner = renderLessonBanner;
+window.renderAnnouncementBanner = renderAnnouncementBanner;
 window.renderUnitGrid = renderUnitGrid;
 window.renderToolsGrid = renderToolsGrid;
 window.COURSES = COURSES;
