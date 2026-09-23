@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Top Down Design and Decomposition | Karel Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#38BDF8; --acc-tint:rgba(56,189,248,.14); --acc-ink:#93D9FA;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --lst:#34D399; --lst-tint:rgba(52,211,153,.13); --lst-ink:#6EE7B7;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.65; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.16; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 13px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#04202C;border-color:var(--acc)}
+.hero{padding:54px 0 38px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(30px,5.6vw,48px);font-weight:600;max-width:20ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(15.5px,2vw,18px);line-height:1.6;max-width:64ch;margin-top:16px}
+.part{padding:48px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:24px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(21px,3.4vw,28px);font-weight:600;color:#fff}
+.lede{font-size:17px;line-height:1.6;max-width:68ch;margin-bottom:24px;color:#C4CDD8}
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.8;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:22px;border-top:3px solid var(--acc)}
+.box h3{font-size:17.5px;font-weight:600;margin-bottom:11px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:14.5px;line-height:1.6;color:#C4CDD8;margin:0}
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#DCEEF7}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+.good{background:var(--lst-tint);border-left:4px solid var(--lst);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#D3F5E6}
+.good b{color:#fff}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13px;color:var(--ink-soft);margin:0}
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:26px 28px;border-radius:5px;margin:10px 0 30px;font-size:18px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:15.5px;display:block;margin-top:10px}
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:52px;padding:48px 0 56px}
+.final h2{font-size:clamp(20px,3vw,28px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:14px;color:var(--ink-soft);font-size:15.5px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:18px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:8px 16px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:24px;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:13px}
+@media (max-width:820px){ .two,.cards{grid-template-columns:1fr} table.cmp{font-size:13px} table.cmp th,table.cmp td{padding:10px 12px} }
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../unit-2/index.html">&larr; Unit 2: Karel</a>
+  <a href="intro-to-programming-with-karel.html">1. Intro to Karel</a>
+  <a href="more-basic-karel.html">2. More Basic Karel</a>
+  <a href="karel-cant-turn-right.html">3. Can't Turn Right</a>
+  <a href="functions-in-karel.html">4. Functions</a>
+  <a href="top-down-design-and-decomposition.html" class="current">5. Top Down Design</a>
+  <a href="commenting-your-code.html">6. Comments</a>
+  <a href="abstraction.html">7. Abstraction</a>
+  <a href="super-karel.html">8. Super Karel</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">KAREL NOTES &nbsp;/&nbsp; LESSON 5</div>
+    <h1>Top Down Design and Decomposition</h1>
+    <p class="deck">Before you write a single line of code for a big task, break it into smaller pieces first. This is how real programmers plan &mdash; and it's how you'll build big Karel programs without getting lost.</p>
+  </div>
+</header>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>Two Big Words, One Simple Idea</h2></div>
+    <p class="lede"><b>Decomposition</b> means breaking a big task into smaller sub-tasks. <b>Top down design</b> is the process of starting with the big goal and working your way down into those smaller pieces, one layer at a time, before writing any code.</p>
+
+    <div class="example"><b>A non-Karel example:</b> "clean my room" is really "make the bed" + "put away clothes" + "throw away trash" + "organize the desk." You didn't think of all four steps at once &mdash; you broke the big vague task down into smaller, doable ones.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Decomposing a Karel Task</h2></div>
+    <p class="lede">Say the goal is: "build a tower of 4 balls on this corner." Instead of writing 4 separate <code>put_ball()</code> lines and hoping you remember to stack them right, break the goal into a function first.</p>
+
+    <div class="code">def build_tower():
+    put_ball()
+    put_ball()
+    put_ball()
+    put_ball()
+
+def main():
+    build_tower()</div>
+
+    <p>Now <code>main()</code> reads almost like plain English: "build a tower." All the messy detail of exactly how is tucked inside <code>build_tower()</code>.</p>
+
+    <h3 style="margin-top:24px;">A bigger example: build 3 towers in a row</h3>
+    <div class="code">def build_tower():
+    put_ball()
+    put_ball()
+    put_ball()
+    put_ball()
+
+def move_to_next_spot():
+    move()
+    move()
+
+def main():
+    build_tower()
+    move_to_next_spot()
+    build_tower()
+    move_to_next_spot()
+    build_tower()</div>
+
+    <p><code>main()</code> now reads as a short list of big steps &mdash; build, move, build, move, build &mdash; instead of a long, hard-to-follow list of every single <code>move()</code> and <code>put_ball()</code>.</p>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>How to Actually Plan This Way</h2></div>
+    <div class="cards">
+      <div class="cardx">
+        <div class="num">Step 1</div>
+        <h4>Say the big goal in one sentence</h4>
+        <p>"Build 3 towers in a row." Don't think about commands yet.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">Step 2</div>
+        <h4>List the major steps</h4>
+        <p>Build a tower. Move to the next spot. Repeat. Still no commands &mdash; just plain English steps.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">Step 3</div>
+        <h4>Turn each step into a function</h4>
+        <p>Now write <code>build_tower()</code> and <code>move_to_next_spot()</code> as their own small functions.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">Step 4</div>
+        <h4>Call them in order inside main()</h4>
+        <p>Put the big-picture plan together using the function names you already wrote.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Common Mistakes</h2></div>
+    <div class="cards">
+      <div class="cardx">
+        <div class="num">Mistake 1</div>
+        <h4>Writing all the commands first, planning never</h4>
+        <p>Jumping straight to typing <code>move()</code> and <code>put_ball()</code> over and over almost always leads to a confusing mess. Plan the big steps first.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">Mistake 2</div>
+        <h4>Functions with unclear names</h4>
+        <p>A function named <code>do_stuff()</code> tells you nothing. <code>build_tower()</code> tells you exactly what it does &mdash; name your functions like a sentence.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">Mistake 3</div>
+        <h4>One giant function that does everything</h4>
+        <p>If a function is doing five unrelated things, it's a sign you haven't broken the problem down far enough yet.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Plan the big steps first. Turn each one into a function. Then call them in order.</h2>
+    <p>Next up: leaving notes in your code for yourself and anyone else reading it.</p>
+    <a class="back" href="commenting-your-code.html">Commenting Your Code &rarr;</a>
+    <a class="back" href="functions-in-karel.html">&larr; Functions in Karel</a>
+    <p class="sig">Karel Notes &nbsp;/&nbsp; Top Down Design and Decomposition &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+</body>
+</html>
