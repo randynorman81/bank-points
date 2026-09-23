@@ -95,29 +95,29 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
   <div class="wrap">
     <div class="brief-no">KAREL NOTES &nbsp;/&nbsp; LESSON 3</div>
     <h1>Karel Can't Turn Right</h1>
-    <p class="deck">There is no <code>turn_right()</code> command. This isn't a bug &mdash; it's the whole point of this lesson, and it sets up the biggest idea of the whole unit: building your own commands.</p>
+    <p class="deck">There is no <code>turnRight();</code> command. This isn't a bug &mdash; it's the whole point of this lesson, and it sets up the biggest idea of the whole unit: building your own commands.</p>
   </div>
 </header>
 
 <section class="part">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">00</div><h2>Wait&hellip; Karel Really Can't Turn Right?</h2></div>
-    <p class="lede">Correct. Karel only knows one turning command: <code>turn_left()</code>. There is no built-in <code>turn_right()</code>. If you need Karel to face right, you have to work it out using only <code>turn_left()</code>.</p>
+    <p class="lede">Correct. Karel only knows one turning command: <code>turnLeft();</code>. There is no built-in <code>turnRight();</code>. If you need Karel to face right, you have to work it out using only <code>turnLeft();</code>.</p>
 
     <div class="example"><b>Here's the trick:</b> turning left three times in a row ends up facing the exact same direction as turning right once. Try picturing a clock face &mdash; three quarter-turns counter-clockwise lands you in the same spot as one quarter-turn clockwise.</div>
 
-    <div class="code">turn_left()
-turn_left()
-turn_left()   <span class="cm"># three lefts = one right</span></div>
+    <div class="code">turnLeft();
+turnLeft();
+turnLeft();   <span class="cm">// three lefts = one right</span></div>
   </div>
 </section>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">01</div><h2>How Many <code>turn_left()</code> Calls Do You Need?</h2></div>
+    <div class="part-head"><div class="part-tag">01</div><h2>How Many <code>turnLeft();</code> Calls Do You Need?</h2></div>
     <div class="tblwrap"><div class="tblscroll">
       <table class="cmp">
-        <tr><th>What you want</th><th>How many turn_left() calls</th><th>Why</th></tr>
+        <tr><th>What you want</th><th>How many turnLeft() calls</th><th>Why</th></tr>
         <tr><td>Turn right</td><td>3</td><td>Three quarter-turns left = one quarter-turn right</td></tr>
         <tr><td>Turn around (face backward)</td><td>2</td><td>Two quarter-turns = a half-turn, either direction</td></tr>
         <tr><td>Keep facing the same way</td><td>4 (or 0)</td><td>Four quarter-turns is a full circle, back where you started</td></tr>
@@ -134,11 +134,11 @@ turn_left()   <span class="cm"># three lefts = one right</span></div>
     <div class="two">
       <div class="box">
         <h3>The annoying part</h3>
-        <p>Typing three <code>turn_left()</code> calls every single time you need to turn right gets old fast, and it's easy to lose count.</p>
+        <p>Typing three <code>turnLeft();</code> calls every single time you need to turn right gets old fast, and it's easy to lose count.</p>
       </div>
       <div class="box">
         <h3>The fix, coming in Lesson 4</h3>
-        <p>You'll learn to wrap those three lines up into your own new command &mdash; <code>turn_right()</code> &mdash; that you define once and then use forever, as if it had been built in all along.</p>
+        <p>You'll learn to wrap those three lines up into your own new command &mdash; <code>turnRight();</code> &mdash; that you define once and then use forever, as if it had been built in all along.</p>
       </div>
     </div>
     <div class="hint-panel">This is your very first taste of <b>functions</b> &mdash; giving a group of steps a name so you never have to repeat them. Lesson 4 makes it official.</div>
@@ -151,13 +151,13 @@ turn_left()   <span class="cm"># three lefts = one right</span></div>
     <div class="cards">
       <div class="cardx">
         <div class="num">Mistake 1</div>
-        <h4>Writing two turn_left() calls for a right turn</h4>
+        <h4>Writing two turnLeft() calls for a right turn</h4>
         <p>Two lefts turns Karel around backward, not right. You need three.</p>
       </div>
       <div class="cardx">
         <div class="num">Mistake 2</div>
         <h4>Losing count in a long program</h4>
-        <p>If Karel ends up facing the wrong way, count backward from where it should be facing &mdash; it's almost always a miscounted <code>turn_left()</code>.</p>
+        <p>If Karel ends up facing the wrong way, count backward from where it should be facing &mdash; it's almost always a miscounted <code>turnLeft();</code>.</p>
       </div>
     </div>
   </div>

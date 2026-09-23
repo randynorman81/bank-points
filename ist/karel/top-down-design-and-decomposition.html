@@ -111,38 +111,43 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
 <section class="part">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">01</div><h2>Decomposing a Karel Task</h2></div>
-    <p class="lede">Say the goal is: "build a tower of 4 balls on this corner." Instead of writing 4 separate <code>put_ball()</code> lines and hoping you remember to stack them right, break the goal into a function first.</p>
+    <p class="lede">Say the goal is: "build a tower of 4 balls on this corner." Instead of writing 4 separate <code>putBall();</code> lines and hoping you remember to stack them right, break the goal into a function first.</p>
 
-    <div class="code">def build_tower():
-    put_ball()
-    put_ball()
-    put_ball()
-    put_ball()
+    <div class="code">function buildTower() {
+    putBall();
+    putBall();
+    putBall();
+    putBall();
+}
 
-def main():
-    build_tower()</div>
+function main() {
+    buildTower();
+}</div>
 
-    <p>Now <code>main()</code> reads almost like plain English: "build a tower." All the messy detail of exactly how is tucked inside <code>build_tower()</code>.</p>
+    <p>Now <code>main()</code> reads almost like plain English: "build a tower." All the messy detail of exactly how is tucked inside <code>buildTower()</code>.</p>
 
     <h3 style="margin-top:24px;">A bigger example: build 3 towers in a row</h3>
-    <div class="code">def build_tower():
-    put_ball()
-    put_ball()
-    put_ball()
-    put_ball()
+    <div class="code">function buildTower() {
+    putBall();
+    putBall();
+    putBall();
+    putBall();
+}
 
-def move_to_next_spot():
-    move()
-    move()
+function moveToNextSpot() {
+    move();
+    move();
+}
 
-def main():
-    build_tower()
-    move_to_next_spot()
-    build_tower()
-    move_to_next_spot()
-    build_tower()</div>
+function main() {
+    buildTower();
+    moveToNextSpot();
+    buildTower();
+    moveToNextSpot();
+    buildTower();
+}</div>
 
-    <p><code>main()</code> now reads as a short list of big steps &mdash; build, move, build, move, build &mdash; instead of a long, hard-to-follow list of every single <code>move()</code> and <code>put_ball()</code>.</p>
+    <p><code>main()</code> now reads as a short list of big steps &mdash; build, move, build, move, build &mdash; instead of a long, hard-to-follow list of every single <code>move();</code> and <code>putBall();</code>.</p>
   </div>
 </section>
 
@@ -163,7 +168,7 @@ def main():
       <div class="cardx">
         <div class="num">Step 3</div>
         <h4>Turn each step into a function</h4>
-        <p>Now write <code>build_tower()</code> and <code>move_to_next_spot()</code> as their own small functions.</p>
+        <p>Now write <code>buildTower()</code> and <code>moveToNextSpot()</code> as their own small functions.</p>
       </div>
       <div class="cardx">
         <div class="num">Step 4</div>
@@ -181,12 +186,12 @@ def main():
       <div class="cardx">
         <div class="num">Mistake 1</div>
         <h4>Writing all the commands first, planning never</h4>
-        <p>Jumping straight to typing <code>move()</code> and <code>put_ball()</code> over and over almost always leads to a confusing mess. Plan the big steps first.</p>
+        <p>Jumping straight to typing <code>move();</code> and <code>putBall();</code> over and over almost always leads to a confusing mess. Plan the big steps first.</p>
       </div>
       <div class="cardx">
         <div class="num">Mistake 2</div>
         <h4>Functions with unclear names</h4>
-        <p>A function named <code>do_stuff()</code> tells you nothing. <code>build_tower()</code> tells you exactly what it does &mdash; name your functions like a sentence.</p>
+        <p>A function named <code>doStuff()</code> tells you nothing. <code>buildTower()</code> tells you exactly what it does &mdash; name your functions like a sentence.</p>
       </div>
       <div class="cardx">
         <div class="num">Mistake 3</div>

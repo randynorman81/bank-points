@@ -148,21 +148,23 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
     <div class="tblwrap"><div class="tblscroll">
       <table class="cmp">
         <tr><th>Command</th><th>What it does</th></tr>
-        <tr><td><code>move()</code></td><td>Moves Karel forward exactly one square in the direction it's currently facing</td></tr>
-        <tr><td><code>turn_left()</code></td><td>Turns Karel 90&deg; to the left, without moving forward</td></tr>
-        <tr><td><code>put_ball()</code></td><td>Drops a ball on the corner Karel is currently standing on</td></tr>
-        <tr><td><code>take_ball()</code></td><td>Picks up a ball from the corner Karel is currently standing on</td></tr>
+        <tr><td><code>move();</code></td><td>Moves Karel forward exactly one square in the direction it's currently facing</td></tr>
+        <tr><td><code>turnLeft();</code></td><td>Turns Karel 90&deg; to the left, without moving forward</td></tr>
+        <tr><td><code>putBall();</code></td><td>Drops a ball on the corner Karel is currently standing on</td></tr>
+        <tr><td><code>takeBall();</code></td><td>Picks up a ball from the corner Karel is currently standing on</td></tr>
       </table>
     </div></div>
 
-    <div class="warn"><b>Important:</b> Karel does not have a <code>turn_right()</code> command built in! That's on purpose &mdash; you'll learn why, and how to work around it, in Lesson 3.</div>
+    <div class="hint-panel">Notice every command ends with a semicolon <code>;</code> &mdash; that's how CodeHS's Karel knows where one instruction ends and the next begins. Get used to typing it; you'll do it after almost every line this year.</div>
+
+    <div class="warn"><b>Important:</b> Karel does not have a <code>turnRight();</code> command built in! That's on purpose &mdash; you'll learn why, and how to work around it, in Lesson 3.</div>
 
     <h3 style="margin-top:22px;">Your first program</h3>
-    <div class="code">move()
-move()
-turn_left()
-move()
-put_ball()</div>
+    <div class="code">move();
+move();
+turnLeft();
+move();
+putBall();</div>
     <p>Read this out loud like a set of directions: "Walk forward two squares. Turn left. Walk forward one more square. Drop a ball." Karel runs each line exactly in the order you wrote it, top to bottom.</p>
   </div>
 </section>
@@ -175,11 +177,11 @@ put_ball()</div>
     <div class="two">
       <div class="box">
         <h3>This works</h3>
-        <p><code>move()</code> then <code>turn_left()</code> then <code>move()</code> &mdash; Karel walks forward, turns, then walks forward again in the new direction. Three separate, clear steps.</p>
+        <p><code>move();</code> then <code>turnLeft();</code> then <code>move();</code> &mdash; Karel walks forward, turns, then walks forward again in the new direction. Three separate, clear steps.</p>
       </div>
       <div class="box">
         <h3>This does NOT do the same thing</h3>
-        <p><code>turn_left()</code> then <code>move()</code> then <code>move()</code> &mdash; Karel turns first, then walks forward twice in the new direction. Same three commands, different order, completely different result.</p>
+        <p><code>turnLeft();</code> then <code>move();</code> then <code>move();</code> &mdash; Karel turns first, then walks forward twice in the new direction. Same three commands, different order, completely different result.</p>
       </div>
     </div>
 
@@ -194,16 +196,16 @@ put_ball()</div>
       <div class="cardx">
         <div class="num">Mistake 1</div>
         <h4>Running Karel into a wall</h4>
-        <code class="line">move()  <span style="color:var(--bad-ink)"># wall right there!</span></code>
-        <p>If there's a wall directly in front of Karel and you call <code>move()</code> anyway, the program crashes. Always check the map before you write <code>move()</code>.</p>
+        <code class="line">move();  <span style="color:var(--bad-ink)">// wall right there!</span></code>
+        <p>If there's a wall directly in front of Karel and you call <code>move();</code> anyway, the program crashes. Always check the map before you write <code>move();</code>.</p>
       </div>
       <div class="cardx">
         <div class="num">Mistake 2</div>
         <h4>Miscounting squares</h4>
-        <code class="line">move()
-move()
-move()</code>
-        <p>It's easy to write one too many or too few <code>move()</code> calls. Count the squares on the map carefully before typing.</p>
+        <code class="line">move();
+move();
+move();</code>
+        <p>It's easy to write one too many or too few <code>move();</code> calls. Count the squares on the map carefully before typing.</p>
       </div>
       <div class="cardx">
         <div class="num">Mistake 3</div>
@@ -217,7 +219,7 @@ move()</code>
 <footer class="final">
   <div class="wrap">
     <h2>Four commands, run in exact order. That's the whole idea behind every program you'll ever write.</h2>
-    <p>Next up: more practice combining <code>move()</code>, <code>turn_left()</code>, <code>put_ball()</code>, and <code>take_ball()</code> into longer programs.</p>
+    <p>Next up: more practice combining <code>move();</code>, <code>turnLeft();</code>, <code>putBall();</code>, and <code>takeBall();</code> into longer programs.</p>
     <a class="back" href="more-basic-karel.html">More Basic Karel &rarr;</a>
     <a class="back" href="../unit-2/index.html">&larr; Back to Unit 2</a>
     <p class="sig">Karel Notes &nbsp;/&nbsp; Intro to Programming with Karel &nbsp;/&nbsp; end of file</p>

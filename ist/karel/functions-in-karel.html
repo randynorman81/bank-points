@@ -104,23 +104,26 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
     <div class="part-head"><div class="part-tag">00</div><h2>What Is a Function?</h2></div>
     <p class="lede">A function is a named group of commands that you define once and can run ("call") as many times as you want, just by using its name.</p>
 
-    <div class="code">def turn_right():
-    turn_left()
-    turn_left()
-    turn_left()</div>
+    <div class="code">function turnRight() {
+    turnLeft();
+    turnLeft();
+    turnLeft();
+}</div>
 
-    <p>This defines a brand new command called <code>turn_right()</code> &mdash; it doesn't exist in Karel by default, so you build it out of the three <code>turn_left()</code> calls from Lesson 3. Once it's defined, you can use <code>turn_right()</code> anywhere in your program, as many times as you want, and it will always do those same three turns.</p>
+    <p>This defines a brand new command called <code>turnRight()</code> &mdash; it doesn't exist in Karel by default, so you build it out of the three <code>turnLeft();</code> calls from Lesson 3. Once it's defined, you can use <code>turnRight();</code> anywhere in your program, as many times as you want, and it will always do those same three turns.</p>
 
     <div class="two">
       <div class="box">
         <h3>Defining a function</h3>
-        <p><code>def</code> means "I'm about to describe a new function." <code>def turn_right():</code> says "here's a new command named <code>turn_right</code>." Everything indented underneath it is what that command actually does.</p>
+        <p><code>function</code> means "I'm about to describe a new function." <code>function turnRight() {</code> says "here's a new command named <code>turnRight</code>." Everything between the curly braces <code>{ }</code> is what that command actually does.</p>
       </div>
       <div class="box">
         <h3>Calling a function</h3>
-        <p>Once it's defined, typing <code>turn_right()</code> anywhere else in your program runs those three lines &mdash; without you having to write them out again.</p>
+        <p>Once it's defined, typing <code>turnRight();</code> anywhere else in your program runs those three lines &mdash; without you having to write them out again.</p>
       </div>
     </div>
+
+    <div class="hint-panel">Function <em>names</em> are written in <b>camelCase</b> &mdash; no spaces, no underscores, each new word capitalized after the first: <code>turnRight</code>, not <code>turn_right</code> or <code>TurnRight</code>. Stick to this every time you name your own function.</div>
   </div>
 </section>
 
@@ -129,18 +132,20 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
     <div class="part-head"><div class="part-tag">01</div><h2>The Main Function: Where Your Program Actually Starts</h2></div>
     <p class="lede">Once you start writing your own functions, every program needs one special function that Karel always runs first: <code>main()</code>. Think of it as the "start button" &mdash; no matter how many other functions you've written, Karel only ever begins by running what's inside <code>main()</code>.</p>
 
-    <div class="code">def turn_right():
-    turn_left()
-    turn_left()
-    turn_left()
+    <div class="code">function turnRight() {
+    turnLeft();
+    turnLeft();
+    turnLeft();
+}
 
-def main():
-    move()
-    turn_right()
-    move()
-    put_ball()</div>
+function main() {
+    move();
+    turnRight();
+    move();
+    putBall();
+}</div>
 
-    <p>Notice <code>turn_right()</code> is defined <em>above</em> <code>main()</code>, but it only actually runs when <code>main()</code> calls it. Python reads your whole file top to bottom to learn what functions exist, but it only starts <em>doing</em> anything once it reaches <code>main()</code>.</p>
+    <p>Notice <code>turnRight()</code> is defined <em>above</em> <code>main()</code>, but it only actually runs when <code>main()</code> calls it. CodeHS reads your whole file top to bottom to learn what functions exist, but it only starts <em>doing</em> anything once it reaches <code>main()</code>.</p>
 
     <div class="warn"><b>Rule to remember:</b> if a command isn't inside a function that <code>main()</code> eventually calls, it never runs &mdash; no matter where it's written in the file.</div>
   </div>
@@ -153,17 +158,17 @@ def main():
       <div class="cardx">
         <div class="num">Reason 1</div>
         <h4>Less typing</h4>
-        <p>Write the three <code>turn_left()</code> calls once, use <code>turn_right()</code> a hundred times.</p>
+        <p>Write the three <code>turnLeft();</code> calls once, use <code>turnRight();</code> a hundred times.</p>
       </div>
       <div class="cardx">
         <div class="num">Reason 2</div>
         <h4>Fewer mistakes</h4>
-        <p>If <code>turn_right()</code> has a bug, you fix it in exactly one place &mdash; not everywhere you copy-pasted those three lines.</p>
+        <p>If <code>turnRight();</code> has a bug, you fix it in exactly one place &mdash; not everywhere you copy-pasted those three lines.</p>
       </div>
       <div class="cardx">
         <div class="num">Reason 3</div>
         <h4>Easier to read</h4>
-        <p><code>turn_right()</code> reads like plain English. Three raw <code>turn_left()</code> calls make a reader stop and figure out what they add up to.</p>
+        <p><code>turnRight();</code> reads like plain English. Three raw <code>turnLeft();</code> calls make a reader stop and figure out what they add up to.</p>
       </div>
     </div>
     <div class="good"><b>Real-life comparison:</b> think of a function like a nickname for a whole routine &mdash; "get ready for school" secretly means "brush teeth, get dressed, eat breakfast, grab backpack." You don't re-explain all four steps every morning; you just say the nickname.</div>
@@ -177,7 +182,7 @@ def main():
       <div class="cardx">
         <div class="num">Mistake 1</div>
         <h4>Forgetting the parentheses</h4>
-        <code class="line">turn_right   <span style="color:var(--bad-ink)"># missing ()</span></code>
+        <code class="line">turnRight   <span style="color:var(--bad-ink)">// missing ()</span></code>
         <p>A function name always needs <code>()</code> after it to actually call it, even if it takes no extra information.</p>
       </div>
       <div class="cardx">
@@ -187,8 +192,8 @@ def main():
       </div>
       <div class="cardx">
         <div class="num">Mistake 3</div>
-        <h4>Forgetting to indent</h4>
-        <p>The lines inside a function must be indented underneath the <code>def</code> line. Python uses indentation to know what belongs inside the function.</p>
+        <h4>Forgetting a curly brace</h4>
+        <p>Every <code>{</code> needs a matching <code>}</code>. Forgetting the closing brace is one of the most common errors you'll see &mdash; if CodeHS says there's a problem but the line number looks fine, count your braces first.</p>
       </div>
     </div>
   </div>
