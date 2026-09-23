@@ -251,8 +251,14 @@ function renderHeader(opts) {
           </span>
         </a>
         <nav class="main-nav">
-          <div class="nav-item${opts.current === "home" ? " current" : ""}">
-            <a class="nav-link" href="${NAV_ROOT}index.html">Home</a>
+          <div class="nav-item${opts.current === "ist" ? " current" : ""}">
+            <a class="nav-link" href="${NAV_ROOT}ist/index.html">IST Home</a>
+          </div>
+          <div class="nav-item${opts.current === "apcsp" ? " current" : ""}">
+            <a class="nav-link" href="${NAV_ROOT}apcsp/index.html">AP CSP Home</a>
+          </div>
+          <div class="nav-item${opts.current === "ec" ? " current" : ""}">
+            <a class="nav-link" href="${NAV_ROOT}ec/index.html">EC Home</a>
           </div>
           ${toolsDropdown}
           ${announcementsDropdown}
