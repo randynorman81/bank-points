@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>More Basic Karel | Karel Notes</title>
+<title>For Loops | Karel Notes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -82,14 +82,14 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
 <nav class="pillnav">
   <a href="../unit-2/index.html">&larr; Unit 2: Karel</a>
   <a href="intro-to-programming-with-karel.html">1. Intro to Karel</a>
-  <a href="more-basic-karel.html" class="current">2. More Basic Karel</a>
+  <a href="more-basic-karel.html">2. More Basic Karel</a>
   <a href="karel-cant-turn-right.html">3. Can't Turn Right</a>
   <a href="functions-in-karel.html">4. Functions</a>
   <a href="top-down-design-and-decomposition.html">5. Top Down Design</a>
   <a href="commenting-your-code.html">6. Comments</a>
   <a href="abstraction.html">7. Abstraction</a>
   <a href="super-karel.html">8. Super Karel</a>
-  <a href="for-loops.html">9. For Loops</a>
+  <a href="for-loops.html" class="current">9. For Loops</a>
   <a href="if-statements-and-conditionals.html">10. If Statements</a>
   <a href="if-else-statements.html">11. If/Else</a>
   <a href="while-loops.html">12. While Loops</a>
@@ -100,59 +100,68 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
 
 <header class="hero">
   <div class="wrap">
-    <div class="brief-no">KAREL NOTES &nbsp;/&nbsp; LESSON 2</div>
-    <h1>More Basic Karel</h1>
-    <p class="deck">Same four commands from Lesson 1 &mdash; now you'll combine them into longer programs, read Karel's world more carefully, and start planning before you type.</p>
+    <div class="brief-no">KAREL NOTES &nbsp;/&nbsp; LESSON 9</div>
+    <h1>For Loops</h1>
+    <p class="deck">A for loop repeats a set of commands a fixed number of times, without you typing them over and over. This is how you turn "move four times" into three short lines instead of four.</p>
   </div>
 </header>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">00</div><h2>Reading a Karel World</h2></div>
-    <p class="lede">Before writing any commands, you have to be able to "read" the picture of Karel's world: where Karel starts, which way it's facing, where the walls are, and where any balls are.</p>
+    <div class="part-head"><div class="part-tag">00</div><h2>Why Not Just Copy-Paste?</h2></div>
+    <p class="lede">You could write <code>move();</code> four times in a row to move Karel four squares. It works. But it's easy to miscount, hard to change later, and just plain repetitive to type. A for loop says "do this exact thing, this many times" in one line.</p>
 
     <div class="two">
       <div class="box">
-        <h3>Where is Karel?</h3>
-        <p>Karel always starts on one specific corner, facing one specific direction (shown by the little arrow/triangle). Find that first, every single time.</p>
+        <h3>Without a loop</h3>
+        <div class="code" style="margin:12px 0 0;">move();
+move();
+move();
+move();</div>
       </div>
       <div class="box">
-        <h3>What's in the way?</h3>
-        <p>Walls block <code>move();</code>. Look for any thick lines between corners &mdash; those are walls Karel cannot walk through.</p>
+        <h3>With a loop</h3>
+        <div class="code" style="margin:12px 0 0;">for (var i = 0; i < 4; i++) {
+    move();
+}</div>
       </div>
     </div>
-
-    <div class="example"><b>Habit to build now:</b> before typing a single command, trace the path with your finger (or a pencil) on the picture first. Count exactly how many moves and turns it takes. Then type it.</div>
+    <p>Both do the exact same thing. The loop version is shorter, and if you need to change "4" to "10" later, you only change it in one place.</p>
   </div>
 </section>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">01</div><h2>Combining Commands: A Full Example</h2></div>
-    <p class="lede">Here's a longer program that moves Karel forward, turns a corner, and drops off a ball &mdash; the same four commands from Lesson 1, just more of them in a row.</p>
+    <div class="part-head"><div class="part-tag">01</div><h2>Breaking Down the Loop's First Line</h2></div>
+    <p class="lede">The line <code>for (var i = 0; i < 4; i++)</code> has three parts, separated by semicolons, that control the loop.</p>
 
-    <div class="code">move();
-move();
-move();
-turnLeft();
-move();
-putBall();
-turnLeft();
-turnLeft();
-move();
-takeBall();</div>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Part</th><th>What it means</th></tr>
+        <tr><td><code>var i = 0</code></td><td>Start counting at 0. <code>i</code> is just a name for the counter &mdash; short for "index."</td></tr>
+        <tr><td><code>i < 4</code></td><td>Keep looping as long as this is true. Once <code>i</code> reaches 4, the loop stops.</td></tr>
+        <tr><td><code>i++</code></td><td>After each pass through the loop, add 1 to <code>i</code>.</td></tr>
+      </table>
+    </div></div>
 
-    <p>Walk through it slowly, one line at a time: forward 3, turn, forward 1, drop a ball, turn around (two lefts in a row), forward 1, pick the ball back up. Every Karel program, no matter how long, is just this &mdash; a longer list of the same small steps.</p>
-
-    <div class="good"><b>Reading tip:</b> two <code>turnLeft();</code> calls in a row turns Karel a full 180&deg; &mdash; facing the exact opposite direction. You'll use this pattern constantly.</div>
+    <div class="example"><b>Walk through it:</b> i starts at 0 (true, 0 < 4, run the loop body). i becomes 1 (true, run again). i becomes 2 (true, run again). i becomes 3 (true, run again). i becomes 4 (false, 4 is not less than 4 &mdash; stop). That's exactly 4 runs.</div>
   </div>
 </section>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">02</div><h2>Karel Can Only Carry So Much Information at Once</h2></div>
-    <p class="lede">Karel doesn't remember anything about the world except what it's told to check with a command. It doesn't "know" it already visited a corner, or how many balls it's carrying, unless the program keeps track.</p>
-    <div class="warn"><b>This means:</b> if your plan depends on Karel "remembering" something, you have to write that into the commands yourself &mdash; Karel won't figure it out on its own.</div>
+    <div class="part-head"><div class="part-tag">02</div><h2>Putting Multiple Commands Inside a Loop</h2></div>
+    <p class="lede">Everything between the loop's curly braces <code>{ }</code> runs every single pass &mdash; not just one command.</p>
+
+    <div class="code">function main() {
+    for (var i = 0; i < 4; i++) {
+        move();
+        putBall();
+    }
+}</div>
+    <p>This moves Karel forward one square, drops a ball, moves forward one square, drops a ball &mdash; four times total. Not "move 4 times, then drop 4 balls" &mdash; the two commands are grouped together and repeated as a pair.</p>
+
+    <div class="good"><b>Combining with functions:</b> a for loop can also call your own functions, like <code>turnRight();</code>, the exact same way it calls built-in commands.</div>
   </div>
 </section>
 
@@ -162,18 +171,19 @@ takeBall();</div>
     <div class="cards">
       <div class="cardx">
         <div class="num">Mistake 1</div>
-        <h4>Trying to take a ball that isn't there</h4>
-        <p>Calling <code>takeBall();</code> on a corner with no ball crashes the program, the same way running into a wall does.</p>
+        <h4>Off-by-one errors</h4>
+        <p>Writing <code>i <= 4</code> instead of <code>i < 4</code> runs the loop 5 times instead of 4. Double-check your comparison.</p>
       </div>
       <div class="cardx">
         <div class="num">Mistake 2</div>
-        <h4>Losing track of which way Karel faces</h4>
-        <p>After a few turns, it's easy to lose track of Karel's direction in your head. Re-check the picture, or count your turns on your fingers.</p>
+        <h4>Forgetting a semicolon between the three parts</h4>
+        <code class="line">for (var i = 0, i < 4, i++)  <span style="color:var(--bad-ink)">// wrong</span></code>
+        <p>The three parts of a for loop are separated by <b>semicolons</b>, not commas.</p>
       </div>
       <div class="cardx">
         <div class="num">Mistake 3</div>
-        <h4>Writing the whole program before testing any of it</h4>
-        <p>Test a few lines at a time when you can. Finding out line 3 was wrong is much easier than finding out somewhere in 20 lines something went wrong.</p>
+        <h4>Running Karel into a wall</h4>
+        <p>A loop just repeats faster &mdash; it doesn't check if the repeated command is actually safe. If <code>move();</code> would crash on its own, it'll crash inside a loop too.</p>
       </div>
     </div>
   </div>
@@ -181,11 +191,11 @@ takeBall();</div>
 
 <footer class="final">
   <div class="wrap">
-    <h2>Longer programs are just more of the same small steps, in order.</h2>
-    <p>Next up: why Karel can't turn right, and what you do about it.</p>
-    <a class="back" href="karel-cant-turn-right.html">Karel Can't Turn Right &rarr;</a>
-    <a class="back" href="intro-to-programming-with-karel.html">&larr; Intro to Karel</a>
-    <p class="sig">Karel Notes &nbsp;/&nbsp; More Basic Karel &nbsp;/&nbsp; end of file</p>
+    <h2>A for loop repeats a fixed number of times. Three parts control it: start, stop condition, and how much to count by.</h2>
+    <p>Next up: teaching Karel to make decisions with if statements.</p>
+    <a class="back" href="if-statements-and-conditionals.html">If Statements &rarr;</a>
+    <a class="back" href="super-karel.html">&larr; Super Karel</a>
+    <p class="sig">Karel Notes &nbsp;/&nbsp; For Loops &nbsp;/&nbsp; end of file</p>
   </div>
 </footer>
 

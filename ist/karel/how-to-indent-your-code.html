@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>More Basic Karel | Karel Notes</title>
+<title>How to Indent Your Code | Karel Notes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -82,7 +82,7 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
 <nav class="pillnav">
   <a href="../unit-2/index.html">&larr; Unit 2: Karel</a>
   <a href="intro-to-programming-with-karel.html">1. Intro to Karel</a>
-  <a href="more-basic-karel.html" class="current">2. More Basic Karel</a>
+  <a href="more-basic-karel.html">2. More Basic Karel</a>
   <a href="karel-cant-turn-right.html">3. Can't Turn Right</a>
   <a href="functions-in-karel.html">4. Functions</a>
   <a href="top-down-design-and-decomposition.html">5. Top Down Design</a>
@@ -94,98 +94,84 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
   <a href="if-else-statements.html">11. If/Else</a>
   <a href="while-loops.html">12. While Loops</a>
   <a href="debugging-strategies.html">13. Debugging</a>
-  <a href="how-to-indent-your-code.html">14. Indenting</a>
+  <a href="how-to-indent-your-code.html" class="current">14. Indenting</a>
   <a href="control-structures-example.html">15. Control Structures</a>
 </nav>
 
 <header class="hero">
   <div class="wrap">
-    <div class="brief-no">KAREL NOTES &nbsp;/&nbsp; LESSON 2</div>
-    <h1>More Basic Karel</h1>
-    <p class="deck">Same four commands from Lesson 1 &mdash; now you'll combine them into longer programs, read Karel's world more carefully, and start planning before you type.</p>
+    <div class="brief-no">KAREL NOTES &nbsp;/&nbsp; LESSON 14</div>
+    <h1>How to Indent Your Code</h1>
+    <p class="deck">Indentation doesn't change what your program does &mdash; the curly braces already handle that. It changes whether a human can actually read your code, including you, a week from now.</p>
   </div>
 </header>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">00</div><h2>Reading a Karel World</h2></div>
-    <p class="lede">Before writing any commands, you have to be able to "read" the picture of Karel's world: where Karel starts, which way it's facing, where the walls are, and where any balls are.</p>
+    <div class="part-head"><div class="part-tag">00</div><h2>An Important Difference From Some Languages</h2></div>
+    <p class="lede">In this version of Karel, the curly braces <code>{ }</code> are what actually control which commands belong to which function or loop &mdash; not the spacing. You could technically write everything jammed against the left edge and it would still run.</p>
 
+    <div class="warn"><b>So why bother indenting at all?</b> Because "it still runs" isn't the same as "it's readable." A wall of code with no indentation is nearly impossible for a human to follow, even though the computer doesn't care.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Same Code, Two Ways</h2></div>
     <div class="two">
-      <div class="box">
-        <h3>Where is Karel?</h3>
-        <p>Karel always starts on one specific corner, facing one specific direction (shown by the little arrow/triangle). Find that first, every single time.</p>
+      <div class="box" style="border-top-color:var(--bad)">
+        <h3 style="color:var(--bad-ink)">Technically works, hard to read</h3>
+        <div class="code" style="margin:12px 0 0;">function main() {
+for (var i = 0; i < 4; i++) {
+if (ballPresent()) {
+takeBall();
+}
+move();
+}
+}</div>
       </div>
-      <div class="box">
-        <h3>What's in the way?</h3>
-        <p>Walls block <code>move();</code>. Look for any thick lines between corners &mdash; those are walls Karel cannot walk through.</p>
+      <div class="box" style="border-top-color:var(--lst)">
+        <h3 style="color:var(--lst-ink)">Same program, properly indented</h3>
+        <div class="code" style="margin:12px 0 0;">function main() {
+    for (var i = 0; i < 4; i++) {
+        if (ballPresent()) {
+            takeBall();
+        }
+        move();
+    }
+}</div>
       </div>
     </div>
-
-    <div class="example"><b>Habit to build now:</b> before typing a single command, trace the path with your finger (or a pencil) on the picture first. Count exactly how many moves and turns it takes. Then type it.</div>
+    <p>Both run identically. But in the second version, you can tell at a glance what's inside the loop, what's inside the if, and where each block ends &mdash; just from the shape of the code.</p>
   </div>
 </section>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">01</div><h2>Combining Commands: A Full Example</h2></div>
-    <p class="lede">Here's a longer program that moves Karel forward, turns a corner, and drops off a ball &mdash; the same four commands from Lesson 1, just more of them in a row.</p>
+    <div class="part-head"><div class="part-tag">02</div><h2>The Rule</h2></div>
+    <p class="lede">Every time you open a curly brace <code>{</code>, indent everything inside it one more step than the line that opened it. When you close that brace <code>}</code>, that closing brace lines back up with the line that opened it.</p>
 
-    <div class="code">move();
-move();
-move();
-turnLeft();
-move();
-putBall();
-turnLeft();
-turnLeft();
-move();
-takeBall();</div>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Nesting level</th><th>What's typically there</th></tr>
+        <tr><td>0 (no indent)</td><td><code>function main() {</code> and its closing <code>}</code></td></tr>
+        <tr><td>1 (indented once)</td><td>Commands directly inside main, like a for loop's opening line</td></tr>
+        <tr><td>2 (indented twice)</td><td>Commands inside that for loop, like an if statement's opening line</td></tr>
+        <tr><td>3 (indented three times)</td><td>Commands inside that if statement</td></tr>
+      </table>
+    </div></div>
 
-    <p>Walk through it slowly, one line at a time: forward 3, turn, forward 1, drop a ball, turn around (two lefts in a row), forward 1, pick the ball back up. Every Karel program, no matter how long, is just this &mdash; a longer list of the same small steps.</p>
-
-    <div class="good"><b>Reading tip:</b> two <code>turnLeft();</code> calls in a row turns Karel a full 180&deg; &mdash; facing the exact opposite direction. You'll use this pattern constantly.</div>
-  </div>
-</section>
-
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">02</div><h2>Karel Can Only Carry So Much Information at Once</h2></div>
-    <p class="lede">Karel doesn't remember anything about the world except what it's told to check with a command. It doesn't "know" it already visited a corner, or how many balls it's carrying, unless the program keeps track.</p>
-    <div class="warn"><b>This means:</b> if your plan depends on Karel "remembering" something, you have to write that into the commands yourself &mdash; Karel won't figure it out on its own.</div>
-  </div>
-</section>
-
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">03</div><h2>Common Mistakes</h2></div>
-    <div class="cards">
-      <div class="cardx">
-        <div class="num">Mistake 1</div>
-        <h4>Trying to take a ball that isn't there</h4>
-        <p>Calling <code>takeBall();</code> on a corner with no ball crashes the program, the same way running into a wall does.</p>
-      </div>
-      <div class="cardx">
-        <div class="num">Mistake 2</div>
-        <h4>Losing track of which way Karel faces</h4>
-        <p>After a few turns, it's easy to lose track of Karel's direction in your head. Re-check the picture, or count your turns on your fingers.</p>
-      </div>
-      <div class="cardx">
-        <div class="num">Mistake 3</div>
-        <h4>Writing the whole program before testing any of it</h4>
-        <p>Test a few lines at a time when you can. Finding out line 3 was wrong is much easier than finding out somewhere in 20 lines something went wrong.</p>
-      </div>
-    </div>
+    <div class="good"><b>Quick check:</b> if you can't tell which closing <code>}</code> belongs to which opening <code>{</code> just by looking at the indentation, it's not indented consistently yet.</div>
   </div>
 </section>
 
 <footer class="final">
   <div class="wrap">
-    <h2>Longer programs are just more of the same small steps, in order.</h2>
-    <p>Next up: why Karel can't turn right, and what you do about it.</p>
-    <a class="back" href="karel-cant-turn-right.html">Karel Can't Turn Right &rarr;</a>
-    <a class="back" href="intro-to-programming-with-karel.html">&larr; Intro to Karel</a>
-    <p class="sig">Karel Notes &nbsp;/&nbsp; More Basic Karel &nbsp;/&nbsp; end of file</p>
+    <h2>Indentation is for humans, not the computer. Use it anyway &mdash; every time.</h2>
+    <p>Next up: one full example that pulls together loops, conditionals, and everything else from this unit.</p>
+    <a class="back" href="control-structures-example.html">Control Structures Example &rarr;</a>
+    <a class="back" href="debugging-strategies.html">&larr; Debugging Strategies</a>
+    <p class="sig">Karel Notes &nbsp;/&nbsp; How to Indent Your Code &nbsp;/&nbsp; end of file</p>
   </div>
 </footer>
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>More Basic Karel | Karel Notes</title>
+<title>Debugging Strategies | Karel Notes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -82,7 +82,7 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
 <nav class="pillnav">
   <a href="../unit-2/index.html">&larr; Unit 2: Karel</a>
   <a href="intro-to-programming-with-karel.html">1. Intro to Karel</a>
-  <a href="more-basic-karel.html" class="current">2. More Basic Karel</a>
+  <a href="more-basic-karel.html">2. More Basic Karel</a>
   <a href="karel-cant-turn-right.html">3. Can't Turn Right</a>
   <a href="functions-in-karel.html">4. Functions</a>
   <a href="top-down-design-and-decomposition.html">5. Top Down Design</a>
@@ -93,87 +93,90 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
   <a href="if-statements-and-conditionals.html">10. If Statements</a>
   <a href="if-else-statements.html">11. If/Else</a>
   <a href="while-loops.html">12. While Loops</a>
-  <a href="debugging-strategies.html">13. Debugging</a>
+  <a href="debugging-strategies.html" class="current">13. Debugging</a>
   <a href="how-to-indent-your-code.html">14. Indenting</a>
   <a href="control-structures-example.html">15. Control Structures</a>
 </nav>
 
 <header class="hero">
   <div class="wrap">
-    <div class="brief-no">KAREL NOTES &nbsp;/&nbsp; LESSON 2</div>
-    <h1>More Basic Karel</h1>
-    <p class="deck">Same four commands from Lesson 1 &mdash; now you'll combine them into longer programs, read Karel's world more carefully, and start planning before you type.</p>
+    <div class="brief-no">KAREL NOTES &nbsp;/&nbsp; LESSON 13</div>
+    <h1>Debugging Strategies</h1>
+    <p class="deck">A bug is when your program does something different than what you wanted. Debugging isn't luck or guessing &mdash; it's a repeatable process anyone can follow.</p>
   </div>
 </header>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">00</div><h2>Reading a Karel World</h2></div>
-    <p class="lede">Before writing any commands, you have to be able to "read" the picture of Karel's world: where Karel starts, which way it's facing, where the walls are, and where any balls are.</p>
+    <div class="part-head"><div class="part-tag">00</div><h2>The Debugging Process</h2></div>
+    <p class="lede">When something goes wrong, resist the urge to change five things at once and hope. Follow these steps in order instead.</p>
 
-    <div class="two">
-      <div class="box">
-        <h3>Where is Karel?</h3>
-        <p>Karel always starts on one specific corner, facing one specific direction (shown by the little arrow/triangle). Find that first, every single time.</p>
+    <div class="cards">
+      <div class="cardx">
+        <div class="num">Step 1</div>
+        <h4>Say what SHOULD happen</h4>
+        <p>Be specific. "Karel should end up facing north, at the corner with the ball" &mdash; not just "it should work."</p>
       </div>
-      <div class="box">
-        <h3>What's in the way?</h3>
-        <p>Walls block <code>move();</code>. Look for any thick lines between corners &mdash; those are walls Karel cannot walk through.</p>
+      <div class="cardx">
+        <div class="num">Step 2</div>
+        <h4>Say what ACTUALLY happens</h4>
+        <p>Run the program and watch closely. Where exactly does it stop matching what you expected?</p>
+      </div>
+      <div class="cardx">
+        <div class="num">Step 3</div>
+        <h4>Find the exact line</h4>
+        <p>Compare your plan to your code, line by line, starting from wherever things first went wrong.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">Step 4</div>
+        <h4>Change ONE thing</h4>
+        <p>Fix your best guess, then run it again. If you change three things at once, you won't know which one actually fixed it.</p>
       </div>
     </div>
 
-    <div class="example"><b>Habit to build now:</b> before typing a single command, trace the path with your finger (or a pencil) on the picture first. Count exactly how many moves and turns it takes. Then type it.</div>
+    <div class="warn"><b>The #1 mistake beginners make:</b> randomly changing code and re-running it, hoping something works, without ever figuring out <em>why</em> it was broken. This might accidentally fix one bug while creating a new one you don't notice yet.</div>
   </div>
 </section>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">01</div><h2>Combining Commands: A Full Example</h2></div>
-    <p class="lede">Here's a longer program that moves Karel forward, turns a corner, and drops off a ball &mdash; the same four commands from Lesson 1, just more of them in a row.</p>
-
-    <div class="code">move();
-move();
-move();
-turnLeft();
-move();
-putBall();
-turnLeft();
-turnLeft();
-move();
-takeBall();</div>
-
-    <p>Walk through it slowly, one line at a time: forward 3, turn, forward 1, drop a ball, turn around (two lefts in a row), forward 1, pick the ball back up. Every Karel program, no matter how long, is just this &mdash; a longer list of the same small steps.</p>
-
-    <div class="good"><b>Reading tip:</b> two <code>turnLeft();</code> calls in a row turns Karel a full 180&deg; &mdash; facing the exact opposite direction. You'll use this pattern constantly.</div>
+    <div class="part-head"><div class="part-tag">01</div><h2>Two Kinds of Bugs</h2></div>
+    <div class="two">
+      <div class="box">
+        <h3>Crashes</h3>
+        <p>Karel runs into a wall, or tries to <code>takeBall();</code> with none there. The program stops and usually tells you which line caused it &mdash; read that message, it's telling you exactly where to look.</p>
+      </div>
+      <div class="box">
+        <h3>Wrong result, no crash</h3>
+        <p>The program finishes, but Karel ends up in the wrong place, or the balls are in the wrong pattern. These are harder &mdash; nothing tells you where the problem is, so you have to trace through your own logic.</p>
+      </div>
+    </div>
   </div>
 </section>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">02</div><h2>Karel Can Only Carry So Much Information at Once</h2></div>
-    <p class="lede">Karel doesn't remember anything about the world except what it's told to check with a command. It doesn't "know" it already visited a corner, or how many balls it's carrying, unless the program keeps track.</p>
-    <div class="warn"><b>This means:</b> if your plan depends on Karel "remembering" something, you have to write that into the commands yourself &mdash; Karel won't figure it out on its own.</div>
-  </div>
-</section>
-
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">03</div><h2>Common Mistakes</h2></div>
+    <div class="part-head"><div class="part-tag">02</div><h2>Techniques That Actually Help</h2></div>
     <div class="cards">
       <div class="cardx">
-        <div class="num">Mistake 1</div>
-        <h4>Trying to take a ball that isn't there</h4>
-        <p>Calling <code>takeBall();</code> on a corner with no ball crashes the program, the same way running into a wall does.</p>
+        <div class="num">Technique</div>
+        <h4>Run it one function at a time</h4>
+        <p>If <code>main()</code> calls several functions, comment one out (or temporarily remove the call) and test the rest. Narrow down which function has the actual bug.</p>
       </div>
       <div class="cardx">
-        <div class="num">Mistake 2</div>
-        <h4>Losing track of which way Karel faces</h4>
-        <p>After a few turns, it's easy to lose track of Karel's direction in your head. Re-check the picture, or count your turns on your fingers.</p>
+        <div class="num">Technique</div>
+        <h4>Trace it on paper first</h4>
+        <p>Before you even run it, walk through your code by hand, line by line, predicting what Karel does at each step. Compare that prediction to what actually happens.</p>
       </div>
       <div class="cardx">
-        <div class="num">Mistake 3</div>
-        <h4>Writing the whole program before testing any of it</h4>
-        <p>Test a few lines at a time when you can. Finding out line 3 was wrong is much easier than finding out somewhere in 20 lines something went wrong.</p>
+        <div class="num">Technique</div>
+        <h4>Check your braces and parentheses</h4>
+        <p>A huge number of bugs are just a missing <code>{</code>, <code>}</code>, or <code>;</code> somewhere. Count them before assuming your logic itself is wrong.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">Technique</div>
+        <h4>Re-read the world before you code</h4>
+        <p>A lot of "bugs" are actually a misread map &mdash; miscounting a wall's position or which way Karel starts facing. Double check the picture first.</p>
       </div>
     </div>
   </div>
@@ -181,11 +184,11 @@ takeBall();</div>
 
 <footer class="final">
   <div class="wrap">
-    <h2>Longer programs are just more of the same small steps, in order.</h2>
-    <p>Next up: why Karel can't turn right, and what you do about it.</p>
-    <a class="back" href="karel-cant-turn-right.html">Karel Can't Turn Right &rarr;</a>
-    <a class="back" href="intro-to-programming-with-karel.html">&larr; Intro to Karel</a>
-    <p class="sig">Karel Notes &nbsp;/&nbsp; More Basic Karel &nbsp;/&nbsp; end of file</p>
+    <h2>Say what should happen, say what does happen, find the exact line, change one thing at a time.</h2>
+    <p>Next up: a habit that prevents a lot of bugs before they even happen &mdash; consistent indentation.</p>
+    <a class="back" href="how-to-indent-your-code.html">How to Indent Your Code &rarr;</a>
+    <a class="back" href="while-loops.html">&larr; While Loops</a>
+    <p class="sig">Karel Notes &nbsp;/&nbsp; Debugging Strategies &nbsp;/&nbsp; end of file</p>
   </div>
 </footer>
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>More Basic Karel | Karel Notes</title>
+<title>Control Structures Example | Karel Notes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -82,7 +82,7 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
 <nav class="pillnav">
   <a href="../unit-2/index.html">&larr; Unit 2: Karel</a>
   <a href="intro-to-programming-with-karel.html">1. Intro to Karel</a>
-  <a href="more-basic-karel.html" class="current">2. More Basic Karel</a>
+  <a href="more-basic-karel.html">2. More Basic Karel</a>
   <a href="karel-cant-turn-right.html">3. Can't Turn Right</a>
   <a href="functions-in-karel.html">4. Functions</a>
   <a href="top-down-design-and-decomposition.html">5. Top Down Design</a>
@@ -95,97 +95,96 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
   <a href="while-loops.html">12. While Loops</a>
   <a href="debugging-strategies.html">13. Debugging</a>
   <a href="how-to-indent-your-code.html">14. Indenting</a>
-  <a href="control-structures-example.html">15. Control Structures</a>
+  <a href="control-structures-example.html" class="current">15. Control Structures</a>
 </nav>
 
 <header class="hero">
   <div class="wrap">
-    <div class="brief-no">KAREL NOTES &nbsp;/&nbsp; LESSON 2</div>
-    <h1>More Basic Karel</h1>
-    <p class="deck">Same four commands from Lesson 1 &mdash; now you'll combine them into longer programs, read Karel's world more carefully, and start planning before you type.</p>
+    <div class="brief-no">KAREL NOTES &nbsp;/&nbsp; LESSON 15</div>
+    <h1>Control Structures Example</h1>
+    <p class="deck">A review, not a new idea: one real program that uses everything from this unit together &mdash; functions, loops, and conditionals &mdash; the way a real Karel program usually looks.</p>
   </div>
 </header>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">00</div><h2>Reading a Karel World</h2></div>
-    <p class="lede">Before writing any commands, you have to be able to "read" the picture of Karel's world: where Karel starts, which way it's facing, where the walls are, and where any balls are.</p>
-
-    <div class="two">
-      <div class="box">
-        <h3>Where is Karel?</h3>
-        <p>Karel always starts on one specific corner, facing one specific direction (shown by the little arrow/triangle). Find that first, every single time.</p>
-      </div>
-      <div class="box">
-        <h3>What's in the way?</h3>
-        <p>Walls block <code>move();</code>. Look for any thick lines between corners &mdash; those are walls Karel cannot walk through.</p>
-      </div>
-    </div>
-
-    <div class="example"><b>Habit to build now:</b> before typing a single command, trace the path with your finger (or a pencil) on the picture first. Count exactly how many moves and turns it takes. Then type it.</div>
+    <div class="part-head"><div class="part-tag">00</div><h2>The Goal</h2></div>
+    <p class="lede">Karel starts at one end of a street of unknown length. Walk forward, and for every corner: if there's a ball, pick it up. If there isn't, leave one. When Karel hits the wall at the end, turn around and stop.</p>
+    <div class="hint-panel">Notice this goal is written in plain English first, before any code &mdash; exactly the top-down design habit from Lesson 5.</div>
   </div>
 </section>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">01</div><h2>Combining Commands: A Full Example</h2></div>
-    <p class="lede">Here's a longer program that moves Karel forward, turns a corner, and drops off a ball &mdash; the same four commands from Lesson 1, just more of them in a row.</p>
-
-    <div class="code">move();
-move();
-move();
-turnLeft();
-move();
-putBall();
-turnLeft();
-turnLeft();
-move();
-takeBall();</div>
-
-    <p>Walk through it slowly, one line at a time: forward 3, turn, forward 1, drop a ball, turn around (two lefts in a row), forward 1, pick the ball back up. Every Karel program, no matter how long, is just this &mdash; a longer list of the same small steps.</p>
-
-    <div class="good"><b>Reading tip:</b> two <code>turnLeft();</code> calls in a row turns Karel a full 180&deg; &mdash; facing the exact opposite direction. You'll use this pattern constantly.</div>
+    <div class="part-head"><div class="part-tag">01</div><h2>Breaking It Into Pieces</h2></div>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Plain English step</th><th>Control structure needed</th></tr>
+        <tr><td>Keep going until the wall</td><td>while loop, checking <code>frontIsClear()</code></td></tr>
+        <tr><td>At each corner, check for a ball</td><td>if / else, checking <code>ballPresent()</code></td></tr>
+        <tr><td>Turn around at the end</td><td>Your own <code>turnAround()</code> function (or Super Karel's built-in one)</td></tr>
+      </table>
+    </div></div>
   </div>
 </section>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">02</div><h2>Karel Can Only Carry So Much Information at Once</h2></div>
-    <p class="lede">Karel doesn't remember anything about the world except what it's told to check with a command. It doesn't "know" it already visited a corner, or how many balls it's carrying, unless the program keeps track.</p>
-    <div class="warn"><b>This means:</b> if your plan depends on Karel "remembering" something, you have to write that into the commands yourself &mdash; Karel won't figure it out on its own.</div>
+    <div class="part-head"><div class="part-tag">02</div><h2>The Full Program</h2></div>
+    <div class="code">function main() {
+    while (frontIsClear()) {
+        if (ballPresent()) {
+            takeBall();
+        } else {
+            putBall();
+        }
+        move();
+    }
+    turnAround();
+}</div>
+
+    <p>Read it top to bottom like a paragraph: "While the front is clear: if there's a ball, take it, otherwise put one down, then move. Once you hit the wall, turn around."</p>
+
+    <div class="good"><b>Notice what's doing what:</b> the <code>while</code> loop controls <em>how long</em> this repeats (until a wall). The <code>if/else</code> controls <em>which action</em> happens each time (take vs. put). They're solving two different problems, working together.</div>
   </div>
 </section>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">03</div><h2>Common Mistakes</h2></div>
+    <div class="part-head"><div class="part-tag">03</div><h2>Every Control Structure From This Unit</h2></div>
     <div class="cards">
       <div class="cardx">
-        <div class="num">Mistake 1</div>
-        <h4>Trying to take a ball that isn't there</h4>
-        <p>Calling <code>takeBall();</code> on a corner with no ball crashes the program, the same way running into a wall does.</p>
+        <div class="num">Lesson 4</div>
+        <h4>Functions</h4>
+        <p>A named, reusable block of commands &mdash; like <code>turnRight()</code> or the whole <code>main()</code> function itself.</p>
       </div>
       <div class="cardx">
-        <div class="num">Mistake 2</div>
-        <h4>Losing track of which way Karel faces</h4>
-        <p>After a few turns, it's easy to lose track of Karel's direction in your head. Re-check the picture, or count your turns on your fingers.</p>
+        <div class="num">Lesson 9</div>
+        <h4>For loops</h4>
+        <p>Repeat a fixed, known number of times.</p>
       </div>
       <div class="cardx">
-        <div class="num">Mistake 3</div>
-        <h4>Writing the whole program before testing any of it</h4>
-        <p>Test a few lines at a time when you can. Finding out line 3 was wrong is much easier than finding out somewhere in 20 lines something went wrong.</p>
+        <div class="num">Lessons 10&ndash;11</div>
+        <h4>If / else</h4>
+        <p>Choose between two paths based on a condition.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">Lesson 12</div>
+        <h4>While loops</h4>
+        <p>Repeat until a condition becomes false &mdash; the number of times isn't known in advance.</p>
       </div>
     </div>
+    <p style="margin-top:8px;">Nearly every real program you write from here on will combine several of these &mdash; exactly like the example above.</p>
   </div>
 </section>
 
 <footer class="final">
   <div class="wrap">
-    <h2>Longer programs are just more of the same small steps, in order.</h2>
-    <p>Next up: why Karel can't turn right, and what you do about it.</p>
-    <a class="back" href="karel-cant-turn-right.html">Karel Can't Turn Right &rarr;</a>
-    <a class="back" href="intro-to-programming-with-karel.html">&larr; Intro to Karel</a>
-    <p class="sig">Karel Notes &nbsp;/&nbsp; More Basic Karel &nbsp;/&nbsp; end of file</p>
+    <h2>Functions, loops, and conditionals aren't separate topics &mdash; real programs combine all of them together.</h2>
+    <p>That's every Karel Notes lesson. From here, it's practice: build your own programs and see how these pieces fit together.</p>
+    <a class="back" href="../unit-2/index.html">&larr; Back to Unit 2</a>
+    <a class="back" href="how-to-indent-your-code.html">&larr; How to Indent Your Code</a>
+    <p class="sig">Karel Notes &nbsp;/&nbsp; Control Structures Example &nbsp;/&nbsp; end of file</p>
   </div>
 </footer>
 

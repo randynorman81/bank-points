@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>More Basic Karel | Karel Notes</title>
+<title>While Loops | Karel Notes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -82,7 +82,7 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
 <nav class="pillnav">
   <a href="../unit-2/index.html">&larr; Unit 2: Karel</a>
   <a href="intro-to-programming-with-karel.html">1. Intro to Karel</a>
-  <a href="more-basic-karel.html" class="current">2. More Basic Karel</a>
+  <a href="more-basic-karel.html">2. More Basic Karel</a>
   <a href="karel-cant-turn-right.html">3. Can't Turn Right</a>
   <a href="functions-in-karel.html">4. Functions</a>
   <a href="top-down-design-and-decomposition.html">5. Top Down Design</a>
@@ -92,7 +92,7 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
   <a href="for-loops.html">9. For Loops</a>
   <a href="if-statements-and-conditionals.html">10. If Statements</a>
   <a href="if-else-statements.html">11. If/Else</a>
-  <a href="while-loops.html">12. While Loops</a>
+  <a href="while-loops.html" class="current">12. While Loops</a>
   <a href="debugging-strategies.html">13. Debugging</a>
   <a href="how-to-indent-your-code.html">14. Indenting</a>
   <a href="control-structures-example.html">15. Control Structures</a>
@@ -100,80 +100,76 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
 
 <header class="hero">
   <div class="wrap">
-    <div class="brief-no">KAREL NOTES &nbsp;/&nbsp; LESSON 2</div>
-    <h1>More Basic Karel</h1>
-    <p class="deck">Same four commands from Lesson 1 &mdash; now you'll combine them into longer programs, read Karel's world more carefully, and start planning before you type.</p>
+    <div class="brief-no">KAREL NOTES &nbsp;/&nbsp; LESSON 12</div>
+    <h1>While Loops</h1>
+    <p class="deck">A for loop repeats a fixed number of times. A while loop repeats for as long as a condition stays true &mdash; perfect for when you don't actually know the number in advance.</p>
   </div>
 </header>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">00</div><h2>Reading a Karel World</h2></div>
-    <p class="lede">Before writing any commands, you have to be able to "read" the picture of Karel's world: where Karel starts, which way it's facing, where the walls are, and where any balls are.</p>
+    <div class="part-head"><div class="part-tag">00</div><h2>When You Don't Know "How Many"</h2></div>
+    <p class="lede">A for loop needs an exact count: "do this 4 times." But what if you just want Karel to walk forward until it hits a wall &mdash; and you don't know how many squares that'll take? That's exactly what a while loop is for.</p>
 
-    <div class="two">
-      <div class="box">
-        <h3>Where is Karel?</h3>
-        <p>Karel always starts on one specific corner, facing one specific direction (shown by the little arrow/triangle). Find that first, every single time.</p>
-      </div>
-      <div class="box">
-        <h3>What's in the way?</h3>
-        <p>Walls block <code>move();</code>. Look for any thick lines between corners &mdash; those are walls Karel cannot walk through.</p>
-      </div>
-    </div>
+    <div class="code">function main() {
+    while (frontIsClear()) {
+        move();
+    }
+}</div>
 
-    <div class="example"><b>Habit to build now:</b> before typing a single command, trace the path with your finger (or a pencil) on the picture first. Count exactly how many moves and turns it takes. Then type it.</div>
+    <p>Read it as: "while the front is clear, keep moving." Karel checks the condition, and if it's true, runs the loop body, then checks again &mdash; over and over, until the condition finally becomes false.</p>
   </div>
 </section>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">01</div><h2>Combining Commands: A Full Example</h2></div>
-    <p class="lede">Here's a longer program that moves Karel forward, turns a corner, and drops off a ball &mdash; the same four commands from Lesson 1, just more of them in a row.</p>
-
-    <div class="code">move();
-move();
-move();
-turnLeft();
-move();
-putBall();
-turnLeft();
-turnLeft();
-move();
-takeBall();</div>
-
-    <p>Walk through it slowly, one line at a time: forward 3, turn, forward 1, drop a ball, turn around (two lefts in a row), forward 1, pick the ball back up. Every Karel program, no matter how long, is just this &mdash; a longer list of the same small steps.</p>
-
-    <div class="good"><b>Reading tip:</b> two <code>turnLeft();</code> calls in a row turns Karel a full 180&deg; &mdash; facing the exact opposite direction. You'll use this pattern constantly.</div>
+    <div class="part-head"><div class="part-tag">01</div><h2>For Loop vs. While Loop</h2></div>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th></th><th>for loop</th><th>while loop</th></tr>
+        <tr><td>Use when&hellip;</td><td>You know the exact number of repeats</td><td>You're repeating "until something happens"</td></tr>
+        <tr><td>Stops when&hellip;</td><td>The counter reaches its limit</td><td>The condition becomes false</td></tr>
+        <tr><td>Karel example</td><td>"Move 4 times"</td><td>"Move until you hit a wall"</td></tr>
+      </table>
+    </div></div>
+    <div class="good"><b>Rule of thumb:</b> if you can count exactly how many times before you even run the program, use a for loop. If it depends on what Karel actually finds, use a while loop.</div>
   </div>
 </section>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">02</div><h2>Karel Can Only Carry So Much Information at Once</h2></div>
-    <p class="lede">Karel doesn't remember anything about the world except what it's told to check with a command. It doesn't "know" it already visited a corner, or how many balls it's carrying, unless the program keeps track.</p>
-    <div class="warn"><b>This means:</b> if your plan depends on Karel "remembering" something, you have to write that into the commands yourself &mdash; Karel won't figure it out on its own.</div>
+    <div class="part-head"><div class="part-tag">02</div><h2>A Realistic Example</h2></div>
+    <p class="lede">Walk forward, picking up every ball along the way, until hitting a wall.</p>
+
+    <div class="code">function main() {
+    while (frontIsClear()) {
+        if (ballPresent()) {
+            takeBall();
+        }
+        move();
+    }
+}</div>
+    <p>This works no matter how long the street is &mdash; 3 squares or 30. The while loop keeps going exactly as long as it needs to.</p>
   </div>
 </section>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">03</div><h2>Common Mistakes</h2></div>
+    <div class="part-head"><div class="part-tag">03</div><h2>The Danger: Infinite Loops</h2></div>
+    <p class="lede">If a while loop's condition <em>never</em> becomes false, the loop never stops &mdash; the program hangs forever. This is called an infinite loop, and it's the single most common while loop bug.</p>
+
+    <div class="warn"><b>Example of a bug:</b> <code>while (ballPresent()) { move(); }</code> &mdash; if <code>move();</code> never actually affects whether there's a ball present, the condition might never change, and Karel just keeps running forever.</div>
+
     <div class="cards">
       <div class="cardx">
-        <div class="num">Mistake 1</div>
-        <h4>Trying to take a ball that isn't there</h4>
-        <p>Calling <code>takeBall();</code> on a corner with no ball crashes the program, the same way running into a wall does.</p>
+        <div class="num">Fix</div>
+        <h4>Make sure something inside the loop changes the condition</h4>
+        <p>Every while loop needs something inside it that eventually makes the condition false &mdash; moving toward a wall, picking up the last ball, etc.</p>
       </div>
       <div class="cardx">
-        <div class="num">Mistake 2</div>
-        <h4>Losing track of which way Karel faces</h4>
-        <p>After a few turns, it's easy to lose track of Karel's direction in your head. Re-check the picture, or count your turns on your fingers.</p>
-      </div>
-      <div class="cardx">
-        <div class="num">Mistake 3</div>
-        <h4>Writing the whole program before testing any of it</h4>
-        <p>Test a few lines at a time when you can. Finding out line 3 was wrong is much easier than finding out somewhere in 20 lines something went wrong.</p>
+        <div class="num">Fix</div>
+        <h4>Trace it by hand first</h4>
+        <p>Before running a while loop, walk through the first few passes on paper. If you can't picture how it would ever stop, it probably won't.</p>
       </div>
     </div>
   </div>
@@ -181,11 +177,11 @@ takeBall();</div>
 
 <footer class="final">
   <div class="wrap">
-    <h2>Longer programs are just more of the same small steps, in order.</h2>
-    <p>Next up: why Karel can't turn right, and what you do about it.</p>
-    <a class="back" href="karel-cant-turn-right.html">Karel Can't Turn Right &rarr;</a>
-    <a class="back" href="intro-to-programming-with-karel.html">&larr; Intro to Karel</a>
-    <p class="sig">Karel Notes &nbsp;/&nbsp; More Basic Karel &nbsp;/&nbsp; end of file</p>
+    <h2>A while loop repeats until its condition goes false. Make sure something inside it actually gets you there.</h2>
+    <p>Next up: what to do when your program doesn't work &mdash; a real process for finding bugs.</p>
+    <a class="back" href="debugging-strategies.html">Debugging Strategies &rarr;</a>
+    <a class="back" href="if-else-statements.html">&larr; If/Else Statements</a>
+    <p class="sig">Karel Notes &nbsp;/&nbsp; While Loops &nbsp;/&nbsp; end of file</p>
   </div>
 </footer>
 

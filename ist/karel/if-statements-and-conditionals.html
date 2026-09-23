@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>More Basic Karel | Karel Notes</title>
+<title>If Statements and Conditionals | Karel Notes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -82,7 +82,7 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
 <nav class="pillnav">
   <a href="../unit-2/index.html">&larr; Unit 2: Karel</a>
   <a href="intro-to-programming-with-karel.html">1. Intro to Karel</a>
-  <a href="more-basic-karel.html" class="current">2. More Basic Karel</a>
+  <a href="more-basic-karel.html">2. More Basic Karel</a>
   <a href="karel-cant-turn-right.html">3. Can't Turn Right</a>
   <a href="functions-in-karel.html">4. Functions</a>
   <a href="top-down-design-and-decomposition.html">5. Top Down Design</a>
@@ -90,7 +90,7 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
   <a href="abstraction.html">7. Abstraction</a>
   <a href="super-karel.html">8. Super Karel</a>
   <a href="for-loops.html">9. For Loops</a>
-  <a href="if-statements-and-conditionals.html">10. If Statements</a>
+  <a href="if-statements-and-conditionals.html" class="current">10. If Statements</a>
   <a href="if-else-statements.html">11. If/Else</a>
   <a href="while-loops.html">12. While Loops</a>
   <a href="debugging-strategies.html">13. Debugging</a>
@@ -100,59 +100,63 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
 
 <header class="hero">
   <div class="wrap">
-    <div class="brief-no">KAREL NOTES &nbsp;/&nbsp; LESSON 2</div>
-    <h1>More Basic Karel</h1>
-    <p class="deck">Same four commands from Lesson 1 &mdash; now you'll combine them into longer programs, read Karel's world more carefully, and start planning before you type.</p>
+    <div class="brief-no">KAREL NOTES &nbsp;/&nbsp; LESSON 10</div>
+    <h1>If Statements and Conditionals</h1>
+    <p class="deck">Up to now, Karel has done the exact same thing every time. An if statement lets Karel look at its surroundings and make a decision &mdash; do this, only if this is true.</p>
   </div>
 </header>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">00</div><h2>Reading a Karel World</h2></div>
-    <p class="lede">Before writing any commands, you have to be able to "read" the picture of Karel's world: where Karel starts, which way it's facing, where the walls are, and where any balls are.</p>
+    <div class="part-head"><div class="part-tag">00</div><h2>What Is a Condition?</h2></div>
+    <p class="lede">A condition is a yes-or-no question. In code, the answer is either <code>true</code> or <code>false</code> &mdash; nothing in between. Karel has several built-in questions it can ask about the world around it.</p>
 
-    <div class="two">
-      <div class="box">
-        <h3>Where is Karel?</h3>
-        <p>Karel always starts on one specific corner, facing one specific direction (shown by the little arrow/triangle). Find that first, every single time.</p>
-      </div>
-      <div class="box">
-        <h3>What's in the way?</h3>
-        <p>Walls block <code>move();</code>. Look for any thick lines between corners &mdash; those are walls Karel cannot walk through.</p>
-      </div>
-    </div>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Condition</th><th>Question it answers</th></tr>
+        <tr><td><code>frontIsClear()</code></td><td>Is there NOT a wall directly in front of Karel?</td></tr>
+        <tr><td><code>frontIsBlocked()</code></td><td>IS there a wall directly in front of Karel?</td></tr>
+        <tr><td><code>leftIsClear()</code> / <code>rightIsClear()</code></td><td>Is there no wall to Karel's left / right?</td></tr>
+        <tr><td><code>ballPresent()</code></td><td>Is there a ball on Karel's current corner?</td></tr>
+        <tr><td><code>noBallPresent()</code></td><td>Is Karel's current corner empty?</td></tr>
+      </table>
+    </div></div>
 
-    <div class="example"><b>Habit to build now:</b> before typing a single command, trace the path with your finger (or a pencil) on the picture first. Count exactly how many moves and turns it takes. Then type it.</div>
+    <div class="example"><b>Notice the pattern:</b> each condition is a question, and it always answers <code>true</code> or <code>false</code> &mdash; it never moves Karel or changes anything by itself. Asking <code>frontIsClear()</code> doesn't move Karel; it just checks.</div>
   </div>
 </section>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">01</div><h2>Combining Commands: A Full Example</h2></div>
-    <p class="lede">Here's a longer program that moves Karel forward, turns a corner, and drops off a ball &mdash; the same four commands from Lesson 1, just more of them in a row.</p>
+    <div class="part-head"><div class="part-tag">01</div><h2>The If Statement</h2></div>
+    <p class="lede">An if statement runs a block of code only when its condition is <code>true</code>. If the condition is <code>false</code>, that block is skipped entirely.</p>
 
-    <div class="code">move();
-move();
-move();
-turnLeft();
-move();
-putBall();
-turnLeft();
-turnLeft();
-move();
-takeBall();</div>
+    <div class="code">function main() {
+    if (frontIsClear()) {
+        move();
+    }
+}</div>
 
-    <p>Walk through it slowly, one line at a time: forward 3, turn, forward 1, drop a ball, turn around (two lefts in a row), forward 1, pick the ball back up. Every Karel program, no matter how long, is just this &mdash; a longer list of the same small steps.</p>
+    <p>Read it like a sentence: "if the front is clear, move." If there happens to be a wall right in front of Karel, <code>move();</code> never runs, and the program just continues on to whatever comes after the if statement &mdash; no crash.</p>
 
-    <div class="good"><b>Reading tip:</b> two <code>turnLeft();</code> calls in a row turns Karel a full 180&deg; &mdash; facing the exact opposite direction. You'll use this pattern constantly.</div>
+    <div class="good"><b>Why this matters:</b> without an if statement, you'd have to know in advance exactly what's in front of Karel every time. With one, Karel can react to whatever it actually finds.</div>
   </div>
 </section>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">02</div><h2>Karel Can Only Carry So Much Information at Once</h2></div>
-    <p class="lede">Karel doesn't remember anything about the world except what it's told to check with a command. It doesn't "know" it already visited a corner, or how many balls it's carrying, unless the program keeps track.</p>
-    <div class="warn"><b>This means:</b> if your plan depends on Karel "remembering" something, you have to write that into the commands yourself &mdash; Karel won't figure it out on its own.</div>
+    <div class="part-head"><div class="part-tag">02</div><h2>A More Useful Example</h2></div>
+    <p class="lede">Combine an if statement with a for loop: check for a ball on every corner along a path, and pick it up if one's there.</p>
+
+    <div class="code">function main() {
+    for (var i = 0; i < 5; i++) {
+        if (ballPresent()) {
+            takeBall();
+        }
+        move();
+    }
+}</div>
+    <p>Karel walks 5 squares. On each one, it checks for a ball first &mdash; if there's one, it picks it up &mdash; then moves to the next square either way.</p>
   </div>
 </section>
 
@@ -162,18 +166,19 @@ takeBall();</div>
     <div class="cards">
       <div class="cardx">
         <div class="num">Mistake 1</div>
-        <h4>Trying to take a ball that isn't there</h4>
-        <p>Calling <code>takeBall();</code> on a corner with no ball crashes the program, the same way running into a wall does.</p>
+        <h4>Forgetting the condition needs parentheses</h4>
+        <code class="line">if frontIsClear() {  <span style="color:var(--bad-ink)">// missing ( )</span></code>
+        <p>The condition always goes inside its own set of parentheses: <code>if (frontIsClear())</code>.</p>
       </div>
       <div class="cardx">
         <div class="num">Mistake 2</div>
-        <h4>Losing track of which way Karel faces</h4>
-        <p>After a few turns, it's easy to lose track of Karel's direction in your head. Re-check the picture, or count your turns on your fingers.</p>
+        <h4>Using the wrong condition</h4>
+        <p><code>frontIsClear()</code> and <code>frontIsBlocked()</code> are opposites. Mixing them up flips your logic backward &mdash; Karel does the opposite of what you meant.</p>
       </div>
       <div class="cardx">
         <div class="num">Mistake 3</div>
-        <h4>Writing the whole program before testing any of it</h4>
-        <p>Test a few lines at a time when you can. Finding out line 3 was wrong is much easier than finding out somewhere in 20 lines something went wrong.</p>
+        <h4>Expecting the if to run every time</h4>
+        <p>An if statement is conditional by definition &mdash; if the condition is false, that code is skipped, not delayed. It just doesn't run at all that time.</p>
       </div>
     </div>
   </div>
@@ -181,11 +186,11 @@ takeBall();</div>
 
 <footer class="final">
   <div class="wrap">
-    <h2>Longer programs are just more of the same small steps, in order.</h2>
-    <p>Next up: why Karel can't turn right, and what you do about it.</p>
-    <a class="back" href="karel-cant-turn-right.html">Karel Can't Turn Right &rarr;</a>
-    <a class="back" href="intro-to-programming-with-karel.html">&larr; Intro to Karel</a>
-    <p class="sig">Karel Notes &nbsp;/&nbsp; More Basic Karel &nbsp;/&nbsp; end of file</p>
+    <h2>A condition is a yes/no question. An if statement runs code only when the answer is true.</h2>
+    <p>Next up: giving Karel a backup plan for when the condition is false, with else.</p>
+    <a class="back" href="if-else-statements.html">If/Else Statements &rarr;</a>
+    <a class="back" href="for-loops.html">&larr; For Loops</a>
+    <p class="sig">Karel Notes &nbsp;/&nbsp; If Statements and Conditionals &nbsp;/&nbsp; end of file</p>
   </div>
 </footer>
 
