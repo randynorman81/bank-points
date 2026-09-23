@@ -33,11 +33,13 @@ const COURSES = [
       { n: 3, title: "Computing Basics", migrated: true, path: "ist/unit-3/index.html" },
       { n: 4, title: "Operating Systems and Software", migrated: true, path: "ist/unit-4/index.html" },
       { n: 5, title: "Project: IT Professional", migrated: true, path: "ist/unit-5/index.html" },
-      { n: 6, title: "Web Design - HTML", migrated: true, path: "ist/unit-6/index.html" },
-      { n: 7, title: "Intro to CSS", migrated: true, path: "ist/unit-7/index.html" },
-      { n: 8, title: "Complete Website Project", migrated: true, path: "ist/unit-8/index.html" },
-      { n: 9, title: "Intro to JavaScript", migrated: true, path: "ist/unit-9/index.html" },
-      { n: 10, title: "Intro to Web Dev (jQuery / CMS)", migrated: true, path: "ist/unit-10/index.html" }
+      { n: 6, title: "Web Design - HTML (Part 1)", migrated: true, path: "ist/unit-6/index.html" },
+      { n: 7, title: "Web Design - HTML (Part 2)", migrated: true, path: "ist/unit-7/index.html" },
+      { n: 8, title: "Intro to CSS (Expanded)", migrated: true, path: "ist/unit-8/index.html" },
+      { n: 9, title: "Bootstrap", migrated: true, path: "ist/unit-9/index.html" },
+      { n: 10, title: "Complete Website Project", migrated: true, path: "ist/unit-10/index.html" },
+      { n: 11, title: "Intro to JavaScript", migrated: true, path: "ist/unit-11/index.html" },
+      { n: 12, title: "Intro to Web Dev (jQuery / CMS)", migrated: true, path: "ist/unit-12/index.html" }
     ]
   },
   {

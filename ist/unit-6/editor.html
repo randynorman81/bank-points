@@ -305,20 +305,7 @@ function syncCssTab() {
 (function initLessons() {
   var sel = $("lesson");
   H.ORDER.forEach(function (l) { var o = document.createElement("option"); o.value = l; o.textContent = l + "  " + H.LESSONS[l].name; sel.appendChild(o); });
-  /* Unit 7 became Unit 6 (lesson 7.N is now 6.N). Old links (?lesson=7.6) and old saved work still work. */
-  (function () {
-    try {
-      for (var k = 1; k <= 13; k++) {
-        ["code", "css", "ans", "act"].forEach(function (p) {
-          var o = "u7:" + p + ":7." + k, nw = "u7:" + p + ":6." + k;
-          if (localStorage.getItem(o) !== null && localStorage.getItem(nw) === null) localStorage.setItem(nw, localStorage.getItem(o));
-        });
-      }
-      var ol = localStorage.getItem("u7:lesson"); if (ol && /^7\.\d+$/.test(ol)) localStorage.setItem("u7:lesson", "6." + ol.split(".")[1]);
-    } catch (er) {}
-  })();
   var q = new URLSearchParams(location.search).get("lesson");
-  if (q && /^7\.\d+$/.test(q) && H.LESSONS["6." + q.split(".")[1]]) q = "6." + q.split(".")[1];
 
   S.lesson = (q && H.LESSONS[q]) ? q : (lsGet("u7:lesson") || "6.1");
   if (!H.LESSONS[S.lesson]) S.lesson = "6.1";

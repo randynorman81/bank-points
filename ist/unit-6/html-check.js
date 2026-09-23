@@ -476,7 +476,7 @@
       r("Has an internal <style> block in the head with at least 2 rules", function (c) { return c.all("style").some(function (s) { return !!c.ancestor(s, ["head"]); }) && c.sheetRules.length >= 2; }),
       r("Uses text-align: center on something", function (c) { return c.propValues("text-align").some(function (v) { return /center/i.test(v); }); })
     ] },
-    "6.8": { name: "Box Model", rules: [
+    "7.1": { name: "Box Model", rules: [
       r("Uses padding", function (c) { return c.prop("padding") + c.prop("padding-top") + c.prop("padding-left") + c.prop("padding-right") + c.prop("padding-bottom") > 0; }),
       r("Uses margin", function (c) { return c.prop("margin") + c.prop("margin-top") + c.prop("margin-left") + c.prop("margin-right") + c.prop("margin-bottom") > 0; }),
       r("Uses a border with a valid style (solid, dashed, dotted, double, groove, ridge)", function (c) { return anyValue(c, "border", function (v) { return /(solid|dashed|dotted|double|groove|ridge)/i.test(v); }); }),
@@ -485,18 +485,18 @@
         var ok = false; by.forEach(function (s) { if (s.p && s.m && s.b) ok = true; }); return ok;
       })
     ] },
-    "6.9": { name: "Colors (Named Colors and Hex)", rules: [
+    "7.2": { name: "Colors (Named Colors and Hex)", rules: [
       r("Uses at least one named color (like tomato or navy)", function (c) { return colorTokens(c).some(function (t) { return NAMED[t.toLowerCase()]; }); }),
       r("Uses at least one hex color (like #FF6347)", function (c) { return colorTokens(c).some(function (t) { return HEX.test(t); }); }),
       r("All hex codes are written correctly (# plus 3 or 6 characters)", function (c) { var hs = colorTokens(c).filter(function (t) { return /^#/.test(t); }); return hs.length > 0 && hs.every(function (t) { return HEX.test(t); }); }),
       r("Uses color AND background-color", function (c) { return c.prop("color") > 0 && c.prop("background-color") > 0; })
     ] },
-    "6.10": { name: "Display (Block vs Inline)", rules: [
+    "7.3": { name: "Display (Block vs Inline)", rules: [
       r("Uses the display property", function (c) { return c.prop("display") > 0; }),
       r("Uses display: inline-block on something that is normally a block", function (c) { return c.inline.some(function (d) { return d.prop === "display" && /inline-block/.test(d.value) && ["p", "div", "h1", "h2", "h3", "li"].indexOf(d.el.tag) > -1; }); }),
       r("Uses display: block on something that is normally inline (span, a, or strong)", function (c) { return c.inline.some(function (d) { return d.prop === "display" && /^block/.test(d.value) && ["span", "a", "strong", "em", "img"].indexOf(d.el.tag) > -1; }); })
     ] },
-    "6.11": { name: "Div Tag", rules: [
+    "7.4": { name: "Div Tag", rules: [
       r("Has a <div> that contains other tags", function (c) { return c.all("div").some(function (d) { return d.children.some(function (n) { return n.tag !== "#text"; }); }); }),
       r("A <div> has a style attribute", function (c) { return c.all("div").some(function (d) { return d.attrs.style !== undefined; }); }),
       r("Has two or more side-by-side divs using display: inline-block", function (c) { return c.inline.filter(function (d) { return d.el.tag === "div" && d.prop === "display" && /inline-block/.test(d.value); }).length >= 2; }),
@@ -518,7 +518,7 @@
         return any && ok;
       }, "Give the browser room: 48% + 48% is fine, 50% + 50% is too tight.")
     ] },
-    "6.12": { name: "Tables", rules: [
+    "7.5": { name: "Tables", rules: [
       r("Has a <table>", function (c) { return c.has("table"); }),
       r("Has a header row with <th> cells", function (c) { return c.has("th"); }),
       r("Has at least 2 data rows with <td> cells", function (c) { return c.all("tr").filter(function (t) { return t.children.some(function (n) { return n.tag === "td"; }); }).length >= 2; }),
@@ -537,21 +537,21 @@
       })
     ] }
   };
-  // Unit test = the whole site, everything from 6.1 through 6.12.
-  LESSONS["6.13"] = { name: "Unit Test Website (all tags)", rules: [] };
-  var ORDER = ["6.1", "6.2", "6.3", "6.4", "6.5", "6.6", "6.7", "6.8", "6.9", "6.10", "6.11", "6.12", "6.13"];
+  // Unit test = the whole site, everything from 6.1 through 7.5.
+  LESSONS["7.6"] = { name: "Unit Test Website (all tags)", rules: [] };
+  var ORDER = ["6.1", "6.2", "6.3", "6.4", "6.5", "6.6", "6.7", "7.1", "7.2", "7.3", "7.4", "7.5", "7.6"];
 
   var TOTAL_POINTS = 50;      // points a lesson is worth
   var CARRY_WEIGHT = 0.4;     // rules from earlier lessons count this much as new ones
 
   function rulesFor(lesson) {
     // Every lesson is its own project. Only the "base" rules (the basics: DOCTYPE, skeleton, title,
-    // one h1, tags closed correctly) carry into later lessons. The unit test (6.13) uses everything.
+    // one h1, tags closed correctly) carry into later lessons. The unit test (7.6) uses everything.
     var idx = ORDER.indexOf(lesson), out = [];
     if (idx < 0) return out;
     ORDER.forEach(function (l, i) {
       if (i > idx) return;
-      var isNew = (i === idx) || lesson === "6.13";
+      var isNew = (i === idx) || lesson === "7.6";
       (LESSONS[l].rules || []).forEach(function (rule, j) {
         if (rule.only && l !== lesson) return;
         if (!isNew && !rule.base) return;
