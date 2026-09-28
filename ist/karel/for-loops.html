@@ -74,7 +74,39 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
 .final .back{display:inline-block;margin-top:18px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:8px 16px}
 .final .back:hover{background:var(--acc-tint)}
 .final .sig{margin-top:24px;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:13px}
-@media (max-width:820px){ .two,.cards{grid-template-columns:1fr} table.cmp{font-size:13px} table.cmp th,table.cmp td{padding:10px 12px} }
+/* ---- Watch it run (loop circle) ---- */
+.lp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+.lp-panel{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:16px}
+.lp-panel h4{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin:0 0 10px;font-weight:600}
+.lp svg{width:100%;height:auto;display:block}
+.lp-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 16px}
+.lp-btn{font:inherit;font-size:13.5px;font-weight:700;border-radius:100px;padding:8px 16px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer}
+.lp-btn:hover{border-color:#3A4658}
+.lp-btn.main{background:var(--acc);border-color:var(--acc);color:#04202C}
+.lp-btn[disabled]{opacity:.4;cursor:default}
+.lp-opt{display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--ink-soft)}
+.lp-opt select{font:inherit;background:#05070B;color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:4px 8px}
+.lp-opt input{accent-color:var(--bad)}
+.lp-code{font-family:"JetBrains Mono",monospace;font-size:14px;line-height:1.9;background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:10px 0;white-space:pre;overflow-x:auto}
+.lp-code div{padding:0 14px;border-left:3px solid transparent}
+.lp-code div.on{background:var(--acc-tint);border-left-color:var(--acc)}
+.lp-code span.on{background:var(--acc);color:#04202C;border-radius:3px;padding:0 2px}
+.lp-code span.bad{color:var(--bad-ink)}
+.lp-world{display:grid;gap:4px;margin:4px 0 6px}
+.lp-cell{aspect-ratio:1;background:#0E131C;border:1px solid var(--rule);border-radius:4px;position:relative;display:grid;place-items:center}
+.lp-cell .ball{width:42%;aspect-ratio:1;border-radius:50%;background:#9CA3AF;position:absolute}
+.lp-cell .karel{position:relative;z-index:1;font-size:clamp(16px,3.2vw,26px);line-height:1;color:var(--acc)}
+.lp-cell.wall{border-right:4px solid var(--bad)}
+.lp-cell.crash{background:var(--bad-tint)}
+.lp-cols{display:grid;gap:4px;font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--ink-soft);text-align:center}
+.lp-say{font-size:15px;color:#DCEEF7;background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:12px 16px;margin:14px 0 0;min-height:52px}
+.lp-say.stop{background:var(--lst-tint);border-color:var(--lst);color:#D3F5E6}
+.lp-say.crash{background:var(--bad-tint);border-color:var(--bad);color:#F3D2D2}
+.lp-say b{color:#fff}
+table.lp-trace td.cur{background:var(--acc-tint)}
+table.lp-trace .t{color:var(--lst-ink);font-weight:700} table.lp-trace .f{color:var(--bad-ink);font-weight:700}
+@media (max-width:820px){ .lp{grid-template-columns:minmax(0,1fr)} .wrap{padding:0 16px} .lp-panel{padding:12px} .lp-code{font-size:11.5px} .lp-code div{padding:0 10px} }
+@media (max-width:820px){ .two,.cards{grid-template-columns:minmax(0,1fr)} table.cmp{font-size:13px} table.cmp th,table.cmp td{padding:10px 12px} }
 </style>
 </head>
 <body>
@@ -150,7 +182,51 @@ move();</div>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">02</div><h2>Putting Multiple Commands Inside a Loop</h2></div>
+    <div class="part-head"><div class="part-tag">02</div><h2>Watch It Run: Every Iteration</h2></div>
+    <p class="lede">A loop really is a circle: <b>check</b> the condition, <b>run</b> the body, <b>add 1</b> to <code>i</code>, and come back around to the check. Each trip around the circle is one <b>iteration</b>. Step through it and watch <code>i</code>, Karel, and the ring change every time around.</p>
+
+    <div class="lp-controls">
+      <button class="lp-btn" id="lpBack" type="button">&#9664; Back</button>
+      <button class="lp-btn main" id="lpStep" type="button">Step &#9654;</button>
+      <button class="lp-btn" id="lpPlay" type="button">&#9654; Play</button>
+      <button class="lp-btn" id="lpReset" type="button">Reset</button>
+      <label class="lp-opt">Repeat
+        <select id="lpN"><option>3</option><option selected>4</option><option>5</option></select> times</label>
+      <label class="lp-opt"><input type="checkbox" id="lpBug"> Use <code>&lt;=</code> (off-by-one bug)</label>
+    </div>
+
+    <div class="lp">
+      <div class="lp-panel">
+        <h4>The loop circle</h4>
+        <svg viewBox="0 0 440 520" id="lpSvg" role="img" aria-label="The for loop drawn as a circle: check the condition, run the loop body, add one to i, and return to the check. An outer ring fills in one slice per completed iteration."></svg>
+      </div>
+      <div>
+        <div class="lp-panel" style="margin-bottom:14px;">
+          <h4>The code (current step highlighted)</h4>
+          <div class="lp-code" id="lpCode"></div>
+        </div>
+        <div class="lp-panel">
+          <h4>Karel's world</h4>
+          <div class="lp-world" id="lpWorld"></div>
+          <div class="lp-cols" id="lpCols"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lp-say" id="lpSay"></div>
+
+    <h3 style="font-size:18px;color:#fff;margin:26px 0 10px;">Trace table &mdash; one row per trip around the circle</h3>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp lp-trace" id="lpTrace"></table>
+    </div></div>
+
+    <div class="hint-panel"><b>Try this:</b> change <em>Repeat</em> to 5 and count the slices on the ring. Then turn on the <code>&lt;=</code> bug and step to the end &mdash; the loop runs one extra time and Karel walks straight into the wall.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Putting Multiple Commands Inside a Loop</h2></div>
     <p class="lede">Everything between the loop's curly braces <code>{ }</code> runs every single pass &mdash; not just one command.</p>
 
     <div class="code">function main() {
@@ -167,7 +243,7 @@ move();</div>
 
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">03</div><h2>Common Mistakes</h2></div>
+    <div class="part-head"><div class="part-tag">04</div><h2>Common Mistakes</h2></div>
     <div class="cards">
       <div class="cardx">
         <div class="num">Mistake 1</div>
@@ -198,6 +274,209 @@ move();</div>
     <p class="sig">Karel Notes &nbsp;/&nbsp; For Loops &nbsp;/&nbsp; end of file</p>
   </div>
 </footer>
+
+<script>
+/* Watch It Run: step a Karel for loop around a circle, one iteration at a time. */
+(function(){
+  var NS = "http://www.w3.org/2000/svg";
+  var svg = document.getElementById('lpSvg');
+  var CX = 220, CY = 285, R = 100, RING = 176;
+  var ACC = '#38BDF8', BAD = '#F87171', OK = '#34D399', DIM = '#1B2230', SOFT = '#8B9AAE';
+  var NODES = { check: -90, body: 30, update: 150 };
+  var n = 4, bug = false, steps = [], k = 0, timer = null;
+
+  function pt(r, deg){ var a = deg * Math.PI / 180; return [CX + r * Math.cos(a), CY + r * Math.sin(a)]; }
+  function arc(r, a1, a2){ var p = pt(r, a1), q = pt(r, a2); return 'M' + p[0].toFixed(1) + ' ' + p[1].toFixed(1) + ' A' + r + ' ' + r + ' 0 0 1 ' + q[0].toFixed(1) + ' ' + q[1].toFixed(1); }
+  function el(tag, attrs, text){ var e = document.createElementNS(NS, tag); for (var a in attrs) e.setAttribute(a, attrs[a]); if (text != null) e.textContent = text; svg.appendChild(e); return e; }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  /* ---------- build the list of steps for this loop ---------- */
+  function build(){
+    steps = [{ t: 'init' }];
+    var i = 0, pos = 0;
+    while (true){
+      var cond = bug ? i <= n : i < n;
+      steps.push({ t: 'check', i: i, cond: cond });
+      if (!cond){ steps.push({ t: 'done', i: i }); break; }
+      if (pos + 1 > n){ steps.push({ t: 'crash', i: i }); break; }
+      pos++;
+      steps.push({ t: 'move', i: i, pos: pos });
+      steps.push({ t: 'put', i: i, pos: pos });
+      steps.push({ t: 'update', i: i });
+      i++;
+    }
+    k = 0;
+  }
+
+  /* ---------- replay steps 0..k into a state ---------- */
+  function stateAt(idx){
+    var s = { i: null, pos: 0, balls: [], done: 0, rows: [], node: 'start', step: steps[idx], crashed: false, finished: false };
+    for (var j = 0; j <= idx; j++){
+      var st = steps[j], row = s.rows[s.rows.length - 1];
+      if (st.t === 'init'){ s.i = 0; s.node = 'start'; }
+      if (st.t === 'check'){ s.node = 'check'; s.rows.push({ iter: st.cond ? s.rows.length + 1 : null, i: st.i, cond: st.cond }); }
+      if (st.t === 'move'){ s.node = 'body'; s.pos = st.pos; row.ran = 'move()'; row.at = st.pos; }
+      if (st.t === 'put'){ s.node = 'body'; s.balls.push(st.pos); row.ran = 'move(); putBall()'; row.balls = s.balls.length; }
+      if (st.t === 'update'){ s.node = 'update'; s.i = st.i + 1; s.done++; row.after = s.i; }
+      if (st.t === 'done'){ s.node = 'exit'; s.finished = true; }
+      if (st.t === 'crash'){ s.node = 'body'; s.crashed = true; row.ran = 'move() &mdash; CRASH'; row.at = 'wall'; }
+    }
+    return s;
+  }
+
+  /* ---------- the circle ---------- */
+  function drawCircle(s){
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var total = bug ? n + 1 : n;
+    var defs = el('defs', {});
+    defs.innerHTML = '<marker id="lpArrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="' + SOFT + '"/></marker>';
+
+    // outer ring: one slice per iteration
+    var span = 360 / total, gap = 5;
+    for (var r = 0; r < total; r++){
+      var a1 = -90 + r * span + gap / 2, a2 = -90 + (r + 1) * span - gap / 2;
+      var color = DIM;
+      if (r < s.done) color = ACC;
+      else if (r === s.done && s.crashed) color = BAD;
+      else if (r === s.done && (s.node === 'body' || (s.node === 'check' && s.rows.length && s.rows[s.rows.length-1].cond))) color = 'rgba(56,189,248,.35)';
+      el('path', { d: arc(RING, a1, a2), fill: 'none', stroke: color, 'stroke-width': 16, 'stroke-linecap': 'butt' });
+      var mid = pt(RING + 24, (a1 + a2) / 2);
+      el('text', { x: mid[0].toFixed(1), y: (mid[1] + 4).toFixed(1), 'text-anchor': 'middle', 'font-family': 'JetBrains Mono', 'font-size': 11, fill: r < s.done ? ACC : SOFT }, String(r + 1));
+    }
+
+    // the cycle arrows (clockwise): check -> body -> update -> check
+    [[-50, -8], [68, 112], [188, 230]].forEach(function(p){
+      el('path', { d: arc(R, p[0], p[1]), fill: 'none', stroke: SOFT, 'stroke-width': 2.5, 'marker-end': 'url(#lpArrow)' });
+    });
+    var tl = pt(R + 22, -22);
+    el('text', { x: tl[0].toFixed(1), y: tl[1].toFixed(1), 'font-family': 'Manrope', 'font-size': 13, 'font-weight': 800, fill: OK }, 'true');
+
+    // START and EXIT (outside the ring, top corners)
+    var startOn = s.node === 'start', exitOn = s.node === 'exit';
+    el('rect', { x: 4, y: 4, width: 112, height: 50, rx: 10, fill: startOn ? 'rgba(56,189,248,.18)' : '#10141C', stroke: startOn ? ACC : '#2A3444', 'stroke-width': 2 });
+    el('text', { x: 60, y: 25, 'text-anchor': 'middle', 'font-family': 'Manrope', 'font-weight': 800, 'font-size': 13, fill: '#fff' }, 'START');
+    el('text', { x: 60, y: 44, 'text-anchor': 'middle', 'font-family': 'JetBrains Mono', 'font-size': 12, fill: SOFT }, 'var i = 0');
+    el('line', { x1: 96, y1: 54, x2: 158, y2: 172, stroke: SOFT, 'stroke-width': 2, 'marker-end': 'url(#lpArrow)' });
+    el('rect', { x: 324, y: 4, width: 112, height: 50, rx: 10, fill: exitOn ? 'rgba(52,211,153,.18)' : '#10141C', stroke: exitOn ? OK : '#2A3444', 'stroke-width': 2 });
+    el('text', { x: 380, y: 25, 'text-anchor': 'middle', 'font-family': 'Manrope', 'font-weight': 800, 'font-size': 13, fill: '#fff' }, 'EXIT');
+    el('text', { x: 380, y: 44, 'text-anchor': 'middle', 'font-family': 'JetBrains Mono', 'font-size': 12, fill: SOFT }, 'loop ends');
+    el('line', { x1: 282, y1: 172, x2: 344, y2: 56, stroke: SOFT, 'stroke-width': 2, 'marker-end': 'url(#lpArrow)' });
+    el('text', { x: 294, y: 182, 'text-anchor': 'start', 'font-family': 'Manrope', 'font-size': 13, 'font-weight': 800, fill: BAD }, 'false');
+
+    // the three stations
+    var op = bug ? '<=' : '<';
+    var last = s.rows[s.rows.length - 1];
+    var checkLine = (s.node === 'check' && last) ? (last.i + ' ' + op + ' ' + n + ' → ' + (last.cond ? 'true' : 'false')) : ('i ' + op + ' ' + n + ' ?');
+    var stations = [
+      ['check', 'CHECK', checkLine],
+      ['body', 'RUN BODY', 'move(); putBall();'],
+      ['update', 'i++', 'add 1 to i']
+    ];
+    stations.forEach(function(st){
+      var p = pt(R, NODES[st[0]]), on = s.node === st[0];
+      var stroke = on ? (s.crashed && st[0] === 'body' ? BAD : ACC) : '#2A3444';
+      var fill = on ? (s.crashed && st[0] === 'body' ? 'rgba(248,113,113,.18)' : 'rgba(56,189,248,.18)') : '#10141C';
+      el('rect', { x: (p[0] - 58).toFixed(1), y: (p[1] - 28).toFixed(1), width: 116, height: 56, rx: 12, fill: fill, stroke: stroke, 'stroke-width': on ? 3 : 2 });
+      el('text', { x: p[0].toFixed(1), y: (p[1] - 5).toFixed(1), 'text-anchor': 'middle', 'font-family': 'Manrope', 'font-weight': 800, 'font-size': 14, fill: '#fff' }, st[1]);
+      el('text', { x: p[0].toFixed(1), y: (p[1] + 15).toFixed(1), 'text-anchor': 'middle', 'font-family': 'JetBrains Mono', 'font-size': 11.5, fill: on ? '#DCEEF7' : SOFT }, st[2]);
+    });
+
+    // center readout
+    el('text', { x: CX, y: CY - 12, 'text-anchor': 'middle', 'font-family': 'JetBrains Mono', 'font-weight': 700, 'font-size': 32, fill: '#fff' }, 'i = ' + (s.i === null ? '?' : s.i));
+    var sub = s.i === null ? 'not started' : s.finished ? 'done: ' + s.done + ' iterations' : s.crashed ? 'crashed on iteration ' + (s.done + 1) : (s.node === 'check' && last && !last.cond) ? 'condition is false' : 'iteration ' + Math.min(s.done + 1, total) + ' of ' + total;
+    el('text', { x: CX, y: CY + 12, 'text-anchor': 'middle', 'font-family': 'Manrope', 'font-weight': 700, 'font-size': 13, fill: s.crashed ? BAD : s.finished ? OK : SOFT }, sub);
+    el('text', { x: CX, y: 512, 'text-anchor': 'middle', 'font-family': 'Manrope', 'font-size': 13, fill: SOFT }, 'Outer ring: ' + s.done + ' of ' + total + ' iterations complete');
+  }
+
+  /* ---------- code, world, message, trace ---------- */
+  function drawCode(s){
+    var op = bug ? '&lt;=' : '&lt;', t = s.step.t;
+    var hi = { init: 'a', check: 'b', update: 'c' }[t] || '';
+    var line = { init: 1, check: 1, update: 1, move: 2, put: 3, crash: 2, done: 5 }[t];
+    function sp(id, txt){ return '<span class="' + (hi === id ? 'on' : '') + '">' + txt + '</span>'; }
+    var L = [
+      'function main() {',
+      '    for (' + sp('a', 'var i = 0') + '; ' + sp('b', 'i ' + op + ' ' + n) + '; ' + sp('c', 'i++') + ') {',
+      '        move();' + (t === 'crash' ? '   <span class="bad">// ← crash!</span>' : ''),
+      '        putBall();',
+      '    }',
+      '}'
+    ];
+    document.getElementById('lpCode').innerHTML = L.map(function(x, idx){ return '<div class="' + (idx === line ? 'on' : '') + '">' + x + '</div>'; }).join('');
+  }
+
+  function drawWorld(s){
+    var cols = n + 1, w = document.getElementById('lpWorld'), c = document.getElementById('lpCols');
+    w.style.gridTemplateColumns = c.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
+    var html = '';
+    for (var x = 0; x < cols; x++){
+      var karel = s.pos === x;
+      html += '<div class="lp-cell' + (x === cols - 1 ? ' wall' : '') + (karel && s.crashed ? ' crash' : '') + '">' +
+        (s.balls.indexOf(x) > -1 ? '<span class="ball"></span>' : '') +
+        (karel ? '<span class="karel" style="' + (s.crashed ? 'color:' + BAD : '') + '">' + (s.crashed ? '✖' : '▶') + '</span>' : '') + '</div>';
+    }
+    w.innerHTML = html;
+    var lab = ''; for (var y = 0; y < cols; y++) lab += '<span>' + (y + 1) + '</span>';
+    c.innerHTML = lab;
+  }
+
+  function drawSay(s){
+    var st = s.step, say = document.getElementById('lpSay'), op = bug ? '<=' : '<', cls = '', it = s.rows.length, msg = '';
+    if (st.t === 'init') msg = 'Before the loop starts, <b>var i = 0</b> creates the counter. Karel is on square 1 and nothing has repeated yet.';
+    if (st.t === 'check' && st.cond) msg = '<b>Check:</b> is ' + st.i + ' ' + esc(op) + ' ' + n + '? <b>Yes, true</b> &mdash; so we go around the circle. This is <b>iteration ' + it + '</b>.';
+    if (st.t === 'check' && !st.cond){ msg = '<b>Check:</b> is ' + st.i + ' ' + esc(op) + ' ' + n + '? <b>No, false</b> &mdash; the loop stops. It ran exactly <b>' + s.done + ' times</b>, and i ends at ' + st.i + '.'; cls = 'stop'; }
+    if (st.t === 'move') msg = 'Iteration ' + it + ': <b>move()</b> &mdash; Karel moves to square ' + (st.pos + 1) + '.';
+    if (st.t === 'put') msg = 'Iteration ' + it + ': <b>putBall()</b> &mdash; Karel drops a ball. Balls on the board: <b>' + s.balls.length + '</b>.';
+    if (st.t === 'update') msg = '<b>i++</b> &mdash; iteration ' + it + ' is done, so i goes from ' + st.i + ' to <b>' + (st.i + 1) + '</b> and slice ' + it + ' of the ring fills in. Back to the check.';
+    if (st.t === 'done'){ msg = '<b>Loop finished.</b> Karel moved ' + s.done + ' times and dropped ' + s.balls.length + ' balls. Any code after the loop runs next.'; cls = 'stop'; }
+    if (st.t === 'crash'){ msg = 'Iteration ' + it + ': <b>move()</b> &mdash; <b>Karel crashed into the wall!</b> Using <code>&lt;=</code> made the loop run ' + (n + 1) + ' times, one more than the ' + n + ' squares Karel had room for. That’s an off-by-one error.'; cls = 'crash'; }
+    say.className = 'lp-say' + (cls ? ' ' + cls : '');
+    say.innerHTML = msg;
+  }
+
+  function drawTrace(s){
+    var op = bug ? '&lt;=' : '&lt;';
+    var h = '<tr><th>Iteration</th><th>i at the check</th><th>i ' + op + ' ' + n + '?</th><th>Body ran</th><th>Karel on square</th><th>Balls</th><th>i after i++</th></tr>';
+    if (!s.rows.length) h += '<tr><td colspan="7" style="color:var(--ink-soft)">Press <b>Step</b> to start the loop.</td></tr>';
+    s.rows.forEach(function(r, idx){
+      var cur = idx === s.rows.length - 1 ? ' class="cur"' : '';
+      h += '<tr>' +
+        '<td' + cur + '>' + (r.iter ? '<b>' + r.iter + '</b>' : '&mdash;') + '</td>' +
+        '<td' + cur + '>' + r.i + '</td>' +
+        '<td' + cur + '>' + (r.cond ? '<span class="t">true</span>' : '<span class="f">false &rarr; stop</span>') + '</td>' +
+        '<td' + cur + '>' + (r.ran || (r.cond ? '&hellip;' : 'skipped')) + '</td>' +
+        '<td' + cur + '>' + (r.at === 'wall' ? '<span class="f">wall!</span>' : r.at != null ? r.at + 1 : '&mdash;') + '</td>' +
+        '<td' + cur + '>' + (r.balls != null ? r.balls : '&mdash;') + '</td>' +
+        '<td' + cur + '>' + (r.after != null ? r.after : '&mdash;') + '</td></tr>';
+    });
+    document.getElementById('lpTrace').innerHTML = h;
+  }
+
+  function render(){
+    var s = stateAt(k);
+    drawCircle(s); drawCode(s); drawWorld(s); drawSay(s); drawTrace(s);
+    document.getElementById('lpBack').disabled = k === 0;
+    document.getElementById('lpStep').disabled = k === steps.length - 1;
+    if (k === steps.length - 1) stop();
+  }
+  function stop(){ if (timer){ clearInterval(timer); timer = null; } document.getElementById('lpPlay').innerHTML = '&#9654; Play'; }
+
+  document.getElementById('lpStep').onclick = function(){ if (k < steps.length - 1){ k++; render(); } };
+  document.getElementById('lpBack').onclick = function(){ stop(); if (k > 0){ k--; render(); } };
+  document.getElementById('lpReset').onclick = function(){ stop(); k = 0; render(); };
+  document.getElementById('lpPlay').onclick = function(){
+    if (timer){ stop(); return; }
+    if (k === steps.length - 1) k = 0;
+    this.innerHTML = '&#10074;&#10074; Pause';
+    render();
+    timer = setInterval(function(){ if (k < steps.length - 1){ k++; render(); } else stop(); }, 900);
+  };
+  document.getElementById('lpN').onchange = function(){ stop(); n = +this.value; build(); render(); };
+  document.getElementById('lpBug').onchange = function(){ stop(); bug = this.checked; build(); render(); };
+
+  build(); render();
+})();
+</script>
 
 </body>
 </html>
