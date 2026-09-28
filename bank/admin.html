@@ -400,6 +400,7 @@ function renderRoster() {
         ${escapeHtml(period)} <span style="opacity:0.7;">${periods[period].length}</span>
       </button>
     `).join('')}
+    <button class="btn btn-sm btn-ghost" style="margin-left:auto;" onclick="copyAllEmails()">Copy All Emails <span style="opacity:0.7;">${roster.length}</span></button>
   </div>`;
 
   const period = selectedPeriod;
@@ -446,13 +447,30 @@ function renderRoster() {
 // Copies every school email in the selected period, comma separated, ready to
 // paste into Gmail's To/Cc/Bcc or a Classroom invite. If the browser blocks
 // clipboard access, the list is shown in a box to copy by hand instead.
-async function copyPeriodEmails() {
+function copyPeriodEmails() {
+  return copyEmails(roster.filter(s => s.period === selectedPeriod), selectedPeriod, false);
+}
+
+// Every class at once. Duplicate addresses (a student on two rosters) are
+// copied only once.
+function copyAllEmails() {
+  const sorted = roster.slice().sort((a, b) =>
+    a.period.localeCompare(b.period, undefined, { numeric: true, sensitivity: 'base' }) || a.name.localeCompare(b.name));
+  return copyEmails(sorted, 'all classes', true);
+}
+
+async function copyEmails(students, label, showPeriod) {
   const alertEl = document.getElementById('roster-alert');
-  const students = roster.filter(s => s.period === selectedPeriod);
-  const emails = students.map(s => (s.email || '').trim()).filter(Boolean);
-  const missing = students.filter(s => !(s.email || '').trim()).map(s => s.name);
+  const seen = new Set();
+  const emails = [];
+  students.forEach(s => {
+    const e = (s.email || '').trim().toLowerCase();
+    if (e && !seen.has(e)) { seen.add(e); emails.push(e); }
+  });
+  const missing = students.filter(s => !(s.email || '').trim())
+    .map(s => showPeriod ? `${s.name} (${s.period})` : s.name);
   if (emails.length === 0) {
-    setAlert(alertEl, 'error', `No school emails are set for ${escapeHtml(selectedPeriod)} yet.`);
+    setAlert(alertEl, 'error', `No school emails are set for ${escapeHtml(label)} yet.`);
     return;
   }
   const text = emails.join(', ');
@@ -461,9 +479,9 @@ async function copyPeriodEmails() {
     : '';
   try {
     await navigator.clipboard.writeText(text);
-    setAlert(alertEl, 'success', `Copied ${emails.length} email${emails.length === 1 ? '' : 's'} for ${escapeHtml(selectedPeriod)}.${missingNote}`);
+    setAlert(alertEl, 'success', `Copied ${emails.length} email${emails.length === 1 ? '' : 's'} for ${escapeHtml(label)}.${missingNote}`);
   } catch (err) {
-    setAlert(alertEl, 'info', `Couldn't reach the clipboard &mdash; copy ${emails.length === 1 ? 'this email' : `these ${emails.length} emails`} for ${escapeHtml(selectedPeriod)}:${missingNote}
+    setAlert(alertEl, 'info', `Couldn't reach the clipboard &mdash; copy ${emails.length === 1 ? 'this email' : `these ${emails.length} emails`} for ${escapeHtml(label)}:${missingNote}
       <textarea readonly rows="4" style="width:100%; margin-top:8px;" onclick="this.select()">${escapeHtml(text)}</textarea>`);
   }
   alertEl.scrollIntoView({ block: 'nearest' });
