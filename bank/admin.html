@@ -410,6 +410,7 @@ function renderRoster() {
         <span class="row-actions">
           <button class="btn btn-earn btn-sm bulk-tx-btn" data-period="${escapeHtml(period)}" data-type="EARNED">+ Add to All</button>
           <button class="btn btn-use btn-sm bulk-tx-btn" data-period="${escapeHtml(period)}" data-type="USED">&minus; Use for All</button>
+          <button class="btn btn-ghost btn-sm" onclick="copyPeriodEmails()">Copy Emails</button>
         </span>
       </h2>
       <table class="roster">
@@ -440,6 +441,32 @@ function renderRoster() {
     </section>`;
 
   slot.innerHTML = tabsHtml + tableHtml;
+}
+
+// Copies every school email in the selected period, comma separated, ready to
+// paste into Gmail's To/Cc/Bcc or a Classroom invite. If the browser blocks
+// clipboard access, the list is shown in a box to copy by hand instead.
+async function copyPeriodEmails() {
+  const alertEl = document.getElementById('roster-alert');
+  const students = roster.filter(s => s.period === selectedPeriod);
+  const emails = students.map(s => (s.email || '').trim()).filter(Boolean);
+  const missing = students.filter(s => !(s.email || '').trim()).map(s => s.name);
+  if (emails.length === 0) {
+    setAlert(alertEl, 'error', `No school emails are set for ${escapeHtml(selectedPeriod)} yet.`);
+    return;
+  }
+  const text = emails.join(', ');
+  const missingNote = missing.length
+    ? ` Missing email for ${missing.length}: ${missing.map(escapeHtml).join(', ')}.`
+    : '';
+  try {
+    await navigator.clipboard.writeText(text);
+    setAlert(alertEl, 'success', `Copied ${emails.length} email${emails.length === 1 ? '' : 's'} for ${escapeHtml(selectedPeriod)}.${missingNote}`);
+  } catch (err) {
+    setAlert(alertEl, 'info', `Couldn't reach the clipboard &mdash; copy ${emails.length === 1 ? 'this email' : `these ${emails.length} emails`} for ${escapeHtml(selectedPeriod)}:${missingNote}
+      <textarea readonly rows="4" style="width:100%; margin-top:8px;" onclick="this.select()">${escapeHtml(text)}</textarea>`);
+  }
+  alertEl.scrollIntoView({ block: 'nearest' });
 }
 
 document.getElementById('add-student-form').addEventListener('submit', async (e) => {
