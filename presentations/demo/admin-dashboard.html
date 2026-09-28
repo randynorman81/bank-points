@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo Admin Dashboard | SCHS Computer Science</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+  .demo-banner{background:#FFF4D6;border:2px dashed #C98A00;color:#5A3E00;border-radius:10px;padding:12px 16px;margin:0 0 18px;font-weight:600}
+  .demo-banner b{color:#3A2800}
+  .tabs,.ptabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+  .panel{display:none}
+  .panel.on{display:block}
+  table.roster{width:100%;border-collapse:collapse;font-size:.95rem}
+  table.roster th,table.roster td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--gray-300,#ddd);vertical-align:middle}
+  table.roster th{font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:var(--gray-700,#555)}
+  .code{font-family:ui-monospace,Consolas,monospace;font-weight:700;background:var(--gray-100,#f3f3f3);padding:2px 7px;border-radius:5px}
+  .num-earned{color:#15803d;font-weight:700}.num-used{color:#b91c1c;font-weight:700}.num-available{font-weight:800}
+  .row-actions{display:flex;flex-wrap:wrap;gap:6px}
+  .toast{margin:0 0 12px}
+  .scroll{overflow-x:auto}
+  .pill{display:inline-block;font-size:.72rem;font-weight:800;border-radius:999px;padding:2px 9px}
+  .pill.ok{background:#dcfce7;color:#166534}.pill.warn{background:#fef3c7;color:#92400e}.pill.bad{background:#fee2e2;color:#991b1b}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:0 0 18px}
+  .stat{background:var(--white,#fff);border:1px solid var(--gray-300,#ddd);border-radius:10px;padding:14px}
+  .stat .v{font-size:1.6rem;font-weight:800}
+  .stat .l{font-size:.8rem;color:var(--gray-700,#555)}
+  .toggle-names{margin-left:auto}
+  .btn-earn{background:#15803d;border-color:#15803d;color:#fff}
+  .btn-earn:hover{background:#166534}
+  .btn-use{background:#b91c1c;border-color:#b91c1c;color:#fff}
+  .btn-use:hover{background:#991b1b}
+  .btn[disabled]{opacity:.45;cursor:not-allowed}
+</style>
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<main class="wide">
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../index.html">Presentations</a><span class="sep">/</span><a href="../claude-code-classroom.html">Claude Code in the Classroom</a><span class="sep">/</span>Demo Admin Dashboard</div>
+
+  <div class="demo-banner">&#9888;&#65039; <b>DEMO ONLY.</b> Every student, code, score, and email on this page is made up. Nothing here is saved &mdash; reload the page to reset it. This is a copy of the kind of teacher dashboard Claude Code built, filled with fake data for presentations.</div>
+
+  <div style="display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:6px;">
+    <h1 style="margin:0;">Teacher Dashboard</h1>
+    <label class="toggle-names hint" style="margin:0;display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="hideNames" checked> Show codes only (hide names)</label>
+  </div>
+  <p class="hint" style="margin-top:4px;">Students are identified by a <strong>student code</strong>. The name column can be hidden so the screen is safe to project.</p>
+
+  <div class="stat-grid" id="stats"></div>
+
+  <div class="tabs" id="mainTabs">
+    <button class="btn btn-sm btn-primary" data-tab="roster">Bank Points Roster</button>
+    <button class="btn btn-sm btn-ghost" data-tab="requests">Point Requests <span id="reqCount"></span></button>
+    <button class="btn btn-sm btn-ghost" data-tab="quizzes">Quiz Results</button>
+    <button class="btn btn-sm btn-ghost" data-tab="late">Late Work</button>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <!-- ROSTER -->
+  <section class="panel on" id="panel-roster">
+    <div class="ptabs" id="periodTabs"></div>
+    <div class="card" style="padding:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+        <h2 style="margin:0;" id="periodTitle"></h2>
+        <div class="row-actions">
+          <button class="btn btn-sm btn-earn" id="addAll">+ Add 5 to All</button>
+          <button class="btn btn-sm btn-ghost" id="copyEmails">Copy Emails</button>
+        </div>
+      </div>
+      <div class="scroll"><table class="roster" id="rosterTable"></table></div>
+    </div>
+  </section>
+
+  <!-- REQUESTS -->
+  <section class="panel" id="panel-requests">
+    <p class="hint" style="margin-top:0;">Students ask to spend points on an assignment. Approving subtracts the points from their Bank.</p>
+    <div class="card" style="padding:14px;"><div class="scroll"><table class="roster" id="reqTable"></table></div></div>
+  </section>
+
+  <!-- QUIZZES -->
+  <section class="panel" id="panel-quizzes">
+    <p class="hint" style="margin-top:0;">Quizzes award Bank Points automatically: <strong>3</strong> for 100%, <strong>2</strong> for 90&ndash;99%, <strong>1</strong> for finishing.</p>
+    <div class="card" style="padding:14px;"><div class="scroll"><table class="roster" id="quizTable"></table></div></div>
+  </section>
+
+  <!-- LATE WORK -->
+  <section class="panel" id="panel-late">
+    <p class="hint" style="margin-top:0;">Late-work submissions waiting to be graded.</p>
+    <div class="card" style="padding:14px;"><div class="scroll"><table class="roster" id="lateTable"></table></div></div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; demo data only
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>
+renderHeader({ current: "presentations" });
+
+// ---------- made-up data ----------
+const STUDENTS = [
+  ["1A","Avery Quinn",32,10],["1A","Jordan Pike",18,5],["1A","Riley Marsh",45,20],["1A","Casey Lund",7,0],["1A","Morgan Hale",26,15],["1A","Taylor Voss",12,0],["1A","Rowan Birch",38,10],
+  ["2B","Skyler Ames",22,5],["2B","Parker Crane",51,30],["2B","Emerson Dale",9,0],["2B","Hayden Frost",30,10],["2B","Quinn Harlow",14,5],["2B","Reese Holt",40,25],
+  ["3A","Blake Ortiz",27,10],["3A","Cameron Reyes",16,0],["3A","Drew Sutton",35,15],["3A","Finley Park",8,0],["3A","Logan Wade",44,20],["3A","Sage Whitman",19,5]
+].map((s, i) => {
+  const [period, name, earned, used] = s;
+  const n = String(i + 1).padStart(3, "0");
+  const first = name.split(" ")[0].toLowerCase(), last = name.split(" ")[1].toLowerCase();
+  return { code: `S-${period}-${n}`, period, name, earned, used, email: `${first}.${last}@example.edu` };
+});
+const REQUESTS = [
+  { code: "S-1A-003", assignment: "Unit 2 Test", points: 10 },
+  { code: "S-2B-009", assignment: "6.4 Borders", points: 5 },
+  { code: "S-3A-018", assignment: "Karel Challenge 2.9", points: 8 },
+  { code: "S-2B-013", assignment: "Unit 1 Study Guide", points: 4 }
+];
+const QUIZZES = [
+  ["S-1A-001","2.10 For Loops",100],["S-1A-002","2.10 For Loops",92],["S-1A-005","2.10 For Loops",70],
+  ["S-2B-008","6.3 Editing Tags",100],["S-2B-011","6.3 Editing Tags",95],["S-2B-012","6.3 Editing Tags",88],
+  ["S-3A-014","3.4 File Management",100],["S-3A-016","3.4 File Management",100],["S-3A-019","3.4 File Management",64]
+];
+const LATE = [
+  ["S-1A-004","2.6 Top Down Decomposition",3],["S-2B-010","6.2 Style Attribute",1],["S-3A-017","3.1 Internal Components",6],["S-1A-006","2.7 Commenting Your Code",2]
+];
+
+let period = "1A";
+let hideNames = true;
+const byCode = code => STUDENTS.find(s => s.code === code);
+const who = s => hideNames ? `<span class="code">${s.code}</span>` : `<span class="code">${s.code}</span> ${s.name}`;
+const toast = (type, msg) => { document.getElementById('toast').innerHTML = `<div class="alert alert-${type}">${msg}</div>`; };
+
+function pointsFor(score){ return score === 100 ? 3 : score >= 90 ? 2 : 1; }
+
+function renderStats(){
+  const earned = STUDENTS.reduce((a,s)=>a+s.earned,0), used = STUDENTS.reduce((a,s)=>a+s.used,0);
+  document.getElementById('stats').innerHTML = [
+    [STUDENTS.length,'students (3 periods)'],[earned,'points earned'],[used,'points used'],[REQUESTS.length,'requests waiting']
+  ].map(([v,l])=>`<div class="stat"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+  document.getElementById('reqCount').textContent = REQUESTS.length ? `(${REQUESTS.length})` : '';
+}
+
+function renderRoster(){
+  const periods = [...new Set(STUDENTS.map(s => s.period))];
+  document.getElementById('periodTabs').innerHTML = periods.map(p =>
+    `<button class="btn btn-sm ${p===period?'btn-primary':'btn-ghost'}" data-p="${p}">${p} <span style="opacity:.7">${STUDENTS.filter(s=>s.period===p).length}</span></button>`).join('');
+  document.getElementById('periodTitle').textContent = `Period ${period}`;
+  const rows = STUDENTS.filter(s => s.period === period);
+  document.getElementById('rosterTable').innerHTML =
+    `<tr><th>Student</th>${hideNames?'':'<th>School email</th>'}<th>Earned</th><th>Used</th><th>Available</th><th>Actions</th></tr>` +
+    rows.map(s => `<tr>
+      <td>${who(s)}</td>${hideNames?'':`<td>${s.email}</td>`}
+      <td class="num-earned">${s.earned}</td><td class="num-used">${s.used}</td><td class="num-available">${s.earned - s.used}</td>
+      <td><div class="row-actions">
+        <button class="btn btn-earn btn-sm" data-add="${s.code}">+ 5</button>
+        <button class="btn btn-use btn-sm" data-use="${s.code}">&minus; 5</button>
+      </div></td></tr>`).join('');
+}
+
+function renderRequests(){
+  document.getElementById('reqTable').innerHTML = REQUESTS.length
+    ? `<tr><th>Student</th><th>Assignment</th><th>Points</th><th>Available</th><th></th></tr>` +
+      REQUESTS.map((r,i) => { const s = byCode(r.code); const ok = s.earned - s.used >= r.points;
+        return `<tr><td>${who(s)}</td><td>${r.assignment}</td><td>${r.points}</td>
+          <td>${s.earned - s.used} ${ok?'<span class="pill ok">enough</span>':'<span class="pill bad">not enough</span>'}</td>
+          <td><div class="row-actions"><button class="btn btn-sm btn-primary" data-approve="${i}" ${ok?'':'disabled'}>Approve</button><button class="btn btn-sm btn-ghost" data-deny="${i}">Deny</button></div></td></tr>`; }).join('')
+    : `<tr><td class="hint">No requests waiting. &#127881;</td></tr>`;
+}
+
+function renderQuizzes(){
+  document.getElementById('quizTable').innerHTML = `<tr><th>Student</th><th>Quiz</th><th>Score</th><th>Bank Points awarded</th></tr>` +
+    QUIZZES.map(([c,q,sc]) => `<tr><td>${who(byCode(c))}</td><td>${q}</td>
+      <td>${sc}% ${sc===100?'<span class="pill ok">perfect</span>':sc>=90?'<span class="pill warn">90+</span>':''}</td><td>+${pointsFor(sc)}</td></tr>`).join('');
+}
+
+function renderLate(){
+  document.getElementById('lateTable').innerHTML = `<tr><th>Student</th><th>Assignment</th><th>Days late</th><th>Status</th></tr>` +
+    LATE.map(([c,a,d]) => `<tr><td>${who(byCode(c))}</td><td>${a}</td><td>${d}</td>
+      <td>${d<=2?'<span class="pill ok">on-time window</span>':d<=5?'<span class="pill warn">reduced credit</span>':'<span class="pill bad">see teacher</span>'}</td></tr>`).join('');
+}
+
+function renderAll(){ renderStats(); renderRoster(); renderRequests(); renderQuizzes(); renderLate(); }
+
+document.addEventListener('click', async (e) => {
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.tab){
+    document.querySelectorAll('#mainTabs button').forEach(b => { b.classList.toggle('btn-primary', b===t); b.classList.toggle('btn-ghost', b!==t); });
+    document.querySelectorAll('.panel').forEach(p => p.classList.toggle('on', p.id === 'panel-' + t.dataset.tab));
+    document.getElementById('toast').innerHTML = '';
+  }
+  if (t.dataset.p){ period = t.dataset.p; renderRoster(); }
+  if (t.dataset.add){ const s = byCode(t.dataset.add); s.earned += 5; renderAll(); toast('success', `Added 5 points for ${s.code}.`); }
+  if (t.dataset.use){ const s = byCode(t.dataset.use); if (s.earned - s.used < 5){ toast('error', `${s.code} doesn't have 5 points available.`); return; } s.used += 5; renderAll(); toast('success', `Used 5 points for ${s.code}.`); }
+  if (t.dataset.approve){ const r = REQUESTS[+t.dataset.approve]; const s = byCode(r.code); s.used += r.points; REQUESTS.splice(+t.dataset.approve,1); renderAll(); toast('success', `Approved: ${r.points} points used for ${s.code} on "${r.assignment}".`); }
+  if (t.dataset.deny){ const r = REQUESTS.splice(+t.dataset.deny,1)[0]; renderAll(); toast('info', `Denied the request from ${r.code}. No points changed.`); }
+  if (t.id === 'addAll'){ STUDENTS.filter(s=>s.period===period).forEach(s=>s.earned+=5); renderAll(); toast('success', `Added 5 points to everyone in ${period}.`); }
+  if (t.id === 'copyEmails'){
+    const list = STUDENTS.filter(s=>s.period===period).map(s=>s.email).join(', ');
+    try { await navigator.clipboard.writeText(list); toast('success', `Copied ${STUDENTS.filter(s=>s.period===period).length} (fake) emails for ${period}.`); }
+    catch(err){ toast('info', `Copy these (fake) emails:<br><textarea readonly rows="3" style="width:100%;margin-top:6px;">${list}</textarea>`); }
+  }
+});
+document.getElementById('hideNames').addEventListener('change', (e) => { hideNames = e.target.checked; renderAll(); });
+renderAll();
+</script>
+</body>
+</html>

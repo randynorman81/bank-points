@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude Code in the Classroom | SCHS Computer Science</title>
+<meta name="description" content="A 30-minute walkthrough for teachers: what Claude Code is, what Mr. Norman built with it for his CS classes, how a request works, protecting student data, and how to start using it yourself.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" href="../assets/logo.png">
+<style>
+:root{
+  --bg:#0F0E0C; --panel:#171512; --card:#1E1B17; --card2:#26221D;
+  --ink:#F3EFE8; --ink-soft:#ABA296; --rule:#332E27;
+  --or:#F08A4B; --or-tint:rgba(240,138,75,.14); --or-ink:#FFC39C;
+  --tl:#2DD4BF; --tl-tint:rgba(45,212,191,.13); --tl-ink:#99F6E4;
+  --vi:#A78BFA; --vi-tint:rgba(167,139,250,.14); --vi-ink:#DDD6FE;
+  --rd:#F87171; --rd-tint:rgba(248,113,113,.13); --rd-ink:#FECACA;
+  --wrap:1060px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--tl-ink)}
+h1,h2,h3,h4{line-height:1.2;margin:0}
+h1,h2{font-family:"Fraunces",Georgia,serif}
+p{margin:0 0 1em}
+code,.mono{font-family:"JetBrains Mono",monospace}
+code{background:rgba(255,255,255,.08);padding:1px 6px;border-radius:4px;font-size:.88em;overflow-wrap:anywhere}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 24px}
+
+.topbar{position:sticky;top:0;z-index:20;background:rgba(15,14,12,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--rule)}
+.topbar .wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
+.topbar .back{font-weight:700;text-decoration:none;color:var(--ink-soft);font-size:14px;margin-right:auto}
+.btn{font:inherit;font-size:14px;font-weight:700;border-radius:999px;padding:8px 16px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:#5A5044}
+.btn.primary{background:var(--or);border-color:var(--or);color:#2A1204}
+.btn.on{background:var(--tl);border-color:var(--tl);color:#042A25}
+.btn.sm{font-size:12.5px;padding:5px 12px}
+.jump{display:flex;flex-wrap:wrap;gap:6px;padding-bottom:10px}
+.jump a{font-size:12.5px;font-weight:700;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:999px;padding:5px 11px}
+
+.slide{padding:60px 0 28px;border-bottom:1px solid var(--rule);scroll-margin-top:110px}
+.kicker{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--or-ink);letter-spacing:.04em;margin-bottom:12px;display:flex;gap:12px;flex-wrap:wrap}
+.kicker .time{color:var(--ink-soft)}
+.slide h2{font-size:clamp(28px,4.4vw,42px);font-weight:700;margin-bottom:14px}
+.lede{font-size:19px;color:#D8D1C6;max-width:70ch;margin-bottom:24px}
+h3.sub{font-size:20px;font-weight:800;margin:28px 0 12px}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px 22px}
+.card h4{font-size:17px;font-weight:800;margin-bottom:8px}
+.card p,.card li{font-size:15px;color:#D8D1C6}
+.card p:last-child{margin-bottom:0}
+.card ul{margin:0;padding-left:18px}
+.card.or{border-top:3px solid var(--or)} .card.tl{border-top:3px solid var(--tl)} .card.vi{border-top:3px solid var(--vi)} .card.rd{border-top:3px solid var(--rd)}
+a.card{text-decoration:none;color:inherit;display:block}
+a.card:hover{border-color:#5A5044}
+a.card .go{font-size:13px;font-weight:800;color:var(--tl-ink);margin-top:8px;display:block}
+.stat .v{font-family:"Fraunces",serif;font-size:40px;font-weight:700;color:var(--or-ink);line-height:1}
+.stat .l{font-size:14px;color:var(--ink-soft);margin-top:6px}
+
+.callout{border-left:4px solid var(--or);background:var(--or-tint);border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0;font-size:15.5px;color:#F6DECB}
+.callout.tl{border-color:var(--tl);background:var(--tl-tint);color:#CFF6EF}
+.callout.rd{border-color:var(--rd);background:var(--rd-tint);color:#FBDADA}
+.callout b{color:#fff}
+
+.fig{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px;margin:10px 0 18px}
+.fig svg{width:100%;height:auto;display:block}
+
+/* terminal mock */
+.term{background:#0A0908;border:1px solid var(--rule);border-radius:12px;overflow:hidden;margin:6px 0 18px}
+.term .bar{display:flex;gap:6px;padding:10px 12px;background:#15130F;border-bottom:1px solid var(--rule);align-items:center}
+.term .bar i{width:11px;height:11px;border-radius:50%;display:block;background:#3A342C}
+.term .bar span{margin-left:8px;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-soft)}
+.term .body{padding:16px 18px;font-family:"JetBrains Mono",monospace;font-size:14px;line-height:1.75;color:#D8D1C6;white-space:pre-wrap;overflow-wrap:anywhere}
+.term .you{color:var(--or-ink)} .term .ok{color:#86EFAC} .term .dim{color:var(--ink-soft)} .term .ask{color:var(--vi-ink)}
+
+/* examples */
+.ex{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.ex .num{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--or-ink);margin-bottom:8px}
+.ex .prompt{font-family:"JetBrains Mono",monospace;font-size:14px;background:#0A0908;border:1px solid var(--rule);border-radius:8px;padding:10px 14px;color:var(--or-ink);margin-bottom:12px}
+.ex .prompt::before{content:"You: ";color:var(--ink-soft)}
+.ex .did{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ex h5{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft)}
+.ex ul{margin:0;padding-left:18px;font-size:15px;color:#D8D1C6}
+.ex .lesson{margin-top:10px;font-size:14.5px;color:var(--tl-ink)}
+
+.steps{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.steps li{counter-increment:s;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:14px 18px 14px 60px;position:relative;font-size:15.5px;color:#D8D1C6}
+.steps li::before{content:counter(s);position:absolute;left:16px;top:13px;width:30px;height:30px;border-radius:50%;background:var(--or);color:#2A1204;font-weight:800;display:grid;place-items:center;font-size:14px}
+.steps li b{color:#fff}
+
+.prompts{display:grid;gap:10px}
+.pr{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:12px 14px}
+.pr .t{flex:1;font-family:"JetBrains Mono",monospace;font-size:13.5px;color:#E9E2D6}
+.pr .t small{display:block;font-family:"Manrope",sans-serif;font-size:12px;color:var(--ink-soft);font-weight:700;margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em}
+
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+.tbl{background:var(--card);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.tbl .scroll{overflow-x:auto}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);background:var(--panel)}
+tr:last-child td{border-bottom:0}
+td b{color:#fff}
+.yes{color:#86EFAC;font-weight:800} .no{color:var(--rd-ink);font-weight:800}
+
+.hero{padding:76px 0 56px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 15% 20%,rgba(240,138,75,.16),transparent 42%),radial-gradient(circle at 85% 75%,rgba(45,212,191,.12),transparent 42%);pointer-events:none}
+.hero .wrap{position:relative}
+.hero h1{font-size:clamp(36px,6.2vw,64px);font-weight:700;max-width:17ch}
+.hero .deck{font-size:19px;color:#D8D1C6;max-width:60ch;margin-top:20px}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.chip{font-size:13px;font-weight:700;background:var(--card);border:1px solid var(--rule);border-radius:999px;padding:6px 14px;color:var(--ink-soft)}
+.chip b{color:var(--ink)}
+.agenda{display:grid;gap:8px;margin-top:30px}
+.agenda a{display:grid;grid-template-columns:90px 1fr;gap:14px;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:11px 16px;text-decoration:none;color:var(--ink)}
+.agenda .t{font-family:"JetBrains Mono",monospace;font-size:13.5px;color:var(--ink-soft)}
+.agenda .n{font-weight:700}
+
+.notes{display:none;margin-top:22px;background:#101A17;border:1px dashed #2D6B5F;border-radius:10px;padding:14px 18px;font-size:15px;color:#CFEDE6}
+.notes::before{content:"SPEAKER NOTES";display:block;font-family:"JetBrains Mono",monospace;font-size:11px;color:#6EE7D0;margin-bottom:6px;letter-spacing:.08em}
+body.show-notes .notes{display:block}
+.foot{padding:44px 0 70px;color:var(--ink-soft);font-size:14px}
+
+.presentbar{display:none}
+body.presenting{font-size:20px}
+body.presenting .topbar,body.presenting .foot{display:none}
+body.presenting .slide{display:none;min-height:100vh;border:0;padding:44px 0 110px}
+body.presenting .slide.active{display:block}
+body.presenting .presentbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:30;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;padding:10px 14px;background:rgba(15,14,12,.95);border-top:1px solid var(--rule)}
+.presentbar .info{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--ink-soft);margin:0 8px}
+.presentbar .info b{color:var(--ink)}
+.presentbar .late,.presentbar .late b{color:var(--rd-ink)}
+.progress{position:fixed;top:0;left:0;height:4px;width:0;background:var(--or);z-index:31;display:none;transition:width .2s}
+body.presenting .progress{display:block}
+
+@media (max-width:860px){
+  .grid2,.grid3,.ex .did{grid-template-columns:1fr}
+  .grid4{grid-template-columns:1fr 1fr}
+  .agenda a{grid-template-columns:74px 1fr}
+  .wrap{padding:0 16px}
+  .lede{font-size:17px}
+  .pr{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+
+<div class="topbar">
+  <div class="wrap">
+    <a class="back" href="index.html">&larr; Presentations</a>
+    <button class="btn" id="notesBtn" type="button">Speaker notes</button>
+    <button class="btn primary" id="presentBtn" type="button">&#9654; Present</button>
+  </div>
+  <div class="wrap jump">
+    <a href="#s-what">What is it?</a>
+    <a href="#s-built">What I built</a>
+    <a href="#s-how">How it works</a>
+    <a href="#s-examples">Real requests</a>
+    <a href="#s-demo">Demo dashboard</a>
+    <a href="#s-privacy">Student data</a>
+    <a href="#s-learn">Start using it</a>
+  </div>
+</div>
+
+<!-- ============ TITLE ============ -->
+<section class="slide hero" id="s-title" data-min="0">
+  <div class="wrap">
+    <div class="kicker">TEACHER PD &middot; 30 MINUTES</div>
+    <h1>Claude Code in the Classroom</h1>
+    <p class="deck">How I built three course websites, study guides, a points system, and teacher dashboards by describing what I wanted in plain English &mdash; and how you can start doing the same thing this week.</p>
+    <div class="meta">
+      <span class="chip">Presenter <b>Randy Norman</b>, Social Circle High School</span>
+      <span class="chip"><b>30</b> minutes</span>
+      <span class="chip">No coding experience required</span>
+    </div>
+    <div class="agenda">
+      <a href="#s-what"><span class="t">0:01</span><span class="n">What is Claude Code?</span></a>
+      <a href="#s-built"><span class="t">0:04</span><span class="n">What I've built with it</span></a>
+      <a href="#s-how"><span class="t">0:10</span><span class="n">How a request actually works</span></a>
+      <a href="#s-examples"><span class="t">0:14</span><span class="n">Five real requests, start to finish</span></a>
+      <a href="#s-demo"><span class="t">0:19</span><span class="n">Tour a demo teacher dashboard</span></a>
+      <a href="#s-privacy"><span class="t">0:23</span><span class="n">Protecting student data</span></a>
+      <a href="#s-learn"><span class="t">0:25</span><span class="n">How to start using it + starter prompts</span></a>
+      <a href="#s-qa"><span class="t">0:29</span><span class="n">Questions</span></a>
+    </div>
+    <div class="notes">Open with the class site on the projector. "Everything you're about to see, I described in plain English. Claude Code wrote the code, tested it, and published it. I checked it and decided what to keep."</div>
+  </div>
+</section>
+
+<!-- ============ WHAT ============ -->
+<section class="slide" id="s-what" data-min="1">
+  <div class="wrap">
+    <div class="kicker">01 <span class="time">0:01 &middot; 3 min</span></div>
+    <h2>What Is Claude Code?</h2>
+    <p class="lede">Claude Code is an AI assistant from Anthropic that works <b>inside a folder on your computer</b>. Instead of just chatting, it can read your files, write and edit them, run commands, preview web pages, and publish your changes &mdash; and it asks your permission along the way.</p>
+
+    <div class="tbl"><div class="scroll"><table>
+      <tr><th></th><th>A regular AI chatbot</th><th>Claude Code</th></tr>
+      <tr><td><b>Where it works</b></td><td>A chat window</td><td>Your actual project files</td></tr>
+      <tr><td><b>Writes code?</b></td><td>Gives you code to copy and paste</td><td>Creates and edits the files itself</td></tr>
+      <tr><td><b>Tests its work?</b></td><td class="no">No</td><td class="yes">Yes &mdash; runs it, previews it, clicks the buttons</td></tr>
+      <tr><td><b>Remembers your project?</b></td><td>Only what you paste in</td><td>Reads the whole folder, plus notes about your preferences</td></tr>
+      <tr><td><b>Publishes?</b></td><td class="no">No</td><td class="yes">Can save versions and push them to your live site</td></tr>
+    </table></div></div>
+
+    <div class="callout tl"><b>Think of it as</b> a very fast teaching assistant who happens to know how to build websites. You're still the teacher: you decide what gets built, you check it, and you decide what students see.</div>
+    <div class="notes">Keep this short. The key idea: it <em>does</em> the work in your files instead of handing you code to paste. Mention it runs in a desktop app, a terminal, VS Code, or the browser &mdash; you'll show the desktop app at the end.</div>
+  </div>
+</section>
+
+<!-- ============ BUILT ============ -->
+<section class="slide" id="s-built" data-min="4">
+  <div class="wrap">
+    <div class="kicker">02 <span class="time">0:04 &middot; 6 min</span></div>
+    <h2>What I've Built With It</h2>
+    <p class="lede">Since August 10, my entire CS program has run on a website Claude Code and I built together: three courses, every lesson, and the tools behind them.</p>
+
+    <div class="grid4" style="margin-bottom:22px;">
+      <div class="card stat"><div class="v">363</div><div class="l">web pages</div></div>
+      <div class="card stat"><div class="v">367</div><div class="l">saved versions (commits)</div></div>
+      <div class="card stat"><div class="v">3</div><div class="l">courses: IST, AP CSP, Embedded Computing</div></div>
+      <div class="card stat"><div class="v">~7</div><div class="l">weeks, alongside teaching full time</div></div>
+    </div>
+
+    <div class="grid3">
+      <a class="card or" href="../index.html" target="_blank" rel="noopener"><h4>Course websites</h4><p>A home page for each course with units, lessons, class docs, and site-wide search.</p><span class="go">Open the site &rarr;</span></a>
+      <a class="card or" href="../ec/unit-1/1-6-pi-explorer.html" target="_blank" rel="noopener"><h4>Interactive lessons</h4><p>Notes with diagrams you can click, simulations, and games built for a single lesson.</p><span class="go">See an example &rarr;</span></a>
+      <a class="card or" href="../apcsp/unit-3/unit-3-study-guide.html" target="_blank" rel="noopener"><h4>Study guides</h4><p>Full unit reviews with a self-grading, AP-style practice test that explains every answer.</p><span class="go">See the AP CSP guide &rarr;</span></a>
+      <a class="card tl" href="demo/admin-dashboard.html" target="_blank" rel="noopener"><h4>Bank Points system</h4><p>An extra credit "bank": students check balances and request to spend points; quizzes award points automatically.</p><span class="go">Tour the demo &rarr;</span></a>
+      <a class="card tl" href="../ist/pacing-guide.html" target="_blank" rel="noopener"><h4>Pacing guides</h4><p>A year-long plan per course that feeds a "Next Two Weeks" page, so students always know what's coming.</p><span class="go">See a pacing guide &rarr;</span></a>
+      <a class="card tl" href="../ist/unit-6/editor.html" target="_blank" rel="noopener"><h4>Student code editor</h4><p>An in-browser HTML editor where students write and submit their web design work.</p><span class="go">Open the editor &rarr;</span></a>
+      <a class="card vi" href="demo/admin-dashboard.html" target="_blank" rel="noopener"><h4>Teacher dashboards</h4><p>PIN-protected admin pages for points, requests, quiz results, late work, and announcements.</p><span class="go">Demo version &rarr;</span></a>
+      <a class="card vi" href="raspberry-pi-retropie.html" target="_blank" rel="noopener"><h4>PD presentations</h4><p>Like this one &mdash; full websites with a built-in slideshow mode and speaker notes.</p><span class="go">See the Pi session &rarr;</span></a>
+      <div class="card vi"><h4>Everyday teacher tasks</h4><p>Grading drafts from a folder of Google Docs, rebuilding a schedule when we fall behind, alphabetizing and rescaling grade lists.</p></div>
+    </div>
+    <div class="notes">Click one or two live: the study guide's practice test is a great one to click through. Emphasize "alongside teaching full time" &mdash; most requests take minutes, not hours.</div>
+  </div>
+</section>
+
+<!-- ============ HOW ============ -->
+<section class="slide" id="s-how" data-min="10">
+  <div class="wrap">
+    <div class="kicker">03 <span class="time">0:10 &middot; 4 min</span></div>
+    <h2>How a Request Actually Works</h2>
+    <p class="lede">Every job follows the same loop. You describe the result; Claude Code does the steps in between and checks in with you.</p>
+
+    <div class="fig">
+      <svg viewBox="0 0 980 220" role="img" aria-label="The request loop: you describe it, Claude reads your files, makes a plan, edits the files, tests it in a preview, saves and publishes, then you review. If something's off, you say so and the loop repeats.">
+        <defs><marker id="ah" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#ABA296"/></marker></defs>
+        <g font-family="Manrope" font-weight="700" text-anchor="middle">
+          <g>
+            <rect x="8" y="36" width="120" height="84" rx="12" fill="rgba(240,138,75,.16)" stroke="#F08A4B" stroke-width="2"/>
+            <text x="68" y="72" fill="#fff" font-size="15">You describe</text><text x="68" y="94" fill="#FFC39C" font-size="12.5" font-weight="500">plain English</text>
+          </g>
+          <g>
+            <rect x="148" y="36" width="120" height="84" rx="12" fill="#1E1B17" stroke="#2DD4BF" stroke-width="2"/>
+            <text x="208" y="72" fill="#fff" font-size="15">Reads files</text><text x="208" y="94" fill="#ABA296" font-size="12.5" font-weight="500">learns your site</text>
+          </g>
+          <g>
+            <rect x="288" y="36" width="120" height="84" rx="12" fill="#1E1B17" stroke="#2DD4BF" stroke-width="2"/>
+            <text x="348" y="72" fill="#fff" font-size="15">Plans</text><text x="348" y="94" fill="#ABA296" font-size="12.5" font-weight="500">asks if unclear</text>
+          </g>
+          <g>
+            <rect x="428" y="36" width="120" height="84" rx="12" fill="#1E1B17" stroke="#2DD4BF" stroke-width="2"/>
+            <text x="488" y="72" fill="#fff" font-size="15">Edits</text><text x="488" y="94" fill="#ABA296" font-size="12.5" font-weight="500">writes the code</text>
+          </g>
+          <g>
+            <rect x="568" y="36" width="120" height="84" rx="12" fill="#1E1B17" stroke="#2DD4BF" stroke-width="2"/>
+            <text x="628" y="72" fill="#fff" font-size="15">Tests</text><text x="628" y="94" fill="#ABA296" font-size="12.5" font-weight="500">previews, clicks</text>
+          </g>
+          <g>
+            <rect x="708" y="36" width="120" height="84" rx="12" fill="#1E1B17" stroke="#A78BFA" stroke-width="2"/>
+            <text x="768" y="72" fill="#fff" font-size="15">Publishes</text><text x="768" y="94" fill="#ABA296" font-size="12.5" font-weight="500">saves a version</text>
+          </g>
+          <g>
+            <rect x="848" y="36" width="124" height="84" rx="12" fill="rgba(240,138,75,.16)" stroke="#F08A4B" stroke-width="2"/>
+            <text x="910" y="72" fill="#fff" font-size="15">You review</text><text x="910" y="94" fill="#FFC39C" font-size="12.5" font-weight="500">keep or change</text>
+          </g>
+          <line x1="130" y1="78" x2="144" y2="78" stroke="#ABA296" stroke-width="2" marker-end="url(#ah)"/>
+          <line x1="270" y1="78" x2="284" y2="78" stroke="#ABA296" stroke-width="2" marker-end="url(#ah)"/>
+          <line x1="410" y1="78" x2="424" y2="78" stroke="#ABA296" stroke-width="2" marker-end="url(#ah)"/>
+          <line x1="550" y1="78" x2="564" y2="78" stroke="#ABA296" stroke-width="2" marker-end="url(#ah)"/>
+          <line x1="690" y1="78" x2="704" y2="78" stroke="#ABA296" stroke-width="2" marker-end="url(#ah)"/>
+          <line x1="830" y1="78" x2="844" y2="78" stroke="#ABA296" stroke-width="2" marker-end="url(#ah)"/>
+          <path d="M910 122 C910 195, 68 195, 68 126" fill="none" stroke="#ABA296" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#ah)"/>
+          <text x="490" y="210" fill="#ABA296" font-size="13" font-weight="600">"not quite &mdash; make it&hellip;" starts the loop again</text>
+        </g>
+      </svg>
+    </div>
+
+    <p style="margin-bottom:8px;">Here's what that looks like in the app (shortened):</p>
+    <div class="term">
+      <div class="bar"><i></i><i></i><i></i><span>my-class-site</span></div>
+      <div class="body"><span class="you">&gt; Change the schedule so we cover 2.7, 2.8, 2.9, and 2.10 this week, and shift the rest of the unit.</span>
+
+<span class="dim">Reading ist/pacing-guide.html, ist/unit-2/calendar.html&hellip;</span>
+This week currently has 2.7&ndash;2.9. Adding 2.10 frees one slot, so the rest
+of Unit 2 moves up a week. The "Next Two Weeks" page reads from the pacing
+guide, so it will update automatically.
+
+<span class="dim">Editing ist/pacing-guide.html (weeks 9&ndash;16)&hellip;</span>
+<span class="dim">Editing ist/unit-2/calendar.html&hellip;</span>
+<span class="ok">&#10003; Checked: no other pages list these dates.</span>
+<span class="ok">&#10003; Saved and published.</span>
+
+<span class="ask">The week of Nov 30 had 3 items, so the shift ends there &mdash; December is unchanged.</span></div>
+    </div>
+    <div class="callout"><b>Notice what it did on its own:</b> it found every place the schedule appears, explained its reasoning, checked for dates I didn't mention, and told me where the change stops. My whole job was one sentence and a quick look.</div>
+    <div class="notes">If you're showing it live, do a tiny request here instead (e.g., "change the footer text"). Point out the permission prompts: it asks before running commands or publishing, depending on your settings.</div>
+  </div>
+</section>
+
+<!-- ============ EXAMPLES ============ -->
+<section class="slide" id="s-examples" data-min="14">
+  <div class="wrap">
+    <div class="kicker">04 <span class="time">0:14 &middot; 5 min</span></div>
+    <h2>Five Real Requests, Start to Finish</h2>
+    <p class="lede">These are real prompts I typed, lightly shortened. None of them is written in "computer" language.</p>
+
+    <div class="ex">
+      <div class="num">REQUEST 1 &middot; A STUDY GUIDE</div>
+      <div class="prompt">create a complete study guide for APCSP unit 3 &hellip; make the questions the same as asked on the APCSP test, but focus on variables, string methods, user input, basic math, graphics, and mouse events</div>
+      <div class="did">
+        <div><h5>What Claude Code did</h5><ul><li>Read my existing notes pages so the guide matched what I teach</li><li>Wrote the review sections with diagrams and a small calculator for // and %</li><li>Built a 66-question, self-grading, AP-style practice test that explains every answer</li><li>Tested it on a phone-sized screen, then published it</li></ul></div>
+        <div><h5>My part</h5><ul><li>One paragraph describing what I wanted</li><li>Clicked through the practice test before sharing it with students</li></ul></div>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="num">REQUEST 2 &middot; GRADING A FOLDER OF ASSIGNMENTS</div>
+      <div class="prompt">grade these out of 100 [link to a Google Drive folder of lab write-ups]</div>
+      <div class="did">
+        <div><h5>What Claude Code did</h5><ul><li>Found the assignment directions and built a rubric from them</li><li>Read every document, including the screenshots</li><li>Returned a score table with a reason for every deduction</li><li>Flagged a misconception several students shared, as something to reteach</li></ul></div>
+        <div><h5>My part</h5><ul><li>Corrected it: "they were able to work in partners" &mdash; it withdrew its similarity flags</li><li>Reviewed the scores before entering anything</li></ul></div>
+      </div>
+      <div class="lesson">&#128161; It drafts; I grade. It's fast at the first pass, and I'm still the teacher of record.</div>
+    </div>
+
+    <div class="ex">
+      <div class="num">REQUEST 3 &middot; REBUILDING THE YEAR</div>
+      <div class="prompt">after this unit: november HTML, december CSS, january bootstrap, february website project and computer basics, march OS, april networking, may review</div>
+      <div class="did">
+        <div><h5>What Claude Code did</h5><ul><li>Counted the lessons against the school calendar and breaks</li><li>Warned me that November and December were overloaded, <b>before</b> changing anything</li><li>Suggested fixes, then rebuilt the pacing guide once I approved</li></ul></div>
+        <div><h5>My part</h5><ul><li>Said "don't rebuild yet &mdash; give me your thoughts" and got advice first</li><li>Said "make your suggested changes" when I was ready</li></ul></div>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="num">REQUEST 4 &middot; WHEN IT SAID NO</div>
+      <div class="prompt">give me student email addresses for copying for 1A and 2B</div>
+      <div class="did">
+        <div><h5>What Claude Code did</h5><ul><li>Explained it won't sign in to my live admin page with my PIN on my behalf</li><li>Offered to build a <b>Copy Emails</b> button into my dashboard instead</li><li>Built it, tested it with made-up students, and published it</li></ul></div>
+        <div><h5>My part</h5><ul><li>Said "yes"</li><li>Now copying a class's emails takes one click</li></ul></div>
+      </div>
+      <div class="lesson">&#128161; It has guardrails around passwords and private data &mdash; and it usually offers a better way.</div>
+    </div>
+
+    <div class="ex">
+      <div class="num">REQUEST 5 &middot; THIS PRESENTATION</div>
+      <div class="prompt">create a complete presentation&hellip; make it a website I can give everyone&hellip; put it on my website under a new tab "presentations"</div>
+      <div class="did">
+        <div><h5>What Claude Code did</h5><ul><li>Added a Presentations tab to every page of the site</li><li>Built the presentation with a slideshow mode, a timer, and speaker notes</li><li>Built the demo dashboard with made-up students so no real data is shown</li></ul></div>
+        <div><h5>My part</h5><ul><li>Told it the audience and the time limit</li><li>Reviewed it and practiced</li></ul></div>
+      </div>
+    </div>
+    <div class="notes">Pick two to talk through in detail &mdash; Request 2 (grading, with the correction) and Request 4 (the guardrail) spark the best conversation. Mention the small daily asks too: "put them in last-name order," "grade it out of 150."</div>
+  </div>
+</section>
+
+<!-- ============ DEMO ============ -->
+<section class="slide" id="s-demo" data-min="19">
+  <div class="wrap">
+    <div class="kicker">05 <span class="time">0:19 &middot; 4 min</span></div>
+    <h2>Tour a Demo Teacher Dashboard</h2>
+    <p class="lede">My real dashboards hold real student data, so I had Claude Code build a working copy filled with <b>made-up students</b>. Everything works &mdash; nothing is saved.</p>
+    <div class="grid2">
+      <a class="card or" href="demo/admin-dashboard.html" target="_blank" rel="noopener">
+        <h4>&#9654; Open the demo dashboard</h4>
+        <p>Try it on your own device while I show it on the projector.</p>
+        <span class="go">presentations/demo/admin-dashboard.html &rarr;</span>
+      </a>
+      <div class="card tl">
+        <h4>Things to try</h4>
+        <ul>
+          <li>Switch between periods 1A, 2B, and 3A</li>
+          <li>Give a student +5 points, then use some</li>
+          <li>Approve or deny a point request</li>
+          <li>Look at quiz results: points are awarded automatically</li>
+          <li>Toggle <b>Show codes only</b> to hide names on the projector</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout tl"><b>The prompt that made it:</b> "create some sample admin pages where they can see made-up names because I don't want to show them my actual admin dashboards." That's the whole request.</div>
+    <div class="notes">Have the demo open in a second tab. Show: period tabs, +5, approve a request (the "not enough points" check is a nice detail), and the codes-only toggle. Reload to reset.</div>
+  </div>
+</section>
+
+<!-- ============ PRIVACY ============ -->
+<section class="slide" id="s-privacy" data-min="23">
+  <div class="wrap">
+    <div class="kicker">06 <span class="time">0:23 &middot; 2 min</span></div>
+    <h2>Protecting Student Data</h2>
+    <p class="lede">AI tools are only as safe as the data you give them. These are the practices I recommend for anyone building classroom tools.</p>
+    <div class="grid2">
+      <div class="card tl"><h4>Do</h4><ul>
+        <li><b>Use student codes</b> (like <code>S-1A-014</code>) instead of names wherever you can, and keep the code-to-name key in your gradebook</li>
+        <li><b>Check your district's AI and data-privacy policy</b> (FERPA) before an AI tool touches student work</li>
+        <li><b>Use made-up data</b> for demos, screenshots, and testing &mdash; like the demo dashboard</li>
+        <li>Keep teacher pages behind a PIN or school sign-in</li>
+        <li><b>Review everything</b> AI grades or writes before students see it</li>
+      </ul></div>
+      <div class="card rd"><h4>Don't</h4><ul>
+        <li>Paste in grades, IEP/504 details, discipline, or health information</li>
+        <li>Give an AI tool your passwords (Claude Code won't sign in to live sites with them anyway)</li>
+        <li>Project a dashboard with real names on it</li>
+        <li>Publish anything you haven't opened and clicked through yourself</li>
+      </ul></div>
+    </div>
+    <div class="notes">Keep this tight but serious. The codes-only toggle in the demo is a good example of privacy by design: ask for it when you build your own tools.</div>
+  </div>
+</section>
+
+<!-- ============ LEARN ============ -->
+<section class="slide" id="s-learn" data-min="25">
+  <div class="wrap">
+    <div class="kicker">07 <span class="time">0:25 &middot; 4 min</span></div>
+    <h2>How to Start Using It This Week</h2>
+    <p class="lede">You don't need to know how to code. You need a clear idea of what you want and ten minutes to try it.</p>
+
+    <ol class="steps">
+      <li><b>Get access.</b> Claude Code is included with Claude's paid plans (Pro and above). Check <a href="https://www.claude.com/pricing" target="_blank" rel="noopener">claude.com/pricing</a> and ask whether your district has a plan.</li>
+      <li><b>Install the Claude desktop app</b> and open the <b>Code</b> tab. (Comfortable with a terminal? You can also install Claude Code there or in VS Code.)</li>
+      <li><b>Make an empty folder</b> on your computer, such as <code>my-class-site</code>, and open it in Claude Code.</li>
+      <li><b>Paste a starter prompt</b> from below. Watch what it does and approve the steps it asks about.</li>
+      <li><b>Open what it made</b> and ask for one change at a time: "make the heading bigger," "add a dark mode," "make it work on phones."</li>
+      <li><b>Put it online</b> when you're happy: "help me publish this with GitHub Pages" &mdash; it walks you through it.</li>
+      <li><b>Teach it your rules once.</b> "Remember that I always want made-up names in examples." It keeps notes on your preferences for next time.</li>
+    </ol>
+
+    <h3 class="sub">Starter prompts to copy</h3>
+    <div class="prompts" id="prompts"></div>
+
+    <h3 class="sub">Tips for good results</h3>
+    <div class="grid3">
+      <div class="card or"><h4>Say who it's for</h4><p>"For 9th graders who've never coded" gets a very different page than "for AP students."</p></div>
+      <div class="card or"><h4>Describe "done"</h4><p>What should it look like, and what should happen when a student clicks?</p></div>
+      <div class="card or"><h4>Ask it to check</h4><p>"Preview it on a phone-sized screen and test the buttons."</p></div>
+      <div class="card tl"><h4>One change at a time</h4><p>Small requests are easier to review and easier to undo.</p></div>
+      <div class="card tl"><h4>Ask for advice first</h4><p>"Don't change anything yet &mdash; what do you think?" gets you a plan to approve.</p></div>
+      <div class="card tl"><h4>It can be wrong</h4><p>Check facts, grades, and dates. Correct it in plain English and it fixes them.</p></div>
+    </div>
+    <div class="notes">If there's time, do step 4 live with the first starter prompt &mdash; a class page appears in about a minute. Point out the Copy buttons so nobody has to type.</div>
+  </div>
+</section>
+
+<!-- ============ Q&A ============ -->
+<section class="slide" id="s-qa" data-min="29">
+  <div class="wrap">
+    <div class="kicker">08 <span class="time">0:29 &middot; 1 min</span></div>
+    <h2>Questions?</h2>
+    <p class="lede">Keep this page &mdash; the steps, starter prompts, and demo dashboard are all here: <b>schscomputerscience.com &rarr; Presentations</b>.</p>
+    <div class="grid3">
+      <a class="card or" href="demo/admin-dashboard.html" target="_blank" rel="noopener"><h4>Demo dashboard</h4><p>Made-up students, fully clickable.</p><span class="go">Open &rarr;</span></a>
+      <a class="card tl" href="https://docs.claude.com/en/docs/claude-code/overview" target="_blank" rel="noopener"><h4>Claude Code docs</h4><p>Official setup guides and tutorials.</p><span class="go">Open &rarr;</span></a>
+      <a class="card vi" href="raspberry-pi-retropie.html" target="_blank" rel="noopener"><h4>Another session</h4><p>Game On: the Raspberry Pi in the CS classroom.</p><span class="go">Open &rarr;</span></a>
+    </div>
+    <div class="notes">Likely questions: cost (paid plan), student use (check age requirements and district policy before students use it directly), and "what if it breaks my site?" (every change is a saved version you can roll back &mdash; just ask it to undo).</div>
+  </div>
+</section>
+
+<div class="foot"><div class="wrap">Claude Code in the Classroom &middot; Randy Norman, Social Circle High School &middot; <a href="index.html">More presentations</a> &middot; <a href="../index.html">SCHS Computer Science</a><br>Claude and Claude Code are products of Anthropic. All students shown in examples and demos are made up.</div></div>
+
+<div class="presentbar">
+  <button class="btn" id="prevBtn" type="button">&larr; Prev</button>
+  <span class="info" id="slideInfo"></span>
+  <button class="btn" id="nextBtn" type="button">Next &rarr;</button>
+  <span class="info" id="timerInfo"></span>
+  <button class="btn" id="notesBtn2" type="button">Notes (N)</button>
+  <button class="btn" id="exitBtn" type="button">Exit (Esc)</button>
+</div>
+
+<script>
+/* ---------- starter prompts with copy buttons ---------- */
+(function(){
+  var P=[
+    ['A class home page','Create a one-page website for my [course name] class with a welcome message, my contact info, a list of units, and a link to Google Classroom. Make it look good on phones.'],
+    ['Notes into a lesson','Turn these notes into a lesson page with a short reading, three check-for-understanding questions with hidden answers, and a vocabulary list: [paste your notes]'],
+    ['A self-grading quiz','Build a 10-question multiple-choice practice quiz on [topic] for [grade level]. It should grade itself and explain each answer.'],
+    ['A pacing calendar','Make a pacing calendar for [course] from [start date] to [end date], two lessons a week, skipping these breaks: [dates].'],
+    ['A random picker','Build a random student-code picker I can project that doesn’t repeat anyone until everyone has been picked.'],
+    ['A classroom timer','Make a big classroom timer page with 1, 5, and 10 minute buttons and a sound when time is up.'],
+    ['Understand a project','Look at the files in this folder and explain what each one does, like I’m new to coding.'],
+    ['Fix an error','I got this error: [paste it]. Explain what it means and fix it.'],
+    ['Advice first','Don’t change anything yet. I want to [goal]. What would you suggest, and what would you change?']
+  ];
+  var box=document.getElementById('prompts');
+  box.innerHTML=P.map(function(p,i){ return '<div class="pr"><div class="t"><small>'+p[0]+'</small>'+p[1].replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div><button class="btn sm" type="button" data-i="'+i+'">Copy</button></div>'; }).join('');
+  box.addEventListener('click',function(e){
+    var b=e.target.closest('button[data-i]'); if(!b) return;
+    var text=P[+b.dataset.i][1];
+    function done(){ b.textContent='Copied!'; b.classList.add('on'); setTimeout(function(){ b.textContent='Copy'; b.classList.remove('on'); },1500); }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done,function(){ fallback(); }); } else fallback();
+    function fallback(){ var ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); done(); }catch(err){} ta.remove(); }
+  });
+})();
+
+/* ---------- speaker notes + present mode ---------- */
+(function(){
+  var TOTAL=30, body=document.body, slides=[].slice.call(document.querySelectorAll('section.slide')), cur=0, t0=null;
+  function toggleNotes(){ body.classList.toggle('show-notes'); var on=body.classList.contains('show-notes'); document.getElementById('notesBtn').classList.toggle('on',on); document.getElementById('notesBtn2').classList.toggle('on',on); }
+  document.getElementById('notesBtn').onclick=toggleNotes; document.getElementById('notesBtn2').onclick=toggleNotes;
+  function fmt(ms){ var s=Math.max(0,Math.floor(ms/1000)); return Math.floor(s/60)+':'+('0'+s%60).slice(-2); }
+  function updTimer(){
+    if(!t0) return;
+    var el=Date.now()-t0, start=(+slides[cur].dataset.min||0)*60000;
+    var end=slides[cur+1]?(+slides[cur+1].dataset.min)*60000:TOTAL*60000;
+    var info=document.getElementById('timerInfo');
+    info.innerHTML='&#9201; <b>'+fmt(el)+'</b> / '+TOTAL+':00 &middot; this section: '+fmt(start)+'&ndash;'+fmt(end);
+    info.classList.toggle('late',el>end);
+  }
+  function show(i){
+    cur=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach(function(s,k){ s.classList.toggle('active',k===cur); });
+    window.scrollTo(0,0);
+    document.getElementById('slideInfo').innerHTML='<b>'+(cur+1)+'</b> / '+slides.length;
+    document.getElementById('progress').style.width=((cur+1)/slides.length*100)+'%';
+    try{ history.replaceState(null,'','#'+slides[cur].id); }catch(e){}
+    updTimer();
+  }
+  function enter(){
+    body.classList.add('presenting');
+    var h=location.hash.slice(1), idx=slides.findIndex(function(s){return s.id===h;});
+    if(!t0){ t0=Date.now(); setInterval(updTimer,1000); }
+    show(idx>=0?idx:0);
+    if(document.documentElement.requestFullscreen){ document.documentElement.requestFullscreen().catch(function(){}); }
+  }
+  function exit(){
+    body.classList.remove('presenting');
+    slides.forEach(function(s){ s.classList.remove('active'); });
+    if(document.fullscreenElement&&document.exitFullscreen){ document.exitFullscreen().catch(function(){}); }
+    slides[cur].scrollIntoView();
+  }
+  document.getElementById('presentBtn').onclick=enter;
+  document.getElementById('exitBtn').onclick=exit;
+  document.getElementById('prevBtn').onclick=function(){ show(cur-1); };
+  document.getElementById('nextBtn').onclick=function(){ show(cur+1); };
+  document.addEventListener('keydown',function(e){
+    var tag=(e.target.tagName||'').toLowerCase();
+    if(tag==='input'||tag==='textarea') return;
+    if(e.key==='n'||e.key==='N'){ toggleNotes(); return; }
+    if(!body.classList.contains('presenting')) return;
+    if(e.key==='ArrowRight'||e.key==='PageDown'||(e.key===' '&&!e.shiftKey)){ e.preventDefault(); show(cur+1); }
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); show(cur-1); }
+    else if(e.key==='Home'){ show(0); } else if(e.key==='End'){ show(slides.length-1); }
+    else if(e.key==='Escape'){ exit(); }
+  });
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('a[href^="#s-"]'); if(!a||!body.classList.contains('presenting')) return;
+    var idx=slides.findIndex(function(s){ return '#'+s.id===a.getAttribute('href'); });
+    if(idx>-1){ e.preventDefault(); show(idx); }
+  });
+})();
+</script>
+</body>
+</html>

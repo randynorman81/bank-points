@@ -146,7 +146,8 @@ function buildStaticSearchIndex() {
   const entries = [
     { title: "Home", url: NAV_ROOT + "index.html", category: "Site" },
     { title: "Presentations", url: NAV_ROOT + "presentations/index.html", category: "Site" },
-    { title: "Game On: The Raspberry Pi in the CS Classroom (RetroPie extra credit arcade)", url: NAV_ROOT + "presentations/raspberry-pi-retropie.html", category: "Presentations" }
+    { title: "Game On: The Raspberry Pi in the CS Classroom (RetroPie extra credit arcade)", url: NAV_ROOT + "presentations/raspberry-pi-retropie.html", category: "Presentations" },
+    { title: "Claude Code in the Classroom", url: NAV_ROOT + "presentations/claude-code-classroom.html", category: "Presentations" }
   ];
   COURSES.forEach((course) => {
     entries.push({ title: course.name + " announcements", url: NAV_ROOT + "announcements.html?course=" + course.id, category: course.shortName });
