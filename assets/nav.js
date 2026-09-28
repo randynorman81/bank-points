@@ -39,10 +39,9 @@ const COURSES = [
       { n: 10, label: "Unit 10 · Feb", title: "Complete Website Project", migrated: true, path: "ist/unit-10/index.html" },
       { n: 3, label: "Unit 3 · Mar", title: "Computing Basics", migrated: true, path: "ist/unit-3/index.html" },
       { n: 4, label: "Unit 4 · Mar", title: "Operating Systems and Software", migrated: true, path: "ist/unit-4/index.html" },
-      { label: "Apr", title: "Networking", comingSoon: true },
-      { n: 5, title: "Project: IT Professional", migrated: true, path: "ist/unit-5/index.html", badge: "Not this year" },
-      { n: 11, title: "Intro to JavaScript", migrated: true, path: "ist/unit-11/index.html", badge: "Not this year" },
-      { n: 12, title: "Intro to Web Dev (jQuery / CMS)", migrated: true, path: "ist/unit-12/index.html", badge: "Not this year" }
+      { label: "Apr", title: "Networking", comingSoon: true }
+      // Units 5 (IT Professional), 11 (JavaScript), and 12 (Web Dev) aren't taught
+      // this year; their pages still exist under ist/unit-5, unit-11, unit-12.
     ]
   },
   {
