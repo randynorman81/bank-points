@@ -14,17 +14,20 @@
   --acc:#FB923C; --acc-tint:rgba(251,146,60,.14); --acc-ink:#FDC79B;
   --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
   --lst:#34D399; --lst-tint:rgba(52,211,153,.13); --lst-ink:#6EE7B7;
+  --cir:#22D3EE; --rec:#818CF8;
   --wrap:1080px;
 }
 *{box-sizing:border-box}
+html{scroll-behavior:smooth}
 body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
 h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+h3.sub{font-size:20px;font-weight:600;color:#fff;margin:30px 0 12px}
 p{margin:0 0 1em} p:last-child{margin-bottom:0}
 strong,b{font-weight:700}
 a{color:var(--acc-ink)}
 .wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
 
-.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:5}
 .pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
 .pillnav a:hover{color:var(--ink);border-color:#3A4658}
 .pillnav a.current{background:var(--acc);color:#2B1706;border-color:var(--acc)}
@@ -34,12 +37,13 @@ a{color:var(--acc-ink)}
 .hero .wrap{position:relative}
 .brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
 .hero h1{font-size:clamp(32px,6vw,52px);font-weight:600;max-width:22ch;color:#fff}
-.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:66ch;margin-top:18px}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:68ch;margin-top:18px}
 .hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
 .chip{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:6px 14px}
 .chip b{color:var(--acc-ink)}
+.cta{display:inline-block;margin-top:24px;font-family:"JetBrains Mono",monospace;font-size:13.5px;font-weight:700;color:#2B1706;background:var(--acc);text-decoration:none;border-radius:100px;padding:11px 22px}
 
-.part{padding:54px 0 8px}
+.part{padding:54px 0 8px;scroll-margin-top:60px}
 .part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
 .part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
 .part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
@@ -48,11 +52,15 @@ a{color:var(--acc-ink)}
 
 .code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
 .code .cm{color:var(--ink-soft)}
+.code .no{color:var(--bad-ink)}
+.code .ok{color:var(--lst-ink)}
 
-.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:8px 0 18px}
 .box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--acc)}
 .box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
-.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+.box p,.box li{font-size:15px;line-height:1.55;color:#C4CDD8}
+.box ul{margin:0;padding-left:18px}
+.box.green{border-top-color:var(--lst)} .box.red{border-top-color:var(--bad)}
 
 .example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F0DAC4}
 .example b{color:#fff}
@@ -65,16 +73,16 @@ a{color:var(--acc-ink)}
 .cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
 .cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
 .cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
-.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
 .cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
 
-.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:18px}
 .tblscroll{overflow-x:auto}
 table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
-table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp th,table.cmp td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--rule);vertical-align:top}
 table.cmp tr:last-child td{border-bottom:0}
 table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
 table.cmp td b{color:#fff}
+table.cmp td.y{color:var(--lst-ink)} table.cmp td.n{color:var(--bad-ink)}
 
 code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
 
@@ -88,13 +96,61 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
 .checklist li{font-size:14.5px;color:#C4CDD8;padding:8px 0 8px 26px;position:relative;border-bottom:1px solid var(--rule)}
 .checklist li::before{content:"\2610";position:absolute;left:0;color:var(--acc-ink);font-size:15px}
 
-.qbox{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:22px 24px;margin-bottom:14px}
-.qbox .qn{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--acc-ink);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
-.qbox p{font-size:15px;color:#EAEFF6}
-.qbox details{margin-top:12px}
-.qbox summary{cursor:pointer;font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--acc-ink);font-weight:600}
-.qbox .ans{margin-top:10px;font-size:14.5px;color:#C4CDD8;border-top:1px solid var(--rule);padding-top:10px}
-.qbox .ans b{color:var(--lst-ink)}
+/* trace table */
+table.trace{border-collapse:collapse;font-family:"JetBrains Mono",monospace;font-size:14px;margin:4px 0 20px;background:var(--card);border:1px solid var(--rule)}
+table.trace th,table.trace td{padding:8px 16px;border:1px solid var(--rule);text-align:left}
+table.trace th{color:var(--ink-soft);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+table.trace td.chg{color:var(--acc-ink);font-weight:700}
+
+/* math lab */
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:20px 22px;margin:10px 0 22px}
+.lab .row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-family:"JetBrains Mono",monospace}
+.lab input{width:90px;background:#05070B;color:#fff;border:1px solid #3A4658;border-radius:4px;padding:8px 10px;font:inherit;font-size:16px}
+.lab .out{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px}
+.lab .cell{background:#05070B;border:1px solid var(--rule);border-radius:5px;padding:12px 14px;font-family:"JetBrains Mono",monospace}
+.lab .cell .op{font-size:12px;color:var(--ink-soft)}
+.lab .cell .v{font-size:22px;color:#fff;font-weight:700;margin-top:4px}
+.lab .cell .t{font-size:11px;color:var(--acc-ink);margin-top:2px}
+.lab .explain{margin-top:14px;font-size:14.5px;color:#C4CDD8}
+
+/* canvas figure */
+.fig{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:18px;margin:10px 0 22px}
+.fig svg{width:100%;height:auto;display:block}
+.fig .cap{font-size:13.5px;color:var(--ink-soft);margin-top:10px}
+
+/* ===== practice test ===== */
+.testbar{position:sticky;top:52px;z-index:4;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.score{font-family:"JetBrains Mono",monospace;font-size:14px;color:#fff;font-weight:700;margin-right:auto}
+.score span{color:var(--ink-soft);font-weight:500}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.fbtn,.tbtn{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:6px 12px;cursor:pointer}
+.fbtn:hover,.tbtn:hover{color:#fff;border-color:#3A4658}
+.fbtn.on{background:var(--acc);color:#2B1706;border-color:var(--acc)}
+.tbtn.danger{color:var(--bad-ink)}
+.q{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:22px 24px;margin-bottom:14px}
+.q.right{border-color:rgba(52,211,153,.5)} .q.wrong{border-color:rgba(248,113,113,.5)}
+.q .qh{display:flex;gap:10px;align-items:baseline;margin-bottom:10px;flex-wrap:wrap}
+.q .qn{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);font-weight:700}
+.q .qt{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--rule);border-radius:100px;padding:2px 9px}
+.q .stem{font-size:15.5px;color:#EAEFF6;margin-bottom:10px}
+.q .code{margin:8px 0 14px;font-size:14px}
+.q .sel2{font-weight:700;color:var(--acc-ink)}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;background:#0E121A;border:1px solid var(--rule);border-radius:5px;padding:11px 14px;color:#D8E1EC;font:inherit;font-size:15px;cursor:pointer}
+.opt:hover:not([disabled]){border-color:#3A4658;background:#121824}
+.opt .l{font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--ink-soft);flex:none;width:22px}
+.opt.picked{border-color:var(--acc)}
+.opt.ok{border-color:var(--lst);background:var(--lst-tint)} .opt.ok .l{color:var(--lst-ink)}
+.opt.bad{border-color:var(--bad);background:var(--bad-tint)} .opt.bad .l{color:var(--bad-ink)}
+.opt[disabled]{cursor:default}
+.opt code{white-space:pre-wrap}
+.check{margin-top:10px;font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:700;background:var(--acc);color:#2B1706;border:0;border-radius:100px;padding:8px 16px;cursor:pointer}
+.check[disabled]{opacity:.4;cursor:default}
+.why{display:none;margin-top:14px;border-top:1px solid var(--rule);padding-top:12px;font-size:14.5px;color:#C4CDD8}
+.why b.v{color:var(--lst-ink)} .why b.x{color:var(--bad-ink)}
+.q.done .why{display:block}
+.done-msg{display:none;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:22px 24px;margin:10px 0 20px}
+.done-msg h3{font-size:22px;color:#fff;margin-bottom:8px}
 
 .final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
 .final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:30ch;line-height:1.25;color:#fff}
@@ -104,11 +160,16 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
 .final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
 
 @media (max-width:820px){
+  .wrap{padding:0 16px}
+  .pillnav{padding:10px 16px;position:static}
+  .testbar{top:0}
   .two,.cards{grid-template-columns:1fr}
   table.cmp{font-size:13.5px}
-  table.cmp th,table.cmp td{padding:10px 12px}
+  table.cmp th,table.cmp td{padding:9px 11px}
   .checklist{grid-template-columns:1fr}
   .part-head{flex-wrap:wrap} .part-head .les{margin-left:0}
+  .code{font-size:13px;padding:14px}
+  .q{padding:18px 16px}
 }
 </style>
 </head>
@@ -116,356 +177,497 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
 
 <nav class="pillnav">
   <a href="../study-guides.html">&larr; Study Guides</a>
-  <a href="../unit-1/index.html">Unit 1</a>
-  <a href="unit-3-study-guide.html" class="current">Unit 3 Study Guide</a>
-  <a href="../python-variables/index.html">Variables</a>
-  <a href="../user-input.html">User Input</a>
-  <a href="../basic-math.html">Basic Math</a>
-  <a href="../graphics/index.html">Graphics</a>
-  <a href="../graphics/mouse-events.html">Mouse Events</a>
+  <a href="#variables">Variables</a>
+  <a href="#strings">Strings</a>
+  <a href="#input">Input</a>
+  <a href="#math">Math</a>
+  <a href="#graphics">Graphics</a>
+  <a href="#mouse">Mouse Events</a>
+  <a href="#errors">Errors</a>
+  <a href="#test" class="current">Practice Test</a>
 </nav>
 
 <header class="hero">
   <div class="wrap">
     <div class="brief-no">AP CSP &nbsp;/&nbsp; UNIT 3 &nbsp;/&nbsp; PROGRAMMING WITH PYTHON</div>
     <h1>Unit 3 Study Guide: Programming with Python</h1>
-    <p class="deck">100% complete review for the 3.9 Programming with Python Test &mdash; every concept from 3.1 through 3.8, in the order CodeHS teaches it. Nothing on the test falls outside this guide.</p>
+    <p class="deck">Everything on the Unit 3 test, in the order CodeHS teaches it: variables and constants, strings and string methods, concatenation and type conversion, user input, math operators, graphics, and mouse events. The practice test at the bottom asks questions the same way the AP exam does: "What is displayed?", "Which of the following&hellip;", and "Select two answers."</p>
     <div class="meta">
       <span class="chip">Covers <b>3.1&ndash;3.8</b></span>
-      <span class="chip">Tests on <b>3.9</b></span>
-      <span class="chip">First real Python unit &mdash; <b>Karel is gone</b></span>
+      <span class="chip">Practice test: <b id="heroCount">60</b> AP-style questions</span>
+      <span class="chip">Every answer <b>explained</b></span>
     </div>
+    <a class="cta" href="#test">Jump to the practice test &darr;</a>
   </div>
 </header>
 
-<!-- 3.1 / 3.2 WHAT IS CODE / USES OF PROGRAMS -->
-<section class="part">
+<!-- ============ 00 QUICK START ============ -->
+<section class="part" id="basics">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">00</div><h2>What Is Code, and What Do Programs Do?</h2><div class="les">3.1&ndash;3.2</div></div>
-    <p class="lede">Before any Python syntax, Unit 3 opens with two conceptual lessons: what code actually is, and the four things every program is ultimately doing underneath.</p>
+    <div class="part-head"><div class="part-tag">00</div><h2>The Basics: Code, print(), and Comments</h2><div class="les">3.1&ndash;3.3</div></div>
+    <p class="lede">A <b>program</b> is an algorithm written in a language a computer can run. Every program does some mix of four things: <b>input</b> (get data), <b>output</b> (show data), <b>storage</b> (remember data in variables), and <b>computation</b> (do math or make decisions with data).</p>
+    <div class="code">print("Hello, world!")   <span class="cm"># output: shows text in the console</span>
+print(100)               <span class="cm"># numbers don't need quotes</span>
+<span class="cm"># Python ignores everything after a # on a line. That's a comment.</span></div>
+    <div class="warn"><b>SyntaxError:</b> a missing closing quote <code>print("Hi)</code>, a missing parenthesis <code>print("Hi"</code>, or mismatched quotes <code>print("Hi')</code>. Python can't even start running the program.</div>
+  </div>
+</section>
 
-    <div class="two">
-      <div class="box">
-        <h3>What is code?</h3>
-        <p>Code is a set of instructions written in a programming language that a computer can follow, step by step, in order. A programming language is a formal language &mdash; unlike English, it has strict, unambiguous rules (its <b>syntax</b>) so a computer never has to guess what you meant.</p>
-      </div>
-      <div class="box">
-        <h3>Program vs. algorithm</h3>
-        <p>An <b>algorithm</b> is the plan &mdash; a finite list of steps to solve a problem, which could be written in plain English. A <b>program</b> is that algorithm actually written in a language a computer can run. Every program implements an algorithm; not every algorithm has been turned into a program yet.</p>
-      </div>
-    </div>
+<!-- ============ 01 VARIABLES ============ -->
+<section class="part" id="variables">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Variables: Naming, Updating, and Constants</h2><div class="les">3.4</div></div>
+    <p class="lede">A variable is a named container for a value. You store a value once and reuse the name instead of retyping the value. Every variable has a <b>name</b>, a <b>value</b>, and a <b>type</b>.</p>
 
-    <h3 style="margin-top:26px;">The four things every program does</h3>
-    <p>The AP CSP framework groups everything a program does into four categories. Nearly any line of code you write this year is doing one of these:</p>
+    <div class="code">player_name = "Ada"     <span class="cm"># string</span>
+lives = 3               <span class="cm"># integer (int)</span>
+speed = 2.5             <span class="cm"># float</span></div>
+
+    <h3 class="sub">Naming rules (Python enforces these)</h3>
     <div class="tblwrap"><div class="tblscroll">
       <table class="cmp">
-        <tr><th>Category</th><th>What it means</th><th>Python example</th></tr>
-        <tr><td><b>Input</b></td><td>Getting data from outside the program (a user, a sensor, a file)</td><td><code>input()</code></td></tr>
-        <tr><td><b>Output</b></td><td>Sending data back out (screen, speaker, file)</td><td><code>print()</code></td></tr>
-        <tr><td><b>Storage</b></td><td>Keeping data around to use later</td><td>a variable</td></tr>
-        <tr><td><b>Computation / Processing</b></td><td>Doing something with the data &mdash; math, decisions, repetition</td><td>an operator, an <code>if</code>, a loop</td></tr>
+        <tr><th>Name</th><th>Legal?</th><th>Why</th></tr>
+        <tr><td><code>total_score</code></td><td class="y">Yes</td><td>Letters and an underscore. This is the preferred style, called <b>snake_case</b>.</td></tr>
+        <tr><td><code>player1</code></td><td class="y">Yes</td><td>Numbers are fine, just not at the start.</td></tr>
+        <tr><td><code>_count</code></td><td class="y">Yes</td><td>A name may start with an underscore.</td></tr>
+        <tr><td><code>1st_place</code></td><td class="n">No</td><td>Can't <b>start</b> with a number.</td></tr>
+        <tr><td><code>high score</code></td><td class="n">No</td><td>No spaces allowed.</td></tr>
+        <tr><td><code>high-score</code></td><td class="n">No</td><td>Python reads <code>-</code> as subtraction: <code>high</code> minus <code>score</code>.</td></tr>
+        <tr><td><code>print</code>, <code>input</code>, <code>if</code></td><td class="n">Avoid / No</td><td><code>if</code>, <code>for</code>, <code>def</code>, <code>True</code> are <b>keywords</b> and are illegal. Naming a variable <code>print</code> or <code>input</code> is allowed, but it breaks that built-in function for the rest of the program.</td></tr>
+      </table>
+    </div></div>
+    <div class="warn"><b>Case-sensitive:</b> <code>score</code>, <code>Score</code>, and <code>SCORE</code> are three different variables. Using <code>Score</code> when you created <code>score</code> gives a <b>NameError</b>.</div>
+
+    <h3 class="sub">Updating a variable: the <code>=</code> sign flows right to left</h3>
+    <p><code>=</code> is the <b>assignment operator</b>, not "equals" from math class. Python works out <b>everything on the right side first</b>, using the variable's <em>current</em> value, and then stores the result in the name on the left. The old value is gone.</p>
+    <div class="code">score = 10
+score = score + 5    <span class="cm"># right side first: 10 + 5 = 15, then store 15 in score</span>
+score += 5           <span class="cm"># shortcut for score = score + 5  -> 20</span>
+score -= 3           <span class="cm"># score = score - 3  -> 17</span>
+score *= 2           <span class="cm"># score = score * 2  -> 34</span></div>
+
+    <p>AP questions love <b>tracing</b>. Keep a table with a column for each variable and update it one line at a time:</p>
+    <div class="code">a = 4
+b = a
+a = a + 6
+b = b * 2
+print(a, b)</div>
+    <table class="trace">
+      <tr><th>Line</th><th>a</th><th>b</th></tr>
+      <tr><td>a = 4</td><td class="chg">4</td><td>&mdash;</td></tr>
+      <tr><td>b = a</td><td>4</td><td class="chg">4</td></tr>
+      <tr><td>a = a + 6</td><td class="chg">10</td><td>4</td></tr>
+      <tr><td>b = b * 2</td><td>10</td><td class="chg">8</td></tr>
+    </table>
+    <div class="example"><b>Key idea:</b> <code>b = a</code> copies the <em>value</em> 4 into <code>b</code> at that moment. Changing <code>a</code> later does <b>not</b> change <code>b</code>. Output: <code>10 8</code>.</div>
+
+    <h3 class="sub">Constants: values that should never change</h3>
+    <div class="two">
+      <div class="box">
+        <h3>What a constant is</h3>
+        <p>A constant is a variable you promise <b>not to change</b> after you set it. In Python you mark one by writing the name in <b>ALL_CAPS</b>, and you put your constants at the top of the program.</p>
+      </div>
+      <div class="box red">
+        <h3>Python doesn't enforce it</h3>
+        <p>Python will <b>not</b> stop you or throw an error if you reassign a constant. ALL_CAPS is a <b>convention</b>: a signal to people reading the code that this value is fixed.</p>
+      </div>
+    </div>
+    <div class="code">RADIUS = 40
+NUM_LIVES = 3
+BALL_COLOR = Color.red
+
+ball = Circle(RADIUS)        <span class="cm"># use the name, not the number 40</span>
+ball.set_color(BALL_COLOR)</div>
+    <div class="good"><b>Why use constants?</b> (1) If <code>40</code> appears five times and you want 60, you change <b>one line</b> instead of five and can't miss one. (2) <code>Circle(RADIUS)</code> explains itself; <code>Circle(40)</code> is a "magic number" nobody understands later.</div>
+
+    <div class="hint-panel">More examples: <a href="../python-variables/index.html">Variables reference &rarr;</a></div>
+  </div>
+</section>
+
+<!-- ============ 02 STRINGS ============ -->
+<section class="part" id="strings">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Strings, Concatenation, and Type Conversion</h2><div class="les">3.4&ndash;3.5</div></div>
+    <p class="lede">A <b>string</b> is text in quotes. <code>"42"</code> is a string and <code>42</code> is an integer. They look alike when printed, but Python treats them completely differently.</p>
+
+    <h3 class="sub">Concatenation: gluing strings together with <code>+</code></h3>
+    <p><b>Concatenation</b> means joining strings end to end with <code>+</code>. Python adds <b>no spaces</b> for you, so you have to put them inside the quotes yourself.</p>
+    <div class="code">first = "Ada"
+last = "Lovelace"
+print(first + last)          <span class="cm"># AdaLovelace   (no space!)</span>
+print(first + " " + last)    <span class="cm"># Ada Lovelace</span></div>
+
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Expression</th><th>Types</th><th>What <code>+</code> does</th><th>Result</th></tr>
+        <tr><td><code>5 + 3</code></td><td>int + int</td><td>adds</td><td><code>8</code></td></tr>
+        <tr><td><code>"5" + "3"</code></td><td>str + str</td><td>concatenates</td><td><code>"53"</code></td></tr>
+        <tr><td><code>"5" + 3</code></td><td>str + int</td><td class="n">can't mix them</td><td><b>TypeError</b></td></tr>
+        <tr><td><code>"Ha" * 3</code></td><td>str * int</td><td>repeats the string</td><td><code>"HaHaHa"</code></td></tr>
       </table>
     </div></div>
 
-    <div class="example"><b>Test tip:</b> if a question describes a real program (an ATM, a thermostat, a video game score) and asks you to identify input/output/storage/computation, match the plain-English description to these four categories &mdash; don't overthink it. "The screen shows your balance" is output. "It remembers how many lives you have left" is storage.</div>
-  </div>
-</section>
-
-<!-- 3.3 HELLO WORLD -->
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">01</div><h2>Hello World: Your First Python Program</h2><div class="les">3.3</div></div>
-    <p class="lede">Every program in this unit starts the same way: print something to the screen. This is also the first time this year you're writing real Python instead of dragging Karel commands.</p>
-
-    <div class="code">print("Hello, world!")</div>
-
-    <div class="two">
-      <div class="box">
-        <h3><code>print()</code></h3>
-        <p>Displays whatever is inside the parentheses to the console. Text (a <b>string</b>) must be wrapped in quotation marks &mdash; either <code>"double"</code> or <code>'single'</code>, as long as you're consistent on both ends.</p>
-      </div>
-      <div class="box">
-        <h3>Comments: <code>#</code></h3>
-        <p>Anything after a <code>#</code> on a line is ignored by Python entirely &mdash; it's a note for humans reading the code, not an instruction. Used to explain <em>why</em> code does something, not just restate what it does.</p>
-      </div>
-    </div>
-
-    <div class="code">print("Score: 100")   <span class="cm"># prints the text Score: 100</span>
-print(100)             <span class="cm"># prints the number 100 (no quotes needed for numbers)</span>
-print("Line one")
-print("Line two")      <span class="cm"># each print() starts on a new line automatically</span></div>
-
-    <div class="warn"><b>Common mistake:</b> forgetting a closing quotation mark, or mixing <code>"</code> and <code>'</code> to open and close the same string. Python reads to the end of the line looking for the matching quote and throws a <code>SyntaxError</code> if it never finds one.</div>
-  </div>
-</section>
-
-<!-- 3.4 VARIABLES -->
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">02</div><h2>Variables</h2><div class="les">3.4</div></div>
-    <p class="lede">A variable is a named box that holds a piece of data. Instead of typing a value over and over, you store it once under a name and reuse the name.</p>
-
-    <div class="code">name = "Ada"
-age = 16
-print(name)
-print(age)</div>
-
-    <div class="two">
-      <div class="box">
-        <h3>The <code>=</code> sign</h3>
-        <p>In Python, <code>=</code> is the <b>assignment operator</b> &mdash; it only flows one direction. It means "take whatever is on the right, and store it in the name on the left." It is <em>not</em> the same as <code>=</code> in math class.</p>
-      </div>
-      <div class="box">
-        <h3>Naming rules</h3>
-        <p>A variable name can contain letters, numbers, and underscores (<code>_</code>) &mdash; but can't start with a number and can't contain spaces or punctuation like <code>-</code> <code>@</code> <code>!</code>.</p>
-      </div>
-    </div>
-
-    <h3 style="margin-top:26px;">The three types you need cold</h3>
+    <h3 class="sub">Converting between types</h3>
     <div class="tblwrap"><div class="tblscroll">
       <table class="cmp">
-        <tr><th>Type</th><th>Holds</th><th>Example</th><th>Written with quotes?</th></tr>
-        <tr><td><b>string (str)</b></td><td>Text</td><td><code>name = "Ada"</code></td><td>Yes</td></tr>
-        <tr><td><b>integer (int)</b></td><td>Whole numbers</td><td><code>age = 16</code></td><td>No</td></tr>
-        <tr><td><b>float</b></td><td>Decimal numbers</td><td><code>gpa = 3.75</code></td><td>No</td></tr>
+        <tr><th>Function</th><th>Converts to</th><th>When to use it</th><th>Example</th></tr>
+        <tr><td><code>str(x)</code></td><td>string</td><td>You want to <b>concatenate</b> a number into a message.</td><td><code>"Age: " + str(16)</code> &rarr; <code>"Age: 16"</code></td></tr>
+        <tr><td><code>int(x)</code></td><td>integer</td><td>You need to do <b>math</b> with text that holds a whole number, like input.</td><td><code>int("16") + 1</code> &rarr; <code>17</code></td></tr>
+        <tr><td><code>float(x)</code></td><td>float</td><td>You need math with text that may hold a <b>decimal</b>.</td><td><code>float("3.5") * 2</code> &rarr; <code>7.0</code></td></tr>
       </table>
     </div></div>
+    <div class="code">age = 16
+print("You are " + age)               <span class="no"># TypeError: can only concatenate str (not "int") to str</span>
+print("You are " + str(age))          <span class="ok"># You are 16</span>
+print("Next year: " + str(age + 1))   <span class="ok"># Next year: 17  (math first, then convert)</span></div>
+    <div class="warn"><b>Conversion traps:</b> <code>int("3.5")</code> is a <b>ValueError</b>, because that text isn't a whole number. <code>int("hello")</code> is a ValueError too. <code>int(3.9)</code> works but gives <code>3</code>: it <b>cuts off</b> the decimal and does not round.</div>
+    <div class="example"><b>Shortcut that avoids converting:</b> <code>print("You are", age)</code> uses a <b>comma</b>. <code>print</code> puts a space between the items and handles any type. That's printing several items, though, not concatenation.</div>
 
-    <p>Python figures out a variable's type automatically from what you assign it &mdash; you never declare the type yourself, unlike some other languages.</p>
+    <h3 class="sub">String methods used in this unit</h3>
+    <p>A <b>method</b> is a function that belongs to a value, called with <b>dot notation</b>: <code>value.method()</code>. String methods <b>never change the original string</b> (strings are <em>immutable</em>). They hand back a <b>new</b> string, which you have to store or print.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Method</th><th>What it does</th><th>Example</th><th>Result</th></tr>
+        <tr><td><code>.upper()</code></td><td>all letters uppercase</td><td><code>"Hello".upper()</code></td><td><code>"HELLO"</code></td></tr>
+        <tr><td><code>.lower()</code></td><td>all letters lowercase</td><td><code>"Hello".lower()</code></td><td><code>"hello"</code></td></tr>
+        <tr><td><code>.isupper()</code></td><td>True if every letter is uppercase</td><td><code>"HELLO".isupper()</code></td><td><code>True</code></td></tr>
+        <tr><td><code>.islower()</code></td><td>True if every letter is lowercase</td><td><code>"Hello".islower()</code></td><td><code>False</code></td></tr>
+        <tr><td><code>.swapcase()</code></td><td>flips each letter's case</td><td><code>"Hello".swapcase()</code></td><td><code>"hELLO"</code></td></tr>
+        <tr><td><code>.strip()</code></td><td>removes spaces from both ends</td><td><code>"  hi  ".strip()</code></td><td><code>"hi"</code></td></tr>
+        <tr><td><code>.find(x)</code></td><td>index where <code>x</code> first starts (counting from <b>0</b>), or <b>-1</b> if not found</td><td><code>"banana".find("n")</code></td><td><code>2</code></td></tr>
+        <tr><td><code>.split()</code></td><td>breaks into a list of words at spaces</td><td><code>"one two".split()</code></td><td><code>['one', 'two']</code></td></tr>
+        <tr><td><code>len(s)</code> <em>(function, no dot)</em></td><td>number of characters, <b>spaces included</b></td><td><code>len("Hi there")</code></td><td><code>8</code></td></tr>
+      </table>
+    </div></div>
+    <div class="code">name = "sam"
+name.upper()           <span class="no"># makes "SAM"... then throws it away</span>
+print(name)            <span class="cm"># sam</span>
+name = name.upper()    <span class="ok"># store the result back</span>
+print(name)            <span class="cm"># SAM</span>
 
-    <div class="good"><b><code>str()</code> and <code>int()</code>:</b> Python's <code>+</code> can join two strings (concatenation) or add two numbers, but never mix a string and a number. Convert a number to text with <code>str()</code>, or text to a number with <code>int()</code>, before combining them.</div>
-
-    <div class="code">name = "Alex"
-age = 15
-print(name + " is " + str(age) + " years old")   <span class="cm"># str() lets age join the string</span></div>
-
-    <div class="hint-panel">Full deep-dive with more examples, string methods, and concatenation practice: <a href="../python-variables/index.html">Variables reference &rarr;</a> and <a href="../concatenation.html">String Concatenation &rarr;</a></div>
+print("  Hello  ".strip().lower())   <span class="cm"># chains run left to right -> hello</span></div>
+    <div class="warn"><b>AttributeError:</b> <code>"hello".len()</code>. <code>len</code> is a plain function, so it's written <code>len("hello")</code>, not a method. Also, <code>.upper</code> without <code>()</code> never runs the method.</div>
+    <div class="hint-panel">More: <a href="../python-variables/string-methods.html">String Methods &rarr;</a> &middot; <a href="../concatenation.html">Concatenation &rarr;</a></div>
   </div>
 </section>
 
-<!-- 3.5 USER INPUT -->
-<section class="part">
+<!-- ============ 03 INPUT ============ -->
+<section class="part" id="input">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">03</div><h2>User Input</h2><div class="les">3.5</div></div>
-    <p class="lede"><code>input()</code> pauses the program, shows the person a prompt, and waits for them to type something before continuing.</p>
+    <p class="lede"><code>input("prompt")</code> shows the prompt, waits for the user to type, and gives back what they typed.</p>
+    <div class="callout"><code>input()</code> ALWAYS returns a string.<span>Even if the user types <code>25</code>, you get back the text <code>"25"</code>. Python never guesses that you meant a number.</span></div>
 
-    <div class="code">name = input("What's your name? ")
-print("Hello, " + name)</div>
+    <div class="two">
+      <div class="box green">
+        <h3>Don't convert when&hellip;</h3>
+        <p>you only <b>display or compare text</b>: names, colors, yes/no answers. <code>name = input("Name? ")</code> is already correct as a string.</p>
+      </div>
+      <div class="box">
+        <h3>Convert when&hellip;</h3>
+        <p>you'll do <b>math</b> with it. Use <code>int()</code> for whole numbers (age, count, quantity) and <code>float()</code> for decimals (price, temperature, GPA).</p>
+      </div>
+    </div>
 
-    <div class="warn"><b>The #1 fact to know cold:</b> <code>input()</code> always returns a <b>string</b> &mdash; even if the user types a number. If you need to do math with it, you must convert it first with <code>int()</code> or <code>float()</code>.</div>
+    <div class="code"><span class="cm"># Two-step version</span>
+age_text = input("How old are you? ")    <span class="cm"># "15"  (string)</span>
+age = int(age_text)                      <span class="cm"># 15    (int)</span>
 
-    <div class="code">age_text = input("How old are you? ")   <span class="cm"># age_text is a string, like "15"</span>
-age = int(age_text)                       <span class="cm"># now it's a real number you can add to</span>
-next_year = age + 1
-print(next_year)</div>
+<span class="cm"># One-line version (most common): input runs first, int() converts its result</span>
+age = int(input("How old are you? "))
+price = float(input("Price? "))
 
-    <div class="hint-panel">Full deep-dive: <a href="../user-input.html">User Input reference &rarr;</a></div>
+print("In 5 years you'll be " + str(age + 5))   <span class="cm"># back to str to concatenate</span></div>
+
+    <div class="warn"><b>Classic bugs with input:</b><br>
+      &bull; <code>num = input("Number: ")</code> &rarr; <code>num + 1</code> is a <b>TypeError</b> (str + int).<br>
+      &bull; User types <code>7</code>, and <code>num * 2</code> gives <code>"77"</code>: string repetition, not 14. No error, just the wrong answer.<br>
+      &bull; <code>int(input(...))</code> when the user types <code>3.5</code> or <code>ten</code> gives a <b>ValueError</b>.<br>
+      &bull; <code>input(int("Age? "))</code> puts the conversion on the wrong side: it tries to turn the prompt text into a number and crashes.</div>
+    <div class="hint-panel">More: <a href="../user-input.html">User Input reference &rarr;</a></div>
   </div>
 </section>
 
-<!-- 3.6 BASIC MATH -->
-<section class="part">
+<!-- ============ 04 MATH ============ -->
+<section class="part" id="math">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">04</div><h2>Basic Math in Python</h2><div class="les">3.6</div></div>
-    <p class="lede">Seven operators. Five work exactly like math class; two are new.</p>
+    <div class="part-head"><div class="part-tag">04</div><h2>Basic Math: /, //, %, and Floats</h2><div class="les">3.6</div></div>
+    <p class="lede">A <b>float</b> is a number with a decimal point, like <code>3.5</code>, <code>2.0</code>, or <code>-0.25</code>. An <b>int</b> is a whole number with no decimal point. <code>5</code> is an int; <code>5.0</code> is a float, even though they're equal.</p>
 
     <div class="tblwrap"><div class="tblscroll">
       <table class="cmp">
-        <tr><th>Operator</th><th>Name</th><th>Example</th><th>Result</th></tr>
-        <tr><td><code>+</code></td><td>Addition</td><td><code>7 + 2</code></td><td><code>9</code></td></tr>
-        <tr><td><code>-</code></td><td>Subtraction</td><td><code>7 - 2</code></td><td><code>5</code></td></tr>
-        <tr><td><code>*</code></td><td>Multiplication</td><td><code>7 * 2</code></td><td><code>14</code></td></tr>
-        <tr><td><code>/</code></td><td>Division (always returns a float)</td><td><code>7 / 2</code></td><td><code>3.5</code></td></tr>
-        <tr><td><code>**</code></td><td>Exponent</td><td><code>7 ** 2</code></td><td><code>49</code></td></tr>
-        <tr><td><code>//</code></td><td>Floor division (whole number only)</td><td><code>7 // 2</code></td><td><code>3</code></td></tr>
-        <tr><td><code>%</code></td><td>Modulus (the remainder)</td><td><code>7 % 2</code></td><td><code>1</code></td></tr>
+        <tr><th>Operator</th><th>Name</th><th>Example</th><th>Result</th><th>Type</th></tr>
+        <tr><td><code>+ - *</code></td><td>add, subtract, multiply</td><td><code>7 * 2</code></td><td><code>14</code></td><td>int (float if either side is a float)</td></tr>
+        <tr><td><code>/</code></td><td><b>Regular division</b></td><td><code>7 / 2</code></td><td><code>3.5</code></td><td><b>always float</b>, even <code>10 / 2</code> &rarr; <code>5.0</code></td></tr>
+        <tr><td><code>//</code></td><td><b>Floor division</b>: how many whole times it fits</td><td><code>7 // 2</code></td><td><code>3</code></td><td>int (drops the remainder)</td></tr>
+        <tr><td><code>%</code></td><td><b>Modulus</b>: the remainder</td><td><code>7 % 2</code></td><td><code>1</code></td><td>int</td></tr>
+        <tr><td><code>**</code></td><td>exponent</td><td><code>2 ** 3</code></td><td><code>8</code></td><td>int</td></tr>
       </table>
     </div></div>
 
-    <div class="warn"><b>The trap that catches everyone:</b> <code>/</code> always returns a float in Python, even <code>10 / 2</code> gives <code>5.0</code>, not <code>5</code>. Need a clean whole number? Use <code>//</code>.</div>
-    <div class="example">Order of operations matches math class: parentheses, then <code>**</code>, then <code>* / // %</code> left to right, then <code>+ -</code> left to right. <code>10 + 6 // 2</code> is <code>13</code>, not <code>8</code>.</div>
+    <p>Think of <b>long division from 3rd grade</b>: 17 &divide; 5 = 3 remainder 2. <code>//</code> gives you the <b>3</b>, <code>%</code> gives you the <b>2</b>, and <code>/</code> gives you the full decimal <b>3.4</b>. Try any numbers:</p>
+    <div class="lab" id="mathLab">
+      <div class="row"><input id="labA" type="number" value="17" aria-label="first number"> <span>and</span> <input id="labB" type="number" value="5" aria-label="second number"></div>
+      <div class="out">
+        <div class="cell"><div class="op" id="oDiv">17 / 5</div><div class="v" id="vDiv"></div><div class="t">float</div></div>
+        <div class="cell"><div class="op" id="oFl">17 // 5</div><div class="v" id="vFl"></div><div class="t">int</div></div>
+        <div class="cell"><div class="op" id="oMod">17 % 5</div><div class="v" id="vMod"></div><div class="t">int</div></div>
+      </div>
+      <div class="explain" id="labExplain"></div>
+    </div>
 
-    <div class="hint-panel">Full deep-dive with real examples of <code>//</code> and <code>%</code> together, compound operators (<code>+=</code>), and mixing int/float: <a href="../basic-math.html">Basic Math reference &rarr;</a></div>
+    <h3 class="sub">What modulus is actually used for</h3>
+    <div class="cards">
+      <div class="cardx"><div class="num">even / odd</div><h4><code>n % 2</code></h4><p>0 means even, 1 means odd.</p></div>
+      <div class="cardx"><div class="num">divisible by</div><h4><code>n % 5</code></h4><p>0 means <code>n</code> divides evenly by 5.</p></div>
+      <div class="cardx"><div class="num">last digit</div><h4><code>n % 10</code></h4><p><code>472 % 10</code> &rarr; <code>2</code>. (<code>472 // 10</code> &rarr; <code>47</code> drops it.)</p></div>
+      <div class="cardx"><div class="num">convert units</div><h4><code>// 60</code> and <code>% 60</code></h4><p>135 seconds: <code>135 // 60</code> = 2 minutes, <code>135 % 60</code> = 15 seconds.</p></div>
+    </div>
+    <div class="warn"><b>Traps:</b> <code>7 % 10</code> is <b>7</b>, because 10 fits zero times and all 7 is left over. <code>12 % 3</code> is <b>0</b>, not 3 or 4. Dividing by zero with <code>/</code>, <code>//</code>, or <code>%</code> gives a <b>ZeroDivisionError</b>.</div>
+
+    <h3 class="sub">Order of operations</h3>
+    <p>Parentheses first &rarr; then <code>**</code> &rarr; then <code>*  /  //  %</code> left to right &rarr; then <code>+  -</code> left to right.</p>
+    <div class="code">2 + 3 * 4       <span class="cm"># 14, not 20</span>
+(2 + 3) * 4     <span class="cm"># 20</span>
+2 + 3 * 4 ** 2  <span class="cm"># 4**2=16, 3*16=48, 2+48 = 50</span>
+10 - 7 % 4      <span class="cm"># 7%4=3, 10-3 = 7</span>
+5 + 2.0         <span class="cm"># 7.0: any float in the math makes the result a float</span></div>
+    <div class="hint-panel">More: <a href="../basic-math.html">Basic Math reference &rarr;</a></div>
   </div>
 </section>
 
-<!-- 3.7 GRAPHICS -->
-<section class="part">
+<!-- ============ 05 GRAPHICS ============ -->
+<section class="part" id="graphics">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">05</div><h2>Using Graphics in Python</h2><div class="les">3.7</div></div>
-    <p class="lede">CodeHS's graphics library: size a canvas, then create, position, color, and <code>add()</code> a shape to it.</p>
+    <div class="part-head"><div class="part-tag">05</div><h2>Graphics: Canvas, Shapes, and Sizes</h2><div class="les">3.7</div></div>
+    <p class="lede">Every graphics program follows the same recipe: <b>create</b> the shape &rarr; <b>set it up</b> (position, color) with dot methods &rarr; <b>add()</b> it to the canvas.</p>
 
-    <div class="code">set_size(400, 300)              <span class="cm"># canvas always comes first</span>
+    <h3 class="sub">The canvas: finding its size</h3>
+    <div class="code">set_size(400, 300)          <span class="cm"># optional: make the canvas 400 wide, 300 tall</span>
+w = get_width()             <span class="cm"># 400: canvas width  (NO dot, it's not a shape)</span>
+h = get_height()            <span class="cm"># 300: canvas height (NO dot)</span></div>
+    <div class="good"><b>Always use <code>get_width()</code> / <code>get_height()</code> instead of typing 400 and 300.</b> Then your drawing still lands in the center or the corner if the canvas size changes.</div>
 
-circle = Circle(50)              <span class="cm"># create a circle, radius 50</span>
-circle.set_position(100, 100)    <span class="cm"># place it</span>
-circle.set_color(Color.blue)     <span class="cm"># color it</span>
-add(circle)                      <span class="cm"># now it actually shows up on screen</span></div>
+    <div class="fig">
+      <svg viewBox="0 0 640 330" role="img" aria-label="Canvas coordinate system. Origin at top-left. A circle is positioned by its center; a rectangle by its top-left corner.">
+        <rect x="40" y="30" width="400" height="260" fill="#05070B" stroke="#3A4658"/>
+        <circle cx="40" cy="30" r="5" fill="#FB923C"/>
+        <text x="48" y="22" fill="#FDC79B" font-family="JetBrains Mono" font-size="12">(0, 0)</text>
+        <line x1="40" y1="305" x2="440" y2="305" stroke="#8B9AAE" marker-end="url(#ar)"/>
+        <text x="200" y="322" fill="#8B9AAE" font-family="JetBrains Mono" font-size="12">x grows right &rarr;</text>
+        <line x1="25" y1="30" x2="25" y2="290" stroke="#8B9AAE" marker-end="url(#ar)"/>
+        <text x="16" y="180" fill="#8B9AAE" font-family="JetBrains Mono" font-size="12" transform="rotate(-90 16 180)">y grows DOWN &darr;</text>
+        <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8B9AAE"/></marker></defs>
+        <circle cx="150" cy="120" r="50" fill="rgba(34,211,238,.18)" stroke="#22D3EE" stroke-width="2"/>
+        <circle cx="150" cy="120" r="4" fill="#22D3EE"/>
+        <line x1="150" y1="120" x2="200" y2="120" stroke="#22D3EE" stroke-dasharray="4 3"/>
+        <text x="160" y="113" fill="#A5F3FC" font-family="JetBrains Mono" font-size="11">radius</text>
+        <text x="95" y="192" fill="#A5F3FC" font-family="JetBrains Mono" font-size="11">set_position = CENTER</text>
+        <rect x="260" y="150" width="140" height="80" fill="rgba(129,140,248,.18)" stroke="#818CF8" stroke-width="2"/>
+        <circle cx="260" cy="150" r="4" fill="#818CF8"/>
+        <text x="262" y="143" fill="#C7D2FE" font-family="JetBrains Mono" font-size="11">set_position = TOP-LEFT</text>
+        <text x="300" y="248" fill="#C7D2FE" font-family="JetBrains Mono" font-size="11">width &rarr;</text>
+        <text x="470" y="60" fill="#EAEFF6" font-family="Manrope" font-size="14" font-weight="700">Anchor points</text>
+        <text x="470" y="86" fill="#A5F3FC" font-family="JetBrains Mono" font-size="12">Circle &rarr; center</text>
+        <text x="470" y="108" fill="#C7D2FE" font-family="JetBrains Mono" font-size="12">Rectangle &rarr; top-left</text>
+        <text x="470" y="140" fill="#8B9AAE" font-family="Manrope" font-size="12.5">Canvas width:</text>
+        <text x="470" y="158" fill="#EAEFF6" font-family="JetBrains Mono" font-size="12">get_width()</text>
+        <text x="470" y="186" fill="#8B9AAE" font-family="Manrope" font-size="12.5">Center of canvas:</text>
+        <text x="470" y="204" fill="#EAEFF6" font-family="JetBrains Mono" font-size="11.5">get_width() / 2,</text>
+        <text x="470" y="220" fill="#EAEFF6" font-family="JetBrains Mono" font-size="11.5">get_height() / 2</text>
+      </svg>
+      <div class="cap">(0, 0) is the <b>top-left</b>. A bigger y means <b>lower</b> on the screen, the opposite of a math graph.</div>
+    </div>
 
-    <div class="warn"><b>The #1 mistake:</b> creating and positioning a shape, then forgetting <code>add(circle)</code>. The shape exists in the program's memory, but nothing appears on the canvas &mdash; and Python won't throw an error, so it's easy to miss.</div>
+    <h3 class="sub">Creating each required shape</h3>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Shape</th><th>Create it</th><th>Parameters</th><th>set_position anchors the&hellip;</th><th>Ask its size</th></tr>
+        <tr><td><b>Circle</b></td><td><code>ball = Circle(30)</code></td><td>radius</td><td><b>center</b></td><td><code>ball.get_radius()</code> &rarr; 30 (full width = 60)</td></tr>
+        <tr><td><b>Rectangle</b></td><td><code>box = Rectangle(100, 50)</code></td><td>width, height (that order)</td><td><b>top-left corner</b></td><td><code>box.get_width()</code>, <code>box.get_height()</code></td></tr>
+        <tr><td><b>Square</b></td><td><code>sq = Rectangle(60, 60)</code></td><td>same number twice</td><td><b>top-left corner</b></td><td><code>sq.get_width()</code></td></tr>
+      </table>
+    </div></div>
+    <div class="warn"><b>There is no <code>Square()</code> in this library.</b> <code>Square(60)</code> gives a <b>NameError</b>. A square is <code>Rectangle(side, side)</code>.</div>
 
+    <h3 class="sub">Common shape methods (all use a dot)</h3>
+    <div class="code">ball.set_position(x, y)     <span class="cm"># move it to an exact spot</span>
+ball.move(dx, dy)           <span class="cm"># shift it BY an amount from where it is now</span>
+ball.set_color(Color.red)   <span class="cm"># fill color</span>
+ball.get_x()  ball.get_y()  <span class="cm"># where it is now</span>
+ball.set_radius(50)         <span class="cm"># circles only</span>
+box.get_width()             <span class="cm"># the SHAPE's width, not the canvas's</span></div>
+
+    <h3 class="sub">Requirements to make a shape appear</h3>
     <div class="two">
-      <div class="box">
-        <h3>Coordinates</h3>
-        <p>The canvas uses (0, 0) at the <b>top-left</b> corner. X increases to the right; y increases <em>downward</em> &mdash; the opposite of a normal math graph.</p>
+      <div class="box green">
+        <h3>Must do</h3>
+        <ul>
+          <li><b>Create</b> the shape and store it in a variable <b>before</b> calling any methods on it.</li>
+          <li>Give the constructor the right arguments: <code>Circle</code> takes 1, <code>Rectangle</code> takes 2.</li>
+          <li>Call <code>add(shape)</code>, or nothing shows up.</li>
+        </ul>
       </div>
-      <div class="box">
-        <h3>Not on the AP multiple-choice exam</h3>
-        <p>Graphics is real, testable content for this unit and your CodeHS coursework, but it isn't part of the official AP CSP Exam Reference Sheet used on the multiple-choice exam in May. Know it cold for 3.9 anyway.</p>
+      <div class="box red">
+        <h3>The silent bug</h3>
+        <p>Forget <code>add(ball)</code> and the program runs with <b>no error</b>, but the canvas stays blank. The shape exists in memory and nobody ever put it on screen.</p>
       </div>
     </div>
 
-    <div class="hint-panel">Full deep-dive plus Circle / Rectangle / Square-specific pages: <a href="../graphics/index.html">Graphics reference &rarr;</a></div>
+    <div class="code"><span class="cm"># Center a circle</span>
+ball = Circle(40)
+ball.set_position(get_width() / 2, get_height() / 2)
+add(ball)
+
+<span class="cm"># Center a rectangle: shift back by HALF its own size (because it anchors top-left)</span>
+box = Rectangle(100, 60)
+box.set_position(get_width() / 2 - box.get_width() / 2,
+                 get_height() / 2 - box.get_height() / 2)
+add(box)
+
+<span class="cm"># Bottom-right corner rectangle</span>
+box.set_position(get_width() - box.get_width(), get_height() - box.get_height())</div>
+    <div class="hint-panel">More: <a href="../graphics/index.html">Graphics</a> &middot; <a href="../graphics/circle.html">Circle</a> &middot; <a href="../graphics/rectangle.html">Rectangle</a> &middot; <a href="../graphics/square.html">Square</a></div>
   </div>
 </section>
 
-<!-- 3.8 MOUSE EVENTS -->
-<section class="part">
+<!-- ============ 06 MOUSE ============ -->
+<section class="part" id="mouse">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">06</div><h2>Mouse Events: Mouse Clicked</h2><div class="les">3.8</div></div>
-    <p class="lede">Makes a shape react to a click &mdash; one function that takes the click's x and y, registered with <code>add_mouse_click_handler()</code>.</p>
+    <div class="part-head"><div class="part-tag">06</div><h2>Mouse Events, Parameters, and Dot Notation</h2><div class="les">3.8</div></div>
+    <p class="lede">An <b>event</b> is something the user does, such as a click. An <b>event handler</b> (also called a <b>callback</b>) is a function you write that the computer runs <em>for you</em> each time that event happens.</p>
 
-    <div class="code">def callback(x, y):
-    circle.set_position(x, y)   <span class="cm"># runs every time the canvas is clicked</span>
+    <div class="code">def draw_dot(x, y):            <span class="cm"># x, y are PARAMETERS</span>
+    dot = Circle(10)
+    dot.set_position(x, y)     <span class="cm"># x, y hold where the user clicked</span>
+    dot.set_color(Color.blue)
+    add(dot)
 
-add_mouse_click_handler(callback)</div>
+add_mouse_click_handler(draw_dot)   <span class="cm"># NO () after draw_dot</span></div>
 
     <div class="two">
       <div class="box">
-        <h3>Dot notation</h3>
-        <p><code>circle.set_position(x, y)</code> &mdash; everything before the dot is <em>which object</em>; everything after is the <b>method</b>, an action that object knows how to do. Compare to <code>add(circle)</code>, a plain function that isn't tied to one object.</p>
+        <h3>Parameters</h3>
+        <p>A <b>parameter</b> is a variable in a function's definition, like <code>def draw_dot(x, y):</code>, that gets filled in when the function is called. The values passed in are <b>arguments</b>. For a click handler the <b>canvas</b> supplies the arguments: the click's x and y. The names don't matter (<code>def draw_dot(a, b):</code> works) but the <b>count</b> must be exactly 2.</p>
       </div>
       <div class="box">
-        <h3>Parameter count matters</h3>
-        <p>A click handler must accept exactly the parameters the canvas passes it &mdash; <code>x</code> and <code>y</code>. <code>def callback():</code> with none will crash the instant a click happens, whether you use the values or not.</p>
+        <h3>Why no <code>()</code> in the handler call?</h3>
+        <p><code>add_mouse_click_handler(draw_dot)</code> hands over the function <b>by name</b> to be run later, on every click. Writing <code>draw_dot()</code> would <b>call it right now</b> with no x and y, which is a TypeError.</p>
       </div>
     </div>
 
-    <div class="hint-panel">Full deep-dive: <a href="../graphics/mouse-events.html">Mouse Events reference &rarr;</a></div>
+    <h3 class="sub">Dot notation vs. no dot</h3>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th></th><th>With a dot: <b>method</b></th><th>No dot: <b>function</b></th></tr>
+        <tr><td><b>Meaning</b></td><td>"This specific object, do this." It belongs to one object.</td><td>A general command, not tied to one object.</td></tr>
+        <tr><td><b>Graphics</b></td><td><code>ball.set_position(x, y)</code><br><code>ball.set_color(Color.red)</code><br><code>box.get_width()</code> <em>(shape's width)</em></td><td><code>add(ball)</code><br><code>set_size(400, 300)</code><br><code>get_width()</code> <em>(canvas width)</em><br><code>add_mouse_click_handler(draw_dot)</code></td></tr>
+        <tr><td><b>Strings</b></td><td><code>name.upper()</code>, <code>name.find("a")</code></td><td><code>len(name)</code>, <code>print()</code>, <code>input()</code>, <code>int()</code>, <code>str()</code></td></tr>
+      </table>
+    </div></div>
+    <div class="example"><b>Read the dot as "'s":</b> <code>ball.set_color(...)</code> is "ball's set_color." So <code>box.get_width()</code> is <b>box's</b> width, and <code>get_width()</code> with nobody before it is the <b>canvas's</b> width.</div>
+
+    <h3 class="sub">One shape that moves vs. a new shape every click</h3>
+    <div class="two">
+      <div class="box">
+        <h3>Created OUTSIDE the handler</h3>
+        <div class="code" style="margin:0 0 10px">ball = Circle(20)
+add(ball)
+
+def move_ball(x, y):
+    ball.set_position(x, y)
+
+add_mouse_click_handler(move_ball)</div>
+        <p><b>One</b> ball that jumps to each click.</p>
+      </div>
+      <div class="box">
+        <h3>Created INSIDE the handler</h3>
+        <div class="code" style="margin:0 0 10px">def stamp(x, y):
+    ball = Circle(20)
+    ball.set_position(x, y)
+    add(ball)
+
+add_mouse_click_handler(stamp)</div>
+        <p>A <b>new</b> ball every click. 5 clicks = 5 balls.</p>
+      </div>
+    </div>
+    <div class="hint-panel">More: <a href="../graphics/mouse-events.html">Mouse Events reference &rarr;</a></div>
   </div>
 </section>
 
-<!-- VOCAB CHECKLIST -->
-<section class="part">
+<!-- ============ 07 ERRORS ============ -->
+<section class="part" id="errors">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">07</div><h2>Vocabulary Checklist</h2></div>
-    <p class="lede">Every term from 3.1&ndash;3.8 you should be able to define in your own words, not just recognize.</p>
+    <div class="part-head"><div class="part-tag">07</div><h2>Common Errors Across the Whole Unit</h2></div>
+    <p class="lede">If you know what causes each of these, you can answer every "which line causes an error?" question.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Error</th><th>What it means</th><th>Unit 3 example</th></tr>
+        <tr><td><b>SyntaxError</b></td><td>Broken grammar, so the program can't start</td><td><code>print("Hi)</code> &middot; <code>high score = 5</code> &middot; <code>1st = 5</code></td></tr>
+        <tr><td><b>NameError</b></td><td>Using a name that was never created (or is spelled or capitalized differently)</td><td><code>print(Score)</code> after <code>score = 5</code> &middot; <code>Square(50)</code> &middot; using <code>ball</code> before <code>ball = Circle(20)</code></td></tr>
+        <tr><td><b>TypeError</b></td><td>Right idea, wrong type or wrong number of arguments</td><td><code>"Age: " + 16</code> &middot; <code>input("Num") + 1</code> &middot; <code>Rectangle(50)</code> &middot; <code>def click():</code> as a click handler &middot; <code>add_mouse_click_handler(click())</code></td></tr>
+        <tr><td><b>ValueError</b></td><td>Right type, but a value that can't be converted</td><td><code>int("3.5")</code> &middot; <code>int("ten")</code></td></tr>
+        <tr><td><b>AttributeError</b></td><td>That object has no method by that name</td><td><code>"hi".len()</code> &middot; a misspelled method like <code>ball.set_colour(Color.red)</code></td></tr>
+        <tr><td><b>ZeroDivisionError</b></td><td>Dividing by 0</td><td><code>10 / 0</code> &middot; <code>10 % 0</code></td></tr>
+        <tr><td><b>No error, wrong result</b> <em>(logic error)</em></td><td>The code runs but does the wrong thing</td><td>forgetting <code>add()</code> &middot; <code>name.upper()</code> without storing it &middot; <code>"7" * 2</code> &rarr; <code>"77"</code> &middot; <code>first + last</code> with no space</td></tr>
+      </table>
+    </div></div>
+  </div>
+</section>
+
+<!-- ============ 08 PRACTICE TEST ============ -->
+<section class="part" id="test">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">08</div><h2>Practice Test (AP Style)</h2></div>
+    <p class="lede">These are worded the way the AP exam words its questions. Trace the code on paper before you choose. You get one try per question, and the explanation shows after you answer. "Select two" questions need exactly two choices before you can check.</p>
+
+    <div class="testbar">
+      <div class="score" id="score">0 / 0 <span>correct &middot; 0 left</span></div>
+      <div class="filters" id="filters"></div>
+      <button class="tbtn" id="missedBtn" type="button">Show missed only</button>
+      <button class="tbtn danger" id="resetBtn" type="button">Reset</button>
+    </div>
+    <div class="done-msg" id="doneMsg"></div>
+    <div id="quiz"></div>
+  </div>
+</section>
+
+<!-- ============ 09 VOCAB ============ -->
+<section class="part" id="vocab">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">09</div><h2>Vocabulary Checklist</h2></div>
+    <p class="lede">You should be able to explain each one in your own words and give an example.</p>
     <ul class="checklist">
-      <li>Code / program</li>
-      <li>Programming language</li>
-      <li>Syntax</li>
-      <li>Algorithm</li>
-      <li>Input</li>
-      <li>Output</li>
-      <li>Storage</li>
-      <li>Computation</li>
-      <li><code>print()</code></li>
-      <li>Comment (<code>#</code>)</li>
-      <li>String</li>
-      <li>Variable</li>
-      <li>Assignment operator (<code>=</code>)</li>
-      <li>Integer</li>
-      <li>Float</li>
-      <li>Type</li>
-      <li>Concatenation</li>
-      <li><code>str()</code> / <code>int()</code></li>
-      <li><code>input()</code></li>
-      <li>Arithmetic operator</li>
-      <li>Floor division (<code>//</code>)</li>
-      <li>Modulus (<code>%</code>)</li>
-      <li>Order of operations</li>
-      <li>Canvas</li>
-      <li><code>set_size()</code></li>
-      <li>Shape (Circle / Rectangle / Square)</li>
-      <li><code>add()</code></li>
-      <li>Coordinate (x, y)</li>
-      <li>Method vs. function</li>
-      <li>Dot notation</li>
-      <li>Parameter</li>
-      <li>Event / event handler</li>
-      <li><code>add_mouse_click_handler()</code></li>
+      <li>Variable</li><li>Assignment operator (<code>=</code>)</li><li>snake_case</li><li>Constant (ALL_CAPS)</li>
+      <li>Magic number</li><li>Integer (int)</li><li>Float</li><li>String (str)</li>
+      <li>Type conversion: <code>int()</code> <code>float()</code> <code>str()</code></li><li>Concatenation</li><li>Immutable</li><li>Method vs. function</li>
+      <li>Dot notation</li><li><code>len()</code></li><li><code>.upper() .lower() .strip() .find() .split()</code></li><li><code>input()</code> returns a string</li>
+      <li>Regular division <code>/</code></li><li>Floor division <code>//</code></li><li>Modulus <code>%</code></li><li>Order of operations</li>
+      <li>Canvas / <code>get_width()</code> / <code>get_height()</code></li><li>Circle / Rectangle / "Square"</li><li>Anchor point (center vs. top-left)</li><li><code>add()</code></li>
+      <li>Event</li><li>Event handler / callback</li><li>Parameter vs. argument</li><li><code>add_mouse_click_handler()</code></li>
+      <li>SyntaxError</li><li>NameError</li><li>TypeError</li><li>ValueError</li>
     </ul>
   </div>
 </section>
 
-<!-- SELF-CHECK QUESTIONS -->
+<!-- ============ 10 NIGHT BEFORE ============ -->
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">08</div><h2>Self-Check Questions</h2></div>
-    <p class="lede">The style of question the 3.9 test actually asks: predict the output, or spot the bug. Cover the answer before you look.</p>
-
-    <div class="qbox">
-      <div class="qn">Predict the output</div>
-      <p><code>x = "5"<br>y = 3<br>print(x + y)</code></p>
-      <details><summary>Show answer</summary><div class="ans"><b>Error</b> (TypeError). <code>x</code> is a string ("5"), <code>y</code> is an integer. Python won't guess whether you meant to add them as numbers or join them as text &mdash; you'd need <code>int(x) + y</code> or <code>x + str(y)</code>.</div></details>
-    </div>
-
-    <div class="qbox">
-      <div class="qn">Predict the output</div>
-      <p><code>print(10 // 3)<br>print(10 % 3)</code></p>
-      <details><summary>Show answer</summary><div class="ans"><b>3</b>, then <b>1</b>. 3 fits into 10 three whole times (<code>//</code>), with 1 left over (<code>%</code>).</div></details>
-    </div>
-
-    <div class="qbox">
-      <div class="qn">Find the bug</div>
-      <p><code>circle = Circle(30)<br>circle.set_position(50, 50)<br>circle.set_color(Color.red)</code></p>
-      <details><summary>Show answer</summary><div class="ans">Missing <b><code>add(circle)</code></b>. The circle is created and configured but never added to the canvas, so nothing appears &mdash; and Python won't raise an error for it.</div></details>
-    </div>
-
-    <div class="qbox">
-      <div class="qn">Predict the output</div>
-      <p><code>age = input("Age: ")<br>print(age + 1)</code></p>
-      <details><summary>Show answer</summary><div class="ans"><b>Error.</b> <code>input()</code> always returns a string, even if the user types a number, so <code>age</code> is text and can't be added to the integer <code>1</code> without converting it first: <code>int(age) + 1</code>.</div></details>
-    </div>
-
-    <div class="qbox">
-      <div class="qn">Identify the category</div>
-      <p>A thermostat app displays the current temperature on screen. Which of the four program categories (input / output / storage / computation) is that?</p>
-      <details><summary>Show answer</summary><div class="ans"><b>Output</b> &mdash; the program is sending data (the temperature) out to the screen.</div></details>
-    </div>
-
-    <div class="qbox">
-      <div class="qn">Predict the output</div>
-      <p><code>def callback():<br>&nbsp;&nbsp;&nbsp;&nbsp;print("clicked")<br><br>add_mouse_click_handler(callback)</code></p>
-      <details><summary>Show answer</summary><div class="ans"><b>Crashes on the first click.</b> The canvas always passes <code>x</code> and <code>y</code> to the handler function; <code>callback()</code> needs to accept them, even if it never uses them: <code>def callback(x, y):</code></div></details>
-    </div>
-  </div>
-</section>
-
-<!-- FASTEST WAY TO STUDY -->
-<section class="part">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">09</div><h2>Fastest Way to Study (Night Before)</h2></div>
+    <div class="part-head"><div class="part-tag">10</div><h2>The Night Before</h2></div>
     <div class="cards">
-      <div class="cardx">
-        <div class="num">5 min</div>
-        <h4>Say the 4 program categories</h4>
-        <p>Input, output, storage, computation &mdash; and one Python keyword for each, out loud, without looking.</p>
-      </div>
-      <div class="cardx">
-        <div class="num">5 min</div>
-        <h4>Write the 7 math operators from memory</h4>
-        <p>Especially <code>//</code> and <code>%</code> &mdash; those two trip up almost everyone.</p>
-      </div>
-      <div class="cardx">
-        <div class="num">5 min</div>
-        <h4>Re-read the 6 self-check questions above</h4>
-        <p>Cover the answer, predict the output, then check. If you miss one, re-read that section.</p>
-      </div>
-      <div class="cardx">
-        <div class="num">5 min</div>
-        <h4>Trace the graphics "recipe"</h4>
-        <p>Canvas &rarr; create shape &rarr; position &rarr; color &rarr; <code>add()</code>. Say all five steps without looking.</p>
-      </div>
+      <div class="cardx"><div class="num">5 min</div><h4>Trace tables</h4><p>Do 3 variable-update questions on paper with a column per variable.</p></div>
+      <div class="cardx"><div class="num">5 min</div><h4>The type rules</h4><p>str + str joins. int + int adds. str + int crashes. <code>input()</code> is always str. <code>/</code> is always float.</p></div>
+      <div class="cardx"><div class="num">5 min</div><h4><code>//</code> and <code>%</code></h4><p>Do 5 with the calculator above until you can predict both before looking.</p></div>
+      <div class="cardx"><div class="num">5 min</div><h4>Graphics recipe</h4><p>Create &rarr; set_position / set_color &rarr; <code>add()</code>. Circle anchors center, Rectangle anchors top-left.</p></div>
+      <div class="cardx"><div class="num">5 min</div><h4>Retake your missed questions</h4><p>Use "Show missed only," then Reset and go again.</p></div>
     </div>
-    <div class="callout">Nothing on 3.9 is outside 3.1&ndash;3.8.<span>If a self-check question above feels shaky, that's exactly what to re-read before the test &mdash; not the whole guide again.</span></div>
   </div>
 </section>
 
 <footer class="final">
   <div class="wrap">
-    <h2>Eight lessons, one test: input/output/storage/computation, print, variables, input(), math, graphics, and mouse events.</h2>
-    <p>Every one of those is a skill you'll keep using for the rest of the year &mdash; Unit 4 (Python Control Structures) builds if/else and loops directly on top of the variables and math from this unit.</p>
+    <h2>Variables, strings, input, math, graphics, and mouse events: Unit 4 builds directly on all of it.</h2>
+    <p>If/else and loops in Unit 4 are just new ways to use the variables, types, and operators you learned here, so learn them solidly now.</p>
     <a class="back" href="../study-guides.html">&larr; Study Guides</a>
     <a class="back" href="../calendar.html">&larr; Calendar</a>
     <a class="back" href="../index.html">&larr; AP CSP Home</a>
@@ -473,5 +675,323 @@ add_mouse_click_handler(callback)</div>
   </div>
 </footer>
 
+<script>
+/* ---------- // and % lab ---------- */
+(function(){
+  var a=document.getElementById('labA'), b=document.getElementById('labB');
+  function fmtFloat(v){ return Number.isInteger(v) ? v.toFixed(1) : String(+v.toFixed(6)); }
+  function pyFloorDiv(x,y){ return Math.floor(x/y); }
+  function pyMod(x,y){ return x - y*Math.floor(x/y); }
+  function upd(){
+    var x=parseInt(a.value,10), y=parseInt(b.value,10);
+    document.getElementById('oDiv').textContent=(isNaN(x)?'?':x)+' / '+(isNaN(y)?'?':y);
+    document.getElementById('oFl').textContent=(isNaN(x)?'?':x)+' // '+(isNaN(y)?'?':y);
+    document.getElementById('oMod').textContent=(isNaN(x)?'?':x)+' % '+(isNaN(y)?'?':y);
+    var ex=document.getElementById('labExplain');
+    if(isNaN(x)||isNaN(y)){ ['vDiv','vFl','vMod'].forEach(function(id){document.getElementById(id).textContent='?';}); ex.textContent='Type two whole numbers.'; return; }
+    if(y===0){ ['vDiv','vFl','vMod'].forEach(function(id){document.getElementById(id).textContent='Error';}); ex.textContent='ZeroDivisionError: you can’t divide by 0 with /, //, or %.'; return; }
+    var q=pyFloorDiv(x,y), r=pyMod(x,y);
+    document.getElementById('vDiv').textContent=fmtFloat(x/y);
+    document.getElementById('vFl').textContent=q;
+    document.getElementById('vMod').textContent=r;
+    ex.textContent = (x>=0&&y>0)
+      ? y+' fits into '+x+' '+q+' whole time'+(q===1?'':'s')+' ('+q+' × '+y+' = '+(q*y)+'), with '+r+' left over.'+(r===0?' Remainder 0 means '+x+' is evenly divisible by '+y+'.':'')
+      : 'Negative numbers: Python’s // always rounds DOWN (toward negative infinity). You won’t need this on the test.';
+  }
+  a.addEventListener('input',upd); b.addEventListener('input',upd); upd();
+})();
+
+/* ---------- practice test ---------- */
+var Q = [
+/* ===== VARIABLES ===== */
+{t:'Variables', s:'Which of the following is a valid Python variable name?',
+ o:['<code>2nd_score</code>','<code>second score</code>','<code>second_score</code>','<code>second-score</code>'], a:[2],
+ e:'Names may use letters, digits, and underscores but can’t start with a digit (A), contain spaces (B), or contain <code>-</code> (D), which Python reads as subtraction.'},
+{t:'Variables', s:'Which of the following are valid Python variable names? <span class="sel2">Select two answers.</span>',
+ o:['<code>player1</code>','<code>1player</code>','<code>_lives</code>','<code>my@name</code>'], a:[0,2],
+ e:'<code>player1</code> has its digit at the end, and a leading underscore is allowed. <code>1player</code> starts with a digit, and <code>@</code> is never allowed in a name.'},
+{t:'Variables', s:'What is displayed as a result of executing the code segment?',
+ c:'a = 10\nb = a\na = 20\nprint(b)', o:['<code>10</code>','<code>20</code>','<code>30</code>','An error occurs'], a:[0],
+ e:'<code>b = a</code> copies the value 10 into <code>b</code> at that moment. Changing <code>a</code> afterward doesn’t affect <code>b</code>.'},
+{t:'Variables', s:'What is displayed as a result of executing the code segment?',
+ c:'x = 5\nx = x + 3\nx = x * 2\nprint(x)', o:['<code>5</code>','<code>13</code>','<code>16</code>','<code>10</code>'], a:[2],
+ e:'x becomes 5 + 3 = 8, then 8 * 2 = <b class="v">16</b>. Each line uses the value x holds at that moment.'},
+{t:'Variables', s:'What is displayed as a result of executing the code segment?',
+ c:'score = 10\nscore += 5\nscore -= 3\nscore *= 2\nprint(score)', o:['<code>24</code>','<code>12</code>','<code>14</code>','<code>10</code>'], a:[0],
+ e:'10 → 15 → 12 → <b class="v">24</b>. <code>+=</code>, <code>-=</code>, <code>*=</code> are shortcuts for <code>score = score + 5</code>, and so on.'},
+{t:'Variables', s:'A programmer wants to swap the values of <code>a</code> and <code>b</code>. What is displayed?',
+ c:'a = 3\nb = 7\na = b\nb = a\nprint(a, b)', o:['<code>7 3</code>','<code>3 7</code>','<code>7 7</code>','<code>3 3</code>'], a:[2],
+ e:'After <code>a = b</code>, a is 7 and the 3 is lost. Then <code>b = a</code> sets b to 7 as well. A correct swap needs a temporary variable: <code>temp = a</code>, <code>a = b</code>, <code>b = temp</code>.'},
+{t:'Variables', s:'What is the result of executing the code segment?',
+ c:'score = 50\nprint(Score)', o:['<code>50</code>','<code>Score</code>','A NameError, because <code>Score</code> was never created','A SyntaxError, because of the capital letter'], a:[2],
+ e:'Python is case-sensitive. <code>Score</code> and <code>score</code> are different names, and only <code>score</code> exists. Capital letters are legal in names, so it isn’t a SyntaxError.'},
+{t:'Variables', s:'A program begins with the line <code>MAX_LIVES = 3</code>. Which statement is true?',
+ o:['Python will throw an error if the program later changes <code>MAX_LIVES</code>','The ALL_CAPS name tells programmers it is a constant that should not change, but Python does not enforce it','<code>MAX_LIVES</code> must hold a string because it is capitalized','Constants can only be used inside functions'], a:[1],
+ e:'ALL_CAPS is a <b>convention</b>, a signal to people reading the code. Python itself lets you reassign it without complaint.'},
+{t:'Variables', s:'A program draws five circles, each with <code>Circle(40)</code>. The programmer replaces every 40 with a constant <code>RADIUS = 40</code> at the top. What is the main benefit?',
+ o:['The program runs faster','The circles become a different color','To change every circle’s size, only one line needs to be edited, and the code is easier to read','Constants use less memory than numbers'], a:[2],
+ e:'Constants remove "magic numbers." One edit updates every use, and <code>Circle(RADIUS)</code> explains itself.'},
+{t:'Variables', s:'What is displayed as a result of executing the code segment?',
+ c:'count = 4\ncount = count + count\ncount = count - 1\nprint(count)', o:['<code>3</code>','<code>7</code>','<code>8</code>','<code>4</code>'], a:[1],
+ e:'4 + 4 = 8, then 8 - 1 = <b class="v">7</b>.'},
+
+/* ===== STRINGS ===== */
+{t:'Strings', s:'What is displayed as a result of executing the code segment?',
+ c:'print("5" + "3")', o:['<code>8</code>','<code>53</code>','<code>5 3</code>','An error occurs'], a:[1],
+ e:'Both are strings (in quotes), so <code>+</code> <b>concatenates</b>: "5" joined with "3" is "53".'},
+{t:'Strings', s:'What is the result of executing the code segment?',
+ c:'age = 16\nprint("I am " + age + " years old")', o:['<code>I am 16 years old</code>','<code>I am age years old</code>','A TypeError, because a string and an integer cannot be concatenated','A NameError'], a:[2],
+ e:'<code>age</code> is an int. Fix it with <code>str(age)</code>: <code>"I am " + str(age) + " years old"</code>.'},
+{t:'Strings', s:'What is displayed as a result of executing the code segment?',
+ c:'first = "Ada"\nlast = "Lovelace"\nprint(first + last)', o:['<code>Ada Lovelace</code>','<code>AdaLovelace</code>','<code>first last</code>','<code>first + last</code>'], a:[1],
+ e:'Concatenation adds no spaces. You’d need <code>first + " " + last</code>.'},
+{t:'Strings', s:'Which line correctly displays <code>Total: 25</code> when <code>total = 25</code>? <span class="sel2">Select two answers.</span>',
+ o:['<code>print("Total: " + total)</code>','<code>print("Total: " + str(total))</code>','<code>print("Total:", total)</code>','<code>print("Total: " + "total")</code>'], a:[1,2],
+ e:'B converts the number to a string. C uses a comma, which prints both items with a space between them. A is a TypeError. D prints the word "total".'},
+{t:'Strings', s:'What is displayed as a result of executing the code segment?',
+ c:'name = "sam"\nname.upper()\nprint(name)', o:['<code>SAM</code>','<code>sam</code>','<code>Sam</code>','An error occurs'], a:[1],
+ e:'String methods return a <b>new</b> string. They never change the original. The result of <code>.upper()</code> wasn’t stored, so <code>name</code> is still "sam". Fix: <code>name = name.upper()</code>.'},
+{t:'Strings', s:'What is displayed as a result of executing the code segment?',
+ c:'word = "  Hello  "\nprint(word.strip().lower())', o:['<code>  hello  </code>','<code>hello</code>','<code>HELLO</code>','<code>Hello</code>'], a:[1],
+ e:'Chained methods run left to right: <code>.strip()</code> removes the outer spaces, then <code>.lower()</code> makes it "hello".'},
+{t:'Strings', s:'What is displayed as a result of executing the code segment?',
+ c:'fruit = "banana"\nprint(fruit.find("n"))', o:['<code>1</code>','<code>2</code>','<code>3</code>','<code>-1</code>'], a:[1],
+ e:'Indexes start at 0: b=0, a=1, <b>n=2</b>. <code>.find()</code> gives the <b>first</b> match.'},
+{t:'Strings', s:'What is displayed as a result of executing the code segment?',
+ c:'print("banana".find("z"))', o:['<code>0</code>','<code>None</code>','<code>-1</code>','An error occurs'], a:[2],
+ e:'<code>.find()</code> returns <b>-1</b> when the text isn’t found. It does not crash.'},
+{t:'Strings', s:'What is displayed as a result of executing the code segment?',
+ c:'print(len("Hi there"))', o:['<code>7</code>','<code>8</code>','<code>2</code>','<code>6</code>'], a:[1],
+ e:'<code>len()</code> counts every character, including the space: H-i-space-t-h-e-r-e = 8.'},
+{t:'Strings', s:'Which of the following correctly finds the number of characters in <code>msg</code>?',
+ o:['<code>msg.len()</code>','<code>len(msg)</code>','<code>msg.length</code>','<code>length(msg)</code>'], a:[1],
+ e:'<code>len</code> is a plain function (no dot) that takes the string as its argument. <code>msg.len()</code> is an AttributeError.'},
+{t:'Strings', s:'What is displayed as a result of executing the code segment?',
+ c:'s = "Code"\nprint(s.swapcase())', o:['<code>CODE</code>','<code>code</code>','<code>cODE</code>','<code>edoC</code>'], a:[2],
+ e:'<code>.swapcase()</code> flips every letter: C→c, o→O, d→D, e→E.'},
+{t:'Strings', s:'What is displayed as a result of executing the code segment?',
+ c:'print("HELLO".isupper())\nprint("Hello".islower())', o:['<code>True</code> then <code>True</code>','<code>True</code> then <code>False</code>','<code>False</code> then <code>False</code>','<code>HELLO</code> then <code>hello</code>'], a:[1],
+ e:'"HELLO" is all uppercase, so True. "Hello" has a capital H, so it isn’t all lowercase: False. These methods <b>check</b> case (True/False). They don’t change it.'},
+{t:'Strings', s:'What is displayed as a result of executing the code segment?',
+ c:'print(str(7) + str(3))\nprint(int("7") + int("3"))', o:['<code>10</code> then <code>10</code>','<code>73</code> then <code>73</code>','<code>73</code> then <code>10</code>','<code>10</code> then <code>73</code>'], a:[2],
+ e:'Converted to strings, the <code>+</code> concatenates to "73". Converted to ints, it adds to 10.'},
+{t:'Strings', s:'What is the result of executing <code>int("3.5")</code>?',
+ o:['<code>3</code>','<code>4</code>','<code>3.5</code>','A ValueError'], a:[3],
+ e:'<code>int()</code> can only read text that is a whole number. For "3.5" use <code>float("3.5")</code>. Compare <code>int(3.5)</code> with no quotes, which gives 3 by cutting off the decimal.'},
+{t:'Strings', s:'What is displayed as a result of executing the code segment?',
+ c:'price = 4.5\nprint("$" + str(price * 2))', o:['<code>$9</code>','<code>$9.0</code>','<code>$4.54.5</code>','An error occurs'], a:[1],
+ e:'The math happens first: 4.5 * 2 = 9.0 (a float stays a float). <code>str(9.0)</code> is "9.0".'},
+
+/* ===== INPUT ===== */
+{t:'Input', s:'A user types <code>25</code> when this line runs. What type of value is stored in <code>age</code>?',
+ c:'age = input("Enter your age: ")', o:['int','float','string','boolean'], a:[2],
+ e:'<code>input()</code> <b>always</b> returns a string. <code>age</code> holds "25".'},
+{t:'Input', s:'The user types <code>4</code>. What is the result?',
+ c:'num = input("Enter a number: ")\nprint(num + 1)', o:['<code>5</code>','<code>41</code>','A TypeError','<code>4</code>'], a:[2],
+ e:'<code>num</code> is the string "4". A string plus an int is a TypeError. Fix: <code>int(num) + 1</code>.'},
+{t:'Input', s:'The user types <code>7</code>. What is displayed?',
+ c:'num = input("Enter a number: ")\nprint(num * 2)', o:['<code>14</code>','<code>77</code>','A TypeError','<code>72</code>'], a:[1],
+ e:'A string times an int <b>repeats</b> the string: "7" * 2 = "77". There’s no error, just the wrong answer, which makes this bug hard to spot.'},
+{t:'Input', s:'Which line correctly asks the user for a whole number and stores it so it can be used in math?',
+ o:['<code>n = input(int("Enter: "))</code>','<code>n = int(input("Enter: "))</code>','<code>n = input("Enter: ")</code>','<code>n = str(input("Enter: "))</code>'], a:[1],
+ e:'The innermost call runs first: <code>input()</code> gets the text, then <code>int()</code> converts it. Option A tries to convert the prompt "Enter: " into a number, which is a ValueError.'},
+{t:'Input', s:'A program uses <code>cost = int(input("Cost: "))</code>. The user types <code>3.50</code>. What happens?',
+ o:['<code>cost</code> becomes 3','<code>cost</code> becomes 3.5','<code>cost</code> becomes 4','A ValueError occurs'], a:[3],
+ e:'"3.50" isn’t whole-number text, so <code>int()</code> fails. Money needs <code>float(input(...))</code>.'},
+{t:'Input', s:'For which of the following inputs is it necessary to convert the value returned by <code>input()</code>? <span class="sel2">Select two answers.</span>',
+ o:['A user’s name, to print a greeting','The number of tickets, to calculate a total price','A favorite color, to print it back','A temperature, to convert it to Celsius'], a:[1,3],
+ e:'Convert only when you’ll do <b>math</b>. Names and colors are text and should stay strings.'},
+{t:'Input', s:'The user types <code>15</code>. What is the result of executing the code segment?',
+ c:'age = int(input("Age: "))\nprint("Next year you will be " + age + 1)', o:['<code>Next year you will be 16</code>','<code>Next year you will be 151</code>','A TypeError','A ValueError'], a:[2],
+ e:'<code>age</code> is correctly an int, but concatenating it with a string is a TypeError. Fix: <code>"Next year you will be " + str(age + 1)</code>.'},
+{t:'Input', s:'The user types <code>6</code> and then <code>4</code>. What is displayed?',
+ c:'a = input("First: ")\nb = input("Second: ")\nprint(a + b)', o:['<code>10</code>','<code>64</code>','<code>6 4</code>','A TypeError'], a:[1],
+ e:'Both are strings, so <code>+</code> concatenates: "64". To add, use <code>int(a) + int(b)</code>.'},
+
+/* ===== MATH ===== */
+{t:'Math', s:'What is displayed as a result of executing the code segment?',
+ c:'print(17 // 5)\nprint(17 % 5)', o:['<code>3</code> then <code>2</code>','<code>3.4</code> then <code>2</code>','<code>2</code> then <code>3</code>','<code>3</code> then <code>3</code>'], a:[0],
+ e:'5 fits into 17 three whole times (<code>//</code> = 3), with 17 - 15 = 2 left over (<code>%</code> = 2).'},
+{t:'Math', s:'What is displayed as a result of executing <code>print(10 / 2)</code>?',
+ o:['<code>5</code>','<code>5.0</code>','<code>0</code>','<code>2</code>'], a:[1],
+ e:'Regular division <code>/</code> <b>always</b> produces a float, even when it divides evenly.'},
+{t:'Math', s:'Which best describes a float?',
+ o:['A number that can include a decimal point, like 2.75 or 5.0','Any number greater than 1000','A number stored as text','A whole number with no decimal'], a:[0],
+ e:'Floats are decimal numbers. <code>5.0</code> is a float even though it equals the int <code>5</code>.'},
+{t:'Math', s:'What is the value of <code>7 % 10</code>?',
+ o:['<code>0</code>','<code>3</code>','<code>7</code>','<code>0.7</code>'], a:[2],
+ e:'10 fits into 7 zero times, so the entire 7 is left over. When the left number is smaller, <code>%</code> gives back the left number.'},
+{t:'Math', s:'What is the value of <code>12 % 3</code>?',
+ o:['<code>4</code>','<code>0</code>','<code>3</code>','<code>1</code>'], a:[1],
+ e:'3 goes into 12 exactly 4 times with <b>nothing</b> left over. A remainder of 0 means "divides evenly."'},
+{t:'Math', s:'Which expression evaluates to <code>0</code> exactly when the integer <code>n</code> is even?',
+ o:['<code>n / 2</code>','<code>n // 2</code>','<code>n % 2</code>','<code>n * 2</code>'], a:[2],
+ e:'Even numbers leave remainder 0 when divided by 2, and odd numbers leave remainder 1.'},
+{t:'Math', s:'A video is <code>135</code> seconds long. Which code displays <code>2 minutes 15 seconds</code>?',
+ o:['<code>print(135 / 60, "minutes", 135 % 60, "seconds")</code>','<code>print(135 // 60, "minutes", 135 % 60, "seconds")</code>','<code>print(135 % 60, "minutes", 135 // 60, "seconds")</code>','<code>print(135 // 60, "minutes", 135 / 60, "seconds")</code>'], a:[1],
+ e:'<code>//</code> gives the whole minutes (2) and <code>%</code> gives the leftover seconds (15). Option A would print 2.25 minutes.'},
+{t:'Math', s:'Which expression gives the <b>last digit</b> of the positive integer <code>num</code>? (For 472 it should give 2.)',
+ o:['<code>num // 10</code>','<code>num % 10</code>','<code>num / 10</code>','<code>num % 100</code>'], a:[1],
+ e:'472 % 10 = 2. The remainder after dividing by 10 is the ones digit. (<code>472 // 10</code> = 47 removes it.)'},
+{t:'Math', s:'What is the value of <code>2 + 3 * 4 ** 2</code>?',
+ o:['<code>400</code>','<code>50</code>','<code>194</code>','<code>70</code>'], a:[1],
+ e:'Exponent first: 4 ** 2 = 16. Then multiply: 3 * 16 = 48. Then add: 2 + 48 = <b class="v">50</b>.'},
+{t:'Math', s:'What is the value of <code>(2 + 3) * 4 // 3</code>?',
+ o:['<code>6</code>','<code>6.67</code>','<code>2</code>','<code>7</code>'], a:[0],
+ e:'Parentheses: 5. Then left to right, 5 * 4 = 20, then 20 // 3 = 6 (the whole part only).'},
+{t:'Math', s:'What is displayed as a result of executing the code segment?',
+ c:'x = 9\nx = x % 4\nx = x + 10 // 3\nprint(x)', o:['<code>4</code>','<code>3.67</code>','<code>7</code>','<code>13</code>'], a:[0],
+ e:'9 % 4 = 1. Then <code>10 // 3</code> runs before <code>+</code>: 3. So 1 + 3 = <b class="v">4</b>.'},
+{t:'Math', s:'What is displayed as a result of executing <code>print(5 + 2.0)</code>?',
+ o:['<code>7</code>','<code>7.0</code>','<code>52.0</code>','An error occurs'], a:[1],
+ e:'If any number in the calculation is a float, the result is a float.'},
+{t:'Math', s:'What is the result of executing <code>print(10 % 0)</code>?',
+ o:['<code>0</code>','<code>10</code>','A ZeroDivisionError','<code>None</code>'], a:[2],
+ e:'<code>%</code>, <code>//</code>, and <code>/</code> all divide, and dividing by zero is never allowed.'},
+
+/* ===== GRAPHICS ===== */
+{t:'Graphics', s:'Which of the following gives the width of the <b>canvas</b>?',
+ o:['<code>canvas.get_width()</code>','<code>get_width()</code>','<code>circle.get_width()</code>','<code>width()</code>'], a:[1],
+ e:'Canvas functions have <b>no dot</b>. There’s no variable named <code>canvas</code>, and <code>circle.get_width()</code> asks a shape for its own width.'},
+{t:'Graphics', s:'A circle named <code>ball</code> has been created. Which line places its center at the exact center of the canvas, whatever size the canvas is?',
+ o:['<code>ball.set_position(200, 200)</code>','<code>ball.set_position(get_width() / 2, get_height() / 2)</code>','<code>ball.set_position(get_width(), get_height())</code>','<code>set_position(ball, get_width() / 2, get_height() / 2)</code>'], a:[1],
+ e:'A circle anchors at its <b>center</b>, so half the canvas width and half the height puts it dead center. A only works for a 400&times;400 canvas. C is the bottom-right corner. D isn’t how methods are called.'},
+{t:'Graphics', s:'What is displayed when this code runs?',
+ c:'ball = Circle(30)\nball.set_position(100, 100)\nball.set_color(Color.red)', o:['A red circle centered at (100, 100)','A black circle at (0, 0)','Nothing appears, and no error occurs','A NameError'], a:[2],
+ e:'The circle is never <b>added</b>. Without <code>add(ball)</code> it exists in memory but not on the canvas, and Python reports nothing wrong.'},
+{t:'Graphics', s:'A programmer wants a 60-by-60 square. Which line creates it?',
+ o:['<code>sq = Square(60)</code>','<code>sq = Rectangle(60)</code>','<code>sq = Rectangle(60, 60)</code>','<code>sq = Circle(60, 60)</code>'], a:[2],
+ e:'There is no <code>Square</code> in this library (A is a NameError). <code>Rectangle</code> needs <b>two</b> arguments, width and height (B is a TypeError).'},
+{t:'Graphics', s:'What is the result of executing the code segment?',
+ c:'ball = Circle(25)\nprint(ball.get_radius())', o:['<code>25</code>','<code>50</code>','<code>12.5</code>','An error occurs'], a:[0],
+ e:'The number passed to <code>Circle()</code> is the <b>radius</b>. The circle is 50 pixels across (its diameter), but its radius is 25.'},
+{t:'Graphics', s:'After this code runs, what is the x-coordinate of the rectangle’s <b>right</b> edge?',
+ c:'box = Rectangle(100, 50)\nbox.set_position(20, 30)\nadd(box)', o:['<code>20</code>','<code>70</code>','<code>120</code>','<code>130</code>'], a:[2],
+ e:'A rectangle anchors at its <b>top-left</b>. Left edge x = 20, and width = 100, so the right edge is 20 + 100 = 120.'},
+{t:'Graphics', s:'A circle of radius 20 is placed with <code>set_position(100, 100)</code>. What is the x-coordinate of its <b>leftmost</b> point?',
+ o:['<code>100</code>','<code>80</code>','<code>60</code>','<code>120</code>'], a:[1],
+ e:'For a circle, (100, 100) is the <b>center</b>. The left edge is one radius to the left: 100 - 20 = 80.'},
+{t:'Graphics', s:'Shape A is positioned at y = 50 and shape B at y = 300. Which is true?',
+ o:['A is lower on the screen than B','B is lower on the screen than A','They are at the same height','It depends on the canvas width'], a:[1],
+ e:'On the canvas, y increases <b>downward</b> from (0, 0) at the top-left, so a larger y is lower.'},
+{t:'Graphics', s:'Which line causes an error?',
+ c:'ball.set_position(50, 50)   # line 1\nball = Circle(20)             # line 2\nball.set_color(Color.blue)    # line 3\nadd(ball)                     # line 4', o:['Line 1','Line 2','Line 3','Line 4'], a:[0],
+ e:'Line 1 uses <code>ball</code> before line 2 creates it: <b>NameError</b>. A shape must be created before you call methods on it.'},
+{t:'Graphics', s:'Which line places rectangle <code>box</code> exactly in the <b>bottom-right</b> corner of the canvas?',
+ o:['<code>box.set_position(get_width(), get_height())</code>','<code>box.set_position(get_width() - box.get_width(), get_height() - box.get_height())</code>','<code>box.set_position(box.get_width(), box.get_height())</code>','<code>box.set_position(get_width() / 2, get_height() / 2)</code>'], a:[1],
+ e:'The rectangle anchors top-left, so back up by its own width and height. Option A puts its top-left corner <em>at</em> the corner, entirely off-screen.'},
+{t:'Graphics', s:'What is the difference between <code>get_width()</code> and <code>box.get_width()</code>?',
+ o:['There is no difference','<code>get_width()</code> is the canvas width; <code>box.get_width()</code> is the width of the shape <code>box</code>','<code>get_width()</code> is the shape width; <code>box.get_width()</code> is the canvas width','<code>box.get_width()</code> is always an error'], a:[1],
+ e:'With no dot, you’re asking the canvas. With <code>box.</code> in front, you’re asking that specific shape.'},
+{t:'Graphics', s:'What is the result of executing <code>box = Rectangle(80)</code>?',
+ o:['An 80-by-80 square','An 80-wide rectangle with height 0','A TypeError, because Rectangle needs a width and a height','A circle of radius 80'], a:[2],
+ e:'<code>Rectangle</code> requires exactly two arguments. One is missing, so it’s a TypeError.'},
+
+/* ===== MOUSE ===== */
+{t:'Mouse', s:'Which line correctly makes the function <code>draw</code> run every time the user clicks?',
+ o:['<code>add_mouse_click_handler(draw())</code>','<code>add_mouse_click_handler(draw)</code>','<code>draw(add_mouse_click_handler)</code>','<code>add_mouse_click_handler.draw()</code>'], a:[1],
+ e:'Pass the function <b>by name, with no parentheses</b>. <code>draw()</code> would call it immediately, once, with no x and y, which is a TypeError.'},
+{t:'Mouse', s:'The user clicks the canvas. What happens?',
+ c:'def click():\n    print("clicked")\n\nadd_mouse_click_handler(click)', o:['"clicked" is printed','Nothing happens','An error occurs because <code>click</code> has no parameters to receive the x and y of the click','"clicked" is printed twice'], a:[2],
+ e:'The canvas always passes two arguments (x, y) to a click handler. The function must have two parameters, <code>def click(x, y):</code>, even if it never uses them.'},
+{t:'Mouse', s:'In <code>def stamp(x, y):</code> used as a click handler, what values do <code>x</code> and <code>y</code> hold?',
+ o:['Always 0 and 0','The center of the canvas','The coordinates where the user clicked','The width and height of the canvas'], a:[2],
+ e:'They are <b>parameters</b>, and the canvas fills them with the click’s position each time.'},
+{t:'Mouse', s:'Which of the following are methods called with dot notation? <span class="sel2">Select two answers.</span>',
+ o:['<code>ball.set_color(Color.red)</code>','<code>add(ball)</code>','<code>ball.get_x()</code>','<code>get_height()</code>'], a:[0,2],
+ e:'A method belongs to an object and is written <code>object.method()</code>. <code>add()</code> and <code>get_height()</code> are plain functions with no object in front.'},
+{t:'Mouse', s:'The user clicks the canvas 5 times. How many circles are on the canvas?',
+ c:'def stamp(x, y):\n    dot = Circle(10)\n    dot.set_position(x, y)\n    add(dot)\n\nadd_mouse_click_handler(stamp)', o:['0','1','5','An error occurs'], a:[2],
+ e:'A brand-new circle is created and added <b>inside</b> the handler on every click, so 5 clicks make 5 circles.'},
+{t:'Mouse', s:'The user clicks the canvas 5 times. How many circles are on the canvas?',
+ c:'dot = Circle(10)\nadd(dot)\n\ndef move(x, y):\n    dot.set_position(x, y)\n\nadd_mouse_click_handler(move)', o:['1','5','6','0'], a:[0],
+ e:'Only one circle is ever created (outside the handler). Each click just <b>moves</b> it.'},
+{t:'Mouse', s:'A programmer renames the handler’s parameters. What happens when the user clicks?',
+ c:'def place(mouse_x, mouse_y):\n    ball = Circle(15)\n    ball.set_position(mouse_x, mouse_y)\n    add(ball)\n\nadd_mouse_click_handler(place)', o:['It works: a circle appears where the user clicked','Error, because the parameters must be named x and y','The circle always appears at (0, 0)','Nothing appears'], a:[0],
+ e:'Parameter <b>names</b> are up to you. Only the <b>count</b> (two) matters. The canvas fills them in order: first the x, then the y.'},
+{t:'Mouse', s:'What is the difference between a <b>parameter</b> and an <b>argument</b>?',
+ o:['They are exactly the same thing','A parameter is the variable in the function definition; an argument is the actual value passed in when the function is called','A parameter is always a number; an argument is always a string','Arguments are only used with graphics'], a:[1],
+ e:'In <code>def stamp(x, y):</code>, x and y are parameters. When a click happens at (40, 90), the values 40 and 90 are the arguments.'}
+];
+
+(function(){
+  var KEY='apcsp-u3-sg-v1', state={};
+  try{ state=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ state={}; }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+  var quiz=document.getElementById('quiz'), filt='All', missedOnly=false;
+  var topics=['All','Variables','Strings','Input','Math','Graphics','Mouse'];
+  document.getElementById('heroCount').textContent=Q.length;
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function same(a,b){ if(a.length!==b.length) return false; var x=a.slice().sort(), y=b.slice().sort(); return x.every(function(v,i){return v===y[i];}); }
+
+  var fwrap=document.getElementById('filters');
+  topics.forEach(function(t){
+    var b=document.createElement('button'); b.type='button'; b.className='fbtn'+(t==='All'?' on':''); b.textContent=t;
+    b.onclick=function(){ filt=t; [].forEach.call(fwrap.children,function(c){c.classList.toggle('on',c===b);}); apply(); };
+    fwrap.appendChild(b);
+  });
+
+  Q.forEach(function(q,i){
+    var multi=q.a.length>1, el=document.createElement('div'); el.className='q'; el.dataset.t=q.t; el.id='q'+i;
+    var h='<div class="qh"><span class="qn">Question '+(i+1)+'</span><span class="qt">'+q.t+'</span></div><div class="stem">'+q.s+'</div>';
+    if(q.c) h+='<div class="code">'+esc(q.c)+'</div>';
+    h+='<div class="opts">'+q.o.map(function(o,j){return '<button type="button" class="opt" data-j="'+j+'"><span class="l">'+'ABCD'[j]+'</span><span>'+o+'</span></button>';}).join('')+'</div>';
+    if(multi) h+='<button type="button" class="check" disabled>Check answer</button>';
+    h+='<div class="why"></div>';
+    el.innerHTML=h; quiz.appendChild(el);
+    var picks=[], btns=el.querySelectorAll('.opt'), chk=el.querySelector('.check');
+    [].forEach.call(btns,function(b){
+      b.onclick=function(){
+        if(el.classList.contains('done')) return;
+        var j=+b.dataset.j;
+        if(!multi){ grade(i,[j]); return; }
+        var k=picks.indexOf(j);
+        if(k>=0) picks.splice(k,1); else if(picks.length<2) picks.push(j);
+        [].forEach.call(btns,function(x){ x.classList.toggle('picked', picks.indexOf(+x.dataset.j)>=0); });
+        chk.disabled=picks.length!==2;
+      };
+    });
+    if(chk) chk.onclick=function(){ grade(i,picks.slice()); };
+    if(state[i]) render(i,state[i]);
+  });
+
+  function grade(i,picked){ state[i]=picked; save(); render(i,picked); tally(); }
+  function render(i,picked){
+    var q=Q[i], el=document.getElementById('q'+i), ok=same(picked,q.a);
+    el.classList.add('done', ok?'right':'wrong');
+    [].forEach.call(el.querySelectorAll('.opt'),function(b){
+      var j=+b.dataset.j; b.disabled=true; b.classList.remove('picked');
+      if(q.a.indexOf(j)>=0) b.classList.add('ok'); else if(picked.indexOf(j)>=0) b.classList.add('bad');
+    });
+    var c=el.querySelector('.check'); if(c) c.style.display='none';
+    var ans=q.a.map(function(j){return 'ABCD'[j];}).join(' and ');
+    el.querySelector('.why').innerHTML=(ok?'<b class="v">Correct.</b> ':'<b class="x">Not quite. The answer is '+ans+'.</b> ')+q.e;
+  }
+  function tally(){
+    var done=0,right=0;
+    Q.forEach(function(q,i){ if(state[i]){ done++; if(same(state[i],q.a)) right++; } });
+    document.getElementById('score').innerHTML=right+' / '+done+' <span>correct &middot; '+(Q.length-done)+' left</span>';
+    var dm=document.getElementById('doneMsg');
+    if(done===Q.length){
+      var pct=Math.round(100*right/Q.length);
+      dm.style.display='block';
+      dm.innerHTML='<h3>Finished: '+right+' / '+Q.length+' ('+pct+'%)</h3><p style="color:#C4CDD8">'+(pct>=90?'You’re ready for the Unit 3 test.':pct>=75?'Close. Click “Show missed only,” re-read those sections, then Reset and retake.':'Re-read the sections for the topics you missed (use the topic filters), then Reset and retake.')+'</p>';
+    } else dm.style.display='none';
+  }
+  function apply(){
+    Q.forEach(function(q,i){
+      var el=document.getElementById('q'+i);
+      var show=(filt==='All'||q.t===filt) && (!missedOnly || (state[i] && !same(state[i],q.a)));
+      el.style.display=show?'':'none';
+    });
+  }
+  document.getElementById('missedBtn').onclick=function(){ missedOnly=!missedOnly; this.classList.toggle('on',missedOnly); this.textContent=missedOnly?'Show all':'Show missed only'; apply(); };
+  document.getElementById('resetBtn').onclick=function(){
+    if(!confirm('Clear all your answers and start over?')) return;
+    state={}; save(); location.hash='#test'; location.reload();
+  };
+  tally();
+})();
+</script>
 </body>
 </html>
