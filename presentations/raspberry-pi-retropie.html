@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game On: Raspberry Pi in the CS Classroom | SCHS Computer Science</title>
+<meta name="description" content="A one-hour session for middle and high school CS teachers: what a Raspberry Pi is, how Mr. Norman runs a RetroPie extra credit arcade, how to adapt it, and 100 more ways to use a Pi in class.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" href="../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0D17; --panel:#11142A; --card:#161A33; --card2:#1C2140;
+  --ink:#ECEFFA; --ink-soft:#9AA3C7; --rule:#262C52;
+  --pi:#E0245E; --pi-tint:rgba(224,36,94,.14); --pi-ink:#FF8FB1;
+  --cy:#22D3EE; --cy-tint:rgba(34,211,238,.13); --cy-ink:#A5F3FC;
+  --lime:#A3E635; --lime-tint:rgba(163,230,53,.13); --lime-ink:#D9F99D;
+  --amb:#FBBF24; --amb-tint:rgba(251,191,36,.13); --amb-ink:#FDE68A;
+  --wrap:1100px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--cy-ink)}
+h1,h2,h3,h4{line-height:1.2;margin:0}
+p{margin:0 0 1em}
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:4px;font-size:.88em;overflow-wrap:anywhere}
+.pix{font-family:"Press Start 2P",monospace;letter-spacing:.02em}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 24px}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:20;background:rgba(11,13,23,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--rule)}
+.topbar .wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
+.topbar .back{font-weight:700;text-decoration:none;color:var(--ink-soft);font-size:14px;margin-right:auto}
+.topbar .back:hover{color:var(--ink)}
+.btn{font:inherit;font-size:14px;font-weight:700;border-radius:999px;padding:8px 16px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:#3A4380}
+.btn.primary{background:var(--pi);border-color:var(--pi);color:#fff}
+.btn.on{background:var(--cy);border-color:var(--cy);color:#04232A}
+.jump{display:flex;flex-wrap:wrap;gap:6px;padding-bottom:10px}
+.jump a{font-size:12.5px;font-weight:700;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:999px;padding:5px 11px}
+.jump a:hover{color:var(--ink)}
+
+/* sections */
+.slide{padding:64px 0 28px;border-bottom:1px solid var(--rule);scroll-margin-top:110px}
+.kicker{font-family:"Press Start 2P",monospace;font-size:11px;color:var(--pi-ink);letter-spacing:.06em;margin-bottom:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.kicker .time{color:var(--ink-soft);font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:0}
+.slide h2{font-size:clamp(28px,4.4vw,42px);font-weight:800;margin-bottom:14px}
+.lede{font-size:19px;color:#C9CFEA;max-width:72ch;margin-bottom:26px}
+h3.sub{font-size:21px;font-weight:800;margin:30px 0 12px}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:20px 22px}
+.card h4{font-size:17px;font-weight:800;margin-bottom:8px}
+.card p,.card li{font-size:15px;color:#C9CFEA}
+.card ul{margin:0;padding-left:18px}
+.card.pi{border-top:3px solid var(--pi)} .card.cy{border-top:3px solid var(--cy)} .card.lime{border-top:3px solid var(--lime)} .card.amb{border-top:3px solid var(--amb)}
+.big-num{font-family:"Press Start 2P",monospace;font-size:20px;color:var(--cy-ink);margin-bottom:10px;display:block}
+
+.callout{border-left:4px solid var(--amb);background:var(--amb-tint);border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0;font-size:15.5px;color:#F6E7BF}
+.callout.pi{border-color:var(--pi);background:var(--pi-tint);color:#F9D3DF}
+.callout.cy{border-color:var(--cy);background:var(--cy-tint);color:#CFF7FC}
+.callout b{color:#fff}
+
+.fig{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px;margin:10px 0 18px}
+.fig svg{width:100%;height:auto;display:block}
+.fig .cap{font-size:13.5px;color:var(--ink-soft);margin-top:10px}
+
+.steps{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.steps li{counter-increment:s;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:14px 18px 14px 60px;position:relative;font-size:15.5px;color:#C9CFEA}
+.steps li::before{content:counter(s);position:absolute;left:16px;top:13px;width:30px;height:30px;border-radius:50%;background:var(--pi);color:#fff;font-weight:800;display:grid;place-items:center;font-size:14px}
+.steps li b{color:#fff}
+
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+.tbl{background:var(--card);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.tbl .scroll{overflow-x:auto}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);background:var(--panel);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td b{color:#fff}
+#modelTable td:first-child{min-width:150px}
+#modelTable td:nth-child(5){min-width:260px}
+.tag{display:inline-block;font-size:11px;font-weight:800;border-radius:999px;padding:2px 8px;margin:1px 2px 1px 0;white-space:nowrap}
+.tag.yes{background:var(--lime-tint);color:var(--lime-ink)} .tag.no{background:var(--pi-tint);color:var(--pi-ink)} .tag.mid{background:var(--amb-tint);color:var(--amb-ink)}
+.tag.ms{background:var(--cy-tint);color:var(--cy-ink)} .tag.hs{background:rgba(167,139,250,.16);color:#DDD6FE} .tag.both{background:rgba(255,255,255,.08);color:#DDE2F5}
+
+details.acc{background:var(--card);border:1px solid var(--rule);border-radius:10px;margin-bottom:10px}
+details.acc summary{cursor:pointer;padding:14px 18px;font-weight:800;list-style:none;display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary::before{content:"+";color:var(--cy-ink);font-size:18px;margin-right:4px}
+details.acc[open] summary::before{content:"\2013"}
+details.acc summary .ttl{flex:1 1 auto}
+details.acc .body{padding:0 18px 16px;font-size:15px;color:#C9CFEA}
+details.acc .body p{margin-bottom:.6em}
+.std{font-size:12px;color:var(--ink-soft);font-weight:600}
+
+/* hero */
+.hero{padding:80px 0 60px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:
+  radial-gradient(circle at 12% 18%,rgba(224,36,94,.18),transparent 40%),
+  radial-gradient(circle at 88% 70%,rgba(34,211,238,.14),transparent 42%);pointer-events:none}
+.hero .wrap{position:relative}
+.hero .eyebrow{font-family:"Press Start 2P",monospace;font-size:12px;color:var(--cy-ink);margin-bottom:22px;line-height:1.8}
+.hero h1{font-size:clamp(34px,6.4vw,66px);font-weight:800;max-width:18ch;letter-spacing:-.01em}
+.hero h1 .pix{display:block;font-size:clamp(15px,2.6vw,26px);color:var(--pi-ink);margin-top:16px;line-height:1.5}
+.hero .deck{font-size:19px;color:#C9CFEA;max-width:62ch;margin-top:22px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.chip{font-size:13px;font-weight:700;background:var(--card);border:1px solid var(--rule);border-radius:999px;padding:6px 14px;color:var(--ink-soft)}
+.chip b{color:var(--ink)}
+
+/* agenda */
+.agenda{display:grid;gap:8px}
+.agenda a{display:grid;grid-template-columns:92px 1fr auto;gap:14px;align-items:center;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:12px 16px;text-decoration:none;color:var(--ink)}
+.agenda a:hover{border-color:#3A4380}
+.agenda .t{font-family:"JetBrains Mono",monospace;font-size:13.5px;color:var(--ink-soft)}
+.agenda .n{font-weight:700}
+.agenda .m{font-size:12.5px;color:var(--ink-soft)}
+.agenda a.focus{border-left:4px solid var(--pi)}
+.bar{height:10px;border-radius:999px;background:var(--card2);overflow:hidden;display:flex;margin:14px 0 6px}
+.bar span{display:block;height:100%}
+
+/* 100 ways */
+.ways-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.ways-tools input{font:inherit;font-size:14px;background:var(--card);border:1px solid var(--rule);color:var(--ink);border-radius:999px;padding:8px 14px;min-width:0;flex:1 1 220px}
+.fbtn{font:inherit;font-size:12.5px;font-weight:700;border-radius:999px;padding:6px 12px;border:1px solid var(--rule);background:var(--card);color:var(--ink-soft);cursor:pointer}
+.fbtn.on{background:var(--pi);border-color:var(--pi);color:#fff}
+.ways{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.way{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;font-size:14.5px;color:#C9CFEA}
+.way .no{font-family:"Press Start 2P",monospace;font-size:10px;color:var(--pi-ink)}
+.way h4{font-size:15.5px;color:#fff;margin:6px 0 6px;font-weight:800}
+.way p{margin:0 0 8px}
+.count{font-size:13.5px;color:var(--ink-soft)}
+
+.notes{display:none;margin-top:22px;background:#0E1A12;border:1px dashed #2E6B3F;border-radius:10px;padding:14px 18px;font-size:15px;color:#CDEBD4}
+.notes::before{content:"SPEAKER NOTES";display:block;font-family:"Press Start 2P",monospace;font-size:9px;color:#7EE2A0;margin-bottom:8px}
+body.show-notes .notes{display:block}
+
+.foot{padding:48px 0 70px;color:var(--ink-soft);font-size:14px}
+
+/* ===== present mode ===== */
+.presentbar{display:none}
+body.presenting{font-size:20px}
+body.presenting .topbar,body.presenting .foot{display:none}
+body.presenting .slide{display:none;min-height:100vh;border:0;padding:48px 0 110px}
+body.presenting .slide.active{display:block}
+body.presenting .presentbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:30;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;padding:10px 14px;background:rgba(11,13,23,.95);border-top:1px solid var(--rule)}
+.presentbar .info{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--ink-soft);margin:0 8px}
+.presentbar .info b{color:var(--ink)}
+.presentbar .late,.presentbar .late b{color:var(--pi-ink)}
+.progress{position:fixed;top:0;left:0;height:4px;width:0;background:var(--pi);z-index:31;display:none;transition:width .2s}
+body.presenting .progress{display:block}
+
+@media (max-width:860px){
+  .grid2,.grid3{grid-template-columns:1fr}
+  .agenda a{grid-template-columns:78px 1fr}
+  .agenda .m{display:none}
+  .wrap{padding:0 16px}
+  .slide{padding-top:44px}
+  .lede{font-size:17px}
+}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+
+<div class="topbar">
+  <div class="wrap">
+    <a class="back" href="index.html">&larr; Presentations</a>
+    <button class="btn" id="notesBtn" type="button">Speaker notes</button>
+    <button class="btn primary" id="presentBtn" type="button">&#9654; Present</button>
+  </div>
+  <div class="wrap jump">
+    <a href="#s-pi">What is a Pi?</a>
+    <a href="#s-retropie">RetroPie</a>
+    <a href="#s-arcade">My Arcade</a>
+    <a href="#s-build">Build It</a>
+    <a href="#s-modify">Make It Yours</a>
+    <a href="#s-concepts">Concepts</a>
+    <a href="#s-models">Which Pi?</a>
+    <a href="#s-ways">100 Ways</a>
+    <a href="#s-start">Get Started</a>
+  </div>
+</div>
+
+<!-- ================= 1. TITLE ================= -->
+<section class="slide hero" id="s-title" data-min="0">
+  <div class="wrap">
+    <div class="eyebrow">PLAYER 1 READY &#9654; CS TEACHER PD</div>
+    <h1>Game On: The Raspberry Pi in the CS Classroom<span class="pix">INSERT COIN TO LEARN</span></h1>
+    <p class="deck">How a $100 computer became a RetroPie arcade that pays out extra credit, the computer science hiding inside it, and 100 more ways to put a Pi to work in your classroom.</p>
+    <div class="meta">
+      <span class="chip">Presenter <b>Randy Norman</b>, Social Circle High School</span>
+      <span class="chip"><b>60</b> minutes</span>
+      <span class="chip">For <b>middle + high school</b> CS teachers</span>
+    </div>
+    <div class="notes">Have the arcade running on the projector before anyone walks in &mdash; menu music and box art on screen. Invite the first two people who sit down to play while everyone settles. Tell everyone they get to keep this page.</div>
+  </div>
+</section>
+
+<!-- ================= 2. AGENDA ================= -->
+<section class="slide" id="s-agenda" data-min="2">
+  <div class="wrap">
+    <div class="kicker">LEVEL SELECT <span class="time">0:02</span></div>
+    <h2>The Next 60 Minutes</h2>
+    <p class="lede">Half of our time is the extra credit arcade &mdash; how it works, how you'd build and adapt it, and what it teaches. The other half is the Pi itself and everything else it can do.</p>
+    <div class="bar" aria-hidden="true">
+      <span style="width:25%;background:var(--cy)"></span>
+      <span style="width:52%;background:var(--pi)"></span>
+      <span style="width:23%;background:var(--lime)"></span>
+    </div>
+    <p class="std" style="margin-bottom:16px;"><span style="color:var(--cy-ink)">&#9632;</span> The Pi (15 min) &nbsp; <span style="color:var(--pi-ink)">&#9632;</span> The extra credit arcade (31 min) &nbsp; <span style="color:var(--lime-ink)">&#9632;</span> Beyond the arcade (14 min)</p>
+    <div class="agenda">
+      <a href="#s-pi"><span class="t">0:04&ndash;0:11</span><span class="n">What is a Raspberry Pi?</span><span class="m">7 min</span></a>
+      <a href="#s-retropie"><span class="t">0:11&ndash;0:15</span><span class="n">RetroPie + EmulationStation</span><span class="m">4 min</span></a>
+      <a href="#s-arcade" class="focus"><span class="t">0:15&ndash;0:27</span><span class="n">My Extra Credit Arcade (live demo)</span><span class="m">12 min</span></a>
+      <a href="#s-build" class="focus"><span class="t">0:27&ndash;0:33</span><span class="n">Build Your Own Arcade</span><span class="m">6 min</span></a>
+      <a href="#s-modify" class="focus"><span class="t">0:33&ndash;0:39</span><span class="n">Make It Yours: Modifications</span><span class="m">6 min</span></a>
+      <a href="#s-concepts" class="focus"><span class="t">0:39&ndash;0:46</span><span class="n">The CS Concepts It Teaches</span><span class="m">7 min</span></a>
+      <a href="#s-models"><span class="t">0:46&ndash;0:51</span><span class="n">Which Pi Should I Buy?</span><span class="m">5 min</span></a>
+      <a href="#s-ways"><span class="t">0:51&ndash;0:56</span><span class="n">100 More Ways to Use a Pi</span><span class="m">5 min</span></a>
+      <a href="#s-start"><span class="t">0:56&ndash;1:00</span><span class="n">Getting Started + Q&amp;A</span><span class="m">4 min</span></a>
+    </div>
+    <div class="notes">Quick framing: "By the end you'll know exactly what to buy, how to set it up, and five lessons you can teach with it next week." Don't linger &mdash; the demo is the hook.</div>
+  </div>
+</section>
+
+<!-- ================= 3. WHAT IS A PI ================= -->
+<section class="slide" id="s-pi" data-min="4">
+  <div class="wrap">
+    <div class="kicker">WORLD 1-1 <span class="time">0:04 &middot; 7 min</span></div>
+    <h2>What Is a Raspberry Pi?</h2>
+    <p class="lede">A complete computer on a single board about the size of a credit card. It runs a full Linux operating system, plugs into any monitor or TV, and has a row of pins that let code control real-world electronics. The UK-based Raspberry Pi Foundation created it in 2012 specifically to get students programming, and more than 60 million have been sold since.</p>
+
+    <div class="fig">
+      <svg viewBox="0 0 900 470" role="img" aria-label="Simplified diagram of a Raspberry Pi 5 board with labeled parts: GPIO header, processor, RAM, USB ports, Ethernet, USB-C power, two micro-HDMI ports, camera and display connectors, microSD slot, and PCIe connector.">
+        <rect x="190" y="70" width="520" height="330" rx="22" fill="#0E5A3A" stroke="#1F8A5C" stroke-width="3"/>
+        <g fill="#C9B458">
+          <circle cx="214" cy="94" r="9"/><circle cx="686" cy="94" r="9"/><circle cx="214" cy="376" r="9"/><circle cx="686" cy="376" r="9"/>
+        </g>
+        <rect x="258" y="80" width="360" height="36" rx="4" fill="#111" stroke="#444"/>
+        <g id="gpio-pins"></g>
+        <rect x="330" y="180" width="120" height="120" rx="8" fill="#9EA3A8" stroke="#6B7075" stroke-width="2"/>
+        <text x="390" y="238" text-anchor="middle" font-family="JetBrains Mono" font-size="15" fill="#1A1A1A" font-weight="700">BCM2712</text>
+        <text x="390" y="258" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#1A1A1A">CPU + GPU</text>
+        <rect x="475" y="195" width="90" height="90" rx="6" fill="#1B1B1B" stroke="#333"/>
+        <text x="520" y="245" text-anchor="middle" font-family="JetBrains Mono" font-size="13" fill="#DDD">RAM</text>
+        <rect x="640" y="130" width="92" height="60" rx="4" fill="#C0C4C8" stroke="#8A8F94"/>
+        <rect x="652" y="142" width="68" height="14" fill="#1E4FA8"/><rect x="652" y="164" width="68" height="14" fill="#1E4FA8"/>
+        <rect x="640" y="200" width="92" height="60" rx="4" fill="#C0C4C8" stroke="#8A8F94"/>
+        <rect x="652" y="212" width="68" height="14" fill="#222"/><rect x="652" y="234" width="68" height="14" fill="#222"/>
+        <rect x="640" y="272" width="92" height="74" rx="4" fill="#C0C4C8" stroke="#8A8F94"/>
+        <rect x="660" y="288" width="52" height="42" fill="#333"/>
+        <rect x="235" y="380" width="44" height="26" rx="6" fill="#C0C4C8" stroke="#8A8F94"/>
+        <rect x="300" y="382" width="40" height="22" rx="5" fill="#C0C4C8" stroke="#8A8F94"/>
+        <rect x="352" y="382" width="40" height="22" rx="5" fill="#C0C4C8" stroke="#8A8F94"/>
+        <rect x="420" y="360" width="70" height="16" rx="3" fill="#E8E1C8" stroke="#A89E7E"/>
+        <rect x="510" y="360" width="70" height="16" rx="3" fill="#E8E1C8" stroke="#A89E7E"/>
+        <rect x="176" y="210" width="26" height="54" rx="3" fill="#C0C4C8" stroke="#8A8F94"/>
+        <rect x="206" y="140" width="16" height="64" rx="3" fill="#E8E1C8" stroke="#A89E7E"/>
+
+        <g font-family="Manrope" font-size="15" font-weight="700">
+          <line x1="438" y1="80" x2="438" y2="42" stroke="#FF8FB1" stroke-width="2"/>
+          <text x="438" y="30" text-anchor="middle" fill="#FF8FB1">40-pin GPIO header &mdash; code controls LEDs, motors, sensors</text>
+
+          <line x1="330" y1="240" x2="150" y2="236" stroke="#A5F3FC" stroke-width="2" stroke-dasharray="4 3"/>
+          <text x="20" y="232" fill="#A5F3FC">Processor</text>
+          <text x="20" y="252" font-size="13" font-weight="500" fill="#9AA3C7">quad-core ARM</text>
+
+          <line x1="176" y1="250" x2="150" y2="306" stroke="#A5F3FC" stroke-width="2" stroke-dasharray="4 3"/>
+          <text x="20" y="312" fill="#A5F3FC">microSD slot</text>
+          <text x="20" y="332" font-size="13" font-weight="500" fill="#9AA3C7">the "hard drive"</text>
+
+          <line x1="206" y1="172" x2="150" y2="156" stroke="#A5F3FC" stroke-width="2" stroke-dasharray="4 3"/>
+          <text x="20" y="152" fill="#A5F3FC">PCIe</text>
+          <text x="20" y="172" font-size="13" font-weight="500" fill="#9AA3C7">fast SSD add-ons</text>
+
+          <line x1="732" y1="160" x2="760" y2="160" stroke="#D9F99D" stroke-width="2"/>
+          <text x="768" y="165" fill="#D9F99D">USB 3.0 &times; 2</text>
+          <line x1="732" y1="230" x2="760" y2="230" stroke="#D9F99D" stroke-width="2"/>
+          <text x="768" y="235" fill="#D9F99D">USB 2.0 &times; 2</text>
+          <line x1="732" y1="309" x2="760" y2="309" stroke="#D9F99D" stroke-width="2"/>
+          <text x="768" y="314" fill="#D9F99D">Ethernet</text>
+
+          <line x1="257" y1="406" x2="257" y2="436" stroke="#FDE68A" stroke-width="2"/>
+          <text x="257" y="456" text-anchor="middle" fill="#FDE68A">USB-C power</text>
+          <line x1="346" y1="404" x2="380" y2="436" stroke="#FDE68A" stroke-width="2"/>
+          <text x="410" y="456" text-anchor="middle" fill="#FDE68A">2 &times; micro-HDMI</text>
+          <line x1="545" y1="376" x2="590" y2="436" stroke="#FDE68A" stroke-width="2"/>
+          <text x="620" y="456" text-anchor="middle" fill="#FDE68A">camera / display</text>
+        </g>
+      </svg>
+      <div class="cap">Raspberry Pi 5, simplified. Every Pi has the same basic recipe: processor, RAM, storage on a microSD card, video out, USB, and the GPIO pins.</div>
+    </div>
+
+    <div class="grid3">
+      <div class="card cy"><span class="big-num">$15&ndash;120</span><h4>Cheap enough to break</h4><p>A Pi Zero 2 W is about $15; a top-end Pi 5 is about $120. Students can wire it wrong, reimage it, and try again.</p></div>
+      <div class="card pi"><span class="big-num">LINUX</span><h4>A real operating system</h4><p>Raspberry Pi OS (Debian Linux) with a desktop, a browser, Python, Scratch, and a terminal. The same skills run real servers.</p></div>
+      <div class="card lime"><span class="big-num">GPIO</span><h4>Code meets the physical world</h4><p>Forty pins turn <code>led.on()</code> into light, sound, and motion &mdash; the thing a Chromebook can't do.</p></div>
+    </div>
+
+    <div class="callout cy"><b>Pi vs. Pico:</b> a Raspberry Pi is a full computer that runs an operating system. A Raspberry Pi <b>Pico</b> is a $4&ndash;$7 <em>microcontroller</em>: no OS, it runs one program in MicroPython or C, and it's perfect for electronics. Same company, different jobs (see the table later).</div>
+
+    <div class="notes">Pass a bare Pi around the room while you talk. Ask: "What's missing compared to a laptop?" (screen, keyboard, battery, case &mdash; and the hard drive is a microSD card). Land the idea that it's a <em>real</em> computer, not a toy.</div>
+  </div>
+</section>
+
+<!-- ================= 4. RETROPIE ================= -->
+<section class="slide" id="s-retropie" data-min="11">
+  <div class="wrap">
+    <div class="kicker">WORLD 1-2 <span class="time">0:11 &middot; 4 min</span></div>
+    <h2>RetroPie + EmulationStation</h2>
+    <p class="lede">RetroPie turns a Pi into a retro game console. It's free software built on Raspberry Pi OS that bundles two things: <b>emulators</b> that imitate old game hardware, and <b>EmulationStation</b>, the controller-friendly menu students actually see.</p>
+
+    <div class="fig">
+      <svg viewBox="0 0 900 330" role="img" aria-label="Layer diagram: EmulationStation menu on top, then the game ROM, the emulator, Raspberry Pi OS, and the Pi's ARM processor at the bottom.">
+        <g font-family="Manrope" font-weight="700">
+          <rect x="140" y="14" width="620" height="54" rx="10" fill="rgba(224,36,94,.18)" stroke="#E0245E" stroke-width="2"/>
+          <text x="450" y="38" text-anchor="middle" fill="#FFFFFF" font-size="17">EmulationStation &mdash; the menu (pick a system, pick a game)</text>
+          <text x="450" y="58" text-anchor="middle" fill="#FF8FB1" font-size="13" font-weight="500">what students see and touch</text>
+
+          <rect x="140" y="80" width="620" height="54" rx="10" fill="rgba(251,191,36,.14)" stroke="#FBBF24" stroke-width="2"/>
+          <text x="450" y="104" text-anchor="middle" fill="#FFFFFF" font-size="17">Game ROM &mdash; the original 1980s/90s machine code</text>
+          <text x="450" y="124" text-anchor="middle" fill="#FDE68A" font-size="13" font-weight="500">written for a 6502 (NES) or 65816 (SNES) processor</text>
+
+          <rect x="140" y="146" width="620" height="54" rx="10" fill="rgba(34,211,238,.14)" stroke="#22D3EE" stroke-width="2"/>
+          <text x="450" y="170" text-anchor="middle" fill="#FFFFFF" font-size="17">Emulator (RetroArch + a core) &mdash; software pretending to be a NES</text>
+          <text x="450" y="190" text-anchor="middle" fill="#A5F3FC" font-size="13" font-weight="500">translates every old instruction into one the Pi understands</text>
+
+          <rect x="140" y="212" width="620" height="54" rx="10" fill="rgba(163,230,53,.13)" stroke="#A3E635" stroke-width="2"/>
+          <text x="450" y="236" text-anchor="middle" fill="#FFFFFF" font-size="17">Raspberry Pi OS (Linux)</text>
+          <text x="450" y="256" text-anchor="middle" fill="#D9F99D" font-size="13" font-weight="500">files, drivers, USB controllers, networking</text>
+
+          <rect x="140" y="278" width="620" height="44" rx="10" fill="#1C2140" stroke="#3A4380" stroke-width="2"/>
+          <text x="450" y="306" text-anchor="middle" fill="#FFFFFF" font-size="17">ARM processor on the Raspberry Pi</text>
+
+          <text x="80" y="170" text-anchor="middle" fill="#9AA3C7" font-size="13" transform="rotate(-90 80 170)">ABSTRACTION LAYERS</text>
+          <line x1="100" y1="20" x2="100" y2="318" stroke="#3A4380" stroke-width="2"/>
+        </g>
+      </svg>
+      <div class="cap">That stack is an AP CSP abstraction lesson hiding in plain sight: each layer hides the complexity of the one below it.</div>
+    </div>
+
+    <div class="grid2">
+      <div class="card pi"><h4>Why it works in a classroom</h4><ul><li>Boots straight into the game menu &mdash; no desktop to wander off into</li><li>Plays with cheap USB controllers</li><li>Can be locked in <b>Kiosk mode</b> so students can't change settings</li><li>Runs on a Pi 3, Pi 4, or Pi 400 out of the box</li></ul></div>
+      <div class="card amb"><h4>Know before you install</h4><ul><li>RetroPie's ready-made images target the Pi 4/400 and older. For a Pi 5, check <a href="https://retropie.org.uk" target="_blank" rel="noopener">retropie.org.uk</a> for current support, or use Batocera or Recalbox, which offer Pi 5 builds.</li><li>RetroPie ships with <b>no games</b>. You supply them &mdash; legally (see Build It).</li></ul></div>
+    </div>
+
+    <div class="notes">Show the menu on screen: scroll systems, open NES, show box art. Say the word "emulator" and ask the room to define it. Plant the seed: this layer diagram is a whole lesson on its own.</div>
+  </div>
+</section>
+
+<!-- ================= 5. MY ARCADE ================= -->
+<section class="slide" id="s-arcade" data-min="15">
+  <div class="wrap">
+    <div class="kicker">BOSS LEVEL <span class="time">0:15 &middot; 12 min &middot; live demo</span></div>
+    <h2>My Extra Credit Arcade</h2>
+    <p class="lede">In my room, a Raspberry Pi running RetroPie is an arcade station students play for extra credit. Progress in a game turns into points in their Bank &mdash; our class extra credit account &mdash; and those points get spent on real grades. Students can also play the same library in a browser version of the arcade.</p>
+
+    <h3 class="sub">The loop</h3>
+    <div class="fig">
+      <svg viewBox="0 0 960 250" role="img" aria-label="The extra credit loop: pick a game from a difficulty tier, clear a level, teacher verifies on screen, points are logged in the student's Bank, student spends points on a grade, then plays again. Each game pays out once per school year.">
+        <defs><marker id="ah" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#9AA3C7"/></marker></defs>
+        <g font-family="Manrope" font-weight="700" text-anchor="middle">
+          <rect x="10" y="40" width="160" height="96" rx="14" fill="#161A33" stroke="#22D3EE" stroke-width="2"/>
+          <text x="90" y="30" fill="#A5F3FC" font-family="Press Start 2P" font-size="11">1</text>
+          <text x="90" y="80" fill="#fff" font-size="16">Pick a game</text>
+          <text x="90" y="102" fill="#9AA3C7" font-size="13" font-weight="500">from one of</text>
+          <text x="90" y="120" fill="#9AA3C7" font-size="13" font-weight="500">4 tiers</text>
+
+          <rect x="205" y="40" width="160" height="96" rx="14" fill="#161A33" stroke="#22D3EE" stroke-width="2"/>
+          <text x="285" y="30" fill="#A5F3FC" font-family="Press Start 2P" font-size="11">2</text>
+          <text x="285" y="80" fill="#fff" font-size="16">Clear a level</text>
+          <text x="285" y="102" fill="#9AA3C7" font-size="13" font-weight="500">points per stage,</text>
+          <text x="285" y="120" fill="#9AA3C7" font-size="13" font-weight="500">not just bosses</text>
+
+          <rect x="400" y="40" width="160" height="96" rx="14" fill="rgba(224,36,94,.18)" stroke="#E0245E" stroke-width="2"/>
+          <text x="480" y="30" fill="#FF8FB1" font-family="Press Start 2P" font-size="11">3</text>
+          <text x="480" y="80" fill="#fff" font-size="16">Teacher verifies</text>
+          <text x="480" y="102" fill="#FFD1DE" font-size="13" font-weight="500">on the screen &mdash;</text>
+          <text x="480" y="120" fill="#FFD1DE" font-size="13" font-weight="500">no self-reporting</text>
+
+          <rect x="595" y="40" width="160" height="96" rx="14" fill="#161A33" stroke="#A3E635" stroke-width="2"/>
+          <text x="675" y="30" fill="#D9F99D" font-family="Press Start 2P" font-size="11">4</text>
+          <text x="675" y="80" fill="#fff" font-size="16">Points logged</text>
+          <text x="675" y="102" fill="#9AA3C7" font-size="13" font-weight="500">in the student's</text>
+          <text x="675" y="120" fill="#9AA3C7" font-size="13" font-weight="500">Bank account</text>
+
+          <rect x="790" y="40" width="160" height="96" rx="14" fill="#161A33" stroke="#FBBF24" stroke-width="2"/>
+          <text x="870" y="30" fill="#FDE68A" font-family="Press Start 2P" font-size="11">5</text>
+          <text x="870" y="80" fill="#fff" font-size="16">Spend points</text>
+          <text x="870" y="102" fill="#9AA3C7" font-size="13" font-weight="500">student requests</text>
+          <text x="870" y="120" fill="#9AA3C7" font-size="13" font-weight="500">them on a grade</text>
+
+          <line x1="172" y1="88" x2="200" y2="88" stroke="#9AA3C7" stroke-width="2" marker-end="url(#ah)"/>
+          <line x1="367" y1="88" x2="395" y2="88" stroke="#9AA3C7" stroke-width="2" marker-end="url(#ah)"/>
+          <line x1="562" y1="88" x2="590" y2="88" stroke="#9AA3C7" stroke-width="2" marker-end="url(#ah)"/>
+          <line x1="757" y1="88" x2="785" y2="88" stroke="#9AA3C7" stroke-width="2" marker-end="url(#ah)"/>
+          <path d="M870 138 C870 215, 90 215, 90 144" fill="none" stroke="#9AA3C7" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#ah)"/>
+          <text x="480" y="236" fill="#9AA3C7" font-size="13" font-weight="600">play again &mdash; each game pays out once per school year</text>
+        </g>
+      </svg>
+    </div>
+
+    <h3 class="sub">The points scale</h3>
+    <p>22 classic NES and SNES games, sorted into four difficulty tiers. Points are earned <b>per stage or level cleared</b>, and they scale up the deeper into a game a student gets.</p>
+    <div class="tbl"><div class="scroll"><table>
+      <tr><th>Tier</th><th>Difficulty</th><th>Points per level</th><th>Examples</th></tr>
+      <tr><td><b>1</b></td><td>Easy</td><td>5&ndash;20</td><td class="std">Entry-level games anyone can start on</td></tr>
+      <tr><td><b>2</b></td><td>Medium</td><td>10&ndash;30</td><td class="std">Most of the library</td></tr>
+      <tr><td><b>3</b></td><td>Hard</td><td>15&ndash;40</td><td class="std">For students who've beaten a Tier 2</td></tr>
+      <tr><td><b>4</b></td><td>Brutal</td><td>20&ndash;50</td><td>Battletoads, Ninja Gaiden 3, Mega Man, Contra</td></tr>
+    </table></div></div>
+
+    <h3 class="sub">The rules that make it work</h3>
+    <div class="grid2">
+      <div class="card pi"><h4>Honest by design</h4><ul><li><b>Teacher verifies</b> every level before points are logged &mdash; no self-reporting</li><li>Each game pays out <b>once per school year</b>, so nobody farms the easy levels</li><li>Save states and rewind stay off, so progress is real</li></ul></div>
+      <div class="card lime"><h4>Milestone bonuses for beating a whole game</h4><ul><li>A <b>100-point formative grade replacement</b>, or</li><li><b>+10 points on a test</b>, or</li><li><b>+2 on an exam</b> (+3 for a Tier 4 game)</li><li>Capped at <b>3 milestone bonuses per semester</b></li></ul></div>
+    </div>
+
+    <h3 class="sub">Where the points go: the Bank</h3>
+    <div class="grid3">
+      <div class="card cy"><h4>Students check their balance</h4><p>They sign in with their school Google account to see points earned, used, and available.</p></div>
+      <div class="card cy"><h4>Students request to spend</h4><p>They pick an assignment and ask to use points on it; I approve and apply it.</p></div>
+      <div class="card cy"><h4>One bank, many sources</h4><p>Arcade points sit alongside quiz bonuses and other extra credit, so it's one system, not five.</p></div>
+    </div>
+    <div class="callout pi"><b>Why it works:</b> retro games are hard in exactly the way learning is hard. You fail, you learn the pattern, you get one screen further. Students who never ask for extra credit will grind a Mega Man stage for twenty minutes, and that persistence is the point.</div>
+
+    <div class="notes">LIVE DEMO: have a volunteer play a Tier 1 game for about 60 seconds, then walk over and "verify" the level on screen exactly like you would in class. Then show the Bank with a demo student (not a real one). Hammer the three guardrails: teacher verifies, once per game per year, milestone cap.</div>
+  </div>
+</section>
+
+<!-- ================= 6. BUILD ================= -->
+<section class="slide" id="s-build" data-min="27">
+  <div class="wrap">
+    <div class="kicker">POWER-UP <span class="time">0:27 &middot; 6 min</span></div>
+    <h2>Build Your Own Arcade</h2>
+    <p class="lede">About $110&ndash;$130 and one planning period. Use a TV or projector you already have.</p>
+
+    <div class="grid2">
+      <div class="tbl"><div class="scroll"><table>
+        <tr><th>Part</th><th>Approx. cost</th></tr>
+        <tr><td>Raspberry Pi 4 (4 GB)</td><td>$55</td></tr>
+        <tr><td>Case with fan or heatsink</td><td>$10&ndash;$15</td></tr>
+        <tr><td>Official USB-C power supply</td><td>$8&ndash;$12</td></tr>
+        <tr><td>64 GB microSD card (A1/A2 rated)</td><td>$10</td></tr>
+        <tr><td>2 USB SNES-style controllers</td><td>$15&ndash;$25</td></tr>
+        <tr><td>Micro-HDMI to HDMI cable</td><td>$8</td></tr>
+        <tr><td><b>Total</b></td><td><b>&asymp; $110&ndash;$130</b></td></tr>
+      </table></div></div>
+      <div class="card amb">
+        <h4>Keep it legal (and make it a lesson)</h4>
+        <p>Downloading copies of commercial games you don't own is copyright infringement. Safe options:</p>
+        <ul>
+          <li>Free <b>homebrew</b> games made by indie developers for old consoles</li>
+          <li>Games their rights holders have released for free</li>
+          <li>Games your <b>students write</b> (see Make It Yours)</li>
+          <li>Check your district's policy before loading anything</li>
+        </ul>
+        <p style="margin-top:10px;">The "why is this illegal?" conversation is a ready-made digital citizenship lesson.</p>
+      </div>
+    </div>
+
+    <h3 class="sub">Setup, start to finish</h3>
+    <ol class="steps">
+      <li><b>Flash the card.</b> Install Raspberry Pi Imager on any computer, choose your Pi model, then <em>Emulation and game OS &rarr; RetroPie</em>, and write it to the microSD card.</li>
+      <li><b>First boot.</b> Plug in the controller, power on, and follow the prompts to map the buttons.</li>
+      <li><b>Connect it.</b> From the RetroPie menu, join Wi-Fi and turn on SSH. Ask your IT department first &mdash; school networks often need the device registered.</li>
+      <li><b>Add games.</b> Easiest way: on a USB stick, make a folder named <code>retropie</code>, plug it into the Pi until the light stops blinking, copy games into <code>retropie-mount/roms/nes</code> (or <code>snes</code>) on your computer, and plug it back in. Or copy over the network into <code>~/RetroPie/roms/</code>.</li>
+      <li><b>Scrape box art.</b> Run the built-in scraper so every game shows cover art and a description.</li>
+      <li><b>Lock it down.</b> Set EmulationStation's <em>UI Mode</em> to <b>Kiosk</b> (no settings menu), hide systems you don't use, and disable RetroArch's save-state and rewind hotkeys so every level is earned.</li>
+      <li><b>Back it up.</b> Once it's perfect, copy the whole microSD card to an image file. If a card ever corrupts, you're back in business in ten minutes.</li>
+    </ol>
+
+    <div class="callout cy"><b>Classroom tips:</b> use the official power supply (cheap ones cause random crashes and SD-card corruption); shut down from the menu instead of pulling the plug; label the controllers and keep them in a bin; and post a clear "when can you play" rule, such as only after the day's work is submitted.</div>
+
+    <div class="notes">If time allows, show the Imager menu on your laptop. Stress step 6: locking save states is what makes teacher verification meaningful. Remind everyone they'll have this page, so nobody needs to write anything down.</div>
+  </div>
+</section>
+
+<!-- ================= 7. MODIFY ================= -->
+<section class="slide" id="s-modify" data-min="33">
+  <div class="wrap">
+    <div class="kicker">WARP ZONE <span class="time">0:33 &middot; 6 min</span></div>
+    <h2>Make It Yours: Ways to Modify the Arcade</h2>
+    <p class="lede">My version runs on a points bank and grade rewards. Here's how to bend it to fit your school, your grade level, and your comfort with gaming in class.</p>
+
+    <div class="grid2">
+      <div class="card pi"><h4>Change the reward</h4><ul>
+        <li>Non-grade rewards: homework pass, choose your seat, music during work time</li>
+        <li>Class-wide goal: every level anyone clears fills a thermometer toward a class celebration</li>
+        <li>Trade grade boosts for "retake a quiz" tickets</li>
+      </ul></div>
+      <div class="card cy"><h4>Change how progress is verified</h4><ul>
+        <li>Students photograph the stage-clear screen and submit it through a Google Form</li>
+        <li>Two-person rule: a classmate witnesses and initials a log sheet</li>
+        <li>A leaderboard spreadsheet students update after you initial it</li>
+      </ul></div>
+      <div class="card lime"><h4>Put learning in front of the game</h4><ul>
+        <li><b>Quiz to play:</b> answer three review questions correctly to unlock a session</li>
+        <li><b>Bug bounty:</b> find and fix a bug in a provided program to earn play time</li>
+        <li><b>Exit-ticket token:</b> a strong exit ticket earns one arcade token</li>
+      </ul></div>
+      <div class="card amb"><h4>Change who makes the games</h4><ul>
+        <li>Students build Python/Pygame games that you add as a new "system" in EmulationStation; the best ones join the arcade</li>
+        <li>Middle schoolers publish Scratch games to a classroom Pi</li>
+        <li>Advanced students write a homebrew NES game in 6502 assembly</li>
+      </ul></div>
+    </div>
+
+    <h3 class="sub">Middle school vs. high school</h3>
+    <div class="tbl"><div class="scroll"><table>
+      <tr><th></th><th>Middle school</th><th>High school</th></tr>
+      <tr><td><b>Games</b></td><td>Easy-tier homebrew and student-made Scratch games</td><td>The full tier ladder, including brutal Tier 4</td></tr>
+      <tr><td><b>Reward</b></td><td>Privileges, class-wide goals</td><td>Bank points toward grades, exam bonuses</td></tr>
+      <tr><td><b>Student role</b></td><td>Players and game testers</td><td>Builders: set up the Pi, write games, run the leaderboard</td></tr>
+      <tr><td><b>Time</b></td><td>Scheduled "arcade Fridays"</td><td>Anytime the day's work is done, with a sign-up sheet</td></tr>
+    </table></div></div>
+
+    <div class="callout"><b>Beyond extra credit:</b> run a lunch or after-school tournament, use it as a club-recruiting magnet at open house, or build a bartop cabinet as a cross-curricular project with woodshop or engineering.</div>
+
+    <div class="notes">Ask the room: "Which of these would your admin approve tomorrow?" Take two or three answers. The takeaway: the system is the verify-then-reward loop, not the specific reward.</div>
+  </div>
+</section>
+
+<!-- ================= 8. CONCEPTS ================= -->
+<section class="slide" id="s-concepts" data-min="39">
+  <div class="wrap">
+    <div class="kicker">SECRET LEVEL <span class="time">0:39 &middot; 7 min</span></div>
+    <h2>The CS Concepts Hiding in the Arcade</h2>
+    <p class="lede">The arcade is a reward, but the machine itself is a curriculum. Every topic below comes straight from setting up, running, or explaining the RetroPie station. Open any card for a lesson you can run.</p>
+
+    <details class="acc" open><summary><span class="ttl">Emulation and abstraction</span><span class="std">AP CSP: Computing Systems &amp; Networks</span></summary><div class="body">
+      <p>An emulator is software pretending to be hardware. The NES game only knows how to talk to a 6502 processor that isn't there, so the emulator imitates it, instruction by instruction.</p>
+      <p><b>Lesson:</b> students draw the layer diagram (game &rarr; emulator &rarr; Linux &rarr; ARM chip) and explain what each layer hides from the one above it.</p></div></details>
+
+    <details class="acc"><summary><span class="ttl">Processors and instruction sets</span><span class="std">Hardware &middot; Embedded Computing</span></summary><div class="body">
+      <p>The 1985 NES ran a 1.79 MHz 6502; a Pi 4 runs a quad-core ARM chip at 1.5 GHz or more &mdash; hundreds of times faster per core, which is why it can fake the old chip in real time.</p>
+      <p><b>Lesson:</b> compare clock speed, cores, and RAM across a NES, a SNES, a Pi, and a student's phone. Why can't a NES emulate a Pi?</p></div></details>
+
+    <details class="acc"><summary><span class="ttl">Binary, hex, and memory</span><span class="std">AP CSP: Data</span></summary><div class="body">
+      <p>A ROM is just bytes. Cheat devices like the Game Genie worked by changing the value stored at a specific memory address.</p>
+      <p><b>Lesson:</b> open a homebrew ROM in a hex viewer, find the header bytes (the first four spell <code>NES</code> plus an end-of-file byte), and convert them from hex to decimal and ASCII. Then discuss: an extra life is a single number in memory.</p></div></details>
+
+    <details class="acc"><summary><span class="ttl">Operating systems and the Linux file system</span><span class="std">IST: Operating Systems</span></summary><div class="body">
+      <p>Games live in <code>~/RetroPie/roms/nes</code>; settings live in text files. Students see directories, paths, permissions, and why an operating system exists.</p>
+      <p><b>Lesson:</b> a terminal scavenger hunt &mdash; use <code>ls</code>, <code>cd</code>, <code>pwd</code>, and <code>df -h</code> to find the games folder, count the games, and report free space.</p></div></details>
+
+    <details class="acc"><summary><span class="ttl">Networking</span><span class="std">AP CSP: Computing Systems &amp; Networks &middot; IST: Networking</span></summary><div class="body">
+      <p>Adding games over the network means IP addresses, SSH, file transfer, and shared folders.</p>
+      <p><b>Lesson:</b> find the Pi's IP address, <code>ping</code> it, SSH in, and copy a file across the network. Then trace what happened at each step.</p></div></details>
+
+    <details class="acc"><summary><span class="ttl">Input devices and configuration</span><span class="std">Hardware &middot; Embedded Computing</span></summary><div class="body">
+      <p>A USB controller is just a device sending button codes; RetroPie maps each code to an action in a configuration file.</p>
+      <p><b>Lesson:</b> remap the controller, find the file that changed, and read it. Extension: wire arcade buttons to the GPIO pins to build a custom controller.</p></div></details>
+
+    <details class="acc"><summary><span class="ttl">Copyright, ethics, and intellectual property</span><span class="std">AP CSP: Impact of Computing &middot; IST: Digital Citizenship</span></summary><div class="body">
+      <p>Why are emulators legal when most ROM downloads aren't? Who owns a 40-year-old game? What about games nobody sells anymore?</p>
+      <p><b>Lesson:</b> a structured debate on game preservation vs. copyright, using real cases and the DMCA.</p></div></details>
+
+    <details class="acc"><summary><span class="ttl">Algorithms and game design</span><span class="std">AP CSP: Algorithms &amp; Programming</span></summary><div class="body">
+      <p>Enemy patterns are algorithms: loops, conditionals, and a little randomness. Beating a level means recognizing the pattern.</p>
+      <p><b>Lesson:</b> students write pseudocode for one enemy's behavior, then build it in Python or Scratch.</p></div></details>
+
+    <details class="acc"><summary><span class="ttl">Data collection and analysis</span><span class="std">AP CSP: Data</span></summary><div class="body">
+      <p>The points bank is a dataset: which games get played most, which tier is hardest, how fast students progress.</p>
+      <p><b>Lesson:</b> give students anonymized arcade data to clean, chart, and draw conclusions from, then discuss what data they'd need to answer a better question.</p></div></details>
+
+    <details class="acc"><summary><span class="ttl">Cybersecurity</span><span class="std">IST &middot; Cybersecurity pathways</span></summary><div class="body">
+      <p>An SSH-enabled Pi with a weak password is a real target on a real network.</p>
+      <p><b>Lesson:</b> harden the arcade &mdash; strong password, updates, unused services turned off &mdash; and have students explain why each step matters.</p></div></details>
+
+    <div class="notes">Open two cards live &mdash; abstraction and copyright land best. Emphasize that every lesson here uses the machine they already bought for the arcade.</div>
+  </div>
+</section>
+
+<!-- ================= 9. MODELS TABLE ================= -->
+<section class="slide" id="s-models" data-min="46">
+  <div class="wrap">
+    <div class="kicker">CHARACTER SELECT <span class="time">0:46 &middot; 5 min</span></div>
+    <h2>Which Pi Should I Buy?</h2>
+    <p class="lede">Every current model and what it's good for in a classroom. Prices are approximate US list prices; check <a href="https://www.raspberrypi.com/products/" target="_blank" rel="noopener">raspberrypi.com</a> for today's numbers.</p>
+
+    <div class="ways-tools" style="margin-bottom:12px;">
+      <button class="fbtn on" data-mf="all" type="button">All models</button>
+      <button class="fbtn" data-mf="arcade" type="button">Runs a RetroPie arcade</button>
+      <button class="fbtn" data-mf="ms" type="button">Great for middle school</button>
+      <button class="fbtn" data-mf="micro" type="button">Microcontrollers</button>
+    </div>
+    <div class="tbl"><div class="scroll"><table id="modelTable">
+      <tr><th>Model</th><th>Type &amp; specs</th><th>Approx. price</th><th>RetroPie?</th><th>Best classroom uses</th><th>Level</th></tr>
+      <tr data-tags="arcade"><td><b>Raspberry Pi 5</b><br><span class="std">2023</span></td><td>Computer &middot; quad-core 2.4 GHz ARM &middot; 2, 4, 8, or 16 GB RAM &middot; PCIe for SSDs</td><td>$50&ndash;$120</td><td><span class="tag mid">Manual install or Batocera</span></td><td>The fastest Pi: desktop replacement, AI Camera and AI Kit projects, running a small local AI model, web and game servers, later-era emulation</td><td><span class="tag hs">HS</span></td></tr>
+      <tr data-tags="arcade ms"><td><b>Raspberry Pi 500</b><br><span class="std">2024</span></td><td>A Pi 5 built into a keyboard &middot; 8 GB RAM</td><td>&asymp; $90</td><td><span class="tag mid">Manual install or Batocera</span></td><td>A whole computer that plugs into any monitor: student workstations, a Pi lab on a cart, coding at home</td><td><span class="tag both">MS + HS</span></td></tr>
+      <tr data-tags="arcade"><td><b>Raspberry Pi 4 Model B</b><br><span class="std">2019</span></td><td>Computer &middot; quad-core 1.5&ndash;1.8 GHz ARM &middot; 1&ndash;8 GB RAM</td><td>$35&ndash;$75</td><td><span class="tag yes">Yes &mdash; best supported</span></td><td><b>The arcade pick.</b> Also networking labs, web servers, the Linux command line, GPIO projects, desktop use</td><td><span class="tag both">MS + HS</span></td></tr>
+      <tr data-tags="arcade ms"><td><b>Raspberry Pi 400</b><br><span class="std">2020</span></td><td>A Pi 4 built into a keyboard &middot; 4 GB RAM</td><td>&asymp; $70 ($100 kit)</td><td><span class="tag yes">Yes</span></td><td>Grab-and-go computer for intro classes, Scratch and Python, a portable arcade, GPIO through the back header</td><td><span class="tag both">MS + HS</span></td></tr>
+      <tr data-tags="arcade"><td><b>Raspberry Pi 3 Model B+</b><br><span class="std">2018</span></td><td>Computer &middot; quad-core 1.4 GHz ARM &middot; 1 GB RAM &middot; full-size HDMI</td><td>&asymp; $35</td><td><span class="tag yes">Yes &mdash; NES/SNES run great</span></td><td>Budget arcade, sensor projects, headless servers; a great use for older Pis already in your closet</td><td><span class="tag both">MS + HS</span></td></tr>
+      <tr data-tags="arcade"><td><b>Raspberry Pi Zero 2 W</b><br><span class="std">2021</span></td><td>Tiny computer &middot; quad-core 1 GHz &middot; 512 MB RAM &middot; Wi-Fi &middot; mini-HDMI</td><td>&asymp; $15</td><td><span class="tag yes">Yes &mdash; 8/16-bit</span></td><td>Handheld game builds, wearables, IoT sensor nodes, tiny cameras, one Pi per student on a budget</td><td><span class="tag hs">HS</span></td></tr>
+      <tr data-tags="ms"><td><b>Raspberry Pi Zero W</b><br><span class="std">2017</span></td><td>Tiny computer &middot; single-core 1 GHz &middot; 512 MB RAM &middot; Wi-Fi</td><td>$10&ndash;$14</td><td><span class="tag mid">Limited</span></td><td>Simple sensor logging and first GPIO projects; too slow to be a desktop</td><td><span class="tag both">MS + HS</span></td></tr>
+      <tr data-tags="micro ms"><td><b>Raspberry Pi Pico / Pico W</b><br><span class="std">2021 / 2022</span></td><td><b>Microcontroller</b> &middot; RP2040 &middot; 264 KB RAM &middot; the W adds Wi-Fi</td><td>$4&ndash;$6</td><td><span class="tag no">No &mdash; no OS</span></td><td>First electronics: LEDs, buttons, sensors, robots, and IoT in MicroPython. Cheap enough for one per student</td><td><span class="tag both">MS + HS</span></td></tr>
+      <tr data-tags="micro ms"><td><b>Raspberry Pi Pico 2 / Pico 2 W</b><br><span class="std">2024</span></td><td><b>Microcontroller</b> &middot; RP2350 &middot; 520 KB RAM &middot; the W adds Wi-Fi</td><td>$5&ndash;$7</td><td><span class="tag no">No &mdash; no OS</span></td><td>Everything the Pico does with more speed and memory; great for robotics and wearables</td><td><span class="tag both">MS + HS</span></td></tr>
+    </table></div></div>
+
+    <div class="grid3" style="margin-top:16px;">
+      <div class="card pi"><h4>Starting an arcade?</h4><p>Pi 4 (4 GB). The best RetroPie support and plenty of power for NES and SNES.</p></div>
+      <div class="card cy"><h4>Starting a Pi lab?</h4><p>Pi 500 or Pi 400. Keyboard, computer, and GPIO in one box &mdash; add a mouse and a monitor.</p></div>
+      <div class="card lime"><h4>Starting electronics?</h4><p>Pico W. At about $6, every student gets their own board to keep.</p></div>
+    </div>
+    <div class="callout cy"><b>Add-ons worth knowing:</b> the Sense HAT (sensors plus an LED matrix, the same board the Astro Pi program uses in space), the Camera Module, the Raspberry Pi AI Camera and AI Kit for on-device image recognition, and motor-driver boards for robots.</div>
+
+    <div class="notes">Use the filter buttons live. The most common question here: "Can I use the old Pi 3s in my closet?" Yes &mdash; they make perfect arcade machines.</div>
+  </div>
+</section>
+
+<!-- ================= 10. 100 WAYS ================= -->
+<section class="slide" id="s-ways" data-min="51">
+  <div class="wrap">
+    <div class="kicker">BONUS STAGE <span class="time">0:51 &middot; 5 min</span></div>
+    <h2>100 More Ways to Use a Pi in Class</h2>
+    <p class="lede">The arcade is one idea. Here are a hundred more, sorted by topic and tagged for middle school, high school, or both. Filter, search, and steal freely.</p>
+    <div class="ways-tools">
+      <input type="search" id="waySearch" placeholder="Search ideas (e.g. sensor, Python, network)&hellip;" aria-label="Search ideas">
+      <span class="count" id="wayCount"></span>
+    </div>
+    <div class="ways-tools" id="wayCats"></div>
+    <div class="ways-tools" id="wayLevels"></div>
+    <div class="ways" id="ways"></div>
+    <div class="notes">Don't read these. Give the room 60 seconds: "Filter to your grade level and pick one you'd try this semester." Then take two quick shares.</div>
+  </div>
+</section>
+
+<!-- ================= 11. GET STARTED ================= -->
+<section class="slide" id="s-start" data-min="56">
+  <div class="wrap">
+    <div class="kicker">CONTINUE? <span class="time">0:56 &middot; 4 min</span></div>
+    <h2>Getting Started + Q&amp;A</h2>
+    <p class="lede">You don't need a lab to start. One Pi, one TV, one idea.</p>
+    <div class="grid3">
+      <div class="card pi"><span class="big-num">WEEK 1</span><h4>Buy one Pi 4 kit</h4><p>Build the arcade (or any project from the list) on your own time first.</p></div>
+      <div class="card cy"><span class="big-num">WEEK 2</span><h4>Launch the loop</h4><p>Pick your reward, your verification method, and your "when can you play" rule. Post them.</p></div>
+      <div class="card lime"><span class="big-num">WEEK 3+</span><h4>Teach the machine</h4><p>Run one concept lesson from the arcade: abstraction, networking, or copyright.</p></div>
+    </div>
+
+    <h3 class="sub">Funding</h3>
+    <div class="grid2">
+      <div class="card amb"><ul>
+        <li><b>DonorsChoose</b>: Pi kits are classic, easy-to-fund projects</li>
+        <li><b>Local business and PTO mini-grants</b>: "a $120 arcade that teaches CS" is an easy pitch</li>
+        <li><b>CTE / Perkins funds</b> if your course is part of a career pathway</li>
+      </ul></div>
+      <div class="card amb"><ul>
+        <li>Start with one machine and add more as the budget allows</li>
+        <li>Ask your IT department about surplus monitors and keyboards</li>
+        <li>Old Pi 3s from past grants make perfect arcade machines</li>
+      </ul></div>
+    </div>
+
+    <h3 class="sub">Free resources</h3>
+    <div class="tbl"><div class="scroll"><table>
+      <tr><th>Resource</th><th>What it's for</th></tr>
+      <tr><td><a href="https://www.raspberrypi.com/software/" target="_blank" rel="noopener">Raspberry Pi Imager</a></td><td>Writes RetroPie or Raspberry Pi OS to a microSD card</td></tr>
+      <tr><td><a href="https://retropie.org.uk/docs/" target="_blank" rel="noopener">RetroPie Docs</a></td><td>Setup, controllers, adding games, Kiosk mode</td></tr>
+      <tr><td><a href="https://projects.raspberrypi.org" target="_blank" rel="noopener">Raspberry Pi Projects</a></td><td>Hundreds of free, step-by-step student projects</td></tr>
+      <tr><td><a href="https://www.raspberrypi.org/teach/" target="_blank" rel="noopener">Raspberry Pi Foundation: Teach</a></td><td>Free curriculum, Experience AI, and teacher training</td></tr>
+      <tr><td><a href="https://astro-pi.org" target="_blank" rel="noopener">Astro Pi</a></td><td>Students write code that runs on the International Space Station</td></tr>
+      <tr><td><a href="https://gpiozero.readthedocs.io" target="_blank" rel="noopener">gpiozero</a></td><td>The easiest Python library for LEDs, buttons, and sensors</td></tr>
+    </table></div></div>
+
+    <div class="callout pi" style="margin-top:22px;"><b>Keep this page.</b> Everything from today &mdash; the arcade rules, the build list, the setup steps, the concept lessons, the model table, and all 100 ideas &mdash; lives right here: <b>schscomputerscience.com &rarr; Presentations</b>.</div>
+
+    <div class="notes">Open the floor. Likely questions: school network access for SSH (talk to IT), admin approval for games in class (frame it as a verification-based incentive system), and grading fairness (the once-per-year rule and the milestone cap). Close with: "Player 2, your turn."</div>
+  </div>
+</section>
+
+<div class="foot"><div class="wrap">Game On: The Raspberry Pi in the CS Classroom &middot; Randy Norman, Social Circle High School &middot; <a href="index.html">More presentations</a> &middot; <a href="../index.html">SCHS Computer Science</a><br>Raspberry Pi is a trademark of Raspberry Pi Ltd. Game titles are trademarks of their respective owners. Prices are approximate.</div></div>
+
+<div class="presentbar" id="presentbar">
+  <button class="btn" id="prevBtn" type="button">&larr; Prev</button>
+  <span class="info" id="slideInfo"></span>
+  <button class="btn" id="nextBtn" type="button">Next &rarr;</button>
+  <span class="info" id="timerInfo"></span>
+  <button class="btn" id="notesBtn2" type="button">Notes (N)</button>
+  <button class="btn" id="exitBtn" type="button">Exit (Esc)</button>
+</div>
+
+<script>
+/* GPIO pins on the board diagram */
+(function(){
+  var g=document.getElementById('gpio-pins'); if(!g) return;
+  var html='';
+  for(var i=0;i<20;i++){ for(var r=0;r<2;r++){ html+='<circle cx="'+(272+i*17.5)+'" cy="'+(90+r*16)+'" r="4.5" fill="#D4AF37"/>'; } }
+  g.innerHTML=html;
+})();
+
+/* ---------- 100 ways ---------- */
+var CATS={P:'Programming',G:'Physical Computing',N:'Networking & Servers',C:'Cybersecurity',D:'Data & Science',A:'AI & Machine Learning',M:'Media & Art',R:'Game Dev & Retro',H:'Hardware & OS',T:'Classroom Tools',X:'Cross-Curricular'};
+var WAYS=[
+['P','Both','Python with Thonny','Thonny comes preinstalled: a beginner-friendly editor with a debugger that steps through code line by line.'],
+['P','MS','Offline Scratch 3','Run Scratch without internet or accounts; perfect for middle school and low-connectivity days.'],
+['P','MS','Turtle-graphics art show','Students draw spirals, flowers, and fractals with Python turtle, then hold a gallery walk.'],
+['P','HS','Command-line text adventure','Write an interactive story game in Python that runs entirely in the terminal.'],
+['P','Both','Quiz app with a GUI','Use the guizero library to build a clickable quiz with buttons and images.'],
+['P','HS','Pygame arcade game','Build a real game, then add it to the RetroPie menu as its own system.'],
+['P','HS','PICO-8 fantasy console','Make tiny retro games with built-in sprite and music editors (paid license).'],
+['P','Both','Live-code music in Sonic Pi','Loops, variables, and timing become beats; students perform their code.'],
+['P','HS','Bash scripting','Automate backups, file renaming, and reports with shell scripts.'],
+['P','HS','Git on a real Linux box','Practice commits, branches, and merges from the terminal.'],
+['P','HS','Compiled vs. interpreted','Write the same program in C and Python, compile the C with gcc, and time both.'],
+['P','HS','Recursion visualizer','Draw fractal trees and the Sierpinski triangle to make recursion visible.'],
+['P','MS','Digital pet','Code a Tamagotchi-style pet on the Sense HAT LED matrix that needs feeding.'],
+['P','Both','Morse code translator','Turn typed text into Morse code beeps and flashes.'],
+['P','HS','Rule-based chatbot','Build a simple chatbot, then compare it to how AI chatbots work.'],
+['G','Both','Blink an LED','The "Hello, World" of hardware: three lines of gpiozero.'],
+['G','MS','Traffic light','Sequence red, yellow, and green LEDs with timing and a crosswalk button.'],
+['G','Both','Reaction-time game','An LED lights at a random moment; the fastest button press wins.'],
+['G','Both','Quiz-show buzzers','Build lockout buzzers for Jeopardy-style review days.'],
+['G','Both','Motion alarm','A PIR motion sensor triggers a buzzer or a photo when someone walks by.'],
+['G','Both','Parking sensor','An ultrasonic distance sensor beeps faster as objects get closer.'],
+['G','HS','Keypad lock box','A servo-locked box that opens only with the right code.'],
+['G','HS','Temperature logger','Log readings from a digital temperature sensor to a file every minute.'],
+['G','HS','Plant-watering monitor','A soil-moisture sensor alerts the class when the plant is thirsty.'],
+['G','Both','Robot car','Drive motors through a motor-controller board and code the moves.'],
+['G','HS','Line-following robot','Infrared sensors plus conditionals make a self-driving robot.'],
+['G','Both','Sense HAT tilt game','Use the accelerometer to roll a "marble" around the LED matrix.'],
+['G','Both','Pico + MicroPython','A $4 microcontroller introduces embedded programming.'],
+['G','Both','NeoPixel light show','Program addressable LED strips to animate or react to music.'],
+['G','HS','Custom arcade controls','Wire real arcade buttons and a joystick to the GPIO pins for RetroPie.'],
+['G','MS','Electronic dice','Press a button to "roll" and light the right number of LEDs.'],
+['G','HS','Smart doorbell','A button press snaps a camera photo and sends a notification.'],
+['G','Both','Binary counter','Eight LEDs count from 0 to 255 in binary.'],
+['N','HS','Classroom web server','Host a site with Apache or Nginx that the whole class can visit.'],
+['N','HS','Headless Pi over SSH','Control a Pi with no screen from another computer.'],
+['N','HS','LAMP-stack guestbook','Linux, Apache, MySQL, and PHP power a class guestbook.'],
+['N','HS','Classroom file share','Set up a Samba share for turning in files on the local network.'],
+['N','HS','DNS in action','With IT approval, run Pi-hole on a lab network to see every DNS lookup.'],
+['N','Both','Local game server','Host a Luanti (formerly Minetest) world for a building challenge.'],
+['N','HS','Packet-capture lab','Use Wireshark on an isolated network to watch packets travel.'],
+['N','HS','Isolated lab Wi-Fi','Turn a Pi into an access point for a safe, separate lab network.'],
+['N','Both','Ping and traceroute','Map the hops data takes to reach a website.'],
+['N','Both','Offline Wikipedia','Serve Wikipedia with Kiwix so students can research with no internet.'],
+['N','HS','IoT messaging with MQTT','Pis publish and subscribe to each other&rsquo;s sensor readings.'],
+['N','HS','Pi cluster','Link several Pis to demonstrate parallel and distributed computing.'],
+['N','HS','Subnetting lab','Assign static IPs across several Pis and troubleshoot connectivity.'],
+['C','HS','Password-cracking demo','Crack hashes you created yourself with John the Ripper to show why length matters.'],
+['C','HS','Kali Linux lab','Supervised, isolated security tools on a dedicated Pi.'],
+['C','HS','Harden a Pi','Change defaults, enable a firewall, and install updates, with a checklist students can grade.'],
+['C','HS','Capture the flag','Host beginner CTF challenges on a Pi on the lab network.'],
+['C','Both','Cipher programs','Code Caesar and Vigen&egrave;re ciphers, then break each other&rsquo;s messages.'],
+['C','HS','Log detective','Find the "attacker" in a staged login log file.'],
+['C','HS','Checksum lab','Verify downloads with sha256sum and see what changing one byte does.'],
+['C','HS','Encrypted messages','Exchange GPG-encrypted notes between student Pis.'],
+['C','HS','Honeypot demo','With IT approval, show how fast automated scans find an exposed device.'],
+['D','Both','Weather station','Sensors feed a live classroom weather dashboard.'],
+['D','Both','Sensor data to spreadsheets','Log readings to CSV, then graph them in Python or Google Sheets.'],
+['D','Both','Astro Pi Mission Zero','Students&rsquo; code runs aboard the International Space Station.'],
+['D','MS','Classroom noise meter','A microphone drives a "too loud" warning light.'],
+['D','MS','Plant-growth timelapse','Photograph a plant every hour and stitch the images into a video.'],
+['D','Both','Bird-feeder camera','Motion-triggered photos build a species dataset.'],
+['D','HS','Air-quality monitor','Measure particulates and CO2 around the school.'],
+['D','HS','Energy and light audit','Log light levels to find wasted energy in the building.'],
+['D','HS','Sports-stats database','Store team stats in SQLite and query for the leaders.'],
+['D','HS','Live dashboards','Graph sensor data in Grafana like a real operations center.'],
+['A','Both','Teachable Machine on a Pi','Train an image model in the browser, then run it with a Pi camera.'],
+['A','HS','Object detection','Recognize objects in real time with the AI Camera or AI Kit.'],
+['A','HS','Face-detection smart mirror','Build it, then discuss privacy and bias.'],
+['A','HS','Offline voice assistant','Speech recognition that never sends audio to the cloud.'],
+['A','HS','Local AI model on a Pi 5','Run a small language model to demystify how AI chatbots work.'],
+['A','HS','Sorting machine','A camera plus a servo sorts objects by color.'],
+['A','Both','Experience AI lessons','Free AI curriculum from the Raspberry Pi Foundation and Google DeepMind.'],
+['M','Both','Photo booth','A button, a camera, and a countdown make an event photo booth.'],
+['M','MS','Stop-motion studio','Capture animation frames with a Pi camera and a button.'],
+['M','Both','Digital signage','Run school announcements on a hallway TV.'],
+['M','HS','Chiptune synthesizer','Generate 8-bit sound waves in code.'],
+['M','Both','LED-matrix pixel art','Design sprites and display them on an LED grid.'],
+['M','Both','Podcast studio','Record and edit class podcasts with Audacity.'],
+['M','Both','Generative art','Python code that makes a different artwork every time it runs.'],
+['R','HS','Handheld console build','Put a Pi Zero 2 W in a handheld kit case.'],
+['R','HS','Homebrew NES game','Write a real NES game in 6502 assembly or with NESmaker.'],
+['R','MS','Scratch games in the arcade','Package student Scratch games into the classroom arcade.'],
+['R','Both','Level-design analysis','Break down how a classic first level secretly teaches the player the rules.'],
+['R','Both','Playable history of gaming','A timeline activity where students play each era on the Pi.'],
+['R','HS','Tournament bracket app','Code the bracket and scoreboard for class esports.'],
+['R','Both','Bartop arcade cabinet','Build a cabinet with woodshop or engineering classes.'],
+['H','Both','Anatomy of a computer','Identify the processor, RAM, ports, and storage on a bare board.'],
+['H','Both','Install an OS from scratch','Flash, boot, and configure Raspberry Pi OS.'],
+['H','Both','Linux scavenger hunt','Find files and facts using only terminal commands.'],
+['H','HS','SD card vs. SSD','Compare boot and load times on different kinds of storage.'],
+['H','HS','Thermal lab','Measure CPU temperature under load with and without a heatsink.'],
+['H','MS','Budget desktop build','Assemble a working computer for under $150.'],
+['T','Both','Projector timer and scoreboard','A custom classroom timer and team scoreboard.'],
+['T','Both','Hall-pass log','A sign-out kiosk that timestamps trips.'],
+['T','Both','QR-code check-in','Students scan a badge to check in to a lab or club.'],
+['T','Both','Offline learning server','Kiwix or RACHEL content for days when the internet is down.'],
+['T','Both','Bell-schedule display','A screen showing the period, time left, and what&rsquo;s next.'],
+['X','Both','Math: graphing functions','Plot functions and real data with Python.'],
+['X','Both','Science: lab data loggers','Time pendulums, track temperature, or record motion for science labs.'],
+['X','Both','Student Pi help desk','Students run a service that images and repairs the school&rsquo;s Pis.']
+];
+(function(){
+  var cat='all', lvl='all', q='';
+  var catBox=document.getElementById('wayCats'), lvlBox=document.getElementById('wayLevels'), grid=document.getElementById('ways');
+  function mk(label,val,group){ var b=document.createElement('button'); b.type='button'; b.className='fbtn'+(val==='all'?' on':''); b.textContent=label; b.dataset.v=val; b.dataset.g=group; return b; }
+  catBox.appendChild(mk('All topics','all','c')); Object.keys(CATS).forEach(function(k){ catBox.appendChild(mk(CATS[k],k,'c')); });
+  lvlBox.appendChild(mk('All levels','all','l')); lvlBox.appendChild(mk('Middle school','MS','l')); lvlBox.appendChild(mk('High school','HS','l'));
+  function tagFor(l){ return l==='MS'?'<span class="tag ms">MS</span>':l==='HS'?'<span class="tag hs">HS</span>':'<span class="tag both">MS + HS</span>'; }
+  function esc(s){ return s.replace(/&(?![a-z#0-9]+;)/gi,'&amp;'); }
+  grid.innerHTML=WAYS.map(function(w,i){ return '<div class="way"><span class="no">#'+(i+1)+'</span><h4>'+esc(w[2])+'</h4><p>'+esc(w[3])+'</p>'+tagFor(w[1])+' <span class="tag both">'+esc(CATS[w[0]])+'</span></div>'; }).join('');
+  var plain=WAYS.map(function(w){ var d=document.createElement('div'); d.innerHTML=w[2]+' '+w[3]+' '+CATS[w[0]]; return d.textContent.toLowerCase(); });
+  function apply(){
+    var n=0; [].forEach.call(grid.children,function(el,i){
+      var w=WAYS[i];
+      var show=(cat==='all'||w[0]===cat)&&(lvl==='all'||w[1]===lvl||w[1]==='Both')&&(!q||plain[i].indexOf(q)>-1);
+      el.style.display=show?'':'none'; if(show) n++;
+    });
+    document.getElementById('wayCount').textContent='Showing '+n+' of '+WAYS.length;
+  }
+  [catBox,lvlBox].forEach(function(box){ box.addEventListener('click',function(e){
+    var b=e.target.closest('.fbtn'); if(!b) return;
+    [].forEach.call(box.children,function(c){ c.classList.toggle('on',c===b); });
+    if(b.dataset.g==='c') cat=b.dataset.v; else lvl=b.dataset.v; apply();
+  });});
+  document.getElementById('waySearch').addEventListener('input',function(){ q=this.value.trim().toLowerCase(); apply(); });
+  apply();
+})();
+
+/* ---------- model table filter ---------- */
+(function(){
+  var btns=document.querySelectorAll('[data-mf]'), rows=document.querySelectorAll('#modelTable tr[data-tags]');
+  [].forEach.call(btns,function(b){ b.addEventListener('click',function(){
+    [].forEach.call(btns,function(x){ x.classList.toggle('on',x===b); });
+    var f=b.dataset.mf;
+    [].forEach.call(rows,function(r){ r.style.display=(f==='all'||r.dataset.tags.split(' ').indexOf(f)>-1)?'':'none'; });
+  });});
+})();
+
+/* ---------- speaker notes + present mode ---------- */
+(function(){
+  var body=document.body, slides=[].slice.call(document.querySelectorAll('section.slide')), cur=0, t0=null;
+  function toggleNotes(){ body.classList.toggle('show-notes'); var on=body.classList.contains('show-notes'); document.getElementById('notesBtn').classList.toggle('on',on); document.getElementById('notesBtn2').classList.toggle('on',on); }
+  document.getElementById('notesBtn').onclick=toggleNotes; document.getElementById('notesBtn2').onclick=toggleNotes;
+  function fmt(ms){ var s=Math.max(0,Math.floor(ms/1000)); return Math.floor(s/60)+':'+('0'+s%60).slice(-2); }
+  function updTimer(){
+    if(!t0) return;
+    var el=Date.now()-t0, start=(+slides[cur].dataset.min||0)*60000;
+    var end=slides[cur+1]?(+slides[cur+1].dataset.min)*60000:3600000;
+    var info=document.getElementById('timerInfo');
+    info.innerHTML='&#9201; <b>'+fmt(el)+'</b> / 60:00 &middot; this section: '+fmt(start)+'&ndash;'+fmt(end);
+    info.classList.toggle('late',el>end);
+  }
+  function show(i){
+    cur=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach(function(s,k){ s.classList.toggle('active',k===cur); });
+    window.scrollTo(0,0);
+    document.getElementById('slideInfo').innerHTML='<b>'+(cur+1)+'</b> / '+slides.length;
+    document.getElementById('progress').style.width=((cur+1)/slides.length*100)+'%';
+    try{ history.replaceState(null,'','#'+slides[cur].id); }catch(e){}
+    updTimer();
+  }
+  function enter(){
+    body.classList.add('presenting');
+    var h=location.hash.slice(1), idx=slides.findIndex(function(s){return s.id===h;});
+    if(!t0){ t0=Date.now(); setInterval(updTimer,1000); }
+    show(idx>=0?idx:0);
+    if(document.documentElement.requestFullscreen){ document.documentElement.requestFullscreen().catch(function(){}); }
+  }
+  function exit(){
+    body.classList.remove('presenting');
+    slides.forEach(function(s){ s.classList.remove('active'); });
+    if(document.fullscreenElement && document.exitFullscreen){ document.exitFullscreen().catch(function(){}); }
+    slides[cur].scrollIntoView();
+  }
+  document.getElementById('presentBtn').onclick=enter;
+  document.getElementById('exitBtn').onclick=exit;
+  document.getElementById('prevBtn').onclick=function(){ show(cur-1); };
+  document.getElementById('nextBtn').onclick=function(){ show(cur+1); };
+  document.addEventListener('keydown',function(e){
+    var tag=(e.target.tagName||'').toLowerCase();
+    if(tag==='input'||tag==='textarea') return;
+    if(e.key==='n'||e.key==='N'){ toggleNotes(); return; }
+    if(!body.classList.contains('presenting')) return;
+    if(e.key==='ArrowRight'||e.key==='PageDown'||(e.key===' '&&!e.shiftKey)){ e.preventDefault(); show(cur+1); }
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); show(cur-1); }
+    else if(e.key==='Home'){ show(0); } else if(e.key==='End'){ show(slides.length-1); }
+    else if(e.key==='Escape'){ exit(); }
+  });
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('a[href^="#s-"]'); if(!a||!body.classList.contains('presenting')) return;
+    var idx=slides.findIndex(function(s){ return '#'+s.id===a.getAttribute('href'); });
+    if(idx>-1){ e.preventDefault(); show(idx); }
+  });
+})();
+</script>
+</body>
+</html>

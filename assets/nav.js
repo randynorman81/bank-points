@@ -144,7 +144,9 @@ const TOOLS = [
 // can find. Built once from COURSES/TOOLS above.
 function buildStaticSearchIndex() {
   const entries = [
-    { title: "Home", url: NAV_ROOT + "index.html", category: "Site" }
+    { title: "Home", url: NAV_ROOT + "index.html", category: "Site" },
+    { title: "Presentations", url: NAV_ROOT + "presentations/index.html", category: "Site" },
+    { title: "Game On: The Raspberry Pi in the CS Classroom (RetroPie extra credit arcade)", url: NAV_ROOT + "presentations/raspberry-pi-retropie.html", category: "Presentations" }
   ];
   COURSES.forEach((course) => {
     entries.push({ title: course.name + " announcements", url: NAV_ROOT + "announcements.html?course=" + course.id, category: course.shortName });
@@ -265,6 +267,9 @@ function renderHeader(opts) {
           </div>
           ${toolsDropdown}
           ${announcementsDropdown}
+          <div class="nav-item${opts.current === "presentations" ? " current" : ""}">
+            <a class="nav-link" href="${NAV_ROOT}presentations/index.html">Presentations</a>
+          </div>
         </nav>
       </div>
     </header>
