@@ -406,7 +406,7 @@ function renderRoster() {
       `).join('')}
       <button class="btn btn-sm btn-ghost" onclick="copyAllEmails()">Copy All Emails <span style="opacity:0.7;">${roster.length}</span></button>
     </span>
-  </div>`;
+  </div>${unassignedPeriodsNote()}`;
 
   const period = selectedPeriod;
   const rows = periods[period].sort((a, b) => a.name.localeCompare(b.name));
@@ -464,6 +464,16 @@ function studentsInCourse(course) {
   const periods = COURSE_PERIODS[course].map(normPeriod);
   return roster.filter(s => periods.includes(normPeriod(s.period)));
 }
+// Flags roster periods that aren't in COURSE_PERIODS, so no student is
+// silently left out of the IST / AP CSP / EC email buttons.
+function unassignedPeriodsNote() {
+  const known = Object.values(COURSE_PERIODS).flat().map(normPeriod);
+  const stray = [...new Set(roster.map(s => s.period).filter(p => !known.includes(normPeriod(p))))];
+  if (!stray.length) return '';
+  const count = roster.filter(s => stray.includes(s.period)).length;
+  return `<div class="alert alert-error" style="margin:-8px 0 16px;">${count} student${count === 1 ? ' is' : 's are'} in period${stray.length === 1 ? '' : 's'} ${stray.map(escapeHtml).join(', ')}, which ${stray.length === 1 ? "isn't" : "aren't"} assigned to IST, AP CSP, or EC &mdash; the course email buttons will skip ${count === 1 ? 'them' : 'them'}. Fix the period on the student (Edit) or ask to update the course list.</div>`;
+}
+
 function copyCourseEmails(course) {
   const sorted = studentsInCourse(course).sort((a, b) =>
     a.period.localeCompare(b.period, undefined, { numeric: true, sensitivity: 'base' }) || a.name.localeCompare(b.name));
