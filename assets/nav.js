@@ -32,7 +32,7 @@ const COURSES = [
     units: [
       { n: 1, label: "Unit 1 · Aug–Sep", title: "Digital Footprint", migrated: true, path: "ist/unit-1/index.html" },
       { n: 2, label: "Unit 2 · Sep–Oct", title: "Intro to Programming (Karel)", migrated: true, path: "ist/unit-2/index.html" },
-      { n: 6, label: "Unit 6 · Nov", title: "Web Design - HTML (Part 1)", migrated: true, path: "ist/unit-6/index.html" },
+      { n: 6, label: "Unit 6 · Oct–Nov", title: "Web Design - HTML (Part 1)", migrated: true, path: "ist/unit-6/index.html" },
       { n: 7, label: "Unit 7 · Nov–Dec", title: "Web Design - HTML (Part 2)", migrated: true, path: "ist/unit-7/index.html" },
       { n: 8, label: "Unit 8 · Dec", title: "Intro to CSS (Expanded)", migrated: true, path: "ist/unit-8/index.html" },
       { n: 9, label: "Unit 9 · Jan", title: "Bootstrap", migrated: true, path: "ist/unit-9/index.html" },
