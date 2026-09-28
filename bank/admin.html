@@ -400,7 +400,12 @@ function renderRoster() {
         ${escapeHtml(period)} <span style="opacity:0.7;">${periods[period].length}</span>
       </button>
     `).join('')}
-    <button class="btn btn-sm btn-ghost" style="margin-left:auto;" onclick="copyAllEmails()">Copy All Emails <span style="opacity:0.7;">${roster.length}</span></button>
+    <span style="margin-left:auto; display:flex; flex-wrap:wrap; gap:8px;">
+      ${Object.keys(COURSE_PERIODS).map(course => `
+        <button class="btn btn-sm btn-ghost" title="Periods ${COURSE_PERIODS[course].join(', ')}" onclick="copyCourseEmails('${course}')">Copy ${course} Emails <span style="opacity:0.7;">${studentsInCourse(course).length}</span></button>
+      `).join('')}
+      <button class="btn btn-sm btn-ghost" onclick="copyAllEmails()">Copy All Emails <span style="opacity:0.7;">${roster.length}</span></button>
+    </span>
   </div>`;
 
   const period = selectedPeriod;
@@ -447,6 +452,24 @@ function renderRoster() {
 // Copies every school email in the selected period, comma separated, ready to
 // paste into Gmail's To/Cc/Bcc or a Classroom invite. If the browser blocks
 // clipboard access, the list is shown in a box to copy by hand instead.
+// Which roster periods belong to which course (same split as ClassCalendar).
+// Update this if the schedule changes.
+const COURSE_PERIODS = {
+  'IST': ['3A', '3B', '4A'],
+  'AP CSP': ['1A', '2B'],
+  'EC': ['4B']
+};
+const normPeriod = p => String(p || '').toUpperCase().replace(/PERIOD/g, '').replace(/\s+/g, '');
+function studentsInCourse(course) {
+  const periods = COURSE_PERIODS[course].map(normPeriod);
+  return roster.filter(s => periods.includes(normPeriod(s.period)));
+}
+function copyCourseEmails(course) {
+  const sorted = studentsInCourse(course).sort((a, b) =>
+    a.period.localeCompare(b.period, undefined, { numeric: true, sensitivity: 'base' }) || a.name.localeCompare(b.name));
+  return copyEmails(sorted, `${course} (${COURSE_PERIODS[course].join(', ')})`, true);
+}
+
 function copyPeriodEmails() {
   return copyEmails(roster.filter(s => s.period === selectedPeriod), selectedPeriod, false);
 }
