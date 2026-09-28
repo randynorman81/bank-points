@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 2 Study Guide | Unit 2 | Embedded Computing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+  .sg-code { background:#0f172a; color:#e2e8f0; border-radius:8px; padding:12px 14px; font-family:Consolas,"Courier New",monospace; font-size:.9rem; line-height:1.6; white-space:pre; overflow-x:auto; margin:6px 0 14px; }
+  .sg-code .c { color:#94a3b8; }
+  .lab { border:2px solid var(--black,#111); border-radius:12px; padding:14px 16px; margin:14px 0 22px; background:var(--white,#fff); }
+  .lab h3 { margin:0 0 4px; }
+  .lab .hint { margin-top:0; }
+  .lab svg { width:100%; height:auto; display:block; }
+  .lab-info { background:var(--gray-100,#f3f3f3); border-radius:8px; padding:10px 12px; margin-top:10px; min-height:48px; }
+  .lab-info b { display:block; margin-bottom:2px; }
+  .part { cursor:pointer; }
+  .part:hover > .hl, .part.on > .hl { stroke:#c8102e; stroke-width:4; }
+  .bb-hole { cursor:pointer; }
+  .pwm-row { display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin:8px 0; }
+  .pwm-row input[type=range] { flex:1 1 220px; min-width:0; }
+  .pwm-led { width:46px; height:46px; border-radius:50%; background:#c8102e; border:3px solid #7f1d1d; flex:none; }
+  .pwm-stats { font-family:Consolas,monospace; font-size:.95rem; }
+  .btn-row { display:flex; flex-wrap:wrap; gap:8px; margin:6px 0; }
+  .pu-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-top:10px; }
+  .pu-cell { background:var(--gray-100,#f3f3f3); border-radius:8px; padding:10px 12px; text-align:center; }
+  .pu-cell .v { font-family:Consolas,monospace; font-size:1.3rem; font-weight:800; }
+  .pu-cell .l { font-size:.8rem; }
+  .pu-press { user-select:none; touch-action:none; }
+  table.sg { width:100%; border-collapse:collapse; margin:6px 0 14px; font-size:.95rem; }
+  table.sg th, table.sg td { border:1px solid var(--gray-300,#ccc); padding:6px 8px; text-align:left; vertical-align:top; }
+  table.sg th { background:var(--gray-100,#f3f3f3); }
+  .sg-scroll { overflow-x:auto; }
+</style>
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<div style="max-width:1200px;margin:0 auto;padding:24px 20px 0;">
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ec/index.html">Embedded Computing</a><span class="sep">/</span><a href="../../ec/unit-2/index.html">Unit 2: Arduino Foundations</a><span class="sep">/</span>Study Guide</div>
+</div>
+
+  <div class="lesson-layout">
+    <aside class="lesson-sidebar" id="lesson-sidebar-root"></aside>
+
+    <article class="lesson-content">
+      <h1>Unit 2 Study Guide</h1>
+      <p class="hint">Covers every Unit 2 assignment: 2.1 Analog vs. Digital, 2.2 First Circuit, 2.2A Dual-LED Lab, 2.3 Blink, 2.4 Variables and Data Types, 2.5 PWM, 2.6 Timing and Sequences, 2.7 Circuit Fundamentals, 2.8 Interpreted vs. Compiled, and the 2.9 Morse Code Flasher. This mirrors the 50-question Unit 2 Test &mdash; every idea below maps to a question on the test, and nothing on the test falls outside this guide. Many questions show a few lines of code from your labs, or a scenario like the Zombie Grid Hack, and ask what happens &mdash; so be able to <em>explain why</em>, not just define a word.</p>
+
+      <!-- ===================== 2.1 ===================== -->
+      <h2>2.1 &mdash; Meet the Arduino (Analog vs. Digital)</h2>
+      <p>You and a partner took sides &mdash; one argued Analog, one argued Digital &mdash; using weather, music, and video as evidence.</p>
+      <dl>
+        <dt>Analog</dt>
+        <dd>A <b>continuous</b> signal that changes smoothly, with no steps &mdash; it copies the real-world thing directly. Examples from the assignment: a <b>mercury thermometer</b>, a <b>vinyl record or cassette tape</b>, a <b>VHS tape</b>.</dd>
+
+        <dt>Digital</dt>
+        <dd>Information stored as <b>discrete</b> steps / numbers (ultimately 1s and 0s) and processed by electronics and software. Examples: a <b>digital weather app</b>, a <b>CD or streaming app</b>, a <b>Blu-ray or Netflix</b>.</dd>
+
+        <dt><code>analogRead()</code></dt>
+        <dd>Reads the voltage on an <b>analog input pin (A0&ndash;A5)</b> and converts it into a whole number from <b>0 to 1023</b>. Used for sensors that give a range of values.</dd>
+
+        <dt><code>digitalRead()</code></dt>
+        <dd>Checks a digital pin and returns only <b>HIGH</b> (about 5V) or <b>LOW</b> (0V). Used for on/off inputs like a <b>button or switch</b>.</dd>
+
+        <dt>The board vs. the IDE</dt>
+        <dd>The <b>Arduino IDE</b> is <b>software</b> you write code in; the <b>Arduino Uno</b> is the <b>hardware</b> the code runs on. The Uno contains the <b>ATmega328P</b> microcontroller chip. Its <b>digital pins 0&ndash;13</b> are HIGH or LOW only; its <b>analog pins A0&ndash;A5</b> read a range.</dd>
+      </dl>
+
+      <div class="lab">
+        <h3>&#128433;&#65039; Click the Board</h3>
+        <p class="hint">Click any outlined part of this simplified Arduino Uno to see what it does.</p>
+        <svg viewBox="0 0 640 380" role="img" aria-label="Simplified Arduino Uno with clickable parts: digital pins, PWM pins, analog pins, power pins, USB port, barrel jack, reset button, built-in LED, and ATmega328P chip." id="unoSvg">
+          <rect x="60" y="40" width="540" height="310" rx="18" fill="#0e7490" stroke="#155e75" stroke-width="3"/>
+          <g class="part" data-k="usb"><rect class="hl" x="20" y="70" width="90" height="70" rx="6" fill="#cbd5e1" stroke="#64748b" stroke-width="2"/><text x="65" y="110" text-anchor="middle" font-size="14" font-weight="700" fill="#1e293b">USB</text></g>
+          <g class="part" data-k="jack"><rect class="hl" x="20" y="250" width="80" height="60" rx="6" fill="#1e293b" stroke="#0f172a" stroke-width="2"/><text x="60" y="285" text-anchor="middle" font-size="12" font-weight="700" fill="#e2e8f0">Barrel jack</text></g>
+          <g class="part" data-k="reset"><rect class="hl" x="130" y="60" width="44" height="44" rx="6" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/><circle cx="152" cy="82" r="12" fill="#c8102e"/><text x="152" y="124" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">RESET</text></g>
+          <g class="part" data-k="digital"><rect class="hl" x="250" y="50" width="330" height="40" rx="4" fill="#111827" stroke="#111827" stroke-width="2"/></g>
+          <g id="digitalLabels"></g>
+          <g class="part" data-k="chip"><rect class="hl" x="300" y="170" width="220" height="70" rx="6" fill="#111827" stroke="#111827" stroke-width="2"/><text x="410" y="210" text-anchor="middle" font-size="16" font-weight="700" fill="#e2e8f0">ATmega328P</text></g>
+          <g class="part" data-k="power"><rect class="hl" x="230" y="300" width="160" height="36" rx="4" fill="#111827" stroke="#111827" stroke-width="2"/><text x="310" y="290" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">POWER: 3.3V 5V GND GND</text></g>
+          <g class="part" data-k="analog"><rect class="hl" x="420" y="300" width="160" height="36" rx="4" fill="#111827" stroke="#111827" stroke-width="2"/><text x="500" y="290" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">ANALOG IN: A0&ndash;A5</text></g>
+          <g class="part" data-k="pwm"><rect class="hl" x="248" y="18" width="334" height="26" rx="4" fill="none" stroke="#fde047" stroke-width="2" stroke-dasharray="5 4"/><text x="415" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="#fde047">~ = PWM pins (3, 5, 6, 9, 10, 11) &mdash; click me</text></g>
+        </svg>
+        <div class="lab-info" id="unoInfo"><b>Click a part</b>Start with the row of digital pins along the top.</div>
+      </div>
+
+      <!-- ===================== 2.2 / 2.2A ===================== -->
+      <h2>2.2 &mdash; First Circuit and 2.2A &mdash; Dual-LED Lab</h2>
+      <p>In 2.2 you wired an LED and a <b>220&Omega;</b> resistor (bands <b>Red-Red-Brown-Gold</b>) straight to the Uno's <b>5V</b> and <b>GND</b>. No code was involved, so that LED was simply <b>always on</b>. In 2.2A you powered two LEDs from the breadboard's power rails, then broke the circuit on purpose to see what fails.</p>
+      <dl>
+        <dt>Why simulate first</dt>
+        <dd>In Tinkercad, <b>mistakes are free</b> &mdash; no real component gets damaged and nobody gets hurt.</dd>
+
+        <dt>Breadboard rows and the center divider</dt>
+        <dd>The 5 holes <b>a&ndash;e</b> in one row are connected inside the board; so are the 5 holes <b>f&ndash;j</b>. The <b>center divider</b> keeps the two halves separate &mdash; that's why a part can straddle it, and why an LED placed "across the divide" (2.2) needs its own connections on the other side.</dd>
+
+        <dt>Power rails</dt>
+        <dd>The long rails on the sides run the length of the board: <b>red (+)</b> and <b>black (&minus;)</b>. One wire from 5V and one from GND let many parts share power.</dd>
+
+        <dt>Polarity: anode and cathode</dt>
+        <dd>An LED is a <b>diode</b> &mdash; current flows through it in <b>only one direction</b>. The <b>anode (+)</b> is the longer / bent leg and connects toward <b>5V</b>; the <b>cathode (&minus;)</b> is the shorter / straight leg and connects toward <b>GND</b>. Reverse the polarity and the LED <b>does not light</b>.</dd>
+
+        <dt>Both legs in the same row</dt>
+        <dd>Anode in a11 and cathode in b11 = both legs on the <b>same connected row</b>, the same electrical point. No current flows <em>through</em> the LED, so it <b>won't light</b>.</dd>
+
+        <dt>Parallel circuit</dt>
+        <dd>In 2.2A each LED had its <b>own path</b> (+ rail &rarr; resistor &rarr; LED &rarr; &minus; rail). Separate branching paths = <b>parallel</b>. Unplug the Red LED and the <b>Green LED stays lit</b>, because its own path is still complete.</dd>
+
+        <dt>Experiment A: short-circuiting the LED</dt>
+        <dd>Moving the Green LED's ground wire from its cathode row (20) into its anode row (21) gives current an easier path <b>straight to ground</b>, so it <b>bypasses the LED &mdash; the Green LED goes dark</b>.</dd>
+
+        <dt>Experiment B: overcurrent failure</dt>
+        <dd>Replacing the Red LED's resistor with a plain wire: Tinkercad shows an <b>explosion symbol</b> and warns that the current is far over the LED's <b>20 mA maximum</b>. The Green LED survives because it still has <b>its own resistor</b>. That's also why two LEDs shouldn't share one resistor &mdash; each branch needs its own.</dd>
+      </dl>
+
+      <div class="lab">
+        <h3>&#128268; Which Holes Are Connected?</h3>
+        <p class="hint">Click any hole on this mini breadboard. Every hole that lights up is electrically the same point.</p>
+        <svg viewBox="0 0 640 300" id="bbSvg" role="img" aria-label="Mini breadboard. Clicking a hole highlights every hole connected to it: five holes in a half-row, or an entire power rail."></svg>
+        <div class="lab-info" id="bbInfo"><b>Click a hole</b>Try one in column a, then one in column f of the same row.</div>
+      </div>
+
+      <!-- ===================== 2.3 ===================== -->
+      <h2>2.3 &mdash; Blink Sketch</h2>
+      <p><b>Why the wiring changed from 2.2:</b> the LED now goes to a <b>digital pin</b> (pin 8) and GND. Set to OUTPUT and driven <b>HIGH</b>, the pin becomes its own tiny <b>5V source</b>; driven <b>LOW</b>, it drops to <b>0V, just like GND</b>. The pin does the powering, on a schedule your code controls.</p>
+      <div class="sg-code">int ledPin = 8;                <span class="c">// above setup() and loop(): names the pin</span>
+
+void setup() {
+  pinMode(ledPin, OUTPUT);     <span class="c">// runs ONCE: this pin sends power OUT</span>
+}
+
+void loop() {                  <span class="c">// runs FOREVER, top to bottom</span>
+  digitalWrite(ledPin, HIGH);  <span class="c">// 5V: LED ON</span>
+  delay(1000);                 <span class="c">// wait 1000 milliseconds = 1 second</span>
+  digitalWrite(ledPin, LOW);   <span class="c">// 0V: LED OFF</span>
+  delay(1000);                 <span class="c">// wait again, then loop() repeats</span>
+}</div>
+      <div class="sg-scroll"><table class="sg">
+        <tr><th>Term</th><th>Meaning (from the 2.3 matching activity)</th></tr>
+        <tr><td><code>setup()</code></td><td>Runs <b>exactly once</b> when the board first gets power &mdash; the place to set up pins.</td></tr>
+        <tr><td><code>loop()</code></td><td>Runs <b>over and over forever</b> until power is disconnected.</td></tr>
+        <tr><td><code>pinMode()</code></td><td>Sets a pin to behave as an <b>INPUT or an OUTPUT</b>.</td></tr>
+        <tr><td><code>digitalWrite(pin, HIGH)</code></td><td>Sends <b>5V</b> out of the pin.</td></tr>
+        <tr><td><code>digitalWrite(pin, LOW)</code></td><td>Sets the pin to <b>0V (ground)</b>.</td></tr>
+        <tr><td><code>delay(ms)</code></td><td>Pauses the program for a number of <b>milliseconds</b>.</td></tr>
+        <tr><td><code>int</code></td><td>Stores a whole number &mdash; used to name pin numbers at the top.</td></tr>
+      </table></div>
+      <dl>
+        <dt>Timing math</dt>
+        <dd>1000 ms = 1 second, 500 ms = half a second, <b>250 ms = a quarter second</b>, 2000 ms = 2 seconds. ON for a quarter second and OFF for 2 seconds: <code>digitalWrite(ledPin, HIGH); delay(250); digitalWrite(ledPin, LOW); delay(2000);</code></dd>
+
+        <dt><code>pinMode()</code> inside <code>loop()</code> by mistake</dt>
+        <dd>The LED still blinks &mdash; <code>pinMode()</code> just gets re-run every pass for no reason. It only ever needs to happen <b>once</b>, which is why it belongs in <code>setup()</code>.</dd>
+
+        <dt>Forgetting the second <code>delay()</code></dt>
+        <dd>The LED turns OFF and <code>loop()</code> instantly restarts and turns it back ON. It's off for only a tiny instant, so it <b>looks like it's always on</b>.</dd>
+
+        <dt>The flashing red signal (Part 2)</dt>
+        <dd>Each of the 3 LEDs gets its <b>own digital pin (8, 9, 10) and its own resistor</b>; they can share one GND. The three <code>digitalWrite(..., HIGH)</code> lines run <b>one after another in the same pass</b>, so close together that the LEDs <b>look perfectly in sync</b>. Flashing signals blink about once per second (roughly 500 ms on, 500 ms off).</dd>
+      </dl>
+
+      <!-- ===================== 2.4 ===================== -->
+      <h2>2.4 &mdash; Variables and Data Types</h2>
+      <div class="sg-scroll"><table class="sg">
+        <tr><th>Type</th><th>Stores</th><th>Size</th><th>From your 2.4 code</th></tr>
+        <tr><td><code>boolean</code></td><td>Only <b>true or false</b> (or HIGH / LOW)</td><td>1 byte</td><td><code>boolean ledState = false;</code></td></tr>
+        <tr><td><code>byte</code></td><td>Whole numbers <b>0 to 255</b> only &mdash; <b>wraps back to 0 after 255</b></td><td>1 byte</td><td><code>byte blinkCount = 0;</code></td></tr>
+        <tr><td><code>int</code></td><td>Whole numbers <b>&minus;32,768 to 32,767</b></td><td>2 bytes</td><td><code>int blinkSpeed = 500;</code></td></tr>
+        <tr><td><code>long</code></td><td>Large whole numbers, <b>about &plusmn;2.1 billion</b> (&minus;2,147,483,648 to 2,147,483,647)</td><td>4 bytes</td><td><code>long totalBlinks = 0;</code></td></tr>
+        <tr><td><code>float</code></td><td><b>Decimal</b> numbers like 0.5</td><td>4 bytes</td><td><code>float blinkSeconds = 0.5;</code></td></tr>
+        <tr><td><code>char</code></td><td>A <b>single character</b> in <b>single quotes</b>, like <code>'A'</code></td><td>1 byte</td><td><code>char ledLabel = 'A';</code></td></tr>
+      </table></div>
+      <div class="sg-code">ledState = !ledState;             <span class="c">// ! (NOT) flips it: false becomes true, true becomes false</span>
+digitalWrite(ledPin, ledState);   <span class="c">// true = ON, false = OFF, so the LED toggles each pass</span>
+blinkCount = blinkCount + 1;      <span class="c">// adds 1 each time through loop()</span>
+delay(blinkSpeed);                <span class="c">// the variable sets the timing</span></div>
+      <dl>
+        <dt>Global variables</dt>
+        <dd>Declared at the very top, <b>above <code>setup()</code></b>, so <b>any function can use them</b>. A variable declared <b>inside <code>loop()</code></b> gets <b>reset every time <code>loop()</code> restarts</b> &mdash; a counter there would never climb.</dd>
+
+        <dt>Why use a variable like <code>blinkSpeed</code></dt>
+        <dd>Change one number at the top and every <code>delay(blinkSpeed)</code> changes with it.</dd>
+
+        <dt>Byte wraparound (Part 2)</dt>
+        <dd>When <code>blinkCount</code> (a byte) is 255 and you add 1, it <b>wraps around to 0</b>. At that same moment, <code>totalBlinks</code> (a long) just keeps counting up, because a long can hold numbers over 2 billion.</dd>
+
+        <dt>Serial Monitor</dt>
+        <dd><code>Serial.begin(9600);</code> goes <b>inside <code>setup()</code></b> to start communication with the computer. <code>Serial.print()</code> prints on the <b>same line</b>; <code>Serial.println()</code> prints and then <b>moves to a new line</b>.</dd>
+
+        <dt>Choosing a type</dt>
+        <dd>Microcontrollers have very little memory, so use the <b>smallest type that does the job</b>: a boolean for on/off, a byte for 0&ndash;255, a float only when you need decimals.</dd>
+      </dl>
+
+      <!-- ===================== 2.5 ===================== -->
+      <h2>2.5 &mdash; PWM: Controlling Brightness</h2>
+      <dl>
+        <dt>PWM (Pulse Width Modulation)</dt>
+        <dd>The LED is <b>still only ever fully on or fully off</b> &mdash; there's no "in between" on a digital pin. PWM <b>switches it on and off super fast</b>, faster than your eyes can see. On most of the time = looks bright; on just a little = looks dim. The <b>duty cycle</b> is the percent of time it's on.</dd>
+
+        <dt>Moving from pin 8 to pin 9</dt>
+        <dd>Only pins with a <b>~</b> can do PWM: <b>3, 5, 6, 9, 10, 11</b>. <b>Pin 8 can't</b> &mdash; which is why you moved your LED to <b>pin 9</b> and changed <code>int ledPin = 9;</code>.</dd>
+
+        <dt><code>analogWrite(pin, value)</code></dt>
+        <dd>Like <code>digitalWrite()</code>, but instead of HIGH/LOW you give it <b>0 to 255</b>: <b>0 = off</b>, <b>128 &asymp; half</b>, <b>255 = full brightness</b>.</dd>
+      </dl>
+      <div class="sg-code">analogWrite(ledPin, 50);   delay(1000);   <span class="c">// dim</span>
+analogWrite(ledPin, 150);  delay(1000);   <span class="c">// medium</span>
+analogWrite(ledPin, 255);  delay(1000);   <span class="c">// full brightness, then loop() repeats</span></div>
+
+      <div class="lab">
+        <h3>&#127899;&#65039; PWM Explorer</h3>
+        <p class="hint">Drag the slider, or tap a value from your 2.5 lab. Watch the on/off pattern and the brightness.</p>
+        <div class="btn-row">
+          <button class="btn btn-sm btn-ghost" type="button" data-pwm="0">0</button>
+          <button class="btn btn-sm btn-ghost" type="button" data-pwm="50">50</button>
+          <button class="btn btn-sm btn-ghost" type="button" data-pwm="128">128</button>
+          <button class="btn btn-sm btn-ghost" type="button" data-pwm="150">150</button>
+          <button class="btn btn-sm btn-ghost" type="button" data-pwm="255">255</button>
+        </div>
+        <div class="pwm-row">
+          <input type="range" id="pwmVal" min="0" max="255" value="128" aria-label="analogWrite value">
+          <div class="pwm-led" id="pwmLed" aria-hidden="true"></div>
+          <div class="pwm-stats" id="pwmStats"></div>
+        </div>
+        <svg viewBox="0 0 600 120" id="pwmWave" role="img" aria-label="PWM waveform: the pin is fully on for the duty-cycle fraction of each cycle and fully off for the rest."></svg>
+      </div>
+
+      <!-- ===================== 2.6 ===================== -->
+      <h2>2.6 &mdash; Timing and Sequences</h2>
+      <p>Three LEDs &mdash; red (pin 8), yellow (pin 9), green (pin 10) &mdash; cycling like a traffic light.</p>
+      <dl>
+        <dt>Wiring</dt>
+        <dd>Each LED gets its <b>own resistor and its own digital pin</b>, but all 3 can <b>share one GND</b>, because GND is just a shared return path. <b>No PWM pin needed</b> &mdash; you're only turning lights fully on and off, not dimming.</dd>
+      </dl>
+      <div class="sg-code">int greenTime = 5000;   int yellowTime = 1500;   int redTime = 4000;
+
+void loop() {
+  digitalWrite(greenPin, HIGH);   delay(greenTime);    digitalWrite(greenPin, LOW);
+  digitalWrite(yellowPin, HIGH);  delay(yellowTime);   digitalWrite(yellowPin, LOW);
+  digitalWrite(redPin, HIGH);     delay(redTime);      digitalWrite(redPin, LOW);
+}   <span class="c">// green &rarr; yellow &rarr; red &rarr; back to green, forever</span></div>
+      <dl>
+        <dt>Sequence and timing</dt>
+        <dd>A sequence is <code>digitalWrite()</code> + <code>delay()</code> in a deliberate order. Real lights aren't equal: <b>green is longest, yellow is shortest</b>.</dd>
+
+        <dt>Delay variables: pros and cons</dt>
+        <dd><b>Pro:</b> change a light's timing in <b>one place</b>, and the code explains itself (<code>delay(yellowTime)</code> vs. <code>delay(1500)</code>). <b>Con:</b> a few extra lines at the top. Without variables you'd type the numbers straight in: <code>delay(5000)</code>, <code>delay(1500)</code>, <code>delay(4000)</code>.</dd>
+
+        <dt>Blocking code</dt>
+        <dd><code>delay()</code> <b>pauses the entire program</b> &mdash; nothing else can happen while it counts down.</dd>
+
+        <dt>The Zombie Grid Hack</dt>
+        <dd>If <code>digitalWrite(yellowPin, LOW);</code> is deleted, yellow turns on and <b>never turns off</b>. By the second pass, <b>yellow stays on the whole time</b> while green and red still take their turns &mdash; so two lights are on at once. <b>Re-inserting <code>digitalWrite(yellowPin, LOW);</code></b> fixes it.</dd>
+      </dl>
+
+      <!-- ===================== 2.7 ===================== -->
+      <h2>2.7 &mdash; Circuit Fundamentals (Buttons and Pull-Ups)</h2>
+      <dl>
+        <dt>Source vs. sink</dt>
+        <dd>A pin set <b>HIGH pushes current out</b> = <b>sourcing</b>. A pin set LOW that current flows <b>into</b> = <b>sinking</b>.</dd>
+
+        <dt>Floating pin</dt>
+        <dd>An input connected to nothing solid &mdash; not 5V, not GND. It <b>randomly flickers between HIGH and LOW</b> because it picks up electrical <b>noise</b> from the air. An unpressed button with nothing else connected is floating. (The <b>Haunted Elevator</b>: static from a fuzzy sweater "presses" the button.)</dd>
+
+        <dt>Pull-up resistor / <code>INPUT_PULLUP</code></dt>
+        <dd>Connects the pin to <b>5V by default</b>, so it reads a clean, steady <b>HIGH</b> when nothing is pressed; pressing the button connects it to GND for a clean <b>LOW</b>. The Arduino has one built in: <code>pinMode(buttonPin, INPUT_PULLUP);</code>. It "pulls" the pin to a known state so noise can't flip it.</dd>
+
+        <dt>Reads "backwards"</dt>
+        <dd>With <code>INPUT_PULLUP</code>: <b>not pressed = HIGH</b>, <b>pressed = LOW</b>. That's normal, not a bug. (The <b>Backwards Doorbell</b>: code that buzzes when <code>buttonState == HIGH</code> buzzes <b>constantly when nobody touches it</b>, and <b>goes quiet the moment someone presses it</b>.)</dd>
+
+        <dt><code>digitalRead()</code> and the <code>!</code></dt>
+        <dd><code>int buttonState = digitalRead(buttonPin);</code> reads the button. <code>digitalWrite(ledPin, !buttonState);</code> flips it, so <b>the LED is on while the button is pressed</b>.</dd>
+
+        <dt>Red light / walking light</dt>
+        <dd><code>digitalWrite(redPin, buttonState);</code> and <code>digitalWrite(walkPin, !buttonState);</code> are always <b>opposites</b>: red on by default, walk light on only while pressed &mdash; <b>never both at once</b>. It updates instantly because nothing is blocking <code>loop()</code> with a <code>delay()</code>.</dd>
+
+        <dt>Wiring the 4-leg button</dt>
+        <dd>The 4 legs are really <b>2 pairs</b>; pressing bridges the pairs. <b>Straddle the button across the center gap</b>, then one leg to your digital pin and one leg from the other side to GND.</dd>
+
+        <dt>Ohm's Law and the pin limit</dt>
+        <dd><b>V = I &times; R</b> (voltage = current &times; resistance). The Uno's pins handle only about <b>40 mA</b>, which is why every LED gets a resistor to limit current.</dd>
+      </dl>
+
+      <div class="lab">
+        <h3>&#128280; Pull-Up Button Simulator</h3>
+        <p class="hint">Press and hold the button. Watch what the pin reads, and what the LED and walking light do with the code from 2.7.</p>
+        <div class="btn-row">
+          <button class="btn btn-primary pu-press" type="button" id="puBtn">Press and hold the button</button>
+          <label style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="puOn" checked> <code>INPUT_PULLUP</code> turned on</label>
+        </div>
+        <div class="pu-grid">
+          <div class="pu-cell"><div class="l">digitalRead(buttonPin)</div><div class="v" id="puRead">HIGH</div></div>
+          <div class="pu-cell"><div class="l">LED: digitalWrite(ledPin, !buttonState)</div><div class="v" id="puLed">OFF</div></div>
+          <div class="pu-cell"><div class="l">Red light: buttonState</div><div class="v" id="puRed">ON</div></div>
+          <div class="pu-cell"><div class="l">Walk light: !buttonState</div><div class="v" id="puWalk">OFF</div></div>
+        </div>
+        <div class="lab-info" id="puInfo"></div>
+      </div>
+
+      <!-- ===================== 2.8 ===================== -->
+      <h2>2.8 &mdash; Interpreted vs. Compiled (Podcast)</h2>
+      <dl>
+        <dt>The French-book analogy</dt>
+        <dd><b>Interpreted</b> = a friend reads a French book aloud, translating <b>one sentence at a time, live</b>. <b>Python</b> works this way: code is read and run <b>line by line</b> as it's needed. <b>Compiled</b> = translate the <b>whole book first</b>, cover to cover, then read straight through fast. <b>Arduino's C++</b> works this way.</dd>
+
+        <dt>Why Arduino uses a compiled language</dt>
+        <dd>An Arduino has a <b>tiny amount of memory</b> and <b>no operating system</b>. Translating everything ahead of time makes the finished program <b>small and fast</b>, and it never wastes time or memory translating while it should be doing its real job.</dd>
+
+        <dt>What Upload really does</dt>
+        <dd><b>Step 1: compile</b> &mdash; translate the whole sketch into machine code and check for mistakes. A typo or <b>missing semicolon is caught here, before anything reaches the board</b>. <b>Step 2: upload</b> the machine code over the <b>USB cable</b>. Almost every "my code won't work" moment this unit happened at step 1.</dd>
+      </dl>
+      <div class="sg-scroll"><table class="sg">
+        <tr><th>Podcast question</th><th>Python (interpreted)</th><th>C++ (compiled)</th></tr>
+        <tr><td>Do you declare a variable's type?</td><td>No &mdash; it figures it out</td><td><b>Yes</b> &mdash; <code>int</code>, <code>boolean</code>, etc.</td></tr>
+        <tr><td>Same program, typed out</td><td>Usually <b>shorter</b></td><td>Usually longer</td></tr>
+        <tr><td>Speed once running</td><td>Usually slower</td><td>Usually <b>faster</b></td></tr>
+        <tr><td>Cleaning up unused memory</td><td>Automatic</td><td>Largely the <b>programmer's</b> job</td></tr>
+        <tr><td>Common real-world uses</td><td>Data science, AI, web back-ends, automation scripts</td><td>Games, embedded devices (like Arduino), operating systems</td></tr>
+        <tr><td>Variables, loops, if/else, functions, comments</td><td>Yes, all</td><td>Yes, all</td></tr>
+        <tr><td>General-purpose?</td><td>Yes</td><td>Yes</td></tr>
+      </table></div>
+
+      <!-- ===================== 2.9 ===================== -->
+      <h2>2.9 &mdash; Unit Build: 7+ Letter Word Morse Code Flasher</h2>
+      <p>One LED flashes a real word, at least 7 letters long, in Morse code &mdash; slowly and clearly enough that a partner who doesn't know the word can decode it.</p>
+      <dl>
+        <dt>The Morse timing rules</dt>
+        <dd>Everything is built from <b>one unit of time</b>. A <b>dot = 1 unit</b>. A <b>dash = 3 units</b> &mdash; always exactly <b>3 times</b> as long as a dot. The standard gaps (LED off): <b>1 unit between symbols</b> inside a letter, <b>3 units between letters</b>, and <b>7 units</b> before the word repeats. The gap between letters <b>must be noticeably longer</b> than the gap inside a letter, or nobody could tell where one letter ends.</dd>
+
+        <dt>Timing variables</dt>
+        <dd>Make the unit a variable (for example <code>int unit = 300;</code>) and build every time from it: <code>delay(unit)</code> for a dot, <code>delay(unit * 3)</code> for a dash. Change one number to speed up or slow down the whole word.</dd>
+
+        <dt>Which pin?</dt>
+        <dd>Morse is only <b>fully on or fully off</b>, using <code>digitalWrite()</code> &mdash; so a <b>regular digital pin works; no PWM pin is needed</b>. The LED still needs <b>its resistor</b> (2.2, 2.7), and the pin still needs <code>pinMode(pin, OUTPUT)</code> in <code>setup()</code>.</dd>
+
+        <dt>Requirements</dt>
+        <dd>A real 7+ letter word; accurate Morse for every letter (look it up, don't guess); symbol gaps clearly shorter than letter gaps; the word repeats in <code>loop()</code> forever; at least one timing variable with a comment; every line commented; a partner can decode it.</dd>
+      </dl>
+      <div class="sg-code"><span class="c">// Letter S = dot dot dot, O = dash dash dash</span>
+digitalWrite(ledPin, HIGH);  delay(unit);      <span class="c">// dot (1 unit on)</span>
+digitalWrite(ledPin, LOW);   delay(unit);      <span class="c">// gap inside the letter (1 unit off)</span>
+digitalWrite(ledPin, HIGH);  delay(unit * 3);  <span class="c">// dash (3 units on)</span>
+digitalWrite(ledPin, LOW);   delay(unit * 3);  <span class="c">// gap between letters (3 units off)</span></div>
+
+      <div class="note">The test is 50 multiple-choice questions pulled from everything above, in assignment order. Expect code from your labs (what does the LED do?), the scenarios from 2.6 and 2.7 (the Zombie Grid Hack, the Haunted Elevator, the Backwards Doorbell), and the podcast comparison from 2.8.</div>
+
+      <div id="prev-next-root" class="prev-next-nav"></div>
+    </article>
+  </div>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>
+renderHeader();
+
+const UNIT_TITLE = "Unit 2: Arduino Foundations";
+const UNIT_BASE = "";
+const UNIT_LESSONS = [
+  { title: "2.1 Meet the Arduino", file: "2-1-meet-the-arduino.html" },
+  { title: "2.2 TinkerCAD Setup and First Circuit", file: "2-2-tinkercad-setup-and-first-circuit.html" },
+  { title: "2.3 Your First Sketch: Blink", file: "2-3-your-first-sketch-blink.html" },
+  { title: "2.4 Variables and Data Types", file: "2-4-variables-and-data-types.html" },
+  { title: "2.5 PWM: Controlling Brightness", file: "2-5-pwm-controlling-brightness.html" },
+  { title: "2.6 Timing and Sequences", file: "2-6-timing-and-sequences.html" },
+  { title: "2.7 Circuit Fundamentals", file: "2-7-circuit-fundamentals.html" },
+  { title: "2.8 Interpreted vs Compiled", file: "2-8-interpreted-vs-compiled.html" },
+  { title: "2.9 Unit Build: Traffic Light", file: "2-9-unit-build-traffic-light.html" },
+  { title: "Study Guide", file: "unit-2-study-guide.html" }
+];
+const CURRENT_FILE = "unit-2-study-guide.html";
+
+/* ---------- Click the Board ---------- */
+(function(){
+  var INFO = {
+    usb: ['USB port', 'Powers the board from a computer and is how compiled code gets uploaded (step 2 of Upload).'],
+    jack: ['Barrel jack', 'Plugs in an outside power supply so the board can run without a computer.'],
+    reset: ['Reset button', 'Restarts your program: setup() runs once again, then loop() forever.'],
+    digital: ['Digital pins 0–13', 'Only HIGH (5V) or LOW (0V). pinMode() sets each one to INPUT or OUTPUT; digitalWrite() and digitalRead() use them.'],
+    pwm: ['PWM pins (~)', 'Pins 3, 5, 6, 9, 10, 11. Only these can dim with analogWrite() — that’s why the 2.5 LED moved from pin 8 to pin 9.'],
+    chip: ['ATmega328P', 'The microcontroller chip that actually runs your compiled code. The Uno contains it.'],
+    power: ['Power pins', '5V, 3.3V, and GND. In 2.2 your LED was wired straight to 5V and GND, so it was always on.'],
+    analog: ['Analog input pins A0–A5', 'Read a range of voltage. analogRead() turns it into a whole number from 0 to 1023.']
+  };
+  var lab = document.getElementById('digitalLabels'), html = '';
+  for (var p = 13; p >= 0; p--){
+    var x = 262 + (13 - p) * 23, pwm = [3,5,6,9,10,11].indexOf(p) > -1;
+    html += '<circle cx="' + x + '" cy="62" r="5" fill="#d4af37"/><text x="' + x + '" y="82" text-anchor="middle" font-size="10" font-weight="700" fill="' + (pwm ? '#fde047' : '#e2e8f0') + '">' + (pwm ? '~' : '') + p + '</text>';
+  }
+  lab.innerHTML = html;
+  var parts = document.querySelectorAll('#unoSvg .part'), box = document.getElementById('unoInfo');
+  [].forEach.call(parts, function(g){
+    g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button');
+    function pick(){ [].forEach.call(parts, function(x){ x.classList.toggle('on', x === g); }); var i = INFO[g.dataset.k]; box.innerHTML = '<b>' + i[0] + '</b>' + i[1]; }
+    g.addEventListener('click', pick);
+    g.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pick(); } });
+  });
+})();
+
+/* ---------- Breadboard ---------- */
+(function(){
+  var svg = document.getElementById('bbSvg'), info = document.getElementById('bbInfo');
+  var COLS = 12, rowsTop = ['a','b','c','d','e'], rowsBot = ['f','g','h','i','j'];
+  var x0 = 70, dx = 44, holes = [];
+  var s = '<rect x="10" y="10" width="620" height="280" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>';
+  s += '<line x1="40" y1="30" x2="600" y2="30" stroke="#dc2626" stroke-width="2"/><text x="20" y="42" font-size="14" font-weight="700" fill="#dc2626">+</text>';
+  s += '<line x1="40" y1="270" x2="600" y2="270" stroke="#1e293b" stroke-width="2"/><text x="20" y="270" font-size="16" font-weight="700" fill="#1e293b">&minus;</text>';
+  s += '<rect x="40" y="143" width="560" height="14" fill="#e2e8f0"/><text x="320" y="154" text-anchor="middle" font-size="10" fill="#64748b">center divider</text>';
+  function hole(x, y, group, label){ holes.push({x:x, y:y, g:group, l:label}); }
+  for (var c = 0; c < COLS; c++){
+    var x = x0 + c * dx;
+    s += '<text x="' + x + '" y="64" text-anchor="middle" font-size="10" fill="#64748b">' + (c + 1) + '</text>';
+    hole(x, 42, 'plus', '+ rail');
+    rowsTop.forEach(function(r, i){ hole(x, 76 + i * 13, 'T' + c, r + (c + 1)); });
+    rowsBot.forEach(function(r, i){ hole(x, 168 + i * 13, 'B' + c, r + (c + 1)); });
+    hole(x, 258, 'minus', '− rail');
+  }
+  s += '<text x="52" y="82" font-size="10" fill="#64748b" text-anchor="end">a</text><text x="52" y="134" font-size="10" fill="#64748b" text-anchor="end">e</text>';
+  s += '<text x="52" y="174" font-size="10" fill="#64748b" text-anchor="end">f</text><text x="52" y="226" font-size="10" fill="#64748b" text-anchor="end">j</text>';
+  holes.forEach(function(h, i){ s += '<rect class="bb-hole" data-i="' + i + '" x="' + (h.x - 5) + '" y="' + (h.y - 5) + '" width="10" height="10" rx="2" fill="#334155"/>'; });
+  svg.innerHTML = s;
+  svg.addEventListener('click', function(e){
+    var t = e.target.closest('.bb-hole'); if (!t) return;
+    var h = holes[+t.dataset.i], n = 0;
+    [].forEach.call(svg.querySelectorAll('.bb-hole'), function(r){ var on = holes[+r.dataset.i].g === h.g; r.setAttribute('fill', on ? '#c8102e' : '#334155'); if (on) n++; });
+    var msg;
+    if (h.g === 'plus' || h.g === 'minus') msg = 'The whole <b>' + h.l + '</b> is one connection running the length of the board &mdash; that’s how one 5V or GND wire powers many parts.';
+    else { var col = h.l.slice(1), top = h.g[0] === 'T'; msg = 'Hole <b>' + h.l + '</b> is connected to the other ' + (n - 1) + ' holes <b>' + (top ? 'a&ndash;e' : 'f&ndash;j') + ' in row ' + col + '</b> &mdash; and <em>not</em> to ' + (top ? 'f&ndash;j' : 'a&ndash;e') + ' across the center divider. Two LED legs in this group would be the same point, so the LED wouldn’t light.'; }
+    info.innerHTML = '<b>' + n + ' holes connected</b>' + msg;
+  });
+})();
+
+/* ---------- PWM explorer ---------- */
+(function(){
+  var slider = document.getElementById('pwmVal'), led = document.getElementById('pwmLed'), stats = document.getElementById('pwmStats'), wave = document.getElementById('pwmWave');
+  function draw(){
+    var v = +slider.value, duty = v / 255, pct = Math.round(duty * 100);
+    led.style.opacity = (0.08 + duty * 0.92).toFixed(2);
+    led.style.boxShadow = '0 0 ' + Math.round(duty * 26) + 'px rgba(200,16,46,' + duty.toFixed(2) + ')';
+    stats.innerHTML = '<code>analogWrite(9, ' + v + ')</code><br>on about <b>' + pct + '%</b> of the time' + (v === 0 ? ' (off)' : v === 255 ? ' (full brightness)' : '');
+    var d = 'M 20 100', w = 112;
+    for (var k = 0; k < 5; k++){
+      var x = 20 + k * w, on = w * duty;
+      if (on > 0) d += ' L ' + x + ' 20 L ' + (x + on) + ' 20 L ' + (x + on) + ' 100';
+      d += ' L ' + (x + w) + ' 100';
+    }
+    wave.innerHTML = '<line x1="20" y1="100" x2="580" y2="100" stroke="#cbd5e1"/><text x="4" y="24" font-size="11" fill="#64748b">5V</text><text x="4" y="104" font-size="11" fill="#64748b">0V</text><path d="' + d + '" fill="none" stroke="#c8102e" stroke-width="3"/><text x="300" y="116" text-anchor="middle" font-size="11" fill="#64748b">the pin is only ever fully ON or fully OFF &mdash; just very fast</text>';
+  }
+  slider.addEventListener('input', draw);
+  [].forEach.call(document.querySelectorAll('[data-pwm]'), function(b){ b.addEventListener('click', function(){ slider.value = b.dataset.pwm; draw(); }); });
+  draw();
+})();
+
+/* ---------- Pull-up simulator ---------- */
+(function(){
+  var btn = document.getElementById('puBtn'), on = document.getElementById('puOn'), pressed = false, noise = null;
+  function set(id, txt){ document.getElementById(id).textContent = txt; }
+  function render(){
+    var read;
+    if (on.checked) read = pressed ? 'LOW' : 'HIGH';
+    else read = pressed ? 'LOW' : (Math.random() < 0.5 ? 'HIGH' : 'LOW');
+    var high = read === 'HIGH';
+    set('puRead', read); set('puLed', high ? 'OFF' : 'ON'); set('puRed', high ? 'ON' : 'OFF'); set('puWalk', high ? 'OFF' : 'ON');
+    document.getElementById('puInfo').innerHTML = on.checked
+      ? (pressed ? '<b>Pressed &rarr; LOW</b>The button connects the pin to GND. <code>!buttonState</code> is HIGH, so the LED and walking light turn on and red turns off.'
+                 : '<b>Not pressed &rarr; HIGH</b>The pull-up holds the pin at 5V. Reads "backwards" on purpose: red is on, the LED and walking light are off.')
+      : (pressed ? '<b>Pressed &rarr; LOW</b>Pressing still connects the pin to GND.'
+                 : '<b>Floating!</b>With no pull-up, the unpressed pin picks up noise and flickers between HIGH and LOW on its own &mdash; the Haunted Elevator.');
+  }
+  function down(e){ e.preventDefault(); pressed = true; render(); }
+  function up(){ if (pressed){ pressed = false; render(); } }
+  btn.addEventListener('pointerdown', down);
+  btn.addEventListener('pointerup', up); btn.addEventListener('pointerleave', up); btn.addEventListener('pointercancel', up);
+  btn.addEventListener('keydown', function(e){ if (e.key === ' ' || e.key === 'Enter'){ down(e); } });
+  btn.addEventListener('keyup', up);
+  on.addEventListener('change', function(){
+    clearInterval(noise); noise = null;
+    if (!on.checked) noise = setInterval(function(){ if (!pressed) render(); }, 350);
+    render();
+  });
+  render();
+})();
+</script>
+<script src="../../assets/course-nav.js"></script>
+</body>
+</html>
