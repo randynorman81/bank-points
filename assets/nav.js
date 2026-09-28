@@ -27,19 +27,22 @@ const COURSES = [
     home: "ist/index.html",
     classDocs: "ist/class-docs.html",
     googleSite: "https://sites.google.com/socialcircleschools.org/introtosoftwaretech/home",
+    // Listed in teaching order for 2026-27 (see ist/pacing-guide.html); unit
+    // numbers haven't been renumbered to match yet.
     units: [
-      { n: 1, title: "Digital Footprint", migrated: true, path: "ist/unit-1/index.html" },
-      { n: 2, title: "Intro to Programming (Karel)", migrated: true, path: "ist/unit-2/index.html" },
-      { n: 3, title: "Computing Basics", migrated: true, path: "ist/unit-3/index.html" },
-      { n: 4, title: "Operating Systems and Software", migrated: true, path: "ist/unit-4/index.html" },
-      { n: 5, title: "Project: IT Professional", migrated: true, path: "ist/unit-5/index.html" },
-      { n: 6, title: "Web Design - HTML (Part 1)", migrated: true, path: "ist/unit-6/index.html" },
-      { n: 7, title: "Web Design - HTML (Part 2)", migrated: true, path: "ist/unit-7/index.html" },
-      { n: 8, title: "Intro to CSS (Expanded)", migrated: true, path: "ist/unit-8/index.html" },
-      { n: 9, title: "Bootstrap", migrated: true, path: "ist/unit-9/index.html" },
-      { n: 10, title: "Complete Website Project", migrated: true, path: "ist/unit-10/index.html" },
-      { n: 11, title: "Intro to JavaScript", migrated: true, path: "ist/unit-11/index.html" },
-      { n: 12, title: "Intro to Web Dev (jQuery / CMS)", migrated: true, path: "ist/unit-12/index.html" }
+      { n: 1, label: "Unit 1 · Aug–Sep", title: "Digital Footprint", migrated: true, path: "ist/unit-1/index.html" },
+      { n: 2, label: "Unit 2 · Sep–Oct", title: "Intro to Programming (Karel)", migrated: true, path: "ist/unit-2/index.html" },
+      { n: 6, label: "Unit 6 · Nov", title: "Web Design - HTML (Part 1)", migrated: true, path: "ist/unit-6/index.html" },
+      { n: 7, label: "Unit 7 · Nov–Dec", title: "Web Design - HTML (Part 2)", migrated: true, path: "ist/unit-7/index.html" },
+      { n: 8, label: "Unit 8 · Dec", title: "Intro to CSS (Expanded)", migrated: true, path: "ist/unit-8/index.html" },
+      { n: 9, label: "Unit 9 · Jan", title: "Bootstrap", migrated: true, path: "ist/unit-9/index.html" },
+      { n: 10, label: "Unit 10 · Feb", title: "Complete Website Project", migrated: true, path: "ist/unit-10/index.html" },
+      { n: 3, label: "Unit 3 · Mar", title: "Computing Basics", migrated: true, path: "ist/unit-3/index.html" },
+      { n: 4, label: "Unit 4 · Mar", title: "Operating Systems and Software", migrated: true, path: "ist/unit-4/index.html" },
+      { label: "Apr", title: "Networking", comingSoon: true },
+      { n: 5, title: "Project: IT Professional", migrated: true, path: "ist/unit-5/index.html", badge: "Not this year" },
+      { n: 11, title: "Intro to JavaScript", migrated: true, path: "ist/unit-11/index.html", badge: "Not this year" },
+      { n: 12, title: "Intro to Web Dev (jQuery / CMS)", migrated: true, path: "ist/unit-12/index.html", badge: "Not this year" }
     ]
   },
   {
@@ -151,6 +154,7 @@ function buildStaticSearchIndex() {
     entries.push({ title: course.name + " — course home", url: NAV_ROOT + course.home, category: course.shortName });
     entries.push({ title: course.name + " — class docs / syllabus", url: NAV_ROOT + course.classDocs, category: course.shortName });
     course.units.forEach((u) => {
+      if (u.comingSoon) return;
       const url = u.migrated ? NAV_ROOT + u.path : u.googleSite;
       const label = u.label || ("Unit " + u.n);
       entries.push({ title: label + ": " + u.title, url, category: course.shortName });
@@ -390,10 +394,18 @@ function renderUnitGrid(courseId, containerId) {
 
   container.innerHTML = course.units.map(u => {
     const label = u.label || ("Unit " + u.n);
+    if (u.comingSoon) {
+      return `
+        <div class="unit-card locked">
+          <div class="unit-label"><span>${escapeHtmlNav(label)}</span><span class="badge">Coming soon</span></div>
+          <h3>${escapeHtmlNav(u.title)}</h3>
+        </div>`;
+    }
     if (u.migrated) {
+      const badge = u.badge ? `<span class="badge">${escapeHtmlNav(u.badge)}</span>` : "";
       return `
         <a class="unit-card" href="${NAV_ROOT}${u.path}">
-          <div class="unit-label"><span>${escapeHtmlNav(label)}</span></div>
+          <div class="unit-label"><span>${escapeHtmlNav(label)}</span>${badge}</div>
           <h3>${escapeHtmlNav(u.title)}</h3>
         </a>`;
     }
