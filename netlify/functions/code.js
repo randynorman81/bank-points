@@ -12,7 +12,8 @@ const LESSONS = ["6.1", "6.2", "6.3", "6.4", "6.5", "6.6", "6.7", "6.8", "6.9", 
   "7.1", "7.2", "7.3", "7.4", "7.5", "7.6",
   "8.1", "8.2", "8.3", "8.4", "8.5", "8.6", "8.7",
   "9.1", "9.2", "9.3", "9.4", "9.5", "9.6", "9.7"];
-const MAX_CODE = 120000;            // characters of HTML per submission
+const IST_PERIODS = ["3A", "3B", "4A"]; // keep in sync with COURSE_PERIODS in bank/admin.html
+const MAX_CODE = 120000;           // characters of HTML per submission
 const MAX_CSS = 60000;              // characters of CSS (style.css) per submission
 const MAX_IMG_BYTES = 1500000;      // decoded image size
 const MAX_IMGS = 15;                // images per student
@@ -171,6 +172,16 @@ async function adminList(body) {
     if (!d) return;
     if (!byEmail[d.email]) byEmail[d.email] = { email: d.email, name: d.name, period: d.period, submission: null, draft: d };
     else byEmail[d.email].draft = d;
+  });
+  // The Bank roster (same Netlify site) is the source of truth for periods: a student's own period
+  // choice in the editor can be wrong. Every IST student on the roster is listed, even with no work yet.
+  let roster = [];
+  try { roster = (await getStore({ name: "bank-points", consistency: "strong" }).get("students", { type: "json" })) || []; } catch (e) { roster = []; }
+  roster.forEach((s) => {
+    const email = String(s.email || "").toLowerCase();
+    if (!email) return;
+    if (byEmail[email]) { byEmail[email].period = s.period || byEmail[email].period; byEmail[email].rosterName = s.name; }
+    else if (IST_PERIODS.indexOf(String(s.period || "").toUpperCase()) > -1) byEmail[email] = { email, name: s.name, rosterName: s.name, period: s.period, submission: null, draft: null };
   });
   return { ok: true, lesson: body.lesson, students: Object.values(byEmail) };
 }

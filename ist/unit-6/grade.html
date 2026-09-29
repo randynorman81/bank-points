@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>Grade Unit 6 Websites | Teacher</title>
+<title>Grade IST Websites | Teacher</title>
 <link rel="icon" href="../../assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -97,14 +97,14 @@ iframe{width:100%;height:100%;border:0;background:#fff;display:block}
 <div class="top" id="top" style="display:none">
   <span class="brand">🧑‍🏫 Grade Websites</span>
   <label>Lesson <select id="lesson"></select></label>
-  <label>Period <select id="period"><option value="">All</option></select></label>
+  <label>Period <select id="period"><option value="IST">All IST (3A, 3B, 4A)</option><option>3A</option><option>3B</option><option>4A</option></select></label>
   <label><input type="checkbox" id="onlySub"> Submitted only</label>
   <button class="btn" id="reload">Reload</button>
   <button class="btn" id="csv">Export CSV</button>
   <button class="btn" id="bulk" title="Fill in the teacher score for every ungraded submission with the auto score">Use auto score for ungraded</button>
   <span class="sp"></span>
   <span id="count" style="color:var(--soft);font-size:13px"></span>
-  <a class="btn" href="index.html">Unit 6</a>
+  <a class="btn" href="../index.html">IST Home</a>
 </div>
 
 <div id="app">
@@ -121,6 +121,7 @@ iframe{width:100%;height:100%;border:0;background:#fff;display:block}
 <script>
 "use strict";
 var API = "/api/code", $ = function (i) { return document.getElementById(i); }, H = window.HTMLCheck;
+var IST_PERIODS = ["3A", "3B", "4A"]; // keep in sync with netlify/functions/code.js
 var pin = sessionStorage.getItem("u7pin") || "", rowsData = [], selEmail = null, sortKey = "name", sortDir = 1, view = "code";
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 function toast(t) { var x = $("toast"); x.textContent = t; x.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(function () { x.style.display = "none"; }, 2000); }
@@ -208,7 +209,7 @@ function load() {
       var _row;
       var code = s.submission ? s.submission.code : (s.draft ? s.draft.code : ""), css = s.submission ? (s.submission.css || "") : (s.draft ? (s.draft.css || "") : "");
       var rep = H.check(lesson, code, css);
-      _row = { email: s.email, name: s.name || s.email, period: s.period || (s.submission && s.submission.period) || "", sub: s.submission, draft: s.draft, code: code, css: css, rep: rep, status: s.submission ? "submitted" : "draft", teacher: s.submission ? s.submission.teacher : null };
+      _row = { email: s.email, name: s.rosterName || s.name || s.email, period: String(s.period || (s.submission && s.submission.period) || "").toUpperCase(), sub: s.submission, draft: s.draft, code: code, css: css, rep: rep, status: s.submission ? "submitted" : (s.draft ? "draft" : "missing"), teacher: s.submission ? s.submission.teacher : null };
       _row.org = analyzeOrigin(_row);
       _row.pasteBad = !!_row.org.penalize;
       _row.wq = H.quality(code);
@@ -220,17 +221,22 @@ function load() {
       }
       return _row;
     });
-    var periods = {}; rowsData.forEach(function (r) { if (r.period) periods[r.period] = 1; });
-    var ps = $("period"), cur = ps.value; ps.innerHTML = '<option value="">All</option>' + Object.keys(periods).sort().map(function (p) { return "<option>" + esc(p) + "</option>"; }).join(""); ps.value = cur;
+    // IST periods always listed; anyone else who used the editor (wrong or missing period) shows under "Other".
+    var ps = $("period"), cur = ps.value, other = rowsData.some(function (r) { return IST_PERIODS.indexOf(r.period) < 0; });
+    ps.innerHTML = '<option value="IST">All IST (3A, 3B, 4A)</option>' + IST_PERIODS.map(function (p) { return "<option>" + p + "</option>"; }).join("") + (other ? '<option value="OTHER">Other / no period</option>' : "");
+    ps.value = [].some.call(ps.options, function (o) { return o.value === cur; }) ? cur : "IST";
     render();
   });
 }
 $("lesson").onchange = function () { selEmail = null; $("detail").innerHTML = '<div class="empty">Pick a student on the left.</div>'; load(); };
-$("period").onchange = render; $("onlySub").onchange = render; $("reload").onclick = load;
+$("period").onchange = function () { try { localStorage.setItem("u7grade:period", this.value); } catch (e) {} render(); };
+$("onlySub").onchange = render; $("reload").onclick = load;
+try { var savedP = localStorage.getItem("u7grade:period"); if (savedP && [].some.call($("period").options, function (o) { return o.value === savedP; })) $("period").value = savedP; } catch (e) {}
 
+function inPeriod(r, p) { return p === "IST" ? IST_PERIODS.indexOf(r.period) > -1 : p === "OTHER" ? IST_PERIODS.indexOf(r.period) < 0 : r.period === p; }
 function visible() {
   var p = $("period").value, only = $("onlySub").checked;
-  var a = rowsData.filter(function (r) { return (!p || r.period === p) && (!only || r.status === "submitted"); });
+  var a = rowsData.filter(function (r) { return inPeriod(r, p) && (!only || r.status === "submitted"); });
   a.sort(function (x, y) {
     var kx, ky;
     if (sortKey === "name") { kx = x.name.toLowerCase(); ky = y.name.toLowerCase(); }
@@ -247,12 +253,13 @@ function render() {
   a.forEach(function (r) {
     var g = r.teacher && r.teacher.score != null ? r.teacher.score : "";
     h += '<tr class="row' + (r.email === selEmail ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td><b>' + esc(r.name) + '</b><br><small style="color:var(--soft)">' + esc(r.period) + "</small></td><td>" +
-      (r.status === "submitted" ? '<span class="pill s">Submitted</span><br><small style="color:var(--soft)">' + esc(fmt(r.sub.submittedAt)) + (r.sub.count > 1 ? " (#" + r.sub.count + ")" : "") + "</small>" : '<span class="pill d">Draft only</span>') +
-      '</td><td class="num">' + r.rep.score + (r.rep.errors.length ? '<br><small style="color:var(--bad)">' + r.rep.errors.length + " err</small>" : "") + '</td><td title="' + esc(r.org.reasons.join(" ")) + '">' + LV[r.org.level] + (r.org.penalize ? '<br><small style="color:#FCA5A5">-50%</small>' : '') + '</td><td class="num">' + (g !== "" ? '<span class="pill g">' + esc(g) + "</span>" : "") + "</td></tr>";
+      (r.status === "submitted" ? '<span class="pill s">Submitted</span><br><small style="color:var(--soft)">' + esc(fmt(r.sub.submittedAt)) + (r.sub.count > 1 ? " (#" + r.sub.count + ")" : "") + "</small>" : r.status === "draft" ? '<span class="pill d">Draft only</span>' : '<span class="pill d" style="opacity:.6">Nothing yet</span>') +
+      '</td><td class="num">' + (r.status === "missing" ? "&ndash;" : r.rep.score + (r.rep.errors.length ? '<br><small style="color:var(--bad)">' + r.rep.errors.length + " err</small>" : "")) + '</td><td title="' + esc(r.org.reasons.join(" ")) + '">' + (r.status === "missing" ? "" : LV[r.org.level] + (r.org.penalize ? '<br><small style="color:#FCA5A5">-50%</small>' : '')) + '</td><td class="num">' + (g !== "" ? '<span class="pill g">' + esc(g) + "</span>" : "") + "</td></tr>";
   });
   $("rows").innerHTML = h; $("noRows").style.display = a.length ? "none" : "block";
-  var subs = rowsData.filter(function (r) { return r.status === "submitted"; }).length, graded = rowsData.filter(function (r) { return r.teacher && r.teacher.score != null; }).length;
-  $("count").textContent = subs + " submitted, " + graded + " graded, " + (rowsData.length - subs) + " draft only";
+  var p = $("period").value, inP = rowsData.filter(function (r) { return inPeriod(r, p); }), n = function (s) { return inP.filter(function (r) { return r.status === s; }).length; };
+  var graded = inP.filter(function (r) { return r.teacher && r.teacher.score != null; }).length;
+  $("count").textContent = n("submitted") + " submitted, " + graded + " graded, " + n("draft") + " draft only, " + n("missing") + " nothing yet";
 }
 $("rows").onclick = function (e) { var t = e.target.closest("tr.row"); if (t) select(t.getAttribute("data-e")); };
 document.querySelector(".list thead").onclick = function (e) { var th = e.target.closest("th"); if (!th) return; var k = th.getAttribute("data-k"); if (sortKey === k) sortDir = -sortDir; else { sortKey = k; sortDir = (k === "orig") ? -1 : 1; } render(); };
@@ -298,6 +305,10 @@ function wqHtml(r) {
 /* ---------- detail ---------- */
 function select(email) {
   selEmail = email; var r = rowsData.filter(function (x) { return x.email === email; })[0]; if (!r) return;
+  if (r.status === "missing") {
+    $("detail").innerHTML = '<div class="dhead"><h2>' + esc(r.name) + '</h2><small>' + esc(r.email) + " · Period " + esc(r.period || "?") + '</small><span class="sp"></span><button class="btn sm" id="prevS">◀ Prev</button><button class="btn sm" id="nextS">Next ▶</button></div><div class="empty">No saved work or submission for this lesson yet.</div>';
+    $("prevS").onclick = function () { step(-1); }; $("nextS").onclick = function () { step(1); }; render(); return;
+  }
   var penOn = r.teacher ? !!r.teacher.penalty : r.org.penalize;
   var g = r.teacher && r.teacher.score != null ? r.teacher.score : Math.round(r.rep.score * (r.org.penalize ? PENALTY : 1) * 10) / 10;
   var d = $("detail");
@@ -349,7 +360,7 @@ $("csv").onclick = function () {
   var lesson = $("lesson").value, out = [["Name", "Email", "Period", "Lesson", "Status", "Submitted", "Auto score", "Originality", "Penalty applied", "Teacher score", "Comment"]];
   visible().forEach(function (r) { out.push([r.name, r.email, r.period, lesson, r.status, r.sub ? r.sub.submittedAt : "", r.rep.score, r.org.level, r.teacher ? (r.teacher.penalty ? "yes" : "no") : (r.org.penalize ? "suggested" : ""), r.teacher && r.teacher.score != null ? r.teacher.score : "", r.teacher ? r.teacher.comment : ""]); });
   var csv = out.map(function (row) { return row.map(function (c) { c = String(c == null ? "" : c); return /[",\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(","); }).join("\n");
-  var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "unit7-" + lesson + "-grades.csv"; a.click();
+  var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "ist-" + lesson + "-grades.csv"; a.click();
 };
 $("bulk").onclick = function () {
   var todo = visible().filter(function (r) { return r.status === "submitted" && !(r.teacher && r.teacher.score != null); });
