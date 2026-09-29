@@ -284,6 +284,8 @@
 <script src="assets/api.js"></script>
 <script src="assets/nav.js"></script>
 <script>
+function lastNameKey(n) { var w = String(n || "").trim().toLowerCase().split(/\s+/); while (w.length > 1 && /^(jr|sr|ii|iii|iv)\.?$/.test(w[w.length - 1])) w.pop(); return w[w.length - 1] + " " + w.join(" "); }
+function byLastName(a, b) { return lastNameKey(a).localeCompare(lastNameKey(b)); }
 renderHeader();
 const PIN_KEY = 'bankPointsPin';
 let roster = [];
@@ -409,7 +411,7 @@ function renderRoster() {
   </div>${unassignedPeriodsNote()}`;
 
   const period = selectedPeriod;
-  const rows = periods[period].sort((a, b) => a.name.localeCompare(b.name));
+  const rows = periods[period].sort((a, b) => byLastName(a.name, b.name));
   const tableHtml = `<section class="period-section">
       <h2 style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
         <span>${escapeHtml(period)} <span class="count">${rows.length} student${rows.length === 1 ? '' : 's'}</span></span>
@@ -476,19 +478,19 @@ function unassignedPeriodsNote() {
 
 function copyCourseEmails(course) {
   const sorted = studentsInCourse(course).sort((a, b) =>
-    a.period.localeCompare(b.period, undefined, { numeric: true, sensitivity: 'base' }) || a.name.localeCompare(b.name));
+    a.period.localeCompare(b.period, undefined, { numeric: true, sensitivity: 'base' }) || byLastName(a.name, b.name));
   return copyEmails(sorted, `${course} (${COURSE_PERIODS[course].join(', ')})`, true);
 }
 
 function copyPeriodEmails() {
-  return copyEmails(roster.filter(s => s.period === selectedPeriod), selectedPeriod, false);
+  return copyEmails(roster.filter(s => s.period === selectedPeriod).sort((a, b) => byLastName(a.name, b.name)), selectedPeriod, false);
 }
 
 // Every class at once. Duplicate addresses (a student on two rosters) are
 // copied only once.
 function copyAllEmails() {
   const sorted = roster.slice().sort((a, b) =>
-    a.period.localeCompare(b.period, undefined, { numeric: true, sensitivity: 'base' }) || a.name.localeCompare(b.name));
+    a.period.localeCompare(b.period, undefined, { numeric: true, sensitivity: 'base' }) || byLastName(a.name, b.name));
   return copyEmails(sorted, 'all classes', true);
 }
 
@@ -1227,7 +1229,7 @@ function qgRenderSuggestions(matches) {
 qgNameInput.addEventListener('input', () => {
   const q = qgNameInput.value.trim().toLowerCase();
   if (!q) { qgCloseSuggestions(); return; }
-  const matches = roster.filter(s => s.name.toLowerCase().includes(q)).slice(0, 8);
+  const matches = roster.filter(s => s.name.toLowerCase().includes(q)).sort((a, b) => byLastName(a.name, b.name)).slice(0, 8);
   qgRenderSuggestions(matches);
 });
 

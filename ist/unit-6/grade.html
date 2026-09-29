@@ -122,6 +122,8 @@ iframe{width:100%;height:100%;border:0;background:#fff;display:block}
 "use strict";
 var API = "/api/code", $ = function (i) { return document.getElementById(i); }, H = window.HTMLCheck;
 var IST_PERIODS = ["3A", "3B", "4A"]; // keep in sync with netlify/functions/code.js
+function lastNameKey(n) { var w = String(n || "").trim().toLowerCase().split(/\s+/); while (w.length > 1 && /^(jr|sr|ii|iii|iv)\.?$/.test(w[w.length - 1])) w.pop(); return w[w.length - 1] + " " + w.join(" "); }
+function byLastName(a, b) { return lastNameKey(a).localeCompare(lastNameKey(b)); }
 var pin = sessionStorage.getItem("u7pin") || "", rowsData = [], selEmail = null, sortKey = "name", sortDir = 1, view = "code";
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 function toast(t) { var x = $("toast"); x.textContent = t; x.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(function () { x.style.display = "none"; }, 2000); }
@@ -239,7 +241,7 @@ function visible() {
   var a = rowsData.filter(function (r) { return inPeriod(r, p) && (!only || r.status === "submitted"); });
   a.sort(function (x, y) {
     var kx, ky;
-    if (sortKey === "name") { kx = x.name.toLowerCase(); ky = y.name.toLowerCase(); }
+    if (sortKey === "name") { kx = lastNameKey(x.name); ky = lastNameKey(y.name); }
     else if (sortKey === "status") { kx = x.status; ky = y.status; }
     else if (sortKey === "auto") { kx = x.rep.score; ky = y.rep.score; }
     else if (sortKey === "orig") { kx = LVN[x.org.level]; ky = LVN[y.org.level]; }

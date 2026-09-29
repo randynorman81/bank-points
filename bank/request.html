@@ -71,6 +71,8 @@
 <script src="assets/api.js"></script>
 <script src="assets/nav.js"></script>
 <script>
+function lastNameKey(n) { var w = String(n || "").trim().toLowerCase().split(/\s+/); while (w.length > 1 && /^(jr|sr|ii|iii|iv)\.?$/.test(w[w.length - 1])) w.pop(); return w[w.length - 1] + " " + w.join(" "); }
+function byLastName(a, b) { return lastNameKey(a).localeCompare(lastNameKey(b)); }
 renderHeader();
 let roster = [];
 const periodSelect = document.getElementById('period');
@@ -117,7 +119,7 @@ async function init() {
 periodSelect.addEventListener('change', () => {
   const period = periodSelect.value;
   nameSelect.innerHTML = '<option value="" disabled selected>Choose your name&hellip;</option>';
-  const inPeriod = roster.filter(s => s.period === period).sort((a, b) => a.name.localeCompare(b.name));
+  const inPeriod = roster.filter(s => s.period === period).sort((a, b) => byLastName(a.name, b.name));
   inPeriod.forEach(s => {
     const opt = document.createElement('option');
     opt.value = s.id;
