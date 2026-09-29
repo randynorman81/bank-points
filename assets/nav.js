@@ -96,7 +96,7 @@ const COURSES = [
     googleSite: "https://sites.google.com/socialcircleschools.org/webdev/home",
     units: [
       { n: 1, title: "What Is an Embedded System?", migrated: true, path: "ec/unit-1/index.html", badge: "Google Classroom" },
-      { n: 2, title: "Arduino Foundations", migrated: true, path: "ec/unit-2/index.html", badge: "Tinkercad" },
+      { n: 2, title: "Arduino Foundations", migrated: true, path: "ec/unit-2/index.html", badge: "Google Classroom" },
       { n: 3, title: "Outputs: Light, Sound, and Motion", migrated: true, path: "ec/unit-3/index.html", badge: "Tinkercad" },
       { n: 4, title: "Intro to C++", migrated: true, path: "ec/unit-4/index.html", badge: "Codecademy" },
       { n: 5, title: "Vectors and Functions", migrated: true, path: "ec/unit-5/index.html", badge: "Codecademy" },
