@@ -205,7 +205,7 @@ function load() {
     rowsData = j.students.map(function (s) {
       var _row;
       var code = s.submission ? s.submission.code : (s.draft ? s.draft.code : ""), css = s.submission ? (s.submission.css || "") : (s.draft ? (s.draft.css || "") : "");
-      var rep = H.check(lesson, code);
+      var rep = H.check(lesson, code, css);
       _row = { email: s.email, name: s.name || s.email, period: s.period || (s.submission && s.submission.period) || "", sub: s.submission, draft: s.draft, code: code, css: css, rep: rep, status: s.submission ? "submitted" : "draft", teacher: s.submission ? s.submission.teacher : null };
       _row.org = analyzeOrigin(_row);
       _row.pasteBad = !!_row.org.penalize;

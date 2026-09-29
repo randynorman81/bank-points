@@ -18,7 +18,14 @@
     "border-style", "border-width", "border-color", "padding", "padding-top", "padding-right", "padding-bottom", "padding-left",
     "margin", "margin-top", "margin-right", "margin-bottom", "margin-left", "width", "height", "max-width", "min-width",
     "max-height", "min-height", "display", "vertical-align", "list-style-type", "line-height", "letter-spacing",
-    "border-top-left-radius", "border-top-right-radius", "border-bottom-left-radius", "border-bottom-right-radius", "float", "cursor"];
+    "border-top-left-radius", "border-top-right-radius", "border-bottom-left-radius", "border-bottom-right-radius", "float", "cursor",
+    /* CSS unit (8.x): flexbox, grid, hover/transition, and common extras */
+    "justify-content", "align-items", "align-content", "align-self", "justify-items", "place-items", "flex", "flex-direction",
+    "flex-wrap", "flex-grow", "flex-shrink", "flex-basis", "gap", "row-gap", "column-gap", "grid-gap", "grid-template-columns",
+    "grid-template-rows", "grid-template-areas", "grid-column", "grid-row", "grid-area", "transition", "transition-property",
+    "transition-duration", "transition-timing-function", "transition-delay", "transform", "opacity", "box-shadow", "text-shadow",
+    "font-style", "position", "top", "right", "bottom", "left", "z-index", "overflow", "object-fit", "box-sizing", "list-style",
+    "background-image", "background-size", "background-position", "background-repeat", "outline"];
 
   var NAMED_COLORS = ("aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown burlywood cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray darkgreen darkgrey darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen darkslateblue darkslategray darkslategrey darkturquoise darkviolet deeppink deepskyblue dimgray dimgrey dodgerblue firebrick floralwhite forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green greenyellow grey honeydew hotpink indianred indigo ivory khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan lightgoldenrodyellow lightgray lightgreen lightgrey lightpink lightsalmon lightseagreen lightskyblue lightslategray lightslategrey lightsteelblue lightyellow lime limegreen linen magenta maroon mediumaquamarine mediumblue mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise mediumvioletred midnightblue mintcream mistyrose moccasin navajowhite navy oldlace olive olivedrab orange orangered orchid palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple rebeccapurple red rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue slateblue slategray slategrey snow springgreen steelblue tan teal thistle tomato turquoise violet wheat white whitesmoke yellow yellowgreen").split(" ");
   var NAMED = {}; NAMED_COLORS.forEach(function (n) { NAMED[n] = 1; });
@@ -538,8 +545,112 @@
     ] }
   };
   // Unit test = the whole site, everything from 6.1 through 7.5.
-  LESSONS["7.6"] = { name: "Unit Test Website (all tags)", rules: [] };
-  var ORDER = ["6.1", "6.2", "6.3", "6.4", "6.5", "6.6", "6.7", "7.1", "7.2", "7.3", "7.4", "7.5", "7.6"];
+  LESSONS["7.6"] = { name: "Unit Test Website (all tags)", rules: [], testOf: ["6.", "7."] };
+
+  /* ---------- CSS (8.x) and Bootstrap (9.x) helpers ----------
+     check() merges style.css into the page before analyzing, so c.sheetRules includes the CSS file.
+     c.cssLinked = index.html links style.css; c.fileRules = rules written in style.css itself. */
+  function els(c) { var out = []; (function w(n) { n.children.forEach(function (x) { if (x.tag === "#text") return; out.push(x); w(x); }); })(c.tree); return out; }
+  function classesOf(n) { return String(n.attrs["class"] || "").trim().split(/\s+/).filter(Boolean); }
+  function withClass(c, re) { return els(c).filter(function (n) { return classesOf(n).some(function (k) { return re.test(k); }); }); }
+  function selParts(rule) { return rule.selector.split(",").map(function (s) { return s.trim(); }); }
+  function ruleFor(c, test) { return c.sheetRules.filter(function (rl) { return selParts(rl).some(test); }); }
+  function declares(rl, prop) { return rl.decls.some(function (d) { return d.prop === prop; }); }
+  function valueOf(rl, prop) { var d = rl.decls.filter(function (x) { return x.prop === prop; })[0]; return d ? String(d.value).replace(/;$/, "").trim() : ""; }
+  function inside(c, n, re) { var p = n.parent; while (p) { if (classesOf(p).some(function (k) { return re.test(k); })) return true; p = p.parent; } return false; }
+  function descendants(n) { var out = []; (function w(x) { x.children.forEach(function (y) { if (y.tag === "#text") return; out.push(y); w(y); }); })(n); return out; }
+  function hasBootstrap(c) { return c.all("link").some(function (l) { return /bootstrap/i.test(l.attrs.href || "") && /\.css/i.test(l.attrs.href || ""); }); }
+  var BTN = /^btn-(outline-)?(primary|secondary|success|danger|warning|info|light|dark|link)$/;
+  var UTIL = /^(text-(primary|secondary|success|danger|warning|info|light|dark|white|muted|center|start|end|uppercase|lowercase)|bg-(primary|secondary|success|danger|warning|info|light|dark|white)|fs-[1-6]|fw-(bold|bolder|normal|light|lighter)|fst-italic|display-[1-6]|lead)$/;
+
+  LESSONS["8.1"] = { name: "Intro to External CSS + Classes", rules: [
+    r("index.html links your style.css file inside the <head>", function (c) { return !!c.cssLinkInHead; }, "Use the style.css tab for your CSS, then link it from the head."),
+    r("style.css has at least 3 rules", function (c) { return c.fileRules.length >= 3; }),
+    r("At least one element has a class", function (c) { return els(c).some(function (n) { return classesOf(n).length > 0; }); }),
+    r("style.css has a .class rule that matches a class used in your page", function (c) {
+      var used = {}; els(c).forEach(function (n) { classesOf(n).forEach(function (k) { used[k] = 1; }); });
+      return c.fileRules.some(function (rl) { return selParts(rl).some(function (s) { var m = /^\.([\w-]+)/.exec(s); return m && used[m[1]]; }); });
+    }, "A class rule starts with a dot, like .highlight, and the element needs class=\"highlight\".")
+  ] };
+  LESSONS["8.2"] = { name: "CSS by ID", rules: [
+    r("At least one element has an id", function (c) { return els(c).some(function (n) { return !!String(n.attrs.id || "").trim(); }); }),
+    r("style.css has an #id rule that matches an id used in your page", function (c) {
+      var ids = {}; els(c).forEach(function (n) { if (n.attrs.id) ids[String(n.attrs.id).trim()] = 1; });
+      return c.fileRules.some(function (rl) { return selParts(rl).some(function (s) { var m = /^#([\w-]+)/.exec(s); return m && ids[m[1]]; }); });
+    }, "An id rule starts with #, like #banner, and the element needs id=\"banner\"."),
+    r("Every id is used only once", function (c) { var seen = {}, ok = true; els(c).forEach(function (n) { var v = String(n.attrs.id || "").trim(); if (!v) return; if (seen[v]) ok = false; seen[v] = 1; }); return ok && Object.keys(seen).length > 0; }, "An id is one-of-a-kind. Use a class when many elements share a style.")
+  ] };
+  LESSONS["8.3"] = { name: "Combining Selectors + Specificity", rules: [
+    r("A class rule overrides a tag rule on the same element (both set the same property)", function (c) {
+      return els(c).some(function (n) {
+        var tagRules = ruleFor(c, function (s) { return s.toLowerCase() === n.tag; });
+        var clsRules = ruleFor(c, function (s) { var m = /^\.([\w-]+)$/.exec(s); return m && classesOf(n).indexOf(m[1]) > -1; });
+        return tagRules.some(function (t) { return t.decls.some(function (d) { return clsRules.some(function (k) { return declares(k, d.prop); }); }); });
+      });
+    }, "Example idea: a rule for all paragraphs sets a color, and a class rule gives one special paragraph a different color."),
+    r("An element uses two classes at once", function (c) { return els(c).some(function (n) { return classesOf(n).length >= 2; }); }, "Separate the two class names with a space inside one class attribute."),
+    r("Both of that element's classes have rules in style.css", function (c) {
+      return els(c).some(function (n) {
+        var ks = classesOf(n); if (ks.length < 2) return false;
+        return ks.filter(function (k) { return ruleFor(c, function (s) { return s === "." + k; }).length > 0; }).length >= 2;
+      });
+    })
+  ] };
+  LESSONS["8.4"] = { name: "Pseudo-classes + Hover Effects", rules: [
+    r("Has a :hover rule that changes at least one property", function (c) { return ruleFor(c, function (s) { return /:hover\b/.test(s); }).some(function (rl) { return rl.decls.length > 0; }); }),
+    r("Uses transition so the hover change is smooth", function (c) { return c.prop("transition") > 0 || c.prop("transition-duration") > 0; }, "Put the transition on the normal rule (not the :hover one) so it animates both ways."),
+    r("The :hover is on a button, link, or card", function (c) { return ruleFor(c, function (s) { return /:hover\b/.test(s) && /(^|[\s>+~])(a|button)\b|\.[\w-]*(btn|button|card|link)[\w-]*/i.test(s); }).length > 0; })
+  ] };
+  LESSONS["8.5"] = { name: "Flexbox Basics", rules: [
+    r("One rule makes a section a flex container (display: flex)", function (c) { return c.sheetRules.some(function (rl) { return /^(inline-)?flex$/i.test(valueOf(rl, "display")); }); }),
+    r("That same rule arranges the children with justify-content and/or align-items", function (c) { return c.sheetRules.some(function (rl) { return /^(inline-)?flex$/i.test(valueOf(rl, "display")) && (declares(rl, "justify-content") || declares(rl, "align-items")); }); }),
+    r("The flex container is a class or id (not the whole body)", function (c) { return c.sheetRules.some(function (rl) { return /^(inline-)?flex$/i.test(valueOf(rl, "display")) && selParts(rl).some(function (s) { return /^[.#]/.test(s); }); }); })
+  ] };
+  LESSONS["8.6"] = { name: "CSS Grid Basics", rules: [
+    r("One rule makes a section a grid (display: grid)", function (c) { return c.sheetRules.some(function (rl) { return /^(inline-)?grid$/i.test(valueOf(rl, "display")); }); }),
+    r("That same rule sets grid-template-columns", function (c) { return c.sheetRules.some(function (rl) { return /^(inline-)?grid$/i.test(valueOf(rl, "display")) && declares(rl, "grid-template-columns"); }); }),
+    r("That same rule sets a gap", function (c) { return c.sheetRules.some(function (rl) { return /^(inline-)?grid$/i.test(valueOf(rl, "display")) && (declares(rl, "gap") || declares(rl, "grid-gap") || declares(rl, "column-gap")); }); })
+  ] };
+  LESSONS["8.7"] = { name: "Unit Test Website (CSS)", rules: [], testOf: ["8."] };
+
+  LESSONS["9.1"] = { name: "Setting Up Bootstrap", rules: [
+    r("Links Bootstrap's CSS (the CDN link) inside the <head>", function (c) { return c.all("link").some(function (l) { return /bootstrap/i.test(l.attrs.href || "") && /\.css/i.test(l.attrs.href || "") && !!c.ancestor(l, ["head"]); }); }, "Find the official CSS link on getbootstrap.com under Getting Started."),
+    r("The Bootstrap link is a full https:// web address", function (c) { return c.all("link").some(function (l) { return /^https:\/\/.*bootstrap.*\.css/i.test(l.attrs.href || ""); }); }, "A CDN file lives on the internet, so its address starts with https://")
+  ] };
+  LESSONS["9.2"] = { name: "The Grid System", rules: [
+    r("Has a container", function (c) { return withClass(c, /^container(-fluid|-(sm|md|lg|xl|xxl))?$/).length > 0; }),
+    r("A row sits inside the container", function (c) { return withClass(c, /^row$/).some(function (n) { return inside(c, n, /^container/); }); }),
+    r("A row has at least 2 columns (col classes)", function (c) { return withClass(c, /^row$/).some(function (n) { return n.children.filter(function (k) { return k.tag !== "#text" && classesOf(k).some(function (x) { return /^col(-|$)/.test(x); }); }).length >= 2; }); })
+  ] };
+  LESSONS["9.3"] = { name: "Typography, Colors + Buttons", rules: [
+    r("Uses at least one Bootstrap text or color utility class (like text-primary, bg-light, or fw-bold)", function (c) { return withClass(c, UTIL).length > 0; }),
+    r("Has a Bootstrap button (btn plus a style like btn-primary)", function (c) { return els(c).some(function (n) { var k = classesOf(n); return k.indexOf("btn") > -1 && k.some(function (x) { return BTN.test(x); }); }); })
+  ] };
+  LESSONS["9.4"] = { name: "Navbar", rules: [
+    r("Has a <nav> with the navbar class", function (c) { return c.all("nav").some(function (n) { return classesOf(n).indexOf("navbar") > -1; }); }),
+    r("The navbar shows your site's name (navbar-brand)", function (c) { return withClass(c, /^navbar-brand$/).some(function (n) { return inside(c, n, /^navbar$/) && c.text(n).length > 0; }); }),
+    r("The navbar has at least 3 links (nav-link)", function (c) { return withClass(c, /^nav-link$/).filter(function (n) { return n.tag === "a" && inside(c, n, /^navbar$/); }).length >= 3; })
+  ] };
+  LESSONS["9.5"] = { name: "Cards", rules: [
+    r("Has at least 3 cards", function (c) { return withClass(c, /^card$/).length >= 3; }),
+    r("At least 3 cards each have an image, a title, text, and a button", function (c) {
+      return withClass(c, /^card$/).filter(function (card) {
+        var d = descendants(card), has = function (re) { return d.some(function (n) { return classesOf(n).some(function (k) { return re.test(k); }); }); };
+        return d.some(function (n) { return n.tag === "img"; }) && has(/^card-title$/) && has(/^card-text$/) && d.some(function (n) { return classesOf(n).indexOf("btn") > -1; });
+      }).length >= 3;
+    }, "Each card needs card-img-top, card-title, card-text, and a btn."),
+    r("The cards sit in a row so they line up side by side", function (c) { return withClass(c, /^card$/).filter(function (n) { return inside(c, n, /^row$/); }).length >= 3; })
+  ] };
+  LESSONS["9.6"] = { name: "Forms", rules: [
+    r("Has a <form>", function (c) { return c.has("form"); }),
+    r("At least 2 labels use form-label", function (c) { return c.all("label").filter(function (n) { return classesOf(n).indexOf("form-label") > -1; }).length >= 2; }),
+    r("At least 2 fields use form-control (or form-select)", function (c) { return els(c).filter(function (n) { return /^(input|textarea|select)$/.test(n.tag) && classesOf(n).some(function (k) { return k === "form-control" || k === "form-select"; }); }).length >= 2; }),
+    r("Has a submit button styled with btn", function (c) { return els(c).some(function (n) { return ((n.tag === "button" && (n.attrs.type === undefined || /submit/i.test(n.attrs.type))) || (n.tag === "input" && /submit/i.test(n.attrs.type || ""))) && classesOf(n).indexOf("btn") > -1 && !!c.ancestor(n, ["form"]); }); })
+  ] };
+  LESSONS["9.7"] = { name: "Unit Test Website (Bootstrap)", rules: [], testOf: ["9."] };
+
+  var ORDER = ["6.1", "6.2", "6.3", "6.4", "6.5", "6.6", "6.7", "7.1", "7.2", "7.3", "7.4", "7.5", "7.6",
+               "8.1", "8.2", "8.3", "8.4", "8.5", "8.6", "8.7", "9.1", "9.2", "9.3", "9.4", "9.5", "9.6", "9.7"];
 
   var TOTAL_POINTS = 50;      // points a lesson is worth
   var CARRY_WEIGHT = 0.4;     // rules from earlier lessons count this much as new ones
@@ -549,9 +660,10 @@
     // one h1, tags closed correctly) carry into later lessons. The unit test (7.6) uses everything.
     var idx = ORDER.indexOf(lesson), out = [];
     if (idx < 0) return out;
+    var testOf = LESSONS[lesson].testOf || null;
     ORDER.forEach(function (l, i) {
       if (i > idx) return;
-      var isNew = (i === idx) || lesson === "7.6";
+      var isNew = (i === idx) || (!!testOf && testOf.some(function (p) { return l.indexOf(p) === 0; }));
       (LESSONS[l].rules || []).forEach(function (rule, j) {
         if (rule.only && l !== lesson) return;
         if (!isNew && !rule.base) return;
@@ -561,8 +673,16 @@
     return out;
   }
 
-  function check(lesson, src) {
-    var c = analyze(src), rules = rulesFor(lesson), results = [];
+  // css (optional) = the student's style.css. When index.html links it, it is merged in so rules see it.
+  var CSS_LINK = /<link\b[^>]*\bhref\s*=\s*["']?style\.css["']?[^>]*>/i;
+  function check(lesson, src, css) {
+    src = String(src || ""); css = String(css || "");
+    var linked = CSS_LINK.test(src);
+    var merged = (linked && css.trim()) ? src.replace(CSS_LINK, function () { return "<style>" + css.replace(/<\/style/gi, "<\\/style") + "</style>"; }) : src;
+    var c = analyze(merged), rules = rulesFor(lesson), results = [];
+    c.cssLinked = linked; c.cssFile = css; c.fileRules = linked ? parseSheet(css, 1, []) : [];
+    // Was the style.css link inside <head>? (checked on the original page, since the merge replaces it)
+    c.cssLinkInHead = linked && analyze(src).all("link").some(function (l) { return /style\.css/i.test(l.attrs.href || "") && !!ancestor(l, ["head"]); });
     rules.forEach(function (rule) {
       var ok = false; try { ok = !!rule.test(c); } catch (e) { ok = false; }
       results.push({ id: rule.id, lesson: rule.lesson, label: rule.label, tip: rule.tip, isNew: rule.isNew, ok: ok });

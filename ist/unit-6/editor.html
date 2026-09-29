@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Web Editor | Unit 6</title>
+<title>Web Editor | IST</title>
 <link rel="icon" href="../../assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -195,10 +195,11 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   <button class="btn" id="btnCopy" title="Copy the file you are editing">Copy code</button>
   <button class="btn pri" id="btnSubmit">Submit</button>
   <a class="btn" id="linkGuide" href="study-guide.html" target="_blank" rel="noopener">Study guide</a>
-  <a class="btn" href="index.html">Unit 6</a>
+  <a class="btn" id="linkUnit" href="index.html">Back to the unit</a>
 </div>
 <div class="note show" id="note">Your work saves automatically in this browser. <b>Sign in with your school Google account</b> to save to the cloud (so you can switch computers) and to submit.</div>
 <div class="cloud" id="cloud"></div>
+<div class="cloud" id="carry"></div>
 <div class="banner" id="banner"></div>
 <div class="tabsm" id="tabsm"><button class="btn on" data-t="code">Code</button><button class="btn" data-t="prev">Preview</button></div>
 
@@ -251,6 +252,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
 
 <script src="answers.js"></script>
 <script src="answers-early.js"></script>
+<script src="answers-css.js"></script>
 <script src="html-check.js"></script>
 <script>
 "use strict";
@@ -327,6 +329,27 @@ function loadLocal() {
   S.file = "html"; ta.value = S.buf.html; ansInit(); markTabs();
   refresh(); renderPreview(); syncCssTab();
   if (!S.buf.html) ta.focus();
+  offerCarry(); updateGuideLink();
+}
+/* CSS (8.x) and Bootstrap (9.x) assignments keep building one website, so an empty lesson offers to
+   start from the previous lesson's code (this device first, then the cloud draft/submission). */
+function offerCarry() {
+  var el = $("carry"); el.className = "cloud"; el.innerHTML = "";
+  if (!/^[89]\./.test(S.lesson) || !isBlank(getHtml())) return;
+  var i = H.ORDER.indexOf(S.lesson); if (i < 1) return;
+  var prev = H.ORDER[i - 1];
+  el.innerHTML = '<span>Keep building your website:</span> <button class="btn sm" id="carryBtn">Start from my ' + esc(prev) + ' website</button>';
+  el.className = "cloud show";
+  $("carryBtn").onclick = function () {
+    var html = lsGet("u7:code:" + prev) || "", css = lsGet("u7:css:" + prev) || "";
+    function use(h, c) { applyRecord({ code: h, css: c || "" }); el.className = "cloud"; toast("Copied your " + prev + " website into " + S.lesson); }
+    if (!isBlank(html)) { use(html, css); return; }
+    if (!S.cred) { toast("Sign in first so your " + prev + " website can be loaded"); return; }
+    api({ action: "mine", lesson: prev }).then(function (j) {
+      var rec = j && !j.error ? ((j.draft && !isBlank(j.draft.code)) ? j.draft : j.submission) : null;
+      if (rec && !isBlank(rec.code)) use(rec.code, rec.css); else toast("No saved " + prev + " website found");
+    });
+  };
 }
 function updateHonestyLater() { setTimeout(updateHonesty, 0); }
 function markTabs() { [].forEach.call($("ftabs").querySelectorAll("button"), function (b) { b.classList.toggle("on", b.getAttribute("data-f") === (ansOn ? "ans" : wtOn ? "wt" : S.file)); }); }
@@ -429,7 +452,7 @@ function saveNow(show) {
 /* ---------- checker panel ---------- */
 var lastReport = null;
 function refresh() {
-  var rep = H.check(S.lesson, getHtml()); lastReport = rep;
+  var rep = H.check(S.lesson, getHtml(), getCss()); lastReport = rep;
   $("lname").textContent = S.lesson + " " + H.LESSONS[S.lesson].name;
   $("scoreNum").textContent = rep.score; $("scoreTot").textContent = rep.total;
   $("scoreBar").style.width = Math.min(100, rep.score / rep.total * 100) + "%";
@@ -515,7 +538,9 @@ $("btnRun").addEventListener("click", renderPreview);
 $("btnCopy").addEventListener("click", function () { ta.select(); try { navigator.clipboard.writeText(ta.value); toast("Copied " + (S.file === "css" ? "style.css" : "index.html")); } catch (e) { document.execCommand("copy"); toast("Copied"); } });
 function setTab(t) { $("main").setAttribute("data-tab", t); [].forEach.call(document.querySelectorAll("#tabsm button"), function (b) { b.classList.toggle("on", b.getAttribute("data-t") === t); }); }
 $("tabsm").addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) { setTab(b.getAttribute("data-t")); if (b.getAttribute("data-t") === "code") layoutGutter(); } });
-function updateGuideLink() { $("linkGuide").href = "study-guide.html#l" + S.lesson.replace(".", "-"); }
+function guideUrl() { return /^[89]\./.test(S.lesson) ? "../unit-" + S.lesson.charAt(0) + "/index.html" : "study-guide.html#l" + S.lesson.replace(".", "-"); }
+function unitUrl() { var u = S.lesson.charAt(0); return u === "6" ? "index.html" : "../unit-" + u + "/index.html"; }
+function updateGuideLink() { $("linkGuide").href = guideUrl(); $("linkUnit").href = unitUrl(); }
 
 /* ---------- Google sign-in + cloud ---------- */
 function decodeJwt(t) { try { var p = t.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"); return JSON.parse(decodeURIComponent(escape(atob(p)))); } catch (e) { return {}; } }
@@ -556,6 +581,7 @@ function afterLessonChange() {
     else if (dr && dr.code !== mineHtml && !isBlank(dr.code)) opts += '<span>Cloud draft from ' + esc(fmtTime(dr.savedAt)) + ' differs from what is on this screen.</span> <button class="btn sm" id="ldDraft">Load cloud draft</button>';
     if (subs && subs.code !== getHtml()) opts += ' <button class="btn sm" id="ldSub">Load my last submission (' + esc(fmtTime(subs.submittedAt)) + ')</button>';
     var c = $("cloud"); c.innerHTML = opts; c.className = "cloud" + (opts ? " show" : "");
+    offerCarry();
     var d = $("ldDraft"); if (d) d.onclick = function () { applyRecord(dr); c.className = "cloud"; };
     var s = $("ldSub"); if (s) s.onclick = function () { applyRecord(subs); c.className = "cloud"; };
     [dr, subs].forEach(function (r) { if (r && !$("period").value && r.period) { $("period").value = r.period; lsSet("u7:period", r.period); } });
@@ -587,7 +613,7 @@ $("btnSubmit").addEventListener("click", function () {
   if (isBlank(S.buf.html)) { toast("Write some code first"); return; }
   if (!S.cred) { banner("Sign in with your school Google account (top right) to submit.", "err"); return; }
   if (!$("period").value) { banner("Choose your class period at the top before you submit.", "err"); $("period").focus(); return; }
-  var r = lastReport || H.check(S.lesson, S.buf.html), bad = r.errors.length;
+  var r = lastReport || H.check(S.lesson, S.buf.html, S.buf.css), bad = r.errors.length;
   $("mSubmitBody").innerHTML = "<p>Lesson <b>" + esc(S.lesson) + "</b> for period <b>" + esc($("period").value) + "</b>.</p><p>Auto check: <b>" + r.score + " / " + r.total + "</b> (" + r.passed + " of " + r.count + " checks).</p>" +
     (bad ? '<p style="color:#FCA5A5">You still have ' + bad + " problem" + (bad > 1 ? "s" : "") + " with your tags. You can still submit, or fix them first.</p>" : "") + ansSubmitNote() + "<p>You can submit again later to replace this one.</p>";
   $("mSubmit").classList.add("show");
@@ -757,7 +783,7 @@ setInterval(paintHL, 120); paintHL();
 /* study guide opens in a floating window so the code stays visible */
 (function () {
   var pop = $("guidePop"), frame = $("guideFrame"), head = $("guideHead");
-  function url() { return "study-guide.html#l" + S.lesson.replace(".", "-"); }
+  function url() { return guideUrl(); }
   $("linkGuide").addEventListener("click", function (e) {
     if (e.ctrlKey || e.metaKey || e.shiftKey) return;
     e.preventDefault();
