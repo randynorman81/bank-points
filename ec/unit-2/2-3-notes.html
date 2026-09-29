@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your First Sketch: Blink | Embedded Computing Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --ard:#00878F; --ard-tint:rgba(0,135,143,.15); --ard-ink:#5FD8DF;
+  --red:#EF4444; --red-tint:rgba(239,68,68,.14); --red-ink:#FCA5A5;
+  --hi:#FBBF24; --hi-tint:rgba(251,191,36,.14); --hi-ink:#FDD877;
+  --lo:#60A5FA; --lo-tint:rgba(96,165,250,.13); --lo-ink:#BFDBFE;
+  --ok:#34D399;
+  --acc:#5FD8DF; --acc-ink:#9FEAEE;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16.5px;line-height:1.62;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif;line-height:1.14;margin:0;text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 20px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 20px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:#fff;color:#0B0E14;border-color:#fff}
+
+.hero{padding:54px 0 40px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 12% 20%,rgba(0,135,143,.16),transparent 38%),radial-gradient(circle at 88% 30%,rgba(239,68,68,.12),transparent 40%)}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(32px,5.6vw,52px);font-weight:600;max-width:20ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);max-width:66ch;margin-top:18px}
+.map{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.map a{font-family:"JetBrains Mono",monospace;font-size:12px;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:6px 10px}
+.map a span{color:var(--ink-soft)}
+
+.part{padding:60px 0 8px}
+.part + .part{border-top:1px solid var(--rule)}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:22px;flex-wrap:wrap}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.part-head .for{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--hi-ink);background:var(--hi-tint);border-radius:4px;padding:3px 8px}
+.story{font-family:"Fraunces",serif;font-size:19px;line-height:1.55;color:#DDE4EE;max-width:66ch;margin-bottom:22px;border-left:3px solid var(--ard);padding-left:18px}
+.lede{font-size:17px;line-height:1.6;max-width:68ch;margin-bottom:22px;color:#C4CDD8}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:#6B7B90} .code .kw{color:#F472B6} .code .fn{color:var(--acc-ink)} .code .n{color:var(--hi-ink)}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.two>*,.sim>*,.calc>*{min-width:0}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:22px;border-top:3px solid var(--rule)}
+.box h3{font-size:19px;font-weight:600;margin-bottom:8px;color:#fff}
+.box p,.box li{font-size:15px;color:#C4CDD8}
+.box.a{border-top-color:var(--lo)} .box.b{border-top-color:var(--ard)}
+.fig{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:16px;margin:0 0 10px}
+.fig svg{width:100%;height:auto;display:block}
+.cap{font-size:13.5px;color:var(--ink-soft);margin:8px 2px 0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:6px;overflow-x:auto;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+td b{color:#fff}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:6px;padding:14px 18px;font-size:14.5px;color:var(--ink-soft);margin:16px 0}
+.hint-panel b{color:var(--ink)}
+.warn{background:var(--red-tint);border-left:4px solid var(--red);border-radius:0 6px 6px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+/* flip cards */
+.flips{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.flip{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:18px;cursor:pointer;min-height:118px;text-align:left;color:var(--ink);font:inherit;transition:border-color .15s}
+.flip:hover{border-color:#3A4658}
+.flip .t{font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--acc-ink);font-size:15px}
+.flip .d{display:none;font-size:14.5px;color:#D6DEE8;margin-top:10px}
+.flip .h{font-size:12px;color:var(--ink-soft);margin-top:10px}
+.flip.open{border-color:var(--ard);background:#12202A}
+.flip.open .d{display:block} .flip.open .h{display:none}
+
+/* simulator */
+.sim{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;align-items:start}
+.lines{overflow-x:auto;background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:10px 0;font-family:"JetBrains Mono",monospace;font-size:13.5px}
+.ln{display:flex;align-items:center;gap:10px;padding:5px 14px;border-left:3px solid transparent;white-space:pre;color:#D8E1EC}
+.ln.run{background:rgba(251,191,36,.12);border-left-color:var(--hi)}
+.ln.off{opacity:.35;text-decoration:line-through}
+.ln label{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:var(--ink-soft);margin-left:auto;font-family:"Manrope",sans-serif}
+.ln input[type=number]{width:74px;background:#0E131B;border:1px solid var(--rule);color:var(--hi-ink);border-radius:4px;padding:2px 6px;font:inherit}
+.stage{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:16px;text-align:center}
+.stage .state{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--ink-soft);margin-top:6px}
+.btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.btn{font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:600;border:1px solid var(--acc);color:var(--acc-ink);background:transparent;border-radius:5px;padding:7px 12px;cursor:pointer}
+.btn:hover{background:var(--ard-tint)}
+.btn.on{background:var(--acc);color:#05070B}
+
+.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.calc .box input{width:100%;background:#0E131B;border:1px solid var(--rule);color:#fff;border-radius:5px;padding:9px 12px;font:600 16px "JetBrains Mono",monospace;margin:6px 0 10px}
+.out{font-family:"JetBrains Mono",monospace;font-size:15px;color:var(--hi-ink);min-height:1.5em}
+
+.quiz{display:grid;gap:10px}
+.q{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:14px 16px}
+.q .opts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.q .fb{font-size:14px;margin-top:8px;color:var(--ink-soft);min-height:1.2em}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:44px;padding:50px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:30ch;line-height:1.25;color:#fff}
+.final p{margin-top:14px;color:var(--ink-soft);max-width:60ch}
+.final .back{display:inline-block;margin-top:18px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:5px;padding:8px 14px}
+
+@media (max-width:820px){ .two,.sim{grid-template-columns:1fr} th,td{padding:10px 12px} }
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Embedded Computing</a>
+  <a href="2-3-your-first-sketch-blink.html">2.3 Lesson Page</a>
+  <a href="2-3-notes.html" class="current">Notes</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lesson 2.3</div>
+    <h1>Your First Sketch: Blink</h1>
+    <p class="deck">Everything you need for the 2.3 Blink assignment, in the same order as the assignment. Each section says which part of the assignment it helps with.</p>
+    <div class="map">
+      <a href="#pin">01 <span>Why the wiring changed</span></a>
+      <a href="#vocab">02 <span>Vocabulary (Sections 1 + 2)</span></a>
+      <a href="#build">03 <span>Core Blink build (Section 3)</span></a>
+      <a href="#sim">04 <span>Blink simulator (Section 4)</span></a>
+      <a href="#time">05 <span>Milliseconds</span></a>
+      <a href="#ext">06 <span>Flashing red signal (Section 5)</span></a>
+      <a href="#bugs">07 <span>Common mistakes</span></a>
+    </div>
+  </div>
+</header>
+
+<!-- 01 WHY THE WIRING CHANGED -->
+<section class="part" id="pin">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Why the Wiring Changed from 2.2</h2><span class="for">Intro + Section 2</span></div>
+    <p class="story">In 2.2 your LED glowed the second you hit Start Simulation, and it never stopped. It was plugged straight into the power. Today, the same LED does what your code tells it to, because it's plugged into a pin your code controls.</p>
+    <div class="two">
+      <div class="box a">
+        <h3>2.2: wired to 5V and GND</h3>
+        <p>The LED is connected to the <b>5V</b> pin and the <b>GND</b> pin. 5V is always on, so the LED is always on. No code is involved at all.</p>
+        <div class="fig" style="margin-top:12px">
+          <svg viewBox="0 0 320 170" role="img" aria-label="LED wired from the 5V pin through a resistor to GND, always on">
+            <rect x="10" y="20" width="84" height="130" rx="8" fill="#00878F" opacity=".85"/>
+            <text x="52" y="46" fill="#fff" font-family="JetBrains Mono" font-size="12" text-anchor="middle">ARDUINO</text>
+            <rect x="80" y="62" width="22" height="16" rx="3" fill="#FBBF24"/><text x="72" y="74" fill="#fff" font-family="JetBrains Mono" font-size="11" text-anchor="end">5V</text>
+            <rect x="80" y="112" width="22" height="16" rx="3" fill="#64748B"/><text x="72" y="124" fill="#fff" font-family="JetBrains Mono" font-size="11" text-anchor="end">GND</text>
+            <path d="M102 70 H150" stroke="#FBBF24" stroke-width="3"/>
+            <path d="M150 70 l6 -8 l8 16 l8 -16 l8 16 l8 -16 l8 16 l6 -8" fill="none" stroke="#FDD877" stroke-width="3"/>
+            <path d="M202 70 H240" stroke="#FBBF24" stroke-width="3"/>
+            <circle cx="256" cy="70" r="15" fill="#EF4444"/><circle cx="256" cy="70" r="26" fill="#EF4444" opacity=".25"/>
+            <path d="M256 85 V120 H102" stroke="#94A3B8" stroke-width="3" fill="none"/>
+            <text x="176" y="52" fill="#8B9AAE" font-family="JetBrains Mono" font-size="10" text-anchor="middle">resistor</text>
+            <text x="256" y="112" fill="#FCA5A5" font-family="JetBrains Mono" font-size="10" text-anchor="middle">always ON</text>
+          </svg>
+        </div>
+      </div>
+      <div class="box b">
+        <h3>2.3: wired to a digital pin and GND</h3>
+        <p>The LED is connected to a <b>digital pin</b> (like pin 8) and GND. The pin only sends power when your code says so.</p>
+        <div class="fig" style="margin-top:12px">
+          <svg viewBox="0 0 320 170" role="img" aria-label="LED wired from digital pin 8 through a resistor to GND, controlled by code">
+            <rect x="10" y="20" width="84" height="130" rx="8" fill="#00878F" opacity=".85"/>
+            <text x="52" y="46" fill="#fff" font-family="JetBrains Mono" font-size="12" text-anchor="middle">ARDUINO</text>
+            <rect x="80" y="62" width="22" height="16" rx="3" id="pinBox" fill="#FBBF24"/><text x="72" y="74" fill="#fff" font-family="JetBrains Mono" font-size="11" text-anchor="end">8</text>
+            <rect x="80" y="112" width="22" height="16" rx="3" fill="#64748B"/><text x="72" y="124" fill="#fff" font-family="JetBrains Mono" font-size="11" text-anchor="end">GND</text>
+            <path id="wireA" d="M102 70 H150" stroke="#FBBF24" stroke-width="3"/>
+            <path d="M150 70 l6 -8 l8 16 l8 -16 l8 16 l8 -16 l8 16 l6 -8" fill="none" stroke="#FDD877" stroke-width="3"/>
+            <path id="wireB" d="M202 70 H240" stroke="#FBBF24" stroke-width="3"/>
+            <circle id="ledGlow" cx="256" cy="70" r="26" fill="#EF4444" opacity=".25"/>
+            <circle id="led" cx="256" cy="70" r="15" fill="#EF4444"/>
+            <path d="M256 85 V120 H102" stroke="#94A3B8" stroke-width="3" fill="none"/>
+            <text x="176" y="52" fill="#8B9AAE" font-family="JetBrains Mono" font-size="10" text-anchor="middle">resistor</text>
+            <text id="pinLabel" x="256" y="112" fill="#FDD877" font-family="JetBrains Mono" font-size="10" text-anchor="middle">pin 8 HIGH = 5V</text>
+          </svg>
+        </div>
+        <div class="btns"><button class="btn on" id="tHigh" type="button">digitalWrite(8, HIGH)</button><button class="btn" id="tLow" type="button">digitalWrite(8, LOW)</button></div>
+      </div>
+    </div>
+    <div class="hint-panel"><b>The big idea:</b> a digital pin set to <code>OUTPUT</code> with <code>pinMode()</code> can act like its own tiny power source. <code>HIGH</code> makes it <b>5V</b>, exactly like the 5V pin. <code>LOW</code> makes it <b>0V</b>, exactly like GND. Click the two buttons above to see it.</div>
+  </div>
+</section>
+
+<!-- 02 VOCAB -->
+<section class="part" id="vocab">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>The 7 Terms You Need</h2><span class="for">Sections 1 + 2</span></div>
+    <p class="story">Every word in the matching table and the word bank is on this page. Click a card to see what it means.</p>
+    <div class="flips" id="flips">
+      <button class="flip" type="button"><div class="t">setup()</div><div class="h">click to flip</div><div class="d">Runs <b>exactly once</b>, the moment the Arduino first gets power (or is reset). It's where you set things up, like pin modes.</div></button>
+      <button class="flip" type="button"><div class="t">loop()</div><div class="h">click to flip</div><div class="d">Runs <b>over and over, forever</b>, right after setup() finishes, until the power is disconnected. When it reaches the bottom, it jumps back to the top.</div></button>
+      <button class="flip" type="button"><div class="t">pinMode(pin, mode)</div><div class="h">click to flip</div><div class="d">Tells a digital pin how to behave: <b>INPUT</b> (read something in) or <b>OUTPUT</b> (send power out). It only needs to happen once, so it goes in setup().</div></button>
+      <button class="flip" type="button"><div class="t">digitalWrite(pin, HIGH)</div><div class="h">click to flip</div><div class="d">Sends <b>5 volts</b> out of the pin. An LED connected to it turns <b>on</b>.</div></button>
+      <button class="flip" type="button"><div class="t">digitalWrite(pin, LOW)</div><div class="h">click to flip</div><div class="d">Sets the pin to <b>0 volts</b>, the same as <b>GND</b> (ground). Power stops, and the LED turns <b>off</b>.</div></button>
+      <button class="flip" type="button"><div class="t">delay(ms)</div><div class="h">click to flip</div><div class="d"><b>Pauses</b> the whole program for a number of <b>milliseconds</b>. 1000 milliseconds = 1 second.</div></button>
+      <button class="flip" type="button"><div class="t">int (integer variable)</div><div class="h">click to flip</div><div class="d">Stores a <b>whole number</b>. In Blink it gives a name to a pin number at the top of the code, like <code>int ledPin = 8;</code></div></button>
+    </div>
+    <div class="tblwrap" style="margin-top:16px">
+      <table>
+        <tr><th>Word bank word</th><th>What it means in this lesson</th></tr>
+        <tr><td><b>OUTPUT</b></td><td>The pin mode for sending power out to something, like an LED.</td></tr>
+        <tr><td><b>5V</b></td><td>The Arduino pin that is always on. A digital pin set HIGH gives the same 5 volts.</td></tr>
+        <tr><td><b>GND</b></td><td>Ground: 0 volts. A digital pin set LOW matches it.</td></tr>
+        <tr><td><b>HIGH / LOW</b></td><td>On (5V) / off (0V) for a digital pin.</td></tr>
+        <tr><td><b>milliseconds</b></td><td>Thousandths of a second. The unit delay() uses.</td></tr>
+        <tr><td><b>pinMode() / digitalWrite()</b></td><td>Set up a pin once / turn a pin on or off.</td></tr>
+        <tr><td><b>setup() / loop()</b></td><td>Runs once at power-on / repeats forever.</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 03 CORE BUILD -->
+<section class="part" id="build">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Building Blink, Line by Line</h2><span class="for">Section 3: Part 1</span></div>
+    <p class="story">Tinkercad's code editor starts you with an empty setup() and an empty loop(). Every Arduino program needs both of them, no exceptions. Your job is to fill them in.</p>
+    <div class="code"><span class="kw">int</span> ledPin = <span class="n">8</span>;              <span class="cm">// ABOVE setup(): name the pin you wired to</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(ledPin, OUTPUT);   <span class="cm">// runs once: this pin sends power OUT</span>
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="fn">digitalWrite</span>(ledPin, HIGH); <span class="cm">// LED on</span>
+  <span class="fn">delay</span>(<span class="n">1000</span>);                <span class="cm">// wait 1 second</span>
+  <span class="fn">digitalWrite</span>(ledPin, LOW);  <span class="cm">// LED off</span>
+  <span class="fn">delay</span>(<span class="n">1000</span>);                <span class="cm">// wait 1 second, then loop() starts over</span>
+}</div>
+    <div class="tblwrap">
+      <table>
+        <tr><th>Where it goes</th><th>Line</th><th>Why</th></tr>
+        <tr><td>Above setup() and loop()</td><td><code>int ledPin = 8;</code></td><td>Names your LED's pin. Use the pin number you actually wired to.</td></tr>
+        <tr><td>Inside setup()</td><td><code>pinMode(ledPin, OUTPUT);</code></td><td>The pin will send power out. Only needs to happen once.</td></tr>
+        <tr><td>loop(), 1st line</td><td><code>digitalWrite(ledPin, HIGH);</code></td><td>Starts the "on" half of the blink.</td></tr>
+        <tr><td>loop(), 2nd line</td><td><code>delay(1000);</code></td><td>Keeps the LED on long enough to see.</td></tr>
+        <tr><td>loop(), 3rd line</td><td><code>digitalWrite(ledPin, LOW);</code></td><td>Starts the "off" half of the blink.</td></tr>
+        <tr><td>loop(), 4th line</td><td><code>delay(1000);</code></td><td>Keeps it off before loop() repeats from the top.</td></tr>
+      </table>
+    </div>
+    <div class="two" style="margin-top:14px">
+      <div class="box b">
+        <h3>Commenting every line (Step 5)</h3>
+        <p>A comment starts with <code>//</code>. The Arduino ignores everything after it on that line, so you can explain your code in plain English. Say <b>what the line does</b>, like the gray comments above.</p>
+      </div>
+      <div class="box a">
+        <h3>Making it your own (Step 4)</h3>
+        <p>Change the two delay() numbers so they aren't 1000 and 1000. The first delay controls how long the LED is <b>on</b>; the second controls how long it's <b>off</b>. Different numbers make an uneven blink.</p>
+      </div>
+    </div>
+    <div class="hint-panel"><b>Submitting (Step 6):</b> take a screenshot that shows your working circuit <b>and</b> your commented code, then paste it into your assignment doc.</div>
+  </div>
+</section>
+
+<!-- 04 SIMULATOR -->
+<section class="part" id="sim">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Watch loop() Run</h2><span class="for">Section 4</span></div>
+    <p class="story">The Arduino reads your code from top to bottom, one line at a time. setup() gets one trip. loop() gets a trip that never ends. Watch the highlight move, then experiment: change a delay, or turn a line off and see what the LED does.</p>
+    <div class="sim">
+      <div class="lines" id="lines"></div>
+      <div class="stage">
+        <svg viewBox="0 0 160 150" width="160" role="img" aria-label="Simulated LED">
+          <circle id="sGlow" cx="80" cy="62" r="46" fill="#EF4444" opacity="0"/>
+          <path d="M56 62 a24 24 0 0 1 48 0 v34 h-48 z" id="sLed" fill="#4B1D1D" stroke="#7F1D1D" stroke-width="2"/>
+          <rect x="52" y="96" width="56" height="8" rx="2" fill="#475569"/>
+          <path d="M68 104 v40 M92 104 v32" stroke="#94A3B8" stroke-width="4"/>
+        </svg>
+        <div class="state" id="sState">stopped</div>
+        <div class="btns"><button class="btn on" id="sPlay" type="button">&#9654; Run</button><button class="btn" id="sStep" type="button">Step one line</button><button class="btn" id="sReset" type="button">Reset</button></div>
+        <div class="state" id="sPass">loop() trips: 0</div>
+      </div>
+    </div>
+    <p class="cap">The simulator runs at real speed, so 1000 means 1 real second. Unchecking a line removes it from the code.</p>
+    <div class="two" style="margin-top:14px">
+      <div class="box b">
+        <h3>Once vs. forever</h3>
+        <p>Anything inside setup() happens a single time. Anything inside loop() happens again on every trip, thousands of times a minute if nothing slows it down. Before you move a line between them, ask: does this need to happen <b>once</b>, or <b>every time</b>?</p>
+      </div>
+      <div class="box a">
+        <h3>The bottom of loop() is not a stop sign</h3>
+        <p>When loop() reaches its last line, it jumps straight back to the first line with no pause of its own. The only waiting that happens is the waiting <b>you</b> write with delay(). Try turning off each delay() in the simulator and watch what changes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 MILLISECONDS -->
+<section class="part" id="time">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">05</div><h2>Thinking in Milliseconds</h2><span class="for">Section 4 + Section 5</span></div>
+    <p class="story">delay() doesn't speak in seconds. It speaks in milliseconds: thousandths of a second. Once you can convert between the two, every timing question is just multiplication.</p>
+    <div class="fig">
+      <svg viewBox="0 0 700 150" role="img" aria-label="Timeline: the pin is HIGH during the first delay and LOW during the second delay, then the pattern repeats">
+        <text x="10" y="40" fill="#FDD877" font-family="JetBrains Mono" font-size="12">HIGH</text>
+        <text x="10" y="112" fill="#BFDBFE" font-family="JetBrains Mono" font-size="12">LOW</text>
+        <path id="wave" d="" fill="none" stroke="#5FD8DF" stroke-width="3"/>
+        <g id="waveLabels" font-family="JetBrains Mono" font-size="11" fill="#8B9AAE"></g>
+      </svg>
+      <p class="cap">This picture follows the ON and OFF numbers in the calculator below. One full blink = ON time + OFF time.</p>
+    </div>
+    <div class="calc">
+      <div class="box b">
+        <h3>Seconds &rarr; milliseconds</h3>
+        <p>Multiply by 1000. Examples: 1 second = 1000 ms, half a second = 500 ms, 3 seconds = 3000 ms.</p>
+        <input id="secIn" type="number" step="0.05" value="1.5" aria-label="Seconds">
+        <div class="out" id="secOut"></div>
+      </div>
+      <div class="box a">
+        <h3>Build a blink pattern</h3>
+        <p>ON time and OFF time in milliseconds:</p>
+        <input id="onIn" type="number" min="0" step="50" value="1000" aria-label="On time in milliseconds">
+        <input id="offIn" type="number" min="0" step="50" value="1000" aria-label="Off time in milliseconds">
+        <div class="out" id="patOut"></div>
+      </div>
+      <div class="box b">
+        <h3>Flashes per minute &rarr; delay()</h3>
+        <p>For Section 5, Step 4. One flash = one ON + one OFF. A minute is 60,000 ms, so each flash takes 60,000 &divide; flashes. Split that between ON and OFF.</p>
+        <input id="fpmIn" type="number" min="1" step="1" value="30" aria-label="Flashes per minute">
+        <div class="out" id="fpmOut"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 EXTENSION -->
+<section class="part" id="ext">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">06</div><h2>Extension: The Flashing Red Signal</h2><span class="for">Section 5: Part 2</span></div>
+    <p class="story">At a railroad crossing, or at an intersection late at night, a traffic light sometimes just flashes red. It means "treat this like a stop sign." Every red light on that signal flashes together. You're building that with 3 LEDs.</p>
+    <div class="fig">
+      <svg viewBox="0 0 700 230" role="img" aria-label="Three LEDs, each with its own resistor and its own digital pin (8, 9, 10), all sharing one GND">
+        <rect x="16" y="20" width="110" height="190" rx="10" fill="#00878F" opacity=".85"/>
+        <text x="71" y="44" fill="#fff" font-family="JetBrains Mono" font-size="12" text-anchor="middle">ARDUINO</text>
+        <g font-family="JetBrains Mono" font-size="11" fill="#fff">
+          <rect x="112" y="62" width="22" height="16" rx="3" fill="#FBBF24"/><text x="104" y="74" text-anchor="end">8</text>
+          <rect x="112" y="102" width="22" height="16" rx="3" fill="#FBBF24"/><text x="104" y="114" text-anchor="end">9</text>
+          <rect x="112" y="142" width="22" height="16" rx="3" fill="#FBBF24"/><text x="104" y="154" text-anchor="end">10</text>
+          <rect x="112" y="182" width="22" height="16" rx="3" fill="#64748B"/><text x="104" y="194" text-anchor="end">GND</text>
+        </g>
+        <g stroke="#FBBF24" stroke-width="3" fill="none">
+          <path d="M134 70 H250"/><path d="M134 110 H250"/><path d="M134 150 H250"/>
+          <path d="M310 70 H420"/><path d="M310 110 H420"/><path d="M310 150 H420"/>
+        </g>
+        <g stroke="#FDD877" stroke-width="3" fill="none">
+          <path d="M250 70 l5 -7 l7 14 l7 -14 l7 14 l7 -14 l7 14 l7 -14 l7 14 l5 -7"/>
+          <path d="M250 110 l5 -7 l7 14 l7 -14 l7 14 l7 -14 l7 14 l7 -14 l7 14 l5 -7"/>
+          <path d="M250 150 l5 -7 l7 14 l7 -14 l7 14 l7 -14 l7 14 l7 -14 l7 14 l5 -7"/>
+        </g>
+        <g class="exLed"><circle cx="436" cy="70" r="24" fill="#EF4444" opacity=".25"/><circle cx="436" cy="70" r="13" fill="#EF4444"/></g>
+        <g class="exLed"><circle cx="436" cy="110" r="24" fill="#EF4444" opacity=".25"/><circle cx="436" cy="110" r="13" fill="#EF4444"/></g>
+        <g class="exLed"><circle cx="436" cy="150" r="24" fill="#EF4444" opacity=".25"/><circle cx="436" cy="150" r="13" fill="#EF4444"/></g>
+        <path d="M449 70 H500 V190 H134 M449 110 H500 M449 150 H500" stroke="#94A3B8" stroke-width="3" fill="none"/>
+        <text x="520" y="74" fill="#C4CDD8" font-family="Manrope" font-size="13">each LED: its own pin</text>
+        <text x="520" y="94" fill="#C4CDD8" font-family="Manrope" font-size="13">and its own resistor</text>
+        <text x="520" y="194" fill="#8B9AAE" font-family="Manrope" font-size="13">one shared GND is fine</text>
+      </svg>
+    </div>
+    <div class="two">
+      <div class="box b">
+        <h3>The pattern: repeat for each LED</h3>
+        <div class="code" style="margin:6px 0 0"><span class="cm">// top: one int per LED</span>
+<span class="kw">int</span> led1Pin = <span class="n">8</span>;   <span class="cm">// then led2Pin, led3Pin</span>
+
+<span class="cm">// setup(): one pinMode per LED, all OUTPUT</span>
+
+<span class="cm">// loop():</span>
+<span class="cm">//   all 3 digitalWrite HIGH, back to back</span>
+<span class="cm">//   ONE delay</span>
+<span class="cm">//   all 3 digitalWrite LOW, back to back</span>
+<span class="cm">//   ONE delay</span></div>
+      </div>
+      <div class="box a">
+        <h3>Why they look perfectly in sync</h3>
+        <p>The three HIGH lines run one right after another in the same trip through loop(). The Arduino finishes all three in a few millionths of a second, far too fast for your eyes to notice the difference. So the LEDs appear to turn on at exactly the same moment.</p>
+        <div class="btns" style="justify-content:flex-start"><button class="btn" id="exRun" type="button">&#9654; Flash all 3</button></div>
+      </div>
+    </div>
+    <div class="warn"><b>Why each LED gets its own pin:</b> the assignment asks you to make them flash together <b>with your code, not your wiring</b>. When each LED has its own pin, your code can control every LED separately. That matters later: a real traffic light needs to turn one color on while another is off, and that's only possible if each light has its own pin.</div>
+  </div>
+</section>
+
+<!-- 07 BUGS -->
+<section class="part" id="bugs">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">07</div><h2>Common Mistakes (and the Fix)</h2></div>
+    <p class="story">Most first-time bugs in this lesson aren't about electronics at all. They're tiny slips that stop everything. Test yourself: click the answer you think fixes each one.</p>
+    <div class="quiz" id="quiz"></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>A pin that turns on and off on a schedule your code controls: that's all Blink is.</h2>
+    <p>setup() runs once, loop() runs forever, and delay() is the only thing that slows it down. Everything you build next in this unit starts from this pattern.</p>
+    <a class="back" href="2-3-your-first-sketch-blink.html">&larr; Back to 2.3</a>
+    <a class="back" href="../index.html">&larr; Embedded Computing</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* 01: HIGH / LOW toggle on the pin diagram */
+  function setPin(on) {
+    $("led").setAttribute("fill", on ? "#EF4444" : "#4B1D1D");
+    $("ledGlow").setAttribute("opacity", on ? ".25" : "0");
+    ["wireA", "wireB"].forEach(function (w) { $(w).setAttribute("stroke", on ? "#FBBF24" : "#475569"); });
+    $("pinBox").setAttribute("fill", on ? "#FBBF24" : "#475569");
+    $("pinLabel").textContent = on ? "pin 8 HIGH = 5V" : "pin 8 LOW = 0V (like GND)";
+    $("pinLabel").setAttribute("fill", on ? "#FDD877" : "#BFDBFE");
+    $("tHigh").classList.toggle("on", on); $("tLow").classList.toggle("on", !on);
+  }
+  $("tHigh").onclick = function () { setPin(true); };
+  $("tLow").onclick = function () { setPin(false); };
+
+  /* 02: flip cards */
+  [].forEach.call(document.querySelectorAll(".flip"), function (b) { b.onclick = function () { b.classList.toggle("open"); }; });
+
+  /* 04: blink simulator */
+  var CODE = [
+    { t: "int ledPin = 8;", kind: "top" },
+    { t: "void setup() {", kind: "brace" },
+    { t: "  pinMode(ledPin, OUTPUT);", kind: "setup" },
+    { t: "}", kind: "brace" },
+    { t: "void loop() {", kind: "brace" },
+    { t: "  digitalWrite(ledPin, HIGH);", kind: "loop", act: "high", tog: true },
+    { t: "  delay(", kind: "loop", act: "delay", ms: 1000, tog: true },
+    { t: "  digitalWrite(ledPin, LOW);", kind: "loop", act: "low", tog: true },
+    { t: "  delay(", kind: "loop", act: "delay", ms: 1000, tog: true },
+    { t: "}", kind: "brace" }
+  ];
+  var lines = $("lines");
+  CODE.forEach(function (c, i) {
+    var d = document.createElement("div"); d.className = "ln"; d.id = "ln" + i;
+    if (c.act === "delay") {
+      d.innerHTML = '<span>  delay(</span><input type="number" min="0" step="50" value="' + c.ms + '" aria-label="delay milliseconds"><span>);</span>';
+      d.querySelector("input").oninput = function () { c.ms = Math.max(0, Number(this.value) || 0); };
+    } else d.textContent = c.t;
+    if (c.tog) {
+      var l = document.createElement("label"); l.innerHTML = '<input type="checkbox" checked> keep';
+      l.querySelector("input").onchange = function () { c.off = !this.checked; d.classList.toggle("off", c.off); };
+      d.appendChild(l);
+    }
+    lines.appendChild(d);
+  });
+  var pc = -1, ledOn = false, passes = 0, timer = null, running = false, setupDone = false;
+  function show() {
+    [].forEach.call(lines.children, function (el, i) { el.classList.toggle("run", i === pc); });
+    $("sLed").setAttribute("fill", ledOn ? "#EF4444" : "#4B1D1D");
+    $("sLed").setAttribute("stroke", ledOn ? "#FCA5A5" : "#7F1D1D");
+    $("sGlow").setAttribute("opacity", ledOn ? ".3" : "0");
+    $("sPass").textContent = "loop() trips: " + passes;
+  }
+  function next() {
+    // order: 0 (top), 2 (setup) once, then 5..8 forever
+    if (pc < 0) pc = 0;
+    else if (pc === 0) pc = 2;
+    else if (pc === 2) { setupDone = true; pc = 5; }
+    else if (pc >= 5 && pc < 8) pc++;
+    else { pc = 5; passes++; }
+    var c = CODE[pc], wait = 0;
+    if (c.off) { $("sState").textContent = "line removed: skipped"; }
+    else if (c.act === "high") { ledOn = true; $("sState").textContent = "pin 8 HIGH (5V): LED on"; }
+    else if (c.act === "low") { ledOn = false; $("sState").textContent = "pin 8 LOW (0V): LED off"; }
+    else if (c.act === "delay") { wait = c.ms; $("sState").textContent = "waiting " + c.ms + " ms"; }
+    else if (pc === 2) $("sState").textContent = "setup(): runs once";
+    else $("sState").textContent = "naming the pin";
+    show();
+    return wait;
+  }
+  function tick() {
+    if (!running) return;
+    var w = next();
+    // with no delays at all, loop() repeats so fast the LED looks steady; keep the browser responsive
+    timer = setTimeout(tick, Math.max(w, 60));
+  }
+  $("sPlay").onclick = function () {
+    running = !running; this.classList.toggle("on", !running);
+    this.innerHTML = running ? "&#10074;&#10074; Pause" : "&#9654; Run";
+    clearTimeout(timer); if (running) tick();
+  };
+  $("sStep").onclick = function () { if (running) $("sPlay").click(); next(); };
+  $("sReset").onclick = function () { running = false; clearTimeout(timer); pc = -1; ledOn = false; passes = 0; $("sPlay").innerHTML = "&#9654; Run"; $("sPlay").classList.add("on"); $("sState").textContent = "stopped"; show(); };
+  show();
+
+  /* 05: calculators + timeline */
+  function fmt(n) { return Number(n).toLocaleString(); }
+  function drawWave(on, off) {
+    var total = Math.max(1, on + off), W = 600, x0 = 60, per = Math.min(W / 2, W / 2), d = "", x = x0, lab = "";
+    for (var k = 0; k < 2; k++) {
+      var wOn = per * on / total, wOff = per * off / total;
+      d += (k === 0 ? "M" + x + " 110 " : "") + "V36 H" + (x + wOn) + " V110 H" + (x + wOn + wOff) + " ";
+      if (k === 0) {
+        if (wOn > 40) lab += '<text x="' + (x + wOn / 2) + '" y="28" text-anchor="middle">ON ' + fmt(on) + ' ms</text>';
+        if (wOff > 40) lab += '<text x="' + (x + wOn + wOff / 2) + '" y="132" text-anchor="middle">OFF ' + fmt(off) + ' ms</text>';
+      }
+      x += wOn + wOff;
+    }
+    $("wave").setAttribute("d", d); $("waveLabels").innerHTML = lab;
+  }
+  function calc() {
+    var s = Number($("secIn").value) || 0;
+    $("secOut").textContent = s + " s = delay(" + fmt(Math.round(s * 1000)) + ")";
+    var on = Math.max(0, Number($("onIn").value) || 0), off = Math.max(0, Number($("offIn").value) || 0);
+    var per = on + off;
+    $("patOut").textContent = per ? "one blink = " + fmt(per) + " ms, about " + (60000 / per).toFixed(1) + " blinks per minute" : "add some time";
+    drawWave(on, off);
+    var f = Math.max(1, Number($("fpmIn").value) || 1), each = 60000 / f;
+    $("fpmOut").textContent = f + " flashes/min = " + fmt(Math.round(each)) + " ms per flash (for example " + fmt(Math.round(each / 2)) + " on + " + fmt(Math.round(each / 2)) + " off)";
+  }
+  ["secIn", "onIn", "offIn", "fpmIn"].forEach(function (id) { $(id).oninput = calc; });
+  calc();
+
+  /* 06: flash all 3 */
+  var exT = null;
+  $("exRun").onclick = function () {
+    var leds = document.querySelectorAll(".exLed"), on = true, b = this;
+    if (exT) { clearInterval(exT); exT = null; b.classList.remove("on"); b.innerHTML = "&#9654; Flash all 3"; [].forEach.call(leds, function (g) { g.style.opacity = 1; }); return; }
+    b.classList.add("on"); b.innerHTML = "&#10074;&#10074; Stop";
+    exT = setInterval(function () { on = !on; [].forEach.call(leds, function (g) { g.style.opacity = on ? 1 : .15; }); }, 500);
+  };
+
+  /* 07: mistakes quiz */
+  var Q = [
+    { s: "Tinkercad shows an error on the line <code>pinMode(ledPin, OUTPUT)</code>.", o: ["Add a semicolon at the end", "Change OUTPUT to INPUT", "Move it into loop()"], a: 0, e: "Every statement in Arduino code ends with a <code>;</code>. A missing semicolon is the most common error there is." },
+    { s: "The code runs with no errors, but the LED never lights up.", o: ["Add more delay()", "Check that the LED isn't backwards and the pin number matches your wiring", "Delete setup()"], a: 1, e: "An LED only works one way around (the longer leg, the anode, goes toward the pin). And <code>int ledPin</code> must match the pin you actually wired." },
+    { s: "The error says something about an unexpected end or a missing <code>}</code>.", o: ["Every { needs a matching }", "Add a semicolon after loop()", "Change void to int"], a: 0, e: "setup() and loop() each open with <code>{</code> and must close with <code>}</code>. Count them." },
+    { s: "The LED is on, but it looks steady instead of blinking.", o: ["Check that both delay() lines are there", "Change HIGH to LOW everywhere", "Unplug GND"], a: 0, e: "Without a pause after turning the LED off, loop() jumps back to HIGH almost instantly. Try it in the simulator in section 04." },
+    { s: "Your LED is wired straight to a pin with no resistor.", o: ["That's fine", "Add a resistor in line with the LED", "Use two LEDs instead"], a: 1, e: "The resistor limits the current so the LED doesn't burn out. Every LED gets its own resistor, including all 3 in the extension." }
+  ];
+  var quiz = $("quiz");
+  Q.forEach(function (q) {
+    var d = document.createElement("div"); d.className = "q";
+    d.innerHTML = "<div>" + q.s + '</div><div class="opts"></div><div class="fb"></div>';
+    q.o.forEach(function (t, i) {
+      var b = document.createElement("button"); b.className = "btn"; b.type = "button"; b.textContent = t;
+      b.onclick = function () {
+        var fb = d.querySelector(".fb");
+        if (i === q.a) { fb.innerHTML = '<b style="color:#34D399">Right.</b> ' + q.e; b.classList.add("on"); }
+        else { fb.innerHTML = '<b style="color:#FCA5A5">Not quite.</b> Try another one.'; }
+      };
+      d.querySelector(".opts").appendChild(b);
+    });
+    quiz.appendChild(d);
+  });
+})();
+</script>
+</body>
+</html>
