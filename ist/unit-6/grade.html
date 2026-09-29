@@ -312,7 +312,7 @@ function select(email) {
   var penOn = r.teacher ? !!r.teacher.penalty : r.org.penalize;
   var g = r.teacher && r.teacher.score != null ? r.teacher.score : Math.round(r.rep.score * (r.org.penalize ? PENALTY : 1) * 10) / 10;
   var d = $("detail");
-  d.innerHTML = '<div class="dhead"><h2>' + esc(r.name) + '</h2><small>' + esc(r.email) + " · Period " + esc(r.period || "?") + " · " + (r.status === "submitted" ? "Submitted " + esc(fmt(r.sub.submittedAt)) : "Draft only (not submitted). Last saved " + esc(fmt(r.draft && r.draft.savedAt))) + '</small><span class="sp"></span><button class="btn sm" id="prevS">◀ Prev</button><button class="btn sm" id="nextS">Next ▶</button></div>' +
+  d.innerHTML = '<div class="dhead"><h2>' + esc(r.name) + '</h2><small>' + esc(r.email) + " · Period " + esc(r.period || "?") + " · " + (r.status === "submitted" ? "Submitted " + esc(fmt(r.sub.submittedAt)) : "Draft only (not submitted). Last saved " + esc(fmt(r.draft && r.draft.savedAt))) + '</small><span class="sp"></span><button class="btn sm" id="dDel" style="color:#FCA5A5;margin-right:12px">🗑 Delete ' + (r.sub ? "submission" : "draft") + '</button><button class="btn sm" id="prevS">◀ Prev</button><button class="btn sm" id="nextS">Next ▶</button></div>' +
     '<div class="dtabs"><button class="btn sm' + (view === "code" ? " on" : "") + '" data-v="code">index.html</button><button class="btn sm' + (view === "css" ? " on" : "") + '" data-v="css">style.css' + (r.css.trim() ? "" : " (empty)") + '</button><button class="btn sm' + (view === "prev" ? " on" : "") + '" data-v="prev">Website</button>' + (window.U7_ANSWERS && window.U7_ANSWERS[$("lesson").value] && window.U7_ANSWER_LEAVES(window.U7_ANSWERS[$("lesson").value]).length ? '<button class="btn sm' + (view === "ans" ? " on" : "") + '" data-v="ans">Answers ' + ansSummary(r) + "</button>" : "") + '</div>' +
     '<div class="dbody"><div class="view" id="view"></div><div class="right" id="right"></div></div>';
   var errLines = {}; r.rep.errors.forEach(function (e) { errLines[e.line] = 1; });
@@ -339,7 +339,6 @@ function select(email) {
   $("right").innerHTML = ohtml + wqHtml(r) + '<div class="grade"><h3>Grade</h3><div>Auto check: <span class="big">' + r.rep.score + '</span> / ' + r.rep.total + " <small style=\"color:var(--soft)\">(" + r.rep.passed + "/" + r.rep.count + " checks)</small></div>" +
     '<div style="margin-top:8px">Your score: <input type="number" id="gScore" min="0" step="0.5" value="' + esc(g) + '"> / ' + r.rep.total + '</div><label style="display:flex;gap:6px;align-items:flex-start;margin:6px 0;font-size:12.5px;color:' + (penOn ? '#FCA5A5' : 'var(--soft)') + '"><input type="checkbox" id="gPen"' + (penOn ? " checked" : "") + '> <span><b>50% penalty</b> (copied from outside the editor, or nonsense/repeated writing). Uncheck if you decide it was okay.</span></label><textarea id="gComment" placeholder="Comment for the student (optional)">' + esc(r.teacher ? r.teacher.comment : (penOn ? penComment(r) : "")) + '</textarea>' +
     '<button class="btn pri" id="gSave"' + (r.status !== "submitted" ? " disabled title=\"Only submitted work can be graded\"" : "") + '>Save grade</button> <span id="gInfo" style="color:var(--soft);font-size:12px">' + (r.teacher && r.teacher.gradedAt ? "Saved " + esc(fmt(r.teacher.gradedAt)) : "") + "</span></div>" +
-    '<div class="grade" style="border-color:rgba(239,68,68,.35)"><h3>Delete</h3><label style="display:flex;gap:6px;align-items:flex-start;margin:0 0 8px;font-size:12.5px;color:var(--soft)"><input type="checkbox" id="dDraft"' + (r.sub ? "" : " checked disabled") + '> <span>Also delete their saved draft (use for test accounts). Leave unchecked to keep their work so they can submit again.</span></label><button class="btn" id="dDel" style="color:#FCA5A5">🗑 Delete ' + (r.sub ? "submission" : "draft") + '</button></div>' +
     "<h3>This lesson's requirements</h3>" + (nw || "<small>None</small>") + (old ? '<h3>Carried over</h3>' + old : "") + "<h3>Problems</h3>" + (pr || "<small>None</small>") + "<h3>Tags used</h3><div class=\"chips\">" + (tg || "<small>None</small>") + "</div>";
   $("gPen").onchange = function () { $("gScore").value = Math.round(r.rep.score * (this.checked ? PENALTY : 1) * 10) / 10; if (this.checked && !$("gComment").value.trim()) $("gComment").value = penComment(r); };
   $("gSave").onclick = function () {
@@ -350,9 +349,11 @@ function select(email) {
     });
   };
   $("dDel").onclick = function () {
-    var alsoDraft = $("dDraft").checked, lesson = $("lesson").value;
-    var what = (r.sub ? "the " + lesson + " submission" : "") + (r.sub && alsoDraft ? " and the saved draft" : "") + (!r.sub ? "the saved " + lesson + " draft" : "");
+    var lesson = $("lesson").value, alsoDraft = !r.sub;
+    var what = r.sub ? "the " + lesson + " submission" : "the saved " + lesson + " draft";
     if (!confirm("Delete " + what + " for " + r.name + "?" + (r.teacher && r.teacher.score != null ? " Your grade (" + r.teacher.score + ") is deleted with it." : "") + " This cannot be undone.")) return;
+    // Keeping the draft lets the student fix it and submit again. Deleting it too is for test accounts.
+    if (r.sub && r.draft) alsoDraft = confirm("Also delete " + r.name + "'s saved draft of " + lesson + "?\n\nOK = delete the draft too (use for test accounts).\nCancel = keep the draft so they can keep working and submit again.");
     this.disabled = true;
     api({ action: "adminDelete", lesson: lesson, email: r.email, draft: alsoDraft }).then(function (j) {
       if (!j.ok) { $("dDel").disabled = false; toast(j.error || "Error"); return; }
