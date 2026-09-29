@@ -27,19 +27,19 @@ const COURSES = [
     home: "ist/index.html",
     classDocs: "ist/class-docs.html",
     googleSite: "https://sites.google.com/socialcircleschools.org/introtosoftwaretech/home",
-    // Listed in teaching order for 2026-27 (see ist/pacing-guide.html); unit
-    // numbers haven't been renumbered to match yet.
+    // Listed and labeled in 2026-27 teaching order (see ist/pacing-guide.html).
+    // `n` and `path` keep the original folder numbers (ist/unit-6 is Unit 3, etc.).
     units: [
       { n: 1, label: "Unit 1 · Aug–Sep", title: "Digital Footprint", migrated: true, path: "ist/unit-1/index.html" },
       { n: 2, label: "Unit 2 · Sep–Oct", title: "Intro to Programming (Karel)", migrated: true, path: "ist/unit-2/index.html" },
-      { n: 6, label: "Unit 6 · Oct–Nov", title: "Web Design - HTML (Part 1)", migrated: true, path: "ist/unit-6/index.html" },
-      { n: 7, label: "Unit 7 · Nov–Dec", title: "Web Design - HTML (Part 2)", migrated: true, path: "ist/unit-7/index.html" },
-      { n: 8, label: "Unit 8 · Dec", title: "Intro to CSS (Expanded)", migrated: true, path: "ist/unit-8/index.html" },
-      { n: 9, label: "Unit 9 · Jan", title: "Bootstrap", migrated: true, path: "ist/unit-9/index.html" },
-      { n: 10, label: "Unit 10 · Feb", title: "Complete Website Project", migrated: true, path: "ist/unit-10/index.html" },
-      { n: 3, label: "Unit 3 · Mar", title: "Computing Basics", migrated: true, path: "ist/unit-3/index.html" },
-      { n: 4, label: "Unit 4 · Mar", title: "Operating Systems and Software", migrated: true, path: "ist/unit-4/index.html" },
-      { label: "Apr", title: "Networking", comingSoon: true }
+      { n: 6, label: "Unit 3 · Oct–Nov", title: "Web Design - HTML (Part 1)", migrated: true, path: "ist/unit-6/index.html" },
+      { n: 7, label: "Unit 3 · Nov", title: "Web Design - HTML (Part 2)", migrated: true, path: "ist/unit-7/index.html" },
+      { n: 8, label: "Unit 4 · Nov–Jan", title: "Intro to CSS + Layout", migrated: true, path: "ist/unit-8/index.html" },
+      { n: 9, label: "Unit 5 · Jan", title: "Bootstrap", migrated: true, path: "ist/unit-9/index.html" },
+      { n: 10, label: "Unit 6 · Feb", title: "Complete Website Project", migrated: true, path: "ist/unit-10/index.html" },
+      { n: 3, label: "Unit 7 · Mar", title: "Computing Basics", migrated: true, path: "ist/unit-3/index.html" },
+      { n: 4, label: "Unit 8 · Mar", title: "Operating Systems and Software", migrated: true, path: "ist/unit-4/index.html" },
+      { label: "Unit 9 · Apr", title: "Networking", comingSoon: true }
       // Units 5 (IT Professional), 11 (JavaScript), and 12 (Web Dev) aren't taught
       // this year; their pages still exist under ist/unit-5, unit-11, unit-12.
     ]
