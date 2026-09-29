@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analog vs. Digital | Embedded Computing Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<link rel="stylesheet" href="notes.css">
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Embedded Computing</a>
+  <a href="2-1-meet-the-arduino.html">2.1 Lesson Page</a>
+  <a href="2-1-notes.html" class="current">Notes</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lesson 2.1</div>
+    <h1>Analog vs. Digital</h1>
+    <p class="deck">Everything you need for the 2.1 partner debate: what analog and digital actually mean, the three topics you'll argue with, how to explain it at two different levels, and what analogRead() and digitalRead() do on the Arduino.</p>
+    <div class="map">
+      <a href="#idea">01 <span>The big idea</span></a>
+      <a href="#see">02 <span>See the difference</span></a>
+      <a href="#topics">03 <span>Weather, music, video</span></a>
+      <a href="#levels">04 <span>4th grader vs. CS degree</span></a>
+      <a href="#read">05 <span>analogRead() + digitalRead()</span></a>
+      <a href="#debate">06 <span>Building your argument</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="part" id="idea">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>The Big Idea</h2><span class="for">Question 1: what makes it analog or digital</span></div>
+    <p class="story">Picture a ramp and a staircase that both climb to the same height. On the ramp you can stand at any height at all. On the stairs you can only stand on a step. That is the whole difference between analog and digital.</p>
+    <div class="fig">
+      <svg viewBox="0 0 700 190" role="img" aria-label="A smooth ramp labeled analog next to a staircase labeled digital">
+        <path d="M40 170 L300 40 L300 170 Z" fill="rgba(0,135,143,.25)" stroke="#5FD8DF" stroke-width="3"/>
+        <circle cx="178" cy="101" r="9" fill="#FDD877"/>
+        <text x="170" y="186" fill="#5FD8DF" font-family="JetBrains Mono" font-size="13" text-anchor="middle">ANALOG: any height</text>
+        <path d="M400 170 V144 H452 V118 H504 V92 H556 V66 H608 V40 H660 V170 Z" fill="rgba(96,165,250,.2)" stroke="#BFDBFE" stroke-width="3"/>
+        <circle cx="530" cy="83" r="9" fill="#FDD877"/>
+        <text x="530" y="186" fill="#BFDBFE" font-family="JetBrains Mono" font-size="13" text-anchor="middle">DIGITAL: only the steps</text>
+      </svg>
+    </div>
+    <div class="two">
+      <div class="box b">
+        <h3>Analog</h3>
+        <p>A <b>continuous</b> signal. It can be any value in its range, with no gaps, and it changes smoothly. The information is stored as a physical copy of the real thing: a groove shape, a liquid height, a magnetic pattern.</p>
+      </div>
+      <div class="box a">
+        <h3>Digital</h3>
+        <p>A <b>discrete</b> signal. It can only be certain set values, and underneath it's stored as numbers made of <b>1s and 0s</b>. The real thing is measured over and over (sampled), and each measurement is saved as a number.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="see">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>See the Difference</h2><span class="for">Questions 1, 2, 4</span></div>
+    <p class="story">Turning something analog into digital means measuring it again and again and rounding each measurement to the nearest step. Drag the sliders: more samples and more steps make the digital copy closer to the real thing, but it never becomes perfectly smooth.</p>
+    <div class="fig">
+      <svg id="sig" viewBox="0 0 700 220" role="img" aria-label="A smooth analog wave with a stepped digital copy on top"></svg>
+    </div>
+    <div class="calc">
+      <div class="box b"><h3>Samples per wave: <span id="sN" class="big"></span></h3><p class="small">How often the value is measured (sample rate).</p><input id="sR" type="range" min="4" max="64" value="12"></div>
+      <div class="box a"><h3>Steps (levels): <span id="lN" class="big"></span></h3><p class="small">How many values each measurement can round to (bit depth).</p><input id="lR" type="range" min="1" max="6" value="2"></div>
+    </div>
+    <p class="cap">Each extra bit doubles the number of steps: 1 bit = 2 levels, 2 bits = 4, 3 bits = 8, and so on.</p>
+  </div>
+</section>
+
+<section class="part" id="topics">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Your Three Topics</h2><span class="for">Step 2 + Question 2</span></div>
+    <p class="story">You'll use the same three topics as evidence, whichever side you're on. Click a topic to see how each product stores its information, plus the strengths and weaknesses you can use in your argument.</p>
+    <div class="chips" id="topicChips"><button class="chip on" data-t="weather" type="button">Weather</button><button class="chip" data-t="music" type="button">Music</button><button class="chip" data-t="video" type="button">Video</button></div>
+    <div class="two" id="topicBox"></div>
+  </div>
+</section>
+
+<section class="part" id="levels">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Explaining It at Two Levels</h2><span class="for">Questions 3 + 4</span></div>
+    <p class="story">Two of your answers explain the same idea to very different people. The facts stay the same. What changes is the words, the examples, and how much detail you use.</p>
+    <div class="two">
+      <div class="box b">
+        <h3>For a 4th grader</h3>
+        <ul>
+          <li>Use everyday comparisons: a ramp vs. stairs, a dimmer vs. a light switch, a clock with hands vs. a clock with numbers.</li>
+          <li>Short sentences. No technical words, or explain any you use.</li>
+          <li>One example they already know, like a thermometer or a song.</li>
+        </ul>
+      </div>
+      <div class="box a">
+        <h3>For someone with a CS degree</h3>
+        <p>Use the real terms correctly:</p>
+        <ul>
+          <li><b>Continuous vs. discrete</b> signals</li>
+          <li><b>Sampling</b> and <b>sample rate</b> (how often it's measured, in Hz)</li>
+          <li><b>Quantization</b> and <b>bit depth</b> (how many levels each sample can be)</li>
+          <li><b>ADC / DAC</b>: analog-to-digital and digital-to-analog converters</li>
+          <li><b>Noise</b>, signal degradation, and lossless copying</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="read">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">05</div><h2>analogRead() and digitalRead()</h2><span class="for">Questions 5 + 6 (everyone answers both)</span></div>
+    <p class="story">The Arduino can listen to the world both ways. Some pins only hear "on" or "off." Others can hear everything in between. Slide the voltage and watch what each function would report.</p>
+    <div class="panel">
+      <h3>Voltage on the pin: <span id="vOut" class="big"></span></h3>
+      <input id="vR" type="range" min="0" max="500" value="210" aria-label="Voltage">
+      <div class="two" style="margin-top:12px">
+        <div class="box b"><h3><code>analogRead(A0)</code> returns</h3><div class="big" id="aOut"></div><p class="small">A number from <b>0 to 1023</b>. 0 means 0V, 1023 means 5V. It uses the analog pins A0&ndash;A5 and the Arduino's built-in ADC (10 bits = 1024 levels).</p></div>
+        <div class="box a"><h3><code>digitalRead(2)</code> returns</h3><div class="big" id="dOut"></div><p class="small">Only <b>HIGH (1)</b> or <b>LOW (0)</b>. It uses the digital pins 0&ndash;13. Around 3V and up reads HIGH; around 1.5V and below reads LOW.</p></div>
+      </div>
+    </div>
+    <div class="hint-panel"><b>Where you'll use them:</b> analogRead() is for things that change smoothly, like a light sensor, a temperature sensor, or a knob (potentiometer). digitalRead() is for things that are either one way or the other, like a button being pressed or not. <b>Spelling:</b> the real function names start with a lowercase letter: <code>analogRead()</code> and <code>digitalRead()</code>.</div>
+  </div>
+</section>
+
+<section class="part" id="debate">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">06</div><h2>Building Your Argument</h2><span class="for">Step 1 + Question 2</span></div>
+    <p class="story">Your partner is arguing the other side with the same three topics. A strong argument doesn't just say "mine is better." It picks the qualities that matter most and shows evidence for them.</p>
+    <div class="tblwrap">
+      <table>
+        <tr><th>Quality to argue about</th><th>Ask yourself</th></tr>
+        <tr><td><b>Accuracy / detail</b></td><td>Does it capture every tiny change, or round things to steps?</td></tr>
+        <tr><td><b>Copying</b></td><td>Does a copy of a copy lose quality, or is every copy perfect?</td></tr>
+        <tr><td><b>Wear and damage</b></td><td>Does it wear out, scratch, or stretch each time it's used?</td></tr>
+        <tr><td><b>Convenience</b></td><td>How easy is it to store, carry, search, and share?</td></tr>
+        <tr><td><b>Power and dependence</b></td><td>Does it need electricity, a device, or the internet to work?</td></tr>
+        <tr><td><b>Experience</b></td><td>How does it feel to use? Some people value warmth, collecting, or the ritual.</td></tr>
+      </table>
+    </div>
+    <div class="warn"><b>Rules from the assignment:</b> pick your side with your partner before you start, and don't switch once you've decided. Each answer is 3&ndash;5 sentences (2&ndash;5 for the Arduino questions). Turn it in on Google Classroom.</div>
+    <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
+    <div class="quiz" id="quiz"></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Analog is a smooth ramp. Digital is a staircase of numbers.</h2>
+    <p>Everything else in this debate, from vinyl to Netflix to analogRead(), comes back to that one idea.</p>
+    <a class="back" href="2-1-meet-the-arduino.html">&larr; Back to 2.1</a>
+    <a class="back" href="../index.html">&larr; Embedded Computing</a>
+  </div>
+</footer>
+
+<script>
+window.QUIZ = [
+  { s: "A mercury thermometer's liquid can stop at any height, not just at the marks. That makes it...", o: ["Analog", "Digital"], a: 0, e: "Any value in a range, with no steps, is continuous: analog." },
+  { s: "A song on a streaming app is stored as...", o: ["A groove shaped like the sound wave", "Numbers (1s and 0s) measured from the sound wave"], a: 1, e: "Digital audio is the sound wave sampled thousands of times a second, with each sample saved as a number." },
+  { s: "Which one can be copied over and over with no loss of quality?", o: ["A VHS tape", "A digital video file"], a: 1, e: "A digital copy is the exact same numbers. Copying an analog tape adds a little noise each time." },
+  { s: "What range of numbers does analogRead() give back?", o: ["HIGH or LOW", "0 to 255", "0 to 1023"], a: 2, e: "The Uno's analog-to-digital converter is 10 bits, so it has 1024 levels: 0 to 1023." },
+  { s: "A button is either pressed or not. Which function fits best?", o: ["digitalRead()", "analogRead()"], a: 0, e: "Two possible states means digital: HIGH or LOW." }
+];
+
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  /* 02: sampled wave */
+  function drawSig() {
+    var n = +$("sR").value, bits = +$("lR").value, L = Math.pow(2, bits);
+    $("sN").textContent = n; $("lN").textContent = L + " (" + bits + " bit" + (bits > 1 ? "s" : "") + ")";
+    var W = 640, x0 = 30, mid = 110, amp = 80, s = "", i, x, y;
+    for (i = 0; i <= 200; i++) { x = x0 + W * i / 200; y = mid - amp * Math.sin(2 * Math.PI * i / 200); s += (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1) + " "; }
+    var d = "", pts = "";
+    for (i = 0; i < n; i++) {
+      var t = i / n, v = Math.sin(2 * Math.PI * t), q = Math.round((v + 1) / 2 * (L - 1)) / (L - 1) * 2 - 1;
+      var xa = x0 + W * t, xb = x0 + W * (i + 1) / n, yq = mid - amp * q;
+      d += (i ? "V" + yq.toFixed(1) : "M" + xa.toFixed(1) + " " + yq.toFixed(1)) + " H" + xb.toFixed(1) + " ";
+      pts += '<circle cx="' + xa.toFixed(1) + '" cy="' + (mid - amp * v).toFixed(1) + '" r="3" fill="#FDD877"/>';
+    }
+    $("sig").innerHTML = '<path d="' + s + '" fill="none" stroke="#5FD8DF" stroke-width="3"/><path d="' + d + '" fill="none" stroke="#BFDBFE" stroke-width="2.5" stroke-dasharray="1 0"/>' + pts +
+      '<text x="30" y="212" fill="#5FD8DF" font-family="JetBrains Mono" font-size="12">analog (smooth)</text><text x="200" y="212" fill="#BFDBFE" font-family="JetBrains Mono" font-size="12">digital copy (steps)</text><text x="420" y="212" fill="#FDD877" font-family="JetBrains Mono" font-size="12">&#9679; each sample</text>';
+  }
+  $("sR").oninput = drawSig; $("lR").oninput = drawSig; drawSig();
+
+  /* 03: topics */
+  var T = {
+    weather: [["Analog: mercury thermometer", "The liquid expands with heat and rises to a height that matches the temperature exactly. You read it against marks on the glass.", ["No batteries or power needed", "Shows every tiny change", "Hard to read precisely; you judge between the marks", "Can break, and mercury is toxic"]],
+              ["Digital: digital weather station", "A sensor measures the temperature and a chip turns it into a number shown on a screen.", ["Exact number, easy to read", "Can log data, graph trends, and send it to your phone", "Rounds to the nearest step (like 72.4&deg;)", "Needs power, and sensors can fail"]]],
+    music: [["Analog: vinyl record or cassette tape", "Vinyl stores sound as a wavy groove shaped like the sound wave. A needle rides the groove. Tape stores it as a magnetic pattern.", ["A continuous copy of the sound; many people describe it as warm", "Physical, collectible", "Scratches, dust, and wear add noise every play", "Bulky; can't skip or search easily"]],
+            ["Digital: CD or streaming app", "The sound wave is sampled (44,100 times a second for a CD) and each sample is stored as a number.", ["Every copy is perfect; no wear from playing", "Huge libraries fit in your pocket; instant search", "Streaming files are often compressed, removing some detail", "Needs a device, and streaming needs internet and a subscription"]]],
+    video: [["Analog: VHS tape", "Pictures and sound are stored as magnetic patterns on a long tape.", ["Works without the internet", "You own the physical copy", "Low resolution; picture quality fades over time and with each copy", "Must rewind and fast-forward; tapes stretch and tangle"]],
+            ["Digital: Blu-ray or Netflix", "Each frame is a grid of pixels, and each pixel's color is stored as numbers.", ["Sharp HD or 4K picture that doesn't fade", "Jump to any scene instantly", "Streaming needs fast internet; titles can disappear from the service", "Compression can cause blocky artifacts"]]]
+  };
+  function showTopic(k) {
+    $("topicBox").innerHTML = T[k].map(function (c, i) {
+      return '<div class="box ' + (i ? "a" : "b") + '"><h3>' + c[0] + '</h3><p>' + c[1] + '</p><ul>' + c[2].map(function (x, j) { return '<li>' + (j < 2 ? "&#10133; " : "&#10134; ") + x + '</li>'; }).join("") + '</ul></div>';
+    }).join("");
+    [].forEach.call($("topicChips").children, function (b) { b.classList.toggle("on", b.getAttribute("data-t") === k); });
+  }
+  [].forEach.call($("topicChips").children, function (b) { b.onclick = function () { showTopic(b.getAttribute("data-t")); }; });
+  showTopic("weather");
+
+  /* 05: analogRead / digitalRead */
+  function readV() {
+    var v = +$("vR").value / 100;
+    $("vOut").textContent = v.toFixed(2) + " V";
+    $("aOut").textContent = Math.round(v / 5 * 1023);
+    $("dOut").textContent = v >= 3 ? "HIGH (1)" : v <= 1.5 ? "LOW (0)" : "unreliable (between)";
+  }
+  $("vR").oninput = readV; readV();
+})();
+</script>
+<script src="notes.js"></script>
+</body>
+</html>

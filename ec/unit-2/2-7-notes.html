@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Circuit Fundamentals: Buttons and Pull-Ups | Embedded Computing Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<link rel="stylesheet" href="notes.css">
+<style>
+.press{width:120px;height:120px;border-radius:50%;border:6px solid #374151;background:#1F2937;color:#fff;font:700 15px "JetBrains Mono",monospace;cursor:pointer;user-select:none;touch-action:none}
+.press.down{background:#0E7490;border-color:#5FD8DF;transform:scale(.96)}
+.readout{font-family:"JetBrains Mono",monospace;font-size:14px;color:#C4CDD8;line-height:1.9}
+.readout b{color:var(--hi-ink)}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Embedded Computing</a>
+  <a href="2-7-circuit-fundamentals.html">2.7 Lesson Page</a>
+  <a href="2-7-notes.html" class="current">Notes</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lesson 2.7</div>
+    <h1>Circuit Fundamentals: Buttons, Pull-Ups, and Ohm's Law</h1>
+    <p class="deck">Everything you need for the 2.7 assignment: source and sink, floating pins, pull-up resistors, wiring a 4-leg button, digitalRead(), the ! trick, the red light / walking light, and the math behind every resistor.</p>
+    <div class="map">
+      <a href="#ss">01 <span>Source + sink</span></a>
+      <a href="#float">02 <span>Floating + pull-up</span></a>
+      <a href="#btn">03 <span>Wiring the button</span></a>
+      <a href="#try">04 <span>Button simulator (Part 1)</span></a>
+      <a href="#walk">05 <span>Red / walking light (Part 2)</span></a>
+      <a href="#ghost">06 <span>Part 3 scenarios</span></a>
+      <a href="#ohm">07 <span>Ohm's law</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="part" id="ss">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Source and Sink</h2></div>
+    <p class="story">Current has to come from somewhere and go somewhere. A pin can be either end of that trip.</p>
+    <div class="two">
+      <div class="box b"><h3>Sourcing</h3><p>A pin set <b>HIGH</b> pushes current <b>out</b> to whatever it's connected to. Every LED you've lit with <code>digitalWrite(pin, HIGH)</code> was powered by a pin sourcing current.</p></div>
+      <div class="box a"><h3>Sinking</h3><p>A pin set <b>LOW</b>, with something else pushing current <b>into</b> it, is sinking current: soaking it up, like a drain.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="float">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Floating Pins and Pull-Up Resistors</h2><span class="for">Part 3, Question 8</span></div>
+    <p class="story">An input pin that isn't connected to 5V or GND doesn't calmly sit at 0. It "floats," picking up tiny bits of electrical noise from the air, your hand, even a static-charged sweater nearby. It reads HIGH, then LOW, then HIGH, at random.</p>
+    <div class="fig">
+      <svg id="noise" viewBox="0 0 700 150" role="img" aria-label="A floating pin's reading jumping randomly between HIGH and LOW, then a steady HIGH once the pull-up is on"></svg>
+      <div class="btns"><button class="btn" id="pu" type="button">Turn on INPUT_PULLUP</button></div>
+    </div>
+    <div class="two">
+      <div class="box b"><h3>The pull-up resistor</h3><p>Connects the pin to <b>5V</b> by default, so with nothing happening it reads a clean, steady <b>HIGH</b>. Pressing the button connects the pin straight to <b>GND</b>, so it reads a clean <b>LOW</b>. It holds the pin in place the way gravity holds things down.</p></div>
+      <div class="box a"><h3>Built in: INPUT_PULLUP</h3><p>The Arduino has a pull-up resistor inside it. Turn it on with <code>pinMode(buttonPin, INPUT_PULLUP);</code>. No separate resistor is needed for the button. Plain <code>INPUT</code> has no pull-up, so an unpressed button floats.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="btn">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Wiring the Button: 4 Legs, 2 Connections</h2></div>
+    <p class="story">The button has 4 legs, but it isn't 4 separate connections. It's really 2 pairs. Pressing the button is what bridges the two pairs together. Hold the button below to see it.</p>
+    <div class="fig">
+      <svg viewBox="0 0 700 220" role="img" aria-label="A 4-leg button straddling the breadboard's center gap; the left pair is always connected, the right pair is always connected, and pressing joins them">
+        <rect x="20" y="100" width="660" height="20" rx="4" fill="#CFC9BC"/><text x="350" y="115" fill="#475569" font-family="JetBrains Mono" font-size="11" text-anchor="middle">center gap</text>
+        <rect x="240" y="40" width="220" height="140" rx="10" fill="#374151" stroke="#6B7280"/>
+        <circle cx="350" cy="110" r="38" fill="#111827" stroke="#4B5563"/>
+        <path d="M270 60 V160" stroke="#FDD877" stroke-width="5"/><path d="M430 60 V160" stroke="#BFDBFE" stroke-width="5"/>
+        <path id="bridge" d="M270 110 H430" stroke="#34D399" stroke-width="6" opacity="0"/>
+        <g fill="#94A3B8"><rect x="262" y="24" width="16" height="22"/><rect x="262" y="174" width="16" height="22"/><rect x="422" y="24" width="16" height="22"/><rect x="422" y="174" width="16" height="22"/></g>
+        <path d="M270 24 V10 H120" stroke="#FBBF24" stroke-width="3" fill="none"/><text x="110" y="14" fill="#FDD877" font-family="JetBrains Mono" font-size="12" text-anchor="end">to digital pin</text>
+        <path d="M430 196 V210 H580" stroke="#94A3B8" stroke-width="3" fill="none"/><text x="590" y="214" fill="#CBD5E1" font-family="JetBrains Mono" font-size="12">to GND</text>
+        <text x="200" y="80" fill="#FDD877" font-family="Manrope" font-size="12" text-anchor="end">this pair is always</text><text x="200" y="96" fill="#FDD877" font-family="Manrope" font-size="12" text-anchor="end">connected together</text>
+        <text x="500" y="80" fill="#BFDBFE" font-family="Manrope" font-size="12">this pair is always</text><text x="500" y="96" fill="#BFDBFE" font-family="Manrope" font-size="12">connected together</text>
+        <text id="bridgeTxt" x="350" y="170" fill="#8B9AAE" font-family="JetBrains Mono" font-size="12" text-anchor="middle">released: pairs apart</text>
+      </svg>
+      <div class="btns"><button class="btn" id="hold" type="button">Hold to press</button></div>
+    </div>
+    <div class="hint-panel"><b>The standard way:</b> straddle the button across the breadboard's center gap so one pair lands on each side. Then take <b>any one leg</b> from one side to your digital pin, and <b>any one leg</b> from the other side to GND. Which exact leg doesn't matter, only which side.</div>
+  </div>
+</section>
+
+<section class="part" id="try">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Part 1: Button Turns On an LED</h2><span class="for">Part 1 + Question 1</span></div>
+    <p class="story">With INPUT_PULLUP, the button reads backwards from what feels natural: <b>HIGH when NOT pressed</b>, <b>LOW when pressed</b>. That's normal, not a mistake. One exclamation point flips it back so pressing turns the light on.</p>
+    <div class="code"><span class="kw">int</span> buttonPin = <span class="n">8</span>;
+<span class="kw">int</span> ledPin = <span class="n">9</span>;
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(buttonPin, INPUT_PULLUP);   <span class="cm">// built-in pull-up: reads HIGH when not pressed</span>
+  <span class="fn">pinMode</span>(ledPin, OUTPUT);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">int</span> buttonState = <span class="fn">digitalRead</span>(buttonPin);  <span class="cm">// NEW: read the pin, don't write it</span>
+  <span class="fn">digitalWrite</span>(ledPin, !buttonState);          <span class="cm">// flip it: pressed (LOW) becomes HIGH</span>
+}</div>
+    <div class="panel">
+      <div class="two" style="align-items:center">
+        <div style="text-align:center"><button class="press" id="pbtn" type="button">HOLD</button><p class="small">Hold the button (mouse or finger)</p></div>
+        <div class="readout" id="read1"></div>
+      </div>
+    </div>
+    <div class="two" style="margin-top:14px">
+      <div class="box b"><h3><code>digitalRead(pin)</code></h3><p>New command. Instead of <b>writing</b> a value out to a pin, it <b>reads</b> whatever is on the pin right now and gives back HIGH (1) or LOW (0). You store it in a variable: <code>buttonState</code>.</p></div>
+      <div class="box a"><h3>The doorbell analogy (Question 1)</h3><p>Think through how a real doorbell works: what's waiting, what happens when the button is pushed, and what happens when it's let go. Then match each piece of the doorbell to a piece of your circuit and code: the button, the wire, the pin reading, and the LED.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="walk">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">05</div><h2>Part 2: Red Light / Walking Light</h2><span class="for">Part 2</span></div>
+    <p class="story">A crosswalk: red is on by default, and while someone holds the button, the walking light takes over. The trick is using the button reading two ways, once as-is and once flipped.</p>
+    <div class="code"><span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">int</span> buttonState = <span class="fn">digitalRead</span>(buttonPin);
+  <span class="fn">digitalWrite</span>(redPin, buttonState);    <span class="cm">// as-is: HIGH when not pressed</span>
+  <span class="fn">digitalWrite</span>(walkPin, !buttonState);  <span class="cm">// flipped: HIGH when pressed</span>
+}</div>
+    <div class="panel">
+      <div class="two" style="align-items:center">
+        <div style="text-align:center"><button class="press" id="pbtn2" type="button">HOLD</button></div>
+        <div style="text-align:center">
+          <svg viewBox="0 0 220 110" width="220" role="img" aria-label="Red light and walking light"><circle id="wRed" cx="60" cy="50" r="30" fill="#EF4444"/><circle id="wWalk" cx="160" cy="50" r="30" fill="#10301C"/><text x="60" y="102" fill="#C4CDD8" font-family="JetBrains Mono" font-size="12" text-anchor="middle">red (pin 9)</text><text x="160" y="102" fill="#C4CDD8" font-family="JetBrains Mono" font-size="12" text-anchor="middle">walk (pin 10)</text></svg>
+          <div class="readout" id="read2"></div>
+        </div>
+      </div>
+    </div>
+    <div class="hint-panel"><b>No delay() here.</b> Nothing pauses loop(), so it reads the button thousands of times a second and the lights react instantly. Wire each LED with its own resistor and its own pin; the button and LEDs can all share one GND.</div>
+  </div>
+</section>
+
+<section class="part" id="ghost">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">06</div><h2>Part 3: The Two Scenarios</h2><span class="for">Questions 8 + 9</span></div>
+    <p class="story">Both stories are about the same two ideas from this page: what a pin does when nothing is holding it in place, and which way a pull-up button reads.</p>
+    <div class="two">
+      <div class="box b"><h3>The Ghost in the Elevator</h3><p>Plain <code>INPUT</code>, no resistor. Go back to section 02 and watch the reading with the pull-up off. What would each random HIGH/LOW flip do to an elevator door? What does the pull-up change?</p></div>
+      <div class="box a"><h3>The Backwards Doorbell</h3><p>The code turns the buzzer ON when <code>buttonState == HIGH</code>. Use the simulator in section 04: what is buttonState when nobody is touching the button? What is it the moment someone presses?</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="ohm">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">07</div><h2>Ohm's Law: the Math Behind Every Resistor</h2></div>
+    <p class="story">Every LED you've wired had a resistor, and now you can see why the numbers work out. Voltage, current, and resistance are tied together by one equation.</p>
+    <div class="calc">
+      <div class="box b"><h3>V = I &times; R</h3><p><b>V</b> = voltage (volts), <b>I</b> = current (amps), <b>R</b> = resistance (ohms, &Omega;). Rearranged: <b>I = V &divide; R</b> and <b>R = V &divide; I</b>.</p></div>
+      <div class="box a"><h3>Find the resistor you need</h3><p>Volts across the resistor:</p><input id="oV" type="number" step="0.1" value="3" aria-label="volts"><p>Current you want (mA):</p><input id="oI" type="number" step="1" value="15" aria-label="milliamps"><div class="out" id="oOut"></div></div>
+      <div class="box b"><h3>Why it matters</h3><p>An LED is usually happy around 20 mA, and an Uno pin maxes out around 40 mA. Too little resistance means too much current, which can burn out the LED or damage the pin.</p></div>
+    </div>
+    <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
+    <div class="quiz" id="quiz"></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>A pull-up holds the pin HIGH until the button pulls it LOW.</h2>
+    <p>Read it with digitalRead(), flip it with !, and your button works the way people expect.</p>
+    <a class="back" href="2-7-circuit-fundamentals.html">&larr; Back to 2.7</a>
+    <a class="back" href="../index.html">&larr; Embedded Computing</a>
+  </div>
+</footer>
+
+<script>
+window.QUIZ = [
+  { s: "With INPUT_PULLUP, what does digitalRead() give when the button is NOT pressed?", o: ["HIGH", "LOW", "Random"], a: 0, e: "The pull-up holds the pin at 5V until the button connects it to GND." },
+  { s: "A pin with plain INPUT and nothing connected reads...", o: ["Always LOW", "Always HIGH", "Randomly HIGH and LOW (floating)"], a: 2, e: "Nothing holds it in place, so it picks up noise." },
+  { s: "buttonState is LOW. What is <code>!buttonState</code>?", o: ["LOW", "HIGH"], a: 1, e: "! gives the opposite." },
+  { s: "You straddle the button across the gap. Which legs do you use?", o: ["Two legs on the same side", "One leg from each side"], a: 1, e: "Legs on the same side are always connected. One from each side are only joined when pressed." },
+  { s: "Using R = V &divide; I, what resistor gives 3V at 0.015 A (15 mA)?", o: ["45 &Omega;", "200 &Omega;", "2000 &Omega;"], a: 1, e: "3 &divide; 0.015 = 200 ohms." }
+];
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  /* 02: noise graph */
+  var pull = false, hist = [];
+  function noise() {
+    hist.push(pull ? 1 : (Math.random() < .5 ? 1 : 0)); if (hist.length > 60) hist.shift();
+    var d = "", x = 60;
+    hist.forEach(function (v, i) { var y = v ? 30 : 110; d += (i ? "H" + x + " V" + y : "M" + x + " " + y) + " "; x += 10; d += "H" + x + " "; });
+    $("noise").innerHTML = '<text x="0" y="34" fill="#FDD877" font-family="JetBrains Mono" font-size="12">HIGH</text><text x="0" y="114" fill="#BFDBFE" font-family="JetBrains Mono" font-size="12">LOW</text><path d="' + d + '" fill="none" stroke="' + (pull ? "#34D399" : "#FCA5A5") + '" stroke-width="3"/><text x="690" y="145" fill="#8B9AAE" font-family="JetBrains Mono" font-size="11" text-anchor="end">' + (pull ? "INPUT_PULLUP: steady HIGH, nobody pressing" : "plain INPUT, nothing connected: floating") + '</text>';
+  }
+  setInterval(noise, 120);
+  $("pu").onclick = function () { pull = !pull; this.classList.toggle("on", pull); this.textContent = pull ? "Turn off INPUT_PULLUP (plain INPUT)" : "Turn on INPUT_PULLUP"; };
+  /* 03: bridge */
+  function holdable(el, fn) {
+    var down = function (e) { e.preventDefault(); el.classList.add("down"); fn(true); };
+    var up = function () { el.classList.remove("down"); fn(false); };
+    el.addEventListener("pointerdown", down); el.addEventListener("pointerup", up); el.addEventListener("pointerleave", up); el.addEventListener("pointercancel", up);
+    el.addEventListener("keydown", function (e) { if (e.key === " " || e.key === "Enter") down(e); });
+    el.addEventListener("keyup", function (e) { if (e.key === " " || e.key === "Enter") up(); });
+  }
+  holdable($("hold"), function (p) { $("bridge").setAttribute("opacity", p ? 1 : 0); $("bridgeTxt").textContent = p ? "pressed: pairs bridged (pin connected to GND)" : "released: pairs apart"; $("bridgeTxt").setAttribute("fill", p ? "#34D399" : "#8B9AAE"); });
+  /* 04: part 1 */
+  function r1(p) {
+    var bs = p ? "LOW (0)" : "HIGH (1)", out = p ? "HIGH" : "LOW";
+    $("read1").innerHTML = "button: <b>" + (p ? "pressed" : "not pressed") + "</b><br>buttonState = digitalRead(buttonPin) &rarr; <b>" + bs + "</b><br>!buttonState &rarr; <b>" + out + "</b><br>LED: <b style='color:" + (p ? "#34D399" : "#FCA5A5") + "'>" + (p ? "ON" : "OFF") + "</b>";
+  }
+  holdable($("pbtn"), r1); r1(false);
+  /* 05: part 2 */
+  function r2(p) {
+    $("wRed").setAttribute("fill", p ? "#3B1414" : "#EF4444"); $("wWalk").setAttribute("fill", p ? "#22C55E" : "#10301C");
+    $("read2").innerHTML = "buttonState = <b>" + (p ? "LOW" : "HIGH") + "</b> &rarr; red gets <b>" + (p ? "LOW" : "HIGH") + "</b>, walk gets <b>" + (p ? "HIGH" : "LOW") + "</b>";
+  }
+  holdable($("pbtn2"), r2); r2(false);
+  /* 07: Ohm */
+  function ohm() { var v = +$("oV").value || 0, i = (+$("oI").value || 0) / 1000; $("oOut").textContent = i ? "R = " + v + " ÷ " + i + " = " + Math.round(v / i) + " Ω" : "enter a current"; }
+  $("oV").oninput = ohm; $("oI").oninput = ohm; ohm();
+})();
+</script>
+<script src="notes.js"></script>
+</body>
+</html>

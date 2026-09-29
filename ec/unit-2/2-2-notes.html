@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>First Circuits in Tinkercad | Embedded Computing Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<link rel="stylesheet" href="notes.css">
+<style>
+.bb .hole{fill:#2A3342;cursor:pointer}
+.bb .hole:hover{fill:#5FD8DF}
+.bb .hole.hit{fill:#FDD877}
+.bb .hole.pick{fill:#EF4444}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Embedded Computing</a>
+  <a href="2-2-tinkercad-setup-and-first-circuit.html">2.2 Lesson Page</a>
+  <a href="2-2-notes.html" class="current">Notes</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lessons 2.2 + 2.2A</div>
+    <h1>Your First Circuits in Tinkercad</h1>
+    <p class="deck">Notes for both assignments: <b>2.2 Tinkercad First Circuit</b> and <b>2.2A Dual-LED Circuit Design</b>. Setting up Tinkercad, how a breadboard is connected inside, LED polarity, what the resistor does, and the two fault experiments.</p>
+    <div class="map">
+      <a href="#setup">01 <span>Tinkercad setup</span></a>
+      <a href="#bb">02 <span>Inside the breadboard</span></a>
+      <a href="#led">03 <span>LEDs + polarity</span></a>
+      <a href="#res">04 <span>The resistor + Ohm's law</span></a>
+      <a href="#par">05 <span>Two LEDs: parallel</span></a>
+      <a href="#faults">06 <span>Fault experiments</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="part" id="setup">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Getting Set Up in Tinkercad</h2><span class="for">2.2 Step 1 + 2.2A Part 1</span></div>
+    <p class="story">Engineers build circuits in a simulator before touching real parts. In a simulator, a mistake costs nothing: no burned-out LEDs, no damaged boards. Tinkercad is where you'll do that all unit.</p>
+    <div class="tblwrap">
+      <table>
+        <tr><th>Step</th><th>What to do</th></tr>
+        <tr><td><b>New circuit</b></td><td>Log in, then click <b>Designs</b> &gt; <b>Circuits</b> &gt; <b>Create your first Circuit</b>.</td></tr>
+        <tr><td><b>Add parts</b></td><td>Drag components from the menu on the right onto the workspace: <b>Arduino Uno R3</b>, <b>Breadboard Small</b>, <b>LEDs</b>, and <b>Resistors</b>.</td></tr>
+        <tr><td><b>Change a part</b></td><td>Click it to open the <b>component inspector</b>. That's where you change an LED's color or a resistor's value.</td></tr>
+        <tr><td><b>Set a resistor</b></td><td>Type <b>220</b> and switch the unit dropdown to <b>&Omega; (ohms)</b>. The color bands should read <b>red, red, brown, gold</b>.</td></tr>
+        <tr><td><b>Wires</b></td><td>Click a pin or hole, then click where the wire should end. Click the wire to change its color: red for power, black for ground.</td></tr>
+        <tr><td><b>Test</b></td><td>Click <b>Start Simulation</b>. Always click <b>Stop Simulation</b> before you move a wire or change a part.</td></tr>
+      </table>
+    </div>
+    <div class="fig" style="margin-top:12px">
+      <svg viewBox="0 0 700 90" role="img" aria-label="Resistor with color bands red, red, brown, gold meaning 220 ohms">
+        <path d="M40 45 H200 M500 45 H660" stroke="#94A3B8" stroke-width="4"/>
+        <rect x="200" y="22" width="300" height="46" rx="20" fill="#D6C29A"/>
+        <rect x="250" y="22" width="18" height="46" fill="#DC2626"/><rect x="290" y="22" width="18" height="46" fill="#DC2626"/><rect x="330" y="22" width="18" height="46" fill="#7C4A1E"/><rect x="440" y="22" width="18" height="46" fill="#D4AF37"/>
+        <text x="259" y="86" fill="#FCA5A5" font-family="JetBrains Mono" font-size="11" text-anchor="middle">2</text><text x="299" y="86" fill="#FCA5A5" font-family="JetBrains Mono" font-size="11" text-anchor="middle">2</text><text x="339" y="86" fill="#D6B48A" font-family="JetBrains Mono" font-size="11" text-anchor="middle">&times;10</text><text x="449" y="86" fill="#FDD877" font-family="JetBrains Mono" font-size="11" text-anchor="middle">&plusmn;5%</text>
+        <text x="600" y="30" fill="#C4CDD8" font-family="JetBrains Mono" font-size="13" text-anchor="middle">= 220 &Omega;</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="bb">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Inside the Breadboard</h2><span class="for">2.2 Steps 2 + 5, 2.2A Part 3 section 1</span></div>
+    <p class="story">A breadboard looks like a grid of separate holes, but underneath, strips of metal connect certain holes together. Anything plugged into the same strip is connected. Click any hole below to light up everything it's connected to.</p>
+    <div class="fig"><svg class="bb" id="board" viewBox="0 0 700 300" role="img" aria-label="Clickable breadboard. Clicking a hole highlights all holes connected to it."></svg></div>
+    <p class="cap" id="bbInfo">Click a hole.</p>
+    <div class="two" style="margin-top:12px">
+      <div class="box b"><h3>Power rails (the long rows on the edges)</h3><p>Each rail is one long strip that runs the <b>whole length</b> of the board. That way power (+) and ground (&minus;) are available anywhere along the board. Wire the Arduino's <b>5V</b> to the <b>red (+)</b> rail and <b>GND</b> to the <b>black (&minus;)</b> rail.</p></div>
+      <div class="box a"><h3>Terminal rows (the middle)</h3><p>Each numbered row is two short strips of 5 holes: <b>a&ndash;e</b> and <b>f&ndash;j</b>. The <b>center divider</b> (trench) splits them, so a part that straddles the gap has its two sides on <b>different</b> strips. That's how you add a second LED "across the divide" without connecting it to the first.</p></div>
+    </div>
+    <div class="warn"><b>Same row = connected.</b> If both legs of one part go in the same row on the same side of the divider (like a11 and b11), the metal strip connects them directly. Current takes that easy path instead of going through the part.</div>
+  </div>
+</section>
+
+<section class="part" id="led">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>LEDs and Polarity</h2><span class="for">2.2 Steps 3 + 6, 2.2A Part 3 section 3</span></div>
+    <p class="story">LED stands for Light Emitting Diode. A diode is a one-way street for electricity. Plug an LED in backwards and it isn't broken. It's just blocking traffic, exactly like it's designed to. Click the button to flip it.</p>
+    <div class="two">
+      <div class="fig">
+        <svg viewBox="0 0 320 200" role="img" aria-label="LED circuit showing current flowing only when the anode faces positive">
+          <text x="20" y="30" fill="#FDD877" font-family="JetBrains Mono" font-size="13">+5V</text>
+          <text x="20" y="190" fill="#94A3B8" font-family="JetBrains Mono" font-size="13">GND</text>
+          <path d="M70 26 H160 V60" stroke="#FBBF24" stroke-width="3" fill="none"/>
+          <path d="M70 186 H160 V150" stroke="#94A3B8" stroke-width="3" fill="none"/>
+          <g id="diode">
+            <path d="M140 80 H180 L160 120 Z" fill="#EF4444"/><path d="M140 122 H180" stroke="#EF4444" stroke-width="4"/>
+            <path d="M160 60 V80 M160 122 V150" stroke="#EF4444" stroke-width="3"/>
+          </g>
+          <circle id="polGlow" cx="160" cy="100" r="42" fill="#EF4444" opacity=".22"/>
+          <text id="polTop" x="190" y="74" fill="#C4CDD8" font-family="JetBrains Mono" font-size="12">anode (+)</text>
+          <text id="polBot" x="190" y="140" fill="#C4CDD8" font-family="JetBrains Mono" font-size="12">cathode (&minus;)</text>
+          <text id="polMsg" x="160" y="16" fill="#34D399" font-family="JetBrains Mono" font-size="12" text-anchor="middle">current flows: LED ON</text>
+        </svg>
+        <div class="btns"><button class="btn" id="flip" type="button">Flip the LED around</button></div>
+      </div>
+      <div class="box b">
+        <h3>Telling the legs apart</h3>
+        <table>
+          <tr><th></th><th>Anode (+)</th><th>Cathode (&minus;)</th></tr>
+          <tr><td><b>Connects to</b></td><td>the higher voltage side (5V)</td><td>the 0V side (GND)</td></tr>
+          <tr><td><b>Real LED</b></td><td>longer leg</td><td>shorter leg, flat edge on the rim</td></tr>
+          <tr><td><b>Tinkercad</b></td><td>bent leg</td><td>straight leg</td></tr>
+        </table>
+        <p style="margin-top:10px">Current can flow from anode to cathode, but a diode blocks it from flowing the other way.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="res">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>What the Resistor Does</h2><span class="for">2.2 Steps 7 + 8, 2.2A Part 3 section 3</span></div>
+    <p class="story">An LED on its own lets current rush through it almost unchecked. The resistor is the speed bump that keeps the flow at a safe level. Ohm's law tells you exactly how much current gets through.</p>
+    <div class="callout" style="background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:20px 24px;margin-bottom:16px;font-family:'Fraunces',serif;font-size:22px;color:#fff">I = V &divide; R <span style="display:block;font-family:Manrope;font-size:15px;color:var(--ink-soft);margin-top:6px">current (amps) = voltage (volts) &divide; resistance (ohms). More resistance = less current.</span></div>
+    <div class="panel">
+      <h3>Try it: resistance <span class="big" id="rOut"></span></h3>
+      <input id="rR" type="range" min="0" max="1000" step="10" value="220" aria-label="Resistance in ohms">
+      <p class="small">A red LED uses about 2V of the 5V, so about 3V is left for the resistor. Current through it &asymp; 3V &divide; R.</p>
+      <div class="big" id="iOut"></div>
+      <p id="iMsg" class="small"></p>
+    </div>
+    <div class="hint-panel">Most LEDs are rated for about <b>20 mA</b> (0.020 amps). Far above that, the LED overheats and burns out. mA means milliamps: thousandths of an amp.</div>
+  </div>
+</section>
+
+<section class="part" id="par">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">05</div><h2>Two LEDs: Series or Parallel?</h2><span class="for">2.2A Part 2 + Part 3 section 2</span></div>
+    <p class="story">In 2.2A, both LEDs get power from the same rails, but each one has its own path from + to &minus;. Click an LED to unplug it and see what happens to the other one.</p>
+    <div class="fig">
+      <svg viewBox="0 0 700 230" role="img" aria-label="Two LED branches in parallel between the + rail and the - rail">
+        <rect x="20" y="20" width="660" height="18" rx="4" fill="rgba(239,68,68,.25)" stroke="#EF4444"/><text x="30" y="34" fill="#FCA5A5" font-family="JetBrains Mono" font-size="12">+ rail (from 5V)</text>
+        <rect x="20" y="192" width="660" height="18" rx="4" fill="rgba(148,163,184,.2)" stroke="#94A3B8"/><text x="30" y="206" fill="#CBD5E1" font-family="JetBrains Mono" font-size="12">&minus; rail (to GND)</text>
+        <g id="brA" style="cursor:pointer">
+          <path d="M220 38 V70" stroke="#FBBF24" stroke-width="3"/><path d="M220 70 l-8 5 l16 8 l-16 8 l16 8 l-16 8 l8 5" fill="none" stroke="#FDD877" stroke-width="3"/>
+          <path d="M220 112 V130" stroke="#FBBF24" stroke-width="3"/><circle cx="220" cy="146" r="16" fill="#EF4444" class="lamp"/><circle cx="220" cy="146" r="28" fill="#EF4444" opacity=".22" class="glow"/>
+          <path d="M220 162 V192" stroke="#94A3B8" stroke-width="3"/><text x="248" y="150" fill="#C4CDD8" font-family="Manrope" font-size="13">red LED (row 10/11)</text>
+        </g>
+        <g id="brB" style="cursor:pointer">
+          <path d="M470 38 V70" stroke="#FBBF24" stroke-width="3"/><path d="M470 70 l-8 5 l16 8 l-16 8 l16 8 l-16 8 l8 5" fill="none" stroke="#FDD877" stroke-width="3"/>
+          <path d="M470 112 V130" stroke="#FBBF24" stroke-width="3"/><circle cx="470" cy="146" r="16" fill="#22C55E" class="lamp"/><circle cx="470" cy="146" r="28" fill="#22C55E" opacity=".22" class="glow"/>
+          <path d="M470 162 V192" stroke="#94A3B8" stroke-width="3"/><text x="498" y="150" fill="#C4CDD8" font-family="Manrope" font-size="13">green LED (row 20/21)</text>
+        </g>
+      </svg>
+    </div>
+    <div class="two">
+      <div class="box b"><h3>Series</h3><p>One single chain: the current goes through one part, then the next. Break the chain anywhere, and <b>everything</b> goes off, like old holiday lights.</p></div>
+      <div class="box a"><h3>Parallel</h3><p>Separate branches, each connecting + to &minus; on its own. Each branch works independently. A rail lets one Arduino pin feed as many branches as you connect to it.</p></div>
+    </div>
+    <div class="hint-panel"><b>Tracing a path:</b> start at the Arduino's 5V pin and follow the wire, rail, resistor, LED leg by leg, until you reach GND. Name each hole and part you pass through, in order.</div>
+  </div>
+</section>
+
+<section class="part" id="faults">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">06</div><h2>The Fault Experiments</h2><span class="for">2.2A Part 4 (and 2.2 Step 8)</span></div>
+    <p class="story">Breaking a circuit on purpose is one of the fastest ways to understand it. In a simulator, you can do it for free. Do each experiment yourself in Tinkercad and write down exactly what you see.</p>
+    <div class="two">
+      <div class="box b">
+        <h3>Experiment A: short circuit</h3>
+        <p>A <b>short circuit</b> is a path with almost no resistance that lets current skip a part. Electricity always takes the easiest path available. If the ground wire lands in the <b>same row</b> as the resistor end, current has a path back to ground that never goes through the LED.</p>
+      </div>
+      <div class="box a">
+        <h3>Experiment B: overcurrent</h3>
+        <p>Replacing the resistor with a plain wire removes the only thing limiting the current (look back at section 04 with R near 0). Watch the LED for a <b>warning symbol</b> and hover your mouse over it to read Tinkercad's message. Then think about which LEDs share that path, and which have their own branch.</p>
+      </div>
+    </div>
+    <div class="warn"><b>Stop the simulation</b> before moving any wire, then start it again to test.</div>
+    <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
+    <div class="quiz" id="quiz"></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>One-way LEDs, a resistor on every one, and a breadboard that is connected in strips.</h2>
+    <p>Every circuit you build for the rest of the year starts with these three rules.</p>
+    <a class="back" href="2-2-tinkercad-setup-and-first-circuit.html">&larr; Back to 2.2</a>
+    <a class="back" href="../index.html">&larr; Embedded Computing</a>
+  </div>
+</footer>
+
+<script>
+window.QUIZ = [
+  { s: "You plug a part into e10 and another into d10. Are they connected?", o: ["Yes, same row, same side of the divider", "No, every hole is separate"], a: 0, e: "a&ndash;e in the same numbered row share one metal strip." },
+  { s: "You plug a part into e10 and another into f10. Are they connected?", o: ["Yes", "No, the center divider separates them"], a: 1, e: "a&ndash;e and f&ndash;j are two different strips." },
+  { s: "In Tinkercad, which LED leg goes toward 5V?", o: ["The bent leg (anode)", "The straight leg (cathode)"], a: 0, e: "The anode connects to the higher voltage side." },
+  { s: "Using I = V &divide; R, what happens to current if you use a bigger resistor?", o: ["Current goes up", "Current goes down"], a: 1, e: "Dividing by a bigger number gives a smaller answer." },
+  { s: "Why does each LED get its own resistor?", o: ["Tinkercad requires it", "So each branch's current is limited separately", "Resistors make LEDs brighter"], a: 1, e: "Every branch you add draws its own current. One resistor per LED keeps each branch safe on its own." }
+];
+
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  /* 02: breadboard */
+  var svg = $("board"), NS = "http://www.w3.org/2000/svg", cols = 20, h = "";
+  var letters = "abcdefghij";
+  h += '<rect x="10" y="10" width="680" height="280" rx="10" fill="#E8E4DA"/>';
+  h += '<rect x="30" y="148" width="640" height="12" rx="3" fill="#CFC9BC"/>';
+  function x(c) { return 70 + c * 30; }
+  var railsY = { tp: 28, tn: 44, bp: 264, bn: 280 };
+  h += '<path d="M40 22 H670" stroke="#EF4444" stroke-width="2"/><path d="M40 50 H670" stroke="#1E293B" stroke-width="2"/><path d="M40 258 H670" stroke="#EF4444" stroke-width="2"/><path d="M40 286 H670" stroke="#1E293B" stroke-width="2"/>';
+  h += '<text x="22" y="32" font-family="JetBrains Mono" font-size="12" fill="#DC2626">+</text><text x="22" y="48" font-family="JetBrains Mono" font-size="12" fill="#1E293B">&minus;</text>';
+  h += '<text x="22" y="268" font-family="JetBrains Mono" font-size="12" fill="#DC2626">+</text><text x="22" y="284" font-family="JetBrains Mono" font-size="12" fill="#1E293B">&minus;</text>';
+  for (var c = 0; c < cols; c++) {
+    h += '<text x="' + x(c) + '" y="70" font-family="JetBrains Mono" font-size="9" fill="#475569" text-anchor="middle">' + (c + 1) + '</text>';
+    ["tp", "tn", "bp", "bn"].forEach(function (r) { h += '<rect class="hole" data-g="' + r + '" data-n="' + r + (c + 1) + '" x="' + (x(c) - 4) + '" y="' + (railsY[r] - 4) + '" width="8" height="8" rx="1"/>'; });
+    for (var r = 0; r < 10; r++) {
+      var y = r < 5 ? 82 + r * 14 : 172 + (r - 5) * 14;
+      h += '<rect class="hole" data-g="' + (c + 1) + (r < 5 ? "L" : "R") + '" data-n="' + letters[r] + (c + 1) + '" x="' + (x(c) - 4) + '" y="' + (y - 4) + '" width="8" height="8" rx="1"/>';
+    }
+  }
+  for (var r2 = 0; r2 < 10; r2++) { var yy = r2 < 5 ? 82 + r2 * 14 : 172 + (r2 - 5) * 14; h += '<text x="46" y="' + (yy + 4) + '" font-family="JetBrains Mono" font-size="9" fill="#475569">' + letters[r2] + '</text>'; }
+  svg.innerHTML = h;
+  svg.addEventListener("click", function (e) {
+    var t = e.target; if (!t.classList.contains("hole")) return;
+    var g = t.getAttribute("data-g"), n = 0;
+    [].forEach.call(svg.querySelectorAll(".hole"), function (o) { o.classList.remove("hit", "pick"); if (o.getAttribute("data-g") === g) { o.classList.add("hit"); n++; } });
+    t.classList.add("pick");
+    var rail = { tp: "top + power rail", tn: "top &minus; ground rail", bp: "bottom + power rail", bn: "bottom &minus; ground rail" }[g];
+    $("bbInfo").innerHTML = rail ? "This hole is on the <b>" + rail + "</b>. All " + n + " holes along it are connected." :
+      "Hole <b>" + t.getAttribute("data-n") + "</b> is connected to the other " + (n - 1) + " holes in row " + parseInt(g, 10) + ", " + (g.slice(-1) === "L" ? "a&ndash;e" : "f&ndash;j") + " only. The other side of the divider is a separate strip.";
+  });
+
+  /* 03: polarity flip */
+  var fwd = true;
+  $("flip").onclick = function () {
+    fwd = !fwd;
+    $("diode").setAttribute("transform", fwd ? "" : "rotate(180 160 101)");
+    $("polGlow").setAttribute("opacity", fwd ? ".22" : "0");
+    $("polTop").textContent = fwd ? "anode (+)" : "cathode (−)";
+    $("polBot").textContent = fwd ? "cathode (−)" : "anode (+)";
+    $("polMsg").textContent = fwd ? "current flows: LED ON" : "blocked: LED OFF (not broken)";
+    $("polMsg").setAttribute("fill", fwd ? "#34D399" : "#FCA5A5");
+  };
+
+  /* 04: Ohm's law */
+  function ohm() {
+    var R = +$("rR").value, I = R ? 3 / R * 1000 : Infinity;
+    $("rOut").textContent = R + " Ω";
+    $("iOut").textContent = isFinite(I) ? "≈ " + I.toFixed(1) + " mA" : "no limit at all";
+    $("iMsg").textContent = !isFinite(I) || I > 40 ? "Way over the LED's limit: it would overheat and burn out." : I > 20 ? "Above the usual 20 mA rating: bright, but shortening the LED's life." : I < 2 ? "Very little current: the LED may barely glow." : "A safe amount of current for a standard LED.";
+    $("iMsg").style.color = !isFinite(I) || I > 20 ? "#FCA5A5" : "#34D399";
+  }
+  $("rR").oninput = ohm; ohm();
+
+  /* 05: parallel branches */
+  ["brA", "brB"].forEach(function (id) {
+    var on = true, g = $(id);
+    g.onclick = function () { on = !on; g.style.opacity = on ? 1 : .25; g.querySelector(".glow").setAttribute("opacity", on ? ".22" : "0"); };
+  });
+})();
+</script>
+<script src="notes.js"></script>
+</body>
+</html>

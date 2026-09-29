@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PWM: Controlling Brightness | Embedded Computing Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<link rel="stylesheet" href="notes.css">
+<style>.pinbtn{font-family:"JetBrains Mono",monospace;font-size:13px;width:44px;height:36px;border-radius:5px;border:1px solid var(--rule);background:#0E131B;color:#fff;cursor:pointer}
+.pinbtn.pwm{border-color:var(--hi)} .pinbtn.sel{background:var(--acc);color:#05070B}</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Embedded Computing</a>
+  <a href="2-5-pwm-controlling-brightness.html">2.5 Lesson Page</a>
+  <a href="2-5-notes.html" class="current">Notes</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lesson 2.5</div>
+    <h1>PWM: Controlling Brightness</h1>
+    <p class="deck">Everything you need for the 2.5 assignment: what PWM really is, why your LED moves to pin 9, how analogWrite() works, and how to explain PWM in your two cartoons.</p>
+    <div class="map">
+      <a href="#what">01 <span>What PWM is</span></a>
+      <a href="#pins">02 <span>The ~ pins</span></a>
+      <a href="#aw">03 <span>analogWrite() (Part 1)</span></a>
+      <a href="#cartoon">04 <span>Your two cartoons (Part 2)</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="part" id="what">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>What PWM Actually Is</h2><span class="for">Intro + Part 2</span></div>
+    <p class="story">A digital pin has no "halfway" setting. It is fully on (5V) or fully off (0V), period. So how do you make an LED look half as bright? You cheat: flip it on and off hundreds of times a second, faster than your eyes can follow, and let your brain average it out.</p>
+    <div class="two">
+      <div class="box b"><h3>Pulse Width Modulation</h3><p><b>Pulse</b>: each quick burst of "on." <b>Width</b>: how long each burst lasts. <b>Modulation</b>: changing it. So PWM means changing how long the pin stays on in each quick cycle.</p></div>
+      <div class="box a"><h3>Duty cycle</h3><p>The percent of each cycle the pin is <b>on</b>. 0% = always off. 100% = always on. 50% = on half the time, which your eyes see as about half brightness.</p></div>
+    </div>
+    <div class="panel">
+      <h3>Try it: analogWrite value <span class="big" id="vOut"></span></h3>
+      <input id="vR" type="range" min="0" max="255" value="128" aria-label="analogWrite value">
+      <div class="two" style="align-items:center">
+        <svg id="wave" viewBox="0 0 420 140" role="img" aria-label="Square wave showing on time and off time"></svg>
+        <div style="text-align:center">
+          <svg viewBox="0 0 120 120" width="120" role="img" aria-label="LED brightness"><circle id="glow" cx="60" cy="56" r="46" fill="#EF4444" opacity=".3"/><circle id="led" cx="60" cy="56" r="24" fill="#EF4444"/><path d="M50 82 v34 M70 82 v28" stroke="#94A3B8" stroke-width="4"/></svg>
+          <div class="small" id="dOut"></div>
+          <div class="btns"><button class="btn" id="slow" type="button">Slow motion: see the flicker</button></div>
+        </div>
+      </div>
+    </div>
+    <p class="cap">Slow motion shows what's really happening: the LED is only ever fully on or fully off. At normal speed, it switches about 490 times a second on pin 9.</p>
+  </div>
+</section>
+
+<section class="part" id="pins">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Why Your LED Moves to Pin 9</h2><span class="for">Part 1 Step 1</span></div>
+    <p class="story">Only some pins have the hardware to do the fast switching. On the Uno they're marked with a little squiggle (~) next to the number. Your LED has been on pin 8 since 2.3, and pin 8 isn't one of them. Click a pin to check it.</p>
+    <div class="panel">
+      <div class="btns" id="pinRow" style="justify-content:flex-start"></div>
+      <p id="pinMsg" style="margin-top:12px"></p>
+    </div>
+    <div class="warn"><b>Before you write any code,</b> move your LED's wire from pin 8 to <b>pin 9</b>. Any ~ pin would work, but pin 9 matches the example. On a pin without ~, analogWrite() can't dim: the LED just snaps fully on or fully off.</div>
+  </div>
+</section>
+
+<section class="part" id="aw">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>analogWrite(): Part 1 Code</h2><span class="for">Part 1 Steps 2&ndash;7</span></div>
+    <p class="story">analogWrite() looks like digitalWrite(), but instead of HIGH or LOW you give it a number from 0 to 255. 0 means off, 255 means full brightness, and 128 is about half.</p>
+    <div class="code"><span class="kw">int</span> ledPin = <span class="n">9</span>;              <span class="cm">// changed from 8: pin 9 is a PWM (~) pin</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(ledPin, OUTPUT);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="fn">analogWrite</span>(ledPin, <span class="n">50</span>);   <span class="cm">// dim</span>
+  <span class="fn">delay</span>(<span class="n">1000</span>);
+  <span class="fn">analogWrite</span>(ledPin, <span class="n">150</span>);  <span class="cm">// medium</span>
+  <span class="fn">delay</span>(<span class="n">1000</span>);
+  <span class="fn">analogWrite</span>(ledPin, <span class="n">255</span>);  <span class="cm">// full brightness</span>
+  <span class="fn">delay</span>(<span class="n">1000</span>);
+}</div>
+    <div class="panel">
+      <h3>Preview your own three numbers (Step 4)</h3>
+      <div class="calc">
+        <div><input id="n1" type="number" min="0" max="255" value="50" class="numIn" aria-label="first brightness"></div>
+        <div><input id="n2" type="number" min="0" max="255" value="150" class="numIn" aria-label="second brightness"></div>
+        <div><input id="n3" type="number" min="0" max="255" value="255" class="numIn" aria-label="third brightness"></div>
+      </div>
+      <div class="btns" id="prev3"></div>
+    </div>
+    <div class="hint-panel"><b>Explaining each line (Step 5):</b> for every line, say what it tells the Arduino to do and why it's there. Example: <code>delay(1000);</code> pauses for 1000 milliseconds so you have time to see that brightness level before the next one.</div>
+  </div>
+</section>
+
+<section class="part" id="cartoon">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Planning Your Two Cartoons</h2><span class="for">Part 2</span></div>
+    <p class="story">Same idea, two audiences. A good cartoon picks one clear comparison and shows it happening, instead of filling the panels with text.</p>
+    <div class="two">
+      <div class="box b">
+        <h3>Middle schooler (3 cells)</h3>
+        <ul>
+          <li>Comparisons they know: flicking a light switch super fast, a flipbook, a fan blade that looks solid when it spins.</li>
+          <li>Show the three ideas: the light can only be on or off, it switches too fast to see, and more "on" time looks brighter.</li>
+          <li>Simple words. Define PWM once, in plain language.</li>
+        </ul>
+      </div>
+      <div class="box a">
+        <h3>Computer science college student</h3>
+        <ul>
+          <li>Use the real terms: <b>duty cycle</b>, <b>frequency</b> (about 490 Hz on pin 9), <b>8-bit resolution</b> (0&ndash;255, so 256 levels).</li>
+          <li><b>Average voltage</b>: 50% duty cycle averages to about 2.5V.</li>
+          <li>Why it looks smooth: the switching is faster than the eye's <b>persistence of vision</b>.</li>
+          <li>It's still a digital signal, not true analog output, even though the function is called analogWrite().</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hint-panel"><b>Assignment requirements:</b> any program or hand-drawn, in color, interesting, correct, and complete.</div>
+    <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
+    <div class="quiz" id="quiz"></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>An LED is never half on. It's on and off so fast your eyes average it out.</h2>
+    <p>That trick, on a ~ pin with a number from 0 to 255, is all PWM is.</p>
+    <a class="back" href="2-5-pwm-controlling-brightness.html">&larr; Back to 2.5</a>
+    <a class="back" href="../index.html">&larr; Embedded Computing</a>
+  </div>
+</footer>
+
+<script>
+window.QUIZ = [
+  { s: "analogWrite(ledPin, 0) makes the LED...", o: ["Off", "Half brightness", "Full brightness"], a: 0, e: "0 = 0% duty cycle: never on." },
+  { s: "Which of these is a PWM pin on the Uno?", o: ["8", "9", "13"], a: 1, e: "The ~ pins are 3, 5, 6, 9, 10, 11." },
+  { s: "About what duty cycle is analogWrite(ledPin, 128)?", o: ["about 25%", "about 50%", "about 100%"], a: 1, e: "128 is about half of 255." },
+  { s: "During PWM, the pin's voltage is...", o: ["A steady 2.5V", "Switching between 0V and 5V very fast"], a: 1, e: "It's still digital: fully on or fully off, just very fast." }
+];
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  var slow = false, ph = 0, timer;
+  function draw() {
+    var v = +$("vR").value, d = v / 255, s = "", x = 20, per = 95;
+    for (var k = 0; k < 4; k++) { var w = per * d; s += (k ? "" : "M" + x + " 110 ") + (w > 0 ? "V30 H" + (x + w) + " V110 " : "") + "H" + (x + per) + " "; x += per; }
+    $("wave").innerHTML = '<text x="0" y="34" fill="#FDD877" font-family="JetBrains Mono" font-size="11">5V</text><text x="0" y="114" fill="#BFDBFE" font-family="JetBrains Mono" font-size="11">0V</text><path d="' + s + '" fill="none" stroke="#5FD8DF" stroke-width="3"/><path d="M20 ' + (110 - 80 * d) + ' H400" stroke="#FDD877" stroke-dasharray="5 5"/><text x="400" y="' + (104 - 80 * d) + '" fill="#FDD877" font-family="JetBrains Mono" font-size="10" text-anchor="end">average &asymp; ' + (5 * d).toFixed(1) + 'V</text>';
+    $("vOut").textContent = v;
+    $("dOut").textContent = "duty cycle ≈ " + Math.round(d * 100) + "%";
+    if (!slow) { $("led").setAttribute("opacity", Math.max(.08, d)); $("glow").setAttribute("opacity", .35 * d); }
+  }
+  function flick() {
+    var d = +$("vR").value / 255; ph = (ph + 1) % 20; var on = ph < Math.round(d * 20);
+    $("led").setAttribute("opacity", on ? 1 : .08); $("glow").setAttribute("opacity", on ? .35 : 0);
+  }
+  $("vR").oninput = draw;
+  $("slow").onclick = function () { slow = !slow; this.classList.toggle("on", slow); clearInterval(timer); if (slow) timer = setInterval(flick, 60); draw(); };
+  draw();
+  var PWM = [3, 5, 6, 9, 10, 11];
+  for (var p = 2; p <= 13; p++) (function (p) {
+    var b = document.createElement("button"); b.type = "button"; b.className = "pinbtn" + (PWM.indexOf(p) > -1 ? " pwm" : ""); b.textContent = (PWM.indexOf(p) > -1 ? "~" : "") + p;
+    b.onclick = function () {
+      [].forEach.call($("pinRow").children, function (x) { x.classList.remove("sel"); }); b.classList.add("sel");
+      $("pinMsg").innerHTML = PWM.indexOf(p) > -1 ? "<b style='color:#34D399'>Pin " + p + " can do PWM.</b> analogWrite() will dim an LED here." : "<b style='color:#FCA5A5'>Pin " + p + " can't do PWM.</b> It's only fully on or fully off.";
+    };
+    $("pinRow").appendChild(b);
+  })(p);
+  function prev3() {
+    $("prev3").innerHTML = ["n1", "n2", "n3"].map(function (id) { var v = Math.max(0, Math.min(255, +$(id).value || 0)); return '<svg viewBox="0 0 80 90" width="80"><circle cx="40" cy="36" r="30" fill="#EF4444" opacity="' + (.35 * v / 255) + '"/><circle cx="40" cy="36" r="16" fill="#EF4444" opacity="' + Math.max(.08, v / 255) + '"/><text x="40" y="84" fill="#C4CDD8" font-family="JetBrains Mono" font-size="12" text-anchor="middle">' + v + '</text></svg>'; }).join("");
+  }
+  ["n1", "n2", "n3"].forEach(function (id) { $(id).oninput = prev3; }); prev3();
+})();
+</script>
+<script src="notes.js"></script>
+</body>
+</html>

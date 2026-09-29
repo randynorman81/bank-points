@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit Build: Morse Code Flasher | Embedded Computing Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<link rel="stylesheet" href="notes.css">
+<style>
+.morse{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.mc{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:8px 10px;font-family:"JetBrains Mono",monospace}
+.mc b{color:#fff;font-size:16px;margin-right:8px} .mc span{color:var(--hi-ink);letter-spacing:2px}
+#wordIn{width:100%;background:#0E131B;border:1px solid var(--rule);color:#fff;border-radius:5px;padding:10px 12px;font:600 18px "JetBrains Mono",monospace;text-transform:uppercase}
+.pat{font-family:"JetBrains Mono",monospace;font-size:15px;color:#C4CDD8;line-height:2;word-break:break-word}
+.pat .cur{background:var(--hi-tint);color:#fff;border-radius:3px}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Embedded Computing</a>
+  <a href="2-9-unit-build-traffic-light.html">2.9 Lesson Page</a>
+  <a href="2-9-notes.html" class="current">Notes</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lesson 2.9 &nbsp;/&nbsp; Unit Build</div>
+    <h1>Unit Build: 7+ Letter Word Morse Code Flasher</h1>
+    <p class="deck">Notes for each stage of the 2.9 build. Like the assignment, these notes won't give you the code: they give you the Morse facts, the timing rules, and the questions to plan with. Writing the code is your part.</p>
+    <div class="map">
+      <a href="#s1">Stage 1 <span>Word + Morse</span></a>
+      <a href="#s2">Stage 2 <span>Timing</span></a>
+      <a href="#s3">Stage 3 <span>Circuit</span></a>
+      <a href="#s4">Stages 4&ndash;5 <span>Variables + setup()</span></a>
+      <a href="#s6">Stage 6 <span>loop()</span></a>
+      <a href="#req">Requirements + turn in</a>
+    </div>
+  </div>
+</header>
+
+<section class="part" id="s1">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">Stage 1</div><h2>Your Word and Its Morse Code</h2></div>
+    <p class="story">Morse code was sent by telegraph and flashlight long before anyone had a screen: every letter is a short pattern of dots (short flashes) and dashes (long flashes). Pick a real word, at least 7 letters, and write its whole pattern on paper before you touch code.</p>
+    <div class="morse" id="table"></div>
+    <p class="cap">International Morse code. Check each of your letters against it; don't guess.</p>
+  </div>
+</section>
+
+<section class="part" id="s2">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">Stage 2</div><h2>Planning Your Timing</h2></div>
+    <p class="story">All of Morse timing is built from one basic unit of time. A dot is 1 unit, and a dash is always exactly 3 units. The gaps are what let a viewer tell where one symbol, one letter, and one word ends.</p>
+    <div class="tblwrap">
+      <table>
+        <tr><th>Piece</th><th>LED</th><th>Standard Morse length</th><th>Your job</th></tr>
+        <tr><td><b>Dot</b></td><td>ON</td><td>1 unit</td><td>Required: 1 unit</td></tr>
+        <tr><td><b>Dash</b></td><td>ON</td><td>3 units</td><td>Required: exactly 3&times; a dot</td></tr>
+        <tr><td><b>Gap between symbols</b> (inside one letter)</td><td>OFF</td><td>1 unit</td><td>You decide: the shortest gap</td></tr>
+        <tr><td><b>Gap between letters</b></td><td>OFF</td><td>3 units</td><td>You decide: clearly longer than the symbol gap</td></tr>
+        <tr><td><b>Gap before the word repeats</b></td><td>OFF</td><td>7 units</td><td>You decide: the longest gap</td></tr>
+      </table>
+    </div>
+    <div class="panel">
+      <h3>Try a unit length: <span class="big" id="uOut"></span></h3>
+      <input id="uR" type="range" min="100" max="800" step="25" value="300" aria-label="unit length in milliseconds">
+      <p class="small">Long enough that a person watching could comfortably count along. Everything else scales from this one number.</p>
+      <div class="out" id="uCalc"></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="try">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">Test it</div><h2>Watch Your Word Flash</h2><span class="for">Stages 1, 2, 6 + Requirement 7</span></div>
+    <p class="story">Type your word to check your paper plan against real Morse and see whether your timing is readable. Then have a partner watch it and try to decode it without seeing the letters: that's exactly what Requirement 7 asks.</p>
+    <div class="sim">
+      <div>
+        <input id="wordIn" value="ARDUINO" maxlength="14" aria-label="Your word">
+        <p class="small" id="wMsg" style="margin-top:6px"></p>
+        <div class="pat" id="pat"></div>
+        <label class="small" style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="hide"> Hide the letters (for your partner)</label>
+      </div>
+      <div class="stage">
+        <svg viewBox="0 0 160 150" width="150" role="img" aria-label="Flashing LED"><circle id="mGlow" cx="80" cy="62" r="46" fill="#EF4444" opacity="0"/><path id="mLed" d="M56 62 a24 24 0 0 1 48 0 v34 h-48 z" fill="#4B1D1D" stroke="#7F1D1D" stroke-width="2"/><rect x="52" y="96" width="56" height="8" rx="2" fill="#475569"/><path d="M68 104 v40 M92 104 v32" stroke="#94A3B8" stroke-width="4"/></svg>
+        <div class="state" id="mState">stopped</div>
+        <div class="btns"><button class="btn on" id="mPlay" type="button">&#9654; Flash it</button></div>
+      </div>
+    </div>
+    <div class="fig" style="margin-top:14px"><svg id="tl" viewBox="0 0 700 90" role="img" aria-label="Timeline of on and off times for the first letters"></svg><p class="cap">Timeline of the first letters: tall = LED on, flat = off. Symbol gaps are short; letter gaps are longer.</p></div>
+  </div>
+</section>
+
+<section class="part" id="s3">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">Stage 3</div><h2>Your Circuit</h2></div>
+    <p class="story">This is a single-LED circuit, the same kind you've built since 2.3. The questions in the assignment are about remembering why it's built that way.</p>
+    <div class="two">
+      <div class="box b"><h3>Keeping one LED safe</h3><p>Look back at 2.2 (what the resistor does) and 2.7 (Ohm's law and pin limits). What part must be in line with the LED, and what would happen without it? Which leg goes toward the pin?</p></div>
+      <div class="box a"><h3>Which pin?</h3><p>PWM (~) pins are only needed for <code>analogWrite()</code> dimming (2.5). Morse is only fully on or fully off. Which command will you actually use, and does it need a ~ pin?</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="s4">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">Stages 4&ndash;5</div><h2>Variables and setup()</h2></div>
+    <p class="story">In 2.4 and 2.6 you saw why timings belong in variables: change one number at the top, and the whole program changes with it. A Morse program has a lot of on/off timings, so this matters even more here.</p>
+    <div class="two">
+      <div class="box b"><h3>Planning your variables</h3><ul><li>Which value will you want to adjust later without hunting through the whole program?</li><li>One timing variable, or several (a dot, a dash, each kind of gap)? If you use several, how could they all be based on the one unit?</li><li>Which data type fits a number of milliseconds? (2.4)</li><li>Requirement 5: at least one timing variable, with a comment explaining it.</li></ul></div>
+      <div class="box a"><h3>setup()</h3><p>What does your one pin need before your program can use it at all? You've written this line in every lesson since 2.3.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="s6">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">Stage 6</div><h2>loop(): Flashing the Whole Word</h2></div>
+    <p class="story">Every dot and every dash is the same three-step idea you've used all unit: turn the LED on, wait, turn it off. The only thing that changes is how long you wait, and how long you pause afterward.</p>
+    <div class="tblwrap">
+      <table>
+        <tr><th>Step</th><th>What your code needs to do</th></tr>
+        <tr><td><b>1. Each symbol</b></td><td>LED on, wait the right on-time (dot or dash), LED off.</td></tr>
+        <tr><td><b>2. Inside a letter</b></td><td>Between symbols of the same letter, pause the shorter gap.</td></tr>
+        <tr><td><b>3. Between letters</b></td><td>After a letter's last symbol, pause the longer letter gap.</td></tr>
+        <tr><td><b>4. End of the word</b></td><td>Pause the longest gap. loop() then starts the word over automatically (Requirement 4).</td></tr>
+      </table>
+    </div>
+    <div class="hint-panel"><b>Staying organized:</b> write one comment line above each letter's group of lines, like <code>// letter A: dot dash</code>, and a comment on every line (Requirement 6). Build and test one letter at a time instead of the whole word at once.</div>
+    <div class="warn"><b>This is not a day to have AI write your code.</b> Using it to understand a specific error message is fine; having it write your solution defeats the point of the unit build.</div>
+  </div>
+</section>
+
+<section class="part" id="req">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">Check</div><h2>Requirements and Turning It In</h2></div>
+    <p class="story">Check every box before you record. Your partner test (number 7) is the real proof it works.</p>
+    <div class="panel" id="checks"></div>
+    <div class="two" style="margin-top:14px">
+      <div class="box b"><h3>Where to turn it in</h3><ul><li>Take a <b>video screencast</b> of your code (and your LED flashing) and add the <b>link</b> to the Google Classroom assignment.</li><li>Paste a <b>screenshot</b> of your Arduino setup in the doc.</li><li>Write your word in <b>bold</b> in the doc.</li></ul></div>
+      <div class="box a"><h3>Skills from the whole unit</h3><p>digitalWrite + delay (2.3), variables and data types (2.4), timing and sequences (2.6), and safe wiring (2.2 + 2.7).</p></div>
+    </div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>On, wait, off, pause, hundreds of times, in exactly the right order.</h2>
+    <p>If a partner can read your word from the LED alone, you've built a working communication device.</p>
+    <a class="back" href="2-9-unit-build-traffic-light.html">&larr; Back to 2.9</a>
+    <a class="back" href="../index.html">&larr; Embedded Computing</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  var M = { A: ".-", B: "-...", C: "-.-.", D: "-..", E: ".", F: "..-.", G: "--.", H: "....", I: "..", J: ".---", K: "-.-", L: ".-..", M: "--", N: "-.", O: "---", P: ".--.", Q: "--.-", R: ".-.", S: "...", T: "-", U: "..-", V: "...-", W: ".--", X: "-..-", Y: "-.--", Z: "--.." };
+  function sym(p) { return p.replace(/\./g, "•").replace(/-/g, "—"); }
+  $("table").innerHTML = Object.keys(M).map(function (k) { return '<div class="mc"><b>' + k + "</b><span>" + sym(M[k]) + "</span></div>"; }).join("");
+  var unit = 300;
+  function calc() {
+    unit = +$("uR").value; $("uOut").textContent = unit + " ms";
+    $("uCalc").innerHTML = "dot " + unit + " &middot; dash " + unit * 3 + " &middot; symbol gap " + unit + " &middot; letter gap " + unit * 3 + " &middot; word gap " + unit * 7 + " (ms, standard ratios)";
+    drawTL();
+  }
+  function word() { return ($("wordIn").value || "").toUpperCase().replace(/[^A-Z]/g, ""); }
+  function plan() { // list of {on, ms, li}
+    var w = word(), out = [];
+    w.split("").forEach(function (ch, li) {
+      M[ch].split("").forEach(function (s, si, arr) {
+        out.push({ on: 1, ms: s === "." ? unit : unit * 3, li: li });
+        out.push({ on: 0, ms: si < arr.length - 1 ? unit : (li < w.length - 1 ? unit * 3 : unit * 7), li: li });
+      });
+    });
+    return out;
+  }
+  function showPat(cur) {
+    var w = word(), hide = $("hide").checked;
+    $("pat").innerHTML = w.split("").map(function (ch, i) { return '<span class="' + (i === cur ? "cur" : "") + '">' + (hide ? "?" : ch) + " " + sym(M[ch]) + "</span>"; }).join(" &nbsp;/&nbsp; ");
+    var n = w.length;
+    $("wMsg").innerHTML = n >= 7 ? "<b style='color:#34D399'>" + n + " letters: long enough.</b>" : "<b style='color:#FCA5A5'>" + n + " letters: the word needs at least 7.</b>";
+  }
+  function drawTL() {
+    var p = plan().slice(0, 40), total = p.reduce(function (a, b) { return a + b.ms; }, 0) || 1, x = 10, d = "M10 70 ", sc = 680 / total;
+    p.forEach(function (s) { var w = s.ms * sc; d += s.on ? "V20 H" + (x + w).toFixed(1) + " V70 " : "H" + (x + w).toFixed(1) + " "; x += w; });
+    $("tl").innerHTML = '<path d="' + d + '" fill="none" stroke="#5FD8DF" stroke-width="3"/>';
+  }
+  var T = null, run = false;
+  function stop() { run = false; clearTimeout(T); $("mPlay").innerHTML = "&#9654; Flash it"; $("mPlay").classList.add("on"); led(0); $("mState").textContent = "stopped"; showPat(-1); }
+  function led(on) { $("mLed").setAttribute("fill", on ? "#EF4444" : "#4B1D1D"); $("mGlow").setAttribute("opacity", on ? ".32" : "0"); }
+  $("mPlay").onclick = function () {
+    if (run) { stop(); return; }
+    var p = plan(); if (!p.length) return;
+    run = true; this.innerHTML = "&#9632; Stop"; this.classList.remove("on");
+    var i = 0;
+    (function nx() { if (!run) return; var s = p[i]; led(s.on); showPat(s.li); $("mState").textContent = s.on ? (s.ms === unit ? "dot" : "dash") : "gap " + s.ms + " ms"; T = setTimeout(function () { i = (i + 1) % p.length; nx(); }, s.ms); })();
+  };
+  $("uR").oninput = calc; $("wordIn").oninput = function () { stop(); drawTL(); };
+  $("hide").onchange = function () { showPat(-1); };
+  calc(); showPat(-1);
+  var R = ["My word is a real word, at least 7 letters long.", "Every letter's Morse pattern is accurate (checked, not guessed).", "The gap inside a letter is clearly shorter than the gap between letters.", "The whole word repeats on its own, forever.", "At least 1 timing variable, with a comment explaining it.", "Every line of my code is commented.", "A partner who didn't know my word decoded it from the LED."];
+  $("checks").innerHTML = R.map(function (t, i) { return '<label style="display:flex;gap:10px;align-items:flex-start;margin:6px 0;font-size:15px;color:#C4CDD8;cursor:pointer"><input type="checkbox"> <span><b>' + (i + 1) + ".</b> " + t + "</span></label>"; }).join("");
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interpreted vs. Compiled | Embedded Computing Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<link rel="stylesheet" href="notes.css">
+<style>
+.race{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.lane{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:16px}
+.lane h3{font-size:17px;color:#fff;margin-bottom:8px}
+.src{font-family:"JetBrains Mono",monospace;font-size:13px}
+.src div{padding:3px 8px;border-left:3px solid transparent;color:#C4CDD8}
+.src div.tr{border-left-color:var(--hi);background:rgba(251,191,36,.10)}
+.src div.ok{border-left-color:var(--ok);color:#A7F3D0}
+.src div.err{border-left-color:var(--red);background:var(--red-tint);color:#FCA5A5}
+.log{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);margin-top:10px;min-height:3.2em}
+@media (max-width:820px){.race{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Embedded Computing</a>
+  <a href="2-8-interpreted-vs-compiled.html">2.8 Lesson Page</a>
+  <a href="2-8-notes.html" class="current">Notes</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lesson 2.8</div>
+    <h1>Interpreted vs. Compiled</h1>
+    <p class="deck">Everything you need for the 2.8 podcast: Python (interpreted) vs. Arduino C++ (compiled), what really happens when you click Upload, how the two languages compare on every question, and what your podcast must include.</p>
+    <div class="map">
+      <a href="#idea">01 <span>The translation idea</span></a>
+      <a href="#race">02 <span>Watch them run</span></a>
+      <a href="#upload">03 <span>What Upload does</span></a>
+      <a href="#compare">04 <span>Python vs. C++ questions</span></a>
+      <a href="#pod">05 <span>Podcast requirements</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="part" id="idea">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>The Translation Idea</h2></div>
+    <p class="story">You have a book written in French and you want it in English. You can have a friend translate it out loud, one sentence at a time, while you listen. Or you can translate the whole book first, cover to cover, and then read it straight through. That's the entire difference.</p>
+    <div class="two">
+      <div class="box b"><h3>Interpreted (Python)</h3><p>An <b>interpreter</b> reads and runs your code <b>line by line</b>, translating each line right when it's needed, every time the program runs. Like the friend reading aloud.</p></div>
+      <div class="box a"><h3>Compiled (Arduino C++)</h3><p>A <b>compiler</b> translates the <b>whole program</b> into machine code <b>before</b> it runs. The finished machine code then runs fast, with no translating left to do. Like translating the whole book first.</p></div>
+    </div>
+    <div class="hint-panel"><b>Why Arduino is compiled:</b> an Arduino has a tiny amount of memory and no operating system helping it out. Translating ahead of time means the program on the board is small and fast, and it never wastes time or memory translating while it's supposed to be doing its real job.</div>
+  </div>
+</section>
+
+<section class="part" id="race">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Watch Them Run</h2></div>
+    <p class="story">Same 5-line program, two ways of running it. Press Run and watch when the translating happens. Then turn on the typo and run again: pay attention to <b>when</b> each one finds the mistake.</p>
+    <div class="btns" style="justify-content:flex-start;margin-bottom:12px"><button class="btn on" id="go" type="button">&#9654; Run both</button><button class="btn" id="typo" type="button">Add a typo on line 4</button></div>
+    <div class="race">
+      <div class="lane"><h3>Interpreter (Python)</h3><div class="src" id="srcI"></div><div class="log" id="logI">waiting</div></div>
+      <div class="lane"><h3>Compiler (Arduino C++)</h3><div class="src" id="srcC"></div><div class="log" id="logC">waiting</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="upload">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>What Happens When You Click Upload</h2><span class="for">Asked for both languages</span></div>
+    <p class="story">Upload feels like one button, but it does two separate jobs, one right after the other.</p>
+    <div class="fig">
+      <svg viewBox="0 0 700 150" role="img" aria-label="Your sketch goes through the compiler, which checks for errors and makes machine code, then the machine code is uploaded over USB to the board, which runs it">
+        <g font-family="JetBrains Mono" font-size="12" text-anchor="middle">
+          <rect x="10" y="40" width="130" height="70" rx="8" fill="#151A24" stroke="#5FD8DF"/><text x="75" y="70" fill="#fff">your sketch</text><text x="75" y="90" fill="#8B9AAE">(C++ text)</text>
+          <rect x="190" y="40" width="150" height="70" rx="8" fill="#151A24" stroke="#FBBF24"/><text x="265" y="68" fill="#FDD877">1. COMPILE</text><text x="265" y="88" fill="#8B9AAE">check errors,</text><text x="265" y="102" fill="#8B9AAE">make machine code</text>
+          <rect x="390" y="40" width="130" height="70" rx="8" fill="#151A24" stroke="#60A5FA"/><text x="455" y="68" fill="#BFDBFE">2. UPLOAD</text><text x="455" y="90" fill="#8B9AAE">over USB</text>
+          <rect x="570" y="40" width="120" height="70" rx="8" fill="#00878F"/><text x="630" y="70" fill="#fff">board runs</text><text x="630" y="90" fill="#fff">machine code</text>
+        </g>
+        <g stroke="#8B9AAE" stroke-width="2" fill="#8B9AAE"><path d="M140 75 H184"/><path d="M184 75 l-8 -5 v10z"/><path d="M340 75 H384"/><path d="M384 75 l-8 -5 v10z"/><path d="M520 75 H564"/><path d="M564 75 l-8 -5 v10z"/></g>
+        <text x="265" y="136" fill="#FCA5A5" font-family="Manrope" font-size="13" text-anchor="middle">typos and missing semicolons are caught here</text>
+      </svg>
+    </div>
+    <div class="hint-panel">Almost every "my code won't work" moment this unit happened at step 1 (compiling), not step 2 (uploading). Python has no separate compile step you run: when you run a Python program, the interpreter starts reading and running it right away.</div>
+  </div>
+</section>
+
+<section class="part" id="compare">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Python vs. C++: the Podcast Questions</h2><span class="for">Both question lists</span></div>
+    <p class="story">Both question lists ask the same things about each language. Click a question to see how the two compare. Your job in the podcast is to explain these in your own words, with real-world examples.</p>
+    <div class="chips" id="qChips"></div>
+    <div class="two" id="qBox"></div>
+    <div class="warn"><b>One typo in the C++ list:</b> it asks "what makes C++ an interpreted language." C++ is the <b>compiled</b> one, so explain what makes it compiled.</div>
+  </div>
+</section>
+
+<section class="part" id="pod">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">05</div><h2>Podcast Requirements</h2></div>
+    <p class="story">This one is worth 800 points and you get one shot: no Bank Points can be added. Plan it like a real show.</p>
+    <div class="tblwrap">
+      <table>
+        <tr><th>Requirement</th><th>Details</th></tr>
+        <tr><td><b>Roles</b></td><td>With a partner: one speaks for <b>Python</b> (interpreted), the other for <b>Arduino C++</b> (compiled).</td></tr>
+        <tr><td><b>Length</b></td><td>At least <b>5 minutes per language</b>; probably closer to 10 minutes per person.</td></tr>
+        <tr><td><b>Style</b></td><td>A real conversation, not a list of answers read one by one. Scripted and polished: no "um," "huh," or "like."</td></tr>
+        <tr><td><b>Examples</b></td><td>Real-world examples of how each language is used in society.</td></tr>
+        <tr><td><b>Upload</b></td><td>Upload the audio to YouTube as an <b>unlisted</b> video.</td></tr>
+        <tr><td><b>Turn in</b></td><td>One Google Classroom submission: the <b>YouTube link</b> plus your <b>word-for-word transcript</b> Google Doc. A missing transcript is <b>&minus;400 points</b>.</td></tr>
+      </table>
+    </div>
+    <div class="two" style="margin-top:14px">
+      <div class="box b"><h3>Uploading as unlisted</h3><ol><li>YouTube only takes video files, so turn your audio into a video (for example, add a still image in a video editor or use a slideshow tool).</li><li>In YouTube, click <b>Create</b> &gt; <b>Upload video</b> and choose the file.</li><li>On the <b>Visibility</b> step, choose <b>Unlisted</b>. Only people with the link can watch.</li><li>Copy the link and paste it in Google Classroom. Stuck? Come see Mr. Norman.</li></ol></div>
+      <div class="box a"><h3>Writing a script that sounds natural</h3><ul><li>Open with a hook: why should anyone care how code is translated?</li><li>Take turns. Let the other person react and ask questions.</li><li>Use the book-translation comparison, then go deeper.</li><li>Cover every question on your list; check them off as you write.</li><li>Read it out loud and time it before you record.</li></ul></div>
+    </div>
+    <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
+    <div class="quiz" id="quiz"></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Translate as you go, or translate it all first.</h2>
+    <p>Python chose flexibility and quick changes. Arduino C++ chose speed and a small footprint on a tiny chip. Your podcast explains why each choice makes sense.</p>
+    <a class="back" href="2-8-interpreted-vs-compiled.html">&larr; Back to 2.8</a>
+    <a class="back" href="../index.html">&larr; Embedded Computing</a>
+  </div>
+</footer>
+
+<script>
+window.QUIZ = [
+  { s: "Which one translates the whole program before it runs?", o: ["Interpreter", "Compiler"], a: 1, e: "A compiler turns everything into machine code first." },
+  { s: "When you click Upload, what happens first?", o: ["The code is sent over USB", "The code is compiled and checked for errors"], a: 1, e: "Compile first, then upload the finished machine code." },
+  { s: "A missing semicolon in your Arduino sketch is caught...", o: ["While compiling, before anything reaches the board", "Only when the board runs that line"], a: 0, e: "The compiler checks the whole sketch before uploading." },
+  { s: "In which language do you write the type, like <code>int x = 5;</code>?", o: ["Python", "C++"], a: 1, e: "C++ is statically typed. Python figures out the type on its own: x = 5." }
+];
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  /* 02: race */
+  var PY = ["x = 5", "y = 10", "total = x + y", "print(totl)", "print(\"done\")"], CPP = ["int x = 5;", "int y = 10;", "int total = x + y;", "Serial.println(totl);", "Serial.println(\"done\");"];
+  var typo = false, T = [];
+  function lines(id, arr) { $(id).innerHTML = arr.map(function (t, i) { return "<div>" + (i + 1) + "  " + (typo || i !== 3 ? t : t.replace("totl", "total")) + "</div>"; }).join(""); }
+  function reset() { T.forEach(clearTimeout); T = []; lines("srcI", PY); lines("srcC", CPP); $("logI").textContent = "waiting"; $("logC").textContent = "waiting"; }
+  $("typo").onclick = function () { typo = !typo; this.classList.toggle("on", typo); this.textContent = typo ? "Remove the typo" : "Add a typo on line 4"; reset(); };
+  $("go").onclick = function () {
+    reset();
+    var I = $("srcI").children, C = $("srcC").children, t = 0;
+    // interpreter: translate + run each line in turn
+    for (var i = 0; i < 5; i++) (function (i) {
+      T.push(setTimeout(function () { I[i].className = "tr"; $("logI").textContent = "translating line " + (i + 1) + "..."; }, t += 500));
+      T.push(setTimeout(function () {
+        if (typo && i === 3) { I[i].className = "err"; $("logI").innerHTML = "Lines 1&ndash;3 already ran. Line 4 crashes: NameError: 'totl' is not defined"; T.forEach(clearTimeout); return; }
+        I[i].className = "ok"; $("logI").textContent = "ran line " + (i + 1) + (i === 4 ? ". Done. (Translated again next time it runs.)" : "");
+      }, t += 400));
+    })(i);
+    // compiler: translate all, then run all fast
+    var c = 0;
+    for (var j = 0; j < 5; j++) (function (j) { T.push(setTimeout(function () { C[j].className = "tr"; $("logC").textContent = "compiling the whole sketch... line " + (j + 1); }, c += 350)); })(j);
+    T.push(setTimeout(function () {
+      if (typo) { C[3].className = "err"; $("logC").innerHTML = "Compile error on line 4: 'totl' was not declared. Nothing uploads, and nothing runs."; return; }
+      [].forEach.call(C, function (d) { d.className = "ok"; }); $("logC").textContent = "machine code ready, uploaded, and the whole program runs at full speed.";
+    }, c += 500));
+  };
+  reset();
+
+  /* 04: questions */
+  var Q = [
+    ["What it is + why it's popular", "Easy-to-read, beginner-friendly language with a huge collection of free libraries. Popular in schools, data science, AI, and web servers.", "A fast, powerful language that works close to the hardware. Popular for games, operating systems, and embedded devices. Arduino code is based on it."],
+    ["What makes it interpreted / compiled", "The Python interpreter reads and runs the code line by line while the program runs.", "A compiler translates the whole program into machine code before it runs. (The C++ list says \"interpreted\" by mistake.)"],
+    ["When it makes more sense", "Where fast changes matter more than raw speed: testing ideas, scripts, websites, data analysis, AI.", "Where speed and small size matter: small, limited-memory devices like an Arduino, games, real-time systems."],
+    ["From Upload to running", "No separate compile step you run: the interpreter starts reading and running your file right away.", "Compile (check errors, make machine code), then upload over USB, then the board runs the machine code."],
+    ["Do you write the variable type?", "No. Python figures it out: <code>x = 5</code>.", "Yes: <code>int x = 5;</code> or <code>boolean ledState = false;</code>"],
+    ["Longer or shorter to type?", "Usually shorter: no types, no semicolons, no curly braces.", "Usually longer: types, semicolons, and braces on everything."],
+    ["Faster or slower once running?", "Usually slower, because translating happens while it runs.", "Usually faster: it's already machine code."],
+    ["Most common real-world uses", "AI and machine learning, data science, websites and servers, automation scripts, school.", "Game engines, operating systems, browsers, embedded devices (cars, appliances, Arduino)."],
+    ["Memory cleanup", "Automatic: Python's garbage collector frees memory you're done with.", "Mostly by hand: the programmer manages memory (C++ has no automatic garbage collector)."],
+    ["Variables, loops, if/else, functions, comments", "Yes to all. Comments start with <code>#</code>.", "Yes to all. Comments start with <code>//</code>. Functions like setup() and loop()."],
+    ["General-purpose?", "Yes, used for many kinds of projects.", "Yes, used for many kinds of projects."]
+  ];
+  function showQ(k) {
+    $("qBox").innerHTML = '<div class="box b"><h3>Python</h3><p>' + Q[k][1] + '</p></div><div class="box a"><h3>Arduino C++</h3><p>' + Q[k][2] + "</p></div>";
+    [].forEach.call($("qChips").children, function (b, i) { b.classList.toggle("on", i === k); });
+  }
+  Q.forEach(function (q, i) { var b = document.createElement("button"); b.className = "chip"; b.type = "button"; b.textContent = q[0]; b.onclick = function () { showQ(i); }; $("qChips").appendChild(b); });
+  showQ(0);
+})();
+</script>
+<script src="notes.js"></script>
+</body>
+</html>

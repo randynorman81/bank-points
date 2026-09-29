@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Variables and Data Types | Embedded Computing Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<link rel="stylesheet" href="notes.css">
+<style>
+.serial{background:#05070B;border:1px solid var(--rule);border-radius:6px;height:190px;overflow-y:auto;padding:10px 14px;font-family:"JetBrains Mono",monospace;font-size:13px;color:#A7F3D0;white-space:pre}
+.boxes{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.jar{border:2px solid var(--rule);border-radius:6px;background:var(--card);text-align:center;padding:8px 6px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#C4CDD8}
+.jar b{display:block;color:#fff;font-size:14px}
+details.gate{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:14px 18px;margin-top:12px}
+details.gate summary{cursor:pointer;font-weight:700;color:var(--hi-ink)}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Embedded Computing</a>
+  <a href="2-4-variables-and-data-types.html">2.4 Lesson Page</a>
+  <a href="2-4-notes.html" class="current">Notes</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lesson 2.4</div>
+    <h1>Variables and Data Types</h1>
+    <p class="deck">Everything you need for the 2.4 assignment, in the same order: the six data types, global variables, the ! operator, byte wraparound, and printing to the Serial Monitor.</p>
+    <div class="map">
+      <a href="#types">01 <span>The 6 data types (Section 1)</span></a>
+      <a href="#global">02 <span>Global vs. inside loop()</span></a>
+      <a href="#not">03 <span>The ! operator</span></a>
+      <a href="#p1">04 <span>Part 1 code (Section 3)</span></a>
+      <a href="#serial">05 <span>Serial Monitor (Section 5)</span></a>
+      <a href="#wrap">06 <span>Byte wraparound</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="part" id="types">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>The Six Data Types</h2><span class="for">Section 1 + Section 2</span></div>
+    <p class="story">A variable is a labeled box in the Arduino's memory. The data type decides what shape of thing fits in the box and how much memory it takes. The Arduino Uno only has 2,048 bytes of memory for variables, so picking the right size box is a real engineering decision.</p>
+    <div class="fig">
+      <div class="boxes" id="jars"></div>
+      <p class="cap">Box height = memory used. 1 byte = 8 bits.</p>
+    </div>
+    <div class="tblwrap">
+      <table>
+        <tr><th>Type</th><th>Stores</th><th>Range</th><th>Size</th><th>Example</th></tr>
+        <tr><td><b>boolean</b></td><td>true or false only (also HIGH / LOW)</td><td>false / true</td><td>1 byte</td><td><code>boolean ledState = false;</code></td></tr>
+        <tr><td><b>byte</b></td><td>small whole numbers, no negatives</td><td>0 to 255</td><td>1 byte</td><td><code>byte blinkCount = 0;</code></td></tr>
+        <tr><td><b>int</b></td><td>standard whole numbers</td><td>&minus;32,768 to 32,767</td><td>2 bytes</td><td><code>int blinkSpeed = 500;</code></td></tr>
+        <tr><td><b>long</b></td><td>large whole numbers</td><td>&minus;2,147,483,648 to 2,147,483,647</td><td>4 bytes</td><td><code>long totalBlinks = 0;</code></td></tr>
+        <tr><td><b>float</b></td><td>decimal numbers</td><td>like 0.5 or 3.14</td><td>4 bytes</td><td><code>float blinkSeconds = 0.5;</code></td></tr>
+        <tr><td><b>char</b></td><td>one single character, in <b>single quotes</b></td><td>like 'A'</td><td>1 byte</td><td><code>char ledLabel = 'A';</code></td></tr>
+      </table>
+    </div>
+    <div class="hint-panel"><b>Why that type?</b> For each variable you comment, answer two things: what does it store, and why does that type fit? Think about: does it need decimals? negatives? how big could it get? is it just on/off?</div>
+  </div>
+</section>
+
+<section class="part" id="global">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Global Variables vs. Variables Inside loop()</h2><span class="for">Section 2 + Question 1</span></div>
+    <p class="story">Where you create a variable decides who can use it and how long it lasts. Create it at the top, and it lives for the whole program. Create it inside loop(), and it's rebuilt from scratch every single trip.</p>
+    <div class="two">
+      <div class="box b">
+        <h3>Global: above setup() and loop()</h3>
+        <div class="code" style="margin:6px 0 10px"><span class="kw">byte</span> blinkCount = <span class="n">0</span>;   <span class="cm">// created once</span>
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  blinkCount = blinkCount + <span class="n">1</span>;
+}</div>
+        <p>Any function can use it, and it <b>keeps its value</b> between trips through loop(): 1, 2, 3, 4...</p>
+      </div>
+      <div class="box a">
+        <h3>Local: inside loop()</h3>
+        <div class="code" style="margin:6px 0 10px"><span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">byte</span> blinkCount = <span class="n">0</span>;  <span class="cm">// re-created every trip</span>
+  blinkCount = blinkCount + <span class="n">1</span>;
+}</div>
+        <p>Only loop() can use it, and it's <b>reset</b> every time loop() starts over: 1, 1, 1, 1...</p>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Watch both run</h3>
+      <div class="two">
+        <div><p class="small">Global blinkCount</p><div class="big" id="gv">0</div></div>
+        <div><p class="small">Local blinkCount</p><div class="big" id="lv">0</div></div>
+      </div>
+      <div class="btns" style="justify-content:flex-start"><button class="btn" id="trip" type="button">Run loop() once</button><button class="btn" id="tripReset" type="button">Reset</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="not">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>The ! (NOT) Operator</h2><span class="for">Section 2 + Question 2</span></div>
+    <p class="story">In 2.3, turning the LED off and on took two separate digitalWrite() lines. A boolean and one exclamation point can do both jobs with a single line that flips back and forth.</p>
+    <div class="two">
+      <div class="box b">
+        <h3><code>ledState = !ledState;</code></h3>
+        <p><code>!</code> means <b>NOT</b>: it gives the opposite of a true/false value. <code>!false</code> is true, and <code>!true</code> is false. Putting the result back into ledState flips it. Then <code>digitalWrite(ledPin, ledState);</code> turns the LED on when it's true (HIGH) and off when it's false (LOW).</p>
+      </div>
+      <div class="box a" style="text-align:center">
+        <svg viewBox="0 0 120 120" width="110" role="img" aria-label="LED that toggles"><circle id="nGlow" cx="60" cy="54" r="40" fill="#EF4444" opacity="0"/><circle id="nLed" cx="60" cy="54" r="22" fill="#4B1D1D"/><path d="M50 78 v34 M70 78 v28" stroke="#94A3B8" stroke-width="4"/></svg>
+        <div class="big" id="nVal">ledState = false</div>
+        <div class="btns"><button class="btn" id="nBtn" type="button">ledState = !ledState;</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="p1">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Part 1: Three New Variables</h2><span class="for">Section 3</span></div>
+    <p class="story">Start from your working 2.3 Blink. No wiring changes. You're replacing the four loop() lines from 2.3 with four new ones that use variables.</p>
+    <div class="code"><span class="kw">int</span> ledPin = <span class="n">8</span>;               <span class="cm">// pin your LED is on</span>
+<span class="kw">int</span> blinkSpeed = <span class="n">500</span>;          <span class="cm">// delay length in milliseconds</span>
+<span class="kw">boolean</span> ledState = <span class="kw">false</span>;     <span class="cm">// should the LED be on or off?</span>
+<span class="kw">byte</span> blinkCount = <span class="n">0</span>;           <span class="cm">// counts blinks, 0 to 255</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(ledPin, OUTPUT);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  ledState = !ledState;              <span class="cm">// flip on/off</span>
+  <span class="fn">digitalWrite</span>(ledPin, ledState);   <span class="cm">// LED follows ledState</span>
+  blinkCount = blinkCount + <span class="n">1</span>;      <span class="cm">// add 1 each trip</span>
+  <span class="fn">delay</span>(blinkSpeed);                 <span class="cm">// wait blinkSpeed ms</span>
+}</div>
+    <div class="warn"><b>Delete your old 4 lines first.</b> The 2.3 lines (digitalWrite HIGH, delay(1000), digitalWrite LOW, delay(1000)) must come out. The 4 new loop() lines replace all of them.</div>
+    <div class="panel">
+      <h3>Why change blinkSpeed instead of the delay() number?</h3>
+      <p>Because <code>delay(blinkSpeed)</code> reads the variable, you change the timing in <b>one place at the top</b>. Try it: blinkSpeed = <span class="big" id="bsOut"></span></p>
+      <input id="bsR" type="range" min="100" max="2000" step="50" value="500" aria-label="blinkSpeed">
+      <div class="btns" style="justify-content:flex-start"><svg viewBox="0 0 40 40" width="34"><circle id="bsLed" cx="20" cy="20" r="14" fill="#4B1D1D"/></svg></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="serial">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">05</div><h2>The Serial Monitor</h2><span class="for">Section 5: Part 2</span></div>
+    <p class="story">Right now blinkCount is counting, but it's invisible. The Serial Monitor is a window where the Arduino can print messages back to you while it runs. It's the Arduino's version of print().</p>
+    <div class="tblwrap">
+      <table>
+        <tr><th>Line</th><th>What it does</th></tr>
+        <tr><td><code>Serial.begin(9600);</code></td><td>Goes in <b>setup()</b>. Opens communication with the computer at 9600 baud (bits per second). Nothing prints without it.</td></tr>
+        <tr><td><code>Serial.print(x);</code></td><td>Prints x and <b>stays on the same line</b>. Text goes in double quotes: <code>Serial.print("LED ");</code></td></tr>
+        <tr><td><code>Serial.println(x);</code></td><td>Prints x and then <b>starts a new line</b>. Use it for the last thing on each line.</td></tr>
+      </table>
+    </div>
+    <p class="lede" style="margin-top:16px">Open the Serial Monitor before you run: in the Arduino IDE it's the <b>magnifying glass icon</b> or <b>Tools &gt; Serial Monitor</b>; in Tinkercad, click <b>Code</b>, then <b>Serial Monitor</b> at the bottom of the code panel. The six Serial.print lines plus the println build one line of output per blink, like this:</p>
+    <div class="serial" id="mon1">LED A blink count: 1 total blinks: 1 0.50
+LED A blink count: 2 total blinks: 2 0.50
+LED A blink count: 3 total blinks: 3 0.50</div>
+    <p class="cap">Order in loop(): the 4 lines from Part 1, then <code>totalBlinks = totalBlinks + 1;</code>, then the 7 Serial lines in the order listed in your assignment.</p>
+  </div>
+</section>
+
+<section class="part" id="wrap">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">06</div><h2>Byte Wraparound</h2><span class="for">Part 1 prediction, then Part 2 Step 3</span></div>
+    <p class="story">A byte is like a car's odometer with only three digits that can't go past 255. Every box has a limit. What happens when the count tries to go one past it?</p>
+    <div class="warn"><b>Write your Part 1 prediction first.</b> The assignment asks you to predict before you test. Open the simulator below only after your prediction is written down.</div>
+    <details class="gate">
+      <summary>I wrote my prediction. Show me the simulator.</summary>
+      <p class="small" style="margin-top:10px">This runs the Part 2 code fast. Watch blinkCount (a byte) and totalBlinks (a long) at the same moment.</p>
+      <div class="serial" id="mon2"></div>
+      <div class="btns" style="justify-content:flex-start"><button class="btn" id="wRun" type="button">&#9654; Run fast</button><button class="btn" id="wJump" type="button">Jump to 250</button><button class="btn" id="wReset" type="button">Reset</button></div>
+    </details>
+    <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
+    <div class="quiz" id="quiz"></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Pick the smallest box that still fits the job.</h2>
+    <p>boolean for on/off, byte for small counts, int for everyday numbers, long for big counts, float for decimals, char for a single letter.</p>
+    <a class="back" href="2-4-variables-and-data-types.html">&larr; Back to 2.4</a>
+    <a class="back" href="../index.html">&larr; Embedded Computing</a>
+  </div>
+</footer>
+
+<script>
+window.QUIZ = [
+  { s: "Which type would you use to store 0.5 seconds?", o: ["int", "float", "char"], a: 1, e: "Only float holds decimals." },
+  { s: "Which of these is a correct char?", o: ["char ledLabel = \"A\";", "char ledLabel = 'A';", "char ledLabel = A;"], a: 1, e: "A char is one character in single quotes." },
+  { s: "Where does Serial.begin(9600); go?", o: ["Inside setup()", "Inside loop()", "Above setup()"], a: 0, e: "Communication only needs to be opened once." },
+  { s: "Which one prints and then moves to a new line?", o: ["Serial.print()", "Serial.println()"], a: 1, e: "println = print line: it ends the line." },
+  { s: "ledState is true. After <code>ledState = !ledState;</code> it is...", o: ["true", "false"], a: 1, e: "! gives the opposite." }
+];
+
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  /* 01: memory jars */
+  [["boolean", 1], ["byte", 1], ["char", 1], ["int", 2], ["long", 4], ["float", 4]].forEach(function (t) {
+    var d = document.createElement("div"); d.className = "jar"; d.style.height = (40 + t[1] * 26) + "px"; d.style.width = "92px";
+    d.innerHTML = "<b>" + t[0] + "</b>" + t[1] + " byte" + (t[1] > 1 ? "s" : "") + "<br>" + (t[1] * 8) + " bits"; $("jars").appendChild(d);
+  });
+  /* 02: global vs local */
+  var g = 0, l = 0;
+  $("trip").onclick = function () { g = (g + 1) % 256; l = 0; l = l + 1; $("gv").textContent = g; $("lv").textContent = l; };
+  $("tripReset").onclick = function () { g = 0; l = 0; $("gv").textContent = 0; $("lv").textContent = 0; };
+  /* 03: NOT */
+  var st = false;
+  $("nBtn").onclick = function () { st = !st; $("nVal").textContent = "ledState = " + st; $("nLed").setAttribute("fill", st ? "#EF4444" : "#4B1D1D"); $("nGlow").setAttribute("opacity", st ? ".3" : "0"); };
+  /* 04: blinkSpeed */
+  var bs = 500, on = false, bt;
+  function blink() { on = !on; $("bsLed").setAttribute("fill", on ? "#EF4444" : "#4B1D1D"); bt = setTimeout(blink, bs); }
+  $("bsR").oninput = function () { bs = +this.value; $("bsOut").textContent = bs; };
+  $("bsOut").textContent = bs; blink();
+  /* 06: wraparound */
+  var bc = 0, tb = 0, run = null;
+  function line() {
+    bc = (bc + 1) % 256; tb++;
+    var m = $("mon2"); m.textContent += "LED A blink count: " + bc + " total blinks: " + tb + " 0.50\n";
+    if (m.textContent.length > 6000) m.textContent = m.textContent.slice(-4000);
+    m.scrollTop = m.scrollHeight;
+  }
+  $("wRun").onclick = function () { if (run) { clearInterval(run); run = null; this.innerHTML = "&#9654; Run fast"; return; } this.innerHTML = "&#10074;&#10074; Pause"; run = setInterval(line, 60); };
+  $("wJump").onclick = function () { bc = 249; tb = 249; line(); };
+  $("wReset").onclick = function () { bc = 0; tb = 0; $("mon2").textContent = ""; };
+})();
+</script>
+<script src="notes.js"></script>
+</body>
+</html>

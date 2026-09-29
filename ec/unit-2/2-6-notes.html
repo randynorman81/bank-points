@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timing and Sequences | Embedded Computing Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<link rel="stylesheet" href="notes.css">
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Embedded Computing</a>
+  <a href="2-6-timing-and-sequences.html">2.6 Lesson Page</a>
+  <a href="2-6-notes.html" class="current">Notes</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lesson 2.6</div>
+    <h1>Timing and Sequences</h1>
+    <p class="deck">Everything you need for the 2.6 traffic light: wiring 3 LEDs, building the sequence line by line, why a light stays on until you turn it off, timing variables, and real traffic light timing.</p>
+    <div class="map">
+      <a href="#wire">01 <span>Wiring 3 LEDs</span></a>
+      <a href="#seq">02 <span>The sequence</span></a>
+      <a href="#sim">03 <span>Traffic light simulator</span></a>
+      <a href="#vars">04 <span>Timing variables (Q6 + Q7)</span></a>
+      <a href="#real">05 <span>Real timing (Step 4)</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="part" id="wire">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Wiring Three LEDs</h2><span class="for">Step 1</span></div>
+    <p class="story">A traffic light is three separate lights that take turns. For your code to control each one on its own, each LED needs its own connection to the Arduino.</p>
+    <div class="fig">
+      <svg viewBox="0 0 700 220" role="img" aria-label="Red on pin 8, yellow on pin 9, green on pin 10, each with its own resistor, all sharing one GND">
+        <rect x="16" y="20" width="110" height="180" rx="10" fill="#00878F" opacity=".85"/><text x="71" y="44" fill="#fff" font-family="JetBrains Mono" font-size="12" text-anchor="middle">ARDUINO</text>
+        <g font-family="JetBrains Mono" font-size="11" fill="#fff">
+          <text x="104" y="74" text-anchor="end">8</text><text x="104" y="114" text-anchor="end">9</text><text x="104" y="154" text-anchor="end">10</text><text x="104" y="190" text-anchor="end">GND</text>
+          <rect x="112" y="62" width="22" height="16" rx="3" fill="#FBBF24"/><rect x="112" y="102" width="22" height="16" rx="3" fill="#FBBF24"/><rect x="112" y="142" width="22" height="16" rx="3" fill="#FBBF24"/><rect x="112" y="178" width="22" height="16" rx="3" fill="#64748B"/>
+        </g>
+        <g stroke="#FBBF24" stroke-width="3" fill="none"><path d="M134 70 H250 M310 70 H420 M134 110 H250 M310 110 H420 M134 150 H250 M310 150 H420"/></g>
+        <g stroke="#FDD877" stroke-width="3" fill="none"><path d="M250 70 l5 -7 l7 14 l7 -14 l7 14 l7 -14 l7 14 l7 -14 l7 14 l5 -7"/><path d="M250 110 l5 -7 l7 14 l7 -14 l7 14 l7 -14 l7 14 l7 -14 l7 14 l5 -7"/><path d="M250 150 l5 -7 l7 14 l7 -14 l7 14 l7 -14 l7 14 l7 -14 l7 14 l5 -7"/></g>
+        <circle cx="436" cy="70" r="13" fill="#EF4444"/><circle cx="436" cy="110" r="13" fill="#FACC15"/><circle cx="436" cy="150" r="13" fill="#22C55E"/>
+        <path d="M449 70 H500 V186 H134 M449 110 H500 M449 150 H500" stroke="#94A3B8" stroke-width="3" fill="none"/>
+        <text x="520" y="74" fill="#C4CDD8" font-family="Manrope" font-size="13">own pin + own resistor</text><text x="520" y="190" fill="#8B9AAE" font-family="Manrope" font-size="13">one shared GND</text>
+      </svg>
+    </div>
+    <div class="two">
+      <div class="box b"><h3>Why one shared GND is fine</h3><p>GND is just the shared return path back to the Arduino. Every LED's current ends up there, so they can all use one connection. Each LED's own pin is what lets your code switch it separately.</p></div>
+      <div class="box a"><h3>No ~ pin needed</h3><p>You're only turning lights fully on and fully off, not dimming. Any regular digital pin works. The example uses red = 8, yellow = 9, green = 10.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="seq">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>The Sequence, Line by Line</h2><span class="for">Steps 2, 3, 5</span></div>
+    <p class="story">A sequence is just on, wait, off, repeated in a deliberate order across different pins. The order of the lines is the order things happen.</p>
+    <div class="code"><span class="kw">int</span> redPin = <span class="n">8</span>;
+<span class="kw">int</span> yellowPin = <span class="n">9</span>;
+<span class="kw">int</span> greenPin = <span class="n">10</span>;
+<span class="kw">int</span> greenTime = <span class="n">5000</span>;     <span class="cm">// how long green stays on (ms)</span>
+<span class="kw">int</span> yellowTime = <span class="n">1500</span>;
+<span class="kw">int</span> redTime = <span class="n">4000</span>;
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(redPin, OUTPUT);
+  <span class="fn">pinMode</span>(yellowPin, OUTPUT);
+  <span class="fn">pinMode</span>(greenPin, OUTPUT);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="fn">digitalWrite</span>(greenPin, HIGH);  <span class="fn">delay</span>(greenTime);  <span class="fn">digitalWrite</span>(greenPin, LOW);
+  <span class="fn">digitalWrite</span>(yellowPin, HIGH); <span class="fn">delay</span>(yellowTime); <span class="fn">digitalWrite</span>(yellowPin, LOW);
+  <span class="fn">digitalWrite</span>(redPin, HIGH);    <span class="fn">delay</span>(redTime);    <span class="fn">digitalWrite</span>(redPin, LOW);
+}</div>
+    <p class="cap">Shown 3 to a line here to fit; in your code, put each command on its own line, in this exact order, with a comment above each one (Step 5).</p>
+    <div class="warn"><b>A pin remembers.</b> Once you set a pin HIGH, it <b>stays</b> HIGH until a line sets it LOW. The Arduino never turns a light off for you. That's why every color needs its own LOW line before the next color turns on.</div>
+  </div>
+</section>
+
+<section class="part" id="sim">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Traffic Light Simulator</h2><span class="for">Step 3 + Question 8</span></div>
+    <p class="story">Run the sequence and watch each line fire. Then break it: uncheck any line to delete it from the code, and watch what the light does over a few trips through loop().</p>
+    <div class="sim">
+      <div class="lines" id="lines"></div>
+      <div class="stage">
+        <svg viewBox="0 0 100 230" width="90" role="img" aria-label="Traffic light">
+          <rect x="15" y="8" width="70" height="214" rx="14" fill="#1F2937" stroke="#374151"/>
+          <circle id="Lred" cx="50" cy="48" r="24" fill="#3B1414"/><circle id="Lyel" cx="50" cy="115" r="24" fill="#3A3210"/><circle id="Lgrn" cx="50" cy="182" r="24" fill="#10301C"/>
+        </svg>
+        <div class="state" id="state">stopped</div>
+        <div class="btns"><button class="btn on" id="play" type="button">&#9654; Run</button><button class="btn" id="fast" type="button">Speed: 1x</button><button class="btn" id="reset" type="button">Reset</button></div>
+        <div class="state" id="pass">loop() trips: 0</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="vars">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Timing Variables</h2><span class="for">Questions 6 + 7</span></div>
+    <p class="story">greenTime, yellowTime, and redTime are just names for numbers. The code works exactly the same whether you use the name or type the number itself. The difference is how easy the code is to read and change.</p>
+    <div class="two">
+      <div class="box b"><h3>With a variable</h3><div class="code" style="margin:6px 0 8px"><span class="kw">int</span> waitTime = <span class="n">2000</span>;
+...
+<span class="fn">delay</span>(waitTime);</div><p>The number lives in one place at the top, with a name that says what it's for.</p></div>
+      <div class="box a"><h3>Without a variable</h3><div class="code" style="margin:6px 0 8px"><span class="fn">delay</span>(<span class="n">2000</span>);</div><p>The number goes <b>straight into the delay()</b>, wherever that variable was used. The variable line at the top disappears.</p></div>
+    </div>
+    <div class="hint-panel"><b>Thinking about pros and cons:</b> imagine you need to change a timing. How many places would you edit each way? What if you missed one? Which version tells the next reader what the number means? Which version is shorter?</div>
+  </div>
+</section>
+
+<section class="part" id="real">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">05</div><h2>Real Traffic Light Timing</h2><span class="for">Step 4</span></div>
+    <p class="story">Real traffic engineers don't pick timings at random. Yellow is set from the road's speed limit so drivers have time to stop safely, and green and red depend on how busy each direction is.</p>
+    <div class="calc">
+      <div class="box b"><h3>Search ideas</h3><ul><li>"traffic light yellow time by speed limit"</li><li>"how long is a red light at an intersection"</li><li>"traffic signal cycle length"</li></ul></div>
+      <div class="box a"><h3>Seconds &rarr; your code</h3><p>delay() uses milliseconds, so multiply seconds by 1000.</p><input id="secIn" type="number" step="0.5" value="4" aria-label="seconds"><div class="out" id="secOut"></div></div>
+      <div class="box b"><h3>Watch the int limit</h3><p>An <code>int</code> only goes up to <b>32,767</b>. A timing longer than about 32 seconds won't fit in an int. Use <code>long</code> for bigger numbers.</p></div>
+    </div>
+    <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
+    <div class="quiz" id="quiz"></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>A light stays on until your code turns it off. Order is everything.</h2>
+    <p>On, wait, off, next. That's the whole traffic light, and the pattern behind every sequence you'll build.</p>
+    <a class="back" href="2-6-timing-and-sequences.html">&larr; Back to 2.6</a>
+    <a class="back" href="../index.html">&larr; Embedded Computing</a>
+  </div>
+</footer>
+
+<script>
+window.QUIZ = [
+  { s: "Why can all three LEDs share one GND connection?", o: ["GND is a shared return path", "Only one LED is ever on"], a: 0, e: "Every LED's current returns to ground, so one connection can carry it all." },
+  { s: "What does <code>delay(greenTime);</code> do if greenTime is 5000?", o: ["Waits 5 seconds", "Waits 5000 seconds", "Turns green on for 5 blinks"], a: 0, e: "5000 milliseconds = 5 seconds." },
+  { s: "You set a pin HIGH and never set it LOW. The LED...", o: ["Turns off by itself after the delay", "Stays on"], a: 1, e: "A pin keeps its state until your code changes it." },
+  { s: "Could the timing variables be byte instead of int?", o: ["Yes", "No, 5000 is bigger than 255"], a: 1, e: "A byte only goes up to 255." }
+];
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  var L = [
+    { t: "digitalWrite(greenPin, HIGH);", p: "g", v: 1 }, { t: "delay(greenTime);", d: 5000 }, { t: "digitalWrite(greenPin, LOW);", p: "g", v: 0 },
+    { t: "digitalWrite(yellowPin, HIGH);", p: "y", v: 1 }, { t: "delay(yellowTime);", d: 1500 }, { t: "digitalWrite(yellowPin, LOW);", p: "y", v: 0 },
+    { t: "digitalWrite(redPin, HIGH);", p: "r", v: 1 }, { t: "delay(redTime);", d: 4000 }, { t: "digitalWrite(redPin, LOW);", p: "r", v: 0 }
+  ];
+  var box = $("lines");
+  box.innerHTML = '<div class="ln">void loop() {</div>';
+  L.forEach(function (c, i) {
+    var d = document.createElement("div"); d.className = "ln"; d.textContent = "  " + c.t;
+    var lab = document.createElement("label"); lab.innerHTML = '<input type="checkbox" checked> keep';
+    lab.querySelector("input").onchange = function () { c.off = !this.checked; d.classList.toggle("off", c.off); };
+    d.appendChild(lab); c.el = d; box.appendChild(d);
+  });
+  box.insertAdjacentHTML("beforeend", '<div class="ln">}</div>');
+  var S = { r: 0, y: 0, g: 0 }, pc = -1, trips = 0, run = false, T, speed = 1;
+  var COL = { r: ["#3B1414", "#EF4444"], y: ["#3A3210", "#FACC15"], g: ["#10301C", "#22C55E"] };
+  function show() {
+    $("Lred").setAttribute("fill", COL.r[S.r]); $("Lyel").setAttribute("fill", COL.y[S.y]); $("Lgrn").setAttribute("fill", COL.g[S.g]);
+    L.forEach(function (c, i) { c.el.classList.toggle("run", i === pc); });
+    $("pass").textContent = "loop() trips: " + trips;
+    var on = ["r", "y", "g"].filter(function (k) { return S[k]; }).map(function (k) { return { r: "red", y: "yellow", g: "green" }[k]; });
+    $("state").textContent = on.length ? on.join(" + ") + " on" : "all off";
+  }
+  function step() {
+    pc++; if (pc >= L.length) { pc = 0; trips++; }
+    var c = L[pc], w = 0;
+    if (!c.off) { if (c.p) S[c.p] = c.v; else w = c.d; }
+    show(); return w;
+  }
+  function tick() { if (!run) return; var w = step(); T = setTimeout(tick, Math.max(120, w / speed)); }
+  $("play").onclick = function () { run = !run; this.classList.toggle("on", !run); this.innerHTML = run ? "&#10074;&#10074; Pause" : "&#9654; Run"; clearTimeout(T); if (run) tick(); };
+  $("fast").onclick = function () { speed = speed === 1 ? 4 : speed === 4 ? 10 : 1; this.textContent = "Speed: " + speed + "x"; };
+  $("reset").onclick = function () { run = false; clearTimeout(T); S = { r: 0, y: 0, g: 0 }; pc = -1; trips = 0; $("play").innerHTML = "&#9654; Run"; $("play").classList.add("on"); show(); $("state").textContent = "stopped"; };
+  show(); $("state").textContent = "stopped";
+  function sec() { var s = +$("secIn").value || 0; $("secOut").textContent = s + " s = " + Math.round(s * 1000) + " ms"; }
+  $("secIn").oninput = sec; sec();
+})();
+</script>
+<script src="notes.js"></script>
+</body>
+</html>
