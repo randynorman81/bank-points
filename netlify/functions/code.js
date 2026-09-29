@@ -228,6 +228,20 @@ async function adminGrade(body) {
   return { ok: true, teacher: rec.teacher };
 }
 
+// Removes a student's submission for one lesson (accidental submit, or the teacher testing as a student).
+// The saved draft stays unless body.draft is true, so the student can keep working and submit again.
+async function adminDelete(body) {
+  if (!goodLesson(body.lesson)) return { error: "Unknown lesson" };
+  const email = enc(String(body.email || "").toLowerCase());
+  if (!email) return { error: "Missing email" };
+  const subKey = "sub:" + body.lesson + ":" + email, draftKey = "draft:" + body.lesson + ":" + email;
+  const hadSub = !!(await readJSON(subKey, null)), hadDraft = !!(await readJSON(draftKey, null));
+  if (hadSub) await store().delete(subKey);
+  if (body.draft && hadDraft) await store().delete(draftKey);
+  if (!hadSub && !(body.draft && hadDraft)) return { error: "Nothing to delete" };
+  return { ok: true, deletedSubmission: hadSub, deletedDraft: !!(body.draft && hadDraft) };
+}
+
 /* ---------------- request handler ---------------- */
 export default async (req) => {
   const ok = (obj) => new Response(JSON.stringify(obj), { status: 200, headers: JSON_HEADERS });
@@ -249,11 +263,12 @@ export default async (req) => {
     try { body = await req.json(); } catch (e) { return ok({ error: "Malformed request" }); }
     const action = body.action;
 
-    if (["adminList", "adminCounts", "adminGrade", "adminMigrate"].indexOf(action) > -1) {
+    if (["adminList", "adminCounts", "adminGrade", "adminDelete", "adminMigrate"].indexOf(action) > -1) {
       if (!isAdmin(body)) return ok({ error: "Invalid PIN" });
       if (action === "adminList") return ok(await adminList(body));
       if (action === "adminCounts") return ok(await adminCounts());
       if (action === "adminMigrate") return ok(await adminMigrate());
+      if (action === "adminDelete") return ok(await adminDelete(body));
       return ok(await adminGrade(body));
     }
 

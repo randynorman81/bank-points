@@ -203,7 +203,7 @@ function highlight(code, ranges) {
 function load() {
   var lesson = $("lesson").value;
   $("rows").innerHTML = ""; $("count").textContent = "Loading…";
-  api({ action: "adminList", lesson: lesson }).then(function (j) {
+  return api({ action: "adminList", lesson: lesson }).then(function (j) {
     if (j.error) { toast(j.error); return; }
     rowsData = j.students.map(function (s) {
       var _row;
@@ -339,6 +339,7 @@ function select(email) {
   $("right").innerHTML = ohtml + wqHtml(r) + '<div class="grade"><h3>Grade</h3><div>Auto check: <span class="big">' + r.rep.score + '</span> / ' + r.rep.total + " <small style=\"color:var(--soft)\">(" + r.rep.passed + "/" + r.rep.count + " checks)</small></div>" +
     '<div style="margin-top:8px">Your score: <input type="number" id="gScore" min="0" step="0.5" value="' + esc(g) + '"> / ' + r.rep.total + '</div><label style="display:flex;gap:6px;align-items:flex-start;margin:6px 0;font-size:12.5px;color:' + (penOn ? '#FCA5A5' : 'var(--soft)') + '"><input type="checkbox" id="gPen"' + (penOn ? " checked" : "") + '> <span><b>50% penalty</b> (copied from outside the editor, or nonsense/repeated writing). Uncheck if you decide it was okay.</span></label><textarea id="gComment" placeholder="Comment for the student (optional)">' + esc(r.teacher ? r.teacher.comment : (penOn ? penComment(r) : "")) + '</textarea>' +
     '<button class="btn pri" id="gSave"' + (r.status !== "submitted" ? " disabled title=\"Only submitted work can be graded\"" : "") + '>Save grade</button> <span id="gInfo" style="color:var(--soft);font-size:12px">' + (r.teacher && r.teacher.gradedAt ? "Saved " + esc(fmt(r.teacher.gradedAt)) : "") + "</span></div>" +
+    '<div class="grade" style="border-color:rgba(239,68,68,.35)"><h3>Delete</h3><label style="display:flex;gap:6px;align-items:flex-start;margin:0 0 8px;font-size:12.5px;color:var(--soft)"><input type="checkbox" id="dDraft"' + (r.sub ? "" : " checked disabled") + '> <span>Also delete their saved draft (use for test accounts). Leave unchecked to keep their work so they can submit again.</span></label><button class="btn" id="dDel" style="color:#FCA5A5">🗑 Delete ' + (r.sub ? "submission" : "draft") + '</button></div>' +
     "<h3>This lesson's requirements</h3>" + (nw || "<small>None</small>") + (old ? '<h3>Carried over</h3>' + old : "") + "<h3>Problems</h3>" + (pr || "<small>None</small>") + "<h3>Tags used</h3><div class=\"chips\">" + (tg || "<small>None</small>") + "</div>";
   $("gPen").onchange = function () { $("gScore").value = Math.round(r.rep.score * (this.checked ? PENALTY : 1) * 10) / 10; if (this.checked && !$("gComment").value.trim()) $("gComment").value = penComment(r); };
   $("gSave").onclick = function () {
@@ -346,6 +347,16 @@ function select(email) {
     api({ action: "adminGrade", lesson: $("lesson").value, email: r.email, score: sc, comment: $("gComment").value, penalty: $("gPen").checked }).then(function (j) {
       $("gSave").disabled = false;
       if (j.ok) { r.teacher = j.teacher; toast("Saved"); $("gInfo").textContent = "Saved " + fmt(j.teacher.gradedAt); render(); } else toast(j.error || "Error");
+    });
+  };
+  $("dDel").onclick = function () {
+    var alsoDraft = $("dDraft").checked, lesson = $("lesson").value;
+    var what = (r.sub ? "the " + lesson + " submission" : "") + (r.sub && alsoDraft ? " and the saved draft" : "") + (!r.sub ? "the saved " + lesson + " draft" : "");
+    if (!confirm("Delete " + what + " for " + r.name + "?" + (r.teacher && r.teacher.score != null ? " Your grade (" + r.teacher.score + ") is deleted with it." : "") + " This cannot be undone.")) return;
+    this.disabled = true;
+    api({ action: "adminDelete", lesson: lesson, email: r.email, draft: alsoDraft }).then(function (j) {
+      if (!j.ok) { $("dDel").disabled = false; toast(j.error || "Error"); return; }
+      toast("Deleted"); load().then(function () { if (rowsData.some(function (x) { return x.email === r.email; })) select(r.email); else { selEmail = null; $("detail").innerHTML = '<div class="empty">Pick a student on the left.</div>'; } });
     });
   };
   $("prevS").onclick = function () { step(-1); }; $("nextS").onclick = function () { step(1); };
