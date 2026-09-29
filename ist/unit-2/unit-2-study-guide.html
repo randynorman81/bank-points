@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 2 Study Guide | Unit 2 | Intro to Software Technology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+  .sg-code { background:#0f172a; color:#e2e8f0; border-radius:8px; padding:12px 14px; font-family:Consolas,"Courier New",monospace; font-size:.9rem; line-height:1.6; white-space:pre; overflow-x:auto; margin:6px 0 14px; }
+  .sg-code .c { color:#94a3b8; }
+  .lab { border:2px solid var(--black,#111); border-radius:12px; padding:14px 16px; margin:14px 0 22px; background:var(--white,#fff); }
+  .lab h3 { margin:0 0 4px; }
+  .lab .hint { margin-top:0; }
+  .lab-info { background:var(--gray-100,#f3f3f3); border-radius:8px; padding:10px 12px; margin-top:10px; min-height:44px; }
+  .btn-row { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
+  table.sg { width:100%; border-collapse:collapse; margin:6px 0 14px; font-size:.95rem; }
+  table.sg th, table.sg td { border:1px solid var(--gray-300,#ccc); padding:6px 8px; text-align:left; vertical-align:top; }
+  table.sg th { background:var(--gray-100,#f3f3f3); }
+  .sg-scroll { overflow-x:auto; }
+  .mistake { border-left:4px solid #c8102e; background:#fff5f5; padding:8px 12px; border-radius:0 8px 8px 0; margin:8px 0 14px; }
+  .toc { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:6px; margin:10px 0 20px; }
+  .toc a { display:block; border:1px solid var(--gray-300,#ccc); border-radius:8px; padding:7px 10px; text-decoration:none; color:inherit; font-size:.93rem; }
+  .toc a:hover { background:var(--gray-100,#f3f3f3); }
+  .sim { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; align-items:start; }
+  .sim .code-lines { background:#0f172a; color:#e2e8f0; border-radius:8px; padding:8px 0; font-family:Consolas,"Courier New",monospace; font-size:.88rem; overflow-x:auto; }
+  .sim .code-lines div { padding:1px 12px; white-space:pre; border-left:3px solid transparent; }
+  .sim .code-lines div.run { background:rgba(250,204,21,.18); border-left-color:#facc15; }
+  .sim svg { width:100%; height:auto; display:block; background:#f8fafc; border-radius:8px; }
+  .quiz-q { border:1px solid var(--gray-300,#ccc); border-radius:10px; padding:12px 14px; margin:10px 0; }
+  .quiz-q .opts { display:flex; flex-direction:column; gap:6px; margin-top:8px; }
+  .quiz-q .opts button { text-align:left; }
+  .quiz-q .fb { margin-top:8px; font-size:.93rem; min-height:1.2em; }
+  .quiz-q pre { background:#0f172a; color:#e2e8f0; border-radius:6px; padding:8px 10px; font-size:.85rem; overflow-x:auto; margin:6px 0 0; }
+  .facing { font-family:Consolas,monospace; font-size:1.2rem; font-weight:800; }
+  @media (max-width:760px) { .sim { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<div style="max-width:1200px;margin:0 auto;padding:24px 20px 0;">
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ist/index.html">Intro to Software Technology</a><span class="sep">/</span><a href="../../ist/unit-2/index.html">Unit 2</a><span class="sep">/</span>Study Guide</div>
+</div>
+
+  <div class="lesson-layout">
+    <aside class="lesson-sidebar" id="lesson-sidebar-root"></aside>
+
+    <article class="lesson-content">
+      <h1>Unit 2 Study Guide: Intro to Programming with Karel</h1>
+      <p class="hint">Covers exactly the 13 Karel lessons on the test: Intro to Programming with Karel, More Basic Karel, Karel Can't Turn Right, Functions (+ the main function), Top Down Design and Decomposition, Commenting Your Code, Abstraction, Super Karel, For Loops, If Statements and Conditionals, If/Else Statements, While Loops, and Debugging Strategies. The test is <b>50 multiple choice questions</b>. Every code example uses CodeHS JavaScript Karel.</p>
+
+      <div class="toc">
+        <a href="#l1">1. Intro to Programming with Karel</a><a href="#l2">2. More Basic Karel</a><a href="#l3">3. Karel Can't Turn Right</a><a href="#l4">4. Functions + main()</a>
+        <a href="#l5">5. Top Down Design</a><a href="#l6">6. Commenting Your Code</a><a href="#l7">7. Abstraction</a><a href="#l8">8. Super Karel</a>
+        <a href="#l9">9. For Loops</a><a href="#l10">10. If Statements</a><a href="#l11">11. If/Else</a><a href="#l12">12. While Loops</a>
+        <a href="#l13">13. Debugging Strategies</a><a href="#sim">&#9654; Karel Trace Lab</a><a href="#practice">&#9989; Practice Questions</a><a href="#vocab">Vocabulary Checklist</a>
+      </div>
+
+      <!-- ========== 1 ========== -->
+      <h2 id="l1">1. Intro to Programming with Karel</h2>
+      <dl>
+        <dt>Karel</dt><dd>A robot dog that lives in a grid world of <b>streets</b> (rows) and <b>avenues</b> (columns). Karel does <b>exactly</b> what you tell it, in the exact order, and nothing else.</dd>
+        <dt>Program</dt><dd>A list of instructions (commands) that the computer runs <b>in order, top to bottom</b>.</dd>
+        <dt>Ball</dt><dd>The small object Karel can drop or pick up on a corner (sometimes called a beeper).</dd>
+      </dl>
+      <div class="sg-scroll"><table class="sg">
+        <tr><th>Command</th><th>What it does</th></tr>
+        <tr><td><code>move();</code></td><td>Moves Karel forward <b>one</b> square in the direction it's facing.</td></tr>
+        <tr><td><code>turnLeft();</code></td><td>Turns Karel 90&deg; to the left <b>without</b> moving.</td></tr>
+        <tr><td><code>putBall();</code></td><td>Drops one ball on Karel's current corner.</td></tr>
+        <tr><td><code>takeBall();</code></td><td>Picks up one ball from Karel's current corner.</td></tr>
+      </table></div>
+      <p>Every command ends with a <b>semicolon</b> <code>;</code>, which marks where one instruction ends. Every command also has <b>parentheses</b> <code>()</code>. Command names are case-sensitive: <code>turnLeft</code> is right; <code>turnleft</code> and <code>TurnLeft</code> are errors.</p>
+      <div class="mistake"><b>Order matters.</b> <code>move(); turnLeft(); move();</code> and <code>turnLeft(); move(); move();</code> use the same commands but put Karel in different places.</div>
+
+      <!-- ========== 2 ========== -->
+      <h2 id="l2">2. More Basic Karel</h2>
+      <p><b>Reading the world first:</b> before writing code, find where Karel starts, which way it faces (the triangle points that way), where the walls are, and where the balls are. Trace the path with your finger and count the moves and turns.</p>
+      <div class="sg-code">move();
+move();
+turnLeft();
+move();
+putBall();
+turnLeft();
+turnLeft();   <span class="c">// two lefts = turned all the way around (180&deg;)</span>
+move();</div>
+      <div class="mistake"><b>Crashes:</b> <code>move();</code> into a wall, or <code>takeBall();</code> on a corner with <b>no ball</b>, stops the program with an error. Karel doesn't remember anything on its own; it only knows what your commands tell it.</div>
+
+      <!-- ========== 3 ========== -->
+      <h2 id="l3">3. Karel Can't Turn Right</h2>
+      <p>Karel only knows <code>turnLeft();</code>. There is no built-in <code>turnRight();</code> in regular Karel.</p>
+      <div class="sg-scroll"><table class="sg">
+        <tr><th>You want to...</th><th>turnLeft() calls</th></tr>
+        <tr><td>Turn right</td><td><b>3</b> (three quarter-turns left = one quarter-turn right)</td></tr>
+        <tr><td>Turn around (face the opposite way)</td><td><b>2</b></td></tr>
+        <tr><td>End up facing the same way</td><td><b>4</b> (a full circle)</td></tr>
+      </table></div>
+      <div class="lab">
+        <h3>&#129517; Turn Tracker</h3>
+        <p class="hint">Karel starts facing East. Click the commands and watch which way Karel ends up facing.</p>
+        <div class="btn-row"><button class="btn btn-sm" id="tL" type="button">turnLeft();</button><button class="btn btn-sm btn-ghost" id="tReset" type="button">Reset</button></div>
+        <div class="lab-info"><span class="facing" id="tFace">&rarr; East</span> &nbsp; <span id="tCount">0 turnLeft() calls</span></div>
+      </div>
+
+      <!-- ========== 4 ========== -->
+      <h2 id="l4">4. Functions in Karel (+ the Main Function)</h2>
+      <dl>
+        <dt>Function</dt><dd>A <b>named group of commands</b> you define once and can run (<b>call</b>) as many times as you want by using its name.</dd>
+        <dt>Defining vs. calling</dt><dd><b>Defining</b> writes the function: <code>function turnRight() { ... }</code>. <b>Calling</b> runs it: <code>turnRight();</code></dd>
+        <dt>main()</dt><dd>The special function where every program <b>starts</b>. Karel only runs code that is inside <code>main()</code> or inside a function that <code>main()</code> calls.</dd>
+      </dl>
+      <div class="sg-code"><span class="c">// DEFINE a new command</span>
+function turnRight() {
+    turnLeft();
+    turnLeft();
+    turnLeft();
+}
+
+<span class="c">// the program STARTS here</span>
+function main() {
+    move();
+    turnRight();   <span class="c">// CALL it</span>
+    move();
+}</div>
+      <ul>
+        <li>Everything inside the <b>curly braces</b> <code>{ }</code> belongs to the function. Every <code>{</code> needs a matching <code>}</code>.</li>
+        <li>Names use <b>camelCase</b>: no spaces, first word lowercase, each new word capitalized (<code>turnRight</code>, <code>buildTower</code>).</li>
+        <li>Why use functions: <b>less typing</b>, <b>fewer mistakes</b> (fix it in one place), and <b>easier to read</b>.</li>
+      </ul>
+      <div class="mistake"><b>Common mistakes:</b> calling without parentheses (<code>turnRight;</code>), commands written outside of any function, and a missing closing <code>}</code>.</div>
+
+      <!-- ========== 5 ========== -->
+      <h2 id="l5">5. Top Down Design and Decomposition</h2>
+      <dl>
+        <dt>Decomposition</dt><dd>Breaking a big problem into <b>smaller, simpler sub-problems</b>.</dd>
+        <dt>Top down design</dt><dd>Starting with the <b>big goal</b> and working <b>down</b> into smaller pieces, one layer at a time, <b>before</b> writing code. Each piece usually becomes its own function.</dd>
+      </dl>
+      <div class="sg-code">function buildTower() {
+    putBall();
+    putBall();
+    putBall();
+}
+
+function moveToNextSpot() {
+    move();
+    move();
+}
+
+function main() {        <span class="c">// reads like the plan: build, move, build</span>
+    buildTower();
+    moveToNextSpot();
+    buildTower();
+}</div>
+      <p><b>The 4 planning steps:</b> (1) say the big goal in one sentence, (2) list the major steps in plain English, (3) turn each step into a function, (4) call them in order inside <code>main()</code>. Give functions clear names (<code>buildTower</code>, not <code>doStuff</code>).</p>
+
+      <!-- ========== 6 ========== -->
+      <h2 id="l6">6. Commenting Your Code</h2>
+      <dl>
+        <dt>Comment</dt><dd>A note in the code for <b>humans</b>. The computer <b>ignores</b> it completely; it has no effect on what Karel does.</dd>
+      </dl>
+      <div class="sg-code"><span class="c">// A comment starts with two slashes and goes to the end of the line</span>
+move();   <span class="c">// it can also go at the end of a line of code</span>
+
+<span class="c">/* A multi-line comment starts with slash-star
+   and ends with star-slash */</span></div>
+      <p><b>Good comments</b> explain <b>why</b> or what a section/function is for (like one line above each function). <b>Poor comments</b> just repeat the obvious (<code>// move forward</code> above <code>move();</code>).</p>
+
+      <!-- ========== 7 ========== -->
+      <h2 id="l7">7. Abstraction</h2>
+      <dl>
+        <dt>Abstraction</dt><dd><b>Hiding the complicated details</b> behind a simple name, so you can use something without thinking about how it works inside.</dd>
+      </dl>
+      <p>When you call <code>turnRight();</code>, you don't think about the three <code>turnLeft();</code> calls inside it. The details are still there and still run; they're just <b>hidden</b>, not deleted. Real-life examples: a car's gas pedal, a TV remote's power button, ordering "one burger" at a counter.</p>
+      <p><b>Connection:</b> top down design uses abstraction. <code>main()</code> is written with function names like <code>buildTower()</code>, hiding the detailed commands one layer below.</p>
+
+      <!-- ========== 8 ========== -->
+      <h2 id="l8">8. Super Karel</h2>
+      <p>Super Karel is the same robot with <b>extra built-in commands</b>, so you don't have to write them yourself:</p>
+      <div class="sg-scroll"><table class="sg">
+        <tr><th>Command</th><th>Regular Karel</th><th>Super Karel</th></tr>
+        <tr><td><code>move(); turnLeft(); putBall(); takeBall();</code></td><td>Built in</td><td>Built in</td></tr>
+        <tr><td><code>turnRight();</code></td><td>You must write it</td><td><b>Built in</b></td></tr>
+        <tr><td><code>turnAround();</code></td><td>You must write it</td><td><b>Built in</b></td></tr>
+      </table></div>
+      <p>Super Karel doesn't add every command you might want. For anything else, you still write your own function. And <code>turnRight()</code> is still abstraction: it still does the work of three left turns underneath.</p>
+
+      <!-- ========== 9 ========== -->
+      <h2 id="l9">9. For Loops</h2>
+      <dl>
+        <dt>For loop</dt><dd>Repeats a block of code a <b>fixed (known) number of times</b>.</dd>
+        <dt>Iteration</dt><dd>One trip through the loop's body.</dd>
+      </dl>
+      <div class="sg-code">for (var i = 0; i &lt; 4; i++) {
+    move();
+    putBall();
+}
+<span class="c">// runs 4 times: i = 0, 1, 2, 3  (move, putBall) x 4</span></div>
+      <div class="sg-scroll"><table class="sg">
+        <tr><th>Part</th><th>Meaning</th></tr>
+        <tr><td><code>var i = 0</code></td><td>Start the counter at 0.</td></tr>
+        <tr><td><code>i &lt; 4</code></td><td>Keep looping while this is true. The number here is how many times it runs.</td></tr>
+        <tr><td><code>i++</code></td><td>Add 1 to i after each iteration.</td></tr>
+      </table></div>
+      <p>The three parts are separated by <b>semicolons</b>, not commas. <b>Everything</b> inside the braces repeats each time, as a group. A loop can call your own functions too.</p>
+      <div class="mistake"><b>Off-by-one:</b> <code>i &lt;= 4</code> starting from 0 runs <b>5</b> times, not 4. A loop doesn't check for walls: if 5 moves would hit a wall, the loop crashes Karel.</div>
+
+      <!-- ========== 10 ========== -->
+      <h2 id="l10">10. If Statements and Conditionals</h2>
+      <dl>
+        <dt>Condition</dt><dd>A yes/no question whose answer is <b>true</b> or <b>false</b>. Asking a condition does not move Karel.</dd>
+        <dt>If statement</dt><dd>Runs its block <b>only when</b> the condition is true. If it's false, the block is <b>skipped</b> and the program continues after it.</dd>
+      </dl>
+      <div class="sg-scroll"><table class="sg">
+        <tr><th>Condition</th><th>True when...</th></tr>
+        <tr><td><code>frontIsClear()</code> / <code>frontIsBlocked()</code></td><td>no wall in front / a wall in front</td></tr>
+        <tr><td><code>leftIsClear()</code> / <code>rightIsClear()</code></td><td>no wall to Karel's left / right</td></tr>
+        <tr><td><code>ballsPresent()</code> / <code>noBallsPresent()</code></td><td>there is a ball on this corner / there is no ball</td></tr>
+        <tr><td><code>facingNorth()</code>, <code>facingEast()</code>, ...</td><td>Karel faces that direction</td></tr>
+      </table></div>
+      <div class="sg-code">if (frontIsClear()) {
+    move();       <span class="c">// only runs when there's no wall ahead</span>
+}</div>
+      <div class="mistake">The condition goes <b>inside parentheses</b>: <code>if (frontIsClear())</code>. <code>frontIsClear()</code> and <code>frontIsBlocked()</code> are <b>opposites</b>: mixing them up flips your logic.</div>
+
+      <!-- ========== 11 ========== -->
+      <h2 id="l11">11. If/Else Statements</h2>
+      <p>An <b>else</b> block runs when the if's condition is <b>false</b>. Exactly <b>one</b> of the two blocks runs every time: never both, never neither.</p>
+      <div class="sg-code">if (ballsPresent()) {
+    takeBall();
+} else {
+    putBall();    <span class="c">// runs only when there is NO ball</span>
+}</div>
+      <ul>
+        <li><code>else</code> never has its own condition: it's just <code>else {</code>.</li>
+        <li><code>else</code> must come right after the if block's closing <code>}</code>.</li>
+        <li>If you want two checks that could <b>both</b> run, use two separate if statements instead.</li>
+      </ul>
+
+      <!-- ========== 12 ========== -->
+      <h2 id="l12">12. While Loops</h2>
+      <dl>
+        <dt>While loop</dt><dd>Repeats <b>as long as a condition stays true</b>. Use it when you <b>don't know</b> how many times in advance.</dd>
+        <dt>Infinite loop</dt><dd>A loop whose condition <b>never becomes false</b>, so it never stops.</dd>
+      </dl>
+      <div class="sg-code">while (frontIsClear()) {
+    move();       <span class="c">// walks until it reaches a wall, however far that is</span>
+}</div>
+      <div class="sg-scroll"><table class="sg">
+        <tr><th></th><th>For loop</th><th>While loop</th></tr>
+        <tr><td>Use when</td><td>You know the exact number of repeats</td><td>You repeat until something happens</td></tr>
+        <tr><td>Stops when</td><td>The counter reaches its limit</td><td>The condition becomes false</td></tr>
+        <tr><td>Example</td><td>"Move 4 times"</td><td>"Move until you hit a wall"</td></tr>
+      </table></div>
+      <div class="mistake"><b>Infinite loop:</b> something inside the loop must eventually make the condition false. <code>while (frontIsClear()) { turnLeft(); }</code> never moves Karel, so if the front starts clear it spins forever.</div>
+
+      <!-- ========== 13 ========== -->
+      <h2 id="l13">13. Debugging Strategies</h2>
+      <dl>
+        <dt>Bug</dt><dd>When the program does something different from what you wanted.</dd>
+        <dt>Debugging</dt><dd>The process of finding and fixing bugs.</dd>
+      </dl>
+      <ol>
+        <li>Say what <b>should</b> happen (be specific).</li>
+        <li>Say what <b>actually</b> happens.</li>
+        <li>Find the <b>exact line</b> where they stop matching.</li>
+        <li>Change <b>one thing</b>, then run it again.</li>
+      </ol>
+      <div class="sg-scroll"><table class="sg">
+        <tr><th>Kind of bug</th><th>What you see</th></tr>
+        <tr><td><b>Crash (error)</b></td><td>The program stops, often with a message and a line number (hit a wall, took a ball that wasn't there, missing brace).</td></tr>
+        <tr><td><b>Wrong result (logic bug)</b></td><td>The program finishes, but Karel ends in the wrong place or the balls are wrong. Nothing tells you where; you trace the logic.</td></tr>
+      </table></div>
+      <p><b>Techniques:</b> trace the code on paper first, test one function at a time, check braces/parentheses/semicolons, and re-read the world (walls, starting direction). Randomly changing code until it works is <b>not</b> debugging.</p>
+
+      <!-- ========== SIM ========== -->
+      <h2 id="sim">&#9654; Karel Trace Lab</h2>
+      <div class="lab">
+        <p class="hint">Pick a program, then press <b>Step</b> to run it one line at a time. Before each step, predict where Karel will go. Karel is the triangle; balls are the yellow dots.</p>
+        <div class="btn-row" id="progPick"></div>
+        <div class="sim">
+          <div class="code-lines" id="simCode"></div>
+          <div><svg id="simWorld" viewBox="0 0 300 200" role="img" aria-label="Karel's world"></svg>
+            <div class="btn-row"><button class="btn btn-sm" id="simStep" type="button">Step &#9654;</button><button class="btn btn-sm btn-ghost" id="simRun" type="button">Run all</button><button class="btn btn-sm btn-ghost" id="simReset" type="button">Reset</button></div>
+          </div>
+        </div>
+        <div class="lab-info" id="simInfo"></div>
+      </div>
+
+      <!-- ========== PRACTICE ========== -->
+      <h2 id="practice">&#9989; Practice Questions</h2>
+      <p class="hint">These are practice, not the test. Click an answer to check it. Score: <b id="pScore">0 / 0</b></p>
+      <div id="practiceBox"></div>
+
+      <!-- ========== VOCAB ========== -->
+      <h2 id="vocab">Vocabulary Checklist</h2>
+      <p class="hint">Be able to define each one and give a Karel example.</p>
+      <ul style="columns:2;">
+        <li>Program</li><li>Command</li><li>Semicolon</li><li>move / turnLeft / putBall / takeBall</li><li>Function</li><li>Define vs. call</li><li>main()</li><li>camelCase</li><li>Curly braces { }</li><li>Top down design</li><li>Decomposition</li><li>Comment ( // )</li><li>Abstraction</li><li>Super Karel</li><li>turnRight / turnAround</li><li>For loop</li><li>Iteration</li><li>Off-by-one error</li><li>Condition</li><li>If statement</li><li>If/else</li><li>While loop</li><li>Infinite loop</li><li>Bug / debugging</li><li>Crash vs. logic bug</li>
+      </ul>
+
+      <div id="prev-next-root" class="prev-next-nav"></div>
+    </article>
+  </div>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>
+renderHeader();
+
+const UNIT_TITLE = "Unit 2: Intro to Programming (Karel)";
+const UNIT_BASE = "";
+const UNIT_LESSONS = [
+  { title: "Meet Karel", file: "meet-karel.html" },
+  { title: "2.1 + 2.2 Intro to Programming with Karel", file: "2-1-2-2-intro-to-programming-with-karel-more-about-karel.html" },
+  { title: "2.3 Karel Can't Turn Right", file: "2-3-karel-cant-turn-right.html" },
+  { title: "2.4 Functions in Karel", file: "2-4-functions-in-karel.html" },
+  { title: "2.5 The Main Function", file: "2-5-the-main-functiion.html" },
+  { title: "2.6 Top Down Decomposition in Karel", file: "2-6-top-down-decomposition-in-karel.html" },
+  { title: "2.7 + 2.8 Commenting Your Code + Abstraction", file: "2-7-2-8-commenting-your-code-abstraction.html" },
+  { title: "2.9 Procedural Decomposition", file: "2-9-procedural-decomposition-2-7.html" },
+  { title: "2.10 For Loops", file: "2-10-for-loops.html" },
+  { title: "2.11 + 2.12 If, If/Else Statements", file: "2-11-2-12-if-ifelse-statements.html" },
+  { title: "2.13 While Loops", file: "2-13-while-loops.html" },
+  { title: "2.14 Debugging Strategies", file: "2-14-debugging-strategies.html" },
+  { title: "Unit 2 Study Guide", file: "unit-2-study-guide.html" },
+  { title: "Unit 2 Test", file: "unit-2-test-2-17.html" }
+];
+const CURRENT_FILE = "unit-2-study-guide.html";
+
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+  /* ---- turn tracker ---- */
+  var DIRS = [["&rarr;", "East"], ["&uarr;", "North"], ["&larr;", "West"], ["&darr;", "South"]], t = 0;
+  function tShow() { $("tFace").innerHTML = DIRS[t % 4][0] + " " + DIRS[t % 4][1]; $("tCount").textContent = t + " turnLeft() call" + (t === 1 ? "" : "s") + (t % 4 === 3 ? " (same as one turnRight)" : t % 4 === 2 ? " (turned around)" : t && t % 4 === 0 ? " (full circle)" : ""); }
+  $("tL").onclick = function () { t++; tShow(); }; $("tReset").onclick = function () { t = 0; tShow(); }; tShow();
+
+  /* ---- Karel trace lab ---- */
+  var W = 5, H = 3, CELL = 60;
+  // each program: code lines + a runner that records steps using a tiny Karel
+  var PROGS = {
+    "Basic commands": { start: [0, 0, 0], balls: {}, code: ["function main() {", "    move();", "    move();", "    turnLeft();", "    move();", "    putBall();", "}"],
+      run: function (k) { k.move(1); k.move(2); k.left(3); k.move(4); k.put(5); } },
+    "turnRight() function": { start: [0, 0, 1], balls: {}, code: ["function turnRight() {", "    turnLeft();", "    turnLeft();", "    turnLeft();", "}", "function main() {", "    move();", "    turnRight();", "    move();", "}"],
+      run: function (k) { k.move(6); k.note(7, "calls turnRight()"); k.left(1); k.left(2); k.left(3); k.move(8); } },
+    "For loop": { start: [0, 0, 0], balls: {}, code: ["function main() {", "    for (var i = 0; i < 4; i++) {", "        putBall();", "        move();", "    }", "}"],
+      run: function (k) { for (var i = 0; i < 4; i++) { k.note(1, "i = " + i + ", i < 4 is true"); k.put(2); k.move(3); } k.note(1, "i = 4, i < 4 is false: loop ends"); } },
+    "If / else": { start: [0, 0, 0], balls: { "1,0": 1, "3,0": 1 }, code: ["function main() {", "    for (var i = 0; i < 4; i++) {", "        move();", "        if (ballsPresent()) {", "            takeBall();", "        } else {", "            putBall();", "        }", "    }", "}"],
+      run: function (k) { for (var i = 0; i < 4; i++) { k.note(1, "i = " + i); k.move(2); var b = k.has(); k.note(3, "ballsPresent() is " + b); if (b) k.take(4); else { k.note(5, "else: condition was false"); k.put(6); } } } },
+    "While loop": { start: [0, 1, 0], balls: {}, code: ["function main() {", "    while (frontIsClear()) {", "        move();", "    }", "    putBall();", "}"],
+      run: function (k) { while (k.clear()) { k.note(1, "frontIsClear() is true"); k.move(2); } k.note(1, "frontIsClear() is false: loop ends"); k.put(4); } }
+  };
+  var cur, steps, idx;
+  function build(name) {
+    var P = PROGS[name], s = { x: P.start[0], y: P.start[1], d: P.start[2], balls: Object.assign({}, P.balls) }, out = [];
+    function snap(line, msg) { out.push({ line: line, x: s.x, y: s.y, d: s.d, balls: Object.assign({}, s.balls), msg: msg }); }
+    var DX = [1, 0, -1, 0], DY = [0, 1, 0, -1];
+    var k = {
+      move: function (l) { var nx = s.x + DX[s.d], ny = s.y + DY[s.d]; if (nx < 0 || ny < 0 || nx >= W || ny >= H) { snap(l, "CRASH: wall in front!"); throw 0; } s.x = nx; s.y = ny; snap(l, "move(): forward one square"); },
+      left: function (l) { s.d = (s.d + 1) % 4; snap(l, "turnLeft(): now facing " + ["East", "North", "West", "South"][s.d]); },
+      put: function (l) { var key = s.x + "," + s.y; s.balls[key] = (s.balls[key] || 0) + 1; snap(l, "putBall(): dropped a ball"); },
+      take: function (l) { var key = s.x + "," + s.y; s.balls[key]--; if (!s.balls[key]) delete s.balls[key]; snap(l, "takeBall(): picked up a ball"); },
+      has: function () { return !!s.balls[s.x + "," + s.y]; },
+      clear: function () { var nx = s.x + DX[s.d], ny = s.y + DY[s.d]; return !(nx < 0 || ny < 0 || nx >= W || ny >= H); },
+      note: function (l, msg) { snap(l, msg); }
+    };
+    snap(-1, "Ready. Press Step.");
+    try { P.run(k); } catch (e) { }
+    snap(-1, "Program finished.");
+    return out;
+  }
+  function draw() {
+    var st = steps[idx], P = PROGS[cur], g = "";
+    for (var x = 0; x <= W; x++) g += '<line x1="' + x * CELL + '" y1="0" x2="' + x * CELL + '" y2="' + H * CELL + '" stroke="#cbd5e1"/>';
+    for (var y = 0; y <= H; y++) g += '<line x1="0" y1="' + y * CELL + '" x2="' + W * CELL + '" y2="' + y * CELL + '" stroke="#cbd5e1"/>';
+    g += '<rect x="1" y="1" width="' + (W * CELL - 2) + '" height="' + (H * CELL - 2) + '" fill="none" stroke="#111" stroke-width="4"/>';
+    Object.keys(st.balls).forEach(function (key) { var p = key.split(","), cx = +p[0] * CELL + CELL / 2, cy = (H - 1 - +p[1]) * CELL + CELL / 2; g += '<circle cx="' + cx + '" cy="' + cy + '" r="11" fill="#facc15" stroke="#a16207"/>'; if (st.balls[key] > 1) g += '<text x="' + cx + '" y="' + (cy + 4) + '" text-anchor="middle" font-size="11" font-weight="700">' + st.balls[key] + "</text>"; });
+    var cx = st.x * CELL + CELL / 2, cy = (H - 1 - st.y) * CELL + CELL / 2, ang = [0, -90, 180, 90][st.d];
+    g += '<g transform="translate(' + cx + " " + cy + ") rotate(" + ang + ')"><polygon points="18,0 -12,-13 -12,13" fill="#2563eb" stroke="#1e3a8a" stroke-width="2"/></g>';
+    $("simWorld").setAttribute("viewBox", "0 0 " + W * CELL + " " + H * CELL); $("simWorld").innerHTML = g;
+    [].forEach.call($("simCode").children, function (d, i) { d.classList.toggle("run", i === st.line); });
+    $("simInfo").innerHTML = "<b>Step " + idx + " of " + (steps.length - 1) + ":</b> " + esc(st.msg);
+  }
+  function pick(name) {
+    cur = name; steps = build(name); idx = 0;
+    $("simCode").innerHTML = PROGS[name].code.map(function (l) { return "<div>" + esc(l) + "</div>"; }).join("");
+    [].forEach.call($("progPick").children, function (b) { b.classList.toggle("btn-ghost", b.textContent !== name); });
+    draw();
+  }
+  Object.keys(PROGS).forEach(function (n) { var b = document.createElement("button"); b.className = "btn btn-sm btn-ghost"; b.type = "button"; b.textContent = n; b.onclick = function () { pick(n); }; $("progPick").appendChild(b); });
+  $("simStep").onclick = function () { if (idx < steps.length - 1) { idx++; draw(); } };
+  $("simReset").onclick = function () { idx = 0; draw(); };
+  $("simRun").onclick = function () { var tm = setInterval(function () { if (idx >= steps.length - 1) { clearInterval(tm); return; } idx++; draw(); }, 450); };
+  pick("Basic commands");
+
+  /* ---- practice questions (not the test) ---- */
+  var PQ = [
+    { q: "Which command picks up a ball from Karel's corner?", o: ["putBall();", "takeBall();", "pickBall();", "getBall();"], a: 1, e: "takeBall(); picks up; putBall(); drops." },
+    { q: "Karel faces North and runs <code>turnLeft(); turnLeft();</code>. Which way is Karel facing?", o: ["East", "West", "South", "North"], a: 2, e: "Two lefts turn Karel all the way around." },
+    { q: "What happens if Karel runs <code>move();</code> with a wall directly in front of it?", o: ["Karel skips the command", "Karel turns left automatically", "The program crashes with an error", "Karel moves through the wall"], a: 2, e: "Moving into a wall is an error." },
+    { q: "Which is a correct function definition?", o: ["function turnRight {", "function turnRight() {", "turnRight() function {", "function: turnRight() {"], a: 1, e: "function, the name, parentheses, then an opening curly brace." },
+    { q: "Where does every Karel program start running?", o: ["The first line of the file", "The first function defined", "main()", "turnRight()"], a: 2, e: "main() is the starting point." },
+    { q: "Which name follows camelCase?", o: ["build_tower", "BuildTower", "buildtower", "buildTower"], a: 3, e: "First word lowercase, each new word capitalized." },
+    { q: "Breaking a large problem into smaller sub-problems is called...", o: ["Abstraction", "Decomposition", "Debugging", "Iteration"], a: 1, e: "That's decomposition." },
+    { q: "What does Karel do with <code>// move to the tower</code>?", o: ["Moves to the tower", "Ignores it", "Shows an error", "Prints it on the screen"], a: 1, e: "Comments are for humans; the computer ignores them." },
+    { q: "Using turnRight() without thinking about the three turnLeft() calls inside it is an example of...", o: ["Abstraction", "An infinite loop", "A comment", "A condition"], a: 0, e: "Hiding the details behind a simple name." },
+    { q: "Which command is built into Super Karel but NOT regular Karel?", o: ["move();", "turnLeft();", "turnAround();", "putBall();"], a: 2, e: "Super Karel adds turnRight() and turnAround()." },
+    { q: "How many times does this loop run? <pre>for (var i = 0; i < 6; i++) {\n    move();\n}</pre>", o: ["5", "6", "7", "0"], a: 1, e: "i = 0, 1, 2, 3, 4, 5." },
+    { q: "Which loop is best for \"move until Karel reaches a wall\"?", o: ["A for loop", "A while loop", "An if statement", "A function with no loop"], a: 1, e: "You don't know how many moves it takes." },
+    { q: "In an if/else, when does the else block run?", o: ["Every time", "When the condition is true", "When the condition is false", "Never"], a: 2, e: "else handles the false case." },
+    { q: "What is wrong? <pre>while (frontIsClear()) {\n    putBall();\n}</pre>", o: ["Nothing", "It's an infinite loop if the front is clear, because Karel never moves", "while can't use frontIsClear()", "putBall() needs a number"], a: 1, e: "Nothing inside the loop changes the condition." },
+    { q: "What is the FIRST step of the debugging process?", o: ["Change several lines at once", "Say what should happen", "Delete the function", "Run it again and hope"], a: 1, e: "Start by stating exactly what should happen." }
+  ];
+  var right = 0, done = 0;
+  PQ.forEach(function (q, n) {
+    var d = document.createElement("div"); d.className = "quiz-q";
+    d.innerHTML = "<b>" + (n + 1) + ".</b> " + q.q + '<div class="opts"></div><div class="fb"></div>';
+    var answered = false;
+    q.o.forEach(function (t, i) {
+      var b = document.createElement("button"); b.type = "button"; b.className = "btn btn-sm btn-ghost"; b.innerHTML = String.fromCharCode(65 + i) + ". " + (/^[a-z_]+[\w ]*\(|;|\{|:/.test(t) ? "<code>" + esc(t) + "</code>" : esc(t));
+      b.onclick = function () {
+        if (answered) return; answered = true; done++;
+        var ok = i === q.a; if (ok) right++;
+        d.querySelector(".fb").innerHTML = (ok ? '<b style="color:#15803d">Correct.</b> ' : '<b style="color:#c8102e">Not quite.</b> The answer is ' + String.fromCharCode(65 + q.a) + ". ") + q.e;
+        $("pScore").textContent = right + " / " + done;
+      };
+      d.querySelector(".opts").appendChild(b);
+    });
+    $("practiceBox").appendChild(d);
+  });
+})();
+</script>
+<script src="../../assets/course-nav.js"></script>
+</body>
+</html>
