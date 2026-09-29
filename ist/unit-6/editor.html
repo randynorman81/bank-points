@@ -328,9 +328,20 @@ function lessonLock(l) {
   if (SHOW_ALL || !d || new Date() >= new Date(d[0], d[1] - 1, d[2])) return null;
   return { when: MONTHS[d[1] - 1] + " " + d[2] };
 }
+/* The list shows only lessons the student has already started (saved on this computer or in the cloud),
+   plus the one they are on. A new lesson is started from its lesson page's Assignment button. */
+var MY_LESSONS = {};
+function hasLocalWork(l) { return !isBlank(lsGet("u7:code:" + l) || "") || !isBlank(lsGet("u7:css:" + l) || ""); }
+function buildLessonList() {
+  var sel = $("lesson"); sel.innerHTML = "";
+  H.ORDER.forEach(function (l) {
+    if (lessonLock(l)) return;
+    if (!SHOW_ALL && l !== S.lesson && !MY_LESSONS[l] && !hasLocalWork(l)) return;
+    var o = document.createElement("option"); o.value = l; o.textContent = l + "  " + H.LESSONS[l].name; sel.appendChild(o);
+  });
+  sel.value = S.lesson;
+}
 (function initLessons() {
-  var sel = $("lesson");
-  H.ORDER.forEach(function (l) { if (lessonLock(l)) return; var o = document.createElement("option"); o.value = l; o.textContent = l + "  " + H.LESSONS[l].name; sel.appendChild(o); });
   var q = new URLSearchParams(location.search).get("lesson");
 
   S.lesson = (q && H.LESSONS[q]) ? q : (lsGet("u7:lesson") || "6.1");
@@ -338,9 +349,9 @@ function lessonLock(l) {
   var lock = lessonLock(S.lesson);
   if (lock) {
     if (q === S.lesson) setTimeout(function () { toast(q + " opens " + lock.when + "."); }, 300);
-    var open = H.ORDER.filter(function (l) { return !lessonLock(l); }); S.lesson = open[open.length - 1] || "6.1";
+    var open = H.ORDER.filter(function (l) { return !lessonLock(l) && hasLocalWork(l); }); S.lesson = open[open.length - 1] || "6.1";
   }
-  sel.value = S.lesson;
+  buildLessonList();
   $("period").value = lsGet("u7:period") || "";
   $("auto").checked = lsGet("u7:auto") !== "0";
 })();
@@ -590,6 +601,7 @@ function onCredential(resp) {
   $("who").textContent = "Signed in: " + (S.name || S.email); $("gbtn").innerHTML = ""; $("note").className = "note";
   $("banner").className = "banner";
   afterLessonChange(true);
+  api({ action: "myLessons" }).then(function (j) { if (j && j.ok) { (j.lessons || []).forEach(function (l) { MY_LESSONS[l] = 1; }); buildLessonList(); } });
 }
 function api(body) {
   body.credential = S.cred;

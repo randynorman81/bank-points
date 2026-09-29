@@ -98,6 +98,16 @@ async function mine(body, user) {
   return out;
 }
 
+// Which lessons this student has saved or submitted work in (the editor's lesson list shows only these).
+async function myLessons(user) {
+  const e = enc(user.email);
+  const has = await Promise.all(LESSONS.map(async (l) => {
+    const [s, d] = await Promise.all([store().getMetadata("sub:" + l + ":" + e), store().getMetadata("draft:" + l + ":" + e)]);
+    return s || d ? l : null;
+  }));
+  return { ok: true, lessons: has.filter(Boolean) };
+}
+
 async function saveDraft(body, user) {
   if (!goodLesson(body.lesson)) return { error: "Unknown lesson" };
   const code = String(body.code == null ? "" : body.code);
@@ -275,6 +285,7 @@ export default async (req) => {
     const user = await verifyGoogleToken(body.credential);
     if (!user) return ok({ error: "Please sign in with your school Google account.", needLogin: true });
     if (action === "mine") return ok(await mine(body, user));
+    if (action === "myLessons") return ok(await myLessons(user));
     if (action === "saveDraft") return ok(await saveDraft(body, user));
     if (action === "submit") return ok(await submit(body, user));
     if (action === "uploadImage") return ok(await uploadImage(body, user));
