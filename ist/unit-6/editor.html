@@ -305,13 +305,28 @@ function syncCssTab() {
 }
 
 /* ---------- lessons ---------- */
+/* Lessons appear when their unit starts on the IST pacing guide (ist/pacing-guide.html).
+   HTML is always open. Box Model, Display, and Div (7.1, 7.3, 7.4) are taught at the start of CSS.
+   Add ?all=1 to the address to see every lesson (teacher preview). */
+var UNIT_OPENS = [
+  { test: /^(7\.[134]|8\.)/, date: new Date(2026, 10, 30), name: "the CSS unit", when: "Nov 30" },
+  { test: /^9\./, date: new Date(2027, 0, 11), name: "the Bootstrap unit", when: "Jan 11" }
+];
+var SHOW_ALL = new URLSearchParams(location.search).get("all") === "1";
+function lessonLock(l) {
+  if (SHOW_ALL) return null;
+  var now = new Date();
+  return UNIT_OPENS.filter(function (u) { return u.test.test(l) && now < u.date; })[0] || null;
+}
 (function initLessons() {
   var sel = $("lesson");
-  H.ORDER.forEach(function (l) { var o = document.createElement("option"); o.value = l; o.textContent = l + "  " + H.LESSONS[l].name; sel.appendChild(o); });
+  H.ORDER.forEach(function (l) { if (lessonLock(l)) return; var o = document.createElement("option"); o.value = l; o.textContent = l + "  " + H.LESSONS[l].name; sel.appendChild(o); });
   var q = new URLSearchParams(location.search).get("lesson");
 
   S.lesson = (q && H.LESSONS[q]) ? q : (lsGet("u7:lesson") || "6.1");
   if (!H.LESSONS[S.lesson]) S.lesson = "6.1";
+  var lock = lessonLock(S.lesson);
+  if (lock) { if (q === S.lesson) setTimeout(function () { toast(q + " opens " + lock.when + " when " + lock.name + " starts."); }, 300); S.lesson = "6.1"; }
   sel.value = S.lesson;
   $("period").value = lsGet("u7:period") || "";
   $("auto").checked = lsGet("u7:auto") !== "0";
@@ -533,7 +548,7 @@ $("scrim").addEventListener("click", function () { openSide(false); });
 document.addEventListener("keydown", function (e) { if (e.key === "Escape") openSide(false); });
 
 /* ---------- controls ---------- */
-$("lesson").addEventListener("change", function () { saveNow(false); cloudSave(); S.lesson = this.value; lastCloud = ""; lsSet("u7:lesson", S.lesson); history.replaceState(null, "", "?lesson=" + S.lesson); updateGuideLink(); loadLocal(); afterLessonChange(); });
+$("lesson").addEventListener("change", function () { saveNow(false); cloudSave(); S.lesson = this.value; lastCloud = ""; lsSet("u7:lesson", S.lesson); history.replaceState(null, "", "?lesson=" + S.lesson + (SHOW_ALL ? "&all=1" : "")); updateGuideLink(); loadLocal(); afterLessonChange(); });
 $("period").addEventListener("change", function () { lsSet("u7:period", this.value); });
 $("btnRun").addEventListener("click", renderPreview);
 $("btnCopy").addEventListener("click", function () { ta.select(); try { navigator.clipboard.writeText(ta.value); toast("Copied " + (S.file === "css" ? "style.css" : "index.html")); } catch (e) { document.execCommand("copy"); toast("Copied"); } });
