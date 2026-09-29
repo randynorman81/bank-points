@@ -73,7 +73,7 @@ main[data-view="code"] .split,main[data-view="prev"] .split{display:none}
 #code::selection{background:rgba(96,130,220,.38)!important;color:transparent}
 #hl{position:absolute;top:0;left:46px;height:100%;margin:0;overflow:hidden;pointer-events:none;z-index:1;color:#E6EAF2;font:14px/21px "JetBrains Mono",monospace;padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:2;box-sizing:border-box}
 .t-tag{color:#FB7185}.t-style{color:#F472B6}.t-attr{color:#FBBF24}.t-id{color:#22D3EE}.t-id-v{color:#67E8F9}.t-class{color:#A78BFA}.t-class-v{color:#C4B5FD}.t-val{color:#86EFAC}.t-br{color:#7C8AA5}.t-eq{color:#7C8AA5}
-.c-prop{color:#60A5FA}.c-hex{color:#FDBA74}.c-num{color:#FDBA74}.c-pun{color:#7C8AA5}.c-cm{color:#5B6B85;font-style:italic}
+.c-prop{color:#60A5FA}.c-hex{color:#FDBA74}.c-num{color:#FDBA74}.c-kw{color:#34D399}.c-pun{color:#7C8AA5}.c-cm{color:#5B6B85;font-style:italic}
 #ansPane{display:none;position:absolute;inset:0;z-index:6;background:#080B11;overflow:auto;padding:14px 16px 40px}
 #ansPane.show{display:block}
 #ansPane .ah{color:var(--soft);font-size:12.5px;margin:0 0 6px}
@@ -209,7 +209,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
       <span class="ftabs" id="ftabs"><button data-f="ans" id="ansTab" style="display:none">Assignment<span id="ansBadge"></span></button><button data-f="wt" id="wtTab" style="display:none">Walkthrough<span id="wtBadge"></span></button><button class="on" data-f="html">index.html</button><button data-f="css">style.css</button></span>
       <span class="tools"><label title="Adds the closing tag and closing quote for you"><input type="checkbox" id="auto" checked> Auto-close</label><span id="lineinfo">Line 1</span><span class="winbtns"><button class="btn sm" id="minCode" title="Shrink the code panel">– Minimize</button><button class="btn sm" id="maxCode" title="Make the code panel fill the screen">⤢ Maximize</button></span></span>
     </h2>
-    <div class="legend" id="legend"><span><i class="t-tag">&lt;tag&gt;</i></span><span><i class="t-style">style</i></span><span><i class="t-id">id</i></span><span><i class="t-class">class</i></span><span><i class="t-attr">attribute</i></span><span><i class="t-val">"value"</i></span><span><i class="c-prop">css-property</i></span><span><i class="c-hex">#hex / 12px</i></span><span>plain white = not a keyword I know, check your spelling</span></div>
+    <div class="legend" id="legend"><span><i class="t-tag">&lt;tag&gt;</i></span><span><i class="t-style">style</i></span><span><i class="t-id">id</i></span><span><i class="t-class">class</i></span><span><i class="t-attr">attribute</i></span><span><i class="t-val">"value"</i></span><span><i class="c-prop">css-property</i></span><span><i class="c-kw">green / solid</i></span><span><i class="c-hex">#hex / 12px</i></span><span>plain white = not a keyword I know, check your spelling</span></div>
     <div class="edwrap"><div class="gut" id="gut"></div><div id="hl" aria-hidden="true"></div><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="soft" aria-label="Code editor"></textarea><div id="mirror" aria-hidden="true"></div><div id="ansPane" aria-label="Assignment"></div><div id="wtPane" aria-label="Walkthrough"></div></div>
     <button class="stripbtn" data-restore="both" aria-label="Show the code panel">▸ Code</button>
   </section>
@@ -699,17 +699,21 @@ var HL = (function () {
   var TAGS = set("html head body title meta link style script h1 h2 h3 h4 h5 h6 p br hr div span a img ul ol li table thead tbody tfoot tr th td caption b i u em strong small mark sub sup code pre blockquote q abbr cite header footer nav main section article aside figure figcaption form input button label select option textarea iframe video audio source canvas svg center font");
   var ATTRS = set("id class style href src alt title width height type name value lang charset content rel colspan rowspan target border align bgcolor color size face placeholder for action method disabled checked controls autoplay loop");
   var PROPS = set("color background background-color background-image background-size background-position background-repeat border border-color border-style border-width border-radius border-top border-bottom border-left border-right margin margin-top margin-bottom margin-left margin-right padding padding-top padding-bottom padding-left padding-right width height min-width max-width min-height max-height display font font-family font-size font-weight font-style text-align text-decoration text-transform text-indent line-height letter-spacing word-spacing list-style list-style-type list-style-position float clear position top bottom left right overflow opacity visibility box-shadow text-shadow cursor z-index vertical-align white-space border-collapse border-spacing flex flex-direction justify-content align-items gap grid");
+  var NAMED = H.NAMED || {};
+  var VALUE_WORDS = set("solid dashed dotted double groove ridge inset outset none hidden center left right justify bold bolder lighter normal italic oblique underline overline line-through uppercase lowercase capitalize block inline inline-block flex inline-flex grid serif sans-serif monospace cursive fantasy system-ui auto inherit initial unset transparent currentcolor disc circle square decimal lower-alpha upper-alpha lower-roman upper-roman top middle bottom baseline text-top text-bottom pointer default relative absolute fixed static sticky wrap nowrap row column row-reverse column-reverse space-between space-around space-evenly flex-start flex-end start end stretch cover contain repeat repeat-x repeat-y no-repeat both scroll visible ease ease-in ease-out ease-in-out linear all collapse separate outside inside important rgb rgba hsl hsla repeat minmax arial helvetica verdana georgia tahoma impact times courier garamond palatino trebuchet");
   function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
   function sp(c, s) { return s === "" ? "" : '<span class="' + c + '">' + esc(s) + "</span>"; }
 
   /* the inside of a { } block or style="" attribute: property: value; */
   function decls(t) {
-    return t.replace(/(\/\*[\s\S]*?(?:\*\/|$))|([^:;{}\/]+)(:)|(#[0-9a-fA-F]{3,8}\b)|(-?\d*\.?\d+(?:px|em|rem|%|pt|vh|vw)?)|([;{}:])|(\s+)|([\s\S])/g,
-      function (m, cm, prop, colon, hex, num, punc, ws, other) {
+    return t.replace(/(\/\*[\s\S]*?(?:\*\/|$))|([^:;{}\/]+)(:)|(#[0-9a-fA-F]{3,8}\b)|(-?\d*\.?\d+(?:px|em|rem|%|pt|vh|vw|s|ms|deg|fr)?)|([a-zA-Z][a-zA-Z-]*)|([;{}:])|(\s+)|([\s\S])/g,
+      function (m, cm, prop, colon, hex, num, word, punc, ws, other) {
         if (cm) return sp("c-cm", cm);
         if (prop) { var p = prop.trim(); var lead = prop.match(/^\s*/)[0], trail = prop.match(/\s*$/)[0]; return esc(lead) + (PROPS[p.toLowerCase()] ? sp("c-prop", p) : esc(p)) + esc(trail) + sp("c-pun", colon); }
         if (hex) return sp("c-hex", hex);
         if (num) return sp("c-num", num);
+        // value words: named colors (green, tomato) and keywords (solid, center, bold). Misspelled ones stay white.
+        if (word) return (NAMED[word.toLowerCase()] || VALUE_WORDS[word.toLowerCase()]) ? sp("c-kw", word) : esc(word);
         if (punc) return sp("c-pun", punc);
         return esc(m);
       });
