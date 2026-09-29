@@ -182,7 +182,6 @@ table.trace td.chg{color:var(--acc-ink);font-weight:700}
   <a href="#input">Input</a>
   <a href="#math">Math</a>
   <a href="#graphics">Graphics</a>
-  <a href="#mouse">Mouse Events</a>
   <a href="#errors">Errors</a>
   <a href="#test" class="current">Practice Test</a>
 </nav>
@@ -191,9 +190,9 @@ table.trace td.chg{color:var(--acc-ink);font-weight:700}
   <div class="wrap">
     <div class="brief-no">AP CSP &nbsp;/&nbsp; UNIT 3 &nbsp;/&nbsp; PROGRAMMING WITH PYTHON</div>
     <h1>Unit 3 Study Guide: Programming with Python</h1>
-    <p class="deck">Everything on the Unit 3 test, in the order CodeHS teaches it: variables and constants, strings and string methods, concatenation and type conversion, user input, math operators, graphics, and mouse events. The practice test at the bottom asks questions the same way the AP exam does: "What is displayed?", "Which of the following&hellip;", and "Select two answers."</p>
+    <p class="deck">Everything on the Unit 3 test, in the order CodeHS teaches it: variables and constants, strings and string methods, concatenation and type conversion, user input, math operators, and graphics. The practice test at the bottom asks questions the same way the AP exam does: "What is displayed?", "Which of the following&hellip;", and "Select two answers."</p>
     <div class="meta">
-      <span class="chip">Covers <b>3.1&ndash;3.8</b></span>
+      <span class="chip">Covers <b>3.1&ndash;3.7</b></span>
       <span class="chip">Practice test: <b id="heroCount">60</b> AP-style questions</span>
       <span class="chip">Every answer <b>explained</b></span>
     </div>
@@ -531,81 +530,17 @@ box.set_position(get_width() - box.get_width(), get_height() - box.get_height())
   </div>
 </section>
 
-<!-- ============ 06 MOUSE ============ -->
-<section class="part" id="mouse">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">06</div><h2>Mouse Events, Parameters, and Dot Notation</h2><div class="les">3.8</div></div>
-    <p class="lede">An <b>event</b> is something the user does, such as a click. An <b>event handler</b> (also called a <b>callback</b>) is a function you write that the computer runs <em>for you</em> each time that event happens.</p>
-
-    <div class="code">def draw_dot(x, y):            <span class="cm"># x, y are PARAMETERS</span>
-    dot = Circle(10)
-    dot.set_position(x, y)     <span class="cm"># x, y hold where the user clicked</span>
-    dot.set_color(Color.blue)
-    add(dot)
-
-add_mouse_click_handler(draw_dot)   <span class="cm"># NO () after draw_dot</span></div>
-
-    <div class="two">
-      <div class="box">
-        <h3>Parameters</h3>
-        <p>A <b>parameter</b> is a variable in a function's definition, like <code>def draw_dot(x, y):</code>, that gets filled in when the function is called. The values passed in are <b>arguments</b>. For a click handler the <b>canvas</b> supplies the arguments: the click's x and y. The names don't matter (<code>def draw_dot(a, b):</code> works) but the <b>count</b> must be exactly 2.</p>
-      </div>
-      <div class="box">
-        <h3>Why no <code>()</code> in the handler call?</h3>
-        <p><code>add_mouse_click_handler(draw_dot)</code> hands over the function <b>by name</b> to be run later, on every click. Writing <code>draw_dot()</code> would <b>call it right now</b> with no x and y, which is a TypeError.</p>
-      </div>
-    </div>
-
-    <h3 class="sub">Dot notation vs. no dot</h3>
-    <div class="tblwrap"><div class="tblscroll">
-      <table class="cmp">
-        <tr><th></th><th>With a dot: <b>method</b></th><th>No dot: <b>function</b></th></tr>
-        <tr><td><b>Meaning</b></td><td>"This specific object, do this." It belongs to one object.</td><td>A general command, not tied to one object.</td></tr>
-        <tr><td><b>Graphics</b></td><td><code>ball.set_position(x, y)</code><br><code>ball.set_color(Color.red)</code><br><code>box.get_width()</code> <em>(shape's width)</em></td><td><code>add(ball)</code><br><code>set_size(400, 300)</code><br><code>get_width()</code> <em>(canvas width)</em><br><code>add_mouse_click_handler(draw_dot)</code></td></tr>
-        <tr><td><b>Strings</b></td><td><code>name.upper()</code>, <code>name.find("a")</code></td><td><code>len(name)</code>, <code>print()</code>, <code>input()</code>, <code>int()</code>, <code>str()</code></td></tr>
-      </table>
-    </div></div>
-    <div class="example"><b>Read the dot as "'s":</b> <code>ball.set_color(...)</code> is "ball's set_color." So <code>box.get_width()</code> is <b>box's</b> width, and <code>get_width()</code> with nobody before it is the <b>canvas's</b> width.</div>
-
-    <h3 class="sub">One shape that moves vs. a new shape every click</h3>
-    <div class="two">
-      <div class="box">
-        <h3>Created OUTSIDE the handler</h3>
-        <div class="code" style="margin:0 0 10px">ball = Circle(20)
-add(ball)
-
-def move_ball(x, y):
-    ball.set_position(x, y)
-
-add_mouse_click_handler(move_ball)</div>
-        <p><b>One</b> ball that jumps to each click.</p>
-      </div>
-      <div class="box">
-        <h3>Created INSIDE the handler</h3>
-        <div class="code" style="margin:0 0 10px">def stamp(x, y):
-    ball = Circle(20)
-    ball.set_position(x, y)
-    add(ball)
-
-add_mouse_click_handler(stamp)</div>
-        <p>A <b>new</b> ball every click. 5 clicks = 5 balls.</p>
-      </div>
-    </div>
-    <div class="hint-panel">More: <a href="../graphics/mouse-events.html">Mouse Events reference &rarr;</a></div>
-  </div>
-</section>
-
-<!-- ============ 07 ERRORS ============ -->
+<!-- ============ 06 ERRORS ============ -->
 <section class="part" id="errors">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">07</div><h2>Common Errors Across the Whole Unit</h2></div>
+    <div class="part-head"><div class="part-tag">06</div><h2>Common Errors Across the Whole Unit</h2></div>
     <p class="lede">If you know what causes each of these, you can answer every "which line causes an error?" question.</p>
     <div class="tblwrap"><div class="tblscroll">
       <table class="cmp">
         <tr><th>Error</th><th>What it means</th><th>Unit 3 example</th></tr>
         <tr><td><b>SyntaxError</b></td><td>Broken grammar, so the program can't start</td><td><code>print("Hi)</code> &middot; <code>high score = 5</code> &middot; <code>1st = 5</code></td></tr>
         <tr><td><b>NameError</b></td><td>Using a name that was never created (or is spelled or capitalized differently)</td><td><code>print(Score)</code> after <code>score = 5</code> &middot; <code>Square(50)</code> &middot; using <code>ball</code> before <code>ball = Circle(20)</code></td></tr>
-        <tr><td><b>TypeError</b></td><td>Right idea, wrong type or wrong number of arguments</td><td><code>"Age: " + 16</code> &middot; <code>input("Num") + 1</code> &middot; <code>Rectangle(50)</code> &middot; <code>def click():</code> as a click handler &middot; <code>add_mouse_click_handler(click())</code></td></tr>
+        <tr><td><b>TypeError</b></td><td>Right idea, wrong type or wrong number of arguments</td><td><code>"Age: " + 16</code> &middot; <code>input("Num") + 1</code> &middot; <code>Rectangle(50)</code></td></tr>
         <tr><td><b>ValueError</b></td><td>Right type, but a value that can't be converted</td><td><code>int("3.5")</code> &middot; <code>int("ten")</code></td></tr>
         <tr><td><b>AttributeError</b></td><td>That object has no method by that name</td><td><code>"hi".len()</code> &middot; a misspelled method like <code>ball.set_colour(Color.red)</code></td></tr>
         <tr><td><b>ZeroDivisionError</b></td><td>Dividing by 0</td><td><code>10 / 0</code> &middot; <code>10 % 0</code></td></tr>
@@ -615,10 +550,10 @@ add_mouse_click_handler(stamp)</div>
   </div>
 </section>
 
-<!-- ============ 08 PRACTICE TEST ============ -->
+<!-- ============ 07 PRACTICE TEST ============ -->
 <section class="part" id="test">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">08</div><h2>Practice Test (AP Style)</h2></div>
+    <div class="part-head"><div class="part-tag">07</div><h2>Practice Test (AP Style)</h2></div>
     <p class="lede">These are worded the way the AP exam words its questions. Trace the code on paper before you choose. You get one try per question, and the explanation shows after you answer. "Select two" questions need exactly two choices before you can check.</p>
 
     <div class="testbar">
@@ -632,10 +567,10 @@ add_mouse_click_handler(stamp)</div>
   </div>
 </section>
 
-<!-- ============ 09 VOCAB ============ -->
+<!-- ============ 08 VOCAB ============ -->
 <section class="part" id="vocab">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">09</div><h2>Vocabulary Checklist</h2></div>
+    <div class="part-head"><div class="part-tag">08</div><h2>Vocabulary Checklist</h2></div>
     <p class="lede">You should be able to explain each one in your own words and give an example.</p>
     <ul class="checklist">
       <li>Variable</li><li>Assignment operator (<code>=</code>)</li><li>snake_case</li><li>Constant (ALL_CAPS)</li>
@@ -644,16 +579,15 @@ add_mouse_click_handler(stamp)</div>
       <li>Dot notation</li><li><code>len()</code></li><li><code>.upper() .lower() .strip() .find() .split()</code></li><li><code>input()</code> returns a string</li>
       <li>Regular division <code>/</code></li><li>Floor division <code>//</code></li><li>Modulus <code>%</code></li><li>Order of operations</li>
       <li>Canvas / <code>get_width()</code> / <code>get_height()</code></li><li>Circle / Rectangle / "Square"</li><li>Anchor point (center vs. top-left)</li><li><code>add()</code></li>
-      <li>Event</li><li>Event handler / callback</li><li>Parameter vs. argument</li><li><code>add_mouse_click_handler()</code></li>
       <li>SyntaxError</li><li>NameError</li><li>TypeError</li><li>ValueError</li>
     </ul>
   </div>
 </section>
 
-<!-- ============ 10 NIGHT BEFORE ============ -->
+<!-- ============ 09 NIGHT BEFORE ============ -->
 <section class="part">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">10</div><h2>The Night Before</h2></div>
+    <div class="part-head"><div class="part-tag">09</div><h2>The Night Before</h2></div>
     <div class="cards">
       <div class="cardx"><div class="num">5 min</div><h4>Trace tables</h4><p>Do 3 variable-update questions on paper with a column per variable.</p></div>
       <div class="cardx"><div class="num">5 min</div><h4>The type rules</h4><p>str + str joins. int + int adds. str + int crashes. <code>input()</code> is always str. <code>/</code> is always float.</p></div>
@@ -666,7 +600,7 @@ add_mouse_click_handler(stamp)</div>
 
 <footer class="final">
   <div class="wrap">
-    <h2>Variables, strings, input, math, graphics, and mouse events: Unit 4 builds directly on all of it.</h2>
+    <h2>Variables, strings, input, math, and graphics: Unit 4 builds directly on all of it.</h2>
     <p>If/else and loops in Unit 4 are just new ways to use the variables, types, and operators you learned here, so learn them solidly now.</p>
     <a class="back" href="../study-guides.html">&larr; Study Guides</a>
     <a class="back" href="../calendar.html">&larr; Calendar</a>
@@ -887,31 +821,6 @@ var Q = [
  o:['An 80-by-80 square','An 80-wide rectangle with height 0','A TypeError, because Rectangle needs a width and a height','A circle of radius 80'], a:[2],
  e:'<code>Rectangle</code> requires exactly two arguments. One is missing, so it’s a TypeError.'},
 
-/* ===== MOUSE ===== */
-{t:'Mouse', s:'Which line correctly makes the function <code>draw</code> run every time the user clicks?',
- o:['<code>add_mouse_click_handler(draw())</code>','<code>add_mouse_click_handler(draw)</code>','<code>draw(add_mouse_click_handler)</code>','<code>add_mouse_click_handler.draw()</code>'], a:[1],
- e:'Pass the function <b>by name, with no parentheses</b>. <code>draw()</code> would call it immediately, once, with no x and y, which is a TypeError.'},
-{t:'Mouse', s:'The user clicks the canvas. What happens?',
- c:'def click():\n    print("clicked")\n\nadd_mouse_click_handler(click)', o:['"clicked" is printed','Nothing happens','An error occurs because <code>click</code> has no parameters to receive the x and y of the click','"clicked" is printed twice'], a:[2],
- e:'The canvas always passes two arguments (x, y) to a click handler. The function must have two parameters, <code>def click(x, y):</code>, even if it never uses them.'},
-{t:'Mouse', s:'In <code>def stamp(x, y):</code> used as a click handler, what values do <code>x</code> and <code>y</code> hold?',
- o:['Always 0 and 0','The center of the canvas','The coordinates where the user clicked','The width and height of the canvas'], a:[2],
- e:'They are <b>parameters</b>, and the canvas fills them with the click’s position each time.'},
-{t:'Mouse', s:'Which of the following are methods called with dot notation? <span class="sel2">Select two answers.</span>',
- o:['<code>ball.set_color(Color.red)</code>','<code>add(ball)</code>','<code>ball.get_x()</code>','<code>get_height()</code>'], a:[0,2],
- e:'A method belongs to an object and is written <code>object.method()</code>. <code>add()</code> and <code>get_height()</code> are plain functions with no object in front.'},
-{t:'Mouse', s:'The user clicks the canvas 5 times. How many circles are on the canvas?',
- c:'def stamp(x, y):\n    dot = Circle(10)\n    dot.set_position(x, y)\n    add(dot)\n\nadd_mouse_click_handler(stamp)', o:['0','1','5','An error occurs'], a:[2],
- e:'A brand-new circle is created and added <b>inside</b> the handler on every click, so 5 clicks make 5 circles.'},
-{t:'Mouse', s:'The user clicks the canvas 5 times. How many circles are on the canvas?',
- c:'dot = Circle(10)\nadd(dot)\n\ndef move(x, y):\n    dot.set_position(x, y)\n\nadd_mouse_click_handler(move)', o:['1','5','6','0'], a:[0],
- e:'Only one circle is ever created (outside the handler). Each click just <b>moves</b> it.'},
-{t:'Mouse', s:'A programmer renames the handler’s parameters. What happens when the user clicks?',
- c:'def place(mouse_x, mouse_y):\n    ball = Circle(15)\n    ball.set_position(mouse_x, mouse_y)\n    add(ball)\n\nadd_mouse_click_handler(place)', o:['It works: a circle appears where the user clicked','Error, because the parameters must be named x and y','The circle always appears at (0, 0)','Nothing appears'], a:[0],
- e:'Parameter <b>names</b> are up to you. Only the <b>count</b> (two) matters. The canvas fills them in order: first the x, then the y.'},
-{t:'Mouse', s:'What is the difference between a <b>parameter</b> and an <b>argument</b>?',
- o:['They are exactly the same thing','A parameter is the variable in the function definition; an argument is the actual value passed in when the function is called','A parameter is always a number; an argument is always a string','Arguments are only used with graphics'], a:[1],
- e:'In <code>def stamp(x, y):</code>, x and y are parameters. When a click happens at (40, 90), the values 40 and 90 are the arguments.'}
 ];
 
 (function(){
@@ -919,7 +828,7 @@ var Q = [
   try{ state=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ state={}; }
   function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
   var quiz=document.getElementById('quiz'), filt='All', missedOnly=false;
-  var topics=['All','Variables','Strings','Input','Math','Graphics','Mouse'];
+  var topics=['All','Variables','Strings','Input','Math','Graphics'];
   document.getElementById('heroCount').textContent=Q.length;
   function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function same(a,b){ if(a.length!==b.length) return false; var x=a.slice().sort(), y=b.slice().sort(); return x.every(function(v,i){return v===y[i];}); }
