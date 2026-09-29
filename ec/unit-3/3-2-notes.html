@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buzzer: Tones and Melodies | Embedded Computing Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<link rel="stylesheet" href="../unit-2/notes.css">
+<style>
+.keys{display:flex;gap:6px;flex-wrap:wrap}
+.key{width:64px;height:120px;border-radius:0 0 8px 8px;border:1px solid #CBD5E1;background:#F8FAFC;color:#0B0E14;font:700 13px "JetBrains Mono",monospace;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:8px;cursor:pointer}
+.key small{font-weight:500;font-size:11px;color:#475569}
+.key.on{background:#FDD877}
+.arr{display:flex;gap:4px;flex-wrap:wrap;margin:10px 0}
+.cell{min-width:58px;text-align:center;border:1px solid var(--rule);border-radius:5px;background:#0E131B;padding:6px 4px;font-family:"JetBrains Mono",monospace;font-size:13px;color:#fff}
+.cell small{display:block;color:var(--ink-soft);font-size:10.5px}
+.cell.on{border-color:var(--hi);background:var(--hi-tint)}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Embedded Computing</a>
+  <a href="3-2-buzzer-tones-and-melodies.html">3.2 Lesson Page</a>
+  <a href="3-2-notes.html" class="current">Notes</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lesson 3.2</div>
+    <h1>Buzzer: Tones and Melodies</h1>
+    <p class="deck">Everything you need for the 3.2 assignment: how a buzzer makes sound, the note frequencies, tone() and noTone(), arrays, for loops, and a song that starts with a button. Turn your sound on.</p>
+    <div class="map">
+      <a href="#sound">01 <span>How sound works</span></a>
+      <a href="#wire">02 <span>Wiring (Part 1)</span></a>
+      <a href="#arr">03 <span>Arrays + the scale (Part 2)</span></a>
+      <a href="#song">04 <span>Your melody (Part 3)</span></a>
+      <a href="#delay">05 <span>Why the delay matters</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="part" id="sound">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Sound Is Vibration</h2></div>
+    <p class="story">Every sound you've ever heard is air shaking. A piezo buzzer shakes when its pin switches on and off very fast, and the faster it switches, the higher the note. Click a key to hear exactly the frequency your Arduino will play.</p>
+    <div class="keys" id="keys"></div>
+    <p class="cap">Frequency is measured in <b>hertz (Hz)</b>: times per second. A (440 Hz) means the buzzer vibrates 440 times every second. Notice high C (523) is about double low C (262): an octave up doubles the frequency.</p>
+    <div class="two" style="margin-top:12px">
+      <div class="box b"><h3><code>tone(pin, frequency)</code></h3><p>Starts a sound at that pitch and <b>keeps it going</b> until something stops it or changes it.</p><p>Add a third number, <code>tone(pin, frequency, duration)</code>, and it plays for that many milliseconds and stops on its own.</p></div>
+      <div class="box a"><h3><code>noTone(pin)</code></h3><p>Stops the sound. Without it, the last note keeps buzzing.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="wire">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Wiring the Buzzer and Button</h2><span class="for">Part 1</span></div>
+    <p class="story">Two parts, four wires. The button works exactly like 2.7: no resistor, because the Arduino's built-in pull-up does that job.</p>
+    <div class="tblwrap">
+      <table>
+        <tr><th>Part</th><th>Where it connects</th></tr>
+        <tr><td><b>Buzzer positive (+)</b> leg</td><td>Arduino pin 8</td></tr>
+        <tr><td><b>Buzzer negative (&minus;)</b> leg</td><td>GND</td></tr>
+        <tr><td><b>Button</b>, one side</td><td>Arduino pin 2</td></tr>
+        <tr><td><b>Button</b>, the other side</td><td>GND</td></tr>
+      </table>
+    </div>
+    <div class="hint-panel"><b>Remember from 2.7:</b> with <code>INPUT_PULLUP</code>, the pin reads <b>HIGH</b> normally and <b>LOW</b> when you press the button. Hover over each leg in Tinkercad to check its label before you wire.</div>
+  </div>
+</section>
+
+<section class="part" id="arr">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Arrays and the Scale</h2><span class="for">Part 2</span></div>
+    <p class="story">Eight notes could mean eight tone() lines. Or you could put all eight numbers in one list, give the list a name, and let a loop walk through it. That list is an array.</p>
+    <div class="code"><span class="kw">const int</span> BUZZER = <span class="n">8</span>;
+<span class="kw">int</span> scale[] = {<span class="n">262</span>, <span class="n">294</span>, <span class="n">330</span>, <span class="n">349</span>, <span class="n">392</span>, <span class="n">440</span>, <span class="n">494</span>, <span class="n">523</span>};
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="n">0</span>; i &lt; <span class="n">8</span>; i++) {   <span class="cm">// i = 0, 1, 2 ... 7</span>
+    <span class="fn">tone</span>(BUZZER, scale[i]);     <span class="cm">// play the item at position i</span>
+    <span class="fn">delay</span>(<span class="n">400</span>);
+  }
+  <span class="fn">noTone</span>(BUZZER);  <span class="fn">delay</span>(<span class="n">2000</span>);
+}</div>
+    <div class="panel">
+      <h3>Watch the loop walk the array</h3>
+      <div class="arr" id="arrCells"></div>
+      <p class="small" id="arrMsg">Press play to step through scale[0] to scale[7].</p>
+      <div class="btns" style="justify-content:flex-start"><button class="btn" id="arrPlay" type="button">&#9654; Play the scale</button></div>
+    </div>
+    <div class="two" style="margin-top:12px">
+      <div class="box b"><h3>Arrays count from 0</h3><p>The first item is <code>scale[0]</code>, not scale[1]. An array of 8 items has positions 0 through 7. That's why the loop runs <b>while i &lt; 8</b>.</p></div>
+      <div class="box a"><h3>Leave setup() empty for now</h3><p>Part 2 doesn't need anything in setup(). Turn your computer's sound on, click <b>Start Simulation</b>, and listen.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="song">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Your Own Melody, Started by a Button</h2><span class="for">Part 3</span></div>
+    <p class="story">A song is two lists: which note, and how long. Keep them side by side in two arrays of the same length, and item 0 of each belongs together, item 1 belongs together, and so on.</p>
+    <div class="two">
+      <div class="box b"><h3>The two arrays</h3><ul><li><code>notes</code>: the frequency of each note, from the table above.</li><li><code>beats</code>: how long each note lasts in milliseconds, like 400 or 800.</li><li>They must be the <b>same length</b>. Your song needs at least 8 notes and at least 2 different note lengths.</li></ul></div>
+      <div class="box a"><h3>The pieces of loop()</h3><ul><li><code>pinMode(2, INPUT_PULLUP);</code> goes in setup().</li><li><code>if (digitalRead(2) == LOW) {</code> means "if the button is pressed."</li><li>Inside it, <b>you write the for loop</b> that plays each note with <code>tone(BUZZER, notes[i], beats[i]);</code> and waits with <code>delay(beats[i] + 50);</code></li><li>After the for loop, still inside the if: <code>noTone(BUZZER);</code></li></ul></div>
+    </div>
+    <div class="panel">
+      <h3>Try your song before you code it</h3>
+      <p class="small">Click keys to add notes, pick a length for each, then play it back. This is only for planning; you still write the arrays and the loop yourself.</p>
+      <div class="keys" id="keys2" style="margin:8px 0"></div>
+      <p class="small">Next note length: <select id="len"><option>200</option><option selected>400</option><option>600</option><option>800</option></select> ms</p>
+      <div class="arr" id="songCells"></div>
+      <div class="btns" style="justify-content:flex-start"><button class="btn" id="songPlay" type="button">&#9654; Play my song</button><button class="btn" id="songUndo" type="button">Remove last</button><button class="btn" id="songClear" type="button">Clear</button></div>
+      <p class="small" id="songMsg"></p>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="delay">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">05</div><h2>Why the Delay Matters</h2><span class="for">Reflections 1 + 2</span></div>
+    <p class="story">tone() doesn't wait. It starts the sound and instantly moves on to the next line. So what decides how long you actually hear each note?</p>
+    <div class="panel">
+      <p>Play the scale two ways and compare. Then think about what the Arduino does in the time between the two tone() calls.</p>
+      <div class="btns" style="justify-content:flex-start"><button class="btn" id="withD" type="button">With delay(400)</button><button class="btn" id="noD" type="button">With the delay removed</button></div>
+    </div>
+    <div class="hint-panel"><b>Arrays vs. a line per note (Reflection 2):</b> picture a 40-note song written as 80 lines of tone() and delay(). Now picture changing the tempo, or fixing one wrong note. Where would you make those changes each way?</div>
+    <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
+    <div class="quiz" id="quiz"></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>A song is just two lists and a loop.</h2>
+    <p>Which note, how long, and a for loop that walks through both, one position at a time.</p>
+    <a class="back" href="3-2-buzzer-tones-and-melodies.html">&larr; Back to 3.2</a>
+    <a class="back" href="../index.html">&larr; Embedded Computing</a>
+  </div>
+</footer>
+
+<script>
+window.QUIZ = [
+  { s: "Which note is higher: 262 Hz or 523 Hz?", o: ["262 Hz", "523 Hz"], a: 1, e: "More vibrations per second = higher pitch." },
+  { s: "In <code>int scale[] = {262, 294, 330};</code> what is <code>scale[1]</code>?", o: ["262", "294", "330"], a: 1, e: "Arrays start at 0, so position 1 is the second item." },
+  { s: "What does noTone(BUZZER) do?", o: ["Plays the lowest note", "Stops the sound"], a: 1, e: "Without it, the last note keeps going." },
+  { s: "The notes and beats arrays must be...", o: ["The same length", "Different lengths"], a: 0, e: "Each note needs its own length at the same position." }
+];
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  var N = [["C", 262], ["D", 294], ["E", 330], ["F", 349], ["G", 392], ["A", 440], ["B", 494], ["C", 523]];
+  var ctx = null;
+  function beep(f, ms) {
+    try { ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
+    var o = ctx.createOscillator(), g = ctx.createGain(); o.type = "square"; o.frequency.value = f; g.gain.value = 0.06;
+    o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + ms / 1000);
+  }
+  function keys(el, onPress) {
+    N.forEach(function (n, i) {
+      var b = document.createElement("button"); b.type = "button"; b.className = "key";
+      b.innerHTML = n[0] + (i === 0 ? " low" : i === 7 ? " high" : "") + "<small>" + n[1] + " Hz</small>";
+      b.onclick = function () { b.classList.add("on"); setTimeout(function () { b.classList.remove("on"); }, 250); onPress(n, i); };
+      el.appendChild(b);
+    });
+  }
+  keys($("keys"), function (n) { beep(n[1], 400); });
+  /* array walk */
+  $("arrCells").innerHTML = N.map(function (n, i) { return '<div class="cell"><small>scale[' + i + ']</small>' + n[1] + "</div>"; }).join("");
+  function playSeq(list, cellsEl, gapFn, done) {
+    var i = 0, cells = cellsEl ? cellsEl.children : [];
+    (function nx() {
+      [].forEach.call(cells, function (c, k) { c.classList.toggle("on", k === i); });
+      if (i >= list.length) { if (done) done(); return; }
+      beep(list[i][0], list[i][1]); var w = gapFn(list[i]); i++; setTimeout(nx, w);
+    })();
+  }
+  $("arrPlay").onclick = function () {
+    var i = 0, list = N.map(function (n) { return [n[1], 400]; });
+    $("arrMsg").textContent = "i = 0 → 7, playing scale[i] each time";
+    playSeq(list, $("arrCells"), function () { return 400; }, function () { $("arrMsg").textContent = "for loop finished (i reached 8), so noTone() runs."; });
+  };
+  /* song planner */
+  var song = [];
+  function drawSong() {
+    $("songCells").innerHTML = song.map(function (s, i) { return '<div class="cell"><small>[' + i + "]</small>" + s[0] + "<small>" + s[1] + " ms</small></div>"; }).join("");
+    var lens = {}; song.forEach(function (s) { lens[s[1]] = 1; });
+    $("songMsg").innerHTML = song.length + " notes" + (song.length >= 8 ? " ✔" : " (need at least 8)") + " &middot; " + Object.keys(lens).length + " different lengths" + (Object.keys(lens).length >= 2 ? " ✔" : " (need at least 2)");
+  }
+  keys($("keys2"), function (n) { song.push([n[1], +$("len").value]); drawSong(); });
+  $("songPlay").onclick = function () { playSeq(song, $("songCells"), function (s) { return s[1] + 50; }); };
+  $("songUndo").onclick = function () { song.pop(); drawSong(); };
+  $("songClear").onclick = function () { song = []; drawSong(); };
+  drawSong();
+  /* delay demo */
+  $("withD").onclick = function () { playSeq(N.map(function (n) { return [n[1], 400]; }), null, function () { return 400; }); };
+  $("noD").onclick = function () { beep(523, 12); };  // all 8 tone() calls finish in microseconds, then noTone() cuts it off
+})();
+</script>
+<script src="../unit-2/notes.js"></script>
+</body>
+</html>

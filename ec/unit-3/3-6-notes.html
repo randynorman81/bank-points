@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inputs Drive Outputs | Embedded Computing Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<link rel="stylesheet" href="../unit-2/notes.css">
+<style>.serial{background:#05070B;border:1px solid var(--rule);border-radius:6px;height:120px;overflow-y:auto;padding:8px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;color:#A7F3D0;white-space:pre}
+.ipo{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:center}
+.ipo .box{text-align:center} .arrow{font-size:26px;color:var(--ink-soft)}
+@media (max-width:820px){.ipo{grid-template-columns:1fr}.arrow{transform:rotate(90deg);text-align:center}}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Embedded Computing</a>
+  <a href="3-6-inputs-drive-outputs.html">3.6 Lesson Page</a>
+  <a href="3-6-notes.html" class="current">Notes</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lesson 3.6</div>
+    <h1>Inputs Drive Outputs</h1>
+    <p class="deck">Everything you need for the 3.6 assignment: the potentiometer, analogRead(), map(), the Serial Monitor, the dial-controlled servo and buzzer, and the input &rarr; process &rarr; output pattern.</p>
+    <div class="map">
+      <a href="#parts">01 <span>New parts + commands</span></a>
+      <a href="#wire">02 <span>Wiring (Part 1)</span></a>
+      <a href="#dial">03 <span>Dial &rarr; servo + pitch (Parts 2, 3)</span></a>
+      <a href="#ipo">04 <span>Input, process, output (Part 4)</span></a>
+      <a href="#combo">05 <span>The challenge</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="part" id="parts">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>New Parts and Commands</h2></div>
+    <p class="story">Until now, your outputs followed a timer: on, wait, off. Today they follow your hand. That's how a thermostat, a volume knob, and a gas pedal all work: read something, figure out what it means, then act.</p>
+    <div class="cards">
+      <div class="cardx" style="background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:18px"><h4 style="color:#fff">Potentiometer (pot)</h4><p class="small">A dial with 3 legs. The <b>middle leg (wiper)</b> gives a voltage from <b>0V to 5V</b> depending on where the dial is turned.</p></div>
+      <div class="cardx" style="background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:18px"><h4 style="color:#fff">analogRead(A0)</h4><p class="small">Reads that voltage and gives a number from <b>0 to 1023</b>. Only works on the analog pins <b>A0 to A5</b>. (You met it in 2.1.)</p></div>
+      <div class="cardx" style="background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:18px"><h4 style="color:#fff">map()</h4><p class="small">Rescales a number from one range to another: <code>map(value, fromLow, fromHigh, toLow, toHigh)</code>. <code>map(512, 0, 1023, 0, 180)</code> gives about 90.</p></div>
+      <div class="cardx" style="background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:18px"><h4 style="color:#fff">Serial Monitor</h4><p class="small">A text window where your Arduino prints numbers so you can see what it's thinking. <code>Serial.begin(9600);</code> in setup, <code>Serial.println(x);</code> to print. In Tinkercad it's at the bottom of the code panel.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="wire">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Wiring</h2><span class="for">Part 1</span></div>
+    <p class="story">The pot's two outer legs set the ends of the range (0V and 5V). The middle leg slides between them as you turn, and that's the leg the Arduino listens to.</p>
+    <div class="two">
+      <div class="fig">
+        <svg viewBox="0 0 300 190" role="img" aria-label="Potentiometer: outer legs to 5V and GND, middle wiper leg to A0">
+          <circle cx="150" cy="80" r="56" fill="#1F2937" stroke="#94A3B8" stroke-width="3"/>
+          <g id="knob"><rect x="146" y="30" width="8" height="42" rx="4" fill="#FDD877"/></g>
+          <g stroke-width="5"><path d="M110 132 V180" stroke="#EF4444"/><path d="M150 136 V180" stroke="#FBBF24"/><path d="M190 132 V180" stroke="#94A3B8"/></g>
+          <g font-family="JetBrains Mono" font-size="12" text-anchor="middle"><text x="110" y="126" fill="#FCA5A5">5V</text><text x="150" y="130" fill="#FDD877">A0</text><text x="190" y="126" fill="#CBD5E1">GND</text></g>
+        </svg>
+      </div>
+      <div class="tblwrap">
+        <table>
+          <tr><th>Part</th><th>Where it connects</th></tr>
+          <tr><td><b>Pot</b>, one outer leg</td><td>5V</td></tr>
+          <tr><td><b>Pot</b>, other outer leg</td><td>GND</td></tr>
+          <tr><td><b>Pot</b>, middle leg (wiper)</td><td>A0</td></tr>
+          <tr><td><b>Servo signal</b></td><td>pin 9</td></tr>
+          <tr><td><b>Servo</b> power and ground</td><td>5V and GND</td></tr>
+          <tr><td><b>Buzzer</b> + / &minus;</td><td>pin 8 / GND</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="dial">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Turn the Dial</h2><span class="for">Parts 2 + 3, Reflections 1 + 2</span></div>
+    <p class="story">The dial gives 0 to 1023. A servo wants 0 to 180. A pitch might want 200 to 2000. Nothing matches, so map() stretches or squeezes one range to fit the other. Turn the dial and follow the number through every step.</p>
+    <div class="panel">
+      <h3>The dial (drag it)</h3>
+      <input id="dR" type="range" min="0" max="1023" value="512" aria-label="Dial position">
+      <div class="two" style="margin-top:10px">
+        <div>
+          <p class="small"><code>int reading = analogRead(A0);</code></p><div class="big" id="rd"></div>
+          <p class="small" style="margin-top:10px"><code>int angle = map(reading, 0, 1023, 0, <input id="toHi" type="number" value="180" style="width:64px;background:#0E131B;border:1px solid var(--rule);color:#FDD877;border-radius:4px;font:inherit">);</code></p><div class="big" id="ang"></div>
+          <p class="small" style="margin-top:10px"><code>int pitch = map(reading, 0, 1023, 200, 2000);</code></p><div class="big" id="pit"></div>
+          <div class="btns" style="justify-content:flex-start"><button class="btn" id="snd" type="button">&#128264; Hear the pitch</button></div>
+        </div>
+        <div style="text-align:center">
+          <svg viewBox="0 0 260 170" width="100%" role="img" aria-label="Servo arm following the dial"><path d="M30 140 A100 100 0 0 1 230 140" fill="none" stroke="#232B38" stroke-width="18"/><g font-family="JetBrains Mono" font-size="11" fill="#8B9AAE" text-anchor="middle"><text x="22" y="160">0&deg;</text><text x="130" y="28">90&deg;</text><text x="238" y="160">180&deg;</text></g><rect x="95" y="128" width="70" height="36" rx="5" fill="#1E3A8A"/><g id="arm"><rect x="126" y="60" width="8" height="84" rx="4" fill="#E5E7EB"/><circle cx="130" cy="140" r="10" fill="#CBD5E1"/></g></svg>
+          <p class="small" id="clip"></p>
+          <p class="small" style="text-align:left">Serial Monitor (<code>Serial.println(angle);</code>)</p>
+          <div class="serial" id="mon"></div>
+        </div>
+      </div>
+    </div>
+    <p class="cap">Try changing the 180 in map() to something else, like 500, and watch what the servo arm does. Then test the same change in Tinkercad (Reflection 2).</p>
+    <div class="code"><span class="cm">// Part 2 at a glance</span>
+<span class="kw">#include</span> &lt;Servo.h&gt;
+Servo myServo;
+<span class="kw">void</span> <span class="fn">setup</span>() { myServo.<span class="fn">attach</span>(<span class="n">9</span>); Serial.<span class="fn">begin</span>(<span class="n">9600</span>); }
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">int</span> reading = <span class="fn">analogRead</span>(A0);
+  <span class="kw">int</span> angle = <span class="fn">map</span>(reading, <span class="n">0</span>, <span class="n">1023</span>, <span class="n">0</span>, <span class="n">180</span>);
+  myServo.<span class="fn">write</span>(angle);
+  Serial.<span class="fn">println</span>(angle);
+  <span class="fn">delay</span>(<span class="n">15</span>);
+}</div>
+    <div class="hint-panel"><b>Part 3:</b> in a new sketch (or with the servo lines commented out with <code>//</code>), read the dial, map it to a <code>pitch</code> from 200 to 2000, then <code>tone(8, pitch);</code> and <code>delay(20);</code>. In Tinkercad, click the dial and drag it to turn it.</div>
+  </div>
+</section>
+
+<section class="part" id="ipo">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Input &rarr; Process &rarr; Output</h2><span class="for">Part 4</span></div>
+    <p class="story">Almost every embedded system fits this three-step pattern. A smoke alarm reads smoke, decides if it's too much, then beeps. Click each stage to see it for a smoke alarm; then fill in the table in your assignment for <b>your</b> Part 2 build.</p>
+    <div class="ipo">
+      <button class="box b flip" type="button"><div class="t">INPUT</div><div class="h">click</div><div class="d">What is read, and where? (smoke alarm: a smoke sensor)</div></button>
+      <div class="arrow">&rarr;</div>
+      <button class="box b flip" type="button"><div class="t">PROCESS</div><div class="h">click</div><div class="d">What the code does to the number. (smoke alarm: checks if the reading is above a danger level)</div></button>
+      <div class="arrow">&rarr;</div>
+      <button class="box b flip" type="button"><div class="t">OUTPUT</div><div class="h">click</div><div class="d">What happens at the end. (smoke alarm: the siren sounds)</div></button>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="combo">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">05</div><h2>The Challenge: One Dial, Two Outputs</h2><span class="for">Challenge (required)</span></div>
+    <p class="story">Nothing says one reading can only be used once. You read the dial one time, then map that same reading two different ways: once for the servo, once for the buzzer.</p>
+    <div class="two">
+      <div class="box b"><h3>Planning it</h3><ul><li>One analogRead() into <code>reading</code>.</li><li>Two map() lines: one into <code>angle</code>, one into <code>pitch</code>.</li><li>Two outputs: myServo.write() and tone().</li><li>Keep Serial.println() so you can see what's happening.</li></ul></div>
+      <div class="box a"><h3>Reflection 3</h3><p>Think of devices around you with a knob, a dial, or a slider: in the car, the kitchen, a game controller, a music app. What does each one's input control?</p></div>
+    </div>
+    <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
+    <div class="quiz" id="quiz"></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Read it, map it, use it.</h2>
+    <p>analogRead() turns your hand into a number, map() turns that number into the range you need, and the output does the rest.</p>
+    <a class="back" href="3-6-inputs-drive-outputs.html">&larr; Back to 3.6</a>
+    <a class="back" href="../index.html">&larr; Embedded Computing</a>
+  </div>
+</footer>
+
+<script>
+window.QUIZ = [
+  { s: "Which pot leg goes to A0?", o: ["An outer leg", "The middle leg (wiper)"], a: 1, e: "The wiper's voltage changes as you turn the dial." },
+  { s: "What range does analogRead() return?", o: ["0 to 180", "0 to 255", "0 to 1023"], a: 2, e: "10 bits = 1024 levels." },
+  { s: "<code>map(1023, 0, 1023, 0, 180)</code> gives...", o: ["1023", "180", "0"], a: 1, e: "The top of one range maps to the top of the other." },
+  { s: "Where does <code>Serial.begin(9600);</code> go?", o: ["setup()", "loop()"], a: 0, e: "Open communication once, at the start." }
+];
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  function map(x, a, b, c, d) { return Math.trunc((x - a) * (d - c) / (b - a) + c); }
+  var ctx = null, osc = null;
+  function upd() {
+    var r = +$("dR").value, hi = +$("toHi").value || 0, a = map(r, 0, 1023, 0, hi), p = map(r, 0, 1023, 200, 2000), shown = Math.max(0, Math.min(180, a));
+    $("rd").textContent = r; $("ang").textContent = "angle = " + a; $("pit").textContent = "pitch = " + p + " Hz";
+    $("arm").setAttribute("transform", "rotate(" + (shown - 90) + " 130 140)");
+    $("knob").setAttribute("transform", "rotate(" + (r / 1023 * 270 - 135) + " 150 80)");
+    $("clip").textContent = a > 180 ? "The code asks for " + a + "°, but a servo can only go to 180°." : "";
+    var m = $("mon"); m.textContent += a + "\n"; if (m.textContent.length > 3000) m.textContent = m.textContent.slice(-1500); m.scrollTop = m.scrollHeight;
+    if (osc) osc.frequency.value = p;
+  }
+  $("dR").oninput = upd; $("toHi").oninput = upd; upd();
+  $("snd").onclick = function () {
+    if (osc) { osc.stop(); osc = null; this.innerHTML = "&#128264; Hear the pitch"; return; }
+    try { ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
+    var g = ctx.createGain(); g.gain.value = 0.05; osc = ctx.createOscillator(); osc.type = "square"; osc.connect(g); g.connect(ctx.destination); osc.start(); upd();
+    this.innerHTML = "&#128263; Stop sound";
+  };
+})();
+</script>
+<script src="../unit-2/notes.js"></script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code Toolkit: Functions and Arrays | Embedded Computing Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<link rel="stylesheet" href="../unit-2/notes.css">
+<style>.arr{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.cell{min-width:64px;text-align:center;border:1px solid var(--rule);border-radius:5px;background:#0E131B;padding:8px 4px;font-family:"JetBrains Mono",monospace;font-size:14px;color:#fff}.cell small{display:block;color:var(--ink-soft);font-size:11px}.cell.on{border-color:var(--hi);background:var(--hi-tint)}.cell.bad{border-color:var(--red);background:var(--red-tint);color:#FCA5A5}</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Embedded Computing</a>
+  <a href="3-7-code-toolkit-functions-and-arrays.html">3.7 Lesson Page</a>
+  <a href="3-7-notes.html" class="current">Notes</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lesson 3.7</div>
+    <h1>Code Toolkit: Functions and Arrays</h1>
+    <p class="deck">Everything you need for the 3.7 scanner light: arrays and indexes, functions with parameters, functions that return a value, and how your functions call each other.</p>
+    <div class="map">
+      <a href="#arr">01 <span>Arrays + indexes</span></a>
+      <a href="#wire">02 <span>Wiring + setup (Parts 1, 2)</span></a>
+      <a href="#fn">03 <span>Functions (Part 3)</span></a>
+      <a href="#ret">04 <span>Return values (Part 4)</span></a>
+      <a href="#scan">05 <span>Scanner simulator</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="part" id="arr">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Arrays and Indexes</h2><span class="for">Part 2 + Reflections 1, 3</span></div>
+    <p class="story">Five LEDs could mean five variables and five copies of every line. An array puts all five pin numbers in one list with one name, and a for loop reaches each one by its position number.</p>
+    <div class="code"><span class="kw">const int</span> ledPins[] = {<span class="n">2</span>, <span class="n">3</span>, <span class="n">4</span>, <span class="n">5</span>, <span class="n">6</span>};
+<span class="kw">const int</span> NUM_LEDS = <span class="n">5</span>;</div>
+    <div class="panel">
+      <h3>Click an index to look it up</h3>
+      <div class="arr" id="cells"></div>
+      <div class="btns" style="justify-content:flex-start"><button class="btn" id="ix5" type="button">Try ledPins[5]</button></div>
+      <p id="ixMsg" class="small"></p>
+    </div>
+    <div class="warn"><b>Indexes start at 0.</b> An array with 5 items has indexes 0, 1, 2, 3, 4. There is <b>no index 5</b>. That's why a loop over it runs while <code>i &lt; NUM_LEDS</code>. Think about what <code>i &lt;= NUM_LEDS</code> would try to do on its last pass (Reflection 3).</div>
+  </div>
+</section>
+
+<section class="part" id="wire">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Wiring and setup()</h2><span class="for">Parts 1 + 2</span></div>
+    <p class="story">Five LEDs in a row, each wired the way you've wired LEDs since 2.2. Then one short for loop sets up all five pins at once.</p>
+    <div class="two">
+      <div class="tblwrap"><table><tr><th>LED</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr><tr><td><b>Pin</b></td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td></tr></table><p class="small" style="padding:10px 16px">Pin &rarr; 220 &Omega; resistor &rarr; LED long leg (anode). Short leg (cathode) &rarr; GND. Optional: a potentiometer (3.6) for a speed dial.</p></div>
+      <div class="box b"><h3>setup() with a loop</h3><p>A for loop with i from 0 up to (but not including) NUM_LEDS that calls <code>pinMode(ledPins[i], OUTPUT);</code>. One line of work, done 5 times, once for each pin in the list.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="fn">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Functions: Name It Once, Use It Everywhere</h2><span class="for">Part 3</span></div>
+    <p class="story">A function is a recipe card. You write the steps once, give the card a name, and from then on you just say the name. Some recipes need an ingredient handed to them first: that's a parameter.</p>
+    <div class="two">
+      <div class="box b"><h3>Anatomy</h3><div class="code" style="margin:6px 0 8px"><span class="kw">void</span> <span class="fn">showLed</span>(<span class="kw">int</span> index) {
+  <span class="cm">// steps go here</span>
+}</div><ul><li><code>void</code>: hands nothing back.</li><li><code>showLed</code>: its name.</li><li><code>int index</code>: a <b>parameter</b>, filled in when it's called. <code>showLed(3)</code> runs it with index = 3.</li></ul></div>
+      <div class="box a"><h3>Your three functions (you write the insides)</h3><table><tr><th>Function</th><th>Job</th></tr><tr><td><code>void allOff()</code></td><td>Loops through every LED and sets it LOW.</td></tr><tr><td><code>void showLed(int index)</code></td><td>Calls allOff(), then turns only the LED at that index HIGH.</td></tr><tr><td><code>void scan(int speed)</code></td><td>LEDs 0 to 4 with showLed(i) then delay(speed), then back from 3 down to 1 the same way.</td></tr></table><p class="small" style="margin-top:8px">Then in loop(): <code>scan(100);</code></p></div>
+    </div>
+    <div class="hint-panel"><b>Functions calling functions:</b> scan() calls showLed(), and showLed() calls allOff(). Each one does one small job and trusts the others to do theirs. Put all three <b>above</b> loop(), and a comment above each saying what it does.</div>
+  </div>
+</section>
+
+<section class="part" id="ret">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Functions That Hand Something Back</h2><span class="for">Part 4 + Reflection 2</span></div>
+    <p class="story">A <b>parameter</b> goes <b>into</b> a function. A <b>return value</b> comes <b>out</b>. It's the difference between handing a calculator a number and reading the answer off its screen.</p>
+    <div class="two">
+      <div class="box b"><h3>The example shape from your assignment</h3><div class="code" style="margin:6px 0 8px"><span class="kw">int</span> <span class="fn">speedFromDial</span>(<span class="kw">int</span> reading) {
+  <span class="kw">return</span> <span class="fn">map</span>(reading, <span class="n">0</span>, <span class="n">1023</span>, <span class="n">20</span>, <span class="n">300</span>);
+}</div><p><code>int</code> in front (instead of void) means it hands back a whole number. <code>return</code> is the line that hands it back. Then: <code>int speed = speedFromDial(analogRead(A0));</code> and <code>scan(speed);</code></p></div>
+      <div class="panel" style="margin-top:0">
+        <h3>Watch it go in and come out</h3>
+        <p class="small">reading (parameter in):</p><input id="dR" type="range" min="0" max="1023" value="300" aria-label="dial reading">
+        <div class="big" id="rOut"></div>
+        <p class="small">No dial? The assignment lets you return something else, like a random speed, instead.</p>
+      </div>
+    </div>
+    <div class="hint-panel"><b>A second pattern:</b> for example <code>blinkAll(int times)</code> turns all 5 LEDs on together, waits, turns them off, and repeats that many times. Call it from loop() after scan(). Part 4 needs: a function with a parameter, a function that returns a value, and a second pattern.</div>
+  </div>
+</section>
+
+<section class="part" id="scan">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">05</div><h2>The Scanner</h2><span class="for">What Part 3 should look like</span></div>
+    <p class="story">One light sweeping back and forth, like the front of a robot car in a movie. Watch which function is running at each moment.</p>
+    <div class="panel">
+      <svg viewBox="0 0 600 90" width="100%" role="img" aria-label="Five LEDs in a row"><g id="leds"></g></svg>
+      <div class="big" id="call" style="font-size:15px;text-align:center"></div>
+      <p class="small">speed: <b id="spV"></b> ms</p><input id="sp" type="range" min="20" max="400" value="100" aria-label="scan speed">
+      <div class="btns"><button class="btn on" id="go" type="button">&#9654; scan(speed)</button><button class="btn" id="blink" type="button">blinkAll(3)</button></div>
+    </div>
+    <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
+    <div class="quiz" id="quiz"></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Arrays hold the list. Functions hold the steps.</h2>
+    <p>Change one number in the array or one line in a function, and every place that uses it changes too.</p>
+    <a class="back" href="3-7-code-toolkit-functions-and-arrays.html">&larr; Back to 3.7</a>
+    <a class="back" href="../index.html">&larr; Embedded Computing</a>
+  </div>
+</footer>
+
+<script>
+window.QUIZ = [
+  { s: "<code>ledPins[] = {2, 3, 4, 5, 6}</code>. What is <code>ledPins[0]</code>?", o: ["0", "2", "6"], a: 1, e: "Index 0 is the first item." },
+  { s: "What is the last valid index of a 5-item array?", o: ["4", "5"], a: 0, e: "0, 1, 2, 3, 4." },
+  { s: "In <code>void showLed(int index)</code>, index is a...", o: ["Parameter", "Return value"], a: 0, e: "It's filled in when the function is called." },
+  { s: "A function that hands back a whole number starts with...", o: ["void", "int"], a: 1, e: "The type in front is what it returns. void means nothing." }
+];
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  var P = [2, 3, 4, 5, 6];
+  $("cells").innerHTML = P.map(function (p, i) { return '<button class="cell" type="button" data-i="' + i + '"><small>index ' + i + "</small>" + p + "</button>"; }).join("");
+  [].forEach.call($("cells").children, function (c) { c.onclick = function () { var i = +c.getAttribute("data-i"); [].forEach.call($("cells").children, function (x) { x.classList.toggle("on", x === c); }); $("ixMsg").innerHTML = "ledPins[" + i + "] = <b>" + P[i] + "</b>: LED " + (i + 1) + " is on pin " + P[i] + "."; }; });
+  $("ix5").onclick = function () { [].forEach.call($("cells").children, function (x) { x.classList.remove("on"); }); $("ixMsg").innerHTML = "<b style='color:#FCA5A5'>ledPins[5] doesn't exist.</b> The array stops at index 4. C++ won't stop you: it reads whatever happens to be in memory next, a garbage number, and your code acts strangely."; };
+  function map(x, a, b, c, d) { return Math.trunc((x - a) * (d - c) / (b - a) + c); }
+  $("dR").oninput = function () { $("rOut").textContent = "speedFromDial(" + this.value + ") returns " + map(+this.value, 0, 1023, 20, 300); }; $("dR").oninput();
+  var g = "";
+  for (var i = 0; i < 5; i++) g += '<circle class="L" cx="' + (60 + i * 120) + '" cy="45" r="22" fill="#3B1414"/><text x="' + (60 + i * 120) + '" y="86" fill="#8B9AAE" font-family="JetBrains Mono" font-size="11" text-anchor="middle">[' + i + "] pin " + P[i] + "</text>";
+  $("leds").innerHTML = g;
+  var L = $("leds").querySelectorAll(".L"), T = null, run = false;
+  function set(arr) { [].forEach.call(L, function (c, k) { c.setAttribute("fill", arr.indexOf(k) > -1 ? "#EF4444" : "#3B1414"); }); }
+  $("sp").oninput = function () { $("spV").textContent = this.value; }; $("sp").oninput();
+  $("go").onclick = function () {
+    run = !run; this.classList.toggle("on", !run); this.innerHTML = run ? "&#10074;&#10074; stop" : "&#9654; scan(speed)"; clearTimeout(T);
+    var seq = [0, 1, 2, 3, 4, 3, 2, 1], k = 0;
+    (function nx() { if (!run) return; var i = seq[k]; set([i]); $("call").textContent = "scan(" + $("sp").value + ") → showLed(" + i + ") → allOff(), then LED " + i + " HIGH"; k = (k + 1) % seq.length; T = setTimeout(nx, +$("sp").value); })();
+  };
+  $("blink").onclick = function () {
+    if (run) $("go").click(); var n = 0;
+    (function b() { if (n >= 6) { set([]); $("call").textContent = "blinkAll(3) finished"; return; } set(n % 2 ? [] : [0, 1, 2, 3, 4]); $("call").textContent = "blinkAll(3): " + (n % 2 ? "all off" : "all on") + " (" + (Math.floor(n / 2) + 1) + " of 3)"; n++; setTimeout(b, 350); })();
+  };
+})();
+</script>
+<script src="../unit-2/notes.js"></script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DC Motor + Transistor | Embedded Computing Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<link rel="stylesheet" href="../unit-2/notes.css">
+<style>@keyframes spin{to{transform:rotate(360deg)}} #rotor{transform-box:fill-box;transform-origin:center}</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Embedded Computing</a>
+  <a href="3-4-dc-motor-and-transistor.html">3.4 Lesson Page</a>
+  <a href="3-4-notes.html" class="current">Notes</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lesson 3.4</div>
+    <h1>DC Motor + Transistor</h1>
+    <p class="deck">Everything you need for the 3.4 assignment: why a pin can't power a motor, how a transistor works like a switch, what the flyback diode protects, wiring it all, and controlling speed with PWM.</p>
+    <div class="map">
+      <a href="#why">01 <span>The current problem</span></a>
+      <a href="#tr">02 <span>The transistor</span></a>
+      <a href="#diode">03 <span>The flyback diode</span></a>
+      <a href="#wire">04 <span>Wiring (Part 1)</span></a>
+      <a href="#speed">05 <span>Speed (Parts 2 + 3)</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="part" id="why">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>A Pin Is Too Weak for a Motor</h2><span class="for">Reflection 1</span></div>
+    <p class="story">An LED sips current. A motor gulps it. Plug a motor straight into a pin and you're asking a drinking straw to fill a swimming pool, and the straw (your pin) is what gets damaged.</p>
+    <div class="fig">
+      <svg viewBox="0 0 700 120" role="img" aria-label="Bar comparison: an Arduino pin safely gives about 20 milliamps; a small motor can want 200 milliamps or more">
+        <text x="10" y="40" fill="#C4CDD8" font-family="Manrope" font-size="13">Arduino pin (safe)</text><rect x="170" y="26" width="46" height="22" rx="4" fill="#5FD8DF"/><text x="224" y="42" fill="#9FEAEE" font-family="JetBrains Mono" font-size="12">about 20 mA</text>
+        <text x="10" y="92" fill="#C4CDD8" font-family="Manrope" font-size="13">small DC motor</text><rect x="170" y="78" width="460" height="22" rx="4" fill="#EF4444"/><text x="640" y="94" fill="#FCA5A5" font-family="JetBrains Mono" font-size="12" text-anchor="end">10&times; that or more</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="tr">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>The Transistor: an Electronic Switch</h2><span class="for">Reflection 2</span></div>
+    <p class="story">You flip a light switch with one finger, and the switch lets a big current reach the ceiling light. A transistor is that switch, except the "finger" is a tiny signal from your Arduino pin. Click the pin to send the signal.</p>
+    <div class="fig">
+      <svg viewBox="0 0 700 230" role="img" aria-label="Pin 9 through a resistor to the transistor base; motor between 5V and the collector; emitter to GND">
+        <text x="20" y="120" fill="#FDD877" font-family="JetBrains Mono" font-size="13">pin 9</text>
+        <path id="bWire" d="M70 116 H150" stroke="#475569" stroke-width="3"/>
+        <path d="M150 116 l5 -7 l7 14 l7 -14 l7 14 l7 -14 l7 14 l5 -7" fill="none" stroke="#FDD877" stroke-width="3"/><text x="175" y="98" fill="#8B9AAE" font-family="JetBrains Mono" font-size="11" text-anchor="middle">1 k&Omega;</text>
+        <path id="bWire2" d="M200 116 H300" stroke="#475569" stroke-width="3"/>
+        <circle cx="330" cy="116" r="44" fill="#151A24" stroke="#5FD8DF" stroke-width="2"/>
+        <path d="M300 90 V142 M300 104 L346 76 M300 128 L346 156" stroke="#5FD8DF" stroke-width="3"/><path d="M338 148 l10 9 l-13 1z" fill="#5FD8DF"/>
+        <text x="268" y="108" fill="#9FEAEE" font-family="JetBrains Mono" font-size="11" text-anchor="end">base</text>
+        <text x="352" y="66" fill="#9FEAEE" font-family="JetBrains Mono" font-size="11">collector</text><text x="352" y="176" fill="#9FEAEE" font-family="JetBrains Mono" font-size="11">emitter</text>
+        <path id="cWire" d="M346 76 V40 H500" stroke="#475569" stroke-width="3" fill="none"/>
+        <path id="eWire" d="M346 156 V206 H640" stroke="#475569" stroke-width="3" fill="none"/><text x="650" y="210" fill="#CBD5E1" font-family="JetBrains Mono" font-size="12">GND</text>
+        <g id="rotor"><circle cx="540" cy="110" r="36" fill="#1F2937" stroke="#94A3B8" stroke-width="3"/><path d="M540 80 V140 M510 110 H570" stroke="#94A3B8" stroke-width="4"/></g><text x="540" y="164" fill="#C4CDD8" font-family="Manrope" font-size="12" text-anchor="middle">motor</text>
+        <path d="M500 40 H540 V74" stroke="#475569" stroke-width="3" fill="none" id="mWire1"/><path d="M540 146 V190" stroke="#475569" stroke-width="3" fill="none"/>
+        <path id="vWire" d="M576 110 H640 V20" stroke="#475569" stroke-width="3" fill="none"/><text x="650" y="24" fill="#FDD877" font-family="JetBrains Mono" font-size="12">5V</text>
+        <text id="trMsg" x="20" y="24" fill="#8B9AAE" font-family="JetBrains Mono" font-size="12">pin 9 LOW: switch open, motor off</text>
+      </svg>
+      <div class="btns"><button class="btn" id="trBtn" type="button">Set pin 9 HIGH</button></div>
+    </div>
+    <div class="tblwrap">
+      <table>
+        <tr><th>Leg</th><th>Job</th></tr>
+        <tr><td><b>Base</b></td><td>The switch. Your Arduino pin connects here, through a resistor.</td></tr>
+        <tr><td><b>Collector</b></td><td>Connects to the motor. Current flows in here.</td></tr>
+        <tr><td><b>Emitter</b></td><td>Connects to GND. Current flows out here.</td></tr>
+      </table>
+    </div>
+    <div class="warn"><b>Leg order changes from part to part.</b> In Tinkercad, hover over each leg of your transistor to read its label before you wire. Don't trust a picture's order.</div>
+  </div>
+</section>
+
+<section class="part" id="diode">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>The Flyback Diode</h2><span class="for">Reflection 2</span></div>
+    <p class="story">A spinning motor doesn't stop instantly when you cut the power. For a split second, it pushes a burst of electricity backward, like water sloshing back in a pipe after a valve slams shut. That burst can wreck the transistor.</p>
+    <div class="two">
+      <div class="box b"><h3>The safe path</h3><p>A diode placed <b>across</b> the motor's two terminals gives that backward burst a harmless loop to circle through until it dies out. When the motor runs normally, the diode just sits there doing nothing.</p></div>
+      <div class="box a"><h3>Direction matters</h3><p>A diode is one-way (like the LED in 2.2). Its <b>stripe</b> marks the cathode end. The <b>stripe end points toward the 5V side</b>. Backwards, it would short out the power instead.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="wire">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Wiring It</h2><span class="for">Part 1</span></div>
+    <p class="story">Six connections. Build them in order and check each one against the table before you run.</p>
+    <div class="tblwrap">
+      <table>
+        <tr><th>Connection</th><th>Details</th></tr>
+        <tr><td><b>Arduino pin 9</b></td><td>to the 1 k&Omega; resistor, then to the transistor <b>base</b></td></tr>
+        <tr><td><b>Transistor emitter</b></td><td>GND</td></tr>
+        <tr><td><b>Transistor collector</b></td><td>one terminal of the motor</td></tr>
+        <tr><td><b>Other motor terminal</b></td><td>5V</td></tr>
+        <tr><td><b>Diode</b></td><td>across the motor's two terminals, stripe end toward the 5V side</td></tr>
+        <tr><td><b>Arduino GND</b></td><td>must connect to the same GND rail as the emitter</td></tr>
+      </table>
+    </div>
+    <div class="hint-panel"><b>Parts to drag in:</b> Arduino Uno, breadboard, NPN transistor, DC motor, diode, 1 kilohm resistor. <b>Before running:</b> double-check the diode direction and that the resistor sits between pin 9 and the base.</div>
+  </div>
+</section>
+
+<section class="part" id="speed">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">05</div><h2>Controlling Speed with PWM</h2><span class="for">Parts 2 + 3, Step 4</span></div>
+    <p class="story">Pin 9 is a ~ pin. Everything from 2.5 carries over: analogWrite() that dimmed an LED now sets how hard the transistor switch is flicked on and off, and that sets the motor's speed.</p>
+    <div class="code"><span class="kw">const int</span> MOTOR = <span class="n">9</span>;
+
+<span class="kw">void</span> <span class="fn">setup</span>() { <span class="fn">pinMode</span>(MOTOR, OUTPUT); }
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="fn">analogWrite</span>(MOTOR, <span class="n">255</span>); <span class="fn">delay</span>(<span class="n">2000</span>);   <span class="cm">// full speed</span>
+  <span class="fn">analogWrite</span>(MOTOR, <span class="n">128</span>); <span class="fn">delay</span>(<span class="n">2000</span>);   <span class="cm">// about half</span>
+  <span class="fn">analogWrite</span>(MOTOR, <span class="n">0</span>);   <span class="fn">delay</span>(<span class="n">2000</span>);   <span class="cm">// stopped</span>
+}</div>
+    <div class="panel">
+      <h3>Try a speed: analogWrite(MOTOR, <span class="big" id="sOut"></span>)</h3>
+      <input id="sR" type="range" min="0" max="255" value="128" aria-label="speed">
+      <p class="small">This spins the motor in section 02. Try a very low number like 30 in Tinkercad too (Step 4) and write down what the real simulation does.</p>
+    </div>
+    <div class="two" style="margin-top:12px">
+      <div class="box b"><h3>The ramp (Part 3, you write it)</h3><ul><li>One for loop: start <b>speed</b> at 0, go up to 255, adding 5 each time with <code>speed += 5</code>. Inside: <code>analogWrite(MOTOR, speed);</code> then <code>delay(50);</code></li><li>A second for loop goes back down from 255 to 0, subtracting 5 each time.</li></ul></div>
+      <div class="box a"><h3><code>+= 5</code> and <code>-= 5</code></h3><p><code>speed += 5</code> is a shortcut for <code>speed = speed + 5</code>. <code>speed -= 5</code> means <code>speed = speed - 5</code>. Counting by 5 from 0 hits 0, 5, 10 &hellip; 255 exactly.</p></div>
+    </div>
+    <div class="hint-panel"><b>Low-number thinking (Reflection 3):</b> a motor has to overcome friction and the weight of its own parts before it can start turning. A very small push might not be enough. Compare what you see in Tinkercad at 30 to what an LED did at 30 in 2.5.</div>
+    <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
+    <div class="quiz" id="quiz"></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>The pin flips the switch. The transistor carries the load. The diode catches the kickback.</h2>
+    <p>Small signal, big power: that's how nearly every Arduino controls anything heavier than an LED.</p>
+    <a class="back" href="3-4-dc-motor-and-transistor.html">&larr; Back to 3.4</a>
+    <a class="back" href="../index.html">&larr; Embedded Computing</a>
+  </div>
+</footer>
+
+<script>
+window.QUIZ = [
+  { s: "Which transistor leg does the Arduino pin connect to (through a resistor)?", o: ["Base", "Collector", "Emitter"], a: 0, e: "The base is the switch." },
+  { s: "Which leg goes to GND?", o: ["Base", "Collector", "Emitter"], a: 2, e: "Current flows out through the emitter to ground." },
+  { s: "Which way does the diode's stripe point?", o: ["Toward the 5V side", "Toward GND"], a: 0, e: "Stripe (cathode) toward 5V, across the motor." },
+  { s: "<code>speed += 5</code> is the same as...", o: ["speed = 5", "speed = speed + 5"], a: 1, e: "It adds 5 to whatever speed already is." }
+];
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  var on = false, sp = 128;
+  function show() {
+    var hot = on && sp > 0, live = "#FBBF24";
+    ["bWire", "bWire2"].forEach(function (w) { $(w).setAttribute("stroke", on ? live : "#475569"); });
+    ["cWire", "eWire", "vWire", "mWire1"].forEach(function (w) { $(w).setAttribute("stroke", hot ? "#EF4444" : "#475569"); });
+    $("rotor").style.animation = hot ? "spin " + (0.25 + (255 - sp) / 255 * 1.6).toFixed(2) + "s linear infinite" : "none";
+    $("trMsg").textContent = on ? "pin 9 on: small base current closes the switch, big current flows through the motor" : "pin 9 LOW: switch open, motor off";
+    $("trBtn").textContent = on ? "Set pin 9 LOW" : "Set pin 9 HIGH";
+    $("sOut").textContent = sp;
+  }
+  $("trBtn").onclick = function () { on = !on; show(); };
+  $("sR").oninput = function () { sp = +this.value; on = sp > 0; show(); };
+  show();
+})();
+</script>
+<script src="../unit-2/notes.js"></script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test and Debug | Embedded Computing Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<link rel="stylesheet" href="../unit-2/notes.css">
+<style>.steps{display:grid;gap:8px}.st{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;cursor:pointer;text-align:left;color:var(--ink);font:inherit}.st .n{font:700 20px "JetBrains Mono",monospace;color:var(--acc-ink);min-width:28px}.st .x{display:none;color:#C4CDD8;font-size:14.5px;margin-top:6px}.st.open{border-color:var(--ard)}.st.open .x{display:block}</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Embedded Computing</a>
+  <a href="3-8-test-and-debug.html">3.8 Lesson Page</a>
+  <a href="3-8-notes.html" class="current">Notes</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lesson 3.8</div>
+    <h1>Test and Debug</h1>
+    <p class="deck">Notes for the 3.8 detective case: the 5-step debugging method, the two tools (Serial Monitor and multimeter), and a refresher on every idea the bug hints point to. It won't tell you what the 5 bugs are. Finding them is the assignment.</p>
+    <div class="map">
+      <a href="#method">01 <span>The 5-step method</span></a>
+      <a href="#tools">02 <span>Two tools</span></a>
+      <a href="#refresh">03 <span>Concept refreshers (Part 3 hints)</span></a>
+      <a href="#meter">04 <span>Multimeter (Part 4)</span></a>
+      <a href="#log">05 <span>Logging your bugs</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="part" id="method">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>The 5-Step Debugging Method</h2><span class="for">Reflections 2 + 3</span></div>
+    <p class="story">A detective doesn't arrest the first suspect they see. They list what should have happened, what did happen, collect evidence, and test one theory at a time. Debugging is exactly that. Click each step.</p>
+    <div class="steps" id="steps">
+      <button class="st" type="button"><span class="n">1</span><span>Say what <b>should</b> happen.<span class="x">For this night light: turning the dial changes the LED's brightness, and the Serial Monitor prints the dial's reading.</span></span></button>
+      <button class="st" type="button"><span class="n">2</span><span>Say what <b>actually</b> happens.<span class="x">Be specific: "the LED never lights" and "nothing prints" are two different clues.</span></span></button>
+      <button class="st" type="button"><span class="n">3</span><span><b>Print</b> values with Serial.println to see what the program sees.<span class="x">If the number the code reads never changes when you turn the dial, the problem is before the LED ever gets involved.</span></span></button>
+      <button class="st" type="button"><span class="n">4</span><span><b>Measure</b> with the multimeter to see what the circuit is doing.<span class="x">The code can be perfect and the wiring still wrong, or the other way around. The meter tells you what the wires really carry.</span></span></button>
+      <button class="st" type="button"><span class="n">5</span><span>Change <b>one</b> thing at a time, then test again.<span class="x">Fix, restart the simulation, test, write it down. Then the next one.</span></span></button>
+    </div>
+    <div class="warn"><b>Never change several things at once.</b> If it starts working, you won't know which change fixed it. If it gets worse, you won't know which change broke it.</div>
+  </div>
+</section>
+
+<section class="part" id="tools">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Two Tools, Two Questions</h2></div>
+    <p class="story">Every bug lives in one of two places: the code or the circuit. Each tool looks into one of them.</p>
+    <div class="two">
+      <div class="box b"><h3>Serial Monitor: what the code sees</h3><p>Prints numbers while the program runs. It answers "what value is the program working with?" It only prints if communication was opened in setup(), the same way as in 2.4 and 3.6.</p></div>
+      <div class="box a"><h3>Multimeter: what the circuit does</h3><p>Measures the actual voltage between two points. It answers "is electricity really getting where it should?"</p></div>
+    </div>
+    <div class="panel">
+      <h3>Which tool would you reach for?</h3>
+      <div class="quiz" id="toolQuiz"></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="refresh">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Concept Refreshers</h2><span class="for">Part 3 hints</span></div>
+    <p class="story">Each hint in your assignment points back to something you've already learned. Here's that idea again, so you can check the broken circuit and code against it yourself.</p>
+    <div class="cards">
+      <div class="cardx box b"><h4 style="color:#fff">Printing needs setup</h4><p class="small">The Serial Monitor shows nothing unless <code>Serial.begin(9600);</code> runs in setup() first (2.4).</p></div>
+      <div class="cardx box b"><h4 style="color:#fff">Which pin, really?</h4><p class="small">The code reads whatever pin it names. The wire has to be on that same pin. A0 and A1 are different pins (3.6).</p></div>
+      <div class="cardx box b"><h4 style="color:#fff">LED direction</h4><p class="small">Current flows one way through an LED: anode (long leg) toward the pin, cathode (short leg) toward GND. Backwards, it blocks (2.2).</p></div>
+      <div class="cardx box b"><h4 style="color:#fff">What protects an LED</h4><p class="small">Every LED needs something in line to limit its current (2.2, 2.7).</p></div>
+      <div class="cardx box b"><h4 style="color:#fff">Pin modes</h4><p class="small"><code>INPUT</code> means the pin <b>listens</b>. <code>OUTPUT</code> means the pin <b>drives</b> power out. A pin that should light something must be set to drive (2.3).</p></div>
+    </div>
+    <div class="hint-panel">Try your own detective work first, as the assignment says. Use these only when you're stuck, and when you find a bug, fix <b>only</b> that one, then restart the simulation and test.</div>
+  </div>
+</section>
+
+<section class="part" id="meter">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Using the Multimeter</h2><span class="for">Part 4</span></div>
+    <p class="story">A multimeter is a voltage detective. Touch its two probes to two points, and it tells you the voltage difference between them. In Tinkercad it's in the components panel, like any other part.</p>
+    <div class="two">
+      <div class="box b"><h3>Setting it up in Tinkercad</h3><ol><li>Drag a <b>Multimeter</b> in from the components panel.</li><li>Click it and set its mode to <b>Voltage</b> (DC).</li><li>Connect its two probes to the two points you want to compare. Red goes to the higher (+) side, black to the lower (&minus;) side.</li><li>Start the simulation and read the number.</li></ol></div>
+      <div class="box a"><h3>What to expect</h3><ul><li><b>Across a lit LED + its resistor:</b> the 5 volts from the pin gets <b>split</b> between them. The two readings together add up to about the pin's voltage.</li><li><b>The dial's middle leg to GND:</b> it slides between the voltages on the two outer legs as you turn it (3.6).</li></ul></div>
+    </div>
+    <div class="panel">
+      <h3>Practice: measure the dial's middle leg</h3>
+      <div class="two" style="align-items:center">
+        <svg viewBox="0 0 280 170" role="img" aria-label="Multimeter reading the potentiometer wiper voltage">
+          <rect x="150" y="10" width="120" height="150" rx="12" fill="#FACC15"/><rect x="164" y="24" width="92" height="44" rx="4" fill="#0B0E14"/><text id="mv" x="210" y="54" fill="#A7F3D0" font-family="JetBrains Mono" font-size="20" text-anchor="middle">2.50 V</text>
+          <circle cx="210" cy="112" r="26" fill="#1F2937"/><text x="210" y="116" fill="#FDD877" font-family="JetBrains Mono" font-size="11" text-anchor="middle">V DC</text>
+          <circle cx="60" cy="80" r="40" fill="#1F2937" stroke="#94A3B8" stroke-width="3"/><g id="kn"><rect x="56" y="44" width="8" height="30" rx="4" fill="#FDD877"/></g>
+          <path d="M60 120 V150 H150" stroke="#EF4444" stroke-width="3" fill="none"/><path d="M100 80 H130 V140 H150" stroke="#1F2937" stroke-width="3" fill="none"/>
+          <text x="20" y="160" fill="#8B9AAE" font-family="Manrope" font-size="11">wiper &rarr; red, GND &rarr; black</text>
+        </svg>
+        <div><p class="small">Turn the dial:</p><input id="pR" type="range" min="0" max="100" value="50" aria-label="Dial position"><p class="small">Record the far-left and far-right readings from <b>your own</b> Tinkercad circuit in the assignment table.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="log">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">05</div><h2>Logging Each Bug</h2><span class="for">Part 3 table + Reflection 1</span></div>
+    <p class="story">A good bug report has three parts, and they're the three columns of your table. Here's one done for a bug that is <b>not</b> in your circuit, as an example.</p>
+    <div class="tblwrap">
+      <table>
+        <tr><th>Symptom (what you saw)</th><th>Cause</th><th>Fix</th></tr>
+        <tr><td>The buzzer from 3.2 was silent the whole time.</td><td>The code used <code>tone(7, 440)</code>, but the buzzer was wired to pin 8.</td><td>Changed the code to <code>tone(8, 440)</code>, restarted, and heard the note.</td></tr>
+      </table>
+    </div>
+    <div class="hint-panel"><b>Part 2 first:</b> before fixing anything, run the broken version, open the Serial Monitor, and write down exactly what you see (or don't see). That's your step 2: what actually happens.</div>
+    <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
+    <div class="quiz" id="quiz"></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Guessing is slow. Evidence is fast.</h2>
+    <p>Say what should happen, see what does, print, measure, and change one thing at a time.</p>
+    <a class="back" href="3-8-test-and-debug.html">&larr; Back to 3.8</a>
+    <a class="back" href="../index.html">&larr; Embedded Computing</a>
+  </div>
+</footer>
+
+<script>
+window.QUIZ = [
+  { s: "You fix two things at once and it starts working. What's the problem?", o: ["Nothing, it works", "You don't know which change fixed it"], a: 1, e: "And one of them might have broken something else." },
+  { s: "The multimeter measures...", o: ["What value the code is using", "The actual voltage between two points"], a: 1, e: "Serial shows the code's view; the meter shows the circuit's." },
+  { s: "After each single fix, you should...", o: ["Restart the simulation and test", "Fix the next bug right away"], a: 0, e: "Test after every change." }
+];
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  [].forEach.call(document.querySelectorAll(".st"), function (b) { b.onclick = function () { b.classList.toggle("open"); }; });
+  var TQ = [
+    { s: "\"I'm not sure the code is getting any number from the dial.\"", o: ["Serial Monitor", "Multimeter"], a: 0, e: "Print the reading and watch whether it changes." },
+    { s: "\"I'm not sure any voltage is reaching the LED.\"", o: ["Serial Monitor", "Multimeter"], a: 1, e: "Measure across the LED." },
+    { s: "\"Is the dial's middle leg really changing voltage when I turn it?\"", o: ["Serial Monitor", "Multimeter"], a: 1, e: "Measure the wiper to GND at both ends." }
+  ];
+  TQ.forEach(function (q) {
+    var d = document.createElement("div"); d.className = "q"; d.innerHTML = "<div>" + q.s + '</div><div class="opts"></div><div class="fb"></div>';
+    q.o.forEach(function (t, i) { var b = document.createElement("button"); b.className = "btn"; b.type = "button"; b.textContent = t; b.onclick = function () { d.querySelector(".fb").innerHTML = i === q.a ? '<b style="color:#34D399">Right.</b> ' + q.e : '<b style="color:#FCA5A5">Not quite.</b> Try the other one.'; }; d.querySelector(".opts").appendChild(b); });
+    $("toolQuiz").appendChild(d);
+  });
+  $("pR").oninput = function () { var p = +this.value / 100; $("mv").textContent = (5 * p).toFixed(2) + " V"; $("kn").setAttribute("transform", "rotate(" + (p * 270 - 135) + " 60 80)"); }; $("pR").oninput();
+})();
+</script>
+<script src="../unit-2/notes.js"></script>
+</body>
+</html>

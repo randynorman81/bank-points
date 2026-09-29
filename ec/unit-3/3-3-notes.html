@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Servo: Angles and Sweeps | Embedded Computing Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<link rel="stylesheet" href="../unit-2/notes.css">
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Embedded Computing</a>
+  <a href="3-3-servo-angles-and-sweeps.html">3.3 Lesson Page</a>
+  <a href="3-3-notes.html" class="current">Notes</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lesson 3.3</div>
+    <h1>Servo: Angles and Sweeps</h1>
+    <p class="deck">Everything you need for the 3.3 assignment: what a servo is, wiring it, libraries, the three angles, how a counting loop makes a smooth sweep, and how a variable remembers whether the lock is locked.</p>
+    <div class="map">
+      <a href="#what">01 <span>Servo vs. motor</span></a>
+      <a href="#wire">02 <span>Wiring (Part 1)</span></a>
+      <a href="#lib">03 <span>Library + 3 angles (Part 2)</span></a>
+      <a href="#sweep">04 <span>Smooth sweep (Part 3)</span></a>
+      <a href="#lock">05 <span>Lock and unlock (Part 4)</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="part" id="what">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>A Motor That Knows Where It Is</h2><span class="for">Reflection 1</span></div>
+    <p class="story">A regular motor is like a car with only a gas pedal: it just spins. A servo is like a driver who parks in an exact spot and stays there. Robot arms, camera mounts, and door locks all need that exact spot.</p>
+    <div class="two">
+      <div class="box b"><h3>Servo</h3><p>Turns to whatever angle you tell it, from <b>0&deg;</b> to <b>180&deg;</b>, and <b>holds</b> that position. It has 3 wires: <b>power</b>, <b>ground</b>, and a <b>signal</b> wire that tells it where to turn.</p></div>
+      <div class="panel" style="margin-top:0;text-align:center">
+        <svg viewBox="0 0 260 170" width="100%" role="img" aria-label="Servo arm pointing at the chosen angle on a 0 to 180 degree scale">
+          <path d="M30 140 A100 100 0 0 1 230 140" fill="none" stroke="#232B38" stroke-width="18"/>
+          <g font-family="JetBrains Mono" font-size="11" fill="#8B9AAE" text-anchor="middle"><text x="22" y="160">0&deg;</text><text x="130" y="28">90&deg;</text><text x="238" y="160">180&deg;</text></g>
+          <rect x="95" y="128" width="70" height="36" rx="5" fill="#1E3A8A"/>
+          <g id="arm"><rect x="126" y="60" width="8" height="84" rx="4" fill="#E5E7EB"/><circle cx="130" cy="140" r="10" fill="#CBD5E1"/></g>
+        </svg>
+        <input id="aR" type="range" min="0" max="180" value="90" aria-label="angle">
+        <div class="big" id="aOut"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="wire">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Wiring the Servo and Button</h2><span class="for">Part 1</span></div>
+    <p class="story">The servo's three wires each have one job. Hover over them in Tinkercad to read their labels; they're usually colored, but the label is what counts.</p>
+    <div class="tblwrap">
+      <table>
+        <tr><th>Part</th><th>Where it connects</th></tr>
+        <tr><td><b>Servo signal</b> wire</td><td>Arduino pin 9</td></tr>
+        <tr><td><b>Servo power</b> wire</td><td>5V</td></tr>
+        <tr><td><b>Servo ground</b> wire</td><td>GND</td></tr>
+        <tr><td><b>Button</b>, one side</td><td>Arduino pin 2</td></tr>
+        <tr><td><b>Button</b>, the other side</td><td>GND</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="lib">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Libraries and the Three Angles</h2><span class="for">Part 2</span></div>
+    <p class="story">Telling a servo exactly where to go takes carefully timed pulses. Somebody already wrote that code, tested it, and packed it up so you don't have to. That pack of ready-made code is a library.</p>
+    <div class="code"><span class="kw">#include</span> &lt;Servo.h&gt;        <span class="cm">// very first line: bring in the Servo library</span>
+
+Servo myServo;             <span class="cm">// make a servo object named myServo</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  myServo.<span class="fn">attach</span>(<span class="n">9</span>);        <span class="cm">// its signal wire is on pin 9</span>
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  myServo.<span class="fn">write</span>(<span class="n">0</span>);   <span class="fn">delay</span>(<span class="n">1000</span>);
+  myServo.<span class="fn">write</span>(<span class="n">90</span>);  <span class="fn">delay</span>(<span class="n">1000</span>);
+  myServo.<span class="fn">write</span>(<span class="n">180</span>); <span class="fn">delay</span>(<span class="n">1000</span>);
+}</div>
+    <div class="two">
+      <div class="box b"><h3>The dot</h3><p><code>myServo.write(90)</code> means "tell <b>myServo</b> to <b>write</b> (move to) 90 degrees." The part before the dot is <b>which</b> servo; the part after is <b>what to do</b>. You could have two servos with two names.</p></div>
+      <div class="box a"><h3>Watch the three angles</h3><div class="btns" style="justify-content:flex-start"><button class="btn" id="three" type="button">&#9654; Run Part 2</button></div><p class="small">The arm jumps between positions; it doesn't glide.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="sweep">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>The Smooth Sweep</h2><span class="for">Part 3 (you write it)</span></div>
+    <p class="story">A jump is one big write(). A glide is 181 tiny ones: 0, then 1, then 2, all the way to 180, with a pause so short you can't see the steps. You don't type 181 lines. You let a for loop count for you.</p>
+    <div class="two">
+      <div class="box b"><h3>A for loop, piece by piece</h3><div class="code" style="margin:6px 0 8px"><span class="kw">for</span> (<span class="kw">int</span> x = <span class="n">0</span>; x &lt;= <span class="n">10</span>; x++) { ... }</div><ul><li><code>int x = 0</code>: start the counter here</li><li><code>x &lt;= 10</code>: keep going while this is true</li><li><code>x++</code>: add 1 after each pass</li><li>To count <b>down</b>, start high, keep going while it's <code>&gt;= </code> the low end, and use <code>x--</code>.</li></ul></div>
+      <div class="box a"><h3>Your clues from the assignment</h3><ul><li>One for loop counts an <b>angle</b> variable up from 0 to 180; inside it, <code>myServo.write(angle);</code> then <code>delay(15);</code></li><li>A second for loop does the same thing counting <b>down</b> from 180 to 0.</li></ul><p class="small">The for loop above counts to 10 on purpose. Adapting it is your job.</p></div>
+    </div>
+    <div class="panel">
+      <h3>Jump vs. glide</h3>
+      <div class="btns" style="justify-content:flex-start"><button class="btn" id="glide" type="button">&#9654; Glide 0 &rarr; 180 &rarr; 0</button></div>
+      <p class="small" id="glideMsg">Each step moves 1 degree, then waits 15 ms.</p>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="lock">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">05</div><h2>Lock and Unlock</h2><span class="for">Part 4 + Reflections 2, 3</span></div>
+    <p class="story">A door lock has to remember something: is it locked right now? Each press flips the answer. The Arduino remembers with a true/false variable, the same kind of boolean you flipped in 2.4.</p>
+    <div class="two">
+      <div class="box b"><h3>What your code needs</h3><ul><li><code>bool locked = true;</code> above setup(): the memory.</li><li>In setup(): the button pull-up and start the arm at 0.</li><li>In loop(): <code>if (digitalRead(2) == LOW) {</code> (button pressed)</li><li><b>You write this:</b> if locked is true, move to 90 and set locked to false. Otherwise, move to 0 and set locked to true.</li><li>Last line inside the first if: <code>delay(400);</code></li></ul></div>
+      <div class="box a"><h3>An if inside an if</h3><div class="code" style="margin:6px 0 8px"><span class="kw">if</span> (something) {
+  <span class="kw">if</span> (anotherThing) {
+    ...
+  } <span class="kw">else</span> {
+    ...
+  }
+}</div><p>The outer if asks "was the button pressed?" The inner if/else asks "which way should it go?"</p></div>
+    </div>
+    <div class="panel">
+      <h3>Try the lock</h3>
+      <div class="two" style="align-items:center">
+        <div style="text-align:center">
+          <svg viewBox="0 0 200 130" width="200" role="img" aria-label="Lock arm"><rect x="70" y="92" width="60" height="30" rx="5" fill="#1E3A8A"/><g id="lArm"><rect x="96" y="30" width="8" height="70" rx="4" fill="#E5E7EB"/><circle cx="100" cy="96" r="8" fill="#CBD5E1"/></g></svg>
+          <div class="big" id="lState"></div>
+        </div>
+        <div>
+          <label class="small" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="lDelay" checked> keep the <code>delay(400)</code> line</label>
+          <div class="btns" style="justify-content:flex-start"><button class="btn" id="lBtn" type="button">Press the button once</button></div>
+          <p class="small" id="lMsg">A human press lasts about a fifth of a second. loop() runs thousands of times in that time.</p>
+        </div>
+      </div>
+    </div>
+    <div class="hint-panel"><b>Test it for real (Reflection 2):</b> delete the delay(400) in Tinkercad, press the button several times, and describe exactly what you see. <b>Reflection 3:</b> think about things around you that lock, latch, or open on command.</div>
+    <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
+    <div class="quiz" id="quiz"></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>write() says where. A for loop says how smoothly. A boolean says what to do next.</h2>
+    <p>Put the three together and a button becomes a door lock.</p>
+    <a class="back" href="3-3-servo-angles-and-sweeps.html">&larr; Back to 3.3</a>
+    <a class="back" href="../index.html">&larr; Embedded Computing</a>
+  </div>
+</footer>
+
+<script>
+window.QUIZ = [
+  { s: "What range of angles can a standard servo turn to?", o: ["0&deg; to 90&deg;", "0&deg; to 180&deg;", "0&deg; to 360&deg;"], a: 1, e: "Standard servos cover half a circle." },
+  { s: "Where does <code>#include &lt;Servo.h&gt;</code> go?", o: ["Inside setup()", "The very first line of the file"], a: 1, e: "Libraries are brought in before anything else." },
+  { s: "What does <code>myServo.attach(9);</code> do?", o: ["Moves the servo to 9&deg;", "Tells the library the signal wire is on pin 9"], a: 1, e: "attach connects the servo object to a pin." },
+  { s: "<code>locked</code> is true. After the button is pressed once, it should be...", o: ["true", "false"], a: 1, e: "Each press flips the state." }
+];
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  function setArm(el, a, cx, cy) { el.setAttribute("transform", "rotate(" + (a - 90) + " " + cx + " " + cy + ")"); }
+  var cur = 90;
+  function show(a) { cur = a; setArm($("arm"), a, 130, 140); $("aOut").textContent = "myServo.write(" + a + ");"; $("aR").value = a; }
+  $("aR").oninput = function () { show(+this.value); }; show(90);
+  var T = [];
+  function clear() { T.forEach(clearTimeout); T = []; }
+  $("three").onclick = function () { clear(); [0, 90, 180, 0].forEach(function (a, i) { T.push(setTimeout(function () { show(a); }, i * 1000)); }); window.scrollTo({ top: document.getElementById("what").offsetTop, behavior: "smooth" }); };
+  $("glide").onclick = function () {
+    clear(); window.scrollTo({ top: document.getElementById("what").offsetTop, behavior: "smooth" });
+    var seq = []; for (var a = 0; a <= 180; a++) seq.push(a); for (a = 180; a >= 0; a--) seq.push(a);
+    seq.forEach(function (a, i) { T.push(setTimeout(function () { show(a); $("glideMsg").textContent = "angle = " + a; }, 400 + i * 15)); });
+  };
+  var locked = true;
+  function lshow() { setArm($("lArm"), locked ? 0 : 90, 100, 96); $("lState").textContent = locked ? "locked = true (0°)" : "locked = false (90°)"; }
+  $("lBtn").onclick = function () {
+    var flips = $("lDelay").checked ? 1 : 30 + Math.floor(Math.random() * 40), i = 0;
+    (function f() { if (i++ >= flips) { $("lMsg").innerHTML = $("lDelay").checked ? "One press = one flip, because delay(400) waits until you've let go." : "That one press was counted <b>" + flips + "</b> times. It ended up " + (locked ? "locked" : "unlocked") + ", basically at random."; return; } locked = !locked; lshow(); setTimeout(f, 12); })();
+  };
+  lshow();
+})();
+</script>
+<script src="../unit-2/notes.js"></script>
+</body>
+</html>

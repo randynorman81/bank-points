@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Displays: 7-Segment Counter | Embedded Computing Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<link rel="stylesheet" href="../unit-2/notes.css">
+<style>.seg{cursor:pointer;transition:fill .12s} .grid2 td,.grid2 th{text-align:center}</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Embedded Computing</a>
+  <a href="3-5-displays-7-segment-counter.html">3.5 Lesson Page</a>
+  <a href="3-5-notes.html" class="current">Notes</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lesson 3.5</div>
+    <h1>Displays: 7-Segment Counter</h1>
+    <p class="deck">Everything you need for the 3.5 assignment: how the display draws digits, wiring 7 segments, testing your wiring, lookup tables (2D arrays), and the button counter that wraps from 9 back to 0.</p>
+    <div class="map">
+      <a href="#segs">01 <span>The 7 segments</span></a>
+      <a href="#wire">02 <span>Wiring (Part 1)</span></a>
+      <a href="#test">03 <span>Test first (Part 2)</span></a>
+      <a href="#lut">04 <span>Lookup table (Part 3)</span></a>
+      <a href="#count">05 <span>Button counter (Part 4)</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="part" id="segs">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Seven Bars, Ten Digits</h2><span class="for">Part 3 table</span></div>
+    <p class="story">Look at a microwave clock or a scoreboard up close: every number is built from the same 7 little bars. Light the right bars and you get the right digit. Click the bars below to light them, and watch the pattern build.</p>
+    <div class="two" style="align-items:center">
+      <div class="fig" style="text-align:center">
+        <svg id="disp" viewBox="0 0 200 300" width="190" role="img" aria-label="Clickable 7-segment display with segments a through g">
+          <rect x="10" y="10" width="180" height="280" rx="14" fill="#0E131B" stroke="#232B38"/>
+        </svg>
+        <div class="btns"><button class="btn" id="clr" type="button">Clear</button><button class="btn" id="all" type="button">All on</button></div>
+      </div>
+      <div>
+        <div class="tblwrap"><table class="grid2"><tr><th>a</th><th>b</th><th>c</th><th>d</th><th>e</th><th>f</th><th>g</th></tr><tr id="patRow"></tr></table></div>
+        <div class="big" id="patCode" style="font-size:16px;margin-top:10px"></div>
+        <div class="tblwrap" style="margin-top:12px">
+          <table>
+            <tr><th>Segment</th><th>Where it is</th></tr>
+            <tr><td><b>a</b></td><td>top bar</td></tr><tr><td><b>b</b></td><td>top right</td></tr><tr><td><b>c</b></td><td>bottom right</td></tr><tr><td><b>d</b></td><td>bottom bar</td></tr><tr><td><b>e</b></td><td>bottom left</td></tr><tr><td><b>f</b></td><td>top left</td></tr><tr><td><b>g</b></td><td>middle bar</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="hint-panel"><b>Your job in Part 3:</b> the assignment gives you 0 and 1. Draw each digit from 2 to 9 here, read the pattern (1 = on, 0 = off, in the order a b c d e f g), and type it into your assignment table. Check it against how the digit really looks on a clock.</div>
+  </div>
+</section>
+
+<section class="part" id="wire">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Wiring 7 Segments</h2><span class="for">Part 1</span></div>
+    <p class="story">Each bar is its own little LED. So each bar follows the LED rule you've used since 2.2: its own pin and its own 220 &Omega; resistor. That's a lot of wires, so go slowly.</p>
+    <div class="tblwrap">
+      <table>
+        <tr><th>Segment</th><th>a</th><th>b</th><th>c</th><th>d</th><th>e</th><th>f</th><th>g</th><th>Common cathode</th><th>Button</th></tr>
+        <tr><td><b>Arduino pin</b></td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>GND</td><td>pin 9 + GND</td></tr>
+      </table>
+    </div>
+    <div class="hint-panel">The Tinkercad display is <b>common cathode</b>: the shared leg goes to <b>GND</b> (like the RGB LED in 3.1). Hover over each display leg to read its label before wiring. Parts: Arduino, breadboard, 7-segment display, <b>seven</b> 220 &Omega; resistors, pushbutton.</div>
+  </div>
+</section>
+
+<section class="part" id="test">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Test the Wiring First</h2><span class="for">Part 2</span></div>
+    <p class="story">Fourteen wires means fourteen chances to swap two. Finding that mistake now takes a minute. Finding it after you've written a lookup table takes an hour, because you won't know if the problem is the wires or the table.</p>
+    <div class="two">
+      <div class="box b"><h3>What the test does</h3><p>Turns on pin 2, waits half a second, turns it off; then pin 3; and so on through pin 8. Each bar should light <b>in order a, b, c, d, e, f, g</b>. If the wrong bar lights, or none does, fix that wire now.</p><p class="small">You build this test. Think about what you learned in 2.3 (digitalWrite, delay) and 3.2 (for loops).</p></div>
+      <div class="box a" style="text-align:center"><h3>What a good test looks like</h3><div class="btns"><button class="btn" id="runTest" type="button">&#9654; Watch the test</button></div><p class="small" id="testMsg"></p></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="lut">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>The Lookup Table</h2><span class="for">Part 3</span></div>
+    <p class="story">Ten digits could mean ten separate blocks of code. Instead, store all ten patterns in one table, like a cheat sheet, and write just one function that looks up the row it needs. That's a lookup table, one of the most useful tricks in programming.</p>
+    <div class="two">
+      <div class="box b"><h3>A 2D array: a table of rows</h3><div class="code" style="margin:6px 0 8px"><span class="kw">const byte</span> digits[<span class="n">10</span>][<span class="n">7</span>] = {
+  {<span class="n">1</span>,<span class="n">1</span>,<span class="n">1</span>,<span class="n">1</span>,<span class="n">1</span>,<span class="n">1</span>,<span class="n">0</span>},  <span class="cm">// 0</span>
+  {<span class="n">0</span>,<span class="n">1</span>,<span class="n">1</span>,<span class="n">0</span>,<span class="n">0</span>,<span class="n">0</span>,<span class="n">0</span>},  <span class="cm">// 1</span>
+  <span class="cm">// your rows for 2 to 9 go here</span>
+};</div><p><code>[10][7]</code> means 10 rows (digits 0&ndash;9), 7 columns (segments a&ndash;g). Rows are separated by commas, and the whole thing ends with <code>};</code></p></div>
+      <div class="box a"><h3>Reading a cell</h3><p><code>digits[n][s]</code> means "row <b>n</b>, column <b>s</b>." <code>digits[1][1]</code> is row 1 (the digit 1), column 1 (segment b), which is <b>1</b>: on.</p><p>Paired with <code>segPins[] = {2,3,4,5,6,7,8}</code>, column <b>s</b> of the table and position <b>s</b> of segPins always mean the same segment.</p></div>
+    </div>
+    <div class="tblwrap" style="margin-top:12px">
+      <table>
+        <tr><th>Piece</th><th>What it does</th></tr>
+        <tr><td><code>void showDigit(int n)</code></td><td>Between setup() and loop(). A for loop with s from 0 to 6 calls <code>digitalWrite(segPins[s], digits[n][s]);</code> so each segment gets its on/off value from row n.</td></tr>
+        <tr><td>In <code>setup()</code></td><td>A for loop with s from 0 to 6 calls <code>pinMode(segPins[s], OUTPUT);</code></td></tr>
+        <tr><td>In <code>loop()</code></td><td>A for loop with n from 0 to 9 calls <code>showDigit(n);</code> then <code>delay(1000);</code></td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="count">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">05</div><h2>The Button Counter</h2><span class="for">Part 4 + Reflections</span></div>
+    <p class="story">Every press adds one. After 9, it has to go back to 0, because there's no single-digit 10. Then the lookup table does the rest: showDigit(count).</p>
+    <div class="two">
+      <div class="box b"><h3>What Part 4 needs</h3><ul><li>A <code>count</code> variable that starts at 0.</li><li>In setup(): <code>pinMode(9, INPUT_PULLUP);</code> and <code>showDigit(count);</code></li><li>In loop(): if the button is pressed (<code>digitalRead(9) == LOW</code>), add 1 to count, wrap it to 0 if it goes past 9, call showDigit(count), then <code>delay(300);</code></li><li>The delay(300) stops one press from counting many times (like the lock in 3.3).</li></ul></div>
+      <div class="box a" style="text-align:center"><h3>Try it</h3><div class="big" id="cOut">count = 0</div><div class="btns"><button class="btn" id="press" type="button">Press the button</button></div><p class="small">The display in section 01 shows the count using your drawing tool's patterns.</p></div>
+    </div>
+    <div class="hint-panel"><b>Reflection 2 (two digits):</b> count the pins your one-digit display uses. How many would two separate digits need? Compare that with how many digital pins the Uno has (0&ndash;13).</div>
+    <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
+    <div class="quiz" id="quiz"></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Store the pattern once. Look it up whenever you need it.</h2>
+    <p>A 2D array plus one showDigit() function replaces ten blocks of copy-pasted code.</p>
+    <a class="back" href="3-5-displays-7-segment-counter.html">&larr; Back to 3.5</a>
+    <a class="back" href="../index.html">&larr; Embedded Computing</a>
+  </div>
+</footer>
+
+<script>
+window.QUIZ = [
+  { s: "Which segment is the middle bar?", o: ["a", "d", "g"], a: 2, e: "a is top, d is bottom, g is the middle." },
+  { s: "In <code>digits[10][7]</code>, what does the 7 stand for?", o: ["7 digits", "7 segments (a through g)"], a: 1, e: "10 rows of digits, 7 columns of segments." },
+  { s: "count is 9 and the button is pressed. What should the display show next?", o: ["10", "0"], a: 1, e: "After 9 it wraps back to 0." },
+  { s: "Why test each segment before writing the lookup table?", o: ["So a wiring mistake isn't confused with a table mistake", "The Arduino requires it"], a: 0, e: "Test one thing at a time, and you always know where the problem is." }
+];
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  // segment shapes: a b c d e f g
+  var P = { a: "M50 30 h100 l-12 16 h-76 z", b: "M154 34 v100 l-16 -12 v-76 z", c: "M154 166 v100 l-16 -16 v-76 z", d: "M50 270 h100 l-12 -16 h-76 z", e: "M46 166 v100 l16 -16 v-76 z", f: "M46 34 v100 l16 -12 v-76 z", g: "M52 150 l12 -10 h72 l12 10 l-12 10 h-72 z" };
+  var L = "abcdefg".split(""), on = [0, 0, 0, 0, 0, 0, 0];
+  var svg = $("disp"), h = svg.innerHTML;
+  L.forEach(function (k, i) { h += '<path class="seg" data-i="' + i + '" d="' + P[k] + '"/><text x="' + ({ a: 100, b: 172, c: 172, d: 100, e: 28, f: 28, g: 100 }[k]) + '" y="' + ({ a: 26, b: 88, c: 220, d: 290, e: 220, f: 88, g: 148 }[k]) + '" fill="#8B9AAE" font-family="JetBrains Mono" font-size="12" text-anchor="middle" pointer-events="none">' + k + "</text>"; });
+  svg.innerHTML = h;
+  function draw() {
+    [].forEach.call(svg.querySelectorAll(".seg"), function (p) { p.setAttribute("fill", on[+p.getAttribute("data-i")] ? "#EF4444" : "#2A1414"); });
+    $("patRow").innerHTML = on.map(function (v) { return "<td><b>" + v + "</b></td>"; }).join("");
+    $("patCode").textContent = "{" + on.join(",") + "}";
+  }
+  svg.addEventListener("click", function (e) { var i = e.target.getAttribute && e.target.getAttribute("data-i"); if (i === null || i === undefined) return; on[+i] = on[+i] ? 0 : 1; draw(); });
+  $("clr").onclick = function () { on = [0, 0, 0, 0, 0, 0, 0]; draw(); };
+  $("all").onclick = function () { on = [1, 1, 1, 1, 1, 1, 1]; draw(); };
+  draw();
+  var T = [];
+  $("runTest").onclick = function () {
+    T.forEach(clearTimeout); T = []; window.scrollTo({ top: $("segs").offsetTop, behavior: "smooth" });
+    L.forEach(function (k, i) { T.push(setTimeout(function () { on = [0, 0, 0, 0, 0, 0, 0]; on[i] = 1; draw(); $("testMsg").textContent = "pin " + (i + 2) + " HIGH → segment " + k; }, 500 + i * 500)); });
+    T.push(setTimeout(function () { on = [0, 0, 0, 0, 0, 0, 0]; draw(); $("testMsg").textContent = "all 7 lit in order a to g: wiring is good"; }, 500 + 7 * 500));
+  };
+  // counter shows only 0 and 1 from the assignment; other digits use whatever the student drew last, so we don't give the patterns away
+  var count = 0, KNOWN = { 0: [1, 1, 1, 1, 1, 1, 0], 1: [0, 1, 1, 0, 0, 0, 0] }, mine = {};
+  $("press").onclick = function () {
+    mine[count] = on.slice();
+    count = count + 1; if (count > 9) count = 0;
+    $("cOut").textContent = "count = " + count;
+    on = (KNOWN[count] || mine[count] || [0, 0, 0, 0, 0, 0, 0]).slice(); draw();
+    if (!KNOWN[count] && !mine[count]) $("cOut").textContent += " (draw this digit!)";
+  };
+})();
+</script>
+<script src="../unit-2/notes.js"></script>
+</body>
+</html>

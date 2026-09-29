@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RGB LEDs and Color Mixing | Embedded Computing Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<link rel="stylesheet" href="../unit-2/notes.css">
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../index.html">&larr; Embedded Computing</a>
+  <a href="3-1-rgb-leds-and-color-mixing.html">3.1 Lesson Page</a>
+  <a href="3-1-notes.html" class="current">Notes</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lesson 3.1</div>
+    <h1>RGB LEDs and Color Mixing</h1>
+    <p class="deck">Everything you need for the 3.1 assignment: how an RGB LED works, wiring it, your first custom function (setColor), mixing colors with numbers, and the fading challenge.</p>
+    <div class="map">
+      <a href="#what">01 <span>What an RGB LED is</span></a>
+      <a href="#wire">02 <span>Wiring (Part 1)</span></a>
+      <a href="#code">03 <span>The code (Part 2)</span></a>
+      <a href="#mix">04 <span>Mixing colors (Steps 3&ndash;4)</span></a>
+      <a href="#fade">05 <span>The fade challenge</span></a>
+      <a href="#light">06 <span>Light vs. paint</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="part" id="what">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Three LEDs in One Bulb</h2></div>
+    <p class="story">Look closely at your phone screen with a magnifying glass and you'll see it isn't made of colors at all. It's made of tiny red, green, and blue lights. Every color you've ever seen on a screen is those three, mixed. An RGB LED is one of those pixels you can hold.</p>
+    <div class="two">
+      <div class="fig">
+        <svg viewBox="0 0 300 220" role="img" aria-label="RGB LED with four legs: red, common cathode (longest), green, blue">
+          <path d="M100 30 a50 50 0 0 1 100 0 v80 h-100 z" fill="#E5E7EB" opacity=".85"/>
+          <circle cx="128" cy="62" r="11" fill="#EF4444"/><circle cx="150" cy="80" r="11" fill="#22C55E"/><circle cx="172" cy="62" r="11" fill="#3B82F6"/>
+          <rect x="94" y="110" width="112" height="10" rx="2" fill="#CBD5E1"/>
+          <g stroke-width="5"><path d="M112 120 V180" stroke="#EF4444"/><path d="M137 120 V205" stroke="#94A3B8"/><path d="M162 120 V180" stroke="#22C55E"/><path d="M187 120 V180" stroke="#3B82F6"/></g>
+          <g font-family="JetBrains Mono" font-size="11" text-anchor="middle"><text x="100" y="198" fill="#FCA5A5">red</text><text x="137" y="218" fill="#CBD5E1">GND</text><text x="170" y="198" fill="#86EFAC">green</text><text x="206" y="198" fill="#93C5FD">blue</text></g>
+          <text x="240" y="150" fill="#8B9AAE" font-family="Manrope" font-size="12">longest leg =</text><text x="240" y="166" fill="#8B9AAE" font-family="Manrope" font-size="12">common cathode</text>
+        </svg>
+      </div>
+      <div class="box b">
+        <h3>4 legs, 1 shared</h3>
+        <p>Three legs are the colors: red, green, blue. The fourth, the <b>longest</b>, is shared by all three. In Tinkercad it's called the <b>common cathode</b>, and it connects to <b>GND</b>.</p>
+        <p><b>Tip:</b> in Tinkercad, hover your mouse over any leg and a label pops up telling you what it is. Always check the label before you wire. (The order of the legs in the drawing is common, but always trust the label.)</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="wire">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Wiring It</h2><span class="for">Part 1</span></div>
+    <p class="story">Each color is its own little LED, so each color follows the same rule as every LED since 2.2: its own resistor, its own pin.</p>
+    <div class="tblwrap">
+      <table>
+        <tr><th>LED leg</th><th>Where it connects</th></tr>
+        <tr><td><b style="color:#FCA5A5">Red</b></td><td>220 &Omega; resistor, then Arduino pin <b>9</b></td></tr>
+        <tr><td><b style="color:#86EFAC">Green</b></td><td>220 &Omega; resistor, then Arduino pin <b>10</b></td></tr>
+        <tr><td><b style="color:#93C5FD">Blue</b></td><td>220 &Omega; resistor, then Arduino pin <b>11</b></td></tr>
+        <tr><td><b>Longest leg</b> (common cathode)</td><td>GND</td></tr>
+      </table>
+    </div>
+    <div class="hint-panel"><b>Why 9, 10, and 11?</b> All three have a <b>~</b> next to them: they're PWM pins (2.5). That's what lets each color be dim or bright instead of only on or off. Put the RGB LED on the breadboard so each of its 4 legs is in a <b>different row</b>.</div>
+  </div>
+</section>
+
+<section class="part" id="code">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>The Code, and Your First Function</h2><span class="for">Part 2</span></div>
+    <p class="story">You could write three analogWrite() lines every time you want a new color. Or you can teach the Arduino a new word, setColor, that does all three at once.</p>
+    <div class="code"><span class="kw">const int</span> RED = <span class="n">9</span>;       <span class="cm">// const = this number never changes</span>
+<span class="kw">const int</span> GREEN = <span class="n">10</span>;
+<span class="kw">const int</span> BLUE = <span class="n">11</span>;
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(RED, OUTPUT);
+  <span class="fn">pinMode</span>(GREEN, OUTPUT);
+  <span class="fn">pinMode</span>(BLUE, OUTPUT);
+}
+
+<span class="kw">void</span> <span class="fn">setColor</span>(<span class="kw">int</span> r, <span class="kw">int</span> g, <span class="kw">int</span> b) {   <span class="cm">// BETWEEN setup() and loop()</span>
+  <span class="fn">analogWrite</span>(RED, r);
+  <span class="fn">analogWrite</span>(GREEN, g);
+  <span class="fn">analogWrite</span>(BLUE, b);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="fn">setColor</span>(<span class="n">255</span>, <span class="n">0</span>, <span class="n">0</span>);  <span class="fn">delay</span>(<span class="n">1000</span>);   <span class="cm">// red</span>
+  <span class="fn">setColor</span>(<span class="n">0</span>, <span class="n">255</span>, <span class="n">0</span>);  <span class="fn">delay</span>(<span class="n">1000</span>);   <span class="cm">// green</span>
+  <span class="fn">setColor</span>(<span class="n">0</span>, <span class="n">0</span>, <span class="n">255</span>);  <span class="fn">delay</span>(<span class="n">1000</span>);   <span class="cm">// blue</span>
+}</div>
+    <div class="two">
+      <div class="box b"><h3>Reading the function</h3><ul><li><code>void</code>: it does a job but doesn't hand anything back.</li><li><code>setColor</code>: the name you made up.</li><li><code>(int r, int g, int b)</code>: three <b>parameters</b>, slots for the numbers you pass in.</li><li><code>setColor(255, 0, 0)</code> fills r = 255, g = 0, b = 0, then runs the three lines inside.</li></ul></div>
+      <div class="box a"><h3>Tinkercad setup</h3><p>Click <b>Code</b>, then switch the view from <b>Blocks</b> to <b>Text</b>. Delete what's there and build your code in order. Put setColor <b>between</b> setup() and loop(), not inside either one.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="mix">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Mixing Colors with Numbers</h2><span class="for">Steps 3 + 4</span></div>
+    <p class="story">Each color gets a number from 0 (off) to 255 (full). Three numbers, 256 choices each: that's over 16 million colors from one bulb. Slide the three channels and watch the bulb and the code line change together.</p>
+    <div class="panel">
+      <div class="two" style="align-items:center">
+        <div>
+          <p class="small">Red: <b id="rV"></b></p><input id="rR" type="range" min="0" max="255" value="255" aria-label="red">
+          <p class="small">Green: <b id="gV"></b></p><input id="gR" type="range" min="0" max="255" value="128" aria-label="green">
+          <p class="small">Blue: <b id="bV"></b></p><input id="bR" type="range" min="0" max="255" value="0" aria-label="blue">
+        </div>
+        <div style="text-align:center">
+          <svg viewBox="0 0 140 140" width="140" role="img" aria-label="Mixed color"><circle id="mGlow" cx="70" cy="66" r="60" opacity=".35"/><circle id="mBulb" cx="70" cy="66" r="34"/></svg>
+          <div class="big" id="mCode" style="font-size:16px"></div>
+        </div>
+      </div>
+    </div>
+    <div class="hint-panel"><b>Your 4 colors (Step 3):</b> try making yellow, cyan, magenta, and white using only mixing, no new pins. Use the sliders to find the recipe, then record each color's red, green, and blue values in your assignment table (Step 4). Each color in loop() needs its own setColor line <b>and</b> a delay line.</div>
+  </div>
+</section>
+
+<section class="part" id="fade">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">05</div><h2>The Fade Challenge</h2><span class="for">Step 5 (required)</span></div>
+    <p class="story">Jumping from red to blue is easy. Gliding between them means passing through every color in between, one tiny step at a time. That's a job for a loop that counts.</p>
+    <div class="two">
+      <div class="box b"><h3>A counting for loop</h3><div class="code" style="margin:6px 0 8px"><span class="kw">for</span> (<span class="kw">int</span> i = <span class="n">0</span>; i &lt;= <span class="n">255</span>; i++) {
+  <span class="cm">// i is 0, then 1, then 2 ... up to 255</span>
+}</div><p>Start at 0; keep going while i is 255 or less; add 1 each time. Whatever's inside runs 256 times, and <b>i is a different number every time</b>.</p></div>
+      <div class="box a"><h3>The hint from your assignment</h3><p>Put the counter in one setColor number, and its opposite, <b>255 minus the counter</b>, in another. As one color goes up, the other goes down by the same amount. Add a short delay inside the loop so you can see it glide.</p></div>
+    </div>
+    <div class="panel">
+      <h3>See the counter and its opposite: i = <span class="big" id="fI">0</span></h3>
+      <input id="fR" type="range" min="0" max="255" value="0" aria-label="counter i">
+      <p class="small">i = <b id="fA"></b> &nbsp; 255 &minus; i = <b id="fB"></b></p>
+      <div class="btns" style="justify-content:flex-start"><button class="btn" id="fPlay" type="button">&#9654; Run the count</button></div>
+      <svg viewBox="0 0 600 40" style="width:100%;margin-top:10px" role="img" aria-label="Color strip"><defs><linearGradient id="gr"><stop offset="0" id="g0"/><stop offset="1" id="g1"/></linearGradient></defs><rect width="600" height="40" rx="6" fill="url(#gr)"/><rect id="fMark" y="0" width="4" height="40" fill="#fff"/></svg>
+      <p class="small">This slider fades between whichever two channels you choose: <select id="fA1"><option value="0">red</option><option value="1">green</option><option value="2" selected>blue</option></select> goes <b>up</b> with i, <select id="fB1"><option value="0" selected>red</option><option value="1">green</option><option value="2">blue</option></select> goes <b>down</b>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="light">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">06</div><h2>Light Mixes Differently Than Paint</h2><span class="for">Reflection 1</span></div>
+    <p class="story">Mix every paint color together and you get a muddy brown-black. Mix every light color together and you get white. Same idea of "mixing," opposite results. Here's why.</p>
+    <div class="two">
+      <div class="box b"><h3>Light: additive</h3><p>Each colored light <b>adds</b> more light that reaches your eye. More colors = more light = brighter, all the way to white. Red, green, and blue are the primaries.</p></div>
+      <div class="box a"><h3>Paint: subtractive</h3><p>Paint doesn't make light; it <b>absorbs</b> (subtracts) some colors and reflects the rest. Each paint you add absorbs more, so less light reflects back. More paint = darker.</p></div>
+    </div>
+    <div class="hint-panel"><b>Reflection 2:</b> think about what your loop() would look like if you had to write out three analogWrite() lines for every single color, including all the colors in your fade.</div>
+    <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
+    <div class="quiz" id="quiz"></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Three numbers, three pins, one bulb, sixteen million colors.</h2>
+    <p>And one function, setColor, so you only have to write it once.</p>
+    <a class="back" href="3-1-rgb-leds-and-color-mixing.html">&larr; Back to 3.1</a>
+    <a class="back" href="../index.html">&larr; Embedded Computing</a>
+  </div>
+</footer>
+
+<script>
+window.QUIZ = [
+  { s: "Which leg of the RGB LED goes to GND?", o: ["The red leg", "The longest leg (common cathode)", "Any of them"], a: 1, e: "The longest leg is shared by all three colors." },
+  { s: "Why are the color legs on pins 9, 10, and 11?", o: ["They're PWM (~) pins, so each color can be dimmed", "They're the only pins that work in Tinkercad"], a: 0, e: "analogWrite() needs a ~ pin." },
+  { s: "In <code>setColor(0, 255, 0)</code>, what is g?", o: ["0", "255"], a: 1, e: "The second number fills the second parameter, g." },
+  { s: "Where does the setColor function go?", o: ["Inside loop()", "Inside setup()", "Between setup() and loop()"], a: 2, e: "A function is written on its own, not inside another function." }
+];
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  function mix() {
+    var r = +$("rR").value, g = +$("gR").value, b = +$("bR").value, c = "rgb(" + r + "," + g + "," + b + ")";
+    $("rV").textContent = r; $("gV").textContent = g; $("bV").textContent = b;
+    $("mBulb").setAttribute("fill", c); $("mGlow").setAttribute("fill", c);
+    $("mCode").textContent = "setColor(" + r + ", " + g + ", " + b + ");";
+  }
+  ["rR", "gR", "bR"].forEach(function (id) { $(id).oninput = mix; }); mix();
+  function col(up, down, i) { var v = [0, 0, 0]; v[down] = 255 - i; v[up] = up === down ? i : i; if (up === down) v[up] = 255; return "rgb(" + v.join(",") + ")"; }
+  function fade() {
+    var i = +$("fR").value, up = +$("fA1").value, dn = +$("fB1").value;
+    $("fI").textContent = i; $("fA").textContent = i; $("fB").textContent = 255 - i;
+    $("g0").setAttribute("stop-color", col(up, dn, 0)); $("g1").setAttribute("stop-color", col(up, dn, 255));
+    $("fMark").setAttribute("x", Math.min(596, i / 255 * 600)); $("fMark").setAttribute("fill", "#fff");
+  }
+  $("fR").oninput = fade; $("fA1").onchange = fade; $("fB1").onchange = fade; fade();
+  var t = null;
+  $("fPlay").onclick = function () {
+    var b = this; if (t) { clearInterval(t); t = null; b.innerHTML = "&#9654; Run the count"; return; }
+    b.innerHTML = "&#10074;&#10074; Pause"; $("fR").value = 0;
+    t = setInterval(function () { var v = +$("fR").value + 3; if (v > 255) { clearInterval(t); t = null; b.innerHTML = "&#9654; Run the count"; v = 255; } $("fR").value = v; fade(); }, 30);
+  };
+})();
+</script>
+<script src="../unit-2/notes.js"></script>
+</body>
+</html>
