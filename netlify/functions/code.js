@@ -182,7 +182,10 @@ async function adminCounts() {
 }
 
 // One-time helper after the Unit 7 -> Unit 6 renumber: copies sub:/draft: records from lesson 7.N to 6.N. Never deletes.
+// RETIRED 2026-09-29: 7.x is now its own lesson set (HTML Part 2), so copying 7.N into 6.N would mix real work.
 async function adminMigrate() {
+  return { error: "This migration is retired: lessons 7.1-7.6 are their own lessons now." };
+  // eslint-disable-next-line no-unreachable
   let copied = 0, skipped = 0;
   for (const kind of ["sub", "draft"]) {
     for (let n = 1; n <= 13; n++) {
