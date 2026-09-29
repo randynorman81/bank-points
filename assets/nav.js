@@ -96,8 +96,8 @@ const COURSES = [
     googleSite: "https://sites.google.com/socialcircleschools.org/webdev/home",
     units: [
       { n: 1, title: "What Is an Embedded System?", migrated: true, path: "ec/unit-1/index.html", badge: "Google Classroom" },
-      { n: 2, title: "Arduino Foundations", migrated: true, path: "ec/unit-2/index.html", badge: "Google Classroom" },
-      { n: 3, title: "Outputs: Light, Sound, and Motion", migrated: true, path: "ec/unit-3/index.html", badge: "Tinkercad" },
+      { n: 2, title: "Arduino Foundations", migrated: true, path: "ec/unit-2/index.html", badge: ["Tinkercad", "Google Classroom"] },
+      { n: 3, title: "Outputs: Light, Sound, and Motion", migrated: true, path: "ec/unit-3/index.html", badge: ["Tinkercad", "Google Classroom"] },
       { n: 4, title: "Intro to C++", migrated: true, path: "ec/unit-4/index.html", badge: "Codecademy" },
       { n: 5, title: "Vectors and Functions", migrated: true, path: "ec/unit-5/index.html", badge: "Codecademy" },
       { n: 6, title: "Classes and Objects", migrated: true, path: "ec/unit-6/index.html", badge: "Codecademy" },
@@ -407,10 +407,11 @@ function renderUnitGrid(courseId, containerId) {
         </div>`;
     }
     if (u.migrated) {
-      const badge = u.badge ? `<span class="badge">${escapeHtmlNav(u.badge)}</span>` : "";
+      const badge = [].concat(u.badge || []).map(b => `<span class="badge">${escapeHtmlNav(b)}</span>`).join("");
+      const badges = badge ? `<span style="display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end;">${badge}</span>` : "";
       return `
         <a class="unit-card" href="${NAV_ROOT}${u.path}">
-          <div class="unit-label"><span>${escapeHtmlNav(label)}</span>${badge}</div>
+          <div class="unit-label"><span>${escapeHtmlNav(label)}</span>${badges}</div>
           <h3>${escapeHtmlNav(u.title)}</h3>
         </a>`;
     }
