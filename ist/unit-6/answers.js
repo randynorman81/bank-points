@@ -78,10 +78,11 @@
 
     { h: "Step 7: Style the rest from the head" },
     { build: [
-      "In the same style block, add a rule for **heading 1** (a banner look: colors, a font family, a big size, centered, and a border)",
-      "Add a rule for **heading 2** (a color, a size, uppercase letters)",
-      "Add a rule for each **list** with a different marker style",
-      "Add a rule for the **body** with a background color and a font family"
+      "In the same style block, add a rule for the **heading 1** tag (a banner look: a text color, a background color, a font family, a big size in pixels, centered text, and a border)",
+      "Add a rule for the **heading 2** tag (a color, a size in pixels, uppercase letters)",
+      "Add a rule for the **bullet list** tag and a rule for the **numbered list** tag, each with a different marker style",
+      "Add a rule for the **body** tag with a background color and a font family",
+      "These are the **minimums**. You can ALWAYS add more rules for more tags"
     ] },
 
     { h: "Step 8: Test and submit" },

@@ -83,14 +83,16 @@
       "Under the heading 2, add **3 paragraphs**: when, where, and how to get tickets"
     ] },
 
-    { h: "Step 4: Make it epic" },
+    { h: "Step 4: Make it epic (exactly where each style goes)" },
     { build: [
-      "Give a tag a **text color** (the color of the letters)",
-      "Give a tag a **background color** (behind the letters). Try it on the body to color the whole poster",
-      "Make the heading 1 **HUGE** with a font size in pixels",
-      "**Center** something, or make something **uppercase**",
-      "Put a **border** around one tag (thickness, style, and color, in that order)",
-      "Dark backgrounds need light text. Light backgrounds need dark text"
+      "**Text color** (the color of the letters): put it on the **heading 1**",
+      "**Background color** (behind the letters): put it on the **body** tag, so the whole poster is colored",
+      "**Font size in pixels**: put it on the **heading 1** and make it HUGE",
+      "**Center** the text: put it on the **heading 1**",
+      "**Uppercase** letters: put it on the **heading 2**",
+      "**Border** (thickness, style, and color, in that order): put it on the **last paragraph**",
+      "Dark backgrounds need light text. Light backgrounds need dark text",
+      "These are the **minimums**. You can ALWAYS add more styles to more tags"
     ] },
 
     { h: "Step 5: Check and submit" },
@@ -142,10 +144,12 @@
       "Add a **horizontal line** between sections (**outside** the paragraphs), then repeat for your other sections"
     ] },
 
-    { h: "Step 4: Fonts and a border" },
+    { h: "Step 4: Fonts and a border (exactly where each style goes)" },
     { build: [
-      "Give a tag a **font family** (serif, sans-serif, or monospace) that fits your restaurant",
-      "Put a **border** around one item, like your special of the day (thickness, style, and color, in that order)"
+      "**Font family** serif: put it on the **heading 1** (your restaurant's name)",
+      "**Font family** sans-serif or monospace: put it on the **address paragraph**",
+      "**Border** (thickness, style, and color, in that order): put it on your favorite **dish paragraph**, like the special of the day",
+      "These are the **minimums**. You can ALWAYS add more styles to more tags"
     ] },
 
     { h: "Step 5: Check and submit" },
@@ -198,12 +202,16 @@
       "Add a **heading 2** for the reward and a **paragraph** with the amount and who to call"
     ] },
 
-    { h: "Step 5: Style it (3 of everything)" },
+    { h: "Step 5: Style it (exactly where the 3 of everything go)" },
     { build: [
-      "Use each of these at least **3 times**: text color, background color, font size in pixels, text-align or text-transform, and a font family",
-      "Put a **border** (thickness, style, color) on at least **3 different tags**",
-      "Use at least **2 different border styles**, and give one tag a **one-sided border** (top, bottom, left, or right)",
-      "Dark backgrounds need light text. Light backgrounds need dark text"
+      "**Text color**: put it on the **heading 1**, the **heading 2**, and the **heading 3** (3 uses)",
+      "**Background color**: put it on the **body**, the **heading 1**, and the **reward paragraph** (3 uses)",
+      "**Font size in pixels**: put it on the **heading 1**, the **heading 2**, and the **crime paragraph** (3 uses)",
+      "**Center** the text: put it on the **heading 1**, the **heading 3**, and the **reward paragraph** (3 uses)",
+      "**Font family**: serif on the **heading 1**, monospace on the **first description paragraph**, sans-serif on the **reward paragraph** (3 uses)",
+      "**Border** (thickness, style, color): a **solid** one on the **heading 1**, a **dashed** one on the **reward paragraph**, and a **bottom-only** border on the **heading 2** (3 different tags, 2 border styles, 1 one-sided border)",
+      "Dark backgrounds need light text. Light backgrounds need dark text",
+      "These are the **minimums**. You can ALWAYS add more styles to more tags"
     ] },
 
     { h: "Step 6: Check and submit" },
@@ -233,52 +241,55 @@
     { build: [
       "Type the **skeleton** first: the doctype line, then **html** with a **head** and a **body** inside it (the head comes first)",
       "Inside the head, add a **title** with your guide's name",
-      "Add a **heading 1** with the name. Style it like a banner: a background color, light text, centered, a big font size, and a border under it"
+      "Add a **heading 1** with the name. Style the **heading 1** like a banner: put a **background color**, a light **text color**, **centered** text, a big **font size in pixels**, and a **bottom border** all on the heading 1"
     ] },
 
     { h: "Step 2: Menu bar" },
     { build: [
-      "Under the heading 1, add a **bullet list** with **3 items** (like Countdown, Game Plan, About)",
-      "Lists stack their items by default (list items are **block**). Turn the items into a row by making each list item **inline**",
-      "Remove the bullets from this list"
+      "Under the heading 1, add a **bullet list** with **3 list items** (like Countdown, Game Plan, About)",
+      "List items stack by default (they are **block**). Turn them into a row by making **each of the 3 list items inline** (put it on every list item)",
+      "Remove the bullets: put the list-style setting of **none** on the **bullet list** itself (not on the items)"
     ] },
 
     { h: "Step 3: Tagline" },
     { build: [
-      "Add a **paragraph** with a short tagline and center it",
-      "Put a phrase in **italics** and color 2 words with **spans**. All of these go **inside** the paragraph",
-      "Add a **line break inside** the paragraph",
+      "Add a **paragraph** with a short tagline and **center** it (put the centering on that paragraph)",
+      "**Inside** that paragraph, put a phrase in **italics** and color **2 words**, each with its own **span**",
+      "Add a **line break inside** that paragraph",
       "Under the paragraph (**outside** it), add a **horizontal line**"
     ] },
 
     { h: "Step 4: Section 1 (a ranking)" },
     { build: [
-      "Add a **heading 2** with a title and a short **paragraph**",
-      "Add a **heading 3** label, then a **numbered list** with **3 items**. Make each name **bold** and each description **italic**, both **inside** the list item",
-      "Add another **heading 3** label, then a **bullet list** with **3 items**",
-      "Give each list its own marker style, a background color, and a border",
+      "Add a **heading 2** with a title and a short **paragraph** under it",
+      "Add a **heading 3** label, then a **numbered list** with **3 list items**. Inside each list item, make the name **bold** and the description **italic**",
+      "Add another **heading 3** label, then a **bullet list** with **3 list items**",
+      "**Marker style:** put a list-style setting on the **numbered list** and a different one on the **bullet list**",
+      "**Background color** and a **border**: put both on the **numbered list** and on the **bullet list**",
       "Only list items go directly inside a list"
     ] },
 
     { h: "Step 5: Section 2 (a how-to)" },
     { build: [
       "Under the lists (**outside** them), add a second **horizontal line**",
-      "Add a **heading 2**, a short **paragraph**, a **heading 3** with a **numbered list** of 3 steps, and another **heading 3** with a **bullet list** of 3 items",
-      "Style these lists the same way"
+      "Add a second **heading 2**, a short **paragraph**, a **heading 3** with a **numbered list** of 3 steps, and another **heading 3** with a **bullet list** of 3 items",
+      "Give these two lists the same 3 styles as Step 4: a marker style, a background color, and a border, on each list"
     ] },
 
     { h: "Step 6: Footer" },
     { build: [
-      "At the bottom, add a **paragraph** with 2 lines and a **line break inside** it",
-      "Center it and make the text small"
+      "At the bottom of the body, add a **paragraph** with 2 lines and a **line break inside** it",
+      "On that **footer paragraph**, put **centered** text, a **font family**, and a small **font size in pixels**"
     ] },
 
     { h: "Step 7: Make it look professional" },
     { build: [
       "Use **one palette**: two main colors plus a neutral, reused across the page",
-      "Use **two font families**: one for headings and one for body text",
-      "Heading 1 is biggest, heading 2 medium, heading 3 small",
-      "Dark backgrounds need light text"
+      "**Text color**: put it on the **heading 1** and on both **heading 2s**",
+      "**Font family**: serif on the **heading 1** and on both **heading 2s**, monospace on the **footer paragraph**",
+      "**Font size in pixels**: put it on the **heading 1** and on the **footer paragraph**. Heading 1 is biggest, heading 2 medium, heading 3 small",
+      "Dark backgrounds need light text",
+      "These are the **minimums**. You can ALWAYS add more styles to more tags"
     ] },
 
     { h: "Step 8: Check and submit" },

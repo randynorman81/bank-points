@@ -56,21 +56,21 @@
       "Add a centered **paragraph**, click inside it, then click **Insert** on picture 1. The editor writes a picture wrapped in a link for you",
       "Change the placeholder link to a **real website** that starts with https://. This one opens in a **new tab**",
       "Change the **alt** to a real description of the picture",
-      "Make it big with a **width** in pixels (like 300), and add a **border** in its style",
-      "Set width **or** height, never both"
+      "On **picture 1**, put a **width** in pixels (like 300) and a **border** (thickness, style, color), both in the picture's own style",
+      "Set width **or** height, never both. You can ALWAYS add more pictures"
     ] },
 
     { h: "Step 5: Evidence and Last Seen" },
     { build: [
-      "Add a **heading 2** that says Evidence, then a paragraph with picture 2 inside it. Make it **small** and give it **rounded corners**",
+      "Add a **heading 2** that says Evidence, then a paragraph with picture 2 inside it. On **picture 2**, put a small **width** in pixels (like 100) and **rounded corners**",
       "This link opens in the **same tab**, so take out the part that opens a new tab. Fix its link and alt",
-      "Add a **heading 2** that says Last Seen, then insert picture 3. Make its width a **percent** (like 50) and make it **display as a block** so it sits on its own line. Fix its link and alt"
+      "Add a **heading 2** that says Last Seen, then insert picture 3. On **picture 3**, put a **width** as a **percent** (like 50) and set **display** to **block** so it sits on its own line. Fix its link and alt"
     ] },
 
     { h: "Step 6: Reward and a style block" },
     { build: [
       "Add a **heading 2** that says Reward and a **paragraph** with the reward and who to call",
-      "Add a **style block** inside the **head**, under the title, with at least **2 rules** (for example the body's background and font, and your heading 1's color and size)"
+      "Add a **style block** inside the **head**, under the title, with at least **2 rules**: one rule for the **body** tag (a background color and a font family) and one rule for the **heading 1** tag (a text color and a font size)"
     ] },
 
     { h: "Step 7: Test and submit" },
@@ -97,8 +97,8 @@
 
     { h: "Step 3: Frame them" },
     { build: [
-      "In each postcard's **style attribute**, add **padding**, a **border**, and a **margin**. At least one postcard needs all three",
-      "Give the border a real style: solid, dashed, dotted, double, groove, or ridge. Try a different one on each postcard",
+      "In the **style attribute of each postcard paragraph**, add **padding**, a **border**, and a **margin**. The **first postcard** must have all three",
+      "Give each postcard's border a real style: **solid** on the first, **dashed** on the second, **dotted** on the third (double, groove, and ridge also work)",
       "Try changing just **one side** (like only the top padding or only the left margin)"
     ] },
 
@@ -115,8 +115,9 @@
     { h: "Step 2: Color swatches" },
     { build: [
       "Add **4 to 6 paragraphs**. Each one is a swatch: the color's name or code and a word for the feeling",
-      "In each swatch's **style attribute**, give it a **background color** and a **text color** that is easy to read on it",
-      "Use at least one **named color** (like tomato, navy, or teal) and at least one **hex code**"
+      "In the **style attribute of each swatch paragraph**, put a **background color** and a **text color** that is easy to read on it",
+      "Use a **named color** (like tomato, navy, or teal) for the background of the **first swatch**, and a **hex code** for the background of the **second swatch**",
+      "These are the **minimums**. You can ALWAYS add more swatches and more colors"
     ] },
 
     { h: "Step 3: Check your hex codes" },
@@ -141,15 +142,15 @@
 
     { h: "Step 2: The menu bar" },
     { build: [
-      "Add **at least 4 menu items** (like Home, Movies, Music, Games). Make each one a **paragraph**, **div**, or **list item**",
-      "In each item's **style attribute**, make it **display as inline-block** so they sit side by side",
-      "Give each a width, a background color, and centered text so it looks like an app button"
+      "Add **at least 4 menu items** (like Home, Movies, Music, Games). Make each one its own **div**",
+      "In the **style attribute of each menu div**, set **display** to **inline-block** so they sit side by side",
+      "In the same style attribute of each menu div, add a **width**, a **background color**, and **centered text** so it looks like an app button"
     ] },
 
     { h: "Step 3: The giant button" },
     { build: [
       "Add a **link** to a real website (starting with https://) that says PLAY",
-      "In the link's **style attribute**, make it **display as a block** so it fills the row, and give it a background color"
+      "In the **link's own style attribute**, set **display** to **block** so it fills the row, and add a **background color**. You can ALWAYS add more menu items or more buttons"
     ] },
 
     { h: "Step 4: Test and submit" }, finish()
@@ -163,11 +164,11 @@
 
     { h: "Step 2: Two columns" },
     { build: [
-      "Under the heading 1, add a **sidebar div** and then a **feed div**, one after the other",
-      "Put real content **inside** each div: the sidebar gets a heading and a few facts, the feed gets three short posts",
-      "In each div's **style attribute**: make it **display as inline-block**, line up the tops with **vertical-align top**, and give it a **percent width**",
-      "The widths on one row must add up to **98% or less** (like 30% and 65%)",
-      "Give each div a background color and some padding so you can see the columns"
+      "Under the heading 1, add a **sidebar div** and then, right after it, a **feed div**",
+      "Put real content **inside** each div: the **sidebar div** gets a **heading 2** and a few **paragraphs** of facts, the **feed div** gets three short **paragraphs** (posts)",
+      "In the **style attribute of the sidebar div**: set **display** to **inline-block**, **vertical-align** to **top**, and a **percent width** of about 30%",
+      "In the **style attribute of the feed div**: the same **display** and **vertical-align**, and a **percent width** of about 65%. The two widths together must be **98% or less**",
+      "In the **style attribute of each div**, add a **background color** and some **padding** so you can see the columns. You can ALWAYS add more divs"
     ] },
 
     { h: "Step 3: Test and submit" }, finish()
@@ -205,13 +206,23 @@
 
     { h: "Step 2: Show every skill" },
     { build: [
-      "Headings, paragraphs, bold, italics, line breaks, lines, and a **span** with a style",
-      "Colors (a named color and a hex code), fonts, text alignment, and **borders**",
-      "A bullet list and a numbered list, and **links** that open in a new tab and the same tab",
-      "Pictures that are **clickable links**, sized with width or height",
-      "The **box model**, **display**, side-by-side **divs**, and a **table**"
+      "**Headings and paragraphs:** one heading 1, at least 2 heading 2s, and at least 3 paragraphs. **Inside a paragraph**: bold, italics, a line break, and a **span** with its own style",
+      "**Colors:** a **named color** on one heading and a **hex code** on a paragraph background, both in the style attribute",
+      "**Lists and links:** a bullet list and a numbered list, each with 3 items; links inside list items, one that opens in a **new tab** and one in the **same tab**",
+      "**Pictures:** at least 2 images, each **inside a link**, each with a width (or height, not both)",
+      "**Box model:** **padding**, a **border**, and a **margin** in the style attribute of one paragraph",
+      "**Layout:** two **divs** side by side (**inline-block**, **vertical-align top**, percent widths that add to 98% or less), and a **table** with a header row and 2 or more data rows",
+      "These are the **minimums**. You can ALWAYS add more"
     ] },
 
     { h: "Step 3: Test and submit" }, finish()
   ];
+
+  /* Every lesson (6.1 to 9.7) opens with the same reminder that the steps are minimums and name the exact tag. */
+  var NOTE = { p: "**Minimums, not limits.** Every step below says the least you must add and exactly which tag it goes on. You can **ALWAYS add more**, but you need at least what is listed, in the place it says." };
+  Object.keys(A).forEach(function (k) {
+    var list = A[k], i = -1;
+    for (var n = 0; n < list.length; n++) { if (list[n].p) { i = n; break; } }
+    if (i > -1) list.splice(i + 1, 0, NOTE);
+  });
 })(typeof window !== "undefined" ? window : globalThis);
