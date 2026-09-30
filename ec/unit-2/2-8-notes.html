@@ -103,13 +103,18 @@
   <div class="wrap">
     <div class="part-head"><div class="part-tag">05</div><h2>Podcast Requirements</h2></div>
     <p class="story">This one is worth 800 points and you get one shot: no Bank Points can be added. Plan it like a real show.</p>
+    <div class="warn"><b>Script first, then record.</b> You write your script in a shared Google Doc first. Mr. Norman must <b>approve</b> it before you record. If you record before it's approved, you'll have to record again.</div>
+    <div class="chips" id="stepChips"></div>
+    <div class="panel" id="stepBox"></div>
     <div class="tblwrap">
       <table>
         <tr><th>Requirement</th><th>Details</th></tr>
+        <tr><td><b>Script first</b></td><td>Write a word-for-word script in a shared Google Doc. Every line starts with who is speaking. Each person needs at least about <b>650 words</b> (5 minutes). It must answer all 16 questions for your language, use real-world examples, and read like a conversation. Turn in the link in Google Classroom, then <b>wait for APPROVED</b>.</td></tr>
         <tr><td><b>Roles</b></td><td>With a partner: one speaks for <b>Python</b> (interpreted), the other for <b>Arduino C++</b> (compiled).</td></tr>
         <tr><td><b>Length</b></td><td>At least <b>5 minutes per language</b>; probably closer to 10 minutes per person.</td></tr>
         <tr><td><b>Style</b></td><td>A real conversation, not a list of answers read one by one. Scripted and polished: no "um," "huh," or "like."</td></tr>
         <tr><td><b>Examples</b></td><td>Real-world examples of how each language is used in society.</td></tr>
+        <tr><td><b>Record</b></td><td>Only <b>after</b> your script is approved. Read it as a natural conversation.</td></tr>
         <tr><td><b>Upload</b></td><td>Upload the audio to YouTube as an <b>unlisted</b> video.</td></tr>
         <tr><td><b>Turn in</b></td><td>One Google Classroom submission: the <b>YouTube link</b> plus your <b>word-for-word transcript</b> Google Doc. A missing transcript is <b>&minus;400 points</b>.</td></tr>
       </table>
@@ -188,6 +193,12 @@ window.QUIZ = [
   }
   Q.forEach(function (q, i) { var b = document.createElement("button"); b.className = "chip"; b.type = "button"; b.textContent = q[0]; b.onclick = function () { showQ(i); }; $("qChips").appendChild(b); });
   showQ(0);
+})();
+(function () {
+  var S = [["1. Learn","Read the translation idea at the top of these notes."],["2. Partner","Pick a partner. One speaks for Python, one for Arduino C++. Don't switch."],["3. Make the doc","One shared Google Doc. Share it with your partner and Mr. Norman as Editors."],["4. Write","Word-for-word script: intro, Python, C++, wrap-up. Answer all 16 questions for your language."],["5. STOP","Turn in the script link in Google Classroom and wait for APPROVED. Fix any REVISE comments."],["6. Record","Only after APPROVED. At least 5 minutes each."],["7. YouTube","Upload, choose Unlisted, test the link."],["8. Turn in","ONE submission: YouTube link + word-for-word transcript. Missing transcript is 400 points off."]];
+  var c = document.getElementById("stepChips"), b = document.getElementById("stepBox");
+  S.forEach(function (s, i) { var x = document.createElement("button"); x.type = "button"; x.className = "chip" + (i === 4 ? " on" : ""); x.textContent = s[0]; x.onclick = function () { [].forEach.call(c.children, function (y) { y.classList.toggle("on", y === x); }); b.innerHTML = "<h3>" + s[0] + "</h3><p>" + s[1] + "</p>"; }; c.appendChild(x); });
+  c.children[4].click();
 })();
 </script>
 <script src="notes.js"></script>
