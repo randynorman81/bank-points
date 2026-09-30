@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DNS | Unit 9 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css">
+<style>:root{--acc:#A78BFA;--acc-tint:rgba(167,139,250,.14);--acc-ink:#DDD6FE}
+.pickrow{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.pickrow button{background:var(--card);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer;font:600 13px "JetBrains Mono",monospace}
+.pickrow button.on{border-color:var(--acc);background:var(--acc-tint);color:#fff}
+.lookup{background:#111827;border:1px solid var(--rule);border-radius:10px;padding:22px;margin:14px 0 8px}
+.steps{display:grid;gap:10px}
+.lstep{border:1px solid var(--rule);border-radius:8px;padding:12px 16px;background:var(--card);opacity:.25;transition:.25s;display:flex;align-items:center;gap:12px}
+.lstep.on{opacity:1;border-color:var(--acc);background:var(--acc-tint)}
+.lstep .n{font:700 13px "JetBrains Mono",monospace;color:var(--acc-ink);flex:none;width:24px}
+.lstep p{margin:0;font-size:14px;color:#C4CDD8}
+.lstep.on p{color:#fff}
+</style>
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 9</a><a href="13-4-dns.html">Back to 9.4</a><a href="dns-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 9 Notes &nbsp;/&nbsp; Lesson 9.4</div>
+  <h1>DNS (Domain Name System)</h1>
+  <p class="deck">Computers only understand numbers. You only want to remember words. DNS is the translator that makes both sides happy.</p>
+  <span class="stdchip">DNS &middot; domain name &middot; IP lookup &middot; caching</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>The Internet's Phonebook</h2></div>
+  <p class="story">An old phonebook let you look up a person's name to find their phone number &mdash; you never had to memorize the number itself. DNS does exactly that for the internet: you type a name like <code>google.com</code>, and DNS looks up the actual IP address behind it, like <code>142.250.80.46</code>, so your device knows where to actually send the request.</p>
+  <p class="lede">Pick a site and watch the lookup happen, step by step:</p>
+  <div class="pickrow" id="site"></div>
+  <div class="lookup"><div class="steps" id="steps"></div></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>Why the Second Visit Is Faster</h2></div>
+  <p class="lede">Looking something up takes a little time. So your device, your router, and your ISP all keep a short-term memory of recent lookups &mdash; this is called <b>caching</b>. The next time you visit the same site (often for hours afterward), your device can skip the lookup entirely and reuse the answer it already has.</p>
+  <div class="callout">If DNS goes down, "the whole internet" can feel broken &mdash; even though it isn't.<span>Every server could be running perfectly, but if nothing can look up the IP address behind a name anymore, no one can reach anything by typing a normal web address.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>DNS</b></td><td>Domain Name System &mdash; translates domain names into IP addresses</td></tr>
+      <tr><td><b>Domain name</b></td><td>The human-readable website name, like google.com</td></tr>
+      <tr><td><b>DNS lookup</b></td><td>The process of asking "what IP address goes with this name?" and getting an answer</td></tr>
+      <tr><td><b>Caching</b></td><td>Temporarily remembering a recent lookup's answer so it doesn't have to be looked up again right away</td></tr>
+    </tbody></table></div></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>You type words. DNS finds the numbers.</h2><p>Ready for the assignment? Head back to 9.4.</p><a class="back" href="13-4-dns.html">&larr; Back to 9.4</a><a class="back" href="index.html">Unit 9</a><p class="sig">Unit 9 Notes / Lesson 9.4 / end of file</p></div></footer>
+
+<script src="../unit-4/notes.js"></script>
+<script>
+(function(){
+  var SITES = [
+    { name: "schscomputerscience.com", ip: "185.199.108.153" },
+    { name: "google.com", ip: "142.250.80.46" },
+    { name: "wikipedia.org", ip: "208.80.154.224" }
+  ];
+  var row = document.getElementById("site"), steps = document.getElementById("steps"), cur = 0, stepIdx = 0, timer = null;
+  function stepsFor(s) {
+    return [
+      "You type <b>" + s.name + "</b> into your browser's address bar.",
+      "Your device asks a DNS server: \"what's the IP address for this name?\"",
+      "The DNS server looks it up (checking its own cache first, then asking further up the chain if needed).",
+      "The DNS server replies with the answer: <b>" + s.ip + "</b>.",
+      "Your browser now connects directly to that IP address to actually load the site."
+    ];
+  }
+  function draw() {
+    Array.prototype.forEach.call(row.children, function (b, i) { b.classList.toggle("on", i === cur); });
+    var list = stepsFor(SITES[cur]);
+    steps.innerHTML = list.map(function (t, i) { return '<div class="lstep" data-i="' + i + '"><div class="n">' + (i + 1) + '</div><p>' + t + '</p></div>'; }).join("");
+    stepIdx = 0;
+    clearInterval(timer);
+    playStep();
+    timer = setInterval(playStep, 1100);
+  }
+  function playStep() {
+    var els = steps.querySelectorAll(".lstep");
+    Array.prototype.forEach.call(els, function (e, i) { e.classList.toggle("on", i <= stepIdx); });
+    stepIdx++;
+    if (stepIdx >= els.length) clearInterval(timer);
+  }
+  SITES.forEach(function (s, i) { var b = document.createElement("button"); b.textContent = s.name; b.onclick = function () { cur = i; draw(); }; row.appendChild(b); });
+  draw();
+})();
+</script>
+</body></html>

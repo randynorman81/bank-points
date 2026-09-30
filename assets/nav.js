@@ -39,7 +39,7 @@ const COURSES = [
       { n: 10, label: "Unit 6 · Feb", title: "Complete Website Project", migrated: true, path: "ist/unit-10/index.html" },
       { n: 3, label: "Unit 7 · Mar", title: "Computing Basics", migrated: true, path: "ist/unit-3/index.html" },
       { n: 4, label: "Unit 8 · Mar", title: "Operating Systems and Software", migrated: true, path: "ist/unit-4/index.html" },
-      { label: "Unit 9 · Apr", title: "Networking", comingSoon: true }
+      { n: 13, label: "Unit 9 · Apr", title: "Networking", migrated: true, path: "ist/unit-13/index.html" }
       // Units 5 (IT Professional), 11 (JavaScript), and 12 (Web Dev) aren't taught
       // this year; their pages still exist under ist/unit-5, unit-11, unit-12.
     ]

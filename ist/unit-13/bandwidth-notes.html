@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bandwidth | Unit 9 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css">
+<style>:root{--acc:#F472B6;--acc-tint:rgba(244,114,182,.14);--acc-ink:#FBC7DE}
+.hwy{background:#111827;border:1px solid var(--rule);border-radius:10px;padding:20px;margin:14px 0 10px}
+.lane{height:44px;border-bottom:2px dashed #374151;position:relative;display:flex;align-items:center;overflow:hidden}
+.lane:last-child{border-bottom:0}
+.car{position:absolute;font-size:22px;left:-40px;animation-name:drive;animation-timing-function:linear;animation-iteration-count:infinite}
+@keyframes drive{from{left:-40px}to{left:100%}}
+.pickrow{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.pickrow button{background:var(--card);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer;font:600 13px "JetBrains Mono",monospace}
+.pickrow button.on{border-color:var(--acc);background:var(--acc-tint);color:#fff}
+.speedreadout{text-align:center;font:700 15px "JetBrains Mono",monospace;color:var(--acc-ink);margin-top:10px}
+</style>
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 9</a><a href="13-6-bandwidth.html">Back to 9.6</a><a href="bandwidth-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 9 Notes &nbsp;/&nbsp; Lesson 9.6</div>
+  <h1>Bandwidth</h1>
+  <p class="deck">Your internet plan isn't a promise of speed to every device &mdash; it's a promise of total road space, and everyone in the house has to share the same road.</p>
+  <span class="stdchip">bandwidth &middot; Mbps &middot; congestion &middot; shared connection</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>The Highway, Not the Car</h2></div>
+  <p class="story">A highway has a fixed number of lanes no matter how much traffic shows up. With two cars on it, both can cruise at full speed. Cram fifty cars onto those same lanes, and every single one of them slows down &mdash; the road didn't get smaller, it just has to carry a lot more traffic. Your <b>bandwidth</b> is the highway. Every device streaming, downloading, or gaming is a car on it.</p>
+  <p class="lede">Add more devices and watch what happens to everyone's speed:</p>
+  <div class="pickrow" id="ctrl">
+    <button class="on" data-n="1">1 device</button>
+    <button data-n="2">2 devices</button>
+    <button data-n="4">4 devices</button>
+    <button data-n="8">8 devices</button>
+  </div>
+  <div class="hwy" id="hwy"></div>
+  <div class="speedreadout" id="readout"></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>Bandwidth vs. Speed</h2></div>
+  <div class="two">
+    <div class="box">
+      <h3>Bandwidth</h3>
+      <p>The total capacity of your connection, measured in <b>Mbps</b> or <b>Gbps</b> (megabits or gigabits per second). This is what your ISP plan actually sells you &mdash; the size of the whole highway.</p>
+    </div>
+    <div class="box good">
+      <h3>Real-world speed</h3>
+      <p>What one specific device actually experiences right now. It's usually less than the full bandwidth, because it's being split with every other active device &mdash; and with network congestion along the way.</p>
+    </div>
+  </div>
+  <div class="callout">"Up to 500 Mbps" was never a promise that one phone gets all 500.<span>That number describes the whole household's shared road. A single phone playing one video rarely needs more than a small slice of it &mdash; the plan is sized for everyone streaming, gaming, and downloading at the same time.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>Bandwidth</b></td><td>The total amount of data your connection can carry at once, measured in Mbps/Gbps</td></tr>
+      <tr><td><b>Mbps / Gbps</b></td><td>Megabits or gigabits per second &mdash; the units bandwidth is measured in</td></tr>
+      <tr><td><b>Congestion</b></td><td>Slowdown caused by too much traffic sharing the same limited connection at once</td></tr>
+    </tbody></table></div></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>More cars, same road, slower for everyone.</h2><p>Ready for the assignment? Head back to 9.6.</p><a class="back" href="13-6-bandwidth.html">&larr; Back to 9.6</a><a class="back" href="index.html">Unit 9</a><p class="sig">Unit 9 Notes / Lesson 9.6 / end of file</p></div></footer>
+
+<script src="../unit-4/notes.js"></script>
+<script>
+(function(){
+  var row = document.getElementById("ctrl"), hwy = document.getElementById("hwy"), readout = document.getElementById("readout");
+  var ICONS = ["&#128663;", "&#128664;", "&#128666;", "&#128665;"];
+  function draw(n) {
+    Array.prototype.forEach.call(row.children, function (b) { b.classList.toggle("on", b.getAttribute("data-n") === String(n)); });
+    var laneCount = Math.min(n, 4);
+    var perLane = Math.ceil(n / laneCount);
+    var duration = 2 + n * 0.9; // more cars sharing the road -> slower crossing time
+    hwy.innerHTML = "";
+    var carsLeft = n;
+    for (var l = 0; l < laneCount; l++) {
+      var lane = document.createElement("div"); lane.className = "lane";
+      var inLane = Math.min(perLane, carsLeft); carsLeft -= inLane;
+      for (var c = 0; c < inLane; c++) {
+        var car = document.createElement("span");
+        car.className = "car";
+        car.innerHTML = ICONS[(l + c) % ICONS.length];
+        car.style.animationDuration = duration + "s";
+        car.style.animationDelay = (c * duration / (inLane + 1)) + "s";
+        car.style.top = (10 + (c % 2) * 6) + "px";
+        lane.appendChild(car);
+      }
+      hwy.appendChild(lane);
+    }
+    var perDevice = Math.round(500 / n);
+    readout.innerHTML = "Household plan: <b>500 Mbps</b> total &mdash; with " + n + " device" + (n === 1 ? "" : "s") + " active, each one gets roughly <b>" + perDevice + " Mbps</b>.";
+  }
+  Array.prototype.forEach.call(row.children, function (b) { b.onclick = function () { draw(Number(b.getAttribute("data-n"))); }; });
+  draw(1);
+})();
+</script>
+</body></html>

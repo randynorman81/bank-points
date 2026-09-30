@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Public vs. Private IP Addresses + NAT | Unit 9 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css">
+<style>:root{--acc:#34D399;--acc-tint:rgba(52,211,153,.14);--acc-ink:#A7F3D0}
+.rig{background:#111827;border:1px solid var(--rule);border-radius:10px;padding:24px 18px;margin:14px 0 8px}
+.cloud{text-align:center;font:700 13px "JetBrains Mono",monospace;color:var(--ink-soft);margin-bottom:14px}
+.router{text-align:center;border:2px solid var(--acc);background:var(--acc-tint);border-radius:8px;padding:10px;margin:0 auto 18px;max-width:260px;font:700 12.5px "JetBrains Mono",monospace;color:#fff}
+.devgrid{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.devbtn{border:1px solid var(--rule);background:var(--card);border-radius:8px;padding:12px 14px;text-align:center;cursor:pointer;min-width:100px}
+.devbtn.on{border-color:var(--acc)}
+.devbtn .ico{font-size:24px}
+.devbtn .ip{font:600 11px "JetBrains Mono",monospace;color:var(--acc-ink);margin-top:4px}
+.flow{background:var(--panel);border:1px dashed var(--rule);border-radius:8px;padding:16px 20px;margin-top:14px;font-size:14px;color:#C4CDD8}
+.flow b{color:#fff}
+</style>
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 9</a><a href="13-3-public-private-ip-nat.html">Back to 9.3</a><a href="ip-nat-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 9 Notes &nbsp;/&nbsp; Lesson 9.3</div>
+  <h1>Public vs. Private IP Addresses + NAT</h1>
+  <p class="deck">Your whole house shares exactly one address as far as the internet is concerned &mdash; but every device inside still needs its own. Here's how your router keeps that straight.</p>
+  <span class="stdchip">IP address &middot; public IP &middot; private IP &middot; NAT</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>One Building Address, Many Apartments</h2></div>
+  <p class="story">An apartment building has exactly one street address. Mail addressed to that building still has to reach the correct individual unit inside &mdash; that's the front desk's job, matching each letter to an apartment number. Your home network works the same way: your router has <b>one public IP address</b> that the entire internet sees, while every device inside your house gets its own <b>private IP address</b> that only matters inside your home.</p>
+  <p class="lede">Click a device to see its private address, and watch what the internet actually sees:</p>
+  <div class="rig">
+    <div class="cloud">&#127760; The Internet sees only this:</div>
+    <div class="router" id="pubIp">Public IP: 73.14.201.9</div>
+    <div class="devgrid" id="devs"></div>
+  </div>
+  <div class="flow" id="flow"></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>NAT: the Router's Translation Table</h2></div>
+  <p class="lede"><b>NAT (Network Address Translation)</b> is the job your router does every single time a device sends a request out, or a response comes back in. It keeps a table matching "which private device asked for what," so it knows exactly where to deliver the response.</p>
+  <div class="cards">
+    <div class="cardx"><div class="num">Step 1</div><h4>Request goes out</h4><p>Your laptop (private IP) sends a request. The router swaps the private IP for its own public IP before sending it to the internet.</p></div>
+    <div class="cardx"><div class="num">Step 2</div><h4>Router remembers</h4><p>The router logs in its translation table: "this specific request came from my laptop."</p></div>
+    <div class="cardx"><div class="num">Step 3</div><h4>Response comes back</h4><p>The reply arrives addressed to the router's public IP &mdash; the only address the internet ever saw.</p></div>
+    <div class="cardx"><div class="num">Step 4</div><h4>Router delivers it</h4><p>The router checks its table and forwards the response to the correct private device &mdash; your laptop, not your sibling's phone.</p></div>
+  </div>
+  <div class="callout">This is also why private IP addresses can repeat in every house on the planet.<span>192.168.1.5 on your network and 192.168.1.5 on your neighbor's network never conflict, because the outside internet never sees either one &mdash; it only ever sees each house's one public IP.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>IP address</b></td><td>A device's numerical address on a network</td></tr>
+      <tr><td><b>Public IP</b></td><td>The one address your ISP assigns to your router, visible to the entire internet</td></tr>
+      <tr><td><b>Private IP</b></td><td>The address your router assigns to each device inside your house, only visible on your own network</td></tr>
+      <tr><td><b>NAT</b></td><td>Network Address Translation &mdash; how your router lets many private IPs share one public IP</td></tr>
+    </tbody></table></div></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>One public face. Many private rooms behind it.</h2><p>Ready for the assignment? Head back to 9.3.</p><a class="back" href="13-3-public-private-ip-nat.html">&larr; Back to 9.3</a><a class="back" href="index.html">Unit 9</a><p class="sig">Unit 9 Notes / Lesson 9.3 / end of file</p></div></footer>
+
+<script src="../unit-4/notes.js"></script>
+<script>
+(function(){
+  var DEVS = [
+    { ico: "&#128187;", name: "Laptop", ip: "192.168.1.5" },
+    { ico: "&#128241;", name: "Phone", ip: "192.168.1.12" },
+    { ico: "&#128250;", name: "Smart TV", ip: "192.168.1.20" }
+  ];
+  var grid = document.getElementById("devs"), flow = document.getElementById("flow");
+  function draw(active) {
+    Array.prototype.forEach.call(grid.children, function (el, i) { el.classList.toggle("on", i === active); });
+    var d = DEVS[active];
+    flow.innerHTML = "The internet only ever sees <b>73.14.201.9</b> (your router's public IP). But this request actually came from your <b>" + d.name + "</b>, at private address <b>" + d.ip + "</b>. Your router's NAT table is what remembers to send the reply back to exactly this device, not one of the others.";
+  }
+  DEVS.forEach(function (d, i) {
+    var el = document.createElement("div");
+    el.className = "devbtn";
+    el.innerHTML = '<div class="ico">' + d.ico + '</div><div>' + d.name + '</div><div class="ip">' + d.ip + '</div>';
+    el.onclick = function () { draw(i); };
+    grid.appendChild(el);
+  });
+  draw(0);
+})();
+</script>
+</body></html>

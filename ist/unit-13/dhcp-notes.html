@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DHCP | Unit 9 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css">
+<style>:root{--acc:#22D3EE;--acc-tint:rgba(34,211,238,.14);--acc-ink:#A5F3FC}
+.rig{background:#111827;border:1px solid var(--rule);border-radius:10px;padding:24px 18px;margin:14px 0 8px;text-align:center}
+.joinbtn{background:var(--acc);color:#04313A;border:0;border-radius:8px;padding:10px 20px;font:700 13px "JetBrains Mono",monospace;cursor:pointer;margin-bottom:16px}
+.leaselist{display:flex;flex-direction:column;gap:8px;max-width:420px;margin:0 auto;text-align:left}
+.lease{border:1px solid var(--rule);background:var(--card);border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;font:600 13px "JetBrains Mono",monospace}
+.lease .ip{color:var(--acc-ink)}
+.lease .bar{flex:1;height:6px;background:var(--rule);border-radius:3px;margin:0 12px;overflow:hidden}
+.lease .fill{height:100%;background:var(--acc);transition:width 1s linear}
+.lease.expired{opacity:.4}
+.lease.expired .fill{background:#F87171}
+</style>
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 9</a><a href="13-5-dhcp.html">Back to 9.5</a><a href="dhcp-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 9 Notes &nbsp;/&nbsp; Lesson 9.5</div>
+  <h1>DHCP</h1>
+  <p class="deck">Nobody types in a private IP address by hand when their phone joins Wi-Fi. DHCP is the router quietly handing one out automatically &mdash; on a timer.</p>
+  <span class="stdchip">DHCP &middot; lease &middot; automatic addressing</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>Automatic, and Temporary</h2></div>
+  <p class="story">Imagine a hotel that gave every guest their room key forever, even after checkout. Within a month, there'd be no rooms left for new guests. Instead, hotels hand out room access for exactly the length of the stay, then take it back so it can be reused. Your router does the same thing with private IP addresses &mdash; it's called <b>DHCP (Dynamic Host Configuration Protocol)</b>, and each address is handed out as a temporary <b>lease</b>, not a permanent assignment.</p>
+  <p class="lede">Click to join a few devices and watch their leases count down:</p>
+  <button class="joinbtn" id="joinBtn">+ Join a new device</button>
+  <div class="rig"><div class="leaselist" id="leases"></div></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>Why Leases Matter</h2></div>
+  <div class="cards">
+    <div class="cardx"><div class="num">Reason 1</div><h4>No manual setup</h4><p>Nobody has to type in a private IP address for every new device &mdash; it just works the moment you connect.</p></div>
+    <div class="cardx"><div class="num">Reason 2</div><h4>No address runs out</h4><p>When a device leaves or its lease expires, that address goes back into the pool to be reused by the next device.</p></div>
+    <div class="cardx"><div class="num">Reason 3</div><h4>Addresses can change</h4><p>If your phone reconnects after being away, it might get handed a different address than last time &mdash; completely normal.</p></div>
+  </div>
+  <div class="callout">A coffee shop's Wi-Fi can serve hundreds of different laptops in one day without running out of addresses.<span>Every laptop that leaves eventually has its lease expire, freeing that same address for the next customer's laptop.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>DHCP</b></td><td>Dynamic Host Configuration Protocol &mdash; automatically assigns private IP addresses to devices joining a network</td></tr>
+      <tr><td><b>Lease</b></td><td>The temporary length of time a device is allowed to use an assigned IP address before it must renew or give it up</td></tr>
+      <tr><td><b>DHCP server</b></td><td>Usually your router &mdash; the device responsible for handing out and tracking leases</td></tr>
+    </tbody></table></div></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>Automatic now. Returned to the pool later.</h2><p>Ready for the assignment? Head back to 9.5.</p><a class="back" href="13-5-dhcp.html">&larr; Back to 9.5</a><a class="back" href="index.html">Unit 9</a><p class="sig">Unit 9 Notes / Lesson 9.5 / end of file</p></div></footer>
+
+<script src="../unit-4/notes.js"></script>
+<script>
+(function(){
+  var DEVS = ["Laptop", "Phone", "Tablet", "Smart TV", "Game Console", "Guest's Phone"];
+  var nextIp = 10, list = document.getElementById("leases"), btn = document.getElementById("joinBtn"), count = 0;
+  function addDevice() {
+    if (count >= DEVS.length) return;
+    var name = DEVS[count], ip = "192.168.1." + nextIp; nextIp++; count++;
+    var row = document.createElement("div");
+    row.className = "lease";
+    row.innerHTML = '<span>' + name + '</span><div class="bar"><div class="fill" style="width:100%"></div></div><span class="ip">' + ip + '</span>';
+    list.appendChild(row);
+    var fill = row.querySelector(".fill");
+    var pct = 100;
+    var iv = setInterval(function () {
+      pct -= 4;
+      if (pct <= 0) { pct = 0; row.classList.add("expired"); clearInterval(iv); }
+      fill.style.width = pct + "%";
+    }, 300);
+  }
+  btn.onclick = addDevice;
+  addDevice(); addDevice();
+})();
+</script>
+</body></html>
