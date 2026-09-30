@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Box Model | Unit 7 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css">
+<style>:root{--acc:#A78BFA;--acc-tint:rgba(167,139,250,.14);--acc-ink:#DDD6FE}
+.codeblk{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:14px 18px;margin:12px 0 26px;font-family:"JetBrains Mono",monospace;font-size:13.5px;line-height:1.7;color:#E8ECF3;overflow-x:auto;white-space:pre}
+.codeblk .t{color:#FDBA74}.pt{color:#93C5FD}.vl{color:#86EFAC}.at{color:#FDBA74}
+.shellbig{font:700 clamp(16px,4vw,28px) "JetBrains Mono",monospace;background:#05070B;border:1px solid var(--rule);border-radius:10px;padding:22px 18px;margin:14px 0 10px;text-align:center;overflow-x:auto;white-space:nowrap}
+.sh-tag{color:#FB7185}.sh-a{color:#F472B6}.sh-eq{color:#E8ECF3}.sh-q{color:#FBBF24}.sh-slot{color:#86EFAC}
+.pickrow{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.pickrow button{background:var(--card);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer;font:600 13px "JetBrains Mono",monospace}
+.pickrow button.on{border-color:var(--acc);background:var(--acc-tint);color:#fff}
+.frame{display:flex;align-items:center;justify-content:center;padding:30px;background:#0F1420;border:1px solid var(--rule);border-radius:10px;margin:14px 0 22px;min-height:220px}
+.frame .margin-layer{background:repeating-linear-gradient(45deg,#1a1f2a,#1a1f2a 6px,#12161f 6px,#12161f 12px);display:inline-block;transition:.2s}
+.frame .border-layer{transition:.2s}
+.frame .padding-layer{background:#FEF3C7;transition:.2s;display:flex;align-items:center;justify-content:center}
+.frame .content-layer{background:#fff;color:#111;font:700 13px/1.3 "Manrope",sans-serif;text-align:center;padding:6px;border-radius:2px;width:90px;height:60px;display:flex;align-items:center;justify-content:center}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:10px 0 24px;font-size:13px;color:var(--ink-soft)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:14px;border-radius:3px;display:inline-block}
+.demo{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin:14px 0 30px}
+.demo .box{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:16px 18px}
+.demo .box h4{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:10px}
+.wrongright{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:12px 0 22px}
+.wrongright .w,.wrongright .r{border-radius:8px;padding:14px 16px;background:var(--card);border:1px solid var(--rule)}
+.wrongright .w{border-top:3px solid #F87171}.wrongright .r{border-top:3px solid #34D399}
+.wrongright h4{font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;margin:0 0 8px}
+.wrongright .w h4{color:#FCA5A5}.wrongright .r h4{color:#6EE7B7}
+</style>
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 7</a><a href="7-1-box-model.html">Back to 7.1</a><a href="box-model-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 7 Notes &nbsp;/&nbsp; Lesson 7.1</div>
+  <h1>The Box Model</h1>
+  <p class="deck">Every single element on a webpage &mdash; no matter how round or oddly shaped it looks &mdash; is secretly a rectangular box underneath. Learn the four layers every box is built from, and why a border isn't as free as it looks.</p>
+  <span class="stdchip">content &middot; padding &middot; border &middot; margin</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>Four Layers, Like a Framed Photo</h2></div>
+  <p class="story">Picture a photo you're getting ready to hang on an art room wall. The photo itself is the picture. Around it sits a cardboard matte &mdash; clean spacing between the photo and the frame. Around the matte sits the wooden frame itself. And around the whole framed piece is empty wall space, keeping it from touching the next picture over. Every box on a webpage is built exactly the same way.</p>
+  <div class="cards">
+    <div class="cardx"><div class="num">Layer 1</div><h4>Content &rarr; the photo</h4><p>The actual text or image. You size it with <code>width</code>.</p></div>
+    <div class="cardx"><div class="num">Layer 2</div><h4>Padding &rarr; the cardboard matte</h4><p>Space <b>inside</b> the frame. It takes on the element's own <code>background-color</code>.</p></div>
+    <div class="cardx"><div class="num">Layer 3</div><h4>Border &rarr; the wooden frame</h4><p>The outline that wraps the padding and content: thickness, style, color.</p></div>
+    <div class="cardx"><div class="num">Layer 4</div><h4>Margin &rarr; the wall space</h4><p>Space <b>outside</b> the frame. Always transparent &mdash; it can never take a background color.</p></div>
+  </div>
+  <p class="lede">Try it: pick a layer below and watch it grow around the photo.</p>
+  <div class="pickrow" id="layer">
+    <button class="on" data-l="none">Just content</button>
+    <button data-l="padding">+ Padding</button>
+    <button data-l="border">+ Border</button>
+    <button data-l="margin">+ Margin</button>
+  </div>
+  <div class="frame" id="frameOut"></div>
+  <div class="legend">
+    <span><i style="background:#fff;border:1px solid #333"></i> Content</span>
+    <span><i style="background:#FEF3C7"></i> Padding</span>
+    <span><i style="background:#451A03"></i> Border</span>
+    <span><i style="background:repeating-linear-gradient(45deg,#1a1f2a,#1a1f2a 4px,#12161f 4px,#12161f 8px)"></i> Margin (transparent)</span>
+  </div>
+  <div class="callout">Padding takes the background color. Margin never does.<span>That single fact is how you can tell them apart in a screenshot, even with no code in front of you.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>All Four Sides, Two Ways to Write It</h2></div>
+  <p class="lede">Padding and margin are active on all <b>four sides</b>: top, right, bottom, left. You can set them one at a time, or all at once with a shortcut.</p>
+  <div class="demo">
+    <div class="box"><h4>Method A: one side at a time</h4>
+      <div class="codeblk"><span class="pt">padding-top</span>: <span class="vl">10px</span>;
+<span class="pt">padding-right</span>: <span class="vl">20px</span>;
+<span class="pt">padding-bottom</span>: <span class="vl">15px</span>;
+<span class="pt">padding-left</span>: <span class="vl">25px</span>;</div>
+    </div>
+    <div class="box"><h4>Method B: the shorthand</h4>
+      <div class="codeblk"><span class="pt">padding</span>: <span class="vl">16px</span>;
+<span class="cm" style="color:var(--ink-soft)">/* same 16px on all 4 sides */</span></div>
+    </div>
+  </div>
+  <div class="hint-panel"><b>One value = all four sides equally.</b> If you only write <code>padding: 16px;</code>, the browser applies 16px to the top, right, bottom, and left all at once.</div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>The Surprise: Borders Add Real Size</h2></div>
+  <p class="story">A border isn't just a decoration drawn on top of your box &mdash; it takes up actual physical space, exactly like padding does. Most beginners assume a border is "free," but the browser disagrees.</p>
+  <div class="shellbig"><span class="pt">width</span>: <span class="vl">100px</span>; <span class="pt">border</span>: <span class="vl">5px solid black</span>;</div>
+  <div class="callout">100px box + 5px border on each side = 110px total width.<span>The border adds its thickness on <b>both</b> sides of the box, so a 5px border adds 10px to the total width, and 10px to the total height.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>Common Mistakes</h2></div>
+  <div class="wrongright">
+    <div class="w"><h4>Wrong: expecting margin to show a color</h4><div class="codeblk"><span class="pt">margin</span>: <span class="vl">20px</span>;
+<span class="pt">background-color</span>: <span class="vl">yellow</span>;</div><p style="font-size:13px;color:var(--ink-soft);margin-top:8px">The yellow fills the padding area, never the margin. Margin is always see-through.</p></div>
+    <div class="r"><h4>Right: color goes with padding</h4><div class="codeblk"><span class="pt">padding</span>: <span class="vl">20px</span>;
+<span class="pt">background-color</span>: <span class="vl">yellow</span>;</div><p style="font-size:13px;color:var(--ink-soft);margin-top:8px">Now the yellow visibly fills the space around the content, inside the frame.</p></div>
+    <div class="w"><h4>Wrong: forgetting the border adds width</h4><div class="codeblk"><span class="pt">width</span>: <span class="vl">200px</span>; <span class="pt">border</span>: <span class="vl">10px solid navy</span>;
+<span class="cm" style="color:#FCA5A5">/* actually renders 220px wide */</span></div></div>
+    <div class="r"><h4>Right: plan for it</h4><div class="codeblk"><span class="pt">width</span>: <span class="vl">180px</span>; <span class="pt">border</span>: <span class="vl">10px solid navy</span>;
+<span class="cm" style="color:#6EE7B7">/* renders 200px wide, as planned */</span></div></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">05</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>Content</b></td><td>The text or image itself, sized with <code>width</code></td></tr>
+      <tr><td><b>Padding</b></td><td>Space inside the border, around the content. Takes the background color</td></tr>
+      <tr><td><b>Border</b></td><td>The outline between padding and margin: thickness, style, color</td></tr>
+      <tr><td><b>Margin</b></td><td>Space outside the border, between this element and the next. Always transparent</td></tr>
+      <tr><td><b>Box model</b></td><td>The idea that every element is these four layers, nested like a photo in a frame</td></tr>
+    </tbody></table></div></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>Content, padding, border, margin &mdash; every box, every time.</h2><p>Ready to build? Head back to 7.1 for the postcard assignment.</p><a class="back" href="7-1-box-model.html">&larr; Back to 7.1</a><a class="back" href="index.html">Unit 7</a><p class="sig">Unit 7 Notes / Lesson 7.1 / end of file</p></div></footer>
+
+<script src="../unit-4/notes.js"></script>
+<script>
+(function(){
+  var row = document.getElementById("layer"), out = document.getElementById("frameOut");
+  function draw(l) {
+    Array.prototype.forEach.call(row.children, function (b) { b.classList.toggle("on", b.getAttribute("data-l") === l); });
+    var content = '<div class="content-layer">Photo</div>';
+    var padding = '<div class="padding-layer" style="padding:' + (l === "none" ? "0" : "22px") + '">' + content + '</div>';
+    var border = '<div class="border-layer" style="border:' + (l === "border" || l === "margin" ? "10px solid #451A03" : "0") + ';border-radius:2px">' + padding + '</div>';
+    var margin = '<div class="margin-layer" style="padding:' + (l === "margin" ? "22px" : "0") + '">' + border + '</div>';
+    out.innerHTML = margin;
+  }
+  Array.prototype.forEach.call(row.children, function (b) { b.onclick = function () { draw(b.getAttribute("data-l")); }; });
+  draw("none");
+})();
+</script>
+</body></html>

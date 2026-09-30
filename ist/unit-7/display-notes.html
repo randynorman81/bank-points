@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Display: Block vs Inline | Unit 7 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css">
+<style>:root{--acc:#22D3EE;--acc-tint:rgba(34,211,238,.14);--acc-ink:#A5F3FC}
+.codeblk{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:14px 18px;margin:12px 0 26px;font-family:"JetBrains Mono",monospace;font-size:13.5px;line-height:1.7;color:#E8ECF3;overflow-x:auto;white-space:pre}
+.pt{color:#93C5FD}.vl{color:#86EFAC}.t{color:#FDBA74}
+.theater{background:#111827;border:1px solid var(--rule);border-radius:10px;padding:18px;margin:14px 0 8px}
+.row{display:flex;gap:4px;margin-bottom:6px;min-height:38px}
+.seat{flex:1;background:#1F2937;border-radius:4px;display:flex;align-items:center;justify-content:center;font:600 11px "JetBrains Mono",monospace;color:var(--ink-soft);min-width:0}
+.seat.taken{background:var(--acc);color:#04313A;font-weight:800}
+.pickrow{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.pickrow button{background:var(--card);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer;font:600 13px "JetBrains Mono",monospace}
+.pickrow button.on{border-color:var(--acc);background:var(--acc-tint);color:#fff}
+.demo{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin:14px 0 30px}
+.demo .box{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:16px 18px}
+.demo .box h4{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:10px}
+.demo .out{background:#fff;color:#111;border-radius:6px;padding:16px;font-family:Georgia,serif;font-size:15px;min-height:60px}
+.navdemo{display:flex;flex-wrap:wrap;gap:8px}
+.navdemo div{background:#7C3AED;color:#fff;padding:8px 16px;border-radius:6px;font:600 13px "Manrope",sans-serif}
+.navdemo.block div{width:100%;margin-bottom:6px}
+</style>
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 7</a><a href="7-3-display-block-vs-inline.html">Back to 7.3</a><a href="display-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 7 Notes &nbsp;/&nbsp; Lesson 7.3 &middot; Very Important</div>
+  <h1>Display: Block vs. Inline</h1>
+  <p class="deck">Every tag is born with a display type baked in. This one idea &mdash; whether a tag starts a new line or not &mdash; is the concept the rest of this unit depends on.</p>
+  <span class="stdchip">block &middot; inline &middot; display</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>Seat Savers vs. Friendly Neighbors</h2></div>
+  <p class="story">Picture a movie theater. One person walks in and lays coats across an entire row of 10 seats. Even though they only need one seat, nobody else can sit in that row &mdash; it's blocked off. That's a <b>block</b> element. Now picture other moviegoers sliding in shoulder to shoulder, taking only the exact space they need. That's an <b>inline</b> element.</p>
+  <p class="lede">Click to see each type "claim" its seats:</p>
+  <div class="pickrow" id="thtr"><button class="on" data-k="block">Block (seat saver)</button><button data-k="inline">Inline (friendly neighbor)</button></div>
+  <div class="theater" id="thtrOut"></div>
+  <div class="cards">
+    <div class="cardx"><div class="num">Block tags</div><h4>Always start a new line</h4><p><code>html</code>, <code>body</code>, <code>h1</code>&ndash;<code>h6</code>, <code>p</code>, <code>div</code>, <code>ul</code>, <code>ol</code>, <code>li</code>, <code>hr</code></p></div>
+    <div class="cardx"><div class="num">Inline tags</div><h4>Stay in the sentence</h4><p><code>span</code>, <code>strong</code>, <code>em</code>, <code>a</code> (links), <code>img</code> (images)</p></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>span: The Inline Label</h2></div>
+  <p class="lede">A <code>span</code> is the inline version of a paragraph &mdash; it groups or styles a piece of text <b>without</b> breaking the line around it. That's why you've been using it to color a single word inside a sentence.</p>
+  <div class="codeblk">Normal text and <span class="t">&lt;span</span> <span style="color:#FDBA74">style</span>=<span style="color:#FBBF24">"</span><span class="pt">color</span>:<span class="vl">red</span>;<span style="color:#FBBF24">"</span><span class="t">&gt;</span>Special Red Text<span class="t">&lt;/span&gt;</span></div>
+  <div class="demo"><div class="box"><h4>Output</h4><div class="out">Normal text and <span style="color:red;font-weight:700">Special Red Text</span></div></div></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>Changing the Costume: the display Property</h2></div>
+  <p class="story">Every tag is born with a display type &mdash; its DNA. But <code>display</code> lets you put a costume on it: the tag keeps its name, but behaves like a different type entirely.</p>
+  <div class="pickrow" id="dsp"><button class="on" data-d="block">3 divs: display: block (default)</button><button data-d="inline-block">3 divs: display: inline-block</button></div>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk" id="dspCode" style="margin:0"></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out" id="dspOut"></div></div>
+  </div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Value</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td><code>block</code></td><td>Claims 100% width, starts a new line</td></tr>
+      <tr><td><code>inline</code></td><td>Sits inside the line, only as wide as its content</td></tr>
+      <tr><td><code>inline-block</code></td><td>Sits in a row like inline, but you can still set its width and height</td></tr>
+    </tbody></table></div></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>Real World: the Navigation Bar Trick</h2></div>
+  <p class="lede">Menu links are naturally block-level <code>div</code>s, so they stack in a tall column by default. Every navigation bar you've ever seen uses this one fix:</p>
+  <div class="demo">
+    <div class="box"><h4>Before: display: block (default)</h4><div class="navdemo block"><div>Home</div><div>About</div><div>Contact</div></div></div>
+    <div class="box"><h4>After: display: inline-block</h4><div class="navdemo"><div>Home</div><div>About</div><div>Contact</div></div></div>
+  </div>
+  <div class="callout">display: inline-block is the single fix behind almost every horizontal menu on the internet.<span>It's also how a plain link (naturally inline and tiny) gets turned into a big, full-width button with <code>display: block;</code>.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">05</div><h2>Block or Inline?</h2></div>
+  <div class="guessgrid">
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;h2&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Block</h4><p>Headings always get their own line.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;span&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Inline</h4><p>Stays inside the sentence &mdash; that's why it can color one word.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;img&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Inline</h4><p>Images sit in the line like a giant letter.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;a&gt;</code> (a link)</div><div class="tap">Tap to reveal</div><div class="answer"><h4>Inline</h4><p>Links flow inside sentences unless you change their display.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;div&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Block</h4><p>Stacks vertically by default, until you give it a display costume.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt"><code>&lt;strong&gt;</code></div><div class="tap">Tap to reveal</div><div class="answer"><h4>Inline</h4><p>Bold text flows with the sentence around it.</p></div></div>
+  </div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>Block starts a new line. Inline stays in the line.</h2><p>Ready to build? Head back to 7.3 for the streaming app assignment.</p><a class="back" href="7-3-display-block-vs-inline.html">&larr; Back to 7.3</a><a class="back" href="index.html">Unit 7</a><p class="sig">Unit 7 Notes / Lesson 7.3 / end of file</p></div></footer>
+
+<script src="../unit-4/notes.js"></script>
+<script>
+(function(){
+  var row = document.getElementById("thtr"), out = document.getElementById("thtrOut");
+  function draw(k) {
+    Array.prototype.forEach.call(row.children, function (b) { b.classList.toggle("on", b.getAttribute("data-k") === k); });
+    if (k === "block") {
+      out.innerHTML = '<div class="row"><div class="seat taken">Guest A takes the whole row</div></div><div class="row"><div class="seat taken">Guest B takes the next row</div></div>';
+    } else {
+      out.innerHTML = '<div class="row"><div class="seat taken">Guest A</div><div class="seat taken">Guest B</div><div class="seat taken">Guest C</div><div class="seat">empty</div><div class="seat">empty</div></div>';
+    }
+  }
+  Array.prototype.forEach.call(row.children, function (b) { b.onclick = function () { draw(b.getAttribute("data-k")); }; });
+  draw("block");
+})();
+(function(){
+  var row = document.getElementById("dsp"), code = document.getElementById("dspCode"), out = document.getElementById("dspOut");
+  function draw(d) {
+    Array.prototype.forEach.call(row.children, function (b) { b.classList.toggle("on", b.getAttribute("data-d") === d); });
+    var ib = d === "inline-block", st = ib ? ' style="display: inline-block; width: 90px;"' : "";
+    var names = ["Box 1", "Box 2", "Box 3"];
+    code.innerHTML = names.map(function (n) { return '<span class="t">&lt;div</span>' + (ib ? ' <span style="color:#FDBA74">style</span>=<span style="color:#FBBF24">"</span><span class="pt">display</span>: <span class="vl">inline-block</span>; <span class="pt">width</span>: <span class="vl">90px</span>;<span style="color:#FBBF24">"</span>' : '') + '<span class="t">&gt;</span>' + n + '<span class="t">&lt;/div&gt;</span>'; }).join("\n");
+    out.innerHTML = names.map(function (n) { return '<div' + (ib ? ' style="display:inline-block;width:90px;background:#DBEAFE;text-align:center;margin-right:4px;padding:6px 0"' : ' style="background:#DBEAFE;margin-bottom:4px;padding:6px"') + '>' + n + '</div>'; }).join("");
+  }
+  Array.prototype.forEach.call(row.children, function (b) { b.onclick = function () { draw(b.getAttribute("data-d")); }; });
+  draw("block");
+})();
+</script>
+</body></html>

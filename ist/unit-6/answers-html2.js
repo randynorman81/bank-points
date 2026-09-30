@@ -97,7 +97,7 @@
       "Margin: space outside the border (always see-through)",
       "A packing list (bullet) and a top-moments list (numbered)"
     ] },
-    { p: "Stuck? Read the 7.1 lesson page or the study guide: schscomputerscience.com/ist/unit-7/study-guide.html" },
+    { p: "Stuck? Read the notes: schscomputerscience.com/ist/unit-7/box-model-notes.html" },
 
     { h: "Step 1: Skeleton" }, skeleton("your trip's name"),
 
@@ -130,6 +130,7 @@
     { h: "What you are building" },
     { p: "A **mood board**: a page that uses a palette of colors to create a vibe (a spooky night, a beach day, a neon city, a cozy cabin, or your own idea)." },
     { p: "Hex reminder: a **#** and then 6 characters in three pairs: red, green, blue. Each pair goes from 00 (none) to FF (the most)." },
+    { p: "Stuck? Read the notes: schscomputerscience.com/ist/unit-7/colors-notes.html" },
 
     { h: "Step 1: Skeleton" }, skeleton("your mood's name"),
 
@@ -168,6 +169,7 @@
   A["7.3"] = [
     { h: "What you are building" },
     { p: "The home screen of your own **streaming app**: a menu bar with buttons in a row and one giant PLAY button, all with the **display** property." },
+    { p: "Stuck? Read the notes: schscomputerscience.com/ist/unit-7/display-notes.html" },
     { map: [
       "block: takes the whole row and starts a new line (paragraphs, divs, headings)",
       "inline: only as wide as its content, sits in a line (spans, links, bold, images)",
@@ -206,6 +208,7 @@
   A["7.4"] = [
     { h: "What you are building" },
     { p: "A **profile page** for a character, a pet, or a made-up celebrity: a sidebar on the left and a feed of posts on the right, built from **divs**." },
+    { p: "Stuck? Read the notes: schscomputerscience.com/ist/unit-7/div-tag-notes.html" },
 
     { h: "Step 1: Skeleton" }, skeleton("your profile's name"),
 
@@ -238,6 +241,7 @@
   A["7.5"] = [
     { h: "What you are building" },
     { p: "A **leaderboard** for your favorite game, sport, or a competition you invent, built as a **table**." },
+    { p: "Stuck? Read the notes: schscomputerscience.com/ist/unit-7/tables-notes.html" },
     { map: [
       "table: the outside of the grid",
       "table row: one line across",

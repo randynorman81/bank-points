@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Div Tag | Unit 7 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css">
+<style>:root{--acc:#818CF8;--acc-tint:rgba(129,140,248,.14);--acc-ink:#C7D2FE}
+.codeblk{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:14px 18px;margin:12px 0 26px;font-family:"JetBrains Mono",monospace;font-size:13.5px;line-height:1.7;color:#E8ECF3;overflow-x:auto;white-space:pre}
+.pt{color:#93C5FD}.vl{color:#86EFAC}.t{color:#FDBA74}
+.amazon{background:#131921;border-radius:10px;padding:14px;margin:14px 0 8px}
+.amazon .nav{background:#232F3E;border:1px dashed #FF9900;border-radius:6px;padding:10px 14px;color:#FF9900;font:700 12px "JetBrains Mono",monospace;margin-bottom:8px}
+.amazon .hero{background:#37475A;border:1px dashed #7DD3FC;border-radius:6px;padding:24px;color:#7DD3FC;font:700 12px "JetBrains Mono",monospace;text-align:center;margin-bottom:8px}
+.amazon .cards{display:flex;gap:8px}
+.amazon .card{flex:1;background:#232F3E;border:1px dashed #86EFAC;border-radius:6px;padding:14px 8px;color:#86EFAC;font:700 11px "JetBrains Mono",monospace;text-align:center}
+.demo{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin:14px 0 30px}
+.demo .box{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:16px 18px}
+.demo .box h4{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:10px}
+.demo .out{background:#fff;color:#111;border-radius:6px;padding:16px;min-height:80px}
+.pickrow{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.pickrow button{background:var(--card);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer;font:600 13px "JetBrains Mono",monospace}
+.pickrow button.on{border-color:var(--acc);background:var(--acc-tint);color:#fff}
+.wrongright{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:12px 0 22px}
+.wrongright .w,.wrongright .r{border-radius:8px;padding:14px 16px;background:var(--card);border:1px solid var(--rule)}
+.wrongright .w{border-top:3px solid #F87171}.wrongright .r{border-top:3px solid #34D399}
+.wrongright h4{font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;margin:0 0 8px}
+.wrongright .w h4{color:#FCA5A5}.wrongright .r h4{color:#6EE7B7}
+</style>
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 7</a><a href="7-4-div-tag.html">Back to 7.4</a><a href="div-tag-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 7 Notes &nbsp;/&nbsp; Lesson 7.4</div>
+  <h1>The Div Tag</h1>
+  <p class="deck">The most used, and most important, tag in the world &mdash; and it does absolutely nothing visible on its own. A div's entire job is to group things together into one invisible box.</p>
+  <span class="stdchip">div &middot; container &middot; inline-block &middot; vertical-align</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>Amazon Is Built Entirely of Divs</h2></div>
+  <p class="story">Open Amazon's homepage and you don't see raw text and images floating around &mdash; you see clean, organized sections. Every one of those sections is an invisible box: a div. The nav bar is a div. Inside it, the search box is its own smaller div. Every single product card is wrapped in a div to keep it separate from the others.</p>
+  <div class="amazon">
+    <div class="nav">&lt;div&gt; nav bar: logo, search box, cart &lt;/div&gt;</div>
+    <div class="hero">&lt;div&gt; hero banner &lt;/div&gt;</div>
+    <div class="cards">
+      <div class="card">&lt;div class="card"&gt;<br>product 1</div>
+      <div class="card">&lt;div class="card"&gt;<br>product 2</div>
+      <div class="card">&lt;div class="card"&gt;<br>product 3</div>
+    </div>
+  </div>
+  <div class="callout">A div does nothing by itself &mdash; that's the whole point.<span>It has zero style of its own. It exists purely to group other tags so you can style, move, or arrange them as one unit.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>Mass Styling: Style the Box, Style Everything Inside</h2></div>
+  <p class="lede">Put one style attribute on a div, and <b>everything inside it</b> inherits that look &mdash; instead of styling a heading, three paragraphs, and a list separately.</p>
+  <div class="demo">
+    <div class="box"><h4>Code</h4><div class="codeblk"><span class="t">&lt;div</span> <span style="color:#FDBA74">style</span>=<span style="color:#FBBF24">"</span><span class="pt">background-color</span>: <span class="vl">#131921</span>; <span class="pt">color</span>: <span class="vl">white</span>; <span class="pt">padding</span>: <span class="vl">14px</span>;<span style="color:#FBBF24">"</span><span class="t">&gt;</span>
+  <span class="t">&lt;h3&gt;</span>Box Heading<span class="t">&lt;/h3&gt;</span>
+  <span class="t">&lt;p&gt;</span>Both turn white automatically.<span class="t">&lt;/p&gt;</span>
+<span class="t">&lt;/div&gt;</span></div></div>
+    <div class="box"><h4>Output</h4><div class="out" style="background:#131921;color:#fff;padding:14px;border-radius:6px"><h3 style="margin:0 0 6px;color:#fff">Box Heading</h3><p style="margin:0">Both turn white automatically.</p></div></div>
+  </div>
+</section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>Block by Default, Elastic Height</h2></div>
+  <p class="lede">A div is a <b>block</b> element: it takes 100% width and starts a new line, exactly like a paragraph. But its height is elastic &mdash; it automatically stretches to fit whatever is inside it. You never set a height for a div full of content.</p>
+  <div class="warn"><b>The exception:</b> an <em>empty</em> div (no text, no images) collapses to 0 pixels tall and disappears completely. Give an empty div an explicit <code>height</code> (and usually a background color, so you can see it) if you need it to show up on its own.</div>
+  <div class="codeblk"><span class="t">&lt;div</span> <span style="color:#FDBA74">style</span>=<span style="color:#FBBF24">"</span><span class="pt">height</span>: <span class="vl">60px</span>; <span class="pt">background-color</span>: <span class="vl">#f97316</span>;<span style="color:#FBBF24">"</span><span class="t">&gt;&lt;/div&gt;</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>Side-by-Side Columns (and the Baseline Bug)</h2></div>
+  <p class="lede">Two divs in a row stack vertically by default. Give both <code>display: inline-block;</code> to sit them side by side. But watch what happens when one column has more text than the other:</p>
+  <div class="pickrow" id="va"><button class="on" data-v="off">Without vertical-align: top;</button><button data-v="on">With vertical-align: top;</button></div>
+  <div class="demo">
+    <div class="box"><h4>Output</h4><div class="out" id="vaOut"></div></div>
+  </div>
+  <div class="callout">Two inline-block divs align by their text baseline, not their tops.<span>Add <code>vertical-align: top;</code> to both columns to lock their top edges flush with each other.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">05</div><h2>Multi-Row Layouts: the 98% Rule</h2></div>
+  <p class="lede">Building more than one row of columns takes three rules:</p>
+  <div class="cards">
+    <div class="cardx"><div class="num">Rule 1</div><h4>Stay at 98% or less</h4><p>Combined widths on one line must leave a safety gap for built-in spacing.</p></div>
+    <div class="cardx"><div class="num">Rule 2</div><h4>Add an &lt;hr&gt; after the row</h4><p>A horizontal rule (or any block tag) forces the next divs onto a fresh line.</p></div>
+    <div class="cardx"><div class="num">Rule 3</div><h4>Repeat for each row</h4><p>New divs, same <code>inline-block</code> + <code>vertical-align: top;</code> pattern.</p></div>
+  </div>
+  <div class="hint-panel">Skipping the <code>&lt;hr&gt;</code> is the most common mistake here &mdash; without it, the next row's divs just squeeze onto the end of the current row instead of starting fresh.</div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">06</div><h2>Common Mistakes</h2></div>
+  <div class="wrongright">
+    <div class="w"><h4>Wrong: width in px for a responsive layout</h4><div class="codeblk"><span class="pt">width</span>: <span class="vl">400px</span>;</div><p style="font-size:13px;color:var(--ink-soft);margin-top:8px">Stays exactly 400px even on a tiny phone screen.</p></div>
+    <div class="r"><h4>Right: width in % for columns</h4><div class="codeblk"><span class="pt">width</span>: <span class="vl">45%</span>;</div><p style="font-size:13px;color:var(--ink-soft);margin-top:8px">Resizes automatically with the screen. Use px for height instead.</p></div>
+    <div class="w"><h4>Wrong: two columns over 98%</h4><div class="codeblk"><span class="pt">width</span>: <span class="vl">50%</span>; <span style="color:var(--ink-soft)">/* + another 50% */</span></div><p style="font-size:13px;color:var(--ink-soft);margin-top:8px">100% plus built-in spacing overflows &mdash; the second div drops to a new line.</p></div>
+    <div class="r"><h4>Right: leave a safety gap</h4><div class="codeblk"><span class="pt">width</span>: <span class="vl">48%</span>; <span style="color:var(--ink-soft)">/* + another 48% */</span></div></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">07</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>div</b></td><td>A generic block container with no style of its own, used to group content</td></tr>
+      <tr><td><b>Container / grouping element</b></td><td>Another name for what a div does: wraps related tags together</td></tr>
+      <tr><td><b>inline-block</b></td><td>The display value that lets divs sit side by side while keeping a settable width/height</td></tr>
+      <tr><td><b>vertical-align: top</b></td><td>Locks side-by-side columns to the same top edge</td></tr>
+      <tr><td><b>98% rule</b></td><td>Keep combined column widths at 98% or less to avoid overflow</td></tr>
+    </tbody></table></div></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>The box. The paint. The columns.</h2><p>Ready to build? Head back to 7.4 for the profile page assignment.</p><a class="back" href="7-4-div-tag.html">&larr; Back to 7.4</a><a class="back" href="index.html">Unit 7</a><p class="sig">Unit 7 Notes / Lesson 7.4 / end of file</p></div></footer>
+
+<script src="../unit-4/notes.js"></script>
+<script>
+(function(){
+  var row = document.getElementById("va"), out = document.getElementById("vaOut");
+  function draw(v) {
+    Array.prototype.forEach.call(row.children, function (b) { b.classList.toggle("on", b.getAttribute("data-v") === v); });
+    var va = v === "on" ? "vertical-align:top;" : "";
+    out.innerHTML = '<div style="display:inline-block;width:45%;' + va + 'background:#DBEAFE;padding:8px;box-sizing:border-box">Short column</div>' +
+      '<div style="display:inline-block;width:45%;' + va + 'background:#FDE68A;padding:8px;box-sizing:border-box">Long column with a lot more text inside it, so it grows much taller than its neighbor.</div>';
+  }
+  Array.prototype.forEach.call(row.children, function (b) { b.onclick = function () { draw(b.getAttribute("data-v")); }; });
+  draw("off");
+})();
+</script>
+</body></html>

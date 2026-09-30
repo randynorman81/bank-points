@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tables | Unit 7 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css">
+<style>:root{--acc:#34D399;--acc-tint:rgba(52,211,153,.14);--acc-ink:#A7F3D0}
+.codeblk{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:14px 18px;margin:12px 0 26px;font-family:"JetBrains Mono",monospace;font-size:13.5px;line-height:1.7;color:#E8ECF3;overflow-x:auto;white-space:pre}
+.pt{color:#93C5FD}.vl{color:#86EFAC}.t{color:#FDBA74}
+.demo{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin:14px 0 30px}
+.demo .box{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:16px 18px}
+.demo .box h4{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:10px}
+.demo .out{background:#fff;color:#111;border-radius:6px;padding:16px}
+.demo .out table{border-collapse:collapse;width:100%}
+.demo .out th,.demo .out td{border:1px solid #ccc;padding:6px 10px;font-size:13px}
+.demo .out th{background:#f1f5f9}
+.pickrow{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.pickrow button{background:var(--card);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer;font:600 13px "JetBrains Mono",monospace}
+.pickrow button.on{border-color:var(--acc);background:var(--acc-tint);color:#fff}
+.nestdolls{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:18px;margin:12px 0 26px;font-family:"JetBrains Mono",monospace;font-size:13px}
+.nestdolls .d1{border:2px solid var(--acc);border-radius:8px;padding:14px;background:var(--acc-tint)}
+.nestdolls .d2{border:2px dashed #93C5FD;border-radius:8px;padding:12px;margin-top:8px;background:rgba(147,197,253,.08)}
+.nestdolls .d3{border:2px dashed #FDE68A;border-radius:6px;padding:8px 12px;margin-top:8px;display:inline-block;background:rgba(253,230,138,.1)}
+</style>
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 7</a><a href="7-5-tables.html">Back to 7.5</a><a href="tables-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 7 Notes &nbsp;/&nbsp; Lesson 7.5</div>
+  <h1>Tables</h1>
+  <p class="deck">A table is a storage shelf split into rows and slots. You don't build columns directly &mdash; you build one row at a time, top to bottom, dropping items into each row left to right.</p>
+  <span class="stdchip">table &middot; tr &middot; th &middot; td</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>Four Tags, Nested Like Dolls</h2></div>
+  <p class="story">Sports sites like ESPN use tables for player stats. Shopify uses them for pricing plans. Any time information truly belongs in rows and columns &mdash; not just "looks nice in a grid" &mdash; a table is the right tag.</p>
+  <div class="nestdolls">
+    <div class="d1">&lt;table&gt; &mdash; the outer grid boundary
+      <div class="d2">&lt;tr&gt; &mdash; one row, left to right
+        <div class="d3">&lt;th&gt; or &lt;td&gt; &mdash; one cell</div>
+      </div>
+    </div>
+  </div>
+  <div class="cards">
+    <div class="cardx"><div class="num">Tag 01</div><h4><code>&lt;table&gt;</code></h4><p>The master wrapper. Everything else lives inside it.</p></div>
+    <div class="cardx"><div class="num">Tag 02</div><h4><code>&lt;tr&gt;</code> table row</h4><p>One horizontal line of the grid. Only cells go directly inside a row.</p></div>
+    <div class="cardx"><div class="num">Tag 03</div><h4><code>&lt;th&gt;</code> table header</h4><p>A bold, centered title cell &mdash; usually the whole first row.</p></div>
+    <div class="cardx"><div class="num">Tag 04</div><h4><code>&lt;td&gt;</code> table data</h4><p>A normal content cell. Most of your table is made of these.</p></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>Build It One Row at a Time</h2></div>
+  <p class="lede">Click through the steps to watch a leaderboard table grow, row by row.</p>
+  <div class="pickrow" id="bld"></div>
+  <div class="demo">
+    <div class="box"><h4>Code so far</h4><div class="codeblk" id="bldCode" style="margin:0"></div></div>
+    <div class="box"><h4>What the browser shows</h4><div class="out" id="bldOut"></div></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>The Golden Rule of Alignment</h2></div>
+  <p class="lede">Every row must have the <b>same number</b> of cells. If row 1 has 4 header cells, rows 2 and beyond must each have exactly 4 data cells &mdash; leave one out, and the table's borders distort and break.</p>
+  <div class="demo">
+    <div class="box"><h4>Wrong: row 2 is missing a cell</h4><div class="out"><table><tr><th>Rank</th><th>Player</th><th>Score</th></tr><tr><td>1</td><td>Alex</td></tr></table></div></div>
+    <div class="box"><h4>Right: every row matches</h4><div class="out"><table><tr><th>Rank</th><th>Player</th><th>Score</th></tr><tr><td>1</td><td>Alex</td><td>980</td></tr></table></div></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>Putting Other Tags Inside a Cell</h2></div>
+  <p class="lede">A <code>&lt;td&gt;</code> can hold any other tag &mdash; links, images, even a whole list.</p>
+  <div class="codeblk"><span class="t">&lt;td&gt;&lt;a</span> href=<span style="color:#FBBF24">"https://amazon.com"</span><span class="t">&gt;</span>View Store<span class="t">&lt;/a&gt;&lt;/td&gt;</span>
+<span class="t">&lt;td&gt;&lt;img</span> src=<span style="color:#FBBF24">"headphones.jpg"</span> <span style="color:#FDBA74">style</span>=<span style="color:#FBBF24">"</span><span class="pt">width</span>: <span class="vl">50px</span>;<span style="color:#FBBF24">"</span><span class="t">&gt;&lt;/td&gt;</span>
+<span class="t">&lt;td&gt;&lt;ul&gt;&lt;li&gt;</span>Noise Cancelling<span class="t">&lt;/li&gt;&lt;/ul&gt;&lt;/td&gt;</span></div>
+  <div class="hint-panel">Real sites do exactly this: ESPN's stat tables hold plain text, but a Shopify pricing table often has a link or button inside the last cell of every row.</div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">05</div><h2>th or td?</h2></div>
+  <div class="guessgrid">
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">The word "Rank" at the top of a column</div><div class="tap">Tap to reveal</div><div class="answer"><h4>th</h4><p>A column title &mdash; bold and centered by default.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">The number 1 in the first data row</div><div class="tap">Tap to reveal</div><div class="answer"><h4>td</h4><p>Plain content, not a title.</p></div></div>
+    <div class="guesscard" onclick="reveal(this)"><div class="prompt">Screen readers treat this differently even though it looks like plain bold text</div><div class="tap">Tap to reveal</div><div class="answer"><h4>th</h4><p>Screen readers announce it as a header, which matters even when it looks identical to a sighted user.</p></div></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">06</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>table</b></td><td>The outer wrapper that starts a data grid</td></tr>
+      <tr><td><b>tr</b></td><td>Table row &mdash; one horizontal line</td></tr>
+      <tr><td><b>th</b></td><td>Table header &mdash; a bold title cell, usually row 1</td></tr>
+      <tr><td><b>td</b></td><td>Table data &mdash; a normal content cell</td></tr>
+    </tbody></table></div></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>Same number of cells, every single row.</h2><p>Ready to build? Head back to 7.5 for the leaderboard assignment.</p><a class="back" href="7-5-tables.html">&larr; Back to 7.5</a><a class="back" href="index.html">Unit 7</a><p class="sig">Unit 7 Notes / Lesson 7.5 / end of file</p></div></footer>
+
+<script src="../unit-4/notes.js"></script>
+<script>
+(function(){
+  var STEPS = [
+    { label: "1. table", code: '<span class="t">&lt;table&gt;</span>\n<span class="t">&lt;/table&gt;</span>', out: '<table></table>' },
+    { label: "2. header row", code: '<span class="t">&lt;table&gt;</span>\n  <span class="t">&lt;tr&gt;&lt;th&gt;</span>Rank<span class="t">&lt;/th&gt;&lt;th&gt;</span>Player<span class="t">&lt;/th&gt;&lt;th&gt;</span>Score<span class="t">&lt;/th&gt;&lt;/tr&gt;</span>\n<span class="t">&lt;/table&gt;</span>', out: '<table><tr><th>Rank</th><th>Player</th><th>Score</th></tr></table>' },
+    { label: "3. + data row 1", code: '<span class="t">&lt;table&gt;</span>\n  <span class="t">&lt;tr&gt;&lt;th&gt;</span>Rank<span class="t">&lt;/th&gt;&lt;th&gt;</span>Player<span class="t">&lt;/th&gt;&lt;th&gt;</span>Score<span class="t">&lt;/th&gt;&lt;/tr&gt;</span>\n  <span class="t">&lt;tr&gt;&lt;td&gt;</span>1<span class="t">&lt;/td&gt;&lt;td&gt;</span>Alex<span class="t">&lt;/td&gt;&lt;td&gt;</span>980<span class="t">&lt;/td&gt;&lt;/tr&gt;</span>\n<span class="t">&lt;/table&gt;</span>', out: '<table><tr><th>Rank</th><th>Player</th><th>Score</th></tr><tr><td>1</td><td>Alex</td><td>980</td></tr></table>' },
+    { label: "4. + data row 2", code: '<span class="t">&lt;table&gt;</span>\n  <span class="t">&lt;tr&gt;&lt;th&gt;</span>Rank<span class="t">&lt;/th&gt;&lt;th&gt;</span>Player<span class="t">&lt;/th&gt;&lt;th&gt;</span>Score<span class="t">&lt;/th&gt;&lt;/tr&gt;</span>\n  <span class="t">&lt;tr&gt;&lt;td&gt;</span>1<span class="t">&lt;/td&gt;&lt;td&gt;</span>Alex<span class="t">&lt;/td&gt;&lt;td&gt;</span>980<span class="t">&lt;/td&gt;&lt;/tr&gt;</span>\n  <span class="t">&lt;tr&gt;&lt;td&gt;</span>2<span class="t">&lt;/td&gt;&lt;td&gt;</span>Sam<span class="t">&lt;/td&gt;&lt;td&gt;</span>870<span class="t">&lt;/td&gt;&lt;/tr&gt;</span>\n<span class="t">&lt;/table&gt;</span>', out: '<table><tr><th>Rank</th><th>Player</th><th>Score</th></tr><tr><td>1</td><td>Alex</td><td>980</td></tr><tr><td>2</td><td>Sam</td><td>870</td></tr></table>' }
+  ];
+  var row = document.getElementById("bld"), code = document.getElementById("bldCode"), out = document.getElementById("bldOut"), cur = 0;
+  STEPS.forEach(function (s, i) { var b = document.createElement("button"); b.textContent = s.label; b.onclick = function () { cur = i; draw(); }; row.appendChild(b); });
+  function draw() {
+    Array.prototype.forEach.call(row.children, function (b, i) { b.classList.toggle("on", i === cur); });
+    code.innerHTML = STEPS[cur].code;
+    out.innerHTML = STEPS[cur].out;
+  }
+  draw();
+})();
+</script>
+</body></html>
