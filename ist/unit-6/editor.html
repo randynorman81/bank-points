@@ -263,6 +263,17 @@ var API = "/api/code";
 var GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
 var $ = function (id) { return document.getElementById(id); };
 var H = window.HTMLCheck;
+/* Display-only lesson numbers. Storage keys, URLs (?lesson=6.1), and everything in
+   html-check.js / answers*.js stay on the ORIGINAL numbers on purpose -- changing those
+   would orphan every student's saved drafts and submissions. This map only changes what
+   students SEE on screen, to match the 2026-27 pacing guide's renumbering. */
+var DISPLAY_LESSON = {
+  "6.1": "3.1", "6.2": "3.2", "6.3": "3.3", "6.4": "3.4", "6.5": "3.5", "6.6": "3.6", "6.7": "3.7",
+  "7.1": "3.8", "7.2": "3.9", "7.3": "3.10", "7.4": "3.11", "7.5": "3.12", "7.6": "3.13",
+  "8.1": "4.1", "8.2": "4.2", "8.3": "4.3", "8.4": "4.4", "8.5": "4.5", "8.6": "4.6", "8.7": "4.7",
+  "9.1": "5.1", "9.2": "5.2", "9.3": "5.3", "9.4": "5.4", "9.5": "5.5", "9.6": "5.6", "9.7": "5.7"
+};
+function dispLesson(l) { return DISPLAY_LESSON[l] || l; }
 var ansOn = false, wtOn = false;
 var S = { ans: {}, cred: null, name: "", email: "", cloud: null, lesson: "6.1", file: "html", view: "both", buf: { html: "", css: "" } };
 
@@ -317,7 +328,7 @@ function buildLessonList() {
   var sel = $("lesson"); sel.innerHTML = "";
   H.ORDER.forEach(function (l) {
     if (!SHOW_ALL && l !== S.lesson && !MY_LESSONS[l] && !hasLocalWork(l)) return;
-    var o = document.createElement("option"); o.value = l; o.textContent = l + "  " + H.LESSONS[l].name; sel.appendChild(o);
+    var o = document.createElement("option"); o.value = l; o.textContent = dispLesson(l) + "  " + H.LESSONS[l].name; sel.appendChild(o);
   });
   sel.value = S.lesson;
 }
@@ -353,13 +364,13 @@ function offerCarry() {
   if (!/^[89]\./.test(S.lesson) || !isBlank(getHtml())) return;
   var i = H.ORDER.indexOf(S.lesson); if (i < 1) return;
   var prev = H.ORDER[i - 1];
-  el.innerHTML = '<span>Keep building your website:</span> <button class="btn sm" id="carryBtn">Start from my ' + esc(prev) + ' website</button>';
+  el.innerHTML = '<span>Keep building your website:</span> <button class="btn sm" id="carryBtn">Start from my ' + esc(dispLesson(prev)) + ' website</button>';
   el.className = "cloud show";
   $("carryBtn").onclick = function () {
     var html = lsGet("u7:code:" + prev) || "", css = lsGet("u7:css:" + prev) || "";
-    function use(h, c) { applyRecord({ code: h, css: c || "" }); el.className = "cloud"; toast("Copied your " + prev + " website into " + S.lesson); }
+    function use(h, c) { applyRecord({ code: h, css: c || "" }); el.className = "cloud"; toast("Copied your " + dispLesson(prev) + " website into " + dispLesson(S.lesson)); }
     if (!isBlank(html)) { use(html, css); return; }
-    if (!S.cred) { toast("Sign in first so your " + prev + " website can be loaded"); return; }
+    if (!S.cred) { toast("Sign in first so your " + dispLesson(prev) + " website can be loaded"); return; }
     api({ action: "mine", lesson: prev }).then(function (j) {
       var rec = j && !j.error ? ((j.draft && !isBlank(j.draft.code)) ? j.draft : j.submission) : null;
       if (rec && !isBlank(rec.code)) use(rec.code, rec.css); else toast("No saved " + prev + " website found");
@@ -468,7 +479,7 @@ function saveNow(show) {
 var lastReport = null;
 function refresh() {
   var rep = H.check(S.lesson, getHtml(), getCss()); lastReport = rep;
-  $("lname").textContent = S.lesson + " " + H.LESSONS[S.lesson].name;
+  $("lname").textContent = dispLesson(S.lesson) + " " + H.LESSONS[S.lesson].name;
   $("scoreNum").textContent = rep.score; $("scoreTot").textContent = rep.total;
   $("scoreBar").style.width = Math.min(100, rep.score / rep.total * 100) + "%";
   $("scoreNote").textContent = isBlank(getHtml()) ? "Start by typing <!DOCTYPE html> on the first line. Your checklist fills in as you go." : rep.passed + " of " + rep.count + " checks passed. This is an automatic estimate. Your teacher gives the final grade.";
@@ -631,7 +642,7 @@ $("btnSubmit").addEventListener("click", function () {
   if (!S.cred) { banner("Sign in with your school Google account (top right) to submit.", "err"); return; }
   if (!$("period").value) { banner("Choose your class period at the top before you submit.", "err"); $("period").focus(); return; }
   var r = lastReport || H.check(S.lesson, S.buf.html, S.buf.css), bad = r.errors.length;
-  $("mSubmitBody").innerHTML = "<p>Lesson <b>" + esc(S.lesson) + "</b> for period <b>" + esc($("period").value) + "</b>.</p><p>Auto check: <b>" + r.score + " / " + r.total + "</b> (" + r.passed + " of " + r.count + " checks).</p>" +
+  $("mSubmitBody").innerHTML = "<p>Lesson <b>" + esc(dispLesson(S.lesson)) + "</b> for period <b>" + esc($("period").value) + "</b>.</p><p>Auto check: <b>" + r.score + " / " + r.total + "</b> (" + r.passed + " of " + r.count + " checks).</p>" +
     (bad ? '<p style="color:#FCA5A5">You still have ' + bad + " problem" + (bad > 1 ? "s" : "") + " with your tags. You can still submit, or fix them first.</p>" : "") + ansSubmitNote() + "<p>You can submit again later to replace this one.</p>";
   $("mSubmit").classList.add("show");
 });

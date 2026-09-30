@@ -86,12 +86,12 @@ iframe{width:100%;height:100%;border:0;background:#fff;display:block}
 </head>
 <body>
 <div id="login">
-  <h1>Teacher: Grade Unit 6 Websites</h1>
+  <h1>Teacher: Grade Unit 3 Websites</h1>
   <div style="color:var(--soft);font-size:13px">Enter the teacher PIN.</div>
   <input id="pin" type="password" placeholder="PIN" autocomplete="off">
   <button class="btn pri" id="go" style="width:100%">Open</button>
   <div id="lerr" style="color:var(--bad);margin-top:10px;font-size:13px"></div>
-  <div style="margin-top:14px"><a href="index.html">&larr; Unit 6</a></div>
+  <div style="margin-top:14px"><a href="index.html">&larr; Unit 3</a></div>
 </div>
 
 <div class="top" id="top" style="display:none">
@@ -121,6 +121,14 @@ iframe{width:100%;height:100%;border:0;background:#fff;display:block}
 <script>
 "use strict";
 var API = "/api/code", $ = function (i) { return document.getElementById(i); }, H = window.HTMLCheck;
+/* Display-only lesson numbers matching the 2026-27 pacing guide renumber. Storage keys stay original. */
+var DISPLAY_LESSON = {
+  "6.1": "3.1", "6.2": "3.2", "6.3": "3.3", "6.4": "3.4", "6.5": "3.5", "6.6": "3.6", "6.7": "3.7",
+  "7.1": "3.8", "7.2": "3.9", "7.3": "3.10", "7.4": "3.11", "7.5": "3.12", "7.6": "3.13",
+  "8.1": "4.1", "8.2": "4.2", "8.3": "4.3", "8.4": "4.4", "8.5": "4.5", "8.6": "4.6", "8.7": "4.7",
+  "9.1": "5.1", "9.2": "5.2", "9.3": "5.3", "9.4": "5.4", "9.5": "5.5", "9.6": "5.6", "9.7": "5.7"
+};
+function dispLesson(l) { return DISPLAY_LESSON[l] || l; }
 var IST_PERIODS = ["3A", "3B", "4A"]; // keep in sync with netlify/functions/code.js
 function lastNameKey(n) { var w = String(n || "").trim().toLowerCase().split(/\s+/); while (w.length > 1 && /^(jr|sr|ii|iii|iv)\.?$/.test(w[w.length - 1])) w.pop(); return w[w.length - 1] + " " + w.join(" "); }
 function byLastName(a, b) { return lastNameKey(a).localeCompare(lastNameKey(b)); }
@@ -137,7 +145,7 @@ function openApp() {
     sessionStorage.setItem("u7pin", pin);
     $("login").style.display = "none"; $("top").style.display = ""; $("app").classList.add("show");
     var sel = $("lesson"); sel.innerHTML = "";
-    H.ORDER.forEach(function (l) { var o = document.createElement("option"); o.value = l; o.textContent = l + " " + H.LESSONS[l].name + "  (" + (j.counts[l] || 0) + ")"; sel.appendChild(o); });
+    H.ORDER.forEach(function (l) { var o = document.createElement("option"); o.value = l; o.textContent = dispLesson(l) + " " + H.LESSONS[l].name + "  (" + (j.counts[l] || 0) + ")"; sel.appendChild(o); });
     var q = new URLSearchParams(location.search).get("lesson"); if (q && H.LESSONS[q]) sel.value = q;
     load();
   }).catch(function () { $("lerr").textContent = "Could not reach the server."; });

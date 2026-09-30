@@ -280,7 +280,7 @@
 
   A["7.6"] = [
     { h: "Unit test website" },
-    { p: "Your teacher gives the exact requirements on test day. Your site must show everything from 6.1 through 7.5. Your teacher will tell you where to take the multiple choice test." },
+    { p: "Your teacher gives the exact requirements on test day. Your site must show everything from 3.1 through 3.12. Your teacher will tell you where to take the multiple choice test." },
 
     { h: "Step 1: Skeleton" }, skeleton("your website's name"),
 
