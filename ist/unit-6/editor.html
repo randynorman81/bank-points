@@ -26,6 +26,7 @@ button,select{font:inherit}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 .status{font-size:12px;color:var(--soft);min-width:120px}
 .who{font-size:13px;color:var(--soft)}
+.wc{font-size:13px;font-weight:700;color:var(--soft);white-space:nowrap;padding:0 4px}
 #gbtn{min-height:34px}
 .note{background:#2A2110;border-bottom:1px solid #4a3a12;color:#F5D98B;padding:6px 12px;font-size:13px;display:none}
 .note.show{display:block}
@@ -191,6 +192,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   <span class="sp"></span>
   <span class="who" id="who"></span>
   <span id="gbtn"></span>
+  <span class="wc" id="wcount" title="Real words you have written on your page. Tags, code, and nonsense words are not counted.">0 words</span>
   <button class="btn" id="btnChecks" title="Open your checklist, problems, and images">✓ Checks <b id="chkScore">0/50</b><span class="dot">●</span></button>
   <button class="btn" id="btnCopy" title="Copy the file you are editing">Copy code</button>
   <button class="btn pri" id="btnSubmit">Submit</button>
@@ -486,6 +488,7 @@ function refresh() {
   $("tags").innerHTML = tg || '<span style="color:var(--soft);border:0;background:none">No tags yet.</span>';
   layoutGutter.errs = errLines; layoutGutter(); syncCssTab();
   $("chkScore").textContent = rep.score + "/" + rep.total;
+  var wq = H.quality(getHtml()), wn = Math.max(0, wq.n - (wq.gibberish || 0)); $("wcount").textContent = wn + (wn === 1 ? " word" : " words");
   $("btnChecks").classList.toggle("hasErr", rep.errors.length > 0);
 }
 $("probs").addEventListener("click", function (e) {
