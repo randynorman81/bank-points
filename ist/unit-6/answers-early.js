@@ -144,11 +144,16 @@
       "Add a **horizontal line** between sections (**outside** the paragraphs), then repeat for your other sections"
     ] },
 
-    { h: "Step 4: Fonts and a border (exactly where each style goes)" },
+    { h: "Step 4: Colors, size, and a border (exactly where each style goes)" },
     { build: [
       "**Font family** serif: put it on the **heading 1** (your restaurant's name)",
       "**Font family** sans-serif or monospace: put it on the **address paragraph**",
+      "**Text color** and a big **font size in pixels**: put both on the **heading 1**",
+      "**Background color**: put it on the **body** tag",
+      "**Center** the text: put it on the **heading 1**",
+      "**Uppercase** letters: put it on **each section heading** (heading 2)",
       "**Border** (thickness, style, and color, in that order): put it on your favorite **dish paragraph**, like the special of the day",
+      "Dark backgrounds need light text. Light backgrounds need dark text",
       "These are the **minimums**. You can ALWAYS add more styles to more tags"
     ] },
 
@@ -209,6 +214,7 @@
       "**Font size in pixels**: put it on the **heading 1**, the **heading 2**, and the **crime paragraph** (3 uses)",
       "**Center** the text: put it on the **heading 1**, the **heading 3**, and the **reward paragraph** (3 uses)",
       "**Font family**: serif on the **heading 1**, monospace on the **first description paragraph**, sans-serif on the **reward paragraph** (3 uses)",
+      "**Uppercase** letters: put it on the **heading 1** (WANTED in all caps)",
       "**Border** (thickness, style, color): a **solid** one on the **heading 1**, a **dashed** one on the **reward paragraph**, and a **bottom-only** border on the **heading 2** (3 different tags, 2 border styles, 1 one-sided border)",
       "Dark backgrounds need light text. Light backgrounds need dark text",
       "These are the **minimums**. You can ALWAYS add more styles to more tags"
@@ -288,6 +294,7 @@
       "**Text color**: put it on the **heading 1** and on both **heading 2s**",
       "**Font family**: serif on the **heading 1** and on both **heading 2s**, monospace on the **footer paragraph**",
       "**Font size in pixels**: put it on the **heading 1** and on the **footer paragraph**. Heading 1 is biggest, heading 2 medium, heading 3 small",
+      "**Uppercase** letters: put it on both **heading 2s**",
       "Dark backgrounds need light text",
       "These are the **minimums**. You can ALWAYS add more styles to more tags"
     ] },
