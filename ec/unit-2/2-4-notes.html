@@ -35,7 +35,7 @@ details.gate summary{cursor:pointer;font-weight:700;color:var(--hi-ink)}
       <a href="#types">01 <span>The 6 data types (Section 1)</span></a>
       <a href="#global">02 <span>Global vs. inside loop()</span></a>
       <a href="#not">03 <span>The ! operator</span></a>
-      <a href="#p1">04 <span>Part 1 code (Section 3)</span></a>
+      <a href="#p1">04 <span>Part 1 plan (Section 3)</span></a>
       <a href="#serial">05 <span>Serial Monitor (Section 5)</span></a>
       <a href="#wrap">06 <span>Byte wraparound</span></a>
     </div>
@@ -53,12 +53,12 @@ details.gate summary{cursor:pointer;font-weight:700;color:var(--hi-ink)}
     <div class="tblwrap">
       <table>
         <tr><th>Type</th><th>Stores</th><th>Range</th><th>Size</th><th>Example</th></tr>
-        <tr><td><b>boolean</b></td><td>true or false only (also HIGH / LOW)</td><td>false / true</td><td>1 byte</td><td><code>boolean ledState = false;</code></td></tr>
-        <tr><td><b>byte</b></td><td>small whole numbers, no negatives</td><td>0 to 255</td><td>1 byte</td><td><code>byte blinkCount = 0;</code></td></tr>
-        <tr><td><b>int</b></td><td>standard whole numbers</td><td>&minus;32,768 to 32,767</td><td>2 bytes</td><td><code>int blinkSpeed = 500;</code></td></tr>
-        <tr><td><b>long</b></td><td>large whole numbers</td><td>&minus;2,147,483,648 to 2,147,483,647</td><td>4 bytes</td><td><code>long totalBlinks = 0;</code></td></tr>
-        <tr><td><b>float</b></td><td>decimal numbers</td><td>like 0.5 or 3.14</td><td>4 bytes</td><td><code>float blinkSeconds = 0.5;</code></td></tr>
-        <tr><td><b>char</b></td><td>one single character, in <b>single quotes</b></td><td>like 'A'</td><td>1 byte</td><td><code>char ledLabel = 'A';</code></td></tr>
+        <tr><td><b>boolean</b></td><td>true or false only (also HIGH / LOW)</td><td>false / true</td><td>1 byte</td><td><code>boolean doorOpen = false;</code></td></tr>
+        <tr><td><b>byte</b></td><td>small whole numbers, no negatives</td><td>0 to 255</td><td>1 byte</td><td><code>byte lives = 3;</code></td></tr>
+        <tr><td><b>int</b></td><td>standard whole numbers</td><td>&minus;32,768 to 32,767</td><td>2 bytes</td><td><code>int temperature = 72;</code></td></tr>
+        <tr><td><b>long</b></td><td>large whole numbers</td><td>&minus;2,147,483,648 to 2,147,483,647</td><td>4 bytes</td><td><code>long secondsOnline = 0;</code></td></tr>
+        <tr><td><b>float</b></td><td>decimal numbers</td><td>like 0.5 or 3.14</td><td>4 bytes</td><td><code>float price = 2.50;</code></td></tr>
+        <tr><td><b>char</b></td><td>one single character, in <b>single quotes</b></td><td>like 'A'</td><td>1 byte</td><td><code>char grade = 'B';</code></td></tr>
       </table>
     </div>
     <div class="hint-panel"><b>Why that type?</b> For each variable you comment, answer two things: what does it store, and why does that type fit? Think about: does it need decimals? negatives? how big could it get? is it just on/off?</div>
@@ -72,27 +72,27 @@ details.gate summary{cursor:pointer;font-weight:700;color:var(--hi-ink)}
     <div class="two">
       <div class="box b">
         <h3>Global: above setup() and loop()</h3>
-        <div class="code" style="margin:6px 0 10px"><span class="kw">byte</span> blinkCount = <span class="n">0</span>;   <span class="cm">// created once</span>
+        <div class="code" style="margin:6px 0 10px"><span class="kw">int</span> coins = <span class="n">0</span>;   <span class="cm">// created once</span>
 
 <span class="kw">void</span> <span class="fn">loop</span>() {
-  blinkCount = blinkCount + <span class="n">1</span>;
+  coins = coins + <span class="n">5</span>;
 }</div>
-        <p>Any function can use it, and it <b>keeps its value</b> between trips through loop(): 1, 2, 3, 4...</p>
+        <p>Any function can use it, and it <b>keeps its value</b> between trips through loop(): 5, 10, 15, 20...</p>
       </div>
       <div class="box a">
         <h3>Local: inside loop()</h3>
         <div class="code" style="margin:6px 0 10px"><span class="kw">void</span> <span class="fn">loop</span>() {
-  <span class="kw">byte</span> blinkCount = <span class="n">0</span>;  <span class="cm">// re-created every trip</span>
-  blinkCount = blinkCount + <span class="n">1</span>;
+  <span class="kw">int</span> coins = <span class="n">0</span>;  <span class="cm">// re-created every trip</span>
+  coins = coins + <span class="n">5</span>;
 }</div>
-        <p>Only loop() can use it, and it's <b>reset</b> every time loop() starts over: 1, 1, 1, 1...</p>
+        <p>Only loop() can use it, and it's <b>reset</b> every time loop() starts over: 5, 5, 5, 5...</p>
       </div>
     </div>
     <div class="panel">
       <h3>Watch both run</h3>
       <div class="two">
-        <div><p class="small">Global blinkCount</p><div class="big" id="gv">0</div></div>
-        <div><p class="small">Local blinkCount</p><div class="big" id="lv">0</div></div>
+        <div><p class="small">Global coins</p><div class="big" id="gv">0</div></div>
+        <div><p class="small">Local coins</p><div class="big" id="lv">0</div></div>
       </div>
       <div class="btns" style="justify-content:flex-start"><button class="btn" id="trip" type="button">Run loop() once</button><button class="btn" id="tripReset" type="button">Reset</button></div>
     </div>
@@ -102,16 +102,17 @@ details.gate summary{cursor:pointer;font-weight:700;color:var(--hi-ink)}
 <section class="part" id="not">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">03</div><h2>The ! (NOT) Operator</h2><span class="for">Section 2 + Question 2</span></div>
-    <p class="story">In 2.3, turning the LED off and on took two separate digitalWrite() lines. A boolean and one exclamation point can do both jobs with a single line that flips back and forth.</p>
+    <p class="story">In 2.3, turning the LED off and on took two separate digitalWrite() lines. A boolean variable and one exclamation point can flip back and forth between on and off, so one variable can do the job of both.</p>
     <div class="two">
       <div class="box b">
-        <h3><code>ledState = !ledState;</code></h3>
-        <p><code>!</code> means <b>NOT</b>: it gives the opposite of a true/false value. <code>!false</code> is true, and <code>!true</code> is false. Putting the result back into ledState flips it. Then <code>digitalWrite(ledPin, ledState);</code> turns the LED on when it's true (HIGH) and off when it's false (LOW).</p>
+        <h3><code>isOn = !isOn;</code></h3>
+        <p><code>!</code> means <b>NOT</b>: it gives the opposite of a true/false value. <code>!false</code> is true, and <code>!true</code> is false. Putting the result back into the same variable flips it every time that line runs. In Arduino, true is the same as HIGH and false is the same as LOW, so a true/false variable can be handed straight to a pin.</p>
+        <p class="small">Your job: work out where a flipping variable goes in your loop() and what the LED pin should receive.</p>
       </div>
       <div class="box a" style="text-align:center">
-        <svg viewBox="0 0 120 120" width="110" role="img" aria-label="LED that toggles"><circle id="nGlow" cx="60" cy="54" r="40" fill="#EF4444" opacity="0"/><circle id="nLed" cx="60" cy="54" r="22" fill="#4B1D1D"/><path d="M50 78 v34 M70 78 v28" stroke="#94A3B8" stroke-width="4"/></svg>
-        <div class="big" id="nVal">ledState = false</div>
-        <div class="btns"><button class="btn" id="nBtn" type="button">ledState = !ledState;</button></div>
+        <svg viewBox="0 0 120 120" width="110" role="img" aria-label="Lamp that toggles"><circle id="nGlow" cx="60" cy="54" r="40" fill="#EF4444" opacity="0"/><circle id="nLed" cx="60" cy="54" r="22" fill="#4B1D1D"/><path d="M50 78 v34 M70 78 v28" stroke="#94A3B8" stroke-width="4"/></svg>
+        <div class="big" id="nVal">isOn = false</div>
+        <div class="btns"><button class="btn" id="nBtn" type="button">isOn = !isOn;</button></div>
       </div>
     </div>
   </div>
@@ -120,27 +121,33 @@ details.gate summary{cursor:pointer;font-weight:700;color:var(--hi-ink)}
 <section class="part" id="p1">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">04</div><h2>Part 1: Three New Variables</h2><span class="for">Section 3</span></div>
-    <p class="story">Start from your working 2.3 Blink. No wiring changes. You're replacing the four loop() lines from 2.3 with four new ones that use variables.</p>
-    <div class="code"><span class="kw">int</span> ledPin = <span class="n">8</span>;               <span class="cm">// pin your LED is on</span>
-<span class="kw">int</span> blinkSpeed = <span class="n">500</span>;          <span class="cm">// delay length in milliseconds</span>
-<span class="kw">boolean</span> ledState = <span class="kw">false</span>;     <span class="cm">// should the LED be on or off?</span>
-<span class="kw">byte</span> blinkCount = <span class="n">0</span>;           <span class="cm">// counts blinks, 0 to 255</span>
-
-<span class="kw">void</span> <span class="fn">setup</span>() {
-  <span class="fn">pinMode</span>(ledPin, OUTPUT);
-}
-
-<span class="kw">void</span> <span class="fn">loop</span>() {
-  ledState = !ledState;              <span class="cm">// flip on/off</span>
-  <span class="fn">digitalWrite</span>(ledPin, ledState);   <span class="cm">// LED follows ledState</span>
-  blinkCount = blinkCount + <span class="n">1</span>;      <span class="cm">// add 1 each trip</span>
-  <span class="fn">delay</span>(blinkSpeed);                 <span class="cm">// wait blinkSpeed ms</span>
-}</div>
-    <div class="warn"><b>Delete your old 4 lines first.</b> The 2.3 lines (digitalWrite HIGH, delay(1000), digitalWrite LOW, delay(1000)) must come out. The 4 new loop() lines replace all of them.</div>
+    <p class="story">Start from your working 2.3 Blink. No wiring changes. You're replacing the four loop() lines from 2.3 with new lines that use variables. This page gives you the plan, not the answer: you write the code.</p>
+    <h3 style="color:#fff;margin:18px 0 10px">Step A: Make the variables (above setup())</h3>
+    <p class="lede">Your assignment lists the names and starting values. Use the table below to decide the data type for each one, and be ready to explain why in your comments.</p>
+    <div class="tblwrap">
+      <table>
+        <tr><th>The variable holds...</th><th>Ask yourself</th></tr>
+        <tr><td>The pin number your LED is plugged into</td><td>Whole number or decimal? Can it ever be negative? How big does it get?</td></tr>
+        <tr><td>How long each delay lasts, in milliseconds</td><td>Does 500 fit in a byte? What about 2000?</td></tr>
+        <tr><td>Whether the LED should be on or off right now</td><td>How many different values does it ever need to be?</td></tr>
+        <tr><td>A running count of blinks</td><td>The assignment says it only counts 0 to 255. What is the smallest type that fits?</td></tr>
+      </table>
+    </div>
+    <h3 style="color:#fff;margin:22px 0 10px">Step B: Update setup()</h3>
+    <p class="lede">Anywhere your old code used the number of the LED pin, use the variable instead. Set the pin up as an output just like in 2.3.</p>
+    <h3 style="color:#fff;margin:22px 0 10px">Step C: Rebuild loop(), in this order</h3>
+    <ol class="lede">
+      <li>Flip the on/off variable to the opposite of what it is now (see section 03).</li>
+      <li>Send that variable's value to the LED pin, so the LED follows it.</li>
+      <li>Add 1 to your blink counter.</li>
+      <li>Wait, using the speed variable instead of a typed-in number.</li>
+    </ol>
+    <div class="warn"><b>Delete your old 4 lines first.</b> The 2.3 lines (digitalWrite HIGH, delay(1000), digitalWrite LOW, delay(1000)) must come out. The new lines replace all of them.</div>
+    <div class="hint-panel"><b>Stuck?</b> Check three things: every variable is made above setup() (so it is global), the pin variable shows up in both setup() and the LED line, and no typed-in number is left where a variable belongs. Then re-read sections 01 to 03.</div>
     <div class="panel">
-      <h3>Why change blinkSpeed instead of the delay() number?</h3>
-      <p>Because <code>delay(blinkSpeed)</code> reads the variable, you change the timing in <b>one place at the top</b>. Try it: blinkSpeed = <span class="big" id="bsOut"></span></p>
-      <input id="bsR" type="range" min="100" max="2000" step="50" value="500" aria-label="blinkSpeed">
+      <h3>Why change a speed variable instead of the delay() number?</h3>
+      <p>Because the delay reads a variable, you change the timing in <b>one place at the top</b>. Try it: speed = <span class="big" id="bsOut"></span></p>
+      <input id="bsR" type="range" min="100" max="2000" step="50" value="500" aria-label="speed">
       <div class="btns" style="justify-content:flex-start"><svg viewBox="0 0 40 40" width="34"><circle id="bsLed" cx="20" cy="20" r="14" fill="#4B1D1D"/></svg></div>
     </div>
   </div>
@@ -162,7 +169,7 @@ details.gate summary{cursor:pointer;font-weight:700;color:var(--hi-ink)}
     <div class="serial" id="mon1">LED A blink count: 1 total blinks: 1 0.50
 LED A blink count: 2 total blinks: 2 0.50
 LED A blink count: 3 total blinks: 3 0.50</div>
-    <p class="cap">Order in loop(): the 4 lines from Part 1, then <code>totalBlinks = totalBlinks + 1;</code>, then the 7 Serial lines in the order listed in your assignment.</p>
+    <p class="cap">Order in loop(): the lines from Part 1, then a line that adds 1 to your total-blinks variable (a long), then the Serial lines in the order listed in your assignment.</p>
   </div>
 </section>
 
@@ -194,10 +201,10 @@ LED A blink count: 3 total blinks: 3 0.50</div>
 <script>
 window.QUIZ = [
   { s: "Which type would you use to store 0.5 seconds?", o: ["int", "float", "char"], a: 1, e: "Only float holds decimals." },
-  { s: "Which of these is a correct char?", o: ["char ledLabel = \"A\";", "char ledLabel = 'A';", "char ledLabel = A;"], a: 1, e: "A char is one character in single quotes." },
+  { s: "Which of these is a correct char?", o: ["char grade = \"B\";", "char grade = 'B';", "char grade = B;"], a: 1, e: "A char is one character in single quotes." },
   { s: "Where does Serial.begin(9600); go?", o: ["Inside setup()", "Inside loop()", "Above setup()"], a: 0, e: "Communication only needs to be opened once." },
   { s: "Which one prints and then moves to a new line?", o: ["Serial.print()", "Serial.println()"], a: 1, e: "println = print line: it ends the line." },
-  { s: "ledState is true. After <code>ledState = !ledState;</code> it is...", o: ["true", "false"], a: 1, e: "! gives the opposite." }
+  { s: "doorOpen is true. After <code>doorOpen = !doorOpen;</code> it is...", o: ["true", "false"], a: 1, e: "! gives the opposite." }
 ];
 
 (function () {
@@ -209,11 +216,11 @@ window.QUIZ = [
   });
   /* 02: global vs local */
   var g = 0, l = 0;
-  $("trip").onclick = function () { g = (g + 1) % 256; l = 0; l = l + 1; $("gv").textContent = g; $("lv").textContent = l; };
+  $("trip").onclick = function () { g = g + 5; l = 0; l = l + 5; $("gv").textContent = g; $("lv").textContent = l; };
   $("tripReset").onclick = function () { g = 0; l = 0; $("gv").textContent = 0; $("lv").textContent = 0; };
   /* 03: NOT */
   var st = false;
-  $("nBtn").onclick = function () { st = !st; $("nVal").textContent = "ledState = " + st; $("nLed").setAttribute("fill", st ? "#EF4444" : "#4B1D1D"); $("nGlow").setAttribute("opacity", st ? ".3" : "0"); };
+  $("nBtn").onclick = function () { st = !st; $("nVal").textContent = "isOn = " + st; $("nLed").setAttribute("fill", st ? "#EF4444" : "#4B1D1D"); $("nGlow").setAttribute("opacity", st ? ".3" : "0"); };
   /* 04: blinkSpeed */
   var bs = 500, on = false, bt;
   function blink() { on = !on; $("bsLed").setAttribute("fill", on ? "#EF4444" : "#4B1D1D"); bt = setTimeout(blink, bs); }
