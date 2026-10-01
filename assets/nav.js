@@ -99,8 +99,6 @@ const COURSES = [
       { n: 2, title: "Arduino Foundations", migrated: true, path: "ec/unit-2/index.html", badge: ["Tinkercad", "Google Classroom"] },
       { n: 3, title: "Outputs: Light, Sound, and Motion", migrated: true, path: "ec/unit-3/index.html", badge: ["Tinkercad", "Google Classroom"] },
       { n: 4, title: "Intro to C++", migrated: true, path: "ec/unit-4/index.html", badge: "Codecademy" },
-      { n: 5, title: "Vectors and Functions", migrated: true, path: "ec/unit-5/index.html", badge: "Codecademy" },
-      { n: 6, title: "Classes and Objects", migrated: true, path: "ec/unit-6/index.html", badge: "Codecademy" },
       { n: 7, title: "Turtle Graphics", migrated: true, path: "ec/unit-7/index.html", badge: "CodeHS" },
       { n: 8, title: "Basic Python and Console Interaction", migrated: true, path: "ec/unit-8/index.html", badge: "CodeHS" },
       { n: 9, title: "Conditionals", migrated: true, path: "ec/unit-9/index.html", badge: "CodeHS" },
