@@ -145,6 +145,16 @@ main[data-view="code"] #split,main[data-view="prev"] .split{display:none}
 #lgStyle{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
 #lgStyle:hover{background:#1c2438;border-radius:3px}
 .pane.min>.spop{display:none}
+#tagPop{width:min(600px,calc(100% - 24px))}
+.spop .hn{color:var(--soft);font-size:12px;margin:0 0 4px}
+.tgh{margin:12px 0 4px;font:700 11px "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:#FDBA74;border-bottom:1px solid var(--rule);padding-bottom:3px}
+.ti{padding:6px 0;border-bottom:1px dashed #1c2438}
+.ti:last-child{border-bottom:0}
+.ti .tn{font:700 13px "JetBrains Mono",monospace;color:#FB7185}
+.ti .tx2{margin:1px 0 3px}
+.ti code{display:block;background:#080B11;border:1px solid var(--rule);border-radius:6px;padding:4px 8px}
+#lgTag,#lgStyle{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
+#lgTag:hover{background:#1c2438;border-radius:3px}
 .pane.min>.legend{display:none}
 #guidePop{position:fixed;right:16px;bottom:16px;width:min(520px,92vw);height:min(70vh,640px);min-width:300px;min-height:220px;background:var(--panel);border:1px solid var(--acc);border-radius:10px;box-shadow:0 18px 50px rgba(0,0,0,.6);z-index:500;display:none;flex-direction:column;resize:both;overflow:hidden}
 #guidePop.show{display:flex}
@@ -235,8 +245,9 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
       <span class="ftabs" id="ftabs"><button class="on" data-f="html">index.html</button><button data-f="css">style.css</button></span>
       <span class="tools"><span id="lineinfo">Line 1</span></span>
     </h2>
-    <div class="legend" id="legend"><span><i class="t-tag">&lt;tag&gt;</i></span><span><i class="t-style" id="lgStyle" role="button" tabindex="0" title="Click to see how to write a style">style</i></span><span><i class="t-id">id</i></span><span><i class="t-class">class</i></span><span><i class="t-attr">attribute</i></span><span><i class="t-val">"value"</i></span><span><i class="c-prop">css-property</i></span></div>
+    <div class="legend" id="legend"><span><i class="t-tag" id="lgTag" role="button" tabindex="0" title="Click to see the tags you will use">&lt;tag&gt;</i></span><span><i class="t-style" id="lgStyle" role="button" tabindex="0" title="Click to see how to write a style">style</i></span><span><i class="c-prop">css-property</i></span><span><i class="t-val">"value"</i></span><span><i class="t-id">id</i></span><span><i class="t-class">class</i></span><span><i class="t-attr">attribute</i></span></div>
     <div class="spop" id="stylePop" role="dialog" aria-label="How to write a style"><button class="x" id="stylePopX" aria-label="Close">&times;</button><h4>How to write a style</h4><div class="rl">RULES</div><ul><li>Put a space between the tag name and the <span class="t-style">style</span> attribute.</li><li>A style always follows this structure: <code><span class="t-style">style</span><span class="t-eq">=</span><span class="t-val">"property:value<mark class="semi">;</mark>"</span></code></li><li>A style always goes in the <b>opening</b> tag only.</li><li>If you have more than one property and value, connect them with a semicolon inside the <b>same</b> set of quotation marks.</li></ul><div class="ex"><div class="tl">Tag with one CSS style option</div><div class="hn">Add the semicolon before you close the quotation marks.</div><code><span class="t-tag">&lt;p</span> <span class="t-style">style</span><span class="t-eq">=</span><span class="t-val">"color: blue<mark class="semi">;</mark>"</span><span class="t-tag">&gt;</span> this text is blue<span class="t-tag">&lt;/p&gt;</span></code></div><div class="ex"><div class="tl">Tag with multiple CSS style options</div><div class="hn">Separate each PROPERTY: VALUE pair with a semicolon.</div><code><span class="t-tag">&lt;p</span> <span class="t-style">style</span><span class="t-eq">=</span><span class="t-val">"color: blue<mark class="semi">;</mark> background-color: red<mark class="semi">;</mark>"</span><span class="t-tag">&gt;</span> this text is blue and background is red<span class="t-tag">&lt;/p&gt;</span></code></div></div>
+    <div class="spop" id="tagPop" role="dialog" aria-label="Tags you will use"></div>
     <div class="edwrap"><div class="gut" id="gut"></div><div id="hl" aria-hidden="true"></div><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="soft" aria-label="Code editor"></textarea><div id="mirror" aria-hidden="true"></div></div>
     <button class="stripbtn" data-restore="both" aria-label="Show the code panel">▸ Code</button>
   </section>
@@ -593,16 +604,65 @@ $("minPrev").addEventListener("click", function () { setView(S.view === "code" ?
 [].forEach.call(document.querySelectorAll(".stripbtn"), function (b) { b.addEventListener("click", function () { setView("both"); }); });
 setView(lsGet("u7:view") === "code" || lsGet("u7:view") === "prev" ? lsGet("u7:view") : "both");
 
-/* ---------- the "how to write a style" popup ---------- */
+/* ---------- the "tags" and "how to write a style" popups ---------- */
+var TAG_HELP = [
+  ["Page structure", [
+    ["<!DOCTYPE html>", "<!DOCTYPE html>", "Always the very first line. It tells the browser this is a modern web page."],
+    ["<html>", "<html> ... </html>", "Wraps your whole page. Everything else goes inside it."],
+    ["<head>", "<head> <title>My Page</title> </head>", "Holds information about the page. None of it shows on the page itself."],
+    ["<title>", "<title>My Cafe</title>", "The words that show in the browser tab."],
+    ["<body>", "<body> <p>Hello!</p> </body>", "Everything people see on the page goes in here."]]],
+  ["Text", [
+    ["<h1> to <h6>", "<h1>My Cafe</h1>", "Headings. h1 is the biggest and is the main title. Use h2 and h3 for sections."],
+    ["<p>", "<p>We open at 8 am.</p>", "A paragraph of text."],
+    ["<br>", "Line one<br>Line two", "Starts a new line. It has no closing tag."],
+    ["<hr>", "<hr>", "Draws a line across the page. It has no closing tag."],
+    ["<strong> / <b>", "<strong>Sale</strong>", "Makes text bold."],
+    ["<em> / <i>", "<em>Fresh</em>", "Makes text italic."],
+    ["<span>", "<span style=\"color: red;\">Hot</span>", "Marks part of a line so you can style just those words."],
+    ["<div>", "<div style=\"border: 2px solid black;\"> ... </div>", "A box that groups content so you can style the whole group."]]],
+  ["Links and pictures", [
+    ["<a>", "<a href=\"https://example.com\">Visit</a>", "A link. The href says where it goes."],
+    ["<img>", "<img src=\"cat.jpg\" alt=\"A cat\">", "Shows a picture. src is the file and alt describes it. It has no closing tag."]]],
+  ["Lists", [
+    ["<ul> and <li>", "<ul> <li>Pizza</li> <li>Salad</li> </ul>", "A bulleted list. Each item goes in its own li."],
+    ["<ol> and <li>", "<ol> <li>Mix</li> <li>Bake</li> </ol>", "A numbered list. Each item goes in its own li."]]],
+  ["Tables", [
+    ["<table>, <tr>, <th>, <td>", "<table> <tr><th>Name</th></tr> <tr><td>Ada</td></tr> </table>", "A table is made of rows (tr). Each row holds header cells (th) and data cells (td)."]]],
+  ["Style", [
+    ["<style>", "<style> p { color: blue; } </style>", "Holds CSS rules for the whole page. It goes inside head."],
+    ["<link>", "<link rel=\"stylesheet\" href=\"style.css\">", "Connects your style.css file to the page. It goes inside head and has no closing tag."]]],
+  ["Bootstrap and forms", [
+    ["<nav>", "<nav class=\"navbar\"> ... </nav>", "A navigation bar that holds the links to your pages."],
+    ["<form>", "<form> ... </form>", "A group of boxes and buttons that people fill out."],
+    ["<label>", "<label>Name</label>", "The words that describe an input box."],
+    ["<input>", "<input type=\"text\">", "A box to type in. It has no closing tag."],
+    ["<button>", "<button>Send</button>", "A button people click."]]]
+];
 (function () {
-  var pop = $("stylePop"), trig = $("lgStyle");
-  function place() { var lg = $("legend"); pop.style.top = (lg.offsetTop + lg.offsetHeight + 6) + "px"; }
-  function show(on) { if (on) place(); pop.classList.toggle("show", on); }
-  trig.addEventListener("click", function (e) { e.stopPropagation(); show(!pop.classList.contains("show")); });
-  trig.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(!pop.classList.contains("show")); } });
-  $("stylePopX").addEventListener("click", function () { show(false); });
-  document.addEventListener("click", function (e) { if (pop.classList.contains("show") && !pop.contains(e.target)) show(false); });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape") show(false); });
+  function esc2(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function hlEx(s) {
+    return esc2(s).replace(/(&lt;\/?[a-zA-Z0-9!]+)|(&gt;)|("[^"]*")|\b(href|src|alt|style|type|rel|class)(?==)/g, function (m, tg, gt, val, at) {
+      return tg || gt ? '<span class="t-tag">' + m + "</span>" : val ? '<span class="t-val">' + m + "</span>" : '<span class="t-attr">' + m + "</span>";
+    });
+  }
+  var h = '<button class="x" id="tagPopX" aria-label="Close">&times;</button><h4>Tags you will use</h4><div class="hn">Click anywhere outside this box to close it.</div>';
+  TAG_HELP.forEach(function (g) {
+    h += '<div class="tgh">' + g[0] + "</div>";
+    g[1].forEach(function (t) { h += '<div class="ti"><div class="tn">' + esc2(t[0]) + '</div><div class="tx2">' + t[2] + '</div><code>' + hlEx(t[1]) + "</code></div>"; });
+  });
+  $("tagPop").innerHTML = h;
+  var pops = [[$("lgTag"), $("tagPop")], [$("lgStyle"), $("stylePop")]];
+  function place(pop) { var lg = $("legend"); pop.style.top = (lg.offsetTop + lg.offsetHeight + 6) + "px"; }
+  function closeAll() { pops.forEach(function (p) { p[1].classList.remove("show"); }); }
+  function toggle(pop) { var was = pop.classList.contains("show"); closeAll(); if (!was) { place(pop); pop.classList.add("show"); } }
+  pops.forEach(function (p) {
+    p[0].addEventListener("click", function (e) { e.stopPropagation(); toggle(p[1]); });
+    p[0].addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(p[1]); } });
+  });
+  $("stylePopX").addEventListener("click", closeAll); $("tagPopX").addEventListener("click", closeAll);
+  document.addEventListener("click", function (e) { if (!pops.some(function (p) { return p[1].contains(e.target); })) closeAll(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeAll(); });
 })();
 
 /* ---------- the checks drawer ---------- */
