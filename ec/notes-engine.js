@@ -324,6 +324,21 @@
     two.appendChild(left); two.appendChild(right); w.appendChild(two); run(); return w;
   };
 
+  /* ---------- Python playground (uses minipy.js) ---------- */
+  R.py = function (a) {
+    var s = a[1], w = h("div"), ta = h("textarea", "tcode"), con = h("div", "console"), err = h("div", "terr"), btns = h("div", "btns"), inp = null;
+    ta.value = s.code; ta.spellcheck = false; ta.style.minHeight = "0"; ta.rows = s.rows || Math.min(16, Math.max(4, s.code.split("\n").length + 1));
+    if (s.inputs != null) { inp = h("textarea", "tcode"); inp.value = s.inputs; inp.rows = 2; inp.style.minHeight = "0"; inp.spellcheck = false; }
+    function run() { var res = window.MiniPy.run(ta.value, { inputs: inp ? inp.value.split("\n") : [] }); con.textContent = res.out; err.textContent = res.err; }
+    btns.style.justifyContent = "flex-start";
+    var rb = h("button", "btn on", "Run"); rb.type = "button"; rb.onclick = run; btns.appendChild(rb);
+    (s.presets || []).forEach(function (p) { var b = h("button", "btn", p[0]); b.type = "button"; b.onclick = function () { ta.value = p[1]; if (inp && p[2] != null) inp.value = p[2]; run(); }; btns.appendChild(b); });
+    w.appendChild(ta); if (inp) { w.appendChild(h("div", "small", "What the person types for input() (one answer per line):")); w.appendChild(inp); }
+    w.appendChild(btns); w.appendChild(con); w.appendChild(err);
+    if (s.note) w.appendChild(h("div", "small", s.note));
+    if (s.autorun !== false) run(); return w;
+  };
+
   /* ---------- page assembly ---------- */
   function build() {
     var app = document.getElementById("app"), id = N.id, parts = id.split("."), u = parts[0], k = parts[1];
