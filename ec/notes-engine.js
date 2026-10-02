@@ -143,12 +143,13 @@
     });
     return g;
   };
+  R.ard = function (a) { var w = h("div", "panel"); window.ARD[a[1]](w, a[2]); return w; };
   R.svg = function (a) { return fig(a[1], a[2]); };
   R.gfx = function (a) { return fig(G[a[1]](a[2]), a[3]); };
 
   R.trace = function (a) {
     var s = a[1], i = -1, wrap = h("div"), box = h("div", "trace"), lines = h("div", "lines"), side = h("div", "side");
-    s.code.forEach(function (l, k) { var d = h("div", "ln"); d.innerHTML = '<span class="no">' + (k + 1) + "</span>" + hl(l, s.lang) ; lines.appendChild(d); });
+    s.code.forEach(function (l, k) { var d = h("div", "ln"); d.innerHTML = '<span class="no">' + (k + 1) + "</span><span>" + hl(l, s.lang) + "</span>"; lines.appendChild(d); });
     side.innerHTML = '<h4>Variables</h4><div class="vars"><div class="small">press Next to run the first line</div></div><h4 style="margin-top:12px">Output</h4><div class="console"></div>';
     box.appendChild(lines); box.appendChild(side); wrap.appendChild(box);
     var note = h("div", "stepnote"), btns = h("div", "btns"); btns.style.justifyContent = "flex-start";
