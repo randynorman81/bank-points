@@ -131,10 +131,20 @@ main[data-view="code"] #split,main[data-view="prev"] .split{display:none}
 #ansBadge{background:var(--acc);color:#0B0E14;border-radius:10px;padding:0 7px;font-size:11px;margin-left:6px;font-weight:800}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;padding:5px 12px;background:#0D1220;border-bottom:1px solid var(--rule);font:11.5px "JetBrains Mono",monospace;color:var(--soft)}
 .legend i{font-style:normal}
-.tmpl{padding:6px 12px 7px;background:#0B1020;border-bottom:1px solid var(--rule);font:12px "JetBrains Mono",monospace;color:var(--soft);display:grid;gap:3px}
-.tmpl .tl{display:block;color:var(--soft);font-size:11px;margin-bottom:1px}
-.tmpl code{color:#E6EAF2;background:none;padding:0;font:inherit;white-space:normal;overflow-wrap:anywhere}
-.pane.min>.tmpl{display:none}
+.spop{display:none;position:absolute;left:12px;top:90px;z-index:30;width:min(540px,calc(100% - 24px));max-height:calc(100% - 110px);overflow:auto;background:#0F1526;border:1px solid var(--acc);border-radius:10px;box-shadow:0 18px 50px #000a;padding:12px 16px 14px;font:13px/1.5 "Manrope",sans-serif;color:var(--ink)}
+.spop.show{display:block}
+.spop h4{margin:0 0 6px;font-size:15px;color:#fff;padding-right:28px}
+.spop .x{position:absolute;top:6px;right:8px;background:none;border:0;color:var(--soft);font-size:22px;line-height:1;cursor:pointer}
+.spop .x:hover{color:#fff}
+.spop .rl{font:700 11px "JetBrains Mono",monospace;letter-spacing:.08em;color:#FDBA74;margin:2px 0 4px}
+.spop ul{margin:0 0 10px;padding-left:20px}.spop li{margin:3px 0}
+.spop code{font:12.5px "JetBrains Mono",monospace;color:#E6EAF2;background:none;padding:0;overflow-wrap:anywhere}
+.spop .ex{background:#080B11;border:1px solid var(--rule);border-radius:8px;padding:8px 10px;margin:8px 0 0}
+.spop .tl{font-weight:700;color:#fff}.spop .hn{color:var(--soft);font-size:12px;margin:1px 0 5px}
+.semi{background:#FBBF24;color:#05070B;font-weight:800;border-radius:3px;padding:0 3px;margin:0 1px}
+#lgStyle{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
+#lgStyle:hover{background:#1c2438;border-radius:3px}
+.pane.min>.spop{display:none}
 .pane.min>.legend{display:none}
 #guidePop{position:fixed;right:16px;bottom:16px;width:min(520px,92vw);height:min(70vh,640px);min-width:300px;min-height:220px;background:var(--panel);border:1px solid var(--acc);border-radius:10px;box-shadow:0 18px 50px rgba(0,0,0,.6);z-index:500;display:none;flex-direction:column;resize:both;overflow:hidden}
 #guidePop.show{display:flex}
@@ -225,8 +235,8 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
       <span class="ftabs" id="ftabs"><button class="on" data-f="html">index.html</button><button data-f="css">style.css</button></span>
       <span class="tools"><span id="lineinfo">Line 1</span></span>
     </h2>
-    <div class="legend" id="legend"><span><i class="t-tag">&lt;tag&gt;</i></span><span><i class="t-style">style</i></span><span><i class="t-id">id</i></span><span><i class="t-class">class</i></span><span><i class="t-attr">attribute</i></span><span><i class="t-val">"value"</i></span><span><i class="c-prop">css-property</i></span></div>
-    <div class="tmpl" id="tmpl"><div><span class="tl">Tag with one CSS style option</span><code><span class="t-tag">&lt;p</span> <span class="t-style">style</span><span class="t-eq">=</span><span class="t-val">"color: blue;"</span><span class="t-tag">&gt;</span> this text is blue<span class="t-tag">&lt;/p&gt;</span></code></div><div><span class="tl">Tag with multiple CSS style options</span><code><span class="t-tag">&lt;p</span> <span class="t-style">style</span><span class="t-eq">=</span><span class="t-val">"color: blue; background-color: red"</span><span class="t-tag">&gt;</span> this text is blue and background is red<span class="t-tag">&lt;/p&gt;</span></code></div></div>
+    <div class="legend" id="legend"><span><i class="t-tag">&lt;tag&gt;</i></span><span><i class="t-style" id="lgStyle" role="button" tabindex="0" title="Click to see how to write a style">style</i></span><span><i class="t-id">id</i></span><span><i class="t-class">class</i></span><span><i class="t-attr">attribute</i></span><span><i class="t-val">"value"</i></span><span><i class="c-prop">css-property</i></span></div>
+    <div class="spop" id="stylePop" role="dialog" aria-label="How to write a style"><button class="x" id="stylePopX" aria-label="Close">&times;</button><h4>How to write a style</h4><div class="rl">RULES</div><ul><li>Put a space between the tag name and the <span class="t-style">style</span> attribute.</li><li>A style always follows this structure: <code><span class="t-style">style</span><span class="t-eq">=</span><span class="t-val">"property:value<mark class="semi">;</mark>"</span></code></li><li>A style always goes in the <b>opening</b> tag only.</li><li>If you have more than one property and value, connect them with a semicolon inside the <b>same</b> set of quotation marks.</li></ul><div class="ex"><div class="tl">Tag with one CSS style option</div><div class="hn">Add the semicolon before you close the quotation marks.</div><code><span class="t-tag">&lt;p</span> <span class="t-style">style</span><span class="t-eq">=</span><span class="t-val">"color: blue<mark class="semi">;</mark>"</span><span class="t-tag">&gt;</span> this text is blue<span class="t-tag">&lt;/p&gt;</span></code></div><div class="ex"><div class="tl">Tag with multiple CSS style options</div><div class="hn">Separate each PROPERTY: VALUE pair with a semicolon.</div><code><span class="t-tag">&lt;p</span> <span class="t-style">style</span><span class="t-eq">=</span><span class="t-val">"color: blue<mark class="semi">;</mark> background-color: red<mark class="semi">;</mark>"</span><span class="t-tag">&gt;</span> this text is blue and background is red<span class="t-tag">&lt;/p&gt;</span></code></div></div>
     <div class="edwrap"><div class="gut" id="gut"></div><div id="hl" aria-hidden="true"></div><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="soft" aria-label="Code editor"></textarea><div id="mirror" aria-hidden="true"></div></div>
     <button class="stripbtn" data-restore="both" aria-label="Show the code panel">▸ Code</button>
   </section>
@@ -393,7 +403,6 @@ function offerCarry() {
 }
 function updateHonestyLater() { setTimeout(updateHonesty, 0); }
 function markTabs() {
-  $("tmpl").style.display = S.file === "html" ? "" : "none";
   [].forEach.call($("ftabs").querySelectorAll("button"), function (b) { b.classList.toggle("on", b.getAttribute("data-f") === S.file); });
   [].forEach.call($("atabs").querySelectorAll("button"), function (b) { b.classList.toggle("on", b.getAttribute("data-f") === (wtOn ? "wt" : "ans")); });
 }
@@ -583,6 +592,18 @@ $("maxPrev").addEventListener("click", function () { setView(S.view === "prev" ?
 $("minPrev").addEventListener("click", function () { setView(S.view === "code" ? "both" : "code"); });
 [].forEach.call(document.querySelectorAll(".stripbtn"), function (b) { b.addEventListener("click", function () { setView("both"); }); });
 setView(lsGet("u7:view") === "code" || lsGet("u7:view") === "prev" ? lsGet("u7:view") : "both");
+
+/* ---------- the "how to write a style" popup ---------- */
+(function () {
+  var pop = $("stylePop"), trig = $("lgStyle");
+  function place() { var lg = $("legend"); pop.style.top = (lg.offsetTop + lg.offsetHeight + 6) + "px"; }
+  function show(on) { if (on) place(); pop.classList.toggle("show", on); }
+  trig.addEventListener("click", function (e) { e.stopPropagation(); show(!pop.classList.contains("show")); });
+  trig.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(!pop.classList.contains("show")); } });
+  $("stylePopX").addEventListener("click", function () { show(false); });
+  document.addEventListener("click", function (e) { if (pop.classList.contains("show") && !pop.contains(e.target)) show(false); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") show(false); });
+})();
 
 /* ---------- the checks drawer ---------- */
 function openSide(open) { $("side").classList.toggle("open", open); $("scrim").classList.toggle("show", open); if (open) refresh(); }
