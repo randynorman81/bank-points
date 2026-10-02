@@ -246,7 +246,7 @@
   function Brk() { } function Cnt() { } function Ret(v) { this.v = v; }
   function run(src, opts) {
     opts = opts || {}; var out = "", inputs = (opts.inputs || []).slice(), steps = 0;
-    function w(s) { out += s; if (out.length > 20000) throw new PyErr("RuntimeError", "too much output"); }
+    function w(s) { out += s; if (out.length > 20000) throw new PyErr("RuntimeError", "too much output, so this looks like an infinite loop"); }
     var globals = new Map(), builtins = {};
     function def(name, f) { f.pyname = name; builtins[name] = f; }
     function idx(x, i) {
