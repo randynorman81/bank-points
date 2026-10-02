@@ -131,6 +131,10 @@ main[data-view="code"] #split,main[data-view="prev"] .split{display:none}
 #ansBadge{background:var(--acc);color:#0B0E14;border-radius:10px;padding:0 7px;font-size:11px;margin-left:6px;font-weight:800}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;padding:5px 12px;background:#0D1220;border-bottom:1px solid var(--rule);font:11.5px "JetBrains Mono",monospace;color:var(--soft)}
 .legend i{font-style:normal}
+.tmpl{padding:6px 12px 7px;background:#0B1020;border-bottom:1px solid var(--rule);font:12px "JetBrains Mono",monospace;color:var(--soft);display:grid;gap:3px}
+.tmpl .tl{display:inline-block;min-width:150px;color:var(--soft)}
+.tmpl code{color:#E6EAF2;background:none;padding:0;font:inherit}
+.pane.min>.tmpl{display:none}
 .pane.min>.legend{display:none}
 #guidePop{position:fixed;right:16px;bottom:16px;width:min(520px,92vw);height:min(70vh,640px);min-width:300px;min-height:220px;background:var(--panel);border:1px solid var(--acc);border-radius:10px;box-shadow:0 18px 50px rgba(0,0,0,.6);z-index:500;display:none;flex-direction:column;resize:both;overflow:hidden}
 #guidePop.show{display:flex}
@@ -204,7 +208,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   <a class="btn" id="linkGuide" href="study-guide.html" target="_blank" rel="noopener">Study guide</a>
   <a class="btn" id="linkUnit" href="index.html">Back to the unit</a>
 </div>
-<div class="note show" id="note">Your work saves automatically in this browser. <b>Sign in with your school Google account</b> to save to the cloud (so you can switch computers) and to submit.</div>
+<div class="note" id="note"></div>
 <div class="cloud" id="cloud"></div>
 <div class="cloud" id="carry"></div>
 <div class="banner" id="banner"></div>
@@ -222,6 +226,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
       <span class="tools"><span id="lineinfo">Line 1</span></span>
     </h2>
     <div class="legend" id="legend"><span><i class="t-tag">&lt;tag&gt;</i></span><span><i class="t-style">style</i></span><span><i class="t-id">id</i></span><span><i class="t-class">class</i></span><span><i class="t-attr">attribute</i></span><span><i class="t-val">"value"</i></span><span><i class="c-prop">css-property</i></span><span><i class="c-kw">green / solid</i></span><span><i class="c-hex">#hex / 12px</i></span></div>
+    <div class="tmpl" id="tmpl"><div><span class="tl">One style in a tag</span><code><span class="t-style">style</span><span class="t-eq">=</span><span class="t-val">"property: value;"</span></code></div><div><span class="tl">Many styles in a tag</span><code><span class="t-style">style</span><span class="t-eq">=</span><span class="t-val">"property:value; property:value;"</span></code></div></div>
     <div class="edwrap"><div class="gut" id="gut"></div><div id="hl" aria-hidden="true"></div><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="soft" aria-label="Code editor"></textarea><div id="mirror" aria-hidden="true"></div></div>
     <button class="stripbtn" data-restore="both" aria-label="Show the code panel">▸ Code</button>
   </section>
@@ -388,6 +393,7 @@ function offerCarry() {
 }
 function updateHonestyLater() { setTimeout(updateHonesty, 0); }
 function markTabs() {
+  $("tmpl").style.display = S.file === "html" ? "" : "none";
   [].forEach.call($("ftabs").querySelectorAll("button"), function (b) { b.classList.toggle("on", b.getAttribute("data-f") === S.file); });
   [].forEach.call($("atabs").querySelectorAll("button"), function (b) { b.classList.toggle("on", b.getAttribute("data-f") === (wtOn ? "wt" : "ans")); });
 }
