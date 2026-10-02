@@ -101,16 +101,17 @@ const COURSES = [
       { n: 4, title: "Intro to C++", migrated: true, path: "ec/unit-4/index.html", badge: "Codecademy" },
       { n: 7, title: "Turtle Graphics", migrated: true, path: "ec/unit-7/index.html", badge: "CodeHS" },
       { n: 8, title: "Basic Python and Console Interaction", migrated: true, path: "ec/unit-8/index.html", badge: "CodeHS" },
-      { n: 9, title: "Conditionals", migrated: true, path: "ec/unit-9/index.html", badge: "CodeHS" },
-      { n: 10, title: "Looping", migrated: true, path: "ec/unit-10/index.html", badge: "CodeHS" },
-      { n: 11, title: "Functions and Exceptions", migrated: true, path: "ec/unit-11/index.html", badge: "CodeHS" },
-      { n: 12, title: "Sensors — Program Control with Arduino", migrated: true, path: "ec/unit-12/index.html", badge: "CodeHS" },
-      { n: 13, title: "Advanced Arduino", migrated: true, path: "ec/unit-13/index.html", badge: "CodeHS" },
+      { n: 9, title: "Intro to Arduino", migrated: true, path: "ec/unit-9/index.html", badge: "CodeHS" },
+      { n: 10, title: "Conditionals", migrated: true, path: "ec/unit-10/index.html", badge: "CodeHS" },
+      { n: 11, title: "Looping", migrated: true, path: "ec/unit-11/index.html", badge: "CodeHS" },
+      { n: 12, title: "Functions and Exceptions", migrated: true, path: "ec/unit-12/index.html", badge: "CodeHS" },
+      { n: 13, title: "Sensors — Program Control with Arduino", migrated: true, path: "ec/unit-13/index.html", badge: "CodeHS" },
       { n: 14, title: "Strings", migrated: true, path: "ec/unit-14/index.html", badge: "CodeHS" },
       { n: 15, title: "Creating and Altering Data Structures", migrated: true, path: "ec/unit-15/index.html", badge: "CodeHS" },
       { n: 16, title: "Extending Data Structures", migrated: true, path: "ec/unit-16/index.html", badge: "CodeHS" },
       { n: 17, title: "Project: Guess the Word", migrated: true, path: "ec/unit-17/index.html", badge: "CodeHS" },
-      { n: 18, title: "Final Exam", migrated: true, path: "ec/unit-18/index.html", badge: "CodeHS" }
+      { n: 18, title: "Advanced Arduino", migrated: true, path: "ec/unit-18/index.html", badge: "CodeHS" },
+      { n: 19, title: "Final Exam", migrated: true, path: "ec/unit-19/index.html", badge: "CodeHS" }
     ]
   }
 ];
