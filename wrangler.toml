@@ -1,0 +1,24 @@
+name = "bank-points"
+main = "cloudflare/src/index.js"
+compatibility_date = "2025-06-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Lets the functions keep reading process.env.ADMIN_PIN (set it with: wrangler secret put ADMIN_PIN)
+# and swaps the Netlify Blobs library for the D1/KV version.
+alias = { "@netlify/blobs" = "./cloudflare/src/blobs.js" }
+
+[assets]
+directory = "."
+binding = "ASSETS"
+html_handling = "auto-trailing-slash"
+not_found_handling = "none"
+run_worker_first = ["/api/*", "/sat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "bank-points"
+database_id = "FILL_IN_AFTER_CREATE"
+
+[[kv_namespaces]]
+binding = "IMAGES"
+id = "FILL_IN_AFTER_CREATE"
