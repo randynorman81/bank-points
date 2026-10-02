@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+if (S.file !== "html") return;<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -209,9 +209,9 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   <section class="pane" id="paneCode">
     <h2>
       <span class="ftabs" id="ftabs"><button data-f="ans" id="ansTab" style="display:none">Assignment<span id="ansBadge"></span></button><button data-f="wt" id="wtTab" style="display:none">Walkthrough<span id="wtBadge"></span></button><button class="on" data-f="html">index.html</button><button data-f="css">style.css</button></span>
-      <span class="tools"><label title="Adds the closing tag and closing quote for you"><input type="checkbox" id="auto" checked> Auto-close</label><span id="lineinfo">Line 1</span><span class="winbtns"><button class="btn sm" id="minCode" title="Shrink the code panel">– Minimize</button><button class="btn sm" id="maxCode" title="Make the code panel fill the screen">⤢ Maximize</button></span></span>
+      <span class="tools"><span id="lineinfo">Line 1</span></span>
     </h2>
-    <div class="legend" id="legend"><span><i class="t-tag">&lt;tag&gt;</i></span><span><i class="t-style">style</i></span><span><i class="t-id">id</i></span><span><i class="t-class">class</i></span><span><i class="t-attr">attribute</i></span><span><i class="t-val">"value"</i></span><span><i class="c-prop">css-property</i></span><span><i class="c-kw">green / solid</i></span><span><i class="c-hex">#hex / 12px</i></span><span>plain white = not a keyword I know, check your spelling</span></div>
+    <div class="legend" id="legend"><span><i class="t-tag">&lt;tag&gt;</i></span><span><i class="t-style">style</i></span><span><i class="t-id">id</i></span><span><i class="t-class">class</i></span><span><i class="t-attr">attribute</i></span><span><i class="t-val">"value"</i></span><span><i class="c-prop">css-property</i></span><span><i class="c-kw">green / solid</i></span><span><i class="c-hex">#hex / 12px</i></span></div>
     <div class="edwrap"><div class="gut" id="gut"></div><div id="hl" aria-hidden="true"></div><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="soft" aria-label="Code editor"></textarea><div id="mirror" aria-hidden="true"></div><div id="ansPane" aria-label="Assignment"></div><div id="wtPane" aria-label="Walkthrough"></div></div>
     <button class="stripbtn" data-restore="both" aria-label="Show the code panel">▸ Code</button>
   </section>
@@ -339,7 +339,6 @@ function buildLessonList() {
   if (!H.LESSONS[S.lesson]) S.lesson = "6.1";
   buildLessonList();
   $("period").value = lsGet("u7:period") || "";
-  $("auto").checked = lsGet("u7:auto") !== "0";
 })();
 
 /* ---------- editor ---------- */
@@ -383,7 +382,6 @@ $("ftabs").addEventListener("click", function (e) {
   var b = e.target.closest("button"); if (!b) return; var f = b.getAttribute("data-f"); if (f === "ans") { setAns(true); return; } if (f === "wt") { setWt(true); return; } if (ansOn || wtOn) { closeSide(); } if (f === S.file) return;
   S.buf[S.file] = ta.value; S.file = f; ta.value = S.buf[f]; markTabs(); layoutGutter(); cursorInfo(); refresh(); ta.focus();
 });
-$("auto").addEventListener("change", function () { lsSet("u7:auto", this.checked ? "1" : "0"); });
 
 /* wrapped text + a line-number gutter that lines up with wrapped lines */
 var mirror = $("mirror");
@@ -407,7 +405,7 @@ ta.addEventListener("keyup", cursorInfo); ta.addEventListener("click", cursorInf
 function insertAt(pos, text, caretAfter) { noteAuto(text.length); ta.setRangeText(text, pos, pos, "preserve"); ta.setSelectionRange(caretAfter, caretAfter); }
 function insideTag(before) { var lt = before.lastIndexOf("<"), gt = before.lastIndexOf(">"); return lt > gt && before.charAt(lt + 1) !== "/" && before.charAt(lt + 1) !== "!"; }
 function handleAuto(ch) {
-  if (!$("auto").checked || S.file !== "html") return;
+  if (S.file !== "html") return;
   var pos = ta.selectionStart, v = ta.value, before = v.slice(0, pos);
   if (ch === ">") {
     var m = /<([a-zA-Z][a-zA-Z0-9-]*)(?:\s[^<>]*)?>$/.exec(before);
@@ -449,7 +447,7 @@ ta.addEventListener("keydown", function (e) {
     noteAuto(4); var pos = ta.selectionStart, v = ta.value, before = v.slice(0, pos), line = before.slice(before.lastIndexOf("\n") + 1);
     var indent = (/^[ \t]*/.exec(line) || [""])[0];
     e.preventDefault();
-    if ($("auto").checked && S.file === "html" && before.slice(-1) === ">" && v.slice(pos, pos + 2) === "</") {
+    if (S.file === "html" && before.slice(-1) === ">" && v.slice(pos, pos + 2) === "</") {
       var mid = "\n" + indent + "  ";
       ta.setRangeText(mid + "\n" + indent, pos, ta.selectionEnd, "preserve"); ta.setSelectionRange(pos + mid.length, pos + mid.length);
     } else ta.setRangeText("\n" + indent, pos, ta.selectionEnd, "end");
@@ -540,13 +538,10 @@ function setView(v) {
   $("main").setAttribute("data-view", v);
   $("paneCode").classList.toggle("min", v === "prev");
   $("panePrev").classList.toggle("min", v === "code");
-  $("maxCode").textContent = v === "code" ? "⤡ Restore" : "⤢ Maximize";
   $("maxPrev").textContent = v === "prev" ? "⤡ Restore" : "⤢ Maximize";
   setTimeout(layoutGutter, 220);
 }
-$("maxCode").addEventListener("click", function () { setView(S.view === "code" ? "both" : "code"); });
 $("maxPrev").addEventListener("click", function () { setView(S.view === "prev" ? "both" : "prev"); });
-$("minCode").addEventListener("click", function () { setView(S.view === "prev" ? "both" : "prev"); });
 $("minPrev").addEventListener("click", function () { setView(S.view === "code" ? "both" : "code"); });
 [].forEach.call(document.querySelectorAll(".stripbtn"), function (b) { b.addEventListener("click", function () { setView("both"); }); });
 setView(lsGet("u7:view") === "code" || lsGet("u7:view") === "prev" ? lsGet("u7:view") : "both");
