@@ -656,8 +656,15 @@ var TAG_HELP = [
   function place(pop) { var lg = $("legend"); pop.style.top = (lg.offsetTop + lg.offsetHeight + 6) + "px"; }
   function closeAll() { pops.forEach(function (p) { p[1].classList.remove("show"); }); }
   function toggle(pop) { var was = pop.classList.contains("show"); closeAll(); if (!was) { place(pop); pop.classList.add("show"); } }
+  var closeTimer = 0;
+  function openOnly(pop) { clearTimeout(closeTimer); if (!pop.classList.contains("show")) { closeAll(); place(pop); pop.classList.add("show"); } }
+  function closeSoon() { clearTimeout(closeTimer); closeTimer = setTimeout(closeAll, 280); }
   pops.forEach(function (p) {
-    p[0].addEventListener("click", function (e) { e.stopPropagation(); toggle(p[1]); });
+    /* hover opens it; it stays open while the mouse is on the word or on the popup, and closes shortly after it leaves */
+    p[0].addEventListener("mouseenter", function () { openOnly(p[1]); });
+    p[1].addEventListener("mouseenter", function () { clearTimeout(closeTimer); });
+    p[0].addEventListener("mouseleave", closeSoon); p[1].addEventListener("mouseleave", closeSoon);
+    p[0].addEventListener("click", function (e) { e.stopPropagation(); openOnly(p[1]); });
     p[0].addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(p[1]); } });
   });
   $("stylePopX").addEventListener("click", closeAll); $("tagPopX").addEventListener("click", closeAll);
