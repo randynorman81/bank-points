@@ -135,3 +135,58 @@
     root.querySelector("#" + id + "r").oninput = up; up();
   };
 })();
+
+/* Advanced Arduino demos: millis vs delay, LCD, digital watch, elevator */
+(function () {
+  "use strict";
+  var A = window.ARD;
+  function h(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function uid(p) { return p + Math.random().toString(36).slice(2, 6); }
+  function lcdSvg(r1, r2) {
+    var o = '<rect x="4" y="4" width="352" height="96" rx="8" fill="#0F2A1C" stroke="#34D399" stroke-width="2"/>';
+    [r1, r2].forEach(function (row, r) { var s = String(row).slice(0, 16); for (var c = 0; c < 16; c++) { var x = 14 + c * 21, ch = s[c] || ""; o += '<rect x="' + x + '" y="' + (14 + r * 42) + '" width="18" height="34" rx="2" fill="#14573A" fill-opacity=".6"/>' + (ch && ch !== " " ? '<text x="' + (x + 9) + '" y="' + (39 + r * 42) + '" font-size="22" fill="#B6F7D3" text-anchor="middle" font-family="JetBrains Mono, monospace">' + esc(ch) + "</text>" : ""); } });
+    return '<svg viewBox="0 0 360 104" role="img" aria-label="16 by 2 LCD display">' + o + "</svg>";
+  }
+
+  A.lcd = function (root) {
+    var id = uid("lc");
+    root.innerHTML = '<div class="wrow"><label>row 0</label><input class="inl" id="' + id + 'a" maxlength="16" value="Hello, Arduino!" style="max-width:260px"></div><div class="wrow" style="margin-top:8px"><label>row 1</label><input class="inl" id="' + id + 'b" maxlength="16" value="Count: 42" style="max-width:260px"></div><div class="fig" style="margin-top:10px" id="' + id + 'f"></div><div class="wout" id="' + id + 'o"></div>';
+    function up() { var a = root.querySelector("#" + id + "a").value, b = root.querySelector("#" + id + "b").value; root.querySelector("#" + id + "f").innerHTML = lcdSvg(a, b); root.querySelector("#" + id + "o").innerHTML = "lcd.setCursor(0, 0);<br>lcd.print(\"" + esc(a) + "\");<br>lcd.setCursor(0, 1);<br>lcd.print(\"" + esc(b) + "\");"; }
+    root.querySelector("#" + id + "a").oninput = up; root.querySelector("#" + id + "b").oninput = up; up();
+  };
+
+  A.watch = function (root) {
+    var id = uid("wt");
+    root.innerHTML = '<div class="fig" id="' + id + 'f" style="margin:0"></div><div class="wrow" style="margin-top:10px"><label>millis() = <b id="' + id + 'v"></b> ms</label><input type="range" id="' + id + 's" min="0" max="90000" step="500" value="3725" style="max-width:300px"></div><div class="wout" id="' + id + 'o"></div>';
+    function p2(n) { return (n < 10 ? "0" : "") + n; }
+    function up() { var sec = +root.querySelector("#" + id + "s").value, ms = sec * 1000, s = sec % 60, m = Math.floor(sec / 60) % 60, hh = Math.floor(sec / 3600) % 24; root.querySelector("#" + id + "v").textContent = ms.toLocaleString(); root.querySelector("#" + id + "f").innerHTML = lcdSvg("Time:  " + p2(hh) + ":" + p2(m) + ":" + p2(s), "since power on");
+      root.querySelector("#" + id + "o").innerHTML = "unsigned long seconds = millis() / 1000;  // " + sec + "<br>int s = seconds % 60;            // " + s + "<br>int m = (seconds / 60) % 60;    // " + m + "<br>int h = (seconds / 3600) % 24;  // " + hh; }
+    root.querySelector("#" + id + "s").oninput = up; up();
+  };
+
+  A.millis = function (root) {
+    var id = uid("ml"), mode = "delay", seen = 0, missed = 0, t0 = Date.now(), blink = false, last = 0;
+    root.innerHTML = '<div class="chips2" id="' + id + 'c"></div><div class="fig" style="margin:0"><svg viewBox="0 0 560 120" id="' + id + 'v" role="img" aria-label="timeline"></svg></div><div class="btns" style="justify-content:flex-start"><button class="btn on" type="button" id="' + id + 'p">Press the button!</button><span class="small" id="' + id + 'r"></span></div>';
+    var chips = root.querySelector("#" + id + "c");
+    [["delay(1000)", "delay"], ["millis()", "millis"]].forEach(function (m) { var b = h("button", "chip" + (m[1] === "delay" ? " on" : ""), m[0]); b.type = "button"; b.onclick = function () { mode = m[1]; seen = 0; missed = 0; [].forEach.call(chips.children, function (c) { c.classList.toggle("on", c === b); }); }; chips.appendChild(b); });
+    root.querySelector("#" + id + "p").onclick = function () { var t = (Date.now() - t0) % 1000; if (mode === "millis" || t < 120) seen++; else missed++; };
+    var timer = setInterval(function () { if (!document.body.contains(root)) { clearInterval(timer); return; } var t = (Date.now() - t0) % 2000, on = t < 1000, svg = root.querySelector("#" + id + "v"), s = "";
+      s += '<text x="10" y="18" font-size="12" fill="#8B9AAE">LED (blinks every second in both versions)</text><rect x="10" y="26" width="540" height="22" rx="4" fill="#10141C" stroke="#3A4658"/><rect x="' + (10 + (on ? 0 : 270)) + '" y="26" width="270" height="22" rx="4" fill="' + (on ? "#EF4444" : "#4B1D1D") + '"/>';
+      s += '<text x="10" y="76" font-size="12" fill="#8B9AAE">Is the Arduino listening for the button?</text><rect x="10" y="84" width="540" height="22" rx="4" fill="#10141C" stroke="#3A4658"/>';
+      if (mode === "delay") { var ph = (Date.now() - t0) % 1000; s += '<rect x="10" y="84" width="540" height="22" rx="4" fill="rgba(239,68,68,.25)"/><rect x="10" y="84" width="' + 540 * 0.12 + '" height="22" rx="4" fill="#34D399"/><text x="280" y="100" font-size="12" fill="#FCA5A5" text-anchor="middle">asleep inside delay() almost all the time</text>'; } else { s += '<rect x="10" y="84" width="540" height="22" rx="4" fill="rgba(52,211,153,.3)"/><text x="280" y="100" font-size="12" fill="#B6F7D3" text-anchor="middle">loop() keeps running: always listening</text>'; }
+      svg.innerHTML = s; root.querySelector("#" + id + "r").textContent = "button presses noticed: " + seen + "   missed: " + missed; }, 80);
+  };
+
+  A.elevator = function (root) {
+    var id = uid("el"), floor = 1, target = 1, doors = false, queue = [], timer = null, dir = 0;
+    root.innerHTML = '<div class="trace"><div><div class="chips2" id="' + id + 'c"></div><div class="fig" id="' + id + 'l" style="margin-top:10px"></div><div class="wout" id="' + id + 'o"></div></div><div class="stage"><svg viewBox="0 0 200 250" width="190" id="' + id + 'v" role="img" aria-label="elevator shaft"></svg></div></div>';
+    var box = root.querySelector("#" + id + "c");
+    [1, 2, 3, 4].forEach(function (f) { var b = h("button", "chip", "Call floor " + f); b.type = "button"; b.onclick = function () { if (queue.indexOf(f) < 0 && f !== floor) queue.push(f); if (!timer) timer = setInterval(tick, 700); draw(); }; box.appendChild(b); });
+    function state() { return doors ? "DOORS OPEN" : dir > 0 ? "MOVING UP" : dir < 0 ? "MOVING DOWN" : "IDLE"; }
+    function tick() { if (!document.body.contains(root)) { clearInterval(timer); return; } if (doors) { doors = false; draw(); return; } if (target === floor) { if (queue.length) target = queue.shift(); else { dir = 0; clearInterval(timer); timer = null; draw(); return; } } if (target > floor) { floor++; dir = 1; } else if (target < floor) { floor--; dir = -1; } if (target === floor) { doors = true; dir = 0; } draw(); }
+    function draw() { var s = '<rect x="50" y="10" width="100" height="230" rx="6" fill="#10141C" stroke="#3A4658" stroke-width="2"/>'; for (var f = 1; f <= 4; f++) { var y = 10 + (4 - f) * 57.5; s += '<line x1="50" y1="' + y + '" x2="150" y2="' + y + '" stroke="#232B38"/><text x="30" y="' + (y + 38) + '" font-size="13" fill="#8B9AAE" text-anchor="middle">' + f + "</text>"; } var cy = 10 + (4 - floor) * 57.5 + 5; s += '<rect x="58" y="' + cy + '" width="84" height="48" rx="4" fill="' + (doors ? "rgba(52,211,153,.35)" : "rgba(251,191,36,.25)") + '" stroke="' + (doors ? "#34D399" : "#FDD877") + '" stroke-width="2"/>' + (doors ? "" : '<line x1="100" y1="' + cy + '" x2="100" y2="' + (cy + 48) + '" stroke="#FDD877"/>'); root.querySelector("#" + id + "v").innerHTML = s;
+      root.querySelector("#" + id + "l").innerHTML = lcdSvg("Floor " + floor + (dir > 0 ? " ^" : dir < 0 ? " v" : ""), state()); root.querySelector("#" + id + "o").innerHTML = "state = <b>" + state() + "</b><br>currentFloor = " + floor + ", queue = [" + queue.join(", ") + "]"; }
+    draw();
+  };
+})();
