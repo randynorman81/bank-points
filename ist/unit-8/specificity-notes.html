@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Selectors and Specificity | Unit 4 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css"><link rel="stylesheet" href="notes8.css">
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 4</a><a href="8-3-selectors-and-specificity.html">Back to 4.3</a><a href="specificity-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 4 Notes &nbsp;/&nbsp; Lesson 4.3</div>
+  <h1>Selectors and Specificity</h1>
+  <p class="deck">When two rules fight over the same element, the more specific one wins. Learn the ranking, and how to aim a selector precisely.</p>
+  <span class="stdchip">tag @CHIP@lt; class @CHIP@lt; id @CHIP@lt; inline</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>When Two Rules Disagree</h2></div>
+  <p class="story">A teacher says "everyone wear a uniform." Your coach says "wear the team jersey today." Who do you listen to? The more specific instruction wins. CSS settles arguments the same way. When two rules both style the same thing, the <b>more specific</b> one wins, no matter which came first. This ranking is called <b>specificity</b>.</p>
+  <div class="steps">
+    <div class="st"><b>WEAKEST</b>Tag rule: <code>p</code> speaks to every paragraph.</div>
+    <div class="st"><b>STRONGER</b>Class rule: <code>.name</code> speaks to a group.</div>
+    <div class="st"><b>STRONGER STILL</b>Id rule: <code>#name</code> speaks to one element.</div>
+    <div class="st"><b>STRONGEST</b>Inline style written right on the tag.</div>
+  </div>
+  <p class="lede">Build the fight. Switch rules on and off and see which color the paragraph ends up with.</p>
+  <div class="pickrow">
+    <label><input type="checkbox" id="rTag" checked> tag rule (blue)</label>
+    <label><input type="checkbox" id="rClass"> class rule (green)</label>
+    <label><input type="checkbox" id="rId"> id rule (red)</label>
+    <label><input type="checkbox" id="rInl"> inline style (purple)</label>
+  </div>
+  <div class="stage"><div class="cap">One paragraph, up to four rules aiming at it</div><div class="sheet"><p id="fight" style="font-weight:700;font-size:18px;margin:0">I am the paragraph being styled</p></div>
+  <div class="out" id="outF"></div></div>
+  <div class="callout">The winner is decided by who is more specific, not who is written last.<span>Even if the tag rule sits at the bottom of the file, a class rule above it still wins.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>Two Classes on One Element</h2></div>
+  <p class="story">Think of a locker with two stickers: one for your team, one for your grade. Each sticker adds its own meaning. An element can wear more than one class too. List them in the same class attribute, separated by a <b>space</b>, and every class rule that matches applies.</p>
+  <p class="lede">Click the stickers to add or remove classes from the card.</p>
+  <div class="pickrow"><label><input type="checkbox" id="cA"> class one: background color</label><label><input type="checkbox" id="cB"> class two: border</label></div>
+  <div class="stage"><div class="cap">The element's class attribute</div><div class="codeblk" id="clsCode" style="margin:0 0 12px"></div><div class="sheet"><p id="two" style="margin:0;padding:10px;border-radius:6px">This paragraph is wearing...</p></div></div>
+  <div class="wrongright">
+    <div class="w"><h4>Wrong: two class attributes</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">class</span>=<span class="vl">"big"</span> <span class="at">class</span>=<span class="vl">"red"</span><span class="t">&gt;</span></div><p>The second one gets ignored.</p></div>
+    <div class="r"><h4>Right: one attribute, names separated by a space</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">class</span>=<span class="vl">"big red"</span><span class="t">&gt;</span></div><p>Both rules apply. No commas.</p></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>Combining Selectors</h2></div>
+  <p class="story">Sometimes one selector is too broad. "Every student" is too many people, but "every student <em>on the soccer team</em>" is exactly who the coach means. Selectors can be combined to aim more precisely.</p>
+  <p class="lede">Pick a selector and watch which items light up.</p>
+  <div class="pickrow" id="selPick"></div>
+  <div class="stage"><div class="cap">The page: two lists and some paragraphs</div>
+    <div class="sheet" id="selPage">
+      <p class="warning">Paragraph with class warning</p>
+      <p>Plain paragraph</p>
+      <ul><li class="warning">List item with class warning</li><li>Plain list item</li></ul>
+      <ol><li>Item in an ordered list</li></ol>
+    </div>
+    <div class="out" id="selOut"></div></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp"><thead><tr><th>Written as</th><th>Means</th></tr></thead><tbody>
+    <tr><td><code>p.warning</code></td><td>Only paragraphs that also have the class warning (no space)</td></tr>
+    <tr><td><code>ul li</code></td><td>Any li <em>inside</em> a ul (a space means "inside")</td></tr>
+    <tr><td><code>.warning</code></td><td>Anything at all with that class</td></tr>
+  </tbody></table></div></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>Why Inline Styles Are Avoided</h2></div>
+  <p class="story">An inline style is a trump card. It beats class rules and id rules in your stylesheet. That sounds powerful, but it is a trap: if one element has an inline color, your CSS file can never change it again without hunting it down in the HTML. Real teams keep style rules in the stylesheet so one file stays in charge.</p>
+  <div class="hint-panel"><b>Rule of thumb:</b> use tag rules for the basics, classes for looks you reuse, ids for the one-of-a-kind element, and skip inline styles.</div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">05</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>Specificity</b></td><td>The ranking that decides which rule wins when rules disagree</td></tr>
+      <tr><td><b>Combined selector</b></td><td>Two selectors joined to aim more precisely, like p.warning</td></tr>
+      <tr><td><b>Descendant selector</b></td><td>Two selectors with a space between: the second inside the first</td></tr>
+      <tr><td><b>Multiple classes</b></td><td>Several class names in one attribute, separated by spaces</td></tr>
+    </tbody></table></div></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>More specific wins, every time.</h2><p>Ready to build? Head back to 4.3 and follow the steps in the Assignment tab.</p><a class="back" href="8-3-selectors-and-specificity.html">&larr; Back to 4.3</a><a class="back" href="index.html">Unit 4</a><p class="sig">Unit 4 Notes / Lesson 4.3 / end of file</p></div></footer>
+
+<script src="../unit-4/notes.js"></script>
+<script>
+(function(){
+  var f = document.getElementById("fight"), o = document.getElementById("outF");
+  var ids = ["rTag","rClass","rId","rInl"], col = ["#1d4ed8","#15803d","#b91c1c","#7c3aed"], nm = ["tag rule","class rule","id rule","inline style"];
+  function upd(){
+    var win = -1; ids.forEach(function(id, i){ if (document.getElementById(id).checked) win = i; });
+    f.style.color = win < 0 ? "#111" : col[win];
+    o.textContent = win < 0 ? "No rule is on, so the paragraph keeps the default black." : "Winner: the " + nm[win] + ". It is the most specific one switched on.";
+  }
+  ids.forEach(function(id){ document.getElementById(id).onchange = upd; }); upd();
+
+  var cA = document.getElementById("cA"), cB = document.getElementById("cB"), two = document.getElementById("two"), cc = document.getElementById("clsCode");
+  function upd2(){
+    var n = []; if (cA.checked) n.push("tint"); if (cB.checked) n.push("outline");
+    cc.innerHTML = '<span class="t">&lt;p</span> <span class="at">class</span>=<span class="vl">"' + n.join(" ") + '"</span><span class="t">&gt;</span>';
+    two.style.background = cA.checked ? "#FEF08A" : ""; two.style.border = cB.checked ? "3px solid #0F172A" : "3px solid transparent";
+    two.textContent = n.length === 0 ? "This paragraph is wearing no classes" : "This paragraph is wearing " + n.length + " class" + (n.length > 1 ? "es" : "");
+  }
+  cA.onchange = cB.onchange = upd2; upd2();
+
+  var sels = [["p", "p"], ["p.warning", "p.warning"], [".warning", ".warning"], ["ul li", "ul li"], ["li", "li"]];
+  var pick = document.getElementById("selPick"), page = document.getElementById("selPage"), so = document.getElementById("selOut");
+  function show(sel, btn){
+    Array.prototype.forEach.call(pick.children, function(b){ b.classList.toggle("on", b === btn); });
+    page.querySelectorAll("*").forEach(function(e){ e.style.outline = ""; e.style.background = ""; });
+    var hit = page.querySelectorAll(sel); hit.forEach(function(e){ e.style.background = "#FDE68A"; e.style.outline = "2px solid #B45309"; });
+    so.textContent = "Selector " + sel + " matches " + hit.length + " element" + (hit.length === 1 ? "" : "s") + ".";
+  }
+  sels.forEach(function(s){ var b = document.createElement("button"); b.textContent = s[0]; b.onclick = function(){ show(s[1], b); }; pick.appendChild(b); });
+  show("p.warning", pick.children[1]);
+})();
+</script>
+</body></html>

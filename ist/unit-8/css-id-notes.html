@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSS by ID | Unit 4 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css"><link rel="stylesheet" href="notes8.css">
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 4</a><a href="8-2-css-by-id.html">Back to 4.2</a><a href="css-id-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 4 Notes &nbsp;/&nbsp; Lesson 4.2</div>
+  <h1>CSS by ID</h1>
+  <p class="deck">A class is a team jersey, an id is a student ID number: it points at exactly one element.</p>
+  <span class="stdchip">#id @CHIP@middot; one element</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>Your Student ID Is One of a Kind</h2></div>
+  <p class="story">Lots of students share a grade, a homeroom, or a team. Those are like classes. But your student ID number belongs to exactly one person. If the office ever handed the same number to two students, lunch accounts and grades would get mixed up. An <b>id</b> in CSS works the same way: it points at <b>one</b> element and nobody else.</p>
+  <p class="lede">Try it. Click a card to hand it the id. The id can only live on one card at a time.</p>
+  <div class="stage"><div class="cap">A rule for one id that sets a dark background and padding</div>
+  <div id="cards1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px"></div>
+  <div class="out" id="out1"></div></div>
+  <div class="callout">One id, one element.<span>Every id name may be used <b>once</b> per page. If you need to style several elements the same way, that is a job for a class.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>Two Halves: the Attribute and the Rule</h2></div>
+  <p class="story">Just like classes, an id needs a matching pair: the name on the element in the HTML, and a rule in the CSS that uses the same name. The only difference is the symbol.</p>
+  <div class="demo">
+    <div class="box"><h4>In the HTML: the id attribute</h4><div class="codeblk"><span class="t">&lt;h2</span> <span class="at">id</span>=<span class="vl">"banner"</span><span class="t">&gt;</span>
+  Welcome
+<span class="t">&lt;/h2&gt;</span></div><p style="font-size:13px;color:var(--ink-soft)">The name goes in quotes, with no symbol in front.</p></div>
+    <div class="box"><h4>In the CSS: start with a hash</h4><div class="codeblk"><span class="sl">#banner</span> {
+  <span class="pt">padding</span>: <span class="vl">12px</span>;
+}</div><p style="font-size:13px;color:var(--ink-soft)">A <b>#</b> comes before the name. Classes use a dot, ids use a hash.</p></div>
+  </div>
+  <p class="lede">Quick check. Pick the symbol that goes before each name in a CSS file:</p>
+  <div class="pickrow" id="q1"><span class="pk" style="cursor:default">class="menu"</span><button data-a="dot">.</button><button data-a="hash">#</button></div>
+  <div class="pickrow" id="q2"><span class="pk" style="cursor:default">id="logo"</span><button data-a="dot">.</button><button data-a="hash">#</button></div>
+  <div class="out" id="qout"></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>Class or ID? Decide in Five Seconds</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th></th><th>Class</th><th>ID</th></tr></thead>
+    <tbody>
+      <tr><td><b>How many elements?</b></td><td>As many as you like</td><td>Exactly one</td></tr>
+      <tr><td><b>Symbol in CSS</b></td><td>Dot</td><td>Hash</td></tr>
+      <tr><td><b>Real life</b></td><td>The team jersey</td><td>The student ID number</td></tr>
+      <tr><td><b>Use it for</b></td><td>A look you will reuse</td><td>One special element, like the page title</td></tr>
+    </tbody></table></div></div>
+  <p class="lede">Which one fits? Click the best choice.</p>
+  <div id="sc"></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>Common Mistakes</h2></div>
+  <div class="wrongright">
+    <div class="w"><h4>Wrong: the same id twice</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">id</span>=<span class="vl">"note"</span><span class="t">&gt;</span>One<span class="t">&lt;/p&gt;</span>
+<span class="t">&lt;p</span> <span class="at">id</span>=<span class="vl">"note"</span><span class="t">&gt;</span>Two<span class="t">&lt;/p&gt;</span></div><p>Browsers may only style the first one, and the page is technically broken.</p></div>
+    <div class="r"><h4>Right: different ids, or use a class</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">id</span>=<span class="vl">"noteA"</span><span class="t">&gt;</span>One<span class="t">&lt;/p&gt;</span>
+<span class="t">&lt;p</span> <span class="at">id</span>=<span class="vl">"noteB"</span><span class="t">&gt;</span>Two<span class="t">&lt;/p&gt;</span></div><p>Each element gets its own name. Same look on both? Make it a class.</p></div>
+    <div class="w"><h4>Wrong: a dot where the hash goes</h4><div class="codeblk"><span class="sl">.banner</span> { ... }
+<span class="cm">/* the HTML uses id="banner" */</span></div><p>A dot looks for a class, so nothing matches and nothing changes.</p></div>
+    <div class="r"><h4>Right: hash for an id</h4><div class="codeblk"><span class="sl">#banner</span> { ... }</div><p>The symbol must match the kind of name.</p></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">05</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>CSS id</b></td><td>A name for one single element. Written with a # in the CSS rule</td></tr>
+      <tr><td><b>The id attribute</b></td><td>The part of the tag that holds the name, like id="banner"</td></tr>
+      <tr><td><b>Unique</b></td><td>Used only once on a page</td></tr>
+      <tr><td><b>Hash (#)</b></td><td>The symbol that starts an id selector</td></tr>
+    </tbody></table></div></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>One id, one element, every time.</h2><p>Ready to build? Head back to 4.2 and follow the steps in the Assignment tab.</p><a class="back" href="8-2-css-by-id.html">&larr; Back to 4.2</a><a class="back" href="index.html">Unit 4</a><p class="sig">Unit 4 Notes / Lesson 4.2 / end of file</p></div></footer>
+
+<script src="../unit-4/notes.js"></script>
+<script>
+(function(){
+  var box = document.getElementById("cards1"), out = document.getElementById("out1"), names = ["Card A","Card B","Card C","Card D"], holder = -1;
+  function draw(){
+    box.innerHTML = "";
+    names.forEach(function(n, i){
+      var d = document.createElement("div"); d.style.cssText = "background:#fff;color:#111;border-radius:8px;padding:14px 10px;text-align:center;font:700 14px Manrope,sans-serif;cursor:pointer;border:2px solid transparent;transition:.2s";
+      if (i === holder) { d.style.background = "#0F172A"; d.style.color = "#fff"; d.style.padding = "26px 10px"; d.style.borderColor = "#38BDF8"; }
+      d.innerHTML = n + (i === holder ? "<div style='font:600 11px JetBrains Mono,monospace;color:#7DD3FC;margin-top:4px'>id=\"star\"</div>" : "");
+      d.onclick = function(){ if (holder === i) { holder = -1; out.textContent = "The id was removed. No card matches the rule, so nothing is styled."; }
+        else { out.textContent = holder === -1 ? n + " now has the id, so only it is styled." : "The id moved to " + n + ". If two cards both claimed it, the page would be broken, so only one can hold it."; holder = i; } draw(); };
+      box.appendChild(d);
+    });
+  }
+  out.textContent = "Click any card to give it the id."; draw();
+
+  var ans = { q1: "dot", q2: "hash" }, got = {}, qo = document.getElementById("qout");
+  ["q1","q2"].forEach(function(id){
+    Array.prototype.forEach.call(document.getElementById(id).querySelectorAll("button"), function(b){
+      b.onclick = function(){ got[id] = b.getAttribute("data-a") === ans[id];
+        Array.prototype.forEach.call(b.parentNode.querySelectorAll("button"), function(x){ x.classList.remove("on"); }); b.classList.add("on");
+        var msg = [];
+        if ("q1" in got) msg.push(got.q1 ? "class gets a dot: correct" : "class takes a dot, not a hash");
+        if ("q2" in got) msg.push(got.q2 ? "id gets a hash: correct" : "id takes a hash, not a dot");
+        qo.textContent = msg.join("  |  "); };
+    });
+  });
+
+  var scen = [
+    ["Style the one main title at the top of the page", "id"],
+    ["Make 6 different sale prices all bold and red", "class"],
+    ["Give just the page footer a special background", "id"],
+    ["Highlight every important warning sentence", "class"]
+  ], sc = document.getElementById("sc");
+  scen.forEach(function(s){
+    var row = document.createElement("div"); row.className = "pickrow";
+    row.innerHTML = "<span class='pk' style='cursor:default;flex:1 1 260px;font-family:Manrope,sans-serif;font-weight:600'>" + s[0] + "</span><button>class</button><button>id</button><span class='res' style='font:600 13px JetBrains Mono,monospace'></span>";
+    var btns = row.querySelectorAll("button"), res = row.querySelector(".res");
+    Array.prototype.forEach.call(btns, function(b){ b.onclick = function(){ var ok = b.textContent === s[1]; res.textContent = ok ? "Correct" : "Try the other one"; res.style.color = ok ? "#6EE7B7" : "#FCA5A5"; }; });
+    sc.appendChild(row);
+  });
+})();
+</script>
+</body></html>

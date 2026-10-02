@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSS Grid Basics | Unit 4 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css"><link rel="stylesheet" href="notes8.css">
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 4</a><a href="8-6-css-grid-basics.html">Back to 4.6</a><a href="grid-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 4 Notes &nbsp;/&nbsp; Lesson 4.6</div>
+  <h1>CSS Grid Basics</h1>
+  <p class="deck">Arrange items into rows and columns at the same time, like a muffin tin for your layout.</p>
+  <span class="stdchip">display: grid</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>A Spreadsheet for Your Layout</h2></div>
+  <p class="story">Flexbox lines things up in one direction, like books on a shelf. A <b>grid</b> is more like a muffin tin or a spreadsheet: rows <em>and</em> columns at once. You decide how many columns the tin has, and the browser drops each item into the next open cup. Perfect for photo galleries and card layouts.</p>
+  <div class="cards">
+    <div class="cardx"><div class="num">Container</div><h4>The tin</h4><p>The div that gets display: grid. All the layout rules go here.</p></div>
+    <div class="cardx"><div class="num">Items</div><h4>The muffins</h4><p>The children. You never set their width, the columns decide it.</p></div>
+    <div class="cardx"><div class="num">Gap</div><h4>The tin walls</h4><p>Even space between every row and column at once.</p></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>Build a Grid</h2></div>
+  <p class="lede">Choose the columns, the gap, and how many items. Watch the code update.</p>
+  <div class="demo">
+    <div class="box"><h4>grid-template-columns</h4><div class="pickrow" id="pCols"></div></div>
+    <div class="box"><h4>gap</h4><div class="rng"><input type="range" id="gg" min="0" max="40" value="12" style="flex:1"><span id="ggv">12px</span></div></div>
+    <div class="box"><h4>items</h4><div class="pickrow"><button id="gAdd">+ item</button><button id="gRem">- item</button><span id="gN" style="font:600 13px JetBrains Mono,monospace;color:var(--ink-soft)"></span></div></div>
+  </div>
+  <div class="stage"><div class="cap">Your grid container</div><div id="gr" style="display:grid"></div></div>
+  <div class="codeblk" id="gCode"></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>What Does fr Mean?</h2></div>
+  <p class="story">The <b>fr</b> unit stands for "fraction of the leftover space." Think of splitting a pizza after you set aside a fixed slice for yourself. Every fr gets a share of what remains, so the grid always fills its container no matter how wide the screen is.</p>
+  <p class="lede">Pick a column recipe and see how the space gets divided.</p>
+  <div class="pickrow" id="frPick"></div>
+  <div class="stage"><div id="frGrid" style="display:grid;gap:8px"></div><div class="out" id="frOut"></div></div>
+  <div class="callout">Equal columns: repeat the same number of fr.<span>Three columns of equal width is three fr values, all the same. A fixed size next to an fr makes a sidebar that never grows while the rest flexes.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>Flexbox or Grid?</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th></th><th>Flexbox</th><th>Grid</th></tr></thead>
+    <tbody>
+      <tr><td><b>Direction</b></td><td>One direction at a time</td><td>Rows and columns together</td></tr>
+      <tr><td><b>Best for</b></td><td>Menus, a row of buttons, centering</td><td>Galleries, card layouts, page sections</td></tr>
+      <tr><td><b>You set widths with</b></td><td>justify-content spacing</td><td>grid-template-columns on the container</td></tr>
+    </tbody></table></div></div>
+  <p class="lede">Which tool fits? Click your pick.</p>
+  <div id="fg"></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">05</div><h2>Common Mistakes</h2></div>
+  <div class="wrongright">
+    <div class="w"><h4>Wrong: widths on every item</h4><div class="codeblk"><span class="sl">.gallery img</span> { <span class="pt">width</span>: <span class="vl">33%</span>; }</div><p>You are fighting the grid. Let the columns decide.</p></div>
+    <div class="r"><h4>Right: columns on the container</h4><div class="codeblk"><span class="sl">.gallery</span> {
+  <span class="pt">display</span>: <span class="vl">grid</span>;
+  <span class="pt">grid-template-columns</span>: <span class="vl">1fr 1fr 1fr</span>;
+}</div><p>The container sets the column sizes.</p></div>
+    <div class="w"><h4>Wrong: display grid but no columns</h4><p style="margin:0">Without grid-template-columns you get one wide column, so everything just stacks like normal.</p></div>
+    <div class="r"><h4>Right: always add the columns</h4><p style="margin:0">display: grid turns it on. grid-template-columns makes it a grid you can see.</p></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">06</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>Grid container</b></td><td>The parent element with display: grid</td></tr>
+      <tr><td><b>Grid item</b></td><td>A direct child of the grid container</td></tr>
+      <tr><td><b>fr unit</b></td><td>A fraction of the remaining space</td></tr>
+      <tr><td><b>grid-template-columns</b></td><td>Sets how many columns there are and how wide each is</td></tr>
+      <tr><td><b>gap</b></td><td>Even space between rows and columns</td></tr>
+    </tbody></table></div></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>Columns on the container, never widths on the items.</h2><p>Ready to build? Head back to 4.6 and follow the steps in the Assignment tab.</p><a class="back" href="8-6-css-grid-basics.html">&larr; Back to 4.6</a><a class="back" href="index.html">Unit 4</a><p class="sig">Unit 4 Notes / Lesson 4.6 / end of file</p></div></footer>
+
+<script src="../unit-4/notes.js"></script>
+<script>
+(function(){
+  var gr = document.getElementById("gr"), code = document.getElementById("gCode"), n = 6, cols = "1fr 1fr 1fr", gap = 12;
+  var recipes = ["1fr 1fr", "1fr 1fr 1fr", "1fr 1fr 1fr 1fr", "200px 1fr", "1fr 2fr"];
+  var cp = document.getElementById("pCols");
+  recipes.forEach(function(r){ var b = document.createElement("button"); b.textContent = r; b.onclick = function(){ cols = r; draw(); }; cp.appendChild(b); });
+  function draw(){
+    gr.innerHTML = "";
+    for (var i = 1; i <= n; i++){ var d = document.createElement("div"); d.className = "fitem"; d.textContent = i; gr.appendChild(d); }
+    gr.style.gridTemplateColumns = cols; gr.style.gap = gap + "px";
+    Array.prototype.forEach.call(cp.children, function(b){ b.classList.toggle("on", b.textContent === cols); });
+    document.getElementById("gN").textContent = n + " items";
+    code.innerHTML = '<span class="sl">.gallery</span> {\n  <span class="pt">display</span>: <span class="vl">grid</span>;\n  <span class="pt">grid-template-columns</span>: <span class="vl">' + cols + '</span>;\n  <span class="pt">gap</span>: <span class="vl">' + gap + 'px</span>;\n}';
+  }
+  document.getElementById("gg").oninput = function(){ gap = this.value; document.getElementById("ggv").textContent = gap + "px"; draw(); };
+  document.getElementById("gAdd").onclick = function(){ if (n < 12) n++; draw(); };
+  document.getElementById("gRem").onclick = function(){ if (n > 1) n--; draw(); };
+  draw();
+
+  var fp = document.getElementById("frPick"), fg = document.getElementById("frGrid"), fo = document.getElementById("frOut");
+  var fr = [
+    ["1fr 1fr 1fr", "Three equal shares: each column gets one third of the width."],
+    ["1fr 2fr", "The second column gets twice the share of the first (one third and two thirds)."],
+    ["200px 1fr", "The first column is locked at 200px. The second takes everything left over."],
+    ["100px 1fr 100px", "Fixed sides, flexible middle. Resize your window and only the middle moves."]
+  ];
+  function showFr(r, btn){
+    Array.prototype.forEach.call(fp.children, function(b){ b.classList.toggle("on", b === btn); });
+    fg.innerHTML = ""; fg.style.gridTemplateColumns = r[0];
+    r[0].split(" ").forEach(function(c, i){ var d = document.createElement("div"); d.className = "fitem"; d.textContent = c; fg.appendChild(d); });
+    fo.textContent = r[1];
+  }
+  fr.forEach(function(r){ var b = document.createElement("button"); b.textContent = r[0]; b.onclick = function(){ showFr(r, b); }; fp.appendChild(b); });
+  showFr(fr[0], fp.children[0]);
+
+  var qs = [["A navigation menu of 4 links in one row", "Flexbox"], ["A photo gallery with 3 columns and several rows", "Grid"], ["Perfectly centering one box in its container", "Flexbox"], ["A page of cards laid out in a 2 by 3 table shape", "Grid"]];
+  var fgw = document.getElementById("fg");
+  qs.forEach(function(q){
+    var row = document.createElement("div"); row.className = "pickrow";
+    row.innerHTML = "<span class='pk' style='cursor:default;flex:1 1 260px;font-family:Manrope,sans-serif;font-weight:600'>" + q[0] + "</span><button>Flexbox</button><button>Grid</button><span class='res' style='font:600 13px JetBrains Mono,monospace'></span>";
+    var res = row.querySelector(".res");
+    Array.prototype.forEach.call(row.querySelectorAll("button"), function(b){ b.onclick = function(){ var ok = b.textContent === q[1]; res.textContent = ok ? "Correct" : "Think again"; res.style.color = ok ? "#6EE7B7" : "#FCA5A5"; }; });
+    fgw.appendChild(row);
+  });
+})();
+</script>
+</body></html>

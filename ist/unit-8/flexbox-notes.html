@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flexbox Basics | Unit 4 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css"><link rel="stylesheet" href="notes8.css">
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 4</a><a href="8-5-flexbox-basics.html">Back to 4.5</a><a href="flexbox-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 4 Notes &nbsp;/&nbsp; Lesson 4.5</div>
+  <h1>Flexbox Basics</h1>
+  <p class="deck">Turn a container into a flex container and let the browser handle the spacing math for you.</p>
+  <span class="stdchip">display: flex</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>A Shelf That Arranges Itself</h2></div>
+  <p class="story">Picture a bookshelf with a helpful robot. You tell the robot "line them up with equal gaps" or "push everything to the middle," and it handles the measuring. <b>Flexbox</b> is that robot. You put it on a <b>container</b>, and it arranges the container's direct children, the <b>items</b>, in a row or a column.</p>
+  <div class="cards">
+    <div class="cardx"><div class="num">Container</div><h4>The parent</h4><p>The div that holds the items. It gets display: flex. This is where you write the layout rules.</p></div>
+    <div class="cardx"><div class="num">Items</div><h4>The direct children</h4><p>The things inside the container. They never get the flex rules themselves.</p></div>
+    <div class="cardx"><div class="num">Default</div><h4>Side by side</h4><p>The moment a container turns flex, its items jump into one row.</p></div>
+  </div>
+  <p class="lede">Flip the switch. Notice how nothing changes on the items themselves, only on the container.</p>
+  <div class="pickrow"><button id="fxOff" class="on">display: block (normal)</button><button id="fxOn">display: flex</button></div>
+  <div class="stage"><div id="fxDemo" style="display:block;border:2px dashed #475569;padding:8px"><div class="fitem" style="margin-bottom:6px">Item 1</div><div class="fitem" style="margin-bottom:6px">Item 2</div><div class="fitem">Item 3</div></div></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>The Flex Playground</h2></div>
+  <p class="story">Two properties do most of the work. <b>justify-content</b> controls spacing along the main direction (left to right in a row). <b>align-items</b> controls the other direction (top to bottom in a row). Build your own layout and watch the code write itself.</p>
+  <div class="demo">
+    <div class="box"><h4>justify-content</h4><div class="pickrow" id="pJ"></div></div>
+    <div class="box"><h4>align-items</h4><div class="pickrow" id="pA"></div></div>
+    <div class="box"><h4>flex-direction</h4><div class="pickrow" id="pD"></div></div>
+  </div>
+  <div class="pickrow"><span class="pk" style="cursor:default">gap</span><input type="range" id="gp" min="0" max="40" value="10"><span id="gpv" style="font:600 13px JetBrains Mono,monospace;color:var(--ink-soft)">10px</span>
+  <span class="pk" style="cursor:default;margin-left:10px">items</span><button id="addI">+ item</button><button id="remI">- item</button></div>
+  <div class="stage"><div class="cap">Your flex container (dashed line)</div><div id="fx" style="display:flex;height:190px;border:2px dashed #475569;padding:8px"></div></div>
+  <div class="codeblk" id="fxCode"></div>
+  <div class="hint-panel"><b>Remember the flip:</b> in a <code>row</code>, justify-content works left to right and align-items works top to bottom. Switch to <code>column</code> and the two swap jobs.</div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>The Classic Trick: Perfect Centering</h2></div>
+  <p class="story">For years, centering something both ways was famously annoying. With flexbox it takes two properties. Set both to center and whatever is inside lands in the middle, every time.</p>
+  <div class="pickrow"><button id="ctr">Center it</button><button id="ctr2">Undo</button></div>
+  <div class="stage"><div id="cbox" style="display:flex;height:130px;border:2px dashed #475569;transition:.3s"><div class="fitem">Centered?</div></div></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>Common Mistakes</h2></div>
+  <div class="wrongright">
+    <div class="w"><h4>Wrong: flex on the items</h4><div class="codeblk"><span class="sl">.item</span> { <span class="pt">display</span>: <span class="vl">flex</span>; }</div><p>Nothing arranges, because the container never got the rule.</p></div>
+    <div class="r"><h4>Right: flex on the parent</h4><div class="codeblk"><span class="sl">.row</span> { <span class="pt">display</span>: <span class="vl">flex</span>; }</div><p>The class on the div holding the items gets the flex rules.</p></div>
+    <div class="w"><h4>Wrong: items nested deeper</h4><p style="margin:0">Putting each item inside its own extra div inside the container. Only the <em>direct</em> children are flex items.</p></div>
+    <div class="r"><h4>Right: items directly inside</h4><p style="margin:0">The three paragraphs or links sit right inside the container div, no extra wrappers.</p></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">05</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>Flexbox</b></td><td>A layout system for arranging items in a row or column</td></tr>
+      <tr><td><b>Flex container</b></td><td>The parent element with display: flex</td></tr>
+      <tr><td><b>Flex item</b></td><td>A direct child of a flex container</td></tr>
+      <tr><td><b>justify-content</b></td><td>Spacing along the main direction</td></tr>
+      <tr><td><b>align-items</b></td><td>Alignment across the other direction</td></tr>
+      <tr><td><b>gap</b></td><td>Even space between items</td></tr>
+    </tbody></table></div></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>The parent decides the layout.</h2><p>Ready to build? Head back to 4.5 and follow the steps in the Assignment tab.</p><a class="back" href="8-5-flexbox-basics.html">&larr; Back to 4.5</a><a class="back" href="index.html">Unit 4</a><p class="sig">Unit 4 Notes / Lesson 4.5 / end of file</p></div></footer>
+
+<script src="../unit-4/notes.js"></script>
+<script>
+(function(){
+  var fx = document.getElementById("fx"), code = document.getElementById("fxCode"), n = 3;
+  var S = { j: "flex-start", a: "stretch", d: "row" }, gap = 10, flexOn = true;
+  function opts(id, key, list){
+    var row = document.getElementById(id);
+    list.forEach(function(v){ var b = document.createElement("button"); b.textContent = v; b.onclick = function(){ S[key] = v; draw(); }; row.appendChild(b); });
+  }
+  opts("pJ", "j", ["flex-start","center","flex-end","space-between","space-around"]);
+  opts("pA", "a", ["stretch","flex-start","center","flex-end"]);
+  opts("pD", "d", ["row","column"]);
+  function draw(){
+    fx.innerHTML = "";
+    for (var i = 1; i <= n; i++){ var d = document.createElement("div"); d.className = "fitem"; d.textContent = "Item " + i; fx.appendChild(d); }
+    fx.style.flexDirection = S.d; fx.style.justifyContent = S.j; fx.style.alignItems = S.a; fx.style.gap = gap + "px";
+    ["pJ","pA","pD"].forEach(function(id, k){ var key = ["j","a","d"][k]; Array.prototype.forEach.call(document.getElementById(id).children, function(b){ b.classList.toggle("on", b.textContent === S[key]); }); });
+    code.innerHTML = '<span class="sl">.container</span> {\n  <span class="pt">display</span>: <span class="vl">flex</span>;\n  <span class="pt">flex-direction</span>: <span class="vl">' + S.d + '</span>;\n  <span class="pt">justify-content</span>: <span class="vl">' + S.j + '</span>;\n  <span class="pt">align-items</span>: <span class="vl">' + S.a + '</span>;\n  <span class="pt">gap</span>: <span class="vl">' + gap + 'px</span>;\n}';
+  }
+  document.getElementById("gp").oninput = function(){ gap = this.value; document.getElementById("gpv").textContent = gap + "px"; draw(); };
+  document.getElementById("addI").onclick = function(){ if (n < 6) n++; draw(); };
+  document.getElementById("remI").onclick = function(){ if (n > 1) n--; draw(); };
+  draw();
+
+  var cbox = document.getElementById("cbox");
+  document.getElementById("ctr").onclick = function(){ cbox.style.justifyContent = "center"; cbox.style.alignItems = "center"; };
+  document.getElementById("ctr2").onclick = function(){ cbox.style.justifyContent = ""; cbox.style.alignItems = ""; };
+})();
+(function(){
+  var d = document.getElementById("fxDemo"), off = document.getElementById("fxOff"), on = document.getElementById("fxOn");
+  function set(f){ d.style.display = f ? "flex" : "block"; d.style.gap = f ? "8px" : ""; Array.prototype.forEach.call(d.children, function(c, i){ c.style.marginBottom = f ? "0" : (i < 2 ? "6px" : "0"); }); off.classList.toggle("on", !f); on.classList.toggle("on", f); }
+  off.onclick = function(){ set(false); }; on.onclick = function(){ set(true); };
+})();
+</script>
+</body></html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hover Effects and Transitions | Unit 4 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css"><link rel="stylesheet" href="notes8.css">
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 4</a><a href="8-4-pseudo-classes-and-hover-effects.html">Back to 4.4</a><a href="hover-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 4 Notes &nbsp;/&nbsp; Lesson 4.4</div>
+  <h1>Hover Effects and Transitions</h1>
+  <p class="deck">Make elements react to the mouse, and glide between looks instead of snapping.</p>
+  <span class="stdchip">:hover @CHIP@middot; transition</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>Styles for a Moment in Time</h2></div>
+  <p class="story">A traffic light is not red forever. It is red <em>while</em> the cars need to stop. A pseudo-class works like that: a style that only applies <b>while something is happening</b> to an element, such as a mouse resting on it. Nothing changes in your HTML. The browser simply watches what the user is doing.</p>
+  <div class="cards">
+    <div class="cardx"><div class="num">:hover</div><h4>The mouse is on it</h4><p>Applies while the pointer sits on top of the element.</p></div>
+    <div class="cardx"><div class="num">:focus</div><h4>It is selected</h4><p>Applies when an element is clicked into or reached with the Tab key.</p></div>
+    <div class="cardx"><div class="num">:active</div><h4>It is being clicked</h4><p>Applies for the split second the button is pressed down.</p></div>
+  </div>
+  <p class="lede">Try all three on the same link-style button. Hover it, press and hold it, then click away and Tab back to it.</p>
+  <div class="stage"><div class="cap">Live pseudo-classes</div>
+    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><button id="pb" class="pbtn">Tap me</button><input class="pin" placeholder="Click or Tab to me"></div>
+    <div class="out" id="outP">Waiting for you...</div></div>
+  <div class="hint-panel"><b>Pseudo-classes cannot go inline.</b> They must live in a style block or an external stylesheet, which is one more reason to keep your CSS in its own file.</div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>Snap or Glide? The Transition Property</h2></div>
+  <p class="story">Without a transition, a hover change happens like flipping a light switch: instant. With a <b>transition</b> it is more like a dimmer dial, gliding from one look to the other. It is a tiny detail, but it is what makes a site feel polished.</p>
+  <p class="lede">Slide the duration, then hover the button. At 0 it snaps.</p>
+  <div class="rng"><span>0s</span><input type="range" id="dur" min="0" max="20" value="4" style="flex:1;max-width:320px"><span id="durv">0.4s</span></div>
+  <div class="stage"><div class="cap">Hover this button</div><button id="tb" style="background:#1d4ed8;color:#fff;border:0;border-radius:8px;padding:14px 26px;font:700 16px Manrope,sans-serif;cursor:pointer">Hover over me</button></div>
+  <div class="codeblk" id="tcode"></div>
+  <div class="steps">
+    <div class="st"><b>PROPERTY</b>Which property should glide, like a background color. The word all works too.</div>
+    <div class="st"><b>DURATION</b>How long the glide takes, written in seconds like 0.3s.</div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>Where Does the Transition Go?</h2></div>
+  <p class="story">This is the part everyone gets wrong. Put the transition on the <b>normal</b> rule, not the hover rule. Then the element glides in <em>and</em> glides back out. Put it only on the hover rule and it glides in, but snaps back the moment your mouse leaves.</p>
+  <p class="lede">Compare the two. Hover each, then move away and watch how it returns.</p>
+  <div class="pickrow" style="gap:30px">
+    <div><div class="cap" style="font:600 11.5px JetBrains Mono,monospace;color:#6EE7B7;margin-bottom:6px">RIGHT: on the normal rule</div><button class="tr good">Hover me</button></div>
+    <div><div class="cap" style="font:600 11.5px JetBrains Mono,monospace;color:#FCA5A5;margin-bottom:6px">WRONG: only on the hover rule</div><button class="tr bad">Hover me</button></div>
+  </div>
+  <div class="wrongright">
+    <div class="w"><h4>Wrong</h4><div class="codeblk">a { <span class="pt">color</span>: <span class="vl">navy</span>; }
+a:hover {
+  <span class="pt">color</span>: <span class="vl">red</span>;
+  <span class="pt">transition</span>: <span class="vl">color 0.3s</span>;
+}</div><p>Glides in, snaps back out.</p></div>
+    <div class="r"><h4>Right</h4><div class="codeblk">a {
+  <span class="pt">color</span>: <span class="vl">navy</span>;
+  <span class="pt">transition</span>: <span class="vl">color 0.3s</span>;
+}
+a:hover { <span class="pt">color</span>: <span class="vl">red</span>; }</div><p>Smooth both ways.</p></div>
+    <div class="w"><h4>Wrong: space missing before the colon part</h4><div class="codeblk">a <span class="sl">: hover</span> { ... }</div><p>A pseudo-class sticks to the selector with no spaces.</p></div>
+    <div class="r"><h4>Right: one tight selector</h4><div class="codeblk">a<span class="sl">:hover</span> { ... }</div><p>Tag name, colon, state, all together.</p></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>Pseudo-class</b></td><td>A style that applies only during a temporary state, written with a colon</td></tr>
+      <tr><td><b>:hover</b></td><td>While the mouse is over the element</td></tr>
+      <tr><td><b>:focus</b></td><td>While the element is selected by click or Tab</td></tr>
+      <tr><td><b>:active</b></td><td>While the element is being clicked</td></tr>
+      <tr><td><b>Transition</b></td><td>Makes a change glide over time instead of snapping</td></tr>
+    </tbody></table></div></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>Put the transition on the normal rule.</h2><p>Ready to build? Head back to 4.4 and follow the steps in the Assignment tab.</p><a class="back" href="8-4-pseudo-classes-and-hover-effects.html">&larr; Back to 4.4</a><a class="back" href="index.html">Unit 4</a><p class="sig">Unit 4 Notes / Lesson 4.4 / end of file</p></div></footer>
+
+<script src="../unit-4/notes.js"></script>
+<script>
+(function(){
+  var st = document.createElement("style");
+  st.textContent =
+    ".pbtn{background:#334155;color:#fff;border:2px solid transparent;border-radius:8px;padding:12px 22px;font:700 15px Manrope,sans-serif;cursor:pointer}" +
+    ".pbtn:hover{background:#0EA5E9}.pbtn:active{background:#F59E0B;color:#111}.pbtn:focus{outline:3px solid #A78BFA}" +
+    ".pin{background:#fff;color:#111;border:2px solid #94A3B8;border-radius:8px;padding:11px 14px;font:600 14px Manrope,sans-serif}.pin:focus{border-color:#A78BFA;background:#F5F3FF;outline:none}" +
+    ".tr{background:#334155;color:#fff;border:0;border-radius:8px;padding:12px 22px;font:700 15px Manrope,sans-serif;cursor:pointer}" +
+    ".tr.good{transition:background-color .5s}.tr.good:hover{background:#10B981}" +
+    ".tr.bad:hover{background:#EF4444;transition:background-color .5s}";
+  document.head.appendChild(st);
+  var pb = document.getElementById("pb"), op = document.getElementById("outP");
+  pb.addEventListener("mouseenter", function(){ op.textContent = ":hover is on (the mouse is over the button)"; });
+  pb.addEventListener("mouseleave", function(){ op.textContent = ":hover is off"; });
+  pb.addEventListener("mousedown", function(){ op.textContent = ":active is on (the button is being pressed)"; });
+  pb.addEventListener("mouseup", function(){ op.textContent = ":hover is on again, :active is off"; });
+  pb.addEventListener("focus", function(){ op.textContent = ":focus is on (the button is selected)"; });
+  pb.addEventListener("blur", function(){ op.textContent = ":focus is off"; });
+  document.querySelector(".pin").addEventListener("focus", function(){ op.textContent = ":focus is on (the box is selected)"; });
+
+  var dur = document.getElementById("dur"), dv = document.getElementById("durv"), tb = document.getElementById("tb"), tc = document.getElementById("tcode");
+  function setT(){
+    var s = (dur.value / 10).toFixed(1); dv.textContent = s + "s"; tb.style.transition = "background-color " + s + "s";
+    tc.innerHTML = 'button {\n  <span class="pt">background-color</span>: <span class="vl">blue</span>;\n  <span class="pt">transition</span>: <span class="vl">background-color ' + s + 's</span>;\n}';
+  }
+  dur.oninput = setT; setT();
+  tb.onmouseenter = function(){ tb.style.background = "#F59E0B"; tb.style.color = "#111"; };
+  tb.onmouseleave = function(){ tb.style.background = "#1d4ed8"; tb.style.color = "#fff"; };
+})();
+</script>
+</body></html>

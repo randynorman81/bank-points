@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>External CSS and Classes | Unit 4 Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css"><link rel="stylesheet" href="notes8.css">
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">&larr; Unit 4</a><a href="8-1-intro-to-external-css-classes.html">Back to 4.1</a><a href="external-css-notes.html" class="current">Notes</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="brief-no">Unit 4 Notes &nbsp;/&nbsp; Lesson 4.1</div>
+  <h1>External CSS and Classes</h1>
+  <p class="deck">Your styles move out of the page into their own file, and a class lets you style some elements but not others.</p>
+  <span class="stdchip">link @CHIP@middot; .class @CHIP@middot; style.css</span>
+</div></header>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">01</div><h2>One Remote for Every Room</h2></div>
+  <p class="story">Imagine a school where every classroom has its own light switch, and the principal wants the lights dimmer. Someone has to walk into every single room. Now imagine one master panel in the office that controls all of them. External CSS is that master panel: your styles live in <b>one separate file</b>, and every page just plugs into it.</p>
+  <p class="lede">Try it. The page below has four paragraphs. Change the color the slow way, then the fast way.</p>
+  <div class="pickrow"><button id="slow">Inline styles: change each paragraph</button><button id="fast">External CSS: change one rule</button><button id="rst">Reset</button></div>
+  <div class="stage"><div class="cap">Your page</div><div class="sheet" id="sheet1"><p>Paragraph one</p><p>Paragraph two</p><p>Paragraph three</p><p>Paragraph four</p></div>
+  <div class="out" id="out1">Edits you had to make so far: <b>0</b></div></div>
+  <div class="callout">Four inline edits vs. one stylesheet edit.<span>Now picture a 40-page website. Inline styles would mean 160 edits. An external file stays at one.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">02</div><h2>The Link Tag Is the Plug</h2></div>
+  <p class="story">Your CSS file does nothing on its own. The page has to be told where to find it, like plugging in a lamp. That plug is the <b>link</b> tag, and it always lives in the <b>head</b>.</p>
+  <p class="lede">Tap each piece to see what it does.</p>
+  <div class="shellbig" id="lnk"></div>
+  <div class="hint-panel" id="lnkOut">Tap a piece of the tag above.</div>
+  <div class="cards">
+    <div class="cardx"><div class="num">Where</div><h4>Inside the head</h4><p>Never in the body. The browser needs the plug before it draws the page.</p></div>
+    <div class="cardx"><div class="num">No ending</div><h4>No closing tag</h4><p>Like an image, it is a single tag that stands alone.</p></div>
+    <div class="cardx"><div class="num">Name match</div><h4>Spell the file name exactly</h4><p>If the file is called one thing and the link says another, nothing styles. No error shows up, it just looks plain.</p></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">03</div><h2>Inside a CSS File, the Rules Change</h2></div>
+  <p class="lede">A CSS file holds only rules. It is not a web page, so HTML tags and quotes do not belong in it.</p>
+  <div class="wrongright">
+    <div class="w"><h4>Wrong: HTML habits in the CSS file</h4><div class="codeblk"><span class="t">&lt;style&gt;</span>
+p { <span class="pt">color</span>: <span class="vl">"blue"</span>; }
+<span class="t">&lt;/style&gt;</span></div><p>No style tags, and no quotes around values.</p></div>
+    <div class="r"><h4>Right: just selector and rules</h4><div class="codeblk">p {
+  <span class="pt">color</span>: <span class="vl">blue</span>;
+}</div><p>A selector, curly braces, then property: value; pairs.</p></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>Classes: Style Some, Not All</h2></div>
+  <p class="story">A tag rule is a school-wide announcement: <em>every</em> paragraph hears it. A <b>class</b> is a name tag. Only the elements wearing that name tag get the style, and you can hand the same name tag to as many elements as you want.</p>
+  <p class="lede">Click a paragraph to give it the class, click again to take it away.</p>
+  <div class="stage"><div class="cap">A class rule that sets a gold background</div><div class="sheet" id="sheet2"></div>
+  <div class="out" id="out2"></div></div>
+  <div class="steps">
+    <div class="st"><b>IN THE HTML</b>The element gets the name inside its class attribute. No dot here.</div>
+    <div class="st"><b>IN THE CSS</b>The rule starts with a <b>dot</b> before the name.</div>
+    <div class="st"><b>RESULT</b>Only elements with that name change.</div>
+  </div>
+  <div class="wrongright">
+    <div class="w"><h4>Wrong: dot in the HTML</h4><div class="codeblk"><span class="t">&lt;p</span> <span class="at">class</span>=<span class="vl">".spotlight"</span><span class="t">&gt;</span></div><p>The dot only belongs in the CSS rule.</p></div>
+    <div class="r"><h4>Right: dot in the CSS only</h4><div class="codeblk"><span class="sl">.spotlight</span> { ... }
+<span class="cm">/* the HTML says class="spotlight" */</span></div><p>Same name both places, dot only on the CSS side.</p></div>
+  </div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">05</div><h2>Vocab You Need</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>External CSS</b></td><td>Styles kept in their own file (like style.css) and shared by the whole site</td></tr>
+      <tr><td><b>CSS class</b></td><td>A name you make up. Any element wearing it gets the matching rule. Written with a dot in CSS</td></tr>
+      <tr><td><b>Link tag</b></td><td>A head tag that connects the CSS file to the page</td></tr>
+      <tr><td><b>Rule</b></td><td>A selector plus the properties inside curly braces</td></tr>
+      <tr><td><b>Selector</b></td><td>The part that says which elements the rule is for</td></tr>
+    </tbody></table></div></div>
+</div></section>
+
+<footer class="final"><div class="wrap"><h2>One file in charge of the whole site.</h2><p>Ready to build? Head back to 4.1 and follow the steps in the Assignment tab.</p><a class="back" href="8-1-intro-to-external-css-classes.html">&larr; Back to 4.1</a><a class="back" href="index.html">Unit 4</a><p class="sig">Unit 4 Notes / Lesson 4.1 / end of file</p></div></footer>
+
+<script src="../unit-4/notes.js"></script>
+<script>
+(function(){
+  var edits = 0, sheet = document.getElementById("sheet1"), out = document.getElementById("out1");
+  var colors = ["#1d4ed8","#b91c1c","#15803d","#7c3aed"], pi = 0;
+  function say(){ out.innerHTML = "Edits you had to make so far: <b>" + edits + "</b>"; }
+  document.getElementById("slow").onclick = function(){ var c = colors[pi++ % 4]; sheet.querySelectorAll("p").forEach(function(p){ p.style.color = c; edits++; }); say(); };
+  document.getElementById("fast").onclick = function(){ var c = colors[pi++ % 4]; sheet.style.color = c; sheet.querySelectorAll("p").forEach(function(p){ p.style.color = ""; }); edits++; say(); };
+  document.getElementById("rst").onclick = function(){ edits = 0; pi = 0; sheet.style.color = ""; sheet.querySelectorAll("p").forEach(function(p){ p.style.color = ""; }); say(); };
+
+  var s2 = document.getElementById("sheet2"), o2 = document.getElementById("out2");
+  function count(){ var n = s2.querySelectorAll(".sp").length; o2.textContent = n + " of 4 paragraphs wearing the class" + (n === 0 ? " (nothing changes)" : ""); }
+  ["Paragraph one","Paragraph two","Paragraph three","Paragraph four"].forEach(function(t){
+    var p = document.createElement("p"); p.textContent = t; p.style.cursor = "pointer"; p.style.padding = "4px 8px"; p.style.borderRadius = "4px";
+    p.onclick = function(){ p.classList.toggle("sp"); p.style.background = p.classList.contains("sp") ? "gold" : ""; count(); };
+    s2.appendChild(p);
+  });
+  count();
+
+  var L = document.getElementById("lnk"), LO = document.getElementById("lnkOut");
+  var parts = [
+    ["&lt;link", "t", "The link tag. It connects a file outside the page to this page."],
+    ["rel=\"stylesheet\"", "at", "Short for relationship. It says what the linked file is for. For a CSS file the answer is stylesheet."],
+    ["href=\"style.css\"", "vl", "Short for hypertext reference. It holds the file name, the path to your CSS file. It has to match your real file name, spelling and all."],
+    ["&gt;", "t", "The end of the tag. No separate closing tag is needed."]
+  ];
+  parts.forEach(function(p){
+    var s = document.createElement("span"); s.className = p[1]; s.innerHTML = p[0]; s.style.cursor = "pointer"; s.style.padding = "2px 4px"; s.style.borderRadius = "4px";
+    s.onclick = function(){ Array.prototype.forEach.call(L.children, function(c){ c.style.background = ""; }); s.style.background = "rgba(56,189,248,.25)"; LO.innerHTML = "<b>" + p[0] + "</b> &mdash; " + p[2]; };
+    L.appendChild(s);
+    if (p[0] !== "&gt;" ) L.appendChild(document.createTextNode(" "));
+  });
+})();
+</script>
+</body></html>
