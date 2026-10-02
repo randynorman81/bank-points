@@ -122,17 +122,6 @@ const COURSES = [
 // null for a tool that's still being built -- it'll show as "coming soon"
 // instead of a link.
 const TOOLS = [
-  {
-    id: "quizzes", name: "Quizzes",
-    description: "Sign in with your school Google account to take an open quiz for your class.",
-    // Each course has its own quiz page so students only ever see quizzes for
-    // their own class -- see courseLinks below instead of a single `url`.
-    courseLinks: {
-      ist: "https://quizzescomputerscience.netlify.app/ist.html",
-      apcsp: "https://quizzescomputerscience.netlify.app/apcsp.html",
-      ec: "https://quizzescomputerscience.netlify.app/ec.html"
-    }
-  },
   { id: "bank", name: "Bank Points", url: NAV_ROOT + "bank/index.html", description: "Sign in with your school Google account to see your own extra credit points, or request to use some on an assignment." },
   { id: "arcade", name: "Extra Credit Arcade", url: "https://ist-extra-credit-games.netlify.app/", description: "Play classic NES games in your browser and earn Bank Points for how far you get, verified by your teacher." },
   { id: "submit-ec", name: "Submit Extra Credit", url: "https://docs.google.com/forms/d/e/1FAIpQLSde_IWMSrUn3FU485jZa0_1s7hFOkwK2ZMjBAS0KEVKrhRykw/viewform", description: "Upload proof of extra credit work. Mr. Norman grades it and adds points to your Bank if it's correct." },
