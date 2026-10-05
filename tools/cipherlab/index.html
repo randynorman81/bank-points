@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CipherLab</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%90%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --ink:#101A24; --ink-soft:#16202E;
+  --bg:#F3F6F5; --bg-raised:#FFFFFF; --bg-sunken:#E7ECEA;
+  --text:#101A24; --text-muted:#51626D;
+  --border:#C7D2D4; --grid-line:rgba(35,76,109,0.12);
+  --accent:#2F6690; --accent-strong:#234C6D; --accent-contrast:#FFFFFF;
+  --trace:#0E8FA6;
+  --state-weak:#B5541C; --state-weak-bg:#F7E4D2;
+  --state-strong:#1F7A67; --state-strong-bg:#DCEEE9;
+  --mono-bg:#0E1720; --mono-text:#CFE3E9; --mono-accent:#5FD3E3;
+  --shadow: 0 1px 0 rgba(16,26,36,0.06);
+  --font-display:'IBM Plex Sans Condensed',system-ui,sans-serif;
+  --font-body:'IBM Plex Sans',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B1220; --bg-raised:#101B2C; --bg-sunken:#0A0F1A;
+    --text:#E7EEF2; --text-muted:#93A6B4;
+    --border:#26394A; --grid-line:rgba(95,211,227,0.14);
+    --accent:#6FB3D9; --accent-strong:#8FC6E4; --accent-contrast:#06121C;
+    --trace:#5FD3E3;
+    --state-weak:#E3A868; --state-weak-bg:#3A2A16;
+    --state-strong:#5FCBB3; --state-strong-bg:#123330;
+    --mono-bg:#060B12; --mono-text:#CFE3E9; --mono-accent:#5FD3E3;
+    --shadow: 0 1px 0 rgba(0,0,0,0.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B1220; --bg-raised:#101B2C; --bg-sunken:#0A0F1A;
+  --text:#E7EEF2; --text-muted:#93A6B4;
+  --border:#26394A; --grid-line:rgba(95,211,227,0.14);
+  --accent:#6FB3D9; --accent-strong:#8FC6E4; --accent-contrast:#06121C;
+  --trace:#5FD3E3;
+  --state-weak:#E3A868; --state-weak-bg:#3A2A16;
+  --state-strong:#5FCBB3; --state-strong-bg:#123330;
+  --mono-bg:#060B12; --mono-text:#CFE3E9; --mono-accent:#5FD3E3;
+  --shadow: 0 1px 0 rgba(0,0,0,0.4);
+}
+
+/* ============ BASE ============ */
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:var(--font-body); font-size:16px; line-height:1.55;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size:28px 28px;
+}
+h1,h2,h3,h4{font-family:var(--font-display); text-wrap:balance; margin:0; letter-spacing:.01em;}
+p{margin:0 0 .9em; max-width:65ch;}
+a{color:var(--accent);}
+code,.mono{font-family:var(--font-mono);}
+::selection{background:var(--trace); color:var(--mono-bg);}
+:focus-visible{outline:2px solid var(--trace); outline-offset:2px; border-radius:2px;}
+@media (prefers-reduced-motion: reduce){ *{animation-duration:.001ms !important; transition-duration:.001ms !important;} }
+
+.eyebrow{
+  font-family:var(--font-display); font-weight:600; font-size:.72rem;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--accent);
+}
+.stamp{
+  display:inline-flex; align-items:center; gap:.4em;
+  font-family:var(--font-mono); font-weight:600; font-size:.72rem;
+  letter-spacing:.08em; text-transform:uppercase;
+  padding:.3em .7em; border-radius:3px; border:1.5px solid currentColor;
+  transform:rotate(-1deg);
+}
+.stamp.weak{ color:var(--state-weak); background:var(--state-weak-bg); }
+.stamp.strong{ color:var(--state-strong); background:var(--state-strong-bg); }
+.stamp.neutral{ color:var(--text-muted); background:var(--bg-sunken); border-color:var(--border); transform:none; }
+
+/* ============ SHELL ============ */
+.app{ max-width:1180px; margin:0 auto; padding:0 20px 80px; }
+.masthead{
+  padding:32px 0 20px; display:flex; align-items:baseline; justify-content:space-between; gap:16px;
+  border-bottom:2px solid var(--border); flex-wrap:wrap;
+}
+.masthead .brand{ display:flex; align-items:baseline; gap:.5em; }
+.masthead h1{ font-size:1.9rem; font-weight:700; }
+.masthead .brand small{ font-family:var(--font-mono); color:var(--text-muted); font-size:.8rem; }
+.masthead .file-tab{ font-family:var(--font-mono); font-size:.78rem; color:var(--text-muted); }
+
+.layout{ display:grid; grid-template-columns:210px 1fr; gap:0; margin-top:0; }
+.index-rail{
+  border-right:2px solid var(--border); padding:22px 14px 22px 0;
+  display:flex; flex-direction:column; gap:4px; align-self:start; position:sticky; top:12px;
+}
+.index-tab{
+  font-family:var(--font-display); font-weight:600; font-size:.86rem; text-align:left;
+  background:none; border:none; color:var(--text-muted); cursor:pointer;
+  padding:10px 12px; border-radius:4px 0 0 4px; letter-spacing:.02em;
+  border-left:3px solid transparent;
+}
+.index-tab:hover{ color:var(--text); background:var(--bg-sunken); }
+.index-tab.active{ color:var(--accent-strong); border-left-color:var(--accent); background:var(--bg-raised); box-shadow:var(--shadow); }
+.index-tab .num{ font-family:var(--font-mono); color:var(--text-muted); margin-right:.5em; }
+
+.page-stage{ padding:26px 0 26px 32px; min-width:0; }
+.chapter{ display:none; }
+.chapter.active{ display:block; }
+.chapter > .kicker{ margin-bottom:22px; }
+.chapter h2{ font-size:1.6rem; margin-bottom:.25em; }
+.chapter .lede{ color:var(--text-muted); max-width:62ch; }
+
+@media (max-width: 860px){
+  .layout{ grid-template-columns:1fr; }
+  .index-rail{
+    position:static; flex-direction:row; overflow-x:auto; border-right:none;
+    border-bottom:2px solid var(--border); padding:14px 0; gap:6px;
+  }
+  .index-tab{ white-space:nowrap; border-left:none; border-bottom:3px solid transparent; border-radius:4px 4px 0 0; }
+  .index-tab.active{ border-left-color:transparent; border-bottom-color:var(--accent); }
+  .page-stage{ padding-left:0; padding-top:20px; }
+}
+
+/* ============ COMPONENTS ============ */
+.exhibit{
+  background:var(--bg-raised); border:1.5px solid var(--border); border-radius:6px;
+  padding:22px 24px; margin:0 0 22px; box-shadow:var(--shadow);
+}
+.exhibit .exhibit-head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:6px; flex-wrap:wrap; }
+.exhibit .exhibit-num{ font-family:var(--font-mono); color:var(--text-muted); font-size:.82rem; }
+.exhibit h3{ font-size:1.12rem; margin:.1em 0 .3em; }
+.exhibit .exhibit-desc{ color:var(--text-muted); font-size:.92rem; margin-bottom:14px; max-width:60ch; }
+
+.field{ display:flex; flex-direction:column; gap:5px; margin-bottom:12px; max-width:420px; }
+.field label{ font-family:var(--font-display); font-size:.78rem; letter-spacing:.03em; color:var(--text-muted); }
+.field input[type=text], .field input[type=password], .field input[type=number], .field select, .field textarea{
+  font-family:var(--font-mono); font-size:.96rem; padding:9px 11px;
+  background:var(--bg-sunken); border:1.5px solid var(--border); border-radius:4px; color:var(--text);
+  width:100%;
+}
+.field textarea{ font-family:var(--font-body); font-size:.92rem; resize:vertical; max-width:560px; }
+.row{ display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
+.btn{
+  font-family:var(--font-display); font-weight:600; letter-spacing:.03em; font-size:.86rem;
+  background:var(--accent); color:var(--accent-contrast); border:none; border-radius:4px;
+  padding:10px 16px; cursor:pointer;
+}
+.btn:hover{ filter:brightness(1.08); }
+.btn.ghost{ background:none; border:1.5px solid var(--border); color:var(--text); }
+.btn.ghost:hover{ border-color:var(--accent); color:var(--accent-strong); }
+.btn:disabled{ opacity:.5; cursor:not-allowed; }
+
+.readout{
+  font-family:var(--font-mono); background:var(--mono-bg); color:var(--mono-text);
+  border-radius:5px; padding:14px 16px; font-size:.86rem; overflow-x:auto;
+}
+.readout .accent{ color:var(--mono-accent); }
+.readout .line{ display:flex; justify-content:space-between; gap:16px; padding:2px 0; white-space:nowrap; }
+.readout .k{ color:#8CA3AD; }
+
+table.speedtable{ border-collapse:collapse; width:100%; font-family:var(--font-mono); font-size:.86rem; }
+table.speedtable th, table.speedtable td{ text-align:left; padding:7px 10px; border-bottom:1px solid var(--border); font-variant-numeric:tabular-nums; }
+table.speedtable th{ color:var(--text-muted); font-weight:500; font-family:var(--font-display); text-transform:uppercase; font-size:.7rem; letter-spacing:.08em; }
+.table-wrap{ overflow-x:auto; }
+
+.bar-row{ display:grid; grid-template-columns:150px 1fr auto; gap:12px; align-items:center; margin:8px 0; font-family:var(--font-mono); font-size:.84rem; }
+.bar-track{ background:var(--bg-sunken); border-radius:3px; height:14px; overflow:hidden; }
+.bar-fill{ height:100%; background:var(--accent); border-radius:3px; }
+.bar-fill.weak{ background:var(--state-weak); }
+.bar-fill.strong{ background:var(--state-strong); }
+
+.badge-list{ display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; }
+.chip{ font-family:var(--font-mono); font-size:.78rem; padding:4px 9px; border-radius:12px; background:var(--bg-sunken); border:1px solid var(--border); }
+.chip.hit{ background:var(--state-weak-bg); border-color:var(--state-weak); color:var(--state-weak); }
+
+.terminal-log{
+  font-family:var(--font-mono); font-size:.78rem; background:var(--mono-bg); color:var(--mono-text);
+  border-radius:5px; padding:10px 12px; height:150px; overflow-y:auto; display:flex; flex-direction:column-reverse;
+}
+.terminal-log div{ padding:1px 0; white-space:pre; }
+.terminal-log .found{ color:var(--mono-accent); font-weight:600; }
+
+.callout{ border-left:3px solid var(--accent); background:var(--bg-sunken); padding:12px 16px; border-radius:0 5px 5px 0; margin:16px 0; font-size:.92rem; }
+.callout.tip::before{ content:"FIELD NOTE — "; font-family:var(--font-display); font-weight:700; color:var(--accent); letter-spacing:.04em; }
+
+.grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+@media (max-width:700px){ .grid-2{ grid-template-columns:1fr; } }
+
+.vault-entry{ display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:10px; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); font-family:var(--font-mono); font-size:.86rem; }
+.vault-entry:last-child{ border-bottom:none; }
+.vault-entry .site{ font-family:var(--font-body); font-weight:600; }
+@media (max-width:700px){ .vault-entry{ grid-template-columns:1fr 1fr; } }
+
+.dossier{ background:var(--mono-bg); color:var(--mono-text); border-radius:6px; padding:18px 20px; font-family:var(--font-mono); font-size:.9rem; margin-bottom:20px; }
+.dossier .k{ color:#8CA3AD; }
+.arena-toolbar{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+.arena-toolbar button.tool-tab{
+  font-family:var(--font-display); font-weight:600; font-size:.82rem; padding:9px 14px; border-radius:4px;
+  border:1.5px solid var(--border); background:var(--bg-raised); color:var(--text); cursor:pointer;
+}
+.arena-toolbar button.tool-tab.active{ border-color:var(--accent); color:var(--accent-strong); background:var(--state-strong-bg); }
+.win-banner{ background:var(--state-strong-bg); color:var(--state-strong); border:2px solid var(--state-strong); border-radius:6px; padding:18px 20px; margin-bottom:18px; font-family:var(--font-mono); }
+.win-banner h4{ font-family:var(--font-display); font-size:1.1rem; margin-bottom:6px; color:var(--state-strong); }
+
+.hero-live{ display:grid; grid-template-columns:1.1fr 1fr; gap:26px; align-items:start; margin:20px 0 32px; }
+@media (max-width:800px){ .hero-live{ grid-template-columns:1fr; } }
+.strength-meter{ height:10px; border-radius:5px; background:var(--bg-sunken); overflow:hidden; margin:8px 0 4px; }
+.strength-meter > div{ height:100%; transition:width .2s ease; }
+
+/* ============ GLOSSARY TERMS ============ */
+.term-link{
+  font:inherit; background:none; border:none; padding:0; margin:0; cursor:pointer;
+  color:inherit; font-weight:600;
+  text-decoration-line:underline; text-decoration-style:dotted; text-decoration-color:var(--accent); text-underline-offset:3px;
+}
+.term-link:hover, .term-link:focus-visible{ color:var(--accent-strong); }
+.term-link::after{
+  content:"?"; display:inline-flex; align-items:center; justify-content:center;
+  width:1.05em; height:1.05em; margin-left:.2em; font-size:.62em; font-family:var(--font-mono); font-weight:700;
+  border:1px solid var(--accent); border-radius:50%; color:var(--accent); vertical-align:middle; position:relative; top:-0.35em;
+}
+.term-popover{
+  position:fixed; z-index:1000; width:min(300px, calc(100vw - 24px)); background:var(--bg-raised); border:1.5px solid var(--accent);
+  border-radius:8px; padding:14px 30px 14px 16px; box-shadow:0 10px 28px rgba(0,0,0,.22);
+  display:none; font-family:var(--font-body); font-size:.86rem; line-height:1.48;
+}
+.term-popover.open{ display:block; }
+.term-popover-title{ font-family:var(--font-display); font-weight:700; font-size:.74rem; text-transform:uppercase; letter-spacing:.07em; color:var(--accent); margin-bottom:6px; }
+.term-popover-body{ margin:0; color:var(--text); }
+.term-popover-close{
+  position:absolute; top:6px; right:8px; background:none; border:none; font-size:1.15rem; line-height:1;
+  color:var(--text-muted); cursor:pointer; padding:4px 6px;
+}
+.term-popover-close:hover{ color:var(--text); }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="masthead">
+    <div class="brand">
+      <h1>CipherLab</h1>
+      <small>PASSWORD SECURITY — FIELD MANUAL</small>
+    </div>
+    <div class="file-tab">EDITION 01 · FOR CLASSROOM USE</div>
+  </header>
+
+  <div class="layout">
+    <nav class="index-rail" aria-label="Chapters">
+      <button class="index-tab active" data-chapter="overview"><span class="num">01</span>Overview</button>
+      <button class="index-tab" data-chapter="lab"><span class="num">02</span>Crack Lab</button>
+      <button class="index-tab" data-chapter="build"><span class="num">03</span>Build Strong</button>
+      <button class="index-tab" data-chapter="vault"><span class="num">04</span>The Vault</button>
+      <button class="index-tab" data-chapter="arena"><span class="num">05</span>Practice Arena</button>
+    </nav>
+
+    <main class="page-stage">
+
+      <!-- ================= 01 OVERVIEW ================= -->
+      <section class="chapter active" id="chapter-overview">
+        <div class="kicker"><span class="eyebrow">Chapter 01 — Start here</span></div>
+        <h2>What even is "hacking" a password?</h2>
+        <p class="lede">Every account you have — school, games, social media — is locked with one thing: a password. If someone can guess it, they get in and can pretend to be you. <strong>"Cracking" a password just means guessing it</strong> — either a person typing obvious guesses, or a computer trying millions of guesses a second. Today you'll use the real tools that do that guessing, safely, on made-up passwords — so you can see exactly how fast weak ones fall, and build ones that don't.</p>
+
+        <div class="table-wrap" style="margin:20px 0 28px;">
+          <table class="speedtable">
+            <thead><tr><th>Time</th><th>Step</th><th>What you'll do</th></tr></thead>
+            <tbody>
+              <tr><td>0–10 min</td><td>01 · Overview</td><td>Read this page. Try cracking your own password below.</td></tr>
+              <tr><td>10–35 min</td><td>02 · Crack Lab</td><td>Run all 8 real cracking tools on passwords you make up.</td></tr>
+              <tr><td>35–55 min</td><td>03 · Build Strong</td><td>Build a strong password and watch the crack-time explode.</td></tr>
+              <tr><td>55–70 min</td><td>04 · The Vault</td><td>Try a working password-manager mock-up.</td></tr>
+              <tr><td>70–85 min</td><td>05 · Practice Arena</td><td>Make a fake account, then try to hack yourself.</td></tr>
+              <tr><td>85–90 min</td><td>Assignment</td><td>Answer the wrap-up questions at the end of Chapter 05.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Try it right now</h3>
+        <p class="lede">Type a password below — nothing leaves this page, it's all computed right here in your browser. This is the same math real cracking tools use.</p>
+
+        <div class="hero-live">
+          <div>
+            <div class="field">
+              <label for="hero-pw">Try a password</label>
+              <input type="text" id="hero-pw" placeholder="type something..." autocomplete="off" spellcheck="false">
+            </div>
+            <div class="strength-meter"><div id="hero-meter-fill"></div></div>
+            <div id="hero-stamp"></div>
+          </div>
+          <div class="readout" id="hero-readout">
+            <div class="line"><span class="k">CHARACTERS</span><span>—</span></div>
+            <div class="line"><span class="k">CHARACTER SET SIZE</span><span>—</span></div>
+            <div class="line"><span class="k">POSSIBLE COMBINATIONS</span><span>—</span></div>
+            <div class="line"><span class="k">ENTROPY</span><span>—</span></div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="speedtable" id="hero-speedtable">
+            <thead><tr><th>Attack scenario</th><th>Guess rate</th><th>Time to crack (avg.)</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">A password's strength isn't about looking complicated — it's about how many total guesses an attacker has to try. That number is what these chapters are built around.</div>
+
+        <h3 style="margin-top:36px;">What's in this manual</h3>
+        <div class="grid-2" style="margin-top:12px;">
+          <div class="exhibit" style="margin:0;"><span class="exhibit-num">EXHIBIT SET 02</span><h3>Crack Lab</h3><p class="exhibit-desc">Eleven real, working tools and challenges — the same techniques attackers use, plus a couple of games — that you run yourself against passwords you type in.</p></div>
+          <div class="exhibit" style="margin:0;"><span class="exhibit-num">CH. 03</span><h3>Build Strong</h3><p class="exhibit-desc">Watch crack-time explode as you add characters, one at a time, and see why length beats cleverness.</p></div>
+          <div class="exhibit" style="margin:0;"><span class="exhibit-num">CH. 04</span><h3>The Vault</h3><p class="exhibit-desc">A working mock-up of a <button type="button" class="term-link" data-term="password-manager">password manager</button> — see what it actually does and why it solves the reuse problem.</p></div>
+          <div class="exhibit" style="margin:0;"><span class="exhibit-num">CH. 05</span><h3>Practice Arena</h3><p class="exhibit-desc">Create a fake account, then switch sides and try to break into it yourself with the Crack Lab tools.</p></div>
+        </div>
+      </section>
+
+      <!-- ================= 02 CRACK LAB ================= -->
+      <section class="chapter" id="chapter-lab">
+        <div class="kicker"><span class="eyebrow">Chapter 02</span></div>
+        <h2>Crack Lab — eleven hands-on exhibits</h2>
+        <p class="lede">Everything here actually runs: real SHA-256 hashing, a real brute-force enumerator, real dictionary-and-rules guessing. Nothing is sent anywhere — it all happens on your device.</p>
+        <div id="lab-exhibits"></div>
+      </section>
+
+      <!-- ================= 03 BUILD STRONG ================= -->
+      <section class="chapter" id="chapter-build">
+        <div class="kicker"><span class="eyebrow">Chapter 03</span></div>
+        <h2>Build a strong password, one character at a time</h2>
+        <p class="lede">Type a password below. After every character, we recompute the crack time against a fast <button type="button" class="term-link" data-term="offline-attack">offline attack</button>, so you can watch it grow.</p>
+
+        <div class="exhibit">
+          <div class="field" style="max-width:520px;">
+            <label for="build-pw">Your password</label>
+            <input type="text" id="build-pw" placeholder="start typing..." autocomplete="off" spellcheck="false">
+          </div>
+          <div id="build-timeline" style="margin-top:16px;"></div>
+        </div>
+
+        <div class="exhibit">
+          <div class="exhibit-head"><span class="exhibit-num">PASSPHRASE GENERATOR</span></div>
+          <h3>Length beats cleverness</h3>
+          <p class="exhibit-desc">A random string of words is easier to remember than "P@ssw0rd!23" — and usually far harder to crack, because it's longer. This kind of password is called a <button type="button" class="term-link" data-term="passphrase">passphrase</button>.</p>
+          <button class="btn" id="passphrase-btn">Generate a passphrase</button>
+          <div class="readout" id="passphrase-readout" style="margin-top:14px; display:none;"></div>
+        </div>
+
+        <div class="callout tip">Aim for 16+ characters. Use a passphrase or a <button type="button" class="term-link" data-term="password-manager">password manager</button>'s generator (Chapter 04) instead of memorized substitutions like <code>@</code> for <code>a</code> (<button type="button" class="term-link" data-term="leetspeak">leetspeak</button>) — Exhibit 05 shows exactly why those don't help as much as people think.</div>
+
+        <h3 style="margin-top:28px;">Quick checklist</h3>
+        <ul style="max-width:62ch; color:var(--text-muted);">
+          <li>16+ characters, or a 4-5 word passphrase</li>
+          <li>Different password for every site — reuse is Exhibit 07's whole <button type="button" class="term-link" data-term="credential-stuffing">problem</button></li>
+          <li>Nothing guessable from your profile — see Exhibit 04</li>
+          <li>Turn on <button type="button" class="term-link" data-term="mfa">two-factor / multi-factor authentication</button> wherever it's offered</li>
+          <li>Let a password manager generate and remember it (Chapter 04)</li>
+        </ul>
+      </section>
+
+      <!-- ================= 04 VAULT ================= -->
+      <section class="chapter" id="chapter-vault">
+        <div class="kicker"><span class="eyebrow">Chapter 04</span></div>
+        <h2>The Vault — a working <button type="button" class="term-link" data-term="password-manager">password manager</button> mock-up</h2>
+        <p class="lede">This is a simplified simulation of how a real password manager works: one <button type="button" class="term-link" data-term="master-password">master password</button> unlocks a vault of unique, generated passwords for every site.</p>
+
+        <div class="exhibit" id="vault-locked">
+          <div class="field" style="max-width:360px;">
+            <label for="vault-master">Master password</label>
+            <input type="password" id="vault-master" placeholder="choose a master password" autocomplete="off">
+          </div>
+          <div class="strength-meter" style="max-width:360px;"><div id="vault-master-fill"></div></div>
+          <button class="btn" id="vault-unlock-btn" style="margin-top:12px;">Unlock vault</button>
+          <p class="exhibit-desc" style="margin-top:10px;">In a real manager this master password is the <em>only</em> one you ever memorize again — make it a long <button type="button" class="term-link" data-term="passphrase">passphrase</button>, since it protects everything else.</p>
+        </div>
+
+        <div class="exhibit" id="vault-unlocked" style="display:none;">
+          <div class="exhibit-head"><span class="exhibit-num">VAULT — UNLOCKED</span><button class="btn ghost" id="vault-lock-btn">Lock</button></div>
+          <div id="vault-entries"></div>
+          <div class="callout tip" style="margin-top:16px;">Notice the two accounts sharing one weak password above — that's exactly what Exhibit 07 (<button type="button" class="term-link" data-term="credential-stuffing">credential stuffing</button>) exploits. A manager makes "use a different password everywhere" actually realistic.</div>
+
+          <h3 style="margin-top:26px;">Generate a new password</h3>
+          <div class="row">
+            <div class="field" style="max-width:140px;"><label for="gen-length">Length: <span id="gen-length-val">18</span></label><input type="range" id="gen-length" min="8" max="32" value="18"></div>
+            <label class="field" style="max-width:none; flex-direction:row; align-items:center; gap:6px;"><input type="checkbox" id="gen-upper" checked> Uppercase</label>
+            <label class="field" style="max-width:none; flex-direction:row; align-items:center; gap:6px;"><input type="checkbox" id="gen-digits" checked> Digits</label>
+            <label class="field" style="max-width:none; flex-direction:row; align-items:center; gap:6px;"><input type="checkbox" id="gen-symbols" checked> Symbols</label>
+          </div>
+          <button class="btn" id="gen-btn">Generate</button>
+          <div class="readout" id="gen-readout" style="margin-top:14px; display:none;"></div>
+        </div>
+      </section>
+
+      <!-- ================= 05 PRACTICE ARENA ================= -->
+      <section class="chapter" id="chapter-arena">
+        <div class="kicker"><span class="eyebrow">Chapter 05</span></div>
+        <h2>Practice Arena — play both sides</h2>
+        <p class="lede">First you'll set up an account as the <strong>user</strong>. Then you'll switch hats and try to break into that exact account as the <strong>hacker</strong>, using the same tools from the Crack Lab.</p>
+
+        <div id="arena-phase-user" class="exhibit">
+          <div class="exhibit-head"><span class="exhibit-num">PHASE 1 — BE THE USER</span></div>
+          <h3>Sign up for "Nimbus Social"</h3>
+          <p class="exhibit-desc">Fill this out like you would for a real social app — including a couple of "fun facts" people often post publicly. Remember what you pick; you won't see the password again.</p>
+          <div class="field" style="max-width:340px;"><label for="arena-username">Username</label><input type="text" id="arena-username" name="cipherlab-arena-username-fake" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-form-type="other"></div>
+          <div class="field" style="max-width:340px;"><label for="arena-password">Password</label><input type="password" id="arena-password" name="cipherlab-arena-password-fake" autocomplete="new-password" data-lpignore="true" data-1p-ignore="true" data-form-type="other"></div>
+          <div class="strength-meter" style="max-width:340px;"><div id="arena-meter-fill"></div></div>
+          <div class="row" style="margin-top:6px;">
+            <div class="field" style="max-width:200px;"><label for="arena-pet">Pet's name (public bio fact)</label><input type="text" id="arena-pet" autocomplete="off"></div>
+            <div class="field" style="max-width:160px;"><label for="arena-team">Favorite team</label><input type="text" id="arena-team" autocomplete="off"></div>
+            <div class="field" style="max-width:140px;"><label for="arena-year">Birth year</label><input type="text" id="arena-year" autocomplete="off" maxlength="4"></div>
+          </div>
+          <button class="btn" id="arena-signup-btn" style="margin-top:8px;">Create account</button>
+        </div>
+
+        <div id="arena-phase-hacker" style="display:none;">
+          <div class="dossier" id="arena-dossier"></div>
+          <div id="arena-win-zone"></div>
+
+          <div class="arena-toolbar" id="arena-toolbar">
+            <button class="tool-tab active" data-tool="breach">Breach-List Check</button>
+            <button class="tool-tab" data-tool="personal">Personal-Info Guesser</button>
+            <button class="tool-tab" data-tool="dictionary">Dictionary + Rules</button>
+            <button class="tool-tab" data-tool="brute">Brute-Force Runner</button>
+          </div>
+          <div class="exhibit" id="arena-tool-panel"></div>
+          <button class="btn ghost" id="arena-reset-btn">Start over with a new account</button>
+
+          <div class="exhibit" id="arena-assignment" style="margin-top:28px; border-color:var(--accent);">
+            <div class="exhibit-head"><span class="exhibit-num">85–90 MIN</span></div>
+            <h3>Your assignment</h3>
+            <p class="exhibit-desc">Turn this in as a <strong>Google Doc</strong>. Put your name at the top. Do the six things below, then answer all eight questions in your own words — <strong>about two sentences per answer</strong>, no more.</p>
+            <ul style="max-width:62ch; color:var(--text-muted);">
+              <li>Ran at least 3 of the 11 Crack Lab tools (Chapter 02) on a password you made up</li>
+              <li>Played at least 2 rounds of Defuse the Bomb (Exhibit 09) — one with the word list, one without</li>
+              <li>Tried the MFA Firewall (Exhibit 10) with MFA both on and off</li>
+              <li>Generated one strong password in The Vault (Chapter 04) and noted its crack time</li>
+              <li>Created an account here in Practice Arena and tried to hack it yourself as the attacker</li>
+              <li>Got a result in Practice Arena — either it broke, or it survived every tool you tried</li>
+            </ul>
+            <p class="exhibit-desc" style="margin-top:14px;"><strong>Draft your answers here first</strong>, then copy them into your Google Doc:</p>
+            <div class="field">
+              <label for="assign-q1">1. Which tool cracked your Practice Arena password — or which ones did it survive?</label>
+              <textarea id="assign-q1" rows="3"></textarea>
+            </div>
+            <div class="field">
+              <label for="assign-q2">2. Did the word-list bombs in Defuse the Bomb actually go faster than the blind ones? Why or why not?</label>
+              <textarea id="assign-q2" rows="3"></textarea>
+            </div>
+            <div class="field">
+              <label for="assign-q3">3. Why does turning on MFA still help even after a hacker already has your password?</label>
+              <textarea id="assign-q3" rows="3"></textarea>
+            </div>
+            <div class="field">
+              <label for="assign-q4">4. In your own words: why does a longer password beat a "clever" short one?</label>
+              <textarea id="assign-q4" rows="3"></textarea>
+            </div>
+            <div class="field">
+              <label for="assign-q5">5. What's one thing about your real passwords you're changing after today?</label>
+              <textarea id="assign-q5" rows="3"></textarea>
+            </div>
+            <div class="field">
+              <label for="assign-q6">6. Pick one Crack Lab exhibit you haven't mentioned yet. In your own words, how does it actually crack a password?</label>
+              <textarea id="assign-q6" rows="3"></textarea>
+            </div>
+            <div class="field">
+              <label for="assign-q7">7. Why is reusing the same password on multiple sites dangerous? (Tie this to what you saw in The Vault or the Credential-Stuffing exhibit.)</label>
+              <textarea id="assign-q7" rows="3"></textarea>
+            </div>
+            <div class="field">
+              <label for="assign-q8">8. If you were designing a website's login page, what's one rule you'd require for passwords, and why?</label>
+              <textarea id="assign-q8" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============ GLOSSARY ============ */
+const GLOSSARY = {
+  'entropy': 'A measure of how unpredictable a password is, in bits. Each extra bit doubles the number of guesses an attacker needs — entropy is really just shorthand for "how many guesses would this take."',
+  'charset': 'Short for "character set" — the pool of different characters a password could be built from (lowercase letters, uppercase letters, digits, symbols). A bigger pool means more possible passwords of the same length.',
+  'combinations': 'The total number of different passwords possible for a given length and character set — the number an attacker has to search through in the worst case.',
+  'brute-force': 'An attack that tries every possible combination of characters, one after another, until one of them matches.',
+  'dictionary-attack': 'An attack that guesses using real words and already-known common passwords instead of random combinations, since most people build passwords out of words, not randomness.',
+  'mangling': 'Small, predictable tweaks attackers apply to dictionary words automatically — capitalizing the first letter, adding "123" or a year, swapping letters for look-alike symbols.',
+  'hash': 'A one-way scrambling process that turns a password into a fixed-length string of characters. Sites store the hash instead of your real password, and check your login by hashing what you type and comparing.',
+  'sha256': 'SHA-256 is one specific, widely-used hashing algorithm. It always turns any input into a 64-character scrambled output, and there’s no practical way to run it backward to recover the original.',
+  'rainbow-table': 'A pre-computed list mapping common passwords to their hashes. If your password’s hash is in the table, an attacker looks up the plaintext instantly instead of cracking it from scratch.',
+  'salting': 'A random extra value a website mixes into your password before hashing it, so the same password produces a different hash on every site. This is what makes rainbow tables useless in practice.',
+  'credential-stuffing': 'Taking a username/password pair leaked from one breached site and trying it on many other sites, betting that the same person reused it.',
+  'breach': 'An incident where a company’s stored data — often a whole password database — is stolen, and often published or sold afterward.',
+  'keyboard-walk': 'A password pattern made by sliding across physically adjacent keys, like "qwerty" or "asdf1234." It looks random at a glance but is one of the first things cracking tools check.',
+  'leetspeak': 'Swapping letters for similar-looking numbers or symbols, like "@" for "a" or "0" for "o." It feels clever, but attackers’ tools already reverse these swaps automatically.',
+  'passphrase': 'A password made of several random, unrelated words strung together (like "river-comet-anchor"). Often easier to remember than a short complex password, and usually much harder to crack because of its length.',
+  'mfa': 'Multi-factor authentication: requiring a second proof of identity beyond your password, like a code sent to your phone. A stolen password alone isn’t enough to log in.',
+  'password-manager': 'An app that generates and remembers a unique, strong password for every site, so you only ever have to remember one master password.',
+  'master-password': 'The single password that unlocks a password manager’s entire vault. Since it protects everything else, it should be the longest and most unique password you own.',
+  'rate-limited': 'A security measure that slows down or locks out repeated wrong login attempts on a real website — why guessing directly against a live login page is much slower than an offline attack.',
+  'offline-attack': 'An attack where a hacker already has a stolen copy of the (hashed) password data on their own hardware, so nothing can rate-limit or lock them out — they guess as fast as their computer allows.',
+  'online-attack': 'An attack made directly against a live login page, where the website itself can slow down, block, or lock out repeated wrong guesses.',
+  'gpu-rig': 'A computer built with many graphics cards (GPUs). GPUs happen to be extremely fast at the repetitive math hashing requires, so attackers use rigs of them to try billions of guesses per second.',
+  'bcrypt': 'A hashing algorithm deliberately designed to be slow — so that even with powerful hardware, guessing many passwords takes far longer than with a fast hash like plain SHA-256.',
+  'dossier': 'A collected file of information about a target. Here, it’s the public facts you’re handed about the account you’re about to try to break into.',
+  'shoulder-surfed': 'Information learned just by watching — literally looking over someone’s shoulder as they type, or noticing something like how many characters are in a password field.',
+  'keylogger': 'Software — usually malware — that secretly records every key you press and sends that log to an attacker. It doesn’t need to guess your password at all, since it just watches you type it.',
+};
+function T(key, display){ return `<button type="button" class="term-link" data-term="${key}">${display==null?key:display}</button>`; }
+function setupGlossary(){
+  const pop = document.createElement('div');
+  pop.className = 'term-popover';
+  pop.setAttribute('role','tooltip');
+  pop.innerHTML = `<button class="term-popover-close" type="button" aria-label="Close">×</button><div class="term-popover-title"></div><p class="term-popover-body"></p>`;
+  document.body.appendChild(pop);
+  const titleEl = pop.querySelector('.term-popover-title');
+  const bodyEl = pop.querySelector('.term-popover-body');
+  let openBtn = null;
+  function closePopover(){ pop.classList.remove('open'); if(openBtn) openBtn.setAttribute('aria-expanded','false'); openBtn=null; }
+  function openPopover(btn){
+    const def = GLOSSARY[btn.dataset.term];
+    if(!def) return;
+    titleEl.textContent = btn.textContent;
+    bodyEl.textContent = def;
+    pop.classList.add('open');
+    const r = btn.getBoundingClientRect();
+    const popRect = pop.getBoundingClientRect();
+    let left = r.left, top = r.bottom + 8;
+    const vw = document.documentElement.clientWidth, vh = window.innerHeight;
+    if(left + popRect.width > vw - 12) left = Math.max(12, vw - popRect.width - 12);
+    if(top + popRect.height > vh - 12) top = Math.max(12, r.top - popRect.height - 8);
+    pop.style.left = left+'px'; pop.style.top = top+'px';
+    btn.setAttribute('aria-expanded','true'); openBtn = btn;
+  }
+  document.addEventListener('click', (e)=>{
+    const termBtn = e.target.closest('.term-link');
+    if(termBtn){ e.stopPropagation(); if(openBtn===termBtn){ closePopover(); } else { openPopover(termBtn); } return; }
+    if(e.target.closest('.term-popover-close')){ closePopover(); return; }
+    if(pop.contains(e.target)) return;
+    closePopover();
+  });
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closePopover(); });
+  window.addEventListener('scroll', closePopover, true);
+  window.addEventListener('resize', closePopover);
+}
+setupGlossary();
+
+/* ============ ENGINE ============ */
+const ATTACK_MODES = [
+  {id:'online', label:'Online login ('+T('rate-limited','rate-limited')+')', rate:10},
+  {id:'offline_slow', label:'Offline, slow '+T('hash','hash')+' (e.g. '+T('bcrypt','bcrypt')+')', rate:1e4},
+  {id:'offline_fast', label:'Offline, fast '+T('hash','hash')+' (unsalted, '+T('gpu-rig','GPU rig')+')', rate:1e10},
+];
+
+function charsetSize(pw){
+  let s=0;
+  if(/[a-z]/.test(pw)) s+=26;
+  if(/[A-Z]/.test(pw)) s+=26;
+  if(/[0-9]/.test(pw)) s+=10;
+  if(/[^a-zA-Z0-9]/.test(pw)) s+=33;
+  return s||1;
+}
+function combinations(pw){ return Math.pow(charsetSize(pw), pw.length||0); }
+function entropyBits(pw){ return pw.length ? pw.length*Math.log2(charsetSize(pw)) : 0; }
+function crackSeconds(pw, rate){ return (combinations(pw)/2)/rate; }
+
+function formatDuration(sec){
+  if(!isFinite(sec)) return "longer than the universe has existed";
+  if(sec < 1) return "instantly";
+  if(sec < 60) return sec.toFixed(1)+" seconds";
+  if(sec < 3600) return (sec/60).toFixed(1)+" minutes";
+  if(sec < 86400) return (sec/3600).toFixed(1)+" hours";
+  if(sec < 2.63e6) return (sec/86400).toFixed(1)+" days";
+  if(sec < 3.156e7) return (sec/2.63e6).toFixed(1)+" months";
+  const years = sec/3.156e7;
+  if(years < 100) return years.toFixed(1)+" years";
+  if(years < 1e6) return (years/100).toFixed(1)+" centuries";
+  if(years < 1e9) return (years/1e6).toFixed(1)+" million years";
+  if(years < 13.8e9) return (years/1e9).toFixed(1)+" billion years";
+  return (years/13.8e9).toFixed(1)+"x the age of the universe";
+}
+function strengthTier(pw){
+  if(!pw) return {tier:'—', color:'neutral'};
+  const bits = entropyBits(pw);
+  if(bits < 28 || COMMON_PASSWORDS.has(pw.toLowerCase())) return {tier:'WEAK', color:'weak'};
+  if(bits < 60) return {tier:'MEDIUM', color:'weak'};
+  return {tier:'STRONG', color:'strong'};
+}
+function meterPct(pw){ return Math.max(3, Math.min(100, entropyBits(pw)/90*100)); }
+function meterColor(pw){ const t=strengthTier(pw).color; return t==='strong' ? 'var(--state-strong)' : (t==='weak'? 'var(--state-weak)' : 'var(--accent)'); }
+
+/* ============ DATA ============ */
+const COMMON_LIST = ["123456","password","123456789","12345678","12345","qwerty","abc123","111111","1234567",
+"password1","iloveyou","000000","qwerty123","1q2w3e4r","admin","welcome","monkey","login","princess","solo",
+"master","letmein","dragon","football","baseball","superman","trustno1","sunshine","shadow","michael","hunter",
+"freedom","whatever","qazwsx","secret","summer","internet","starwars","1234567890","121212","flower","loveme",
+"passw0rd","password123","charlie","donald","bailey","access","batman","1qaz2wsx","soccer","hockey","killer",
+"george","andrea","jordan23","harley","ranger","daniel","tigger","hello","amanda","cheese","cookie","mustang",
+"jessica","ginger","hannah","joshua","maggie","phoenix","cameron","cowboy","banana","asdfgh","dragon123",
+"biteme","matthew","nicole","yankees","junior","peanut","chelsea","murphy","tequila","jackson","tigers",
+"gemini","1234","6969","chicken","cookie1","dolphin","gateway","black","diamond","nascar","jasmine","brandon",
+"thomas","robert","fishing","gandalf","winner","hardcore","yamaha","samantha","dakota","112233","david",
+"111222","corvette","bulldog","yellow","chris","panther","hooters","cricket","private","trustno1","q1w2e3r4",
+"zaq1zaq1","hottie","target123","aa123456","welcome1","admin123","iloveyou1","123123","000000","1111111"];
+const COMMON_PASSWORDS = new Set(COMMON_LIST);
+
+const LEET_MAP = {'@':'a','4':'a','3':'e','1':'i','!':'i','0':'o','$':'s','5':'s','7':'t','+':'t'};
+function normalizeLeet(pw){
+  return pw.toLowerCase().split('').map(c=>LEET_MAP[c]!==undefined?LEET_MAP[c]:c).join('');
+}
+function applyLeet(word){
+  const fwd = {'a':'4','e':'3','i':'1','o':'0','s':'5','t':'7'};
+  return word.toLowerCase().split('').map(c=>fwd[c]||c).join('');
+}
+const DICTIONARY_WORDS = ["sunshine","princess","dragon","football","summer","baseball","tiger","charlie",
+"jordan","hunter","angel","cookie","monkey","phoenix","shadow","falcon","maverick","panther","cheer","ranger"];
+
+function generateMangles(word){
+  const out = [];
+  const cap = word.charAt(0).toUpperCase()+word.slice(1).toLowerCase();
+  const bases = [word.toLowerCase(), cap, word.toUpperCase()];
+  const suffixes = ['','1','12','123','1234','!','01','007','99','2024','2025','2023'];
+  for(const b of bases){ for(const s of suffixes){ out.push(b+s); } }
+  for(const s of suffixes){ out.push(applyLeet(word)+s); out.push(applyLeet(cap)+s); }
+  out.push(word.split('').reverse().join(''));
+  return [...new Set(out)];
+}
+
+async function sha256Hex(text){
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+const PASSPHRASE_WORDS = ["river","tiger","maple","comet","anchor","violet","granite","ember","falcon","harbor",
+"lantern","meadow","quartz","ripple","summit","thistle","velvet","willow","zephyr","canyon","cobalt","drift",
+"frost","glacier","horizon","ivory","jasper","kindle","lunar","marble","nectar","onyx","pepper","quiver",
+"raven","saffron","timber","umbra","vapor","wander"];
+function randInt(max){ return crypto.getRandomValues(new Uint32Array(1))[0] % max; }
+function generatePassphrase(n){
+  const words=[]; for(let i=0;i<n;i++) words.push(PASSPHRASE_WORDS[randInt(PASSPHRASE_WORDS.length)]);
+  return words.join('-');
+}
+function generateRandomPassword(len, opts){
+  let charset = 'abcdefghijklmnopqrstuvwxyz';
+  if(opts.upper) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  if(opts.digits) charset += '0123456789';
+  if(opts.symbols) charset += '!@#$%^&*()-_=+?';
+  let out=''; for(let i=0;i<len;i++) out += charset[randInt(charset.length)];
+  return out;
+}
+
+/* ============ SHARED RENDER HELPERS ============ */
+function speedRows(pw){
+  return ATTACK_MODES.map(m=>{
+    return `<tr><td>${m.label}</td><td>${m.rate.toLocaleString()}/sec</td><td>${formatDuration(crackSeconds(pw,m.rate))}</td></tr>`;
+  }).join('');
+}
+function fillSpeedTable(tbody, pw){
+  tbody.innerHTML = pw ? speedRows(pw) : `<tr><td colspan="3" style="color:var(--text-muted);">type a password above</td></tr>`;
+}
+function updateMeter(el, pw){
+  el.style.width = meterPct(pw)+'%';
+  el.style.background = meterColor(pw);
+}
+function stampFor(pw){
+  if(!pw) return '';
+  const t = strengthTier(pw);
+  const note = COMMON_PASSWORDS.has(pw.toLowerCase()) ? ' — on the top-100 '+T('breach','breach')+' list' : '';
+  return `<span class="stamp ${t.color==='strong'?'strong':(t.color==='weak'?'weak':'neutral')}">${t.tier}${note}</span>`;
+}
+const K_CHARSET = T('charset','CHARACTER SET SIZE');
+const K_COMBOS = T('combinations','POSSIBLE COMBINATIONS');
+const K_ENTROPY = T('entropy','ENTROPY');
+
+/* ============ 01 OVERVIEW ============ */
+const heroPw = document.getElementById('hero-pw');
+const heroFill = document.getElementById('hero-meter-fill');
+const heroStamp = document.getElementById('hero-stamp');
+const heroReadout = document.getElementById('hero-readout');
+const heroTbody = document.querySelector('#hero-speedtable tbody');
+function renderHero(){
+  const pw = heroPw.value;
+  updateMeter(heroFill, pw);
+  heroStamp.innerHTML = stampFor(pw);
+  heroReadout.innerHTML = pw ? `
+    <div class="line"><span class="k">CHARACTERS</span><span class="accent">${pw.length}</span></div>
+    <div class="line"><span class="k">${K_CHARSET}</span><span class="accent">${charsetSize(pw)}</span></div>
+    <div class="line"><span class="k">${K_COMBOS}</span><span class="accent">${combinations(pw).toExponential(2)}</span></div>
+    <div class="line"><span class="k">${K_ENTROPY}</span><span class="accent">${entropyBits(pw).toFixed(1)} bits</span></div>` :
+    `<div class="line"><span class="k">CHARACTERS</span><span>—</span></div>
+     <div class="line"><span class="k">${K_CHARSET}</span><span>—</span></div>
+     <div class="line"><span class="k">${K_COMBOS}</span><span>—</span></div>
+     <div class="line"><span class="k">${K_ENTROPY}</span><span>—</span></div>`;
+  fillSpeedTable(heroTbody, pw);
+}
+heroPw.addEventListener('input', renderHero);
+renderHero();
+
+/* ============ NAVIGATION ============ */
+document.querySelectorAll('.index-tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.index-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.chapter').forEach(c=>c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('chapter-'+tab.dataset.chapter).classList.add('active');
+    window.scrollTo({top:0, behavior:'instant'});
+  });
+});
+
+/* ============ 02 CRACK LAB — 10 EXHIBITS ============ */
+const labRoot = document.getElementById('lab-exhibits');
+
+function exhibitShell(num, title, desc, bodyHtml){
+  const div = document.createElement('div');
+  div.className = 'exhibit';
+  div.innerHTML = `<div class="exhibit-head"><span class="exhibit-num">EXHIBIT ${num}</span></div>
+    <h3>${title}</h3><p class="exhibit-desc">${desc}</p>${bodyHtml}`;
+  labRoot.appendChild(div);
+  return div;
+}
+
+/* Exhibit 01 */
+(function(){
+  const el = exhibitShell('01','Live Crack-Time Readout',`Type any password. We show the real math — ${T('entropy')}, total ${T('combinations')}, and how long each attack scenario would take.`,`
+    <div class="field" style="max-width:380px;"><label>Password to test</label><input type="text" id="ex1-pw" autocomplete="off" spellcheck="false"></div>
+    <div class="table-wrap"><table class="speedtable" id="ex1-table"><thead><tr><th>Attack scenario</th><th>Guess rate</th><th>Time to crack</th></tr></thead><tbody></tbody></table></div>
+  `);
+  const input = el.querySelector('#ex1-pw'); const tbody = el.querySelector('#ex1-table tbody');
+  input.addEventListener('input', ()=>fillSpeedTable(tbody, input.value));
+  fillSpeedTable(tbody,'');
+})();
+
+/* Exhibit 02 — real brute force */
+(function(){
+  const el = exhibitShell('02','Real Brute-Force Run',`This actually runs a ${T('brute-force')} attack — checking every combination, one by one, for real — against a password you set. Short, simple passwords fall in seconds; watch the counter.`,`
+    <div class="callout tip">Think of the password you type below as a locked door, and this tool is testing the lock. It doesn't know the key — it just tries one key after another and checks "did this one turn the lock?" every single try. It knows it found the right one the exact same way a real cracking tool does: <em>the guess matches</em>, nothing more. You already know the password because you're the one who set it — that's what makes this safe to test. A real attacker is in the exact position this tool is in: guessing blind until something fits.</div>
+    <div class="row">
+      <div class="field" style="max-width:220px;"><label>Target password (the "lock")</label><input type="text" id="ex3-target" maxlength="8" placeholder="e.g. abcd" autocomplete="off"></div>
+      <div class="field" style="max-width:200px;"><label>${T('charset','Charset')}</label><select id="ex3-charset">
+        <option value="abcdefghijklmnopqrstuvwxyz">lowercase letters</option>
+        <option value="abcdefghijklmnopqrstuvwxyz0123456789">lowercase + digits</option>
+        <option value="0123456789">digits only</option>
+      </select></div>
+      <button class="btn" id="ex3-run">Run brute force</button>
+    </div>
+    <p class="exhibit-desc">Capped at 8 characters, and it stops after about 8 seconds even if it hasn't found your password — that's the point. If it's still grinding through an 8-character "lowercase + digits" password when the timer runs out, that's not a bug. That's a real computer, on real hardware, telling you the honest truth about how big that keyspace actually is. Real attackers throw ${T('gpu-rig','GPU rigs')} at this exact problem instead of a laptop tab.</p>
+    <div class="terminal-log" id="ex3-log"></div>
+  `);
+  const target = el.querySelector('#ex3-target'), charsetSel = el.querySelector('#ex3-charset'),
+        runBtn = el.querySelector('#ex3-run'), log = el.querySelector('#ex3-log');
+  function logLine(text, found){ const d=document.createElement('div'); if(found) d.className='found'; d.textContent=text; log.prepend(d); }
+  runBtn.addEventListener('click', ()=>{
+    const t = target.value.toLowerCase();
+    const cs = charsetSel.value;
+    if(!t || !t.split('').every(c=>cs.includes(c))){ log.innerHTML=''; logLine('! target must only use the chosen charset', false); return; }
+    log.innerHTML=''; runBtn.disabled = true;
+    let attempts = 0; const start = performance.now();
+    const budget = 200000; // attempts per animation frame batch
+    const timeCapMs = 8000;
+    function* combos(len){
+      const idx = new Array(len).fill(0);
+      while(true){
+        yield idx.map(i=>cs[i]).join('');
+        let pos = len-1;
+        while(pos>=0){ idx[pos]++; if(idx[pos] < cs.length) break; idx[pos]=0; pos--; }
+        if(pos<0) return;
+      }
+    }
+    const gen = combos(t.length);
+    function step(){
+      const batchStart = performance.now();
+      let n=0;
+      let res = gen.next();
+      while(!res.done && n<budget){
+        attempts++; n++;
+        if(res.value === t){
+          const elapsed = ((performance.now()-start)/1000).toFixed(2);
+          logLine(`${res.value}  <-- MATCH on attempt #${attempts.toLocaleString()} (${elapsed}s elapsed)`, true);
+          runBtn.disabled = false;
+          return;
+        }
+        if(n % 5000 === 0) logLine(`trying: ${res.value}   (${attempts.toLocaleString()} attempts so far)`, false);
+        res = gen.next();
+      }
+      if(res.done){
+        logLine(`exhausted keyspace after ${attempts.toLocaleString()} attempts — target not found (check charset)`, false);
+        runBtn.disabled = false; return;
+      }
+      if(performance.now()-start > timeCapMs){
+        const estRate = attempts/((performance.now()-start)/1000);
+        const remaining = Math.pow(cs.length, t.length) - attempts;
+        logLine(`stopped after ${timeCapMs/1000}s (${attempts.toLocaleString()} attempts, ~${Math.round(estRate).toLocaleString()}/sec in-browser). At this rate the full keyspace would take ${formatDuration(remaining/estRate)}.`, false);
+        runBtn.disabled = false; return;
+      }
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+})();
+
+/* Exhibit 03 — dictionary + rules */
+(function(){
+  const el = exhibitShell('03','Dictionary + Mangling Rules',`This is a real ${T('dictionary-attack','dictionary attack')}: attackers don't guess randomly — they start from real words and apply predictable ${T('mangling','tweaks')} (capitalize, add "123", ${T('leetspeak')}). Set a password, pick a base word, and see if the rule engine finds it.`,`
+    <div class="row">
+      <div class="field" style="max-width:220px;"><label>Your password</label><input type="text" id="ex4-pw" autocomplete="off" spellcheck="false"></div>
+      <div class="field" style="max-width:220px;"><label>Attacker's guess word</label><input type="text" id="ex4-word" placeholder="e.g. dragon" autocomplete="off"></div>
+      <button class="btn" id="ex4-run">Run rule engine</button>
+    </div>
+    <div id="ex4-result"></div>
+  `);
+  const pw = el.querySelector('#ex4-pw'), word = el.querySelector('#ex4-word'), btn = el.querySelector('#ex4-run'), result = el.querySelector('#ex4-result');
+  btn.addEventListener('click', ()=>{
+    if(!pw.value || !word.value){ result.innerHTML = '<p class="exhibit-desc">enter both fields</p>'; return; }
+    const guesses = generateMangles(word.value);
+    const idx = guesses.indexOf(pw.value);
+    const chips = guesses.slice(0,24).map(g=>`<span class="chip${g===pw.value?' hit':''}">${g}</span>`).join('');
+    result.innerHTML = `<div class="badge-list">${chips}${guesses.length>24?`<span class="chip">+${guesses.length-24} more</span>`:''}</div>` +
+      (idx>=0 ? `<div class="stamp weak">CRACKED — guess #${idx+1} of ${guesses.length}: "${guesses[idx]}"</div>`
+               : `<div class="stamp strong">not found in ${guesses.length} rule-based guesses from "${word.value}"</div>`);
+  });
+})();
+
+/* Exhibit 04 — personal info guesser */
+(function(){
+  const el = exhibitShell('04','Personal-Info Guesser','Names, pets, teams, and birth years are usually public on social media. Fill these in, set a password, and see what an attacker builds from just that.',`
+    <div class="row">
+      <div class="field" style="max-width:140px;"><label>First name</label><input type="text" id="ex6-name" autocomplete="off"></div>
+      <div class="field" style="max-width:140px;"><label>Pet's name</label><input type="text" id="ex6-pet" autocomplete="off"></div>
+      <div class="field" style="max-width:140px;"><label>Birth year</label><input type="text" id="ex6-year" maxlength="4" autocomplete="off"></div>
+      <div class="field" style="max-width:200px;"><label>Password to test</label><input type="text" id="ex6-pw" autocomplete="off" spellcheck="false"></div>
+      <button class="btn" id="ex6-run">Build guesses</button>
+    </div>
+    <div id="ex6-result"></div>
+  `);
+  const name=el.querySelector('#ex6-name'), pet=el.querySelector('#ex6-pet'), year=el.querySelector('#ex6-year'),
+        pw=el.querySelector('#ex6-pw'), btn=el.querySelector('#ex6-run'), result=el.querySelector('#ex6-result');
+  btn.addEventListener('click', ()=>{
+    const facts = [name.value, pet.value, year.value].filter(Boolean);
+    if(!facts.length || !pw.value){ result.innerHTML='<p class="exhibit-desc">fill in at least one fact and a password</p>'; return; }
+    const guesses = new Set();
+    for(const f of facts){
+      guesses.add(f); guesses.add(f.toLowerCase()); guesses.add(f.toUpperCase());
+      if(year.value){ guesses.add(f+year.value); guesses.add(f.toLowerCase()+year.value); }
+      guesses.add(f+'!'); guesses.add(f+'123');
+    }
+    if(name.value && pet.value) guesses.add(name.value+pet.value);
+    const list = [...guesses];
+    const idx = list.indexOf(pw.value);
+    const chips = list.slice(0,20).map(g=>`<span class="chip${g===pw.value?' hit':''}">${g}</span>`).join('');
+    result.innerHTML = `<div class="badge-list">${chips}</div>` +
+      (idx>=0 ? `<div class="stamp weak">CRACKED — "${list[idx]}" was guess #${idx+1}</div>` : `<div class="stamp strong">not found among ${list.length} personal-info guesses</div>`);
+  });
+})();
+
+/* Exhibit 05 — leetspeak x-ray */
+(function(){
+  const el = exhibitShell('05','Leetspeak X-Ray',`${T('leetspeak','Swapping @ for a or 0 for o')} feels clever, but attackers normalize these substitutions automatically before checking dictionary words.`,`
+    <div class="field" style="max-width:380px;"><label>Try something like P@ssw0rd!</label><input type="text" id="ex7-pw" autocomplete="off" spellcheck="false"></div>
+    <div id="ex7-result"></div>
+  `);
+  const input = el.querySelector('#ex7-pw'), result = el.querySelector('#ex7-result');
+  input.addEventListener('input', ()=>{
+    const pw = input.value;
+    if(!pw){ result.innerHTML=''; return; }
+    const normalized = normalizeLeet(pw).replace(/[^a-z]/g,'');
+    const known = DICTIONARY_WORDS.find(w=>normalized.includes(w));
+    result.innerHTML = `<div class="readout" style="max-width:420px;"><div class="line"><span class="k">YOU TYPED</span><span class="accent">${pw}</span></div><div class="line"><span class="k">NORMALIZED</span><span class="accent">${normalizeLeet(pw)}</span></div></div>` +
+      (known ? `<div class="stamp weak" style="margin-top:10px;">unmasked dictionary word: "${known}"</div>` : `<div class="stamp strong" style="margin-top:10px;">no common dictionary word found underneath</div>`);
+  });
+})();
+
+/* Exhibit 06 — hash lookup / rainbow table */
+(function(){
+  const el = exhibitShell('06','Hash Lookup ("Rainbow Table")',`Sites don't store your actual password — they store a ${T('hash')} of it. But if the password is common, an attacker can pre-compute hashes for every common password into a ${T('rainbow-table','rainbow table')} and look yours up instantly.`,`
+    <div class="row">
+      <button class="btn" id="ex8-reveal">Reveal a leaked hash</button>
+    </div>
+    <div class="readout" id="ex8-hash" style="margin-top:12px; display:none;"></div>
+    <div class="row" style="margin-top:10px;">
+      <button class="btn ghost" id="ex8-crack" style="display:none;">Look it up in the rainbow table</button>
+    </div>
+    <div id="ex8-result"></div>
+    <div class="field" style="max-width:380px; margin-top:18px;"><label>Now try your own password (its hash won't be in our small table unless it's very common)</label><input type="text" id="ex8-own" autocomplete="off" spellcheck="false"></div>
+    <div class="readout" id="ex8-own-result" style="margin-top:8px; display:none;"></div>
+  `);
+  const revealBtn = el.querySelector('#ex8-reveal'), hashBox = el.querySelector('#ex8-hash'),
+        crackBtn = el.querySelector('#ex8-crack'), result = el.querySelector('#ex8-result'),
+        ownInput = el.querySelector('#ex8-own'), ownResult = el.querySelector('#ex8-own-result');
+  let currentPlain = '', rainbowTable = new Map(), tableReady = false;
+  (async ()=>{
+    const sample = COMMON_LIST.slice(0,40);
+    for(const p of sample){ rainbowTable.set(await sha256Hex(p), p); }
+    tableReady = true;
+  })();
+  revealBtn.addEventListener('click', async ()=>{
+    currentPlain = COMMON_LIST[randInt(40)];
+    const hash = await sha256Hex(currentPlain);
+    hashBox.style.display='block'; hashBox.innerHTML = `<div class="line"><span class="k">${T('sha256','SHA-256')}</span><span class="accent">${hash}</span></div>`;
+    crackBtn.style.display='inline-block'; result.innerHTML='';
+    crackBtn.onclick = ()=>{
+      const plain = rainbowTable.get(hash);
+      result.innerHTML = `<div class="stamp weak" style="margin-top:10px;">table lookup — instant match: "${plain}"</div>`;
+    };
+  });
+  ownInput.addEventListener('input', async ()=>{
+    const pw = ownInput.value;
+    if(!pw){ ownResult.style.display='none'; return; }
+    const hash = await sha256Hex(pw);
+    const hit = rainbowTable.get(hash);
+    ownResult.style.display='block';
+    ownResult.innerHTML = `<div class="line"><span class="k">${T('sha256','SHA-256')}</span><span class="accent">${hash}</span></div>` +
+      `<div class="line"><span class="k">TABLE LOOKUP</span><span class="${hit?'accent':''}">${hit? 'FOUND: '+hit : 'not in table'}</span></div>` +
+      `<p class="exhibit-desc" style="margin-top:8px;">Real sites also add ${T('salting','salt')} before hashing, so even a common password gets a unique hash per site — that's what really makes rainbow tables useless against modern sites.</p>`;
+  });
+})();
+
+/* Exhibit 07 — credential stuffing */
+(function(){
+  const el = exhibitShell('07','Credential-Stuffing Simulator',`This is called ${T('credential-stuffing','credential stuffing')}: when one site gets ${T('breach','breached')}, attackers try that same email + password everywhere else. Reusing a password turns one leak into many.`,`
+    <label style="display:flex; gap:8px; align-items:center; margin-bottom:14px;"><input type="checkbox" id="ex9-reuse"> I reuse this password on other accounts</label>
+    <button class="btn" id="ex9-run">Simulate a breach at "MailBox" (fictional site)</button>
+    <div id="ex9-result" style="margin-top:14px;"></div>
+  `);
+  const reuse = el.querySelector('#ex9-reuse'), btn = el.querySelector('#ex9-run'), result = el.querySelector('#ex9-result');
+  const otherSites = ['StreamFlix','SchoolPortal','GameVault','ShopEasy','ChatterBox'];
+  btn.addEventListener('click', ()=>{
+    if(reuse.checked){
+      result.innerHTML = `<div class="stamp weak" style="margin-bottom:10px;">MailBox breached — password leaked</div>` +
+        otherSites.map(s=>`<div class="chip hit">${s}: ACCESSED</div>`).join(' ');
+    } else {
+      result.innerHTML = `<div class="stamp weak" style="margin-bottom:10px;">MailBox breached — password leaked</div>` +
+        otherSites.map(s=>`<div class="chip">${s}: safe (different password)</div>`).join(' ');
+    }
+  });
+})();
+
+/* Exhibit 10 — entropy comparison */
+(function(){
+  const el = exhibitShell('08','Entropy Comparison Playground',`Four passwords, same rough length, very different crack times. Length and true randomness matter more than symbol-stuffing — see how each one's ${T('entropy')} stacks up.`,`<div id="ex10-bars"></div>`);
+  const samples = [
+    {label:'"password1"', value:'password1'},
+    {label:'"P@ssw0rd!23"', value:'P@ssw0rd!23'},
+    {label:'random: xQ7#mK2!pL9z', value:'xQ7#mK2!pL9z'},
+    {label:'passphrase: river-comet-anchor', value:'river-comet-anchor'},
+  ];
+  const bars = el.querySelector('#ex10-bars');
+  const maxYears = Math.max(...samples.map(s=>crackSeconds(s.value, 1e10)/3.156e7));
+  bars.innerHTML = samples.map(s=>{
+    const years = crackSeconds(s.value, 1e10)/3.156e7;
+    const pct = Math.max(2, Math.log10(years+1.01)/Math.log10(maxYears+1.01)*100);
+    const t = strengthTier(s.value).color;
+    return `<div class="bar-row"><span>${s.label}</span><div class="bar-track"><div class="bar-fill ${t==='strong'?'strong':(t==='weak'?'weak':'')}" style="width:${pct}%"></div></div><span>${formatDuration(crackSeconds(s.value,1e10))}</span></div>`;
+  }).join('');
+})();
+
+/* Exhibit 09 — bomb defusal */
+(function(){
+  const TOTAL_ROUNDS = 10;
+  const el = exhibitShell('09','Defuse the Bomb',`Act as the detective across ${TOTAL_ROUNDS} bombs. Odd-numbered bombs, you guess blind. Even-numbered bombs, you get a big word list to pick from — exactly like a real ${T('dictionary-attack','dictionary attack')} tool.`,`
+    <div class="callout tip">Every bomb uses one of the world's 100 most common passwords. <strong>30 seconds</strong> per bomb, ${TOTAL_ROUNDS} bombs total, alternating: no word list, then a word list, then no word list, and so on.</div>
+    <div id="bomb-stage"><button class="btn" id="bomb-start">Arm bomb 1 of ${TOTAL_ROUNDS}</button></div>
+  `);
+  const stage = el.querySelector('#bomb-stage');
+  let stats = {defused:0, detonated:0};
+  let currentRound = 0;
+  let timerId = null, target = '', timeLeft = 30, mode = 'no-dict';
+
+  function shuffleArr(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){ const j=randInt(i+1); [a[i],a[j]]=[a[j],a[i]]; }
+    return a;
+  }
+  function statLine(){ return `Defused: ${stats.defused} · Detonated: ${stats.detonated} · Bomb ${currentRound} of ${TOTAL_ROUNDS}`; }
+
+  function renderGame(){
+    const isDict = mode === 'dict';
+    const words = isDict ? shuffleArr([...shuffleArr(COMMON_LIST.filter(w=>w!==target)).slice(0,29), target]) : null;
+    const toolHtml = isDict
+      ? `<p class="exhibit-desc" style="margin-top:0;">Word list armed — click a word to try it as your guess.</p>
+         <div class="badge-list" id="bomb-dict">${words.map(w=>`<button type="button" class="chip" data-word="${w}" style="cursor:pointer;">${w}</button>`).join('')}</div>`
+      : `<div class="row"><div class="field" style="max-width:260px;"><label>Your guess</label><input type="text" id="bomb-guess" autocomplete="off"></div><button class="btn" id="bomb-submit">Submit guess</button></div>`;
+    stage.innerHTML = `
+      <div class="row" style="align-items:center; gap:16px; margin-bottom:10px;">
+        <div class="readout" style="padding:8px 18px; font-size:1.6rem;" id="bomb-clock">${timeLeft}</div>
+        <div style="font-family:var(--font-mono); font-size:.86rem; color:var(--text-muted);">${isDict ? 'MODE: WORD LIST' : `${target.length} characters, starts with "${target[0]}"`}<br>${statLine()}</div>
+      </div>
+      ${toolHtml}
+      <div class="terminal-log" id="bomb-log" style="margin-top:10px; height:100px;"></div>
+      <div id="bomb-controls" style="margin-top:10px;"></div>
+    `;
+    const clock = stage.querySelector('#bomb-clock');
+    const log = stage.querySelector('#bomb-log');
+    function logLine(text, cls){ const d=document.createElement('div'); if(cls) d.className=cls; d.textContent=text; log.prepend(d); }
+    function lockControls(){
+      if(isDict){ stage.querySelectorAll('#bomb-dict .chip').forEach(c=>c.disabled=true); }
+      else { stage.querySelector('#bomb-guess').disabled=true; stage.querySelector('#bomb-submit').disabled=true; }
+    }
+    function endRound(won){
+      clearInterval(timerId); timerId=null;
+      lockControls();
+      if(won){ stats.defused++; logLine(`DEFUSED — the password was "${target}"`, 'found'); }
+      else { stats.detonated++; logLine(`💥 BOOM — time's up. The password was "${target}"`, ''); }
+      const controls = stage.querySelector('#bomb-controls');
+      if(currentRound >= TOTAL_ROUNDS){
+        controls.innerHTML = `<div class="stamp ${stats.defused>=stats.detonated?'strong':'weak'}">MISSION COMPLETE — ${stats.defused} defused, ${stats.detonated} detonated out of ${TOTAL_ROUNDS}</div><button class="btn" id="bomb-next" style="margin-top:10px;">Play again from bomb 1</button>`;
+        controls.querySelector('#bomb-next').addEventListener('click', ()=>{ currentRound=0; stats={defused:0,detonated:0}; startRound(); });
+      } else {
+        controls.innerHTML = `<button class="btn" id="bomb-next">Arm bomb ${currentRound+1} of ${TOTAL_ROUNDS}</button>`;
+        controls.querySelector('#bomb-next').addEventListener('click', startRound);
+      }
+    }
+    function tryGuess(g){
+      g = (g||'').trim().toLowerCase();
+      if(!g) return;
+      if(g === target){ endRound(true); } else { logLine(`"${g}" — wrong`, ''); }
+    }
+    if(isDict){
+      stage.querySelector('#bomb-dict').addEventListener('click', (e)=>{
+        const chip = e.target.closest('.chip');
+        if(!chip || chip.disabled) return;
+        tryGuess(chip.dataset.word);
+      });
+    } else {
+      const guessInput = stage.querySelector('#bomb-guess');
+      const submitBtn = stage.querySelector('#bomb-submit');
+      function submitGuess(){ const g=guessInput.value; guessInput.value=''; guessInput.focus(); tryGuess(g); }
+      submitBtn.addEventListener('click', submitGuess);
+      guessInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') submitGuess(); });
+      guessInput.focus();
+    }
+    timerId = setInterval(()=>{
+      timeLeft--;
+      clock.textContent = timeLeft;
+      clock.style.color = timeLeft<=10 ? 'var(--mono-accent)' : '';
+      if(timeLeft<=0) endRound(false);
+    }, 1000);
+  }
+  function startRound(){
+    currentRound++;
+    mode = currentRound % 2 === 1 ? 'no-dict' : 'dict';
+    target = COMMON_LIST[randInt(COMMON_LIST.length)];
+    timeLeft = 30;
+    renderGame();
+  }
+  el.querySelector('#bomb-start').addEventListener('click', startRound);
+})();
+
+/* Exhibit 10 — MFA firewall */
+(function(){
+  const el = exhibitShell('10','MFA Firewall',`Even a perfectly cracked password doesn't always win. This is what ${T('mfa')} does to an attacker who already has it.`,`
+    <div class="callout tip">Scenario: an attacker just found this exact login in a leaked breach dump — <code>user: j.martinez · password: Whiskers99</code> — and is about to log in with it.</div>
+    <label style="display:flex; gap:8px; align-items:center; margin:12px 0;"><input type="checkbox" id="mfa-toggle" checked> This site has MFA (two-factor authentication) turned on</label>
+    <button class="btn" id="mfa-attempt">Attempt login as the attacker</button>
+    <div id="mfa-result" style="margin-top:14px;"></div>
+  `);
+  const toggle = el.querySelector('#mfa-toggle'), mfaBtn = el.querySelector('#mfa-attempt'), mfaResult = el.querySelector('#mfa-result');
+  mfaBtn.addEventListener('click', ()=>{
+    if(toggle.checked){
+      mfaResult.innerHTML = `<div class="stamp strong">ACCESS DENIED</div><p class="exhibit-desc" style="margin-top:8px;">The password was correct — but the site also texts a 6-digit code to the real owner's phone. The attacker doesn't have that phone, so they're stuck. The stolen password alone wasn't enough.</p>`;
+    } else {
+      mfaResult.innerHTML = `<div class="stamp weak">ACCESS GRANTED</div><p class="exhibit-desc" style="margin-top:8px;">No second check existed, so the correct password was all it took. This is exactly what MFA exists to prevent.</p>`;
+    }
+  });
+})();
+
+/* Exhibit 11 — keylogger demo */
+(function(){
+  const el = exhibitShell('11','Keylogger Demo',`Not every attack guesses your password — some just watch you type it. A ${T('keylogger')} secretly records every key you press. Type in the box below and watch what one would see, captured live.`,`
+    <div class="callout tip">Nothing here leaves this page — this box just shows you, live, what a real keylogger's log would look like on the attacker's end. Notice it records every key, even ones you backspace away.</div>
+    <div class="field" style="max-width:340px;"><label for="keylog-input">Type anything here (try a fake password)</label><input type="text" id="keylog-input" autocomplete="off"></div>
+    <p class="exhibit-desc" style="margin-top:14px;">Attacker's log:</p>
+    <div class="terminal-log" id="keylog-feed" style="height:120px;"></div>
+    <button class="btn ghost" id="keylog-clear" style="margin-top:10px;">Clear log</button>
+    <p class="exhibit-desc" style="margin-top:14px;">Real keyloggers do this invisibly, in the background, for <em>everything</em> you type anywhere on an infected computer — not just one box — then quietly send the log to an attacker. No password is "strong enough" to beat this, since it never has to guess anything. That's why the real defenses here are different: don't install software or browser extensions from sources you don't trust, keep antivirus software up to date, and use a password manager's autofill instead of typing your password by hand when you can.</p>
+  `);
+  const kInput = el.querySelector('#keylog-input'), kFeed = el.querySelector('#keylog-feed'), kClear = el.querySelector('#keylog-clear');
+  kInput.addEventListener('keydown', (e)=>{
+    let label = e.key;
+    if(label === ' ') label = '[space]';
+    else if(label.length > 1) label = `[${label}]`;
+    const d = document.createElement('div');
+    d.textContent = label;
+    kFeed.prepend(d);
+  });
+  kClear.addEventListener('click', ()=>{ kFeed.innerHTML=''; kInput.value=''; kInput.focus(); });
+})();
+
+/* ============ 03 BUILD STRONG ============ */
+const buildPw = document.getElementById('build-pw');
+const buildTimeline = document.getElementById('build-timeline');
+buildPw.addEventListener('input', ()=>{
+  const pw = buildPw.value;
+  if(!pw){ buildTimeline.innerHTML=''; return; }
+  let rows = '';
+  const maxYears = crackSeconds(pw, 1e10)/3.156e7 || 1;
+  for(let i=1;i<=pw.length;i++){
+    const slice = pw.slice(0,i);
+    const secs = crackSeconds(slice, 1e10);
+    const years = secs/3.156e7;
+    const pct = Math.max(2, Math.log10(years+1.01)/Math.log10(maxYears+1.01)*100);
+    rows += `<div class="bar-row"><span>${i} char${i>1?'s':''}</span><div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div><span>${formatDuration(secs)}</span></div>`;
+  }
+  buildTimeline.innerHTML = rows;
+});
+
+const passphraseBtn = document.getElementById('passphrase-btn');
+const passphraseReadout = document.getElementById('passphrase-readout');
+passphraseBtn.addEventListener('click', ()=>{
+  const phrase = generatePassphrase(4);
+  const equalLenRandom = generateRandomPassword(phrase.length, {upper:true,digits:true,symbols:true});
+  passphraseReadout.style.display='block';
+  passphraseReadout.innerHTML = `
+    <div class="line"><span class="k">${T('passphrase','PASSPHRASE')}</span><span class="accent">${phrase}</span></div>
+    <div class="line"><span class="k">ITS CRACK TIME (fast ${T('offline-attack','offline')})</span><span class="accent">${formatDuration(crackSeconds(phrase,1e10))}</span></div>
+    <div class="line"><span class="k">SAME-LENGTH RANDOM STRING</span><span>${equalLenRandom}</span></div>
+    <div class="line"><span class="k">ITS CRACK TIME</span><span>${formatDuration(crackSeconds(equalLenRandom,1e10))}</span></div>`;
+});
+
+/* ============ 04 VAULT ============ */
+const vaultMaster = document.getElementById('vault-master');
+const vaultMasterFill = document.getElementById('vault-master-fill');
+vaultMaster.addEventListener('input', ()=>updateMeter(vaultMasterFill, vaultMaster.value));
+document.getElementById('vault-unlock-btn').addEventListener('click', ()=>{
+  document.getElementById('vault-locked').style.display='none';
+  document.getElementById('vault-unlocked').style.display='block';
+  renderVaultEntries();
+});
+document.getElementById('vault-lock-btn').addEventListener('click', ()=>{
+  document.getElementById('vault-locked').style.display='block';
+  document.getElementById('vault-unlocked').style.display='none';
+});
+let vaultData = [
+  {site:'MailBox', user:'you@example.com', pw:'sunshine1'},
+  {site:'StreamFlix', user:'you_streams', pw:'sunshine1'},
+  {site:'SchoolPortal', user:'you.student', pw:'K9!vR2$mZq7Lx'},
+];
+function renderVaultEntries(){
+  const root = document.getElementById('vault-entries');
+  root.innerHTML = vaultData.map(e=>{
+    const t = strengthTier(e.pw);
+    const dupe = vaultData.filter(o=>o.pw===e.pw).length>1;
+    return `<div class="vault-entry"><span class="site">${e.site}</span><span>${e.user}</span><span>${'•'.repeat(Math.min(e.pw.length,14))}</span><span class="stamp ${t.color==='strong'?'strong':'weak'}" style="transform:none;">${t.tier}${dupe?' · REUSED':''}</span></div>`;
+  }).join('');
+}
+const genLength = document.getElementById('gen-length'), genLengthVal = document.getElementById('gen-length-val');
+genLength.addEventListener('input', ()=>genLengthVal.textContent = genLength.value);
+document.getElementById('gen-btn').addEventListener('click', ()=>{
+  const opts = {upper:document.getElementById('gen-upper').checked, digits:document.getElementById('gen-digits').checked, symbols:document.getElementById('gen-symbols').checked};
+  const pw = generateRandomPassword(parseInt(genLength.value,10), opts);
+  const readout = document.getElementById('gen-readout');
+  readout.style.display='block';
+  readout.innerHTML = `<div class="line"><span class="k">GENERATED</span><span class="accent">${pw}</span></div>
+    <div class="line"><span class="k">${K_ENTROPY}</span><span>${entropyBits(pw).toFixed(1)} bits</span></div>
+    <div class="line"><span class="k">CRACK TIME (fast ${T('offline-attack','offline')})</span><span>${formatDuration(crackSeconds(pw,1e10))}</span></div>`;
+  vaultData.push({site:'New entry', user:'—', pw});
+  renderVaultEntries();
+});
+
+/* ============ 05 PRACTICE ARENA ============ */
+const arenaPw = document.getElementById('arena-password'), arenaMeterFill = document.getElementById('arena-meter-fill');
+arenaPw.addEventListener('input', ()=>updateMeter(arenaMeterFill, arenaPw.value));
+let arenaAccount = null;
+document.getElementById('arena-signup-btn').addEventListener('click', ()=>{
+  const username = document.getElementById('arena-username').value.trim();
+  const password = arenaPw.value;
+  if(!username || !password) return;
+  arenaAccount = {
+    username, password,
+    pet: document.getElementById('arena-pet').value.trim(),
+    team: document.getElementById('arena-team').value.trim(),
+    year: document.getElementById('arena-year').value.trim(),
+    startTime: performance.now(),
+  };
+  document.getElementById('arena-phase-user').style.display='none';
+  document.getElementById('arena-phase-hacker').style.display='block';
+  document.getElementById('arena-dossier').innerHTML = `
+    <div class="eyebrow" style="color:var(--mono-accent);">TARGET ${T('dossier','DOSSIER')}</div>
+    <div class="line" style="display:flex; justify-content:space-between;"><span class="k">USERNAME</span><span>${arenaAccount.username}</span></div>
+    <div class="line" style="display:flex; justify-content:space-between;"><span class="k">PASSWORD LENGTH (${T('shoulder-surfed')})</span><span>${'•'.repeat(arenaAccount.password.length)} (${arenaAccount.password.length} chars)</span></div>
+    <div class="line" style="display:flex; justify-content:space-between;"><span class="k">PUBLIC BIO — PET</span><span>${arenaAccount.pet||'unknown'}</span></div>
+    <div class="line" style="display:flex; justify-content:space-between;"><span class="k">PUBLIC BIO — TEAM</span><span>${arenaAccount.team||'unknown'}</span></div>
+    <div class="line" style="display:flex; justify-content:space-between;"><span class="k">PUBLIC BIO — BIRTH YEAR</span><span>${arenaAccount.year||'unknown'}</span></div>`;
+  document.getElementById('arena-win-zone').innerHTML='';
+  renderArenaTool('breach');
+});
+document.getElementById('arena-reset-btn').addEventListener('click', ()=>{
+  arenaAccount = null;
+  document.getElementById('arena-username').value='';
+  document.getElementById('arena-password').value='';
+  document.getElementById('arena-pet').value='';
+  document.getElementById('arena-team').value='';
+  document.getElementById('arena-year').value='';
+  updateMeter(arenaMeterFill,'');
+  document.getElementById('arena-phase-user').style.display='block';
+  document.getElementById('arena-phase-hacker').style.display='none';
+});
+document.querySelectorAll('#arena-toolbar .tool-tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('#arena-toolbar .tool-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    renderArenaTool(tab.dataset.tool);
+  });
+});
+function arenaWin(tool, guess, attemptNum){
+  const elapsed = ((performance.now()-arenaAccount.startTime)/1000).toFixed(1);
+  document.getElementById('arena-win-zone').innerHTML = `<div class="win-banner">
+    <h4>ACCESS GRANTED</h4>
+    <div>Tool: ${tool} — guess "${guess}" — attempt #${attemptNum} — ${elapsed}s since account creation</div>
+    <div style="margin-top:8px; color:var(--text);">Fix it: revisit <strong>Chapter 03 — Build Strong</strong> and try a longer passphrase with nothing tied to your public profile.</div>
+  </div>`;
+}
+function renderArenaTool(tool){
+  const panel = document.getElementById('arena-tool-panel');
+  if(!arenaAccount) return;
+  if(tool==='breach'){
+    panel.innerHTML = `<h3>Breach-List Check</h3><p class="exhibit-desc">Try the top-100 ${T('breach','breach')} list against this account instantly.</p><button class="btn" id="at-breach-run">Run check</button><div id="at-breach-result" style="margin-top:12px;"></div>`;
+    panel.querySelector('#at-breach-run').addEventListener('click', ()=>{
+      const idx = COMMON_LIST.indexOf(arenaAccount.password.toLowerCase());
+      panel.querySelector('#at-breach-result').innerHTML = idx>=0
+        ? (arenaWin('Breach-List Check', COMMON_LIST[idx], idx+1), `<div class="stamp weak">hit at rank #${idx+1}</div>`)
+        : `<div class="stamp strong">not on the list</div>`;
+    });
+  } else if(tool==='personal'){
+    panel.innerHTML = `<h3>Personal-Info Guesser</h3><p class="exhibit-desc">Build guesses from the ${T('dossier')}'s public facts.</p><button class="btn" id="at-personal-run">Build & try guesses</button><div id="at-personal-result" style="margin-top:12px;"></div>`;
+    panel.querySelector('#at-personal-run').addEventListener('click', ()=>{
+      const facts = [arenaAccount.pet, arenaAccount.team, arenaAccount.username].filter(Boolean);
+      const guesses = new Set();
+      for(const f of facts){
+        guesses.add(f); guesses.add(f.toLowerCase()); guesses.add(f.toUpperCase());
+        if(arenaAccount.year){ guesses.add(f+arenaAccount.year); guesses.add(f.toLowerCase()+arenaAccount.year); }
+        guesses.add(f+'!'); guesses.add(f+'123');
+      }
+      const list=[...guesses]; const idx = list.indexOf(arenaAccount.password);
+      const chips = list.slice(0,20).map(g=>`<span class="chip${g===arenaAccount.password?' hit':''}">${g}</span>`).join('');
+      panel.querySelector('#at-personal-result').innerHTML = `<div class="badge-list">${chips}</div>` +
+        (idx>=0 ? (arenaWin('Personal-Info Guesser', list[idx], idx+1), `<div class="stamp weak">hit: "${list[idx]}"</div>`) : `<div class="stamp strong">no hit among ${list.length} guesses</div>`);
+    });
+  } else if(tool==='dictionary'){
+    panel.innerHTML = `<h3>Dictionary + Rules</h3><p class="exhibit-desc">Pick a word to try — maybe something from the dossier, maybe a hunch.</p>
+      <div class="row"><div class="field" style="max-width:220px;"><label>Guess word</label><input type="text" id="at-dict-word" autocomplete="off"></div><button class="btn" id="at-dict-run">Run rule engine</button></div>
+      <div id="at-dict-result" style="margin-top:12px;"></div>`;
+    panel.querySelector('#at-dict-run').addEventListener('click', ()=>{
+      const w = panel.querySelector('#at-dict-word').value;
+      if(!w) return;
+      const guesses = generateMangles(w);
+      const idx = guesses.indexOf(arenaAccount.password);
+      const chips = guesses.slice(0,20).map(g=>`<span class="chip${g===arenaAccount.password?' hit':''}">${g}</span>`).join('');
+      panel.querySelector('#at-dict-result').innerHTML = `<div class="badge-list">${chips}</div>` +
+        (idx>=0 ? (arenaWin('Dictionary + Rules', guesses[idx], idx+1), `<div class="stamp weak">hit: "${guesses[idx]}"</div>`) : `<div class="stamp strong">no hit among ${guesses.length} guesses</div>`);
+    });
+  } else if(tool==='brute'){
+    panel.innerHTML = `<h3>Brute-Force Runner</h3><p class="exhibit-desc">You know the length from the ${T('dossier')}. Pick a ${T('charset')} and try to enumerate it for real (capped, same as Exhibit 02).</p>
+      <div class="row"><div class="field" style="max-width:200px;"><label>${T('charset','Charset')}</label><select id="at-brute-cs">
+        <option value="abcdefghijklmnopqrstuvwxyz">lowercase letters</option>
+        <option value="abcdefghijklmnopqrstuvwxyz0123456789">lowercase + digits</option>
+        <option value="0123456789">digits only</option>
+      </select></div><button class="btn" id="at-brute-run">Run</button></div>
+      <div class="terminal-log" id="at-brute-log" style="margin-top:12px;"></div>`;
+    panel.querySelector('#at-brute-run').addEventListener('click', ()=>{
+      const cs = panel.querySelector('#at-brute-cs').value;
+      const log = panel.querySelector('#at-brute-log');
+      const target = arenaAccount.password.toLowerCase();
+      log.innerHTML='';
+      if(target.length>8 || !target.split('').every(c=>cs.includes(c))){
+        const d=document.createElement('div'); d.textContent='password is too long or outside this charset for a live browser run — try Breach-List, Personal-Info, or Dictionary instead.'; log.appendChild(d); return;
+      }
+      let attempts=0; const start=performance.now();
+      function* combos(len){ const idx=new Array(len).fill(0); while(true){ yield idx.map(i=>cs[i]).join(''); let p=len-1; while(p>=0){idx[p]++; if(idx[p]<cs.length) break; idx[p]=0; p--;} if(p<0) return; } }
+      const gen = combos(target.length);
+      function step(){
+        let n=0, res=gen.next();
+        while(!res.done && n<200000){
+          attempts++; n++;
+          if(res.value===target){
+            const d=document.createElement('div'); d.className='found'; d.textContent = `${res.value}  <-- MATCH on attempt #${attempts}`; log.prepend(d);
+            arenaWin('Brute-Force Runner', res.value, attempts);
+            return;
+          }
+          res = gen.next();
+        }
+        if(res.done){ const d=document.createElement('div'); d.textContent='exhausted keyspace, no match — password uses different characters.'; log.prepend(d); return; }
+        if(performance.now()-start>8000){ const d=document.createElement('div'); d.textContent=`stopped after 8s (${attempts.toLocaleString()} attempts) — too long for a live demo run.`; log.prepend(d); return; }
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+  }
+}
+
+})();
+</script>
+</body>
+</html>

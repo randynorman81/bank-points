@@ -123,7 +123,7 @@ const COURSES = [
 // instead of a link.
 const TOOLS = [
   { id: "bank", name: "Bank Points", url: NAV_ROOT + "bank/index.html", description: "Sign in with your school Google account to see your own extra credit points, or request to use some on an assignment." },
-  { id: "arcade", name: "Extra Credit Arcade", url: "https://ist-extra-credit-games.netlify.app/", description: "Play classic NES games in your browser and earn Bank Points for how far you get, verified by your teacher." },
+  { id: "arcade", name: "Extra Credit Arcade", url: NAV_ROOT + "tools/arcade/", description: "Play classic NES games in your browser and earn Bank Points for how far you get, verified by your teacher." },
   { id: "submit-ec", name: "Submit Extra Credit", url: "https://docs.google.com/forms/d/e/1FAIpQLSde_IWMSrUn3FU485jZa0_1s7hFOkwK2ZMjBAS0KEVKrhRykw/viewform", description: "Upload proof of extra credit work. Mr. Norman grades it and adds points to your Bank if it's correct." },
   { id: "latework", name: "Late Work", url: NAV_ROOT + "late-work.html", description: "List every assignment you've turned in late, so it's ready to grade at the end of the unit." }
 ];

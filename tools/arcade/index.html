@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Extra Credit Arcade — CS Class</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --bg3: #1a1a24;
+  --card: #14141e;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --cyan: #00e5ff;
+  --cyan-dim: rgba(0,229,255,0.12);
+  --cyan-glow: rgba(0,229,255,0.25);
+  --yellow: #ffe600;
+  --yellow-dim: rgba(255,230,0,0.1);
+  --pink: #ff2d78;
+  --pink-dim: rgba(255,45,120,0.1);
+  --green: #00ff88;
+  --green-dim: rgba(0,255,136,0.1);
+  --orange: #ff7b1a;
+  --orange-dim: rgba(255,123,26,0.1);
+  --text: #e8e8f0;
+  --text2: #888898;
+  --text3: #555565;
+  --pixel: 'Press Start 2P', monospace;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.4;
+}
+
+/* ─── HEADER ─── */
+header {
+  position: relative;
+  padding: 3rem 2rem 2.5rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+
+header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 80% at 50% -20%, rgba(0,229,255,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 20% 110%, rgba(255,45,120,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 80% 110%, rgba(255,230,0,0.05) 0%, transparent 60%);
+}
+
+.header-inner { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; }
+
+.header-badge {
+  display: inline-block;
+  font-family: var(--pixel);
+  font-size: 8px;
+  color: var(--cyan);
+  border: 1px solid var(--cyan);
+  padding: 6px 14px;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.05em;
+  animation: blink-border 2.5s step-end infinite;
+}
+
+@keyframes blink-border {
+  0%,100% { border-color: var(--cyan); box-shadow: 0 0 8px var(--cyan-glow); }
+  50% { border-color: transparent; box-shadow: none; }
+}
+
+h1 {
+  font-family: var(--pixel);
+  font-size: clamp(14px, 3vw, 22px);
+  line-height: 1.6;
+  color: var(--yellow);
+  text-shadow: 0 0 20px rgba(255,230,0,0.4), 3px 3px 0 rgba(255,123,26,0.4);
+  margin-bottom: 1rem;
+}
+
+.header-sub {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text2);
+  max-width: 520px;
+  margin: 0 auto 1.5rem;
+  line-height: 1.7;
+}
+
+.header-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.hstat { text-align: center; }
+
+.hstat-num {
+  font-family: var(--pixel);
+  font-size: 18px;
+  color: var(--cyan);
+  display: block;
+  text-shadow: 0 0 12px var(--cyan-glow);
+}
+
+.hstat-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 4px;
+  display: block;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10,10,15,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+nav::-webkit-scrollbar { display: none; }
+
+.nav-btn {
+  font-family: var(--pixel);
+  font-size: 8px;
+  color: var(--text3);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 14px 24px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.nav-btn:hover { color: var(--text); }
+.nav-btn.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+/* ─── MAIN ─── */
+main { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+
+section { display: none; }
+section.active { display: block; animation: fadeIn 0.25s ease; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── SECTION HEADERS ─── */
+.sec-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.sec-title {
+  font-family: var(--pixel);
+  font-size: 11px;
+  color: var(--yellow);
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+  text-shadow: 0 0 10px rgba(255,230,0,0.3);
+}
+
+.sec-desc {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text2);
+}
+
+/* ─── FILTER BAR ─── */
+.filter-bar {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-right: 4px;
+}
+
+.filter-btn {
+  font-family: var(--pixel);
+  font-size: 7px;
+  padding: 7px 14px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text3);
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: all 0.15s;
+}
+
+.filter-btn:hover { color: var(--text); background: var(--bg3); }
+.filter-btn.active.t1 { color: var(--green); border-color: var(--green); background: var(--green-dim); }
+.filter-btn.active.t2 { color: var(--yellow); border-color: var(--yellow); background: var(--yellow-dim); }
+.filter-btn.active.t3 { color: var(--orange); border-color: var(--orange); background: var(--orange-dim); }
+.filter-btn.active.t4 { color: var(--pink); border-color: var(--pink); background: var(--pink-dim); }
+.filter-btn.active.tall { color: var(--cyan); border-color: var(--cyan); background: var(--cyan-dim); }
+
+/* ─── GAME GRID ─── */
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.game-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 1.25rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.15s;
+}
+
+.game-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+
+.game-card.t1::before { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.game-card.t2::before { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
+.game-card.t3::before { background: var(--orange); box-shadow: 0 0 8px var(--orange); }
+.game-card.t4::before { background: var(--pink); box-shadow: 0 0 8px var(--pink); }
+
+.game-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.game-title {
+  font-family: var(--pixel);
+  font-size: 9px;
+  color: var(--text);
+  line-height: 1.5;
+  flex: 1;
+}
+
+.tier-badge {
+  font-family: var(--pixel);
+  font-size: 6px;
+  padding: 4px 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tier-badge.t1 { background: var(--green-dim); color: var(--green); border: 1px solid rgba(0,255,136,0.2); }
+.tier-badge.t2 { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(255,230,0,0.2); }
+.tier-badge.t3 { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(255,123,26,0.2); }
+.tier-badge.t4 { background: var(--pink-dim); color: var(--pink); border: 1px solid rgba(255,45,120,0.2); }
+
+.platform-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.levels-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.levels-table th {
+  text-align: left;
+  color: var(--text3);
+  font-weight: 400;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.levels-table td {
+  padding: 5px 0;
+  color: var(--text2);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+.levels-table td:last-child {
+  text-align: right;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.pts-range {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  text-align: right;
+}
+
+/* ─── RULES ─── */
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.stat-val {
+  font-family: var(--pixel);
+  font-size: 20px;
+  color: var(--cyan);
+  display: block;
+  text-shadow: 0 0 14px var(--cyan-glow);
+  margin-bottom: 6px;
+}
+
+.stat-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: block;
+}
+
+.stat-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  display: block;
+  margin-top: 3px;
+}
+
+.rules-cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+  margin-bottom: 2rem;
+}
+
+.rule-block {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 1.25rem;
+}
+
+.rule-block-title {
+  font-family: var(--pixel);
+  font-size: 8px;
+  color: var(--cyan);
+  margin-bottom: 12px;
+  letter-spacing: 0.05em;
+}
+
+.rule-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rule-list li {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text2);
+  padding-left: 16px;
+  position: relative;
+  line-height: 1.5;
+}
+
+.rule-list li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--cyan);
+}
+
+/* ─── BONUSES ─── */
+.bonus-intro {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--yellow);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+
+.bonus-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 2rem;
+}
+
+.bonus-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s;
+}
+
+.bonus-card:hover { transform: translateY(-2px); }
+
+.bonus-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  pointer-events: none;
+}
+
+.bonus-card.bc-gold::after { background: var(--yellow); }
+.bonus-card.bc-blue::after { background: var(--cyan); }
+.bonus-card.bc-coral::after { background: var(--pink); }
+.bonus-card.bc-green::after { background: var(--green); }
+
+.bonus-icon { font-size: 22px; margin-bottom: 10px; display: block; }
+
+.bonus-title-text {
+  font-family: var(--pixel);
+  font-size: 8px;
+  color: var(--text);
+  margin-bottom: 10px;
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+}
+
+.bonus-reward {
+  font-family: var(--pixel);
+  font-size: 22px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.bc-gold .bonus-reward { color: var(--yellow); text-shadow: 0 0 12px rgba(255,230,0,0.4); }
+.bc-blue .bonus-reward { color: var(--cyan); text-shadow: 0 0 12px var(--cyan-glow); }
+.bc-coral .bonus-reward { color: var(--pink); text-shadow: 0 0 12px rgba(255,45,120,0.3); }
+.bc-green .bonus-reward { color: var(--green); text-shadow: 0 0 12px rgba(0,255,136,0.3); }
+
+.bonus-desc {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+
+.bonus-cap {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  padding: 1rem 1.25rem;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+
+.bonus-cap strong { color: var(--yellow); font-weight: 500; }
+
+/* ─── FOOTER ─── */
+footer {
+  margin-top: 4rem;
+  border-top: 1px solid var(--border);
+  padding: 2rem;
+  text-align: center;
+}
+
+.footer-text {
+  font-family: var(--pixel);
+  font-size: 7px;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  line-height: 2;
+}
+
+.footer-text span { color: var(--cyan); }
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border2); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 600px) {
+  header { padding: 2rem 1rem 1.5rem; }
+  main { padding: 1.25rem 1rem; }
+  h1 { font-size: 13px; }
+  nav { padding: 0 1rem; }
+  .nav-btn { padding: 12px 14px; font-size: 7px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-badge">INSERT COIN TO EARN EXTRA CREDIT</div>
+    <h1>EXTRA CREDIT<br>ARCADE</h1>
+    <p class="header-sub">Earn extra credit points by playing classic NES &amp; SNES games.<br>All current work must be turned in before you can play.</p>
+    <div class="header-stats">
+      <div class="hstat">
+        <span class="hstat-num">22</span>
+        <span class="hstat-label">Games</span>
+      </div>
+      <div class="hstat">
+        <span class="hstat-num">4</span>
+        <span class="hstat-label">Difficulty tiers</span>
+      </div>
+      <div class="hstat">
+        <span class="hstat-num">50</span>
+        <span class="hstat-label">Max pts / level</span>
+      </div>
+      <div class="hstat">
+        <span class="hstat-num">3</span>
+        <span class="hstat-label">Milestone rewards</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <button class="nav-btn active" onclick="showSection('games',this)">Game Library</button>
+  <button class="nav-btn" onclick="showSection('rules',this)">How It Works</button>
+  <button class="nav-btn" onclick="showSection('bonuses',this)">Milestone Bonuses</button>
+</nav>
+
+<main>
+
+<!-- ═══════════════ GAMES ═══════════════ -->
+<section id="sec-games" class="active">
+  <div class="sec-header">
+    <p class="sec-title">// GAME LIBRARY</p>
+    <p class="sec-desc">Points are awarded per level or stage cleared and verified by the teacher. Amounts scale with how deep into a game you get.</p>
+  </div>
+
+  <div class="filter-bar">
+    <span class="filter-label">Tier:</span>
+    <button class="filter-btn tall active" onclick="filterGames('all',this)">All Games</button>
+    <button class="filter-btn t1" onclick="filterGames('Easy',this)">Easy</button>
+    <button class="filter-btn t2" onclick="filterGames('Medium',this)">Medium</button>
+    <button class="filter-btn t3" onclick="filterGames('Hard',this)">Hard</button>
+    <button class="filter-btn t4" onclick="filterGames('Brutal',this)">Brutal</button>
+  </div>
+
+  <div class="game-grid" id="game-grid"></div>
+</section>
+
+<!-- ═══════════════ RULES ═══════════════ -->
+<section id="sec-rules">
+  <div class="sec-header">
+    <p class="sec-title">// HOW IT WORKS</p>
+    <p class="sec-desc">Point values, eligibility rules, and everything you need to know before you play.</p>
+  </div>
+
+  <div class="stat-cards">
+    <div class="stat-card">
+      <span class="stat-val">5–20</span>
+      <span class="stat-label">Tier 1 — Easy</span>
+      <span class="stat-sub">pts per level</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-val">10–30</span>
+      <span class="stat-label">Tier 2 — Medium</span>
+      <span class="stat-sub">pts per level</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-val">15–40</span>
+      <span class="stat-label">Tier 3 — Hard</span>
+      <span class="stat-sub">pts per level</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-val">20–50</span>
+      <span class="stat-label">Tier 4 — Brutal</span>
+      <span class="stat-sub">pts per level</span>
+    </div>
+  </div>
+
+  <div class="rules-cols">
+    <div class="rule-block">
+      <p class="rule-block-title">// EARNING POINTS</p>
+      <ul class="rule-list">
+        <li>Points are earned per stage or level cleared — not just per boss defeated</li>
+        <li>Points scale upward the deeper into a game you get</li>
+        <li>All current work must be turned in before playing during class time</li>
+        <li>Teacher verifies level completion before points are logged — no self-reporting</li>
+        <li>You can earn points on any given game only once per school year</li>
+        <li>Points count as extra credit added to your formative grade category</li>
+      </ul>
+    </div>
+    <div class="rule-block">
+      <p class="rule-block-title">// SAVING YOUR PROGRESS</p>
+      <ul class="rule-list">
+        <li>If you can save your progress, you can continue across multiple class sessions</li>
+        <li>Completing a full game unlocks Milestone Bonuses (see the Bonuses tab)</li>
+        <li>Without save states, you earn points only for what you clear in a single session</li>
+        <li>Ask your teacher about how save states work in class</li>
+      </ul>
+    </div>
+    <div class="rule-block">
+      <p class="rule-block-title">// DIFFICULTY TIERS</p>
+      <ul class="rule-list">
+        <li><strong style="color:var(--green)">Easy</strong> — Good for beginners. Short games, forgiving mechanics</li>
+        <li><strong style="color:var(--yellow)">Medium</strong> — Some challenge. You'll need a few attempts</li>
+        <li><strong style="color:var(--orange)">Hard</strong> — Punishing. One hit can end your run</li>
+        <li><strong style="color:var(--pink)">Brutal</strong> — Historically notorious. You have been warned</li>
+      </ul>
+    </div>
+    <div class="rule-block">
+      <p class="rule-block-title">// INTEGRITY RULES</p>
+      <ul class="rule-list">
+        <li>You must be the one playing — no watching someone else play for you</li>
+        <li>Using cheat codes or skipping content means no points awarded</li>
+        <li>Friendly competition is encouraged; trash talk is monitored</li>
+        <li>Teacher's point decisions are final — no appeals to the Konami Code</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ BONUSES ═══════════════ -->
+<section id="sec-bonuses">
+  <div class="sec-header">
+    <p class="sec-title">// MILESTONE BONUSES</p>
+    <p class="sec-desc">Complete an entire game from start to final boss to unlock one of these rewards.</p>
+  </div>
+
+  <div class="bonus-intro">
+    These bonuses are awarded only for completing a full game — all levels from the first stage to the final boss. Your teacher must witness the final boss defeat on screen. You choose <strong style="color:var(--text)">ONE reward</strong> per completed game and cannot stack the same reward type.
+  </div>
+
+  <div class="bonus-grid">
+    <div class="bonus-card bc-gold">
+      <span class="bonus-icon">🏆</span>
+      <p class="bonus-title-text">FREE 100 FORMATIVE</p>
+      <span class="bonus-reward">100 pts</span>
+      <p class="bonus-desc">Drops one missing or low formative assignment and replaces it with a 100. Best used if you missed a classwork grade.</p>
+    </div>
+    <div class="bonus-card bc-blue">
+      <span class="bonus-icon">📝</span>
+      <p class="bonus-title-text">TEST RESCUE</p>
+      <span class="bonus-reward">+10 pts</span>
+      <p class="bonus-desc">Adds 10 points to any one test grade. Can bring a 70 to an 80, or push a borderline grade over the line.</p>
+    </div>
+    <div class="bonus-card bc-coral">
+      <span class="bonus-icon">📋</span>
+      <p class="bonus-title-text">MIDTERM / FINAL BOOST</p>
+      <span class="bonus-reward">+2 pts</span>
+      <p class="bonus-desc">Adds 2 raw points to your midterm or final exam. Only one per semester. Completing a Tier 4 game earns +3 pts instead.</p>
+    </div>
+    <div class="bonus-card bc-green">
+      <span class="bonus-icon">💀</span>
+      <p class="bonus-title-text">TIER 4 BONUS</p>
+      <span class="bonus-reward">+3 pts</span>
+      <p class="bonus-desc">Completing a Brutal-tier game (Battletoads, Ninja Gaiden 3, Mega Man 1, or Contra) earns the enhanced exam boost instead of +2.</p>
+    </div>
+  </div>
+
+  <div class="bonus-cap">
+    <strong>Semester cap:</strong> You may earn a maximum of 3 milestone bonuses per semester and no more than 1 exam boost per exam. This keeps things fair without distorting grades.
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p class="footer-text">
+    EXTRA CREDIT ARCADE &nbsp;//&nbsp; <span>SOCIAL CIRCLE SCHOOLS CS DEPT</span><br>
+    WORK FIRST. PLAY SECOND. EARN ALWAYS.<br>
+    <span>PRESS START</span> &nbsp;▶
+  </p>
+</footer>
+
+<script>
+const games = [
+  {title:"Tetris",platform:"NES",tier:"Easy",tc:"t1",levels:[
+    {name:"Levels 1–3",pts:5},{name:"Levels 4–6",pts:8},{name:"Levels 7–9",pts:12},
+    {name:"Levels 10–12",pts:16},{name:"Level 13+",pts:20}
+  ]},
+  {title:"Kung Fu",platform:"NES",tier:"Easy",tc:"t1",levels:[
+    {name:"Floor 1",pts:5},{name:"Floor 2",pts:8},{name:"Floor 3",pts:12},
+    {name:"Floor 4",pts:16},{name:"Floor 5 (final)",pts:20}
+  ]},
+  {title:"Duck Tales",platform:"NES",tier:"Easy",tc:"t1",levels:[
+    {name:"Any stage (easy mode)",pts:8},{name:"Any stage (normal mode)",pts:12},
+    {name:"Final stage",pts:20}
+  ]},
+  {title:"Super Mario Bros.",platform:"NES",tier:"Medium",tc:"t2",levels:[
+    {name:"World 1",pts:10},{name:"Worlds 2–3",pts:14},{name:"Worlds 4–5",pts:18},
+    {name:"Worlds 6–7",pts:24},{name:"World 8",pts:30}
+  ]},
+  {title:"Super Mario Bros. 2",platform:"NES",tier:"Medium",tc:"t2",levels:[
+    {name:"World 1",pts:10},{name:"Worlds 2–3",pts:15},{name:"Worlds 4–5",pts:20},
+    {name:"Worlds 6–7",pts:30}
+  ]},
+  {title:"Super Mario Bros. 3",platform:"NES",tier:"Medium",tc:"t2",levels:[
+    {name:"World 1",pts:10},{name:"Worlds 2–3",pts:15},{name:"Worlds 4–5",pts:20},
+    {name:"Worlds 6–7",pts:25},{name:"World 8 (final)",pts:30}
+  ]},
+  {title:"Mega Man 2",platform:"NES",tier:"Hard",tc:"t3",levels:[
+    {name:"Any robot master stage",pts:15},{name:"3 stages cleared",pts:22},
+    {name:"6 stages cleared",pts:32},{name:"Wily Castle",pts:40}
+  ]},
+  {title:"Mega Man 3–4",platform:"NES",tier:"Medium",tc:"t2",levels:[
+    {name:"Any robot master stage",pts:12},{name:"3 stages cleared",pts:18},
+    {name:"6 stages cleared",pts:24},{name:"All stages + Wily",pts:30}
+  ]},
+  {title:"Mega Man 5–6",platform:"NES",tier:"Medium",tc:"t2",levels:[
+    {name:"Any robot master stage",pts:10},{name:"3 stages cleared",pts:16},
+    {name:"6 stages cleared",pts:22},{name:"All stages + Wily",pts:28}
+  ]},
+  {title:"Castlevania 1",platform:"NES",tier:"Hard",tc:"t3",levels:[
+    {name:"Stages 1–2",pts:15},{name:"Stages 3–4",pts:20},{name:"Stages 5–6",pts:28},
+    {name:"Stages 7–8 (Dracula)",pts:40}
+  ]},
+  {title:"Ninja Gaiden 1",platform:"NES",tier:"Hard",tc:"t3",levels:[
+    {name:"Act 1",pts:15},{name:"Acts 2–3",pts:22},{name:"Acts 4–5",pts:30},
+    {name:"Act 6 (final)",pts:40}
+  ]},
+  {title:"Ninja Gaiden 2",platform:"NES",tier:"Hard",tc:"t3",levels:[
+    {name:"Act 1",pts:15},{name:"Acts 2–3",pts:22},{name:"Acts 4–5",pts:30},
+    {name:"Act 6 (final)",pts:40}
+  ]},
+  {title:"Contra",platform:"NES",tier:"Hard",tc:"t3",levels:[
+    {name:"Stages 1–2",pts:15},{name:"Stages 3–4",pts:22},{name:"Stages 5–6",pts:30},
+    {name:"Stages 7–8 (final)",pts:40}
+  ]},
+  {title:"Mike Tyson's Punch-Out!!",platform:"NES",tier:"Hard",tc:"t3",levels:[
+    {name:"Minor Circuit (3 fights)",pts:15},{name:"Major Circuit",pts:22},
+    {name:"World Circuit",pts:32},{name:"Mike Tyson",pts:40}
+  ]},
+  {title:"Gradius",platform:"NES",tier:"Hard",tc:"t3",levels:[
+    {name:"Stages 1–2",pts:15},{name:"Stages 3–4",pts:22},
+    {name:"Stages 5–6",pts:32},{name:"Stage 7 (final)",pts:40}
+  ]},
+  {title:"Mega Man 1",platform:"NES",tier:"Brutal",tc:"t4",levels:[
+    {name:"Any robot master stage",pts:20},{name:"3 stages cleared",pts:28},
+    {name:"6 stages cleared",pts:38},{name:"Wily Castle",pts:50}
+  ]},
+  {title:"Ninja Gaiden 3",platform:"NES",tier:"Brutal",tc:"t4",levels:[
+    {name:"Acts 1–2",pts:20},{name:"Acts 3–4",pts:30},{name:"Act 5",pts:40},
+    {name:"Act 6 (final)",pts:50}
+  ]},
+  {title:"Battletoads",platform:"NES",tier:"Brutal",tc:"t4",levels:[
+    {name:"Ragnarok's Canyon",pts:20},{name:"Turbo Tunnel cleared",pts:35},
+    {name:"Past level 5",pts:42},{name:"Final boss",pts:50}
+  ]},
+  {title:"Super Castlevania IV",platform:"SNES",tier:"Hard",tc:"t3",levels:[
+    {name:"Stages 1–2",pts:15},{name:"Stages 3–5",pts:22},
+    {name:"Stages 6–8",pts:30},{name:"Stages 9–11 (Dracula)",pts:40}
+  ]},
+  {title:"Mega Man X",platform:"SNES",tier:"Hard",tc:"t3",levels:[
+    {name:"Any Maverick stage",pts:15},{name:"4 stages cleared",pts:22},
+    {name:"All 8 cleared",pts:32},{name:"Sigma stages (final)",pts:40}
+  ]},
+  {title:"Contra III",platform:"SNES",tier:"Hard",tc:"t3",levels:[
+    {name:"Stages 1–2",pts:15},{name:"Stages 3–4",pts:22},
+    {name:"Stage 5",pts:32},{name:"Final boss",pts:40}
+  ]},
+  {title:"Super Punch-Out!!",platform:"SNES",tier:"Medium",tc:"t2",levels:[
+    {name:"Minor Circuit",pts:10},{name:"Major Circuit",pts:16},
+    {name:"World Circuit",pts:22},{name:"Special Circuit (final)",pts:30}
+  ]}
+];
+
+function renderGames(tier) {
+  const grid = document.getElementById('game-grid');
+  const list = tier === 'all' ? games : games.filter(g => g.tier === tier);
+  grid.innerHTML = list.map(g => `
+    <div class="game-card ${g.tc}">
+      <div class="card-top">
+        <p class="game-title">${g.title}</p>
+        <span class="tier-badge ${g.tc}">${g.tier}</span>
+      </div>
+      <p class="platform-tag">${g.platform}</p>
+      <table class="levels-table">
+        <thead><tr><th>Progress milestone</th><th>Points</th></tr></thead>
+        <tbody>${g.levels.map(l=>`<tr><td>${l.name}</td><td>${l.pts}</td></tr>`).join('')}</tbody>
+      </table>
+      <p class="pts-range">Range: ${g.levels[0].pts}–${g.levels[g.levels.length-1].pts} pts per run</p>
+    </div>
+  `).join('');
+}
+
+function filterGames(tier, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGames(tier);
+}
+
+function showSection(id, btn) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+renderGames('all');
+</script>
+</body>
+</html>
