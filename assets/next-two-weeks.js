@@ -152,4 +152,30 @@ async function renderNextTwoWeeks(rootId, source) {
   }
 }
 
+// "Previous Week": the span just before this week's, i.e. what was assigned
+// (and turned in) last week. Past the end of the schedule, the final week
+// itself is the most recent one that's over.
+async function renderPreviousWeek(rootId, source) {
+  const root = document.getElementById(rootId);
+  if (!root) return;
+  try {
+    const weeks = source.type === "api" ? await fetchApiWeeks(source.courseId) : await fetchStaticWeeks(source.url);
+    const { current, before, after } = pickCurrentAndNext(weeks);
+    if (!current || before) {
+      root.innerHTML = '<div class="hint">The school year hasn\'t started yet, so there is no previous week.</div>';
+      return;
+    }
+    const idx = weeks.indexOf(current);
+    const prev = after ? current : weeks[idx - 1];
+    if (!prev) {
+      root.innerHTML = '<div class="hint">This is the first scheduled week, so there is no previous week yet.</div>';
+      return;
+    }
+    root.innerHTML = `<div class="ntw-grid">${weekCardHtml(prev, "Previous Week")}</div>`;
+  } catch (err) {
+    root.innerHTML = '<div class="alert alert-error">Could not load the pacing guide.</div>';
+  }
+}
+
 window.renderNextTwoWeeks = renderNextTwoWeeks;
+window.renderPreviousWeek = renderPreviousWeek;
