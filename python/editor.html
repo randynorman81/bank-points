@@ -12,27 +12,42 @@ body{background:var(--bg);color:var(--ink);font:14px/1.5 Manrope,system-ui,sans-
 .top{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--rule);flex-wrap:wrap}
 .top h1{font-size:15px;margin:0;letter-spacing:.02em}
 .top .sp{flex:1}
-.btn{background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:7px 14px;cursor:pointer;font:700 13px Manrope,sans-serif}
-.btn:hover{border-color:var(--acc)}
+.btn,select,input[type=number]{background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:6px 12px;cursor:pointer;font:700 13px Manrope,sans-serif}
+select{padding:6px 8px}
+input[type=number]{width:56px;padding:5px 6px;cursor:text}
+.btn:hover,select:hover{border-color:var(--acc)}
 .btn.run{background:var(--acc);color:#0B0E14;border-color:var(--acc)}
+.btn.on{border-color:var(--acc);background:#2a1d10;color:#fff}
+.btn.sm{padding:4px 10px;font-size:12px}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 .status{font-size:12px;color:var(--soft);min-width:130px;text-align:right}
-main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:0}
+main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr}
 .pane{display:flex;flex-direction:column;min-width:0;min-height:0;border-right:1px solid var(--rule)}
 .pane:last-child{border-right:0}
 .pane h2{margin:0;padding:6px 12px;font:700 11px "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);background:var(--panel);border-bottom:1px solid var(--rule)}
 .edwrap{flex:1;min-height:0;display:flex;background:#080B11}
 #gut{margin:0;padding:12px 8px 12px 12px;text-align:right;color:#4B5670;font:13.5px/1.6 "JetBrains Mono",monospace;user-select:none;overflow:hidden;min-width:44px;white-space:pre}
 #code{flex:1;min-width:0;resize:none;border:0;outline:0;background:transparent;color:#E6EAF2;font:13.5px/1.6 "JetBrains Mono",monospace;padding:12px 12px 12px 4px;tab-size:4;white-space:pre;overflow:auto;caret-color:var(--acc)}
-#out{flex:1;min-height:0;margin:0;padding:12px 14px;overflow:auto;background:#05070B;font:13.5px/1.6 "JetBrains Mono",monospace;white-space:pre-wrap;word-break:break-word}
-#out .err{color:var(--bad)}#out .sys{color:var(--soft)}#out .ok{color:var(--ok)}
+#out{flex:1;min-height:80px;margin:0;padding:12px 14px;overflow:auto;background:#05070B;font:13.5px/1.6 "JetBrains Mono",monospace;white-space:pre-wrap;word-break:break-word}
+#out .err{color:var(--bad)}#out .sys{color:var(--soft)}#out .ok{color:var(--ok)}#out .in{color:#7DD3FC}
 .tip{padding:6px 12px;font-size:12px;color:var(--soft);background:var(--panel);border-top:1px solid var(--rule)}
 kbd{font:600 11px "JetBrains Mono",monospace;background:var(--card);border:1px solid var(--rule);border-radius:4px;padding:1px 5px}
-@media (max-width:820px){main{grid-template-columns:1fr;grid-template-rows:1.2fr 1fr}.pane{border-right:0;border-bottom:1px solid var(--rule)}}
+/* Karel world */
+#karel{display:none;flex-direction:column;border-bottom:1px solid var(--rule);background:#0E1320}
+body.karel #karel{display:flex}
+.ktools{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--rule);font-size:12px;color:var(--soft)}
+.ktools label{display:flex;align-items:center;gap:5px}
+.ktools input[type=range]{width:90px;accent-color:var(--acc)}
+#wrap{padding:10px;display:flex;justify-content:center}
+#world{background:#fff;border-radius:6px;max-width:100%;touch-action:manipulation}
+.kmsg{padding:0 12px 8px;font-size:12px;color:var(--soft);min-height:22px}
+.kmsg.bad{color:var(--bad)}
+@media (max-width:820px){main{grid-template-columns:1fr;grid-template-rows:1.1fr 1.3fr}.pane{border-right:0;border-bottom:1px solid var(--rule)}}
 </style></head>
 <body>
 <div class="top">
   <h1>Python Editor</h1>
+  <select id="mode" aria-label="Mode"><option value="python">Python</option><option value="karel">Karel</option></select>
   <button class="btn run" id="run" disabled>&#9654; Run</button>
   <button class="btn" id="clear">Clear output</button>
   <button class="btn" id="reset">Reset code</button>
@@ -41,11 +56,26 @@ kbd{font:600 11px "JetBrains Mono",monospace;background:var(--card);border:1px s
 </div>
 <main>
   <section class="pane">
-    <h2>Your code (main.py)</h2>
+    <h2 id="codeTitle">Your code (main.py)</h2>
     <div class="edwrap"><pre id="gut">1</pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Python code"></textarea></div>
     <div class="tip"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> runs your code. <kbd>Tab</kbd> indents. Your work saves in this browser as you type.</div>
   </section>
   <section class="pane">
+    <div id="karel">
+      <h2>Karel's world</h2>
+      <div class="ktools">
+        <select id="preset" aria-label="World"></select>
+        <span>Edit:</span>
+        <button class="btn sm on" data-tool="karel" title="Click a square to place Karel. Click Karel again to turn her.">Karel</button>
+        <button class="btn sm" data-tool="ball" title="Click a square to add a ball. Shift-click removes one.">Balls</button>
+        <button class="btn sm" data-tool="wall" title="Click the edge of a square to add or remove a wall.">Walls</button>
+        <label>Size <input type="number" id="cols" min="2" max="12" value="8" aria-label="Avenues"> &times; <input type="number" id="rows" min="2" max="12" value="8" aria-label="Streets"></label>
+        <label>Speed <input type="range" id="speed" min="1" max="10" value="6"></label>
+        <button class="btn sm" id="wreset" title="Put the world back the way it started">Reset world</button>
+      </div>
+      <div id="wrap"><canvas id="world" width="420" height="420" aria-label="Karel's world"></canvas></div>
+      <div class="kmsg" id="kmsg">Karel starts at the bottom left, facing east.</div>
+    </div>
     <h2>Output</h2>
     <pre id="out"></pre>
   </section>
@@ -54,27 +84,25 @@ kbd{font:600 11px "JetBrains Mono",monospace;background:var(--card);border:1px s
 <script>
 "use strict";
 var $ = function (i) { return document.getElementById(i); };
-var KEY = "py:code:main", STARTER = '# Welcome! Edit this code, then click Run.\nname = input("What is your name? ")\nprint("Hello,", name)\n\nfor i in range(3):\n    print("Counting:", i)\n';
+var STARTER_PY = '# Welcome! Edit this code, then click Run.\nname = input("What is your name? ")\nprint("Hello,", name)\n\nfor i in range(3):\n    print("Counting:", i)\n';
+var STARTER_KAREL = 'def main():\n    move()\n    move()\n    turn_left()\n    move()\n\nif __name__ == "__main__":\n    main()\n';
 var ta = $("code"), out = $("out"), gut = $("gut"), runBtn = $("run"), statusEl = $("status"), py = null, running = false;
-
+var mode = "python";
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function codeKey() { return "py:code:" + mode; }
+function starter() { return mode === "karel" ? STARTER_KAREL : STARTER_PY; }
 
 /* ---------- the editor box ---------- */
-function gutter() {
-  var n = ta.value.split("\n").length, s = ""; for (var i = 1; i <= n; i++) s += i + "\n";
-  gut.textContent = s.replace(/\n$/, ""); gut.scrollTop = ta.scrollTop;
-}
-ta.value = lsGet(KEY) !== null ? lsGet(KEY) : STARTER; gutter();
+function gutter() { var n = ta.value.split("\n").length, s = ""; for (var i = 1; i <= n; i++) s += i + "\n"; gut.textContent = s.replace(/\n$/, ""); gut.scrollTop = ta.scrollTop; }
+function loadCode() { var v = lsGet(codeKey()); ta.value = v !== null ? v : starter(); gutter(); }
 var saveT = 0;
-ta.addEventListener("input", function () { gutter(); clearTimeout(saveT); saveT = setTimeout(function () { lsSet(KEY, ta.value); flash("Saved"); }, 500); });
+ta.addEventListener("input", function () { gutter(); clearTimeout(saveT); saveT = setTimeout(function () { lsSet(codeKey(), ta.value); flash("Saved"); }, 500); });
 ta.addEventListener("scroll", function () { gut.scrollTop = ta.scrollTop; });
 ta.addEventListener("keydown", function (e) {
-  if (e.key === "Tab") {
-    e.preventDefault(); var a = ta.selectionStart, b = ta.selectionEnd;
-    ta.value = ta.value.slice(0, a) + "    " + ta.value.slice(b); ta.selectionStart = ta.selectionEnd = a + 4; gutter();
-  } else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run(); }
-  else if (e.key === "Enter") { /* keep the indent of the line above, and add 4 more after a colon */
+  if (e.key === "Tab") { e.preventDefault(); var a = ta.selectionStart, b = ta.selectionEnd; ta.value = ta.value.slice(0, a) + "    " + ta.value.slice(b); ta.selectionStart = ta.selectionEnd = a + 4; gutter(); }
+  else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run(); }
+  else if (e.key === "Enter") {
     var v = ta.value, p = ta.selectionStart, ls = v.lastIndexOf("\n", p - 1) + 1, line = v.slice(ls, p), ind = (line.match(/^[ ]*/) || [""])[0];
     if (/:\s*$/.test(line)) ind += "    ";
     e.preventDefault(); ta.value = v.slice(0, p) + "\n" + ind + v.slice(ta.selectionEnd); ta.selectionStart = ta.selectionEnd = p + 1 + ind.length; gutter(); ta.dispatchEvent(new Event("input"));
@@ -85,37 +113,217 @@ function flash(t) { if (running) return; statusEl.textContent = t; clearTimeout(
 /* ---------- the output box ---------- */
 function print(text, cls) { var s = document.createElement("span"); if (cls) s.className = cls; s.textContent = text; out.appendChild(s); out.scrollTop = out.scrollHeight; }
 $("clear").onclick = function () { out.textContent = ""; };
-$("reset").onclick = function () { if (confirm("Replace your code with the starter code? This cannot be undone.")) { ta.value = STARTER; gutter(); lsSet(KEY, STARTER); } };
+$("reset").onclick = function () { if (confirm("Replace your code with the starter code? This cannot be undone.")) { ta.value = starter(); gutter(); lsSet(codeKey(), ta.value); } };
+
+/* =====================================================================================
+   KAREL: the world, the engine, and the drawing.  Directions: 0 east, 1 north, 2 west, 3 south.
+   Karel's moves are recorded as frames while the program runs, then played back like an animation.
+   ===================================================================================== */
+var DX = [1, 0, -1, 0], DY = [0, 1, 0, -1], DIRNAME = ["east", "north", "west", "south"];
+var PRESETS = {
+  "Empty 8 x 8": { w: 8, h: 8, kx: 1, ky: 1, kd: 0, balls: {}, walls: [] },
+  "Pick up the ball": { w: 8, h: 8, kx: 1, ky: 1, kd: 0, balls: { "5,1": 1 }, walls: [] },
+  "A row of balls": { w: 8, h: 8, kx: 1, ky: 1, kd: 0, balls: { "2,1": 1, "3,1": 1, "4,1": 1, "5,1": 1, "6,1": 1, "7,1": 1, "8,1": 1 }, walls: [] },
+  "Hurdles": { w: 8, h: 8, kx: 1, ky: 1, kd: 0, balls: { "8,1": 1 }, walls: [[2, 1, 0], [2, 2, 0], [4, 1, 0], [4, 2, 0], [6, 1, 0], [6, 2, 0]] },
+  "Pile of balls": { w: 8, h: 8, kx: 1, ky: 1, kd: 0, balls: { "4,4": 5 }, walls: [] }
+};
+var world = null, initial = null, frames = [], shown = null, playing = 0, tool = "karel", kmsg = $("kmsg");
+
+function emptyWorld(w, h) { return { w: w, h: h, kx: 1, ky: 1, kd: 0, balls: {}, walls: {} }; }
+function fromPreset(p) { var o = emptyWorld(p.w, p.h); o.kx = p.kx; o.ky = p.ky; o.kd = p.kd; for (var k in p.balls) o.balls[k] = p.balls[k]; (p.walls || []).forEach(function (wl) { setWall(o, wl[0], wl[1], wl[2], true); }); return o; }
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+function wkey(x, y, d) { return x + "," + y + "," + d; }
+function setWall(o, x, y, d, on) {
+  var nx = x + DX[d], ny = y + DY[d], nd = (d + 2) % 4;
+  if (on) { o.walls[wkey(x, y, d)] = 1; o.walls[wkey(nx, ny, nd)] = 1; } else { delete o.walls[wkey(x, y, d)]; delete o.walls[wkey(nx, ny, nd)]; }
+}
+function blocked(o, x, y, d) {
+  var nx = x + DX[d], ny = y + DY[d];
+  return nx < 1 || ny < 1 || nx > o.w || ny > o.h || !!o.walls[wkey(x, y, d)];
+}
+
+/* the engine Python calls (window.karel). Each action returns "" or an error message. */
+window.karel = {
+  count: 0,
+  snap: function () { frames.push({ w: world.w, h: world.h, walls: world.walls, kx: world.kx, ky: world.ky, kd: world.kd, balls: clone(world.balls) }); this.count++; return this.count > 4000 ? "Karel took more than 4,000 steps. Is there a loop that never ends?" : ""; },
+  move: function () { if (blocked(world, world.kx, world.ky, world.kd)) return "Karel can't move: there is a wall in front of her."; world.kx += DX[world.kd]; world.ky += DY[world.kd]; return this.snap(); },
+  turn_left: function () { world.kd = (world.kd + 1) % 4; return this.snap(); },
+  turn_right: function () { world.kd = (world.kd + 3) % 4; return this.snap(); },
+  turn_around: function () { world.kd = (world.kd + 2) % 4; return this.snap(); },
+  put_ball: function () { var k = world.kx + "," + world.ky; world.balls[k] = (world.balls[k] || 0) + 1; return this.snap(); },
+  take_ball: function () { var k = world.kx + "," + world.ky; if (!world.balls[k]) return "Karel can't take a ball: there are no balls on this square."; world.balls[k]--; if (!world.balls[k]) delete world.balls[k]; return this.snap(); },
+  front_is_clear: function () { return !blocked(world, world.kx, world.ky, world.kd); },
+  left_is_clear: function () { return !blocked(world, world.kx, world.ky, (world.kd + 1) % 4); },
+  right_is_clear: function () { return !blocked(world, world.kx, world.ky, (world.kd + 3) % 4); },
+  balls_present: function () { return !!world.balls[world.kx + "," + world.ky]; },
+  facing: function (d) { return world.kd === d; }
+};
+var KAREL_PY = [
+  "import js",
+  "class KarelError(Exception):",
+  "    pass",
+  "def _go(msg):",
+  "    if msg: raise KarelError(msg)",
+  "def move(): _go(js.karel.move())",
+  "def turn_left(): _go(js.karel.turn_left())",
+  "def turn_right(): _go(js.karel.turn_right())",
+  "def turn_around(): _go(js.karel.turn_around())",
+  "def put_ball(): _go(js.karel.put_ball())",
+  "def take_ball(): _go(js.karel.take_ball())",
+  "def front_is_clear(): return bool(js.karel.front_is_clear())",
+  "def left_is_clear(): return bool(js.karel.left_is_clear())",
+  "def right_is_clear(): return bool(js.karel.right_is_clear())",
+  "def front_is_blocked(): return not front_is_clear()",
+  "def left_is_blocked(): return not left_is_clear()",
+  "def right_is_blocked(): return not right_is_clear()",
+  "def balls_present(): return bool(js.karel.balls_present())",
+  "def no_balls_present(): return not balls_present()",
+  "def facing_east(): return bool(js.karel.facing(0))",
+  "def facing_north(): return bool(js.karel.facing(1))",
+  "def facing_west(): return bool(js.karel.facing(2))",
+  "def facing_south(): return bool(js.karel.facing(3))",
+  "def not_facing_east(): return not facing_east()",
+  "def not_facing_north(): return not facing_north()",
+  "def not_facing_west(): return not facing_west()",
+  "def not_facing_south(): return not facing_south()",
+  "put_beeper = put_ball",
+  "take_beeper = take_ball",
+  "beepers_present = balls_present",
+  "no_beepers_present = no_balls_present",
+  "_api = {k: v for k, v in dict(globals()).items() if not k.startswith('__') and k != 'js'}"
+].join("\n");
+
+/* ---------- drawing ---------- */
+var cv = $("world"), cx = cv.getContext("2d");
+function geom() { var m = 34, c = Math.floor(Math.min(460 / shown.w, 460 / shown.h)); return { m: m, cell: Math.max(24, Math.min(c, 56)), w: shown.w, h: shown.h }; }
+function draw(o) {
+  shown = o; var g = geom(), c = g.cell, m = g.m, left = m, top = 4;
+  cv.width = m + c * g.w + 8; cv.height = top + c * g.h + 28;
+  cx.fillStyle = "#fff"; cx.fillRect(0, 0, cv.width, cv.height);
+  cx.font = "11px JetBrains Mono, monospace"; cx.fillStyle = "#6B7280"; cx.textAlign = "center"; cx.textBaseline = "middle";
+  for (var x = 1; x <= g.w; x++) cx.fillText(x, left + (x - 0.5) * c, top + g.h * c + 14);
+  cx.textAlign = "right"; for (var y = 1; y <= g.h; y++) cx.fillText(y, left - 8, top + (g.h - y + 0.5) * c);
+  cx.strokeStyle = "#CBD5E1"; cx.lineWidth = 1;
+  for (var i = 0; i <= g.w; i++) { cx.beginPath(); cx.moveTo(left + i * c + .5, top); cx.lineTo(left + i * c + .5, top + g.h * c); cx.stroke(); }
+  for (var j = 0; j <= g.h; j++) { cx.beginPath(); cx.moveTo(left, top + j * c + .5); cx.lineTo(left + g.w * c, top + j * c + .5); cx.stroke(); }
+  cx.strokeStyle = "#111827"; cx.lineWidth = 4; cx.lineCap = "round";
+  function edge(x, y, d) {
+    var px = left + (x - 1) * c, py = top + (g.h - y) * c, a, b;
+    if (d === 0) { a = [px + c, py]; b = [px + c, py + c]; } else if (d === 1) { a = [px, py]; b = [px + c, py]; } else if (d === 2) { a = [px, py]; b = [px, py + c]; } else { a = [px, py + c]; b = [px + c, py + c]; }
+    cx.beginPath(); cx.moveTo(a[0], a[1]); cx.lineTo(b[0], b[1]); cx.stroke();
+  }
+  for (var k in o.walls) { var p = k.split(",").map(Number); if (p[0] >= 1 && p[1] >= 1 && p[0] <= g.w && p[1] <= g.h) edge(p[0], p[1], p[2]); }
+  cx.strokeRect(left, top, g.w * c, g.h * c);
+  for (var bk in o.balls) {
+    var q = bk.split(",").map(Number), bx = left + (q[0] - 0.5) * c, by = top + (g.h - q[1] + 0.5) * c, r = c * 0.24;
+    cx.fillStyle = "#F59E0B"; cx.beginPath(); cx.arc(bx, by + c * 0.12, r, 0, 7); cx.fill();
+    cx.fillStyle = "#111827"; cx.font = "bold " + Math.max(10, Math.round(c * 0.24)) + "px JetBrains Mono, monospace"; cx.textAlign = "center"; cx.fillText(o.balls[bk], bx, by + c * 0.13);
+  }
+  var kx = left + (o.kx - 0.5) * c, ky = top + (g.h - o.ky + 0.5) * c, s = c * 0.32;
+  cx.save(); cx.translate(kx, ky); cx.rotate(-o.kd * Math.PI / 2);
+  cx.fillStyle = "#2563EB"; cx.strokeStyle = "#1E3A8A"; cx.lineWidth = 2; cx.lineJoin = "round";
+  cx.beginPath(); cx.moveTo(s * 1.15, 0); cx.lineTo(-s, -s * 0.95); cx.lineTo(-s * 0.5, 0); cx.lineTo(-s, s * 0.95); cx.closePath(); cx.fill(); cx.stroke();
+  cx.fillStyle = "#fff"; cx.beginPath(); cx.arc(s * 0.2, 0, s * 0.2, 0, 7); cx.fill();
+  cx.restore();
+}
+function cellAt(ev) {
+  var r = cv.getBoundingClientRect(), px = (ev.clientX - r.left) * (cv.width / r.width), py = (ev.clientY - r.top) * (cv.height / r.height), g = geom();
+  var u = (px - g.m) / g.cell, v = (py - 4) / g.cell, x = Math.floor(u) + 1, y = g.h - Math.floor(v);
+  if (x < 1 || y < 1 || x > g.w || y > g.h) return null;
+  return { x: x, y: y, fu: u - Math.floor(u), fv: v - Math.floor(v) };
+}
+cv.addEventListener("click", function (ev) { editClick(ev, ev.shiftKey); });
+cv.addEventListener("contextmenu", function (ev) { ev.preventDefault(); editClick(ev, true); });
+function editClick(ev, alt) {
+  if (playing || running) return;
+  var c = cellAt(ev); if (!c) return;
+  world = clone(initial);
+  if (tool === "karel") { if (world.kx === c.x && world.ky === c.y) world.kd = (world.kd + 1) % 4; else { world.kx = c.x; world.ky = c.y; } }
+  else if (tool === "ball") { var k = c.x + "," + c.y, n = (world.balls[k] || 0) + (alt ? -1 : 1); if (n > 0) world.balls[k] = n; else delete world.balls[k]; }
+  else if (tool === "wall") {
+    var dir = [[1 - c.fu, 0], [c.fv, 1], [c.fu, 2], [1 - c.fv, 3]].sort(function (a, b) { return a[0] - b[0]; })[0][1];
+    setWall(world, c.x, c.y, dir, !world.walls[wkey(c.x, c.y, dir)]);
+  }
+  initial = clone(world); lsSet("py:karel:world", JSON.stringify(initial)); draw(world); kmsg.className = "kmsg"; kmsg.textContent = "World changed.";
+}
+function setWorld(o) { world = clone(o); initial = clone(o); frames = []; $("cols").value = o.w; $("rows").value = o.h; draw(world); lsSet("py:karel:world", JSON.stringify(initial)); }
+(function initWorld() {
+  var sel = $("preset"); Object.keys(PRESETS).forEach(function (n) { var o = document.createElement("option"); o.textContent = n; sel.appendChild(o); });
+  var saved = null; try { saved = JSON.parse(lsGet("py:karel:world")); } catch (e) {}
+  setWorld(saved && saved.w ? saved : fromPreset(PRESETS["Empty 8 x 8"]));
+  sel.addEventListener("change", function () { setWorld(fromPreset(PRESETS[sel.value])); kmsg.className = "kmsg"; kmsg.textContent = "Loaded the world: " + sel.value + "."; });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-tool]"), function (b) { b.onclick = function () { tool = b.getAttribute("data-tool"); Array.prototype.forEach.call(document.querySelectorAll("[data-tool]"), function (x) { x.classList.toggle("on", x === b); }); }; });
+  function resize() { var w = Math.max(2, Math.min(12, +$("cols").value || 8)), h = Math.max(2, Math.min(12, +$("rows").value || 8)), o = clone(initial); o.w = w; o.h = h; o.kx = Math.min(o.kx, w); o.ky = Math.min(o.ky, h); for (var k in o.balls) { var p = k.split(",").map(Number); if (p[0] > w || p[1] > h) delete o.balls[k]; } setWorld(o); }
+  $("cols").onchange = resize; $("rows").onchange = resize;
+  $("wreset").onclick = function () { stopPlayback(); world = clone(initial); frames = []; draw(world); kmsg.className = "kmsg"; kmsg.textContent = "World reset."; };
+})();
+
+function stopPlayback() { clearInterval(playing); playing = 0; }
+function play(fr, done) {
+  stopPlayback(); var i = 0, delay = [900, 650, 450, 320, 220, 150, 100, 60, 30, 10][+$("speed").value - 1];
+  draw(initial);
+  if (!fr.length) { done(); return; }
+  playing = setInterval(function () { draw(fr[i]); i++; if (i >= fr.length) { stopPlayback(); done(); } }, delay);
+}
 
 /* ---------- Python (Pyodide) ---------- */
 function friendlyError(msg) {
-  /* keep only the part a student needs: the last frames from their own code, and the error line */
-  var lines = String(msg).split("\n"), keep = [];
+  /* show only the frames from the student's own code (not Karel's internal helpers), then the error line */
+  var INTERNAL = /^(_go|move|turn_left|turn_right|turn_around|put_ball|take_ball)$/, lines = String(msg).split("\n"), keep = [];
   for (var i = 0; i < lines.length; i++) {
-    if (/File "<exec>"/.test(lines[i])) { keep.push(lines[i].replace('File "<exec>"', "Your code")); if (lines[i + 1] && /^s/.test(lines[i + 1])) keep.push(lines[i + 1]); }
+    var m = /File "<exec>", line (\d+), in (\S+)/.exec(lines[i]); if (!m || INTERNAL.test(m[2])) continue;
+    keep.push("Line " + m[1] + (m[2] === "<module>" ? "" : ", in " + m[2]));
+    if (lines[i + 1] && /^\s{4}\S/.test(lines[i + 1]) && !/File "/.test(lines[i + 1])) keep.push(lines[i + 1]);
   }
   var last = lines.filter(function (l) { return l.trim(); }).pop() || "Error";
   return (keep.length ? keep.join("\n") + "\n" : "") + last;
 }
+/* input("question") asks with the real question, then echoes the question and the answer in the output like a console would */
+window.pyInput = function (q) {
+  var a = window.prompt(q === "" ? "The program is asking for input:" : q);
+  if (a === null) return null;
+  print(q, "sys"); print(a + "\n", "in"); return a;
+};
 loadPyodide().then(function (p) {
   py = p;
   py.setStdout({ batched: function (s) { print(s + "\n"); } });
   py.setStderr({ batched: function (s) { print(s + "\n", "err"); } });
-  py.setStdin({ stdin: function () { var v = prompt("input() is asking for something:"); if (v === null) throw new Error("You closed the input box."); print(v + "\n", "sys"); return v; } });
+  py.runPython("import builtins, js\ndef _input(prompt=''):\n    a = js.pyInput(str(prompt))\n    if a is None:\n        raise KeyboardInterrupt('You closed the input box.')\n    return a\nbuiltins.input = _input\n" + KAREL_PY);
   runBtn.disabled = false; statusEl.textContent = "Ready";
 }).catch(function () { statusEl.textContent = "Could not load Python"; print("Python could not load. Check your internet connection and refresh the page.\n", "err"); });
 
 function run() {
   if (!py || running) return;
-  running = true; runBtn.disabled = true; statusEl.textContent = "Running…";
+  running = true; runBtn.disabled = true; statusEl.textContent = "Running…"; stopPlayback();
   print("▶ Running…\n", "sys");
-  setTimeout(function () {                       /* let the page repaint before Python takes over */
-    try { py.runPython(ta.value); print("✓ Finished\n\n", "ok"); }
-    catch (e) { print(friendlyError(e.message || e) + "\n\n", "err"); }
-    running = false; runBtn.disabled = false; statusEl.textContent = "Ready";
+  var karelMode = mode === "karel";
+  if (karelMode) { world = clone(initial); frames = []; window.karel.count = 0; kmsg.className = "kmsg"; kmsg.textContent = "Karel is running…"; }
+  setTimeout(function () {
+    var err = null, ns = null;
+    try {
+      ns = py.runPython(karelMode ? "dict(_api, __name__='__main__')" : "{'__name__': '__main__'}");
+      py.runPython(ta.value, { globals: ns });
+      if (karelMode && window.karel.count === 0 && ns.has("main")) py.runPython("main()", { globals: ns });
+    } catch (e) { err = friendlyError(e.message || e); }
+    if (ns && ns.destroy) ns.destroy();
+    function finish() {
+      if (err) { print(err + "\n\n", "err"); if (karelMode) { kmsg.className = "kmsg bad"; kmsg.textContent = err.split("\n").pop().replace(/^KarelError: /, ""); } }
+      else { print("✓ Finished\n\n", "ok"); if (karelMode) { kmsg.className = "kmsg"; kmsg.textContent = "Done. Karel ended at avenue " + world.kx + ", street " + world.ky + ", facing " + DIRNAME[world.kd] + "."; } }
+      running = false; runBtn.disabled = false; statusEl.textContent = "Ready";
+    }
+    if (karelMode) play(frames, finish); else finish();
   }, 30);
 }
 runBtn.onclick = run;
 document.addEventListener("keydown", function (e) { if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && document.activeElement !== ta) { e.preventDefault(); run(); } });
+
+/* ---------- Python / Karel mode ---------- */
+function setMode(m) {
+  if (setMode.ready) lsSet("py:code:" + mode, ta.value); mode = m; document.body.classList.toggle("karel", m === "karel"); $("mode").value = m; lsSet("py:mode", m);
+  $("codeTitle").textContent = m === "karel" ? "Your code (karel.py)" : "Your code (main.py)";
+  loadCode(); if (m === "karel") draw(world);
+}
+$("mode").addEventListener("change", function () { setMode(this.value); });
+setMode(lsGet("py:mode") === "karel" ? "karel" : "python"); setMode.ready = true;
 </script>
 </body></html>
