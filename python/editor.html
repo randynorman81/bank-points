@@ -93,7 +93,7 @@ body.karel #karel{display:flex}
   <section class="pane">
     <h2 id="codeTitle">Your code (main.py)</h2>
     <div class="cloud" id="cloud"></div>
-    <div class="legend" id="legend"><span>Key (point at one):</span></div>
+    <div class="legend" id="legend"><span>Key (click one to learn about it):</span></div>
     <div class="edwrap"><pre id="gut">1</pre><div class="edbox"><pre id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Python code"></textarea></div></div>
     <div id="kpop" role="dialog" aria-label="What this color means"></div>
     <div class="teach" id="teach"></div>
@@ -234,7 +234,7 @@ var KEYS = [
 ];
 var kpop = $("kpop"), kcloseT = 0;
 function renderKey() {
-  var lg = $("legend"); lg.innerHTML = "<span>Key (point at one):</span>";
+  var lg = $("legend"); lg.innerHTML = "<span>Key (click one to learn about it):</span>";
   KEYS.forEach(function (k) {
     if (k.karel && mode !== "karel") return;
     var b = document.createElement("span"); b.className = "lg " + (k.cls === "c-karel" ? "c-karel" : k.cls); b.tabIndex = 0; b.setAttribute("data-k", k.id); b.textContent = k.name; lg.appendChild(b);
@@ -247,11 +247,8 @@ function showKey(id) {
   kpop.innerHTML = h; kpop.style.top = ($("legend").offsetTop + $("legend").offsetHeight + 6) + "px"; kpop.classList.add("show");
 }
 function hideKeySoon() { clearTimeout(kcloseT); kcloseT = setTimeout(function () { kpop.classList.remove("show"); }, 280); }
-$("legend").addEventListener("mouseover", function (e) { var t = e.target.closest && e.target.closest(".lg"); if (t) showKey(t.getAttribute("data-k")); });
-$("legend").addEventListener("mouseout", function (e) { if (e.target.closest && e.target.closest(".lg")) hideKeySoon(); });
-$("legend").addEventListener("focusin", function (e) { var t = e.target.closest && e.target.closest(".lg"); if (t) showKey(t.getAttribute("data-k")); });
-$("legend").addEventListener("click", function (e) { var t = e.target.closest && e.target.closest(".lg"); if (t) showKey(t.getAttribute("data-k")); });
-kpop.addEventListener("mouseenter", function () { clearTimeout(kcloseT); }); kpop.addEventListener("mouseleave", hideKeySoon);
+$("legend").addEventListener("click", function (e) { var t = e.target.closest && e.target.closest(".lg"); if (!t) return; var id = t.getAttribute("data-k"); if (kpop.classList.contains("show") && kpop.getAttribute("data-k") === id) kpop.classList.remove("show"); else { showKey(id); kpop.setAttribute("data-k", id); } });
+$("legend").addEventListener("keydown", function (e) { if ((e.key === "Enter" || e.key === " ") && e.target.classList.contains("lg")) { e.preventDefault(); e.target.click(); } });
 document.addEventListener("click", function (e) { if (!kpop.contains(e.target) && !(e.target.closest && e.target.closest(".lg"))) kpop.classList.remove("show"); });
 document.addEventListener("keydown", function (e) { if (e.key === "Escape") kpop.classList.remove("show"); });
 
