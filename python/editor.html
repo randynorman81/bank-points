@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python Editor | SCHS Computer Science</title>
+<link rel="icon" href="../assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0B0E14;--panel:#121722;--card:#171D2B;--rule:#26304A;--ink:#E8ECF3;--soft:#93A0B8;--acc:#FB923C;--ok:#34D399;--bad:#F87171}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 Manrope,system-ui,sans-serif;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.top h1{font-size:15px;margin:0;letter-spacing:.02em}
+.top .sp{flex:1}
+.btn{background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:7px 14px;cursor:pointer;font:700 13px Manrope,sans-serif}
+.btn:hover{border-color:var(--acc)}
+.btn.run{background:var(--acc);color:#0B0E14;border-color:var(--acc)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.status{font-size:12px;color:var(--soft);min-width:130px;text-align:right}
+main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:0}
+.pane{display:flex;flex-direction:column;min-width:0;min-height:0;border-right:1px solid var(--rule)}
+.pane:last-child{border-right:0}
+.pane h2{margin:0;padding:6px 12px;font:700 11px "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);background:var(--panel);border-bottom:1px solid var(--rule)}
+.edwrap{flex:1;min-height:0;display:flex;background:#080B11}
+#gut{margin:0;padding:12px 8px 12px 12px;text-align:right;color:#4B5670;font:13.5px/1.6 "JetBrains Mono",monospace;user-select:none;overflow:hidden;min-width:44px;white-space:pre}
+#code{flex:1;min-width:0;resize:none;border:0;outline:0;background:transparent;color:#E6EAF2;font:13.5px/1.6 "JetBrains Mono",monospace;padding:12px 12px 12px 4px;tab-size:4;white-space:pre;overflow:auto;caret-color:var(--acc)}
+#out{flex:1;min-height:0;margin:0;padding:12px 14px;overflow:auto;background:#05070B;font:13.5px/1.6 "JetBrains Mono",monospace;white-space:pre-wrap;word-break:break-word}
+#out .err{color:var(--bad)}#out .sys{color:var(--soft)}#out .ok{color:var(--ok)}
+.tip{padding:6px 12px;font-size:12px;color:var(--soft);background:var(--panel);border-top:1px solid var(--rule)}
+kbd{font:600 11px "JetBrains Mono",monospace;background:var(--card);border:1px solid var(--rule);border-radius:4px;padding:1px 5px}
+@media (max-width:820px){main{grid-template-columns:1fr;grid-template-rows:1.2fr 1fr}.pane{border-right:0;border-bottom:1px solid var(--rule)}}
+</style></head>
+<body>
+<div class="top">
+  <h1>Python Editor</h1>
+  <button class="btn run" id="run" disabled>&#9654; Run</button>
+  <button class="btn" id="clear">Clear output</button>
+  <button class="btn" id="reset">Reset code</button>
+  <span class="sp"></span>
+  <span class="status" id="status">Loading Python&hellip;</span>
+</div>
+<main>
+  <section class="pane">
+    <h2>Your code (main.py)</h2>
+    <div class="edwrap"><pre id="gut">1</pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Python code"></textarea></div>
+    <div class="tip"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> runs your code. <kbd>Tab</kbd> indents. Your work saves in this browser as you type.</div>
+  </section>
+  <section class="pane">
+    <h2>Output</h2>
+    <pre id="out"></pre>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<script>
+"use strict";
+var $ = function (i) { return document.getElementById(i); };
+var KEY = "py:code:main", STARTER = '# Welcome! Edit this code, then click Run.\nname = input("What is your name? ")\nprint("Hello,", name)\n\nfor i in range(3):\n    print("Counting:", i)\n';
+var ta = $("code"), out = $("out"), gut = $("gut"), runBtn = $("run"), statusEl = $("status"), py = null, running = false;
+
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+/* ---------- the editor box ---------- */
+function gutter() {
+  var n = ta.value.split("\n").length, s = ""; for (var i = 1; i <= n; i++) s += i + "\n";
+  gut.textContent = s.replace(/\n$/, ""); gut.scrollTop = ta.scrollTop;
+}
+ta.value = lsGet(KEY) !== null ? lsGet(KEY) : STARTER; gutter();
+var saveT = 0;
+ta.addEventListener("input", function () { gutter(); clearTimeout(saveT); saveT = setTimeout(function () { lsSet(KEY, ta.value); flash("Saved"); }, 500); });
+ta.addEventListener("scroll", function () { gut.scrollTop = ta.scrollTop; });
+ta.addEventListener("keydown", function (e) {
+  if (e.key === "Tab") {
+    e.preventDefault(); var a = ta.selectionStart, b = ta.selectionEnd;
+    ta.value = ta.value.slice(0, a) + "    " + ta.value.slice(b); ta.selectionStart = ta.selectionEnd = a + 4; gutter();
+  } else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run(); }
+  else if (e.key === "Enter") { /* keep the indent of the line above, and add 4 more after a colon */
+    var v = ta.value, p = ta.selectionStart, ls = v.lastIndexOf("\n", p - 1) + 1, line = v.slice(ls, p), ind = (line.match(/^[ ]*/) || [""])[0];
+    if (/:\s*$/.test(line)) ind += "    ";
+    e.preventDefault(); ta.value = v.slice(0, p) + "\n" + ind + v.slice(ta.selectionEnd); ta.selectionStart = ta.selectionEnd = p + 1 + ind.length; gutter(); ta.dispatchEvent(new Event("input"));
+  }
+});
+function flash(t) { if (running) return; statusEl.textContent = t; clearTimeout(flash.t); flash.t = setTimeout(function () { if (!running) statusEl.textContent = py ? "Ready" : statusEl.textContent; }, 1400); }
+
+/* ---------- the output box ---------- */
+function print(text, cls) { var s = document.createElement("span"); if (cls) s.className = cls; s.textContent = text; out.appendChild(s); out.scrollTop = out.scrollHeight; }
+$("clear").onclick = function () { out.textContent = ""; };
+$("reset").onclick = function () { if (confirm("Replace your code with the starter code? This cannot be undone.")) { ta.value = STARTER; gutter(); lsSet(KEY, STARTER); } };
+
+/* ---------- Python (Pyodide) ---------- */
+function friendlyError(msg) {
+  /* keep only the part a student needs: the last frames from their own code, and the error line */
+  var lines = String(msg).split("\n"), keep = [];
+  for (var i = 0; i < lines.length; i++) {
+    if (/File "<exec>"/.test(lines[i])) { keep.push(lines[i].replace('File "<exec>"', "Your code")); if (lines[i + 1] && /^s/.test(lines[i + 1])) keep.push(lines[i + 1]); }
+  }
+  var last = lines.filter(function (l) { return l.trim(); }).pop() || "Error";
+  return (keep.length ? keep.join("\n") + "\n" : "") + last;
+}
+loadPyodide().then(function (p) {
+  py = p;
+  py.setStdout({ batched: function (s) { print(s + "\n"); } });
+  py.setStderr({ batched: function (s) { print(s + "\n", "err"); } });
+  py.setStdin({ stdin: function () { var v = prompt("input() is asking for something:"); if (v === null) throw new Error("You closed the input box."); print(v + "\n", "sys"); return v; } });
+  runBtn.disabled = false; statusEl.textContent = "Ready";
+}).catch(function () { statusEl.textContent = "Could not load Python"; print("Python could not load. Check your internet connection and refresh the page.\n", "err"); });
+
+function run() {
+  if (!py || running) return;
+  running = true; runBtn.disabled = true; statusEl.textContent = "Running…";
+  print("▶ Running…\n", "sys");
+  setTimeout(function () {                       /* let the page repaint before Python takes over */
+    try { py.runPython(ta.value); print("✓ Finished\n\n", "ok"); }
+    catch (e) { print(friendlyError(e.message || e) + "\n\n", "err"); }
+    running = false; runBtn.disabled = false; statusEl.textContent = "Ready";
+  }, 30);
+}
+runBtn.onclick = run;
+document.addEventListener("keydown", function (e) { if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && document.activeElement !== ta) { e.preventDefault(); run(); } });
+</script>
+</body></html>
