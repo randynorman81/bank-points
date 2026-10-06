@@ -27,7 +27,27 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr}
 .pane h2{margin:0;padding:6px 12px;font:700 11px "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);background:var(--panel);border-bottom:1px solid var(--rule)}
 .edwrap{flex:1;min-height:0;display:flex;background:#080B11}
 #gut{margin:0;padding:12px 8px 12px 12px;text-align:right;color:#4B5670;font:13.5px/1.6 "JetBrains Mono",monospace;user-select:none;overflow:hidden;min-width:44px;white-space:pre}
-#code{flex:1;min-width:0;resize:none;border:0;outline:0;background:transparent;color:#E6EAF2;font:13.5px/1.6 "JetBrains Mono",monospace;padding:12px 12px 12px 4px;tab-size:4;white-space:pre;overflow:auto;caret-color:var(--acc)}
+.edbox{position:relative;flex:1;min-width:0}
+#hl,#code{position:absolute;inset:0;margin:0;border:0;padding:12px 12px 12px 4px;font:13.5px/1.6 "JetBrains Mono",monospace;tab-size:4;white-space:pre;letter-spacing:0}
+#hl{overflow:hidden;pointer-events:none;color:#E6EAF2}
+#code{resize:none;outline:0;background:transparent;color:transparent;caret-color:var(--acc);overflow:auto;z-index:1}
+#code::selection{background:rgba(251,146,60,.35);color:transparent}
+.c-com{color:#64748B;font-style:italic}.c-str{color:#86EFAC}.c-int{color:#FB923C}.c-float{color:#FDE047}.c-bool{color:#F472B6;font-weight:700}
+.c-none{color:#94A3B8;font-style:italic}.c-kw{color:#A78BFA}.c-def{color:#38BDF8;font-weight:700}.c-logic{color:#22D3EE}.c-builtin{color:#60A5FA}
+.c-func{color:#BEF264}.c-op{color:#FB7185}.c-list{color:#2DD4BF;font-weight:700}.c-dict{color:#E879F9;font-weight:700}.c-var{color:#E6EAF2}
+.c-karel{color:#0B0E14;background:#FBBF24;border-radius:3px;font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding:6px 10px;background:var(--panel);border-bottom:1px solid var(--rule);font-size:11px;color:var(--soft)}
+.lg{font:600 12px "JetBrains Mono",monospace;background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:2px 8px;cursor:help;user-select:none}
+.lg:hover,.lg:focus{border-color:var(--acc);outline:0}
+.lg.c-karel{border-color:#FBBF24}
+#kpop{position:absolute;left:8px;right:8px;z-index:30;display:none;max-height:62%;overflow:auto;background:#0E1320;border:1px solid var(--acc);border-radius:10px;padding:12px 14px;box-shadow:0 10px 30px #000a}
+#kpop.show{display:block}
+#kpop h4{margin:0 0 4px;font-size:15px}
+#kpop .what{margin:0 0 8px;color:var(--ink)}
+#kpop .exh{font:700 10.5px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin:8px 0 4px}
+#kpop pre{margin:0 0 4px;background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:6px 10px;font:13px/1.5 "JetBrains Mono",monospace;white-space:pre-wrap;color:#E6EAF2}
+#kpop .tip2{margin:8px 0 0;color:var(--soft);font-size:12.5px}
+.pane{position:relative}
 #out{flex:1;min-height:80px;margin:0;padding:12px 14px;overflow:auto;background:#05070B;font:13.5px/1.6 "JetBrains Mono",monospace;white-space:pre-wrap;word-break:break-word}
 #out .err{color:var(--bad)}#out .sys{color:var(--soft)}#out .ok{color:var(--ok)}#out .in{color:#7DD3FC}
 .tip{padding:6px 12px;font-size:12px;color:var(--soft);background:var(--panel);border-top:1px solid var(--rule)}
@@ -57,7 +77,9 @@ body.karel #karel{display:flex}
 <main>
   <section class="pane">
     <h2 id="codeTitle">Your code (main.py)</h2>
-    <div class="edwrap"><pre id="gut">1</pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Python code"></textarea></div>
+    <div class="legend" id="legend"><span>Key (point at one):</span></div>
+    <div class="edwrap"><pre id="gut">1</pre><div class="edbox"><pre id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Python code"></textarea></div></div>
+    <div id="kpop" role="dialog" aria-label="What this color means"></div>
     <div class="tip"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> runs your code. <kbd>Tab</kbd> indents. Your work saves in this browser as you type.</div>
   </section>
   <section class="pane">
@@ -94,11 +116,12 @@ function codeKey() { return "py:code:" + mode; }
 function starter() { return mode === "karel" ? STARTER_KAREL : STARTER_PY; }
 
 /* ---------- the editor box ---------- */
-function gutter() { var n = ta.value.split("\n").length, s = ""; for (var i = 1; i <= n; i++) s += i + "\n"; gut.textContent = s.replace(/\n$/, ""); gut.scrollTop = ta.scrollTop; }
+function gutter() { var n = ta.value.split("\n").length, s = ""; for (var i = 1; i <= n; i++) s += i + "\n"; gut.textContent = s.replace(/\n$/, ""); gut.scrollTop = ta.scrollTop; paint(); }
+function paint() { var h = $("hl"); h.innerHTML = highlight(ta.value) + "\n"; h.scrollTop = ta.scrollTop; h.scrollLeft = ta.scrollLeft; }
 function loadCode() { var v = lsGet(codeKey()); ta.value = v !== null ? v : starter(); gutter(); }
 var saveT = 0;
 ta.addEventListener("input", function () { gutter(); clearTimeout(saveT); saveT = setTimeout(function () { lsSet(codeKey(), ta.value); flash("Saved"); }, 500); });
-ta.addEventListener("scroll", function () { gut.scrollTop = ta.scrollTop; });
+ta.addEventListener("scroll", function () { gut.scrollTop = ta.scrollTop; var h = $("hl"); h.scrollTop = ta.scrollTop; h.scrollLeft = ta.scrollLeft; });
 ta.addEventListener("keydown", function (e) {
   if (e.key === "Tab") { e.preventDefault(); var a = ta.selectionStart, b = ta.selectionEnd; ta.value = ta.value.slice(0, a) + "    " + ta.value.slice(b); ta.selectionStart = ta.selectionEnd = a + 4; gutter(); }
   else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run(); }
@@ -114,6 +137,103 @@ function flash(t) { if (running) return; statusEl.textContent = t; clearTimeout(
 function print(text, cls) { var s = document.createElement("span"); if (cls) s.className = cls; s.textContent = text; out.appendChild(s); out.scrollTop = out.scrollHeight; }
 $("clear").onclick = function () { out.textContent = ""; };
 $("reset").onclick = function () { if (confirm("Replace your code with the starter code? This cannot be undone.")) { ta.value = starter(); gutter(); lsSet(codeKey(), ta.value); } };
+
+/* =====================================================================================
+   COLORS: every kind of Python word gets its own color, and the key above the editor explains each one.
+   ===================================================================================== */
+function setOf(str) { var o = {}; str.split(" ").forEach(function (w) { o[w] = 1; }); return o; }
+var KW = setOf("if elif else for while break continue pass return try except finally with import from as assert raise global nonlocal del lambda yield async await");
+var LOGIC = setOf("and or not in is");
+var BUILTIN = setOf("print input len range int float str bool list dict set tuple type abs round max min sum sorted reversed enumerate zip map filter any all open isinstance chr ord pow divmod format repr id help dir hex bin oct bytes complex object super append extend insert remove pop clear sort reverse index count join split strip replace lower upper find startswith endswith keys values items get update add random randint choice");
+var KAREL_NAMES = setOf("move turn_left turn_right turn_around put_ball take_ball front_is_clear left_is_clear right_is_clear front_is_blocked left_is_blocked right_is_blocked balls_present no_balls_present facing_north facing_south facing_east facing_west not_facing_north not_facing_south not_facing_east not_facing_west put_beeper take_beeper beepers_present no_beepers_present");
+function escH(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+var NUM_HEX = /0[xX][0-9a-fA-F_]+|0[bB][01_]+|0[oO][0-7_]+/y, NUM_FLOAT = /(?:\d[\d_]*\.\d*|\.\d[\d_]*)(?:[eE][+-]?\d+)?|\d[\d_]*[eE][+-]?\d+/y, NUM_INT = /\d[\d_]*/y, IDENT = /[A-Za-z_][A-Za-z_0-9]*/y, OPER = /\*\*=?|\/\/=?|<<=?|>>=?|->|:=|[-+*\/%@&|^<>=!~]=?/y, STRSTART = /[rRbBuUfF]{0,2}(["'])/y;
+function highlight(src) {
+  var out = "", i = 0, n = src.length, prevWord = "", m, karelOn = (typeof mode !== "undefined" && mode === "karel");
+  function span(cls, t) { out += '<span class="' + cls + '">' + escH(t) + "</span>"; }
+  while (i < n) {
+    var ch = src.charAt(i), before = i > 0 ? src.charAt(i - 1) : "";
+    if (ch === "#") { var e = src.indexOf("\n", i); if (e < 0) e = n; span("c-com", src.slice(i, e)); i = e; continue; }
+    if (!/\w/.test(before)) {
+      STRSTART.lastIndex = i; m = STRSTART.exec(src);
+      if (m) {
+        var q = m[1], j = i + m[0].length, triple = src.substr(j - 1, 3) === q + q + q, end;
+        if (triple) { j += 2; end = src.indexOf(q + q + q, j); while (end > 0 && src.charAt(end - 1) === "\\") end = src.indexOf(q + q + q, end + 1); end = end < 0 ? n : end + 3; }
+        else { end = j; while (end < n && src.charAt(end) !== q && src.charAt(end) !== "\n") { if (src.charAt(end) === "\\") end++; end++; } if (end < n && src.charAt(end) === q) end++; if (end > n) end = n; }
+        span("c-str", src.slice(i, end)); i = end; continue;
+      }
+      if (/\d/.test(ch) || (ch === "." && /\d/.test(src.charAt(i + 1)))) {
+        NUM_HEX.lastIndex = i; if ((m = NUM_HEX.exec(src))) { span("c-int", m[0]); i += m[0].length; continue; }
+        NUM_FLOAT.lastIndex = i; if ((m = NUM_FLOAT.exec(src))) { span("c-float", m[0]); i += m[0].length; continue; }
+        NUM_INT.lastIndex = i; if ((m = NUM_INT.exec(src))) { span("c-int", m[0]); i += m[0].length; continue; }
+      }
+    }
+    if (/[A-Za-z_]/.test(ch)) {
+      IDENT.lastIndex = i; m = IDENT.exec(src); var w = m[0], k = i + w.length, call = /^[ \t]*\(/.test(src.slice(k, k + 40));
+      var dot = /\.[ \t]*$/.test(src.slice(Math.max(0, i - 6), i));
+      var cls = "";
+      if (prevWord === "def" || prevWord === "class") cls = "c-def";
+      else if (w === "True" || w === "False") cls = "c-bool";
+      else if (w === "None") cls = "c-none";
+      else if (w === "def" || w === "class") cls = "c-def";
+      else if (KW[w]) cls = "c-kw";
+      else if (LOGIC[w]) cls = "c-logic";
+      else if (karelOn && KAREL_NAMES[w] && !dot) cls = "c-karel";
+      else if (call && BUILTIN[w]) cls = "c-builtin";
+      else if (call) cls = dot ? "c-builtin" : "c-func";
+      else if (!dot && BUILTIN[w] && /^(int|float|str|bool|list|dict|set|tuple|len|range|print|input|type)$/.test(w)) cls = "c-builtin";
+      if (cls) span(cls, w); else out += escH(w);
+      prevWord = w; i = k; continue;
+    }
+    OPER.lastIndex = i; if ((m = OPER.exec(src))) { span("c-op", m[0]); i += m[0].length; continue; }
+    if (ch === "[" || ch === "]") { span("c-list", ch); i++; continue; }
+    if (ch === "{" || ch === "}") { span("c-dict", ch); i++; continue; }
+    out += escH(ch); i++;
+  }
+  return out;
+}
+
+/* ---- the key: what each color means, with examples (the examples are colored by the same function) ---- */
+var KEYS = [
+  { id: "str", cls: "c-str", name: "String", sample: '"text"', what: "Text. Anything inside quotes is a string, even if it looks like a number. Single quotes and double quotes both work.", ex: ['name = "Sam"', "greeting = 'Hello!'", 'print("Hi, " + name)', 'age_text = "15"   # a string, not a number'], tip: "Join strings with +. len(name) counts the characters. Use \\n inside a string for a new line." },
+  { id: "int", cls: "c-int", name: "Integer", sample: "42", what: "A whole number with no decimal point. It can be negative or zero.", ex: ["lives = 3", "score = -10", "total = 5 + 7", "left_over = 17 % 5   # remainder: 2", "whole = 17 // 5     # whole-number division: 3"], tip: "int(\"15\") turns the text 15 into a number you can do math with. 5 is an integer, but 5.0 is not." },
+  { id: "float", cls: "c-float", name: "Float", sample: "3.14", what: "A number with a decimal point. Use it for prices, averages, and measurements.", ex: ["pi = 3.14", "price = 4.99", "half = 1 / 2   # division always gives a float: 0.5", "tiny = 2.5e-3"], tip: "float(\"2.5\") turns text into a decimal. round(3.14159, 2) rounds to 3.14. int(3.9) cuts the decimal off and gives 3." },
+  { id: "bool", cls: "c-bool", name: "Boolean", sample: "True", what: "Only two values: True or False (capital first letter, no quotes). Comparisons make booleans, and if statements use them to decide.", ex: ["is_raining = True", "game_over = False", "print(5 > 3)   # True", "big = score >= 100"], tip: "Use == to ask 'are these equal?' A single = stores a value. bool(0) is False and bool(7) is True." },
+  { id: "none", cls: "c-none", name: "None", sample: "None", what: "A special value that means 'nothing here yet.' A function that never uses return gives back None.", ex: ["winner = None", "if winner is None:", "    print(\"No winner yet\")"], tip: "Check for it with is None, not == None." },
+  { id: "list", cls: "c-list", name: "List  [ ]", sample: "[ ]", what: "An ordered collection of items inside square brackets. You can add, remove, and change items. The first item is number 0.", ex: ["colors = [\"red\", \"green\", \"blue\"]", "print(colors[0])      # red", "colors.append(\"pink\")  # add to the end", "print(len(colors))", "for c in colors:", "    print(c)"], tip: "Square brackets also grab a spot in the list: colors[1]. The last item is colors[-1]." },
+  { id: "dict", cls: "c-dict", name: "Dictionary / Set  { }", sample: "{ }", what: "Curly braces make a dictionary (key: value pairs, like a real dictionary) or a set (unique items with no order).", ex: ["player = {\"name\": \"Sam\", \"score\": 10}", "print(player[\"name\"])   # Sam", "player[\"score\"] = 15", "nums = {1, 2, 2, 3}      # a set: only 1, 2, 3"], tip: "Look things up by key, not by position. {} by itself is an empty dictionary." },
+  { id: "kw", cls: "c-kw", name: "Keyword", sample: "if / for", what: "Words Python reserves for its own grammar. They control what runs and when. You cannot use them as variable names.", ex: ["if score > 10:", "    print(\"High score\")", "elif score > 5:", "    print(\"Medium\")", "else:", "    print(\"Keep trying\")", "for i in range(3):", "    print(i)", "while lives > 0:", "    lives -= 1"], tip: "Also: break, continue, pass, return, import, from, try, except, finally, with, lambda." },
+  { id: "def", cls: "c-def", name: "def / class", sample: "def name", what: "def starts your own function. The name after it is colored too. Everything indented under the def is the function's body.", ex: ["def greet(name):", "    print(\"Hello,\", name)", "", "greet(\"Sam\")   # call the function", "", "def add(a, b):", "    return a + b"], tip: "Write the def before you call the function. return sends a value back to the code that called it." },
+  { id: "logic", cls: "c-logic", name: "Logic word", sample: "and or not", what: "Words that combine or flip True/False questions: and, or, not, in, is.", ex: ["if age >= 13 and has_account:", "    print(\"Welcome\")", "if not game_over:", "    print(\"Keep playing\")", "if \"a\" in word:", "    print(\"Has an a\")"], tip: "and needs both to be True. or needs at least one. not flips True and False. in checks if something is inside a string or list." },
+  { id: "builtin", cls: "c-builtin", name: "Built-in function", sample: "print()", what: "Functions Python already knows. You just call them. This color also marks methods, like colors.append(...).", ex: ["print(\"Hi\")", "name = input(\"Name? \")", "n = len(\"hello\")   # 5", "for i in range(5):", "    print(i)", "total = sum([1, 2, 3])", "x = int(\"7\")"], tip: "Others you will meet: type(), round(), max(), min(), abs(), str(), float(), list(), sorted()." },
+  { id: "func", cls: "c-func", name: "Your function", sample: "greet()", what: "A function you wrote with def, being called. Round brackets after a name mean 'run it now.'", ex: ["def greet(name):", "    print(\"Hello,\", name)", "", "greet(\"Sam\")   # your function"], tip: "If a function is not colored when you call it, check the spelling matches the def." },
+  { id: "op", cls: "c-op", name: "Operator", sample: "+ - * / ==", what: "Symbols that do math or compare. A single = stores a value; == asks if two values are equal.", ex: ["total = 5 + 3 * 2   # 11", "power = 2 ** 3      # 8", "same = (x == 10)", "different = (x != 10)", "score += 1          # same as score = score + 1"], tip: "Math: + - * / // % **. Compare: == != < > <= >=. Assign: = += -= *= /=." },
+  { id: "com", cls: "c-com", name: "Comment", sample: "# note", what: "A note for people. Python ignores everything after a # on that line. Use comments to explain your thinking.", ex: ["# This program counts to three", "for i in range(3):   # i goes 0, 1, 2", "    print(i)"], tip: "Good comments explain WHY, not just what. You can also comment out a line to turn it off for a moment." },
+  { id: "var", cls: "c-var", name: "Variable", sample: "score", what: "A name you choose for a value, shown in plain white. Pick clear names like score and player_name.", ex: ["score = 0", "player_name = \"Sam\"", "score = score + 1", "print(player_name, score)"], tip: "Names can use letters, numbers, and underscores, cannot start with a number, and are case-sensitive (score and Score are different)." },
+  { id: "karel", cls: "c-karel", name: "Karel command", sample: "move()", karel: true, what: "Commands Karel understands. They show on a gold highlight in Karel mode.", ex: ["def main():", "    move()", "    turn_left()", "    put_ball()", "    if front_is_clear():", "        move()", "", "main()"], tip: "Karel checks: front_is_clear(), balls_present(), facing_north(). Moves: move(), turn_left(), put_ball(), take_ball(). SuperKarel also has turn_right() and turn_around()." }
+];
+var kpop = $("kpop"), kcloseT = 0;
+function renderKey() {
+  var lg = $("legend"); lg.innerHTML = "<span>Key (point at one):</span>";
+  KEYS.forEach(function (k) {
+    if (k.karel && mode !== "karel") return;
+    var b = document.createElement("span"); b.className = "lg " + (k.cls === "c-karel" ? "c-karel" : k.cls); b.tabIndex = 0; b.setAttribute("data-k", k.id); b.textContent = k.name; lg.appendChild(b);
+  });
+}
+function showKey(id) {
+  var k = KEYS.filter(function (x) { return x.id === id; })[0]; if (!k) return;
+  clearTimeout(kcloseT);
+  var h = '<h4><span class="' + k.cls + '">' + escH(k.sample) + "</span> &nbsp;" + escH(k.name) + '</h4><p class="what">' + escH(k.what) + '</p><div class="exh">Examples</div><pre>' + highlight(k.ex.join("\n")) + '</pre><p class="tip2"><b>Good to know:</b> ' + escH(k.tip) + "</p>";
+  kpop.innerHTML = h; kpop.style.top = ($("legend").offsetTop + $("legend").offsetHeight + 6) + "px"; kpop.classList.add("show");
+}
+function hideKeySoon() { clearTimeout(kcloseT); kcloseT = setTimeout(function () { kpop.classList.remove("show"); }, 280); }
+$("legend").addEventListener("mouseover", function (e) { var t = e.target.closest && e.target.closest(".lg"); if (t) showKey(t.getAttribute("data-k")); });
+$("legend").addEventListener("mouseout", function (e) { if (e.target.closest && e.target.closest(".lg")) hideKeySoon(); });
+$("legend").addEventListener("focusin", function (e) { var t = e.target.closest && e.target.closest(".lg"); if (t) showKey(t.getAttribute("data-k")); });
+$("legend").addEventListener("click", function (e) { var t = e.target.closest && e.target.closest(".lg"); if (t) showKey(t.getAttribute("data-k")); });
+kpop.addEventListener("mouseenter", function () { clearTimeout(kcloseT); }); kpop.addEventListener("mouseleave", hideKeySoon);
+document.addEventListener("click", function (e) { if (!kpop.contains(e.target) && !(e.target.closest && e.target.closest(".lg"))) kpop.classList.remove("show"); });
+document.addEventListener("keydown", function (e) { if (e.key === "Escape") kpop.classList.remove("show"); });
 
 /* =====================================================================================
    KAREL: the world, the engine, and the drawing.  Directions: 0 east, 1 north, 2 west, 3 south.
@@ -321,7 +441,7 @@ document.addEventListener("keydown", function (e) { if (e.key === "Enter" && (e.
 function setMode(m) {
   if (setMode.ready) lsSet("py:code:" + mode, ta.value); mode = m; document.body.classList.toggle("karel", m === "karel"); $("mode").value = m; lsSet("py:mode", m);
   $("codeTitle").textContent = m === "karel" ? "Your code (karel.py)" : "Your code (main.py)";
-  loadCode(); if (m === "karel") draw(world);
+  loadCode(); renderKey(); if (m === "karel") draw(world);
 }
 $("mode").addEventListener("change", function () { setMode(this.value); });
 setMode(lsGet("py:mode") === "karel" ? "karel" : "python"); setMode.ready = true;
