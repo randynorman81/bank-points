@@ -402,7 +402,8 @@
     CON.groups.forEach(function (g) {
       (rv[g[0]] || []).forEach(function (it) {
         if (it.once || !TESTS[it.key]) return;
-        out.push({ id: "R-" + it.key, lesson: it.from, label: "Uses " + it.label + " at least " + REVIEW_MIN + " times", tip: "You already learned this. Use it in " + REVIEW_MIN + " different places, where it fits your page.", test: function (c) { return TESTS[it.key](c) >= REVIEW_MIN; }, isNew: true });
+        var mn = it.min || REVIEW_MIN;
+        out.push({ id: "R-" + it.key, lesson: it.from, label: "Uses " + it.label + (mn > 1 ? " at least " + mn + " times" : ""), tip: mn > 1 ? "You learned this recently. Use it in " + mn + " different places, where it fits your page." : "Keep using what you learned. Use it at least once.", test: function (c) { return TESTS[it.key](c) >= mn; }, isNew: true });
       });
     });
     return out;
@@ -584,7 +585,7 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
     ] }
   };
   // Unit test = the whole site, everything from 6.1 through 7.5.
-  LESSONS["7.6"] = { name: "Unit Test Website (all tags)", rules: [], testOf: ["6.", "7."] };
+  LESSONS["7.6"] = { name: "Unit Test Website (all tags)", rules: [] };
 
   /* ---------- CSS (8.x) and Bootstrap (9.x) helpers ----------
      check() merges style.css into the page before analyzing, so c.sheetRules includes the CSS file.
@@ -647,7 +648,7 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
     r("Each grid sets a gap", function (c) { var g = c.sheetRules.filter(function (rl) { return /^(inline-)?grid$/i.test(valueOf(rl, "display")); }); return g.length >= 2 && g.every(function (rl) { return declares(rl, "gap") || declares(rl, "grid-gap") || declares(rl, "column-gap") || declares(rl, "row-gap"); }); })
   ] };
 
-  LESSONS["8.7"] = { name: "Unit Test Website (CSS)", rules: [], testOf: ["8."] };
+  LESSONS["8.7"] = { name: "Unit Test Website (CSS)", rules: [] };
 
   LESSONS["9.1"] = { name: "Setting Up Bootstrap", rules: [
     r("Links Bootstrap's CSS (the CDN link) inside the <head>", function (c) { return c.all("link").some(function (l) { return /bootstrap/i.test(l.attrs.href || "") && /\.css/i.test(l.attrs.href || "") && !!c.ancestor(l, ["head"]); }); }, "Find the official CSS link on getbootstrap.com under Getting Started."),
@@ -683,7 +684,7 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
     r("At least 2 fields use form-control (or form-select)", function (c) { return els(c).filter(function (n) { return /^(input|textarea|select)$/.test(n.tag) && classesOf(n).some(function (k) { return k === "form-control" || k === "form-select"; }); }).length >= 2; }),
     r("Has a submit button styled with btn", function (c) { return els(c).some(function (n) { return ((n.tag === "button" && (n.attrs.type === undefined || /submit/i.test(n.attrs.type))) || (n.tag === "input" && /submit/i.test(n.attrs.type || ""))) && classesOf(n).indexOf("btn") > -1 && !!c.ancestor(n, ["form"]); }); })
   ] };
-  LESSONS["9.7"] = { name: "Unit Test Website (Bootstrap)", rules: [], testOf: ["9."] };
+  LESSONS["9.7"] = { name: "Unit Test Website (Bootstrap)", rules: [] };
 
   var ORDER = ["6.1", "6.2", "6.3", "6.4", "6.5", "6.6", "6.7", "7.1", "7.2", "7.3", "7.4", "7.5", "7.6",
                "8.1", "8.2", "8.3", "8.4", "8.5", "8.6", "8.7", "9.1", "9.2", "9.3", "9.4", "9.5", "9.6", "9.7"];

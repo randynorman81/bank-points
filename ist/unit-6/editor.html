@@ -315,7 +315,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
       <div style="font-size:12px;color:var(--soft)" id="scoreNote"></div>
     </div>
     <div class="sec" id="secTeacher" style="display:none"></div>
-    <div class="sec"><h3>Requirements</h3><div id="rulesNew"></div><details id="revWrap" style="display:none"><summary id="revSum">Use everything you already know</summary><div id="rulesRev"></div></details><details id="oldWrap"><summary>The basics (every page needs these)</summary><div id="rulesOld"></div></details></div>
+    <div class="sec"><h3>Requirements</h3><div id="rulesNew"></div><details id="revWrap" style="display:none"><summary id="revSum">Use what you already know</summary><div id="rulesRev"></div></details><details id="oldWrap"><summary>The basics (every page needs these)</summary><div id="rulesOld"></div></details></div>
     <div class="sec"><h3>Problems to fix</h3><div id="probs"><span style="color:var(--soft)">None so far.</span></div></div>
     <div class="sec"><h3>Honesty check</h3><div style="font-size:13px;color:var(--soft)">This editor records what you type and what you paste. <b>Copying content from outside this page (another website, a document, a classmate, or AI) takes 50% off the assignment.</b> Short things like a color code or a web address are fine. Type your own code and write your own words.</div><div id="honest" style="margin-top:8px;font-size:13px"></div></div>
     <div class="sec"><h3>Tags you used</h3><div class="chips" id="tags"></div></div>
@@ -350,6 +350,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
 <script src="answers-early.js"></script>
 <script src="answers-html2.js"></script>
 <script src="answers-v2.js"></script>
+<script src="answers-site.js"></script>
 <script src="examples.js"></script>
 <script src="html-check.js"></script>
 <script>
@@ -588,7 +589,7 @@ function refresh() {
   $("rulesNew").innerHTML = nw || '<span style="color:var(--soft)">No rules yet.</span>';
   $("rulesOld").innerHTML = old; $("oldWrap").style.display = nOld ? "" : "none";
   $("rulesRev").innerHTML = rev; $("revWrap").style.display = nRev ? "" : "none";
-  $("revSum").textContent = "Use everything you already know (" + okRev + " of " + nRev + " done)"; $("revWrap").classList.toggle("incomplete", okRev < nRev);
+  $("revSum").textContent = "Use what you already know (" + okRev + " of " + nRev + " done)"; $("revWrap").classList.toggle("incomplete", okRev < nRev);
   var errLines = {}, ph = "";
   rep.errors.forEach(function (e) { errLines[e.line] = 1; ph += '<div class="prob e" data-line="' + e.line + '"><b>Line ' + e.line + "</b> " + esc(e.msg) + "</div>"; });
   rep.warnings.forEach(function (w) { ph += '<div class="prob w" data-line="' + w.line + '"><b>Line ' + w.line + "</b> " + esc(w.msg) + "</div>"; });
@@ -1149,21 +1150,23 @@ function cnData() {
   return { nw: nw, rv: C.reviewFor(S.lesson), test: isTest };
 }
 function cnUpdate() { var b = $("cnBtn"); if (b) b.style.display = cnData() && ansSchema() ? "" : "none"; }
-function cnChips(src) {
+function cnChips(src, tiers) {
   var C = window.U7_CONCEPTS, h = "", n = 0;
   C.groups.forEach(function (g) {
-    var items = src[g[0]] || []; if (!items.length) return;
+    var items = (src[g[0]] || []).filter(function (it) { return !tiers || tiers.indexOf(it.tier) > -1; }); if (!items.length) return;
     h += "<h5>" + esc(g[1]) + '</h5><div class="chips">' + items.map(function (it) { n++; return '<span class="chip' + (it.once ? " once" : "") + '"' + (it.once ? ' title="This appears once on a page"' : "") + ">" + esc(it.label) + "</span>"; }).join("") + "</div>";
   });
   return { html: h, n: n };
 }
 function cnOpen() {
   var d = cnData(); if (!d) return;
-  var min = (window.HTMLCheck && HTMLCheck.REVIEW_MIN) || 2, nw = d.nw ? cnChips(d.nw) : { html: "", n: 0 }, rv = cnChips(d.rv), h = "";
+  var nw = d.nw ? cnChips(d.nw) : { html: "", n: 0 }, fresh = cnChips(d.rv, ["fresh"]), keep = cnChips(d.rv, ["keep", "test"]), h = "";
   $("cnTitle").textContent = "Concepts for " + dispLesson(S.lesson) + " " + (H.LESSONS[S.lesson] ? H.LESSONS[S.lesson].name : "");
   if (d.nw) h += '<div class="cnsec new"><h4>New in this assignment</h4><p class="cnhint">These are the new things this lesson teaches. The Assignment steps show where each one goes on your page.</p>' + (nw.n ? nw.html : "<p>Nothing new to learn here.</p>") + "</div>";
-  else h += '<div class="cnsec new"><h4>This is a test</h4><p class="cnhint">There is nothing new. Show every skill from the unit on one page.</p></div>';
-  h += '<div class="cnsec"><h4>Review: use each of these at least ' + min + ' times</h4><p class="cnhint">You learned these in earlier lessons. They go on this page too, so it looks like a real website. Items marked with a dashed outline appear once per page.</p>' + (rv.n ? rv.html : "<p>Nothing yet. This is your first lesson.</p>") + "</div>";
+  else h += '<div class="cnsec new"><h4>This is a test</h4><p class="cnhint">Nothing is new. Show every skill from the unit, plus the basics, at least once each on one page.</p></div>';
+  if (fresh.n) h += '<div class="cnsec"><h4>Use these again: at least 2 times each</h4><p class="cnhint">You learned these in the last two lessons. Use each one in 2 different places on this page.</p>' + fresh.html + "</div>";
+  if (keep.n) h += '<div class="cnsec"><h4>' + (d.test ? "Show every skill: at least once each" : "Keep using these: at least once each") + '</h4><p class="cnhint">' + (d.test ? "Use each of these at least once, so your site proves everything you learned in this unit." : "These are from a few lessons back, plus the basics every page needs. Use each one at least once. Items with a dashed outline appear once per page.") + "</p>" + keep.html + "</div>";
+  if (!fresh.n && !keep.n) h += '<div class="cnsec"><h4>Review</h4><p class="cnhint">Nothing yet. This is your first lesson.</p></div>';
   $("cnBody").innerHTML = h; $("mCn").classList.add("show");
 }
 function cnClose() { $("mCn").classList.remove("show"); }

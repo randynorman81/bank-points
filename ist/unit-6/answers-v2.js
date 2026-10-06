@@ -27,7 +27,7 @@
   }
   function done(extra) {
     return S("Test and submit", (extra || []).concat([
-      "Click **Checks**. Fix every red line. The **Use everything you already know** list has to turn green too: for each red item, add one more use of it where it fits the page",
+      "Click **Checks**. Fix every red line. The **Use what you already know** list has to turn green too: for each red item, add the missing use where it fits the page",
       "Choose your class period at the top, then click **Submit** (you can submit again to replace it)"
     ]));
   }
@@ -229,11 +229,43 @@
         "Give the borders different styles: **solid** on the first, **dashed** on the second, **dotted** on the third (like 5px solid, then 5px dashed, then 5px dotted)"
       ])])));
 
+  /* ----- 7.2 to 7.5: a leaner page. Tags and styles from many lessons ago have dropped off the list (see concepts.js). ----- */
+  function lean7(o, middle) {
+    var H2 = "Style every **heading 2** the same way: **color** and **font-size** 26px";
+    var steps = [
+      S("Skeleton and title", [
+        "Type the **doctype** line, then **html** with a **head** and a **body** inside it (head first)",
+        "Inside the head, add a **title** with your page's name",
+        "On the **body** tag, add a style: **background-color** (a light named color)"
+      ]),
+      S("The banner and menu bar", [
+        "Add **one heading 1** with your site's name. Style it: **color** white, **background-color** (a named color), **font-family** serif, **font-size** 38px, **text-align** center, and a **solid border** (like 4px solid)",
+        "Under it, add a **bullet list** with **3 list items**, each with a **link** (https://) that opens in the **same tab**. Style the **bullet list**: **list-style-type** none, **text-align** center, and a border on the **bottom only** (like 3px solid). Style **each list item**: **display** inline"
+      ]),
+      S("The main picture", [
+        "Add a **paragraph**. Click inside it, then click **Insert** on your first picture (Checks, then My images). The editor writes the picture wrapped in a link for you. Change that link to a **real website** (a full address starting with https://) and change the **alt** to a real description. Make this link open in a **new tab**",
+        "Style the **picture**: **width** 50%, a **solid border** (like 5px solid), **border-radius** 12px, and **display** block"
+      ])
+    ];
+    if (o.pic2) steps.push(S("Intro, a second picture, and a list", [
+      "Add a **heading 2** with a short title. " + H2 + ". Under it, add a **paragraph** about your topic and style it: **font-family** sans-serif",
+      "Add another **paragraph** and **Insert** your second picture inside it (real https:// link, real alt, same tab). Style the picture: **width** 45%, **border-radius** 12px, **display** block, and a **dotted border** (like 3px dotted)",
+      "Add a **bullet list** with **3 list items**. Style it: **list-style-type** square and a **dashed border** (like 2px dashed)"
+    ]));
+    steps = steps.concat(middle);
+    if (o.ol) steps.push(S("A numbered list", [
+      "Add a **heading 2** (styled like the others) and a **numbered list** with **3 list items** (a name, a dash, and a short description). Style the list: **list-style-type** decimal and a **background-color**" + (o.adv ? " that is a **hex** code (like #FFF3E0), plus a **margin** (like 14px 30px)" : " (a light named color)")
+    ]));
+    steps.push(done());
+    return steps;
+  }
+  var H2NOTE = "Style every **heading 2** the same way: **color** and **font-size** 26px.";
+
   /* ======================================================================= 7.2 ===== */
   A["7.2"] = build([].concat(head("A **mood board**: a page that uses a palette of colors to create a vibe. Hex reminder: a **#** and then 6 characters in three pairs (red, green, blue), each from 00 (none) to FF (the most).", "a spooky night, a beach day, a neon city, or a cozy cabin", notes("unit-7/colors-notes.html")), [RULE],
-    base7(false, [
+    lean7({ pic2: true, ol: true, adv: false }, [
       S("The color palette (new today)", [
-        "Add a **heading 2** that says Color Palette. Under it, add **5 paragraphs**. Each one is a swatch: the color's name in **bold**, a **line break**, and a word for the feeling in **italics**",
+        "Add a **heading 2** that says Color Palette. " + H2NOTE + " Under it, add **5 paragraphs**. Each one is a swatch: the color's name, a dash, and a word for the feeling",
         "In the **style attribute of each swatch**, put a **background-color** and a **color** (the text) that is easy to read on it. Use a **named color** for the first swatch and **hex codes** (like #5B2A86) for the other 4",
         "Give the **first 2 swatches** their own **padding** (like 14px), a **border** (like 3px solid), and a **margin** (like 12px 30px)",
         "Every hex code starts with **#** and has **3 or 6** characters (0 to 9 and A to F). Search for a color picker online if you need help"
@@ -241,161 +273,66 @@
 
   /* ======================================================================= 7.3 ===== */
   A["7.3"] = build([].concat(head("The home screen of your own **streaming app**: a menu bar of buttons in a row and one giant PLAY button, built with the **display** property.", "movies, music, or games", notes("unit-7/display-notes.html")), [RULE],
-    base7(true, [
+    lean7({ pic2: false, ol: true, adv: true }, [
       S("The menu bar and the PLAY button (new today)", [
-        "Add a **heading 2** that says Home. Under it, add a **paragraph** (**text-align** center) with **4 links** inside it (like Home, Movies, Library, Friends), each a real address starting with https://",
-        "In the **style attribute of each link**: **display** inline-block (so they sit side by side), a **width** (like 110px), **text-align** center, **color** white, **padding** (like 10px), and a **background-color**. Use a **named color** (like tomato) for one, a **hex code** for another, and the same color as your banner for the others. Give one link a **border** too",
-        "Add a **heading 3** that says Featured Tonight (**text-transform** uppercase). Under it, add a **paragraph**: the show's title in **bold**, a dash, a tagline in **italics**, the word NEW in a **span** (white text on a colored background), a **line break**, and a short review",
+        "Add a **heading 2** that says Home. " + H2NOTE + " Under it, add a **paragraph** (**text-align** center) with **4 links** inside it (like Home, Movies, Library, Friends), each a real address starting with https://",
+        "In the **style attribute of each link**: **display** inline-block (so they sit side by side), a **width** (like 110px), **text-align** center, **color** white, **padding** (like 10px), and a **background-color**. Use a **named color** (like tomato) for one, a **hex** code for another, and the same color as your banner for the others. Give one link a **border** too",
+        "Add a **heading 2** that says Featured Tonight, then a **paragraph**: the show's title, a dash, a tagline, and a short review",
         "Add a **paragraph** with one giant **PLAY link** (a real website). In the link's style: **display** block (so it fills the row), a **background-color**, **color** white, **text-align** center, **font-size** 30px, **padding** (like 24px), and a **margin** (like 10px 40px)"
       ])])));
 
   /* ======================================================================= 7.4 ===== */
   A["7.4"] = build([].concat(head("A **profile page**: a sidebar on the left and a feed of posts on the right, built from **divs**.", "a character, a pet, or a made-up celebrity", notes("unit-7/div-tag-notes.html")), [RULE],
-    base7(true, [
+    lean7({ pic2: false, ol: false, adv: true }, [
       S("Two columns (new today)", [
-        "Add a **heading 2** that says Profile. Under it, add a **div** for the sidebar, and **right after it**, a second **div** for the feed",
-        "Inside the **sidebar div**: a **heading 3** (the name), a **paragraph** (a fact in **bold**, a **line break**, a second fact), a **paragraph** (a quote in **italics**, then a **span** with a **color** style), and a **bullet list** of 3 interests",
-        "Inside the **feed div**: a **heading 3** that says Latest Posts, **3 short paragraphs** (the posts), and a **numbered list** of your top 3 posts where the first item is a **link**",
-        "Style the **sidebar div**: **display** inline-block, **vertical-align** top, **width** 30%, **padding** (like 12px), a **background-color** (a named color), and a **border** (like 3px solid)",
-        "Style the **feed div**: **display** inline-block, **vertical-align** top, **width** 65%, **padding** (like 12px), and a **background-color** that is a **hex** code. The two widths together must be **98% or less**"
+        "Add a **heading 2** that says Profile. " + H2NOTE + " Under it, add a **div** for the sidebar, and **right after it**, a second **div** for the feed",
+        "Inside the **sidebar div**: a **heading 2** (the name), a **paragraph** with two facts, a **paragraph** with a quote, and a **bullet list** of 3 interests",
+        "Inside the **feed div**: a **heading 2** that says Latest Posts, **3 short paragraphs** (the posts), and a **numbered list** of your top 3 posts where the first item is a **link**",
+        "Style the **sidebar div**: **display** inline-block, **vertical-align** top, **width** 30%, **padding** (like 12px), a **margin** (like 6px), a **background-color** (a named color), and a **border** with a **hex** gray (like 3px solid #555555)",
+        "Style the **feed div**: **display** inline-block, **vertical-align** top, **width** 60%, **padding** (like 12px), and a **background-color** that is a **hex** code. The two widths together must be **98% or less**"
       ])])));
 
   /* ======================================================================= 7.5 ===== */
   A["7.5"] = build([].concat(head("A **leaderboard** built as a **table**, plus a rules and prizes section.", "your favorite game, a sport, or a competition you invent", notes("unit-7/tables-notes.html")), [RULE],
-    base7(true, [
+    lean7({ pic2: false, ol: false, adv: true }, [
       S("The leaderboard table (new today)", [
-        "Add a **heading 2** with the leaderboard's name. Under it, add a **table**. Style the table: **border** (like 3px solid), **text-align** center, and **width** 90%",
+        "Add a **heading 2** with the leaderboard's name. " + H2NOTE + " Under it, add a **table**. Style the table: a **solid border** (like 3px solid), **text-align** center, **width** 90%, and a **margin** (like 14px 0)",
         "Row 1 is the **header row**: one **header cell** for each of **4 columns** (like Rank, Player, Wins, Points). Style each header cell: a **background-color** and **color** white",
         "Then add **5 data rows**, each with one **data cell** per column. Only rows go directly inside the table, and only cells go directly inside a row. **Every row** must have the same number of cells"
       ]),
       S("Rules and prizes, side by side", [
-        "Add a **heading 3** that says Rules and Prizes. Under it, add **two divs** with a **heading 3** and a **paragraph** inside each: one for the rules and one for the prizes",
-        "Style **each div**: **display** inline-block, **vertical-align** top, **width** 45%, **padding** (like 10px), and a **border**. Give the first a **solid** border and a **background-color** (a named color), and the second a **dashed** border and a **hex** background-color"
+        "Add a **heading 2** that says Rules and Prizes. Under it, add **two divs**. In the first: a **heading 2** and a **paragraph** with the rules. In the second: a **heading 2**, a **paragraph** about the prizes, and a **numbered list** of 3 items",
+        "Style **each div**: **display** inline-block, **vertical-align** top, **width** 45%, **padding** (like 10px), and a **border** (like 2px solid). Give the first a **solid** border and a **background-color** (a named color), and the second a **dashed** border and a **hex** background-color"
       ])])));
 
   A["7.6"] = build([
     { h: "Unit test website" },
-    { p: "Your teacher gives the exact requirements on test day. Your site must show everything from 3.1 through 3.12, at least **2 times each**. The **Concepts** tab lists them all. Your teacher will tell you where to take the multiple choice test." },
+    { p: "Your teacher gives the exact requirements on test day. Your site must show everything from 3.1 through 3.12, at least **once each**. The **Concepts** tab lists them all. Your teacher will tell you where to take the multiple choice test." },
     S("Build a real website of your own", [
       "Type the **skeleton**, then build a real website on a topic of your choice: headings, paragraphs, lists, links, pictures, boxes, columns, and a table",
-      "Use every item in the **Concepts** tab at least **2 times**. The **Checks** list tracks them for you"
+      "Use every item in the **Concepts** tab at least **once**. The **Checks** list tracks them for you"
     ]),
     done()]);
 
   /* ======================================================================= 8.x ===== */
-  /* the site every 8.x/9.x lesson builds (a brand-new one each time). lvl: 1..6 = 8.1..8.6, 7..12 = 9.1..9.6 */
-  function htmlSteps(lvl) {
-    var boot = lvl >= 7, st = [];
-    st.push(S("Start a brand-new site", [
-      "This is a **new website**. Open the **index.html** tab and type the **doctype**, **html**, **head**, and **body**. In the head, add a **title** with your site's name",
-      boot ? "Go to **getbootstrap.com**, open **Getting Started**, and copy the official **CSS link** (a full https:// address). Add it **inside the head**, **above** your own link" : "Click the **style.css** tab (all your styling goes there, not in the page)",
-      "In the head, add a **link** to your CSS file, which is named **style.css**" + (boot ? ", **under** the Bootstrap link so your styles win" : "")
-    ]));
-    if (lvl >= 10) st.push(S("The Bootstrap navbar (new today)", [
-      "At the **very top of the body**, add a **nav** tag with Bootstrap's **navbar** class, plus **navbar-expand**, a dark background class (**bg-dark**), and **navbar-dark**",
-      "**Inside the nav**, add a **link** with the **navbar-brand** class showing your site's name, then a **div** with the **navbar-nav** class that holds **3 links** with the **nav-link** class (like Home, About, Contact), each with a full https:// address"
-    ]));
-    st.push(S("Banner, menu bar, and tagline", [
-      "Add **one heading 1** with your site's name" + (lvl >= 2 ? " and give it an **id** named banner" : ""),
-      "Under it, add a **bullet list** with **3 list items**, each with a **link** (https://) that opens in the same tab. Give the list the **class** " + (lvl >= 5 ? "menu" : "nav"),
-      "Add a **paragraph** with the **class** tagline: a phrase in **italics**, **one word** in a **span**, and a **line break** with a second line"
-    ]));
-    st.push(S("Pictures and the first section", [
-      "Add a **paragraph** and **Insert** your first picture inside it (Checks, then My images). Give the **picture** the **class** hero. Make its link open in a **new tab**, use a real https:// address, and write a real **alt**",
-      "Add a **horizontal line**, then a **heading 2** and a **paragraph** with the **class** highlight, then a **heading 3** (like Photos)",
-      lvl >= 6 ? "Add a **div** with the **class** gallery. Inside it, add **3 linked pictures** (each with a real **alt**), and give each **picture** the **class** thumb. Make one link open in a **new tab**" : "Add **2 more linked pictures**, each in its own paragraph: give the first the **class** small (same-tab link) and the second the **class** wide (new-tab link)",
-      "Add a **bullet list** of **3 items** with the **class** bullets, then a **horizontal line**"
-    ]));
-    st.push(S("The second section: ranked lists", [
-      "Add a **heading 2**, then a **heading 3** with the **class** upper, then a **numbered list** of **3 items** (bold name, a dash, an italic description) with the **class** ranked",
-      "Add a **heading 3** (like Good to Know) and a second **numbered list** of **3 items** with the **class** roman",
-      lvl >= 3 ? "Add **2 paragraphs**. Give the first **two classes** at once (note and framed, separated by a space) and put a **bold** word in it. Give the second **two classes** too (note and tip), with a **span** and a **line break** inside it" : "Add a **paragraph** with the **class** mono: a **span** for the first words, a **line break**, and the rest"
-    ]));
-    var boxes = ["Add **two divs** side by side. Give the first the **class** left and the second the **class** right. Put a **heading 3** and a **paragraph** inside each"];
-    if (lvl >= 5) boxes.push("Add a **div** with the **class** stats that holds **3 short paragraphs** (like facts)");
-    if (lvl >= 6) boxes.push("Add a **div** with the **class** facts that holds **4 short paragraphs**");
-    boxes.push("Add **two tables**, each with a **header row** (3 columns in the first, 2 in the second) and **3 data rows**. Give both the **class** data" + (lvl >= 2 ? ", and give the **second table** an **id** named signup" : ""));
-    st.push(S("Boxes, facts, and two tables", boxes));
-    if (lvl >= 8) {
-      var b = ["Add a **div** with Bootstrap's **container** class. **Inside it**, add **2 divs** with the **row** class, and **inside each row** add **2 divs** with the **col** class. Put a **heading 2** and a **paragraph** in each column"];
-      if (lvl >= 9) b.push("Add Bootstrap classes: a **text color** class (like **text-primary**) on **2 headings**, a **background** class (like **bg-light**) on one paragraph, and a **bold** class (like **fw-bold**) on one heading. In **2 different columns**, add a **link** (https://) with Bootstrap's **btn** class plus a style class (like **btn-primary**)");
-      if (lvl >= 11) b.push("Inside the container, add a **third row** with **3 columns**. In each column, add a **div** with the **card** class. Inside each card: a linked **image** with the **card-img-top** class, then a **div** with the **card-body** class that holds a **heading** (**card-title**), a **paragraph** (**card-text**), and a **link** (**btn** plus **btn-primary**)");
-      if (lvl >= 12) b.push("At the bottom of the container, add a **form** with a heading, then **2 labels** (**form-label**) each followed by an **input** (**form-control**), then a **button** with type submit and the classes **btn btn-success**");
-      st.push(S("Bootstrap sections", b));
-    }
-    st.push(S("The footer", ["Add a **bullet list** with the **class** footer and **2 items**: your name and your class period"]));
-    return st;
-  }
-  function cssSteps(lvl) {
-    var st = [];
-    st.push(S("Style the tags and classes in style.css", [
-      "Click the **style.css** tab. In a CSS file there are **no style tags**, **no quotes** around values, and every rule is a selector, curly braces, and **property: value;** lines",
-      "**body**: **background-color** (a light named color), **font-family** sans-serif, and **margin** (like 0 20px)",
-      "**h1**: **color** white, **background-color**, **font-family** serif, **font-size** 38px, **text-align** center, and a **solid border**. **h2**: **color**, **font-size** 26px, **text-transform** uppercase, **font-family** serif, and a border on the **bottom only**. **h3**: **color**, **font-size** 20px, a border on the **left only**, and **padding**",
-      "**p**: **font-size** 16px, **margin**, and **color**. **hr**: a **dotted border**. **a**: **color**. **table**: a **solid border**, **text-align** center, **width** 90%, and a **margin**. **th**: **background-color**, **color** white, and **padding**. **td**: **padding**, a border on the **bottom only** (dotted), and **font-family** monospace",
-      "A class rule starts with a **dot** before the name. **.nav**: **list-style-type** none, **text-align** center, a border on the **bottom only**, and a **hex** **background-color** (like #E8F0FF). **.nav li**: **display** inline" + (lvl >= 5 ? " (add **.menu li** to the same rule)" : "") + ". **.tagline**: **text-align** center and **font-family** sans-serif. **.tagline span**: **color**",
-      "**.hero**: **width** 320px, a **solid border**, **border-radius** 12px, **display** block, and a **margin**. " + (lvl >= 6 ? "**.thumb**: **width** 100%, a **solid border**, and **border-radius** 10px. " : "**.small**: **width** 25%, **border-radius** 50%, and a **dashed border**. **.wide**: **width** 45%, **display** block, and a **dotted border**. ") + "**.highlight**: **background-color**, **color**, **padding**, and **font-family** sans-serif",
-      "**.bullets**: **list-style-type** square, a **solid border** with a **hex** color (like #666666), and a **margin**. **.upper**: **text-transform** uppercase and **text-align** center. **.ranked**: **list-style-type** decimal and a **hex** **background-color**. **.roman**: **list-style-type** upper-roman and a **dashed border**",
-      (lvl >= 3 ? "" : "**.mono**: **font-family** monospace, **font-size** 14px, a **dotted border**, and **text-align** center. **.mono span**: **color**. ") + "**.left**: **display** inline-block, **vertical-align** top, **width** 30%, a **background-color**, a **solid border**, and **padding**. **.right**: **display** inline-block, **vertical-align** top, **width** 60%, a **hex** **background-color**, a **dashed border**, and **padding**",
-      "**.footer**: **list-style-type** none, **text-align** center, **font-family** monospace, **font-size** 14px, and a border on the **top only**. **.footer li**: **display** inline and a **margin**"
-    ]));
-    if (lvl >= 2) {
-      var nt = function (n) { return lvl === n ? "(new today) " : ""; }, more = [];
-      more.push(nt(2) + "**ids:** an id rule starts with a **#** before the name. **#banner**: a **margin** and **padding**. **#signup**: a **hex** **background-color** and a **solid border**");
-      if (lvl >= 3) {
-        more.push(nt(3) + "**specificity:** make sure your **p** rule sets a **color**. Then write **.note** with a **different color**, **font-weight** bold, and **text-align** center. A class is more specific than a tag, so the class color wins");
-        more.push(nt(3) + "**combined selectors:** write **.framed** (a **solid border** and **padding**), **p.tip** (a tag stuck to a class: a **background-color** and **font-family** monospace), and **ul li** (one tag inside another: a **margin**)");
-      }
-      if (lvl >= 4) {
-        more.push(nt(4) + "**hover:** in the **a** rule, add a **transition** (like all 0.3s), then write **a:hover** (a tag, a colon, the word hover) to change **color** and **background-color**");
-        more.push(nt(4) + "**hover:** do the same for **td**: a **transition** in the normal **td** rule (never in the hover rule, so it animates both ways), and **td:hover** to change the **background-color**");
-      }
-      if (lvl >= 5) {
-        more.push(nt(5) + "**flexbox:** **.menu**: **display** flex, **justify-content** (try space-around), **align-items** center, **list-style-type** none, a border on the **bottom only**, and a **hex** **background-color**");
-        more.push(nt(5) + "**flexbox:** **.stats**: **display** flex, **justify-content** (try space-between), **align-items** center, a **hex** **background-color**, a **solid border**, and **padding**");
-      }
-      if (lvl >= 6) {
-        more.push(nt(6) + "**grid:** **.gallery**: **display** grid, **grid-template-columns** with 3 equal columns (like 1fr 1fr 1fr), and a **gap**. **.facts**: **display** grid, **grid-template-columns** with 2 equal columns, and a **gap**");
-        more.push(nt(6) + "**grid:** **.facts p**: a **background-color**, a **dashed border**, **padding**, and **text-align** center");
-      }
-      st.push(S("More rules in style.css", more));
-    }
-    return st;
-  }
-  function site(lvl, what, themes, noteUrl, newText) {
-    return build([].concat(head(what, themes, noteUrl ? notes(noteUrl) : null), [RULE], htmlSteps(lvl), cssSteps(lvl), [done()]));
-  }
-
-  A["8.1"] = site(1, "A brand-new website with its own **style.css** file, styled with **tag rules** and **classes**.", "a robotics club, a pizza shop, or a gaming channel", "unit-8/external-css-notes.html");
-  A["8.2"] = site(2, "A brand-new website that also styles single elements by **id**.", "an animal shelter, a fitness gym, or a bookstore", "unit-8/css-id-notes.html");
-  A["8.3"] = site(3, "A brand-new website that shows **specificity**: a class rule beats a tag rule, one element can wear **two classes at once**, and **combined selectors** aim more precisely.", "a bike shop, a band, or a science center", "unit-8/specificity-notes.html");
-  A["8.4"] = site(4, "A brand-new website with smooth **hover effects** that use **transitions**.", "a robotics club, a fitness gym, or a band", "unit-8/hover-notes.html");
-  A["8.5"] = site(5, "A brand-new website that uses **flexbox** for two sections.", "a pizza shop, a bookstore, or a science center", "unit-8/flexbox-notes.html");
-  A["8.6"] = site(6, "A brand-new website that uses **grid** for two sections.", "a gaming channel, an animal shelter, or a bike shop", "unit-8/grid-notes.html");
   A["8.7"] = build([
     { h: "Unit test website" },
-    { p: "Your teacher gives the exact requirements on test day. Your site must show everything from this unit, and every earlier tool, at least **2 times each**. The **Concepts** tab lists them all." },
+    { p: "Your teacher gives the exact requirements on test day. Your site must show everything from this unit, plus the basics, at least **once each**. The **Concepts** tab lists them all." },
     S("Build a brand-new site", [
       "Type the **skeleton** in index.html and link **style.css** in the head. All styling goes in style.css",
       "Show **tag rules**, **classes** (including two on one element), **ids**, **combined selectors**, **hover effects with transitions**, **two flexbox sections**, and **two grids**",
-      "Use every item in the **Concepts** tab at least **2 times**. The **Checks** list tracks them for you"
+      "Use every item in the **Concepts** tab at least **once**. The **Checks** list tracks them for you"
     ]),
     done()]);
 
   /* ======================================================================= 9.x ===== */
-  A["9.1"] = site(7, "A brand-new website that loads **Bootstrap**, a giant ready-made stylesheet, and still uses every tool from the HTML and CSS units.", "an animal shelter, a band, or a robotics club");
-  A["9.2"] = site(8, "A brand-new website that uses Bootstrap's **grid**: a container, rows, and columns.", "a fitness gym, a science center, or a pizza shop");
-  A["9.3"] = site(9, "A brand-new website with Bootstrap **utility classes** and **buttons**.", "a bookstore, a bike shop, or a gaming channel");
-  A["9.4"] = site(10, "A brand-new website with a Bootstrap **navbar** across the top.", "a robotics club, a bookstore, or a band");
-  A["9.5"] = site(11, "A brand-new website with a row of Bootstrap **cards**.", "a pizza shop, an animal shelter, or a science center");
-  A["9.6"] = site(12, "A brand-new website with a Bootstrap **form**.", "a gaming channel, a fitness gym, or a bike shop");
   A["9.7"] = build([
     { h: "Unit test website" },
-    { p: "Your teacher gives the exact requirements on test day. Your page must show everything from this unit, and every earlier tool, at least **2 times each**. The **Concepts** tab lists them all." },
+    { p: "Your teacher gives the exact requirements on test day. Your page must show everything from this unit, plus the basics, at least **once each**. The **Concepts** tab lists them all." },
     S("Build a brand-new site", [
       "Type the **skeleton** in index.html, add the **Bootstrap link** above your own style.css link inside the head",
       "Show a **navbar** at the top with a brand and at least 3 nav links, a **grid** (container, rows, and columns), **cards** with images, titles, text, and buttons, and a **form** with 2 labeled fields and a submit button",
-      "Use every item in the **Concepts** tab at least **2 times**. The **Checks** list tracks them for you"
+      "Use every item in the **Concepts** tab at least **once**. The **Checks** list tracks them for you"
     ]),
     done()]);
 })(typeof window !== "undefined" ? window : globalThis);

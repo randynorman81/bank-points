@@ -74,17 +74,42 @@
   function num(id) { var p = String(id).split("."); return (+p[0]) * 100 + (+p[1]); }
   function before(a, b) { return num(a) < num(b); }
   var GROUPS = [["tags", "HTML tags"], ["attrs", "Attributes"], ["props", "CSS properties"], ["vals", "CSS values"], ["sels", "Selectors and classes"]];
+
+  /* THE REVIEW POLICY (a spiral, so assignments do not keep getting longer):
+       - FRESH:  items from the previous 2 lessons must appear at least 2 times
+       - KEEP:   items from 3 to 5 lessons back must appear at least 1 time
+       - STAPLES: the basics every real page uses (headings, paragraphs, lists, links, pictures, colors, fonts, borders, spacing,
+                  width) stay required at least once in every later lesson
+       - anything older than that drops off the list (students will still use it, it just is not checked)
+       - UNIT TESTS (7.6, 8.7, 9.7): every item from that unit plus the staples, at least once each */
+  var FRESH = 2, KEEP = 3;
+  var STAPLES = { "h2": 1, "p": 1, "ul": 1, "ol": 1, "a": 1, "attr-href": 1, "img": 1, "attr-alt": 1, "p-color": 1, "p-bg": 1, "p-fs": 1, "p-ff": 1, "p-ta": 1, "p-border": 1, "p-pad": 1, "p-mar": 1, "p-w": 1 };
+  var TESTS_UNIT = { "7.6": /^[67]\./, "8.7": /^8\./, "9.7": /^9\./ };
+  function idxOf(id) { for (var i = 0; i < C.length; i++) if (C[i].id === id) return i; return -1; }
+  function tierFor(lesson, fromId, key) {
+    var test = TESTS_UNIT[lesson];
+    if (test) return test.test(fromId) ? { tier: "test", min: 1 } : (STAPLES[key] ? { tier: "keep", min: 1 } : null);
+    var li = idxOf(lesson), fi = idxOf(fromId); if (li < 0 || fi < 0 || fi >= li) return null;
+    var age = li - fi;
+    if (age <= FRESH) return { tier: "fresh", min: 2 };
+    if (age <= FRESH + KEEP) return { tier: "keep", min: 1 };
+    return STAPLES[key] ? { tier: "keep", min: 1 } : null;
+  }
   root.U7_CONCEPTS = {
-    list: C,
-    groups: GROUPS,
+    list: C, groups: GROUPS, FRESH: FRESH, KEEP: KEEP,
     /* the items a lesson adds (the "new" section), grouped */
     newFor: function (lesson) { var o = null; C.forEach(function (x) { if (x.id === lesson) o = x; }); return o; },
-    /* every earlier item still in play for this lesson (the "review" section), grouped, in lesson order */
+    /* every earlier item still required for this lesson, grouped; each item has .min (1 or 2) and .tier (fresh, keep, test) */
     reviewFor: function (lesson) {
       var out = {}; GROUPS.forEach(function (g) { out[g[0]] = []; });
       C.forEach(function (x) {
-        if (!before(x.id, lesson)) return;
-        GROUPS.forEach(function (g) { (x[g[0]] || []).forEach(function (it) { if (it.until && !before(lesson, it.until) && lesson !== it.until) return; out[g[0]].push({ key: it.key, label: it.label, once: it.once, from: x.id }); }); });
+        GROUPS.forEach(function (g) {
+          (x[g[0]] || []).forEach(function (it) {
+            var t = tierFor(lesson, x.id, it.key); if (!t) return;
+            if (it.until && num(lesson) > num(it.until)) return;
+            out[g[0]].push({ key: it.key, label: it.label, once: it.once, from: x.id, min: t.min, tier: t.tier });
+          });
+        });
       });
       return out;
     }
