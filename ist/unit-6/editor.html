@@ -232,6 +232,16 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
 #paneAns #wtPane label.it.done span{color:#6b7280}
 #paneAns #wtPane code{background:#f3f4f6;border-color:#cfd5df;color:#92400e}
 #paneAns .ftabs button.on{background:#fff;color:#000;border-color:#cfd5df}
+.ftabs .exbtn{margin-left:10px;border:1px solid var(--acc);border-bottom:1px solid var(--acc);border-radius:6px;color:var(--acc);padding:5px 10px;font-weight:700}
+.ftabs .exbtn:hover{background:var(--acc);color:#0B0E14}
+#paneAns .ftabs .exbtn{background:#fff7ed;color:#9a3412;border-color:#ea580c}
+#paneAns .ftabs .exbtn:hover{background:#ea580c;color:#fff}
+.modal .box.exbox{max-width:1020px;width:96%;height:90vh;display:flex;flex-direction:column;padding:16px 18px}
+.exhead{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.exhead h3{margin:0;flex:1;min-width:200px}
+.exhead select{background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:7px 10px;font-weight:600;max-width:100%}
+.exnote{font-size:12.5px;color:var(--soft);margin:2px 0 10px}
+#exFrame{flex:1;width:100%;border:1px solid var(--rule);border-radius:8px;background:#fff;min-height:0}
 </style>
 </head>
 <body>
@@ -259,7 +269,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
 
 <main id="main" data-tab="code">
   <section class="pane" id="paneAns">
-    <h2><span class="ftabs" id="atabs"><button class="on" data-f="ans" id="ansTab">Assignment<span id="ansBadge"></span></button><button data-f="wt" id="wtTab" style="display:none">Walkthrough<span id="wtBadge"></span></button></span></h2>
+    <h2><span class="ftabs" id="atabs"><button class="on" data-f="ans" id="ansTab">Assignment<span id="ansBadge"></span></button><button data-f="wt" id="wtTab" style="display:none">Walkthrough<span id="wtBadge"></span></button><button type="button" id="exBtn" class="exbtn" style="display:none" title="See what a finished page for this assignment might look like">See an example</button></span></h2>
     <div class="aswrap"><div id="ansPane" aria-label="Assignment"></div><div id="wtPane" aria-label="Walkthrough"></div></div>
   </section>
   <div class="split" id="split0" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize the assignment column. Double-click to reset."></div>
@@ -312,12 +322,18 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   <div id="mSubmitBody" style="color:var(--soft)"></div>
   <div class="row"><button class="btn" id="mCancel">Not yet</button><button class="btn pri" id="mGo">Submit it</button></div>
 </div></div>
+<div class="modal" id="mEx"><div class="box exbox">
+  <div class="exhead"><h3>What yours might look like</h3><select id="exSel" aria-label="Choose an example" style="display:none"></select><button class="btn" id="exClose">Close</button></div>
+  <div class="exnote" id="exNote">This is only an idea. Your page uses your own topic and words, and it still has to follow the steps in the Assignment tab.</div>
+  <iframe id="exFrame" title="Example page" sandbox=""></iframe>
+</div></div>
 <div class="toast" id="toast"></div>
 
 <script src="answers.js"></script>
 <script src="answers-early.js"></script>
 <script src="answers-css.js"></script>
 <script src="answers-html2.js"></script>
+<script src="examples.js"></script>
 <script src="html-check.js"></script>
 <script>
 "use strict";
@@ -443,7 +459,7 @@ function markTabs() {
   [].forEach.call($("ftabs").querySelectorAll("button"), function (b) { b.classList.toggle("on", b.getAttribute("data-f") === S.file); });
   [].forEach.call($("atabs").querySelectorAll("button"), function (b) { b.classList.toggle("on", b.getAttribute("data-f") === (wtOn ? "wt" : "ans")); });
 }
-$("atabs").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; if (b.getAttribute("data-f") === "wt") setWt(true); else setAns(true); });
+$("atabs").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b || b.id === "exBtn") return; if (b.getAttribute("data-f") === "wt") setWt(true); else setAns(true); });
 $("ftabs").addEventListener("click", function (e) {
   var b = e.target.closest("button"); if (!b) return; var f = b.getAttribute("data-f"); if (f === S.file) return;
   S.buf[S.file] = ta.value; S.file = f; ta.value = S.buf[f]; markTabs(); layoutGutter(); cursorInfo(); refresh(); ta.focus();
@@ -1103,7 +1119,24 @@ function ansBadge() {
 }
 /* the left column shows the Assignment or the Walkthrough, next to the code and the website */
 function hasLeft() { return !!(ansSchema() || wtSchema()); }
-function applyLeft() { var on = hasLeft(); $("main").classList.toggle("noleft", !on); $("tabAns").style.display = on ? "" : "none"; if (!on && $("main").getAttribute("data-tab") === "ans") setTab("code"); layoutGutter(); }
+/* "See an example": a picture of a finished page (never the code), with a dropdown when an assignment has several themes */
+function exData() { return (window.U7_EXAMPLES || {})[S.lesson] || null; }
+function exUpdate() { var b = $("exBtn"); if (b) b.style.display = exData() && ansSchema() ? "" : "none"; }
+function exShow(i) { var d = exData(); if (!d) return; var v = d.variants[i] || d.variants[0]; $("exFrame").srcdoc = v.html; $("exSel").value = String(i); }
+function exOpen() {
+  var d = exData(); if (!d) return;
+  var sel = $("exSel"); sel.innerHTML = d.variants.map(function (v, i) { return '<option value="' + i + '">' + esc(v.name) + "</option>"; }).join("");
+  sel.style.display = d.variants.length > 1 ? "" : "none";
+  $("exNote").textContent = "This is only an idea. Your page uses your own topic and words, and it still has to follow the steps in the Assignment tab." + (d.note ? " " + d.note : "");
+  exShow(0); $("mEx").classList.add("show"); sel.focus();
+}
+function exClose() { $("mEx").classList.remove("show"); $("exFrame").srcdoc = ""; }
+$("exBtn").addEventListener("click", exOpen);
+$("exClose").addEventListener("click", exClose);
+$("exSel").addEventListener("change", function () { exShow(+this.value); });
+$("mEx").addEventListener("click", function (e) { if (e.target === this) exClose(); });
+document.addEventListener("keydown", function (e) { if (e.key === "Escape" && $("mEx").classList.contains("show")) exClose(); });
+function applyLeft() { exUpdate();  var on = hasLeft(); $("main").classList.toggle("noleft", !on); $("tabAns").style.display = on ? "" : "none"; if (!on && $("main").getAttribute("data-tab") === "ans") setTab("code"); layoutGutter(); }
 function showLeft(which) {
   if (which === "wt" && !wtSchema()) which = "ans"; if (which === "ans" && !ansSchema()) which = wtSchema() ? "wt" : "";
   ansOn = which === "ans"; wtOn = which === "wt";
@@ -1162,7 +1195,7 @@ function ansRender() {
     else if (it.grp) h += '<div class="grp"><b>' + esc(it.grp) + '</b><div class="gg">' + it.fields.map(ansField).join("") + "</div></div>";
     else if (it.id) h += ansField(it);
   });
-  pane.innerHTML = h; ansBadge();
+  pane.innerHTML = h; ansBadge(); exUpdate();
 }
 function ansInit() {
   var a = null; try { a = JSON.parse(lsGet("u7:ans:" + S.lesson) || "null"); } catch (e) {}
