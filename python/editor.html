@@ -39,7 +39,9 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr}
 .c-div{background:#1D4ED8}.c-floor{background:#B45309}.c-mod{background:#7E22CE}
 .lg.c-div,.lg.c-floor,.lg.c-mod{padding:2px 8px;border-color:transparent;border-radius:6px}
 .lg.c-math{border-color:#64748B;color:#E6EAF2}
-.lgsep{font-weight:700;color:var(--soft);margin-left:8px}
+.lgsep{font-weight:700;color:var(--soft)}
+.mrow{flex:0 0 100%;display:flex;flex-wrap:nowrap;gap:5px;align-items:center;overflow-x:auto;padding-top:4px;border-top:1px solid var(--rule)}
+.mrow .lg{white-space:nowrap;flex:0 0 auto}
 #kpop table{border-collapse:collapse;width:100%;margin:0 0 4px;font-size:13px}
 #kpop th{text-align:left;font:700 10.5px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;color:var(--soft);padding:3px 8px;border-bottom:1px solid var(--rule)}
 #kpop td{padding:4px 8px;border-bottom:1px solid #1b2337;vertical-align:top}
@@ -250,7 +252,7 @@ var KEYS = [
 ];
 
 var MATH = [
-  { id: "m-div", cls: "c-div", name: "/  Division", sample: "/", title: "Division  ( / )", intro: "Regular division, the kind you do on a calculator. It gives the exact answer, including the decimal part. The answer is ALWAYS a float (a decimal number), even when it divides evenly.",
+  { id: "m-div", cls: "c-div", name: "/ Division", sample: "/", title: "Division  ( / )", intro: "Regular division, the kind you do on a calculator. It gives the exact answer, including the decimal part. The answer is ALWAYS a float (a decimal number), even when it divides evenly.",
     sections: [
       { h: "What it gives you", rows: [["7 / 2", "3.5", "the exact answer"], ["10 / 2", "5.0", "still a float, even though it divides evenly"], ["1 / 4", "0.25", ""], ["1 / 3", "0.3333333333333333", "decimals that never end get cut off"], ["-7 / 2", "-3.5", "negatives work like normal math"]] },
       { h: "Use it when", list: ["you want the exact answer with decimals: an average, a percent, a price per item", "you are splitting something into parts and parts of a part are fine (a pizza shared by 4 people is 0.25 each)", "you are converting units that are not whole numbers (inches to feet, seconds to minutes as a decimal)"] },
@@ -258,7 +260,7 @@ var MATH = [
       { h: "Watch out", list: ["The answer is a float, so range(10 / 2) crashes: range needs a whole number. Use 10 // 2 there, or int(10 / 2).", "Dividing by zero stops the program: 5 / 0 gives ZeroDivisionError.", "print(10 / 2) shows 5.0, not 5. If you only want the whole number, use //."] },
       { h: "Practice (click to see the answer)", quiz: [["12 / 4", "3.0   (a float, not 3)"], ["9 / 2", "4.5"], ["type(8 / 2)", "<class 'float'>   (division always gives a float)"], ["1 / 8", "0.125"]] }
     ] },
-  { id: "m-floor", cls: "c-floor", name: "//  Floor division", sample: "//", title: "Floor division  ( // )", intro: "Divides, then throws away the decimal part by rounding DOWN to the whole number below. The answer to the question: how many WHOLE times does the second number fit into the first?",
+  { id: "m-floor", cls: "c-floor", name: "// Floor division", sample: "//", title: "Floor division  ( // )", intro: "Divides, then throws away the decimal part by rounding DOWN to the whole number below. The answer to the question: how many WHOLE times does the second number fit into the first?",
     sections: [
       { h: "What it gives you", rows: [["7 // 2", "3", "2 fits into 7 three whole times (3.5 rounded down)"], ["10 // 2", "5", "an int when both numbers are ints"], ["1 // 4", "0", "4 does not fit into 1 even once"], ["-7 // 2", "-4", "rounds DOWN, so -3.5 becomes -4, not -3"], ["7.5 // 2", "3.0", "a float if either number is a float, but still rounded down"]] },
       { h: "Use it when", list: ["you need a whole number of groups: how many full boxes, full dozens, full weeks", "you are splitting a total into bigger units: seconds to minutes, cents to dollars, days to weeks", "you need the middle of a list: middle = len(items) // 2", "you want to chop the last digit off a number: 472 // 10 is 47", "you need a whole number for range() or a list index"] },
@@ -266,7 +268,7 @@ var MATH = [
       { h: "Watch out", list: ["It rounds DOWN, not toward zero. -7 // 2 is -4. If you want to cut the decimal off instead, use int(-7 / 2), which gives -3.", "It does not round to the nearest. 9 // 10 is 0, not 1.", "It also stops on zero: 5 // 0 gives ZeroDivisionError.", "// is NOT a comment. Comments use #."] },
       { h: "Practice (click to see the answer)", quiz: [["9 // 2", "4"], ["100 // 7", "14   (7 x 14 = 98, which fits; 7 x 15 = 105 is too big)"], ["3 // 10", "0"], ["-9 // 2", "-5   (rounds down from -4.5)"], ["How many full weeks are in 30 days?", "30 // 7 = 4"]] }
     ] },
-  { id: "m-mod", cls: "c-mod", name: "%  Modulus", sample: "%", title: "Modulus  ( % )", intro: "The remainder: what is LEFT OVER after dividing as many whole times as you can. It is not a percent sign here. It does not tell you how many times, only what is left.",
+  { id: "m-mod", cls: "c-mod", name: "% Modulus", sample: "%", title: "Modulus  ( % )", intro: "The remainder: what is LEFT OVER after dividing as many whole times as you can. It is not a percent sign here. It does not tell you how many times, only what is left.",
     sections: [
       { h: "What it gives you", rows: [["7 % 2", "1", "7 = 3 groups of 2, with 1 left over"], ["10 % 2", "0", "it divides evenly, nothing left"], ["15 % 4", "3", "4 x 3 = 12, so 3 left"], ["2 % 5", "2", "5 does not fit even once, so everything is left over"], ["-7 % 3", "2", "with a positive right side, the answer is never negative"]] },
       { h: "Use it when", list: ["checking even or odd: n % 2 == 0 means even", "checking if one number divides another evenly: n % 3 == 0 means n is a multiple of 3", "getting the last digit of a number: 472 % 10 is 2", "wrapping around, like a clock or a list index that starts over: (10 + 5) % 12 is 3", "doing something every Nth time in a loop: if i % 5 == 0:", "finding what is left over after making groups: leftover cents, leftover seconds"] },
@@ -274,7 +276,7 @@ var MATH = [
       { h: "Watch out", list: ["% is the remainder. It is NOT a percent: for 15 percent of 200, use 200 * 0.15.", "n % 2 == 0 uses TWO equals signs: the % calculates, the == asks the question.", "The answer is always smaller than the number on the right: x % 5 is always 0, 1, 2, 3, or 4.", "x % 0 gives ZeroDivisionError."] },
       { h: "Practice (click to see the answer)", quiz: [["9 % 2", "1"], ["20 % 5", "0   (it divides evenly)"], ["3 % 10", "3   (10 does not fit, so all of 3 is left)"], ["100 % 7", "2   (7 x 14 = 98, 2 left)"], ["Which operator tells you if a number is even?", "%   (n % 2 == 0)"]] }
     ] },
-  { id: "m-three", cls: "c-math", name: "All three side by side", sample: "/ // %", title: "The three kinds of division, side by side", intro: "They all start the same way: divide the first number by the second. They only differ in WHAT THEY KEEP from the answer. Take 17 and 5: 5 fits into 17 three whole times, with 2 left over (3 x 5 = 15, and 17 - 15 = 2), or exactly 3.4.",
+  { id: "m-three", cls: "c-math", name: "All three", sample: "/ // %", title: "The three kinds of division, side by side", intro: "They all start the same way: divide the first number by the second. They only differ in WHAT THEY KEEP from the answer. Take 17 and 5: 5 fits into 17 three whole times, with 2 left over (3 x 5 = 15, and 17 - 15 = 2), or exactly 3.4.",
     sections: [
       { h: "Same numbers, three answers", rows: [["17 / 5", "3.4", "/  keeps EVERYTHING: the whole part and the decimal"], ["17 // 5", "3", "//  keeps only the WHOLE-NUMBER part (how many times it fits)"], ["17 % 5", "2", "%  keeps only the LEFTOVER (what did not fit)"]] },
       { h: "Which one do I use?", rows: [["How many whole groups?", "//", "full boxes, full weeks, minutes in some seconds"], ["What is left over?", "%", "leftover seconds, even/odd, wrapping around"], ["The exact answer with a decimal?", "/", "averages, percents, prices"], ["Is it divisible by...?", "%", "n % 3 == 0 is True when 3 divides n evenly"]] },
@@ -284,7 +286,7 @@ var MATH = [
       { h: "Mix-ups to avoid", list: ["Using / when you need a whole number (you get 5.0 instead of 5, and range() crashes).", "Using // when you needed the decimal: 7 // 2 is 3, not 3.5.", "Using % when you meant percent.", "Swapping the two numbers: 5 // 17 is 0 and 5 % 17 is 5. The number being divided goes on the left."] },
       { h: "Practice (click to see the answer)", quiz: [["25 / 4", "6.25"], ["25 // 4", "6"], ["25 % 4", "1"], ["You have 50 cookies and boxes hold 12. Which operator gives the number of FULL boxes?", "//   50 // 12 = 4"], ["...and how many cookies are left over?", "%   50 % 12 = 2"], ["Is 91 divisible by 7?", "91 % 7 == 0 is True, so yes"]] }
     ] },
-  { id: "m-other", cls: "c-math", name: "Other math + order", sample: "+ - * **", title: "Other math, and the order Python does it", intro: "The rest of the math operators, and the rules for which part Python does first.",
+  { id: "m-other", cls: "c-math", name: "Other math", sample: "+ - * **", title: "Other math, and the order Python does it", intro: "The rest of the math operators, and the rules for which part Python does first.",
     sections: [
       { h: "The operators", rows: [["+", "add", "5 + 2 is 7"], ["-", "subtract", "5 - 2 is 3"], ["*", "multiply", "5 * 2 is 10"], ["**", "power (exponent)", "2 ** 3 is 8, which is 2 x 2 x 2"], ["/  //  %", "the three divisions", "see their own keys"]] },
       { h: "Order of operations", p: "Python follows the same order as math class: (1) brackets, (2) ** powers, (3) * / // % from left to right, (4) + - from left to right.", rows: [["2 + 3 * 4", "14", "multiply first"], ["(2 + 3) * 4", "20", "brackets first"], ["10 - 4 - 3", "3", "left to right"], ["10 / 2 * 5", "25.0", "left to right: 10 / 2 is 5.0, then x 5"], ["7 // 2 * 2", "6", "left to right: 7 // 2 is 3, then x 2"], ["2 ** 3 ** 2", "512", "powers go right to left: 3 ** 2 first"], ["-2 ** 2", "-4", "power first, then the minus"]] },
@@ -308,8 +310,9 @@ function renderKey() {
     if (k.karel && mode !== "karel") return;
     var b = document.createElement("span"); b.className = "lg " + (k.cls === "c-karel" ? "c-karel" : k.cls); b.tabIndex = 0; b.setAttribute("data-k", k.id); b.textContent = k.name; lg.appendChild(b);
   });
-  var sep = document.createElement("span"); sep.className = "lgsep"; sep.textContent = "Math key:"; lg.appendChild(sep);
-  MATH.forEach(function (k) { var b = document.createElement("span"); b.className = "lg " + k.cls; b.tabIndex = 0; b.setAttribute("data-k", k.id); b.textContent = k.name; lg.appendChild(b); });
+  var row = document.createElement("div"); row.className = "mrow"; var sep = document.createElement("span"); sep.className = "lgsep"; sep.textContent = "Math key:"; row.appendChild(sep);
+  MATH.forEach(function (k) { var b = document.createElement("span"); b.className = "lg " + k.cls; b.tabIndex = 0; b.setAttribute("data-k", k.id); b.textContent = k.name; row.appendChild(b); });
+  lg.appendChild(row);
 }
 function showKey(id) {
   var mk = MATH.filter(function (x) { return x.id === id; })[0];
