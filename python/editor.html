@@ -37,10 +37,13 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr}
 .c-func{color:#BEF264}.c-op{color:#FB7185}.c-list{color:#2DD4BF;font-weight:700}.c-dict{color:#E879F9;font-weight:700}.c-var{color:#E6EAF2}
 .c-div,.c-floor,.c-mod{color:#fff;border-radius:3px;font-weight:700;padding:0 2px}
 .c-div{background:#1D4ED8}.c-floor{background:#B45309}.c-mod{background:#7E22CE}
-.lg.c-div,.lg.c-floor,.lg.c-mod{padding:2px 8px;border-color:transparent;border-radius:6px}
+.lg.c-div,.lg.c-floor,.lg.c-mod{padding:1px 6px;border-color:transparent;border-radius:6px}
 .lg.c-math{border-color:#64748B;color:#E6EAF2}
-.lgsep{font-weight:700;color:var(--soft)}
-.mrow{flex:0 0 100%;display:flex;flex-wrap:nowrap;gap:5px;align-items:center;overflow-x:auto;padding-top:4px;border-top:1px solid var(--rule)}
+.lgsep{white-space:nowrap;font-weight:700;color:var(--soft);font-size:11px;margin-right:2px}
+.mrow{flex:0 0 100%;display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding-top:3px;border-top:1px solid var(--rule)}
+.mrow:first-child{border-top:0;padding-top:0}
+.mrow.mathrow{flex-wrap:nowrap;overflow-x:auto}
+.lgsep{min-width:0}
 .mrow .lg{white-space:nowrap;flex:0 0 auto}
 #kpop table{border-collapse:collapse;width:100%;margin:0 0 4px;font-size:13px}
 #kpop th{text-align:left;font:700 10.5px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;color:var(--soft);padding:3px 8px;border-bottom:1px solid var(--rule)}
@@ -54,8 +57,8 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr}
 #kpop .bad{color:#FCA5A5}
 #kpop{max-height:78%}
 .c-karel{color:#0B0E14;background:#FBBF24;border-radius:3px;font-weight:700}
-.legend{display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding:6px 10px;background:var(--panel);border-bottom:1px solid var(--rule);font-size:11px;color:var(--soft)}
-.lg{font:600 12px "JetBrains Mono",monospace;background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:2px 8px;cursor:help;user-select:none}
+.legend{display:flex;flex-wrap:wrap;gap:3px;align-items:center;padding:5px 10px;background:var(--panel);border-bottom:1px solid var(--rule);font-size:11px;color:var(--soft)}
+.lg{font:600 11.5px "JetBrains Mono",monospace;background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:1px 6px;cursor:help;user-select:none}
 .lg:hover,.lg:focus{border-color:var(--acc);outline:0}
 .lg.c-karel{border-color:#FBBF24}
 #kpop{position:absolute;left:8px;right:8px;z-index:30;display:none;max-height:62%;overflow:auto;background:#0E1320;border:1px solid var(--acc);border-radius:10px;padding:12px 14px;box-shadow:0 10px 30px #000a}
@@ -115,7 +118,7 @@ body.karel #karel{display:flex}
     <div class="edwrap"><pre id="gut">1</pre><div class="edbox"><pre id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Python code"></textarea></div></div>
     <div id="kpop" role="dialog" aria-label="What this color means"></div>
     <div class="teach" id="teach"></div>
-    <div class="tip"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> runs your code. <kbd>Tab</kbd> indents. Your work saves in this browser as you type.</div>
+    <div class="tip"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> runs your code. <kbd>Tab</kbd> indents. Click any chip in the key to learn about it. Your work saves in this browser as you type.</div>
   </section>
   <section class="pane">
     <div id="karel">
@@ -304,15 +307,23 @@ function renderSection(sec) {
   return h;
 }
 var kpop = $("kpop"), kcloseT = 0;
+var GROUPS = [
+  ["Data types:", ["str", "int", "float", "bool", "none"]],
+  ["Collections:", ["list", "dict"]],
+  ["Code words:", ["kw", "logic", "op", "com"]],
+  ["Functions and names:", ["var", "def", "func", "builtin", "karel"]],
+  ["Math key:", ["int", "float", "m-div", "m-floor", "m-mod", "m-three", "m-other"]]
+];
 function renderKey() {
-  var lg = $("legend"); lg.innerHTML = "<span>Key (click one to learn about it):</span>";
-  KEYS.forEach(function (k) {
-    if (k.karel && mode !== "karel") return;
-    var b = document.createElement("span"); b.className = "lg " + (k.cls === "c-karel" ? "c-karel" : k.cls); b.tabIndex = 0; b.setAttribute("data-k", k.id); b.textContent = k.name; lg.appendChild(b);
+  var lg = $("legend"); lg.innerHTML = "";
+  GROUPS.forEach(function (g, gi) {
+    var row = document.createElement("div"); row.className = "mrow" + (gi === GROUPS.length - 1 ? " mathrow" : ""); var sep = document.createElement("span"); sep.className = "lgsep"; sep.textContent = g[0]; row.appendChild(sep);
+    g[1].forEach(function (id) {
+      var k = KEYS.filter(function (x) { return x.id === id; })[0] || MATH.filter(function (x) { return x.id === id; })[0]; if (!k || (k.karel && mode !== "karel")) return;
+      var b = document.createElement("span"); b.className = "lg " + k.cls; b.tabIndex = 0; b.setAttribute("data-k", k.id); b.textContent = k.name; row.appendChild(b);
+    });
+    lg.appendChild(row);
   });
-  var row = document.createElement("div"); row.className = "mrow"; var sep = document.createElement("span"); sep.className = "lgsep"; sep.textContent = "Math key:"; row.appendChild(sep);
-  MATH.forEach(function (k) { var b = document.createElement("span"); b.className = "lg " + k.cls; b.tabIndex = 0; b.setAttribute("data-k", k.id); b.textContent = k.name; row.appendChild(b); });
-  lg.appendChild(row);
 }
 function showKey(id) {
   var mk = MATH.filter(function (x) { return x.id === id; })[0];
