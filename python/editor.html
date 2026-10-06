@@ -396,7 +396,112 @@ function friendlyError(msg) {
     if (lines[i + 1] && /^\s{4}\S/.test(lines[i + 1]) && !/File "/.test(lines[i + 1])) keep.push(lines[i + 1]);
   }
   var last = lines.filter(function (l) { return l.trim(); }).pop() || "Error";
-  return (keep.length ? keep.join("\n") + "\n" : "") + last;
+  var help = explainError(last, String(msg)), kind = errorKind(last);
+  return (keep.length ? keep.join("\n") + "\n" : "") + last + (kind ? "\n\n📘 " + kind : "") + (help ? "\n\n💡 What this means here:\n" + help : "");
+}
+/* what each family of error means in general, and whether it stops the program before or while it runs */
+function errorKind(last) {
+  var m = /^(\w+)(?::|$)/.exec(last); if (!m) return "";
+  var SYN = "A syntax error is a grammar mistake. Python reads the whole program BEFORE running anything, and it found a line it cannot understand, so nothing ran at all. Like a sentence with missing punctuation.";
+  var RUN = "A runtime error means the grammar was fine and the program started, but then it hit something impossible and had to stop. Everything before the error line did run.";
+  var K = {
+    SyntaxError: "SyntaxError: " + SYN,
+    IndentationError: "IndentationError (a kind of syntax error): Python uses spaces at the start of a line to show which lines belong together, and the spacing here does not make sense. " + SYN.split(". ").slice(1).join(". "),
+    TabError: "TabError (a kind of syntax error): tabs and spaces are mixed in the indenting. Use only the Tab key.",
+    TypeError: "TypeError (a runtime error): you used a value of the wrong type for what you asked it to do. Every value has a type, like string (text), integer (whole number), float (decimal) or list. Some actions only work on certain types, like joining text to text or adding number to number. " + RUN,
+    ValueError: "ValueError (a runtime error): the type was right, but the actual value was not acceptable, like int(\"hello\"), since hello is text but cannot become a number. " + RUN,
+    NameError: "NameError (a runtime error): you used a name Python has never heard of. A variable or function has to be created before the line that uses it. " + RUN,
+    UnboundLocalError: "UnboundLocalError (a runtime error): a variable inside a function was used before it was given a value. " + RUN,
+    ZeroDivisionError: "ZeroDivisionError (a runtime error): dividing by zero is impossible in math, so Python stops. " + RUN,
+    IndexError: "IndexError (a runtime error): you asked for a position in a list or string that does not exist. " + RUN,
+    KeyError: "KeyError (a runtime error): you looked up a key that is not in the dictionary. " + RUN,
+    AttributeError: "AttributeError (a runtime error): you tried to use a built-in tool (a dot, like .append) that this type of value does not have. " + RUN,
+    ModuleNotFoundError: "ModuleNotFoundError (a runtime error): an import line asked for a library Python could not find.",
+    ImportError: "ImportError (a runtime error): an import line could not load what you asked for.",
+    RecursionError: "RecursionError (a runtime error): a function called itself too many times without stopping.",
+    KeyboardInterrupt: "Stopped by you: the input box was closed.",
+    EOFError: "EOFError (a runtime error): input() had nothing to read.",
+    KarelError: "KarelError: Karel could not do what the code asked. The code was fine, but the move was not allowed in this world. " + RUN
+  };
+  return (K[m[1]] || (/Error$/.test(m[1]) ? m[1] + " (a runtime error): " + RUN : "")) +
+    (K[m[1]] && m[1] !== "SyntaxError" && !/^Indent|^Tab/.test(m[1]) && m[1] !== "KeyboardInterrupt" ? "\n\nThere is a third kind you will meet: a LOGIC error. The program runs with no error message, but gives the wrong answer. Python cannot catch those. You find them by testing and reading your output carefully." : "");
+}
+/* plain-English help for the errors students hit most; `last` is the final error line */
+function explainError(last, full) {
+  var m, t = function (s) { return s.replace(/NoneType/g, "None").replace(/'str'/g, "a string").replace(/'int'/g, "an integer").replace(/'float'/g, "a float").replace(/'list'/g, "a list"); };
+  if ((m = /^TypeError: can only concatenate str \(not "(\w+)"\) to str/.exec(last)) || (m = /^TypeError: unsupported operand type\(s\) for \+: 'str' and '(\w+)'/.exec(last)))
+    return "You can only join a string to another string with +. You tried to join a string and " + t("'" + m[1] + "'") + ".\nFix: turn the other value into text with str(), like  \"Score: \" + str(score),  or use a comma in print:  print(\"Score:\", score)";
+  if ((m = /^TypeError: unsupported operand type\(s\) for \+: '(\w+)' and 'str'/.exec(last)))
+    return "You tried to add " + t("'" + m[1] + "'") + " and a string. + adds two numbers or joins two strings, never one of each.\nFix: use str() on the number to join them, or int()/float() on the text to add them (input() always gives back a string).";
+  if ((m = /^TypeError: unsupported operand type\(s\) for ([-*\/%]+|\*\*|\/\/): '(\w+)' and '(\w+)'/.exec(last)) || (m = /^TypeError: can't multiply sequence by non-int of type '(\w+)'/.exec(last)))
+    return "You tried to do math with two kinds of values that do not mix (" + m.slice(1).join(", ") + "). Math needs numbers on both sides.\nFix: if one is text from input(), convert it first with int() or float().";
+  if (/^TypeError: '[<>]=?' not supported between instances of '(\w+)' and '(\w+)'/.test(last))
+    return "You compared two different kinds of values, like a number and text. Comparisons need the same kind on both sides.\nFix: convert the text with int() or float() before comparing (input() always gives text).";
+  if ((m = /^TypeError: (\w+)\(\) takes (\d+) positional arguments? but (\d+) (?:was|were) given/.exec(last)))
+    return "The function " + m[1] + " expects " + m[2] + " value(s) in its brackets, but you gave it " + m[3] + ".\nFix: match the number of values in the call to the number of names in the def line.";
+  if ((m = /^TypeError: (\w+)\(\) missing (\d+) required positional argument/.exec(last)))
+    return "You called " + m[1] + " without giving it all the values it needs (" + m[2] + " missing).\nFix: put the missing value(s) inside the brackets when you call it.";
+  if ((m = /^TypeError: '(\w+)' object is not callable/.exec(last)))
+    return "You put round brackets after something that is not a function. A variable holding " + t("'" + m[1] + "'") + " cannot be run like a function.\nFix: check for a variable with the same name as a function (like  sum = 5  or  print = 3), or a missing operator before the bracket, like  5(3)  instead of  5 * (3).";
+  if ((m = /^TypeError: '(\w+)' object is not subscriptable/.exec(last)))
+    return "You used square brackets [ ] on something that is not a list, string or dictionary (it is " + t("'" + m[1] + "'") + "). Only collections can be looked into with [ ].\nFix: check the variable really holds a list or a string. If it is None, a function probably forgot to return its answer.";
+  if ((m = /^TypeError: '(\w+)' object is not iterable/.exec(last)))
+    return "A for loop needs something to step through, like a list, a string or range(). You gave it " + t("'" + m[1] + "'") + ".\nFix: for a number n, loop with  for i in range(n):";
+  if (/^TypeError: object of type '(\w+)' has no len/.test(last))
+    return "len() counts the items in a string or list, and it cannot count a plain number or None.\nFix: use len() on a string or list. To count the digits of a number, use len(str(number)).";
+  if (/^TypeError: .*(argument must be a string|must be str)/.test(last))
+    return "The function wanted text and got something else.\nFix: convert the value with str() first.";
+  if ((m = /^NameError: name '(\w+)' is not defined/.exec(last)))
+    return "Python does not know a name called " + m[1] + ". The usual reasons:\n• a typo (capital letters matter: Score is not score)\n• you use the variable before the line that creates it\n• you forgot quotes around text, like  print(hello)  instead of  print(\"hello\")\n• the variable was created inside a function and used outside it";
+  if ((m = /^UnboundLocalError: .*variable '(\w+)'/.exec(last)) || (m = /^UnboundLocalError: local variable '(\w+)'/.exec(last)))
+    return "Inside a function, " + m[1] + " is treated as a brand new variable because you assign to it, but you read it before giving it a value.\nFix: give it a value first inside the function, or pass it in as a parameter.";
+  if (/^IndentationError: expected an indented block/.test(last))
+    return "A line that ends in a colon  :  (if, for, while, def, else) must be followed by lines indented 4 spaces.\nFix: press Tab at the start of the line(s) that belong inside it.";
+  if (/^IndentationError: unexpected indent/.test(last))
+    return "This line is indented, but nothing above it opens a block.\nFix: remove the extra spaces at the start of the line so it lines up with the line above.";
+  if (/^IndentationError: unindent does not match/.test(last))
+    return "This line's spacing does not line up with any block above it.\nFix: use Tab for each level of indent, and make lines in the same block start in exactly the same column.";
+  if (/^SyntaxError: (invalid syntax|expected ':')/.test(last) || /^SyntaxError: expected ':'/.test(last))
+    return "Python could not read this line: it breaks a grammar rule.\nCheck: a missing colon  :  at the end of if/for/while/def/else, a missing or extra bracket or quote, = used where == is needed inside an if, or a typo in a keyword. The mistake is often on this line or the line just above.";
+  if (/^SyntaxError: '\(' was never closed|^SyntaxError: '\[' was never closed|^SyntaxError: '\{' was never closed/.test(last))
+    return "You opened a bracket and never closed it. Every  (  needs a  )  and every  [  needs a  ].\nFix: count the opening and closing brackets on this line and the one above.";
+  if (/^SyntaxError: unterminated string literal|^SyntaxError: EOL while scanning/.test(last))
+    return "A string started with a quote but never ended on the same line.\nFix: add the matching closing quote. The opening and closing quote must be the same kind (both \" or both ').";
+  if (/^SyntaxError: cannot assign to|^SyntaxError: invalid assignment|^SyntaxError: .*maybe you meant '=='/.test(last))
+    return "= stores a value into a variable (the variable goes on the LEFT). == asks if two things are equal. Inside an if or while, you almost always want ==.\nFix: use  ==  to compare, and put a variable name on the left of a single =.";
+  if (/^SyntaxError: .*(Missing parentheses|call to 'print')/.test(last))
+    return "In Python 3, print needs brackets.\nFix: print(\"hello\")";
+  if ((m = /^ZeroDivisionError/.exec(last)))
+    return "You divided by zero, which has no answer. The number on the right of  /  //  or  %  was 0.\nFix: check the value before dividing, like  if b != 0:";
+  if ((m = /^ValueError: invalid literal for int\(\) with base 10: (.*)/.exec(last)))
+    return "int() could not turn " + m[1] + " into a whole number. It only accepts text made of digits, like \"42\". Decimals (\"3.5\"), words, and empty text do not work.\nFix: for decimals use float(), and check what the user actually typed.";
+  if ((m = /^ValueError: could not convert string to float: (.*)/.exec(last)))
+    return "float() could not turn " + m[1] + " into a decimal number. It needs text like \"3.14\".\nFix: make sure the text is only a number, with no letters or spaces.";
+  if (/^ValueError: math domain error/.test(last))
+    return "A math function was given a number it cannot work with, like the square root of a negative number.";
+  if (/^ValueError: not enough values to unpack|^ValueError: too many values to unpack/.test(last))
+    return "You tried to split a collection into variables, but the number of variables did not match the number of items.";
+  if ((m = /^IndexError: (list|string|tuple) index out of range/.exec(last)))
+    return "You asked for an item number that does not exist in the " + m[1] + ". Counting starts at 0, so a " + m[1] + " with 3 items has spots 0, 1 and 2, and spot 3 is too far.\nFix: use a smaller index, check len(), or use [-1] for the last item.";
+  if ((m = /^KeyError: (.*)/.exec(last)))
+    return "The dictionary has no key called " + m[1] + ". Keys are case-sensitive and must match exactly.\nFix: check the spelling, test with  if key in dictionary:  or use  dictionary.get(key).";
+  if ((m = /^AttributeError: '(\w+)' object has no attribute '(\w+)'/.exec(last)))
+    return t("'" + m[1] + "'") + " values do not have a ." + m[2] + " ability. Check the spelling and capital letters of the method, and that the variable holds what you think it does.\n" + (m[1] === "NoneType" ? "A None value usually means a function forgot its return line, or a method like .append() or .sort() was assigned to a variable (those change the list and give back None).\n" : "") + (m[1] === "str" ? "Strings cannot be changed in place. Methods like .upper() give back a new string, so save it:  name = name.upper()\n" : "");
+  if ((m = /^AttributeError: module '(\w+)' has no attribute '(\w+)'/.exec(last)))
+    return "The module " + m[1] + " does not contain " + m[2] + ". Check the spelling and capitals.";
+  if ((m = /^ModuleNotFoundError: No module named '(\w+)'/.exec(last)))
+    return "Python cannot find a module called " + m[1] + ". Check the spelling. Not every library is installed in this editor, but random, math, time and others from the standard library are.";
+  if (/^RecursionError/.test(last))
+    return "A function kept calling itself and never stopped. Every recursive function needs a base case: an if that returns without calling itself again.";
+  if (/^KeyboardInterrupt/.test(last))
+    return "The program stopped because the input box was closed.";
+  if (/^EOFError/.test(last))
+    return "input() was asked to read, but there was nothing to read.";
+  if (/^KarelError/.test(last)) {
+    if (/wall/i.test(last)) return "Karel tried to move into a wall or off the edge of the world.\nFix: check front_is_clear() before move(), or turn first.";
+    if (/ball/i.test(last)) return "Karel tried to pick up a ball where there is none, or the other way around.\nFix: check balls_present() before take_ball().";
+  }
+  return "";
 }
 /* input("question") asks with the real question, then echoes the question and the answer in the output like a console would */
 window.pyInput = function (q) {
@@ -427,7 +532,7 @@ function run() {
     } catch (e) { err = friendlyError(e.message || e); }
     if (ns && ns.destroy) ns.destroy();
     function finish() {
-      if (err) { print(err + "\n\n", "err"); if (karelMode) { kmsg.className = "kmsg bad"; kmsg.textContent = err.split("\n").pop().replace(/^KarelError: /, ""); } }
+      if (err) { print(err + "\n\n", "err"); if (karelMode) { kmsg.className = "kmsg bad"; kmsg.textContent = err.split("\n\n📘")[0].split("\n\n💡")[0].split("\n").pop().replace(/^KarelError: /, ""); } }
       else { print("✓ Finished\n\n", "ok"); if (karelMode) { kmsg.className = "kmsg"; kmsg.textContent = "Done. Karel ended at avenue " + world.kx + ", street " + world.ky + ", facing " + DIRNAME[world.kd] + "."; } }
       running = false; runBtn.disabled = false; statusEl.textContent = "Ready";
     }
