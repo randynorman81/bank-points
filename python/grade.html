@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Grade Python | Teacher</title>
+<link rel="icon" href="../assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0B0E14;--panel:#121722;--card:#171D2B;--rule:#26304A;--ink:#E8ECF3;--soft:#93A0B8;--acc:#FB923C;--ok:#34D399;--bad:#F87171}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 "Manrope",system-ui,sans-serif;display:flex;flex-direction:column;overflow:hidden}
+a{color:#FDBA74}button,select,input,textarea{font:inherit}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.brand{font-weight:800}
+select,input,textarea{background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:6px 8px}
+.btn{background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:7px 12px;cursor:pointer;font-weight:600;text-decoration:none}
+.btn:hover{border-color:var(--acc)}.btn.pri{background:var(--acc);color:#0B0E14;border-color:var(--acc);font-weight:800}.btn.sm{padding:3px 8px;font-size:12px}
+.sp{flex:1}
+#login{max-width:340px;margin:12vh auto;background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:24px}
+#login h1{margin:0 0 10px;font-size:20px}
+#login input{width:100%;margin:8px 0 12px}
+#app{display:none;flex:1;min-height:0;grid-template-columns:360px 1fr}
+#app.show{display:grid}
+.list{border-right:1px solid var(--rule);overflow:auto}
+.list table{width:100%;border-collapse:collapse;font-size:13px}
+.list th{position:sticky;top:0;background:var(--panel);text-align:left;padding:7px 8px;font:700 11px "JetBrains Mono",monospace;color:var(--soft);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--rule)}
+.list td{padding:8px;border-bottom:1px solid #1b2337;vertical-align:top}
+.list tr.row{cursor:pointer}.list tr.row:hover{background:#141a29}.list tr.row.sel{background:#1c2540;outline:1px solid var(--acc)}
+.pill{display:inline-block;border-radius:100px;padding:1px 8px;font-size:11px;font-weight:700}
+.pill.s{background:#0F2A22;color:#6EE7B7}.pill.d{background:#2A2110;color:#FCD34D}.pill.g{background:#14213D;color:#93C5FD}
+.detail{display:flex;flex-direction:column;min-width:0;min-height:0}
+.dhead{padding:10px 14px;border-bottom:1px solid var(--rule);display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--panel)}
+.dhead h2{margin:0;font-size:17px}.dhead small{color:var(--soft)}
+.dbody{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 320px}
+.view{min-height:0;overflow:auto}
+.code{display:flex;font:13px/20px "JetBrains Mono",monospace;background:#080B11;min-height:100%}
+.code .g{flex:0 0 46px;text-align:right;color:#4E5B78;padding:10px 8px 10px 0;border-right:1px solid var(--rule);user-select:none;white-space:pre}
+.code pre{margin:0;padding:10px 14px;white-space:pre;color:#E6EAF2;flex:1;min-width:0}
+.right{border-left:1px solid var(--rule);overflow:auto;padding:12px;background:var(--bg)}
+.right h3{margin:14px 0 6px;font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}
+.right h3:first-child{margin-top:0}
+.outbox{background:#080B11;border:1px solid var(--rule);border-radius:8px;padding:8px 10px;font:12.5px/1.5 "JetBrains Mono",monospace;white-space:pre-wrap;word-break:break-word;max-height:300px;overflow:auto}
+.grade input[type=number]{width:90px}
+.grade textarea{width:100%;min-height:90px;margin:6px 0}
+.empty{padding:40px;color:var(--soft);text-align:center}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111c;color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;display:none;z-index:9}
+@media(max-width:1000px){#app{grid-template-columns:1fr}.list{max-height:34vh}.dbody{grid-template-columns:1fr}.right{border-left:0}}
+</style>
+</head>
+<body>
+<div id="login">
+  <h1>Teacher: Grade Python</h1>
+  <div style="color:var(--soft);font-size:13px">Enter the teacher PIN.</div>
+  <input id="pin" type="password" placeholder="PIN" autocomplete="off">
+  <button class="btn pri" id="go" style="width:100%">Open</button>
+  <div id="lerr" style="color:var(--bad);margin-top:10px;font-size:13px"></div>
+  <div style="margin-top:14px"><a href="editor.html">&larr; Python editor</a></div>
+</div>
+
+<div class="top" id="top" style="display:none">
+  <span class="brand">🧑‍🏫 Grade Python</span>
+  <label>Assignment <select id="slot"></select></label>
+  <label>Period <select id="period"><option value="">All periods</option></select></label>
+  <label><input type="checkbox" id="onlySub"> Submitted only</label>
+  <button class="btn" id="reload">Reload</button>
+  <button class="btn" id="csv">Export CSV</button>
+  <span class="sp"></span>
+  <span id="count" style="color:var(--soft);font-size:13px"></span>
+  <a class="btn" href="editor.html">Python editor</a>
+</div>
+
+<div id="app">
+  <div class="list"><table><thead><tr><th>Student</th><th>Period</th><th>Status</th><th>Grade</th></tr></thead><tbody id="rows"></tbody></table><div class="empty" id="noRows" style="display:none">No work for this assignment yet.</div></div>
+  <div class="detail" id="detail"><div class="empty">Pick a student on the left.</div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+var API = "/api/pycode", $ = function (i) { return document.getElementById(i); };
+var pin = "", rows = [], sel = null, counts = {};
+try { pin = sessionStorage.getItem("pypin") || ""; } catch (e) {}
+function esc(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function toast(t) { var e = $("toast"); e.textContent = t; e.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(function () { e.style.display = "none"; }, 2200); }
+function api(b) { b.pin = pin; return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }).then(function (r) { return r.json(); }); }
+function slotLabel(id) { return id === "free" ? "Practice" : "Assignment " + id.slice(1); }
+function fmt(t) { return t ? new Date(t).toLocaleString() : ""; }
+
+function openApp() {
+  api({ action: "adminCounts" }).then(function (j) {
+    if (j.error) { $("lerr").textContent = j.error; try { sessionStorage.removeItem("pypin"); } catch (e) {} return; }
+    try { sessionStorage.setItem("pypin", pin); } catch (e) {}
+    counts = j.counts || {};
+    $("login").style.display = "none"; $("top").style.display = "flex"; $("app").className = "show";
+    var h = "", ids = ["free"]; for (var i = 1; i <= 30; i++) ids.push("a" + i);
+    ids.forEach(function (id) { h += '<option value="' + id + '">' + slotLabel(id) + " (" + (counts[id] || 0) + ")</option>"; });
+    $("slot").innerHTML = h;
+    var first = ids.filter(function (id) { return id !== "free" && counts[id]; })[0] || "free"; $("slot").value = first;
+    load();
+  });
+}
+$("go").onclick = function () { pin = $("pin").value; openApp(); };
+$("pin").onkeydown = function (e) { if (e.key === "Enter") $("go").click(); };
+if (pin) openApp();
+
+function load() {
+  return api({ action: "adminList", slot: $("slot").value }).then(function (j) {
+    if (j.error) { toast(j.error); return; }
+    rows = j.students || [];
+    var periods = {}; rows.forEach(function (r) { if (r.period) periods[r.period] = 1; });
+    var cur = $("period").value; $("period").innerHTML = '<option value="">All periods</option>' + Object.keys(periods).sort().map(function (p) { return "<option>" + esc(p) + "</option>"; }).join(""); $("period").value = periods[cur] ? cur : "";
+    render();
+  });
+}
+function render() {
+  var per = $("period").value, only = $("onlySub").checked;
+  var list = rows.filter(function (r) { return (!per || r.period === per) && (!only || r.submission); }).sort(function (a, b) { return String(a.rosterName || a.name).localeCompare(String(b.rosterName || b.name)); });
+  $("rows").innerHTML = list.map(function (r) {
+    var t = r.submission && r.submission.teacher;
+    return '<tr class="row' + (sel === r.email ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td>' + esc(r.rosterName || r.name) + '</td><td>' + esc(r.period) + '</td><td>' + (r.submission ? '<span class="pill s">Submitted</span>' : '<span class="pill d">Draft</span>') + '</td><td>' + (t && t.score !== null ? '<span class="pill g">' + esc(t.score) + "</span>" : "") + "</td></tr>";
+  }).join("");
+  $("noRows").style.display = list.length ? "none" : "block";
+  $("count").textContent = list.filter(function (r) { return r.submission; }).length + " submitted, " + list.length + " total";
+  Array.prototype.forEach.call($("rows").querySelectorAll("tr.row"), function (tr) { tr.onclick = function () { sel = tr.getAttribute("data-e"); render(); showDetail(); }; });
+  return list;
+}
+function showDetail() {
+  var r = rows.filter(function (x) { return x.email === sel; })[0]; if (!r) return;
+  var rec = r.submission || r.draft, t = r.submission && r.submission.teacher, lines = (rec.code || "").split("\n"), g = lines.map(function (_, i) { return i + 1; }).join("\n");
+  $("detail").innerHTML = '<div class="dhead"><h2>' + esc(r.rosterName || r.name) + '</h2><small>' + esc(r.email) + ' &middot; Period ' + esc(r.period) + ' &middot; ' + (r.submission ? "Submitted " + esc(fmt(rec.submittedAt)) + (rec.count > 1 ? " (#" + rec.count + ")" : "") : "Draft saved " + esc(fmt(rec.savedAt)) + " (not submitted)") + ' &middot; ' + (rec.mode === "karel" ? "Karel" : "Python") + "</small></div>" +
+    '<div class="dbody"><div class="view"><div class="code"><div class="g">' + g + '</div><pre>' + esc(rec.code) + '</pre></div></div><div class="right">' +
+    "<h3>Student's output</h3><div class=\"outbox\">" + (esc(rec.output) || "<span style='color:var(--soft)'>(none saved)</span>") + "</div>" +
+    (r.submission ? '<h3>Your grade</h3><div class="grade"><label>Score <input type="number" id="gScore" min="0" max="1000" value="' + esc(t && t.score !== null ? t.score : "") + '"></label><textarea id="gComment" placeholder="Comment for the student">' + esc(t ? t.comment : "") + '</textarea><button class="btn pri" id="gSave">Save grade</button> <button class="btn sm" id="gDel" style="float:right">Delete submission</button></div>' : '<p style="color:var(--soft)">Not submitted yet, so it cannot be graded.</p>') +
+    "</div></div>";
+  if (r.submission) {
+    $("gSave").onclick = function () { api({ action: "adminGrade", slot: $("slot").value, email: r.email, score: $("gScore").value, comment: $("gComment").value }).then(function (j) { if (j.ok) { r.submission.teacher = j.teacher; toast("Saved"); render(); } else toast(j.error || "Could not save"); }); };
+    $("gDel").onclick = function () { if (!confirm("Delete this submission? The student's saved draft stays.")) return; api({ action: "adminDelete", slot: $("slot").value, email: r.email, draft: false }).then(function (j) { if (j.ok) { toast("Deleted"); load().then(function () { $("detail").innerHTML = '<div class="empty">Pick a student on the left.</div>'; }); } else toast(j.error || "Could not delete"); }); };
+  }
+}
+$("slot").onchange = function () { sel = null; $("detail").innerHTML = '<div class="empty">Pick a student on the left.</div>'; load(); };
+$("period").onchange = render; $("onlySub").onchange = render; $("reload").onclick = load;
+$("csv").onclick = function () {
+  var q = function (v) { return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };
+  var csv = [["Name", "Email", "Period", "Status", "Score", "Comment"].join(",")].concat(render().map(function (r) { var t = r.submission && r.submission.teacher; return [q(r.rosterName || r.name), q(r.email), q(r.period), q(r.submission ? "Submitted" : "Draft"), q(t && t.score !== null ? t.score : ""), q(t ? t.comment : "")].join(","); })).join("\n");
+  var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "python-" + $("slot").value + ".csv"; a.click();
+};
+</script>
+</body>
+</html>

@@ -62,6 +62,17 @@ body.karel #karel{display:flex}
 #world{background:#fff;border-radius:6px;max-width:100%;touch-action:manipulation}
 .kmsg{padding:0 12px 8px;font-size:12px;color:var(--soft);min-height:22px}
 .kmsg.bad{color:var(--bad)}
+.top select{max-width:170px}
+.who{font-size:12px;color:var(--soft)}
+#gbtn{display:inline-block;min-height:32px}
+.cloud{display:none;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 12px;background:#2A2110;border-bottom:1px solid var(--rule);font-size:12.5px}
+.cloud.show{display:flex}
+.teach{padding:8px 12px;background:#0F2A22;border-top:1px solid var(--rule);font-size:13px;display:none}
+.teach.show{display:block}
+.btn.go{background:var(--ok);color:#04210f;border-color:var(--ok);font-weight:800}
+.modal{position:fixed;inset:0;background:#000a;display:none;place-items:center;z-index:50}.modal.show{display:grid}
+.modal .box{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;max-width:420px}
+.modal .box p{margin:0 0 10px}.modal .row{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
 @media (max-width:820px){main{grid-template-columns:1fr;grid-template-rows:1.1fr 1.3fr}.pane{border-right:0;border-bottom:1px solid var(--rule)}}
 </style></head>
 <body>
@@ -71,15 +82,21 @@ body.karel #karel{display:flex}
   <button class="btn run" id="run" disabled>&#9654; Run</button>
   <button class="btn" id="clear">Clear output</button>
   <button class="btn" id="reset">Reset code</button>
+  <select id="slot" aria-label="Assignment"></select>
+  <select id="period" aria-label="Class period"><option value="">Period…</option><option>1A</option><option>2B</option><option>3A</option><option>3B</option><option>4A</option><option>4B</option></select>
+  <button class="btn go" id="submit">Submit</button>
   <span class="sp"></span>
+  <span class="who" id="who"></span><span id="gbtn"></span>
   <span class="status" id="status">Loading Python&hellip;</span>
 </div>
 <main>
   <section class="pane">
     <h2 id="codeTitle">Your code (main.py)</h2>
+    <div class="cloud" id="cloud"></div>
     <div class="legend" id="legend"><span>Key (point at one):</span></div>
     <div class="edwrap"><pre id="gut">1</pre><div class="edbox"><pre id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Python code"></textarea></div></div>
     <div id="kpop" role="dialog" aria-label="What this color means"></div>
+    <div class="teach" id="teach"></div>
     <div class="tip"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> runs your code. <kbd>Tab</kbd> indents. Your work saves in this browser as you type.</div>
   </section>
   <section class="pane">
@@ -102,6 +119,8 @@ body.karel #karel{display:flex}
     <pre id="out"></pre>
   </section>
 </main>
+<div class="modal" id="mSub"><div class="box"><div id="mSubBody"></div><div class="row"><button class="btn" id="mCancel">Cancel</button><button class="btn go" id="mGo">Submit</button></div></div></div>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <script>
 "use strict";
@@ -112,7 +131,8 @@ var ta = $("code"), out = $("out"), gut = $("gut"), runBtn = $("run"), statusEl 
 var mode = "python";
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-function codeKey() { return "py:code:" + mode; }
+var slot = "free", API = "/api/pycode", GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
+function codeKey() { return "py:code:" + mode + (slot === "free" ? "" : ":" + slot); }
 function starter() { return mode === "karel" ? STARTER_KAREL : STARTER_PY; }
 
 /* ---------- the editor box ---------- */
@@ -542,6 +562,107 @@ function run() {
 runBtn.onclick = run;
 document.addEventListener("keydown", function (e) { if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && document.activeElement !== ta) { e.preventDefault(); run(); } });
 
+/* =====================================================================================
+   GOOGLE SIGN-IN, CLOUD SAVE, AND SUBMIT (same school-account sign-in as the HTML editor)
+   ===================================================================================== */
+var CRED = null, USER = "", MY = {}, lastCloud = "", lastOut = "", CLOUD = null;
+function slotLabel(id) { return id === "free" ? "Practice (not graded)" : "Assignment " + id.slice(1); }
+function buildSlots() {
+  var h = ""; ["free"].concat(Array.from({ length: 30 }, function (_, i) { return "a" + (i + 1); })).forEach(function (id) {
+    if (id !== "free" && !MY[id] && id !== slot && Number(id.slice(1)) > 12) return;
+    h += '<option value="' + id + '">' + slotLabel(id) + (MY[id] === "sub" ? " ✓" : "") + "</option>";
+  });
+  $("slot").innerHTML = h; $("slot").value = slot;
+}
+function escA(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function decodeJwt(t) { try { var p = t.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"); return JSON.parse(decodeURIComponent(escape(atob(p)))); } catch (e) { return {}; } }
+function initGoogle() {
+  if (!window.google || !google.accounts || !google.accounts.id) { setTimeout(initGoogle, 300); return; }
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onCredential, hd: "socialcircleschools.org", auto_select: true });
+  showSignIn(); if (!CRED) google.accounts.id.prompt();
+}
+function showSignIn() {
+  var g = $("gbtn"); g.innerHTML = "";
+  if (window.google && google.accounts && google.accounts.id) google.accounts.id.renderButton(g, { theme: "filled_blue", size: "medium", text: "signin_with", shape: "rectangular" });
+}
+function onCredential(resp) {
+  var p = decodeJwt(resp.credential);
+  if ((p.hd || "").toLowerCase() !== "socialcircleschools.org") { flash("Use your school account (@socialcircleschools.org)"); alert("Please sign in with your school account (@socialcircleschools.org)."); return; }
+  CRED = resp.credential; USER = p.name || p.email || "";
+  $("who").textContent = "Signed in: " + USER; $("gbtn").innerHTML = "";
+  api({ action: "mySlots" }).then(function (j) { if (j && j.ok) { (j.slots || []).forEach(function (x) { MY[x.slot] = x.submitted ? "sub" : "draft"; }); buildSlots(); } });
+  afterSlotChange();
+}
+function api(body) {
+  body.credential = CRED;
+  return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(function (r) { return r.json(); }).then(function (j) {
+    if (j && j.needLogin) { CRED = null; $("who").textContent = "Sign-in timed out. Sign in again (your code is safe)."; showSignIn(); }
+    return j;
+  });
+}
+function curWorld() { return mode === "karel" && typeof initial !== "undefined" ? JSON.stringify(initial) : ""; }
+function applyRecord(rec) {
+  if (rec.mode && rec.mode !== mode) { lsSet(codeKey(), ta.value); mode = rec.mode; document.body.classList.toggle("karel", mode === "karel"); $("mode").value = mode; lsSet("py:mode", mode); $("codeTitle").textContent = mode === "karel" ? "Your code (karel.py)" : "Your code (main.py)"; renderKey(); }
+  if (rec.world && mode === "karel") { try { setWorld(JSON.parse(rec.world)); } catch (e) {} }
+  ta.value = rec.code; gutter(); lsSet(codeKey(), ta.value);
+}
+function showTeacher(sub) {
+  var t = $("teach");
+  if (sub && sub.teacher && (sub.teacher.score !== null || sub.teacher.comment)) { t.className = "teach show"; t.innerHTML = "<b>Teacher feedback</b>" + (sub.teacher.score !== null ? " &middot; Score: <b>" + escA(sub.teacher.score) + "</b>" : "") + (sub.teacher.comment ? "<br>" + escA(sub.teacher.comment) : ""); }
+  else { t.className = "teach"; t.innerHTML = ""; }
+}
+function afterSlotChange() {
+  if (!CRED) return;
+  var sl = slot;
+  api({ action: "mine", slot: sl }).then(function (j) {
+    if (!j || j.error || sl !== slot) return;
+    CLOUD = j; var dr = j.draft, sub = j.submission, rec = dr && dr.code && dr.code.trim() ? dr : sub, c = $("cloud"), opts = "";
+    var untouched = !ta.value.trim() || ta.value === STARTER_PY || ta.value === STARTER_KAREL;
+    if (rec && untouched) { applyRecord(rec); flash("Loaded your saved work"); }
+    else if (dr && dr.code !== ta.value && dr.code.trim()) opts += "<span>Cloud draft from " + escA(new Date(dr.savedAt).toLocaleString()) + " differs from this screen.</span> <button class=\"btn sm\" id=\"ldDraft\">Load cloud draft</button>";
+    if (sub && sub.code !== ta.value && !(rec === sub && untouched)) opts += " <button class=\"btn sm\" id=\"ldSub\">Load my last submission (" + escA(new Date(sub.submittedAt).toLocaleString()) + ")</button>";
+    c.innerHTML = opts; c.className = "cloud" + (opts ? " show" : "");
+    var d = $("ldDraft"); if (d) d.onclick = function () { applyRecord(dr); c.className = "cloud"; };
+    var b = $("ldSub"); if (b) b.onclick = function () { applyRecord(sub); c.className = "cloud"; };
+    [dr, sub].forEach(function (r) { if (r && !$("period").value && r.period) { $("period").value = r.period; lsSet("py:period", r.period); } });
+    showTeacher(sub);
+    if (sub) statusEl.textContent = "Submitted " + new Date(sub.submittedAt).toLocaleString();
+    lastCloud = ta.value;
+  });
+}
+function cloudSave() {
+  if (!CRED || !ta.value.trim() || ta.value === lastCloud || ta.value === STARTER_PY || ta.value === STARTER_KAREL) return Promise.resolve();
+  var code = ta.value;
+  return api({ action: "saveDraft", slot: slot, mode: mode, code: code, world: curWorld(), period: $("period").value }).then(function (j) { if (j && j.ok) { lastCloud = code; if (!MY[slot]) { MY[slot] = "draft"; } } });
+}
+setInterval(cloudSave, 30000);
+document.addEventListener("visibilitychange", function () { if (document.hidden) cloudSave(); });
+$("slot").addEventListener("change", function () {
+  lsSet(codeKey(), ta.value); cloudSave().then(function () {
+    slot = $("slot").value; lsSet("py:slot", slot); lastCloud = ""; $("cloud").className = "cloud"; showTeacher(null); statusEl.textContent = py ? "Ready" : statusEl.textContent;
+    var v = lsGet(codeKey()); ta.value = v !== null ? v : starter(); gutter(); afterSlotChange();
+  });
+});
+$("period").addEventListener("change", function () { lsSet("py:period", this.value); });
+$("submit").addEventListener("click", function () {
+  if (!ta.value.trim()) { flash("Write some code first"); return; }
+  if (!CRED) { alert("Sign in with your school Google account (top right) to submit."); return; }
+  if (slot === "free") { alert("Practice work is saved for you but not graded. Pick an assignment in the Assignment box to submit."); return; }
+  if (!$("period").value) { alert("Choose your class period at the top first."); $("period").focus(); return; }
+  $("mSubBody").innerHTML = "<p>Submit <b>" + escA(slotLabel(slot)) + "</b> for period <b>" + escA($("period").value) + "</b>?</p><p>Your teacher will see your code and your last output. You can submit again later to replace it.</p>" + (running || !out.textContent.trim() ? "<p style=\"color:#FCD34D\">Tip: click Run first so your teacher can see your output.</p>" : "");
+  $("mSub").classList.add("show");
+});
+$("mCancel").addEventListener("click", function () { $("mSub").classList.remove("show"); });
+$("mGo").addEventListener("click", function () {
+  var b = this; b.disabled = true;
+  api({ action: "submit", slot: slot, mode: mode, code: ta.value, world: curWorld(), period: $("period").value, output: out.textContent.slice(-3500) }).then(function (j) {
+    b.disabled = false; $("mSub").classList.remove("show");
+    if (j && j.ok) { MY[slot] = "sub"; lastCloud = ta.value; buildSlots(); statusEl.textContent = "Submitted " + new Date(j.submittedAt).toLocaleString() + (j.count > 1 ? " (#" + j.count + ")" : ""); alert("Submitted! ✓"); }
+    else if (j && !j.needLogin) alert((j && j.error) || "Could not submit. Try again.");
+  }).catch(function () { b.disabled = false; alert("Could not reach the server. Check your internet and try again."); });
+});
+initGoogle();
+
 /* ---------- Python / Karel mode ---------- */
 function setMode(m) {
   if (setMode.ready) lsSet("py:code:" + mode, ta.value); mode = m; document.body.classList.toggle("karel", m === "karel"); $("mode").value = m; lsSet("py:mode", m);
@@ -549,6 +670,7 @@ function setMode(m) {
   loadCode(); renderKey(); if (m === "karel") draw(world);
 }
 $("mode").addEventListener("change", function () { setMode(this.value); });
+slot = (lsGet("py:slot") || "free"); if (!/^(free|a\d+)$/.test(slot)) slot = "free"; if (lsGet("py:period")) $("period").value = lsGet("py:period"); buildSlots();
 setMode(lsGet("py:mode") === "karel" ? "karel" : "python"); setMode.ready = true;
 </script>
 </body></html>
