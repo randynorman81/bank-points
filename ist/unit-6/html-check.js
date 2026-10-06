@@ -309,6 +309,107 @@
   function qualityOk(c) { var q = quality(c); return !q.severe; }
 
   /* =====================================================================
+     CONCEPT TESTS  (concepts.js lists what each lesson teaches; every item has a key here that counts how many
+     times the page uses it). From the lesson after an item is taught, the item is automatically required at
+     least REVIEW_MIN times ("every new assignment uses at least 2 examples of everything learned before").
+     ===================================================================== */
+  var REVIEW_MIN = 2;
+  var BORDER_SHORT = /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i;
+  var SIDE_PROPS = ["border-top", "border-bottom", "border-left", "border-right"];
+  function sum(c, names) { var n = 0; names.forEach(function (p) { n += c.prop(p); }); return n; }
+  function valCount(c, props, re) { var n = 0; props.forEach(function (p) { c.propValues(p).forEach(function (v) { if (re.test(v.replace(/;$/, "").trim())) n++; }); }); return n; }
+  function elsWithAttr(c, a) { return els(c).filter(function (n) { return n.attrs[a] !== undefined; }); }
+  function borderEls(c) {
+    var seen = [], used = ["border"].concat(SIDE_PROPS);
+    c.allDecls.forEach(function (d) { if (used.indexOf(d.prop) > -1 && BORDER_SHORT.test(d.value.replace(/;$/, "")) && d.el && seen.indexOf(d.el) < 0) seen.push(d.el); });
+    return seen.length;
+  }
+  function imgSize(i) { var st = {}; (i.attrs.style || "").split(";").forEach(function (p) { var k = p.split(":"); if (k[1]) st[k[0].trim().toLowerCase()] = k[1].trim(); }); return i.attrs.width !== undefined || i.attrs.height !== undefined || st.width !== undefined || st.height !== undefined; }
+  function imgSizedByCss(c, i) {
+    var ks = classesOf(i);
+    return c.sheetRules.some(function (rl) {
+      return selParts(rl).some(function (s) { var m = /^img$|^\.([\w-]+)$|^img\.([\w-]+)$/i.exec(s); if (!m) return false; var k = m[1] || m[2]; if (k && ks.indexOf(k) < 0) return false; return declares(rl, "width") || declares(rl, "height"); });
+    });
+  }
+  function distinct(arr) { var o = {}; arr.forEach(function (x) { o[x] = 1; }); return Object.keys(o).length; }
+  var TESTS = {
+    "h2": function (c) { return c.count("h2"); }, "h3": function (c) { return c.count("h3"); }, "p": function (c) { return c.count("p"); },
+    "attr-style": function (c) { return elsWithAttr(c, "style").length; },
+    "p-color": function (c) { return c.prop("color"); }, "p-bg": function (c) { return c.prop("background-color"); },
+    "p-fs": function (c) { return c.prop("font-size"); }, "p-ta": function (c) { return c.prop("text-align"); }, "p-tt": function (c) { return c.prop("text-transform"); },
+    "p-border": function (c) { return valCount(c, ["border"].concat(SIDE_PROPS), BORDER_SHORT); },
+    "v-px": function (c) { return valCount(c, ["font-size"], /^\d+(\.\d+)?px$/i); },
+    "v-center": function (c) { return valCount(c, ["text-align"], /^center$/i); },
+    "v-upper": function (c) { return valCount(c, ["text-transform"], /^uppercase$/i); },
+    "v-named": function (c) { return colorTokens(c).filter(function (t) { return NAMED[t.toLowerCase()]; }).length; },
+    "strong": function (c) { return c.count("strong") + c.count("b"); }, "em": function (c) { return c.count("em") + c.count("i"); },
+    "br": function (c) { return c.count("br"); }, "hr": function (c) { return c.count("hr"); }, "span": function (c) { return c.count("span"); },
+    "p-ff": function (c) { return c.prop("font-family"); },
+    "v-serif": function (c) { return valCount(c, ["font-family"], /(^|[\s,'"])serif$/i); },
+    "v-sans": function (c) { return valCount(c, ["font-family"], /(^|[\s,'"])sans-serif$/i); },
+    "v-mono": function (c) { return valCount(c, ["font-family"], /(^|[\s,'"])monospace$/i); },
+    "p-bside": function (c) { return sum(c, SIDE_PROPS); },
+    "v-solid": function (c) { return valCount(c, ["border"].concat(SIDE_PROPS, ["border-style"]), /\bsolid\b/i); },
+    "v-dashed": function (c) { return valCount(c, ["border"].concat(SIDE_PROPS, ["border-style"]), /\bdashed\b/i); },
+    "v-dotted": function (c) { return valCount(c, ["border"].concat(SIDE_PROPS, ["border-style"]), /\bdotted\b/i); },
+    "ul": function (c) { return c.count("ul"); }, "ol": function (c) { return c.count("ol"); }, "li": function (c) { return c.count("li"); },
+    "p-lst": function (c) { return c.prop("list-style-type") + c.prop("list-style"); }, "p-disp": function (c) { return c.prop("display"); },
+    "v-inline": function (c) { return valCount(c, ["display"], /^inline$/i); },
+    "v-lstnone": function (c) { return valCount(c, ["list-style-type", "list-style"], /^none$/i); },
+    "a": function (c) { return c.count("a"); },
+    "attr-href": function (c) { return c.all("a").filter(function (a) { return /\S/.test(a.attrs.href || ""); }).length; },
+    "attr-newtab": function (c) { return c.all("a").filter(function (a) { return a.attrs.target === "_blank"; }).length; },
+    "attr-sametab": function (c) { return c.all("a").filter(function (a) { return a.attrs.target === undefined || a.attrs.target === "_self"; }).length; },
+    "img": function (c) { return c.count("img"); },
+    "attr-src": function (c) { return c.all("img").filter(function (i) { return /\S/.test(i.attrs.src || ""); }).length; },
+    "attr-alt": function (c) { return c.all("img").filter(function (i) { return /\S/.test(i.attrs.alt || ""); }).length; },
+    "attr-imgsize": function (c) { return c.all("img").filter(function (i) { return imgSize(i) || imgSizedByCss(c, i); }).length; },
+    "attr-imglink": function (c) { return c.all("img").filter(function (i) { return !!c.ancestor(i, ["a"]); }).length; },
+    "p-w": function (c) { return c.prop("width"); }, "p-radius": function (c) { return c.prop("border-radius"); },
+    "v-pct": function (c) { return valCount(c, ["width"], /^[\d.]+%$/); },
+    "v-block": function (c) { return valCount(c, ["display"], /^block$/i); },
+    "p-pad": function (c) { return sum(c, ["padding", "padding-top", "padding-right", "padding-bottom", "padding-left"]); },
+    "p-mar": function (c) { return sum(c, ["margin", "margin-top", "margin-right", "margin-bottom", "margin-left"]); },
+    "v-hex": function (c) { return colorTokens(c).filter(function (t) { return HEX.test(t); }).length; },
+    "v-ib": function (c) { return valCount(c, ["display"], /^inline-block$/i); },
+    "div": function (c) { return c.count("div"); }, "p-va": function (c) { return c.prop("vertical-align"); },
+    "v-top": function (c) { return valCount(c, ["vertical-align"], /^top$/i); },
+    "table": function (c) { return c.count("table"); }, "tr": function (c) { return c.count("tr"); }, "th": function (c) { return c.count("th"); }, "td": function (c) { return c.count("td"); },
+    "attr-class": function (c) { return els(c).filter(function (n) { return classesOf(n).length > 0; }).length; },
+    "s-tag": function (c) { var t = []; c.sheetRules.forEach(function (rl) { selParts(rl).forEach(function (s) { if (/^[a-z][a-z0-9]*$/i.test(s) && s.toLowerCase() !== "html") t.push(s.toLowerCase()); }); }); return distinct(t); },
+    "s-class": function (c) { var used = {}; els(c).forEach(function (n) { classesOf(n).forEach(function (k) { used[k] = 1; }); }); var k = []; c.sheetRules.forEach(function (rl) { selParts(rl).forEach(function (s) { var m = /^\.([\w-]+)$/.exec(s); if (m && used[m[1]]) k.push(m[1]); }); }); return distinct(k); },
+    "attr-id": function (c) { return els(c).filter(function (n) { return !!String(n.attrs.id || "").trim(); }).length; },
+    "s-id": function (c) { var ids = {}; els(c).forEach(function (n) { if (n.attrs.id) ids[String(n.attrs.id).trim()] = 1; }); var k = []; c.sheetRules.forEach(function (rl) { selParts(rl).forEach(function (s) { var m = /^#([\w-]+)$/.exec(s); if (m && ids[m[1]]) k.push(m[1]); }); }); return distinct(k); },
+    "attr-twoclass": function (c) { return els(c).filter(function (n) { return classesOf(n).length >= 2; }).length; },
+    "s-combo": function (c) { var n = 0; c.sheetRules.forEach(function (rl) { selParts(rl).forEach(function (s) { var noPseudo = s.replace(/:[\w-]+/g, ""); if (/^[a-z][a-z0-9]*[.#][\w-]+$/i.test(noPseudo) || /^[.#]?[\w-]+(\s*>\s*|\s+)[.#]?[\w-]+/.test(noPseudo)) n++; }); }); return n; },
+    "p-trans": function (c) { return c.prop("transition") + c.prop("transition-duration"); },
+    "s-hover": function (c) { return ruleFor(c, function (s) { return /:hover\b/.test(s); }).length; },
+    "p-flex": function (c) { return c.sheetRules.filter(function (rl) { return /^(inline-)?flex$/i.test(valueOf(rl, "display")); }).length; },
+    "p-jc": function (c) { return c.prop("justify-content"); }, "p-ai": function (c) { return c.prop("align-items"); },
+    "p-grid": function (c) { return c.sheetRules.filter(function (rl) { return /^(inline-)?grid$/i.test(valueOf(rl, "display")); }).length; },
+    "p-gtc": function (c) { return c.prop("grid-template-columns"); }, "p-gap": function (c) { return c.prop("gap") + c.prop("grid-gap") + c.prop("column-gap") + c.prop("row-gap"); },
+    "b-grid": function (c) { return withClass(c, /^row$/).filter(function (n) { return n.children.filter(function (k) { return k.tag !== "#text" && classesOf(k).some(function (x) { return /^col(-|$)/.test(x); }); }).length >= 2 && inside(c, n, /^container/); }).length; },
+    "b-util": function (c) { return withClass(c, UTIL).length; },
+    "b-btn": function (c) { return els(c).filter(function (n) { var k = classesOf(n); return k.indexOf("btn") > -1 && k.some(function (x) { return BTN.test(x); }); }).length; },
+    "b-nav": function (c) { return withClass(c, /^nav-link$/).filter(function (n) { return n.tag === "a" && inside(c, n, /^navbar$/); }).length; },
+    "b-card": function (c) { return withClass(c, /^card$/).length; },
+    "form": function (c) { return c.count("form"); },
+    "b-form": function (c) { return els(c).filter(function (n) { return /^(input|textarea|select)$/.test(n.tag) && classesOf(n).some(function (k) { return k === "form-control" || k === "form-select"; }); }).length; }
+  };
+  function reviewRules(lesson) {
+    var out = [], CON = root.U7_CONCEPTS; if (!CON) return out;
+    var rv = CON.reviewFor(lesson);
+    CON.groups.forEach(function (g) {
+      (rv[g[0]] || []).forEach(function (it) {
+        if (it.once || !TESTS[it.key]) return;
+        out.push({ id: "R-" + it.key, lesson: it.from, label: "Uses " + it.label + " at least " + REVIEW_MIN + " times", tip: "You already learned this. Use it in " + REVIEW_MIN + " different places, where it fits your page.", test: function (c) { return TESTS[it.key](c) >= REVIEW_MIN; }, isNew: true });
+      });
+    });
+    return out;
+  }
+
+
+  /* =====================================================================
      LESSON REQUIREMENTS  (edit these to match what you assign)
      Each lesson lists ONLY its new rules. Earlier lessons carry over automatically
      (they count a little less, so students keep the earlier parts of their site).
@@ -363,25 +464,9 @@
       r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
     "6.4": { name: "Borders + Everything So Far", rules: [
-      r("Has at least 3 headings, using at least 2 different levels (only one h1)", function (c) { var lv = 0, n = 0; ["h1", "h2", "h3", "h4", "h5", "h6"].forEach(function (h) { if (c.has(h)) lv++; n += c.count(h); }); return n >= 3 && lv >= 2; }, "One h1 for WANTED, then h2 and h3 for the rest."),
-      r("Has at least 3 <p> paragraphs", function (c) { return c.count("p") >= 3; }),
-      r("Uses <strong> (or <b>) at least 3 times", function (c) { return c.count("strong") + c.count("b") >= 3; }),
-      r("Uses <em> (or <i>) at least 3 times", function (c) { return c.count("em") + c.count("i") >= 3; }),
-      r("Uses <br> at least 3 times", function (c) { return c.count("br") >= 3; }),
-      r("Uses <hr> at least 3 times", function (c) { return c.count("hr") >= 3; }),
-      r("Uses <span> with a style attribute at least 3 times", function (c) { return c.all("span").filter(function (s) { return s.attrs.style !== undefined; }).length >= 3; }),
-      r("Uses color at least 3 times", function (c) { return c.prop("color") >= 3; }),
-      r("Uses background-color at least 3 times", function (c) { return c.prop("background-color") >= 3; }),
-      r("Uses font-size in pixels at least 3 times", function (c) { return c.propValues("font-size").filter(function (v) { return /^\d+(\.\d+)?px$/i.test(v); }).length >= 3; }),
-      r("Uses text-align or text-transform at least 3 times", function (c) { return c.prop("text-align") + c.prop("text-transform") >= 3; }),
-      r("Uses font-family (serif, sans-serif, or monospace) at least 3 times", function (c) { return c.propValues("font-family").filter(function (v) { return /(^|[\s,'"])(serif|sans-serif|monospace)\s*$/i.test(v.replace(/;$/, "")); }).length >= 3; }),
-      r("Puts the border shortcut (thickness, style, color) on at least 3 different elements", function (c) {
-        var els = []; c.inline.forEach(function (d) { if (/^border(-top|-bottom|-left|-right)?$/.test(d.prop) && /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(d.value) && els.indexOf(d.el) < 0) els.push(d.el); }); return els.length >= 3;
-      }),
-      r("Uses at least 2 different border styles (like solid and dashed)", function (c) {
-        var seen = {}; ["border", "border-top", "border-bottom", "border-left", "border-right"].forEach(function (p) { c.propValues(p).forEach(function (v) { var m = /\b(solid|dashed|dotted|double|groove|ridge)\b/i.exec(v); if (m) seen[m[1].toLowerCase()] = 1; }); }); return Object.keys(seen).length >= 2;
-      }, "Try solid, dashed, dotted, double, groove, or ridge."),
-      r("Uses a border on just one side (border-top, border-bottom, border-left, or border-right)", function (c) { return c.prop("border-top") + c.prop("border-bottom") + c.prop("border-left") + c.prop("border-right") > 0; }, "Same three parts, one side only: border-bottom: 3px solid navy;"),
+      r("Puts a border (thickness, style, color) on at least 4 different elements", function (c) { return borderEls(c) >= 4; }, "Borders belong on boxes: a banner, a photo frame, a quote, a price box."),
+      r("Uses solid, dashed, and dotted borders (each at least 2 times)", function (c) { return TESTS["v-solid"](c) >= 2 && TESTS["v-dashed"](c) >= 2 && TESTS["v-dotted"](c) >= 2; }, "Mix the styles: solid for main frames, dashed for extras, dotted for small notes."),
+      r("Uses a border on just one side (top, bottom, left, or right) at least 2 times", function (c) { return TESTS["p-bside"](c) >= 2; }, "Same three parts, one side only, like border-bottom: 3px solid navy;"),
       r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
     "6.5": { name: "Lists + Everything So Far", rules: [
@@ -389,26 +474,6 @@
       r("Every list has at least 3 <li> items", function (c) { var l = c.all("ul").concat(c.all("ol")); return l.length > 0 && l.every(function (x) { return x.children.filter(function (n) { return n.tag === "li"; }).length >= 3; }); }),
       r("Only <li> tags sit directly inside a list", function (c) { var l = c.all("ul").concat(c.all("ol")); return l.length > 0 && l.every(function (x) { return x.children.every(function (n) { return n.tag === "li"; }); }); }),
       r("Uses list-style-type on at least 2 lists (on the <ul> or <ol>, not the li)", function (c) { return c.inline.filter(function (d) { return d.prop === "list-style-type" && (d.el.tag === "ul" || d.el.tag === "ol"); }).length >= 2; }),
-      r("Has at least 2 <h2> and at least 2 <h3> headings, in outline order (no skipping levels)", function (c) {
-        if (c.count("h2") < 2 || c.count("h3") < 2) return false;
-        var hs = []; (function w(n) { n.children.forEach(function (x) { if (x.tag === "#text") return; if (/^h[1-6]$/.test(x.tag)) hs.push(+x.tag.charAt(1)); w(x); }); })(c.tree);
-        if (!hs.length || hs[0] !== 1) return false;
-        for (var i = 1; i < hs.length; i++) if (hs[i] > hs[i - 1] + 1) return false; return true;
-      }, "h1 first, then h2 sections, with h3 labels inside them."),
-      r("Has at least 2 <p> paragraphs", function (c) { return c.count("p") >= 2; }),
-      r("Uses <strong> (or <b>) at least 2 times", function (c) { return c.count("strong") + c.count("b") >= 2; }),
-      r("Uses <em> (or <i>) at least 2 times", function (c) { return c.count("em") + c.count("i") >= 2; }),
-      r("Uses <br> at least 2 times", function (c) { return c.count("br") >= 2; }),
-      r("Uses <hr> at least 2 times", function (c) { return c.count("hr") >= 2; }),
-      r("Uses <span> with a style attribute at least 2 times", function (c) { return c.all("span").filter(function (s) { return s.attrs.style !== undefined; }).length >= 2; }),
-      r("Uses color at least 2 times", function (c) { return c.prop("color") >= 2; }),
-      r("Uses background-color at least 2 times", function (c) { return c.prop("background-color") >= 2; }),
-      r("Uses font-size in pixels at least 2 times", function (c) { return c.propValues("font-size").filter(function (v) { return /^\d+(\.\d+)?px$/i.test(v); }).length >= 2; }),
-      r("Uses text-align or text-transform at least 2 times", function (c) { return c.prop("text-align") + c.prop("text-transform") >= 2; }),
-      r("Uses font-family (serif, sans-serif, or monospace) at least 2 times", function (c) { return c.propValues("font-family").filter(function (v) { return /(^|[\s,'"])(serif|sans-serif|monospace)\s*$/i.test(v.replace(/;$/, "")); }).length >= 2; }),
-      r("Puts the border shortcut (thickness, style, color) on at least 2 different elements", function (c) {
-        var els = []; c.inline.forEach(function (d) { if (/^border(-top|-bottom|-left|-right)?$/.test(d.prop) && /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(d.value) && els.indexOf(d.el) < 0) els.push(d.el); }); return els.length >= 2;
-      }),
       r("Makes one list horizontal: display: inline on at least 3 <li> (block turned into inline)", function (c) {
         return c.inline.filter(function (d) { return d.prop === "display" && /^inline$/i.test(d.value.replace(/;$/, "").trim()) && d.el.tag === "li"; }).length >= 3;
       }, "Put style=\"display: inline;\" on each li of one list, and add list-style-type: none; to the ul."),
@@ -431,25 +496,6 @@
       r("The style block also styles at least 2 non-link tags (like h2 or p) so the page is styled from the head", function (c) {
         var tags = {}; c.sheetRules.forEach(function (rl) { if (/^[a-z][a-z0-9]*$/i.test(rl.selector.trim())) tags[rl.selector.trim().toLowerCase()] = 1; }); return Object.keys(tags).length >= 2;
       }, "Try h1 { ... } and h2 { ... }."),
-      r("Has an h1, an h2, and an h3 in outline order", function (c) {
-        if (!c.has("h1") || !c.has("h2") || !c.has("h3")) return false;
-        var hs = []; (function w(n) { n.children.forEach(function (x) { if (x.tag === "#text") return; if (/^h[1-6]$/.test(x.tag)) hs.push(+x.tag.charAt(1)); w(x); }); })(c.tree);
-        if (hs[0] !== 1) return false; for (var i = 1; i < hs.length; i++) if (hs[i] > hs[i - 1] + 1) return false; return true;
-      }),
-      r("Uses <p>, <strong>, and <em>", function (c) { return c.has("p") && (c.has("strong") || c.has("b")) && (c.has("em") || c.has("i")); }),
-      r("Uses <br> and <hr> (never closed)", function (c) { return c.has("br") && c.has("hr"); }),
-      r("Has a <ul> and an <ol>, each with at least 3 <li> items and only li directly inside", function (c) {
-        var l = c.all("ul").concat(c.all("ol")); return c.has("ul") && c.has("ol") && l.every(function (x) { return x.children.filter(function (n) { return n.tag === "li"; }).length >= 3 && x.children.every(function (n) { return n.tag === "li"; }); });
-      }),
-      r("Uses list-style-type on a <ul> or <ol>", function (c) { return c.prop("list-style-type") > 0; }),
-      r("Uses a <span> with a style attribute (an inline exception)", function (c) { return c.all("span").some(function (s) { return s.attrs.style !== undefined; }); }),
-      r("Uses color, background-color, and font-size in pixels", function (c) { return c.prop("color") > 0 && c.prop("background-color") > 0 && c.propValues("font-size").some(function (v) { return /^\d+(\.\d+)?px$/i.test(v); }); }),
-      r("Uses text-align or text-transform", function (c) { return c.prop("text-align") + c.prop("text-transform") > 0; }),
-      r("Uses at least 2 different font families (serif, sans-serif, monospace)", function (c) {
-        var seen = {}; c.propValues("font-family").forEach(function (v) { var m = /(^|[\s,'"])(serif|sans-serif|monospace)\s*$/i.exec(v.replace(/;$/, "")); if (m) seen[m[2].toLowerCase()] = 1; }); return Object.keys(seen).length >= 2;
-      }, "Try serif for headings, sans-serif for the body, and monospace for the footer."),
-      r("Uses the style attribute on at least 2 different tags (your inline exceptions)", function (c) { var els = []; c.inline.forEach(function (d) { if (els.indexOf(d.el) < 0) els.push(d.el); }); return els.length >= 2; }, "Example: a colored span, and a footer paragraph."),
-      r("Uses the border shortcut: thickness, style, color (like 2px solid black)", function (c) { return ["border", "border-top", "border-bottom", "border-left", "border-right"].some(function (p) { return anyValue(c, p, function (v) { return /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(v); }); }); }),
       r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
     "6.7": { name: "Images (Clickable, Resized)", rules: [
@@ -479,29 +525,22 @@
       r("Uses border-radius on an image", function (c) { return c.all("img").some(function (i) { return c.inline.some(function (d) { return d.el === i && d.prop === "border-radius"; }); }) || c.selector("img").some(function (rl) { return rl.decls.some(function (d) { return d.prop === "border-radius"; }); }); }),
       r("Uses a border on an image", function (c) { return c.all("img").some(function (i) { return c.inline.some(function (d) { return d.el === i && /^border/.test(d.prop); }); }) || c.selector("img").some(function (rl) { return rl.decls.some(function (d) { return /^border/.test(d.prop); }); }); }),
       r("Uses display: block on at least one image (so it sits on its own line)", function (c) { return c.all("img").some(function (i) { return c.inline.some(function (d) { return d.el === i && d.prop === "display" && /^block$/i.test(d.value.replace(/;$/, "").trim()); }); }) || c.selector("img").some(function (rl) { return rl.decls.some(function (d) { return d.prop === "display" && /^block$/i.test(d.value.replace(/;$/, "").trim()); }); }); }, "Images are inline by default. display: block puts one on its own line."),
-      r("Has an <h1> and at least 2 more headings, and at least 3 <p> paragraphs", function (c) { var n = 0; ["h1", "h2", "h3", "h4", "h5", "h6"].forEach(function (h) { n += c.count(h); }); return c.has("h1") && n >= 3 && c.count("p") >= 3; }),
-      r("Has an internal <style> block in the head with at least 2 rules", function (c) { return c.all("style").some(function (s) { return !!c.ancestor(s, ["head"]); }) && c.sheetRules.length >= 2; }),
-      r("Uses text-align: center on something", function (c) { return c.propValues("text-align").some(function (v) { return /center/i.test(v); }); })
+      r("Has an internal <style> block in the head with at least 2 rules", function (c) { return c.all("style").some(function (s) { return !!c.ancestor(s, ["head"]); }) && c.sheetRules.length >= 2; })
     ] },
     "7.1": { name: "Box Model", rules: [
-      r("Uses padding", function (c) { return c.prop("padding") + c.prop("padding-top") + c.prop("padding-left") + c.prop("padding-right") + c.prop("padding-bottom") > 0; }),
-      r("Uses margin", function (c) { return c.prop("margin") + c.prop("margin-top") + c.prop("margin-left") + c.prop("margin-right") + c.prop("margin-bottom") > 0; }),
-      r("Uses a border with a valid style (solid, dashed, dotted, double, groove, ridge)", function (c) { return anyValue(c, "border", function (v) { return /(solid|dashed|dotted|double|groove|ridge)/i.test(v); }); }),
       r("Padding, border, and margin are all used on the same element", function (c) {
         var by = new Map(); c.inline.forEach(function (d) { var s = by.get(d.el) || {}; if (/^padding/.test(d.prop)) s.p = 1; if (/^margin/.test(d.prop)) s.m = 1; if (/^border/.test(d.prop)) s.b = 1; by.set(d.el, s); });
         var ok = false; by.forEach(function (s) { if (s.p && s.m && s.b) ok = true; }); return ok;
-      })
+      }),
+r("Uses padding at least 2 times", function (c) { return TESTS["p-pad"](c) >= 2; }, "Padding is space inside the border."),
+r("Uses margin at least 2 times", function (c) { return TESTS["p-mar"](c) >= 2; }, "Margin is space outside the border.")
     ] },
     "7.2": { name: "Colors (Named Colors and Hex)", rules: [
-      r("Uses at least one named color (like tomato or navy)", function (c) { return colorTokens(c).some(function (t) { return NAMED[t.toLowerCase()]; }); }),
-      r("Uses at least one hex color (like #FF6347)", function (c) { return colorTokens(c).some(function (t) { return HEX.test(t); }); }),
       r("All hex codes are written correctly (# plus 3 or 6 characters)", function (c) { var hs = colorTokens(c).filter(function (t) { return /^#/.test(t); }); return hs.length > 0 && hs.every(function (t) { return HEX.test(t); }); }),
-      r("Uses color AND background-color", function (c) { return c.prop("color") > 0 && c.prop("background-color") > 0; })
+r("Uses at least 2 hex colors (like #FF6347)", function (c) { return TESTS["v-hex"](c) >= 2; }, "A hex code is # and then 3 or 6 characters.")
     ] },
     "7.3": { name: "Display (Block vs Inline)", rules: [
-      r("Uses the display property", function (c) { return c.prop("display") > 0; }),
-      r("Uses display: inline-block on something that is normally a block", function (c) { return c.inline.some(function (d) { return d.prop === "display" && /inline-block/.test(d.value) && ["p", "div", "h1", "h2", "h3", "li"].indexOf(d.el.tag) > -1; }); }),
-      r("Uses display: block on something that is normally inline (span, a, or strong)", function (c) { return c.inline.some(function (d) { return d.prop === "display" && /^block/.test(d.value) && ["span", "a", "strong", "em", "img"].indexOf(d.el.tag) > -1; }); })
+r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-ib"](c) >= 2; }, "Inline-block sits in a row but keeps a width and height.")
     ] },
     "7.4": { name: "Div Tag", rules: [
       r("Has a <div> that contains other tags", function (c) { return c.all("div").some(function (d) { return d.children.some(function (n) { return n.tag !== "#text"; }); }); }),
@@ -565,20 +604,15 @@
 
   LESSONS["8.1"] = { name: "Intro to External CSS + Classes", rules: [
     r("index.html links your style.css file inside the <head>", function (c) { return !!c.cssLinkInHead; }, "Use the style.css tab for your CSS, then link it from the head."),
-    r("style.css has at least 3 rules", function (c) { return c.fileRules.length >= 3; }),
-    r("At least one element has a class", function (c) { return els(c).some(function (n) { return classesOf(n).length > 0; }); }),
-    r("style.css has a .class rule that matches a class used in your page", function (c) {
-      var used = {}; els(c).forEach(function (n) { classesOf(n).forEach(function (k) { used[k] = 1; }); });
-      return c.fileRules.some(function (rl) { return selParts(rl).some(function (s) { var m = /^\.([\w-]+)/.exec(s); return m && used[m[1]]; }); });
-    }, "A class rule starts with a dot, like .highlight, and the element needs class=\"highlight\".")
+    r("Styling lives in style.css: no more than 2 style attributes in index.html", function (c) { return TESTS["attr-style"](c) <= 2; }, "Move your styles out of the tags and into rules in style.css.", false, true),
+    r("style.css has rules for at least 4 different tags", function (c) { return TESTS["s-tag"](c) >= 4; }, "Rules like body, h1, h2, p, ul, a, and table."),
+    r("At least 2 elements have a class", function (c) { return TESTS["attr-class"](c) >= 2; }),
+    r("style.css has .class rules for at least 2 different classes used in your page", function (c) { return TESTS["s-class"](c) >= 2; }, "A class rule starts with a dot, like .highlight, and the element needs class=\"highlight\".")
   ] };
   LESSONS["8.2"] = { name: "CSS by ID", rules: [
-    r("At least one element has an id", function (c) { return els(c).some(function (n) { return !!String(n.attrs.id || "").trim(); }); }),
-    r("style.css has an #id rule that matches an id used in your page", function (c) {
-      var ids = {}; els(c).forEach(function (n) { if (n.attrs.id) ids[String(n.attrs.id).trim()] = 1; });
-      return c.fileRules.some(function (rl) { return selParts(rl).some(function (s) { var m = /^#([\w-]+)/.exec(s); return m && ids[m[1]]; }); });
-    }, "An id rule starts with #, like #banner, and the element needs id=\"banner\"."),
-    r("Every id is used only once", function (c) { var seen = {}, ok = true; els(c).forEach(function (n) { var v = String(n.attrs.id || "").trim(); if (!v) return; if (seen[v]) ok = false; seen[v] = 1; }); return ok && Object.keys(seen).length > 0; }, "An id is one-of-a-kind. Use a class when many elements share a style.")
+    r("At least 2 elements have an id", function (c) { return TESTS["attr-id"](c) >= 2; }),
+    r("style.css has #id rules for at least 2 different ids used in your page", function (c) { return TESTS["s-id"](c) >= 2; }, "An id rule starts with #, like #banner, and the element needs id=\"banner\"."),
+    r("Every id is used only once", function (c) { var seen = {}, ok = true, any = false; els(c).forEach(function (n) { var v = String(n.attrs.id || "").trim(); if (!v) return; any = true; if (seen[v]) ok = false; seen[v] = 1; }); return any && ok; }, "An id belongs to exactly one element.")
   ] };
   LESSONS["8.3"] = { name: "Combining Selectors + Specificity", rules: [
     r("A class rule overrides a tag rule on the same element (both set the same property)", function (c) {
@@ -588,8 +622,9 @@
         return tagRules.some(function (t) { return t.decls.some(function (d) { return clsRules.some(function (k) { return declares(k, d.prop); }); }); });
       });
     }, "Example idea: a rule for all paragraphs sets a color, and a class rule gives one special paragraph a different color."),
-    r("An element uses two classes at once", function (c) { return els(c).some(function (n) { return classesOf(n).length >= 2; }); }, "Separate the two class names with a space inside one class attribute."),
-    r("Both of that element's classes have rules in style.css", function (c) {
+    r("At least 2 elements each use two classes at once", function (c) { return TESTS["attr-twoclass"](c) >= 2; }, "Separate the two class names with a space inside one class attribute."),
+    r("style.css has at least 2 combined selectors (like p.note or ul li)", function (c) { return TESTS["s-combo"](c) >= 2; }, "A tag and a class stuck together (p.note), or one tag inside another (ul li)."),
+    r("Both classes on a two-class element have rules in style.css", function (c) {
       return els(c).some(function (n) {
         var ks = classesOf(n); if (ks.length < 2) return false;
         return ks.filter(function (k) { return ruleFor(c, function (s) { return s === "." + k; }).length > 0; }).length >= 2;
@@ -597,20 +632,21 @@
     })
   ] };
   LESSONS["8.4"] = { name: "Pseudo-classes + Hover Effects", rules: [
-    r("Has a :hover rule that changes at least one property", function (c) { return ruleFor(c, function (s) { return /:hover\b/.test(s); }).some(function (rl) { return rl.decls.length > 0; }); }),
-    r("Uses transition so the hover change is smooth", function (c) { return c.prop("transition") > 0 || c.prop("transition-duration") > 0; }, "Put the transition on the normal rule (not the :hover one) so it animates both ways."),
-    r("The :hover is on a button, link, or card", function (c) { return ruleFor(c, function (s) { return /:hover\b/.test(s) && /(^|[\s>+~])(a|button)\b|\.[\w-]*(btn|button|card|link)[\w-]*/i.test(s); }).length > 0; })
+    r("Has at least 2 :hover rules that each change something", function (c) { return ruleFor(c, function (s) { return /:hover\b/.test(s); }).filter(function (rl) { return rl.decls.length > 0; }).length >= 2; }, "Try one on links and one on buttons or cards."),
+    r("Uses transition on at least 2 rules so the hover changes are smooth", function (c) { return TESTS["p-trans"](c) >= 2; }, "Put the transition on the normal rule (not the :hover one) so it animates both ways."),
+    r("A :hover rule is on a button, link, or card", function (c) { return ruleFor(c, function (s) { return /:hover\b/.test(s) && /(^|[\s>+~])(a|button)\b|\.[\w-]*(btn|button|card|link)[\w-]*/i.test(s); }).length > 0; })
   ] };
   LESSONS["8.5"] = { name: "Flexbox Basics", rules: [
-    r("One rule makes a section a flex container (display: flex)", function (c) { return c.sheetRules.some(function (rl) { return /^(inline-)?flex$/i.test(valueOf(rl, "display")); }); }),
-    r("That same rule arranges the children with justify-content and/or align-items", function (c) { return c.sheetRules.some(function (rl) { return /^(inline-)?flex$/i.test(valueOf(rl, "display")) && (declares(rl, "justify-content") || declares(rl, "align-items")); }); }),
-    r("The flex container is a class or id (not the whole body)", function (c) { return c.sheetRules.some(function (rl) { return /^(inline-)?flex$/i.test(valueOf(rl, "display")) && selParts(rl).some(function (s) { return /^[.#]/.test(s); }); }); })
+    r("At least 2 different sections are flex containers (display: flex)", function (c) { return TESTS["p-flex"](c) >= 2; }, "Two class rules, each with display: flex."),
+    r("Each flex container also sets justify-content or align-items", function (c) { var f = c.sheetRules.filter(function (rl) { return /^(inline-)?flex$/i.test(valueOf(rl, "display")); }); return f.length >= 2 && f.every(function (rl) { return declares(rl, "justify-content") || declares(rl, "align-items"); }); }),
+    r("The flex containers are classes or ids (not the whole body)", function (c) { return c.sheetRules.filter(function (rl) { return /^(inline-)?flex$/i.test(valueOf(rl, "display")) && selParts(rl).some(function (s) { return /^[.#]/.test(s); }); }).length >= 2; })
   ] };
   LESSONS["8.6"] = { name: "CSS Grid Basics", rules: [
-    r("One rule makes a section a grid (display: grid)", function (c) { return c.sheetRules.some(function (rl) { return /^(inline-)?grid$/i.test(valueOf(rl, "display")); }); }),
-    r("That same rule sets grid-template-columns", function (c) { return c.sheetRules.some(function (rl) { return /^(inline-)?grid$/i.test(valueOf(rl, "display")) && declares(rl, "grid-template-columns"); }); }),
-    r("That same rule sets a gap", function (c) { return c.sheetRules.some(function (rl) { return /^(inline-)?grid$/i.test(valueOf(rl, "display")) && (declares(rl, "gap") || declares(rl, "grid-gap") || declares(rl, "column-gap")); }); })
+    r("At least 2 different sections are grids (display: grid)", function (c) { return TESTS["p-grid"](c) >= 2; }, "Two class rules, each with display: grid."),
+    r("Each grid sets grid-template-columns", function (c) { var g = c.sheetRules.filter(function (rl) { return /^(inline-)?grid$/i.test(valueOf(rl, "display")); }); return g.length >= 2 && g.every(function (rl) { return declares(rl, "grid-template-columns"); }); }),
+    r("Each grid sets a gap", function (c) { var g = c.sheetRules.filter(function (rl) { return /^(inline-)?grid$/i.test(valueOf(rl, "display")); }); return g.length >= 2 && g.every(function (rl) { return declares(rl, "gap") || declares(rl, "grid-gap") || declares(rl, "column-gap") || declares(rl, "row-gap"); }); })
   ] };
+
   LESSONS["8.7"] = { name: "Unit Test Website (CSS)", rules: [], testOf: ["8."] };
 
   LESSONS["9.1"] = { name: "Setting Up Bootstrap", rules: [
@@ -670,6 +706,7 @@
         out.push({ id: l + "-" + j, lesson: l, label: rule.label, tip: rule.tip, test: rule.test, isNew: isNew });
       });
     });
+    reviewRules(lesson).forEach(function (rr) { if (!out.some(function (x) { return x.id === rr.id; })) out.push(rr); });
     return out;
   }
 
@@ -705,6 +742,6 @@
     if (/<head\b[^>]*>/i.test(html)) return html.replace(/<head\b[^>]*>/i, function (m) { return m + BASE_STYLE; });
     return BASE_STYLE + html;
   }
-  var API = { quality: function (src) { return quality(analyze(String(src || ""))); }, analyze: analyze, check: check, openTags: openTags, previewDoc: previewDoc, VOID: VOID, NAMED: NAMED, LESSONS: LESSONS, ORDER: ORDER, TOTAL_POINTS: TOTAL_POINTS };
+  var API = { TESTS: TESTS, REVIEW_MIN: REVIEW_MIN, quality: function (src) { return quality(analyze(String(src || ""))); }, analyze: analyze, check: check, openTags: openTags, previewDoc: previewDoc, VOID: VOID, NAMED: NAMED, LESSONS: LESSONS, ORDER: ORDER, TOTAL_POINTS: TOTAL_POINTS };
   if (typeof module !== "undefined" && module.exports) module.exports = API; else root.HTMLCheck = API;
 })(typeof window !== "undefined" ? window : globalThis);
