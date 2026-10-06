@@ -241,7 +241,8 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
 .exhead h3{margin:0;flex:1;min-width:200px}
 .exhead select{background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:7px 10px;font-weight:600;max-width:100%}
 .exnote{font-size:12.5px;color:var(--soft);margin:2px 0 10px}
-#exFrame{flex:1;width:100%;border:1px solid var(--rule);border-radius:8px;background:#fff;min-height:0}
+.exwrap{flex:1;min-height:0;overflow:auto;border:1px solid var(--rule);border-radius:8px;background:#fff}
+#exImg{display:block;width:100%;max-width:960px;height:auto;margin:0 auto}
 </style>
 </head>
 <body>
@@ -325,7 +326,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
 <div class="modal" id="mEx"><div class="box exbox">
   <div class="exhead"><h3>What yours might look like</h3><select id="exSel" aria-label="Choose an example" style="display:none"></select><button class="btn" id="exClose">Close</button></div>
   <div class="exnote" id="exNote">This is only an idea. Your page uses your own topic and words, and it still has to follow the steps in the Assignment tab.</div>
-  <iframe id="exFrame" title="Example page" sandbox=""></iframe>
+  <div class="exwrap"><img id="exImg" alt="" draggable="false"></div>
 </div></div>
 <div class="toast" id="toast"></div>
 
@@ -1122,7 +1123,7 @@ function hasLeft() { return !!(ansSchema() || wtSchema()); }
 /* "See an example": a picture of a finished page (never the code), with a dropdown when an assignment has several themes */
 function exData() { return (window.U7_EXAMPLES || {})[S.lesson] || null; }
 function exUpdate() { var b = $("exBtn"); if (b) b.style.display = exData() && ansSchema() ? "" : "none"; }
-function exShow(i) { var d = exData(); if (!d) return; var v = d.variants[i] || d.variants[0]; $("exFrame").srcdoc = v.html; $("exSel").value = String(i); }
+function exShow(i) { var d = exData(); if (!d) return; var v = d.variants[i] || d.variants[0]; $("exImg").alt = "Example: " + v.name; $("exImg").src = v.img; $("exSel").value = String(i); }
 function exOpen() {
   var d = exData(); if (!d) return;
   var sel = $("exSel"); sel.innerHTML = d.variants.map(function (v, i) { return '<option value="' + i + '">' + esc(v.name) + "</option>"; }).join("");
@@ -1130,7 +1131,7 @@ function exOpen() {
   $("exNote").textContent = "This is only an idea. Your page uses your own topic and words, and it still has to follow the steps in the Assignment tab." + (d.note ? " " + d.note : "");
   exShow(0); $("mEx").classList.add("show"); sel.focus();
 }
-function exClose() { $("mEx").classList.remove("show"); $("exFrame").srcdoc = ""; }
+function exClose() { $("mEx").classList.remove("show"); $("exImg").removeAttribute("src"); }
 $("exBtn").addEventListener("click", exOpen);
 $("exClose").addEventListener("click", exClose);
 $("exSel").addEventListener("change", function () { exShow(+this.value); });
