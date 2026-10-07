@@ -195,7 +195,10 @@ ta.addEventListener("scroll", function () { gut.scrollTop = ta.scrollTop; var h 
 function toggleComment() {
   var v = ta.value, a = ta.selectionStart, b = ta.selectionEnd, ls = v.lastIndexOf("\n", a - 1) + 1, le = v.indexOf("\n", b > a && v.charAt(b - 1) === "\n" ? b - 1 : b); if (le < 0) le = v.length;
   var lines = v.slice(ls, le).split("\n"), real = lines.filter(function (l) { return l.trim(); }), all = real.length && real.every(function (l) { return /^\s*#/.test(l); });
-  var out = lines.map(function (l) { if (!l.trim()) return l; return all ? l.replace(/^(\s*)# ?/, "$1") : "# " + l; }).join("\n");
+  /* turning comments back on only touches lines that look like code, so heading comments such as "# Step 2" stay comments */
+  var looksCode = function (l) { return /^\s*#\s?\s*([A-Za-z_]\w*(\[[^\]]*\])?\s*([-+*\/%]?=[^=]|\()|[A-Za-z_]\w*\.\w+\(|(if|elif|for|while|def|return|import|from|else|try|except|print|input)\b)/.test(l); };
+  var anyCode = lines.some(looksCode);
+  var out = lines.map(function (l) { if (!l.trim()) return l; if (all) return (!anyCode || looksCode(l)) ? l.replace(/^(\s*)# ?/, "$1") : l; return /^\s*#/.test(l) ? l : "# " + l; }).join("\n");
   ta.value = v.slice(0, ls) + out + v.slice(le); ta.selectionStart = ls; ta.selectionEnd = ls + out.length; gutter(); ta.dispatchEvent(new Event("input"));
 }
 ta.addEventListener("keydown", function (e) {
