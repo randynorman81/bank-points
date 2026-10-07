@@ -31,6 +31,10 @@ body.noass #paneAss,body.noass #split0{display:none}
 #assCount b{color:var(--ok)}
 #assScore{font:700 12px "JetBrains Mono",monospace;color:var(--soft);margin-bottom:4px}
 #assScore b{font-size:15px;color:var(--acc)}
+#assMiss{display:none;margin:2px 0 4px;font-size:12.5px}
+#assMiss.show{display:block}
+#assMiss summary{cursor:pointer;color:#FCD34D}
+#assMiss ul{margin:6px 0 2px;padding-left:18px}#assMiss li{margin:3px 0;color:var(--ink)}#assMiss li small{color:var(--soft)}
 #assScore small{font:500 11px Manrope,sans-serif;color:var(--soft)}
 #assHead .prog{height:8px;background:#0D1220;border-radius:6px;overflow:hidden}
 #assHead .prog i{display:block;height:100%;background:var(--ok);width:0;transition:width .2s}
@@ -144,7 +148,7 @@ body.karel #karel{display:flex}
 <main id="main">
   <section class="pane" id="paneAss">
     <h2 id="assTitle">Assignment</h2>
-    <div id="assHead"><div id="assCount"></div><div id="assScore"></div><div class="prog"><i id="assProg"></i></div></div>
+    <div id="assHead"><div id="assCount"></div><div id="assScore"></div><details id="assMiss"><summary id="assMissSum"></summary><ul id="assMissList"></ul></details><div class="prog"><i id="assProg"></i></div></div>
     <div id="assBody"></div>
   </section>
   <div class="split" id="split0" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize the assignment column. Double-click to reset."></div>
@@ -783,14 +787,20 @@ var scoreT = 0, scoreSeq = 0;
 function updateScore() {
   clearTimeout(scoreT);
   var A = (window.PY_ASSIGN || {})[slot], el = $("assScore");
-  if (!A || slot === "free") { el.innerHTML = ""; return; }
+  if (!A || slot === "free") { el.innerHTML = ""; $("assMiss").className = ""; return; }
   scoreT = setTimeout(function () {
     var seq = ++scoreSeq, body = { action: "score", slot: slot, code: ta.value }, tp = ""; try { tp = /[?&]teacher/.test(location.search) ? (sessionStorage.getItem("pypin") || "") : ""; } catch (e) {}
     if (tp) body.pin = tp;
     fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(function (r) { return r.json(); }).then(function (j) {
       if (seq !== scoreSeq || !j || !j.ok) return;
-      if (j.pct === null || j.pct === undefined) { el.innerHTML = j.tooLong ? "<small>Your code is too long to score here.</small>" : ""; return; }
+      if (j.pct === null || j.pct === undefined) { el.innerHTML = j.tooLong ? "<small>Your code is too long to score here.</small>" : ""; $("assMiss").className = ""; return; }
       el.innerHTML = "Auto score: <b>" + j.pct + " / 100</b> <small>It checks that the required pieces are in your code. Your teacher also reads your code and comments.</small>";
+      var miss = j.missing || [], box = $("assMiss");
+      if (!miss.length) { box.className = "show"; $("assMissSum").textContent = "All the checks are met. Nice work!"; $("assMissList").innerHTML = ""; }
+      else {
+        box.className = "show"; $("assMissSum").textContent = miss.length + " thing" + (miss.length === 1 ? "" : "s") + " still missing (click to see)";
+        $("assMissList").innerHTML = miss.map(function (m) { return "<li>" + escA(m.label) + " <small>(you have " + m.have + ", need " + m.need + ")</small></li>"; }).join("");
+      }
     }).catch(function () {});
   }, 900);
 }
