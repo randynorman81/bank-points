@@ -145,7 +145,7 @@ body.karel #karel{display:flex}
     <div class="edwrap"><pre id="gut">1</pre><div class="edbox"><pre id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Python code"></textarea></div></div>
     <div id="kpop" role="dialog" aria-label="What this color means"></div>
     <div class="teach" id="teach"></div>
-    <div class="tip"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> runs your code. <kbd>Tab</kbd> indents. Click any chip in the key to learn about it. Your work saves in this browser as you type.</div>
+    <div class="tip"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> runs your code. <kbd>Tab</kbd> indents. Click any chip in the key to learn about it. <kbd>Ctrl</kbd> + <kbd>/</kbd> comments out the selected lines. Your work saves in this browser as you type.</div>
   </section>
   <section class="pane">
     <div id="karel">
@@ -191,8 +191,16 @@ function loadCode() { var v = lsGet(codeKey()); ta.value = v !== null ? v : star
 var saveT = 0;
 ta.addEventListener("input", function () { gutter(); clearTimeout(saveT); saveT = setTimeout(function () { lsSet(codeKey(), ta.value); flash("Saved"); }, 500); });
 ta.addEventListener("scroll", function () { gut.scrollTop = ta.scrollTop; var h = $("hl"); h.scrollTop = ta.scrollTop; h.scrollLeft = ta.scrollLeft; });
+/* Ctrl + /  comments out (or un-comments) every selected line, so students keep their work instead of deleting it */
+function toggleComment() {
+  var v = ta.value, a = ta.selectionStart, b = ta.selectionEnd, ls = v.lastIndexOf("\n", a - 1) + 1, le = v.indexOf("\n", b > a && v.charAt(b - 1) === "\n" ? b - 1 : b); if (le < 0) le = v.length;
+  var lines = v.slice(ls, le).split("\n"), real = lines.filter(function (l) { return l.trim(); }), all = real.length && real.every(function (l) { return /^\s*#/.test(l); });
+  var out = lines.map(function (l) { if (!l.trim()) return l; return all ? l.replace(/^(\s*)# ?/, "$1") : "# " + l; }).join("\n");
+  ta.value = v.slice(0, ls) + out + v.slice(le); ta.selectionStart = ls; ta.selectionEnd = ls + out.length; gutter(); ta.dispatchEvent(new Event("input"));
+}
 ta.addEventListener("keydown", function (e) {
-  if (e.key === "Tab") { e.preventDefault(); var a = ta.selectionStart, b = ta.selectionEnd; ta.value = ta.value.slice(0, a) + "    " + ta.value.slice(b); ta.selectionStart = ta.selectionEnd = a + 4; gutter(); }
+  if ((e.ctrlKey || e.metaKey) && (e.key === "/" || e.code === "Slash")) { e.preventDefault(); toggleComment(); }
+  else if (e.key === "Tab") { e.preventDefault(); var a = ta.selectionStart, b = ta.selectionEnd; ta.value = ta.value.slice(0, a) + "    " + ta.value.slice(b); ta.selectionStart = ta.selectionEnd = a + 4; gutter(); }
   else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run(); }
   else if (e.key === "Enter") {
     var v = ta.value, p = ta.selectionStart, ls = v.lastIndexOf("\n", p - 1) + 1, line = v.slice(ls, p), ind = (line.match(/^[ ]*/) || [""])[0];
