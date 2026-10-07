@@ -774,7 +774,7 @@ if (lsGet("py:ass") === "0") setAssOpen(false);
    GOOGLE SIGN-IN, CLOUD SAVE, AND SUBMIT (same school-account sign-in as the HTML editor)
    ===================================================================================== */
 var CRED = null, USER = "", MY = {}, lastCloud = "", lastOut = "", CLOUD = null;
-function slotLabel(id) { var A = window.PY_ASSIGN && window.PY_ASSIGN[id]; return id === "free" ? "Practice (not graded)" : "Assignment " + id.slice(1) + (A && A.title ? ": " + A.title : ""); }
+function slotLabel(id) { var A = window.PY_ASSIGN && window.PY_ASSIGN[id]; return id === "free" ? "Practice (not graded)" : "Assignment " + id.slice(1) + (A && A.title ? ": " + A.title : "") + (A && A.live === false ? " [DRAFT]" : ""); }
 function buildSlots() {
   var h = ""; ["free"].concat(Array.from({ length: 30 }, function (_, i) { return "a" + (i + 1); })).forEach(function (id) {
     if (id !== "free" && !MY[id] && id !== slot && !(window.PY_ASSIGN && window.PY_ASSIGN[id])) return;
@@ -875,6 +875,17 @@ fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, bo
   if (!j || !j.ok) return; window.PY_ASSIGN = window.PY_ASSIGN || {}; Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
   buildSlots(); renderAssignment();
 }).catch(function () {});
+/* teacher preview: open the editor with ?teacher to see unpublished drafts (needs the teacher PIN) */
+if (/[?&]teacher/.test(location.search)) {
+  var tpin = ""; try { tpin = sessionStorage.getItem("pypin") || ""; } catch (e) {}
+  if (!tpin) { tpin = prompt("Teacher PIN to preview draft assignments:") || ""; }
+  if (tpin) fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "adminAssignments", pin: tpin }) }).then(function (r) { return r.json(); }).then(function (j) {
+    if (!j || !j.ok) { alert((j && j.error) || "Could not load drafts"); try { sessionStorage.removeItem("pypin"); } catch (e) {} return; }
+    try { sessionStorage.setItem("pypin", tpin); } catch (e) {}
+    window.PY_ASSIGN = window.PY_ASSIGN || {}; Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
+    buildSlots(); renderAssignment(); statusEl.textContent = "Teacher preview: drafts shown";
+  });
+}
 
 /* ---------- Python / Karel mode ---------- */
 function setMode(m) {

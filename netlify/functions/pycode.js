@@ -136,7 +136,7 @@ async function adminSetAssignment(body) {
   if (!goodSlot(body.slot) || body.slot === "free") return { error: "Unknown assignment" };
   const title = String(body.title || "").slice(0, 120);
   if (!title || !Array.isArray(body.blocks) || !body.blocks.length) return { error: "Needs a title and blocks" };
-  const text = JSON.stringify({ title, blocks: body.blocks, publishedAt: now() });
+  const text = JSON.stringify({ title, blocks: body.blocks, live: body.live !== false, publishedAt: now() });
   if (text.length > 120000) return { error: "That assignment is too big" };
   await store().set("assign:" + body.slot, text);
   return { ok: true, slot: body.slot, title };
@@ -146,9 +146,9 @@ async function adminDeleteAssignment(body) {
   await store().delete("assign:" + body.slot);
   return { ok: true };
 }
-async function publicAssignments() {
+async function publicAssignments(all) {
   const out = {};
-  for (const k of await listPrefix("assign:")) { const v = await store().get(k, { type: "json" }); if (v) out[k.slice(7)] = v; }
+  for (const k of await listPrefix("assign:")) { const v = await store().get(k, { type: "json" }); if (v && (all || v.live !== false)) out[k.slice(7)] = v; }
   return { ok: true, assignments: out };
 }
 
@@ -174,11 +174,12 @@ export default async (req) => {
     try { body = await req.json(); } catch (e) { return ok({ error: "Malformed request" }); }
     const action = body.action;
 
-    if (["adminList", "adminCounts", "adminGrade", "adminDelete", "adminSetAssignment", "adminDeleteAssignment"].indexOf(action) > -1) {
+    if (["adminList", "adminCounts", "adminGrade", "adminDelete", "adminSetAssignment", "adminDeleteAssignment", "adminAssignments"].indexOf(action) > -1) {
       if (!isAdmin(body)) return ok({ error: "Invalid PIN" });
       if (action === "adminList") return ok(await adminList(body));
       if (action === "adminCounts") return ok(await adminCounts());
       if (action === "adminDelete") return ok(await adminDelete(body));
+      if (action === "adminAssignments") return ok(await publicAssignments(true));
       if (action === "adminSetAssignment") return ok(await adminSetAssignment(body));
       if (action === "adminDeleteAssignment") return ok(await adminDeleteAssignment(body));
       return ok(await adminGrade(body));
