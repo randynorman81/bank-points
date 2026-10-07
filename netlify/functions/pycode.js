@@ -131,6 +131,27 @@ async function adminGrade(body) {
   return { ok: true, teacher: rec.teacher };
 }
 
+// Teacher-published assignment instructions (drafts live outside the repo; the publish script uploads them).
+async function adminSetAssignment(body) {
+  if (!goodSlot(body.slot) || body.slot === "free") return { error: "Unknown assignment" };
+  const title = String(body.title || "").slice(0, 120);
+  if (!title || !Array.isArray(body.blocks) || !body.blocks.length) return { error: "Needs a title and blocks" };
+  const text = JSON.stringify({ title, blocks: body.blocks, publishedAt: now() });
+  if (text.length > 120000) return { error: "That assignment is too big" };
+  await store().set("assign:" + body.slot, text);
+  return { ok: true, slot: body.slot, title };
+}
+async function adminDeleteAssignment(body) {
+  if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
+  await store().delete("assign:" + body.slot);
+  return { ok: true };
+}
+async function publicAssignments() {
+  const out = {};
+  for (const k of await listPrefix("assign:")) { const v = await store().get(k, { type: "json" }); if (v) out[k.slice(7)] = v; }
+  return { ok: true, assignments: out };
+}
+
 async function adminDelete(body) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
   const email = enc(String(body.email || "").toLowerCase());
@@ -153,14 +174,17 @@ export default async (req) => {
     try { body = await req.json(); } catch (e) { return ok({ error: "Malformed request" }); }
     const action = body.action;
 
-    if (["adminList", "adminCounts", "adminGrade", "adminDelete"].indexOf(action) > -1) {
+    if (["adminList", "adminCounts", "adminGrade", "adminDelete", "adminSetAssignment", "adminDeleteAssignment"].indexOf(action) > -1) {
       if (!isAdmin(body)) return ok({ error: "Invalid PIN" });
       if (action === "adminList") return ok(await adminList(body));
       if (action === "adminCounts") return ok(await adminCounts());
       if (action === "adminDelete") return ok(await adminDelete(body));
+      if (action === "adminSetAssignment") return ok(await adminSetAssignment(body));
+      if (action === "adminDeleteAssignment") return ok(await adminDeleteAssignment(body));
       return ok(await adminGrade(body));
     }
 
+    if (action === "assignments") return ok(await publicAssignments());
     const user = await verifyGoogleToken(body.credential);
     if (!user) return ok({ error: "Please sign in with your school Google account.", needLogin: true });
     if (action === "mine") return ok(await mine(body, user));

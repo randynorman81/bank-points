@@ -597,8 +597,12 @@ function explainError(last, full) {
     return "This line is indented, but nothing above it opens a block.\nFix: remove the extra spaces at the start of the line so it lines up with the line above.";
   if (/^IndentationError: unindent does not match/.test(last))
     return "This line's spacing does not line up with any block above it.\nFix: use Tab for each level of indent, and make lines in the same block start in exactly the same column.";
+  if (/^SyntaxError: invalid decimal literal/.test(last))
+    return "A variable name cannot start with a digit (and numbers cannot have letters stuck to them). Python read the digits as a number and then got confused by the letters.\nFix: start the name with a letter or underscore, like  place_2nd  instead of  2nd_place.";
+  if (/^SyntaxError: cannot assign to (expression|literal|function call)/.test(last))
+    return "= stores a value into a variable name, but the left side of this = is not a plain name. Names can only have letters, digits and underscores, so a dash (my-name), a symbol, or a number on the left will not work.\nFix: use a legal variable name on the left, like  my_name.";
   if (/^SyntaxError: (invalid syntax|expected ':')/.test(last) || /^SyntaxError: expected ':'/.test(last))
-    return "Python could not read this line: it breaks a grammar rule.\nCheck: a missing colon  :  at the end of if/for/while/def/else, a missing or extra bracket or quote, = used where == is needed inside an if, or a typo in a keyword. The mistake is often on this line or the line just above.";
+    return "Python could not read this line: it breaks a grammar rule.\nCheck: a variable name with a space, symbol, or keyword in it (like  total pts  or  class ), a missing colon  :  at the end of if/for/while/def/else, a missing or extra bracket or quote, = used where == is needed inside an if, or a typo in a keyword. The mistake is often on this line or the line just above.";
   if (/^SyntaxError: '\(' was never closed|^SyntaxError: '\[' was never closed|^SyntaxError: '\{' was never closed/.test(last))
     return "You opened a bracket and never closed it. Every  (  needs a  )  and every  [  needs a  ].\nFix: count the opening and closing brackets on this line and the one above.";
   if (/^SyntaxError: unterminated string literal|^SyntaxError: EOL while scanning/.test(last))
@@ -684,7 +688,7 @@ document.addEventListener("keydown", function (e) { if (e.key === "Enter" && (e.
 function inl(t) { return escH(String(t)).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>"); }
 function renderAssignment() {
   var A = (window.PY_ASSIGN || {})[slot], body = $("assBody"), title = slotLabel(slot);
-  $("assTitle").textContent = A && A.title && slot !== "free" ? title + ": " + A.title : title;
+  $("assTitle").textContent = title;
   if (!A) { body.innerHTML = '<p class="none">Your teacher has not posted instructions for this assignment yet.</p>'; return; }
   var done = {}; try { done = JSON.parse(lsGet("py:prog:" + slot) || "{}"); } catch (e) {}
   var h = '<div class="prog"><i id="assProg"></i></div>', n = 0;
@@ -727,10 +731,10 @@ if (lsGet("py:ass") === "0") setAssOpen(false);
    GOOGLE SIGN-IN, CLOUD SAVE, AND SUBMIT (same school-account sign-in as the HTML editor)
    ===================================================================================== */
 var CRED = null, USER = "", MY = {}, lastCloud = "", lastOut = "", CLOUD = null;
-function slotLabel(id) { return id === "free" ? "Practice (not graded)" : "Assignment " + id.slice(1); }
+function slotLabel(id) { var A = window.PY_ASSIGN && window.PY_ASSIGN[id]; return id === "free" ? "Practice (not graded)" : "Assignment " + id.slice(1) + (A && A.title ? ": " + A.title : ""); }
 function buildSlots() {
   var h = ""; ["free"].concat(Array.from({ length: 30 }, function (_, i) { return "a" + (i + 1); })).forEach(function (id) {
-    if (id !== "free" && !MY[id] && id !== slot && Number(id.slice(1)) > 12) return;
+    if (id !== "free" && !MY[id] && id !== slot && !(window.PY_ASSIGN && window.PY_ASSIGN[id])) return;
     h += '<option value="' + id + '">' + slotLabel(id) + (MY[id] === "sub" ? " ✓" : "") + "</option>";
   });
   $("slot").innerHTML = h; $("slot").value = slot;
@@ -823,6 +827,11 @@ $("mGo").addEventListener("click", function () {
   }).catch(function () { b.disabled = false; alert("Could not reach the server. Check your internet and try again."); });
 });
 initGoogle();
+/* published assignment instructions come from the backend (so unpublished ones are never on the public site) */
+fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "assignments" }) }).then(function (r) { return r.json(); }).then(function (j) {
+  if (!j || !j.ok) return; window.PY_ASSIGN = window.PY_ASSIGN || {}; Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
+  buildSlots(); renderAssignment();
+}).catch(function () {});
 
 /* ---------- Python / Karel mode ---------- */
 function setMode(m) {
