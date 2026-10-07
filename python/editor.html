@@ -876,15 +876,22 @@ fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, bo
   buildSlots(); renderAssignment();
 }).catch(function () {});
 /* teacher preview: open the editor with ?teacher to see unpublished drafts (needs the teacher PIN) */
-if (/[?&]teacher/.test(location.search)) {
-  var tpin = ""; try { tpin = sessionStorage.getItem("pypin") || ""; } catch (e) {}
-  if (!tpin) { tpin = prompt("Teacher PIN to preview draft assignments:") || ""; }
-  if (tpin) fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "adminAssignments", pin: tpin }) }).then(function (r) { return r.json(); }).then(function (j) {
-    if (!j || !j.ok) { alert((j && j.error) || "Could not load drafts"); try { sessionStorage.removeItem("pypin"); } catch (e) {} return; }
-    try { sessionStorage.setItem("pypin", tpin); } catch (e) {}
-    window.PY_ASSIGN = window.PY_ASSIGN || {}; Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
-    buildSlots(); renderAssignment(); statusEl.textContent = "Teacher preview: drafts shown";
-  });
+if (/[?&]teacher/.test(location.search)) {
+  var tbar = document.createElement("div"); tbar.className = "cloud show"; tbar.style.background = "#14213D";
+  tbar.innerHTML = '<b>Teacher preview</b> <span>Enter your PIN to show the draft assignments:</span> <input type="password" id="tpin" placeholder="PIN" style="width:90px;background:#171D2B;color:#E8ECF3;border:1px solid #26304A;border-radius:6px;padding:4px 8px"> <button class="btn sm" id="tgo">Show drafts</button> <span id="tmsg"></span>';
+  var top0 = document.querySelector(".top"); top0.parentNode.insertBefore(tbar, top0.nextSibling);
+  var loadDrafts = function (pin) {
+    return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "adminAssignments", pin: pin }) }).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j || !j.ok) { $("tmsg").textContent = (j && j.error) || "Could not load drafts"; try { sessionStorage.removeItem("pypin"); } catch (e) {} return; }
+      try { sessionStorage.setItem("pypin", pin); } catch (e) {}
+      window.PY_ASSIGN = window.PY_ASSIGN || {}; Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
+      buildSlots(); renderAssignment(); $("tmsg").textContent = "Drafts loaded: " + Object.keys(j.assignments || {}).length + ". Pick one in the Assignment box.";
+    });
+  };
+  $("tgo").onclick = function () { loadDrafts($("tpin").value); };
+  $("tpin").onkeydown = function (e) { if (e.key === "Enter") $("tgo").click(); };
+  var saved = ""; try { saved = sessionStorage.getItem("pypin") || ""; } catch (e) {}
+  if (saved) loadDrafts(saved); else $("tpin").focus();
 }
 
 /* ---------- Python / Karel mode ---------- */
