@@ -118,17 +118,18 @@ function splitCode(code) {
   return { comments: comments, notes: notes, code: codeOnly.join("\n") };
 }
 function runChecks(slotId, code) {
-  var A = ASSIGN[slotId], checks = (A && A.checks) || [], sp = splitCode(code), res = [];
+  var A = ASSIGN[slotId], checks = (A && A.checks) || [], sp = splitCode(code), res = [], credit = 0;
   checks.forEach(function (c) {
     var n = 0, flags = String(c.flags || "").replace(/g/g, "");
     try {
       if (c.where === "comments" || c.where === "notes") { var re = new RegExp(c.re, flags); (c.where === "notes" ? sp.notes : sp.comments).forEach(function (l) { if (re.test(l)) n++; }); }
       else { var m = (c.where === "code" ? sp.code : String(code || "")).match(new RegExp(c.re, "g" + flags)); n = m ? m.length : 0; }
     } catch (e) { n = 0; }
+    credit += Math.min(1, n / c.min);
     res.push({ label: c.label, min: c.min, count: n, ok: n >= c.min });
   });
   var passed = res.filter(function (x) { return x.ok; }).length;
-  return { results: res, passed: passed, total: res.length, pct: res.length ? Math.round(passed * 100 / res.length) : null, comments: sp.comments.filter(function (l) { return l.trim(); }).length, kept: sp.comments.filter(function (l) { return /^\s*([A-Za-z_]\w*\s*=[^=]|print\(|input\(|[A-Za-z_]\w*\s*=\s*\w+\()/.test(l); }).length, lines: sp.code.split("\n").filter(function (l) { return l.trim(); }).length };
+  return { results: res, passed: passed, total: res.length, pct: res.length ? Math.round(credit * 100 / res.length) : null, comments: sp.comments.filter(function (l) { return l.trim(); }).length, kept: sp.comments.filter(function (l) { return /^\s*([A-Za-z_]\w*\s*=[^=]|print\(|input\(|[A-Za-z_]\w*\s*=\s*\w+\()/.test(l); }).length, lines: sp.code.split("\n").filter(function (l) { return l.trim(); }).length };
 }
 function stepTexts(slotId) {
   var A = ASSIGN[slotId], out = []; if (!A) return out;

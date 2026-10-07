@@ -191,16 +191,17 @@ function splitCode(code) {
   return { comments, notes, code: codeOnly.join("\n") };
 }
 function scoreCode(checks, code) {
-  const sp = splitCode(code); let passed = 0; const missing = [];
+  const sp = splitCode(code); let passed = 0, credit = 0; const missing = [];
   checks.forEach((c) => {
     let n = 0; const flags = String(c.flags || "").replace(/g/g, "");
     try {
       if (c.where === "comments" || c.where === "notes") { const re = new RegExp(c.re, flags); (c.where === "notes" ? sp.notes : sp.comments).forEach((l) => { if (re.test(l)) n++; }); }
       else { const m = (c.where === "code" ? sp.code : String(code || "")).match(new RegExp(c.re, "g" + flags)); n = m ? m.length : 0; }
     } catch (e) { n = 0; }
+    credit += Math.min(1, n / c.min);
     if (n >= c.min) passed++; else missing.push({ label: c.label, have: Math.min(n, c.min - 1), need: c.min });
   });
-  return { passed, total: checks.length, missing, pct: checks.length ? Math.round(passed * 100 / checks.length) : null };
+  return { passed, total: checks.length, missing, pct: checks.length ? Math.round(credit * 100 / checks.length) : null };
 }
 async function liveScore(body) {
   if (!goodSlot(body.slot) || body.slot === "free") return { ok: true, pct: null };
