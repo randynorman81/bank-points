@@ -138,7 +138,7 @@ async function adminSetAssignment(body) {
   if (!title || !Array.isArray(body.blocks) || !body.blocks.length) return { error: "Needs a title and blocks" };
   const text = JSON.stringify({ title, blocks: body.blocks, live: body.live !== false, publishedAt: now() });
   if (text.length > 120000) return { error: "That assignment is too big" };
-  await store().set("assign:" + body.slot, text);
+  await store().setJSON("assign:" + body.slot, JSON.parse(text));
   return { ok: true, slot: body.slot, title };
 }
 async function adminDeleteAssignment(body) {
