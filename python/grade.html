@@ -104,20 +104,25 @@ var ASSIGN = {};
 function loadAssignments() { return api({ action: "adminAssignments" }).then(function (j) { if (j && j.ok) ASSIGN = j.assignments || {}; }); }
 function splitCode(code) {
   /* separates comment text from code, ignoring # inside quotes */
-  var comments = [], codeOnly = [];
+  var comments = [], codeOnly = [], notes = [];
+  var codeLike = function (t) { return /^\s*([A-Za-z_]\w*(\[[^\]]*\])?\s*([-+*\/%]?=[^=]|\()|[A-Za-z_]\w*\.\w+\(|(if|elif|for|while|def|return|import|from|else|try|except|print|input)\b)/.test(t); };
   String(code || "").split("\n").forEach(function (line) {
     var q = "", cut = -1;
     for (var i = 0; i < line.length; i++) { var ch = line.charAt(i); if (q) { if (ch === "\\") i++; else if (ch === q) q = ""; } else if (ch === '"' || ch === "'") q = ch; else if (ch === "#") { cut = i; break; } }
-    if (cut < 0) codeOnly.push(line); else { codeOnly.push(line.slice(0, cut)); comments.push(line.slice(cut + 1)); }
+    if (cut < 0) codeOnly.push(line); else {
+      codeOnly.push(line.slice(0, cut)); var ctext = line.slice(cut + 1); comments.push(ctext);
+      /* a note is written text, not commented-out code; a trailing note after commented-out code counts too */
+      var parts = ctext.split("#"); parts.forEach(function (p, pi) { if (p.trim() && !(pi === 0 && codeLike(p))) notes.push(p); });
+    }
   });
-  return { comments: comments, code: codeOnly.join("\n") };
+  return { comments: comments, notes: notes, code: codeOnly.join("\n") };
 }
 function runChecks(slotId, code) {
   var A = ASSIGN[slotId], checks = (A && A.checks) || [], sp = splitCode(code), res = [];
   checks.forEach(function (c) {
     var n = 0, flags = String(c.flags || "").replace(/g/g, "");
     try {
-      if (c.where === "comments") { var re = new RegExp(c.re, flags); sp.comments.forEach(function (l) { if (re.test(l)) n++; }); }
+      if (c.where === "comments" || c.where === "notes") { var re = new RegExp(c.re, flags); (c.where === "notes" ? sp.notes : sp.comments).forEach(function (l) { if (re.test(l)) n++; }); }
       else { var m = (c.where === "code" ? sp.code : String(code || "")).match(new RegExp(c.re, "g" + flags)); n = m ? m.length : 0; }
     } catch (e) { n = 0; }
     res.push({ label: c.label, min: c.min, count: n, ok: n >= c.min });

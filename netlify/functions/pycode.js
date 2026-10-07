@@ -44,7 +44,7 @@ const cleanTicks = (t) => {
 };
 const cleanChecks = (c) => (Array.isArray(c) ? c : []).slice(0, 40).map((x) => ({
   label: String((x && x.label) || "").slice(0, 140), re: String((x && x.re) || "").slice(0, 300), flags: /^[gimsu]{0,4}$/.test(String((x && x.flags) || "")) ? String(x.flags || "") : "",
-  min: Math.max(1, Math.min(200, Number(x && x.min) || 1)), where: ["code", "comments", "raw"].indexOf(x && x.where) > -1 ? x.where : "code"
+  min: Math.max(1, Math.min(200, Number(x && x.min) || 1)), where: ["code", "comments", "raw", "notes"].indexOf(x && x.where) > -1 ? x.where : "code"
 })).filter((x) => x.label && x.re);
 const cleanWorld = (w) => { const s = typeof w === "string" ? w : ""; return s.length > MAX_WORLD ? "" : s; };
 
