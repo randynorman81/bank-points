@@ -21,7 +21,28 @@ input[type=number]{width:56px;padding:5px 6px;cursor:text}
 .btn.sm{padding:4px 10px;font-size:12px}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 .status{font-size:12px;color:var(--soft);min-width:130px;text-align:right}
-main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr}
+main{flex:1;min-height:0;display:grid;grid-template-columns:var(--aw,340px) 6px 1fr 1fr}
+body.noass main{grid-template-columns:1fr 1fr}
+body.noass #paneAss,body.noass #split0{display:none}
+#paneAss{background:#080B11;overflow:hidden}
+#assBody{flex:1;min-height:0;overflow:auto;padding:12px 14px 40px;font-size:14px;line-height:1.5}
+#assBody h3{margin:16px 0 8px;font-size:16px;color:#fff}#assBody h3:first-child{margin-top:2px}
+#assBody p{margin:0 0 10px}
+#assBody code,#assBody .cd{background:#0D1220;border:1px solid var(--rule);border-radius:4px;padding:0 5px;font:12.5px "JetBrains Mono",monospace;color:#FDBA74}
+#assBody pre{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:8px 12px;margin:0 0 10px;font:12.5px/1.6 "JetBrains Mono",monospace;white-space:pre-wrap;user-select:none}
+#assBody .cb{border-radius:8px;padding:8px 12px;margin:0 0 10px}
+#assBody .cb.build{background:rgba(52,211,153,.08);border-left:4px solid #34D399}
+#assBody .cb.make{background:rgba(56,189,248,.10);border-left:4px solid #38BDF8}
+#assBody .cb.where{background:rgba(251,191,36,.10);border-left:4px solid #FBBF24}
+#assBody .cb label{display:flex;gap:8px;align-items:flex-start;margin:4px 0;cursor:pointer}
+#assBody .cb input{margin-top:4px;accent-color:var(--ok)}
+#assBody .cb label.done span{color:var(--soft);text-decoration:line-through}
+#assBody .prog{height:8px;background:#0D1220;border-radius:6px;overflow:hidden;margin:0 0 12px}
+#assBody .prog i{display:block;height:100%;background:var(--ok);width:0;transition:width .2s}
+#assBody .none{color:var(--soft)}
+.split{background:var(--rule);cursor:col-resize;position:relative;touch-action:none}
+.split::after{content:"";position:absolute;left:2px;right:2px;top:50%;height:44px;margin-top:-22px;border-radius:3px;background:#5a6a92;opacity:.7}
+.split:hover,main.dragging .split{background:var(--acc)}
 .pane{display:flex;flex-direction:column;min-width:0;min-height:0;border-right:1px solid var(--rule)}
 .pane:last-child{border-right:0}
 .pane h2{margin:0;padding:6px 12px;font:700 11px "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);background:var(--panel);border-bottom:1px solid var(--rule)}
@@ -94,7 +115,7 @@ body.karel #karel{display:flex}
 .modal{position:fixed;inset:0;background:#000a;display:none;place-items:center;z-index:50}.modal.show{display:grid}
 .modal .box{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;max-width:420px}
 .modal .box p{margin:0 0 10px}.modal .row{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
-@media (max-width:820px){main{grid-template-columns:1fr;grid-template-rows:1.1fr 1.3fr}.pane{border-right:0;border-bottom:1px solid var(--rule)}}
+@media (max-width:820px){main{grid-template-columns:1fr;grid-template-rows:auto 1.1fr 1.3fr}body.noass main{grid-template-rows:1.1fr 1.3fr}#paneAss{max-height:34vh}#split0{display:none}.pane{border-right:0;border-bottom:1px solid var(--rule)}}
 </style></head>
 <body>
 <div class="top">
@@ -104,13 +125,19 @@ body.karel #karel{display:flex}
   <button class="btn" id="clear">Clear output</button>
   <button class="btn" id="reset">Reset code</button>
   <select id="slot" aria-label="Assignment"></select>
+  <button class="btn on" id="assBtn" title="Show or hide the assignment instructions">Instructions</button>
   <select id="period" aria-label="Class period"><option value="">Period…</option><option>1A</option><option>2B</option><option>3A</option><option>3B</option><option>4A</option><option>4B</option></select>
   <button class="btn go" id="submit">Submit</button>
   <span class="sp"></span>
   <span class="who" id="who"></span><span id="gbtn"></span>
   <span class="status" id="status">Loading Python&hellip;</span>
 </div>
-<main>
+<main id="main">
+  <section class="pane" id="paneAss">
+    <h2 id="assTitle">Assignment</h2>
+    <div id="assBody"></div>
+  </section>
+  <div class="split" id="split0" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize the assignment column. Double-click to reset."></div>
   <section class="pane">
     <h2 id="codeTitle">Your code (main.py)</h2>
     <div class="cloud" id="cloud"></div>
@@ -141,6 +168,7 @@ body.karel #karel{display:flex}
   </section>
 </main>
 <div class="modal" id="mSub"><div class="box"><div id="mSubBody"></div><div class="row"><button class="btn" id="mCancel">Cancel</button><button class="btn go" id="mGo">Submit</button></div></div></div>
+<script src="assignments.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <script>
@@ -651,6 +679,51 @@ runBtn.onclick = run;
 document.addEventListener("keydown", function (e) { if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && document.activeElement !== ta) { e.preventDefault(); run(); } });
 
 /* =====================================================================================
+   THE ASSIGNMENT COLUMN (instructions for the chosen assignment, with a checklist that remembers progress)
+   ===================================================================================== */
+function inl(t) { return escH(String(t)).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>"); }
+function renderAssignment() {
+  var A = (window.PY_ASSIGN || {})[slot], body = $("assBody"), title = slotLabel(slot);
+  $("assTitle").textContent = A && A.title && slot !== "free" ? title + ": " + A.title : title;
+  if (!A) { body.innerHTML = '<p class="none">Your teacher has not posted instructions for this assignment yet.</p>'; return; }
+  var done = {}; try { done = JSON.parse(lsGet("py:prog:" + slot) || "{}"); } catch (e) {}
+  var h = '<div class="prog"><i id="assProg"></i></div>', n = 0;
+  A.blocks.forEach(function (b) {
+    if (b.h) h += "<h3>" + inl(b.h) + "</h3>";
+    else if (b.p) h += "<p>" + inl(b.p) + "</p>";
+    else if (b.code) h += "<pre>" + highlight(b.code) + "</pre>";
+    else {
+      var kind = b.make ? "make" : b.where ? "where" : "build", items = b.make || b.where || b.build || [];
+      h += '<div class="cb ' + kind + '">' + items.map(function (t) { var id = "i" + (n++); return '<label class="' + (done[id] ? "done" : "") + '"><input type="checkbox" data-id="' + id + '"' + (done[id] ? " checked" : "") + "><span>" + inl(t) + "</span></label>"; }).join("") + "</div>";
+    }
+  });
+  body.innerHTML = h; updateProg();
+}
+function updateProg() {
+  var all = $("assBody").querySelectorAll("input[type=checkbox]"), on = 0; Array.prototype.forEach.call(all, function (c) { if (c.checked) on++; });
+  var p = $("assProg"); if (p) p.style.width = (all.length ? Math.round(on * 100 / all.length) : 0) + "%";
+}
+$("assBody").addEventListener("change", function (e) {
+  var c = e.target; if (!c.getAttribute || !c.getAttribute("data-id")) return;
+  var done = {}; try { done = JSON.parse(lsGet("py:prog:" + slot) || "{}"); } catch (x) {}
+  if (c.checked) done[c.getAttribute("data-id")] = 1; else delete done[c.getAttribute("data-id")];
+  lsSet("py:prog:" + slot, JSON.stringify(done)); c.parentNode.className = c.checked ? "done" : ""; updateProg();
+});
+function setAssOpen(on) { document.body.classList.toggle("noass", !on); $("assBtn").classList.toggle("on", on); lsSet("py:ass", on ? "1" : "0"); }
+$("assBtn").addEventListener("click", function () { setAssOpen(document.body.classList.contains("noass")); });
+(function () {
+  var sp = $("split0"), mainEl = $("main"), w = parseInt(lsGet("py:aw"), 10); if (w >= 220 && w <= 900) mainEl.style.setProperty("--aw", w + "px");
+  sp.addEventListener("pointerdown", function (e) {
+    e.preventDefault(); sp.setPointerCapture(e.pointerId); mainEl.classList.add("dragging");
+    function mv(ev) { var x = Math.max(220, Math.min(Math.min(900, window.innerWidth - 420), ev.clientX)); mainEl.style.setProperty("--aw", x + "px"); lsSet("py:aw", x); }
+    function up() { mainEl.classList.remove("dragging"); sp.removeEventListener("pointermove", mv); sp.removeEventListener("pointerup", up); }
+    sp.addEventListener("pointermove", mv); sp.addEventListener("pointerup", up);
+  });
+  sp.addEventListener("dblclick", function () { mainEl.style.removeProperty("--aw"); lsSet("py:aw", ""); });
+})();
+if (lsGet("py:ass") === "0") setAssOpen(false);
+
+/* =====================================================================================
    GOOGLE SIGN-IN, CLOUD SAVE, AND SUBMIT (same school-account sign-in as the HTML editor)
    ===================================================================================== */
 var CRED = null, USER = "", MY = {}, lastCloud = "", lastOut = "", CLOUD = null;
@@ -727,7 +800,7 @@ setInterval(cloudSave, 30000);
 document.addEventListener("visibilitychange", function () { if (document.hidden) cloudSave(); });
 $("slot").addEventListener("change", function () {
   lsSet(codeKey(), ta.value); cloudSave().then(function () {
-    slot = $("slot").value; lsSet("py:slot", slot); lastCloud = ""; $("cloud").className = "cloud"; showTeacher(null); statusEl.textContent = py ? "Ready" : statusEl.textContent;
+    slot = $("slot").value; lsSet("py:slot", slot); renderAssignment(); lastCloud = ""; $("cloud").className = "cloud"; showTeacher(null); statusEl.textContent = py ? "Ready" : statusEl.textContent;
     var v = lsGet(codeKey()); ta.value = v !== null ? v : starter(); gutter(); afterSlotChange();
   });
 });
@@ -758,7 +831,7 @@ function setMode(m) {
   loadCode(); renderKey(); if (m === "karel") draw(world);
 }
 $("mode").addEventListener("change", function () { setMode(this.value); });
-slot = (lsGet("py:slot") || "free"); if (!/^(free|a\d+)$/.test(slot)) slot = "free"; if (lsGet("py:period")) $("period").value = lsGet("py:period"); buildSlots();
+slot = (lsGet("py:slot") || "free"); if (!/^(free|a\d+)$/.test(slot)) slot = "free"; if (lsGet("py:period")) $("period").value = lsGet("py:period"); buildSlots(); renderAssignment();
 setMode(lsGet("py:mode") === "karel" ? "karel" : "python"); setMode.ready = true;
 </script>
 </body></html>
