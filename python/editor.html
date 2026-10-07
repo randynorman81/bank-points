@@ -816,11 +816,16 @@ function api(body) {
     return j;
   });
 }
+function currentTicks() {
+  var done = {}; try { done = JSON.parse(lsGet("py:prog:" + slot) || "{}"); } catch (e) {}
+  return { ids: Object.keys(done), total: $("assBody").querySelectorAll("input[type=checkbox]").length };
+}
 function curWorld() { return mode === "karel" && typeof initial !== "undefined" ? JSON.stringify(initial) : ""; }
 function applyRecord(rec) {
   if (rec.mode && rec.mode !== mode) { lsSet(codeKey(), ta.value); mode = rec.mode; document.body.classList.toggle("karel", mode === "karel"); $("mode").value = mode; lsSet("py:mode", mode); $("codeTitle").textContent = mode === "karel" ? "Your code (karel.py)" : "Your code (main.py)"; renderKey(); }
   if (rec.world && mode === "karel") { try { setWorld(JSON.parse(rec.world)); } catch (e) {} }
   ta.value = rec.code; gutter(); lsSet(codeKey(), ta.value);
+  if (rec.ticks && rec.ticks.ids && rec.ticks.ids.length && !lsGet("py:prog:" + slot)) { var d = {}; rec.ticks.ids.forEach(function (i) { d[i] = 1; }); lsSet("py:prog:" + slot, JSON.stringify(d)); renderAssignment(); }
 }
 function showTeacher(sub) {
   var t = $("teach");
@@ -849,7 +854,7 @@ function afterSlotChange() {
 function cloudSave() {
   if (!CRED || !ta.value.trim() || ta.value === lastCloud || ta.value === STARTER_PY || ta.value === STARTER_KAREL) return Promise.resolve();
   var code = ta.value;
-  return api({ action: "saveDraft", slot: slot, mode: mode, code: code, world: curWorld(), period: $("period").value }).then(function (j) { if (j && j.ok) { lastCloud = code; if (!MY[slot]) { MY[slot] = "draft"; } } });
+  return api({ action: "saveDraft", slot: slot, mode: mode, code: code, world: curWorld(), ticks: currentTicks(), period: $("period").value }).then(function (j) { if (j && j.ok) { lastCloud = code; if (!MY[slot]) { MY[slot] = "draft"; } } });
 }
 setInterval(cloudSave, 30000);
 document.addEventListener("visibilitychange", function () { if (document.hidden) cloudSave(); });
@@ -871,7 +876,7 @@ $("submit").addEventListener("click", function () {
 $("mCancel").addEventListener("click", function () { $("mSub").classList.remove("show"); });
 $("mGo").addEventListener("click", function () {
   var b = this; b.disabled = true;
-  api({ action: "submit", slot: slot, mode: mode, code: ta.value, world: curWorld(), period: $("period").value, output: out.textContent.slice(-3500) }).then(function (j) {
+  api({ action: "submit", slot: slot, mode: mode, code: ta.value, world: curWorld(), ticks: currentTicks(), period: $("period").value, output: out.textContent.slice(-3500) }).then(function (j) {
     b.disabled = false; $("mSub").classList.remove("show");
     if (j && j.ok) { MY[slot] = "sub"; lastCloud = ta.value; buildSlots(); statusEl.textContent = "Submitted " + new Date(j.submittedAt).toLocaleString() + (j.count > 1 ? " (#" + j.count + ")" : ""); alert("Submitted! ✓"); }
     else if (j && !j.needLogin) alert((j && j.error) || "Could not submit. Try again.");

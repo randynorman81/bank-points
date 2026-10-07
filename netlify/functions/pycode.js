@@ -36,6 +36,16 @@ const goodSlot = (l) => SLOTS.indexOf(l) > -1;
 const now = () => new Date().toISOString();
 const cleanPeriod = (p) => String(p || "").slice(0, 12).replace(/[^A-Za-z0-9 ]/g, "");
 const cleanMode = (m) => (m === "karel" ? "karel" : "python");
+// Which instruction checkboxes the student ticked (ids like "i0", "i1"...). Clamped so it can't be abused.
+const cleanTicks = (t) => {
+  if (!t || typeof t !== "object") return null;
+  const ids = (Array.isArray(t.ids) ? t.ids : []).filter((x) => /^i\d{1,3}$/.test(String(x))).slice(0, 300);
+  return { ids, total: Math.max(0, Math.min(300, Number(t.total) || 0)) };
+};
+const cleanChecks = (c) => (Array.isArray(c) ? c : []).slice(0, 40).map((x) => ({
+  label: String((x && x.label) || "").slice(0, 140), re: String((x && x.re) || "").slice(0, 300), flags: /^[gimsu]{0,4}$/.test(String((x && x.flags) || "")) ? String(x.flags || "") : "",
+  min: Math.max(1, Math.min(200, Number(x && x.min) || 1)), where: ["code", "comments", "raw"].indexOf(x && x.where) > -1 ? x.where : "code"
+})).filter((x) => x.label && x.re);
 const cleanWorld = (w) => { const s = typeof w === "string" ? w : ""; return s.length > MAX_WORLD ? "" : s; };
 
 /* ---------------- student actions ---------------- */
@@ -62,7 +72,7 @@ async function saveDraft(body, user) {
   const code = String(body.code == null ? "" : body.code);
   if (code.length > MAX_CODE) return { error: "That file is too big to save." };
   await store().setJSON("draft:" + body.slot + ":" + enc(user.email), {
-    email: user.email, name: user.name, period: cleanPeriod(body.period), slot: body.slot, mode: cleanMode(body.mode), code, world: cleanWorld(body.world), savedAt: now()
+    email: user.email, name: user.name, period: cleanPeriod(body.period), slot: body.slot, mode: cleanMode(body.mode), code, world: cleanWorld(body.world), ticks: cleanTicks(body.ticks), savedAt: now()
   });
   return { ok: true };
 }
@@ -75,7 +85,7 @@ async function submit(body, user) {
   const key = "sub:" + body.slot + ":" + enc(user.email);
   const prev = await readJSON(key, null);
   const rec = {
-    email: user.email, name: user.name, period: cleanPeriod(body.period), slot: body.slot, mode: cleanMode(body.mode), code, world: cleanWorld(body.world),
+    email: user.email, name: user.name, period: cleanPeriod(body.period), slot: body.slot, mode: cleanMode(body.mode), code, world: cleanWorld(body.world), ticks: cleanTicks(body.ticks),
     output: String(body.output || "").slice(0, 4000),
     submittedAt: now(), count: (prev && prev.count ? prev.count : 0) + 1,
     teacher: prev && prev.teacher ? prev.teacher : null
@@ -136,7 +146,7 @@ async function adminSetAssignment(body) {
   if (!goodSlot(body.slot) || body.slot === "free") return { error: "Unknown assignment" };
   const title = String(body.title || "").slice(0, 120);
   if (!title || !Array.isArray(body.blocks) || !body.blocks.length) return { error: "Needs a title and blocks" };
-  const text = JSON.stringify({ title, blocks: body.blocks, live: body.live !== false, publishedAt: now() });
+  const text = JSON.stringify({ title, blocks: body.blocks, checks: cleanChecks(body.checks), live: body.live !== false, publishedAt: now() });
   if (text.length > 120000) return { error: "That assignment is too big" };
   await store().setJSON("assign:" + body.slot, JSON.parse(text));
   return { ok: true, slot: body.slot, title };
@@ -148,7 +158,7 @@ async function adminDeleteAssignment(body) {
 }
 async function publicAssignments(all) {
   const out = {};
-  for (const k of await listPrefix("assign:")) { const v = await store().get(k, { type: "json" }); if (v && (all || v.live !== false)) out[k.slice(7)] = v; }
+  for (const k of await listPrefix("assign:")) { const v = await store().get(k, { type: "json" }); if (v && (all || v.live !== false)) { if (!all) delete v.checks; out[k.slice(7)] = v; } }
   return { ok: true, assignments: out };
 }
 
