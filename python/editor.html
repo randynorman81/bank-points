@@ -325,6 +325,44 @@ var MATH = [
       { h: "Helpful math functions", rows: [["abs(-5)", "5", "distance from zero"], ["round(3.14159, 2)", "3.14", "round to 2 decimals"], ["round(2.5)", "2", "ties go to the even number, so 2.5 is 2 and 3.5 is 4"], ["int(3.9)", "3", "cuts the decimal off (toward zero)"], ["divmod(17, 5)", "(3, 2)", "// and % together"], ["max(3, 9, 5)", "9", "biggest"], ["min(3, 9, 5)", "3", "smallest"]] }
     ] }
 ];
+
+var STRINGS = [
+  { id: "s-idx", cls: "c-math", name: "[ ] Index", sample: "[ ]", title: "Indexing a string: word[3]", intro: "Every character in a string has a numbered position called an index. Counting starts at 0, not 1. Put the index in square brackets after the string to pull out ONE character. The answer is a one-character string.",
+    sections: [
+      { h: "Count the positions", ex: ["word = \"Python\"", "#  P   y   t   h   o   n", "#  0   1   2   3   4   5     counting from the front", "# -6  -5  -4  -3  -2  -1     counting from the back"] },
+      { h: "What it gives you  (word = \"Python\")", rows: [["word[0]", "P", "the first character"], ["word[3]", "h", "the fourth character, index 3"], ["word[5]", "n", "the last one: length 6, so the last index is 5"], ["word[-1]", "n", "negative counts from the end: -1 is the last"], ["word[-3]", "h", "third from the end"], ["word[6]", "IndexError", "there is no index 6 in a 6-character string"]] },
+      { h: "len() tells you how many", ex: ["len(\"Python\")        # 6", "word[len(word) - 1]   # the last character", "word[len(word) // 2]  # the middle character"] },
+      { h: "Use it when", list: ["you need the first or last letter (initials, first digit, last digit)", "you need one specific character, like the 3rd letter of a code", "you need the middle of a string: word[len(word) // 2]"] },
+      { h: "Watch out", list: ["The first character is index 0, so the last index is len(word) - 1. Using len(word) itself is an off-by-one error and crashes with IndexError.", "You can read a character with [ ] but you cannot change one: word[0] = \"J\" is a TypeError. Build a new string instead.", "On the AP exam, positions start at 1. In Python they start at 0. The 3rd character is word[2]."] },
+      { h: "Practice (click to see the answer)", quiz: [["\"banana\"[1]", "a   (b is 0, a is 1)"], ["\"banana\"[-1]", "a"], ["\"banana\"[0] + \"banana\"[2]", "bn   (b and n)"], ["len(\"hello world\")", "11   (the space counts)"], ["\"hello\"[5]", "IndexError: the indexes only go up to 4"]] }
+    ] },
+  { id: "s-slice", cls: "c-math", name: "[:] Slice", sample: "[a:b]", title: "Slicing a string: word[1:4]", intro: "A slice pulls out a whole piece of a string. Write text[start:stop]. You get the characters from start up to, but NOT including, stop. The result is a new string, and the original is not changed.",
+    sections: [
+      { h: "The rule", list: ["text[start:stop] includes start, stops BEFORE stop.", "The slice has stop - start characters.", "Leave out start to begin at the front. Leave out stop to go all the way to the end."] },
+      { h: "What it gives you  (word = \"Python\")", rows: [["word[0:2]", "Py", "indexes 0 and 1"], ["word[2:4]", "th", "indexes 2 and 3"], ["word[1:5]", "ytho", "5 - 1 = 4 characters"], ["word[:3]", "Pyt", "the first 3 characters"], ["word[2:]", "thon", "from index 2 to the end"], ["word[-3:]", "hon", "the last 3 characters"], ["word[:-1]", "Pytho", "everything but the last character"], ["word[:]", "Python", "a copy of the whole string"], ["word[2:100]", "thon", "too big a stop does not crash"], ["word[4:1]", "(empty)", "start after stop gives an empty string"]] },
+      { h: "Real examples", ex: ["phone = \"7705551234\"", "area_code = phone[:3]      # 770", "line = phone[6:]           # 1234", "", "date = \"2026-10-07\"", "year = date[:4]            # 2026", "month = date[5:7]          # 10", "day = date[8:]             # 07", "", "half = len(word) // 2", "swapped = word[half:] + word[:half]   # honPyt"] },
+      { h: "Use it when", list: ["you know exactly which positions you want (a phone number, a date, an ID)", "you want the first or last few characters: [:3] and [-4:]", "you want to cut off the end: [:-1]", "you want everything after something you found with .find()"] },
+      { h: "Watch out", list: ["The stop number is NOT included. word[0:2] is two characters, not three.", "A slice of a string is still a string. To do math on a slice of digits, use int() on it.", "A third number is a step: word[::2] takes every second character, and word[::-1] reverses the string."] },
+      { h: "Practice (click to see the answer)", quiz: [["\"computer\"[0:3]", "com"], ["\"computer\"[3:]", "puter"], ["\"computer\"[-2:]", "er"], ["\"computer\"[:-3]", "compu"], ["\"computer\"[2:6]", "mput"], ["How many characters are in text[4:9]?", "5   (9 - 4)"]] }
+    ] },
+  { id: "s-find", cls: "c-math", name: ".find() Search", sample: ".find()", title: "Searching a string: .find()", intro: "Slices need you to know the positions. .find() looks for you. It searches a string and gives back the index where the text first starts, or -1 if it is not there.",
+    sections: [
+      { h: "How it reads", ex: ["\"Python\".find(\"th\")      # the string, a dot, find, then the text to look for", "word.find(\"th\")", "word.find(\"an\", 2)       # start looking at index 2"] },
+      { h: "What it gives you", rows: [["\"Python\".find(\"th\")", "2", "th starts at index 2"], ["\"Python\".find(\"P\")", "0", "the first character"], ["\"Python\".find(\"on\")", "4", "where on starts"], ["\"Python\".find(\"z\")", "-1", "not found"], ["\"Python\".find(\"TH\")", "-1", "capital letters matter"], ["\"banana\".find(\"an\")", "1", "only the FIRST match"], ["\"banana\".find(\"an\", 2)", "3", "the second number says where to start looking"]] },
+      { h: "Use it with a slice", ex: ["email = \"sam.jones@school.org\"", "at = email.find(\"@\")", "username = email[:at]         # sam.jones", "domain = email[at + 1:]       # school.org  (+ 1 skips the @ itself)", "", "name = \"Ada Lovelace\"", "space = name.find(\" \")", "first = name[:space]          # Ada", "last = name[space + 1:]       # Lovelace"] },
+      { h: "Use it when", list: ["you do not know where something is in the text the user typed", "you want to split text at a symbol: @ in an email, a space in a name, a dash in a date", "you want to ask where something is. (To only ask IF it is there, use the word in.)"] },
+      { h: "Watch out", list: ["Not found gives -1, and -1 is a real index! word[:-1] quietly gives you the word without its last letter.", "find is case-sensitive: \"TH\" is not in \"Python\".", "It only finds the first match.", "The text AFTER a symbol starts one position later: use find(...) + 1."] },
+      { h: "Practice (click to see the answer)", quiz: [["\"hello world\".find(\"o\")", "4"], ["\"hello world\".find(\"o\", 5)", "7   (start looking at index 5)"], ["\"hello world\".find(\"xyz\")", "-1"], ["\"hello world\".find(\" \")", "5"], ["\"hello world\"[:\"hello world\".find(\" \")]", "hello   (everything before the space)"]] }
+    ] },
+  { id: "s-meth", cls: "c-math", name: "Methods", sample: ".upper()", title: "String methods", intro: "A method is a built-in tool attached to a string with a dot. Methods never change the original string (strings cannot be changed). They give back a NEW string, so store it if you want to keep it.",
+    sections: [
+      { h: "The ones to know  (word = \"Banana Split\")", rows: [["word.upper()", "BANANA SPLIT", "all capitals"], ["word.lower()", "banana split", "all lowercase"], ["word.count(\"a\")", "3", "how many times it appears (lowercase a only)"], ["word.replace(\"a\", \"o\")", "Bonono Split", "swap every match"], ["\"  hi  \".strip()", "hi", "remove spaces from both ends"], ["word.startswith(\"Ban\")", "True", "does it begin with this?"], ["word.endswith(\"t\")", "True", "does it end with this?"], ["\"th\" in \"Python\"", "True", "is it anywhere inside? (True or False)"], ["len(word)", "12", "length. Not a method: len goes first"]] },
+      { h: "Keep the answer", ex: ["name = \"ada\"", "name.upper()           # works out ADA, then throws it away", "print(name)            # still ada", "", "name = name.upper()   # store the new string back", "print(name)            # ADA"] },
+      { h: "Use it when", list: ["you want to ignore capital letters: answer.lower() before you compare", "you want to clean up what the user typed: .strip()", "you want a capitalized code or title: .upper()", "you want to count a letter or fix a word: .count() and .replace()"] },
+      { h: "Watch out", list: ["Methods give back a new string. Forgetting to store it with = is a common bug.", "len() is written len(word), not word.len().", "Everything is case-sensitive unless you use .lower() or .upper() first."] },
+      { h: "Practice (click to see the answer)", quiz: [["\"Hello\".upper()", "HELLO"], ["\"Hello\".lower()", "hello"], ["\"mississippi\".count(\"s\")", "4"], ["\"mississippi\".replace(\"ss\", \"SS\")", "miSSiSSippi"], ["\"  yes  \".strip()", "yes"], ["\"cat\" in \"concatenate\"", "True"]] }
+    ] }
+];
 function renderSection(sec) {
   var h = '<div class="exh">' + escH(sec.h) + "</div>";
   if (sec.p) h += '<p class="what">' + escH(sec.p) + "</p>";
@@ -340,6 +378,7 @@ var GROUPS = [
   ["Collections:", ["list", "dict"]],
   ["Code words:", ["kw", "logic", "op", "com"]],
   ["Functions and names:", ["var", "def", "func", "builtin", "karel"]],
+  ["String key:", ["str", "s-idx", "s-slice", "s-find", "s-meth"]],
   ["Math key:", ["int", "float", "m-div", "m-floor", "m-mod", "m-three", "m-other"]]
 ];
 function renderKey() {
@@ -347,14 +386,14 @@ function renderKey() {
   GROUPS.forEach(function (g, gi) {
     var row = document.createElement("div"); row.className = "mrow" + (gi === GROUPS.length - 1 ? " mathrow" : ""); var sep = document.createElement("span"); sep.className = "lgsep"; sep.textContent = g[0]; row.appendChild(sep);
     g[1].forEach(function (id) {
-      var k = KEYS.filter(function (x) { return x.id === id; })[0] || MATH.filter(function (x) { return x.id === id; })[0]; if (!k || (k.karel && mode !== "karel")) return;
+      var k = KEYS.filter(function (x) { return x.id === id; })[0] || MATH.concat(STRINGS).filter(function (x) { return x.id === id; })[0]; if (!k || (k.karel && mode !== "karel")) return;
       var b = document.createElement("span"); b.className = "lg " + k.cls; b.tabIndex = 0; b.setAttribute("data-k", k.id); b.textContent = k.name; row.appendChild(b);
     });
     lg.appendChild(row);
   });
 }
 function showKey(id) {
-  var mk = MATH.filter(function (x) { return x.id === id; })[0];
+  var mk = MATH.concat(STRINGS).filter(function (x) { return x.id === id; })[0];
   if (mk) {
     clearTimeout(kcloseT);
     kpop.innerHTML = '<h4><span class="' + mk.cls + '">&nbsp;' + escH(mk.sample) + '&nbsp;</span> &nbsp;' + escH(mk.title) + '</h4><p class="what">' + escH(mk.intro) + "</p>" + mk.sections.map(renderSection).join("");
@@ -579,6 +618,10 @@ function explainError(last, full) {
     return "You called " + m[1] + " without giving it all the values it needs (" + m[2] + " missing).\nFix: put the missing value(s) inside the brackets when you call it.";
   if ((m = /^TypeError: '(\w+)' object is not callable/.exec(last)))
     return "You put round brackets after something that is not a function. A variable holding " + t("'" + m[1] + "'") + " cannot be run like a function.\nFix: check for a variable with the same name as a function (like  sum = 5  or  print = 3), or a missing operator before the bracket, like  5(3)  instead of  5 * (3).";
+  if (/^TypeError: 'str' object does not support item assignment/.test(last))
+    return "You can READ one character of a string with [ ], but you cannot change it: strings are fixed once they are made.\nFix: build a new string instead, for example with a slice and +:  word = \"J\" + word[1:]";
+  if ((m = /^TypeError: string indices must be integers/.exec(last)))
+    return "The number inside [ ] must be a whole number, like word[2]. You used something else, like text or a decimal.\nFix: use int() on the index (for example int(\"2\")), or check you used the right variable.";
   if ((m = /^TypeError: '(\w+)' object is not subscriptable/.exec(last)))
     return "You used square brackets [ ] on something that is not a list, string or dictionary (it is " + t("'" + m[1] + "'") + "). Only collections can be looked into with [ ].\nFix: check the variable really holds a list or a string. If it is None, a function probably forgot to return its answer.";
   if ((m = /^TypeError: '(\w+)' object is not iterable/.exec(last)))
