@@ -205,6 +205,13 @@ function loadCode() { var v = lsGet(codeKey()); ta.value = v !== null ? v : star
 var saveT = 0;
 ta.addEventListener("input", function () { updateScore(); gutter(); clearTimeout(saveT); saveT = setTimeout(function () { lsSet(codeKey(), ta.value); flash("Saved"); }, 500); });
 ta.addEventListener("scroll", function () { gut.scrollTop = ta.scrollTop; var h = $("hl"); h.scrollTop = ta.scrollTop; h.scrollLeft = ta.scrollLeft; });
+/* the Enter key inserts the new line in code, so the browser does not scroll for us: keep the cursor line in view, one line at a time */
+function keepCaretVisible() {
+  var LH = 13.5 * 1.6, PAD = 12, line = ta.value.slice(0, ta.selectionStart).split("\n").length - 1;
+  var top = PAD + line * LH, bottom = top + LH;
+  if (bottom + LH > ta.scrollTop + ta.clientHeight) ta.scrollTop = bottom + LH - ta.clientHeight;
+  else if (top - LH < ta.scrollTop) ta.scrollTop = Math.max(0, top - LH);
+}
 /* Ctrl + /  comments out (or un-comments) every selected line, so students keep their work instead of deleting it */
 function toggleComment() {
   var v = ta.value, a = ta.selectionStart, b = ta.selectionEnd, ls = v.lastIndexOf("\n", a - 1) + 1, le = v.indexOf("\n", b > a && v.charAt(b - 1) === "\n" ? b - 1 : b); if (le < 0) le = v.length;
@@ -222,7 +229,7 @@ ta.addEventListener("keydown", function (e) {
   else if (e.key === "Enter") {
     var v = ta.value, p = ta.selectionStart, ls = v.lastIndexOf("\n", p - 1) + 1, line = v.slice(ls, p), ind = (line.match(/^[ ]*/) || [""])[0];
     if (/:\s*$/.test(line)) ind += "    ";
-    e.preventDefault(); ta.value = v.slice(0, p) + "\n" + ind + v.slice(ta.selectionEnd); ta.selectionStart = ta.selectionEnd = p + 1 + ind.length; gutter(); ta.dispatchEvent(new Event("input"));
+    e.preventDefault(); ta.value = v.slice(0, p) + "\n" + ind + v.slice(ta.selectionEnd); ta.selectionStart = ta.selectionEnd = p + 1 + ind.length; gutter(); ta.dispatchEvent(new Event("input")); keepCaretVisible();
   }
 });
 function flash(t) { if (running) return; statusEl.textContent = t; clearTimeout(flash.t); flash.t = setTimeout(function () { if (!running) statusEl.textContent = py ? "Ready" : statusEl.textContent; }, 1400); }
