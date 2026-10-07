@@ -25,6 +25,12 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:var(--aw,340px) 6px 
 body.noass main{grid-template-columns:1fr 1fr}
 body.noass #paneAss,body.noass #split0{display:none}
 #paneAss{background:#080B11;overflow:hidden}
+#assHead{display:none;padding:6px 14px 8px;background:#0B0E14;border-bottom:1px solid var(--rule)}
+#assHead.show{display:block}
+#assCount{font:700 12px "JetBrains Mono",monospace;color:var(--soft);margin-bottom:4px}
+#assCount b{color:var(--ok)}
+#assHead .prog{height:8px;background:#0D1220;border-radius:6px;overflow:hidden}
+#assHead .prog i{display:block;height:100%;background:var(--ok);width:0;transition:width .2s}
 #assBody{flex:1;min-height:0;overflow:auto;padding:12px 14px 40px;font-size:14px;line-height:1.5}
 #assBody h3{margin:16px 0 8px;font-size:16px;color:#fff}#assBody h3:first-child{margin-top:2px}
 #assBody p{margin:0 0 10px}
@@ -135,6 +141,7 @@ body.karel #karel{display:flex}
 <main id="main">
   <section class="pane" id="paneAss">
     <h2 id="assTitle">Assignment</h2>
+    <div id="assHead"><div id="assCount"></div><div class="prog"><i id="assProg"></i></div></div>
     <div id="assBody"></div>
   </section>
   <div class="split" id="split0" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize the assignment column. Double-click to reset."></div>
@@ -743,9 +750,9 @@ function inl(t) { return escH(String(t)).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").
 function renderAssignment() {
   var A = (window.PY_ASSIGN || {})[slot], body = $("assBody"), title = slotLabel(slot);
   $("assTitle").textContent = title;
-  if (!A) { body.innerHTML = '<p class="none">Your teacher has not posted instructions for this assignment yet.</p>'; return; }
+  if (!A) { body.innerHTML = '<p class="none">Your teacher has not posted instructions for this assignment yet.</p>'; $("assHead").className = ""; return; }
   var done = {}; try { done = JSON.parse(lsGet("py:prog:" + slot) || "{}"); } catch (e) {}
-  var h = '<div class="prog"><i id="assProg"></i></div>', n = 0;
+  var h = "", n = 0;
   A.blocks.forEach(function (b) {
     if (b.h) h += "<h3>" + inl(b.h) + "</h3>";
     else if (b.p) h += "<p>" + inl(b.p) + "</p>";
@@ -759,7 +766,8 @@ function renderAssignment() {
 }
 function updateProg() {
   var all = $("assBody").querySelectorAll("input[type=checkbox]"), on = 0; Array.prototype.forEach.call(all, function (c) { if (c.checked) on++; });
-  var p = $("assProg"); if (p) p.style.width = (all.length ? Math.round(on * 100 / all.length) : 0) + "%";
+  var pct = all.length ? Math.round(on * 100 / all.length) : 0, p = $("assProg"); if (p) p.style.width = pct + "%";
+  $("assHead").className = all.length ? "show" : ""; $("assCount").innerHTML = "<b>" + on + "</b> of " + all.length + " steps checked off (" + pct + "%)";
 }
 $("assBody").addEventListener("change", function (e) {
   var c = e.target; if (!c.getAttribute || !c.getAttribute("data-id")) return;
