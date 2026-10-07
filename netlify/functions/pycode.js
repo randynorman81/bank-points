@@ -174,6 +174,45 @@ async function adminDelete(body) {
   return { ok: true };
 }
 
+
+/* ---------- automatic score (same rules the grading page uses; the rules never leave the server) ---------- */
+function splitCode(code) {
+  const comments = [], codeOnly = [], notes = [];
+  const codeLike = (t) => /^\s*([A-Za-z_]\w*(\[[^\]]*\])?\s*([-+*\/%]?=[^=]|\()|[A-Za-z_]\w*\.\w+\(|(if|elif|for|while|def|return|import|from|else|try|except|print|input)\b)/.test(t);
+  String(code || "").split("\n").forEach((line) => {
+    let q = "", cut = -1;
+    for (let i = 0; i < line.length; i++) { const ch = line.charAt(i); if (q) { if (ch === "\\") i++; else if (ch === q) q = ""; } else if (ch === '"' || ch === "'") q = ch; else if (ch === "#") { cut = i; break; } }
+    if (cut < 0) codeOnly.push(line);
+    else {
+      codeOnly.push(line.slice(0, cut)); const ctext = line.slice(cut + 1); comments.push(ctext);
+      ctext.split("#").forEach((p, pi) => { if (p.trim() && !(pi === 0 && codeLike(p))) notes.push(p); });
+    }
+  });
+  return { comments, notes, code: codeOnly.join("\n") };
+}
+function scoreCode(checks, code) {
+  const sp = splitCode(code); let passed = 0;
+  checks.forEach((c) => {
+    let n = 0; const flags = String(c.flags || "").replace(/g/g, "");
+    try {
+      if (c.where === "comments" || c.where === "notes") { const re = new RegExp(c.re, flags); (c.where === "notes" ? sp.notes : sp.comments).forEach((l) => { if (re.test(l)) n++; }); }
+      else { const m = (c.where === "code" ? sp.code : String(code || "")).match(new RegExp(c.re, "g" + flags)); n = m ? m.length : 0; }
+    } catch (e) { n = 0; }
+    if (n >= c.min) passed++;
+  });
+  return { passed, total: checks.length, pct: checks.length ? Math.round(passed * 100 / checks.length) : null };
+}
+async function liveScore(body) {
+  if (!goodSlot(body.slot) || body.slot === "free") return { ok: true, pct: null };
+  const code = String(body.code == null ? "" : body.code);
+  if (code.length > 15000) return { ok: true, pct: null, tooLong: true };
+  const rec = await readJSON("assign:" + body.slot, null);
+  if (!rec || !Array.isArray(rec.checks) || !rec.checks.length) return { ok: true, pct: null };
+  if (rec.live === false && !isAdmin(body)) return { ok: true, pct: null };
+  const r = scoreCode(rec.checks, code);
+  return { ok: true, pct: r.pct, passed: r.passed, total: r.total };
+}
+
 /* ---------------- request handler ---------------- */
 export default async (req) => {
   const ok = (obj) => new Response(JSON.stringify(obj), { status: 200, headers: JSON_HEADERS });
@@ -196,6 +235,7 @@ export default async (req) => {
     }
 
     if (action === "assignments") return ok(await publicAssignments());
+    if (action === "score") return ok(await liveScore(body));
     const user = await verifyGoogleToken(body.credential);
     if (!user) return ok({ error: "Please sign in with your school Google account.", needLogin: true });
     if (action === "mine") return ok(await mine(body, user));

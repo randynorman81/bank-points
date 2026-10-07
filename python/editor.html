@@ -29,6 +29,9 @@ body.noass #paneAss,body.noass #split0{display:none}
 #assHead.show{display:block}
 #assCount{font:700 12px "JetBrains Mono",monospace;color:var(--soft);margin-bottom:4px}
 #assCount b{color:var(--ok)}
+#assScore{font:700 12px "JetBrains Mono",monospace;color:var(--soft);margin-bottom:4px}
+#assScore b{font-size:15px;color:var(--acc)}
+#assScore small{font:500 11px Manrope,sans-serif;color:var(--soft)}
 #assHead .prog{height:8px;background:#0D1220;border-radius:6px;overflow:hidden}
 #assHead .prog i{display:block;height:100%;background:var(--ok);width:0;transition:width .2s}
 #assBody{flex:1;min-height:0;overflow:auto;padding:12px 14px 40px;font-size:14px;line-height:1.5}
@@ -141,7 +144,7 @@ body.karel #karel{display:flex}
 <main id="main">
   <section class="pane" id="paneAss">
     <h2 id="assTitle">Assignment</h2>
-    <div id="assHead"><div id="assCount"></div><div class="prog"><i id="assProg"></i></div></div>
+    <div id="assHead"><div id="assCount"></div><div id="assScore"></div><div class="prog"><i id="assProg"></i></div></div>
     <div id="assBody"></div>
   </section>
   <div class="split" id="split0" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize the assignment column. Double-click to reset."></div>
@@ -196,7 +199,7 @@ function gutter() { var n = ta.value.split("\n").length, s = ""; for (var i = 1;
 function paint() { var h = $("hl"); h.innerHTML = highlight(ta.value) + "\n"; h.scrollTop = ta.scrollTop; h.scrollLeft = ta.scrollLeft; }
 function loadCode() { var v = lsGet(codeKey()); ta.value = v !== null ? v : starter(); gutter(); }
 var saveT = 0;
-ta.addEventListener("input", function () { gutter(); clearTimeout(saveT); saveT = setTimeout(function () { lsSet(codeKey(), ta.value); flash("Saved"); }, 500); });
+ta.addEventListener("input", function () { updateScore(); gutter(); clearTimeout(saveT); saveT = setTimeout(function () { lsSet(codeKey(), ta.value); flash("Saved"); }, 500); });
 ta.addEventListener("scroll", function () { gut.scrollTop = ta.scrollTop; var h = $("hl"); h.scrollTop = ta.scrollTop; h.scrollLeft = ta.scrollLeft; });
 /* Ctrl + /  comments out (or un-comments) every selected line, so students keep their work instead of deleting it */
 function toggleComment() {
@@ -762,7 +765,7 @@ function renderAssignment() {
       h += '<div class="cb ' + kind + '">' + items.map(function (t) { var id = "i" + (n++); return '<label class="' + (done[id] ? "done" : "") + '"><input type="checkbox" data-id="' + id + '"' + (done[id] ? " checked" : "") + "><span>" + inl(t) + "</span></label>"; }).join("") + "</div>";
     }
   });
-  body.innerHTML = h; updateProg();
+  body.innerHTML = h; updateProg(); updateScore();
 }
 function updateProg() {
   var all = $("assBody").querySelectorAll("input[type=checkbox]"), on = 0; Array.prototype.forEach.call(all, function (c) { if (c.checked) on++; });
@@ -773,8 +776,24 @@ $("assBody").addEventListener("change", function (e) {
   var c = e.target; if (!c.getAttribute || !c.getAttribute("data-id")) return;
   var done = {}; try { done = JSON.parse(lsGet("py:prog:" + slot) || "{}"); } catch (x) {}
   if (c.checked) done[c.getAttribute("data-id")] = 1; else delete done[c.getAttribute("data-id")];
-  lsSet("py:prog:" + slot, JSON.stringify(done)); c.parentNode.className = c.checked ? "done" : ""; updateProg();
+  lsSet("py:prog:" + slot, JSON.stringify(done)); c.parentNode.className = c.checked ? "done" : ""; updateProg(); updateScore();
 });
+/* live auto score out of 100: the server scores the code and sends back only the number (the rules stay hidden) */
+var scoreT = 0, scoreSeq = 0;
+function updateScore() {
+  clearTimeout(scoreT);
+  var A = (window.PY_ASSIGN || {})[slot], el = $("assScore");
+  if (!A || slot === "free") { el.innerHTML = ""; return; }
+  scoreT = setTimeout(function () {
+    var seq = ++scoreSeq, body = { action: "score", slot: slot, code: ta.value }, tp = ""; try { tp = /[?&]teacher/.test(location.search) ? (sessionStorage.getItem("pypin") || "") : ""; } catch (e) {}
+    if (tp) body.pin = tp;
+    fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(function (r) { return r.json(); }).then(function (j) {
+      if (seq !== scoreSeq || !j || !j.ok) return;
+      if (j.pct === null || j.pct === undefined) { el.innerHTML = j.tooLong ? "<small>Your code is too long to score here.</small>" : ""; return; }
+      el.innerHTML = "Auto score: <b>" + j.pct + " / 100</b> <small>It checks that the required pieces are in your code. Your teacher also reads your code and comments.</small>";
+    }).catch(function () {});
+  }, 900);
+}
 function setAssOpen(on) { document.body.classList.toggle("noass", !on); $("assBtn").classList.toggle("on", on); lsSet("py:ass", on ? "1" : "0"); }
 $("assBtn").addEventListener("click", function () { setAssOpen(document.body.classList.contains("noass")); });
 (function () {
