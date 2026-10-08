@@ -25,6 +25,7 @@ input[type=number]{width:56px;padding:5px 6px;cursor:text}
 .top h1{font-size:13px}
 .top .btn,.top select{font-size:11px;padding:3px 9px;border-radius:5px}
 .top select{padding:3px 6px;max-width:150px}
+.top #slot{max-width:270px}
 .top .status{font-size:11px;min-width:0;text-align:left;margin-left:4px}
 .top .vsep{width:2px;align-self:stretch;margin:0 10px 0 14px;border-radius:2px;background:#475569}
 .top .who{font-size:11px}
@@ -163,9 +164,9 @@ body.karel #karel{display:flex}
 .topbanner{display:flex;align-items:flex-start;gap:18px;padding:3px 12px;background:#FFFFFF;border-bottom:1px solid #CBD5E1;color:#334155}
 #legend{display:grid;grid-auto-flow:column;grid-template-rows:repeat(3,auto);column-gap:26px;row-gap:1px;align-content:start;flex:0 1 auto;min-width:0}
 #legend .mrow{width:auto;flex-wrap:wrap}
-#assInfo{margin-left:auto;flex:0 1 420px;min-width:230px;border-left:1px solid #CBD5E1;padding-left:14px;display:flex;flex-direction:column;gap:3px}
+#assInfo{margin-left:auto;flex:0 1 440px;min-width:230px;border-left:1px solid #CBD5E1;padding-left:14px;display:flex;flex-direction:column;gap:3px}
 #nameBar{padding:0;background:none;border:0}
-#nameBar h2{font:700 12px "JetBrains Mono",monospace;color:#9A3412;letter-spacing:.03em;text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#nameBar h2{font:700 10px "JetBrains Mono",monospace;color:#9A3412;letter-spacing:.03em;text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #assHead{padding:0;background:none;border:0;gap:10px}
 #assHead.show{display:flex}
 #assCount{color:#334155}
@@ -844,7 +845,7 @@ document.addEventListener("keydown", function (e) { if (e.key === "Escape") $("m
 $("assBody").addEventListener("click", function (e) { var b = e.target.closest && e.target.closest(".tipbtn"); if (b) { e.preventDefault(); e.stopPropagation(); openTip(b.getAttribute("data-tip")); } });
 function renderAssignment() {
   var A = (window.PY_ASSIGN || {})[slot], body = $("assBody"), title = slotLabel(slot);
-  $("assTitle").textContent = title; $("assTitle").title = title;
+  var plain = slot === "free" ? title : "Assignment " + slot.slice(1) + (A && A.title ? ": " + A.title : ""), full = (A && A.unit ? A.unit + " · " : "") + plain; $("assTitle").textContent = (unitShort(A) ? unitShort(A) + " · " : "") + (slot === "free" ? title : "Assignment " + slot.slice(1) + (A && A.title ? ": " + A.title : "")); $("assTitle").title = full;
   if (!A) { body.innerHTML = '<p class="none">Your teacher has not posted instructions for this assignment yet.</p>'; $("assHead").className = ""; return; }
   var done = {}; try { done = JSON.parse(lsGet("py:prog:" + slot) || "{}"); } catch (e) {}
   var h = "", n = 0;
@@ -931,12 +932,16 @@ if (lsGet("py:ass") === "0") setAssOpen(false);
    GOOGLE SIGN-IN, CLOUD SAVE, AND SUBMIT (same school-account sign-in as the HTML editor)
    ===================================================================================== */
 var CRED = null, USER = "", MY = {}, lastCloud = "", lastOut = "", CLOUD = null;
-function slotLabel(id) { var A = window.PY_ASSIGN && window.PY_ASSIGN[id]; return id === "free" ? "Practice (not graded)" : "Assignment " + id.slice(1) + (A && A.title ? ": " + A.title : "") + (A && A.live === false ? " [DRAFT]" : ""); }
+function unitShort(A) { return A && A.unit ? String(A.unit).split(":")[0] : ""; }
+function slotLabel(id) { var A = window.PY_ASSIGN && window.PY_ASSIGN[id]; return id === "free" ? "Practice (not graded)" : (unitShort(A) ? unitShort(A) + " · " : "") + "Assignment " + id.slice(1) + (A && A.title ? ": " + A.title : "") + (A && A.live === false ? " [DRAFT]" : ""); }
 function buildSlots() {
-  var h = ""; ["free"].concat(Array.from({ length: 30 }, function (_, i) { return "a" + (i + 1); })).forEach(function (id) {
+  var top = "", groups = {}, order = [];
+  ["free"].concat(Array.from({ length: 30 }, function (_, i) { return "a" + (i + 1); })).forEach(function (id) {
     if (id !== "free" && !MY[id] && id !== slot && !(window.PY_ASSIGN && window.PY_ASSIGN[id])) return;
-    h += '<option value="' + id + '">' + slotLabel(id) + (MY[id] === "sub" ? " ✓" : "") + "</option>";
+    var A = window.PY_ASSIGN && window.PY_ASSIGN[id], opt = '<option value="' + id + '">' + slotLabel(id) + (MY[id] === "sub" ? " ✓" : "") + "</option>";
+    if (id !== "free" && A && A.unit) { if (!groups[A.unit]) { groups[A.unit] = ""; order.push(A.unit); } groups[A.unit] += opt; } else top += opt;
   });
+  var h = top; order.forEach(function (u) { h += '<optgroup label="' + escA(u) + '">' + groups[u] + "</optgroup>"; });
   $("slot").innerHTML = h; $("slot").value = slot;
 }
 function escA(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }

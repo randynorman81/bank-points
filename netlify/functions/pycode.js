@@ -160,9 +160,9 @@ async function adminGrade(body) {
 // Teacher-published assignment instructions (drafts live outside the repo; the publish script uploads them).
 async function adminSetAssignment(body) {
   if (!goodSlot(body.slot) || body.slot === "free") return { error: "Unknown assignment" };
-  const title = String(body.title || "").slice(0, 120);
+  const title = String(body.title || "").slice(0, 120), unit = String(body.unit || "").slice(0, 80);
   if (!title || !Array.isArray(body.blocks) || !body.blocks.length) return { error: "Needs a title and blocks" };
-  const text = JSON.stringify({ title, blocks: body.blocks, checks: cleanChecks(body.checks), tips: cleanTips(body.tips), live: body.live !== false, publishedAt: now() });
+  const text = JSON.stringify({ title, unit, blocks: body.blocks, checks: cleanChecks(body.checks), tips: cleanTips(body.tips), live: body.live !== false, publishedAt: now() });
   if (text.length > 120000) return { error: "That assignment is too big" };
   await store().setJSON("assign:" + body.slot, JSON.parse(text));
   return { ok: true, slot: body.slot, title };
