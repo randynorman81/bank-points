@@ -21,8 +21,8 @@ input[type=number]{width:56px;padding:5px 6px;cursor:text}
 .btn.sm{padding:4px 10px;font-size:12px}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 .status{font-size:12px;color:var(--soft);min-width:130px;text-align:right}
-main{flex:1;min-height:0;display:grid;grid-template-columns:var(--aw,340px) 6px 1fr 1fr}
-body.noass main{grid-template-columns:1fr 1fr}
+main{flex:1;min-height:0;display:grid;grid-template-columns:var(--aw,340px) 6px minmax(0,1fr) 6px var(--ow,minmax(0,1fr))}
+body.noass main{grid-template-columns:minmax(0,1fr) 6px var(--ow,minmax(0,1fr))}
 body.noass #paneAss,body.noass #split0{display:none}
 #paneAss{background:#080B11;overflow:hidden}
 #assHead{display:none;padding:6px 14px 8px;background:#0B0E14;border-bottom:1px solid var(--rule)}
@@ -152,7 +152,7 @@ body.karel #karel{display:flex}
 .modal{position:fixed;inset:0;background:#000a;display:none;place-items:center;z-index:50}.modal.show{display:grid}
 .modal .box{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;max-width:420px}
 .modal .box p{margin:0 0 10px}.modal .row{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
-@media (max-width:820px){main{grid-template-columns:1fr;grid-template-rows:auto 1.1fr 1.3fr}body.noass main{grid-template-rows:1.1fr 1.3fr}#paneAss{max-height:34vh}#split0{display:none}.pane{border-right:0;border-bottom:1px solid var(--rule)}}
+@media (max-width:820px){main{grid-template-columns:1fr;grid-template-rows:auto 1.1fr 1.3fr}body.noass main{grid-template-rows:1.1fr 1.3fr}#paneAss{max-height:34vh}#split0,#split1{display:none}.pane{border-right:0;border-bottom:1px solid var(--rule)}}
 </style></head>
 <body>
 <div class="top">
@@ -185,6 +185,7 @@ body.karel #karel{display:flex}
     <div class="teach" id="teach"></div>
     <div class="tip"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> runs your code. <kbd>Tab</kbd> indents. Click any chip in the key to learn about it. <kbd>Ctrl</kbd> + <kbd>/</kbd> comments out the selected lines. Your work saves in this browser as you type.</div>
   </section>
+  <div class="split" id="split1" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to make the output wider or narrower. Double-click to reset."></div>
   <section class="pane">
     <div id="karel">
       <h2>Karel's world</h2>
@@ -870,6 +871,17 @@ $("assBtn").addEventListener("click", function () { setAssOpen(document.body.cla
     sp.addEventListener("pointermove", mv); sp.addEventListener("pointerup", up);
   });
   sp.addEventListener("dblclick", function () { mainEl.style.removeProperty("--aw"); lsSet("py:aw", ""); });
+})();
+(function () {
+  /* drag the line between the code and the output to resize the output pane */
+  var sp = $("split1"), mainEl = $("main"), w = parseInt(lsGet("py:ow"), 10); if (w >= 180 && w <= 1400) mainEl.style.setProperty("--ow", w + "px");
+  sp.addEventListener("pointerdown", function (e) {
+    e.preventDefault(); sp.setPointerCapture(e.pointerId); mainEl.classList.add("dragging");
+    function mv(ev) { var x = Math.max(180, Math.min(window.innerWidth * 0.75, window.innerWidth - ev.clientX)); mainEl.style.setProperty("--ow", Math.round(x) + "px"); lsSet("py:ow", Math.round(x)); if (typeof draw === "function" && mode === "karel" && world) draw(world); }
+    function up() { mainEl.classList.remove("dragging"); sp.removeEventListener("pointermove", mv); sp.removeEventListener("pointerup", up); }
+    sp.addEventListener("pointermove", mv); sp.addEventListener("pointerup", up);
+  });
+  sp.addEventListener("dblclick", function () { mainEl.style.removeProperty("--ow"); lsSet("py:ow", ""); });
 })();
 if (lsGet("py:ass") === "0") setAssOpen(false);
 
