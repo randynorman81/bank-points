@@ -176,6 +176,9 @@ body.karel #karel{display:flex}
 #assScore b{color:#C2410C}
 #assMiss summary{color:#B45309}
 #assMiss ul{position:fixed;top:var(--missTop,120px);right:10px;left:auto;width:min(640px,calc(100vw - 20px));max-height:calc(100vh - var(--missTop,120px) - 16px);overflow:auto;white-space:normal;box-sizing:border-box}
+/* students can't select or copy code samples in the steps or in the help popups; the teacher preview (?teacher) can */
+#tipBody pre{user-select:none}
+body.teacher #assBody pre,body.teacher #tipBody pre{user-select:text;cursor:text}
 @media (max-width:820px){.topbanner{flex-direction:column}#legend{grid-auto-flow:row;grid-template-rows:none}#assInfo{margin-left:0;border-left:0;padding-left:0;flex:1 1 auto;width:100%}}
 </style></head>
 <body>
@@ -1036,8 +1039,9 @@ fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, bo
 }).catch(function () {});
 /* teacher preview: open the editor with ?teacher to see unpublished drafts (needs the teacher PIN) */
 if (/[?&]teacher/.test(location.search)) {
+  document.body.classList.add("teacher");
   var tbar = document.createElement("div"); tbar.className = "cloud show"; tbar.style.background = "#14213D";
-  tbar.innerHTML = '<b>Teacher preview</b> <span>Enter your PIN to show the draft assignments:</span> <input type="password" id="tpin" placeholder="PIN" style="width:90px;background:#171D2B;color:#E8ECF3;border:1px solid #26304A;border-radius:6px;padding:4px 8px"> <button class="btn sm" id="tgo">Show drafts</button> <span id="tmsg"></span>';
+  tbar.innerHTML = '<b>Teacher preview</b> <span>Enter your PIN to show the draft assignments. (In this teacher view you can select and copy the code samples.)</span> <input type="password" id="tpin" placeholder="PIN" style="width:90px;background:#171D2B;color:#E8ECF3;border:1px solid #26304A;border-radius:6px;padding:4px 8px"> <button class="btn sm" id="tgo">Show drafts</button> <span id="tmsg"></span>';
   var top0 = document.querySelector(".top"); top0.parentNode.insertBefore(tbar, top0.nextSibling);
   var loadDrafts = function (pin) {
     return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "adminAssignments", pin: pin }) }).then(function (r) { return r.json(); }).then(function (j) {
