@@ -24,8 +24,9 @@ async function pdfText(buf) {
     let line = [], y = null;
     for (const it of t.items) {
       const yy = Math.round(it.transform[5]);
-      if (y !== null && Math.abs(yy - y) > 3) { out.push(line.join(" ")); line = []; }
+      if (y !== null && Math.abs(yy - y) > 3 && line.length) { out.push(line.join(" ")); line = []; }
       y = yy; line.push(it.str);
+      if (it.hasEOL) { out.push(line.join(" ")); line = []; }
     }
     out.push(line.join(" "));
   }
@@ -60,6 +61,7 @@ $("go").onclick = () => {
   const text = picked ? picked.text : $("paste").value;
   fileName = picked ? picked.name.replace(/\.[^.]+$/, "") : "Pasted test";
   questions = DOK.analyze(text); filter = 0;
+  $("rawtext").textContent = text;
   if (!questions.length) return showErr("Couldn't find any questions. Number them like 1. 2. 3. and try again.");
   $("setup").hidden = true; $("results").hidden = false;
   $("title").textContent = fileName;

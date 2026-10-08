@@ -41,6 +41,8 @@
       }
       if (cur) cur.lines.push(raw);
     }
+    const inline = splitInline(text);
+    if (inline.length > qs.length && inline.length >= 2) return inline;
     if (qs.length < 2) { // fallback: blank-line blocks that look like questions
       const blocks = text.replace(/\r/g, "").split(/\n\s*\n/).map(b => b.trim()).filter(b => b.length > 15 && (/\?|\b(explain|describe|list|define|identify|solve|compare|write|create|design|calculate)\b/i.test(b)));
       return blocks.map((b, i) => ({ n: i + 1, label: String(i + 1), lines: b.split("\n") }));
@@ -48,12 +50,34 @@
     return qs;
   }
 
+  // For text that came out as one long run (common with PDFs): find 1. 2. 3. in order anywhere in the text.
+  function splitInline(text) {
+    const flat = text.replace(/\r/g, "").replace(/[ \t]*\n[ \t]*/g, " \n").replace(/ +/g, " ");
+    const re = /(?:^|[\s?.!:)])(?:Q(?:uestion)?\s*#?\s*)?(\d{1,3})\s*[.)]\s+(?=[A-Z"“'(\[])/g;
+    const hits = []; let m, want = 1;
+    while ((m = re.exec(flat))) {
+      if (+m[1] === want) {
+        const lead = /^[\s?.!:)]/.test(m[0]) ? 1 : 0;
+        hits.push({ n: want, start: m.index + lead, textStart: re.lastIndex });
+        want++;
+      }
+    }
+    if (hits.length < 2) return [];
+    return hits.map((h, i) => {
+      const end = i + 1 < hits.length ? hits[i + 1].start : flat.length;
+      const body = flat.slice(h.textStart, end).trim();
+      return { n: i + 1, label: String(h.n), lines: body.split("\n").map(x => x.trim()).filter(Boolean) };
+    });
+  }
+
   function rate(q) {
     const body = q.lines.join("\n").trim();
     const choiceRe = /^\s*\(?[A-Ha-h][.)]\s+\S/;
-    const choices = q.lines.filter(l => choiceRe.test(l)).length;
-    const mc = choices >= 3;
-    const stem = (mc ? q.lines.filter(l => !choiceRe.test(l)) : q.lines).join(" ").replace(/\s+/g, " ").trim();
+    let choices = q.lines.filter(l => choiceRe.test(l)).length;
+    const inlineMC = /(?:^|\s)\(?A[.)]\s.*\s\(?B[.)]\s.*\s\(?C[.)]\s/.test(q.lines.join(" "));
+    const mc = choices >= 3 || inlineMC;
+    let stem = (choices >= 3 ? q.lines.filter(l => !choiceRe.test(l)) : q.lines).join(" ").replace(/\s+/g, " ").trim();
+    if (inlineMC && choices < 3) { stem = stem.replace(/\s\(?A[.)]\s.*$/, "").trim(); choices = 4; }
     const words = stem.split(/\s+/).filter(Boolean).length;
     const parts = (body.match(/^\s*\(?[a-c][.)]\s/gim) || []).length;
     const tf = /\btrue\s*(or|\/)\s*false\b/i.test(stem);
@@ -87,7 +111,7 @@
       dok = 2; notes.push("a multi-sentence word problem with numbers is a routine multi-step problem");
     }
     if (parts >= 2 && dok < 3 && has(2)) notes.push(`${parts} lettered parts add work but not necessarily depth`);
-    if (mc) notes.push(dok >= 3 ? `multiple choice (${choices} options), which is why it is not rated higher` : `multiple choice (${choices} options)`);
+    if (mc) notes.push(dok >= 3 ? `multiple choice, which is why it is not rated higher` : `multiple choice (${choices} options)`);
     else if (tf) notes.push("true/false is recall unless the student must justify");
     else if (fill) notes.push("fill-in-the-blank is recall");
     if ((tf || fill) && dok > 1 && !has(3)) { dok = 1; }
