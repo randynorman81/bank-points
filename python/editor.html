@@ -35,6 +35,29 @@ body.noass #paneAss,body.noass #split0{display:none}
 #assMiss.show{display:block}
 #assMiss summary{cursor:pointer;color:#FCD34D}
 #assMiss ul{margin:6px 0 2px;padding-left:18px}#assMiss li{margin:3px 0;color:var(--ink)}#assMiss li small{color:var(--soft)}
+.tipbtn{display:inline-block;margin:2px 3px;padding:2px 9px;border-radius:100px;border:1px solid #FBBF24;background:#2A2110;color:#FDE68A;font:600 12px Manrope,sans-serif;cursor:pointer;line-height:1.5;vertical-align:baseline}
+.tipbtn:hover,.tipbtn:focus{background:#3a2d12;border-color:#FDE047;outline:0}
+.tiprow{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:0 0 12px;padding:8px 10px;background:#161208;border:1px dashed #6b5a1e;border-radius:10px;font-size:12.5px;color:#FDE68A}
+.tiprow>span{font-weight:700;margin-right:4px}
+.tipbox{width:min(94vw,660px);max-width:660px!important;max-height:86vh;overflow:auto;padding:0!important}
+.tiphead{position:sticky;top:0;display:flex;gap:10px;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--rule);z-index:2}
+.tiphead h3{margin:0;font-size:16px;color:#FDE68A}
+#tipBody{padding:6px 16px 16px;font-size:14px;line-height:1.55}
+#tipBody .exh{font:700 10.5px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin:14px 0 6px}
+#tipBody p{margin:0 0 8px}
+#tipBody pre{margin:0 0 8px;background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:8px 12px;font:13px/1.55 "JetBrains Mono",monospace;white-space:pre-wrap;color:#E6EAF2}
+#tipBody code{background:#0D1220;border:1px solid var(--rule);border-radius:4px;padding:0 5px;font:12.5px "JetBrains Mono",monospace;color:#FDBA74}
+#tipBody ul,#tipBody ol{margin:0 0 8px;padding-left:22px}#tipBody li{margin:4px 0}
+#tipBody table{border-collapse:collapse;width:100%;margin:0 0 8px;font-size:13px}
+#tipBody th{text-align:left;font:700 10.5px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;color:var(--soft);padding:3px 8px;border-bottom:1px solid var(--rule)}
+#tipBody td{padding:5px 8px;border-bottom:1px solid #1b2337;vertical-align:top}
+#tipBody td.code{font:13px "JetBrains Mono",monospace;white-space:nowrap}
+#tipBody td.res{font:700 13px "JetBrains Mono",monospace;color:#86EFAC;white-space:nowrap}
+#tipBody details{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:6px 10px;margin:0 0 5px}
+#tipBody summary{cursor:pointer;font:13px "JetBrains Mono",monospace}
+#tipBody details .ans{margin-top:4px;color:#86EFAC}
+#tipBody .warn{border-left:4px solid #FBBF24;background:rgba(251,191,36,.10);border-radius:6px;padding:8px 12px;margin:0 0 8px}
+#tipBody .good{border-left:4px solid #34D399;background:rgba(52,211,153,.08);border-radius:6px;padding:8px 12px;margin:0 0 8px}
 #assScore small{font:500 11px Manrope,sans-serif;color:var(--soft)}
 #assHead .prog{height:8px;background:#0D1220;border-radius:6px;overflow:hidden}
 #assHead .prog i{display:block;height:100%;background:var(--ok);width:0;transition:width .2s}
@@ -182,6 +205,7 @@ body.karel #karel{display:flex}
   </section>
 </main>
 <div class="modal" id="mSub"><div class="box"><div id="mSubBody"></div><div class="row"><button class="btn" id="mCancel">Cancel</button><button class="btn go" id="mGo">Submit</button></div></div></div>
+<div class="modal" id="mTip"><div class="box tipbox" role="dialog" aria-label="Help"><div class="tiphead"><h3 id="tipTitle"></h3><button class="btn" id="tipClose">Got it</button></div><div id="tipBody"></div></div></div>
 <script src="assignments.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
@@ -760,7 +784,29 @@ document.addEventListener("keydown", function (e) { if (e.key === "Enter" && (e.
 /* =====================================================================================
    THE ASSIGNMENT COLUMN (instructions for the chosen assignment, with a checklist that remembers progress)
    ===================================================================================== */
-function inl(t) { return escH(String(t)).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>"); }
+function inl(t) { return escH(String(t)).replace(/\[\[(.+?)\|([a-z0-9_-]+)\]\]/g, '<button type="button" class="tipbtn" data-tip="$2">💡 $1</button>').replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>"); }
+/* the text inside a tip popup: **bold** and code, nothing else */
+function tinl(t) { return escH(String(t)).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>"); }
+function renderTipSection(sec) {
+  var h = sec.h ? '<div class="exh">' + escH(sec.h) + "</div>" : "";
+  if (sec.p) h += "<p>" + tinl(sec.p) + "</p>";
+  if (sec.good) h += '<div class="good">' + tinl(sec.good) + "</div>";
+  if (sec.warn) h += '<div class="warn">' + tinl(sec.warn) + "</div>";
+  if (sec.steps) h += "<ol>" + sec.steps.map(function (x) { return "<li>" + tinl(x) + "</li>"; }).join("") + "</ol>";
+  if (sec.list) h += "<ul>" + sec.list.map(function (x) { return "<li>" + tinl(x) + "</li>"; }).join("") + "</ul>";
+  if (sec.ex) h += "<pre>" + highlight(sec.ex.join("\n")) + "</pre>";
+  if (sec.rows) { h += "<table><tr><th>Code</th><th>Gives</th><th>Why</th></tr>"; sec.rows.forEach(function (r) { h += '<tr><td class="code">' + highlight(r[0]) + '</td><td class="res">' + escH(r[1]) + "</td><td>" + tinl(r[2] || "") + "</td></tr>"; }); h += "</table>"; }
+  if (sec.quiz) sec.quiz.forEach(function (q) { h += "<details><summary>" + highlight(q[0]) + '</summary><div class="ans">' + tinl(q[1]) + "</div></details>"; });
+  return h;
+}
+function openTip(id) {
+  var A = (window.PY_ASSIGN || {})[slot], t = A && A.tips && A.tips[id]; if (!t) return;
+  $("tipTitle").textContent = t.title; $("tipBody").innerHTML = (t.sections || []).map(renderTipSection).join(""); $("tipBody").parentNode.scrollTop = 0; $("mTip").classList.add("show");
+}
+$("tipClose").addEventListener("click", function () { $("mTip").classList.remove("show"); });
+$("mTip").addEventListener("click", function (e) { if (e.target === $("mTip")) $("mTip").classList.remove("show"); });
+document.addEventListener("keydown", function (e) { if (e.key === "Escape") $("mTip").classList.remove("show"); });
+$("assBody").addEventListener("click", function (e) { var b = e.target.closest && e.target.closest(".tipbtn"); if (b) { e.preventDefault(); e.stopPropagation(); openTip(b.getAttribute("data-tip")); } });
 function renderAssignment() {
   var A = (window.PY_ASSIGN || {})[slot], body = $("assBody"), title = slotLabel(slot);
   $("assTitle").textContent = title;
@@ -771,6 +817,7 @@ function renderAssignment() {
     if (b.h) h += "<h3>" + inl(b.h) + "</h3>";
     else if (b.p) h += "<p>" + inl(b.p) + "</p>";
     else if (b.code) h += "<pre>" + highlight(b.code) + "</pre>";
+    else if (b.tips) h += '<div class="tiprow"><span>💡 Click to learn:</span>' + b.tips.map(function (id) { var t = A.tips && A.tips[id]; return t ? '<button type="button" class="tipbtn" data-tip="' + id + '">' + escH(t.title) + "</button>" : ""; }).join("") + "</div>";
     else {
       var kind = b.make ? "make" : b.where ? "where" : "build", items = b.make || b.where || b.build || [];
       h += '<div class="cb ' + kind + '">' + items.map(function (t) { var id = "i" + (n++); return '<label class="' + (done[id] ? "done" : "") + '"><input type="checkbox" data-id="' + id + '"' + (done[id] ? " checked" : "") + "><span>" + inl(t) + "</span></label>"; }).join("") + "</div>";

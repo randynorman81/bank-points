@@ -219,7 +219,7 @@ function autoPanel(r, rec) {
     var done = {}; (t.ids || []).forEach(function (i) { done[i] = 1; });
     h += "<div><b>" + (t.ids || []).length + " of " + t.total + "</b> steps ticked</div>";
     var un = []; for (var i = 0; i < t.total; i++) if (!done["i" + i]) un.push(steps[i] || ("Step " + (i + 1)));
-    if (un.length) h += "<details><summary>" + un.length + " not ticked</summary><ul>" + un.map(function (x) { return "<li>" + esc(String(x).replace(/[*`]/g, "")) + "</li>"; }).join("") + "</ul></details>";
+    if (un.length) h += "<details><summary>" + un.length + " not ticked</summary><ul>" + un.map(function (x) { return "<li>" + esc(String(x).replace(/\[\[(.+?)\|[a-z0-9_-]+\]\]/g, "$1").replace(/[*`]/g, "")) + "</li>"; }).join("") + "</ul></details>";
     else h += '<div style="color:#6EE7B7">All steps ticked.</div>';
   }
   return h;

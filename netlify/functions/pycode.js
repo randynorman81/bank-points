@@ -46,6 +46,22 @@ const cleanChecks = (c) => (Array.isArray(c) ? c : []).slice(0, 80).map((x) => (
   label: String((x && x.label) || "").slice(0, 140), re: String((x && x.re) || "").slice(0, 1200), flags: /^[gimsu]{0,4}$/.test(String((x && x.flags) || "")) ? String(x.flags || "") : "",
   min: Math.max(1, Math.min(200, Number(x && x.min) || 1)), pts: Math.max(1, Math.min(50, Number(x && x.pts) || 1)), where: ["code", "comments", "raw", "notes"].indexOf(x && x.where) > -1 ? x.where : "code"
 })).filter((x) => x.label && x.re);
+const cleanTips = (t) => {
+  const out = {}; if (!t || typeof t !== "object") return out;
+  const str = (v, n) => String(v == null ? "" : v).slice(0, n);
+  Object.keys(t).slice(0, 100).forEach((id) => {
+    if (!/^[a-z0-9_-]{1,40}$/.test(id) || !t[id]) return;
+    out[id] = { title: str(t[id].title, 140), sections: (Array.isArray(t[id].sections) ? t[id].sections : []).slice(0, 14).map((x) => {
+      const o = {}; if (x.h) o.h = str(x.h, 140); if (x.p) o.p = str(x.p, 1800); if (x.good) o.good = str(x.good, 900); if (x.warn) o.warn = str(x.warn, 900);
+      ["steps", "list"].forEach((f) => { if (Array.isArray(x[f])) o[f] = x[f].slice(0, 14).map((v) => str(v, 500)); });
+      if (Array.isArray(x.ex)) o.ex = x.ex.slice(0, 16).map((v) => str(v, 220));
+      if (Array.isArray(x.rows)) o.rows = x.rows.slice(0, 14).map((r) => [str(r[0], 160), str(r[1], 160), str(r[2], 400)]);
+      if (Array.isArray(x.quiz)) o.quiz = x.quiz.slice(0, 10).map((r) => [str(r[0], 240), str(r[1], 500)]);
+      return o;
+    }) };
+  });
+  return out;
+};
 const cleanWorld = (w) => { const s = typeof w === "string" ? w : ""; return s.length > MAX_WORLD ? "" : s; };
 
 /* ---------------- student actions ---------------- */
@@ -146,7 +162,7 @@ async function adminSetAssignment(body) {
   if (!goodSlot(body.slot) || body.slot === "free") return { error: "Unknown assignment" };
   const title = String(body.title || "").slice(0, 120);
   if (!title || !Array.isArray(body.blocks) || !body.blocks.length) return { error: "Needs a title and blocks" };
-  const text = JSON.stringify({ title, blocks: body.blocks, checks: cleanChecks(body.checks), live: body.live !== false, publishedAt: now() });
+  const text = JSON.stringify({ title, blocks: body.blocks, checks: cleanChecks(body.checks), tips: cleanTips(body.tips), live: body.live !== false, publishedAt: now() });
   if (text.length > 120000) return { error: "That assignment is too big" };
   await store().setJSON("assign:" + body.slot, JSON.parse(text));
   return { ok: true, slot: body.slot, title };
