@@ -100,7 +100,7 @@ body.noass #paneAss,body.noass #split0{display:none}
 .lgsep{white-space:nowrap;font-weight:700;color:var(--soft);font-size:11px;margin-right:2px}
 .mrow{flex:0 0 100%;display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding-top:3px;border-top:1px solid var(--rule)}
 .mrow:first-child{border-top:0;padding-top:0}
-.mrow.mathrow{flex-wrap:nowrap;overflow-x:auto}
+.mrow.mathrow{flex-wrap:wrap}
 .lgsep{min-width:0}
 .mrow .lg{white-space:nowrap;flex:0 0 auto}
 #kpop table{border-collapse:collapse;width:100%;margin:0 0 4px;font-size:13px}
@@ -874,10 +874,16 @@ $("assBtn").addEventListener("click", function () { setAssOpen(document.body.cla
 })();
 (function () {
   /* drag the line between the code and the output to resize the output pane */
-  var sp = $("split1"), mainEl = $("main"), w = parseInt(lsGet("py:ow"), 10); if (w >= 180 && w <= 1400) mainEl.style.setProperty("--ow", w + "px");
+  var sp = $("split1"), mainEl = $("main"), w = parseInt(lsGet("py:ow"), 10);
+  /* the output may take at most what is left after the assignment column and a 320px code box, so the code box and its key never get squeezed */
+  function maxOut() { var ass = document.body.classList.contains("noass") ? 0 : $("paneAss").getBoundingClientRect().width + 12; return Math.max(180, window.innerWidth - ass - 320 - 6); }
+  function applyOw(px) { if (px >= 180) mainEl.style.setProperty("--ow", Math.round(Math.min(px, maxOut())) + "px"); }
+  if (w >= 180 && w <= 1400) applyOw(w);
+  window.addEventListener("resize", function () { var v = parseInt(lsGet("py:ow"), 10); if (v >= 180) applyOw(v); });
+  $("assBtn").addEventListener("click", function () { setTimeout(function () { var v = parseInt(lsGet("py:ow"), 10); if (v >= 180) applyOw(v); }, 0); });
   sp.addEventListener("pointerdown", function (e) {
     e.preventDefault(); sp.setPointerCapture(e.pointerId); mainEl.classList.add("dragging");
-    function mv(ev) { var x = Math.max(180, Math.min(window.innerWidth * 0.75, window.innerWidth - ev.clientX)); mainEl.style.setProperty("--ow", Math.round(x) + "px"); lsSet("py:ow", Math.round(x)); if (typeof draw === "function" && mode === "karel" && world) draw(world); }
+    function mv(ev) { var x = Math.max(180, Math.min(maxOut(), window.innerWidth - ev.clientX)); mainEl.style.setProperty("--ow", Math.round(x) + "px"); lsSet("py:ow", Math.round(x)); if (typeof draw === "function" && mode === "karel" && world) draw(world); }
     function up() { mainEl.classList.remove("dragging"); sp.removeEventListener("pointermove", mv); sp.removeEventListener("pointerup", up); }
     sp.addEventListener("pointermove", mv); sp.addEventListener("pointerup", up);
   });
