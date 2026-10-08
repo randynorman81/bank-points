@@ -42,9 +42,9 @@ const cleanTicks = (t) => {
   const ids = (Array.isArray(t.ids) ? t.ids : []).filter((x) => /^i\d{1,3}$/.test(String(x))).slice(0, 300);
   return { ids, total: Math.max(0, Math.min(300, Number(t.total) || 0)) };
 };
-const cleanChecks = (c) => (Array.isArray(c) ? c : []).slice(0, 40).map((x) => ({
-  label: String((x && x.label) || "").slice(0, 140), re: String((x && x.re) || "").slice(0, 300), flags: /^[gimsu]{0,4}$/.test(String((x && x.flags) || "")) ? String(x.flags || "") : "",
-  min: Math.max(1, Math.min(200, Number(x && x.min) || 1)), where: ["code", "comments", "raw", "notes"].indexOf(x && x.where) > -1 ? x.where : "code"
+const cleanChecks = (c) => (Array.isArray(c) ? c : []).slice(0, 80).map((x) => ({
+  label: String((x && x.label) || "").slice(0, 140), re: String((x && x.re) || "").slice(0, 1200), flags: /^[gimsu]{0,4}$/.test(String((x && x.flags) || "")) ? String(x.flags || "") : "",
+  min: Math.max(1, Math.min(200, Number(x && x.min) || 1)), pts: Math.max(1, Math.min(50, Number(x && x.pts) || 1)), where: ["code", "comments", "raw", "notes"].indexOf(x && x.where) > -1 ? x.where : "code"
 })).filter((x) => x.label && x.re);
 const cleanWorld = (w) => { const s = typeof w === "string" ? w : ""; return s.length > MAX_WORLD ? "" : s; };
 
@@ -191,17 +191,17 @@ function splitCode(code) {
   return { comments, notes, code: codeOnly.join("\n") };
 }
 function scoreCode(checks, code) {
-  const sp = splitCode(code); let passed = 0, credit = 0; const missing = [];
+  const sp = splitCode(code); let passed = 0, credit = 0, possible = 0; const missing = [];
   checks.forEach((c) => {
     let n = 0; const flags = String(c.flags || "").replace(/g/g, "");
     try {
       if (c.where === "comments" || c.where === "notes") { const re = new RegExp(c.re, flags); (c.where === "notes" ? sp.notes : sp.comments).forEach((l) => { if (re.test(l)) n++; }); }
       else { const m = (c.where === "code" ? sp.code : String(code || "")).match(new RegExp(c.re, "g" + flags)); n = m ? m.length : 0; }
     } catch (e) { n = 0; }
-    credit += Math.min(1, n / c.min);
-    if (n >= c.min) passed++; else missing.push({ label: c.label, have: Math.min(n, c.min - 1), need: c.min });
+    const w = c.pts || 1; possible += w; credit += w * Math.min(1, n / c.min);
+    if (n >= c.min) passed++; else missing.push({ label: c.label, have: Math.min(n, c.min - 1), need: c.min, pts: w });
   });
-  return { passed, total: checks.length, missing, pct: checks.length ? Math.round(credit * 100 / checks.length) : null };
+  return { passed, total: checks.length, missing, pct: possible ? Math.round(credit * 100 / possible) : null };
 }
 async function liveScore(body) {
   if (!goodSlot(body.slot) || body.slot === "free") return { ok: true, pct: null };

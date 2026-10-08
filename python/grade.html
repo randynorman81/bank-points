@@ -118,18 +118,18 @@ function splitCode(code) {
   return { comments: comments, notes: notes, code: codeOnly.join("\n") };
 }
 function runChecks(slotId, code) {
-  var A = ASSIGN[slotId], checks = (A && A.checks) || [], sp = splitCode(code), res = [], credit = 0;
+  var A = ASSIGN[slotId], checks = (A && A.checks) || [], sp = splitCode(code), res = [], credit = 0, possible = 0;
   checks.forEach(function (c) {
     var n = 0, flags = String(c.flags || "").replace(/g/g, "");
     try {
       if (c.where === "comments" || c.where === "notes") { var re = new RegExp(c.re, flags); (c.where === "notes" ? sp.notes : sp.comments).forEach(function (l) { if (re.test(l)) n++; }); }
       else { var m = (c.where === "code" ? sp.code : String(code || "")).match(new RegExp(c.re, "g" + flags)); n = m ? m.length : 0; }
     } catch (e) { n = 0; }
-    credit += Math.min(1, n / c.min);
-    res.push({ label: c.label, min: c.min, count: n, ok: n >= c.min });
+    var w = c.pts || 1; possible += w; credit += w * Math.min(1, n / c.min);
+    res.push({ label: c.label, min: c.min, count: n, ok: n >= c.min, pts: w });
   });
   var passed = res.filter(function (x) { return x.ok; }).length;
-  return { results: res, passed: passed, total: res.length, pct: res.length ? Math.round(credit * 100 / res.length) : null, comments: sp.comments.filter(function (l) { return l.trim(); }).length, kept: sp.comments.filter(function (l) { return /^\s*([A-Za-z_]\w*\s*=[^=]|print\(|input\(|[A-Za-z_]\w*\s*=\s*\w+\()/.test(l); }).length, lines: sp.code.split("\n").filter(function (l) { return l.trim(); }).length };
+  return { results: res, passed: passed, total: res.length, pct: possible ? Math.round(credit * 100 / possible) : null, comments: sp.comments.filter(function (l) { return l.trim(); }).length, kept: sp.comments.filter(function (l) { return /^\s*([A-Za-z_]\w*\s*=[^=]|print\(|input\(|[A-Za-z_]\w*\s*=\s*\w+\()/.test(l); }).length, lines: sp.code.split("\n").filter(function (l) { return l.trim(); }).length };
 }
 function stepTexts(slotId) {
   var A = ASSIGN[slotId], out = []; if (!A) return out;
@@ -208,7 +208,7 @@ function autoPanel(r, rec) {
   var slotId = $("slot").value, ck = runChecks(slotId, rec.code), h = "<h3>Automatic checks</h3>";
   if (ck.total) {
     h += '<div><span class="autoscore">' + ck.pct + '%</span> <small style="color:var(--soft)">' + ck.passed + " of " + ck.total + ' checks</small></div><div class="bar2"><i style="width:' + ck.pct + '%"></i></div>';
-    ck.results.forEach(function (x) { h += '<div class="ck ' + (x.ok ? "ok" : "no") + '"><span class="m">' + (x.ok ? "&#10003;" : "&#10005;") + "</span><span>" + esc(x.label) + " <small>(found " + x.count + ", need " + x.min + ")</small></span></div>"; });
+    ck.results.forEach(function (x) { h += '<div class="ck ' + (x.ok ? "ok" : "no") + '"><span class="m">' + (x.ok ? "&#10003;" : "&#10005;") + "</span><span>" + esc(x.label) + " <small>(found " + x.count + ", need " + x.min + "; " + (x.pts || 1) + " pt" + ((x.pts || 1) === 1 ? "" : "s") + ")</small></span></div>"; });
     h += '<div style="margin-top:8px"><button class="btn sm" id="useAuto">Use ' + ck.pct + ' as the score</button></div>';
   } else h += '<p style="color:var(--soft)">No automatic checks for this assignment.</p>';
   h += '<div class="kv"><span>Lines of code</span><span>' + ck.lines + '</span><span>Comments</span><span>' + ck.comments + '</span><span>Commented-out earlier code</span><span class="' + (ck.kept ? "" : "warn") + '">' + ck.kept + (ck.kept ? "" : " (none: may have deleted work)") + '</span><span>Syntax check</span><span id="synRes">checking...</span></div>';

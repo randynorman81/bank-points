@@ -801,12 +801,12 @@ function updateScore() {
     fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(function (r) { return r.json(); }).then(function (j) {
       if (seq !== scoreSeq || !j || !j.ok) return;
       if (j.pct === null || j.pct === undefined) { el.innerHTML = j.tooLong ? "<small>Your code is too long to score here.</small>" : ""; $("assMiss").className = ""; return; }
-      el.innerHTML = "Auto score: <b>" + j.pct + " / 100</b> <small>It checks that the required pieces are in your code. Your teacher also reads your code and comments.</small>";
+      el.innerHTML = "Auto score: <b>" + j.pct + " / 100</b> <small>This is the score your work earns: the same checks grade it when you submit.</small>";
       var miss = j.missing || [], box = $("assMiss");
       if (!miss.length) { box.className = "show"; $("assMissSum").textContent = "All the checks are met. Nice work!"; $("assMissList").innerHTML = ""; }
       else {
         box.className = "show"; $("assMissSum").textContent = miss.length + " thing" + (miss.length === 1 ? "" : "s") + " still missing (click to see)";
-        $("assMissList").innerHTML = miss.map(function (m) { return "<li>" + escA(m.label) + " <small>(you have " + m.have + ", need " + m.need + ")</small></li>"; }).join("");
+        $("assMissList").innerHTML = miss.map(function (m) { return "<li>" + escA(m.label) + " <small>(you have " + m.have + ", need " + m.need + "; worth " + (m.pts || 1) + " point" + ((m.pts || 1) === 1 ? "" : "s") + ")</small></li>"; }).join("");
       }
     }).catch(function () {});
   }, 900);
