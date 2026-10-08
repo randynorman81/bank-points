@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DOK Test Analyzer</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+</head>
+<body>
+<header>
+  <h1>DOK Test Analyzer</h1>
+  <p>Upload a test. Get every question's Depth of Knowledge level, why, the DOK mix for the whole test, and each question rewritten at the other levels.</p>
+</header>
+
+<main>
+  <section id="setup" class="card">
+    <div id="drop" tabindex="0" role="button" aria-label="Choose a test file">
+      <strong>Drop a test here or click to choose</strong>
+      <span>PDF, Word (.docx), text, or a photo/scan (PNG, JPG). Google Doc: File &rarr; Download &rarr; PDF or .docx, then upload it here.</span>
+      <input id="file" type="file" accept=".pdf,.docx,.txt,.md,.png,.jpg,.jpeg,.webp,.gif" hidden>
+    </div>
+    <div id="picked" hidden></div>
+    <details>
+      <summary>Or paste the test text</summary>
+      <textarea id="paste" rows="8" placeholder="Paste the questions here (copy straight out of a Google Doc works great)"></textarea>
+    </details>
+    <label id="codeRow" hidden>Access code <input id="code" type="password" autocomplete="off"></label>
+    <button id="go" disabled>Analyze test</button>
+    <p id="err" class="err" hidden></p>
+    <p class="fine">The file is sent to Claude for analysis and is not stored on this site. Don't upload anything with student names or grades.</p>
+  </section>
+
+  <section id="results" hidden>
+    <div class="bar">
+      <div><h2 id="title">Test</h2><p id="status" class="fine"></p></div>
+      <div class="actions"><button id="print" class="ghost">Print / save as PDF</button><button id="again" class="ghost">Analyze another</button></div>
+    </div>
+
+    <div class="card" id="summary">
+      <h3>DOK across the whole test</h3>
+      <div id="stack" class="stack"></div>
+      <div id="legend" class="legend"></div>
+      <p id="advice" class="advice"></p>
+    </div>
+
+    <div class="filter" id="filter"></div>
+    <div id="list"></div>
+  </section>
+</main>
+
+<footer>Levels follow Webb's Depth of Knowledge wheel (Level 1 Recall, 2 Skill/Concept, 3 Strategic Thinking, 4 Extended Thinking). Ratings are an AI judgment &mdash; use your professional eye on each one.</footer>
+<script src="app.js"></script>
+</body>
+</html>
