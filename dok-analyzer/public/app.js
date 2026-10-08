@@ -101,45 +101,23 @@ function render(final) {
   const hi = pct(3) + pct(4);
   $("advice").hidden = !final || !n;
   $("advice").textContent = hi >= 40 ? `${Math.round(hi)}% of this test is DOK 3-4, a strong balance of deeper thinking.`
-    : hi >= 20 ? `${Math.round(hi)}% of this test is DOK 3-4. Open any question below to see how to push it higher.`
-    : `Only ${Math.round(hi)}% of this test is DOK 3-4; it mostly measures recall and routine skills. The rewrites under each question show how to raise it.`;
+    : hi >= 20 ? `${Math.round(hi)}% of this test is DOK 3-4.`
+    : `Only ${Math.round(hi)}% of this test is DOK 3-4; it mostly measures recall and routine skills.`;
 
   $("filter").innerHTML = [0, 1, 2, 3, 4].map(l => `<button data-f="${l}" class="${filter === l ? "on" : ""}">${l ? "DOK " + l : "All"}</button>`).join("");
   $("filter").querySelectorAll("button").forEach(b => b.onclick = () => { filter = +b.dataset.f; render(final); });
 
-  const open = new Set([...document.querySelectorAll(".q")].filter(e => e.dataset.tab).map(e => e.dataset.n + ":" + e.dataset.tab));
-  $("list").innerHTML = questions.filter(q => !filter || q.dok === filter).map(q => card(q)).join("") +
+  $("list").innerHTML = questions.filter(q => !filter || q.dok === filter).map(card).join("") +
     (final ? "" : `<p class="pending">Analyzing more questions…</p>`);
-  $("list").querySelectorAll(".q").forEach(el => {
-    const q = questions.find(x => String(x.n) === el.dataset.n && x.dok === +el.dataset.dok);
-    el.querySelectorAll(".tabs button").forEach(b => b.onclick = () => showTab(el, q, b.dataset.l));
-    const cp = el.querySelector(".copy"); if (cp) cp.onclick = () => { navigator.clipboard.writeText(el.dataset.rw || ""); cp.textContent = "Copied"; setTimeout(() => cp.textContent = "Copy", 1200); };
-    const prev = [...open].find(k => k.startsWith(el.dataset.n + ":"));
-    if (prev) showTab(el, q, prev.split(":")[1]);
-  });
 }
 
 function card(q) {
-  const levels = [1, 2, 3, 4].filter(l => l !== q.dok && q.rewrites && q.rewrites[l]);
-  const tabs = levels.map(l => `<button data-l="${l}">DOK ${l} &middot; ${NAMES[l]}</button>`).join("");
-  const all = levels.map(l => `<div class="rwbody" style="border-color:${COL[l]}"><h4>DOK ${l} version</h4><p>${esc(q.rewrites[l].question)}</p>${q.rewrites[l].answer ? `<p class="ans"><b>Answer / scoring:</b> ${esc(q.rewrites[l].answer)}</p>` : ""}<p class="chg">${esc(q.rewrites[l].change)}</p></div>`).join("");
-  return `<article class="q" data-n="${esc(q.n)}" data-dok="${q.dok}">
+  return `<article class="q">
     <div class="qhead"><span class="qn">Question ${esc(q.n)}</span><span class="badge" style="background:${COL[q.dok]}">DOK ${q.dok} &middot; ${NAMES[q.dok]}</span></div>
     <p class="qtext">${esc(q.question)}</p>
     <p class="why"><b>Why DOK ${q.dok}:</b> ${esc(q.why)}</p>
     <div class="verbs">${(q.verbs || []).map(v => `<span>${esc(v)}</span>`).join("")}</div>
-    <div class="rw"><h4>Rewrite this question at another level</h4>
-      <div class="tabs">${tabs}</div><div class="rwbody-slot"></div><div class="rwall">${all}</div></div>
   </article>`;
-}
-
-function showTab(el, q, l) {
-  el.dataset.tab = l;
-  el.querySelectorAll(".tabs button").forEach(b => { const on = b.dataset.l === l; b.classList.toggle("on", on); b.style.background = on ? COL[l] : ""; });
-  const r = q.rewrites[l];
-  el.dataset.rw = r.question;
-  el.querySelector(".rwbody-slot").innerHTML = `<div class="rwbody" style="border-color:${COL[l]}"><p>${esc(r.question)}</p>${r.answer ? `<p class="ans"><b>Answer / scoring:</b> ${esc(r.answer)}</p>` : ""}<p class="chg"><b>What changed:</b> ${esc(r.change)}</p><button class="copy">Copy</button></div>`;
-  el.querySelector(".copy").onclick = e => { navigator.clipboard.writeText(r.question); e.target.textContent = "Copied"; setTimeout(() => e.target.textContent = "Copy", 1200); };
 }
 
 $("print").onclick = () => window.print();

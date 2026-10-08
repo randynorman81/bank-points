@@ -1,5 +1,5 @@
 // Worker: serves the static site (public/) and POST /api/analyze, which asks Claude to rate every
-// test question's DOK level (Webb, per the DOK wheel) and rewrite it at the other levels.
+// test question's DOK level (Webb, per the DOK wheel).
 // The reply streams back as NDJSON (one JSON object per line) so the page can fill in live.
 
 const MODEL = "claude-sonnet-5-5";
@@ -14,21 +14,12 @@ LEVEL 4 - Extended Thinking. Verbs: apply concepts, design, connect, prove, synt
 
 Rules for rating: DOK is about the thinking the question demands, NOT the verb alone and NOT difficulty. Ask "what must the student do mentally?". A multiple-choice item is rarely above DOK 3; a single-sitting test item is almost never DOK 4 unless it truly demands multi-source synthesis or an extended design/investigation. Hard but routine calculation is still DOK 1-2. Be honest and calibrated; do not inflate.
 
-TASK: Find every question/item on the uploaded test (number them in order; treat each lettered sub-part as part of its parent question unless it is clearly independent). Ignore directions, headers and answer keys except to understand context. If a passage/stimulus belongs to several questions, include enough of it in your rewrites to stand alone.
+TASK: Find every question/item on the uploaded test (number them in order; treat each lettered sub-part as part of its parent question unless it is clearly independent). Ignore directions, headers and answer keys except to understand context.
 
 OUTPUT FORMAT - respond with NDJSON ONLY: one compact JSON object per line, no markdown, no code fences, no commentary.
 First line: {"type":"meta","title":"<test title or best guess>","subject":"<subject>","grade":"<grade/level if evident or empty>"}
 Then one line per question:
-{"type":"question","n":<number>,"question":"<the question text, including answer choices if any>","dok":<1-4>,"why":"<2-3 sentences: what the student must do, which wheel verbs/tasks it matches, and why it is not one level lower or higher>","verbs":["<key verb(s) from the wheel>"],"rewrites":{"<level>":{"question":"<full standalone rewrite on the same content at that DOK level, with answer choices if multiple choice>","answer":"<answer key or scoring guide>","change":"<one sentence: how the thinking demand changed>"}}}
-"rewrites" must contain an entry for EACH of the three levels (1,2,3,4) other than the question's own level, keyed by the digit.
-
-REWRITE RULES (very important):
-- Every rewrite must be a COMPLETE, VALID, ready-to-paste test question a student could answer with nothing else. Never output fragments, placeholders such as "[insert passage]", or teacher instructions inside "question".
-- Keep the SAME content, topic, standard, vocabulary, and the same passage/data/figure/scenario as the original. Change ONLY the cognitive demand (what the student must do with that content). Do not introduce new topics or facts the original test did not cover.
-- If the original relies on a passage, data table, graph, diagram or scenario, restate the needed information inside the rewrite (summarize a figure in words or a small text table) so it stands alone.
-- Multiple-choice rewrites need a full stem plus all answer choices (A-D), exactly one correct, with plausible distractors. Open-response rewrites need a complete prompt with clear directions (what to show, justify, or cite). Pick the format that best fits the target level; DOK 3-4 will usually be open response or a short performance task.
-- "answer": the correct choice with a one-line explanation for multiple choice, OR a short scoring guide of what a strong response includes for open response.
-- "change": one sentence on how the thinking demand changed (not the content).
+{"type":"question","n":<number>,"question":"<the question text, including answer choices if any>","dok":<1-4>,"why":"<2-3 sentences: what the student must do, which wheel verbs/tasks it matches, and why it is not one level lower or higher>","verbs":["<key verb(s) from the wheel>"]}
 
 Escape quotes and newlines properly so each line is valid JSON. Do not output anything after the last question.`;
 
@@ -60,7 +51,7 @@ async function analyze(req, env) {
   const up = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    body: JSON.stringify({ model: MODEL, max_tokens: 32000, stream: true, system: SYSTEM, messages: [{ role: "user", content }] })
+    body: JSON.stringify({ model: MODEL, max_tokens: 16000, stream: true, system: SYSTEM, messages: [{ role: "user", content }] })
   });
   if (!up.ok) {
     const t = await up.text();
