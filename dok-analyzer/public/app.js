@@ -122,7 +122,7 @@ function render(final) {
 function card(q) {
   const levels = [1, 2, 3, 4].filter(l => l !== q.dok && q.rewrites && q.rewrites[l]);
   const tabs = levels.map(l => `<button data-l="${l}">DOK ${l} &middot; ${NAMES[l]}</button>`).join("");
-  const all = levels.map(l => `<div class="rwbody" style="border-color:${COL[l]}"><h4>DOK ${l} version</h4><p>${esc(q.rewrites[l].question)}</p><p class="chg">${esc(q.rewrites[l].change)}</p></div>`).join("");
+  const all = levels.map(l => `<div class="rwbody" style="border-color:${COL[l]}"><h4>DOK ${l} version</h4><p>${esc(q.rewrites[l].question)}</p>${q.rewrites[l].answer ? `<p class="ans"><b>Answer / scoring:</b> ${esc(q.rewrites[l].answer)}</p>` : ""}<p class="chg">${esc(q.rewrites[l].change)}</p></div>`).join("");
   return `<article class="q" data-n="${esc(q.n)}" data-dok="${q.dok}">
     <div class="qhead"><span class="qn">Question ${esc(q.n)}</span><span class="badge" style="background:${COL[q.dok]}">DOK ${q.dok} &middot; ${NAMES[q.dok]}</span></div>
     <p class="qtext">${esc(q.question)}</p>
@@ -138,7 +138,7 @@ function showTab(el, q, l) {
   el.querySelectorAll(".tabs button").forEach(b => { const on = b.dataset.l === l; b.classList.toggle("on", on); b.style.background = on ? COL[l] : ""; });
   const r = q.rewrites[l];
   el.dataset.rw = r.question;
-  el.querySelector(".rwbody-slot").innerHTML = `<div class="rwbody" style="border-color:${COL[l]}"><p>${esc(r.question)}</p><p class="chg"><b>What changed:</b> ${esc(r.change)}</p><button class="copy">Copy</button></div>`;
+  el.querySelector(".rwbody-slot").innerHTML = `<div class="rwbody" style="border-color:${COL[l]}"><p>${esc(r.question)}</p>${r.answer ? `<p class="ans"><b>Answer / scoring:</b> ${esc(r.answer)}</p>` : ""}<p class="chg"><b>What changed:</b> ${esc(r.change)}</p><button class="copy">Copy</button></div>`;
   el.querySelector(".copy").onclick = e => { navigator.clipboard.writeText(r.question); e.target.textContent = "Copied"; setTimeout(() => e.target.textContent = "Copy", 1200); };
 }
 

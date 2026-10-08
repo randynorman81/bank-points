@@ -19,8 +19,18 @@ TASK: Find every question/item on the uploaded test (number them in order; treat
 OUTPUT FORMAT - respond with NDJSON ONLY: one compact JSON object per line, no markdown, no code fences, no commentary.
 First line: {"type":"meta","title":"<test title or best guess>","subject":"<subject>","grade":"<grade/level if evident or empty>"}
 Then one line per question:
-{"type":"question","n":<number>,"question":"<the question text, including answer choices if any>","dok":<1-4>,"why":"<2-3 sentences: what the student must do, which wheel verbs/tasks it matches, and why it is not one level lower or higher>","verbs":["<key verb(s) from the wheel>"],"rewrites":{"<level>":{"question":"<same topic/standard rewritten so it truly sits at that DOK level>","change":"<one sentence: what changed to move it to that level>"}}}
-"rewrites" must contain an entry for EACH of the three levels (1,2,3,4) other than the question's own level, keyed by the digit. Rewrites must keep the same content/skill target, be ready to paste into a test, and genuinely demand that level (for DOK 3-4, use open-response or performance-task wording with a brief scoring hint inside "change" if useful). Escape quotes and newlines properly so each line is valid JSON. Do not output anything after the last question.`;
+{"type":"question","n":<number>,"question":"<the question text, including answer choices if any>","dok":<1-4>,"why":"<2-3 sentences: what the student must do, which wheel verbs/tasks it matches, and why it is not one level lower or higher>","verbs":["<key verb(s) from the wheel>"],"rewrites":{"<level>":{"question":"<full standalone rewrite on the same content at that DOK level, with answer choices if multiple choice>","answer":"<answer key or scoring guide>","change":"<one sentence: how the thinking demand changed>"}}}
+"rewrites" must contain an entry for EACH of the three levels (1,2,3,4) other than the question's own level, keyed by the digit.
+
+REWRITE RULES (very important):
+- Every rewrite must be a COMPLETE, VALID, ready-to-paste test question a student could answer with nothing else. Never output fragments, placeholders such as "[insert passage]", or teacher instructions inside "question".
+- Keep the SAME content, topic, standard, vocabulary, and the same passage/data/figure/scenario as the original. Change ONLY the cognitive demand (what the student must do with that content). Do not introduce new topics or facts the original test did not cover.
+- If the original relies on a passage, data table, graph, diagram or scenario, restate the needed information inside the rewrite (summarize a figure in words or a small text table) so it stands alone.
+- Multiple-choice rewrites need a full stem plus all answer choices (A-D), exactly one correct, with plausible distractors. Open-response rewrites need a complete prompt with clear directions (what to show, justify, or cite). Pick the format that best fits the target level; DOK 3-4 will usually be open response or a short performance task.
+- "answer": the correct choice with a one-line explanation for multiple choice, OR a short scoring guide of what a strong response includes for open response.
+- "change": one sentence on how the thinking demand changed (not the content).
+
+Escape quotes and newlines properly so each line is valid JSON. Do not output anything after the last question.`;
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
