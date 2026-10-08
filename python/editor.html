@@ -25,16 +25,19 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:var(--aw,340px) 6px 
 body.noass main{grid-template-columns:minmax(0,1fr) 6px var(--ow,minmax(0,1fr))}
 body.noass #paneAss,body.noass #split0{display:none}
 #paneAss{background:#080B11;overflow:hidden}
-#assHead{display:none;padding:6px 14px 8px;background:#0B0E14;border-bottom:1px solid var(--rule)}
-#assHead.show{display:block}
-#assCount{font:700 12px "JetBrains Mono",monospace;color:var(--soft);margin-bottom:4px}
+#nameBar{padding:3px 12px;background:#0E1320;border-bottom:1px solid var(--rule)}
+#nameBar h2{margin:0;font:700 13px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;color:#FDBA74;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#assHead{display:none;flex-wrap:wrap;align-items:center;gap:4px 18px;padding:4px 12px;background:var(--panel);border-bottom:1px solid var(--rule)}
+#assHead.show{display:flex}
+#assCount{font:700 12px "JetBrains Mono",monospace;color:var(--soft)}
 #assCount b{color:var(--ok)}
-#assScore{font:700 12px "JetBrains Mono",monospace;color:var(--soft);margin-bottom:4px}
+#assScore{font:700 12px "JetBrains Mono",monospace;color:var(--soft)}
 #assScore b{font-size:15px;color:var(--acc)}
-#assMiss{display:none;margin:2px 0 4px;font-size:12.5px}
+#assMiss{display:none;position:relative;font-size:12.5px}
 #assMiss.show{display:block}
-#assMiss summary{cursor:pointer;color:#FCD34D}
-#assMiss ul{margin:6px 0 2px;padding-left:18px}#assMiss li{margin:3px 0;color:var(--ink)}#assMiss li small{color:var(--soft)}
+#assMiss summary{cursor:pointer;color:#FCD34D;font-weight:700}
+#assMiss ul{position:absolute;left:0;top:calc(100% + 6px);z-index:50;width:min(620px,calc(100vw - 30px));max-height:60vh;overflow:auto;margin:0;padding:10px 14px 10px 30px;background:#0E1320;border:1px solid var(--acc);border-radius:10px;box-shadow:0 10px 30px #000a}
+#assMiss li{margin:4px 0;color:var(--ink)}#assMiss li small{color:var(--soft)}
 .tipbtn{display:inline-block;margin:2px 3px;padding:2px 9px;border-radius:100px;border:1px solid #FBBF24;background:#2A2110;color:#FDE68A;font:600 12px Manrope,sans-serif;cursor:pointer;line-height:1.5;vertical-align:baseline}
 .tipbtn:hover,.tipbtn:focus{background:#3a2d12;border-color:#FDE047;outline:0}
 .tiprow{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin:0 0 12px;padding:10px 12px;background:#161208;border:1px dashed #6b5a1e;border-radius:10px;font-size:12.5px;color:#FDE68A}
@@ -60,7 +63,7 @@ body.noass #paneAss,body.noass #split0{display:none}
 #tipBody .warn{border-left:4px solid #FBBF24;background:rgba(251,191,36,.10);border-radius:6px;padding:8px 12px;margin:0 0 8px}
 #tipBody .good{border-left:4px solid #34D399;background:rgba(52,211,153,.08);border-radius:6px;padding:8px 12px;margin:0 0 8px}
 #assScore small{font:500 11px Manrope,sans-serif;color:var(--soft)}
-#assHead .prog{height:8px;background:#0D1220;border-radius:6px;overflow:hidden}
+#assHead .prog{width:150px;height:8px;background:#0D1220;border-radius:6px;overflow:hidden}
 #assHead .prog i{display:block;height:100%;background:var(--ok);width:0;transition:width .2s}
 #assBody{flex:1;min-height:0;overflow:auto;padding:12px 14px 40px;font-size:14px;line-height:1.5}
 #assBody h3{margin:16px 0 8px;font-size:16px;color:#fff}#assBody h3:first-child{margin-top:2px}
@@ -98,10 +101,7 @@ body.noass #paneAss,body.noass #split0{display:none}
 .lg.c-div,.lg.c-floor,.lg.c-mod{padding:1px 6px;border-color:transparent;border-radius:6px}
 .lg.c-math{border-color:#64748B;color:#E6EAF2}
 .lgsep{white-space:nowrap;font-weight:700;color:var(--soft);font-size:11px;margin-right:2px}
-.mrow{flex:0 0 100%;display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding-top:3px;border-top:1px solid var(--rule)}
-.mrow:first-child{border-top:0;padding-top:0}
-.mrow.mathrow{flex-wrap:wrap}
-.lgsep{min-width:0}
+.mrow{flex:0 0 auto;display:flex;flex-wrap:nowrap;gap:3px;align-items:center}
 .mrow .lg{white-space:nowrap;flex:0 0 auto}
 #kpop table{border-collapse:collapse;width:100%;margin:0 0 4px;font-size:13px}
 #kpop th{text-align:left;font:700 10.5px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;color:var(--soft);padding:3px 8px;border-bottom:1px solid var(--rule)}
@@ -113,13 +113,12 @@ body.noass #paneAss,body.noass #split0{display:none}
 #kpop summary{cursor:pointer;font:13px "JetBrains Mono",monospace}
 #kpop details .ans{margin-top:4px;color:#86EFAC}
 #kpop .bad{color:#FCA5A5}
-#kpop{max-height:78%}
 .c-karel{color:#0B0E14;background:#FBBF24;border-radius:3px;font-weight:700}
-.legend{display:flex;flex-wrap:wrap;gap:3px;align-items:center;padding:5px 10px;background:var(--panel);border-bottom:1px solid var(--rule);font-size:11px;color:var(--soft)}
-.lg{font:600 11.5px "JetBrains Mono",monospace;background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:1px 6px;cursor:help;user-select:none}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;padding:4px 12px;background:var(--panel);border-bottom:1px solid var(--rule);font-size:11px;color:var(--soft)}
+.lg{font:600 11px "JetBrains Mono",monospace;background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:0 5px;cursor:help;user-select:none}
 .lg:hover,.lg:focus{border-color:var(--acc);outline:0}
 .lg.c-karel{border-color:#FBBF24}
-#kpop{position:absolute;left:8px;right:8px;z-index:30;display:none;max-height:62%;overflow:auto;background:#0E1320;border:1px solid var(--acc);border-radius:10px;padding:12px 14px;box-shadow:0 10px 30px #000a}
+#kpop{position:fixed;left:50%;transform:translateX(-50%);width:min(980px,calc(100vw - 20px));z-index:60;display:none;max-height:calc(100vh - 150px);overflow:auto;background:#0E1320;border:1px solid var(--acc);border-radius:10px;padding:12px 14px;box-shadow:0 10px 30px #000a}
 #kpop.show{display:block}
 #kpop h4{margin:0 0 4px;font-size:15px}
 #kpop .what{margin:0 0 8px;color:var(--ink)}
@@ -169,19 +168,19 @@ body.karel #karel{display:flex}
   <span class="who" id="who"></span><span id="gbtn"></span>
   <span class="status" id="status">Loading Python&hellip;</span>
 </div>
+<div class="legend" id="legend" aria-label="Key: click a chip to learn about it"></div>
+<div id="kpop" role="dialog" aria-label="What this color means"></div>
+<div id="nameBar"><h2 id="assTitle">Assignment</h2></div>
+<div id="assHead"><div id="assCount"></div><div class="prog"><i id="assProg"></i></div><div id="assScore"></div><details id="assMiss"><summary id="assMissSum"></summary><ul id="assMissList"></ul></details></div>
 <main id="main">
   <section class="pane" id="paneAss">
-    <h2 id="assTitle">Assignment</h2>
-    <div id="assHead"><div id="assCount"></div><div id="assScore"></div><details id="assMiss"><summary id="assMissSum"></summary><ul id="assMissList"></ul></details><div class="prog"><i id="assProg"></i></div></div>
     <div id="assBody"></div>
   </section>
   <div class="split" id="split0" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize the assignment column. Double-click to reset."></div>
   <section class="pane">
     <h2 id="codeTitle">Your code (main.py)</h2>
     <div class="cloud" id="cloud"></div>
-    <div class="legend" id="legend"><span>Key (click one to learn about it):</span></div>
     <div class="edwrap"><pre id="gut">1</pre><div class="edbox"><pre id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Python code"></textarea></div></div>
-    <div id="kpop" role="dialog" aria-label="What this color means"></div>
     <div class="teach" id="teach"></div>
     <div class="tip"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> runs your code. <kbd>Tab</kbd> indents. Click any chip in the key to learn about it. <kbd>Ctrl</kbd> + <kbd>/</kbd> comments out the selected lines. Your work saves in this browser as you type.</div>
   </section>
@@ -455,12 +454,12 @@ function showKey(id) {
   if (mk) {
     clearTimeout(kcloseT);
     kpop.innerHTML = '<h4><span class="' + mk.cls + '">&nbsp;' + escH(mk.sample) + '&nbsp;</span> &nbsp;' + escH(mk.title) + '</h4><p class="what">' + escH(mk.intro) + "</p>" + mk.sections.map(renderSection).join("");
-    kpop.style.top = ($("legend").offsetTop + $("legend").offsetHeight + 6) + "px"; kpop.scrollTop = 0; kpop.classList.add("show"); return;
+    kpop.style.top = ($("legend").getBoundingClientRect().bottom + 6) + "px"; kpop.scrollTop = 0; kpop.classList.add("show"); return;
   }
   var k = KEYS.filter(function (x) { return x.id === id; })[0]; if (!k) return;
   clearTimeout(kcloseT);
   var h = '<h4><span class="' + k.cls + '">' + escH(k.sample) + "</span> &nbsp;" + escH(k.name) + '</h4><p class="what">' + escH(k.what) + '</p><div class="exh">Examples</div><pre>' + highlight(k.ex.join("\n")) + '</pre><p class="tip2"><b>Good to know:</b> ' + escH(k.tip) + "</p>";
-  kpop.innerHTML = h; kpop.style.top = ($("legend").offsetTop + $("legend").offsetHeight + 6) + "px"; kpop.classList.add("show");
+  kpop.innerHTML = h; kpop.style.top = ($("legend").getBoundingClientRect().bottom + 6) + "px"; kpop.scrollTop = 0; kpop.classList.add("show");
 }
 function hideKeySoon() { clearTimeout(kcloseT); kcloseT = setTimeout(function () { kpop.classList.remove("show"); }, 280); }
 $("legend").addEventListener("click", function (e) { var t = e.target.closest && e.target.closest(".lg"); if (!t) return; var id = t.getAttribute("data-k"); if (kpop.classList.contains("show") && kpop.getAttribute("data-k") === id) kpop.classList.remove("show"); else { showKey(id); kpop.setAttribute("data-k", id); } });
@@ -850,7 +849,7 @@ function updateScore() {
     fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(function (r) { return r.json(); }).then(function (j) {
       if (seq !== scoreSeq || !j || !j.ok) return;
       if (j.pct === null || j.pct === undefined) { el.innerHTML = j.tooLong ? "<small>Your code is too long to score here.</small>" : ""; $("assMiss").className = ""; return; }
-      el.innerHTML = "Auto score: <b>" + j.pct + " / 100</b> <small>This is the score your work earns: the same checks grade it when you submit.</small>";
+      el.innerHTML = "Auto score: <b>" + j.pct + " / 100</b>"; el.title = "This is the score your work earns: the same checks grade it when you submit.";
       var miss = j.missing || [], box = $("assMiss");
       if (!miss.length) { box.className = "show"; $("assMissSum").textContent = "All the checks are met. Nice work!"; $("assMissList").innerHTML = ""; }
       else {
