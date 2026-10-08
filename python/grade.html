@@ -95,17 +95,26 @@ try { pin = sessionStorage.getItem("pypin") || ""; } catch (e) {}
 function esc(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function toast(t) { var e = $("toast"); e.textContent = t; e.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(function () { e.style.display = "none"; }, 2200); }
 function api(b) { b.pin = pin; return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }).then(function (r) { return r.json(); }); }
-function slotLabel(id) { return id === "free" ? "Practice" : "Assignment " + id.slice(1); }
+function slotLabel(id) {
+  if (id === "free") return "Practice";
+  var A = (typeof ASSIGN !== "undefined" && ASSIGN[id]) || null, u = A && A.unit ? String(A.unit).split(":")[0] + " · " : "";
+  return u + "Assignment " + (A && A.num ? A.num : id.slice(1)) + (A && A.title ? ": " + A.title : "");
+}
 function fmt(t) { return t ? new Date(t).toLocaleString() : ""; }
 
 
 /* ---------- assignments (instructions + automatic checks) ---------- */
 var ASSIGN = {};
-function loadAssignments() { return api({ action: "adminAssignments" }).then(function (j) { if (j && j.ok) ASSIGN = j.assignments || {}; }); }
+function loadAssignments() { return api({ action: "adminAssignments" }).then(function (j) { if (j && j.ok) { ASSIGN = j.assignments || {}; rebuildSlots(); } }); }
+function rebuildSlots() {
+  var sl = $("slot"); if (!sl || !sl.options.length) return; var cur = sl.value, ids = ["free"]; for (var i = 1; i <= 30; i++) ids.push("a" + i), 0;
+  sl.innerHTML = ids.map(function (id) { return '<option value="' + id + '">' + esc(slotLabel(id)) + " (" + (counts[id] || 0) + ")</option>"; }).join(""); sl.value = cur;
+}
 function splitCode(code) {
   /* separates comment text from code, ignoring # inside quotes */
   var comments = [], codeOnly = [], notes = [];
-  var codeLike = function (t) { return /^\s*([A-Za-z_]\w*(\[[^\]]*\])?\s*([-+*\/%]?=[^=]|\()|[A-Za-z_]\w*\.\w+\(|(if|elif|for|while|def|return|import|from|else|try|except|print|input)\b)/.test(t); };
+  var PROSE = /(?:^|\s)(?:the|is|are|was|a|an|to|of|it|that|this|so|because|when|means|makes|stores|asks|checks|says|gives|shows|changed|different)(?=[\s,.:;!?]|$)/i;
+  var codeLike = function (t) { return !PROSE.test(t) && /^\s*([A-Za-z_]\w*(\[[^\]]*\])?\s*([-+*\/%]?=[^=]|\()|[A-Za-z_]\w*\.\w+\(|(if|elif|for|while|def|return|import|from|else|try|except|print|input)\b)/.test(t); };
   String(code || "").split("\n").forEach(function (line) {
     var q = "", cut = -1;
     for (var i = 0; i < line.length; i++) { var ch = line.charAt(i); if (q) { if (ch === "\\") i++; else if (ch === q) q = ""; } else if (ch === '"' || ch === "'") q = ch; else if (ch === "#") { cut = i; break; } }

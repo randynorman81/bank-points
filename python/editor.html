@@ -845,7 +845,7 @@ document.addEventListener("keydown", function (e) { if (e.key === "Escape") $("m
 $("assBody").addEventListener("click", function (e) { var b = e.target.closest && e.target.closest(".tipbtn"); if (b) { e.preventDefault(); e.stopPropagation(); openTip(b.getAttribute("data-tip")); } });
 function renderAssignment() {
   var A = (window.PY_ASSIGN || {})[slot], body = $("assBody"), title = slotLabel(slot);
-  var plain = slot === "free" ? title : "Assignment " + slot.slice(1) + (A && A.title ? ": " + A.title : ""), full = (A && A.unit ? A.unit + " · " : "") + plain; $("assTitle").textContent = (unitShort(A) ? unitShort(A) + " · " : "") + (slot === "free" ? title : "Assignment " + slot.slice(1) + (A && A.title ? ": " + A.title : "")); $("assTitle").title = full;
+  var plain = slot === "free" ? title : "Assignment " + aNum(slot, A) + (A && A.title ? ": " + A.title : ""), full = (A && A.unit ? A.unit + " · " : "") + plain; $("assTitle").textContent = (unitShort(A) ? unitShort(A) + " · " : "") + (slot === "free" ? title : "Assignment " + aNum(slot, A) + (A && A.title ? ": " + A.title : "")); $("assTitle").title = full;
   if (!A) { body.innerHTML = '<p class="none">Your teacher has not posted instructions for this assignment yet.</p>'; $("assHead").className = ""; return; }
   var done = {}; try { done = JSON.parse(lsGet("py:prog:" + slot) || "{}"); } catch (e) {}
   var h = "", n = 0;
@@ -933,7 +933,8 @@ if (lsGet("py:ass") === "0") setAssOpen(false);
    ===================================================================================== */
 var CRED = null, USER = "", MY = {}, lastCloud = "", lastOut = "", CLOUD = null;
 function unitShort(A) { return A && A.unit ? String(A.unit).split(":")[0] : ""; }
-function slotLabel(id) { var A = window.PY_ASSIGN && window.PY_ASSIGN[id]; return id === "free" ? "Practice (not graded)" : (unitShort(A) ? unitShort(A) + " · " : "") + "Assignment " + id.slice(1) + (A && A.title ? ": " + A.title : "") + (A && A.live === false ? " [DRAFT]" : ""); }
+function aNum(id, A) { return A && A.num ? A.num : id.slice(1); }
+function slotLabel(id) { var A = window.PY_ASSIGN && window.PY_ASSIGN[id]; return id === "free" ? "Practice (not graded)" : (unitShort(A) ? unitShort(A) + " · " : "") + "Assignment " + aNum(id, A) + (A && A.title ? ": " + A.title : "") + (A && A.live === false ? " [DRAFT]" : ""); }
 function buildSlots() {
   var top = "", groups = {}, order = [];
   ["free"].concat(Array.from({ length: 30 }, function (_, i) { return "a" + (i + 1); })).forEach(function (id) {
