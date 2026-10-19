@@ -158,6 +158,14 @@ async function adminCounts() {
   return { ok: true, counts };
 }
 
+async function adminSetLive(body) {
+  if (!goodSlot(body.slot) || body.slot === "free") return { error: "Unknown assignment" };
+  const rec = await readJSON("assign:" + body.slot, null);
+  if (!rec) return { error: "That assignment has not been uploaded yet" };
+  rec.live = body.live === true || body.live === "true";
+  await store().setJSON("assign:" + body.slot, rec);
+  return { ok: true, slot: body.slot, live: rec.live };
+}
 async function adminAutograde(body) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
   const as = await readJSON("assign:" + body.slot, null);
@@ -349,7 +357,7 @@ export default async (req) => {
     try { body = await req.json(); } catch (e) { return ok({ error: "Malformed request" }); }
     const action = body.action;
 
-    if (["adminList", "adminCounts", "adminGrade", "adminDelete", "adminSetAssignment", "adminDeleteAssignment", "adminAssignments", "adminAutograde"].indexOf(action) > -1) {
+    if (["adminList", "adminCounts", "adminGrade", "adminDelete", "adminSetAssignment", "adminDeleteAssignment", "adminAssignments", "adminAutograde", "adminSetLive"].indexOf(action) > -1) {
       if (!isAdmin(body)) return ok({ error: "Invalid PIN" });
       if (action === "adminList") return ok(await adminList(body));
       if (action === "adminCounts") return ok(await adminCounts());
@@ -358,6 +366,7 @@ export default async (req) => {
       if (action === "adminSetAssignment") return ok(await adminSetAssignment(body));
       if (action === "adminDeleteAssignment") return ok(await adminDeleteAssignment(body));
       if (action === "adminAutograde") return ok(await adminAutograde(body));
+      if (action === "adminSetLive") return ok(await adminSetLive(body));
       return ok(await adminGrade(body));
     }
 

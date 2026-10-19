@@ -85,6 +85,7 @@ select,input,textarea{background:var(--card);color:var(--ink);border:1px solid v
   <label>Period <select id="period"><option value="">All periods</option></select></label>
   <label><input type="checkbox" id="onlySub"> Submitted only</label>
   <button class="btn" id="reload">Reload</button>
+  <button class="btn" id="unlock" title="Students only see the assignments you have unlocked"></button>
   <button class="btn" id="autograde" title="Grade every submission of this assignment that does not have a grade you saved by hand">Autograde all</button>
   <button class="btn" id="csv">Export CSV</button>
   <span class="sp"></span>
@@ -116,7 +117,7 @@ function fmt(t) { return t ? new Date(t).toLocaleString() : ""; }
 
 /* ---------- assignments (instructions + automatic checks) ---------- */
 var ASSIGN = {};
-function loadAssignments() { return api({ action: "adminAssignments" }).then(function (j) { if (j && j.ok) { ASSIGN = j.assignments || {}; rebuildSlots(); } }); }
+function loadAssignments() { return api({ action: "adminAssignments" }).then(function (j) { if (j && j.ok) { ASSIGN = j.assignments || {}; rebuildSlots(); if (typeof showUnlock === "function") showUnlock(); } }); }
 function rebuildSlots() {
   var sl = $("slot"); if (!sl || !sl.options.length) return; var cur = sl.value, ids = ["free"]; for (var i = 1; i <= 30; i++) ids.push("a" + i), 0;
   sl.innerHTML = ids.map(function (id) { return '<option value="' + id + '">' + esc(slotLabel(id)) + " (" + (counts[id] || 0) + ")</option>"; }).join(""); sl.value = cur;
@@ -353,6 +354,18 @@ function afterDetail(r, rec) {
 }
 $("slot").onchange = function () { sel = null; $("detail").innerHTML = '<div class="empty">Pick a student on the left.</div>'; load(); };
 $("period").onchange = render; $("onlySub").onchange = render; $("reload").onclick = load;
+function showUnlock() {
+  var b = $("unlock"), A = ASSIGN[$("slot").value];
+  if (!b) return; if (!A) { b.style.display = "none"; return; }
+  b.style.display = ""; var live = A.live !== false;
+  b.textContent = live ? "Unlocked: click to lock" : "Locked: click to unlock for students"; b.style.borderColor = live ? "#34D399" : "#F87171";
+}
+$("unlock").onclick = function () {
+  var slot = $("slot").value, A = ASSIGN[slot]; if (!A) return;
+  var live = A.live !== false, msg = live ? "Lock this assignment? Students will no longer see it (their work is kept)." : "Unlock this assignment for students?";
+  if (!confirm(msg)) return;
+  api({ action: "adminSetLive", slot: slot, live: !live }).then(function (j) { if (j && j.ok) { A.live = j.live; showUnlock(); toast(j.live ? "Unlocked for students" : "Locked"); } else toast((j && j.error) || "Could not change it"); });
+};
 $("autograde").onclick = function () { if (!confirm("Autograde every submission of this assignment? Grades you saved by hand are kept.")) return; api({ action: "adminAutograde", slot: $("slot").value }).then(function (j) { if (j && j.ok) { toast("Graded " + j.graded + (j.keptByHand ? " (kept " + j.keptByHand + " you graded by hand)" : "")); load(); } else toast((j && j.error) || "Could not autograde"); }); };
 $("csv").onclick = function () {
   var q = function (v) { return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };

@@ -1042,7 +1042,7 @@ function slotLabel(id) { var A = window.PY_ASSIGN && window.PY_ASSIGN[id]; retur
 function buildSlots() {
   var top = "", groups = {}, order = [];
   ["free"].concat(Array.from({ length: 30 }, function (_, i) { return "a" + (i + 1); })).forEach(function (id) {
-    if (id !== "free" && !MY[id] && id !== slot && !(window.PY_ASSIGN && window.PY_ASSIGN[id])) return;
+    if (id !== "free" && !(window.PY_ASSIGN && window.PY_ASSIGN[id])) return;
     var A = window.PY_ASSIGN && window.PY_ASSIGN[id], opt = '<option value="' + id + '">' + slotLabel(id) + (MY[id] === "sub" ? " ✓" : "") + "</option>";
     if (id !== "free" && A && A.unit) { if (!groups[A.unit]) { groups[A.unit] = ""; order.push(A.unit); } groups[A.unit] += opt; } else top += opt;
   });
@@ -1152,6 +1152,7 @@ initGoogle();
 /* published assignment instructions come from the backend (so unpublished ones are never on the public site) */
 fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "assignments" }) }).then(function (r) { return r.json(); }).then(function (j) {
   if (!j || !j.ok) return; window.PY_ASSIGN = window.PY_ASSIGN || {}; Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
+  if (slot !== "free" && !window.PY_ASSIGN[slot] && !/[?&]teacher/.test(location.search)) { slot = "free"; lsSet("py:slot", slot); }
   buildSlots(); renderAssignment();
 }).catch(function () {});
 /* students cannot copy, cut, paste, or drag text anywhere in the editor; the teacher preview (?teacher) can */
