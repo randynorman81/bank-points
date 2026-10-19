@@ -223,7 +223,7 @@ body.teacher #assBody pre,body.teacher #tipBody pre{user-select:text;cursor:text
   <div id="assInfo">
     <div id="nameBar"><h2 id="assTitle">Assignment</h2></div>
     <div id="assHead"><div id="assCount"></div><div class="prog"><i id="assProg"></i></div></div>
-    
+    <div id="scoreLine"><div id="assScore"></div><details id="assMiss"><summary id="assMissSum"></summary><ul id="assMissList"></ul></details></div>
   </div>
 </div>
 <div id="kpop" role="dialog" aria-label="What this color means"></div>
@@ -235,7 +235,7 @@ body.teacher #assBody pre,body.teacher #tipBody pre{user-select:text;cursor:text
   <section class="pane">
     <h2 id="codeTitle">Your code (main.py)</h2>
     <div class="cloud" id="cloud"></div>
-    <div class="edwrap"><pre id="gut">1</pre><div class="edbox"><pre id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Python code" placeholder="Type your code here. Follow the steps on the left."></textarea></div></div>
+    <div class="edwrap"><pre id="gut">1</pre><div class="edbox"><div id="marks" aria-hidden="true"><div id="marksIn"></div></div><pre id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Python code" placeholder="Type your code here. Follow the steps on the left."></textarea></div></div>
     <div class="teach" id="teach"></div>
     <div class="tip"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> runs your code. <kbd>Tab</kbd> indents. Click any chip in the key to learn about it. <kbd>Ctrl</kbd> + <kbd>/</kbd> comments out the selected lines. Your work saves in this browser as you type.</div>
   </section>
@@ -915,10 +915,91 @@ $("assBody").addEventListener("change", function (e) {
   if (c.checked) done[c.getAttribute("data-id")] = 1; else delete done[c.getAttribute("data-id")];
   lsSet("py:prog:" + slot, JSON.stringify(done)); c.parentNode.className = c.checked ? "done" : ""; updateProg(); updateScore();
 });
-/* there is no automatic score: the teacher grades the submitted work. These stubs keep the editor's other code simple. */
-function updateScore() {}
-function clearMarks() {}
-function syncMarks() {}
+/* live auto score out of 100: the server scores the code and sends back only the number (the rules stay hidden) */
+var scoreT = 0, scoreSeq = 0;
+/* "Show me where": highlight in the code box where a missing check goes (the server sends a hint with each missing check) */
+var lastMiss = [], whereLabel = "", LH = 21.6;
+function syncMarks() { var m = $("marksIn"); if (m) m.style.transform = "translate(" + (-ta.scrollLeft) + "px," + (-ta.scrollTop) + "px)"; }
+function clearMarks() { $("marksIn").innerHTML = ""; }
+function whereMarks(h) {
+  if (!h) return "";
+  var out = "";
+  if (h.k === "above" || h.k === "below" || h.k === "eol" || h.k === "fix") {
+    var chip = h.k === "fix" ? "\u270E finish this comment: add the title after the step number" : h.k === "above" ? "↑ your comment goes on its own line directly above" : h.k === "below" ? "↓ your comment goes on its own line directly below" : "→ add a comment at the end of this line";
+    (h.lines || []).forEach(function (n) { out += '<div class="mk" style="top:' + (12 + (n - 1) * LH) + 'px"><b>' + chip + "</b></div>"; });
+  } else if (h.k === "add") {
+    var n = h.after || 0;
+    out = n ? '<div class="mk add" style="top:' + (12 + (n - 1) * LH) + 'px"><b>↓ add it after this line</b></div>' : '<div class="mk add" style="top:' + (12 - 3) + 'px;height:0;border-bottom:0;border-top:2px dashed #34D399"><b>↓ add it at the top</b></div>';
+  }
+  return out;
+}
+function showWhere(m) {
+  var h = m && m.hint; whereLabel = m ? m.label : "";
+  markBox(m ? (Array.isArray(m.box) ? m.box[0] : m.box) : null);
+  if (!h) return;
+  if (h.k === "need") { clearMarks(); flash("Type the line this goes with first, then click Show me where again."); return; }
+  $("marksIn").innerHTML = whereMarks(h);
+  var line = h.lines && h.lines.length ? h.lines[0] : (h.after || 1);
+  ta.scrollTop = Math.max(0, (line - 4) * LH);
+  syncMarks();
+}
+function refreshWhere() {
+  if (!whereLabel) return;
+  var m = lastMiss.filter(function (x) { return x.label === whereLabel; })[0];
+  if (!m) { whereLabel = ""; clearMarks(); markBox(null); flash("That check is done."); return; }
+  if (m.hint && m.hint.k !== "need") { $("marksIn").innerHTML = whereMarks(m.hint); syncMarks(); } else clearMarks();
+}
+$("assMissList").addEventListener("click", function (e) { var b = e.target.closest ? e.target.closest(".where") : null; if (!b) return; $("assMiss").open = false; try { ta.focus({ preventScroll: true }); } catch (e2) { ta.focus(); } showWhere(lastMiss[+b.getAttribute("data-w")]); });
+/* each automatic check belongs to an instruction checkbox: show how many of its checks are met, and let the missing list jump to the box */
+function boxRef(b) {
+  var n = Array.isArray(b) ? b[0] : b; if (n === undefined || n === null) return "";
+  var inp = $("assBody").querySelector('input[data-id="i' + n + '"]'); if (!inp) return "";
+  var lab = inp.closest("label"), el = lab, step = "", pos = 0, all = $("assBody").children, i, started = false;
+  for (i = 0; i < all.length; i++) { var c = all[i]; if (c.tagName === "H3") { step = c.textContent.replace(/:.*$/, ""); pos = 0; } if (c.contains(lab)) { var ls = c.querySelectorAll("label"); for (var j = 0; j < ls.length; j++) { pos++; if (ls[j] === lab) return (step || "Before you submit") + ", checkbox " + pos; } } else if (c.classList && c.classList.contains("cb")) pos += c.querySelectorAll("label").length; }
+  return "";
+}
+function boxBadges(boxes) {
+  Array.prototype.forEach.call($("assBody").querySelectorAll("label"), function (lab) {
+    var inp = lab.querySelector("input[data-id]"); if (!inp) return;
+    var old = lab.querySelector(".abadge"); if (old) old.remove();
+    var b = boxes && boxes[+inp.getAttribute("data-id").slice(1)]; if (!b) return;
+    var done = b.m === b.t, cls = done ? "ok" : (b.m ? "part" : "no");
+    var txt = done ? "✓ auto-check: " + (b.t === 1 ? "met" : "all " + b.t + " met") : "auto-check: " + b.m + " of " + b.t + " met";
+    lab.insertAdjacentHTML("beforeend", '<em class="abadge ' + cls + '" title="The automatic checks that go with this checkbox">' + txt + "</em>");
+  });
+}
+function markBox(n) {
+  Array.prototype.forEach.call($("assBody").querySelectorAll("label.hlbox"), function (l) { l.classList.remove("hlbox"); });
+  if (n === undefined || n === null) return;
+  var inp = $("assBody").querySelector('input[data-id="i' + n + '"]'); if (!inp) return;
+  var lab = inp.closest("label"); lab.classList.add("hlbox"); lab.scrollIntoView({ block: "center", behavior: "smooth" });
+}
+function goToBox(n) { markBox(n); }
+$("assMissList").addEventListener("click", function (e) { var b = e.target.closest ? e.target.closest(".goBox") : null; if (!b) return; $("assMiss").open = false; goToBox(+b.getAttribute("data-go")); });
+function updateScore() {
+  clearTimeout(scoreT);
+  var A = (window.PY_ASSIGN || {})[slot], el = $("assScore");
+  if (!A || slot === "free") { el.innerHTML = ""; $("assMiss").className = ""; return; }
+  scoreT = setTimeout(function () {
+    var seq = ++scoreSeq, body = { action: "score", slot: slot, code: ta.value }, tp = ""; try { tp = /[?&]teacher/.test(location.search) ? (sessionStorage.getItem("pypin") || "") : ""; } catch (e) {}
+    if (tp) body.pin = tp;
+    fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(function (r) { return r.json(); }).then(function (j) {
+      if (seq !== scoreSeq || !j || !j.ok) return;
+      if (j.pct === null || j.pct === undefined) { el.innerHTML = j.tooLong ? "<small>Your code is too long to score here.</small>" : ""; $("assMiss").className = ""; return; }
+      el.innerHTML = "Auto score: <b>" + j.pct + " / 100</b>"; el.title = "This is the score your work earns: the same checks grade it when you submit.";
+      var miss = j.missing || [], box = $("assMiss");
+      if (!miss.length) { box.className = "show"; $("assMissSum").textContent = "All the checks are met. Nice work!"; $("assMissList").innerHTML = ""; lastMiss = []; refreshWhere(); boxBadges(j.boxes); }
+      else {
+        box.className = "show"; $("assMissSum").textContent = miss.length + " still missing (click)"; $("assMissSum").title = miss.length + " check" + (miss.length === 1 ? "" : "s") + " not met yet: click to see them";
+        $("assMissList").innerHTML = miss.map(function (m, i) { return "<li>" + escA(m.label) + " <small>(you have " + m.have + ", need " + m.need + "; worth " + (m.pts || 1) + " point" + ((m.pts || 1) === 1 ? "" : "s") + ")</small>" + (m.hint ? ' <button type="button" class="tipbtn where" data-w="' + i + '">Show me where</button>' : "") + (function () { var r = boxRef(m.box), n = Array.isArray(m.box) ? m.box[0] : m.box; return r ? '<span class="ref">In the instructions: ' + escA(r) + ' <button type="button" class="tipbtn goBox" data-go="' + n + '">Go to that checkbox</button></span>' : ""; })() + "</li>"; }).join("");
+        lastMiss = miss; refreshWhere(); boxBadges(j.boxes);
+      }
+    }).catch(function () {});
+  }, 900);
+}
+/* the missing-checks list is a fixed panel under the banner, always fully on screen; it scrolls if the window is short */
+$("assMiss").addEventListener("toggle", function () { if (this.open) document.documentElement.style.setProperty("--missTop", Math.round($("topBanner").getBoundingClientRect().bottom + 6) + "px"); });
+document.addEventListener("click", function (e) { var d = $("assMiss"); if (d.open && !d.contains(e.target)) d.open = false; });
 
 function setAssOpen(on) { document.body.classList.toggle("noass", !on); $("assBtn").classList.toggle("on", on); lsSet("py:ass", on ? "1" : "0"); }
 $("assBtn").addEventListener("click", function () { setAssOpen(document.body.classList.contains("noass")); });

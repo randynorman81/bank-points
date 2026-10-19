@@ -265,6 +265,35 @@ function stepOrder(code) {
   for (var i = 1; i < keys.length; i++) if (pos[keys[i]] < pos[keys[i - 1]]) bad.push("Step " + keys[i] + " (line " + pos[keys[i]] + ") comes before Step " + keys[i - 1] + " (line " + pos[keys[i - 1]] + ")");
   return { steps: keys.length, bad: bad };
 }
+/* Every checkbox of the lesson with what the checker found in the student's code: done, or exactly which parts are missing (and where they go). Uses the server's checker, the same one that grades the work. */
+var COVMISS = [];
+function loadCoverage(rec) {
+  var slotId = $("slot").value;
+  api({ action: "score", slot: slotId, code: rec.code || "" }).then(function (j) {
+    var box = $("covBox"); if (!box) return;
+    if (!j || !j.ok || j.pct === null || j.pct === undefined) { box.innerHTML = '<h3>Steps completed</h3><p style="color:var(--soft)">There is no checker for this assignment.</p>'; return; }
+    var meta = boxMeta(slotId), ids = Object.keys(j.boxes || {}).map(Number).sort(function (a, b) { return a - b; }), done = 0, todo = [], ok = [];
+    COVMISS = j.missing || [];
+    var byBox = {}; COVMISS.forEach(function (m, i) { var b = Array.isArray(m.box) ? m.box[0] : m.box; (byBox[b] = byBox[b] || []).push(i); });
+    ids.forEach(function (id) {
+      var t = j.boxes[id], v = t.f / t.t, m = meta[id], name = m ? esc(m.step) + ", checkbox " + m.pos : "Step", text = m ? esc(m.text.length > 100 ? m.text.slice(0, 97) + "..." : m.text) : "";
+      if (v >= 0.999) { done++; ok.push('<div class="ck ok"><span class="m">&#10003;</span><span><b>' + name + "</b> " + text + "</span></div>"); return; }
+      var rows = (byBox[id] || []).map(function (i) { var x = COVMISS[i]; return '<div class="ck no" style="padding-left:24px"><span class="m">&#10005;</span><span>' + esc(x.label) + " <small>(found " + x.have + ", need " + x.need + ")</small>" + (x.hint && x.hint.k !== "need" ? ' <button type="button" class="btn sm wh" data-cm="' + i + '">Show where</button>' : x.hint ? ' <small style="color:var(--soft)">(the line this goes with is not in their code)</small>' : "") + "</span></div>"; }).join("");
+      todo.push('<div class="bx"><b>' + name + "</b> <span class=\"bxt\">" + text + '</span> <span class="abadge ' + (v > 0 ? "part" : "no") + '">' + Math.round(v * 100) + "% done</span></div>" + rows);
+    });
+    var ord = stepOrder(rec.code), h = "<h3>Steps completed</h3>";
+    h += '<div><b style="color:' + (done === ids.length ? "#6EE7B7" : "#FDE68A") + '">' + done + " of " + ids.length + " steps completed</b> <small style=\"color:var(--soft)\">(checker grade " + j.pct + ")</small></div>";
+    h += ord.steps < 2 ? '<div style="margin-top:4px;color:var(--soft)">Order of the steps: not checked (fewer than two step comments in the code).</div>' : (ord.bad.length ? '<div style="margin-top:4px;color:#FDE68A"><b>Out of order:</b> ' + ord.bad.map(esc).join("; ") + "</div>" : '<div style="margin-top:4px;color:#6EE7B7">Steps are in order (' + ord.steps + " found).</div>");
+    h += '<div style="margin-top:6px"><button class="btn sm" id="covAll">Show where everything missing goes</button> <button class="btn sm" id="covClear">Clear marks</button></div>';
+    h += todo.join("");
+    if (ok.length) h += '<details style="margin-top:8px"><summary>' + ok.length + " completed</summary>" + ok.join("") + "</details>";
+    box.innerHTML = h;
+    Array.prototype.forEach.call(box.querySelectorAll("[data-cm]"), function (b) { b.onclick = function () { var hnt = COVMISS[+b.getAttribute("data-cm")].hint; var hm = $("hlm"); if (hm) { hm.innerHTML = markHtml(hnt); scrollToLine(hnt); } }; });
+    var all = $("covAll"), clr = $("covClear");
+    if (all) all.onclick = function () { var html = "", first = null; COVMISS.forEach(function (m) { if (m.hint && m.hint.k !== "need") { html += markHtml(m.hint); if (!first) first = m.hint; } }); var hm = $("hlm"); if (hm) hm.innerHTML = html; if (first) scrollToLine(first); };
+    if (clr) clr.onclick = function () { var hm = $("hlm"); if (hm) hm.innerHTML = ""; };
+  }).catch(function () { var box = $("covBox"); if (box) box.innerHTML = '<h3>Steps completed</h3><p style="color:var(--soft)">Could not reach the checker.</p>'; });
+}
 function coveragePanel(ck, slotId, code, teacher) {
   var d = teacher && teacher.detail, h = "<h3>Steps completed</h3>";
   if (!d || !d.total) return h + '<p style="color:var(--soft)">No step results for this submission yet. Click Autograde all to grade it.</p>';
@@ -275,7 +304,7 @@ function coveragePanel(ck, slotId, code, teacher) {
   return h;
 }
 function autoPanel(r, rec) {
-  var slotId = $("slot").value, ck = runChecks(slotId, rec.code), h = coveragePanel(ck, slotId, rec.code, r.submission && r.submission.teacher) + "<h3>Submission details</h3>";
+  var slotId = $("slot").value, ck = runChecks(slotId, rec.code), h = '<div id="covBox"><h3>Steps completed</h3><p style="color:var(--soft)">Checking the code...</p></div><h3>Submission details</h3>';
   h += '<div class="kv"><span>Lines of code</span><span>' + ck.lines + '</span><span>Comments</span><span>' + ck.comments + '</span><span>Commented-out earlier code</span><span class="' + (ck.kept ? "" : "warn") + '">' + ck.kept + (ck.kept ? "" : " (none: may have deleted work)") + '</span><span>Syntax check</span><span id="synRes">checking...</span></div>';
   var t = rec.ticks, steps = stepTexts(slotId);
   h += "<h3>Steps ticked</h3>";
@@ -319,6 +348,7 @@ function attachWhere(rec) {
   }).catch(function () {});
 }
 function afterDetail(r, rec) {
+  loadCoverage(rec);
     syntaxCheck(rec.code || "").then(function (msg) { var e = $("synRes"); if (e) { e.textContent = msg ? msg : "OK, no syntax errors"; e.className = msg ? "warn" : ""; } }, function () { var e = $("synRes"); if (e) e.textContent = "could not load the checker"; });
 }
 $("slot").onchange = function () { sel = null; $("detail").innerHTML = '<div class="empty">Pick a student on the left.</div>'; load(); };

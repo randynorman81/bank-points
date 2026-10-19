@@ -306,7 +306,6 @@ function scoreCode(checks, code) {
     try {
       if (c.where === "comments" || c.where === "notes") { const re = new RegExp(c.re, flags); (c.where === "notes" ? sp.notes : sp.comments).forEach((l) => { if (re.test(l)) n++; }); }
       else { const m = (c.where === "code" ? sp.code : text).match(new RegExp(c.re, "g" + flags)); n = m ? m.length : 0; }
-      if (n < c.min) n = Math.max(n, Math.min(placementCount(c, flags, text), c.min));
       if (n >= c.min && c.where !== "comments" && c.where !== "notes") ml = matchLines(c.re, flags, text);
     } catch (e) { n = 0; }
     return { c, n, ml, flags };
