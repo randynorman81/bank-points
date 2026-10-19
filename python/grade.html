@@ -23,12 +23,12 @@ select,input,textarea{background:var(--card);color:var(--ink);border:1px solid v
 #login{max-width:340px;margin:12vh auto;background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:24px}
 #login h1{margin:0 0 10px;font-size:20px}
 #login input{width:100%;margin:8px 0 12px}
-#app{display:none;flex:1;min-height:0;grid-template-columns:360px 1fr}
+#app{display:none;flex:1;min-height:0;grid-template-columns:490px 1fr}
 #app.show{display:grid}
 .list{border-right:1px solid var(--rule);overflow:auto}
 .list table{width:100%;border-collapse:collapse;font-size:13px}
 .list th{position:sticky;top:0;background:var(--panel);text-align:left;padding:7px 8px;font:700 11px "JetBrains Mono",monospace;color:var(--soft);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--rule)}
-.list td{padding:8px;border-bottom:1px solid #1b2337;vertical-align:top}
+.list td{padding:8px 6px;border-bottom:1px solid #1b2337;vertical-align:top}.list td:not(:first-child){white-space:nowrap}.list th{white-space:nowrap;padding:7px 6px}
 .list tr.row{cursor:pointer}.list tr.row:hover{background:#141a29}.list tr.row.sel{background:#1c2540;outline:1px solid var(--acc)}
 .pill{display:inline-block;border-radius:100px;padding:1px 8px;font-size:11px;font-weight:700}
 .pill.s{background:#0F2A22;color:#6EE7B7}.pill.d{background:#2A2110;color:#FCD34D}.pill.g{background:#14213D;color:#93C5FD}.pill.c{background:transparent;color:#FDBA74;border:1px dashed #FDBA74}
@@ -68,7 +68,7 @@ select,input,textarea{background:var(--card);color:var(--ink);border:1px solid v
 #live{position:fixed;inset:0;background:#0B0F1Af2;z-index:8;display:none;overflow:auto;padding:18px 22px}
 #live table{width:100%;border-collapse:collapse;font-size:14px}#live th{text-align:left;color:var(--soft);font-size:12px;padding:6px 10px;border-bottom:1px solid var(--line,#26304a)}
 #live td{padding:8px 10px;border-bottom:1px solid #1b2236}#live tr.lr{cursor:pointer}#live tr.lr:hover{background:#151c30}
-.ago{display:inline-block;min-width:74px;font-weight:700}.ago.hot{color:#6EE7B7}.ago.warm{color:#FDE68A}.ago.cold{color:#8892aa}
+.ago{display:inline-block;font-weight:700}.ago.hot{color:#6EE7B7}.ago.warm{color:#FDE68A}.ago.cold{color:#8892aa}
 .tl{font-size:12.5px;max-height:240px;overflow:auto;border:1px solid #26304a;border-radius:8px}.tl table{width:100%;border-collapse:collapse}.tl td,.tl th{padding:4px 8px;text-align:left;border-bottom:1px solid #1b2236}.tl th{position:sticky;top:0;background:#101728;color:var(--soft)}
 .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111c;color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;display:none;z-index:9}
 @media(max-width:1000px){#app{grid-template-columns:1fr}.list{max-height:34vh}.dbody{grid-template-columns:1fr}.right{border-left:0}}
@@ -223,7 +223,7 @@ function render() {
   var list = rows.filter(function (r) { return (!per || r.period === per) && (!only || r.submission); }).sort(function (a, b) { return String(a.rosterName || a.name).localeCompare(String(b.rosterName || b.name)); });
   $("rows").innerHTML = list.map(function (r) {
     var t = r.submission && r.submission.teacher;
-    return '<tr class="row' + (sel === r.email ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td>' + esc(r.rosterName || r.name) + '</td><td>' + esc(r.period) + '</td><td>' + (r.submission ? '<span class="pill s">Submitted</span>' : '<span class="pill d">Draft</span>') + '</td><td>' + ago(Math.max(r.draft ? Date.parse(r.draft.savedAt) || 0 : 0, r.submission ? Date.parse(r.submission.submittedAt) || 0 : 0) ? new Date(Math.max(r.draft ? Date.parse(r.draft.savedAt) || 0 : 0, r.submission ? Date.parse(r.submission.submittedAt) || 0 : 0)).toISOString() : "1970-01-01") + '</td><td>' + (t && t.score !== null ? '<span class="pill g" title="' + (t.auto ? "Autograded when submitted. Change it and click Save grade to override." : "Saved grade") + '">' + esc(t.score) + (t.auto ? " auto" : "") + "</span>" : "") + "</td></tr>";
+    return '<tr class="row' + (sel === r.email ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td>' + esc(r.rosterName || r.name) + '</td><td>' + esc(r.period) + '</td><td>' + (r.submission ? '<span class="pill s">Submitted</span>' : '<span class="pill d">Draft</span>') + '</td><td>' + ago(Math.max(r.draft ? Date.parse(r.draft.savedAt) || 0 : 0, r.submission ? Date.parse(r.submission.submittedAt) || 0 : 0) ? new Date(Math.max(r.draft ? Date.parse(r.draft.savedAt) || 0 : 0, r.submission ? Date.parse(r.submission.submittedAt) || 0 : 0)).toISOString() : "1970-01-01", true) + '</td><td>' + (t && t.score !== null ? '<span class="pill g" title="' + (t.auto ? "Autograded when submitted. Change it and click Save grade to override." : "Saved grade") + '">' + esc(t.score) + (t.auto ? " auto" : "") + "</span>" : "") + "</td></tr>";
   }).join("");
   $("noRows").style.display = list.length ? "none" : "block";
   $("count").textContent = list.filter(function (r) { return r.submission; }).length + " submitted, " + list.length + " total";
@@ -393,9 +393,10 @@ $("csv").onclick = function () {
 };
 
 /* ---------- live class view and per-student timeline ---------- */
-function ago(iso) {
+function ago(iso, short) {
   var m = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 60000));
-  var txt = m < 1 ? "just now" : m < 60 ? m + " min ago" : m < 1440 ? Math.floor(m / 60) + " h " + (m % 60) + " min ago" : new Date(iso).toLocaleDateString();
+  var txt = short ? (m < 1 ? "now" : m < 60 ? m + "m ago" : m < 1440 ? Math.floor(m / 60) + "h " + (m % 60) + "m" : new Date(iso).toLocaleDateString(undefined, { month: "numeric", day: "numeric" }))
+    : (m < 1 ? "just now" : m < 60 ? m + " min ago" : m < 1440 ? Math.floor(m / 60) + " h " + (m % 60) + " min ago" : new Date(iso).toLocaleDateString());
   return '<span class="ago ' + (m < 3 ? "hot" : m < 15 ? "warm" : "cold") + '" title="' + esc(new Date(iso).toLocaleString()) + '">' + txt + "</span>";
 }
 var liveT = 0, liveRows = [];
