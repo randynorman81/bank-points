@@ -410,7 +410,8 @@ function scoreCode(checks, code) {
   const ids = Object.keys(boxes).map(Number).sort((x, y) => x - y);
   let sum = 0, done = 0; const notDone = [];
   ids.forEach((id) => { const v = boxes[id].f / boxes[id].t; sum += v; if (v >= 0.999) done++; else notDone.push(id); });
-  const pct = ids.length ? Math.round(sum * 100 / ids.length) : (possible ? Math.round(credit * 100 / possible) : null);
+  let pct = ids.length ? Math.round(sum * 100 / ids.length) : (possible ? Math.round(credit * 100 / possible) : null);
+  if (pct !== null && pct >= 100 && missing.length) pct = 99;   // 100 means every check is met, never just rounded up
   return { passed, total: checks.length, missing, boxes, pct, doneBoxes: done, totalBoxes: ids.length, notDone };
 }
 async function liveScore(body) {
