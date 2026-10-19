@@ -86,6 +86,43 @@ async function mySlots(user) {
   return { ok: true, slots: has.filter((x) => x.submitted || x.saved) };
 }
 
+const hashOf = (t) => { let h = 5381; for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return h; };
+async function logActivity(slot, email, code, period, submitted) {
+  try {
+    const key = "act:" + slot + ":" + enc(email), log = await readJSON(key, []), h = hashOf(code), last = log[log.length - 1];
+    if (!submitted && last && last.h === h) return;
+    let pct = null; const rec = variantFor(await readJSON("assign:" + slot, null), period);
+    if (rec && Array.isArray(rec.checks) && rec.checks.length && code.length <= 15000) pct = scoreCode(rec.checks, code).pct;
+    log.push({ t: now(), lines: code.split("\n").length, pct, h, sub: submitted ? 1 : 0 });
+    await store().setJSON(key, log.slice(-300));
+  } catch (e) { console.error("activity log failed", e); }
+}
+async function adminActivity(body) {
+  if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
+  return { ok: true, log: await readJSON("act:" + body.slot + ":" + enc(String(body.email || "").toLowerCase()), []) };
+}
+/* who has been working lately, across every published assignment */
+async function adminRecent(body) {
+  const hours = Math.max(1, Math.min(72, Number(body.hours) || 12)), since = Date.now() - hours * 3600 * 1000, out = [];
+  const all = (await publicAssignments(true)).assignments;
+  for (const slot of Object.keys(all)) {
+    if (all[slot].live === false && !body.drafts) continue;
+    const subs = await Promise.all((await listPrefix("sub:" + slot + ":")).map((k) => store().get(k, { type: "json" })));
+    const drafts = await Promise.all((await listPrefix("draft:" + slot + ":")).map((k) => store().get(k, { type: "json" })));
+    const by = {};
+    subs.forEach((x) => { if (x) by[x.email] = { sub: x }; });
+    drafts.forEach((x) => { if (x) (by[x.email] = by[x.email] || {}).draft = x; });
+    for (const e of Object.keys(by)) {
+      const d = by[e].draft, sb = by[e].sub, tD = d ? Date.parse(d.savedAt) : 0, tS = sb ? Date.parse(sb.submittedAt) : 0, at = Math.max(tD || 0, tS || 0);
+      if (!at || at < since) continue;
+      const code = tD >= tS ? d.code : sb.code, rec = variantFor(all[slot], (d || sb).period); let pct = null;
+      if (rec && Array.isArray(rec.checks) && rec.checks.length && String(code || "").length <= 15000) pct = scoreCode(rec.checks, String(code || "")).pct;
+      out.push({ email: e, name: (d || sb).name, period: (d || sb).period, slot, num: all[slot].num || Number(slot.slice(1)), at: new Date(at).toISOString(), submitted: !!sb, submittedAt: sb ? sb.submittedAt : null, lines: String(code || "").split("\n").length, pct });
+    }
+  }
+  out.sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+  return { ok: true, hours, rows: out };
+}
 async function saveDraft(body, user) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
   const code = String(body.code == null ? "" : body.code);
@@ -93,6 +130,7 @@ async function saveDraft(body, user) {
   await store().setJSON("draft:" + body.slot + ":" + enc(user.email), {
     email: user.email, name: user.name, period: cleanPeriod(body.period), slot: body.slot, mode: cleanMode(body.mode), code, world: cleanWorld(body.world), ticks: cleanTicks(body.ticks), savedAt: now()
   });
+  await logActivity(body.slot, user.email, code, cleanPeriod(body.period), false);
   return { ok: true };
 }
 
@@ -142,6 +180,7 @@ async function submit(body, user) {
   };
   try { const g = await autoGradeFor(body.slot, code, rec.teacher, period); if (g) rec.teacher = g; } catch (e) { console.error("autograde failed", e); }
   await store().setJSON(key, rec);
+  await logActivity(body.slot, user.email, code, period, true);
   return { ok: true, submittedAt: rec.submittedAt, count: rec.count };
 }
 
@@ -395,7 +434,7 @@ export default async (req) => {
     try { body = await req.json(); } catch (e) { return ok({ error: "Malformed request" }); }
     const action = body.action;
 
-    if (["adminList", "adminCounts", "adminGrade", "adminDelete", "adminSetAssignment", "adminDeleteAssignment", "adminAssignments", "adminAutograde", "adminSetLive"].indexOf(action) > -1) {
+    if (["adminList", "adminCounts", "adminGrade", "adminDelete", "adminSetAssignment", "adminDeleteAssignment", "adminAssignments", "adminAutograde", "adminSetLive", "adminActivity", "adminRecent"].indexOf(action) > -1) {
       if (!isAdmin(body)) return ok({ error: "Invalid PIN" });
       if (action === "adminList") return ok(await adminList(body));
       if (action === "adminCounts") return ok(await adminCounts());
@@ -405,6 +444,8 @@ export default async (req) => {
       if (action === "adminDeleteAssignment") return ok(await adminDeleteAssignment(body));
       if (action === "adminAutograde") return ok(await adminAutograde(body));
       if (action === "adminSetLive") return ok(await adminSetLive(body));
+      if (action === "adminActivity") return ok(await adminActivity(body));
+      if (action === "adminRecent") return ok(await adminRecent(body));
       return ok(await adminGrade(body));
     }
 

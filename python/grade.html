@@ -65,6 +65,11 @@ select,input,textarea{background:var(--card);color:var(--ink);border:1px solid v
 .right details{margin:6px 0;font-size:12.5px}.right summary{cursor:pointer;color:var(--soft)}.right details li{margin:3px 0}
 .warn{color:#FCD34D}
 .empty{padding:40px;color:var(--soft);text-align:center}
+#live{position:fixed;inset:0;background:#0B0F1Af2;z-index:8;display:none;overflow:auto;padding:18px 22px}
+#live table{width:100%;border-collapse:collapse;font-size:14px}#live th{text-align:left;color:var(--soft);font-size:12px;padding:6px 10px;border-bottom:1px solid var(--line,#26304a)}
+#live td{padding:8px 10px;border-bottom:1px solid #1b2236}#live tr.lr{cursor:pointer}#live tr.lr:hover{background:#151c30}
+.ago{display:inline-block;min-width:74px;font-weight:700}.ago.hot{color:#6EE7B7}.ago.warm{color:#FDE68A}.ago.cold{color:#8892aa}
+.tl{font-size:12.5px;max-height:240px;overflow:auto;border:1px solid #26304a;border-radius:8px}.tl table{width:100%;border-collapse:collapse}.tl td,.tl th{padding:4px 8px;text-align:left;border-bottom:1px solid #1b2236}.tl th{position:sticky;top:0;background:#101728;color:var(--soft)}
 .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111c;color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;display:none;z-index:9}
 @media(max-width:1000px){#app{grid-template-columns:1fr}.list{max-height:34vh}.dbody{grid-template-columns:1fr}.right{border-left:0}}
 </style>
@@ -85,6 +90,7 @@ select,input,textarea{background:var(--card);color:var(--ink);border:1px solid v
   <label>Period <select id="period"><option value="">All periods</option></select></label>
   <label><input type="checkbox" id="onlySub"> Submitted only</label>
   <button class="btn" id="reload">Reload</button>
+  <button class="btn pri" id="liveBtn" title="Who is working right now, and when they last saved">Live class</button>
   <button class="btn" id="unlock" title="Students only see the assignments you have unlocked"></button>
   <button class="btn" id="autograde" title="Grade every submission of this assignment that does not have a grade you saved by hand">Autograde all</button>
   <button class="btn" id="csv">Export CSV</button>
@@ -94,8 +100,20 @@ select,input,textarea{background:var(--card);color:var(--ink);border:1px solid v
 </div>
 
 <div id="app">
-  <div class="list"><table><thead><tr><th>Student</th><th>Period</th><th>Status</th><th>Grade</th></tr></thead><tbody id="rows"></tbody></table><div class="empty" id="noRows" style="display:none">No work for this assignment yet.</div></div>
+  <div class="list"><table><thead><tr><th>Student</th><th>Period</th><th>Status</th><th>Last saved</th><th>Grade</th></tr></thead><tbody id="rows"></tbody></table><div class="empty" id="noRows" style="display:none">No work for this assignment yet.</div></div>
   <div class="detail" id="detail"><div class="empty">Pick a student on the left.</div></div>
+</div>
+<div id="live">
+  <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+    <h2 style="margin:0">Live class</h2>
+    <label style="font-size:13px;color:var(--soft)">Show work from the last <select id="liveHours"><option value="1">hour</option><option value="3">3 hours</option><option value="12" selected>12 hours</option><option value="48">2 days</option></select></label>
+    <label style="font-size:13px;color:var(--soft)">Period <select id="livePeriod"><option value="">All</option></select></label>
+    <span id="liveNote" style="color:var(--soft);font-size:12.5px"></span><span class="sp" style="flex:1"></span>
+    <button class="btn" id="liveClose">Close</button>
+  </div>
+  <table><thead><tr><th>Student</th><th>Period</th><th>Working on</th><th>Last saved</th><th>Lines</th><th>Auto score</th><th>Status</th></tr></thead><tbody id="liveRows"></tbody></table>
+  <div class="empty" id="liveNone" style="display:none">No one has saved work in that time.</div>
+  <div style="color:var(--soft);font-size:12.5px;margin-top:10px">Work saves to the cloud about every 30 seconds while a student types, so "last saved" can be up to half a minute behind. This page refreshes itself every 20 seconds. Click a student to open their work.</div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -205,7 +223,7 @@ function render() {
   var list = rows.filter(function (r) { return (!per || r.period === per) && (!only || r.submission); }).sort(function (a, b) { return String(a.rosterName || a.name).localeCompare(String(b.rosterName || b.name)); });
   $("rows").innerHTML = list.map(function (r) {
     var t = r.submission && r.submission.teacher;
-    return '<tr class="row' + (sel === r.email ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td>' + esc(r.rosterName || r.name) + '</td><td>' + esc(r.period) + '</td><td>' + (r.submission ? '<span class="pill s">Submitted</span>' : '<span class="pill d">Draft</span>') + '</td><td>' + (t && t.score !== null ? '<span class="pill g" title="' + (t.auto ? "Autograded when submitted. Change it and click Save grade to override." : "Saved grade") + '">' + esc(t.score) + (t.auto ? " auto" : "") + "</span>" : "") + "</td></tr>";
+    return '<tr class="row' + (sel === r.email ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td>' + esc(r.rosterName || r.name) + '</td><td>' + esc(r.period) + '</td><td>' + (r.submission ? '<span class="pill s">Submitted</span>' : '<span class="pill d">Draft</span>') + '</td><td>' + ago(Math.max(r.draft ? Date.parse(r.draft.savedAt) || 0 : 0, r.submission ? Date.parse(r.submission.submittedAt) || 0 : 0) ? new Date(Math.max(r.draft ? Date.parse(r.draft.savedAt) || 0 : 0, r.submission ? Date.parse(r.submission.submittedAt) || 0 : 0)).toISOString() : "1970-01-01") + '</td><td>' + (t && t.score !== null ? '<span class="pill g" title="' + (t.auto ? "Autograded when submitted. Change it and click Save grade to override." : "Saved grade") + '">' + esc(t.score) + (t.auto ? " auto" : "") + "</span>" : "") + "</td></tr>";
   }).join("");
   $("noRows").style.display = list.length ? "none" : "block";
   $("count").textContent = list.filter(function (r) { return r.submission; }).length + " submitted, " + list.length + " total";
@@ -350,7 +368,7 @@ function attachWhere(rec) {
   }).catch(function () {});
 }
 function afterDetail(r, rec) {
-  loadCoverage(rec);
+  loadCoverage(rec); loadTimeline(r);
     syntaxCheck(rec.code || "").then(function (msg) { var e = $("synRes"); if (e) { e.textContent = msg ? msg : "OK, no syntax errors"; e.className = msg ? "warn" : ""; } }, function () { var e = $("synRes"); if (e) e.textContent = "could not load the checker"; });
 }
 $("slot").onchange = function () { sel = null; $("detail").innerHTML = '<div class="empty">Pick a student on the left.</div>'; load(); };
@@ -373,6 +391,56 @@ $("csv").onclick = function () {
   var csv = [["Name", "Email", "Period", "Status", "Score", "Comment"].join(",")].concat(render().map(function (r) { var t = r.submission && r.submission.teacher; return [q(r.rosterName || r.name), q(r.email), q(r.period), q(r.submission ? "Submitted" : "Draft"), q(t && t.score !== null ? t.score : ""), q(t ? t.comment : "")].join(","); })).join("\n");
   var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "python-" + $("slot").value + ".csv"; a.click();
 };
+
+/* ---------- live class view and per-student timeline ---------- */
+function ago(iso) {
+  var m = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 60000));
+  var txt = m < 1 ? "just now" : m < 60 ? m + " min ago" : m < 1440 ? Math.floor(m / 60) + " h " + (m % 60) + " min ago" : new Date(iso).toLocaleDateString();
+  return '<span class="ago ' + (m < 3 ? "hot" : m < 15 ? "warm" : "cold") + '" title="' + esc(new Date(iso).toLocaleString()) + '">' + txt + "</span>";
+}
+var liveT = 0, liveRows = [];
+function liveLoad() {
+  api({ action: "adminRecent", hours: $("liveHours").value }).then(function (j) {
+    if (!j || !j.ok) { toast((j && j.error) || "Could not load"); return; }
+    liveRows = j.rows || [];
+    var per = {}; liveRows.forEach(function (r) { if (r.period) per[r.period] = 1; });
+    var cur = $("livePeriod").value; $("livePeriod").innerHTML = '<option value="">All</option>' + Object.keys(per).sort().map(function (p) { return "<option>" + esc(p) + "</option>"; }).join(""); $("livePeriod").value = per[cur] ? cur : "";
+    liveRender(); $("liveNote").textContent = "Updated " + new Date().toLocaleTimeString();
+  });
+}
+function liveRender() {
+  var p = $("livePeriod").value, list = liveRows.filter(function (r) { return !p || r.period === p; });
+  $("liveRows").innerHTML = list.map(function (r, i) {
+    return '<tr class="lr" data-i="' + i + '"><td>' + esc(r.name) + "</td><td>" + esc(r.period) + "</td><td>Assignment " + esc(r.num) + "</td><td>" + ago(r.at) + "</td><td>" + r.lines + "</td><td>" + (r.pct === null || r.pct === undefined ? "" : "<b>" + r.pct + "</b>") + "</td><td>" + (r.submitted ? '<span class="pill s">Submitted ' + esc(new Date(r.submittedAt).toLocaleTimeString()) + "</span>" : '<span class="pill d">Working</span>') + "</td></tr>";
+  }).join("");
+  $("liveNone").style.display = list.length ? "none" : "block";
+  Array.prototype.forEach.call($("liveRows").querySelectorAll("tr.lr"), function (tr) {
+    tr.onclick = function () { var r = list[+tr.getAttribute("data-i")]; liveStop(); $("slot").value = "a" + r.num; if ($("slot").value !== "a" + r.num) $("slot").value = "a" + r.num; sel = r.email; load().then(function () { render(); showDetail(); }); };
+  });
+}
+function liveStop() { clearInterval(liveT); $("live").style.display = "none"; }
+$("liveBtn").onclick = function () { $("live").style.display = "block"; liveLoad(); clearInterval(liveT); liveT = setInterval(liveLoad, 20000); };
+$("liveClose").onclick = liveStop; $("liveHours").onchange = liveLoad; $("livePeriod").onchange = liveRender;
+/* the history of one student's work on this assignment: every time the code changed */
+function loadTimeline(r) {
+  var slotId = $("slot").value, box = document.querySelector(".right"); if (!box) return;
+  box.insertAdjacentHTML("afterbegin", '<h3>Work timeline</h3><div class="tl" id="tl"><div style="padding:8px;color:var(--soft)">Loading...</div></div>');
+  api({ action: "adminActivity", slot: slotId, email: r.email }).then(function (j) {
+    var el = $("tl"); if (!el) return; var log = (j && j.log) || [];
+    if (!log.length) {
+      var rec = r.submission || r.draft;
+      el.innerHTML = '<div style="padding:8px;color:var(--soft)">No step-by-step history yet. History is recorded from now on, each time the code changes. Last saved: ' + esc(fmt(r.draft ? r.draft.savedAt : "")) + (r.submission ? ". Submitted: " + esc(fmt(r.submission.submittedAt)) : "") + ".</div>"; return;
+    }
+    var prev = 0, h = "<table><thead><tr><th>Time</th><th>Lines</th><th>Change</th><th>Auto score</th><th></th></tr></thead><tbody>", day = "";
+    log.forEach(function (e) {
+      var d = new Date(e.t), dd = d.toLocaleDateString();
+      if (dd !== day) { day = dd; h += '<tr><td colspan="5" style="color:var(--soft);font-weight:700">' + esc(dd) + "</td></tr>"; }
+      var diff = e.lines - prev; prev = e.lines;
+      h += "<tr><td>" + esc(d.toLocaleTimeString()) + "</td><td>" + e.lines + "</td><td>" + (diff > 0 ? "+" + diff : diff < 0 ? String(diff) : "edited") + "</td><td>" + (e.pct === null || e.pct === undefined ? "" : e.pct) + "</td><td>" + (e.sub ? '<span class="pill s">Submitted</span>' : "") + "</td></tr>";
+    });
+    el.innerHTML = h + "</tbody></table>"; el.scrollTop = el.scrollHeight;
+  });
+}
 </script>
 </body>
 </html>
