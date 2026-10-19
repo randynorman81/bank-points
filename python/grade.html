@@ -278,8 +278,8 @@ var LH = 20, TOP = 10;
 function markHtml(h) {
   if (!h) return "";
   var out = "";
-  if (h.k === "above" || h.k === "below" || h.k === "eol") {
-    var chip = h.k === "above" ? "↑ comment goes on its own line directly above" : h.k === "below" ? "↓ comment goes on its own line directly below" : "→ comment goes at the end of this line";
+  if (h.k === "above" || h.k === "below" || h.k === "eol" || h.k === "fix") {
+    var chip = h.k === "fix" ? "\u270E finish this comment: add the title after the step number" : h.k === "above" ? "↑ comment goes on its own line directly above" : h.k === "below" ? "↓ comment goes on its own line directly below" : "→ comment goes at the end of this line";
     (h.lines || []).forEach(function (n) { out += '<div class="mk" style="top:' + (TOP + (n - 1) * LH) + 'px"><b>' + chip + "</b></div>"; });
   } else if (h.k === "add") {
     var n = h.after || 0;

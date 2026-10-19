@@ -921,8 +921,8 @@ function clearMarks() { $("marksIn").innerHTML = ""; }
 function whereMarks(h) {
   if (!h) return "";
   var out = "";
-  if (h.k === "above" || h.k === "below" || h.k === "eol") {
-    var chip = h.k === "above" ? "↑ your comment goes on its own line directly above" : h.k === "below" ? "↓ your comment goes on its own line directly below" : "→ add a comment at the end of this line";
+  if (h.k === "above" || h.k === "below" || h.k === "eol" || h.k === "fix") {
+    var chip = h.k === "fix" ? "\u270E finish this comment: add the title after the step number" : h.k === "above" ? "↑ your comment goes on its own line directly above" : h.k === "below" ? "↓ your comment goes on its own line directly below" : "→ add a comment at the end of this line";
     (h.lines || []).forEach(function (n) { out += '<div class="mk" style="top:' + (12 + (n - 1) * LH) + 'px"><b>' + chip + "</b></div>"; });
   } else if (h.k === "add") {
     var n = h.after || 0;

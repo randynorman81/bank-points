@@ -229,8 +229,11 @@ function placementOf(c) {
   else if (re.slice(-EOL2_SUF.length) === EOL2_SUF) { kind = "eol"; code = re.slice(0, -EOL2_SUF.length); }
   return kind && code ? { kind, code } : null;
 }
-function hintFor(c, code, flags, lastMetLine, n) {
-  const pl = placementOf(c);
+const stepOf = (c) => { const m = /^(?:Step|Trace) (\d+)/.exec((c && c.label) || ""); return m ? +m[1] : 0; };
+const isTitleCheck = (c) => /title" comment$/.test((c && c.label) || "");
+/* ctx = { st: the step of this check, steps: { n: { first, last } } = where each step's code sits, lastMet } */
+function hintFor(c, code, flags, ctx, n) {
+  const pl = placementOf(c), st = ctx.st;
   try {
     if (pl && c.where !== "comments" && c.where !== "notes") {
       const anchors = matchLines(pl.code, flags, code).map((x) => (pl.kind === "below" ? x.start : x.end));
@@ -239,21 +242,47 @@ function hintFor(c, code, flags, lastMetLine, n) {
       const lines = anchors.filter((a, i) => !done[a] && anchors.indexOf(a) === i).slice(0, 8);
       if (lines.length) return { k: pl.kind, lines };
     }
+    if (st && isTitleCheck(c)) {
+      // the step comment exists but is missing its title (or is not written the way the box asks): point at that line
+      const half = matchLines("^[ \\t]*#[ \\t]*(?:step|trace)[ \\t]*" + st + "\\b[^\\n]*", "mi", code);
+      if (half.length) return { k: "fix", lines: half.map((x) => x.start).slice(0, 3) };
+      const r = ctx.steps[st];
+      if (r) return { k: "add", after: Math.max(0, r.first - 1) };           // just above the first line of this step's code
+      let prev = 0; Object.keys(ctx.steps).forEach((k2) => { if (+k2 < st) prev = Math.max(prev, ctx.steps[k2].last); });
+      return { k: "add", after: prev };
+    }
     if (n > 0 && c.where !== "comments" && c.where !== "notes") { const own = matchLines(c.re, flags, code); if (own.length) return { k: "add", after: own[own.length - 1].end }; }
+    if (st) {
+      const r = ctx.steps[st];
+      if (r) return { k: "add", after: r.last };                              // after the last line of this step's code so far
+      let prev = 0; Object.keys(ctx.steps).forEach((k2) => { if (+k2 < st) prev = Math.max(prev, ctx.steps[k2].last); });
+      return { k: "add", after: prev };                                       // else after the previous step's code
+    }
   } catch (e) {}
-  return { k: "add", after: lastMetLine };
+  return { k: "add", after: ctx.lastMet };
 }
 function scoreCode(checks, code) {
-  const sp = splitCode(code); let passed = 0, credit = 0, possible = 0; const missing = []; let lastMetLine = 0; const text = String(code || ""); const boxes = {};
-  checks.forEach((c) => {
-    let n = 0; const flags = String(c.flags || "").replace(/g/g, "");
+  const sp = splitCode(code); let passed = 0, credit = 0, possible = 0; const missing = []; let lastMet = 0; const text = String(code || ""); const boxes = {};
+  // pass 1: how many times each check is found, and (for met checks) the lines it matched
+  const pre = checks.map((c) => {
+    let n = 0, ml = []; const flags = String(c.flags || "").replace(/g/g, "");
     try {
       if (c.where === "comments" || c.where === "notes") { const re = new RegExp(c.re, flags); (c.where === "notes" ? sp.notes : sp.comments).forEach((l) => { if (re.test(l)) n++; }); }
-      else { const m = (c.where === "code" ? sp.code : String(code || "")).match(new RegExp(c.re, "g" + flags)); n = m ? m.length : 0; }
+      else { const m = (c.where === "code" ? sp.code : text).match(new RegExp(c.re, "g" + flags)); n = m ? m.length : 0; }
+      if (n >= c.min && c.where !== "comments" && c.where !== "notes") ml = matchLines(c.re, flags, text);
     } catch (e) { n = 0; }
-    const w = c.pts || 1; possible += w; credit += w * Math.min(1, n / c.min);
-    if (c.box !== undefined && c.box !== null) (Array.isArray(c.box) ? c.box : [c.box]).forEach((b) => { const o = boxes[b] || (boxes[b] = { t: 0, m: 0, e: 0, p: 0 }); o.t++; o.p += w; o.e += w * Math.min(1, n / c.min); if (n >= c.min) o.m++; });
-    if (n >= c.min) { passed++; try { if (c.where !== "comments" && c.where !== "notes") { const ml = matchLines(c.re, flags, text); if (ml.length) lastMetLine = ml[ml.length - 1].end; } } catch (e) {} } else missing.push({ label: c.label, box: c.box, have: Math.min(n, c.min - 1), need: c.min, pts: w, hint: hintFor(c, text, flags, lastMetLine, n) });
+    return { c, n, ml, flags };
+  });
+  // where each step's code sits: the first and last line matched by any met check of that step (not counting the step comment itself)
+  const steps = {};
+  pre.forEach((p) => { const st = stepOf(p.c); if (!st || !p.ml.length || isTitleCheck(p.c)) return; const r = steps[st] || (steps[st] = { first: 1e9, last: 0 }); p.ml.forEach((x) => { r.first = Math.min(r.first, x.start); r.last = Math.max(r.last, x.end); }); });
+  pre.forEach((p) => { if (p.ml.length) lastMet = Math.max(lastMet, p.ml[p.ml.length - 1].end); });
+  // pass 2: score, per-checkbox tallies, and the missing list with hints
+  pre.forEach((p) => {
+    const c = p.c, n = p.n, w = c.pts || 1; possible += w; credit += w * Math.min(1, n / c.min);
+    if (c.box !== undefined && c.box !== null) (Array.isArray(c.box) ? c.box : [c.box]).forEach((bx) => { const o = boxes[bx] || (boxes[bx] = { t: 0, m: 0, e: 0, p: 0 }); o.t++; o.p += w; o.e += w * Math.min(1, n / c.min); if (n >= c.min) o.m++; });
+    if (n >= c.min) passed++;
+    else missing.push({ label: c.label, box: c.box, have: Math.min(n, c.min - 1), need: c.min, pts: w, hint: hintFor(c, text, p.flags, { st: stepOf(c), steps, lastMet }, n) });
   });
   return { passed, total: checks.length, missing, boxes, pct: possible ? Math.round(credit * 100 / possible) : null };
 }
