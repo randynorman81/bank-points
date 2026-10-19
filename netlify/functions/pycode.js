@@ -42,9 +42,12 @@ const cleanTicks = (t) => {
   const ids = (Array.isArray(t.ids) ? t.ids : []).filter((x) => /^i\d{1,3}$/.test(String(x))).slice(0, 300);
   return { ids, total: Math.max(0, Math.min(300, Number(t.total) || 0)) };
 };
+/* the instruction checkbox(es) a check belongs to: a box number or a short list of them */
+const cleanBox = (b) => { const l = (Array.isArray(b) ? b : [b]).map(Number).filter((n) => Number.isInteger(n) && n >= 0 && n < 400).slice(0, 14); return l.length ? (l.length === 1 ? l[0] : l) : undefined; };
 const cleanChecks = (c) => (Array.isArray(c) ? c : []).slice(0, 80).map((x) => ({
   label: String((x && x.label) || "").slice(0, 140), re: String((x && x.re) || "").slice(0, 1200), flags: /^[gimsu]{0,4}$/.test(String((x && x.flags) || "")) ? String(x.flags || "") : "",
-  min: Math.max(1, Math.min(200, Number(x && x.min) || 1)), pts: Math.max(1, Math.min(50, Number(x && x.pts) || 1)), where: ["code", "comments", "raw", "notes"].indexOf(x && x.where) > -1 ? x.where : "code"
+  min: Math.max(1, Math.min(200, Number(x && x.min) || 1)), pts: Math.max(1, Math.min(50, Number(x && x.pts) || 1)), where: ["code", "comments", "raw", "notes"].indexOf(x && x.where) > -1 ? x.where : "code",
+  box: cleanBox(x && x.box)
 })).filter((x) => x.label && x.re);
 const cleanTips = (t) => {
   const out = {}; if (!t || typeof t !== "object") return out;
@@ -241,7 +244,7 @@ function hintFor(c, code, flags, lastMetLine, n) {
   return { k: "add", after: lastMetLine };
 }
 function scoreCode(checks, code) {
-  const sp = splitCode(code); let passed = 0, credit = 0, possible = 0; const missing = []; let lastMetLine = 0; const text = String(code || "");
+  const sp = splitCode(code); let passed = 0, credit = 0, possible = 0; const missing = []; let lastMetLine = 0; const text = String(code || ""); const boxes = {};
   checks.forEach((c) => {
     let n = 0; const flags = String(c.flags || "").replace(/g/g, "");
     try {
@@ -249,9 +252,10 @@ function scoreCode(checks, code) {
       else { const m = (c.where === "code" ? sp.code : String(code || "")).match(new RegExp(c.re, "g" + flags)); n = m ? m.length : 0; }
     } catch (e) { n = 0; }
     const w = c.pts || 1; possible += w; credit += w * Math.min(1, n / c.min);
-    if (n >= c.min) { passed++; try { if (c.where !== "comments" && c.where !== "notes") { const ml = matchLines(c.re, flags, text); if (ml.length) lastMetLine = ml[ml.length - 1].end; } } catch (e) {} } else missing.push({ label: c.label, have: Math.min(n, c.min - 1), need: c.min, pts: w, hint: hintFor(c, text, flags, lastMetLine, n) });
+    if (c.box !== undefined && c.box !== null) (Array.isArray(c.box) ? c.box : [c.box]).forEach((b) => { const o = boxes[b] || (boxes[b] = { t: 0, m: 0, e: 0, p: 0 }); o.t++; o.p += w; o.e += w * Math.min(1, n / c.min); if (n >= c.min) o.m++; });
+    if (n >= c.min) { passed++; try { if (c.where !== "comments" && c.where !== "notes") { const ml = matchLines(c.re, flags, text); if (ml.length) lastMetLine = ml[ml.length - 1].end; } } catch (e) {} } else missing.push({ label: c.label, box: c.box, have: Math.min(n, c.min - 1), need: c.min, pts: w, hint: hintFor(c, text, flags, lastMetLine, n) });
   });
-  return { passed, total: checks.length, missing, pct: possible ? Math.round(credit * 100 / possible) : null };
+  return { passed, total: checks.length, missing, boxes, pct: possible ? Math.round(credit * 100 / possible) : null };
 }
 async function liveScore(body) {
   if (!goodSlot(body.slot) || body.slot === "free") return { ok: true, pct: null };
@@ -261,7 +265,7 @@ async function liveScore(body) {
   if (!rec || !Array.isArray(rec.checks) || !rec.checks.length) return { ok: true, pct: null };
   if (rec.live === false && !isAdmin(body)) return { ok: true, pct: null };
   const r = scoreCode(rec.checks, code);
-  return { ok: true, pct: r.pct, passed: r.passed, total: r.total, missing: r.missing };
+  return { ok: true, pct: r.pct, passed: r.passed, total: r.total, missing: r.missing, boxes: r.boxes };
 }
 
 /* ---------------- request handler ---------------- */
