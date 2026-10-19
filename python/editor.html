@@ -1070,6 +1070,11 @@ function onCredential(resp) {
   var p = decodeJwt(resp.credential);
   if ((p.hd || "").toLowerCase() !== "socialcircleschools.org") { flash("Use your school account (@socialcircleschools.org)"); alert("Please sign in with your school account (@socialcircleschools.org)."); return; }
   CRED = resp.credential; USER = p.name || p.email || "";
+  try {
+    var who = String(p.email || "").toLowerCase(), owner = lsGet("py:owner");
+    if (owner && owner !== who) { Object.keys(localStorage).filter(function (k) { return /^py:(code|prog)/.test(k); }).forEach(function (k) { localStorage.removeItem(k); }); ta.value = starter(); gutter(); renderAssignment(); }
+    lsSet("py:owner", who);
+  } catch (e) {}
   $("who").innerHTML = "Signed in: " + escA(USER) + ' <a href="#" id="signOut" title="Sign out and clear this computer\'s copy of the work">Sign out</a>'; $("gbtn").innerHTML = "";
   $("signOut").onclick = function (e) { e.preventDefault(); signOut(); };
   api({ action: "mySlots" }).then(function (j) { if (j && j.ok) { (j.slots || []).forEach(function (x) { MY[x.slot] = x.submitted ? "sub" : "draft"; }); buildSlots(); } });
