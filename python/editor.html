@@ -1043,6 +1043,16 @@ fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, bo
   if (!j || !j.ok) return; window.PY_ASSIGN = window.PY_ASSIGN || {}; Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
   buildSlots(); renderAssignment();
 }).catch(function () {});
+/* students cannot copy, cut, paste, or drag text anywhere in the editor; the teacher preview (?teacher) can */
+if (!/[?&]teacher/.test(location.search)) {
+  var blockMsg = "Copy and paste are turned off. Type your own code.";
+  ["paste", "copy", "cut", "drop"].forEach(function (ev) {
+    document.addEventListener(ev, function (e) { e.preventDefault(); e.stopPropagation(); flash(blockMsg); }, true);
+  });
+  document.addEventListener("beforeinput", function (e) {
+    if (/^insertFrom(Paste|Drop|Yank)/.test(e.inputType || "")) { e.preventDefault(); flash(blockMsg); }
+  }, true);
+}
 /* teacher preview: open the editor with ?teacher to see unpublished drafts (needs the teacher PIN) */
 if (/[?&]teacher/.test(location.search)) {
   document.body.classList.add("teacher");
