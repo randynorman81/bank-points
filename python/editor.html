@@ -1046,6 +1046,7 @@ function buildSlots() {
     var A = window.PY_ASSIGN && window.PY_ASSIGN[id], opt = '<option value="' + id + '">' + slotLabel(id) + (MY[id] === "sub" ? " ✓" : "") + "</option>";
     if (id !== "free" && A && A.unit) { if (!groups[A.unit]) { groups[A.unit] = ""; order.push(A.unit); } groups[A.unit] += opt; } else top += opt;
   });
+  (window.PY_LOCKED || []).forEach(function (L) { top += '<option value="" disabled>\uD83D\uDD12 Assignment ' + L.num + " (submit Assignment " + L.needNum + " to unlock)</option>"; });
   var h = top; order.forEach(function (u) { h += '<optgroup label="' + escA(u) + '">' + groups[u] + "</optgroup>"; });
   $("slot").innerHTML = h; $("slot").value = slot;
 }
@@ -1066,6 +1067,7 @@ function onCredential(resp) {
   CRED = resp.credential; USER = p.name || p.email || "";
   $("who").textContent = "Signed in: " + USER; $("gbtn").innerHTML = "";
   api({ action: "mySlots" }).then(function (j) { if (j && j.ok) { (j.slots || []).forEach(function (x) { MY[x.slot] = x.submitted ? "sub" : "draft"; }); buildSlots(); } });
+  if (typeof loadAssignments === "function") loadAssignments();
   afterSlotChange();
 }
 function api(body) {
@@ -1144,17 +1146,26 @@ $("mGo").addEventListener("click", function () {
   var b = this; b.disabled = true;
   api({ action: "submit", slot: slot, mode: mode, code: ta.value, world: curWorld(), ticks: currentTicks(), period: $("period").value, output: out.textContent.slice(-3500) }).then(function (j) {
     b.disabled = false; $("mSub").classList.remove("show");
-    if (j && j.ok) { MY[slot] = "sub"; lastCloud = ta.value; buildSlots(); statusEl.textContent = "Submitted " + new Date(j.submittedAt).toLocaleString() + (j.count > 1 ? " (#" + j.count + ")" : ""); alert("Submitted! ✓"); }
+    if (j && j.ok) { MY[slot] = "sub"; lastCloud = ta.value; loadAssignments(); buildSlots(); statusEl.textContent = "Submitted " + new Date(j.submittedAt).toLocaleString() + (j.count > 1 ? " (#" + j.count + ")" : ""); alert("Submitted! ✓"); }
     else if (j && !j.needLogin) alert((j && j.error) || "Could not submit. Try again.");
   }).catch(function () { b.disabled = false; alert("Could not reach the server. Check your internet and try again."); });
 });
 initGoogle();
 /* published assignment instructions come from the backend (so unpublished ones are never on the public site) */
-fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "assignments" }) }).then(function (r) { return r.json(); }).then(function (j) {
-  if (!j || !j.ok) return; window.PY_ASSIGN = window.PY_ASSIGN || {}; Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
-  if (slot !== "free" && !window.PY_ASSIGN[slot] && !/[?&]teacher/.test(location.search)) { slot = "free"; lsSet("py:slot", slot); }
-  buildSlots(); renderAssignment();
-}).catch(function () {});
+/* a student sees an assignment only after submitting the one before it (the server decides, per student) */
+var TEACHER = /[?&]teacher/.test(location.search);
+function loadAssignments() {
+  return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "assignments", credential: CRED }) }).then(function (r) { return r.json(); }).then(function (j) {
+    if (!j || !j.ok) return;
+    if (TEACHER) window.PY_ASSIGN = window.PY_ASSIGN || {}; else window.PY_ASSIGN = {};
+    Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
+    window.PY_LOCKED = TEACHER ? [] : (j.locked || []);
+    var want = lsGet("py:slot") || "free";
+    if (!TEACHER) { if (slot !== "free" && !window.PY_ASSIGN[slot]) slot = "free"; else if (slot === "free" && want !== "free" && window.PY_ASSIGN[want]) slot = want; }
+    buildSlots(); renderAssignment(); if (typeof afterSlotChange === "function") afterSlotChange();
+  }).catch(function () {});
+}
+loadAssignments();
 /* students cannot copy, cut, paste, or drag text anywhere in the editor; the teacher preview (?teacher) can */
 if (!/[?&]teacher/.test(location.search)) {
   var blockMsg = "Copy and paste are turned off. Type your own code.";

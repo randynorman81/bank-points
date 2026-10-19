@@ -206,6 +206,18 @@ async function adminDeleteAssignment(body) {
   await store().delete("assign:" + body.slot);
   return { ok: true };
 }
+/* each student sees an assignment only after submitting the one before it (the first one is open to everyone); the teacher still controls which are published */
+async function gatedAssignments(user) {
+  const all = (await publicAssignments(true)).assignments, order = Object.keys(all).sort((a, b) => parseInt(a.slice(1), 10) - parseInt(b.slice(1), 10));
+  const out = {}, locked = []; let prev = null;
+  for (const id of order) {
+    const live = all[id].live !== false;
+    let open = prev === null || (user && !!(await store().getMetadata("sub:" + prev + ":" + enc(user.email))));
+    if (live) { if (open) { const v = Object.assign({}, all[id]); delete v.checks; out[id] = v; } else locked.push({ id, need: prev, num: all[id].num || Number(id.slice(1)), needNum: all[prev].num || Number(prev.slice(1)) }); }
+    if (live) prev = id;
+  }
+  return { ok: true, assignments: out, locked };
+}
 async function publicAssignments(all) {
   const out = {};
   for (const k of await listPrefix("assign:")) { const v = await store().get(k, { type: "json" }); if (v && (all || v.live !== false)) { if (!all) delete v.checks; out[k.slice(7)] = v; } }
@@ -372,7 +384,7 @@ export default async (req) => {
       return ok(await adminGrade(body));
     }
 
-    if (action === "assignments") return ok(await publicAssignments());
+    if (action === "assignments") return ok(await gatedAssignments(body.credential ? await verifyGoogleToken(body.credential) : null));
     if (action === "score") return ok(await liveScore(body));
     const user = await verifyGoogleToken(body.credential);
     if (!user) return ok({ error: "Please sign in with your school Google account.", needLogin: true });
