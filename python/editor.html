@@ -49,6 +49,13 @@ body.noass #paneAss,body.noass #split0{display:none}
 #assMiss li{margin:4px 0;color:var(--ink)}#assMiss li small{color:var(--soft)}
 .tipbtn{display:inline-block;margin:2px 3px;padding:2px 9px;border-radius:100px;border:1px solid #FBBF24;background:#2A2110;color:#FDE68A;font:600 12px Manrope,sans-serif;cursor:pointer;line-height:1.5;vertical-align:baseline}
 .tipbtn:hover,.tipbtn:focus{background:#3a2d12;border-color:#FDE047;outline:0}
+.helprow{margin:2px 0 8px}
+.helpstep{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:100px;border:1px solid #FBBF24;background:#2A2110;color:#FDE68A;font:700 12.5px Manrope,sans-serif;cursor:pointer}
+.helpstep:hover,.helpstep:focus{background:#3a2d12;border-color:#FDE047;outline:0}
+.helpstep small{font-weight:600;color:#FCD34D;opacity:.85}
+#tipBody .helplist{display:flex;flex-direction:column;gap:7px;margin:4px 0}
+#tipBody .helplist .tipbtn{display:block;margin:0;padding:8px 14px;border-radius:10px;text-align:left;white-space:normal;font-size:13px}
+#tipBody .tipback{margin:0 0 10px}
 .tiprow{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin:0 0 12px;padding:10px 12px;background:#161208;border:1px dashed #6b5a1e;border-radius:10px;font-size:12.5px;color:#FDE68A}
 .tiprow>span{font-weight:700}
 .tiprow .tipbtn{display:block;max-width:100%;margin:0;padding:5px 12px;border-radius:10px;text-align:left;white-space:normal}
@@ -847,25 +854,46 @@ function renderTipSection(sec) {
   if (sec.quiz) sec.quiz.forEach(function (q) { h += "<details><summary>" + highlight(q[0]) + '</summary><div class="ans">' + tinl(q[1]) + "</div></details>"; });
   return h;
 }
+var stepHelp = {}, openedFrom = null;
+function openHelpList(sec) {
+  var A = (window.PY_ASSIGN || {})[slot], hs = stepHelp[sec]; if (!A || !hs) return;
+  openedFrom = sec;
+  $("tipTitle").textContent = "Help: " + hs.title;
+  $("tipBody").innerHTML = '<p style="color:var(--soft);margin:0 0 8px">Pick the topic you need.</p><div class="helplist">' + hs.ids.map(function (id) { var t = A.tips[id]; return t ? '<button type="button" class="tipbtn" data-tip="' + id + '">' + escH(t.title) + "</button>" : ""; }).join("") + "</div>";
+  $("tipBody").parentNode.scrollTop = 0; $("mTip").classList.add("show");
+}
 function openTip(id) {
   var A = (window.PY_ASSIGN || {})[slot], t = A && A.tips && A.tips[id]; if (!t) return;
-  $("tipTitle").textContent = t.title; $("tipBody").innerHTML = (t.sections || []).map(renderTipSection).join(""); $("tipBody").parentNode.scrollTop = 0; $("mTip").classList.add("show");
+  $("tipTitle").textContent = t.title; $("tipBody").innerHTML = (openedFrom !== null && stepHelp[openedFrom] ? '<p class="tipback"><button type="button" class="tipbtn" data-back="1">\u2190 All help for this step</button></p>' : "") + (t.sections || []).map(renderTipSection).join(""); $("tipBody").parentNode.scrollTop = 0; $("mTip").classList.add("show");
 }
-$("tipClose").addEventListener("click", function () { $("mTip").classList.remove("show"); });
-$("mTip").addEventListener("click", function (e) { if (e.target === $("mTip")) $("mTip").classList.remove("show"); });
+$("tipBody").addEventListener("click", function (e) {
+  var bk = e.target.closest && e.target.closest("[data-back]"); if (bk) { e.preventDefault(); openHelpList(openedFrom); return; }
+  var b = e.target.closest && e.target.closest(".tipbtn[data-tip]"); if (b) { e.preventDefault(); openTip(b.getAttribute("data-tip")); }
+});
+$("tipClose").addEventListener("click", function () { $("mTip").classList.remove("show"); openedFrom = null; });
+$("mTip").addEventListener("click", function (e) { if (e.target === $("mTip")) { $("mTip").classList.remove("show"); openedFrom = null; } });
 document.addEventListener("keydown", function (e) { if (e.key === "Escape") $("mTip").classList.remove("show"); });
-$("assBody").addEventListener("click", function (e) { var b = e.target.closest && e.target.closest(".tipbtn"); if (b) { e.preventDefault(); e.stopPropagation(); openTip(b.getAttribute("data-tip")); } });
+$("assBody").addEventListener("click", function (e) {
+  var hb = e.target.closest && e.target.closest(".helpstep"); if (hb) { e.preventDefault(); e.stopPropagation(); openHelpList(+hb.getAttribute("data-help")); return; }
+  var b = e.target.closest && e.target.closest(".tipbtn"); if (b) { e.preventDefault(); e.stopPropagation(); openedFrom = null; openTip(b.getAttribute("data-tip")); }
+});
 function renderAssignment() {
   var A = (window.PY_ASSIGN || {})[slot], body = $("assBody"), title = slotLabel(slot);
   var plain = slot === "free" ? title : "Assignment " + aNum(slot, A) + (A && A.title ? ": " + A.title : ""), full = (A && A.unit ? A.unit + " · " : "") + plain; $("assTitle").textContent = (unitShort(A) ? unitShort(A) + " · " : "") + (slot === "free" ? title : "Assignment " + aNum(slot, A) + (A && A.title ? ": " + A.title : "")); $("assTitle").title = full;
   if (!A) { body.innerHTML = '<p class="none">Your teacher has not posted instructions for this assignment yet.</p>'; $("assHead").className = ""; return; }
   var done = {}; try { done = JSON.parse(lsGet("py:prog:" + slot) || "{}"); } catch (e) {}
-  var h = "", n = 0;
+  var h = "", n = 0, secTips = {}, sec = 0, seen = {}; stepHelp = {};
   A.blocks.forEach(function (b) {
-    if (b.h) h += "<h3>" + inl(b.h) + "</h3>";
+    if (b.h) { sec++; seen[sec] = {}; }
+    else if (b.tips) b.tips.forEach(function (id) { if (A.tips && A.tips[id] && !seen[sec || 0]) seen[sec || 0] = {}; if (A.tips && A.tips[id] && !(seen[sec || 0][id])) { seen[sec || 0][id] = 1; (secTips[sec] = secTips[sec] || []).push(id); } });
+  });
+  sec = 0;
+  var introTips = secTips[0] || [];
+  A.blocks.forEach(function (b, bi) {
+    if (b.h) { sec++; h += "<h3>" + inl(b.h) + "</h3>"; if (secTips[sec] && secTips[sec].length) { var isStep = /^(Step|Trace) /.test(b.h); stepHelp[sec] = { title: isStep ? String(b.h).replace(/:.*$/, "") : "the house rules", ids: secTips[sec] }; h += '<div class="helprow"><button type="button" class="helpstep" data-help="' + sec + '">\uD83D\uDCA1 ' + (isStep ? "Help for this step" : "Help with the house rules") + ' <small>(' + secTips[sec].length + " topics)</small></button></div>"; } }
     else if (b.p) h += "<p>" + inl(b.p) + "</p>";
     else if (b.code) h += "<pre>" + highlight(b.code) + "</pre>";
-    else if (b.tips) h += '<div class="tiprow"><span>💡 Click to learn:</span>' + b.tips.map(function (id) { var t = A.tips && A.tips[id]; return t ? '<button type="button" class="tipbtn" data-tip="' + id + '">' + escH(t.title) + "</button>" : ""; }).join("") + "</div>";
+    else if (b.tips) { if (sec === 0 && introTips.length && !stepHelp[0]) { stepHelp[0] = { title: "Getting started", ids: introTips }; h += '<div class="helprow"><button type="button" class="helpstep" data-help="0">\uD83D\uDCA1 Help for getting started <small>(' + introTips.length + " topics)</small></button></div>"; } }
     else {
       var kind = b.make ? "make" : b.where ? "where" : "build", items = b.make || b.where || b.build || [];
       h += '<div class="cb ' + kind + '">' + items.map(function (t) { var id = "i" + (n++); return '<label class="' + (done[id] ? "done" : "") + '"><input type="checkbox" data-id="' + id + '"' + (done[id] ? " checked" : "") + "><span>" + inl(t) + "</span></label>"; }).join("") + "</div>";
