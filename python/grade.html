@@ -145,7 +145,9 @@ function runChecks(slotId, code) {
       else { var m = (c.where === "code" ? sp.code : String(code || "")).match(new RegExp(c.re, "g" + flags)); n = m ? m.length : 0; }
     } catch (e) { n = 0; }
     var w = c.pts || 1; possible += w; credit += w * Math.min(1, n / c.min);
-    res.push({ label: c.label, min: c.min, count: n, ok: n >= c.min, pts: w, box: c.box });
+    var lines = [];
+    try { if (c.where !== "comments" && c.where !== "notes") { var rx = new RegExp(c.re, "g" + flags), mm, txt = String(code || ""); while ((mm = rx.exec(txt)) && lines.length < 60) { lines.push(txt.slice(0, mm.index).split("\n").length); if (mm[0].length === 0) rx.lastIndex++; } } } catch (e) { lines = []; }
+    res.push({ label: c.label, min: c.min, count: n, ok: n >= c.min, pts: w, box: c.box, lines: lines });
   });
   var passed = res.filter(function (x) { return x.ok; }).length;
   return { results: res, passed: passed, total: res.length, pct: possible ? Math.round(credit * 100 / possible) : null, comments: sp.comments.filter(function (l) { return l.trim(); }).length, kept: sp.comments.filter(function (l) { return /^\s*([A-Za-z_]\w*\s*=[^=]|print\(|input\(|[A-Za-z_]\w*\s*=\s*\w+\()/.test(l); }).length, lines: sp.code.split("\n").filter(function (l) { return l.trim(); }).length };
@@ -253,8 +255,43 @@ function checkRows(ck, slotId) {
   });
   return h;
 }
+/* Did the student cover everything, and in the right order?  A checklist for the teacher: no score. */
+function stepOrder(code) {
+  /* the order of the steps is read from the student's own step comments (# Step 3: ...), the first one of each number */
+  var pos = {}, lines = String(code || "").split("\n");
+  lines.forEach(function (l, i) { var m = /^\s*#\s*(?:step|trace)\s*(\d+)\b/i.exec(l); if (m && pos[+m[1]] === undefined) pos[+m[1]] = i + 1; });
+  var keys = Object.keys(pos).map(Number).sort(function (x, y) { return x - y; }), bad = [];
+  for (var i = 1; i < keys.length; i++) if (pos[keys[i]] < pos[keys[i - 1]]) bad.push("Step " + keys[i] + " (line " + pos[keys[i]] + ") comes before Step " + keys[i - 1] + " (line " + pos[keys[i - 1]] + ")");
+  return { steps: keys.length, bad: bad };
+}
+function coveragePanel(ck, slotId, code) {
+  if (!ck.total) return '<p style="color:var(--soft)">No coverage checklist for this assignment.</p>';
+  var meta = boxMeta(slotId), groups = {}, order = [];
+  ck.results.forEach(function (x) {
+    var first = Array.isArray(x.box) ? x.box[0] : x.box, key = first === undefined || first === null ? "none" : String(first);
+    if (!groups[key]) { groups[key] = []; order.push(key); }
+    groups[key].push(x);
+  });
+  order.sort(function (a, b) { return (a === "none" ? 1e9 : +a) - (b === "none" ? 1e9 : +b); });
+  var done = [], todo = [];
+  order.forEach(function (key) {
+    var list = groups[key], met = list.filter(function (x) { return x.ok; }).length, m = key === "none" ? null : meta[+key];
+    var name = m ? esc(m.step) + ", checkbox " + m.pos : "Other", text = m ? esc(m.text.length > 100 ? m.text.slice(0, 97) + "..." : m.text) : "";
+    if (met === list.length) done.push('<div class="ck ok"><span class="m">&#10003;</span><span><b>' + name + "</b> " + text + "</span></div>");
+    else {
+      var rows = list.filter(function (x) { return !x.ok; }).map(function (x) { return '<div class="ck no" style="padding-left:24px"><span class="m">&#10005;</span><span>' + esc(x.label) + " <small>(found " + x.count + ", need " + x.min + ")</small></span></div>"; }).join("");
+      todo.push('<div class="bx"><b>' + name + "</b> <span class=\"bxt\">" + text + '</span> <span class="abadge ' + (met ? "part" : "no") + '">' + (met ? "partly covered" : "not covered") + "</span></div>" + rows);
+    }
+  });
+  var ord = stepOrder(code), h = "<h3>Coverage</h3>";
+  h += todo.length ? '<div><b style="color:#FCA5A5">' + todo.length + " checkbox" + (todo.length === 1 ? "" : "es") + ' not fully covered</b> <small style="color:var(--soft)">(' + done.length + " covered)</small></div>" : '<div style="color:#6EE7B7"><b>Everything is covered.</b></div>';
+  h += ord.steps < 2 ? '<div style="margin-top:6px;color:var(--soft)">Order of the steps: not checked (fewer than two step comments in the code).</div>' : (ord.bad.length ? '<div style="margin-top:6px;color:#FDE68A"><b>Out of order:</b> ' + ord.bad.map(esc).join("; ") + "</div>" : '<div style="margin-top:6px;color:#6EE7B7">Steps are in order (' + ord.steps + " found).</div>");
+  h += todo.join("");
+  if (done.length) h += "<details style=\"margin-top:8px\"><summary>" + done.length + " covered</summary>" + done.join("") + "</details>";
+  return h;
+}
 function autoPanel(r, rec) {
-  var slotId = $("slot").value, ck = runChecks(slotId, rec.code), h = "<h3>Submission details</h3>";
+  var slotId = $("slot").value, ck = runChecks(slotId, rec.code), h = coveragePanel(ck, slotId, rec.code) + "<h3>Submission details</h3>";
   h += '<div class="kv"><span>Lines of code</span><span>' + ck.lines + '</span><span>Comments</span><span>' + ck.comments + '</span><span>Commented-out earlier code</span><span class="' + (ck.kept ? "" : "warn") + '">' + ck.kept + (ck.kept ? "" : " (none: may have deleted work)") + '</span><span>Syntax check</span><span id="synRes">checking...</span></div>';
   var t = rec.ticks, steps = stepTexts(slotId);
   h += "<h3>Steps ticked</h3>";
@@ -298,7 +335,6 @@ function attachWhere(rec) {
   }).catch(function () {});
 }
 function afterDetail(r, rec) {
-  attachWhere(rec);
   syntaxCheck(rec.code || "").then(function (msg) { var e = $("synRes"); if (e) { e.textContent = msg ? msg : "OK, no syntax errors"; e.className = msg ? "warn" : ""; } }, function () { var e = $("synRes"); if (e) e.textContent = "could not load the checker"; });
 }
 $("slot").onchange = function () { sel = null; $("detail").innerHTML = '<div class="empty">Pick a student on the left.</div>'; load(); };
