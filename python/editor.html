@@ -121,6 +121,7 @@ body.noass #paneAss,body.noass #split0{display:none}
 #assMiss li .ref{display:block;color:var(--soft);font-size:11px;margin-top:1px}
 #code{resize:none;outline:0;background:transparent;color:transparent;caret-color:var(--acc);overflow:auto;z-index:1}
 #code::selection{background:rgba(251,146,60,.35);color:transparent}
+#code::placeholder{color:#4B5670;font-style:italic}
 .c-com{color:#64748B;font-style:italic}.c-str{color:#86EFAC}.c-int{color:#FB923C}.c-float{color:#FDE047}.c-bool{color:#F472B6;font-weight:700}
 .c-none{color:#94A3B8;font-style:italic}.c-kw{color:#A78BFA}.c-def{color:#38BDF8;font-weight:700}.c-logic{color:#22D3EE}.c-builtin{color:#60A5FA}
 .c-func{color:#BEF264}.c-op{color:#FB7185}.c-list{color:#2DD4BF;font-weight:700}.c-dict{color:#E879F9;font-weight:700}.c-var{color:#E6EAF2}
@@ -234,7 +235,7 @@ body.teacher #assBody pre,body.teacher #tipBody pre{user-select:text;cursor:text
   <section class="pane">
     <h2 id="codeTitle">Your code (main.py)</h2>
     <div class="cloud" id="cloud"></div>
-    <div class="edwrap"><pre id="gut">1</pre><div class="edbox"><pre id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Python code"></textarea></div></div>
+    <div class="edwrap"><pre id="gut">1</pre><div class="edbox"><pre id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Python code" placeholder="Type your code here. Follow the steps on the left."></textarea></div></div>
     <div class="teach" id="teach"></div>
     <div class="tip"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> runs your code. <kbd>Tab</kbd> indents. Click any chip in the key to learn about it. <kbd>Ctrl</kbd> + <kbd>/</kbd> comments out the selected lines. Your work saves in this browser as you type.</div>
   </section>
@@ -275,12 +276,14 @@ function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return n
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 var slot = "free", API = "/api/pycode", GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
 function codeKey() { return "py:code:" + mode + (slot === "free" ? "" : ":" + slot); }
-function starter() { return mode === "karel" ? STARTER_KAREL : STARTER_PY; }
+function starter() { return mode === "karel" ? STARTER_KAREL : ""; }
+/* what is saved on this computer for this assignment; the old sample code does not count as saved work */
+function savedCode() { var v = lsGet(codeKey()); return v === STARTER_PY ? null : v; }
 
 /* ---------- the editor box ---------- */
 function gutter() { var n = ta.value.split("\n").length, s = ""; for (var i = 1; i <= n; i++) s += i + "\n"; gut.textContent = s.replace(/\n$/, ""); gut.scrollTop = ta.scrollTop; paint(); }
 function paint() { var h = $("hl"); h.innerHTML = highlight(ta.value) + "\n"; h.scrollTop = ta.scrollTop; h.scrollLeft = ta.scrollLeft; }
-function loadCode() { var v = lsGet(codeKey()); ta.value = v !== null ? v : starter(); gutter(); }
+function loadCode() { var v = savedCode(); ta.value = v !== null ? v : starter(); gutter(); }
 var saveT = 0;
 ta.addEventListener("input", function () { clearMarks(); updateScore(); gutter(); clearTimeout(saveT); saveT = setTimeout(function () { lsSet(codeKey(), ta.value); flash("Saved"); }, 500); });
 ta.addEventListener("scroll", function () { gut.scrollTop = ta.scrollTop; var h = $("hl"); h.scrollTop = ta.scrollTop; h.scrollLeft = ta.scrollLeft; syncMarks(); });
@@ -316,7 +319,7 @@ function flash(t) { if (running) return; statusEl.textContent = t; clearTimeout(
 /* ---------- the output box ---------- */
 function print(text, cls) { var s = document.createElement("span"); if (cls) s.className = cls; s.textContent = text; out.appendChild(s); out.scrollTop = out.scrollHeight; }
 $("clear").onclick = function () { out.textContent = ""; };
-$("reset").onclick = function () { if (confirm("Replace your code with the starter code? This cannot be undone.")) { ta.value = starter(); gutter(); lsSet(codeKey(), ta.value); } };
+$("reset").onclick = function () { if (confirm(mode === "karel" ? "Replace your code with the starter code? This cannot be undone." : "Clear the code box? This cannot be undone.")) { ta.value = starter(); gutter(); lsSet(codeKey(), ta.value); } };
 
 /* =====================================================================================
    COLORS: every kind of Python word gets its own color, and the key above the editor explains each one.
@@ -1036,7 +1039,7 @@ document.addEventListener("visibilitychange", function () { if (document.hidden)
 $("slot").addEventListener("change", function () {
   lsSet(codeKey(), ta.value); cloudSave().then(function () {
     slot = $("slot").value; lsSet("py:slot", slot); renderAssignment(); lastCloud = ""; $("cloud").className = "cloud"; showTeacher(null); statusEl.textContent = py ? "Ready" : statusEl.textContent;
-    var v = lsGet(codeKey()); ta.value = v !== null ? v : starter(); gutter(); afterSlotChange();
+    var v = savedCode(); ta.value = v !== null ? v : starter(); gutter(); afterSlotChange();
   });
 });
 $("period").addEventListener("change", function () { lsSet("py:period", this.value); });
