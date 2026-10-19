@@ -228,8 +228,9 @@ function showDetail() {
 }
 
 /* the instruction checkboxes of an assignment, in order, with the step each one is under and its place in that step */
-function boxMeta(slotId) {
+function boxMeta(slotId, period) {
   var A = ASSIGN[slotId], out = [], step = "Before you submit", pos = 0; if (!A) return out;
+  if (A.variants && period && A.variants[period]) A = A.variants[period];
   A.blocks.forEach(function (b) {
     if (b.h) { step = String(b.h).replace(/:.*$/, ""); pos = 0; return; }
     var items = b.make || b.where || b.build; if (!items) return;
@@ -270,10 +271,10 @@ function stepOrder(code) {
 var COVMISS = [];
 function loadCoverage(rec) {
   var slotId = $("slot").value;
-  api({ action: "score", slot: slotId, code: rec.code || "" }).then(function (j) {
+  api({ action: "score", slot: slotId, code: rec.code || "", period: rec.period || "" }).then(function (j) {
     var box = $("covBox"); if (!box) return;
     if (!j || !j.ok || j.pct === null || j.pct === undefined) { box.innerHTML = '<h3>Steps completed</h3><p style="color:var(--soft)">There is no checker for this assignment.</p>'; return; }
-    var meta = boxMeta(slotId), ids = Object.keys(j.boxes || {}).map(Number).sort(function (a, b) { return a - b; }), done = 0, todo = [], ok = [];
+    var meta = boxMeta(slotId, rec.period), ids = Object.keys(j.boxes || {}).map(Number).sort(function (a, b) { return a - b; }), done = 0, todo = [], ok = [];
     COVMISS = j.missing || [];
     var byBox = {}; COVMISS.forEach(function (m, i) { var b = Array.isArray(m.box) ? m.box[0] : m.box; (byBox[b] = byBox[b] || []).push(i); });
     ids.forEach(function (id) {

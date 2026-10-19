@@ -981,12 +981,12 @@ function updateScore() {
   var A = (window.PY_ASSIGN || {})[slot], el = $("assScore");
   if (!A || slot === "free") { el.innerHTML = ""; $("assMiss").className = ""; return; }
   scoreT = setTimeout(function () {
-    var seq = ++scoreSeq, body = { action: "score", slot: slot, code: ta.value }, tp = ""; try { tp = /[?&]teacher/.test(location.search) ? (sessionStorage.getItem("pypin") || "") : ""; } catch (e) {}
+    var seq = ++scoreSeq, body = { action: "score", slot: slot, code: ta.value, period: $("period").value }, tp = ""; try { tp = /[?&]teacher/.test(location.search) ? (sessionStorage.getItem("pypin") || "") : ""; } catch (e) {}
     if (tp) body.pin = tp;
     fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(function (r) { return r.json(); }).then(function (j) {
       if (seq !== scoreSeq || !j || !j.ok) return;
       if (j.pct === null || j.pct === undefined) { el.innerHTML = j.tooLong ? "<small>Your code is too long to score here.</small>" : ""; $("assMiss").className = ""; return; }
-      el.innerHTML = "Auto score: <b>" + j.pct + " / 100</b>"; el.title = "This is the score your work earns: the same checks grade it when you submit.";
+      var need = j.need || 80; el.innerHTML = "Auto score: <b>" + j.pct + " / 100</b> <small style='color:" + (j.pct >= need ? "#6EE7B7" : "#FDE68A") + "'>" + (j.pct >= need ? "(you can submit)" : "(you need " + need + " to submit)") + "</small>"; el.title = "This is the score your work earns: the same checks grade it when you submit. You need " + need + " to submit and to open the next assignment.";
       var miss = j.missing || [], box = $("assMiss");
       if (!miss.length) { box.className = "show"; $("assMissSum").textContent = "All the checks are met. Nice work!"; $("assMissList").innerHTML = ""; lastMiss = []; refreshWhere(); boxBadges(j.boxes); }
       else {
@@ -1113,7 +1113,7 @@ function afterSlotChange() {
     c.innerHTML = opts; c.className = "cloud" + (opts ? " show" : "");
     var d = $("ldDraft"); if (d) d.onclick = function () { applyRecord(dr); c.className = "cloud"; };
     var b = $("ldSub"); if (b) b.onclick = function () { applyRecord(sub); c.className = "cloud"; };
-    [dr, sub].forEach(function (r) { if (r && !$("period").value && r.period) { $("period").value = r.period; lsSet("py:period", r.period); } });
+    [dr, sub].forEach(function (r) { if (r && !$("period").value && r.period) { $("period").value = r.period; lsSet("py:period", r.period); if (typeof loadAssignments === "function") loadAssignments(); } });
     showTeacher(sub);
     if (sub) statusEl.textContent = "Submitted " + new Date(sub.submittedAt).toLocaleString();
     lastCloud = ta.value;
@@ -1132,7 +1132,7 @@ $("slot").addEventListener("change", function () {
     var v = savedCode(); ta.value = v !== null ? v : starter(); gutter(); afterSlotChange();
   });
 });
-$("period").addEventListener("change", function () { lsSet("py:period", this.value); });
+$("period").addEventListener("change", function () { lsSet("py:period", this.value); if (typeof loadAssignments === "function") loadAssignments(); });
 $("submit").addEventListener("click", function () {
   if (!ta.value.trim()) { flash("Write some code first"); return; }
   if (!CRED) { alert("Sign in with your school Google account (top right) to submit."); return; }
@@ -1154,9 +1154,11 @@ initGoogle();
 /* published assignment instructions come from the backend (so unpublished ones are never on the public site) */
 /* a student sees an assignment only after submitting the one before it (the server decides, per student) */
 var TEACHER = /[?&]teacher/.test(location.search);
+var loadSeq = 0;
 function loadAssignments() {
-  return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "assignments", credential: CRED }) }).then(function (r) { return r.json(); }).then(function (j) {
-    if (!j || !j.ok) return;
+  var my = ++loadSeq;
+  return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "assignments", credential: CRED, period: $("period").value }) }).then(function (r) { return r.json(); }).then(function (j) {
+    if (!j || !j.ok || my !== loadSeq) return;
     if (TEACHER) window.PY_ASSIGN = window.PY_ASSIGN || {}; else window.PY_ASSIGN = {};
     Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
     window.PY_LOCKED = TEACHER ? [] : (j.locked || []);
@@ -1203,7 +1205,7 @@ function setMode(m) {
   loadCode(); renderKey(); if (m === "karel") draw(world);
 }
 $("mode").addEventListener("change", function () { setMode(this.value); });
-slot = (lsGet("py:slot") || "free"); if (!/^(free|a\d+)$/.test(slot)) slot = "free"; if (lsGet("py:period")) $("period").value = lsGet("py:period"); buildSlots(); renderAssignment();
+slot = (lsGet("py:slot") || "free"); if (!/^(free|a\d+)$/.test(slot)) slot = "free"; if (lsGet("py:period")) $("period").value = lsGet("py:period"); buildSlots(); renderAssignment(); if (typeof loadAssignments === "function") loadAssignments();
 setMode(lsGet("py:mode") === "karel" ? "karel" : "python"); setMode.ready = true;
 </script>
 </body></html>

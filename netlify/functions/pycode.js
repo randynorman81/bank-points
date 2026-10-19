@@ -91,15 +91,29 @@ async function saveDraft(body, user) {
   const code = String(body.code == null ? "" : body.code);
   if (code.length > MAX_CODE) return { error: "That file is too big to save." };
   await store().setJSON("draft:" + body.slot + ":" + enc(user.email), {
-    email: user.email, name: user.name, period: cleanPeriod(body.period), slot: body.slot, mode: cleanMode(body.mode), code, world: cleanWorld(body.world), ticks: cleanTicks(body.ticks), savedAt: now()
+    email: user.email, name: user.name, period, slot: body.slot, mode: cleanMode(body.mode), code, world: cleanWorld(body.world), ticks: cleanTicks(body.ticks), savedAt: now()
   });
   return { ok: true };
 }
 
 /* automatic grade: the percent the assignment's checks give. Returns the new teacher record, or null to keep what is there (a grade the teacher saved by hand is never replaced). */
-async function autoGradeFor(slot, code, current) {
+const PASS = 80;   // a student needs this score to submit, and to open the next assignment
+/* an assignment can carry a different version for one class period (variants: { "1A": { blocks, checks, tips } }) */
+function variantFor(rec, period) {
+  if (rec && rec.variants && period && rec.variants[period]) { const v = rec.variants[period]; return Object.assign({}, rec, { blocks: v.blocks, checks: v.checks, tips: v.tips }); }
+  return rec;
+}
+/* did this student pass the assignment: the teacher's saved or automatic grade, or (if none) what the checks give now */
+async function subPassed(slot, email) {
+  const sub = await readJSON("sub:" + slot + ":" + enc(email), null); if (!sub) return false;
+  const t = sub.teacher; if (t && t.score !== null && t.score !== undefined && t.score !== "" && !isNaN(Number(t.score))) return Number(t.score) >= PASS;
+  const rec = variantFor(await readJSON("assign:" + slot, null), sub.period);
+  if (!rec || !Array.isArray(rec.checks) || !rec.checks.length) return true;
+  const r = scoreCode(rec.checks, sub.code || ""); return r.pct === null || r.pct >= PASS;
+}
+async function autoGradeFor(slot, code, current, period) {
   if (current && current.score !== null && current.score !== undefined && !current.auto) return null;
-  const as = await readJSON("assign:" + slot, null);
+  const as = variantFor(await readJSON("assign:" + slot, null), period);
   if (!as || !Array.isArray(as.checks) || !as.checks.length) return null;
   const r = scoreCode(as.checks, code);
   if (r.pct === null) return null;
@@ -110,6 +124,14 @@ async function submit(body, user) {
   const code = String(body.code == null ? "" : body.code);
   if (!code.trim()) return { error: "Your code is empty. Write something first!" };
   if (code.length > MAX_CODE) return { error: "That file is too big to submit." };
+  const period = cleanPeriod(body.period);
+  const asg = await readJSON("assign:" + body.slot, null);
+  if (asg && asg.live !== false && body.slot !== "free") {
+    const open = await gatedAssignments(user, period);
+    if (!open.assignments[body.slot]) { const L = open.locked.find((x) => x.id === body.slot); return { error: L ? "Assignment " + L.num + " is locked. Finish Assignment " + L.needNum + " with a score of at least " + PASS + " first." : "That assignment is not open yet." }; }
+    const v = variantFor(asg, period);
+    if (Array.isArray(v.checks) && v.checks.length) { const r = scoreCode(v.checks, code); if (r.pct !== null && r.pct < PASS) return { error: "Your score is " + r.pct + " out of 100. You need at least " + PASS + " to submit. Open the \"still missing\" list, fix those parts so they match the steps exactly, and submit again.", pct: r.pct, need: PASS }; }
+  }
   const key = "sub:" + body.slot + ":" + enc(user.email);
   const prev = await readJSON(key, null);
   const rec = {
@@ -118,7 +140,7 @@ async function submit(body, user) {
     submittedAt: now(), count: (prev && prev.count ? prev.count : 0) + 1,
     teacher: prev && prev.teacher ? prev.teacher : null
   };
-  try { const g = await autoGradeFor(body.slot, code, rec.teacher); if (g) rec.teacher = g; } catch (e) { console.error("autograde failed", e); }
+  try { const g = await autoGradeFor(body.slot, code, rec.teacher, period); if (g) rec.teacher = g; } catch (e) { console.error("autograde failed", e); }
   await store().setJSON(key, rec);
   return { ok: true, submittedAt: rec.submittedAt, count: rec.count };
 }
@@ -173,7 +195,7 @@ async function adminAutograde(body) {
   let graded = 0, keptByHand = 0;
   for (const k of await listPrefix("sub:" + body.slot + ":")) {
     const sub = await store().get(k, { type: "json" }); if (!sub) continue;
-    const g = await autoGradeFor(body.slot, sub.code || "", sub.teacher);
+    const g = await autoGradeFor(body.slot, sub.code || "", sub.teacher, sub.period);
     if (!g) { if (sub.teacher && sub.teacher.score !== null && sub.teacher.score !== undefined && !sub.teacher.auto) keptByHand++; continue; }
     sub.teacher = g; await store().setJSON(k, sub); graded++;
   }
@@ -196,8 +218,10 @@ async function adminSetAssignment(body) {
   if (!goodSlot(body.slot) || body.slot === "free") return { error: "Unknown assignment" };
   const title = String(body.title || "").slice(0, 120), unit = String(body.unit || "").slice(0, 80), num = Math.max(0, Math.min(99, Number(body.num) || 0));
   if (!title || !Array.isArray(body.blocks) || !body.blocks.length) return { error: "Needs a title and blocks" };
-  const text = JSON.stringify({ title, unit, num, blocks: body.blocks, checks: cleanChecks(body.checks), tips: cleanTips(body.tips), live: body.live !== false, publishedAt: now() });
-  if (text.length > 120000) return { error: "That assignment is too big" };
+  const variants = {};
+  if (body.variants && typeof body.variants === "object") Object.keys(body.variants).forEach((p) => { const v = body.variants[p]; if (cleanPeriod(p) && v && Array.isArray(v.blocks)) variants[cleanPeriod(p)] = { blocks: v.blocks, checks: cleanChecks(v.checks), tips: cleanTips(v.tips) }; });
+  const text = JSON.stringify({ title, unit, num, blocks: body.blocks, checks: cleanChecks(body.checks), tips: cleanTips(body.tips), variants, live: body.live !== false, publishedAt: now() });
+  if (text.length > 400000) return { error: "That assignment is too big" };
   await store().setJSON("assign:" + body.slot, JSON.parse(text));
   return { ok: true, slot: body.slot, title };
 }
@@ -207,13 +231,13 @@ async function adminDeleteAssignment(body) {
   return { ok: true };
 }
 /* each student sees an assignment only after submitting the one before it (the first one is open to everyone); the teacher still controls which are published */
-async function gatedAssignments(user) {
+async function gatedAssignments(user, period) {
   const all = (await publicAssignments(true)).assignments, order = Object.keys(all).sort((a, b) => parseInt(a.slice(1), 10) - parseInt(b.slice(1), 10));
   const out = {}, locked = []; let prev = null;
   for (const id of order) {
     const live = all[id].live !== false;
-    let open = prev === null || (user && !!(await store().getMetadata("sub:" + prev + ":" + enc(user.email))));
-    if (live) { if (open) { const v = Object.assign({}, all[id]); delete v.checks; out[id] = v; } else locked.push({ id, need: prev, num: all[id].num || Number(id.slice(1)), needNum: all[prev].num || Number(prev.slice(1)) }); }
+    let open = prev === null || (user && (await subPassed(prev, user.email)));
+    if (live) { if (open) { const v = Object.assign({}, variantFor(all[id], period)); delete v.checks; delete v.variants; out[id] = v; } else locked.push({ id, need: prev, num: all[id].num || Number(id.slice(1)), needNum: all[prev].num || Number(prev.slice(1)) }); }
     if (live) prev = id;
   }
   return { ok: true, assignments: out, locked };
@@ -354,11 +378,11 @@ async function liveScore(body) {
   if (!goodSlot(body.slot) || body.slot === "free") return { ok: true, pct: null };
   const code = String(body.code == null ? "" : body.code);
   if (code.length > 15000) return { ok: true, pct: null, tooLong: true };
-  const rec = await readJSON("assign:" + body.slot, null);
+  const rec = variantFor(await readJSON("assign:" + body.slot, null), cleanPeriod(body.period));
   if (!rec || !Array.isArray(rec.checks) || !rec.checks.length) return { ok: true, pct: null };
   if (rec.live === false && !isAdmin(body)) return { ok: true, pct: null };
   const r = scoreCode(rec.checks, code);
-  return { ok: true, pct: r.pct, passed: r.passed, total: r.total, missing: r.missing, boxes: r.boxes };
+  return { ok: true, need: PASS, pct: r.pct, passed: r.passed, total: r.total, missing: r.missing, boxes: r.boxes };
 }
 
 /* ---------------- request handler ---------------- */
@@ -384,7 +408,7 @@ export default async (req) => {
       return ok(await adminGrade(body));
     }
 
-    if (action === "assignments") return ok(await gatedAssignments(body.credential ? await verifyGoogleToken(body.credential) : null));
+    if (action === "assignments") return ok(await gatedAssignments(body.credential ? await verifyGoogleToken(body.credential) : null, cleanPeriod(body.period)));
     if (action === "score") return ok(await liveScore(body));
     const user = await verifyGoogleToken(body.credential);
     if (!user) return ok({ error: "Please sign in with your school Google account.", needLogin: true });
