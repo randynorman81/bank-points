@@ -207,8 +207,41 @@ function splitCode(code) {
   });
   return { comments, notes, code: codeOnly.join("\n") };
 }
+
+/* where in the student's code a missing check belongs (sent with the "still missing" list so the editor can highlight it).
+   Placement checks (note above / below / at the end of a line) are found from the shape of their pattern; the rest point to
+   the spot just after the last line of the nearest earlier check that is already met. */
+const ABOVE_SEP = "[ \\t]*\\S[^\\n]*\\n[ \\t#]*", BELOW_SEP = "[^\\n]*\\n[ \\t]*#(?:(?!", EOL_SUF = "[^\\n#]*#[ \\t]*\\S", EOL2_SUF = "[ \\t]*#[ \\t]*\\S";
+function lineAt(text, idx) { let n = 1; for (let i = 0; i < idx && i < text.length; i++) if (text.charCodeAt(i) === 10) n++; return n; }
+function matchLines(re, flags, text) {
+  const out = []; let m; const rx = new RegExp(re, "g" + flags.replace(/g/g, ""));
+  while ((m = rx.exec(text)) && out.length < 200) { out.push({ start: lineAt(text, m.index), end: lineAt(text, m.index + Math.max(0, m[0].length - 1)) }); if (m[0].length === 0) rx.lastIndex++; }
+  return out;
+}
+function placementOf(c) {
+  const re = String(c.re || ""); let kind = "", code = "";
+  if (re.indexOf("^[ \\t]*#(?:(?!") === 0 && re.lastIndexOf(ABOVE_SEP) > 0) { kind = "above"; code = re.slice(re.lastIndexOf(ABOVE_SEP) + ABOVE_SEP.length); }
+  else if (re.indexOf(BELOW_SEP) > 0 && /\\S\[\^\\n\]\*$/.test(re)) { kind = "below"; code = re.slice(0, re.indexOf(BELOW_SEP)); }
+  else if (re.slice(-EOL_SUF.length) === EOL_SUF) { kind = "eol"; code = re.slice(0, -EOL_SUF.length); }
+  else if (re.slice(-EOL2_SUF.length) === EOL2_SUF) { kind = "eol"; code = re.slice(0, -EOL2_SUF.length); }
+  return kind && code ? { kind, code } : null;
+}
+function hintFor(c, code, flags, lastMetLine, n) {
+  const pl = placementOf(c);
+  try {
+    if (pl && c.where !== "comments" && c.where !== "notes") {
+      const anchors = matchLines(pl.code, flags, code).map((x) => (pl.kind === "below" ? x.start : x.end));
+      if (!anchors.length) return { k: "need" };
+      const done = {}; matchLines(c.re, flags, code).forEach((x) => { done[pl.kind === "above" ? x.end : x.start] = 1; });
+      const lines = anchors.filter((a, i) => !done[a] && anchors.indexOf(a) === i).slice(0, 8);
+      if (lines.length) return { k: pl.kind, lines };
+    }
+    if (n > 0 && c.where !== "comments" && c.where !== "notes") { const own = matchLines(c.re, flags, code); if (own.length) return { k: "add", after: own[own.length - 1].end }; }
+  } catch (e) {}
+  return { k: "add", after: lastMetLine };
+}
 function scoreCode(checks, code) {
-  const sp = splitCode(code); let passed = 0, credit = 0, possible = 0; const missing = [];
+  const sp = splitCode(code); let passed = 0, credit = 0, possible = 0; const missing = []; let lastMetLine = 0; const text = String(code || "");
   checks.forEach((c) => {
     let n = 0; const flags = String(c.flags || "").replace(/g/g, "");
     try {
@@ -216,7 +249,7 @@ function scoreCode(checks, code) {
       else { const m = (c.where === "code" ? sp.code : String(code || "")).match(new RegExp(c.re, "g" + flags)); n = m ? m.length : 0; }
     } catch (e) { n = 0; }
     const w = c.pts || 1; possible += w; credit += w * Math.min(1, n / c.min);
-    if (n >= c.min) passed++; else missing.push({ label: c.label, have: Math.min(n, c.min - 1), need: c.min, pts: w });
+    if (n >= c.min) { passed++; try { if (c.where !== "comments" && c.where !== "notes") { const ml = matchLines(c.re, flags, text); if (ml.length) lastMetLine = ml[ml.length - 1].end; } } catch (e) {} } else missing.push({ label: c.label, have: Math.min(n, c.min - 1), need: c.min, pts: w, hint: hintFor(c, text, flags, lastMetLine, n) });
   });
   return { passed, total: checks.length, missing, pct: possible ? Math.round(credit * 100 / possible) : null };
 }

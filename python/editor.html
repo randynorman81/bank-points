@@ -100,6 +100,13 @@ body.noass #paneAss,body.noass #split0{display:none}
 .edbox{position:relative;flex:1;min-width:0}
 #hl,#code{position:absolute;inset:0;margin:0;border:0;padding:12px 12px 12px 4px;font:13.5px/1.6 "JetBrains Mono",monospace;tab-size:4;white-space:pre;letter-spacing:0}
 #hl{overflow:hidden;pointer-events:none;color:#E6EAF2}
+#marks{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+#marksIn{position:absolute;left:0;top:0;width:100%}
+.mk{position:absolute;left:0;right:0;height:21.6px;background:rgba(251,191,36,.16);border-left:3px solid #FBBF24}
+.mk.add{background:transparent;border-left:0;border-bottom:2px dashed #34D399}
+.mk b{position:absolute;right:12px;top:1px;font:700 11px Manrope,sans-serif;color:#FDE68A;background:#2A2110;border:1px solid #FBBF24;border-radius:100px;padding:0 9px;line-height:18px;white-space:nowrap}
+.mk.add b{color:#A7F3D0;background:#0B2A22;border-color:#34D399;top:3px}
+#assMiss li .where{margin:0 0 0 6px;font-size:11px;padding:1px 8px}
 #code{resize:none;outline:0;background:transparent;color:transparent;caret-color:var(--acc);overflow:auto;z-index:1}
 #code::selection{background:rgba(251,146,60,.35);color:transparent}
 .c-com{color:#64748B;font-style:italic}.c-str{color:#86EFAC}.c-int{color:#FB923C}.c-float{color:#FDE047}.c-bool{color:#F472B6;font-weight:700}
@@ -215,7 +222,7 @@ body.teacher #assBody pre,body.teacher #tipBody pre{user-select:text;cursor:text
   <section class="pane">
     <h2 id="codeTitle">Your code (main.py)</h2>
     <div class="cloud" id="cloud"></div>
-    <div class="edwrap"><pre id="gut">1</pre><div class="edbox"><pre id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Python code"></textarea></div></div>
+    <div class="edwrap"><pre id="gut">1</pre><div class="edbox"><div id="marks" aria-hidden="true"><div id="marksIn"></div></div><pre id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Python code"></textarea></div></div>
     <div class="teach" id="teach"></div>
     <div class="tip"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> runs your code. <kbd>Tab</kbd> indents. Click any chip in the key to learn about it. <kbd>Ctrl</kbd> + <kbd>/</kbd> comments out the selected lines. Your work saves in this browser as you type.</div>
   </section>
@@ -263,8 +270,8 @@ function gutter() { var n = ta.value.split("\n").length, s = ""; for (var i = 1;
 function paint() { var h = $("hl"); h.innerHTML = highlight(ta.value) + "\n"; h.scrollTop = ta.scrollTop; h.scrollLeft = ta.scrollLeft; }
 function loadCode() { var v = lsGet(codeKey()); ta.value = v !== null ? v : starter(); gutter(); }
 var saveT = 0;
-ta.addEventListener("input", function () { updateScore(); gutter(); clearTimeout(saveT); saveT = setTimeout(function () { lsSet(codeKey(), ta.value); flash("Saved"); }, 500); });
-ta.addEventListener("scroll", function () { gut.scrollTop = ta.scrollTop; var h = $("hl"); h.scrollTop = ta.scrollTop; h.scrollLeft = ta.scrollLeft; });
+ta.addEventListener("input", function () { clearMarks(); updateScore(); gutter(); clearTimeout(saveT); saveT = setTimeout(function () { lsSet(codeKey(), ta.value); flash("Saved"); }, 500); });
+ta.addEventListener("scroll", function () { gut.scrollTop = ta.scrollTop; var h = $("hl"); h.scrollTop = ta.scrollTop; h.scrollLeft = ta.scrollLeft; syncMarks(); });
 /* the Enter key inserts the new line in code, so the browser does not scroll for us: keep the cursor line in view, one line at a time */
 function keepCaretVisible() {
   var LH = 13.5 * 1.6, PAD = 12, line = ta.value.slice(0, ta.selectionStart).split("\n").length - 1;
@@ -874,6 +881,38 @@ $("assBody").addEventListener("change", function (e) {
 });
 /* live auto score out of 100: the server scores the code and sends back only the number (the rules stay hidden) */
 var scoreT = 0, scoreSeq = 0;
+/* "Show me where": highlight in the code box where a missing check goes (the server sends a hint with each missing check) */
+var lastMiss = [], whereLabel = "", LH = 21.6;
+function syncMarks() { var m = $("marksIn"); if (m) m.style.transform = "translate(" + (-ta.scrollLeft) + "px," + (-ta.scrollTop) + "px)"; }
+function clearMarks() { $("marksIn").innerHTML = ""; }
+function whereMarks(h) {
+  if (!h) return "";
+  var out = "";
+  if (h.k === "above" || h.k === "below" || h.k === "eol") {
+    var chip = h.k === "above" ? "↑ your comment goes on its own line directly above" : h.k === "below" ? "↓ your comment goes on its own line directly below" : "→ add a comment at the end of this line";
+    (h.lines || []).forEach(function (n) { out += '<div class="mk" style="top:' + (12 + (n - 1) * LH) + 'px"><b>' + chip + "</b></div>"; });
+  } else if (h.k === "add") {
+    var n = h.after || 0;
+    out = n ? '<div class="mk add" style="top:' + (12 + (n - 1) * LH) + 'px"><b>↓ add it after this line</b></div>' : '<div class="mk add" style="top:' + (12 - 3) + 'px;height:0;border-bottom:0;border-top:2px dashed #34D399"><b>↓ add it at the top</b></div>';
+  }
+  return out;
+}
+function showWhere(m) {
+  var h = m && m.hint; whereLabel = m ? m.label : "";
+  if (!h) return;
+  if (h.k === "need") { clearMarks(); flash("Type the line this goes with first, then click Show me where again."); return; }
+  $("marksIn").innerHTML = whereMarks(h);
+  var line = h.lines && h.lines.length ? h.lines[0] : (h.after || 1);
+  ta.scrollTop = Math.max(0, (line - 4) * LH);
+  syncMarks();
+}
+function refreshWhere() {
+  if (!whereLabel) return;
+  var m = lastMiss.filter(function (x) { return x.label === whereLabel; })[0];
+  if (!m) { whereLabel = ""; clearMarks(); flash("That check is done."); return; }
+  if (m.hint && m.hint.k !== "need") { $("marksIn").innerHTML = whereMarks(m.hint); syncMarks(); } else clearMarks();
+}
+$("assMissList").addEventListener("click", function (e) { var b = e.target.closest ? e.target.closest(".where") : null; if (!b) return; $("assMiss").open = false; try { ta.focus({ preventScroll: true }); } catch (e2) { ta.focus(); } showWhere(lastMiss[+b.getAttribute("data-w")]); });
 function updateScore() {
   clearTimeout(scoreT);
   var A = (window.PY_ASSIGN || {})[slot], el = $("assScore");
@@ -886,10 +925,11 @@ function updateScore() {
       if (j.pct === null || j.pct === undefined) { el.innerHTML = j.tooLong ? "<small>Your code is too long to score here.</small>" : ""; $("assMiss").className = ""; return; }
       el.innerHTML = "Auto score: <b>" + j.pct + " / 100</b>"; el.title = "This is the score your work earns: the same checks grade it when you submit.";
       var miss = j.missing || [], box = $("assMiss");
-      if (!miss.length) { box.className = "show"; $("assMissSum").textContent = "All the checks are met. Nice work!"; $("assMissList").innerHTML = ""; }
+      if (!miss.length) { box.className = "show"; $("assMissSum").textContent = "All the checks are met. Nice work!"; $("assMissList").innerHTML = ""; lastMiss = []; refreshWhere(); }
       else {
         box.className = "show"; $("assMissSum").textContent = miss.length + " still missing (click)"; $("assMissSum").title = miss.length + " check" + (miss.length === 1 ? "" : "s") + " not met yet: click to see them";
-        $("assMissList").innerHTML = miss.map(function (m) { return "<li>" + escA(m.label) + " <small>(you have " + m.have + ", need " + m.need + "; worth " + (m.pts || 1) + " point" + ((m.pts || 1) === 1 ? "" : "s") + ")</small></li>"; }).join("");
+        $("assMissList").innerHTML = miss.map(function (m, i) { return "<li>" + escA(m.label) + " <small>(you have " + m.have + ", need " + m.need + "; worth " + (m.pts || 1) + " point" + ((m.pts || 1) === 1 ? "" : "s") + ")</small>" + (m.hint ? ' <button type="button" class="tipbtn where" data-w="' + i + '">Show me where</button>' : "") + "</li>"; }).join("");
+        lastMiss = miss; refreshWhere();
       }
     }).catch(function () {});
   }, 900);
