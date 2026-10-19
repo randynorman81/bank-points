@@ -1005,9 +1005,16 @@ function applyRecord(rec) {
   ta.value = rec.code; gutter(); lsSet(codeKey(), ta.value);
   if (rec.ticks && rec.ticks.ids && rec.ticks.ids.length && !lsGet("py:prog:" + slot)) { var d = {}; rec.ticks.ids.forEach(function (i) { d[i] = 1; }); lsSet("py:prog:" + slot, JSON.stringify(d)); renderAssignment(); }
 }
+/* the steps (checkboxes) the grade says were not completed, in the student's own words from the lesson */
+function stepsNotDone(ids) {
+  if (!ids || !ids.length) return "";
+  var out = [];
+  ids.forEach(function (i) { var inp = $("assBody").querySelector('input[data-id="i' + i + '"]'); if (!inp) return; var lab = inp.closest("label"), sp = lab && lab.querySelector("span"); out.push("<li>" + escA((sp ? sp.textContent : "").replace(/\s+/g, " ").slice(0, 110)) + "</li>"); });
+  return out.length ? "<details style=\"margin-top:4px\"><summary>Steps not completed (" + out.length + ")</summary><ul style=\"margin:4px 0 0 18px;padding:0\">" + out.join("") + "</ul></details>" : "";
+}
 function showTeacher(sub) {
   var t = $("teach");
-  if (sub && sub.teacher && (sub.teacher.score !== null || sub.teacher.comment)) { t.className = "teach show"; t.innerHTML = (sub.teacher.auto ? "<b>Your grade</b>" : "<b>Teacher feedback</b>") + (sub.teacher.score !== null ? " &middot; Score: <b>" + escA(sub.teacher.score) + "</b>" + (sub.teacher.auto ? ' <small style="color:var(--soft)">(graded automatically when you submitted)</small>' : "") : "") + (sub.teacher.comment ? "<br>" + escA(sub.teacher.comment) : ""); }
+  if (sub && sub.teacher && (sub.teacher.score !== null || sub.teacher.comment)) { t.className = "teach show"; t.innerHTML = (sub.teacher.auto ? "<b>Your grade</b>" : "<b>Teacher feedback</b>") + (sub.teacher.score !== null ? " &middot; Score: <b>" + escA(sub.teacher.score) + "</b>" + (sub.teacher.auto ? ' <small style="color:var(--soft)">(graded automatically when you submitted)</small>' : "") : "") + (sub.teacher.detail && sub.teacher.detail.total ? "<br>You completed <b>" + sub.teacher.detail.done + " of " + sub.teacher.detail.total + "</b> steps." + stepsNotDone(sub.teacher.detail.notDone) : "") + (sub.teacher.comment ? "<br>" + escA(sub.teacher.comment) : ""); }
   else { t.className = "teach"; t.innerHTML = ""; }
 }
 function afterSlotChange() {

@@ -204,7 +204,7 @@ function render() {
   var list = rows.filter(function (r) { return (!per || r.period === per) && (!only || r.submission); }).sort(function (a, b) { return String(a.rosterName || a.name).localeCompare(String(b.rosterName || b.name)); });
   $("rows").innerHTML = list.map(function (r) {
     var t = r.submission && r.submission.teacher;
-    return '<tr class="row' + (sel === r.email ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td>' + esc(r.rosterName || r.name) + '</td><td>' + esc(r.period) + '</td><td>' + (r.submission ? '<span class="pill s">Submitted</span>' : '<span class="pill d">Draft</span>') + '</td><td>' + (t && t.score !== null ? '<span class="pill g" title="' + (t.auto ? "Autograded when submitted. Change it and click Save grade to override." : "Saved grade") + '">' + esc(t.score) + (t.auto ? " auto" : "") + "</span>" : (function () { if (!r.submission) return ""; var ck = runChecks($("slot").value, r.submission.code); return ck && ck.pct !== null ? '<span class="pill c" title="Calculated from the checklist, not saved yet. Open the student and click Use to save it.">' + ck.pct + "</span>" : ""; })()) + "</td></tr>";
+    return '<tr class="row' + (sel === r.email ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td>' + esc(r.rosterName || r.name) + '</td><td>' + esc(r.period) + '</td><td>' + (r.submission ? '<span class="pill s">Submitted</span>' : '<span class="pill d">Draft</span>') + '</td><td>' + (t && t.score !== null ? '<span class="pill g" title="' + (t.auto ? "Autograded when submitted. Change it and click Save grade to override." : "Saved grade") + '">' + esc(t.score) + (t.auto ? " auto" : "") + "</span>" : "") + "</td></tr>";
   }).join("");
   $("noRows").style.display = list.length ? "none" : "block";
   $("count").textContent = list.filter(function (r) { return r.submission; }).length + " submitted, " + list.length + " total";
@@ -217,7 +217,7 @@ function showDetail() {
   $("detail").innerHTML = '<div class="dhead"><h2>' + esc(r.rosterName || r.name) + '</h2><small>' + esc(r.email) + ' &middot; Period ' + esc(r.period) + ' &middot; ' + (r.submission ? "Submitted " + esc(fmt(rec.submittedAt)) + (rec.count > 1 ? " (#" + rec.count + ")" : "") : "Draft saved " + esc(fmt(rec.savedAt)) + " (not submitted)") + ' &middot; ' + (rec.mode === "karel" ? "Karel" : "Python") + "</small></div>" +
     '<div class="dbody"><div class="view"><div class="code"><div class="g">' + g + '</div><div class="cw"><div id="hlm"></div><pre>' + esc(rec.code) + '</pre></div></div></div><div class="right">' +
     autoPanel(r, rec) + "<h3>Student's output</h3><div class=\"outbox\">" + (esc(rec.output) || "<span style='color:var(--soft)'>(none saved)</span>") + "</div>" +
-    (r.submission ? '<h3>Your grade</h3><div class="grade"><label>Score <input type="number" id="gScore" min="0" max="1000" value="' + esc(t && t.score !== null ? t.score : "") + '"></label><textarea id="gComment" placeholder="Comment for the student">' + esc(t ? t.comment : "") + '</textarea><button class="btn pri" id="gSave">Save grade</button> <button class="btn sm" id="gDel" style="float:right">Delete submission</button></div>' : '<p style="color:var(--soft)">Not submitted yet, so it cannot be graded.</p>') +
+    (r.submission ? '<h3>Your grade</h3>' + (t && t.auto ? '<div style="color:var(--soft);font-size:12px;margin-bottom:4px">Autograded when submitted. Change the score and click Save grade to replace it.</div>' : "") + '<div class="grade"><label>Score <input type="number" id="gScore" min="0" max="1000" value="' + esc(t && t.score !== null ? t.score : "") + '"></label><textarea id="gComment" placeholder="Comment for the student">' + esc(t ? t.comment : "") + '</textarea><button class="btn pri" id="gSave">Save grade</button> <button class="btn sm" id="gDel" style="float:right">Delete submission</button></div>' : '<p style="color:var(--soft)">Not submitted yet, so it cannot be graded.</p>') +
     "</div></div>";
   afterDetail(r, rec);
   if (r.submission) {
@@ -265,34 +265,17 @@ function stepOrder(code) {
   for (var i = 1; i < keys.length; i++) if (pos[keys[i]] < pos[keys[i - 1]]) bad.push("Step " + keys[i] + " (line " + pos[keys[i]] + ") comes before Step " + keys[i - 1] + " (line " + pos[keys[i - 1]] + ")");
   return { steps: keys.length, bad: bad };
 }
-function coveragePanel(ck, slotId, code) {
-  if (!ck.total) return '<p style="color:var(--soft)">No coverage checklist for this assignment.</p>';
-  var meta = boxMeta(slotId), groups = {}, order = [];
-  ck.results.forEach(function (x) {
-    var first = Array.isArray(x.box) ? x.box[0] : x.box, key = first === undefined || first === null ? "none" : String(first);
-    if (!groups[key]) { groups[key] = []; order.push(key); }
-    groups[key].push(x);
-  });
-  order.sort(function (a, b) { return (a === "none" ? 1e9 : +a) - (b === "none" ? 1e9 : +b); });
-  var done = [], todo = [];
-  order.forEach(function (key) {
-    var list = groups[key], met = list.filter(function (x) { return x.ok; }).length, m = key === "none" ? null : meta[+key];
-    var name = m ? esc(m.step) + ", checkbox " + m.pos : "Other", text = m ? esc(m.text.length > 100 ? m.text.slice(0, 97) + "..." : m.text) : "";
-    if (met === list.length) done.push('<div class="ck ok"><span class="m">&#10003;</span><span><b>' + name + "</b> " + text + "</span></div>");
-    else {
-      var rows = list.filter(function (x) { return !x.ok; }).map(function (x) { return '<div class="ck no" style="padding-left:24px"><span class="m">&#10005;</span><span>' + esc(x.label) + " <small>(found " + x.count + ", need " + x.min + ")</small></span></div>"; }).join("");
-      todo.push('<div class="bx"><b>' + name + "</b> <span class=\"bxt\">" + text + '</span> <span class="abadge ' + (met ? "part" : "no") + '">' + (met ? "partly covered" : "not covered") + "</span></div>" + rows);
-    }
-  });
-  var ord = stepOrder(code), h = "<h3>Coverage</h3>";
-  h += todo.length ? '<div><b style="color:#FCA5A5">' + todo.length + " checkbox" + (todo.length === 1 ? "" : "es") + ' not fully covered</b> <small style="color:var(--soft)">(' + done.length + " covered)</small></div>" : '<div style="color:#6EE7B7"><b>Everything is covered.</b></div>';
-  h += ord.steps < 2 ? '<div style="margin-top:6px;color:var(--soft)">Order of the steps: not checked (fewer than two step comments in the code).</div>' : (ord.bad.length ? '<div style="margin-top:6px;color:#FDE68A"><b>Out of order:</b> ' + ord.bad.map(esc).join("; ") + "</div>" : '<div style="margin-top:6px;color:#6EE7B7">Steps are in order (' + ord.steps + " found).</div>");
-  h += todo.join("");
-  if (done.length) h += "<details style=\"margin-top:8px\"><summary>" + done.length + " covered</summary>" + done.join("") + "</details>";
+function coveragePanel(ck, slotId, code, teacher) {
+  var d = teacher && teacher.detail, h = "<h3>Steps completed</h3>";
+  if (!d || !d.total) return h + '<p style="color:var(--soft)">No step results for this submission yet. Click Autograde all to grade it.</p>';
+  var meta = boxMeta(slotId), ord = stepOrder(code);
+  h += '<div><b style="color:' + (d.done === d.total ? "#6EE7B7" : "#FDE68A") + '">' + d.done + " of " + d.total + ' steps completed</b></div>';
+  h += ord.steps < 2 ? '<div style="margin-top:4px;color:var(--soft)">Order of the steps: not checked (fewer than two step comments in the code).</div>' : (ord.bad.length ? '<div style="margin-top:4px;color:#FDE68A"><b>Out of order:</b> ' + ord.bad.map(esc).join("; ") + "</div>" : '<div style="margin-top:4px;color:#6EE7B7">Steps are in order (' + ord.steps + " found).</div>");
+  if ((d.notDone || []).length) h += "<details open style=\"margin-top:8px\"><summary>" + d.notDone.length + " not completed</summary>" + d.notDone.map(function (i) { var m = meta[i]; return '<div class="ck no"><span class="m">&#10005;</span><span><b>' + (m ? esc(m.step) + ", checkbox " + m.pos : "Step") + "</b> " + (m ? esc(m.text.length > 110 ? m.text.slice(0, 107) + "..." : m.text) : "") + "</span></div>"; }).join("") + "</details>";
   return h;
 }
 function autoPanel(r, rec) {
-  var slotId = $("slot").value, ck = runChecks(slotId, rec.code), h = (ck.total && ck.pct !== null ? '<h3>Calculated grade</h3><div><span class="autoscore">' + ck.pct + '</span> <small style="color:var(--soft)">out of 100 &middot; ' + ck.passed + " of " + ck.total + ' checks met</small></div><div style="margin-top:6px"><button class="btn sm" id="useCalc">Use ' + ck.pct + " as the score</button></div>" : "") + coveragePanel(ck, slotId, rec.code) + "<h3>Submission details</h3>";
+  var slotId = $("slot").value, ck = runChecks(slotId, rec.code), h = coveragePanel(ck, slotId, rec.code, r.submission && r.submission.teacher) + "<h3>Submission details</h3>";
   h += '<div class="kv"><span>Lines of code</span><span>' + ck.lines + '</span><span>Comments</span><span>' + ck.comments + '</span><span>Commented-out earlier code</span><span class="' + (ck.kept ? "" : "warn") + '">' + ck.kept + (ck.kept ? "" : " (none: may have deleted work)") + '</span><span>Syntax check</span><span id="synRes">checking...</span></div>';
   var t = rec.ticks, steps = stepTexts(slotId);
   h += "<h3>Steps ticked</h3>";
@@ -336,15 +319,14 @@ function attachWhere(rec) {
   }).catch(function () {});
 }
 function afterDetail(r, rec) {
-  var uc = $("useCalc"); if (uc) uc.onclick = function () { var g = $("gScore"); if (g) { g.value = runChecks($("slot").value, rec.code).pct; toast("Score filled in: click Save grade to keep it"); } else toast("Not submitted yet"); };
-  syntaxCheck(rec.code || "").then(function (msg) { var e = $("synRes"); if (e) { e.textContent = msg ? msg : "OK, no syntax errors"; e.className = msg ? "warn" : ""; } }, function () { var e = $("synRes"); if (e) e.textContent = "could not load the checker"; });
+    syntaxCheck(rec.code || "").then(function (msg) { var e = $("synRes"); if (e) { e.textContent = msg ? msg : "OK, no syntax errors"; e.className = msg ? "warn" : ""; } }, function () { var e = $("synRes"); if (e) e.textContent = "could not load the checker"; });
 }
 $("slot").onchange = function () { sel = null; $("detail").innerHTML = '<div class="empty">Pick a student on the left.</div>'; load(); };
 $("period").onchange = render; $("onlySub").onchange = render; $("reload").onclick = load;
 $("autograde").onclick = function () { if (!confirm("Autograde every submission of this assignment? Grades you saved by hand are kept.")) return; api({ action: "adminAutograde", slot: $("slot").value }).then(function (j) { if (j && j.ok) { toast("Graded " + j.graded + (j.keptByHand ? " (kept " + j.keptByHand + " you graded by hand)" : "")); load(); } else toast((j && j.error) || "Could not autograde"); }); };
 $("csv").onclick = function () {
   var q = function (v) { return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };
-  var csv = [["Name", "Email", "Period", "Status", "Score", "Calculated", "Comment"].join(",")].concat(render().map(function (r) { var t = r.submission && r.submission.teacher; return [q(r.rosterName || r.name), q(r.email), q(r.period), q(r.submission ? "Submitted" : "Draft"), q(t && t.score !== null ? t.score : ""), q((function () { if (!r.submission) return ""; var ck = runChecks($("slot").value, r.submission.code); return ck && ck.pct !== null ? ck.pct : ""; })()), q(t ? t.comment : "")].join(","); })).join("\n");
+  var csv = [["Name", "Email", "Period", "Status", "Score", "Comment"].join(",")].concat(render().map(function (r) { var t = r.submission && r.submission.teacher; return [q(r.rosterName || r.name), q(r.email), q(r.period), q(r.submission ? "Submitted" : "Draft"), q(t && t.score !== null ? t.score : ""), q(t ? t.comment : "")].join(","); })).join("\n");
   var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "python-" + $("slot").value + ".csv"; a.click();
 };
 </script>

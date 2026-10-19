@@ -103,7 +103,7 @@ async function autoGradeFor(slot, code, current) {
   if (!as || !Array.isArray(as.checks) || !as.checks.length) return null;
   const r = scoreCode(as.checks, code);
   if (r.pct === null) return null;
-  return { score: r.pct, comment: current && current.comment ? current.comment : "", gradedAt: now(), auto: true };
+  return { score: r.pct, comment: current && current.comment ? current.comment : "", gradedAt: now(), auto: true, detail: { done: r.doneBoxes, total: r.totalBoxes, notDone: r.notDone.slice(0, 80) } };
 }
 async function submit(body, user) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
@@ -284,6 +284,20 @@ function hintFor(c, code, flags, ctx, n) {
   } catch (e) {}
   return { k: "add", after: ctx.lastMet };
 }
+const NOTE_RE = "(?:(?![ \\t]*(?:print\\(|[A-Za-z_]\\w*(?:\\[[^\\]]*\\])?[ \\t]*[-+*/%]?=[^=]|[A-Za-z_][\\w.]*\\([^)\\n]*\\)[ \\t]*$|if |for |while ))|(?=[^\\n]*[ \\t](?:the|is|are|was|a|an|to|of|it|that|this|so|because|when|means|makes|stores|asks|checks|says|gives|shows|changed|different)(?=[ \\t,.:;!?]|$)))";
+/* A comment counts when it is on the line it belongs to, or within two lines above or below it (students put the same comment in different places). */
+function placementCount(c, flags, text) {
+  const pl = placementOf(c); if (!pl || c.where === "comments" || c.where === "notes") return 0;
+  const alt = [
+    "^[ \\t]*#" + NOTE_RE + "[ \\t]*\\S[^\\n]*\\n(?:[^\\n]*\\n){0,2}[ \\t#]*" + pl.code,
+    pl.code + "[^\\n]*\\n(?:[^\\n]*\\n){0,2}[ \\t]*#" + NOTE_RE + "[ \\t]*\\S[^\\n]*",
+    pl.code + "[^\\n#]*#[ \\t]*\\S"
+  ];
+  let best = 0;
+  alt.forEach((re) => { try { const m = text.match(new RegExp(re, "g" + flags.replace(/[mM]/g, "") + "m")); best = Math.max(best, m ? m.length : 0); } catch (e) {} });
+  return best;
+}
+/* Grade = how many of the steps (instruction checkboxes) were completed. Every checkbox that has checks counts the same; a checkbox's credit is the average of its checks' credit. */
 function scoreCode(checks, code) {
   const sp = splitCode(code); let passed = 0, credit = 0, possible = 0; const missing = []; let lastMet = 0; const text = String(code || ""); const boxes = {};
   // pass 1: how many times each check is found, and (for met checks) the lines it matched
@@ -292,6 +306,7 @@ function scoreCode(checks, code) {
     try {
       if (c.where === "comments" || c.where === "notes") { const re = new RegExp(c.re, flags); (c.where === "notes" ? sp.notes : sp.comments).forEach((l) => { if (re.test(l)) n++; }); }
       else { const m = (c.where === "code" ? sp.code : text).match(new RegExp(c.re, "g" + flags)); n = m ? m.length : 0; }
+      if (n < c.min) n = Math.max(n, Math.min(placementCount(c, flags, text), c.min));
       if (n >= c.min && c.where !== "comments" && c.where !== "notes") ml = matchLines(c.re, flags, text);
     } catch (e) { n = 0; }
     return { c, n, ml, flags };
@@ -300,14 +315,19 @@ function scoreCode(checks, code) {
   const steps = {};
   pre.forEach((p) => { const st = stepOf(p.c); if (!st || !p.ml.length || isTitleCheck(p.c)) return; const r = steps[st] || (steps[st] = { first: 1e9, last: 0 }); p.ml.forEach((x) => { r.first = Math.min(r.first, x.start); r.last = Math.max(r.last, x.end); }); });
   pre.forEach((p) => { if (p.ml.length) lastMet = Math.max(lastMet, p.ml[p.ml.length - 1].end); });
-  // pass 2: score, per-checkbox tallies, and the missing list with hints
+  // pass 2: per-checkbox credit (each check counts the same inside its checkbox), and the missing list with hints
   pre.forEach((p) => {
-    const c = p.c, n = p.n, w = c.pts || 1; possible += w; credit += w * Math.min(1, n / c.min);
-    if (c.box !== undefined && c.box !== null) (Array.isArray(c.box) ? c.box : [c.box]).forEach((bx) => { const o = boxes[bx] || (boxes[bx] = { t: 0, m: 0, e: 0, p: 0 }); o.t++; o.p += w; o.e += w * Math.min(1, n / c.min); if (n >= c.min) o.m++; });
+    const c = p.c, n = p.n, w = c.pts || 1, frac = Math.min(1, n / c.min), housekeeping = /^Earlier work kept/i.test(c.label || "");
+    if (!housekeeping) { possible += w; credit += w * frac; }
+    if (!housekeeping && c.box !== undefined && c.box !== null) (Array.isArray(c.box) ? c.box : [c.box]).forEach((bx) => { const o = boxes[bx] || (boxes[bx] = { t: 0, m: 0, e: 0, p: 0, f: 0 }); o.t++; o.p += w; o.e += w * frac; o.f += frac; if (n >= c.min) o.m++; });
     if (n >= c.min) passed++;
-    else missing.push({ label: c.label, box: c.box, have: Math.min(n, c.min - 1), need: c.min, pts: w, hint: hintFor(c, text, p.flags, { st: stepOf(c), steps, lastMet }, n) });
+    else if (!housekeeping) missing.push({ label: c.label, box: c.box, have: Math.min(n, c.min - 1), need: c.min, pts: w, hint: hintFor(c, text, p.flags, { st: stepOf(c), steps, lastMet }, n) });
   });
-  return { passed, total: checks.length, missing, boxes, pct: possible ? Math.round(credit * 100 / possible) : null };
+  const ids = Object.keys(boxes).map(Number).sort((x, y) => x - y);
+  let sum = 0, done = 0; const notDone = [];
+  ids.forEach((id) => { const v = boxes[id].f / boxes[id].t; sum += v; if (v >= 0.999) done++; else notDone.push(id); });
+  const pct = ids.length ? Math.round(sum * 100 / ids.length) : (possible ? Math.round(credit * 100 / possible) : null);
+  return { passed, total: checks.length, missing, boxes, pct, doneBoxes: done, totalBoxes: ids.length, notDone };
 }
 async function liveScore(body) {
   if (!goodSlot(body.slot) || body.slot === "free") return { ok: true, pct: null };
