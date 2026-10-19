@@ -44,7 +44,7 @@ const cleanTicks = (t) => {
 };
 /* the instruction checkbox(es) a check belongs to: a box number or a short list of them */
 const cleanBox = (b) => { const l = (Array.isArray(b) ? b : [b]).map(Number).filter((n) => Number.isInteger(n) && n >= 0 && n < 400).slice(0, 14); return l.length ? (l.length === 1 ? l[0] : l) : undefined; };
-const cleanChecks = (c) => (Array.isArray(c) ? c : []).slice(0, 80).map((x) => ({
+const cleanChecks = (c) => (Array.isArray(c) ? c : []).slice(0, 300).map((x) => ({
   label: String((x && x.label) || "").slice(0, 140), re: String((x && x.re) || "").slice(0, 1200), flags: /^[gimsu]{0,4}$/.test(String((x && x.flags) || "")) ? String(x.flags || "") : "",
   min: Math.max(1, Math.min(200, Number(x && x.min) || 1)), pts: Math.max(1, Math.min(50, Number(x && x.pts) || 1)), where: ["code", "comments", "raw", "notes"].indexOf(x && x.where) > -1 ? x.where : "code",
   box: cleanBox(x && x.box)
