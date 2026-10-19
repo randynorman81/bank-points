@@ -1051,8 +1051,8 @@ function buildSlots() {
     var A = window.PY_ASSIGN && window.PY_ASSIGN[id], opt = '<option value="' + id + '">' + slotLabel(id) + (MY[id] === "sub" ? " ✓" : "") + "</option>";
     if (id !== "free" && A && A.unit) { if (!groups[A.unit]) { groups[A.unit] = ""; order.push(A.unit); } groups[A.unit] += opt; } else top += opt;
   });
-  (window.PY_LOCKED || []).forEach(function (L) { top += '<option value="" disabled>\uD83D\uDD12 Assignment ' + L.num + " (submit Assignment " + L.needNum + " to unlock)</option>"; });
   var h = top; order.forEach(function (u) { h += '<optgroup label="' + escA(u) + '">' + groups[u] + "</optgroup>"; });
+  (window.PY_LOCKED || []).forEach(function (L) { h += '<option value="" disabled>\uD83D\uDD12 Assignment ' + L.num + " (score 80 or more on Assignment " + L.needNum + " to unlock)</option>"; });
   $("slot").innerHTML = h; $("slot").value = slot;
 }
 function escA(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
