@@ -171,6 +171,7 @@ body.karel #karel{display:flex}
 .kmsg.bad{color:var(--bad)}
 .top select{max-width:170px}
 .who{font-size:12px;color:var(--soft)}
+.saveind{font-size:11px;margin-right:10px;white-space:nowrap;color:var(--soft)}.saveind.ok{color:#6EE7B7}.saveind.warn{color:#FDE68A}.saveind.bad{color:#FCA5A5;font-weight:700}
 #gbtn{display:inline-block;min-height:32px}
 .cloud{display:none;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 12px;background:#2A2110;border-bottom:1px solid var(--rule);font-size:12.5px}
 .cloud.show{display:flex}
@@ -214,7 +215,7 @@ body.teacher #assBody pre,body.teacher #tipBody pre{user-select:text;cursor:text
   <span class="status" id="status">Loading Python&hellip;</span>
   <span class="sp"></span>
   <span class="vsep" aria-hidden="true"></span>
-  <span class="who" id="who"></span><span id="gbtn"></span>
+  <span class="saveind" id="saveInd" aria-live="polite"></span><span class="who" id="who"></span><span id="gbtn"></span>
   <select id="period" aria-label="Class period"><option value="">Period…</option><option>1A</option><option>2B</option></select>
   <button class="btn go" id="submit">Submit</button>
 </div>
@@ -285,7 +286,7 @@ function gutter() { var n = ta.value.split("\n").length, s = ""; for (var i = 1;
 function paint() { var h = $("hl"); h.innerHTML = highlight(ta.value) + "\n"; h.scrollTop = ta.scrollTop; h.scrollLeft = ta.scrollLeft; }
 function loadCode() { var v = savedCode(); ta.value = v !== null ? v : starter(); gutter(); }
 var saveT = 0;
-ta.addEventListener("input", function () { clearMarks(); updateScore(); gutter(); clearTimeout(saveT); saveT = setTimeout(function () { lsSet(codeKey(), ta.value); flash("Saved"); }, 500); });
+ta.addEventListener("input", function () { clearMarks(); updateScore(); gutter(); if (typeof updateSaveInd === "function") updateSaveInd(); clearTimeout(saveT); saveT = setTimeout(function () { lsSet(codeKey(), ta.value); flash("Saved"); }, 500); });
 ta.addEventListener("scroll", function () { gut.scrollTop = ta.scrollTop; var h = $("hl"); h.scrollTop = ta.scrollTop; h.scrollLeft = ta.scrollLeft; syncMarks(); });
 /* the Enter key inserts the new line in code, so the browser does not scroll for us: keep the cursor line in view, one line at a time */
 function keepCaretVisible() {
@@ -1142,8 +1143,25 @@ function afterSlotChange() {
 function cloudSave() {
   if (slot === "example" || !CRED || !ta.value.trim() || ta.value === lastCloud || ta.value === STARTER_PY || ta.value === STARTER_KAREL) return Promise.resolve();
   var code = ta.value;
-  return api({ action: "saveDraft", slot: slot, mode: mode, code: code, world: curWorld(), ticks: currentTicks(), period: $("period").value }).then(function (j) { if (j && j.ok) { lastCloud = code; if (!MY[slot]) { MY[slot] = "draft"; } } });
+  return api({ action: "saveDraft", slot: slot, mode: mode, code: code, world: curWorld(), ticks: currentTicks(), period: $("period").value }).then(function (j) {
+    if (j && j.ok) { lastCloud = code; saveFailed = false; savedAtTxt = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); if (!MY[slot]) { MY[slot] = "draft"; } }
+    else if (j && !j.needLogin) saveFailed = true;
+    updateSaveInd();
+  }).catch(function () { saveFailed = true; updateSaveInd(); });
 }
+/* the small status at the top: is this work saved to the student's account? */
+var saveFailed = false, savedAtTxt = "";
+function updateSaveInd() {
+  var el = $("saveInd"); if (!el) return;
+  var t, c = "saveind";
+  if (slot === "example") t = "";
+  else if (!CRED) { t = "Saved on this computer only. Sign in to save to your account."; c += " warn"; }
+  else if (saveFailed) { t = "Not saved to your account! Check your internet or sign in again."; c += " bad"; }
+  else if (!ta.value.trim() || ta.value === lastCloud) { t = "\u2601 Saved to your account" + (savedAtTxt && ta.value.trim() ? " " + savedAtTxt : ""); c += " ok"; }
+  else t = "\u2601 Saving soon...";
+  if (el.textContent !== t) el.textContent = t; if (el.className !== c) el.className = c;
+}
+setInterval(updateSaveInd, 2000);
 setInterval(cloudSave, 30000);
 document.addEventListener("visibilitychange", function () { if (document.hidden) cloudSave(); });
 $("slot").addEventListener("change", function () {
