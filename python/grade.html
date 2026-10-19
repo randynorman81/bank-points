@@ -31,7 +31,7 @@ select,input,textarea{background:var(--card);color:var(--ink);border:1px solid v
 .list td{padding:8px;border-bottom:1px solid #1b2337;vertical-align:top}
 .list tr.row{cursor:pointer}.list tr.row:hover{background:#141a29}.list tr.row.sel{background:#1c2540;outline:1px solid var(--acc)}
 .pill{display:inline-block;border-radius:100px;padding:1px 8px;font-size:11px;font-weight:700}
-.pill.s{background:#0F2A22;color:#6EE7B7}.pill.d{background:#2A2110;color:#FCD34D}.pill.g{background:#14213D;color:#93C5FD}
+.pill.s{background:#0F2A22;color:#6EE7B7}.pill.d{background:#2A2110;color:#FCD34D}.pill.g{background:#14213D;color:#93C5FD}.pill.c{background:transparent;color:#FDBA74;border:1px dashed #FDBA74}
 .detail{display:flex;flex-direction:column;min-width:0;min-height:0}
 .dhead{padding:10px 14px;border-bottom:1px solid var(--rule);display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--panel)}
 .dhead h2{margin:0;font-size:17px}.dhead small{color:var(--soft)}
@@ -203,7 +203,7 @@ function render() {
   var list = rows.filter(function (r) { return (!per || r.period === per) && (!only || r.submission); }).sort(function (a, b) { return String(a.rosterName || a.name).localeCompare(String(b.rosterName || b.name)); });
   $("rows").innerHTML = list.map(function (r) {
     var t = r.submission && r.submission.teacher;
-    return '<tr class="row' + (sel === r.email ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td>' + esc(r.rosterName || r.name) + '</td><td>' + esc(r.period) + '</td><td>' + (r.submission ? '<span class="pill s">Submitted</span>' : '<span class="pill d">Draft</span>') + '</td><td>' + (t && t.score !== null ? '<span class="pill g">' + esc(t.score) + "</span>" : "") + "</td></tr>";
+    return '<tr class="row' + (sel === r.email ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td>' + esc(r.rosterName || r.name) + '</td><td>' + esc(r.period) + '</td><td>' + (r.submission ? '<span class="pill s">Submitted</span>' : '<span class="pill d">Draft</span>') + '</td><td>' + (t && t.score !== null ? '<span class="pill g" title="Saved grade">' + esc(t.score) + "</span>" : (function () { if (!r.submission) return ""; var ck = runChecks($("slot").value, r.submission.code); return ck && ck.pct !== null ? '<span class="pill c" title="Calculated from the checklist, not saved yet. Open the student and click Use to save it.">' + ck.pct + "</span>" : ""; })()) + "</td></tr>";
   }).join("");
   $("noRows").style.display = list.length ? "none" : "block";
   $("count").textContent = list.filter(function (r) { return r.submission; }).length + " submitted, " + list.length + " total";
@@ -291,7 +291,7 @@ function coveragePanel(ck, slotId, code) {
   return h;
 }
 function autoPanel(r, rec) {
-  var slotId = $("slot").value, ck = runChecks(slotId, rec.code), h = coveragePanel(ck, slotId, rec.code) + "<h3>Submission details</h3>";
+  var slotId = $("slot").value, ck = runChecks(slotId, rec.code), h = (ck.total && ck.pct !== null ? '<h3>Calculated grade</h3><div><span class="autoscore">' + ck.pct + '</span> <small style="color:var(--soft)">out of 100 &middot; ' + ck.passed + " of " + ck.total + ' checks met</small></div><div style="margin-top:6px"><button class="btn sm" id="useCalc">Use ' + ck.pct + " as the score</button></div>" : "") + coveragePanel(ck, slotId, rec.code) + "<h3>Submission details</h3>";
   h += '<div class="kv"><span>Lines of code</span><span>' + ck.lines + '</span><span>Comments</span><span>' + ck.comments + '</span><span>Commented-out earlier code</span><span class="' + (ck.kept ? "" : "warn") + '">' + ck.kept + (ck.kept ? "" : " (none: may have deleted work)") + '</span><span>Syntax check</span><span id="synRes">checking...</span></div>';
   var t = rec.ticks, steps = stepTexts(slotId);
   h += "<h3>Steps ticked</h3>";
@@ -335,13 +335,14 @@ function attachWhere(rec) {
   }).catch(function () {});
 }
 function afterDetail(r, rec) {
+  var uc = $("useCalc"); if (uc) uc.onclick = function () { var g = $("gScore"); if (g) { g.value = runChecks($("slot").value, rec.code).pct; toast("Score filled in: click Save grade to keep it"); } else toast("Not submitted yet"); };
   syntaxCheck(rec.code || "").then(function (msg) { var e = $("synRes"); if (e) { e.textContent = msg ? msg : "OK, no syntax errors"; e.className = msg ? "warn" : ""; } }, function () { var e = $("synRes"); if (e) e.textContent = "could not load the checker"; });
 }
 $("slot").onchange = function () { sel = null; $("detail").innerHTML = '<div class="empty">Pick a student on the left.</div>'; load(); };
 $("period").onchange = render; $("onlySub").onchange = render; $("reload").onclick = load;
 $("csv").onclick = function () {
   var q = function (v) { return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };
-  var csv = [["Name", "Email", "Period", "Status", "Score", "Comment"].join(",")].concat(render().map(function (r) { var t = r.submission && r.submission.teacher; return [q(r.rosterName || r.name), q(r.email), q(r.period), q(r.submission ? "Submitted" : "Draft"), q(t && t.score !== null ? t.score : ""), q(t ? t.comment : "")].join(","); })).join("\n");
+  var csv = [["Name", "Email", "Period", "Status", "Score", "Calculated", "Comment"].join(",")].concat(render().map(function (r) { var t = r.submission && r.submission.teacher; return [q(r.rosterName || r.name), q(r.email), q(r.period), q(r.submission ? "Submitted" : "Draft"), q(t && t.score !== null ? t.score : ""), q((function () { if (!r.submission) return ""; var ck = runChecks($("slot").value, r.submission.code); return ck && ck.pct !== null ? ck.pct : ""; })()), q(t ? t.comment : "")].join(","); })).join("\n");
   var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "python-" + $("slot").value + ".csv"; a.click();
 };
 </script>
