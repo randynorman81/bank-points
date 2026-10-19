@@ -245,7 +245,7 @@ function splitCode(code) {
 /* where in the student's code a missing check belongs (sent with the "still missing" list so the editor can highlight it).
    Placement checks (note above / below / at the end of a line) are found from the shape of their pattern; the rest point to
    the spot just after the last line of the nearest earlier check that is already met. */
-const ABOVE_SEP = "[ \\t]*\\S[^\\n]*\\n[ \\t#]*", BELOW_SEP = "[^\\n]*\\n[ \\t]*#(?:(?!", EOL_SUF = "[^\\n#]*#[ \\t]*\\S", EOL2_SUF = "[ \\t]*#[ \\t]*\\S";
+const ABOVE_SEP = "[ \\t]*\\S[^\\n]*\\n(?:[ \\t]*\\n)*[ \\t#]*", BELOW_SEP = "[^\\n]*\\n(?:[ \\t]*\\n)*[ \\t]*#(?:(?!", EOL_SUF = "[^\\n#]*#[ \\t]*\\S", EOL2_SUF = "[ \\t]*#[ \\t]*\\S";
 function lineAt(text, idx) { let n = 1; for (let i = 0; i < idx && i < text.length; i++) if (text.charCodeAt(i) === 10) n++; return n; }
 function matchLines(re, flags, text) {
   const out = []; let m; const rx = new RegExp(re, "g" + flags.replace(/g/g, ""));
@@ -306,7 +306,9 @@ function placementCount(c, flags, text) {
   return best;
 }
 /* Grade = how many of the steps (instruction checkboxes) were completed. Every checkbox that has checks counts the same; a checkbox's credit is the average of its checks' credit. */
+function tidySpaces(code) { return String(code || "").replace(/\r/g, "").replace(/\([ \t]+/g, "(").replace(/[ \t]+\)/g, ")"); }
 function scoreCode(checks, code) {
+  code = tidySpaces(code);
   const sp = splitCode(code); let passed = 0, credit = 0, possible = 0; const missing = []; let lastMet = 0; const text = String(code || ""); const boxes = {};
   // pass 1: how many times each check is found, and (for met checks) the lines it matched
   const pre = checks.map((c) => {
