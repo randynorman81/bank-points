@@ -85,6 +85,7 @@ select,input,textarea{background:var(--card);color:var(--ink);border:1px solid v
   <label>Period <select id="period"><option value="">All periods</option></select></label>
   <label><input type="checkbox" id="onlySub"> Submitted only</label>
   <button class="btn" id="reload">Reload</button>
+  <button class="btn" id="autograde" title="Grade every submission of this assignment that does not have a grade you saved by hand">Autograde all</button>
   <button class="btn" id="csv">Export CSV</button>
   <span class="sp"></span>
   <span id="count" style="color:var(--soft);font-size:13px"></span>
@@ -203,7 +204,7 @@ function render() {
   var list = rows.filter(function (r) { return (!per || r.period === per) && (!only || r.submission); }).sort(function (a, b) { return String(a.rosterName || a.name).localeCompare(String(b.rosterName || b.name)); });
   $("rows").innerHTML = list.map(function (r) {
     var t = r.submission && r.submission.teacher;
-    return '<tr class="row' + (sel === r.email ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td>' + esc(r.rosterName || r.name) + '</td><td>' + esc(r.period) + '</td><td>' + (r.submission ? '<span class="pill s">Submitted</span>' : '<span class="pill d">Draft</span>') + '</td><td>' + (t && t.score !== null ? '<span class="pill g" title="Saved grade">' + esc(t.score) + "</span>" : (function () { if (!r.submission) return ""; var ck = runChecks($("slot").value, r.submission.code); return ck && ck.pct !== null ? '<span class="pill c" title="Calculated from the checklist, not saved yet. Open the student and click Use to save it.">' + ck.pct + "</span>" : ""; })()) + "</td></tr>";
+    return '<tr class="row' + (sel === r.email ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td>' + esc(r.rosterName || r.name) + '</td><td>' + esc(r.period) + '</td><td>' + (r.submission ? '<span class="pill s">Submitted</span>' : '<span class="pill d">Draft</span>') + '</td><td>' + (t && t.score !== null ? '<span class="pill g" title="' + (t.auto ? "Autograded when submitted. Change it and click Save grade to override." : "Saved grade") + '">' + esc(t.score) + (t.auto ? " auto" : "") + "</span>" : (function () { if (!r.submission) return ""; var ck = runChecks($("slot").value, r.submission.code); return ck && ck.pct !== null ? '<span class="pill c" title="Calculated from the checklist, not saved yet. Open the student and click Use to save it.">' + ck.pct + "</span>" : ""; })()) + "</td></tr>";
   }).join("");
   $("noRows").style.display = list.length ? "none" : "block";
   $("count").textContent = list.filter(function (r) { return r.submission; }).length + " submitted, " + list.length + " total";
@@ -340,6 +341,7 @@ function afterDetail(r, rec) {
 }
 $("slot").onchange = function () { sel = null; $("detail").innerHTML = '<div class="empty">Pick a student on the left.</div>'; load(); };
 $("period").onchange = render; $("onlySub").onchange = render; $("reload").onclick = load;
+$("autograde").onclick = function () { if (!confirm("Autograde every submission of this assignment? Grades you saved by hand are kept.")) return; api({ action: "adminAutograde", slot: $("slot").value }).then(function (j) { if (j && j.ok) { toast("Graded " + j.graded + (j.keptByHand ? " (kept " + j.keptByHand + " you graded by hand)" : "")); load(); } else toast((j && j.error) || "Could not autograde"); }); };
 $("csv").onclick = function () {
   var q = function (v) { return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };
   var csv = [["Name", "Email", "Period", "Status", "Score", "Calculated", "Comment"].join(",")].concat(render().map(function (r) { var t = r.submission && r.submission.teacher; return [q(r.rosterName || r.name), q(r.email), q(r.period), q(r.submission ? "Submitted" : "Draft"), q(t && t.score !== null ? t.score : ""), q((function () { if (!r.submission) return ""; var ck = runChecks($("slot").value, r.submission.code); return ck && ck.pct !== null ? ck.pct : ""; })()), q(t ? t.comment : "")].join(","); })).join("\n");

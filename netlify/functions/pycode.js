@@ -96,6 +96,15 @@ async function saveDraft(body, user) {
   return { ok: true };
 }
 
+/* automatic grade: the percent the assignment's checks give. Returns the new teacher record, or null to keep what is there (a grade the teacher saved by hand is never replaced). */
+async function autoGradeFor(slot, code, current) {
+  if (current && current.score !== null && current.score !== undefined && !current.auto) return null;
+  const as = await readJSON("assign:" + slot, null);
+  if (!as || !Array.isArray(as.checks) || !as.checks.length) return null;
+  const r = scoreCode(as.checks, code);
+  if (r.pct === null) return null;
+  return { score: r.pct, comment: current && current.comment ? current.comment : "", gradedAt: now(), auto: true };
+}
 async function submit(body, user) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
   const code = String(body.code == null ? "" : body.code);
@@ -109,6 +118,7 @@ async function submit(body, user) {
     submittedAt: now(), count: (prev && prev.count ? prev.count : 0) + 1,
     teacher: prev && prev.teacher ? prev.teacher : null
   };
+  try { const g = await autoGradeFor(body.slot, code, rec.teacher); if (g) rec.teacher = g; } catch (e) { console.error("autograde failed", e); }
   await store().setJSON(key, rec);
   return { ok: true, submittedAt: rec.submittedAt, count: rec.count };
 }
@@ -148,6 +158,19 @@ async function adminCounts() {
   return { ok: true, counts };
 }
 
+async function adminAutograde(body) {
+  if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
+  const as = await readJSON("assign:" + body.slot, null);
+  if (!as || !Array.isArray(as.checks) || !as.checks.length) return { error: "This assignment has no checks to grade with" };
+  let graded = 0, keptByHand = 0;
+  for (const k of await listPrefix("sub:" + body.slot + ":")) {
+    const sub = await store().get(k, { type: "json" }); if (!sub) continue;
+    const g = await autoGradeFor(body.slot, sub.code || "", sub.teacher);
+    if (!g) { if (sub.teacher && sub.teacher.score !== null && sub.teacher.score !== undefined && !sub.teacher.auto) keptByHand++; continue; }
+    sub.teacher = g; await store().setJSON(k, sub); graded++;
+  }
+  return { ok: true, graded, keptByHand };
+}
 async function adminGrade(body) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
   const key = "sub:" + body.slot + ":" + enc(String(body.email || "").toLowerCase());
@@ -307,7 +330,7 @@ export default async (req) => {
     try { body = await req.json(); } catch (e) { return ok({ error: "Malformed request" }); }
     const action = body.action;
 
-    if (["adminList", "adminCounts", "adminGrade", "adminDelete", "adminSetAssignment", "adminDeleteAssignment", "adminAssignments"].indexOf(action) > -1) {
+    if (["adminList", "adminCounts", "adminGrade", "adminDelete", "adminSetAssignment", "adminDeleteAssignment", "adminAssignments", "adminAutograde"].indexOf(action) > -1) {
       if (!isAdmin(body)) return ok({ error: "Invalid PIN" });
       if (action === "adminList") return ok(await adminList(body));
       if (action === "adminCounts") return ok(await adminCounts());
@@ -315,6 +338,7 @@ export default async (req) => {
       if (action === "adminAssignments") return ok(await publicAssignments(true));
       if (action === "adminSetAssignment") return ok(await adminSetAssignment(body));
       if (action === "adminDeleteAssignment") return ok(await adminDeleteAssignment(body));
+      if (action === "adminAutograde") return ok(await adminAutograde(body));
       return ok(await adminGrade(body));
     }
 

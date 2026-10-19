@@ -1007,7 +1007,7 @@ function applyRecord(rec) {
 }
 function showTeacher(sub) {
   var t = $("teach");
-  if (sub && sub.teacher && (sub.teacher.score !== null || sub.teacher.comment)) { t.className = "teach show"; t.innerHTML = "<b>Teacher feedback</b>" + (sub.teacher.score !== null ? " &middot; Score: <b>" + escA(sub.teacher.score) + "</b>" : "") + (sub.teacher.comment ? "<br>" + escA(sub.teacher.comment) : ""); }
+  if (sub && sub.teacher && (sub.teacher.score !== null || sub.teacher.comment)) { t.className = "teach show"; t.innerHTML = (sub.teacher.auto ? "<b>Your grade</b>" : "<b>Teacher feedback</b>") + (sub.teacher.score !== null ? " &middot; Score: <b>" + escA(sub.teacher.score) + "</b>" + (sub.teacher.auto ? ' <small style="color:var(--soft)">(graded automatically when you submitted)</small>' : "") : "") + (sub.teacher.comment ? "<br>" + escA(sub.teacher.comment) : ""); }
   else { t.className = "teach"; t.innerHTML = ""; }
 }
 function afterSlotChange() {
