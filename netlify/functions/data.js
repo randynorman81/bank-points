@@ -149,6 +149,23 @@ async function bulkSetEmails(body) {
   return { ok: true, matched, total: rows.length };
 }
 
+// Removes one transaction by its id (used to fix a mistake, e.g. points taken out by accident). The id comes from studentHistoryRaw.
+async function deleteTransaction(body) {
+  if (!body.transactionId) return { error: "Missing transaction id" };
+  const transactions = await readJSON("transactions", []);
+  const idx = transactions.findIndex((t) => t.id === body.transactionId);
+  if (idx < 0) return { error: "That transaction was not found." };
+  const removed = transactions.splice(idx, 1)[0];
+  await writeJSON("transactions", transactions);
+  return { ok: true, removed };
+}
+
+// Raw transactions (with ids) for one student, for the admin.
+async function studentTransactions(body) {
+  const transactions = await readJSON("transactions", []);
+  return { ok: true, transactions: transactions.filter((t) => t.studentId === body.id) };
+}
+
 async function addTransaction(body) {
   const amount = Number(body.amount);
   const type = body.type;
@@ -461,6 +478,10 @@ export default async (req) => {
           return ok(await bulkSetEmails(body));
         case "studentHistory":
           return ok(await getStudentHistory(body));
+        case "deleteTransaction":
+          return ok(await deleteTransaction(body));
+        case "studentTransactions":
+          return ok(await studentTransactions(body));
         case "addTransaction":
           return ok(await addTransaction(body));
         case "addTransactionByEmail":
