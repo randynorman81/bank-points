@@ -307,7 +307,7 @@ function toggleComment() {
 }
 ta.addEventListener("keydown", function (e) {
   if ((e.ctrlKey || e.metaKey) && (e.key === "/" || e.code === "Slash")) { e.preventDefault(); toggleComment(); }
-  else if (e.key === "Tab") { e.preventDefault(); var a = ta.selectionStart, b = ta.selectionEnd; ta.value = ta.value.slice(0, a) + "    " + ta.value.slice(b); ta.selectionStart = ta.selectionEnd = a + 4; gutter(); }
+  else if (e.key === "Tab") { e.preventDefault(); var a = ta.selectionStart, b = ta.selectionEnd; ta.value = ta.value.slice(0, a) + "    " + ta.value.slice(b); ta.selectionStart = ta.selectionEnd = a + 4; gutter(); undoSync(); }
   else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run(); }
   else if (e.key === "Enter") {
     var v = ta.value, p = ta.selectionStart, ls = v.lastIndexOf("\n", p - 1) + 1, line = v.slice(ls, p), ind = (line.match(/^[ ]*/) || [""])[0];
@@ -315,12 +315,41 @@ ta.addEventListener("keydown", function (e) {
     e.preventDefault(); ta.value = v.slice(0, p) + "\n" + ind + v.slice(ta.selectionEnd); ta.selectionStart = ta.selectionEnd = p + 1 + ind.length; gutter(); ta.dispatchEvent(new Event("input")); keepCaretVisible();
   }
 });
+/* Undo / redo (Ctrl+Z, Ctrl+Y, Ctrl+Shift+Z): our own history, because the browser's is wiped every time the editor adds a tab or auto-indent */
+var undoS = [], redoS = [], undoCur = { v: ta.value, s: 0, e: 0 }, undoKey = null, undoT = 0, undoBusy = false;
+function undoKeyNow() { try { return codeKey(); } catch (e) { return ""; } }
+function undoSync(force) {
+  if (undoBusy) return;
+  var k = undoKeyNow();
+  if (k !== undoKey) { undoKey = k; undoS = []; redoS = []; undoCur = { v: ta.value, s: ta.selectionStart, e: ta.selectionEnd }; return; }
+  if (ta.value === undoCur.v) return;
+  var now = Date.now();
+  if (force || now - undoT > 700 || !undoS.length) { undoS.push(undoCur); if (undoS.length > 300) undoS.shift(); }
+  undoT = now; redoS = []; undoCur = { v: ta.value, s: ta.selectionStart, e: ta.selectionEnd };
+}
+function undoGo(redo) {
+  undoSync(); var from = redo ? redoS : undoS, to = redo ? undoS : redoS;
+  if (!from.length) { flash(redo ? "Nothing to redo" : "Nothing to undo"); return; }
+  to.push({ v: ta.value, s: ta.selectionStart, e: ta.selectionEnd });
+  var st = from.pop(); undoBusy = true; ta.value = st.v; ta.selectionStart = st.s; ta.selectionEnd = st.e; gutter();
+  ta.dispatchEvent(new Event("input")); undoBusy = false; undoCur = st; undoT = 0;
+}
+ta.addEventListener("input", function () { undoSync(); });
+ta.addEventListener("keydown", function (e) {
+  if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
+  var k = (e.key || "").toLowerCase();
+  if (k === "z" && !e.shiftKey) { e.preventDefault(); undoGo(false); }
+  else if (k === "y" || (k === "z" && e.shiftKey)) { e.preventDefault(); undoGo(true); }
+});
+ta.addEventListener("beforeinput", function (e) {
+  if (e.inputType === "historyUndo") { e.preventDefault(); undoGo(false); } else if (e.inputType === "historyRedo") { e.preventDefault(); undoGo(true); }
+});
 function flash(t) { if (running) return; statusEl.textContent = t; clearTimeout(flash.t); flash.t = setTimeout(function () { if (!running) statusEl.textContent = py ? "Ready" : statusEl.textContent; }, 1400); }
 
 /* ---------- the output box ---------- */
 function print(text, cls) { var s = document.createElement("span"); if (cls) s.className = cls; s.textContent = text; out.appendChild(s); out.scrollTop = out.scrollHeight; }
 $("clear").onclick = function () { out.textContent = ""; };
-$("reset").onclick = function () { if (confirm(mode === "karel" ? "Replace your code with the starter code? This cannot be undone." : "Clear the code box? This cannot be undone.")) { ta.value = starter(); gutter(); lsSet(codeKey(), ta.value); } };
+$("reset").onclick = function () { if (confirm(mode === "karel" ? "Replace your code with the starter code? This cannot be undone." : "Clear the code box? This cannot be undone.")) { undoSync(); ta.value = starter(); gutter(); lsSet(codeKey(), ta.value); undoSync(true); } };
 
 /* =====================================================================================
    COLORS: every kind of Python word gets its own color, and the key above the editor explains each one.
