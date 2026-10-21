@@ -1,6 +1,7 @@
 import { getStore } from "@netlify/blobs";
 // The same checker the editor runs in the browser, so the server can enforce the submit score. (They are plain scripts that put themselves on globalThis.)
 import "../../ist/unit-6/html-check.js";
+import "../../ist/unit-6/live.js";
 import "../../ist/unit-6/step-checks.js";
 import "../../ist/unit-6/step-checks-a.js";
 import "../../ist/unit-6/step-checks-b.js";
@@ -18,6 +19,13 @@ const LESSONS = ["6.1", "6.2", "6.3", "6.4", "6.5", "6.6", "6.7", "6.8", "6.9", 
   "8.1", "8.2", "8.3", "8.4", "8.5", "8.6", "8.7",
   "9.1", "9.2", "9.3", "9.4", "9.5", "9.6", "9.7"];
 const IST_PERIODS = ["3A", "3B", "4A"]; // keep in sync with COURSE_PERIODS in bank/admin.html
+const TEACHER_EMAILS = ["randy.norman@socialcircleschools.org"];
+// An assignment with step checks is closed to students until it is listed in ist/unit-6/live.js.
+function lessonClosedFor(lesson, user) {
+  try { const S = globalThis.U7_STEPCHECKS; if (!S || !S.LESSONS || !S.LESSONS[lesson]) return false; } catch (e) { return false; }
+  if (user && TEACHER_EMAILS.indexOf(String(user.email || "").toLowerCase()) > -1) return false;
+  return (globalThis.U7_LIVE || []).indexOf(lesson) < 0;
+}
 const WEB_PASS = 95; // students need this auto score (out of 100) to submit a lesson that has step checks
 function autoScore(lesson, code, css) {
   try { const S = globalThis.U7_STEPCHECKS; if (!S || !S.LESSONS || !S.LESSONS[lesson]) return null; return S.score(lesson, code, css); } catch (e) { return null; }
@@ -119,6 +127,7 @@ async function myLessons(user) {
 
 async function saveDraft(body, user) {
   if (!goodLesson(body.lesson)) return { error: "Unknown lesson" };
+  if (lessonClosedFor(body.lesson, user)) return { error: "This assignment is not open yet." };
   const code = String(body.code == null ? "" : body.code);
   const css = String(body.css == null ? "" : body.css);
   if (code.length > MAX_CODE || css.length > MAX_CSS) return { error: "That file is too big to save." };
@@ -130,6 +139,7 @@ async function saveDraft(body, user) {
 
 async function submit(body, user) {
   if (!goodLesson(body.lesson)) return { error: "Unknown lesson" };
+  if (lessonClosedFor(body.lesson, user)) return { error: "This assignment is not open yet." };
   const code = String(body.code == null ? "" : body.code);
   if (!code.trim()) return { error: "Your code is empty. Write something first!" };
   const css = String(body.css == null ? "" : body.css);

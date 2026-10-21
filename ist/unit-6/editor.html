@@ -131,6 +131,7 @@ main[data-view="code"] #split,main[data-view="prev"] .split{display:none}
 #periodBtns{display:inline-flex;align-items:center;gap:4px}#periodBtns .pl{font-weight:700;font-size:13px;color:var(--ink)}#periodBtns .pbtn{min-width:40px;padding:5px 10px}#periodBtns .pbtn.on{background:var(--acc);color:#0B0E14;border-color:var(--acc)}
 .autosc{font:700 12px "JetBrains Mono",monospace;white-space:nowrap;color:#FB923C}.autosc b{font-size:15px}.autosc small{font-weight:600;color:var(--soft);margin-left:4px}.autosc.ok{color:#34D399}
 #btnSubmit.locked{opacity:.55}
+#closedMsg{position:fixed;inset:0;z-index:90;background:#0B0E14;display:grid;place-items:center;text-align:center;padding:24px}#closedMsg .cbox{max-width:480px}#closedMsg h2{margin:0 0 10px;font-size:26px}#closedMsg p{color:var(--soft);font-size:16px;line-height:1.6;margin:0 0 14px}
 body.teacher #ansPane pre.pat{user-select:text}
 .tiprow{display:flex;flex-wrap:wrap;gap:5px;margin:2px 0 10px 26px}
 .tipbtn{background:#2B2208;border:1px solid #D4A017;color:#FCD34D;border-radius:999px;padding:3px 11px;font:700 11.5px Manrope,sans-serif;cursor:pointer;text-align:left}.tipbtn:hover{background:#3a2d0a}
@@ -372,6 +373,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   <div id="mSubmitBody" style="color:var(--soft)"></div>
   <div class="row"><button class="btn" id="mCancel">Not yet</button><button class="btn pri" id="mGo">Submit it</button></div>
 </div></div>
+<div id="closedMsg" style="display:none"><div class="cbox"><h2 id="closedTitle">Not open yet</h2><p>This assignment is not open yet. Your teacher will open it when your class is ready for it.</p><p><a class="btn pri" id="closedBack" href="index.html">Back to the unit</a></p></div></div>
 <div class="modal" id="mHelp"><div class="box cnbox">
   <div class="exhead"><h3 id="hlTitle">Help</h3><span><button class="btn" id="hlBack" style="display:none">&larr; Back</button> <button class="btn" id="hlClose">Close</button></span></div>
   <div class="cnbody" id="hlBody"></div>
@@ -399,6 +401,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
 <script src="step-checks-a.js"></script>
 <script src="step-checks-b.js"></script>
 <script src="tips-web.js"></script>
+<script src="live.js"></script>
 <script>
 "use strict";
 var API = "/api/code";
@@ -469,6 +472,7 @@ function hasLocalWork(l) { return !isBlank(lsGet("u7:code:" + l) || "") || !isBl
 function buildLessonList() {
   var sel = $("lesson"); sel.innerHTML = "";
   H.ORDER.forEach(function (l) {
+    if (lessonClosed(l)) return;
     if (!SHOW_ALL && l !== S.lesson && !MY_LESSONS[l] && !hasLocalWork(l)) return;
     var o = document.createElement("option"); o.value = l; o.textContent = dispLesson(l) + "  " + H.LESSONS[l].name; sel.appendChild(o);
   });
@@ -493,7 +497,7 @@ function loadLocal() {
   loadAct(); warned = false; updateHonestyLater();
   S.buf.html = lsGet("u7:code:" + S.lesson) || "";
   S.buf.css = lsGet("u7:css:" + S.lesson) || "";
-  S.file = "html"; ta.value = S.buf.html; ansInit(); markTabs();
+  S.file = "html"; ta.value = S.buf.html; ansInit(); markTabs(); applyClosed();
   refresh(); renderPreview(); syncCssTab();
   if (!S.buf.html) ta.focus();
   offerCarry(); updateGuideLink();
@@ -982,13 +986,20 @@ function showSignInButton() {
   var g = $("gbtn"); g.innerHTML = "";
   if (window.google && google.accounts && google.accounts.id) google.accounts.id.renderButton(g, { theme: "filled_blue", size: "medium", text: "signin_with", shape: "rectangular" });
 }
+/* an assignment with step checks stays closed to students until it is listed in live.js; only the teacher account (signed in) can open a closed one */
+function lessonClosed(l) {
+  var SCx = window.U7_STEPCHECKS; if (!SCx || !SCx.LESSONS[l]) return false;
+  if (S.email && TEACHER_EMAILS.indexOf(S.email) > -1) return false;
+  return (window.U7_LIVE || []).indexOf(l) < 0;
+}
+function applyClosed() { var c = lessonClosed(S.lesson), m = $("closedMsg"); if (!m) return; if (c) $("closedTitle").textContent = "Assignment " + dispLesson(S.lesson) + " is not open yet"; m.style.display = c ? "" : "none"; }
 function onCredential(resp) {
   var p = decodeJwt(resp.credential);
   if ((p.hd || "").toLowerCase() !== "socialcircleschools.org") { banner("Please sign in with your school account (@socialcircleschools.org).", "err"); return; }
   S.cred = resp.credential; S.name = p.name || ""; S.email = (p.email || "").toLowerCase(); if (TEACHER_EMAILS.indexOf(S.email) > -1) document.body.classList.add("teacher");
   $("who").textContent = "Signed in: " + (S.name || S.email); $("gbtn").innerHTML = ""; $("note").className = "note";
   $("banner").className = "banner";
-  afterLessonChange(true);
+  afterLessonChange(true); applyClosed(); buildLessonList();
   api({ action: "myLessons" }).then(function (j) { if (j && j.ok) { (j.lessons || []).forEach(function (l) { MY_LESSONS[l] = 1; }); buildLessonList(); } });
 }
 function api(body) {
