@@ -42,14 +42,14 @@
     "Step 4": [
       [exists("There is a heading 1", T("h1")), K("The heading 1 has a color and a background-color", function (c) { var e = T("h1")(c); return !!e && has(c, e, "color", named) && has(c, e, "background-color", named); }), K("Its two colors are different", function (c) { var e = T("h1")(c); return !!e && bothDiffer(c, e); })],
       [CNT("There are at least 3 heading 2s", "h2", 3), K("Every heading 2 has a color and a background-color", function (c) { var a = h2all(c); return a.length >= 3 && a.every(function (x) { return has(c, x, "color", named) && has(c, x, "background-color", named); }); }),
-       K("On every heading 2 the two colors are different", function (c) { var a = h2all(c); return a.length >= 3 && a.every(function (x) { return bothDiffer(c, x); }); })]
+       K("On every heading 2 the two colors are different", function (c) { var a = h2all(c); return a.length >= 3 && a.every(function (x) { return bothDiffer(c, x); }); }),
+       K("Pattern: at least 2 heading 2s use exactly the same text color and background-color", function (c) { var n = {}; h2all(c).forEach(function (x) { var k = h.vals(c, x, "color")[0] + "|" + h.vals(c, x, "background-color")[0]; n[k] = (n[k] || 0) + 1; }); return Object.keys(n).some(function (k) { return n[k] >= 2; }); })]
     ],
     "Step 5": [
       [CNT("There are at least 6 paragraphs", "p", 6), K("Every paragraph has a color and a background-color", function (c) { var a = c.all("p"); return a.length >= 6 && a.every(function (x) { return has(c, x, "color", named) && has(c, x, "background-color", named); }); }),
-       K("On every paragraph the two colors are different", function (c) { var a = c.all("p"); return a.length >= 6 && a.every(function (x) { return bothDiffer(c, x); }); }),
-       K("No two paragraphs in a row share the same text color or the same background color", function (c) { var a = c.all("p"); if (a.length < 6) return false; for (var i = 1; i < a.length; i++) { var t0 = h.vals(c, a[i - 1], "color")[0], t1 = h.vals(c, a[i], "color")[0], b0 = h.vals(c, a[i - 1], "background-color")[0], b1 = h.vals(c, a[i], "background-color")[0]; if (!t0 || !t1 || !b0 || !b1 || t0 === t1 || b0 === b1) return false; } return true; })],
-      [K("At least 2 background-colors each show up on 2 or more headings or paragraphs (a pattern)", function (c) { var n = {}; h2all(c).concat(c.all("p")).forEach(function (x) { var v = h.vals(c, x, "background-color")[0]; if (v) n[v] = (n[v] || 0) + 1; }); return Object.keys(n).filter(function (k) { return n[k] >= 2; }).length >= 2; })],
-      [K("At least 4 different background colors are used on the page", function (c) { var n = {}; h.order(c).forEach(function (x) { var v = h.vals(c, x, "background-color")[0]; if (v && named(v)) n[v] = 1; }); return Object.keys(n).length >= 4; })],
+       K("On every paragraph the text color is different from its own background-color", function (c) { var a = c.all("p"); return a.length >= 6 && a.every(function (x) { return bothDiffer(c, x); }); }),
+       K("No two paragraphs share a background-color (every paragraph has its own)", function (c) { var a = c.all("p"), seen = {}; return a.length >= 6 && a.every(function (x) { var v = h.vals(c, x, "background-color")[0]; if (!v || seen[v]) return false; seen[v] = 1; return true; }); }),
+       K("No two paragraphs share a text color (every paragraph has its own)", function (c) { var a = c.all("p"), seen = {}; return a.length >= 6 && a.every(function (x) { var v = h.vals(c, x, "color")[0]; if (!v || seen[v]) return false; seen[v] = 1; return true; }); })],
       [K("Nothing is hidden: wherever color and background-color are both used, they are different colors", function (c) { var seen = false, ok = true; h.order(c).forEach(function (x) { if (has(c, x, "color") && has(c, x, "background-color")) { seen = true; if (!bothDiffer(c, x)) ok = false; } }); return seen && ok; })],
       [],
       RAINBOW

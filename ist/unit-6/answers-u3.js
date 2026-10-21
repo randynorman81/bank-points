@@ -47,12 +47,10 @@
     ]),
     S("Color the headings", [
       "Style the **heading 1** with **color** and **background-color** together (two different named colors)",
-      "Style **every heading 2** with **color** and **background-color** together. Use the same combinations again and again to make a pattern (like orange on purple, then lime on pink, then orange on purple again)"
+      "Style **every heading 2** with **color** and **background-color** together. Make a **pattern**: **at least 2 of your heading 2s** must use exactly the same two colors (like orange on purple every time), so your headings look like a matching set"
     ]),
-    S("Color the paragraphs and make a pattern", [
-      "Style **every paragraph** with **color** and **background-color** together (the two colors different from each other). **No two paragraphs in a row** can have the same text color or the same background color, so keep switching them up (then repeat your pattern)",
-      "Check your **pattern**: at least **2 different background colors** should each show up on **2 or more** headings or paragraphs",
-      "Check your **variety**: your whole page (the body too) should use **at least 4 different background colors**",
+    S("Color the paragraphs: no two alike", [
+      "Style **every paragraph** with **color** and **background-color** together. **Every paragraph must look different from all the others**: no two paragraphs can share the same text color, and no two can share the same background color. On each paragraph, the text color and background must also be different from each other",
       "Check that nothing is hidden: wherever you use both **color** and **background-color**, they must be **different** colors. Ugly is fine. Invisible is not",
       "**A sneak peek (we cover it fully in 3.4):** the **span** tag wraps just a few words, or even a **single letter**, inside a paragraph or heading, and the span can have its own style attribute. So you can give one word, or every single letter, its own **color** and **background-color**. Put the span **inside** the tag, and close it before the tag closes",
       "**BONUS (+5 points):** make **at least 3 words** (3 or more letters each) where **every letter is its own span with its own color**, like a rainbow word. Your auto score goes above 100 when you finish all the required steps AND earn this bonus"
