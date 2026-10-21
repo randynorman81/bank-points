@@ -315,6 +315,22 @@ function wqHtml(r) {
     '<details style="margin-top:8px;font-size:12px;color:var(--soft)"><summary style="cursor:pointer">Grading policy</summary><div style="margin-top:6px;line-height:1.5"><b>Red (severe)</b> = keyboard mashing or nonsense words, filler text (lorem ipsum, asdf), paragraphs of random words with no sentences, the same word over and over, mostly the same few words, copied paragraphs, or the same sentence or phrase repeated many times. Red takes 50% off and also fails the editor checks for real writing. <b>Yellow</b> = a warning only (one repeated sentence, a couple odd words): read it yourself. <b>Topic</b>: the words in the title should show up in the paragraphs. Every flag is a recommendation. You can uncheck the penalty and change the score.</div></details></div>';
 }
 
+/* ---------- 3.2 bonus: a real 3 or 4 letter word with every letter in its own colored span (teacher decides) ---------- */
+function bonusHtml(r) {
+  if ($("lesson").value !== "6.2") return "";
+  var c = H.analyze(r.code || ""), runs = [];
+  c.all("body").concat(c.all("p"), c.all("h1"), c.all("h2")).forEach(function (el) {
+    var run = [];
+    function flush() { if (run.length >= 2) runs.push(run.slice()); run = []; }
+    el.children.forEach(function (k) {
+      if (k.tag === "span" && c.text(k).trim().length === 1) run.push({ ch: c.text(k).trim(), color: ((c.inline.filter(function (d) { return d.el === k && d.prop === "color"; })[0] || {}).value || "").replace(/;$/, "") }); else flush();
+    });
+    flush();
+  });
+  var body = runs.length ? runs.map(function (rn) { return '<div style="margin:4px 0"><b style="font-size:16px;letter-spacing:2px">' + rn.map(function (x) { return '<span style="color:' + esc(x.color || "#fff") + '">' + esc(x.ch) + "</span>"; }).join("") + "</b> <small>(" + rn.length + " letters, " + esc(rn.map(function (x) { return x.color || "?"; }).join(", ")) + ")</small></div>"; }).join("") + "<small>Is it one real 3 or 4 letter word, with a different color on every letter? If yes, add 5 to the teacher score.</small>" : "<small>No letter-by-letter colored spans found. No bonus.</small>";
+  return '<div class="org none"><b class="t">3.2 Bonus word (+5, your call)</b>' + body + "</div>";
+}
+
 /* ---------- detail ---------- */
 function select(email) {
   selEmail = email; var r = rowsData.filter(function (x) { return x.email === email; })[0]; if (!r) return;
@@ -349,7 +365,7 @@ function select(email) {
       '<div class="kv"><span>Typed by hand</span><span>' + og.act.typed + '</span><span>Pasted from outside</span><span>' + og.act.ext + '</span><span>Still in the final page</span><span>' + og.inFinal + '</span><span>Active writing time</span><span>' + og.minutes.toFixed(1) + ' min</span><span>Words on the page</span><span>' + og.words + '</span><span>Words per active minute</span><span>' + (og.wpm ? Math.round(og.wpm) : "n/a") + '</span></div>' +
       (evh ? "<h3>Outside pastes</h3>" + evh : "") + (sh ? '<h3>Check a paragraph on the web</h3><div class="srch">' + sh + "</div>" : "");
   }
-  $("right").innerHTML = ohtml + wqHtml(r) + '<div class="grade"><h3>Grade</h3><div>Auto check: <span class="big">' + r.rep.score + '</span> / ' + r.rep.total + " <small style=\"color:var(--soft)\">(" + r.rep.passed + "/" + r.rep.count + " checks)</small></div>" +
+  $("right").innerHTML = ohtml + bonusHtml(r) + wqHtml(r) + '<div class="grade"><h3>Grade</h3><div>Auto check: <span class="big">' + r.rep.score + '</span> / ' + r.rep.total + " <small style=\"color:var(--soft)\">(" + r.rep.passed + "/" + r.rep.count + " checks)</small></div>" +
     '<div style="margin-top:8px">Your score: <input type="number" id="gScore" min="0" step="0.5" value="' + esc(g) + '"> / ' + r.rep.total + '</div><label style="display:flex;gap:6px;align-items:flex-start;margin:6px 0;font-size:12.5px;color:' + (penOn ? '#FCA5A5' : 'var(--soft)') + '"><input type="checkbox" id="gPen"' + (penOn ? " checked" : "") + '> <span><b>50% penalty</b> (copied from outside the editor, or nonsense/repeated writing). Uncheck if you decide it was okay.</span></label><textarea id="gComment" placeholder="Comment for the student (optional)">' + esc(r.teacher ? r.teacher.comment : (penOn ? penComment(r) : "")) + '</textarea>' +
     '<button class="btn pri" id="gSave"' + (r.status !== "submitted" ? " disabled title=\"Only submitted work can be graded\"" : "") + '>Save grade</button> <span id="gInfo" style="color:var(--soft);font-size:12px">' + (r.teacher && r.teacher.gradedAt ? "Saved " + esc(fmt(r.teacher.gradedAt)) : "") + "</span></div>" +
     "<h3>This lesson's requirements</h3>" + (nw || "<small>None</small>") + (old ? '<h3>Carried over</h3>' + old : "") + "<h3>Problems</h3>" + (pr || "<small>None</small>") + "<h3>Tags used</h3><div class=\"chips\">" + (tg || "<small>None</small>") + "</div>";

@@ -322,7 +322,7 @@
 
   /* ---------- which help shows under which step text (first words that match decide; most specific first) ---------- */
   var R = [
-    [/sneak peek|span tag wraps|pick one word with 3 or 4 letters/i, ["spandemo", "spantag"]],
+    [/sneak peek|span tag wraps|one real word/i, ["spandemo", "spantag"]],
     [/whole heading|whole paragraph|inside a link|inside the a tag|around the h3/i, ["linkanything", "atag"]],
     [/doctype/i, ["doctype"]],
     [/body tags/i, ["bodytag", "skeleton"]],
