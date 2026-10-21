@@ -14,11 +14,22 @@
     return out;
   }
   function allText(c) { var b = c.all("body")[0]; return b ? txt(c, b) : ""; }
+  /* one box per pair of tags: the opening tag, the closing tag, and (for head and body) that they sit inside the html tags */
+  function tagSet(tag, insideHtml) {
+    var list = [
+      K("There is an opening <" + tag + "> tag", function (c) { return new RegExp("<" + tag + "\\b[^>]*>", "i").test(c.rawSrc || c.src); }),
+      K("There is a closing </" + tag + "> tag", function (c) { return new RegExp("</" + tag + "\\s*>", "i").test(c.rawSrc || c.src); })
+    ];
+    if (insideHtml) list.push(K("The " + tag + " tags are inside the html tags", function (c) { var e = c.all(tag)[0]; return !!e && h.inTag(c, e, ["html"]); }));
+    else list.push(K("The closing </html> comes after the opening <html>", function (c) { var s = c.rawSrc || c.src, a = s.search(/<html\b/i), b = s.search(/<\/html\s*>/i); return a >= 0 && b > a; }));
+    return list;
+  }
   SC.LESSONS["6.1"] = { inlineOnly: false, steps: {
     "Step 1": [
       [SK[0]],
-      [SK[1], SK[2]],
-      [exists("There is a <head>", T("head")), exists("There is a <body>", T("body")), SK[3]],
+      tagSet("html", false),
+      tagSet("head", true),
+      tagSet("body", true).concat([K("The body comes after (under) the head", function (c) { var s = c.rawSrc || c.src, he = s.search(/<\/head\s*>/i), bs = s.search(/<body\b/i); return he >= 0 && bs > he; })]),
       TITLE
     ],
     "Step 2": [[
