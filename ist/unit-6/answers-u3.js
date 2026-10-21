@@ -88,7 +88,7 @@
     done()]));
 
   /* ======================================================================= 6.3  (3.4) ===== */
-  A["6.3"] = build([].concat(head("The **menu** for your dream restaurant.", "a taco truck, a bakery, or a cafe in space", notes("unit-6/editing-tags-notes.html")), [RULE,
+  A["6.3"] = build([].concat(head("The **menu** for the weirdest restaurant ever.", "a **restaurant inside a giant's nose**, a **cafe in a haunted refrigerator**, a **breakfast-only restaurant that opens at midnight**, a **tavern for retired monsters**, or a **cafe for alien tourists who have never seen food**", notes("unit-6/editing-tags-notes.html")), [RULE,
     skeleton(["On the **body** tag, add a style: **background-color** (a light named color) and **color** (a dark named color for the text)"]),
     S("The name, address, and a line", [
       "Add **one heading 1** with the restaurant's name. Style it: **color** (a named color), **font-size** 44px, **text-align** center, and a **background-color** (a named color)",
