@@ -131,6 +131,18 @@ main[data-view="code"] #split,main[data-view="prev"] .split{display:none}
 #periodBtns{display:inline-flex;align-items:center;gap:4px}#periodBtns .pl{font-weight:700;font-size:13px;color:var(--ink)}#periodBtns .pbtn{min-width:40px;padding:5px 10px}#periodBtns .pbtn.on{background:var(--acc);color:#0B0E14;border-color:var(--acc)}
 .autosc{font:700 12px "JetBrains Mono",monospace;white-space:nowrap;color:#FB923C}.autosc b{font-size:15px}.autosc small{font-weight:600;color:var(--soft);margin-left:4px}.autosc.ok{color:#34D399}
 #btnSubmit.locked{opacity:.55}
+.tiprow{display:flex;flex-wrap:wrap;gap:5px;margin:2px 0 10px 26px}
+.tipbtn{background:#2B2208;border:1px solid #D4A017;color:#FCD34D;border-radius:999px;padding:3px 11px;font:700 11.5px Manrope,sans-serif;cursor:pointer;text-align:left}.tipbtn:hover{background:#3a2d0a}
+.helpstep{display:inline-block;margin:0 0 10px;border:1px solid #D4A017;background:#2B2208;color:#FCD34D;border-radius:999px;padding:5px 14px;font:700 12.5px Manrope,sans-serif;cursor:pointer}.helpstep span{font-weight:600;opacity:.8}.helpstep:hover{background:#3a2d0a}
+#paneAns .tipbtn,#paneAns .helpstep{background:#fef3c7;color:#92400e;border-color:#d97706}
+#hlBody p{margin:0 0 10px;line-height:1.6}#hlBody ul,#hlBody ol{margin:0 0 10px;padding-left:22px}#hlBody li{margin:4px 0}
+#hlBody pre.tex{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:10px 12px;margin:0 0 10px;font:13px/1.55 "JetBrains Mono",monospace;overflow:auto;white-space:pre;color:#E6EAF2}
+#hlBody .tgood{background:#052e22;border:1px solid #14532d;border-radius:8px;padding:8px 12px;margin:0 0 10px;color:#86efac}
+#hlBody .twarn{background:#3b1d0e;border:1px solid #7c2d12;border-radius:8px;padding:8px 12px;margin:0 0 10px;color:#fdba74}
+#hlBody table.trows{border-collapse:collapse;width:100%;margin:0 0 10px;font-size:13px}#hlBody table.trows td{border:1px solid var(--rule);padding:6px 9px;vertical-align:top}#hlBody table.trows td:first-child{font-family:"JetBrains Mono",monospace;white-space:nowrap}
+#hlBody .tlist .tipbtn{display:block;width:100%;border-radius:8px;margin:4px 0;font-size:13px;padding:7px 12px}
+#hlBody h4{margin:14px 0 4px;font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;color:var(--soft)}
+#hlSearch{width:100%;background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:8px;padding:9px 12px;font:600 14px Manrope,sans-serif;margin:0 0 10px}
 .missbtn{background:none;border:0;color:#FB923C;font:700 12px "JetBrains Mono",monospace;cursor:pointer;padding:2px 4px;white-space:nowrap}.missbtn:hover{text-decoration:underline}.missbtn.ok{color:#34D399}
 .misspanel{position:fixed;top:54px;right:12px;z-index:60;width:min(520px,calc(100% - 24px));max-height:calc(100% - 80px);overflow:auto;background:#0F1526;border:1px solid var(--acc);border-radius:10px;box-shadow:0 18px 50px #000a;padding:10px 14px;font-size:13px;color:var(--ink)}
 .misspanel .mh{font-weight:800;margin:0 0 6px;color:#fff}.misspanel .mg{border-top:1px solid var(--rule);padding:7px 0}.misspanel .mg:first-of-type{border-top:0}
@@ -291,6 +303,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   <span class="autosc" id="autoSc" style="display:none"></span>
   <button type="button" class="missbtn" id="missBtn" style="display:none" aria-expanded="false"></button>
   <span class="wc" id="wcount" title="Real words you have written on your page. Tags, code, and nonsense words are not counted.">0 words</span>
+  <button class="btn" id="btnHelp" title="Help for every part of the assignment">&#128161; Help</button>
   <button class="btn" id="btnChecks" title="Open your checklist, problems, and images">✓ Checks <b id="chkScore">0/50</b><span class="dot">●</span></button>
   <button class="btn" id="btnCopy" title="Copy the file you are editing">Copy code</button>
   <button class="btn pri" id="btnSubmit">Submit</button>
@@ -325,7 +338,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   </section>
   <div class="split" id="split" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize. Double-click to reset."></div>
   <section class="pane" id="panePrev">
-    <h2><span>Your website</span><span class="tools"><button class="btn sm" id="btnRun">Refresh</button><span class="winbtns"><button class="btn sm" id="minPrev" title="Shrink the website panel">– Minimize</button><button class="btn sm" id="maxPrev" title="Make the website panel fill the screen">⤢ Maximize</button></span></span></h2>
+    <h2><span>Your website</span><span class="tools"><button class="btn sm" id="btnRun">Refresh</button><button class="btn sm" id="btnOpenTab" title="Open your page in its own browser tab, so you can see the title on the tab and how it looks in a real browser">Open in new tab</button><span class="winbtns"><button class="btn sm" id="minPrev" title="Shrink the website panel">– Minimize</button><button class="btn sm" id="maxPrev" title="Make the website panel fill the screen">⤢ Maximize</button></span></span></h2>
     <div class="prevwrap"><iframe id="prev" sandbox="allow-popups" title="Preview of your website"></iframe></div>
     <button class="stripbtn" data-restore="both" aria-label="Show the website panel">▸ Website</button>
   </section>
@@ -358,6 +371,10 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   <div id="mSubmitBody" style="color:var(--soft)"></div>
   <div class="row"><button class="btn" id="mCancel">Not yet</button><button class="btn pri" id="mGo">Submit it</button></div>
 </div></div>
+<div class="modal" id="mHelp"><div class="box cnbox">
+  <div class="exhead"><h3 id="hlTitle">Help</h3><span><button class="btn" id="hlBack" style="display:none">&larr; Back</button> <button class="btn" id="hlClose">Close</button></span></div>
+  <div class="cnbody" id="hlBody"></div>
+</div></div>
 <div class="modal" id="mCn"><div class="box cnbox">
   <div class="exhead"><h3 id="cnTitle">Concepts</h3><button class="btn" id="cnClose">Close</button></div>
   <div class="cnbody" id="cnBody"></div>
@@ -380,6 +397,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
 <script src="step-checks.js"></script>
 <script src="step-checks-a.js"></script>
 <script src="step-checks-b.js"></script>
+<script src="tips-web.js"></script>
 <script>
 "use strict";
 var API = "/api/code";
@@ -670,7 +688,7 @@ function refresh() {
   $("lname").textContent = dispLesson(S.lesson) + " " + H.LESSONS[S.lesson].name;
   $("scoreNum").textContent = rep.score; $("scoreTot").textContent = rep.total;
   $("scoreBar").style.width = Math.min(100, rep.score / rep.total * 100) + "%";
-  $("scoreNote").textContent = isBlank(getHtml()) ? "Start with <!DOCTYPE html> at the top of the page (if your lesson has a Step 1 comment, it goes above it). Your checklist fills in as you go." : rep.passed + " of " + rep.count + " checks passed. This is an automatic estimate. Your teacher gives the final grade.";
+  $("scoreNote").textContent = isBlank(getHtml()) ? "Start by typing <!DOCTYPE html> on the first line. Your checklist fills in as you go." : rep.passed + " of " + rep.count + " checks passed. This is an automatic estimate. Your teacher gives the final grade.";
   var nw = "", old = "", nOld = 0, rev = "", nRev = 0, okRev = 0;
   rep.results.forEach(function (x) {
     var h = '<div class="rule ' + (x.ok ? "ok" : "no") + '"><span class="m">' + (x.ok ? "✓" : "!") + '</span><span>' + esc(x.label) + (x.tip && !x.ok ? "<small>" + esc(x.tip) + "</small>" : "") + "</span></div>";
@@ -759,7 +777,7 @@ setView(lsGet("u7:view") === "code" || lsGet("u7:view") === "prev" ? lsGet("u7:v
 /* ---------- the "tags" and "how to write a style" popups ---------- */
 var TAG_HELP = [
   ["Page structure", [
-    ["<!DOCTYPE html>", "<!DOCTYPE html>", "Always at the very top of the page (a step comment can sit above it). It tells the browser this is a modern web page."],
+    ["<!DOCTYPE html>", "<!DOCTYPE html>", "Always the very first line. It tells the browser this is a modern web page."],
     ["<html>", "<html> ... </html>", "Wraps your whole page. Everything else goes inside it."],
     ["<head>", "<head> <title>My Page</title> </head>", "Holds information about the page. None of it shows on the page itself."],
     ["<title>", "<title>My Cafe</title>", "The words that show in the browser tab."],
@@ -1333,16 +1351,16 @@ function ansRender() {
   if (!sc) { pane.innerHTML = ""; setAns(false); return; }
   var h = ansLeaves().length ? '<p class="ah">Fill in your answers here. They save automatically and are submitted with your code.</p><div class="prog"><i id="ansProg"></i></div>' : "";
   var SCL = (window.U7_STEPCHECKS || {}).LESSONS ? window.U7_STEPCHECKS.LESSONS[S.lesson] : null, stepKey = null, bIdx = 0;
-  sc.forEach(function (it) {
+  sc.forEach(function (it, idx) {
     if (it.h) {
       h += '<h3 class="' + (/^Step /.test(it.h) ? "stp" : "first") + '">' + wtText(it.h) + "</h3>";
       var sm = /^Step (\d+)(?::\s*(.*))?$/.exec(it.h); stepKey = sm && SCL && SCL.steps["Step " + sm[1]] ? "Step " + sm[1] : null; bIdx = 0;
-      if (stepKey && SCL.steps[stepKey].comment !== false) h += stepBox("c", stepKey, "Type an HTML comment with the step number and its title, on its own line where this step's code starts: `<!-- Step " + sm[1] + (sm[2] ? ": " + sm[2] : "") + " -->`." + (sm[1] === "1" ? " For Step 1, put it on line 1, above the doctype line." : ""));
+      if (stepKey && window.U7_TIPS) { var sti = stepTips(sc, idx); if (sti.length) h += '<button type="button" class="helpstep" data-step="' + idx + '">&#128161; Help for this step <span>(' + sti.length + " topic" + (sti.length === 1 ? "" : "s") + ")</span></button>"; }
     }
     else if (it.p) h += '<p class="tx">' + wtText(it.p) + "</p>";
     else if (it.make) h += '<p class="tx">' + wtText(it.make) + "</p>";
     else if (it.where) h += '<p class="tx">' + wtText(it.where) + "</p>";
-    else if (it.build && stepKey) { it.build.forEach(function (x) { h += SCL.steps[stepKey][bIdx] && SCL.steps[stepKey][bIdx].length ? stepBox(bIdx, stepKey, x) : '<ul class="sb"><li>' + wtText(x) + "</li></ul>"; bIdx++; }); }
+    else if (it.build && stepKey) { it.build.forEach(function (x) { h += (SCL.steps[stepKey][bIdx] && SCL.steps[stepKey][bIdx].length ? stepBox(bIdx, stepKey, x) : '<ul class="sb"><li>' + wtText(x) + "</li></ul>") + tipRow(x); bIdx++; }); }
     else if (it.build) h += '<ul class="sb">' + it.build.map(function (x) { return "<li>" + wtText(x) + "</li>"; }).join("") + "</ul>";
     else if (it.code) h += '<pre class="pat">' + esc(it.code) + "</pre>";
     else if (it.map) h += '<ol class="sb map">' + it.map.map(function (x) { return "<li>" + wtText(x) + "</li>"; }).join("") + "</ol>";
@@ -1352,6 +1370,72 @@ function ansRender() {
   pane.innerHTML = h; ansBadge(); exUpdate(); stepUpdate();
 }
 /* step boxes: a checkbox that ticks itself when the auto-check is fully met, with a badge like "auto-check: 3 of 5 met" (click the badge to see what is missing) */
+/* ---------- help: pills under each box, a help button for each step, and a searchable library ---------- */
+function tipIds(text) { return window.U7_TIPS ? window.U7_TIPS.forText(text) : []; }
+function tipShort(t) { return t.length > 44 ? t.slice(0, 42).replace(/ +[^ ]*$/, "") + "\u2026" : t; }
+function tipRow(text) {
+  var ids = tipIds(text); if (!ids.length) return "";
+  return '<div class="tiprow">' + ids.map(function (id) { return '<button type="button" class="tipbtn" data-tip="' + id + '">&#128161; ' + esc(tipShort(window.U7_TIPS.topics[id].title)) + "</button>"; }).join("") + "</div>";
+}
+function stepTips(bl, idx) {
+  var ids = [];
+  for (var j = idx + 1; j < bl.length && !bl[j].h; j++) if (bl[j].build) bl[j].build.forEach(function (x) { tipIds(x).forEach(function (id) { if (ids.indexOf(id) < 0) ids.push(id); }); });
+  return ids;
+}
+function tipSec(sx) {
+  var NL = String.fromCharCode(10);
+  if (sx.p) return "<p>" + wtText(sx.p) + "</p>";
+  if (sx.ex) return '<pre class="tex">' + sx.ex.map(esc).join(NL) + "</pre>";
+  if (sx.steps) return "<ol>" + sx.steps.map(function (x) { return "<li>" + wtText(x) + "</li>"; }).join("") + "</ol>";
+  if (sx.list) return "<ul>" + sx.list.map(function (x) { return "<li>" + wtText(x) + "</li>"; }).join("") + "</ul>";
+  if (sx.good) return '<div class="tgood">' + wtText(sx.good) + "</div>";
+  if (sx.warn) return '<div class="twarn">' + wtText(sx.warn) + "</div>";
+  if (sx.rows) return '<table class="trows">' + sx.rows.map(function (r) { return "<tr>" + r.map(function (c) { return "<td>" + wtText(c) + "</td>"; }).join("") + "</tr>"; }).join("") + "</table>";
+  return "";
+}
+var hlBackFn = null;
+function hlShow(title, html, back) { $("hlTitle").textContent = title; $("hlBody").innerHTML = html; hlBackFn = back || null; $("hlBack").style.display = back ? "" : "none"; $("mHelp").classList.add("show"); $("hlBody").scrollTop = 0; }
+function openTip(id, back) { var t = window.U7_TIPS && window.U7_TIPS.topics[id]; if (t) hlShow(t.title, t.sections.map(tipSec).join(""), back); }
+function tipList(ids) { return '<div class="tlist">' + ids.map(function (id) { return '<button type="button" class="tipbtn" data-tip="' + id + '">&#128161; ' + esc(window.U7_TIPS.topics[id].title) + "</button>"; }).join("") + "</div>"; }
+function openStepHelp(idx) { var ids = stepTips(ansSchema() || [], idx), back = function () { openStepHelp(idx); }; hlShow("Help for this step", '<p class="cnhint">Click a topic to learn about it.</p>' + tipList(ids), null); hlStepIdx = idx; }
+var hlStepIdx = null;
+function libList(q) {
+  var T = window.U7_TIPS, h = "", n = 0; q = String(q || "").toLowerCase().trim();
+  T.cats.forEach(function (c) {
+    var ids = T.order.filter(function (id) { var t = T.topics[id]; return t.cat === c && (!q || (t.title + " " + JSON.stringify(t.sections)).toLowerCase().indexOf(q) > -1); });
+    if (ids.length) { n += ids.length; h += "<h4>" + esc(c) + "</h4>" + tipList(ids); }
+  });
+  return h || '<p class="cnhint">Nothing matches. Try a different word, like border, list, link, or title.</p>';
+}
+function openLibrary(q) {
+  hlShow("Help: everything in one place", '<input id="hlSearch" type="search" placeholder="Search the help (for example: border, list, link, color)" autocomplete="off" value="' + esc(q || "") + '"><div id="hlList">' + libList(q) + "</div>", null);
+  var inp = $("hlSearch"); inp.focus(); inp.addEventListener("input", function () { $("hlList").innerHTML = libList(inp.value); });
+}
+$("btnHelp").addEventListener("click", function () { openLibrary(""); });
+$("hlClose").addEventListener("click", function () { $("mHelp").classList.remove("show"); });
+$("mHelp").addEventListener("click", function (e) { if (e.target === this) this.classList.remove("show"); });
+$("hlBack").addEventListener("click", function () { if (hlBackFn) hlBackFn(); });
+document.addEventListener("keydown", function (e) { if (e.key === "Escape" && $("mHelp").classList.contains("show")) $("mHelp").classList.remove("show"); });
+document.addEventListener("click", function (e) {
+  var st = e.target.closest && e.target.closest(".helpstep");
+  if (st) { openStepHelp(+st.getAttribute("data-step")); return; }
+  var tb = e.target.closest && e.target.closest(".tipbtn[data-tip]"); if (!tb) return;
+  var inList = $("mHelp").classList.contains("show") && $("mHelp").contains(tb), q = $("hlSearch") ? $("hlSearch").value : "", idx = hlStepIdx;
+  var back = null;
+  if (inList) back = $("hlSearch") ? function () { openLibrary(q); } : function () { openStepHelp(idx); };
+  openTip(tb.getAttribute("data-tip"), back);
+});
+/* "Open in new tab": the page in its own browser tab (same limits as the preview), with its <title> on the tab */
+function openInTab() {
+  var doc = H.previewDoc(getHtml(), getCss()), base = '<base href="' + location.origin + '/">';
+  doc = /<head\b[^>]*>/i.test(doc) ? doc.replace(/<head\b[^>]*>/i, function (m) { return m + base; }) : base + doc;
+  var tm = new RegExp("<title[^>]*>([^]*?)</title>", "i").exec(getHtml()), title = tm ? tm[1].replace(/<[^>]*>/g, "").trim() : "";
+  var wrap = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + esc(title || "(no title yet)") + '</title><style>html,body{margin:0;height:100%;background:#fff}iframe{border:0;width:100%;height:100%;display:block}</style></head><body><iframe sandbox="allow-popups allow-popups-to-escape-sandbox" srcdoc="' + doc.replace(/&/g, "&amp;").replace(/"/g, "&quot;") + '"></iframe></body></html>';
+  var url = URL.createObjectURL(new Blob([wrap], { type: "text/html" })), w = window.open(url, "_blank");
+  if (!w) toast("Your browser blocked the new tab. Allow pop-ups for this site and try again.");
+  setTimeout(function () { URL.revokeObjectURL(url); }, 120000);
+}
+$("btnOpenTab").addEventListener("click", openInTab);
 /* a short name for a box in the "still missing" list: the step comment, or the start of the bullet cut at a word */
 function shortTx(bi, text) {
   if (bi === "c") return "Type the step comment";

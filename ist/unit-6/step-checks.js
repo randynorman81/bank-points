@@ -84,7 +84,7 @@
 
   /* ---------- pieces shared by all the lessons ---------- */
   var SKELETON = [
-    K("The doctype comes first (a step comment can sit above it)", function (c) { return /^\s*(?:<!--[\s\S]*?-->\s*)*<!doctype\s+html\s*>/i.test(c.rawSrc || c.src); }),
+    K("The doctype is the first line of the page", function (c) { return /^\s*(?:<!--[\s\S]*?-->\s*)*<!doctype\s+html\s*>/i.test(c.rawSrc || c.src); }),
     K("There is an <html> tag", function (c) { return c.count("html") >= 1; }),
     K("The <head> and <body> are inside <html>", function (c) { var h = c.all("html")[0]; return !!h && kids(h).some(function (k) { return k.tag === "head"; }) && kids(h).some(function (k) { return k.tag === "body"; }); }),
     K("The <head> comes before the <body>", function (c) { var s = c.rawSrc || c.src, i = s.search(/<head\b/i), j = s.search(/<body\b/i); return i >= 0 && j > i; })
@@ -108,7 +108,7 @@
     var c = H.context(html, css), out = {}; c.lesson = lesson;
     Object.keys(L.steps).forEach(function (st) {
       var n = +(/Step (\d+)/.exec(st) || [0, 0])[1], L2 = L.steps[st];
-      out[st] = { comment: L2.comment === false ? null : stepComment(c, n), bullets: L2.map(function (list) {
+      out[st] = { comment: null, bullets: L2.map(function (list) {
         return list.map(function (ck) { var ok = false; try { ok = !!ck[1](c); } catch (e) { ok = false; } return { label: ck[0], ok: ok }; });
       }) };
     });

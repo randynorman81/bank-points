@@ -417,7 +417,7 @@
      ===================================================================== */
   var LESSONS = {
     "6.1": { name: "Intro to HTML and the HTML Skeleton", rules: [
-      r("The page starts with <!DOCTYPE html> (a step comment above it is fine)", function (c) { return /^\s*(?:<!--[\s\S]*?-->\s*)*<!doctype html>/i.test(c.src); }, "Every real web page starts with this line.", false, true),
+      r("First line is <!DOCTYPE html>", function (c) { return /^\s*(?:<!--[\s\S]*?-->\s*)*<!doctype html>/i.test(c.src); }, "Every real web page starts with this line.", false, true),
       r("Has the skeleton: <html> containing <head> and then <body>", function (c) {
         var h = c.all("html")[0]; if (!h) return false;
         var kids = h.children.filter(function (n) { return n.tag !== "#text"; }).map(function (n) { return n.tag; });
