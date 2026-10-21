@@ -743,6 +743,14 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
     if (/<head\b[^>]*>/i.test(html)) return html.replace(/<head\b[^>]*>/i, function (m) { return m + BASE_STYLE; });
     return BASE_STYLE + html;
   }
-  var API = { TESTS: TESTS, REVIEW_MIN: REVIEW_MIN, quality: function (src) { return quality(analyze(String(src || ""))); }, analyze: analyze, check: check, openTags: openTags, previewDoc: previewDoc, VOID: VOID, NAMED: NAMED, LESSONS: LESSONS, ORDER: ORDER, TOTAL_POINTS: TOTAL_POINTS };
+  // The same merged page the checker sees (style.css folded in when index.html links it). Used by the step-by-step auto-check (step-checks.js).
+  function context(src, css) {
+    src = String(src || ""); css = String(css || "");
+    var linked = CSS_LINK.test(src);
+    var merged = (linked && css.trim()) ? src.replace(CSS_LINK, function () { return "<style>" + css.replace(/<\/style/gi, "<\\/style") + "</style>"; }) : src;
+    var c = analyze(merged); c.cssLinked = linked; c.cssFile = css; c.rawSrc = src;
+    return c;
+  }
+  var API = { context: context, TESTS: TESTS, REVIEW_MIN: REVIEW_MIN, quality: function (src) { return quality(analyze(String(src || ""))); }, analyze: analyze, check: check, openTags: openTags, previewDoc: previewDoc, VOID: VOID, NAMED: NAMED, LESSONS: LESSONS, ORDER: ORDER, TOTAL_POINTS: TOTAL_POINTS };
   if (typeof module !== "undefined" && module.exports) module.exports = API; else root.HTMLCheck = API;
 })(typeof window !== "undefined" ? window : globalThis);
