@@ -84,7 +84,7 @@
 
   /* ---------- pieces shared by all the lessons ---------- */
   var SKELETON = [
-    K("The doctype is on line 1", function (c) { return /^\s*<!doctype\s+html\s*>/i.test(c.rawSrc || c.src); }),
+    K("The doctype comes first (a step comment can sit above it)", function (c) { return /^\s*(?:<!--[\s\S]*?-->\s*)*<!doctype\s+html\s*>/i.test(c.rawSrc || c.src); }),
     K("There is an <html> tag", function (c) { return c.count("html") >= 1; }),
     K("The <head> and <body> are inside <html>", function (c) { var h = c.all("html")[0]; return !!h && kids(h).some(function (k) { return k.tag === "head"; }) && kids(h).some(function (k) { return k.tag === "body"; }); }),
     K("The <head> comes before the <body>", function (c) { var s = c.rawSrc || c.src, i = s.search(/<head\b/i), j = s.search(/<body\b/i); return i >= 0 && j > i; })

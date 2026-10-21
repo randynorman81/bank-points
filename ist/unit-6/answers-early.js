@@ -17,7 +17,7 @@
 
     { h: "Step 1: The skeleton" },
     { build: [
-      "Type the **doctype line** on line 1, from memory",
+      "Type the **doctype line** at the top of the page (right under your Step 1 comment), from memory",
       "Open the **html** container. Everything else goes **inside** it",
       "Inside html, add the **head** first, then the **body**",
       "Inside the head, add a **title** with your topic (pick a topic you can find good information about)"

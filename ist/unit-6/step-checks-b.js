@@ -183,4 +183,6 @@
   SC.LESSONS["6.6"].steps["Step 1"] = [SK.concat(TITLE)].concat(STYLEBLOCK_RULES);
   /* the picture-gathering step has no step comment (nothing is typed in the page) */
   SC.LESSONS["6.7"].steps["Step 1"].comment = false;
+  /* step comments are only part of lessons 3.1 to 3.3 (6.1 to 6.3) */
+  ["6.4", "6.5", "6.6", "6.7"].forEach(function (l) { Object.keys(SC.LESSONS[l].steps).forEach(function (st) { SC.LESSONS[l].steps[st].comment = false; }); });
 })(typeof window !== "undefined" ? window : globalThis);

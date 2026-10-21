@@ -632,7 +632,7 @@ function refresh() {
   $("lname").textContent = dispLesson(S.lesson) + " " + H.LESSONS[S.lesson].name;
   $("scoreNum").textContent = rep.score; $("scoreTot").textContent = rep.total;
   $("scoreBar").style.width = Math.min(100, rep.score / rep.total * 100) + "%";
-  $("scoreNote").textContent = isBlank(getHtml()) ? "Start by typing <!DOCTYPE html> on the first line. Your checklist fills in as you go." : rep.passed + " of " + rep.count + " checks passed. This is an automatic estimate. Your teacher gives the final grade.";
+  $("scoreNote").textContent = isBlank(getHtml()) ? "Start with <!DOCTYPE html> at the top of the page (if your lesson has a Step 1 comment, it goes above it). Your checklist fills in as you go." : rep.passed + " of " + rep.count + " checks passed. This is an automatic estimate. Your teacher gives the final grade.";
   var nw = "", old = "", nOld = 0, rev = "", nRev = 0, okRev = 0;
   rep.results.forEach(function (x) {
     var h = '<div class="rule ' + (x.ok ? "ok" : "no") + '"><span class="m">' + (x.ok ? "✓" : "!") + '</span><span>' + esc(x.label) + (x.tip && !x.ok ? "<small>" + esc(x.tip) + "</small>" : "") + "</span></div>";
@@ -721,7 +721,7 @@ setView(lsGet("u7:view") === "code" || lsGet("u7:view") === "prev" ? lsGet("u7:v
 /* ---------- the "tags" and "how to write a style" popups ---------- */
 var TAG_HELP = [
   ["Page structure", [
-    ["<!DOCTYPE html>", "<!DOCTYPE html>", "Always the very first line. It tells the browser this is a modern web page."],
+    ["<!DOCTYPE html>", "<!DOCTYPE html>", "Always at the very top of the page (a step comment can sit above it). It tells the browser this is a modern web page."],
     ["<html>", "<html> ... </html>", "Wraps your whole page. Everything else goes inside it."],
     ["<head>", "<head> <title>My Page</title> </head>", "Holds information about the page. None of it shows on the page itself."],
     ["<title>", "<title>My Cafe</title>", "The words that show in the browser tab."],
@@ -1297,7 +1297,7 @@ function ansRender() {
     if (it.h) {
       h += '<h3 class="' + (/^Step /.test(it.h) ? "stp" : "first") + '">' + wtText(it.h) + "</h3>";
       var sm = /^Step (\d+)(?::\s*(.*))?$/.exec(it.h); stepKey = sm && SCL && SCL.steps["Step " + sm[1]] ? "Step " + sm[1] : null; bIdx = 0;
-      if (stepKey && SCL.steps[stepKey].comment !== false) h += stepBox("c", stepKey, "Type an HTML comment with the step number and its title, on its own line where this step's code starts: `<!-- Step " + sm[1] + (sm[2] ? ": " + sm[2] : "") + " -->`." + (sm[1] === "1" ? " For Step 1, put it on line 2, right under the doctype line." : ""));
+      if (stepKey && SCL.steps[stepKey].comment !== false) h += stepBox("c", stepKey, "Type an HTML comment with the step number and its title, on its own line where this step's code starts: `<!-- Step " + sm[1] + (sm[2] ? ": " + sm[2] : "") + " -->`." + (sm[1] === "1" ? " For Step 1, put it on line 1, above the doctype line." : ""));
     }
     else if (it.p) h += '<p class="tx">' + wtText(it.p) + "</p>";
     else if (it.make) h += '<p class="tx">' + wtText(it.make) + "</p>";
