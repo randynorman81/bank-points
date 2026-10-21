@@ -1,4 +1,9 @@
 import { getStore } from "@netlify/blobs";
+// The same checker the editor runs in the browser, so the server can enforce the submit score. (They are plain scripts that put themselves on globalThis.)
+import "../../ist/unit-6/html-check.js";
+import "../../ist/unit-6/step-checks.js";
+import "../../ist/unit-6/step-checks-a.js";
+import "../../ist/unit-6/step-checks-b.js";
 
 // Student code editor backend (Unit 7 web design).
 //   - Students sign in with their school Google account (same setup as "My Points").
@@ -13,6 +18,10 @@ const LESSONS = ["6.1", "6.2", "6.3", "6.4", "6.5", "6.6", "6.7", "6.8", "6.9", 
   "8.1", "8.2", "8.3", "8.4", "8.5", "8.6", "8.7",
   "9.1", "9.2", "9.3", "9.4", "9.5", "9.6", "9.7"];
 const IST_PERIODS = ["3A", "3B", "4A"]; // keep in sync with COURSE_PERIODS in bank/admin.html
+const WEB_PASS = 95; // students need this auto score (out of 100) to submit a lesson that has step checks
+function autoScore(lesson, code, css) {
+  try { const S = globalThis.U7_STEPCHECKS; if (!S || !S.LESSONS || !S.LESSONS[lesson]) return null; return S.score(lesson, code, css); } catch (e) { return null; }
+}
 const MAX_CODE = 120000;           // characters of HTML per submission
 const MAX_CSS = 60000;              // characters of CSS (style.css) per submission
 const MAX_IMG_BYTES = 1500000;      // decoded image size
@@ -125,12 +134,14 @@ async function submit(body, user) {
   if (!code.trim()) return { error: "Your code is empty. Write something first!" };
   const css = String(body.css == null ? "" : body.css);
   if (code.length > MAX_CODE || css.length > MAX_CSS) return { error: "That file is too big to submit." };
+  const sc = autoScore(body.lesson, code, css);
+  if (sc && sc.pct < WEB_PASS) return { error: "Your score is " + sc.pct + " out of 100. You need at least " + WEB_PASS + " to submit. Open the steps on the left, click an auto-check badge to see what is missing, fix those parts, and submit again.", pct: sc.pct, need: WEB_PASS };
   const key = "sub:" + body.lesson + ":" + enc(user.email);
   const prev = await readJSON(key, null);
   const rec = {
     email: user.email, name: user.name, period: cleanPeriod(body.period), lesson: body.lesson, code, css, activity: cleanActivity(body.activity),
     answers: body.answers === undefined && prev && prev.answers ? prev.answers : cleanAnswers(body.answers),
-    submittedAt: now(), count: (prev && prev.count ? prev.count : 0) + 1,
+    submittedAt: now(), count: (prev && prev.count ? prev.count : 0) + 1, auto: sc ? { pct: sc.pct, boxes: sc.boxes } : null,
     teacher: prev && prev.teacher ? prev.teacher : null
   };
   await store().setJSON(key, rec);
@@ -273,11 +284,12 @@ export default async (req) => {
     try { body = await req.json(); } catch (e) { return ok({ error: "Malformed request" }); }
     const action = body.action;
 
-    if (["adminList", "adminCounts", "adminGrade", "adminDelete", "adminMigrate"].indexOf(action) > -1) {
+    if (["adminList", "adminCounts", "adminGrade", "adminDelete", "adminMigrate", "adminScore"].indexOf(action) > -1) {
       if (!isAdmin(body)) return ok({ error: "Invalid PIN" });
       if (action === "adminList") return ok(await adminList(body));
       if (action === "adminCounts") return ok(await adminCounts());
       if (action === "adminMigrate") return ok(await adminMigrate());
+      if (action === "adminScore") { const sc = autoScore(String(body.lesson || ""), String(body.code || ""), String(body.css || "")); return ok(sc ? { ok: true, pct: sc.pct, boxes: sc.boxes, need: WEB_PASS } : { ok: true, pct: null, note: "no step checks for that lesson" }); }
       if (action === "adminDelete") return ok(await adminDelete(body));
       return ok(await adminGrade(body));
     }

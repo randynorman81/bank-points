@@ -105,7 +105,7 @@
   function run(lesson, html, css) {
     var L = LESSONS[lesson]; if (!L) return null;
     inlineOnly = !!L.inlineOnly;
-    var c = H.context(html, css), out = {};
+    var c = H.context(html, css), out = {}; c.lesson = lesson;
     Object.keys(L.steps).forEach(function (st) {
       var n = +(/Step (\d+)/.exec(st) || [0, 0])[1], L2 = L.steps[st];
       out[st] = { comment: L2.comment === false ? null : stepComment(c, n), bullets: L2.map(function (list) {
@@ -114,5 +114,21 @@
     });
     return out;
   }
-  root.U7_STEPCHECKS = { LESSONS: LESSONS, run: run, stepComment: stepComment, H: HELP };
+  /* score(lesson, html, css) -> { pct, boxes, all }.  Every box (a step bullet with checks, plus the step comment where the lesson has one) counts the same,
+     and a box is worth the share of its checks that are met. The score is 100 only when every check is met (it is never rounded up). */
+  function score(lesson, html, css) {
+    var r = run(lesson, html, css); if (!r) return null;
+    var boxes = 0, credit = 0, all = true;
+    Object.keys(r).forEach(function (st) {
+      if (r[st].comment !== null) { boxes++; if (r[st].comment) credit++; else all = false; }
+      r[st].bullets.forEach(function (b) { if (!b.length) return; boxes++; var m = b.filter(function (x) { return x.ok; }).length; credit += m / b.length; if (m < b.length) all = false; });
+    });
+    var pct = boxes ? Math.floor(100 * credit / boxes + 1e-9) : 0; if (!all) pct = Math.min(pct, 99);
+    return { pct: pct, boxes: boxes, credit: credit, all: all };
+  }
+  /* the Checks list (the 50-point rubric: quality, "use what you already know", and Problems) all green */
+  var ALLGREEN = K("Every item in your Checks list is green", function (c) { var rep = H.check(c.lesson, c.rawSrc, c.cssFile || ""); return rep.results.every(function (x) { return x.ok; }) && rep.errors.length === 0; });
+  var NOERRORS = K("The Problems list is empty", function (c) { return String(c.rawSrc || "").trim().length > 0 && H.check(c.lesson, c.rawSrc, c.cssFile || "").errors.length === 0; });
+  HELP.ALLGREEN = ALLGREEN; HELP.NOERRORS = NOERRORS;
+  root.U7_STEPCHECKS = { LESSONS: LESSONS, run: run, score: score, stepComment: stepComment, H: HELP, PASS: 95 };
 })(typeof window !== "undefined" ? window : globalThis);

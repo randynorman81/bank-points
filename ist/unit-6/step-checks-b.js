@@ -144,7 +144,7 @@
   var IMG = function (i) { return function (c) { return imgs(c)[i] || null; }; };
   var imgInP = function (i) { return function (c) { var im = imgs(c)[i]; return !!im && h.inTag(c, im, ["p"]); }; };
   SC.LESSONS["6.7"] = { inlineOnly: false, steps: {
-    "Step 1": [[], [K("At least 2 uploaded pictures are on your page", function (c) { return imgs(c).filter(function (im) { return /\S/.test(im.attrs.src || "") && !/^https?:/i.test(im.attrs.src); }).length >= 2; })]],
+    "Step 1": [[], [K("At least 2 uploaded pictures are on your page", function (c) { return imgs(c).filter(function (im) { return /\/api\/code\?img=/.test(im.attrs.src || ""); }).length >= 2; })]],
     "Step 2": [],
     "Step 3": [
       [exists("There is a heading 1", T("h1"))],
@@ -185,4 +185,7 @@
   SC.LESSONS["6.7"].steps["Step 1"].comment = false;
   /* step comments are only part of lessons 3.1 to 3.3 (6.1 to 6.3) */
   ["6.4", "6.5", "6.6", "6.7"].forEach(function (l) { Object.keys(SC.LESSONS[l].steps).forEach(function (st) { SC.LESSONS[l].steps[st].comment = false; }); });
+  /* the last step of each lesson ("Test and submit"): the Checks list has to be all green */
+  var LASTSTEP = { "6.4": ["Step 6", [[h.ALLGREEN], []]], "6.5": ["Step 7", [[h.ALLGREEN], []]], "6.6": ["Step 6", [[], [h.ALLGREEN], []]], "6.7": ["Step 8", [[], [h.ALLGREEN], []]] };
+  Object.keys(LASTSTEP).forEach(function (l) { var st = LASTSTEP[l][0], list = LASTSTEP[l][1]; list.comment = false; SC.LESSONS[l].steps[st] = list; });
 })(typeof window !== "undefined" ? window : globalThis);

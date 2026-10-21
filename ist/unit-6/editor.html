@@ -129,6 +129,8 @@ main[data-view="code"] #split,main[data-view="prev"] .split{display:none}
 #ansPane code{background:none;border:0;padding:0;color:var(--ink);font:inherit}
 #ansBadge:empty,#wtBadge:empty{display:none}
 #periodBtns{display:inline-flex;align-items:center;gap:4px}#periodBtns .pl{font-weight:700;font-size:13px;color:var(--ink)}#periodBtns .pbtn{min-width:40px;padding:5px 10px}#periodBtns .pbtn.on{background:var(--acc);color:#0B0E14;border-color:var(--acc)}
+.autosc{font:700 12px "JetBrains Mono",monospace;white-space:nowrap;color:#FB923C}.autosc b{font-size:15px}.autosc small{font-weight:600;color:var(--soft);margin-left:4px}.autosc.ok{color:#34D399}
+#btnSubmit.locked{opacity:.55}
 .steptick{font:700 12px Manrope,sans-serif;color:var(--ink);white-space:nowrap}.steptick .bar{display:inline-block;width:90px;height:7px;border-radius:4px;background:#26304A;vertical-align:middle;margin-left:6px;overflow:hidden}.steptick .bar i{display:block;height:100%;background:#34D399;width:0}
 #ansPane .sbx{display:flex;flex-wrap:wrap;align-items:flex-start;gap:3px 8px;margin:8px 0}
 #ansPane .sbx label{display:flex;gap:8px;flex:1 1 200px;cursor:pointer}
@@ -279,6 +281,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   <span class="who" id="who"></span>
   <span id="gbtn"></span>
   <span class="steptick" id="stepTick" style="display:none"></span>
+  <span class="autosc" id="autoSc" style="display:none"></span>
   <span class="wc" id="wcount" title="Real words you have written on your page. Tags, code, and nonsense words are not counted.">0 words</span>
   <button class="btn" id="btnChecks" title="Open your checklist, problems, and images">✓ Checks <b id="chkScore">0/50</b><span class="dot">●</span></button>
   <button class="btn" id="btnCopy" title="Copy the file you are editing">Copy code</button>
@@ -549,13 +552,40 @@ function handleAuto(ch) {
     else insertAt(pos, '"', pos);
   }
 }
-/* students cannot copy, cut, paste, or drag text in the editor (same rule as the Python editor); the teacher view (?all=1 or ?teacher) can */
-var TEACHER = /[?&](teacher|all=1)/.test(location.search);
-if (!TEACHER) {
-  var blockMsg = "Copy and paste are turned off. Type your own code.";
-  ["paste", "copy", "cut", "drop"].forEach(function (ev) { document.addEventListener(ev, function (e) { if (e.target === ta || (e.target.closest && e.target.closest("#ansPane, #wtPane"))) { e.preventDefault(); e.stopPropagation(); toast(blockMsg); } }, true); });
-  ta.addEventListener("beforeinput", function (e) { if (/^insertFrom(Paste|Drop|Yank)/.test(e.inputType || "")) { e.preventDefault(); toast(blockMsg); } }, true);
+/* Copy and paste: students can copy and paste CODE THEY HAVE ALREADY WRITTEN in their own HTML and CSS (to move or repeat a piece of their page), but they cannot paste anything that came from the notes, the steps, other websites, or anywhere else.
+   A paste is allowed only when the text matches what was copied from the editor, or is already in their page. The teacher view (?teacher or ?all=1) has no limits. */
+var TEACHER = /[?&](teacher|all=1)/.test(location.search);
+var blockMsg = "You can only paste code you copied from your own page. Type everything else yourself.";
+function ownText(t) {
+  var CR = String.fromCharCode(13), LF = String.fromCharCode(10);
+  function norm(x) { return String(x || "").split(CR).join(""); }
+  t = norm(t); if (!t.trim()) return false;
+  var c = norm(clip || lsGet("u7:clip") || "");
+  if (c && (t === c || t.trim() === c.trim())) return true;
+  var hay = norm([ta.value, S.buf.html, S.buf.css].join(LF));
+  return hay.indexOf(t) > -1 || hay.indexOf(t.trim()) > -1;
 }
+if (!TEACHER) {
+  document.addEventListener("copy", function (e) {
+    var t = e.target; if (t === ta) return;
+    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+    e.preventDefault(); e.stopPropagation(); toast("You can only copy code from your own page.");
+  }, true);
+  document.addEventListener("cut", function (e) { if (e.target === ta) return; if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return; e.preventDefault(); e.stopPropagation(); }, true);
+  document.addEventListener("paste", function (e) {
+    if (e.target !== ta) return;
+    var t = ""; try { t = (e.clipboardData || window.clipboardData).getData("text"); } catch (er) {}
+    if (!ownText(t)) { e.preventDefault(); e.stopPropagation(); toast(blockMsg); }
+  }, true);
+  document.addEventListener("drop", function (e) {
+    var t = ""; try { t = e.dataTransfer.getData("text"); } catch (er) {}
+    if (e.target === ta && ownText(t)) return;
+    e.preventDefault(); e.stopPropagation(); if (e.target === ta) toast(blockMsg);
+  }, true);
+  document.addEventListener("dragover", function (e) { if (e.target !== ta) { e.preventDefault(); } }, true);
+}
+/* remember what was last copied from the editor, even after a page reload */
+["copy", "cut"].forEach(function (ev) { ta.addEventListener(ev, function () { var t = ta.value.slice(ta.selectionStart, ta.selectionEnd); if (t) { clip = t; try { lsSet("u7:clip", t.slice(0, 60000)); } catch (er) {} } }); });
 /* Undo / redo (Ctrl+Z, Ctrl+Y, Ctrl+Shift+Z): our own history, because the browser's is wiped every time the editor adds a tab, auto-closes a tag, or presses Enter for you */
 var undoS = [], redoS = [], undoCur = { v: "", s: 0, e: 0 }, undoKey = null, undoT = 0, undoBusy = false;
 function undoSync(force) {
@@ -980,8 +1010,10 @@ $("btnSubmit").addEventListener("click", function () {
   if (isBlank(S.buf.html)) { toast("Write some code first"); return; }
   if (!S.cred) { banner("Sign in with your school Google account (top right) to submit.", "err"); return; }
   if (!$("period").value) { banner("Choose your class period at the top before you submit.", "err"); $("period").focus(); return; }
+  var SCg = window.U7_STEPCHECKS, scg = null; try { scg = SCg && SCg.LESSONS[S.lesson] ? SCg.score(S.lesson, S.buf.html, S.buf.css) : null; } catch (e) { scg = null; }
+  if (scg && scg.pct < (SCg.PASS || 95)) { banner("Your auto score is " + scg.pct + " out of 100. You need at least " + (SCg.PASS || 95) + " to submit. Click an auto-check badge in the steps on the left to see what is missing, fix it, then submit.", "err"); setTab("ans"); return; }
   var r = lastReport || H.check(S.lesson, S.buf.html, S.buf.css), bad = r.errors.length;
-  $("mSubmitBody").innerHTML = "<p>Lesson <b>" + esc(dispLesson(S.lesson)) + "</b> for period <b>" + esc($("period").value) + "</b>.</p><p>Auto check: <b>" + r.score + " / " + r.total + "</b> (" + r.passed + " of " + r.count + " checks).</p>" +
+  $("mSubmitBody").innerHTML = "<p>Lesson <b>" + esc(dispLesson(S.lesson)) + "</b> for period <b>" + esc($("period").value) + "</b>.</p><p>Auto score: <b>" + (scg ? scg.pct + " / 100" : r.score + " / " + r.total) + "</b>" + (scg ? "" : " (" + r.passed + " of " + r.count + " checks)") + ".</p>" +
     (bad ? '<p style="color:#FCA5A5">You still have ' + bad + " problem" + (bad > 1 ? "s" : "") + " with your tags. You can still submit, or fix them first.</p>" : "") + ansSubmitNote() + "<p>You can submit again later to replace this one.</p>";
   $("mSubmit").classList.add("show");
 });
@@ -1315,7 +1347,7 @@ function ansRender() {
 function stepBox(bi, key, text) { var on = (S.ans || {})["sx_" + key + ":" + bi] === "1"; return '<div class="sbx' + (on ? " done" : "") + '" data-sk="' + key + '" data-bi="' + bi + '"><label><input type="checkbox"' + (on ? " checked" : "") + ' aria-label="Check this off when you have finished it"><span>' + wtText(text) + '</span></label><button type="button" class="abadge btn2" data-sk="' + key + '" data-bi="' + bi + '">auto-check</button></div>'; }
 var stepLast = null, stepOpen = {};
 function stepUpdate() {
-  var SCx = window.U7_STEPCHECKS; if (!SCx || !SCx.LESSONS[S.lesson]) { var tk0 = $("stepTick"); if (tk0) tk0.style.display = "none"; return; }
+  var SCx = window.U7_STEPCHECKS; if (!SCx || !SCx.LESSONS[S.lesson]) { var tk0 = $("stepTick"), as0 = $("autoSc"), sb0 = $("btnSubmit"); if (tk0) tk0.style.display = "none"; if (as0) as0.style.display = "none"; if (sb0) { sb0.classList.remove("locked"); sb0.title = ""; } return; }
   var r = null; try { r = SCx.run(S.lesson, getHtml(), getCss()); } catch (e) { r = null; } if (!r) return; stepLast = r;
   var tot = 0, okn = 0;
   [].forEach.call(document.querySelectorAll("#ansPane .sbx"), function (box) {
@@ -1326,6 +1358,9 @@ function stepUpdate() {
     var old = box.querySelector(".stepmiss"); if (old) old.remove();
     if (stepOpen[id] && !done) { var d = document.createElement("div"); d.className = "stepmiss"; d.innerHTML = list.filter(function (x) { return !x.ok; }).map(function (x) { return "<div>• " + esc(x.label) + "</div>"; }).join(""); box.appendChild(d); }
   });
+  var asc = $("autoSc"), pass = SCx.PASS || 95, sc = null; try { sc = SCx.score(S.lesson, getHtml(), getCss()); } catch (e) { sc = null; }
+  if (asc && sc) { asc.style.display = ""; asc.className = "autosc" + (sc.pct >= pass ? " ok" : ""); asc.innerHTML = "Auto score: <b>" + sc.pct + "</b> / 100" + (sc.pct >= pass ? "<small>(ready to submit)</small>" : "<small>(you need " + pass + " to submit)</small>"); }
+  var sb = $("btnSubmit"); if (sb) { sb.classList.toggle("locked", !!sc && sc.pct < pass); sb.title = sc && sc.pct < pass ? "You need an auto score of " + pass + " to submit (yours is " + sc.pct + ")" : ""; }
   var tk = $("stepTick"); if (tk) { tk.style.display = tot ? "" : "none"; tk.innerHTML = okn + " of " + tot + " steps checked off (" + (tot ? Math.round(100 * okn / tot) : 0) + "%)<span class=\"bar\"><i style=\"width:" + (tot ? 100 * okn / tot : 0) + "%\"></i></span>"; }
 }
 /* the student checks a box off themselves (it is saved); the auto-check badge is separate and only says what the page shows */

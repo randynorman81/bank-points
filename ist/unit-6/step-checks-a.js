@@ -36,6 +36,7 @@
       [CNT("At least 10 paragraphs", "p", 10), K("At least 8 paragraphs are 25 words or longer", function (c) { return c.all("p").filter(function (p) { return words(c, p) >= 25; }).length >= 8; })],
       [K("The page has at least 300 words", function (c) { return (allText(c).match(/\S+/g) || []).length >= 300; })]
     ],
+    "Step 6": [[h.NOERRORS], [h.ALLGREEN], []],
     "Step 5": [[
       K("The last paragraph lists at least 2 sources", function (c) {
         var p = c.all("p"), t = p.length ? txt(c, p[p.length - 1]) : "";
@@ -110,4 +111,8 @@
        P("It has a monospace font-family", AFTER(good, "p"), "font-family", h.mono), P("Its font-size is 14px", AFTER(good, "p"), "font-size", h.px(14)), P("It has a background-color", AFTER(good, "p"), "background-color", h.isNamed)]
     ]
   } };
+  /* the last step of each lesson ("Test and submit"): the Checks list has to be all green. These steps have no step comment. */
+  SC.LESSONS["6.1"].steps["Step 6"].comment = false;
+  SC.LESSONS["6.2"].steps["Step 5"] = [[h.ALLGREEN], []]; SC.LESSONS["6.2"].steps["Step 5"].comment = false;
+  SC.LESSONS["6.3"].steps["Step 5"] = [[h.ALLGREEN], []]; SC.LESSONS["6.3"].steps["Step 5"].comment = false;
 })(typeof window !== "undefined" ? window : globalThis);
