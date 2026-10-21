@@ -31,24 +31,28 @@
   }
 
   /* ======================================================================= 6.2  (3.2) ===== */
-  A["6.2"] = build([].concat(head("Your **3.1 website, in color**. Keep the same topic and add color to what you already wrote.", "", notes("unit-6/style-attribute-notes.html")), [RULE2,
-    S("Bring in your 3.1 page", [
+  A["6.2"] = build([].concat(head("**The Ugliest Website Ever.** Make the most **god-awful, eye-burning** website you can using **text colors and background colors**. The uglier the better (but every word must still be there).", "a **terrible movie fan page**, a **terrible holiday page**, or a **terrible school-cafeteria review page**", notes("unit-6/style-attribute-notes.html")), [RULE2,
+    { p: "**The big idea:** almost every tag on your page gets BOTH a **color** (the text) and a **background-color** (behind the text). Then you build a **pattern**: reuse the same two or three color combinations over and over, so your page is ugly **on purpose**." },
+    S("Skeleton and title", [
       "Type the **doctype** line, then **html** with a **head** and a **body** inside it (head first)",
-      "Inside the head, add a **title**. Inside the body, bring your 3.1 website: **one heading 1**, **at least 3 heading 2s**, and **at least 6 paragraphs** (use your own words from 3.1, or write new ones about the same topic)"
+      "Inside the head, add a **title** with your terrible page's name"
+    ]),
+    S("Build the page", [
+      "Inside the body, add **one heading 1** with the page's name, **at least 3 heading 2s** (sections of your page), and **at least 6 paragraphs** under them with a couple of real sentences each, about your topic"
     ]),
     S("Color the whole page", [
-      "On the **body** tag, add a style: **background-color** (a named color)",
-      "In the same style, add **color** (a named color for all the text). Put both properties in **one** style attribute, with a semicolon after each. Make the text color **different** from the background so you can still read it"
+      "On the **body** tag, add a style: **background-color** (a loud named color)",
+      "In the same style, add **color** (a named color for the text). Put both properties in **one** style attribute, with a semicolon after each, and make the two **different** colors"
     ]),
     S("Color the headings", [
       "Style the **heading 1** with **color** and **background-color** together (two different named colors)",
-      "Style **every heading 2** with a **color**. Use **at least 2 different colors** across your heading 2s",
-      "Give **one** heading 2 both a **color** and a **background-color** in the same style"
+      "Style **every heading 2** with **color** and **background-color** together. Use the same combinations again and again to make a pattern (like orange on purple, then lime on pink, then orange on purple again)"
     ]),
-    S("Color the paragraphs", [
-      "Give **at least 3 paragraphs** a **color**",
-      "Give **at least 1 paragraph** both a **color** and a **background-color** (different colors)",
-      "Check that nothing is hidden: any time you use both **color** and **background-color** on a tag, they must be **different** colors"
+    S("Color the paragraphs and make a pattern", [
+      "Style **every paragraph** with **color** and **background-color** together (different colors on each one)",
+      "Check your **pattern**: at least **2 different background colors** should each show up on **2 or more** headings or paragraphs",
+      "Check your **variety**: your whole page (the body too) should use **at least 4 different background colors**",
+      "Check that nothing is hidden: wherever you use both **color** and **background-color**, they must be **different** colors. Ugly is fine. Invisible is not"
     ]),
     S("Test and submit", [
       "Click **Checks**. Fix every red line. The **Use what you already know** list has to turn green too: for each red item, add the missing use where it fits the page",

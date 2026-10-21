@@ -19,30 +19,31 @@
   function bothDiffer(c, el) { var a = h.vals(c, el, "color")[0], b = h.vals(c, el, "background-color")[0]; return !!a && !!b && a !== b; }
   function lastStep(l, st, list) { list.comment = false; SC.LESSONS[l].steps[st] = list; }
 
-  /* =============== 6.2  (3.2) The "Style" Attribute + Color: color your 3.1 website =============== */
+  /* =============== 6.2  (3.2) The "Style" Attribute + Color: the ugliest website you can make =============== */
   var h2all = function (c) { return c.all("h2"); };
+  var both = function (c, x) { return has(c, x, "color", named) && has(c, x, "background-color", named) && bothDiffer(c, x); };
   SC.LESSONS["6.2"] = { inlineOnly: true, steps: {
-    "Step 1": [
-      SK,
-      TITLE.concat([K("There is one heading 1", function (c) { return c.count("h1") === 1; }), CNT("There are at least 3 heading 2s", "h2", 3), CNT("There are at least 6 paragraphs", "p", 6)])
-    ],
-    "Step 2": [
+    "Step 1": [SK, TITLE],
+    "Step 2": [[K("There is one heading 1", function (c) { return c.count("h1") === 1; }), CNT("There are at least 3 heading 2s", "h2", 3), CNT("There are at least 6 paragraphs", "p", 6)]],
+    "Step 3": [
       [bodyBg("The body has a background-color (a named color)")],
       [P("The body has a text color (a named color)", T("body"), "color", named), K("The text color is different from the background-color", function (c) { var b = T("body")(c); return !!b && bothDiffer(c, b); })]
     ],
-    "Step 3": [
-      [exists("There is a heading 1", T("h1")), P("The heading 1 has a color", T("h1"), "color", named), P("The heading 1 has a background-color", T("h1"), "background-color", named), K("The two colors are different", function (c) { var e = T("h1")(c); return !!e && bothDiffer(c, e); })],
-      [CNT("There are at least 3 heading 2s", "h2", 3), K("Every heading 2 has a color", function (c) { var a = h2all(c); return a.length >= 3 && a.every(function (x) { return has(c, x, "color", named); }); }),
-       K("At least 2 different colors are used on the heading 2s", function (c) { var seen = {}; h2all(c).forEach(function (x) { var v = h.vals(c, x, "color")[0]; if (v && named(v)) seen[v] = 1; }); return Object.keys(seen).length >= 2; })],
-      [K("One heading 2 has both color and background-color", function (c) { return h2all(c).some(function (x) { return has(c, x, "color", named) && has(c, x, "background-color", named); }); }), K("Its two colors are different", function (c) { return h2all(c).some(function (x) { return has(c, x, "color", named) && has(c, x, "background-color", named) && bothDiffer(c, x); }); })]
-    ],
     "Step 4": [
-      [K("At least 3 paragraphs have a color", function (c) { return c.all("p").filter(function (p) { return has(c, p, "color", named); }).length >= 3; })],
-      [K("At least 1 paragraph has both color and background-color", function (c) { return c.all("p").some(function (p) { return has(c, p, "color", named) && has(c, p, "background-color", named); }); }), K("Its two colors are different", function (c) { return c.all("p").some(function (p) { return has(c, p, "color", named) && has(c, p, "background-color", named) && bothDiffer(c, p); }); })],
+      [exists("There is a heading 1", T("h1")), K("The heading 1 has a color and a background-color", function (c) { var e = T("h1")(c); return !!e && has(c, e, "color", named) && has(c, e, "background-color", named); }), K("Its two colors are different", function (c) { var e = T("h1")(c); return !!e && bothDiffer(c, e); })],
+      [CNT("There are at least 3 heading 2s", "h2", 3), K("Every heading 2 has a color and a background-color", function (c) { var a = h2all(c); return a.length >= 3 && a.every(function (x) { return has(c, x, "color", named) && has(c, x, "background-color", named); }); }),
+       K("On every heading 2 the two colors are different", function (c) { var a = h2all(c); return a.length >= 3 && a.every(function (x) { return bothDiffer(c, x); }); })]
+    ],
+    "Step 5": [
+      [CNT("There are at least 6 paragraphs", "p", 6), K("Every paragraph has a color and a background-color", function (c) { var a = c.all("p"); return a.length >= 6 && a.every(function (x) { return has(c, x, "color", named) && has(c, x, "background-color", named); }); }),
+       K("On every paragraph the two colors are different", function (c) { var a = c.all("p"); return a.length >= 6 && a.every(function (x) { return bothDiffer(c, x); }); })],
+      [K("At least 2 background-colors each show up on 2 or more headings or paragraphs (a pattern)", function (c) { var n = {}; h2all(c).concat(c.all("p")).forEach(function (x) { var v = h.vals(c, x, "background-color")[0]; if (v) n[v] = (n[v] || 0) + 1; }); return Object.keys(n).filter(function (k) { return n[k] >= 2; }).length >= 2; })],
+      [K("At least 4 different background colors are used on the page", function (c) { var n = {}; h.order(c).forEach(function (x) { var v = h.vals(c, x, "background-color")[0]; if (v && named(v)) n[v] = 1; }); return Object.keys(n).length >= 4; })],
       [K("Nothing is hidden: wherever color and background-color are both used, they are different colors", function (c) { var seen = false, ok = true; h.order(c).forEach(function (x) { if (has(c, x, "color") && has(c, x, "background-color")) { seen = true; if (!bothDiffer(c, x)) ok = false; } }); return seen && ok; })]
     ]
   } };
-  lastStep("6.2", "Step 5", [[h.ALLGREEN], []]);
+  lastStep("6.2", "Step 6", [[h.ALLGREEN], []]);
+
 
   /* =============== 6.20  (3.3) Font-Size, Text-Alignment, Letter-Case: the epic poster =============== */
   var H1 = T("h1"), H2a = T("h2", 0);
