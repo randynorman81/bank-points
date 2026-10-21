@@ -163,6 +163,15 @@
     { ex: ["<p>First section</p>", "<hr>", "<h2>Next section</h2>"] },
     { list: ["It has no closing tag.", "Put it **between** things, outside paragraphs."] }
   ]);
+  add("spandemo", ED, "Show me how the span tag works", [
+    { p: "A **span** lets one piece of a paragraph have its own style, even though the paragraph already has one. The paragraph's style covers all of it. The span's style **overrides** the paragraph's, but only for the words inside the span." },
+    { ex: ["<p style=\"color: white; background-color: navy;\">", "  This paragraph is white on navy, but", "  <span style=\"color: gold; background-color: crimson;\">these words</span>", "  have their own colors.", "</p>"] },
+    { demo: "<p style=\"color:white;background-color:navy;margin:0;padding:8px\">This paragraph is white on navy, but <span style=\"color:gold;background-color:crimson\">these words</span> have their own colors.</p>" },
+    { p: "You can go all the way down to one letter per span. Each letter gets its own style, so every letter can be a different color:" },
+    { ex: ["<p style=\"color: black;\">", "  <span style=\"color: red;\">U</span><span style=\"color: orange;\">G</span><span style=\"color: green;\">L</span><span style=\"color: blue;\">Y</span>", "</p>"] },
+    { demo: "<p style=\"color:black;margin:0;font-size:24px;font-weight:700\"><span style=\"color:red\">U</span><span style=\"color:orange\">G</span><span style=\"color:green\">L</span><span style=\"color:blue\">Y</span></p>" },
+    { good: "Put the span **inside** the paragraph, put the style in the **opening** span tag, and close the span right after the words you want changed." }
+  ]);
   add("spantag", ED, "How do I color just a few words (span)?", [
     { p: "`span` wraps a few words so you can style only those words. It does nothing by itself, so give it a style." },
     { ex: ["<p>Today is <span style=\"color: red;\">hot</span> outside.</p>"] },
@@ -313,7 +322,8 @@
 
   /* ---------- which help shows under which step text (first words that match decide; most specific first) ---------- */
   var R = [
-    [/whole heading|whole paragraph|inside a link|inside the a tag|wraps|around the h3/i, ["linkanything", "atag"]],
+    [/sneak peek|span tag wraps|every letter is its own span/i, ["spandemo", "spantag"]],
+    [/whole heading|whole paragraph|inside a link|inside the a tag|around the h3/i, ["linkanything", "atag"]],
     [/doctype/i, ["doctype"]],
     [/body tags/i, ["bodytag", "skeleton"]],
     [/add the head|head tags first/i, ["headtag", "skeleton"]],

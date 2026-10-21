@@ -50,7 +50,7 @@
       "Style **every heading 2** with **color** and **background-color** together. Use the same combinations again and again to make a pattern (like orange on purple, then lime on pink, then orange on purple again)"
     ]),
     S("Color the paragraphs and make a pattern", [
-      "Style **every paragraph** with **color** and **background-color** together (different colors on each one)",
+      "Style **every paragraph** with **color** and **background-color** together (the two colors different from each other). **No two paragraphs in a row** can have the same text color or the same background color, so keep switching them up (then repeat your pattern)",
       "Check your **pattern**: at least **2 different background colors** should each show up on **2 or more** headings or paragraphs",
       "Check your **variety**: your whole page (the body too) should use **at least 4 different background colors**",
       "Check that nothing is hidden: wherever you use both **color** and **background-color**, they must be **different** colors. Ugly is fine. Invisible is not",
