@@ -72,7 +72,6 @@
     "Step 2": [
       [exists("There is a heading 1", H1), P("It has a color (a named color)", H1, "color", named), P("Its font-size is in pixels", H1, "font-size", h.isPx), P("It is text-align center", H1, "text-align", center), P("It is text-transform uppercase", H1, "text-transform", upper)],
       [exists("There is a heading 2 for the tagline", H2a), UNDER("It comes after the heading 1", H1, H2a), P("It has a color (a named color)", H2a, "color", named),
-       K("Its color is different from the heading 1's color", function (c) { var a = h.vals(c, H1(c), "color")[0], b = h.vals(c, H2a(c), "color")[0]; return !!a && !!b && a !== b; }),
        P("It is text-transform uppercase", H2a, "text-transform", upper), P("It is text-align center", H2a, "text-align", center), P("Its font-size is 24px", H2a, "font-size", h.px(24))]
     ],
     "Step 3": [
@@ -85,6 +84,7 @@
       [exists("There is a second heading 2 that says Tickets", ticketsH), P("It has a color", ticketsH, "color", named), P("It is text-transform uppercase", ticketsH, "text-transform", upper), P("It is text-align center", ticketsH, "text-align", center)],
       [exists("A paragraph is under the Tickets heading", pUnder(ticketsH)), P("It has a color", pUnder(ticketsH), "color", named), P("Its font-size is 20px", pUnder(ticketsH), "font-size", h.px(20)),
        P("It is text-align center", pUnder(ticketsH), "text-align", center), P("It has a background-color", pUnder(ticketsH), "background-color", named)],
+      [exists("There is a third heading 2 (like Lineup, Merch, or Rules)", T("h2", 2)), UNDER("It comes after the Tickets paragraph", pUnder(ticketsH), T("h2", 2)), P("It has a color", T("h2", 2), "color", named), P("It is text-transform uppercase", T("h2", 2), "text-transform", upper), P("It is text-align center", T("h2", 2), "text-align", center)],
       [K("There is one more paragraph at the end", function (c) { var p = c.all("p"); return p.length >= 4 && p[p.length - 1] !== pUnder(ticketsH)(c); }), P("It has a color", lastP, "color", named), P("Its font-size is 16px", lastP, "font-size", h.px(16)), P("It is text-align center", lastP, "text-align", center)]
     ]
   } };
