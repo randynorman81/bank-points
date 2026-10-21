@@ -81,7 +81,9 @@
       "Under it, add a **paragraph** about how to get tickets. Style it: **color**, **font-size** 20px, **text-align** center, and a **background-color**",
       "Add one **paragraph** with a fun fact or a warning. Style it: **color**, **font-size** 16px, and **text-align** center",
       "At the very bottom, add a second **heading 2** that says Contact Information. Style it: **color** and **text-align** center",
-      "Under it, add a **paragraph** that lists your contact info (an email, a phone number, or a social media name; it can be made up). Style it: **color** and **text-align** center"
+      "Under it, add a **paragraph** that lists your contact info (an email, a phone number, or a social media name; it can be made up). Style it: **color** and **text-align** center",
+      "**EXTRA CREDIT (+5 points): the span tag.** A **span** wraps just a few words inside a paragraph or heading so those words can have their own style attribute, different from the rest of the line (we cover it fully in 3.4). Use the span tag **at least twice** anywhere on your poster, each with its own style, like a different **color**, **font-size**, or **text-transform** on a few words. Click the help button to see how it works",
+      "**EXTRA CREDIT (+5 more points):** put a span **inside your heading 1** so part of the title has its own **color** and its own **font-size** in pixels (like one big word in a different color). Your auto score can go above 100 when everything required is done"
     ]),
     done()]));
 
