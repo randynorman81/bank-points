@@ -39,13 +39,13 @@
     ]],
     "Step 3": [
       [CNT("There are at least 3 heading 2s", "h2", 3), UNDER("The heading 2s come after the heading 1", T("h1"), T("h2"))],
-      [K("Every heading 3 sits under a heading 2", function (c) { var h3 = c.all("h3"), h2 = c.all("h2")[0]; return !!h2 && h3.every(function (x) { return h.before(c, h2, x); }); })]
+      [K("Only heading 1 and heading 2 are used (no heading 3 or smaller)", function (c) { return c.count("h1") >= 1 && c.count("h2") >= 1 && ["h3", "h4", "h5", "h6"].every(function (t) { return c.count(t) === 0; }); })]
     ],
     "Step 4": [
       [K("Every heading 2 has 2 paragraphs under it", function (c) { var s = sections(c); return s.length >= 3 && s.every(function (x) { return x.ps.length >= 2; }); }),
        K("No paragraph is inside a heading", function (c) { return c.all("p").every(function (p) { return !h.inTag(c, p, ["h1", "h2", "h3", "h4", "h5", "h6"]); }) && c.count("p") > 0; })],
-      [CNT("At least 10 paragraphs", "p", 10), K("At least 8 paragraphs are 25 words or longer", function (c) { return c.all("p").filter(function (p) { return words(c, p) >= 25; }).length >= 8; })],
-      [K("The page has at least 300 words", function (c) { return (allText(c).match(/\S+/g) || []).length >= 300; })]
+      [CNT("At least 6 paragraphs", "p", 6), K("At least 5 paragraphs are 25 words or longer", function (c) { return c.all("p").filter(function (p) { return words(c, p) >= 25; }).length >= 5; })],
+      [K("The page has at least 250 words", function (c) { return (allText(c).match(/\S+/g) || []).length >= 250; })]
     ],
     "Step 6": [[h.NOERRORS], [h.ALLGREEN], []],
     "Step 5": [[

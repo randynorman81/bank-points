@@ -10,7 +10,7 @@
     { map: [
       "The skeleton (typed by you, from memory)",
       "Heading 1: your topic",
-      "3 or more section headings (heading 2), each with paragraphs",
+      "3 section headings (heading 2), each with 2 paragraphs",
       "A last paragraph that lists at least 2 sources"
     ] },
     { p: "Stuck? Read the notes: schscomputerscience.com/ist/unit-6/html-intro-notes.html" },
@@ -31,15 +31,15 @@
 
     { h: "Step 3: Section headings" },
     { build: [
-      "Under the heading 1, add at least **3 section headings** (heading 2), like History, How It Works, Why It Matters",
-      "Use a heading 3 only **under** a heading 2. Do not skip levels"
+      "Under the heading 1, add **3 section headings** (heading 2), like History, How It Works, Why It Matters",
+      "Use only **heading 1** and **heading 2** on this page. Do not use heading 3 or smaller"
     ] },
 
     { h: "Step 4: Paragraphs" },
     { build: [
       "Under each section heading, add **2 paragraphs**. Each one goes in its **own** paragraph, not inside a heading",
-      "Write at least **10 paragraphs** in all, and make at least **8 of them 25 words or longer**",
-      "Keep writing until your page has at least **300 words**"
+      "Write **6 paragraphs** in all (2 under each heading 2), and make at least **5 of them 25 words or longer**",
+      "Keep writing until your page has at least **250 words**"
     ] },
 
     { h: "Step 5: Sources" },

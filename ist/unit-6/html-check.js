@@ -427,15 +427,16 @@
         var t = c.all("title"); return t.length === 1 && !!c.ancestor(t[0], ["head"]) && c.text(t[0]).length > 0;
       }, "The title is the text that shows in the browser tab.", false, true),
       r("Exactly one <h1> in the <body>", function (c) { var a = c.all("h1"); return a.length === 1 && !!c.ancestor(a[0], ["body"]) && c.text(a[0]).length > 0; }, "An h1 is the main title, so use it once.", false, true),
-      r("At least 3 section headings (<h2> or <h3>)", function (c) { return c.count("h2") + c.count("h3") >= 3; }, "Wikipedia pages are split into sections, and each section starts with a heading.", true),
-      r("Headings follow the outline order (no <h3> before an <h2>, and no skipped levels)", function (c) {
+      r("At least 3 section headings (<h2>)", function (c) { return c.count("h2") >= 3; }, "Wikipedia pages are split into sections, and each section starts with a heading.", true),
+      r("Only <h1> and <h2> are used: one h1 first, then the h2 sections", function (c) {
         var hs = []; (function w(n) { n.children.forEach(function (x) { if (x.tag === "#text") return; if (/^h[1-6]$/.test(x.tag)) hs.push(+x.tag.charAt(1)); w(x); }); })(c.tree);
         if (!hs.length || hs[0] !== 1) return false;
+        if (hs.some(function (x) { return x > 2; })) return false;
         for (var i = 1; i < hs.length; i++) if (hs[i] > hs[i - 1] + 1) return false; return true;
-      }, "Like an outline: h1 first, then h2 sections, and h3 only inside an h2.", true),
-      r("At least 10 <p> paragraphs, all inside the <body>", function (c) { var a = c.all("p"); return a.length >= 10 && a.every(function (n) { return !!c.ancestor(n, ["body"]); }); }, "", true),
-      r("At least 8 of your paragraphs have 25 words or more", function (c) { return c.all("p").filter(function (n) { return c.words(n) >= 25; }).length >= 8; }, "Write full paragraphs of 3 to 5 sentences.", true),
-      r("At least 300 words of text on the page", function (c) { var b = c.all("body")[0]; return !!b && c.words(b) >= 300; }, "A long page, like a real encyclopedia article.", true),
+      }, "Use only heading 1 and heading 2 on this page: the h1 first, then the h2 sections.", true),
+      r("At least 6 <p> paragraphs, all inside the <body>", function (c) { var a = c.all("p"); return a.length >= 6 && a.every(function (n) { return !!c.ancestor(n, ["body"]); }); }, "", true),
+      r("At least 5 of your paragraphs have 25 words or more", function (c) { return c.all("p").filter(function (n) { return c.words(n) >= 25; }).length >= 5; }, "Write full paragraphs of 3 to 5 sentences.", true),
+      r("At least 250 words of text on the page", function (c) { var b = c.all("body")[0]; return !!b && c.words(b) >= 250; }, "A long page, like a real encyclopedia article.", true),
       r("Your writing is real: no keyboard mashing, nonsense words, or filler text", function (c) { var q = quality(c); return !q.flags.some(function (f) { return f.sev === "high" && /^(gibberish|filler|salad)$/.test(f.id); }); }, "Write real sentences in your own words.", true),
       r("Your writing is not the same content over and over (no repeated paragraphs, sentences, or phrases)", function (c) { var q = quality(c); return !q.flags.some(function (f) { return f.sev === "high" && /^(dup-paras|dup-sents|phrase|word-run|variety)$/.test(f.id); }); }, "Every paragraph should say something new.", true),
       r("Every tag is closed and nested correctly", function (c) { return c.errors.length === 0 && c.has("html"); }, "See the Problems list for exactly which line to fix.", false, true)

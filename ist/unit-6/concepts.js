@@ -9,8 +9,9 @@
 (function (root) {
   function I(key, label, flags) { return { key: key, label: label, once: /\bonce\b/.test(flags || ""), until: ((flags || "").match(/until:([\d.]+)/) || [])[1] || "" }; }
   var C = [
-    { id: "6.1", tags: [I("doctype", "<!DOCTYPE html>", "once"), I("html", "<html>", "once"), I("head", "<head>", "once"), I("title", "<title>", "once"), I("body", "<body>", "once"), I("h1", "<h1>", "once"), I("h2", "<h2>"), I("h3", "<h3>"), I("p", "<p>")] },
+    { id: "6.1", tags: [I("doctype", "<!DOCTYPE html>", "once"), I("html", "<html>", "once"), I("head", "<head>", "once"), I("title", "<title>", "once"), I("body", "<body>", "once"), I("h1", "<h1>", "once"), I("h2", "<h2>"), I("p", "<p>")] },
     { id: "6.2",
+      tags: [I("h3", "<h3>")],
       attrs: [I("attr-style", "style", "until:7.6")],
       props: [I("p-color", "color"), I("p-bg", "background-color"), I("p-fs", "font-size"), I("p-ta", "text-align"), I("p-tt", "text-transform"), I("p-border", "border")],
       vals: [I("v-px", "font-size in px"), I("v-center", "text-align: center"), I("v-upper", "text-transform: uppercase"), I("v-named", "named colors (like tomato)")] },

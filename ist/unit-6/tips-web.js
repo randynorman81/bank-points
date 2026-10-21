@@ -318,7 +318,7 @@
     [/heading 1/i, ["headings", "h1one"]],
     [/heading 2|heading 3/i, ["headings", "h3under"]],
     [/paragraph/i, ["paragraphs"]],
-    [/300 words|words in all|25 words/i, ["writing"]],
+    [/250 words|300 words|words in all|25 words/i, ["writing"]],
     [/sources/i, ["sources"]],
     [/a:link|a:hover|link rules/i, ["linkstates", "styleblock"]],
     [/style block/i, ["styleblock", "selectors"]],
