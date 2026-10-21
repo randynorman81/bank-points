@@ -19,13 +19,21 @@
   function bothDiffer(c, el) { var a = h.vals(c, el, "color")[0], b = h.vals(c, el, "background-color")[0]; return !!a && !!b && a !== b; }
   function lastStep(l, st, list) { list.comment = false; SC.LESSONS[l].steps[st] = list; }
 
-  /* BONUS (3.2): one whole word of 3 or 4 letters wrapped in a span with a color = +5 points */
-  function spanWords(c) {
-    var n = 0;
-    h.order(c).forEach(function (k) { if (k.tag === "span" && /^[A-Za-z]{3,4}$/.test(txt(c, k)) && has(c, k, "color", named)) n++; });
-    return n;
+  /* BONUS (3.2): one word of 3 or 4 letters where every letter is its own span with a different color. +5 points.
+     (the editor drops the spaces between tags, so we look for 3 or more single-letter colored spans in a row, all different colors) */
+  function rainbowWord(c) {
+    var ok = false;
+    h.order(c).concat([c.tree]).forEach(function (el) {
+      var run = [];
+      function flush() { for (var i = 0; i + 3 <= run.length; i++) { var w = run.slice(i, i + 3), d = {}; w.forEach(function (x) { d[x] = 1; }); if (Object.keys(d).length === 3) ok = true; } run = []; }
+      el.children.forEach(function (k) {
+        if (k.tag === "span" && /^[A-Za-z]$/.test(txt(c, k)) && has(c, k, "color", named)) run.push(h.vals(c, k, "color")[0]); else flush();
+      });
+      flush();
+    });
+    return ok;
   }
-  var RAINBOW = [["BONUS: one whole word of 3 or 4 letters inside a span with a color", function (c) { return spanWords(c) >= 1; }]];
+  var RAINBOW = [["BONUS: one word of 3 or 4 letters where every letter is its own span with a different color", function (c) { return rainbowWord(c); }]];
   RAINBOW.bonus = 5;
 
   /* =============== 6.2  (3.2) The "Style" Attribute + Color: the ugliest website you can make =============== */
