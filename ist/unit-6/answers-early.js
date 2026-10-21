@@ -13,7 +13,7 @@
       "3 or more section headings (heading 2), each with paragraphs",
       "A last paragraph that lists at least 2 sources"
     ] },
-    { p: "**Rules:** write everything yourself in the editor, in your own words. Copying from Wikipedia, a website, or an AI tool takes 50% off. Stuck? Read the notes: schscomputerscience.com/ist/unit-6/html-intro-notes.html" },
+    { p: "Stuck? Read the notes: schscomputerscience.com/ist/unit-6/html-intro-notes.html" },
 
     { h: "Step 1: The skeleton" },
     { build: [

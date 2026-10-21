@@ -131,6 +131,12 @@ main[data-view="code"] #split,main[data-view="prev"] .split{display:none}
 #periodBtns{display:inline-flex;align-items:center;gap:4px}#periodBtns .pl{font-weight:700;font-size:13px;color:var(--ink)}#periodBtns .pbtn{min-width:40px;padding:5px 10px}#periodBtns .pbtn.on{background:var(--acc);color:#0B0E14;border-color:var(--acc)}
 .autosc{font:700 12px "JetBrains Mono",monospace;white-space:nowrap;color:#FB923C}.autosc b{font-size:15px}.autosc small{font-weight:600;color:var(--soft);margin-left:4px}.autosc.ok{color:#34D399}
 #btnSubmit.locked{opacity:.55}
+.missbtn{background:none;border:0;color:#FB923C;font:700 12px "JetBrains Mono",monospace;cursor:pointer;padding:2px 4px;white-space:nowrap}.missbtn:hover{text-decoration:underline}.missbtn.ok{color:#34D399}
+.misspanel{position:fixed;top:54px;right:12px;z-index:60;width:min(520px,calc(100% - 24px));max-height:calc(100% - 80px);overflow:auto;background:#0F1526;border:1px solid var(--acc);border-radius:10px;box-shadow:0 18px 50px #000a;padding:10px 14px;font-size:13px;color:var(--ink)}
+.misspanel .mh{font-weight:800;margin:0 0 6px;color:#fff}.misspanel .mg{border-top:1px solid var(--rule);padding:7px 0}.misspanel .mg:first-of-type{border-top:0}
+.misspanel .mt{font-weight:700;color:#fff;display:flex;gap:8px;align-items:flex-start;justify-content:space-between}.misspanel .mt span{flex:1}
+.misspanel .mi{margin:3px 0 0 12px;color:var(--soft)}.misspanel .go{background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:2px 9px;font:700 11px Manrope,sans-serif;cursor:pointer;white-space:nowrap}.misspanel .go:hover{border-color:var(--acc)}
+#ansPane .sbx.flash{outline:2px solid #FB923C;outline-offset:3px;border-radius:6px}
 .steptick{font:700 12px Manrope,sans-serif;color:var(--ink);white-space:nowrap}.steptick .bar{display:inline-block;width:90px;height:7px;border-radius:4px;background:#26304A;vertical-align:middle;margin-left:6px;overflow:hidden}.steptick .bar i{display:block;height:100%;background:#34D399;width:0}
 #ansPane .sbx{display:flex;flex-wrap:wrap;align-items:flex-start;gap:3px 8px;margin:8px 0}
 #ansPane .sbx label{display:flex;gap:8px;flex:1 1 200px;cursor:pointer}
@@ -272,6 +278,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
 </head>
 <body>
 
+<div class="misspanel" id="missPanel" role="region" aria-label="What is left to do" style="display:none"></div>
 <div class="top">
   <span class="brand">🧑‍💻 Web Editor</span>
   <label>Lesson <select id="lesson"></select></label>
@@ -282,6 +289,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   <span id="gbtn"></span>
   <span class="steptick" id="stepTick" style="display:none"></span>
   <span class="autosc" id="autoSc" style="display:none"></span>
+  <button type="button" class="missbtn" id="missBtn" style="display:none" aria-expanded="false"></button>
   <span class="wc" id="wcount" title="Real words you have written on your page. Tags, code, and nonsense words are not counted.">0 words</span>
   <button class="btn" id="btnChecks" title="Open your checklist, problems, and images">✓ Checks <b id="chkScore">0/50</b><span class="dot">●</span></button>
   <button class="btn" id="btnCopy" title="Copy the file you are editing">Copy code</button>
@@ -333,7 +341,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
     <div class="sec" id="secTeacher" style="display:none"></div>
     <div class="sec"><h3>Requirements</h3><div id="rulesNew"></div><details id="revWrap" style="display:none"><summary id="revSum">Use what you already know</summary><div id="rulesRev"></div></details><details id="oldWrap"><summary>The basics (every page needs these)</summary><div id="rulesOld"></div></details></div>
     <div class="sec"><h3>Problems to fix</h3><div id="probs"><span style="color:var(--soft)">None so far.</span></div></div>
-    <div class="sec"><h3>Honesty check</h3><div style="font-size:13px;color:var(--soft)">This editor records what you type and what you paste. <b>Copying content from outside this page (another website, a document, a classmate, or AI) takes 50% off the assignment.</b> Short things like a color code or a web address are fine. Type your own code and write your own words.</div><div id="honest" style="margin-top:8px;font-size:13px"></div></div>
+    <div class="sec"><h3>Honesty check</h3><div style="font-size:13px;color:var(--soft)">You can copy and paste code that is already in your own page. Anything from outside it (another website, the notes, a document, a classmate, or AI) is blocked, so type your own code and write your own words.</div><div id="honest" style="margin-top:8px;font-size:13px"></div></div>
     <div class="sec"><h3>Tags you used</h3><div class="chips" id="tags"></div></div>
     <div class="sec"><h3>My images</h3>
       <div style="font-size:12px;color:var(--soft);margin-bottom:8px">Upload a picture, then click <b>Insert</b> to add it to your code. Sign in first.</div>
@@ -1344,15 +1352,45 @@ function ansRender() {
   pane.innerHTML = h; ansBadge(); exUpdate(); stepUpdate();
 }
 /* step boxes: a checkbox that ticks itself when the auto-check is fully met, with a badge like "auto-check: 3 of 5 met" (click the badge to see what is missing) */
-function stepBox(bi, key, text) { var on = (S.ans || {})["sx_" + key + ":" + bi] === "1"; return '<div class="sbx' + (on ? " done" : "") + '" data-sk="' + key + '" data-bi="' + bi + '"><label><input type="checkbox"' + (on ? " checked" : "") + ' aria-label="Check this off when you have finished it"><span>' + wtText(text) + '</span></label><button type="button" class="abadge btn2" data-sk="' + key + '" data-bi="' + bi + '">auto-check</button></div>'; }
-var stepLast = null, stepOpen = {};
+/* a short name for a box in the "still missing" list: the step comment, or the start of the bullet cut at a word */
+function shortTx(bi, text) {
+  if (bi === "c") return "Type the step comment";
+  var t = String(text).replace(/[*`]/g, ""), cut = 64; if (t.length <= cut) return t;
+  t = t.slice(0, cut); var i = t.lastIndexOf(" "); return (i > 30 ? t.slice(0, i) : t) + "…";
+}
+function stepBox(bi, key, text) { var on = (S.ans || {})["sx_" + key + ":" + bi] === "1"; return '<div class="sbx' + (on ? " done" : "") + '" data-sk="' + key + '" data-bi="' + bi + '" data-tx="' + esc(shortTx(bi, text)) + '"><label><input type="checkbox"' + (on ? " checked" : "") + ' aria-label="Check this off when you have finished it"><span>' + wtText(text) + '</span></label><button type="button" class="abadge btn2" data-sk="' + key + '" data-bi="' + bi + '">auto-check</button></div>'; }
+var stepLast = null, stepOpen = {}, missList = [], missShown = false;
+/* "N still missing": everything the auto-check has not found yet, by step and checkbox, with a Go to box button (like the Python editor) */
+function missUpdate() {
+  var b = $("missBtn"), p = $("missPanel"); if (!b) return;
+  var n = 0; missList.forEach(function (m) { n += m.items.length; });
+  b.style.display = ""; b.className = "missbtn" + (n ? "" : " ok"); b.textContent = n ? (missShown ? "\u25BC " : "\u25B6 ") + n + " still missing (click)" : "\u2713 nothing missing";
+  b.setAttribute("aria-expanded", missShown ? "true" : "false");
+  if (!missShown || !n) { p.style.display = "none"; if (!n) missShown = false; return; }
+  var h = '<div class="mh">What is left (' + n + " check" + (n === 1 ? "" : "s") + " in " + missList.length + " checkbox" + (missList.length === 1 ? "" : "es") + ")</div>";
+  missList.forEach(function (m) { h += '<div class="mg"><div class="mt"><span>' + esc(m.step) + ", checkbox " + m.n + ": " + esc(m.text) + '</span><button type="button" class="go" data-sk="' + esc(m.step) + '" data-bi="' + esc(m.bi) + '">Go to box</button></div>' + m.items.map(function (x) { return '<div class="mi">\u2022 ' + esc(x) + "</div>"; }).join("") + "</div>"; });
+  p.innerHTML = h; p.style.display = "";
+}
+$("missBtn").addEventListener("click", function (e) { e.stopPropagation(); missShown = !missShown; missUpdate(); });
+document.addEventListener("click", function (e) { if (missShown && !$("missPanel").contains(e.target) && e.target !== $("missBtn")) { missShown = false; missUpdate(); } });
+document.addEventListener("keydown", function (e) { if (e.key === "Escape" && missShown) { missShown = false; missUpdate(); } });
+$("missPanel").addEventListener("click", function (e) {
+  var g = e.target.closest && e.target.closest(".go"); if (!g) return;
+  var sk = g.getAttribute("data-sk"), bi = g.getAttribute("data-bi"), box = null;
+  [].forEach.call(document.querySelectorAll("#ansPane .sbx"), function (x) { if (x.getAttribute("data-sk") === sk && x.getAttribute("data-bi") === bi) box = x; });
+  missShown = false; missUpdate(); if (!box) return;
+  setTab("ans"); stepOpen[sk + ":" + bi] = true; stepUpdate();
+  box.scrollIntoView({ block: "center" }); box.classList.add("flash"); setTimeout(function () { box.classList.remove("flash"); }, 1800);
+});
 function stepUpdate() {
-  var SCx = window.U7_STEPCHECKS; if (!SCx || !SCx.LESSONS[S.lesson]) { var tk0 = $("stepTick"), as0 = $("autoSc"), sb0 = $("btnSubmit"); if (tk0) tk0.style.display = "none"; if (as0) as0.style.display = "none"; if (sb0) { sb0.classList.remove("locked"); sb0.title = ""; } return; }
+  var SCx = window.U7_STEPCHECKS; if (!SCx || !SCx.LESSONS[S.lesson]) { var tk0 = $("stepTick"), as0 = $("autoSc"), sb0 = $("btnSubmit"), mb0 = $("missBtn"); if (mb0) mb0.style.display = "none"; if ($("missPanel")) $("missPanel").style.display = "none"; if (tk0) tk0.style.display = "none"; if (as0) as0.style.display = "none"; if (sb0) { sb0.classList.remove("locked"); sb0.title = ""; } return; }
   var r = null; try { r = SCx.run(S.lesson, getHtml(), getCss()); } catch (e) { r = null; } if (!r) return; stepLast = r;
-  var tot = 0, okn = 0;
+  var tot = 0, okn = 0, missing = [], counter = {};
   [].forEach.call(document.querySelectorAll("#ansPane .sbx"), function (box) {
     var st = r[box.getAttribute("data-sk")], bi = box.getAttribute("data-bi"), list = !st ? [] : bi === "c" ? [{ label: "The comment is on its own line", ok: !!st.comment }] : (st.bullets[+bi] || []);
     var n = list.length, m = list.filter(function (x) { return x.ok; }).length, done = n > 0 && m === n, b = box.querySelector(".abadge"), id = box.getAttribute("data-sk") + ":" + bi;
+    counter[box.getAttribute("data-sk")] = (counter[box.getAttribute("data-sk")] || 0) + 1;
+    if (!done) missing.push({ step: box.getAttribute("data-sk"), n: counter[box.getAttribute("data-sk")], bi: bi, text: box.getAttribute("data-tx") || "", items: list.filter(function (x) { return !x.ok; }).map(function (x) { return x.label; }) });
     var ticked = box.querySelector("input").checked; box.classList.toggle("done", ticked); tot++; if (ticked) okn++;
     b.className = "abadge btn2" + (done ? " ok" : ""); b.textContent = done ? "✓ auto-check: " + (n === 1 ? "met" : "all " + n + " met") : "auto-check: " + m + " of " + n + " met";
     var old = box.querySelector(".stepmiss"); if (old) old.remove();
@@ -1360,6 +1398,7 @@ function stepUpdate() {
   });
   var asc = $("autoSc"), pass = SCx.PASS || 95, sc = null; try { sc = SCx.score(S.lesson, getHtml(), getCss()); } catch (e) { sc = null; }
   if (asc && sc) { asc.style.display = ""; asc.className = "autosc" + (sc.pct >= pass ? " ok" : ""); asc.innerHTML = "Auto score: <b>" + sc.pct + "</b> / 100" + (sc.pct >= pass ? "<small>(ready to submit)</small>" : "<small>(you need " + pass + " to submit)</small>"); }
+  missList = missing; missUpdate();
   var sb = $("btnSubmit"); if (sb) { sb.classList.toggle("locked", !!sc && sc.pct < pass); sb.title = sc && sc.pct < pass ? "You need an auto score of " + pass + " to submit (yours is " + sc.pct + ")" : ""; }
   var tk = $("stepTick"); if (tk) { tk.style.display = tot ? "" : "none"; tk.innerHTML = okn + " of " + tot + " steps checked off (" + (tot ? Math.round(100 * okn / tot) : 0) + "%)<span class=\"bar\"><i style=\"width:" + (tot ? 100 * okn / tot : 0) + "%\"></i></span>"; }
 }
