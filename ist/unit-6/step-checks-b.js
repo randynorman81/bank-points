@@ -19,8 +19,19 @@
   function bothDiffer(c, el) { var a = h.vals(c, el, "color")[0], b = h.vals(c, el, "background-color")[0]; return !!a && !!b && a !== b; }
   function lastStep(l, st, list) { list.comment = false; SC.LESSONS[l].steps[st] = list; }
 
-  /* the 3.2 bonus (one 3 or 4 letter word with every letter in its own colored span) is NOT auto-checked: the teacher looks at it in the grading page */
-  var RAINBOW = [];
+  /* BONUS (3.2): 3 words on the page colored with span tags: a whole word in one span, or a word built from single-letter spans.
+     (the editor drops spaces between tags, so single letters are counted 3 to a word.) +5 points */
+  function spanWords(c) {
+    var whole = 0, letters = 0;
+    h.order(c).forEach(function (k) {
+      if (k.tag !== "span" || !has(c, k, "color", named) && !has(c, k, "background-color", named)) return;
+      var t = txt(c, k);
+      if (/^[A-Za-z]$/.test(t)) letters++; else if (/^[A-Za-z']{3,}$/.test(t)) whole++;
+    });
+    return whole + Math.floor(letters / 3);
+  }
+  var RAINBOW = [["BONUS: at least 3 words colored with span tags (a whole word in one span, or each letter of a word in its own span)", function (c) { return spanWords(c) >= 3; }]];
+  RAINBOW.bonus = 5;
 
   /* =============== 6.2  (3.2) The "Style" Attribute + Color: the ugliest website you can make =============== */
   var h2all = function (c) { return c.all("h2"); };

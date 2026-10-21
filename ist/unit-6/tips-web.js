@@ -330,7 +330,7 @@
   /* ---------- which help shows under which step text (first words that match decide; most specific first) ---------- */
   var R = [
     [/head.*title|title.*head/i, ["titledemo", "titletag"]],
-    [/sneak peek|span tag wraps|one real word/i, ["spandemo", "spantag"]],
+    [/sneak peek|span tag wraps|at least 3 words/i, ["spandemo", "spantag"]],
     [/whole heading|whole paragraph|inside a link|inside the a tag|around the h3/i, ["linkanything", "atag"]],
     [/doctype/i, ["doctype"]],
     [/body tags/i, ["bodytag", "skeleton"]],
