@@ -539,6 +539,10 @@ function handleAuto(ch) {
     var after = v.slice(pos), opens = (after.match(new RegExp("<" + open + "[\\s>]", "gi")) || []).length, closes = (after.match(new RegExp("</" + open + "\\s*>", "gi")) || []).length;
     if (closes > opens) return; // this tag is already closed further down (for example by auto-close)
     insertAt(pos, open + ">", pos + open.length + 1);
+  } else if (ch === "-" && before.slice(-4) === "<!--") {
+    /* typing <!-- opens a comment: close it for the student and leave the cursor in the middle (<!-- | -->) */
+    if (/^\s*-->/.test(v.slice(pos)) || v.slice(pos).indexOf("-->") === 0) return;
+    insertAt(pos, "  -->", pos + 1);
   } else if (ch === '"') {
     if (!insideTag(before.slice(0, -1))) return;
     if (v.charAt(pos) === '"') { ta.setRangeText("", pos - 1, pos, "preserve"); ta.setSelectionRange(pos, pos); }
