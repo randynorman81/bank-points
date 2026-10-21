@@ -44,6 +44,13 @@
     { ex: ["<!DOCTYPE html>", "<html>", "  <head>", "    <title>Page name</title>", "  </head>", "  <body>", "    ... what people see ...", "  </body>", "</html>"] },
     { good: "Pressing **Tab** indents by 2 spaces. Indent anything that sits inside another tag so you can see how things are nested." }
   ]);
+  add("titledemo", SKEL, "Show me where the title appears", [
+    { p: "The **title** goes inside the head, and it shows up on the **browser tab** at the top of the window: the little tab you click to switch between websites. It does **not** show on the page itself." },
+    { ex: ["<head>", "  <title>Octopus Facts</title>", "</head>", "<body>", "  <h1>All About Octopuses</h1>", "</body>"] },
+    { demo: "<div style=\"border-radius:10px;overflow:hidden;border:1px solid #bbb;background:#d8dce2;font-family:Arial,sans-serif;color:#222\"><div style=\"padding:8px 10px 0\"><span style=\"display:inline-flex;align-items:center;gap:8px;background:#fff;border-radius:8px 8px 0 0;padding:7px 16px;font-size:13px\"><span style=\"width:14px;height:14px;border-radius:3px;background:#4285f4;display:inline-block\"></span><b>Octopus Facts</b><span style=\"color:#888\">&times;</span></span><span style=\"color:#b91c1c;font-size:12px;font-weight:700;margin-left:10px\">&larr; the TITLE shows here, on the browser tab</span></div><div style=\"background:#fff;padding:6px 12px;font-size:12px;color:#666;border-bottom:1px solid #ddd\">https://www.mysite.com</div><div style=\"background:#fff;padding:14px 16px\"><div style=\"font-size:26px;font-weight:700\">All About Octopuses</div><div style=\"color:#b91c1c;font-size:12px;font-weight:700\">&uarr; the heading 1 shows here, on the page itself</div></div></div>" },
+    { good: "Real websites do this too: look at the tab for YouTube, Google, or this editor. The words on the tab are that page's title." },
+    { warn: "Without a title, the tab shows the web address instead. Always add one, with real words." }
+  ]);
   add("titletag", SKEL, "What does the title tag do?", [
     { p: "The `title` is the name of your page. It shows on the **browser tab**, not on the page itself." },
     { ex: ["<head>", "  <title>Octopus Facts</title>", "</head>"] },
@@ -322,6 +329,7 @@
 
   /* ---------- which help shows under which step text (first words that match decide; most specific first) ---------- */
   var R = [
+    [/head.*title|title.*head/i, ["titledemo", "titletag"]],
     [/sneak peek|span tag wraps|one real word/i, ["spandemo", "spantag"]],
     [/whole heading|whole paragraph|inside a link|inside the a tag|around the h3/i, ["linkanything", "atag"]],
     [/doctype/i, ["doctype"]],
