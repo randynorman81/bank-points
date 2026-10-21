@@ -65,7 +65,7 @@
 
   /* =============== 6.20  (3.3) Font-Size, Text-Alignment, Letter-Case: the epic poster =============== */
   var H1 = T("h1"), H2a = T("h2", 0);
-  var whenH = HW("h3", /when/i), whereH = HW("h3", /where/i), ticketsH = HW("h2", /ticket/i);
+  var whenH = HW("h3", /when/i), whereH = HW("h3", /where/i), ticketsH = HW("h3", /ticket/i);
   function pUnder(pick) { return AFTER(pick, "p"); }
   SC.LESSONS["6.20"] = { inlineOnly: true, steps: {
     "Step 1": [SK, TITLE, [bodyBg()]],
@@ -81,10 +81,9 @@
        P("The paragraph has a color", pUnder(whereH), "color", named), P("Its font-size is 20px", pUnder(whereH), "font-size", h.px(20))]
     ],
     "Step 4": [
-      [exists("There is a second heading 2 that says Tickets", ticketsH), P("It has a color", ticketsH, "color", named), P("It is text-transform uppercase", ticketsH, "text-transform", upper), P("It is text-align center", ticketsH, "text-align", center)],
+      [exists("There is a third heading 3 that says Tickets", ticketsH), K("It is the third heading 3 on the page (after When and Where)", function (c) { return c.all("h3").indexOf(ticketsH(c)) === 2; }), P("It has a color", ticketsH, "color", named), P("It is text-transform uppercase", ticketsH, "text-transform", upper), P("It is text-align center", ticketsH, "text-align", center)],
       [exists("A paragraph is under the Tickets heading", pUnder(ticketsH)), P("It has a color", pUnder(ticketsH), "color", named), P("Its font-size is 20px", pUnder(ticketsH), "font-size", h.px(20)),
        P("It is text-align center", pUnder(ticketsH), "text-align", center), P("It has a background-color", pUnder(ticketsH), "background-color", named)],
-      [exists("There is a third heading 3 (like Lineup, Merch, or Rules)", T("h3", 2)), UNDER("It comes after the Tickets paragraph", pUnder(ticketsH), T("h3", 2)), P("It has a color", T("h3", 2), "color", named), P("It is text-transform uppercase", T("h3", 2), "text-transform", upper), P("It is text-align center", T("h3", 2), "text-align", center)],
       [K("There is one more paragraph at the end", function (c) { var p = c.all("p"); return p.length >= 4 && p[p.length - 1] !== pUnder(ticketsH)(c); }), P("It has a color", lastP, "color", named), P("Its font-size is 16px", lastP, "font-size", h.px(16)), P("It is text-align center", lastP, "text-align", center)]
     ]
   } };
