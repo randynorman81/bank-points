@@ -810,7 +810,7 @@ var ATTR_HELP = [
     });
     pop.innerHTML = h;
   }
-  var HINT = "Move the mouse away, click outside, or press Escape to close.";
+  var HINT = "Click the word again, click outside, press Escape, or click the X to close.";
   render($("tagPop"), "Tags you will use", HINT, TAG_HELP, "tag");
   render($("propPop"), "CSS properties you will use", HINT, PROP_HELP, "prop");
   render($("valPop"), "Common values", HINT, VAL_HELP, "val");
@@ -820,14 +820,11 @@ var ATTR_HELP = [
   function closeAll() { pops.forEach(function (p) { p[1].classList.remove("show"); }); }
   var closeTimer = 0;
   function openOnly(pop) { clearTimeout(closeTimer); if (!pop.classList.contains("show")) { closeAll(); place(pop); pop.classList.add("show"); } }
-  function closeSoon() { clearTimeout(closeTimer); closeTimer = setTimeout(closeAll, 280); }
+  function toggle(pop) { if (pop.classList.contains("show")) closeAll(); else openOnly(pop); }
   pops.forEach(function (p) {
-    /* hover opens it; it stays open while the mouse is on the word or on the popup, and closes shortly after it leaves */
-    p[0].addEventListener("mouseenter", function () { openOnly(p[1]); });
-    p[1].addEventListener("mouseenter", function () { clearTimeout(closeTimer); });
-    p[0].addEventListener("mouseleave", closeSoon); p[1].addEventListener("mouseleave", closeSoon);
-    p[0].addEventListener("click", function (e) { e.stopPropagation(); openOnly(p[1]); });
-    p[0].addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openOnly(p[1]); } });
+    /* the student has to CLICK the word (no hover); click it again to close */
+    p[0].addEventListener("click", function (e) { e.stopPropagation(); toggle(p[1]); });
+    p[0].addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(p[1]); } });
     var x = p[1].querySelector(".x"); if (x) x.addEventListener("click", closeAll);
   });
   document.addEventListener("click", function (e) { if (!pops.some(function (p) { return p[1].contains(e.target); })) closeAll(); });
