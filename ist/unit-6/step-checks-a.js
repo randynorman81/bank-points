@@ -52,7 +52,10 @@
       K("The last paragraph lists at least 2 sources", function (c) {
         var p = c.all("p"), t = p.length ? txt(c, p[p.length - 1]) : "";
         var hits = (t.match(/\.(com|org|gov|edu|net)\b|www\.|https?:|encyclopedia|britannica|wikipedia|\bbook\b|\bby [A-Z]|\(\d{4}\)|\b(19|20)\d\d\b/gi) || []).length;
-        return /sources?|references?|bibliography|works cited/i.test(t) ? (hits >= 2 || /[;,]/.test(t)) && words(c, p[p.length - 1]) >= 6 : hits >= 2;
+        var lab = /sources?|references?|bibliography|works cited/i.exec(t);
+        if (!lab) return hits >= 2;
+        var items = t.slice(lab.index + lab[0].length).split(/[;,]|\band\b|\d\)/i).map(function (x) { return x.replace(/[^A-Za-z0-9.]/g, ""); }).filter(function (x) { return x.length >= 3; });
+        return (hits >= 2 || items.length >= 2) && words(c, p[p.length - 1]) >= 6;
       })
     ]]
   } };
