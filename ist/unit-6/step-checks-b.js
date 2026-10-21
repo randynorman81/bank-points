@@ -19,6 +19,15 @@
   function bothDiffer(c, el) { var a = h.vals(c, el, "color")[0], b = h.vals(c, el, "background-color")[0]; return !!a && !!b && a !== b; }
   function lastStep(l, st, list) { list.comment = false; SC.LESSONS[l].steps[st] = list; }
 
+  /* BONUS (3.2): a word whose every letter is its own span with its own color. 3 such words (3+ letters each) = +5 points */
+  function rainbowWords(c) {   /* the editor drops the spaces between tags, so count the letters: 9 or more single-letter colored spans with 3+ different colors */
+    var n = 0, seen = {};
+    h.order(c).forEach(function (k) { if (k.tag === "span" && txt(c, k).length === 1 && /[A-Za-z]/.test(txt(c, k)) && has(c, k, "color", named)) { n++; seen[h.vals(c, k, "color")[0]] = 1; } });
+    return n >= 9 && Object.keys(seen).length >= 3 ? 3 : 0;
+  }
+  var RAINBOW = [["BONUS: at least 3 words (3 or more letters each) where every letter is its own span with its own color", function (c) { return rainbowWords(c) >= 3; }]];
+  RAINBOW.bonus = 5;
+
   /* =============== 6.2  (3.2) The "Style" Attribute + Color: the ugliest website you can make =============== */
   var h2all = function (c) { return c.all("h2"); };
   var both = function (c, x) { return has(c, x, "color", named) && has(c, x, "background-color", named) && bothDiffer(c, x); };
@@ -40,7 +49,9 @@
        K("On every paragraph the two colors are different", function (c) { var a = c.all("p"); return a.length >= 6 && a.every(function (x) { return bothDiffer(c, x); }); })],
       [K("At least 2 background-colors each show up on 2 or more headings or paragraphs (a pattern)", function (c) { var n = {}; h2all(c).concat(c.all("p")).forEach(function (x) { var v = h.vals(c, x, "background-color")[0]; if (v) n[v] = (n[v] || 0) + 1; }); return Object.keys(n).filter(function (k) { return n[k] >= 2; }).length >= 2; })],
       [K("At least 4 different background colors are used on the page", function (c) { var n = {}; h.order(c).forEach(function (x) { var v = h.vals(c, x, "background-color")[0]; if (v && named(v)) n[v] = 1; }); return Object.keys(n).length >= 4; })],
-      [K("Nothing is hidden: wherever color and background-color are both used, they are different colors", function (c) { var seen = false, ok = true; h.order(c).forEach(function (x) { if (has(c, x, "color") && has(c, x, "background-color")) { seen = true; if (!bothDiffer(c, x)) ok = false; } }); return seen && ok; })]
+      [K("Nothing is hidden: wherever color and background-color are both used, they are different colors", function (c) { var seen = false, ok = true; h.order(c).forEach(function (x) { if (has(c, x, "color") && has(c, x, "background-color")) { seen = true; if (!bothDiffer(c, x)) ok = false; } }); return seen && ok; })],
+      [],
+      RAINBOW
     ]
   } };
   lastStep("6.2", "Step 6", [[h.ALLGREEN], []]);

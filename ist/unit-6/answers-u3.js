@@ -53,7 +53,9 @@
       "Style **every paragraph** with **color** and **background-color** together (different colors on each one)",
       "Check your **pattern**: at least **2 different background colors** should each show up on **2 or more** headings or paragraphs",
       "Check your **variety**: your whole page (the body too) should use **at least 4 different background colors**",
-      "Check that nothing is hidden: wherever you use both **color** and **background-color**, they must be **different** colors. Ugly is fine. Invisible is not"
+      "Check that nothing is hidden: wherever you use both **color** and **background-color**, they must be **different** colors. Ugly is fine. Invisible is not",
+      "**A sneak peek (we cover it fully in 3.4):** the **span** tag wraps just a few words, or even a **single letter**, inside a paragraph or heading, and the span can have its own style attribute. So you can give one word, or every single letter, its own **color** and **background-color**. Put the span **inside** the tag, and close it before the tag closes",
+      "**BONUS (+5 points):** make **at least 3 words** (3 or more letters each) where **every letter is its own span with its own color**, like a rainbow word. Your auto score goes above 100 when you finish all the required steps AND earn this bonus"
     ]),
     S("Test and submit", [
       "Click **Checks**. Fix every red line. The **Use what you already know** list has to turn green too: for each red item, add the missing use where it fits the page",

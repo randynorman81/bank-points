@@ -109,7 +109,7 @@
     Object.keys(L.steps).forEach(function (st) {
       var n = +(/Step (\d+)/.exec(st) || [0, 0])[1], L2 = L.steps[st];
       out[st] = { comment: null, bullets: L2.map(function (list) {
-        return list.map(function (ck) { var ok = false; try { ok = !!ck[1](c); } catch (e) { ok = false; } return { label: ck[0], ok: ok }; });
+        var o = list.map(function (ck) { var ok = false; try { ok = !!ck[1](c); } catch (e) { ok = false; } return { label: ck[0], ok: ok }; }); if (list.bonus) o.bonus = list.bonus; return o;
       }) };
     });
     return out;
@@ -118,13 +118,13 @@
      and a box is worth the share of its checks that are met. The score is 100 only when every check is met (it is never rounded up). */
   function score(lesson, html, css) {
     var r = run(lesson, html, css); if (!r) return null;
-    var boxes = 0, credit = 0, all = true;
+    var boxes = 0, credit = 0, all = true, bonus = 0;
     Object.keys(r).forEach(function (st) {
       if (r[st].comment !== null) { boxes++; if (r[st].comment) credit++; else all = false; }
-      r[st].bullets.forEach(function (b) { if (!b.length) return; boxes++; var m = b.filter(function (x) { return x.ok; }).length; credit += m / b.length; if (m < b.length) all = false; });
+      r[st].bullets.forEach(function (b) { if (!b.length) return; if (b.bonus) { if (b.every(function (x) { return x.ok; })) bonus += b.bonus; return; } boxes++; var m = b.filter(function (x) { return x.ok; }).length; credit += m / b.length; if (m < b.length) all = false; });
     });
-    var pct = boxes ? Math.floor(100 * credit / boxes + 1e-9) : 0; if (!all) pct = Math.min(pct, 99);
-    return { pct: pct, boxes: boxes, credit: credit, all: all };
+    var pct = boxes ? Math.floor(100 * credit / boxes + 1e-9) : 0; if (!all) pct = Math.min(pct, 99); else pct += bonus;   /* bonus boxes never count against the score; they add extra points once everything else is met */
+    return { pct: pct, bonus: bonus, boxes: boxes, credit: credit, all: all };
   }
   /* the Checks list (the 50-point rubric: quality, "use what you already know", and Problems) all green */
   var ALLGREEN = K("Every item in your Checks list is green", function (c) { var rep = H.check(c.lesson, c.rawSrc, c.cssFile || ""); return rep.results.every(function (x) { return x.ok; }) && rep.errors.length === 0; });
