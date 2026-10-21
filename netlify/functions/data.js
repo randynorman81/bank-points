@@ -166,6 +166,12 @@ async function studentTransactions(body) {
   return { ok: true, transactions: transactions.filter((t) => t.studentId === body.id) };
 }
 
+// Admin-only: lets a teacher date an entry on an earlier day (e.g. points posted the next morning). Anything missing, invalid, or in the future is stamped now.
+function backdated(t) {
+  const d = t ? new Date(t) : null;
+  return d && !isNaN(d) && d.getTime() <= Date.now() ? d.toISOString() : new Date().toISOString();
+}
+
 async function addTransaction(body) {
   const amount = Number(body.amount);
   const type = body.type;
@@ -180,7 +186,7 @@ async function addTransaction(body) {
     type,
     amount,
     description: body.description || "",
-    timestamp: new Date().toISOString()
+    timestamp: backdated(body.timestamp)
   });
   await writeJSON("transactions", transactions);
   return { ok: true };
