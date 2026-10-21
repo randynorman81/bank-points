@@ -70,7 +70,7 @@
     ]),
     S("The name and tagline", [
       "Inside the body, add **one heading 1** with the event's name. Style it: **color** (a bright named color), **font-size** in pixels (like 58px), **text-align** center, and **text-transform** uppercase",
-      "Under it, add a **heading 2** with a short tagline. Style it: **color** (any named color, even the same one as your heading 1 if you want your headings to match), **text-transform** uppercase, **text-align** center, and **font-size** 24px"
+      "Under it, add a **heading 2** with a short tagline. Style it: **color** (any named color, even the same one as your heading 1 if you want them to match), **text-transform** uppercase, **text-align** center, and **font-size** 24px"
     ]),
     S("When and where", [
       "Add a **heading 3** that says When, with a **color** style. Under it, add a **paragraph** with the date and time. Style the paragraph: **color** (light on a dark background), **font-size** 20px, and a **background-color** (a named color)",
@@ -79,7 +79,7 @@
     S("Tickets and a finishing touch", [
       "Add a second **heading 2** that says Tickets. Style it: **color**, **text-transform** uppercase, **text-align** center",
       "Under it, add a **paragraph** about how to get tickets. Style it: **color**, **font-size** 20px, **text-align** center, and a **background-color**",
-      "Add a third **heading 2** after the tickets paragraph (like Lineup, Merch, or Rules). Style it the same way as your other heading 2s: **color**, **text-transform** uppercase, and **text-align** center. You can reuse the same colors so your headings and text look uniform",
+      "Add a third **heading 3** after the tickets paragraph (like Lineup, Merch, or Rules). Style it: **color**, **text-transform** uppercase, and **text-align** center. You can reuse the same colors as your other headings so everything looks uniform",
       "Add one last **paragraph** under it with a fun fact or a warning. Style it: **color**, **font-size** 16px, and **text-align** center"
     ]),
     done()]));
