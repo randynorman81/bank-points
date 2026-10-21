@@ -19,13 +19,13 @@
   function bothDiffer(c, el) { var a = h.vals(c, el, "color")[0], b = h.vals(c, el, "background-color")[0]; return !!a && !!b && a !== b; }
   function lastStep(l, st, list) { list.comment = false; SC.LESSONS[l].steps[st] = list; }
 
-  /* BONUS (3.2): 3 whole words of 3 or 4 letters, each wrapped in its own span with a color. 3 such words = +5 points */
+  /* BONUS (3.2): one whole word of 3 or 4 letters wrapped in a span with a color = +5 points */
   function spanWords(c) {
     var n = 0;
     h.order(c).forEach(function (k) { if (k.tag === "span" && /^[A-Za-z]{3,4}$/.test(txt(c, k)) && has(c, k, "color", named)) n++; });
     return n;
   }
-  var RAINBOW = [["BONUS: at least 3 whole words of 3 or 4 letters, each inside its own span with a color", function (c) { return spanWords(c) >= 3; }]];
+  var RAINBOW = [["BONUS: one whole word of 3 or 4 letters inside a span with a color", function (c) { return spanWords(c) >= 1; }]];
   RAINBOW.bonus = 5;
 
   /* =============== 6.2  (3.2) The "Style" Attribute + Color: the ugliest website you can make =============== */
