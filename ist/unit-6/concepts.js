@@ -11,16 +11,17 @@
   var C = [
     { id: "6.1", tags: [I("doctype", "<!DOCTYPE html>", "once"), I("html", "<html>", "once"), I("head", "<head>", "once"), I("title", "<title>", "once"), I("body", "<body>", "once"), I("h1", "<h1>", "once"), I("h2", "<h2>"), I("p", "<p>")] },
     { id: "6.2",
-      tags: [I("h3", "<h3>")],
       attrs: [I("attr-style", "style", "until:7.6")],
-      props: [I("p-color", "color"), I("p-bg", "background-color"), I("p-fs", "font-size"), I("p-ta", "text-align"), I("p-tt", "text-transform"), I("p-border", "border")],
-      vals: [I("v-px", "font-size in px"), I("v-center", "text-align: center"), I("v-upper", "text-transform: uppercase"), I("v-named", "named colors (like tomato)")] },
+      props: [I("p-color", "color"), I("p-bg", "background-color")],
+      vals: [I("v-named", "named colors (like tomato)")] },
+    { id: "6.20",
+      tags: [I("h3", "<h3>")],
+      props: [I("p-fs", "font-size"), I("p-ta", "text-align"), I("p-tt", "text-transform")],
+      vals: [I("v-px", "font-size in px"), I("v-center", "text-align: center"), I("v-upper", "text-transform: uppercase")] },
     { id: "6.3",
-      tags: [I("strong", "<strong> or <b>"), I("em", "<em> or <i>"), I("br", "<br>"), I("hr", "<hr>"), I("span", "<span>")],
-      props: [I("p-ff", "font-family")],
-      vals: [I("v-serif", "font-family: serif"), I("v-sans", "font-family: sans-serif"), I("v-mono", "font-family: monospace")] },
+      tags: [I("strong", "<strong> or <b>"), I("em", "<em> or <i>"), I("br", "<br>"), I("hr", "<hr>"), I("span", "<span>")] },
     { id: "6.4",
-      props: [I("p-bside", "border-top, -bottom, -left, or -right")],
+      props: [I("p-border", "border"), I("p-bside", "border-top, -bottom, -left, or -right")],
       vals: [I("v-solid", "border style: solid"), I("v-dashed", "border style: dashed"), I("v-dotted", "border style: dotted")] },
     { id: "6.5",
       tags: [I("ul", "<ul>"), I("ol", "<ol>"), I("li", "<li>")],
@@ -28,13 +29,12 @@
       vals: [I("v-inline", "display: inline"), I("v-lstnone", "list-style-type: none")] },
     { id: "6.6",
       tags: [I("a", "<a>")],
-      attrs: [I("attr-href", "href"), I("attr-newtab", "target=\"_blank\" (new tab)"), I("attr-sametab", "links in the same tab")],
-      sels: [I("s-linkstates", "a:link, a:visited, a:hover, a:active", "once"), I("s-styleblock", "<style> block in the head", "once until:7.6")] },
+      attrs: [I("attr-href", "href"), I("attr-newtab", "target=\"_blank\" (new tab)"), I("attr-sametab", "links in the same tab"), I("a-wrap", "a link around a heading, a paragraph, or words")] },
     { id: "6.7",
       tags: [I("img", "<img>")],
-      attrs: [I("attr-src", "src"), I("attr-alt", "alt"), I("attr-imgsize", "width or height on an image"), I("attr-imglink", "image inside a link")],
-      props: [I("p-w", "width"), I("p-radius", "border-radius")],
-      vals: [I("v-pct", "width in %"), I("v-block", "display: block")] },
+      attrs: [I("attr-src", "src"), I("attr-alt", "alt"), I("attr-imgsize", "width on an image"), I("attr-imglink", "image inside a link")],
+      props: [I("p-w", "width")],
+      vals: [I("v-pct", "width in %")] },
     { id: "7.1",
       props: [I("p-pad", "padding"), I("p-mar", "margin")] },
     { id: "7.2",
@@ -72,19 +72,20 @@
     { id: "9.6", tags: [I("form", "<form>")], sels: [I("b-form", "form-label and form-control")] }
   ];
   var ORDER = C.map(function (x) { return x.id; });
-  function num(id) { var p = String(id).split("."); return (+p[0]) * 100 + (+p[1]); }
+  var FULL = ["6.1", "6.2", "6.20", "6.3", "6.4", "6.5", "6.6", "6.7", "7.1", "7.2", "7.3", "7.4", "7.5", "7.6", "8.1", "8.2", "8.3", "8.4", "8.5", "8.6", "8.7", "9.1", "9.2", "9.3", "9.4", "9.5", "9.6", "9.7"];
+  function num(id) { var i = FULL.indexOf(String(id)); return i < 0 ? 1000 : i; }
   function before(a, b) { return num(a) < num(b); }
   var GROUPS = [["tags", "HTML tags"], ["attrs", "Attributes"], ["props", "CSS properties"], ["vals", "CSS values"], ["sels", "Selectors and classes"]];
 
   /* THE REVIEW POLICY (a spiral, so assignments do not keep getting longer):
        - FRESH:  items from the previous 2 lessons must appear at least 2 times
-       - KEEP:   items from 3 to 5 lessons back must appear at least 1 time
+       - KEEP:   every older item must appear at least 1 time (so each new assignment circles back to every earlier tag and attribute)
        - STAPLES: the basics every real page uses (headings, paragraphs, lists, links, pictures, colors, fonts, borders, spacing,
                   width) stay required at least once in every later lesson
        - anything older than that drops off the list (students will still use it, it just is not checked)
        - UNIT TESTS (7.6, 8.7, 9.7): every item from that unit plus the staples, at least once each */
-  var FRESH = 2, KEEP = 3;
-  var STAPLES = { "h2": 1, "p": 1, "ul": 1, "ol": 1, "a": 1, "attr-href": 1, "img": 1, "attr-alt": 1, "p-color": 1, "p-bg": 1, "p-fs": 1, "p-ff": 1, "p-ta": 1, "p-border": 1, "p-pad": 1, "p-mar": 1, "p-w": 1 };
+  var FRESH = 2, KEEP = 30;   /* KEEP 30 = through the Unit 3 lessons (3.2 to 3.8), every earlier item stays required at least once; later lessons keep the older rule of 3 lessons back */
+  var STAPLES = { "h2": 1, "p": 1, "ul": 1, "ol": 1, "a": 1, "attr-href": 1, "img": 1, "attr-alt": 1, "p-color": 1, "p-bg": 1, "p-fs": 1, "p-ta": 1, "p-border": 1, "p-pad": 1, "p-mar": 1, "p-w": 1 };
   var TESTS_UNIT = { "7.6": /^[67]\./, "8.7": /^8\./, "9.7": /^9\./ };
   function idxOf(id) { for (var i = 0; i < C.length; i++) if (C[i].id === id) return i; return -1; }
   function tierFor(lesson, fromId, key) {
@@ -93,7 +94,7 @@
     var li = idxOf(lesson), fi = idxOf(fromId); if (li < 0 || fi < 0 || fi >= li) return null;
     var age = li - fi;
     if (age <= FRESH) return { tier: "fresh", min: 2 };
-    if (age <= FRESH + KEEP) return { tier: "keep", min: 1 };
+    if (age <= FRESH + (li <= idxOf("6.7") ? KEEP : 3)) return { tier: "keep", min: 1 };
     return STAPLES[key] ? { tier: "keep", min: 1 } : null;
   }
   root.U7_CONCEPTS = {

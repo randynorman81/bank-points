@@ -211,6 +211,13 @@
 
   /* ---------- rule helper ---------- */
   function r(label, test, tip, only, base) { return { label: label, test: test, tip: tip || "", only: !!only, base: !!base }; }
+  /* style values on one element (style attribute only), lower-cased, without the trailing semicolon */
+  function declOf(c, el, prop) { return c.inline.filter(function (d) { return d.el === el && d.prop === prop; }).map(function (d) { return String(d.value).replace(/;$/, "").trim().toLowerCase(); }); }
+  function hasDecl(c, el, prop, re) { return declOf(c, el, prop).some(function (v) { return !re || (typeof re === "function" ? re(v) : re.test(v)); }); }
+  function isNamedColor(v) { return !!NAMED[v]; }
+  function colorsDiffer(c, el) { var a = declOf(c, el, "color")[0], b = declOf(c, el, "background-color")[0]; return !!a && !!b && a !== b; }
+  function bothColors(c, el) { return hasDecl(c, el, "color", isNamedColor) && hasDecl(c, el, "background-color", isNamedColor); }
+  function realLinks(c) { return c.all("a").filter(function (a) { return /^https:\/\//i.test(a.attrs.href || "") && !/example\.com/i.test(a.attrs.href || ""); }); }
   function anyValue(c, prop, fn) { return c.propValues(prop).some(fn); }
   var HEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
   function colorTokens(c) {
@@ -357,6 +364,7 @@
     "v-inline": function (c) { return valCount(c, ["display"], /^inline$/i); },
     "v-lstnone": function (c) { return valCount(c, ["list-style-type", "list-style"], /^none$/i); },
     "a": function (c) { return c.count("a"); },
+    "a-wrap": function (c) { return c.all("a").filter(function (a) { return a.children.some(function (n) { return n.tag !== "#text" && /^(h[1-6]|p|strong|b|em|i|span|li|div)$/.test(n.tag); }); }).length; },
     "attr-href": function (c) { return c.all("a").filter(function (a) { return /\S/.test(a.attrs.href || ""); }).length; },
     "attr-newtab": function (c) { return c.all("a").filter(function (a) { return a.attrs.target === "_blank"; }).length; },
     "attr-sametab": function (c) { return c.all("a").filter(function (a) { return a.attrs.target === undefined || a.attrs.target === "_self"; }).length; },
@@ -441,36 +449,48 @@
       r("Your writing is not the same content over and over (no repeated paragraphs, sentences, or phrases)", function (c) { var q = quality(c); return !q.flags.some(function (f) { return f.sev === "high" && /^(dup-paras|dup-sents|phrase|word-run|variety)$/.test(f.id); }); }, "Every paragraph should say something new.", true),
       r("Every tag is closed and nested correctly", function (c) { return c.errors.length === 0 && c.has("html"); }, "See the Problems list for exactly which line to fix.", false, true)
     ] },
-    "6.2": { name: "The Style Attribute", rules: [
-      r("Uses at least 2 different heading levels (h1, h2, h3...)", function (c) { var n = 0; ["h1", "h2", "h3", "h4", "h5", "h6"].forEach(function (h) { if (c.has(h)) n++; }); return n >= 2; }),
-      r("Has at least 3 <p> paragraphs", function (c) { return c.count("p") >= 3; }),
-      r("Uses the style attribute with color", function (c) { return c.inline.some(function (d) { return d.prop === "color"; }); }),
-      r("Uses font-size in pixels (like 24px)", function (c) { return anyValue(c, "font-size", function (v) { return /^\d+(\.\d+)?px$/i.test(v); }); }),
-      r("Uses text-align or text-transform", function (c) { return c.prop("text-align") + c.prop("text-transform") > 0; }),
-      r("Uses background-color (the color behind the text)", function (c) { return c.prop("background-color") > 0; }),
-      r("Uses the border shortcut: thickness, style, color (like 2px solid black)", function (c) { return anyValue(c, "border", function (v) { return /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(v); }); }),
+    "6.2": { name: "The \"Style\" Attribute + Color", rules: [
+      r("Has your 3.1 page: one heading 1, at least 3 heading 2s, and at least 6 paragraphs", function (c) { return c.count("h1") === 1 && c.count("h2") >= 3 && c.count("p") >= 6; }, "Start from your 3.1 page, then add the colors."),
+      r("The body has a background-color (a named color)", function (c) { var b = c.all("body")[0]; return !!b && hasDecl(c, b, "background-color", isNamedColor); }, "Put style=\"background-color: black;\" on the body tag."),
+      r("The body also has a text color that is different from its background-color", function (c) { var b = c.all("body")[0]; return !!b && hasDecl(c, b, "color", isNamedColor) && colorsDiffer(c, b); }, "Chain it after the background-color: style=\"background-color: black; color: white;\""),
+      r("The heading 1 uses color and background-color together", function (c) { var h = c.all("h1")[0]; return !!h && bothColors(c, h) && colorsDiffer(c, h); }, "Two properties in one style attribute, each ending with a semicolon."),
+      r("Every heading 2 has a color, and at least 2 different colors are used on them", function (c) { var h = c.all("h2"); if (h.length < 3) return false; var seen = {}; return h.every(function (x) { var v = declOf(c, x, "color").filter(isNamedColor)[0]; if (v) seen[v] = 1; return !!v; }) && Object.keys(seen).length >= 2; }),
+      r("At least 1 heading 2 uses color and background-color together", function (c) { return c.all("h2").some(function (h) { return bothColors(c, h) && colorsDiffer(c, h); }); }),
+      r("At least 3 paragraphs have a color", function (c) { return c.all("p").filter(function (p) { return hasDecl(c, p, "color", isNamedColor); }).length >= 3; }),
+      r("At least 1 paragraph uses color and background-color together", function (c) { return c.all("p").some(function (p) { return bothColors(c, p) && colorsDiffer(c, p); }); }),
+      r("No text is hidden: wherever color and background-color are both used, they are different colors", function (c) { var any = false; return c.all("body")[0] ? (function () { var ok = true; (function w(n) { n.children.forEach(function (x) { if (x.tag === "#text") return; if (hasDecl(c, x, "color") && hasDecl(c, x, "background-color")) { any = true; if (!colorsDiffer(c, x)) ok = false; } w(x); }); })(c.tree); return ok && any; })() : false; }, "If the text color and the background color match, the words disappear."),
       r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\""),
       r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
-    "6.3": { name: "Editing Tags + Span + Font Families", rules: [
+    "6.20": { name: "Font-Size, Text-Alignment, Letter-Case", rules: [
+      r("Uses at least 3 different heading levels (h1, h2, h3)", function (c) { return c.has("h1") && c.has("h2") && c.has("h3"); }),
+      r("Has at least 4 <p> paragraphs", function (c) { return c.count("p") >= 4; }),
+      r("Uses font-size in pixels (like 24px) on at least 4 elements", function (c) { return c.all("body")[0] ? c.inline.filter(function (d) { return d.prop === "font-size" && /^\d+(\.\d+)?px$/i.test(String(d.value).replace(/;$/, "").trim()); }).length >= 4 : false; }, "Write the number and px together, like font-size: 24px;"),
+      r("Uses text-align: center on at least 3 elements", function (c) { return c.inline.filter(function (d) { return d.prop === "text-align" && /^center$/i.test(String(d.value).replace(/;$/, "").trim()); }).length >= 3; }),
+      r("Uses text-transform: uppercase on at least 2 elements", function (c) { return c.inline.filter(function (d) { return d.prop === "text-transform" && /^uppercase$/i.test(String(d.value).replace(/;$/, "").trim()); }).length >= 2; }),
+      r("Uses color and background-color together (from 3.2) on at least 2 elements", function (c) { var n = 0; (function w(x) { x.children.forEach(function (e) { if (e.tag === "#text") return; if (bothColors(c, e)) n++; w(e); }); })(c.tree); return n >= 2; }),
+      r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\""),
+      r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
+    ] },
+    "6.3": { name: "Editing Tags, Span Tag", rules: [
       r("Uses <strong> and <em>", function (c) { return c.has("strong") && c.has("em"); }),
       r("Uses <br> at least once (and never closes it)", function (c) { return c.has("br"); }),
       r("Uses <hr> at least once", function (c) { return c.has("hr"); }),
       r("Editing tags (strong/em) are inside a creation tag like <p> or <h1>", function (c) {
         var e = c.all("strong").concat(c.all("em")); return e.length > 0 && e.every(function (n) { return !!c.ancestor(n, ["p", "h1", "h2", "h3", "h4", "h5", "h6", "li"]); });
       }),
-      r("Uses a <span> with a style attribute", function (c) { return c.all("span").some(function (s) { return s.attrs.style !== undefined; }); }),
-      r("Uses font-family with serif, sans-serif, or monospace", function (c) { return anyValue(c, "font-family", function (v) { return /(^|[\s,'"])(serif|sans-serif|monospace)\s*$/i.test(v.replace(/;$/, "")); }); }),
-      r("Uses the border shortcut: thickness, style, color (like 2px solid black)", function (c) { return anyValue(c, "border", function (v) { return /^\d+px\s+(solid|dashed|dotted|double|groove|ridge)\s+\S+/i.test(v); }); }),
+      r("Uses a <span> with a style attribute, at least 2 times", function (c) { return c.all("span").filter(function (s) { return s.attrs.style !== undefined; }).length >= 2; }),
+      r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\""),
       r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
-    "6.4": { name: "Borders + Everything So Far", rules: [
+    "6.4": { name: "Border", rules: [
       r("Puts a border (thickness, style, color) on at least 4 different elements", function (c) { return borderEls(c) >= 4; }, "Borders belong on boxes: a banner, a photo frame, a quote, a price box."),
       r("Uses solid, dashed, and dotted borders (each at least 2 times)", function (c) { return TESTS["v-solid"](c) >= 2 && TESTS["v-dashed"](c) >= 2 && TESTS["v-dotted"](c) >= 2; }, "Mix the styles: solid for main frames, dashed for extras, dotted for small notes."),
       r("Uses a border on just one side (top, bottom, left, or right) at least 2 times", function (c) { return TESTS["p-bside"](c) >= 2; }, "Same three parts, one side only, like border-bottom: 3px solid navy;"),
+      r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\""),
       r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
-    "6.5": { name: "Lists + Everything So Far", rules: [
+    "6.5": { name: "Lists", rules: [
       r("Has at least 2 <ol> and at least 2 <ul> lists", function (c) { return c.count("ol") >= 2 && c.count("ul") >= 2; }, "Plan one ordered and one bullet list in each section."),
       r("Every list has at least 3 <li> items", function (c) { var l = c.all("ul").concat(c.all("ol")); return l.length > 0 && l.every(function (x) { return x.children.filter(function (n) { return n.tag === "li"; }).length >= 3; }); }),
       r("Only <li> tags sit directly inside a list", function (c) { var l = c.all("ul").concat(c.all("ol")); return l.length > 0 && l.every(function (x) { return x.children.every(function (n) { return n.tag === "li"; }); }); }),
@@ -478,30 +498,22 @@
       r("Makes one list horizontal: display: inline on at least 3 <li> (block turned into inline)", function (c) {
         return c.inline.filter(function (d) { return d.prop === "display" && /^inline$/i.test(d.value.replace(/;$/, "").trim()) && d.el.tag === "li"; }).length >= 3;
       }, "Put style=\"display: inline;\" on each li of one list, and add list-style-type: none; to the ul."),
+      r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\""),
       r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
-    "6.6": { name: "Links + Everything So Far", rules: [
+    "6.6": { name: "Links", rules: [
       r("Has at least 6 <a> links, and every href starts with https://", function (c) { var a = c.all("a"); return a.length >= 6 && a.every(function (x) { return /^https:\/\//i.test(x.attrs.href || ""); }); }, "Copy the whole address from the browser, including https://"),
       r("At least 3 links open in a NEW tab (target=\"_blank\")", function (c) { return c.all("a").filter(function (a) { return a.attrs.target === "_blank"; }).length >= 3; }, "Links that leave your site open in a new tab."),
       r("At least 3 links open in the CURRENT tab (no target, or target=\"_self\")", function (c) { return c.all("a").filter(function (a) { return a.attrs.target === undefined || a.attrs.target === "_self"; }).length >= 3; }, "Leave off target, or write target=\"_self\"."),
-      r("Link text says where the link goes (no \"click here\", \"here\", or \"link\")", function (c) { var a = c.all("a"); return a.length > 0 && a.every(function (x) { var s = c.text(x).trim().toLowerCase(); return s.length >= 3 && !/^(click here|here|link|this|click)$/.test(s); }); }),
-      r("Every link sits inside a <li> or <p>, not loose in the body", function (c) { var a = c.all("a"); return a.length > 0 && a.every(function (x) { return !!c.ancestor(x, ["li", "p"]); }); }),
-      r("Has an internal <style> block inside <head>", function (c) { return c.all("style").some(function (s) { return !!c.ancestor(s, ["head"]); }); }),
-      r("Styles all four link states: a:link, a:visited, a:hover, a:active", function (c) { return ["a:link", "a:visited", "a:hover", "a:active"].every(function (s) { return c.selector(s).length > 0; }); }),
-      r("Link states are in LVHA order (link, visited, hover, active)", function (c) {
-        var order = ["a:link", "a:visited", "a:hover", "a:active"], pos = [];
-        c.sheetRules.forEach(function (rl) { var k = order.indexOf(rl.selector.toLowerCase()); if (k > -1) pos.push(k); });
-        if (pos.length < 4) return false; for (var i = 1; i < pos.length; i++) if (pos[i] < pos[i - 1]) return false; return true;
-      }, "Love, Visit, Hate, Always: :link, :visited, :hover, :active"),
-      r("a:hover changes at least 2 things (like color and background-color)", function (c) { return c.selector("a:hover").some(function (rl) { return rl.decls.length >= 2; }); }),
-      r("The style block also styles at least 2 non-link tags (like h2 or p) so the page is styled from the head", function (c) {
-        var tags = {}; c.sheetRules.forEach(function (rl) { if (/^[a-z][a-z0-9]*$/i.test(rl.selector.trim())) tags[rl.selector.trim().toLowerCase()] = 1; }); return Object.keys(tags).length >= 2;
-      }, "Try h1 { ... } and h2 { ... }."),
+      r("Link text says where the link goes (no \"click here\", \"here\", or \"link\")", function (c) { var a = c.all("a"); return a.length > 0 && a.every(function (x) { var s = c.text(x).trim().toLowerCase(); return s.length >= 3 && !/^(click here|here|link|this|this link)$/.test(s); }); }),
+      r("At least 2 links wrap more than plain words: a heading, a paragraph, bold or italic words, or a whole list item", function (c) { return TESTS["a-wrap"](c) >= 2; }, "Put the whole heading or list item inside the a tag, so anything can be a link."),
+      r("Every link sits inside a <li>, <p>, or heading, not loose in the body", function (c) { var a = c.all("a"); return a.length > 0 && a.every(function (x) { return !!c.ancestor(x, ["li", "p", "h1", "h2", "h3", "h4", "h5", "h6"]) || x.children.some(function (k) { return /^(li|p|h[1-6])$/.test(k.tag); }); }); }),
+      r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\""),
       r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
-    "6.7": { name: "Images (Clickable, Resized)", rules: [
+    "6.7": { name: "Images", rules: [
       r("Has at least 3 <img> tags, each with a src", function (c) { var im = c.all("img"); return im.length >= 3 && im.every(function (i) { return (i.attrs.src || "").length > 0; }); }),
-      r("Every image has a real alt description (not the placeholder text)", function (c) { var im = c.all("img"); return im.length > 0 && im.every(function (i) { var a = (i.attrs.alt || "").trim().toLowerCase(); return a.length >= 3 && a !== "describe your image here"; }); }, "Say what is in the picture, like alt=\"Rex the bulldog wearing a cowboy hat\"."),
+      r("Every image has a real alt description (not the placeholder text)", function (c) { var im = c.all("img"); return im.length > 0 && im.every(function (i) { var a = (i.attrs.alt || "").trim().toLowerCase(); return a.length >= 3 && a !== "describe your image"; }); }, "Write what the picture shows, like alt=\"A red octopus on a reef\"."),
       r("At least 2 images were uploaded with the editor (Checks > My images > Insert)", function (c) { return c.all("img").filter(function (i) { return /\/api\/code\?img=/.test(i.attrs.src || ""); }).length >= 2; }, "Upload your own pictures. Open Checks, find My images, upload, then click Insert."),
       r("Every image src is a web address, not a file on your computer", function (c) { var im = c.all("img"); return im.length > 0 && im.every(function (i) { return /^(https?:)?\/\//i.test(i.attrs.src || "") || /^\/api\/code\?img=/.test(i.attrs.src || ""); }); }),
       r("Every image sets width OR height, but not both (keeps the shape)", function (c) {
@@ -518,15 +530,14 @@
           var v = st.width || st.height || i.attrs.width || i.attrs.height; if (v) { sizes[String(v).replace(/\s/g, "")] = 1; if (/%$/.test(String(v).trim())) pct = true; }
         }); return Object.keys(sizes).length >= 2 && pct;
       }, "Try one big image (width: 300px), one small one (width: 100px), and one that is width: 50%."),
-      r("Every image is a clickable link: the <img> sits inside an <a> with an https:// href", function (c) { var im = c.all("img"); return im.length > 0 && im.every(function (i) { var a = c.ancestor(i, ["a"]); return !!a && /^https:\/\//i.test(a.attrs.href || "") && !/example\.com/i.test(a.attrs.href); }); }, "Change the example link the editor inserts to a real website."),
+      r("Every image is a clickable link: the <img> sits inside an <a> with a real https:// href", function (c) { var im = c.all("img"); return im.length > 0 && im.every(function (i) { var a = c.ancestor(i, ["a"]); return !!a && /^https:\/\//i.test(a.attrs.href || "") && !/example\.com/i.test(a.attrs.href || ""); }); }, "The editor writes example.com for you. Change it to a real website."),
       r("At least one image link opens in a new tab (target=\"_blank\") and at least one opens in the current tab", function (c) {
         var a = []; c.all("img").forEach(function (i) { var l = c.ancestor(i, ["a"]); if (l) a.push(l); });
         return a.some(function (l) { return l.attrs.target === "_blank"; }) && a.some(function (l) { return l.attrs.target === undefined || l.attrs.target === "_self"; });
       }),
-      r("Uses border-radius on an image", function (c) { return c.all("img").some(function (i) { return c.inline.some(function (d) { return d.el === i && d.prop === "border-radius"; }); }) || c.selector("img").some(function (rl) { return rl.decls.some(function (d) { return d.prop === "border-radius"; }); }); }),
-      r("Uses a border on an image", function (c) { return c.all("img").some(function (i) { return c.inline.some(function (d) { return d.el === i && /^border/.test(d.prop); }); }) || c.selector("img").some(function (rl) { return rl.decls.some(function (d) { return /^border/.test(d.prop); }); }); }),
-      r("Uses display: block on at least one image (so it sits on its own line)", function (c) { return c.all("img").some(function (i) { return c.inline.some(function (d) { return d.el === i && d.prop === "display" && /^block$/i.test(d.value.replace(/;$/, "").trim()); }); }) || c.selector("img").some(function (rl) { return rl.decls.some(function (d) { return d.prop === "display" && /^block$/i.test(d.value.replace(/;$/, "").trim()); }); }); }, "Images are inline by default. display: block puts one on its own line."),
-      r("Has an internal <style> block in the head with at least 2 rules", function (c) { return c.all("style").some(function (s) { return !!c.ancestor(s, ["head"]); }) && c.sheetRules.length >= 2; })
+      r("Also has at least 3 text links (words that link to real sites)", function (c) { return realLinks(c).filter(function (a) { return !a.children.some(function (n) { return n.tag === "img"; }); }).length >= 3; }, "Links you learned in 3.7 still belong on every page."),
+      r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\""),
+      r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
     "7.1": { name: "Box Model", rules: [
       r("Padding, border, and margin are all used on the same element", function (c) {
@@ -686,7 +697,7 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
   ] };
   LESSONS["9.7"] = { name: "Unit Test Website (Bootstrap)", rules: [] };
 
-  var ORDER = ["6.1", "6.2", "6.3", "6.4", "6.5", "6.6", "6.7", "7.1", "7.2", "7.3", "7.4", "7.5", "7.6",
+  var ORDER = ["6.1", "6.2", "6.20", "6.3", "6.4", "6.5", "6.6", "6.7", "7.1", "7.2", "7.3", "7.4", "7.5", "7.6",
                "8.1", "8.2", "8.3", "8.4", "8.5", "8.6", "8.7", "9.1", "9.2", "9.3", "9.4", "9.5", "9.6", "9.7"];
 
   var TOTAL_POINTS = 50;      // points a lesson is worth
@@ -708,6 +719,12 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
       });
     });
     reviewRules(lesson).forEach(function (rr) { if (!out.some(function (x) { return x.id === rr.id; })) out.push(rr); });
+    /* once links and pictures have been taught (3.7 and 3.8), EVERY assignment after them needs a few of each */
+    if (idx > ORDER.indexOf("6.7")) {
+      out.push({ id: "A-links", lesson: lesson, label: "At least 3 links, each with an https:// address", tip: "Link to real sites that fit your page. Use <a href=\"https://...\">words</a>.", isNew: true, test: function (c) { return realLinks(c).length >= 3; } });
+      out.push({ id: "A-images", lesson: lesson, label: "At least 3 pictures, each with a real alt description", tip: "Upload pictures in Checks, then My images, then Insert.", isNew: true, test: function (c) { var im = c.all("img"); return im.length >= 3 && im.every(function (i) { return /\S{3,}/.test(i.attrs.alt || ""); }); } });
+      out.push({ id: "A-imglinks", lesson: lesson, label: "At least 2 of your pictures are clickable links (the picture sits inside an <a>)", tip: "Wrap the img in an a tag with a real https:// address.", isNew: true, test: function (c) { return c.all("img").filter(function (i) { var a = c.ancestor(i, ["a"]); return !!a && /^https:\/\//i.test(a.attrs.href || "") && !/example\.com/i.test(a.attrs.href || ""); }).length >= 2; } });
+    }
     return out;
   }
 

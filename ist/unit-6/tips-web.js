@@ -234,6 +234,11 @@
     { rows: [["NASA's website", "good", "tells you where it goes"], ["click here", "not good", "tells you nothing"]] },
     { good: "To make the name bold, put the `strong` tags **inside** the link." }
   ]);
+  add("linkanything", LNK, "How do I make anything a link?", [
+    { p: "Anything between the opening and closing `a` tags becomes the link: a whole heading, a whole paragraph, or just a few bold or italic words." },
+    { ex: ["<a href=\"https://www.nasa.gov\"><h3>Visit NASA</h3></a>", "<p>Read <a href=\"https://www.nasa.gov\"><strong>the mission news</strong></a> today.</p>"] },
+    { warn: "Keep the tags nested in order: if the `strong` opens inside the `a`, it must close before the `a` does." }
+  ]);
   add("styleblock", LNK, "What is a style block?", [
     { p: "A style block holds styles for many tags in one place. It goes in the **head**, under the title." },
     { ex: ["<style>", "  h1 {", "    color: white;", "    font-size: 38px;", "  }", "</style>"] },
@@ -308,6 +313,7 @@
 
   /* ---------- which help shows under which step text (first words that match decide; most specific first) ---------- */
   var R = [
+    [/whole heading|whole paragraph|inside a link|inside the a tag|wraps|around the h3/i, ["linkanything", "atag"]],
     [/doctype/i, ["doctype"]],
     [/body tags/i, ["bodytag", "skeleton"]],
     [/add the head|head tags first/i, ["headtag", "skeleton"]],
