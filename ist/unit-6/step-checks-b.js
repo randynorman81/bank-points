@@ -65,7 +65,7 @@
 
   /* =============== 6.20  (3.3) Font-Size, Text-Alignment, Letter-Case: the epic poster =============== */
   var H1 = T("h1"), H2a = T("h2", 0);
-  var whenH = HW("h3", /when/i), whereH = HW("h3", /where/i), ticketsH = HW("h3", /ticket/i);
+  var whenH = HW("h3", /when/i), whereH = HW("h3", /where/i), ticketsH = HW("h3", /ticket/i); var contactH = HW("h2", /contact/i), funP = function (c) { var t = pUnder(ticketsH)(c), n = h.nextEl(t); return n && n.tag === "p" ? n : null; };
   function pUnder(pick) { return AFTER(pick, "p"); }
   SC.LESSONS["6.20"] = { inlineOnly: true, steps: {
     "Step 1": [SK, TITLE, [bodyBg()]],
@@ -84,7 +84,9 @@
       [exists("There is a third heading 3 that says Tickets", ticketsH), K("It is the third heading 3 on the page (after When and Where)", function (c) { return c.all("h3").indexOf(ticketsH(c)) === 2; }), P("It has a color", ticketsH, "color", named), P("It is text-transform uppercase", ticketsH, "text-transform", upper), P("It is text-align center", ticketsH, "text-align", center)],
       [exists("A paragraph is under the Tickets heading", pUnder(ticketsH)), P("It has a color", pUnder(ticketsH), "color", named), P("Its font-size is 20px", pUnder(ticketsH), "font-size", h.px(20)),
        P("It is text-align center", pUnder(ticketsH), "text-align", center), P("It has a background-color", pUnder(ticketsH), "background-color", named)],
-      [K("There is one more paragraph at the end", function (c) { var p = c.all("p"); return p.length >= 4 && p[p.length - 1] !== pUnder(ticketsH)(c); }), P("It has a color", lastP, "color", named), P("Its font-size is 16px", lastP, "font-size", h.px(16)), P("It is text-align center", lastP, "text-align", center)]
+      [exists("There is a paragraph after the tickets paragraph (the fun fact or warning)", funP), P("It has a color", funP, "color", named), P("Its font-size is 16px", funP, "font-size", h.px(16)), P("It is text-align center", funP, "text-align", center)],
+      [exists("There is a second heading 2 that says Contact Information", contactH), K("It is the last heading on the page", function (c) { var hs = c.all("h1").concat(c.all("h2"), c.all("h3")); return hs.length > 0 && hs.every(function (x) { return x === contactH(c) || h.before(c, x, contactH(c)); }); }), P("It has a color", contactH, "color", named), P("It is text-align center", contactH, "text-align", center)],
+      [exists("A paragraph is under the Contact Information heading", pUnder(contactH)), K("It has at least 4 words of contact info", function (c) { var p = pUnder(contactH)(c); return !!p && h.words(c, p) >= 4; }), P("It has a color", pUnder(contactH), "color", named), P("It is text-align center", pUnder(contactH), "text-align", center)]
     ]
   } };
   lastStep("6.20", "Step 5", [[h.ALLGREEN], []]);

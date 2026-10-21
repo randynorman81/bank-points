@@ -76,10 +76,12 @@
       "Add a **heading 3** that says When, with a **color** style. Under it, add a **paragraph** with the date and time. Style the paragraph: **color** (light on a dark background), **font-size** 20px, and a **background-color** (a named color)",
       "Add a **heading 3** that says Where, with a **color** style. Under it, add a **paragraph** with the place. Style it: **color** and **font-size** 20px"
     ]),
-    S("Tickets and a finishing touch", [
+    S("Tickets, a finishing touch, and contact info", [
       "Add a third **heading 3** that says Tickets (after your When and Where headings). Style it: **color**, **text-transform** uppercase, **text-align** center. You can reuse the same colors as your other headings so everything looks uniform",
       "Under it, add a **paragraph** about how to get tickets. Style it: **color**, **font-size** 20px, **text-align** center, and a **background-color**",
-      "Add one last **paragraph** with a fun fact or a warning. Style it: **color**, **font-size** 16px, and **text-align** center"
+      "Add one **paragraph** with a fun fact or a warning. Style it: **color**, **font-size** 16px, and **text-align** center",
+      "At the very bottom, add a second **heading 2** that says Contact Information. Style it: **color** and **text-align** center",
+      "Under it, add a **paragraph** that lists your contact info (an email, a phone number, or a social media name; it can be made up). Style it: **color** and **text-align** center"
     ]),
     done()]));
 
