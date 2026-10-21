@@ -42,7 +42,8 @@
     ]),
     S("Color the whole page", [
       "On the **body** tag, add a style: **background-color** (a loud named color)",
-      "In the same style, add **color** (a named color for the text). Put both properties in **one** style attribute, with a semicolon after each, and make the two **different** colors"
+      "In the same style, add **color** (a named color for the text). Put both properties in **one** style attribute, with a semicolon after each, and make the two **different** colors",
+      "**Remember:** the style on the body gives the **whole page** its basic colors, and every tag inside inherits them. But you can **override** those colors on any single tag by giving that tag its own style attribute with new colors. That is how you will make each heading and paragraph different in the next steps"
     ]),
     S("Color the headings", [
       "Style the **heading 1** with **color** and **background-color** together (two different named colors)",
