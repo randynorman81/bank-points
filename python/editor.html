@@ -1101,7 +1101,7 @@ function showSignIn() {
 function onCredential(resp) {
   var p = decodeJwt(resp.credential);
   if ((p.hd || "").toLowerCase() !== "socialcircleschools.org") { flash("Use your school account (@socialcircleschools.org)"); alert("Please sign in with your school account (@socialcircleschools.org)."); return; }
-  CRED = resp.credential; USER = p.name || p.email || "";
+  CRED = resp.credential; USER = p.name || p.email || ""; userEmail = String(p.email || "").toLowerCase(); if (TEACHER_EMAILS.indexOf(userEmail) > -1) document.body.classList.add("teacher");
   try {
     var who = String(p.email || "").toLowerCase(), owner = lsGet("py:owner");
     if (owner && owner !== who) { Object.keys(localStorage).filter(function (k) { return /^py:(code|prog)/.test(k); }).forEach(function (k) { localStorage.removeItem(k); }); ta.value = starter(); gutter(); renderAssignment(); }
@@ -1230,7 +1230,11 @@ $("mGo").addEventListener("click", function () {
 initGoogle();
 /* published assignment instructions come from the backend (so unpublished ones are never on the public site) */
 /* a student sees an assignment only after submitting the one before it (the server decides, per student) */
+/* the teacher account has no copy limits (students always do) */
+var TEACHER_EMAILS = ["randy.norman@socialcircleschools.org"];
+var userEmail = "";
 var TEACHER = /[?&]teacher/.test(location.search);
+function isTeacherNow() { return TEACHER || TEACHER_EMAILS.indexOf(userEmail) > -1; }
 var loadSeq = 0;
 function loadAssignments() {
   var my = ++loadSeq;
@@ -1246,12 +1250,13 @@ function loadAssignments() {
 }
 loadAssignments();
 /* students cannot copy, cut, paste, or drag text anywhere in the editor; the teacher preview (?teacher) can */
-if (!/[?&]teacher/.test(location.search)) {
+{
   var blockMsg = "Copy and paste are turned off. Type your own code.";
   ["paste", "copy", "cut", "drop"].forEach(function (ev) {
-    document.addEventListener(ev, function (e) { e.preventDefault(); e.stopPropagation(); flash(blockMsg); }, true);
+    document.addEventListener(ev, function (e) { if (isTeacherNow()) return; e.preventDefault(); e.stopPropagation(); flash(blockMsg); }, true);
   });
   document.addEventListener("beforeinput", function (e) {
+    if (isTeacherNow()) return;
     if (/^insertFrom(Paste|Drop|Yank)/.test(e.inputType || "")) { e.preventDefault(); flash(blockMsg); }
   }, true);
 }

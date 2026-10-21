@@ -131,6 +131,7 @@ main[data-view="code"] #split,main[data-view="prev"] .split{display:none}
 #periodBtns{display:inline-flex;align-items:center;gap:4px}#periodBtns .pl{font-weight:700;font-size:13px;color:var(--ink)}#periodBtns .pbtn{min-width:40px;padding:5px 10px}#periodBtns .pbtn.on{background:var(--acc);color:#0B0E14;border-color:var(--acc)}
 .autosc{font:700 12px "JetBrains Mono",monospace;white-space:nowrap;color:#FB923C}.autosc b{font-size:15px}.autosc small{font-weight:600;color:var(--soft);margin-left:4px}.autosc.ok{color:#34D399}
 #btnSubmit.locked{opacity:.55}
+body.teacher #ansPane pre.pat{user-select:text}
 .tiprow{display:flex;flex-wrap:wrap;gap:5px;margin:2px 0 10px 26px}
 .tipbtn{background:#2B2208;border:1px solid #D4A017;color:#FCD34D;border-radius:999px;padding:3px 11px;font:700 11.5px Manrope,sans-serif;cursor:pointer;text-align:left}.tipbtn:hover{background:#3a2d0a}
 .helpstep{display:inline-block;margin:0 0 10px;border:1px solid #D4A017;background:#2B2208;color:#FCD34D;border-radius:999px;padding:5px 14px;font:700 12.5px Manrope,sans-serif;cursor:pointer}.helpstep span{font-weight:600;opacity:.8}.helpstep:hover{background:#3a2d0a}
@@ -580,7 +581,10 @@ function handleAuto(ch) {
 }
 /* Copy and paste: students can copy and paste CODE THEY HAVE ALREADY WRITTEN in their own HTML and CSS (to move or repeat a piece of their page), but they cannot paste anything that came from the notes, the steps, other websites, or anywhere else.
    A paste is allowed only when the text matches what was copied from the editor, or is already in their page. The teacher view (?teacher or ?all=1) has no limits. */
+/* the teacher account has no copy limits (students always do) */
+var TEACHER_EMAILS = ["randy.norman@socialcircleschools.org"];
 var TEACHER = /[?&](teacher|all=1)/.test(location.search);
+function isTeacher() { return TEACHER || (!!S.email && TEACHER_EMAILS.indexOf(S.email) > -1); }
 var blockMsg = "You can only paste code you copied from your own page. Type everything else yourself.";
 function ownText(t) {
   var CR = String.fromCharCode(13), LF = String.fromCharCode(10);
@@ -591,24 +595,26 @@ function ownText(t) {
   var hay = norm([ta.value, S.buf.html, S.buf.css].join(LF));
   return hay.indexOf(t) > -1 || hay.indexOf(t.trim()) > -1;
 }
-if (!TEACHER) {
+{
   document.addEventListener("copy", function (e) {
+    if (isTeacher()) return;
     var t = e.target; if (t === ta) return;
     if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
     e.preventDefault(); e.stopPropagation(); toast("You can only copy code from your own page.");
   }, true);
-  document.addEventListener("cut", function (e) { if (e.target === ta) return; if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return; e.preventDefault(); e.stopPropagation(); }, true);
+  document.addEventListener("cut", function (e) { if (isTeacher() || e.target === ta) return; if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return; e.preventDefault(); e.stopPropagation(); }, true);
   document.addEventListener("paste", function (e) {
-    if (e.target !== ta) return;
+    if (isTeacher() || e.target !== ta) return;
     var t = ""; try { t = (e.clipboardData || window.clipboardData).getData("text"); } catch (er) {}
     if (!ownText(t)) { e.preventDefault(); e.stopPropagation(); toast(blockMsg); }
   }, true);
   document.addEventListener("drop", function (e) {
+    if (isTeacher()) return;
     var t = ""; try { t = e.dataTransfer.getData("text"); } catch (er) {}
     if (e.target === ta && ownText(t)) return;
     e.preventDefault(); e.stopPropagation(); if (e.target === ta) toast(blockMsg);
   }, true);
-  document.addEventListener("dragover", function (e) { if (e.target !== ta) { e.preventDefault(); } }, true);
+  document.addEventListener("dragover", function (e) { if (!isTeacher() && e.target !== ta) { e.preventDefault(); } }, true);
 }
 /* remember what was last copied from the editor, even after a page reload */
 ["copy", "cut"].forEach(function (ev) { ta.addEventListener(ev, function () { var t = ta.value.slice(ta.selectionStart, ta.selectionEnd); if (t) { clip = t; try { lsSet("u7:clip", t.slice(0, 60000)); } catch (er) {} } }); });
@@ -979,7 +985,7 @@ function showSignInButton() {
 function onCredential(resp) {
   var p = decodeJwt(resp.credential);
   if ((p.hd || "").toLowerCase() !== "socialcircleschools.org") { banner("Please sign in with your school account (@socialcircleschools.org).", "err"); return; }
-  S.cred = resp.credential; S.name = p.name || ""; S.email = (p.email || "").toLowerCase();
+  S.cred = resp.credential; S.name = p.name || ""; S.email = (p.email || "").toLowerCase(); if (TEACHER_EMAILS.indexOf(S.email) > -1) document.body.classList.add("teacher");
   $("who").textContent = "Signed in: " + (S.name || S.email); $("gbtn").innerHTML = ""; $("note").className = "note";
   $("banner").className = "banner";
   afterLessonChange(true);
