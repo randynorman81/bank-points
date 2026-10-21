@@ -170,6 +170,7 @@ body.karel #karel{display:flex}
 .kmsg{padding:0 12px 8px;font-size:12px;color:var(--soft);min-height:22px}
 .kmsg.bad{color:var(--bad)}
 .top select{max-width:170px}
+#periodBtns{display:inline-flex;align-items:center;gap:4px}#periodBtns .pl{font:700 11px Manrope,sans-serif;color:var(--ink)}#periodBtns .pbtn{min-width:38px}#periodBtns .pbtn.on{background:var(--acc);color:#05070B;border-color:var(--acc)}
 .who{font-size:12px;color:var(--soft)}
 .saveind{font-size:11px;margin-right:10px;white-space:nowrap;color:var(--soft)}.saveind.ok{color:#6EE7B7}.saveind.warn{color:#FDE68A}.saveind.bad{color:#FCA5A5;font-weight:700}
 #gbtn{display:inline-block;min-height:32px}
@@ -216,7 +217,8 @@ body.teacher #assBody pre,body.teacher #tipBody pre{user-select:text;cursor:text
   <span class="sp"></span>
   <span class="vsep" aria-hidden="true"></span>
   <span class="saveind" id="saveInd" aria-live="polite"></span><span class="who" id="who"></span><span id="gbtn"></span>
-  <select id="period" aria-label="Class period"><option value="">Period…</option><option>1A</option><option>2B</option></select>
+  <select id="period" aria-label="Class period" style="display:none"><option value="">Period…</option><option>1A</option><option>2B</option></select>
+  <span id="periodBtns" role="group" aria-label="Class period"><span class="pl">Period:</span><button type="button" class="btn pbtn" data-p="1A">1A</button><button type="button" class="btn pbtn" data-p="2B">2B</button></span>
   <button class="btn go" id="submit">Submit</button>
 </div>
 <div class="topbanner" id="topBanner">
@@ -1199,6 +1201,13 @@ $("slot").addEventListener("change", function () {
     var v = savedCode(); ta.value = v !== null ? v : starter(); gutter(); afterSlotChange();
   });
 });
+/* period buttons (a plain select would not open on some Chromebooks): they drive the hidden select, and light up whenever its value changes */
+(function () {
+  var sel = $("period"), btns = document.querySelectorAll("#periodBtns .pbtn");
+  function sync() { for (var i = 0; i < btns.length; i++) btns[i].classList.toggle("on", btns[i].getAttribute("data-p") === sel.value); }
+  for (var i = 0; i < btns.length; i++) btns[i].addEventListener("click", function () { sel.value = this.getAttribute("data-p"); sel.dispatchEvent(new Event("change")); sync(); });
+  sel.addEventListener("change", sync); setInterval(sync, 600); sync();
+})();
 $("period").addEventListener("change", function () { lsSet("py:period", this.value); if (typeof loadAssignments === "function") loadAssignments(); });
 $("submit").addEventListener("click", function () {
   if (!ta.value.trim()) { flash("Write some code first"); return; }
