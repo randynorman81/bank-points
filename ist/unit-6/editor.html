@@ -131,8 +131,8 @@ main[data-view="code"] #split,main[data-view="prev"] .split{display:none}
 #periodBtns{display:inline-flex;align-items:center;gap:4px}#periodBtns .pl{font-weight:700;font-size:13px;color:var(--ink)}#periodBtns .pbtn{min-width:40px;padding:5px 10px}#periodBtns .pbtn.on{background:var(--acc);color:#0B0E14;border-color:var(--acc)}
 .steptick{font:700 12px Manrope,sans-serif;color:var(--ink);white-space:nowrap}.steptick .bar{display:inline-block;width:90px;height:7px;border-radius:4px;background:#26304A;vertical-align:middle;margin-left:6px;overflow:hidden}.steptick .bar i{display:block;height:100%;background:#34D399;width:0}
 #ansPane .sbx{display:flex;flex-wrap:wrap;align-items:flex-start;gap:3px 8px;margin:8px 0}
-#ansPane .sbx label{display:flex;gap:8px;flex:1 1 200px;cursor:default}
-#ansPane .sbx input{margin-top:3px;accent-color:#34D399;pointer-events:none}
+#ansPane .sbx label{display:flex;gap:8px;flex:1 1 200px;cursor:pointer}
+#ansPane .sbx input{margin-top:3px;accent-color:#34D399;cursor:pointer}
 #ansPane .sbx.done label span{text-decoration:line-through;opacity:.65}
 #ansPane .abadge{font:700 11px Manrope,sans-serif;border:1px solid #F87171;color:#F87171;border-radius:999px;padding:1px 9px;white-space:nowrap;margin-left:26px}
 #ansPane .abadge.ok{border-color:#34D399;color:#34D399}
@@ -1312,7 +1312,7 @@ function ansRender() {
   pane.innerHTML = h; ansBadge(); exUpdate(); stepUpdate();
 }
 /* step boxes: a checkbox that ticks itself when the auto-check is fully met, with a badge like "auto-check: 3 of 5 met" (click the badge to see what is missing) */
-function stepBox(bi, key, text) { return '<div class="sbx" data-sk="' + key + '" data-bi="' + bi + '"><label><input type="checkbox" tabindex="-1" aria-label="Done automatically when the auto-check is met"><span>' + wtText(text) + '</span></label><button type="button" class="abadge btn2" data-sk="' + key + '" data-bi="' + bi + '">auto-check</button></div>'; }
+function stepBox(bi, key, text) { var on = (S.ans || {})["sx_" + key + ":" + bi] === "1"; return '<div class="sbx' + (on ? " done" : "") + '" data-sk="' + key + '" data-bi="' + bi + '"><label><input type="checkbox"' + (on ? " checked" : "") + ' aria-label="Check this off when you have finished it"><span>' + wtText(text) + '</span></label><button type="button" class="abadge btn2" data-sk="' + key + '" data-bi="' + bi + '">auto-check</button></div>'; }
 var stepLast = null, stepOpen = {};
 function stepUpdate() {
   var SCx = window.U7_STEPCHECKS; if (!SCx || !SCx.LESSONS[S.lesson]) { var tk0 = $("stepTick"); if (tk0) tk0.style.display = "none"; return; }
@@ -1321,13 +1321,19 @@ function stepUpdate() {
   [].forEach.call(document.querySelectorAll("#ansPane .sbx"), function (box) {
     var st = r[box.getAttribute("data-sk")], bi = box.getAttribute("data-bi"), list = !st ? [] : bi === "c" ? [{ label: "The comment is on its own line", ok: !!st.comment }] : (st.bullets[+bi] || []);
     var n = list.length, m = list.filter(function (x) { return x.ok; }).length, done = n > 0 && m === n, b = box.querySelector(".abadge"), id = box.getAttribute("data-sk") + ":" + bi;
-    box.classList.toggle("done", done); box.querySelector("input").checked = done; tot++; if (done) okn++;
+    var ticked = box.querySelector("input").checked; box.classList.toggle("done", ticked); tot++; if (ticked) okn++;
     b.className = "abadge btn2" + (done ? " ok" : ""); b.textContent = done ? "✓ auto-check: " + (n === 1 ? "met" : "all " + n + " met") : "auto-check: " + m + " of " + n + " met";
     var old = box.querySelector(".stepmiss"); if (old) old.remove();
     if (stepOpen[id] && !done) { var d = document.createElement("div"); d.className = "stepmiss"; d.innerHTML = list.filter(function (x) { return !x.ok; }).map(function (x) { return "<div>• " + esc(x.label) + "</div>"; }).join(""); box.appendChild(d); }
   });
   var tk = $("stepTick"); if (tk) { tk.style.display = tot ? "" : "none"; tk.innerHTML = okn + " of " + tot + " steps checked off (" + (tot ? Math.round(100 * okn / tot) : 0) + "%)<span class=\"bar\"><i style=\"width:" + (tot ? 100 * okn / tot : 0) + "%\"></i></span>"; }
 }
+/* the student checks a box off themselves (it is saved); the auto-check badge is separate and only says what the page shows */
+$("ansPane").addEventListener("change", function (e) {
+  var box = e.target.closest && e.target.closest(".sbx"); if (!box || e.target.type !== "checkbox") return;
+  S.ans["sx_" + box.getAttribute("data-sk") + ":" + box.getAttribute("data-bi")] = e.target.checked ? "1" : ""; ansSaveLocal(); stepUpdate(); touch(); $("status").textContent = "Typing…";
+  clearTimeout(tAns); tAns = setTimeout(function () { saveNow(false); }, 800);
+});
 $("ansPane").addEventListener("click", function (e) { var b = e.target.closest && e.target.closest(".abadge"); if (!b) return; var id = b.getAttribute("data-sk") + ":" + b.getAttribute("data-bi"); stepOpen[id] = !stepOpen[id]; stepUpdate(); });
 function ansInit() {
   var a = null; try { a = JSON.parse(lsGet("u7:ans:" + S.lesson) || "null"); } catch (e) {}
