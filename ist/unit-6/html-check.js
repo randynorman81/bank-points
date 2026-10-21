@@ -136,7 +136,8 @@
         issues.push({ line: line, msg: where + ": looks like a semicolon is missing before another property, in \"" + p.trim() + "\"." });
       }
       var last = (i === parts.length - 1);
-      if (last && !endsOk) issues.push({ line: line, msg: where + ': end the last property with a semicolon: "' + prop + ": " + val.slice(0, 20) + ';".', soft: true });
+      /* the last property in a style attribute does not need a closing semicolon; semicolons are only needed BETWEEN properties (style attributes only: other places keep the reminder) */
+      if (last && !endsOk && !/^On </.test(where)) issues.push({ line: line, msg: where + ': end the last property with a semicolon: "' + prop + ": " + val.slice(0, 20) + ';".', soft: true });
       if (KNOWN_PROPS.indexOf(prop) === -1) {
         var s = suggest(prop, KNOWN_PROPS);
         issues.push({ line: line, msg: where + ': "' + prop + '" is not a property we know' + (s ? " (did you mean " + s + "?)" : "") + "." });
@@ -453,7 +454,7 @@
       r("Has one heading 1, at least 3 heading 2s, and at least 6 paragraphs", function (c) { return c.count("h1") === 1 && c.count("h2") >= 3 && c.count("p") >= 6; }, "Pick your topic, then build the page: 1 h1, 3 or more h2, 6 or more p."),
       r("The body has a background-color (a named color)", function (c) { var b = c.all("body")[0]; return !!b && hasDecl(c, b, "background-color", isNamedColor); }, "Put style=\"background-color: lime;\" on the body tag."),
       r("The body also has a text color that is different from its background-color", function (c) { var b = c.all("body")[0]; return !!b && hasDecl(c, b, "color", isNamedColor) && colorsDiffer(c, b); }, "Chain it after the background-color: style=\"background-color: lime; color: purple;\""),
-      r("The heading 1 uses color and background-color together", function (c) { var h = c.all("h1")[0]; return !!h && bothColors(c, h) && colorsDiffer(c, h); }, "Two properties in one style attribute, each ending with a semicolon."),
+      r("The heading 1 uses color and background-color together", function (c) { var h = c.all("h1")[0]; return !!h && bothColors(c, h) && colorsDiffer(c, h); }, "Two properties in one style attribute, with a semicolon between them."),
       r("EVERY heading 2 and EVERY paragraph uses color and background-color together (two different colors)", function (c) { var e = c.all("h2").concat(c.all("p")); return e.length >= 9 && e.every(function (x) { return bothColors(c, x) && colorsDiffer(c, x); }); }, "Almost every tag on an ugly page has both colors."),
       r("At least 2 heading 2s use exactly the same text color and background-color (a pattern)", function (c) { var n = {}; c.all("h2").forEach(function (x) { var k = declOf(c, x, "color")[0] + "|" + declOf(c, x, "background-color")[0]; n[k] = (n[k] || 0) + 1; }); return Object.keys(n).some(function (k) { return n[k] >= 2; }); }, "Give a couple of your h2s the same two colors so they look like a matching set."),
       r("EVERY paragraph is different: no two paragraphs share a text color, and no two share a background-color", function (c) { var a = c.all("p"), t = {}, g = {}; return a.length >= 6 && a.every(function (x) { var tc = declOf(c, x, "color")[0], bc = declOf(c, x, "background-color")[0]; if (!tc || !bc || t[tc] || g[bc]) return false; t[tc] = 1; g[bc] = 1; return true; }); }, "Six paragraphs need six different text colors and six different background colors."),

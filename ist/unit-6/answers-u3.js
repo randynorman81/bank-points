@@ -16,7 +16,7 @@
   function notes(url) { return { p: "Stuck? Read the notes: schscomputerscience.com/ist/" + url }; }
   function head(what, themes, note) { return [{ h: "What you are building" }, { p: what + (themes ? " Pick **one**: " + themes + "." : "") + " Click **Checks** any time to see your score. The **Concepts** tab lists every tag and style this page needs." }, note].filter(Boolean); }
   var RULE = { p: "**Every theme uses these same steps.** Use **named colors** (like navy or tomato) unless a step says hex. Dark backgrounds need light text. Each step says the least you must add: you can ALWAYS add more." };
-  var RULE2 = { p: "Every style goes in a **style attribute**: the word style, an equals sign, and quotes, with each property and value **inside** the quotes and a semicolon after each. Each step says the least you must add: you can ALWAYS add more." };
+  var RULE2 = { p: "Every style goes in a **style attribute**: the word style, an equals sign, and quotes, with each property and value **inside** the quotes. When you put **two or more** properties in one style attribute, put a **semicolon between them** (a single property does not need one). Each step says the least you must add: you can ALWAYS add more." };
   function skeleton(extra) {
     return S("Skeleton and title", [
       "Type the **doctype** line, then **html** with a **head** and a **body** inside it (head first)",
@@ -42,7 +42,7 @@
     ]),
     S("Color the whole page", [
       "On the **body** tag, add a style: **background-color** (a loud named color)",
-      "In the same style, add **color** (a named color for the text). Put both properties in **one** style attribute, with a semicolon after each, and make the two **different** colors",
+      "In the same style, add **color** (a named color for the text). Put both properties in **one** style attribute, with a semicolon between them, and make the two **different** colors",
       "**Remember:** the style on the body gives the **whole page** its basic colors, and every tag inside inherits them. But you can **override** those colors on any single tag by giving that tag its own style attribute with new colors. That is how you will make each heading and paragraph different in the next steps"
     ]),
     S("Color the headings", [
