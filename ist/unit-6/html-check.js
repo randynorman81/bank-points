@@ -780,7 +780,7 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
   function openTags(src) { var p = parse(String(src || "")); return { open: p.open, raw: p.openRaw }; }
   // Builds what the preview shows: swaps <link href="style.css"> for the student's CSS file, and adds a tiny
   // starter style (page margins + text that always wraps) BEFORE their own styles so theirs still win.
-  var BASE_STYLE = "<style id=\"__base\">html{overflow-wrap:anywhere;word-wrap:break-word}body{margin:0;padding:16px 20px}</style>";
+  var BASE_STYLE = "<base target=\"_blank\"><style id=\"__base\">html{overflow-wrap:anywhere;word-wrap:break-word}body{margin:0;padding:16px 20px}</style>";
   function previewDoc(html, css) {
     html = String(html || ""); css = String(css || "");
     if (css.trim()) html = html.replace(/<link\b[^>]*\bhref\s*=\s*["']?style\.css["']?[^>]*>/i, function () { return "<style>" + css.replace(/<\/style/gi, "<\\/style") + "</style>"; });

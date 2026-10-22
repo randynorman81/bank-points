@@ -352,7 +352,7 @@ function select(email) {
   if (view === "code") { v.innerHTML = '<div class="code"><div class="g">' + gut + "</div><pre></pre></div>"; v.querySelector("pre").innerHTML = r.code ? highlight(r.code, r.org.ranges) : "(empty)"; }
   else if (view === "css") { var cl = (r.css || "").split("\n"), cg = ""; for (var j = 1; j <= cl.length; j++) cg += "<div>" + j + "</div>"; v.innerHTML = '<div class="code"><div class="g">' + cg + "</div><pre></pre></div>"; v.querySelector("pre").textContent = r.css || "(empty: no CSS file)"; }
   else if (view === "ans") { v.innerHTML = ansHtml(r); }
-  else { v.innerHTML = '<iframe sandbox="allow-popups" title="Student website"></iframe>'; v.querySelector("iframe").srcdoc = H.previewDoc(r.code, r.css); }
+  else { v.innerHTML = '<iframe sandbox="allow-popups allow-popups-to-escape-sandbox" title="Student website"></iframe>'; v.querySelector("iframe").srcdoc = H.previewDoc(r.code, r.css); }
   var nw = "", old = "";
   r.rep.results.forEach(function (x) { var h = '<div class="rule ' + (x.ok ? "ok" : "no") + (x.isNew ? "" : " old") + '"><span class="m">' + (x.ok ? "✓" : "!") + "</span><span>" + esc(x.label) + "</span></div>"; if (x.isNew) nw += h; else old += h; });
   var pr = ""; r.rep.errors.forEach(function (e) { pr += '<div class="prob e"><b>Line ' + e.line + "</b> " + esc(e.msg) + "</div>"; }); r.rep.warnings.forEach(function (w) { pr += '<div class="prob w"><b>Line ' + w.line + "</b> " + esc(w.msg) + "</div>"; });
