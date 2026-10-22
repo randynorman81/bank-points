@@ -9,6 +9,9 @@ import { getStore } from "@netlify/blobs";
 const JSON_HEADERS = { "Content-Type": "application/json" };
 const GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
 const SCHOOL_EMAIL_DOMAIN = "socialcircleschools.org";
+/* the teacher account sees every assignment open (published or not), with no 80-point gate */
+const TEACHER_EMAILS = ["randy.norman@socialcircleschools.org"];
+function isTeacherUser(user) { return !!user && TEACHER_EMAILS.indexOf(user.email) > -1; }
 const SLOTS = ["free"].concat(Array.from({ length: 30 }, (_, i) => "a" + (i + 1)));
 const MAX_CODE = 60000;
 const MAX_WORLD = 20000;
@@ -164,7 +167,7 @@ async function submit(body, user) {
   if (code.length > MAX_CODE) return { error: "That file is too big to submit." };
   const period = cleanPeriod(body.period);
   const asg = await readJSON("assign:" + body.slot, null);
-  if (asg && asg.live !== false && body.slot !== "free") {
+  if (asg && asg.live !== false && body.slot !== "free" && !isTeacherUser(user)) {
     const open = await gatedAssignments(user, period);
     if (!open.assignments[body.slot]) { const L = open.locked.find((x) => x.id === body.slot); return { error: L ? "Assignment " + L.num + " is locked. Finish Assignment " + L.needNum + " with a score of at least " + PASS + " first." : "That assignment is not open yet." }; }
     const v = variantFor(asg, period);
@@ -273,6 +276,7 @@ async function adminDeleteAssignment(body) {
 async function gatedAssignments(user, period) {
   const all = (await publicAssignments(true)).assignments, order = Object.keys(all).sort((a, b) => parseInt(a.slice(1), 10) - parseInt(b.slice(1), 10));
   const out = {}, locked = []; let prev = null;
+  if (isTeacherUser(user)) { for (const id of order) { const v = Object.assign({}, variantFor(all[id], period)); delete v.checks; delete v.variants; out[id] = v; } return { ok: true, assignments: out, locked }; }
   for (const id of order) {
     const live = all[id].live !== false;
     let open = prev === null || (user && (await subPassed(prev, user.email)));
