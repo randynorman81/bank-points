@@ -1013,12 +1013,13 @@ function updateScore() {
   clearTimeout(scoreT);
   var A = (window.PY_ASSIGN || {})[slot], el = $("assScore");
   if (!A || slot === "free" || slot === "example") { el.innerHTML = ""; $("assMiss").className = ""; return; }
+  if (CRED && credLeft(CRED) <= 60) { try { google.accounts.id.prompt(); } catch (e) {} }
   scoreT = setTimeout(function () {
     var seq = ++scoreSeq, body = { action: "score", slot: slot, code: ta.value, period: $("period").value, credential: CRED || undefined }, tp = ""; try { tp = /[?&]teacher/.test(location.search) ? (sessionStorage.getItem("pypin") || "") : ""; } catch (e) {}
     if (tp) body.pin = tp;
     fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(function (r) { return r.json(); }).then(function (j) {
       if (seq !== scoreSeq || !j || !j.ok) return;
-      if (j.pct === null || j.pct === undefined) { el.innerHTML = j.tooLong ? "<small>Your code is too long to score here.</small>" : ""; $("assMiss").className = ""; return; }
+      if (j.pct === null || j.pct === undefined) { boxBadges(null); el.innerHTML = j.tooLong ? "<small>Your code is too long to score here.</small>" : (CRED && credLeft(CRED) <= 0 ? "<small style='color:#FDE68A'>Your Google sign-in timed out, so the auto-check is paused. Reload the page to sign back in (your code is saved).</small>" : ""); $("assMiss").className = ""; return; }
       var need = j.need || 80; el.innerHTML = "Auto score: <b>" + j.pct + " / 100</b> <small style='color:" + (j.pct >= need ? "#6EE7B7" : "#FDE68A") + "'>" + (j.pct >= need ? "(you can submit)" : "(you need " + need + " to submit)") + "</small>"; el.title = "This is the score your work earns: the same checks grade it when you submit. You need " + need + " to submit and to open the next assignment.";
       var miss = j.missing || [], box = $("assMiss");
       if (!miss.length) { box.className = "show"; $("assMissSum").textContent = "All the checks are met. Nice work!"; $("assMissList").innerHTML = ""; lastMiss = []; refreshWhere(); boxBadges(j.boxes); }
