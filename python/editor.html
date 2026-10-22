@@ -1014,7 +1014,7 @@ function updateScore() {
   var A = (window.PY_ASSIGN || {})[slot], el = $("assScore");
   if (!A || slot === "free" || slot === "example") { el.innerHTML = ""; $("assMiss").className = ""; return; }
   scoreT = setTimeout(function () {
-    var seq = ++scoreSeq, body = { action: "score", slot: slot, code: ta.value, period: $("period").value }, tp = ""; try { tp = /[?&]teacher/.test(location.search) ? (sessionStorage.getItem("pypin") || "") : ""; } catch (e) {}
+    var seq = ++scoreSeq, body = { action: "score", slot: slot, code: ta.value, period: $("period").value, credential: CRED || undefined }, tp = ""; try { tp = /[?&]teacher/.test(location.search) ? (sessionStorage.getItem("pypin") || "") : ""; } catch (e) {}
     if (tp) body.pin = tp;
     fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(function (r) { return r.json(); }).then(function (j) {
       if (seq !== scoreSeq || !j || !j.ok) return;

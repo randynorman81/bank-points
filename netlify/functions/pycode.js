@@ -424,7 +424,7 @@ async function liveScore(body) {
   if (code.length > 15000) return { ok: true, pct: null, tooLong: true };
   const rec = variantFor(await readJSON("assign:" + body.slot, null), cleanPeriod(body.period));
   if (!rec || !Array.isArray(rec.checks) || !rec.checks.length) return { ok: true, pct: null };
-  if (rec.live === false && !isAdmin(body)) return { ok: true, pct: null };
+  if (rec.live === false && !isAdmin(body) && !(body.credential && isTeacherUser(await verifyGoogleToken(body.credential)))) return { ok: true, pct: null };
   const r = scoreCode(rec.checks, code);
   return { ok: true, need: PASS, pct: r.pct, passed: r.passed, total: r.total, missing: r.missing, boxes: r.boxes };
 }
