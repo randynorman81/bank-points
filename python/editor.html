@@ -1092,14 +1092,21 @@ function decodeJwt(t) { try { var p = t.split(".")[1].replace(/-/g, "+").replace
 function initGoogle() {
   if (!window.google || !google.accounts || !google.accounts.id) { setTimeout(initGoogle, 300); return; }
   google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onCredential, hd: "socialcircleschools.org", auto_select: true });
+  var kept = ""; try { kept = lsGet("py:cred") || ""; } catch (e) {}
+  if (kept && credLeft(kept) > 120) setTimeout(function () { onCredential({ credential: kept }); }, 0);
   showSignIn(); if (!CRED) google.accounts.id.prompt();
+  /* stay signed in until Sign out: Google's sign-in token lasts only an hour, so renew it quietly before it runs out */
+  setInterval(function () { if (CRED && credLeft(CRED) < 600) { try { google.accounts.id.prompt(); } catch (e) {} } }, 60000);
 }
 function showSignIn() {
   var g = $("gbtn"); g.innerHTML = "";
   if (window.google && google.accounts && google.accounts.id) google.accounts.id.renderButton(g, { theme: "filled_blue", size: "medium", text: "signin_with", shape: "rectangular" });
 }
+function credLeft(t) { var p = decodeJwt(t); return (p.exp || 0) - Math.floor(Date.now() / 1000); }
 function onCredential(resp) {
   var p = decodeJwt(resp.credential);
+  try { lsSet("py:cred", resp.credential); } catch (e) {}
+  if (CRED && String(p.email || "").toLowerCase() === userEmail) { CRED = resp.credential; return; }
   if ((p.hd || "").toLowerCase() !== "socialcircleschools.org") { flash("Use your school account (@socialcircleschools.org)"); alert("Please sign in with your school account (@socialcircleschools.org)."); return; }
   CRED = resp.credential; USER = p.name || p.email || ""; userEmail = String(p.email || "").toLowerCase(); if (TEACHER_EMAILS.indexOf(userEmail) > -1) document.body.classList.add("teacher");
   try {
@@ -1118,6 +1125,7 @@ function signOut() {
   if (!confirm("Sign out? Your work is saved to your account first, and this computer's copy is cleared.")) return;
   cloudSave().catch(function () {}).then(function () {
     try { if (window.google && google.accounts && google.accounts.id) google.accounts.id.disableAutoSelect(); } catch (e) {}
+    try { localStorage.removeItem("py:cred"); } catch (e) {}
     try { Object.keys(localStorage).filter(function (k) { return /^py:(code|prog|slot|period)/.test(k); }).forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
     CRED = null; location.reload();
   });
@@ -1125,7 +1133,7 @@ function signOut() {
 function api(body) {
   body.credential = CRED;
   return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(function (r) { return r.json(); }).then(function (j) {
-    if (j && j.needLogin) { CRED = null; $("who").textContent = "Sign-in timed out. Sign in again (your code is safe)."; showSignIn(); }
+    if (j && j.needLogin) { CRED = null; try { google.accounts.id.prompt(); } catch (e) {} $("who").textContent = "Sign-in timed out. Sign in again (your code is safe)."; showSignIn(); }
     return j;
   });
 }
