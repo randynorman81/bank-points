@@ -704,9 +704,13 @@ function linkTags(html) {   /* every <link ...> tag, reading quoted values so a 
   }
   return out;
 }
-function updateTab(html) {
-  var tm = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i), t = tm ? tm[1].replace(/\s+/g, " ").trim() : "", ic = "";
+function pageIcon(html) {   /* the favicon address in the student's page, or an empty string */
+  var ic = "";
   linkTags(html).forEach(function (tag) { if (ic) return; if (/\brel\s*=\s*["']?(?:shortcut\s+)?icon["']?/i.test(tag.replace(/\bhref\s*=\s*(?:"[^"]*"|'[^']*')/i, ""))) { var hm = tag.match(/\bhref\s*=\s*(?:"([^"]*)"|'([^']*)')/i); ic = hm ? (hm[1] || hm[2] || "") : ""; } });
+  return ic;
+}
+function updateTab(html) {
+  var tm = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i), t = tm ? tm[1].replace(/\s+/g, " ").trim() : "", ic = pageIcon(html);
   $("tmTitle").textContent = t || "(no title yet)";
   var im = $("tmIcon"); if (ic) { im.src = ic; im.style.visibility = "visible"; } else { im.removeAttribute("src"); im.style.visibility = "hidden"; }
 }
@@ -1477,7 +1481,7 @@ function openInTab() {
   var doc = H.previewDoc(getHtml(), getCss()), base = '<base href="' + location.origin + '/">';
   doc = /<head\b[^>]*>/i.test(doc) ? doc.replace(/<head\b[^>]*>/i, function (m) { return m + base; }) : base + doc;
   var tm = new RegExp("<title[^>]*>([^]*?)</title>", "i").exec(getHtml()), title = tm ? tm[1].replace(/<[^>]*>/g, "").trim() : "";
-  var wrap = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + esc(title || "(no title yet)") + '</title><style>html,body{margin:0;height:100%;background:#fff}iframe{border:0;width:100%;height:100%;display:block}</style></head><body><iframe sandbox="allow-popups allow-popups-to-escape-sandbox" srcdoc="' + doc.replace(/&/g, "&amp;").replace(/"/g, "&quot;") + '"></iframe></body></html>';
+  var wrap = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + esc(title || "(no title yet)") + '</title>' + (pageIcon(getHtml()) ? '<link rel="icon" href="' + esc(pageIcon(getHtml())) + '">' : '') + '<style>html,body{margin:0;height:100%;background:#fff}iframe{border:0;width:100%;height:100%;display:block}</style></head><body><iframe sandbox="allow-popups allow-popups-to-escape-sandbox" srcdoc="' + doc.replace(/&/g, "&amp;").replace(/"/g, "&quot;") + '"></iframe></body></html>';
   var url = URL.createObjectURL(new Blob([wrap], { type: "text/html" })), w = window.open(url, "_blank");
   if (!w) toast("Your browser blocked the new tab. Allow pop-ups for this site and try again.");
   setTimeout(function () { URL.revokeObjectURL(url); }, 120000);
