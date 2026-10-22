@@ -117,7 +117,7 @@
   A["6.35"] = build([].concat(head("A **font showcase page** where the fonts are the stars. Pick **one**: a fancy restaurant sign, a band's tour page, a movie title page, a spooky haunted-house page, a gaming channel page, or a wedding invitation for two things that should not marry.", "", notes("unit-6/google-fonts-notes.html")), [RULE2,
     skeleton(["On the **body** tag, add a style: **background-color** (a named color)"]),
     S("Pick and link your fonts", [
-      "Go to **fonts.google.com**, pick **at least 3 fonts** that fit your theme, and get the **link** code for them. Paste the **link** tag (or tags) **inside the head**, under your title. Click the help button for the steps",
+      "Go to **fonts.google.com** and click **Filters**. Type your page's title as **sample text** and browse by **feeling** to pick **at least 3 fonts** that fit your theme, then get the **link** code for them. Paste the **link** tag (or tags) **inside the head**, under your title. Click the help button for the steps",
       "Check that your link(s) bring in **at least 3 different fonts** (one link can hold several fonts)"
     ]),
     S("Build your content", [

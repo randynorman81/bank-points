@@ -150,7 +150,7 @@
 
   var ED = cat("Editing tags");
   add("googlefont", ED, "How do I add a Google font?", [
-    { steps: ["Go to **fonts.google.com** and pick a font you like.", "Click **Get font**, then **Get embed code**, and choose the **link** option (not @import).", "Copy the **link** tag (or tags) and paste them inside your **head**, under the title.", "In a style attribute, write **font-family**, the font's name in quotes, a comma, and a fallback family."] },
+    { steps: ["Go to **fonts.google.com** and click **Filters**. Type your own **sample text** in the preview box, and browse by **feeling** (fancy, playful, loud, calm...) to find a font that fits your theme.", "Click **Get font**, then **Get embed code**, and choose the **link** option (not @import).", "Copy the **link** tag (or tags) and paste them inside your **head**, under the title.", "In a style attribute, write **font-family**, the font's name in quotes, a comma, and a fallback family."] },
     { ex: ["<head>", "  <title>Fonts</title>", "  <link href=\"https://fonts.googleapis.com/css2?family=Pacifico&display=swap\" rel=\"stylesheet\">", "</head>", "<h1 style=\"font-family: 'Pacifico', cursive;\">Hello</h1>"] },
     { list: ["The link goes in the **head**, never the body.", "A font only works on your page if its link is in your head.", "One link can load several fonts: add &family=Lobster after the first family.", "Always end with a fallback: serif, sans-serif, monospace, or cursive."] },
     { warn: "Font names with spaces (like Bebas Neue) go in single quotes inside the style." }
