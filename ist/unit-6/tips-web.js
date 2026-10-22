@@ -149,6 +149,10 @@
   ]);
 
   var ED = cat("Editing tags");
+  add("themes35", ED, "See all the theme choices", [
+    { p: "Pick **one** of these. Every idea uses the same steps. Your fonts should match the **mood**: the font is part of the joke." },
+    { list: ["**Your school as a luxury brand**: a fancy script logo, a serious serif \"About Us\", and a snobby tagline. Cafeteria pizza becomes \"Artisan Rectangle Pizza, $4\"","**Ransom note or detective case file**: every clue is a different font, like cut-out magazine letters, with bold for the evidence and spans on the key words","**The most dramatic apology letter ever**: a script for the greeting, a typewriter font for the \"official statement\", and bold, italic, uppercase for every shouty emotion","**Wedding invitation for two things that should never marry**: pineapple and pizza, or a cat and a Roomba, with a fancy script for the names and a tiny font for the \"terms\"","**Dating profile for an inanimate object**: a stapler, a sock, or the school bus, with a flirty tagline and a list of likes and dislikes","**Ransom note from your pet**: desperate demands (\"one more treat\") and a deadline, with mismatched cut-out letters and uppercase demands","**Your own idea**: anything that uses fonts for tone, as long as your teacher says yes first"] }
+  ]);
   add("googlefont", ED, "How do I add a Google font?", [
     { steps: ["Go to **fonts.google.com** and click **Filters**. Type your own **sample text** in the preview box, and browse by **feeling** (fancy, playful, loud, calm...) to find a font that fits your theme.", "Click **Get font**, then **Get embed code**, and choose the **link** option (not @import).", "Copy the **link** tag (or tags) and paste them inside your **head**, under the title.", "In a style attribute, write **font-family**, the font's name in quotes, a comma, and a fallback family."] },
     { ex: ["<head>", "  <title>Fonts</title>", "  <link href=\"https://fonts.googleapis.com/css2?family=Pacifico&display=swap\" rel=\"stylesheet\">", "</head>", "<h1 style=\"font-family: 'Pacifico', cursive;\">Hello</h1>"] },
