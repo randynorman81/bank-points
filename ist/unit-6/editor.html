@@ -356,7 +356,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
     <div class="sec" id="secTeacher" style="display:none"></div>
     <div class="sec"><h3>Requirements</h3><div id="rulesNew"></div><details id="revWrap" style="display:none"><summary id="revSum">Use what you already know</summary><div id="rulesRev"></div></details><details id="oldWrap"><summary>The basics (every page needs these)</summary><div id="rulesOld"></div></details></div>
     <div class="sec"><h3>Problems to fix</h3><div id="probs"><span style="color:var(--soft)">None so far.</span></div></div>
-    <div class="sec"><h3>Honesty check</h3><div style="font-size:13px;color:var(--soft)">You can copy and paste code that is already in your own page. Anything from outside it (another website, the notes, a document, a classmate, or AI) is blocked, so type your own code and write your own words.</div><div id="honest" style="margin-top:8px;font-size:13px"></div></div>
+    <div class="sec"><h3>Honesty check</h3><div id="honestTxt" style="font-size:13px;color:var(--soft)">You can copy and paste code that is already in your own page. Anything from outside it (another website, the notes, a document, a classmate, or AI) is blocked, so type your own code and write your own words.</div><div id="honest" style="margin-top:8px;font-size:13px"></div></div>
     <div class="sec"><h3>Tags you used</h3><div class="chips" id="tags"></div></div>
     <div class="sec"><h3>My images</h3>
       <div style="font-size:12px;color:var(--soft);margin-bottom:8px">Upload a picture, then click <b>Insert</b> to add it to your code. Sign in first.</div>
@@ -445,7 +445,7 @@ function logPaste(t) {
   }
   saveAct(); updateHonesty();
 }
-function updateHonesty() { var el = $("honest"); if (!el) return; el.innerHTML = ACT.ext ? "You pasted <b>" + ACT.ext + "</b> characters from outside the editor (" + ACT.events.length + " paste" + (ACT.events.length === 1 ? "" : "s") + "). Your teacher can see this, and long pastes take 50% off." : "No outside pasting so far. Great."; }
+function updateHonesty() { var el = $("honest"); if (!el) return; var ht = $("honestTxt"); if (ht) { if (!ht.getAttribute("data-orig")) ht.setAttribute("data-orig", ht.textContent); ht.textContent = pasteFree() ? "Copy and paste is allowed in this assignment (for example Google Fonts link code). Write your own words and make your own design choices." : ht.getAttribute("data-orig"); } el.innerHTML = ACT.ext ? "You pasted <b>" + ACT.ext + "</b> characters from outside the editor (" + ACT.events.length + " paste" + (ACT.events.length === 1 ? "" : "s") + "). Your teacher can see this, and long pastes take 50% off." : "No outside pasting so far. Great."; }
 
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -596,6 +596,8 @@ function handleAuto(ch) {
 /* the teacher account has no copy limits (students always do) */
 var TEACHER_EMAILS = ["randy.norman@socialcircleschools.org"];
 var TEACHER = /[?&](teacher|all=1)/.test(location.search);
+/* from 3.5 (Google Fonts) on, everyone can copy and paste freely (fonts links, text, code) */
+function pasteFree() { return isTeacher() || (window.HTMLCheck && HTMLCheck.ORDER.indexOf(S.lesson) >= HTMLCheck.ORDER.indexOf("6.35")); }
 function isTeacher() { return TEACHER || (!!S.email && TEACHER_EMAILS.indexOf(S.email) > -1); }
 var blockMsg = "You can only paste code you copied from your own page. Type everything else yourself.";
 function ownText(t) {
@@ -609,24 +611,24 @@ function ownText(t) {
 }
 {
   document.addEventListener("copy", function (e) {
-    if (isTeacher()) return;
+    if (pasteFree()) return;
     var t = e.target; if (t === ta) return;
     if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
     e.preventDefault(); e.stopPropagation(); toast("You can only copy code from your own page.");
   }, true);
-  document.addEventListener("cut", function (e) { if (isTeacher() || e.target === ta) return; if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return; e.preventDefault(); e.stopPropagation(); }, true);
+  document.addEventListener("cut", function (e) { if (pasteFree() || e.target === ta) return; if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return; e.preventDefault(); e.stopPropagation(); }, true);
   document.addEventListener("paste", function (e) {
-    if (isTeacher() || e.target !== ta) return;
+    if (pasteFree() || e.target !== ta) return;
     var t = ""; try { t = (e.clipboardData || window.clipboardData).getData("text"); } catch (er) {}
     if (!ownText(t)) { e.preventDefault(); e.stopPropagation(); toast(blockMsg); }
   }, true);
   document.addEventListener("drop", function (e) {
-    if (isTeacher()) return;
+    if (pasteFree()) return;
     var t = ""; try { t = e.dataTransfer.getData("text"); } catch (er) {}
     if (e.target === ta && ownText(t)) return;
     e.preventDefault(); e.stopPropagation(); if (e.target === ta) toast(blockMsg);
   }, true);
-  document.addEventListener("dragover", function (e) { if (!isTeacher() && e.target !== ta) { e.preventDefault(); } }, true);
+  document.addEventListener("dragover", function (e) { if (!pasteFree() && e.target !== ta) { e.preventDefault(); } }, true);
 }
 /* remember what was last copied from the editor, even after a page reload */
 ["copy", "cut"].forEach(function (ev) { ta.addEventListener(ev, function () { var t = ta.value.slice(ta.selectionStart, ta.selectionEnd); if (t) { clip = t; try { lsSet("u7:clip", t.slice(0, 60000)); } catch (er) {} } }); });

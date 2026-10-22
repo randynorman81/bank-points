@@ -167,6 +167,7 @@ function analyzeOrigin(r) {
   var c = H.analyze(code), body = c.all("body")[0]; o.words = body ? c.words(body) : 0;
   c.all("p").forEach(function (p) { var t = c.text(p).replace(/\s+/g, " ").trim(), w = t ? t.split(" ") : []; if (w.length >= 15) o.paras.push({ len: w.length, q: w.slice(0, 14).join(" ") }); });
   o.paras.sort(function (a, b) { return b.len - a.len; }); o.paras = o.paras.slice(0, 8);
+  if (H.ORDER.indexOf($("lesson").value) >= H.ORDER.indexOf("6.35")) { o.has = true; o.reasons = ["Copy and paste is allowed in this assignment, so there is no originality penalty."]; return o; }
   if (!act) return o;
   function findRanges(text, hay) {
     var t = text.trim(), rs = [], W = 25, step = 8;
