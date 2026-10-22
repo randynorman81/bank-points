@@ -473,13 +473,16 @@
       r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
     "6.3": { name: "Editing Tags, Span Tag", rules: [
-      r("Uses <strong> and <em>", function (c) { return c.has("strong") && c.has("em"); }),
-      r("Uses <br> at least once (and never closes it)", function (c) { return c.has("br"); }),
-      r("Uses <hr> at least once", function (c) { return c.has("hr"); }),
+      r("At least 8 paragraphs, and at least one heading 1, one heading 2, and two heading 3s", function (c) { return c.count("p") >= 8 && c.has("h1") && c.has("h2") && c.count("h3") >= 2; }, "Write at least 8 paragraphs about your theme and use three heading levels."),
+      r("At least 3 bold words or phrases (<strong> or <b>) and at least 1 italic (<em> or <i>)", function (c) { return c.all("strong").concat(c.all("b")).length >= 3 && c.all("em").concat(c.all("i")).length >= 1; }),
+      r("At least 3 line breaks (<br>, never closed) and at least 2 horizontal lines (<hr>) outside paragraphs", function (c) { return c.all("br").length >= 3 && c.all("hr").filter(function (x) { return !c.ancestor(x, ["p"]); }).length >= 2; }),
       r("Editing tags (strong/em) are inside a creation tag like <p> or <h1>", function (c) {
-        var e = c.all("strong").concat(c.all("em")); return e.length > 0 && e.every(function (n) { return !!c.ancestor(n, ["p", "h1", "h2", "h3", "h4", "h5", "h6", "li"]); });
+        var e = c.all("strong").concat(c.all("em"), c.all("b"), c.all("i")); return e.length > 0 && e.every(function (n) { return !!c.ancestor(n, ["p", "h1", "h2", "h3", "h4", "h5", "h6", "li"]); });
       }),
-      r("Uses a <span> with a style attribute, at least 2 times", function (c) { return c.all("span").filter(function (s) { return s.attrs.style !== undefined; }).length >= 2; }),
+      r("At least 3 different colors are used (text colors and background colors together)", function (c) { var n = {}; (function w(x) { x.children.forEach(function (e) { if (e.tag === "#text") return; ["color", "background-color"].forEach(function (p) { var v = declOf(c, e, p)[0]; if (v && isNamedColor(v)) n[v] = 1; }); w(e); }); })(c.tree); return Object.keys(n).length >= 3; }),
+      r("At least 2 different font sizes in px, at least 1 centered (or right-aligned) tag, and at least 1 text-transform: uppercase", function (c) { var sz = {}, al = false, up = false; c.inline.forEach(function (d) { var v = String(d.value).replace(/;$/, "").trim().toLowerCase(); if (d.prop === "font-size" && /^\d+(\.\d+)?px$/.test(v)) sz[v] = 1; if (d.prop === "text-align" && (v === "center" || v === "right")) al = true; if (d.prop === "text-transform" && v === "uppercase") up = true; }); return Object.keys(sz).length >= 2 && al && up; }),
+      r("At least 4 <span> tags, each with its own style attribute", function (c) { return c.all("span").filter(function (s) { return s.attrs.style !== undefined && /:/.test(s.attrs.style); }).length >= 4; }, "Use spans for effect: color a word, make a first letter bigger, and so on."),
+      r("At least 6 tags have two or more style properties each", function (c) { var per = []; c.inline.forEach(function (d) { var k = per.indexOf(d.el); if (k < 0) { per.push(d.el); per.push({}); k = per.length - 2; } per[k + 1][d.prop] = 1; }); var n = 0; for (var i = 1; i < per.length; i += 2) if (Object.keys(per[i]).length >= 2) n++; return n >= 6; }, "Put two or more properties in one style attribute, with a semicolon between them."),
       r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\""),
       r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },

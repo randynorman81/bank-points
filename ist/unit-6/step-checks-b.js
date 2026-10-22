@@ -97,41 +97,35 @@
   } };
   lastStep("6.20", "Step 5", [[h.ALLGREEN], []]);
 
-  /* =============== 6.3  (3.4) Editing Tags, Span Tag: the menu =============== */
-  function sectionH(i) { return T("h2", i); }
-  function dishes(i) { return FOLLOW(sectionH(i), "p", 2); }
-  function dishChecks(i, nameLabel) {
-    return [
-      K("2 entry paragraphs are under " + nameLabel, function (c) { return dishes(i)(c).length >= 2; }),
-      K("Each entry's name is bold", function (c) { var d = dishes(i)(c); return d.length >= 2 && d.every(function (p) { return within(p, BOLD).length >= 1; }); }),
-      K("Each key detail (price, score, rating...) is inside a span with a color style", function (c) { var d = dishes(i)(c); return d.length >= 2 && d.every(function (p) { return within(p, ["span"]).some(function (s) { return has(c, s, "color"); }); }); }),
-      K("Each entry has a line break", function (c) { var d = dishes(i)(c); return d.length >= 2 && d.every(function (p) { return within(p, ["br"]).length >= 1; }); }),
-      K("Each description is in italics", function (c) { var d = dishes(i)(c); return d.length >= 2 && d.every(function (p) { return within(p, ITAL).length >= 1; }); })
-    ];
-  }
-  function headStyle(i, nm) { return [exists("There is a heading 2 for " + nm, sectionH(i)), P("It is text-transform uppercase", sectionH(i), "text-transform", upper), P("It has a color", sectionH(i), "color", named)]; }
-  function hrBefore(i, nm) { return K("A horizontal line comes before the " + nm + " heading", function (c) { var e = sectionH(i)(c), p = e ? e.parent : null; if (!p) return false; var k = kids(p), j = k.indexOf(e); for (var q = j - 1; q >= 0 && k[q].tag !== "h2"; q--) if (k[q].tag === "hr") return true; return false; }); }
-  var chef = T("h3", 0), good = T("h3", 1);
+  /* =============== 6.3  (3.4) Editing Tags, Span Tag: a text-heavy page of the student's own theme (20 ideas), built from minimum counts =============== */
+  function allEls(c) { return h.order(c).filter(function (x) { return x.tag !== "#text"; }); }
+  function distinctColors(c) { var n = {}; allEls(c).forEach(function (x) { ["color", "background-color"].forEach(function (p) { var v = h.vals(c, x, p)[0]; if (v && named(v)) n[v] = 1; }); }); return Object.keys(n); }
+  function propCount(c, el) { var n = {}; c.inline.forEach(function (d) { if (d.el === el) n[d.prop] = 1; }); return Object.keys(n).length; }
+  function anyVal(c, prop, test) { return allEls(c).some(function (x) { return h.vals(c, x, prop).some(test); }); }
   SC.LESSONS["6.3"] = { inlineOnly: true, steps: {
     "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color)"), P("The body has a color (a named color)", T("body"), "color", named)]],
     "Step 2": [
-      [exists("There is a heading 1", T("h1")), P("It has a color", T("h1"), "color", named), P("Its font-size is 44px", T("h1"), "font-size", h.px(44)), P("It is text-align center", T("h1"), "text-align", center), P("It has a background-color", T("h1"), "background-color", named)],
-      [exists("A paragraph is under the heading 1", AFTER(T("h1"), "p")), IN("It has a line break inside it", AFTER(T("h1"), "p"), ["br"]), P("It is text-align center", AFTER(T("h1"), "p"), "text-align", center), P("Its font-size is 16px", AFTER(T("h1"), "p"), "font-size", h.px(16))],
-      [K("A horizontal line is under that paragraph, outside it", function (c) { var p = AFTER(T("h1"), "p")(c), n = h.nextEl(p); return !!n && n.tag === "hr"; })]
+      [CNT("There are at least 8 paragraphs", "p", 8)],
+      [K("There is a heading 1", function (c) { return c.count("h1") >= 1; }), K("There is a heading 2", function (c) { return c.count("h2") >= 1; }), K("There are at least 2 heading 3s", function (c) { return c.count("h3") >= 2; })]
     ],
     "Step 3": [
-      headStyle(0, "your first section").concat(dishChecks(0, "your first section")),
-      [hrBefore(1, "your second section")].concat(headStyle(1, "your second section")).concat(dishChecks(1, "your second section")).concat([K("The first entry in your second section has a background-color so it stands out", function (c) { var d = dishes(1)(c); return d.length >= 1 && has(c, d[0], "background-color", named); })]),
-      [hrBefore(2, "your third section")].concat(headStyle(2, "your third section")).concat(dishChecks(2, "your third section"))
+      [K("At least 3 bold words or phrases (strong or b)", function (c) { return c.all("strong").concat(c.all("b")).length >= 3; })],
+      [K("At least 1 italic word or phrase (em or i)", function (c) { return c.all("em").concat(c.all("i")).length >= 1; })],
+      [K("At least 3 line breaks (br)", function (c) { return c.all("br").length >= 3; })],
+      [K("At least 2 horizontal lines (hr), outside any paragraph", function (c) { return c.all("hr").filter(function (x) { return !c.ancestor(x, ["p"]); }).length >= 2; })]
     ],
     "Step 4": [
-      [exists("There is a first heading 3 (your highlight)", chef), P("It is text-align center", chef, "text-align", center), P("It has a color", chef, "color", named), exists("A paragraph is under it", AFTER(chef, "p")),
-       P("The paragraph has a background-color", AFTER(chef, "p"), "background-color", named), P("Its font-size is 18px", AFTER(chef, "p"), "font-size", h.px(18))],
-      [exists("There is a second heading 3 (your note)", good), P("It has a color", good, "color", named), exists("A paragraph is under it", AFTER(good, "p")), IN("The paragraph has a line break inside it", AFTER(good, "p"), ["br"]),
-       P("Its font-size is 14px", AFTER(good, "p"), "font-size", h.px(14)), P("It has a background-color", AFTER(good, "p"), "background-color", named)]
+      [K("At least 3 different colors are used on the page", function (c) { return distinctColors(c).length >= 3; })],
+      [K("At least 2 different font-sizes in px", function (c) { var n = {}; allEls(c).forEach(function (x) { h.vals(c, x, "font-size").forEach(function (v) { if (h.isPx(v)) n[v] = 1; }); }); return Object.keys(n).length >= 2; })],
+      [K("At least 1 tag is text-align center (or right)", function (c) { return anyVal(c, "text-align", function (v) { return v === "center" || v === "right"; }); })],
+      [K("At least 1 thing is text-transform uppercase (a section, paragraph, word, or letter)", function (c) { return anyVal(c, "text-transform", function (v) { return v === "uppercase"; }); })]
+    ],
+    "Step 5": [
+      [K("At least 4 span tags, each with its own style", function (c) { return c.all("span").filter(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style) && txt(c, k).length > 0; }).length >= 4; })],
+      [K("At least 6 tags each have 2 or more style properties", function (c) { return allEls(c).filter(function (x) { return propCount(c, x) >= 2; }).length >= 6; })]
     ]
   } };
-  lastStep("6.3", "Step 5", [[h.ALLGREEN], []]);
+  lastStep("6.3", "Step 6", [[h.ALLGREEN], []]);
 
   /* =============== 6.4  (3.5) Border: the wanted poster =============== */
   var wanted = T("h1"), crimes = afterEl(T("h1"), "p"), desc = HW("h2", /description/i), descP1 = afterEl(desc, "p"), descP2 = function (c) { return h.nextEl(descP1(c)); };

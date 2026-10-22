@@ -89,21 +89,27 @@
 
   /* ======================================================================= 6.3  (3.4) ===== */
   A["6.3"] = build([].concat(head("A **text-heavy page** where bold, italics, line breaks, horizontal lines, and **spans** do the work. You choose the topic from **20 ideas**, from a weird restaurant menu to a song lyrics page to a tier list.", "", notes("unit-6/editing-tags-notes.html")), [{ tip: "themes34", label: "See all 20 theme choices" }, RULE,
-    { p: "**Every idea uses the same steps.** Your page has a title, an info line, **three sections** with **two entries** each (a bold name, a colored key detail like a price, score, or rating, then an italic description), a highlight, and a note. Name your sections whatever fits your theme." },
+    { p: "**Every idea uses the same steps.** There is no set layout: you decide what goes where. The steps give the **minimum** you need of each tag and style, and you can ALWAYS add more." },
     skeleton(["On the **body** tag, add a style: **background-color** (a light named color) and **color** (a dark named color for the text)"]),
-    S("The title, info line, and a line", [
-      "Add **one heading 1** with your page's name. Style it: **color** (a named color), **font-size** 44px, **text-align** center, and a **background-color** (a named color)",
-      "Under it, add a **paragraph** with a short info line on **two lines** (use a **line break** inside it): for example an address and hours, an artist and year, or your name and the date. Style it: **text-align** center and **font-size** 16px",
-      "Under the paragraph (**outside** it), add a **horizontal line**"
+    S("Build your content", [
+      "Write **at least 8 paragraphs** about your theme (real words, in your own voice)",
+      "Use **at least 3 headings**: at least one **heading 1**, one **heading 2**, and **two heading 3s** (use more if your theme needs them)"
     ]),
-    S("Three sections", [
-      "Add a **heading 2** with your first section's name. Style it: **text-transform** uppercase and **color** (a named color). Under it, add **2 entry paragraphs**. In each one: make the entry's name **bold**, then a dash, then a key detail (a price, score, rating, or stat) inside a **span** with a **color** style, then a **line break**, then a description in **italics**. Everything goes **inside** the paragraph",
-      "Add a **horizontal line**, then a **heading 2** with your second section's name (same style) and **2 more entry paragraphs**. Give the **first** of these a **background-color** so it stands out",
-      "Add a **horizontal line**, then a **heading 2** with your third section's name (same style) and **2 more entry paragraphs**"
+    S("Editing tags", [
+      "Make **at least 3** words or phrases **bold**",
+      "Make **at least 1** word or phrase in **italics**",
+      "Use **at least 3 line breaks** (a new line inside a paragraph, like lyrics or an address)",
+      "Use **at least 2 horizontal lines**, each one **outside** any paragraph, to separate sections of your page"
     ]),
-    S("A highlight and a note", [
-      "Add a **heading 3** for your highlight (like Chef's Special, Top Pick, or Hot Take). Style it: **text-align** center and **color**. Under it, add a **paragraph** about it. Style it: a **background-color** and **font-size** 18px",
-      "Add a **heading 3** for a note (like Good to Know, Fine Print, or Warning), with a **color** style. Under it, add a **paragraph** on two lines (use a **line break** inside). Style it: **font-size** 14px and a **background-color**"
+    S("Style it", [
+      "Use **at least 3 different colors** on the page (text colors and background colors count together)",
+      "Use **at least 2 different font sizes** in pixels (like 44px for a title and 16px for small print)",
+      "Make **at least 1** tag **text-align** center (or right, if it fits)",
+      "Make **at least 1** thing **text-transform** uppercase: a whole section, a paragraph, a single word, or even just one letter"
+    ]),
+    S("Spans and double styles", [
+      "Use **at least 4 span tags** for effect, each with its own style attribute: color one word in a paragraph, make the first letter of a word bigger, highlight a phrase with a **background-color**, and so on. Click the help button to see how a span works",
+      "Make sure **at least 6** of your tags each have **two or more style properties** in their style attribute (with a semicolon between them). You can use more"
     ]),
     done()]));
 

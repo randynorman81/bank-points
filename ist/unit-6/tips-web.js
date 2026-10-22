@@ -188,6 +188,9 @@
     { p: "For the bonus, go all the way down to one letter per span. Each letter gets its own color, side by side:" },
     { ex: ["<p style=\"color: black;\">", "  <span style=\"color: red;\">B</span><span style=\"color: orange;\">A</span><span style=\"color: green;\">D</span>", "</p>"] },
     { demo: "<p style=\"color:black;margin:0;font-size:28px;font-weight:700\"><span style=\"color:red\">B</span><span style=\"color:orange\">A</span><span style=\"color:green\">D</span></p>" },
+    { p: "A span can also change the size of just one letter, like a big first letter:" },
+    { ex: ["<p>", "  <span style=\"font-size: 40px; color: crimson;\">T</span>his paragraph starts with a big red T.", "</p>"] },
+    { demo: "<p style=\"margin:0\"><span style=\"font-size:40px;color:crimson\">T</span>his paragraph starts with a big red T.</p>" },
     { good: "Put the span **inside** the paragraph, put the style in the **opening** span tag, and close the span right after the words you want changed." }
   ]);
   add("spantag", ED, "How do I color just a few words (span)?", [
@@ -341,7 +344,7 @@
   /* ---------- which help shows under which step text (first words that match decide; most specific first) ---------- */
   var R = [
     [/head.*title|title.*head/i, ["titledemo", "titletag"]],
-    [/sneak peek|span tag wraps|at least 3 words|EXTRA CREDIT.*span/i, ["spandemo", "spantag"]],
+    [/sneak peek|span tag wraps|at least 3 words|EXTRA CREDIT.*span|span tags? for effect/i, ["spandemo", "spantag"]],
     [/whole heading|whole paragraph|inside a link|inside the a tag|around the h3/i, ["linkanything", "atag"]],
     [/doctype/i, ["doctype"]],
     [/body tags/i, ["bodytag", "skeleton"]],
