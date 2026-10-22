@@ -92,8 +92,8 @@
     { p: "**Every idea uses the same steps.** There is no set layout: you decide what goes where. The steps give the **minimum** you need of each tag and style, and you can ALWAYS add more." },
     skeleton(["On the **body** tag, add a style: **background-color** (a light named color) and **color** (a dark named color for the text)"]),
     S("Build your content", [
-      "Write **at least 8 paragraphs** about your theme (real words, in your own voice)",
-      "Use **at least 3 headings**: at least one **heading 1**, one **heading 2**, and **two heading 3s** (use more if your theme needs them)"
+      "Use **at least 3 headings**: at least one **heading 1**, one **heading 2**, and **two heading 3s** (use more if your theme needs them)",
+      "Under your headings, write **at least 8 paragraphs** about your theme (real words, in your own voice)"
     ]),
     S("Editing tags", [
       "Make **at least 3** words or phrases **bold**",

@@ -105,8 +105,8 @@
   SC.LESSONS["6.3"] = { inlineOnly: true, steps: {
     "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color)"), P("The body has a color (a named color)", T("body"), "color", named)]],
     "Step 2": [
-      [CNT("There are at least 8 paragraphs", "p", 8)],
-      [K("There is a heading 1", function (c) { return c.count("h1") >= 1; }), K("There is a heading 2", function (c) { return c.count("h2") >= 1; }), K("There are at least 2 heading 3s", function (c) { return c.count("h3") >= 2; })]
+      [K("There is a heading 1", function (c) { return c.count("h1") >= 1; }), K("There is a heading 2", function (c) { return c.count("h2") >= 1; }), K("There are at least 2 heading 3s", function (c) { return c.count("h3") >= 2; })],
+      [CNT("There are at least 8 paragraphs", "p", 8)]
     ],
     "Step 3": [
       [K("At least 3 bold words or phrases (strong or b)", function (c) { return c.all("strong").concat(c.all("b")).length >= 3; })],
