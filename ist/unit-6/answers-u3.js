@@ -88,21 +88,22 @@
     done()]));
 
   /* ======================================================================= 6.3  (3.4) ===== */
-  A["6.3"] = build([].concat(head("The **menu** for the weirdest restaurant ever.", "a **restaurant inside a giant's nose**, a **cafe in a haunted refrigerator**, a **breakfast-only restaurant that opens at midnight**, a **tavern for retired monsters**, or a **cafe for alien tourists who have never seen food**", notes("unit-6/editing-tags-notes.html")), [RULE,
+  A["6.3"] = build([].concat(head("A **text-heavy page** where bold, italics, line breaks, horizontal lines, and **spans** do the work. You choose the topic from **20 ideas**, from a weird restaurant menu to a song lyrics page to a tier list.", "", notes("unit-6/editing-tags-notes.html")), [{ tip: "themes34", label: "See all 20 theme choices" }, RULE,
+    { p: "**Every idea uses the same steps.** Your page has a title, an info line, **three sections** with **two entries** each (a bold name, a colored key detail like a price, score, or rating, then an italic description), a highlight, and a note. Name your sections whatever fits your theme." },
     skeleton(["On the **body** tag, add a style: **background-color** (a light named color) and **color** (a dark named color for the text)"]),
-    S("The name, address, and a line", [
-      "Add **one heading 1** with the restaurant's name. Style it: **color** (a named color), **font-size** 44px, **text-align** center, and a **background-color** (a named color)",
-      "Under it, add a **paragraph** with your address, a **line break** inside it, and your hours on the second line. Style it: **text-align** center and **font-size** 16px",
+    S("The title, info line, and a line", [
+      "Add **one heading 1** with your page's name. Style it: **color** (a named color), **font-size** 44px, **text-align** center, and a **background-color** (a named color)",
+      "Under it, add a **paragraph** with a short info line on **two lines** (use a **line break** inside it): for example an address and hours, an artist and year, or your name and the date. Style it: **text-align** center and **font-size** 16px",
       "Under the paragraph (**outside** it), add a **horizontal line**"
     ]),
-    S("Three menu sections", [
-      "Add a **heading 2** that says Starters. Style it: **text-transform** uppercase and **color** (a named color). Under it, add **2 dish paragraphs**. In each one: make the dish name **bold**, then a dash, then the price inside a **span** with a **color** style, then a **line break**, then the description in **italics**. Everything goes **inside** the paragraph",
-      "Add a **horizontal line**, then a **heading 2** that says Main Dishes (same style) and **2 more dish paragraphs**. Give the **first** of these a **background-color** so it stands out as today's special",
-      "Add a **horizontal line**, then a **heading 2** that says Desserts (same style) and **2 more dish paragraphs**"
+    S("Three sections", [
+      "Add a **heading 2** with your first section's name. Style it: **text-transform** uppercase and **color** (a named color). Under it, add **2 entry paragraphs**. In each one: make the entry's name **bold**, then a dash, then a key detail (a price, score, rating, or stat) inside a **span** with a **color** style, then a **line break**, then a description in **italics**. Everything goes **inside** the paragraph",
+      "Add a **horizontal line**, then a **heading 2** with your second section's name (same style) and **2 more entry paragraphs**. Give the **first** of these a **background-color** so it stands out",
+      "Add a **horizontal line**, then a **heading 2** with your third section's name (same style) and **2 more entry paragraphs**"
     ]),
-    S("Chef's special and notes", [
-      "Add a **heading 3** that says Chef's Special. Style it: **text-align** center and **color**. Under it, add a **paragraph** about the special. Style it: a **background-color** and **font-size** 18px",
-      "Add a **heading 3** that says Good to Know, with a **color** style. Under it, add a **paragraph** on two lines (use a **line break** inside). Style it: **font-size** 14px and a **background-color**"
+    S("A highlight and a note", [
+      "Add a **heading 3** for your highlight (like Chef's Special, Top Pick, or Hot Take). Style it: **text-align** center and **color**. Under it, add a **paragraph** about it. Style it: a **background-color** and **font-size** 18px",
+      "Add a **heading 3** for a note (like Good to Know, Fine Print, or Warning), with a **color** style. Under it, add a **paragraph** on two lines (use a **line break** inside). Style it: **font-size** 14px and a **background-color**"
     ]),
     done()]));
 

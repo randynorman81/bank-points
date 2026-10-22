@@ -1381,6 +1381,7 @@ function ansRender() {
     else if (it.where) h += '<p class="tx">' + wtText(it.where) + "</p>";
     else if (it.build && stepKey) { it.build.forEach(function (x) { h += (SCL.steps[stepKey][bIdx] && SCL.steps[stepKey][bIdx].length ? stepBox(bIdx, stepKey, x) : '<ul class="sb"><li>' + wtText(x) + "</li></ul>") + tipRow(x); bIdx++; }); }
     else if (it.build) h += '<ul class="sb">' + it.build.map(function (x) { return "<li>" + wtText(x) + "</li>"; }).join("") + "</ul>";
+    else if (it.tip) h += '<div class="tiprow"><button type="button" class="tipbtn" data-tip="' + it.tip + '">&#128161; ' + esc(it.label || "More") + "</button></div>";
     else if (it.code) h += '<pre class="pat">' + esc(it.code) + "</pre>";
     else if (it.map) h += '<ol class="sb map">' + it.map.map(function (x) { return "<li>" + wtText(x) + "</li>"; }).join("") + "</ol>";
     else if (it.grp) h += '<div class="grp"><b>' + esc(it.grp) + '</b><div class="gg">' + it.fields.map(ansField).join("") + "</div></div>";

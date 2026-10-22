@@ -102,16 +102,16 @@
   function dishes(i) { return FOLLOW(sectionH(i), "p", 2); }
   function dishChecks(i, nameLabel) {
     return [
-      K("2 dish paragraphs are under " + nameLabel, function (c) { return dishes(i)(c).length >= 2; }),
-      K("Each dish name is bold", function (c) { var d = dishes(i)(c); return d.length >= 2 && d.every(function (p) { return within(p, BOLD).length >= 1; }); }),
-      K("Each price is inside a span with a color style", function (c) { var d = dishes(i)(c); return d.length >= 2 && d.every(function (p) { return within(p, ["span"]).some(function (s) { return has(c, s, "color"); }); }); }),
-      K("Each dish has a line break", function (c) { var d = dishes(i)(c); return d.length >= 2 && d.every(function (p) { return within(p, ["br"]).length >= 1; }); }),
+      K("2 entry paragraphs are under " + nameLabel, function (c) { return dishes(i)(c).length >= 2; }),
+      K("Each entry's name is bold", function (c) { var d = dishes(i)(c); return d.length >= 2 && d.every(function (p) { return within(p, BOLD).length >= 1; }); }),
+      K("Each key detail (price, score, rating...) is inside a span with a color style", function (c) { var d = dishes(i)(c); return d.length >= 2 && d.every(function (p) { return within(p, ["span"]).some(function (s) { return has(c, s, "color"); }); }); }),
+      K("Each entry has a line break", function (c) { var d = dishes(i)(c); return d.length >= 2 && d.every(function (p) { return within(p, ["br"]).length >= 1; }); }),
       K("Each description is in italics", function (c) { var d = dishes(i)(c); return d.length >= 2 && d.every(function (p) { return within(p, ITAL).length >= 1; }); })
     ];
   }
   function headStyle(i, nm) { return [exists("There is a heading 2 for " + nm, sectionH(i)), P("It is text-transform uppercase", sectionH(i), "text-transform", upper), P("It has a color", sectionH(i), "color", named)]; }
   function hrBefore(i, nm) { return K("A horizontal line comes before the " + nm + " heading", function (c) { var e = sectionH(i)(c), p = e ? e.parent : null; if (!p) return false; var k = kids(p), j = k.indexOf(e); for (var q = j - 1; q >= 0 && k[q].tag !== "h2"; q--) if (k[q].tag === "hr") return true; return false; }); }
-  var chef = HW("h3", /chef/i), good = HW("h3", /good to know/i);
+  var chef = T("h3", 0), good = T("h3", 1);
   SC.LESSONS["6.3"] = { inlineOnly: true, steps: {
     "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color)"), P("The body has a color (a named color)", T("body"), "color", named)]],
     "Step 2": [
@@ -120,14 +120,14 @@
       [K("A horizontal line is under that paragraph, outside it", function (c) { var p = AFTER(T("h1"), "p")(c), n = h.nextEl(p); return !!n && n.tag === "hr"; })]
     ],
     "Step 3": [
-      headStyle(0, "Starters").concat(dishChecks(0, "Starters")),
-      [hrBefore(1, "Main Dishes")].concat(headStyle(1, "Main Dishes")).concat(dishChecks(1, "Main Dishes")).concat([K("The first main dish has a background-color so it stands out", function (c) { var d = dishes(1)(c); return d.length >= 1 && has(c, d[0], "background-color", named); })]),
-      [hrBefore(2, "Desserts")].concat(headStyle(2, "Desserts")).concat(dishChecks(2, "Desserts"))
+      headStyle(0, "your first section").concat(dishChecks(0, "your first section")),
+      [hrBefore(1, "your second section")].concat(headStyle(1, "your second section")).concat(dishChecks(1, "your second section")).concat([K("The first entry in your second section has a background-color so it stands out", function (c) { var d = dishes(1)(c); return d.length >= 1 && has(c, d[0], "background-color", named); })]),
+      [hrBefore(2, "your third section")].concat(headStyle(2, "your third section")).concat(dishChecks(2, "your third section"))
     ],
     "Step 4": [
-      [exists("There is a heading 3 that says Chef's Special", chef), P("It is text-align center", chef, "text-align", center), P("It has a color", chef, "color", named), exists("A paragraph is under it", AFTER(chef, "p")),
+      [exists("There is a first heading 3 (your highlight)", chef), P("It is text-align center", chef, "text-align", center), P("It has a color", chef, "color", named), exists("A paragraph is under it", AFTER(chef, "p")),
        P("The paragraph has a background-color", AFTER(chef, "p"), "background-color", named), P("Its font-size is 18px", AFTER(chef, "p"), "font-size", h.px(18))],
-      [exists("There is a heading 3 that says Good to Know", good), P("It has a color", good, "color", named), exists("A paragraph is under it", AFTER(good, "p")), IN("The paragraph has a line break inside it", AFTER(good, "p"), ["br"]),
+      [exists("There is a second heading 3 (your note)", good), P("It has a color", good, "color", named), exists("A paragraph is under it", AFTER(good, "p")), IN("The paragraph has a line break inside it", AFTER(good, "p"), ["br"]),
        P("Its font-size is 14px", AFTER(good, "p"), "font-size", h.px(14)), P("It has a background-color", AFTER(good, "p"), "background-color", named)]
     ]
   } };

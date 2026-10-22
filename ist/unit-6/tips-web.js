@@ -170,6 +170,17 @@
     { ex: ["<p>First section</p>", "<hr>", "<h2>Next section</h2>"] },
     { list: ["It has no closing tag.", "Put it **between** things, outside paragraphs."] }
   ]);
+  add("themes34", ED, "All 20 theme choices", [
+    { p: "Pick **one** of these 20 ideas. Every idea uses the same structure: a title, an info line, three sections with two entries each, a highlight, and a note. Rename the sections to fit your theme." },
+    { p: "**Weird restaurants**" },
+    { list: ["**Restaurant inside a giant's nose**: dishes served by the sniff, with a booger-free guarantee","**Cafe in a haunted refrigerator**: everything is ice cold, and something is watching","**Breakfast-only restaurant that opens at midnight**: pancakes for night owls and vampires","**Tavern for retired monsters**: under-the-bed regulars and a closet-door entrance","**Cafe for alien tourists who have never seen food**: instructions for chewing included"] },
+    { p: "**Text-heavy pages**" },
+    { list: ["**Song lyrics page**: bold the chorus, italicize the bridge, color the hardest-hitting word","**Group chat transcript**: each person's name is a different color; bold the shouting, italicize the sarcasm","**Fake text-message drama**: names in colored spans and small italic timestamps, with lines between conversations","**Trading card or character stats sheet**: bold name, stats in rarity colors, italic flavor text","**Esports or sports match recap**: winners in bold green, the score in a big colored span"] },
+    { p: "**Lists and labels**" },
+    { list: ["**Tier list**: S-tier in red, then orange, and so on; bold each item, italicize the reason","**Rating and review page**: a movie, game, or food review with a big colored verdict","**Horoscope or personality quiz results**: the result in a huge colored word, traits in italics","**Class schedule or day planner**: each subject in its own color, bold for tests","**Rules or warning signs**: the important word in a bold red span, funny exceptions in italics"] },
+    { p: "**Tone and story**" },
+    { list: ["**Fake breaking news or Wanted-style page**: bold headline, red key words, lines between stories","**Recipe card**: bold ingredients, colored quantities, italic chef's tips","**Poem or short story**: the key line bigger, emphasis in italics, one dramatic bold word","**Choose-your-own-adventure start**: story text with choices in bold colored words, lines between scenes","**Anything else you can make weird**: check with your teacher first"] }
+  ]);
   add("spandemo", ED, "Show me how the span tag works", [
     { p: "A **span** lets one piece of a paragraph have its own style, even though the paragraph already has one. The paragraph's style covers all of it. The span's style **overrides** the paragraph's, but only for the words inside the span." },
     { ex: ["<p style=\"color: white; background-color: navy;\">", "  This paragraph is white on navy, but", "  <span style=\"color: gold; background-color: crimson;\">these words</span>", "  have their own colors.", "</p>"] },
