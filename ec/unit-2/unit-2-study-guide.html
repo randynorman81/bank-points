@@ -50,7 +50,7 @@
 
     <article class="lesson-content">
       <h1>Unit 2 Study Guide</h1>
-      <p class="hint">Covers every Unit 2 assignment: 2.1 Analog vs. Digital, 2.2 First Circuit, 2.2A Dual-LED Lab, 2.3 Blink, 2.4 Variables and Data Types, 2.5 PWM, 2.6 Timing and Sequences, 2.7 Circuit Fundamentals, 2.8 Interpreted vs. Compiled, and the 2.9 Morse Code Flasher. This mirrors the 50-question Unit 2 Test &mdash; every idea below maps to a question on the test, and nothing on the test falls outside this guide. Many questions show a few lines of code from your labs, or a scenario like the Zombie Grid Hack, and ask what happens &mdash; so be able to <em>explain why</em>, not just define a word.</p>
+      <p class="hint">Covers every Unit 2 assignment: 2.1 Analog vs. Digital, 2.2 First Circuit, 2.2A Dual-LED Lab, 2.3 Blink, 2.4 Variables and Data Types, 2.5 PWM, 2.6 Timing and Sequences, 2.7 Circuit Fundamentals, and 2.8 Interpreted vs. Compiled. This mirrors the 50-question Unit 2 Test &mdash; every idea below maps to a question on the test, and nothing on the test falls outside this guide. Many questions show a few lines of code from your labs, or a scenario like the Zombie Grid Hack, and ask what happens &mdash; so be able to <em>explain why</em>, not just define a word.</p>
 
       <!-- ===================== 2.1 ===================== -->
       <h2>2.1 &mdash; Meet the Arduino (Analog vs. Digital)</h2>
@@ -325,28 +325,6 @@ void loop() {
         <tr><td>General-purpose?</td><td>Yes</td><td>Yes</td></tr>
       </table></div>
 
-      <!-- ===================== 2.9 ===================== -->
-      <h2>2.9 &mdash; Unit Build: 7+ Letter Word Morse Code Flasher</h2>
-      <p>One LED flashes a real word, at least 7 letters long, in Morse code &mdash; slowly and clearly enough that a partner who doesn't know the word can decode it.</p>
-      <dl>
-        <dt>The Morse timing rules</dt>
-        <dd>Everything is built from <b>one unit of time</b>. A <b>dot = 1 unit</b>. A <b>dash = 3 units</b> &mdash; always exactly <b>3 times</b> as long as a dot. The standard gaps (LED off): <b>1 unit between symbols</b> inside a letter, <b>3 units between letters</b>, and <b>7 units</b> before the word repeats. The gap between letters <b>must be noticeably longer</b> than the gap inside a letter, or nobody could tell where one letter ends.</dd>
-
-        <dt>Timing variables</dt>
-        <dd>Make the unit a variable (for example <code>int unit = 300;</code>) and build every time from it: <code>delay(unit)</code> for a dot, <code>delay(unit * 3)</code> for a dash. Change one number to speed up or slow down the whole word.</dd>
-
-        <dt>Which pin?</dt>
-        <dd>Morse is only <b>fully on or fully off</b>, using <code>digitalWrite()</code> &mdash; so a <b>regular digital pin works; no PWM pin is needed</b>. The LED still needs <b>its resistor</b> (2.2, 2.7), and the pin still needs <code>pinMode(pin, OUTPUT)</code> in <code>setup()</code>.</dd>
-
-        <dt>Requirements</dt>
-        <dd>A real 7+ letter word; accurate Morse for every letter (look it up, don't guess); symbol gaps clearly shorter than letter gaps; the word repeats in <code>loop()</code> forever; at least one timing variable with a comment; every line commented; a partner can decode it.</dd>
-      </dl>
-      <div class="sg-code"><span class="c">// Letter S = dot dot dot, O = dash dash dash</span>
-digitalWrite(ledPin, HIGH);  delay(unit);      <span class="c">// dot (1 unit on)</span>
-digitalWrite(ledPin, LOW);   delay(unit);      <span class="c">// gap inside the letter (1 unit off)</span>
-digitalWrite(ledPin, HIGH);  delay(unit * 3);  <span class="c">// dash (3 units on)</span>
-digitalWrite(ledPin, LOW);   delay(unit * 3);  <span class="c">// gap between letters (3 units off)</span></div>
-
       <div class="note">The test is 50 multiple-choice questions pulled from everything above, in assignment order. Expect code from your labs (what does the LED do?), the scenarios from 2.6 and 2.7 (the Zombie Grid Hack, the Haunted Elevator, the Backwards Doorbell), and the podcast comparison from 2.8.</div>
 
       <div id="prev-next-root" class="prev-next-nav"></div>
@@ -372,7 +350,6 @@ const UNIT_LESSONS = [
   { title: "2.6 Timing and Sequences", file: "2-6-timing-and-sequences.html" },
   { title: "2.7 Circuit Fundamentals", file: "2-7-circuit-fundamentals.html" },
   { title: "2.8 Interpreted vs Compiled", file: "2-8-interpreted-vs-compiled.html" },
-  { title: "2.9 Unit Build: Morse Code Flasher", file: "2-9-unit-build-traffic-light.html" },
   { title: "Study Guide", file: "unit-2-study-guide.html" }
 ];
 const CURRENT_FILE = "unit-2-study-guide.html";
