@@ -30,7 +30,7 @@
       vals: [I("v-solid", "border style: solid"), I("v-dashed", "border style: dashed"), I("v-dotted", "border style: dotted")] },
     { id: "6.7",
       tags: [I("img", "<img>")],
-      attrs: [I("attr-src", "src"), I("attr-alt", "alt"), I("attr-imgsize", "width on an image")],
+      attrs: [I("attr-src", "src"), I("attr-alt", "alt"), I("attr-imgsize", "width on an image"), I("attr-favicon", "a favicon link (rel=icon) in the head", "once")],
       props: [I("p-w", "width")],
       vals: [I("v-pct", "width in %")] },
     { id: "6.6",

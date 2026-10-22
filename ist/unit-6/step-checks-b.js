@@ -280,39 +280,39 @@
   } };
   lastStep("6.6", "Step 6", [[], [h.ALLGREEN], []]);
 
-  /* =============== 6.7  (3.8) Images: the photo brochure =============== */
-  var imgs = function (c) { return c.all("img"); };
-  var imgLinked = function (i) { return function (c) { var im = imgs(c)[i], a = im ? c.ancestor(im, ["a"]) : null; return !!a && /^https:\/\//i.test(a.attrs.href || "") && !/example\.com/i.test(a.attrs.href || ""); }; };
-  var imgAlt = function (i) { return function (c) { var im = imgs(c)[i]; return !!im && /\S{3,}/.test(im.attrs.alt || ""); }; };
-  var imgTab = function (i, newTab) { return function (c) { var im = imgs(c)[i], a = im ? c.ancestor(im, ["a"]) : null; if (!a) return false; return newTab ? a.attrs.target === "_blank" : (a.attrs.target === undefined || a.attrs.target === "_self"); }; };
-  var IMG = function (i) { return function (c) { return imgs(c)[i] || null; }; };
-  var imgInP = function (i) { return function (c) { var im = imgs(c)[i]; return !!im && h.inTag(c, im, ["p"]); }; };
+  /* =============== 6.7  (3.7) Images and Favicons: pick one of 10 themes (or your own) and make a page full of framed pictures =============== */
+  function faviconEls(c) { return c.all("link").filter(function (l) { return /^(shortcut\s+)?icon$/i.test((l.attrs.rel || "").trim()) && /\S/.test(l.attrs.href || ""); }); }
+  function allImgs(c) { return c.all("img"); }
+  function fontUsedOk(c) { var g = gNames(c), ok = false; ffList(c).forEach(function (v) { if (g.indexOf(ffFirst(v)) > -1 && v.indexOf(",") > -1 && /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v))) ok = true; }); return g.length >= 1 && ok; }
   SC.LESSONS["6.7"] = { inlineOnly: true, steps: {
-    "Step 1": [[], [K("At least 2 uploaded pictures are on your page", function (c) { return imgs(c).filter(function (im) { return /\/api\/code\?img=/.test(im.attrs.src || ""); }).length >= 2; })]],
-    "Step 2": [SK.concat(TITLE), [bodyBg("The body has a background-color (a named color)")]],
+    "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color)")]],
+    "Step 2": [[]],
     "Step 3": [
-      [exists("There is a heading 1", T("h1")), P("It has a color", T("h1"), "color", named), P("It is text-align center", T("h1"), "text-align", center)],
-      [exists("A bullet list is under the heading 1", hubUl0), listItems(hubUl0, 3), PX("Each item has a link starting with https:// that opens in the same tab", hubUl0, linksOk(3, false)), P("The list has list-style-type none", hubUl0, "list-style-type", h.eq("none")), P("It is text-align center", hubUl0, "text-align", center),
-       eachLi("Each list item is display inline", hubUl0, 3, function (c, li) { return has(c, li, "display", h.eq("inline")); })],
-      [exists("A paragraph comes after the menu", hubP0), P("It is text-align center", hubP0, "text-align", center), IN("A phrase is in italics", hubP0, ITAL), K("One word is colored with a span", function (c) { var p = hubP0(c); return !!p && within(p, ["span"]).some(function (s) { return has(c, s, "color"); }); }), IN("It has a line break", hubP0, ["br"])]
+      [K("There is a favicon: a link tag with rel icon and an href, inside the head", function (c) { var f = faviconEls(c); return f.length >= 1 && f.every(function (l) { return !!c.ancestor(l, ["head"]); }); })],
+      [K("There is a link tag in the head that loads a Google font (https://fonts.googleapis.com)", function (c) { var g = gfLinks(c); return g.length >= 1 && g.every(function (l) { return !!c.ancestor(l, ["head"]); }); })]
     ],
     "Step 4": [
-      [exists("The first picture is on the page", IMG(0)), K("It is inside a paragraph", imgInP(0)), K("Its link goes to a real website (https://)", imgLinked(0)), K("Its alt is a real description", imgAlt(0)), K("The first link opens in a new tab", imgTab(0, true))],
-      [P("The picture has width 320px", IMG(0), "width", h.px(320))]
+      [K("There is at least 1 heading", function (c) { return c.count("h1") + c.count("h2") + c.count("h3") + c.count("h4") >= 1; })],
+      [K("There is at least 1 paragraph", function (c) { return c.count("p") >= 1; })],
+      [K("There is at least 1 line break (br)", function (c) { return c.all("br").length >= 1; }), K("There is at least 1 horizontal line (hr), outside any paragraph", function (c) { return c.all("hr").filter(function (x) { return !c.ancestor(x, ["p"]); }).length >= 1; })]
     ],
     "Step 5": [
-      [exists("The second picture is on the page", IMG(1)), K("It is inside a paragraph", imgInP(1)), K("Its link goes to a real website (https://)", imgLinked(1)), K("Its alt is a real description", imgAlt(1)), K("The link opens in the same tab", imgTab(1, false)), P("The picture has width 25%", IMG(1), "width", h.eq("25%"))],
-      [exists("The third picture is on the page", IMG(2)), K("It is inside a paragraph", imgInP(2)), K("Its link goes to a real website (https://)", imgLinked(2)), K("Its alt is a real description", imgAlt(2)), K("The link opens in a new tab", imgTab(2, true)), P("The picture has width 45%", IMG(2), "width", h.eq("45%"))]
+      [K("There are at least 5 pictures (img tags)", function (c) { return allImgs(c).length >= 5; }), K("Every picture has a src that is a web address (upload one or use a real address)", function (c) { var im = allImgs(c); return im.length >= 1 && im.every(function (i) { return /^(https?:)?\/\//i.test(i.attrs.src || "") || /^\/api\/code\?img=/.test(i.attrs.src || ""); }); })],
+      [K("Every picture has a real alt description", function (c) { var im = allImgs(c); return im.length >= 1 && im.every(function (i) { var a = (i.attrs.alt || "").trim().toLowerCase(); return a.length >= 3 && a !== "describe your image here"; }); })],
+      [K("Every picture has a border (thickness, style, color)", function (c) { var im = allImgs(c); return im.length >= 1 && im.every(function (i) { return has(c, i, "border", h.BORDER); }); })],
+      [K("Every picture has a width", function (c) { var im = allImgs(c); return im.length >= 1 && im.every(function (i) { return has(c, i, "width") || i.attrs.width !== undefined; }); })]
     ],
     "Step 6": [
-      [exists("There is a heading 2", T("h2", 0)), P("It has a color", T("h2", 0), "color", named), exists("There is a bullet list (not the menu)", hubUl1), listItems(hubUl1, 3), P("It has list-style-type square", hubUl1, "list-style-type", h.eq("square")), P("It has a solid border", hubUl1, "border", h.bs("solid"))],
-      [K("Each item has a text link starting with https://", function (c) { var l = hubUl1(c); if (!l) return false; var li = kids(l).filter(function (k) { return k.tag === "li"; }); return li.length >= 3 && li.slice(0, 3).every(function (x) { var a = linkIn(c, x); return !!a && /^https:\/\//i.test(a.attrs.href || "") && within(a, ["img"]).length === 0; }); }),
-       niceLinks(hubUl1), italicNote(hubUl1)]
+      [K("Your Google font is used in a font-family, and ends with a fallback family", function (c) { return fontUsedOk(c); })],
+      [K("There is at least 1 bold or italic word or phrase", function (c) { return c.all("strong").concat(c.all("b"), c.all("em"), c.all("i")).length >= 1; })],
+      [K("There is at least 1 span with its own style", function (c) { return c.all("span").filter(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style) && txt(c, k).length > 0; }).length >= 1; })],
     ],
     "Step 7": [
-      [K("The last paragraph has a line break", function (c) { var p = lastP(c); return !!p && within(p, ["br"]).length >= 1; }), P("It is text-align center", lastP, "text-align", center), P("Its font-size is 14px", lastP, "font-size", h.px(14))]
+      [K("There is at least 1 heading 2 and at least 1 heading 3", function (c) { return c.count("h2") >= 1 && c.count("h3") >= 1; })],
+      [K("At least 1 thing is text-transform uppercase", function (c) { return anyVal(c, "text-transform", function (v) { return v === "uppercase"; }); })],
+      [K("Solid, dashed, and dotted borders are each used at least 2 times (your picture borders count)", function (c) { var n = { solid: 0, dashed: 0, dotted: 0 }; allEls(c).forEach(function (x) { ["border", "border-top", "border-bottom", "border-left", "border-right", "border-style"].forEach(function (p) { h.vals(c, x, p).forEach(function (v) { ["solid", "dashed", "dotted"].forEach(function (st) { if (new RegExp("\\b" + st + "\\b").test(v)) n[st]++; }); }); }); }); return n.solid >= 2 && n.dashed >= 2 && n.dotted >= 2; })],
+      [K("At least 2 one-sided borders (like border-bottom)", function (c) { var n = 0; allEls(c).forEach(function (x) { ["border-top", "border-bottom", "border-left", "border-right"].forEach(function (p) { if (h.vals(c, x, p).length) n++; }); }); return n >= 2; })]
     ]
   } };
-  lastStep("6.7", "Step 8", [[], [h.ALLGREEN], []]);
-  SC.LESSONS["6.7"].steps["Step 1"].comment = false;
+  lastStep("6.7", "Step 8", [[h.ALLGREEN], []]);
 })(typeof window !== "undefined" ? window : globalThis);

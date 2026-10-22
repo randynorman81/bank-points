@@ -198,6 +198,7 @@ body.teacher #ansPane pre.pat{user-select:text}
 #guidePop iframe{flex:1;border:0;width:100%;background:#0B0E14}
 #guidePop.drag iframe{pointer-events:none}
 .prevwrap{flex:1;min-height:0;background:#fff}
+#tabmock{background:#2B3544;padding:6px 10px 0;display:flex;align-items:flex-end;min-height:30px}.tm-tab{display:inline-flex;align-items:center;gap:8px;background:#fff;color:#111;border-radius:8px 8px 0 0;padding:5px 14px;font:600 12px "Manrope",sans-serif;max-width:260px;white-space:nowrap;overflow:hidden}.tm-tab img{flex:0 0 16px;width:16px;height:16px;object-fit:contain}.tm-tab span{overflow:hidden;text-overflow:ellipsis}
 #prev{width:100%;height:100%;border:0;background:#fff;display:block}
 .side{position:fixed;top:0;right:0;bottom:0;width:min(380px,92vw);overflow:auto;background:var(--bg);border-left:1px solid var(--rule);box-shadow:-12px 0 40px #000a;transform:translateX(105%);transition:transform .22s ease;z-index:40}
 .side.open{transform:translateX(0)}
@@ -341,6 +342,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   <div class="split" id="split" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize. Double-click to reset."></div>
   <section class="pane" id="panePrev">
     <h2><span>Your website</span><span class="tools"><button class="btn sm" id="btnRun">Refresh</button><button class="btn sm" id="btnOpenTab" title="Open your page in its own browser tab, so you can see the title on the tab and how it looks in a real browser">Open in new tab</button><span class="winbtns"><button class="btn sm" id="minPrev" title="Shrink the website panel">– Minimize</button><button class="btn sm" id="maxPrev" title="Make the website panel fill the screen">⤢ Maximize</button></span></span></h2>
+    <div id="tabmock" title="This is how your page looks on a browser tab"><span class="tm-tab"><img id="tmIcon" alt="" width="16" height="16"><span id="tmTitle">(no title yet)</span></span></div>
     <div class="prevwrap"><iframe id="prev" sandbox="allow-popups allow-popups-to-escape-sandbox" title="Preview of your website"></iframe></div>
     <button class="stripbtn" data-restore="both" aria-label="Show the website panel">▸ Website</button>
   </section>
@@ -693,7 +695,22 @@ function onEdit() {
   clearTimeout(tLay); tLay = setTimeout(layoutGutter, 30);
   cursorInfo();
 }
-function renderPreview() { $("prev").srcdoc = H.previewDoc(getHtml(), getCss()); }
+function linkTags(html) {   /* every <link ...> tag, reading quoted values so a > inside an href (like a data: favicon) does not end the tag early */
+  var out = [], re = /<link\b/gi, m;
+  while ((m = re.exec(html))) {
+    var i = m.index + 5, q = "";
+    for (; i < html.length; i++) { var ch = html.charAt(i); if (q) { if (ch === q) q = ""; } else if (ch === '"' || ch === "'") q = ch; else if (ch === ">") break; }
+    out.push(html.slice(m.index, i + 1));
+  }
+  return out;
+}
+function updateTab(html) {
+  var tm = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i), t = tm ? tm[1].replace(/\s+/g, " ").trim() : "", ic = "";
+  linkTags(html).forEach(function (tag) { if (ic) return; if (/\brel\s*=\s*["']?(?:shortcut\s+)?icon["']?/i.test(tag.replace(/\bhref\s*=\s*(?:"[^"]*"|'[^']*')/i, ""))) { var hm = tag.match(/\bhref\s*=\s*(?:"([^"]*)"|'([^']*)')/i); ic = hm ? (hm[1] || hm[2] || "") : ""; } });
+  $("tmTitle").textContent = t || "(no title yet)";
+  var im = $("tmIcon"); if (ic) { im.src = ic; im.style.visibility = "visible"; } else { im.removeAttribute("src"); im.style.visibility = "hidden"; }
+}
+function renderPreview() { var h0 = getHtml(); updateTab(h0); $("prev").srcdoc = H.previewDoc(h0, getCss()); }
 function saveNow(show) {
   S.buf[S.file] = ta.value; saveAct();
   lsSet("u7:code:" + S.lesson, S.buf.html); lsSet("u7:css:" + S.lesson, S.buf.css); lsSet("u7:lesson", S.lesson);
@@ -1095,7 +1112,8 @@ $("imgs").addEventListener("click", function (e) {
   var id = b.getAttribute("data-ins") || b.getAttribute("data-cp") || b.getAttribute("data-del"), url = location.origin + API + "?img=" + id;
   if (b.hasAttribute("data-ins")) {
     if (S.file !== "html") { S.buf.css = ta.value; S.file = "html"; ta.value = S.buf.html; markTabs(); }
-    noteAuto(140 + url.length); ta.focus(); ta.setRangeText('<a href="https://www.example.com" target="_blank"><img src="' + url + '" alt="describe your image here" style="width: 300px;"></a>', ta.selectionStart, ta.selectionEnd, "end"); onEdit(); toast("Inserted a clickable image. Change the link address and write a real alt description.");
+    noteAuto(140 + url.length); ta.focus(); if (H.ORDER.indexOf(S.lesson) < H.ORDER.indexOf("6.6")) { ta.setRangeText('<img src="' + url + '" alt="describe your image here" style="width: 300px; border: 4px solid black;">', ta.selectionStart, ta.selectionEnd, "end"); onEdit(); toast("Inserted a picture. Write a real alt description and pick your own border."); }
+    else { ta.setRangeText('<a href="https://www.example.com" target="_blank"><img src="' + url + '" alt="describe your image here" style="width: 300px;"></a>', ta.selectionStart, ta.selectionEnd, "end"); onEdit(); toast("Inserted a clickable image. Change the link address and write a real alt description."); }
   } else if (b.hasAttribute("data-cp")) { try { navigator.clipboard.writeText(url); toast("URL copied"); } catch (er) {} }
   else if (confirm("Delete this image?")) api({ action: "deleteImage", id: id }).then(function (j) { if (j && j.ok) { S.cloud.images = S.cloud.images.filter(function (i) { return i.id !== id; }); renderImages(S.cloud.images); } else if (j && j.error) toast(j.error); });
 });

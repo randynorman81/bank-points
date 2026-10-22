@@ -153,6 +153,26 @@
     { p: "Pick **one** of these. Every idea uses the same steps. Your fonts should match the **mood**: the font is part of the joke." },
     { list: ["**Your school as a luxury brand**: a fancy script logo, a serious serif \"About Us\", and a snobby tagline. Cafeteria pizza becomes \"Artisan Rectangle Pizza, $4\"","**Ransom note or detective case file**: every clue is a different font, like cut-out magazine letters, with bold for the evidence and spans on the key words","**The most dramatic apology letter ever**: a script for the greeting, a typewriter font for the \"official statement\", and bold, italic, uppercase for every shouty emotion","**Wedding invitation for two things that should never marry**: pineapple and pizza, or a cat and a Roomba, with a fancy script for the names and a tiny font for the \"terms\"","**Dating profile for an inanimate object**: a stapler, a sock, or the school bus, with a flirty tagline and a list of likes and dislikes","**Ransom note from your pet**: desperate demands (\"one more treat\") and a deadline, with mismatched cut-out letters and uppercase demands","**Your own idea**: anything that uses fonts for tone, as long as your teacher says yes first"] }
   ]);
+  add("themes37", ED, "See all the theme choices", [
+    { p: "Pick **one** of these, or make up your own. There is no set layout: you decide where the pictures, headings, and words go." },
+    { list: ["**Museum of terrible school photos**: every picture hangs in a thick bordered frame with a stuffy plaque, like \"Student Asleep During Fire Drill\"","**Missing pet poster**: the pet is obviously not missing, and in every photo it is looking right at you","**Awkward family photo wall**: each framed photo has a caption about the worst moment in it (a blink, a sneeze, a photobomb)","**Yearbook for people who do not exist**: made-up students with pictures and titles like \"Most Likely to Eat Glue\"","**Fan page for your teacher's desk and coffee mug**: captions like \"Enjoys long walks to the copier\"","**Bucket-list vacation scrapbook**: postcard-style pictures with dashed-border frames and handwritten-style captions","**Gaming clip hall of fame**: screenshots in gold, silver, and bronze frames, with \"epic fail\" captions","**Your pet's social media profile**: a banner picture, photo \"posts\" in bordered squares, and captions as the pet would write them","**Travel brochure for your dream city**: landmark photos in bordered frames with short descriptions","**Photo portfolio for a hobby**: photography, art, skateboarding, or cooking, each project in its own bordered frame","**Your own idea**: build any page full of framed pictures, as long as your teacher says yes first"] }
+  ]);
+  add("favicon", IMG, "How do I add a favicon?", [
+    { p: "A **favicon** is the tiny picture on a browser tab, next to your title. You add it with a **link** tag in the **head**, with rel=\"icon\" and an href." },
+    { ex: ["<head>", "  <title>My Page</title>", "  <link rel=\"icon\" href=\"ADDRESS OF A SMALL PICTURE\">", "</head>"] },
+    { steps: ["Pick a small square picture (or upload one in **Checks > My images** and use its address).", "Or use an emoji: copy the emoji trick from the help for this step.", "Put the link tag inside your head and check the little tab above your preview."] },
+    { good: "The tab bar above your preview shows your title and your favicon, just like a real browser." }
+  ]);
+  add("faviconemoji", IMG, "A quick favicon from an emoji", [
+    { p: "You can turn any emoji into a favicon without uploading anything. Type this link tag in your head, and swap the emoji for yours:" },
+    { ex: ["<link rel=\"icon\" href=\"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐶</text></svg>\">"] },
+    { warn: "Use single quotes inside, and double quotes around the whole href." }
+  ]);
+  add("imgborder", IMG, "How do I put a border on a picture?", [
+    { p: "A picture is a tag like any other, so it can have a border in its style attribute: thickness, style, and color." },
+    { ex: ["<img src=\"ADDRESS\" alt=\"A sleepy dog\" style=\"width: 300px; border: 5px solid navy;\">"] },
+    { list: ["Try solid, dashed, or dotted.", "Put the border in the same style attribute as the width, with a semicolon between them."] }
+  ]);
   add("googlefont", ED, "How do I add a Google font?", [
     { steps: ["Go to **fonts.google.com** and click **Filters**. Type your own **sample text** in the preview box, and browse by **feeling** (fancy, playful, loud, calm...) to find a font that fits your theme.", "Click **Get font**, then **Get embed code**, and choose the **link** option (not @import).", "Copy the **link** tag (or tags) and paste them inside your **head**, under the title.", "In a style attribute, write **font-family**, the font's name in quotes, a comma, and a fallback family."] },
     { ex: ["<head>", "  <title>Fonts</title>", "  <link href=\"https://fonts.googleapis.com/css2?family=Pacifico&display=swap\" rel=\"stylesheet\">", "</head>", "<h1 style=\"font-family: 'Pacifico', cursive;\">Hello</h1>"] },
@@ -353,6 +373,9 @@
 
   /* ---------- which help shows under which step text (first words that match decide; most specific first) ---------- */
   var R = [
+    [/favicon/i, ["favicon", "faviconemoji"]],
+    [/border.*(picture|image)|(picture|image).*border/i, ["imgborder", "border"]],
+    [/theme.*(click|button)|see all the theme/i, ["themes37"]],
     [/google font|font link|fonts\.google|fallback/i, ["googlefont", "fontfamily"]],
     [/head.*title|title.*head/i, ["titledemo", "titletag"]],
     [/sneak peek|span tag wraps|at least 3 words|EXTRA CREDIT.*span|span tags? for effect/i, ["spandemo", "spantag"]],

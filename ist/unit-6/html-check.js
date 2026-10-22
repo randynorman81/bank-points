@@ -340,6 +340,8 @@
     });
   }
   function distinct(arr) { var o = {}; arr.forEach(function (x) { o[x] = 1; }); return Object.keys(o).length; }
+  /* favicon (3.7): <link rel="icon" href="..."> in the head */
+  function faviconLinks(c) { return c.all("link").filter(function (l) { return /^(shortcut\s+)?icon$/i.test((l.attrs.rel || "").trim()) && /\S/.test(l.attrs.href || ""); }); }
   /* Google Fonts (3.5): the <link> tags that load fonts, and the font names they bring in */
   function gfontLinks(c) { return c.all("link").filter(function (l) { return /^https:\/\/fonts\.googleapis\.com\/css2?\?/i.test(l.attrs.href || "") && /stylesheet/i.test(l.attrs.rel || "stylesheet"); }); }
   function gfontNames(c) { var n = {}; gfontLinks(c).forEach(function (l) { var m, re = /family=([^&:;]+)/g; while ((m = re.exec(l.attrs.href || ""))) { var nm; try { nm = decodeURIComponent(m[1].replace(/\+/g, " ")); } catch (e) { nm = m[1]; } n[nm.trim().toLowerCase()] = 1; } }); return Object.keys(n); }
@@ -361,6 +363,7 @@
     "br": function (c) { return c.count("br"); }, "hr": function (c) { return c.count("hr"); }, "span": function (c) { return c.count("span"); },
     "p-ff": function (c) { return c.prop("font-family"); },
     "link": function (c) { return c.count("link"); },
+    "attr-favicon": function (c) { return faviconLinks(c).length; },
     "attr-gfont": function (c) { return gfontLinks(c).length; },
     "v-fallback": function (c) { return valCount(c, ["font-family"], /(^|[\s,'"])(serif|sans-serif|monospace|cursive|fantasy)$/i); },
     "v-serif": function (c) { return valCount(c, ["font-family"], /(^|[\s,'"])serif$/i); },
@@ -539,30 +542,14 @@
       r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
     "6.7": { name: "Images and Favicons", rules: [
-      r("Has at least 3 <img> tags, each with a src", function (c) { var im = c.all("img"); return im.length >= 3 && im.every(function (i) { return (i.attrs.src || "").length > 0; }); }),
-      r("Every image has a real alt description (not the placeholder text)", function (c) { var im = c.all("img"); return im.length > 0 && im.every(function (i) { var a = (i.attrs.alt || "").trim().toLowerCase(); return a.length >= 3 && a !== "describe your image"; }); }, "Write what the picture shows, like alt=\"A red octopus on a reef\"."),
-      r("At least 2 images were uploaded with the editor (Checks > My images > Insert)", function (c) { return c.all("img").filter(function (i) { return /\/api\/code\?img=/.test(i.attrs.src || ""); }).length >= 2; }, "Upload your own pictures. Open Checks, find My images, upload, then click Insert."),
-      r("Every image src is a web address, not a file on your computer", function (c) { var im = c.all("img"); return im.length > 0 && im.every(function (i) { return /^(https?:)?\/\//i.test(i.attrs.src || "") || /^\/api\/code\?img=/.test(i.attrs.src || ""); }); }),
-      r("Every image sets width OR height, but not both (keeps the shape)", function (c) {
-        var im = c.all("img"); if (!im.length) return false;
-        return im.every(function (i) {
-          var st = {}; (i.attrs.style || "").split(";").forEach(function (p) { var k = p.split(":"); if (k[1]) st[k[0].trim().toLowerCase()] = k[1].trim(); });
-          var w = i.attrs.width !== undefined || st.width !== undefined, h = i.attrs.height !== undefined || (st.height !== undefined && st.height !== "auto");
-          return (w || h) && !(w && h);
-        });
-      }, "Choose one: the browser figures out the other. Example: style=\"width: 300px;\""),
-      r("Uses at least 2 different image sizes, and at least one size is a percentage (like width: 50%)", function (c) {
-        var sizes = {}, pct = false; c.all("img").forEach(function (i) {
-          var st = {}; (i.attrs.style || "").split(";").forEach(function (p) { var k = p.split(":"); if (k[1]) st[k[0].trim().toLowerCase()] = k[1].trim(); });
-          var v = st.width || st.height || i.attrs.width || i.attrs.height; if (v) { sizes[String(v).replace(/\s/g, "")] = 1; if (/%$/.test(String(v).trim())) pct = true; }
-        }); return Object.keys(sizes).length >= 2 && pct;
-      }, "Try one big image (width: 300px), one small one (width: 100px), and one that is width: 50%."),
-      r("Every image is a clickable link: the <img> sits inside an <a> with a real https:// href", function (c) { var im = c.all("img"); return im.length > 0 && im.every(function (i) { var a = c.ancestor(i, ["a"]); return !!a && /^https:\/\//i.test(a.attrs.href || "") && !/example\.com/i.test(a.attrs.href || ""); }); }, "The editor writes example.com for you. Change it to a real website."),
-      r("At least one image link opens in a new tab (target=\"_blank\") and at least one opens in the current tab", function (c) {
-        var a = []; c.all("img").forEach(function (i) { var l = c.ancestor(i, ["a"]); if (l) a.push(l); });
-        return a.some(function (l) { return l.attrs.target === "_blank"; }) && a.some(function (l) { return l.attrs.target === undefined || l.attrs.target === "_self"; });
-      }),
-      r("Also has at least 3 text links (words that link to real sites)", function (c) { return realLinks(c).filter(function (a) { return !a.children.some(function (n) { return n.tag === "img"; }); }).length >= 3; }, "Links you learned in 3.7 still belong on every page."),
+      r("At least 5 <img> tags, each with a src that is a web address (not a file on your computer)", function (c) { var im = c.all("img"); return im.length >= 5 && im.every(function (i) { return /^(https?:)?\/\//i.test(i.attrs.src || "") || /^\/api\/code\?img=/.test(i.attrs.src || ""); }); }, "Upload pictures (Checks > My images > Insert) or use real web addresses."),
+      r("Every image has a real alt description (not the placeholder text)", function (c) { var im = c.all("img"); return im.length > 0 && im.every(function (i) { var a = (i.attrs.alt || "").trim().toLowerCase(); return a.length >= 3 && a !== "describe your image here" && a !== "describe your image"; }); }, "Write what the picture shows, like alt=\"A red octopus on a rock\""),
+      r("Every image has a border (thickness, style, color) in its style attribute", function (c) { var im = c.all("img"); return im.length > 0 && im.every(function (i) { return hasDecl(c, i, "border", BORDER_SHORT); }); }, "style=\"border: 4px solid navy;\""),
+      r("Every image has a width (so none of them is giant)", function (c) { var im = c.all("img"); return im.length > 0 && im.every(function (i) { return !!imgSize(i); }); }, "style=\"width: 300px;\""),
+      r("Has a favicon: a <link rel=\"icon\"> with an href inside the <head>", function (c) { var f = faviconLinks(c); return f.length >= 1 && f.every(function (l) { return !!c.ancestor(l, ["head"]); }); }, "Put the favicon link tag in the head, under your title."),
+      r("Uses at least one Google font: a link to fonts.googleapis.com in the head AND that font in a font-family with a fallback", function (c) { var g = gfontNames(c), ok = false; fontFamilyList(c).forEach(function (v) { if (g.indexOf(firstFont(v)) > -1 && v.indexOf(",") > -1 && GENERIC.test(lastFont(v))) ok = true; }); return g.length >= 1 && ok; }, "Link the font in the head, then: font-family: 'Lobster', cursive;"),
+      r("Has at least 1 heading, 1 paragraph, 1 <br> and 1 <hr> (outside a paragraph)", function (c) { return (c.has("h1") || c.has("h2") || c.has("h3") || c.has("h4")) && c.has("p") && c.has("br") && c.all("hr").some(function (x) { return !c.ancestor(x, ["p"]); }); }),
+      r("Uses bold or italic at least once, and at least one <span> with a style", function (c) { return (c.has("strong") || c.has("b") || c.has("em") || c.has("i")) && c.all("span").some(function (s) { return s.attrs.style !== undefined && /:/.test(s.attrs.style); }); }),
       r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\""),
       r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },

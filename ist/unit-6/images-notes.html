@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Images | Unit 3 Notes</title>
+<title>Images and Favicons | Unit 3 Notes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css">
@@ -83,9 +83,9 @@
 
 <header class="hero"><div class="wrap">
   <div class="brief-no">Unit 3 Notes &nbsp;/&nbsp; Lesson 3.7</div>
-  <h1>Images</h1>
+  <h1>Images and Favicons</h1>
   <p class="deck">Upload your own pictures, drop them on a page, and resize them without squishing. Then make every one of them a clickable link, the way real websites do it.</p>
-  <span class="stdchip">img &middot; src &middot; alt &middot; width / height &middot; images as links</span>
+  <span class="stdchip">img &middot; src &middot; alt &middot; width &middot; borders &middot; favicons</span>
 </div></header>
 
 <section class="part"><div class="wrap">
@@ -166,7 +166,17 @@
 </div></section>
 
 <section class="part"><div class="wrap">
-  <div class="part-head"><div class="part-tag">05</div><h2>Common Mistakes</h2></div>
+  <div class="part-head"><div class="part-tag">05</div><h2>Favicons: The Tiny Picture on the Tab</h2></div>
+  <p class="story">Look at the top of your browser. Every tab has a title and a tiny picture beside it. That picture is the <b>favicon</b>. You add one with a <code>&lt;link&gt;</code> tag inside the <b>head</b>. Pick an emoji below and watch the tab and the code change.</p>
+  <div class="pickrow" id="fv"></div>
+  <div class="browser"><div class="bar" id="fvBar"></div><div class="page" id="fvPage">Your page is here.</div></div>
+  <div class="codeblk" id="fvCode"></div>
+  <div class="hint-panel"><b>Using your own picture?</b> Upload a small, simple, square picture in the editor (Checks, then My images) and put its address in the <code>href</code>. Use a tiny emoji drawing like the one above when you do not have a picture.</div>
+  <div class="callout">Head, not body.<span>Like your title and your Google font link, the favicon link lives inside the head. It has no closing tag.</span></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">06</div><h2>Common Mistakes</h2></div>
   <div class="wrongright">
     <div class="w"><h4>Wrong: closing the img tag</h4><div class="codeblk"><span class="t">&lt;img</span> src="..." alt="Dog"<span class="t">&gt;&lt;/img&gt;</span></div></div>
     <div class="r"><h4>Right: no closing tag</h4><div class="codeblk"><span class="t">&lt;img</span> src="..." alt="Dog"<span class="t">&gt;</span></div></div>
@@ -187,7 +197,7 @@ alt="A rocket launching at sunrise"</div></div>
 </div></section>
 
 <section class="part"><div class="wrap">
-  <div class="part-head"><div class="part-tag">06</div><h2>Vocab You Need</h2></div>
+  <div class="part-head"><div class="part-tag">07</div><h2>Vocab You Need</h2></div>
   <div class="tblwrap"><div class="tblscroll"><table class="cmp">
     <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
     <tbody>
@@ -198,6 +208,7 @@ alt="A rocket launching at sunrise"</div></div>
       <tr><td><b>Aspect ratio</b></td><td>The natural shape of a picture (how wide it is compared to how tall)</td></tr>
       <tr><td><b>width / height</b></td><td>Style properties that set a picture's size. Use one, not both</td></tr>
       <tr><td><b>Image link</b></td><td>An image inside an anchor tag, so clicking the picture opens a page</td></tr>
+      <tr><td><b>Favicon</b></td><td>The tiny picture on a browser tab, added with a link tag (rel=icon) in the head</td></tr>
           </tbody></table></div></div>
 </div></section>
 
@@ -232,5 +243,17 @@ var WIDE = pic(400, 300, "#38BDF8", "#6366F1"), SQ = pic(300, 300, "#F472B6", "#
   Array.prototype.forEach.call(row.children, function (b) { b.onclick = function () { draw(b.getAttribute("data-p")); }; }); draw("25");
 })();
 document.getElementById("demoImg").src = pic(400, 300, "#0EA5E9", "#7C3AED");
+(function(){
+  var E = ["&#128444;&#65039;", "&#128054;", "&#127918;", "&#128247;", "&#127829;", "&#128126;"], T = ["Museum", "Dog Page", "Game Zone", "Photo Wall", "Pizza Place", "Alien Fan Club"], row = document.getElementById("fv");
+  var bar = document.getElementById("fvBar"), code = document.getElementById("fvCode");
+  function pick(i) {
+    Array.prototype.forEach.call(row.children, function (b, j) { b.classList.toggle("on", j === i); });
+    bar.innerHTML = '<div class="tabx act"><span style="font-size:14px;margin-right:6px">' + E[i] + "</span>" + T[i] + "</div>";
+    var em = document.createElement("span"); em.innerHTML = E[i]; var ch = em.textContent;
+    code.innerHTML = '<span class="t">&lt;head&gt;</span>\n  <span class="t">&lt;title&gt;</span>' + T[i] + '<span class="t">&lt;/title&gt;</span>\n  <span class="t">&lt;link</span> <span class="at">rel</span>=<span class="t">"</span><span class="vl">icon</span><span class="t">"</span> <span class="at">href</span>=<span class="t">"</span><span class="vl">data:image/svg+xml,&lt;svg ...&gt;' + ch + '&lt;/svg&gt;</span><span class="t">"</span><span class="t">&gt;</span>\n<span class="t">&lt;/head&gt;</span>';
+  }
+  E.forEach(function (x, i) { var b = document.createElement("button"); b.innerHTML = x + " " + T[i]; b.onclick = function () { pick(i); }; row.appendChild(b); });
+  pick(0);
+})();
 </script>
 </body></html>

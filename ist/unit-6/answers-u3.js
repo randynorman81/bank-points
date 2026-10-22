@@ -223,40 +223,40 @@
     ])]));
 
   /* ======================================================================= 6.7  (3.8) ===== */
-  A["6.7"] = build([].concat(head("A **photo brochure** with real pictures. You upload your own pictures, change their sizes, and make **every picture a clickable link**.", "a travel brochure, a pet adoption flyer, or a club recruitment page", notes("unit-6/images-notes.html")), [RULE,
-    S("Get and upload 3 pictures", [
-      "Take or draw **at least 3 pictures** for your topic (school-appropriate) and save them as JPG or PNG files",
-      "Click **Checks**, find **My images**, and upload each picture. Wait for it to show up in the list. You need **at least 2** uploaded this way"
+  A["6.7"] = build([].concat(head("A **photo page** where the pictures are the stars, with a **favicon** on the browser tab. Pick one of **10 themes**, or make up your own with your teacher's OK. There is no set layout: you decide where everything goes.", "", notes("unit-6/images-notes.html")), [{ tip: "themes37", label: "See all the theme choices" }, RULE2,
+    { p: "**Every theme uses the same steps.** Each step gives the **minimum** you need, and you can ALWAYS add more. Use your own pictures (**Checks**, then **My images**, then **Insert**) or real web addresses." },
+    skeleton(["On the **body** tag, add a style: **background-color** (a named color)"]),
+    S("Pick your theme", [
+      "Choose a theme (click the button above to see all 10 choices, or make up your own with your teacher's OK) and plan where your pictures will go"
     ]),
-    S("Skeleton, title, and background", [
-      "Type the **doctype** line, then **html** with a **head** and a **body** inside it (head first). Inside the head, add a **title** with your brochure's name",
-      "On the **body** tag, add a style: **background-color** (a light named color)"
+    S("The head: favicon and font", [
+      "Add a **favicon** inside the head: a **link** tag with **rel** set to icon and an **href** with the address of a small picture (or the emoji trick in the help). Look at the tab above your preview to see it",
+      "Add a **Google Fonts link** inside the head and pick at least one font that fits your theme (use Filters and sample text, like in 3.5)"
     ]),
-    S("Banner, menu bar, and tagline", [
-      "Inside the body, add **one heading 1** with your brochure's name. Style it: **color**, and **text-align** center",
-      "Add a **bullet list** with **3 list items**, each with a **link** (https://) that opens in the **same tab**. Style the list: **list-style-type** none and **text-align** center. Style **each list item**: **display** inline",
-      "Add a **paragraph** (**text-align** center): a phrase in **italics**, **one word** colored with a **span**, and a **line break** with a second line"
+    S("Build your page", [
+      "Add **at least 1 heading** with your page's name",
+      "Add **at least 1 paragraph** that introduces your theme",
+      "Use **at least 1 line break** (br) and **at least 1 horizontal line** (hr), outside any paragraph"
     ]),
-    S("The big picture", [
-      "Add a **paragraph**. Click inside it, then click **Insert** on your first picture (Checks, then My images). The editor writes the picture wrapped in a link for you. Change that link to a **real website** (https://), make it open in a **new tab**, and write a real **alt** description (like \"my dog on the beach\")",
-      "Give the picture a **width** of 320px in its style attribute"
+    S("The pictures", [
+      "Add **at least 5 pictures**. Each one needs a **src** that is a web address (upload one with Insert, or use a real address)",
+      "Give **every** picture a real **alt** attribute that describes it (never leave the placeholder)",
+      "Give **every** picture a **border** in its style attribute (thickness, style, and color, like 4px solid navy). Try different styles and colors",
+      "Give **every** picture a **width** in its style attribute (like 300px) so none is giant. Put it in the same style attribute as the border, with a semicolon between"
     ]),
-    S("Two more pictures", [
-      "Add a second **paragraph** with your second picture the same way: a link to a real website that opens in the **same tab**, a real alt, and a **width** of 25%",
-      "Add a third **paragraph** with your third picture: a link that opens in a **new tab**, a real alt, and a **width** of 45%"
+    S("Style the words", [
+      "Use your **Google font** on at least one tag with **font-family**, ending with a **fallback family**",
+      "Make at least one word or phrase **bold** or in **italics**",
+      "Use at least one **span** with its own style to change a few words (a color, size, or font)"
     ]),
-    S("Pictures need words: a list of links", [
-      "Add a **heading 2** with a **color**. Under it, add a **bullet list** of 3 items. Style it: **list-style-type** square and a **solid border**",
-      "Each item is a **text link** (https://) with the name in **bold** inside the link and an **italic** note after it. These are links with words, not pictures"
+    S("Bring back what you know", [
+      "Use **at least one heading 2** and **at least one heading 3** (headings above your pictures work well)",
+      "Make **at least one** thing **text-transform** uppercase",
+      "Use **solid**, **dashed**, and **dotted** borders **at least 2 times each**. Your picture borders count, and you can add borders to headings or paragraphs too",
+      "Use a **one-sided border** (like border-bottom) **at least 2 times**, for example under your headings"
     ]),
-    S("The footer", [
-      "Add a last **paragraph** with a **line break** inside. Style it: **text-align** center and **font-size** 14px"
-    ]),
-    S("Test and submit", [
-      "Try a few different widths on the big picture and watch the preview, then set it back",
-      "Click **Checks**. Fix every red line. The **Use what you already know** list has to turn green too: for each red item, add the missing use where it fits the page",
-      "Choose your class period at the top, then click **Submit** (you can submit again to replace it)"
-    ])]));
+    done()]));
+
 
   /* From 3.9 on (lessons 7.1 to 9.7), every assignment also needs 3 links, 3 pictures, and 2 pictures that are links (html-check.js checks it). Add one step before "Test and submit". */
   Object.keys(A).forEach(function (l) {
