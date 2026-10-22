@@ -528,7 +528,7 @@
       r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\""),
       r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
-    "6.6": { name: "Links", rules: [
+    "6.6": { name: "Links and Clickable Images", rules: [
       r("Has at least 6 <a> links, and every href starts with https://", function (c) { var a = c.all("a"); return a.length >= 6 && a.every(function (x) { return /^https:\/\//i.test(x.attrs.href || ""); }); }, "Copy the whole address from the browser, including https://"),
       r("At least 3 links open in a NEW tab (target=\"_blank\")", function (c) { return c.all("a").filter(function (a) { return a.attrs.target === "_blank"; }).length >= 3; }, "Links that leave your site open in a new tab."),
       r("At least 3 links open in the CURRENT tab (no target, or target=\"_self\")", function (c) { return c.all("a").filter(function (a) { return a.attrs.target === undefined || a.attrs.target === "_self"; }).length >= 3; }, "Leave off target, or write target=\"_self\"."),
@@ -538,7 +538,7 @@
       r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\""),
       r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
-    "6.7": { name: "Images", rules: [
+    "6.7": { name: "Images and Favicons", rules: [
       r("Has at least 3 <img> tags, each with a src", function (c) { var im = c.all("img"); return im.length >= 3 && im.every(function (i) { return (i.attrs.src || "").length > 0; }); }),
       r("Every image has a real alt description (not the placeholder text)", function (c) { var im = c.all("img"); return im.length > 0 && im.every(function (i) { var a = (i.attrs.alt || "").trim().toLowerCase(); return a.length >= 3 && a !== "describe your image"; }); }, "Write what the picture shows, like alt=\"A red octopus on a reef\"."),
       r("At least 2 images were uploaded with the editor (Checks > My images > Insert)", function (c) { return c.all("img").filter(function (i) { return /\/api\/code\?img=/.test(i.attrs.src || ""); }).length >= 2; }, "Upload your own pictures. Open Checks, find My images, upload, then click Insert."),
@@ -724,7 +724,7 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
   ] };
   LESSONS["9.7"] = { name: "Unit Test Website (Bootstrap)", rules: [] };
 
-  var ORDER = ["6.1", "6.2", "6.20", "6.3", "6.35", "6.4", "6.5", "6.6", "6.7", "7.1", "7.2", "7.3", "7.4", "7.5", "7.6",
+  var ORDER = ["6.1", "6.2", "6.20", "6.3", "6.35", "6.4", "6.7", "6.6", "6.5", "7.1", "7.2", "7.3", "7.4", "7.5", "7.6",
                "8.1", "8.2", "8.3", "8.4", "8.5", "8.6", "8.7", "9.1", "9.2", "9.3", "9.4", "9.5", "9.6", "9.7"];
 
   var TOTAL_POINTS = 50;      // points a lesson is worth
@@ -747,7 +747,7 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
     });
     reviewRules(lesson).forEach(function (rr) { if (!out.some(function (x) { return x.id === rr.id; })) out.push(rr); });
     /* once links and pictures have been taught (3.7 and 3.8), EVERY assignment after them needs a few of each */
-    if (idx > ORDER.indexOf("6.7")) {
+    if (idx > ORDER.indexOf("6.6")) {
       out.push({ id: "A-links", lesson: lesson, label: "At least 3 links, each with an https:// address", tip: "Link to real sites that fit your page. Use <a href=\"https://...\">words</a>.", isNew: true, test: function (c) { return realLinks(c).length >= 3; } });
       out.push({ id: "A-images", lesson: lesson, label: "At least 3 pictures, each with a real alt description", tip: "Upload pictures in Checks, then My images, then Insert.", isNew: true, test: function (c) { var im = c.all("img"); return im.length >= 3 && im.every(function (i) { return /\S{3,}/.test(i.attrs.alt || ""); }); } });
       out.push({ id: "A-imglinks", lesson: lesson, label: "At least 2 of your pictures are clickable links (the picture sits inside an <a>)", tip: "Wrap the img in an a tag with a real https:// address.", isNew: true, test: function (c) { return c.all("img").filter(function (i) { var a = c.ancestor(i, ["a"]); return !!a && /^https:\/\//i.test(a.attrs.href || "") && !/example\.com/i.test(a.attrs.href || ""); }).length >= 2; } });

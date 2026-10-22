@@ -28,18 +28,18 @@
     { id: "6.4",
       props: [I("p-border", "border"), I("p-bside", "border-top, -bottom, -left, or -right")],
       vals: [I("v-solid", "border style: solid"), I("v-dashed", "border style: dashed"), I("v-dotted", "border style: dotted")] },
+    { id: "6.7",
+      tags: [I("img", "<img>")],
+      attrs: [I("attr-src", "src"), I("attr-alt", "alt"), I("attr-imgsize", "width on an image")],
+      props: [I("p-w", "width")],
+      vals: [I("v-pct", "width in %")] },
+    { id: "6.6",
+      tags: [I("a", "<a>")],
+      attrs: [I("attr-href", "href"), I("attr-newtab", "target=\"_blank\" (new tab)"), I("attr-sametab", "links in the same tab"), I("a-wrap", "a link around a heading, a paragraph, or words"), I("attr-imglink", "image inside a link (a clickable image)")] },
     { id: "6.5",
       tags: [I("ul", "<ul>"), I("ol", "<ol>"), I("li", "<li>")],
       props: [I("p-lst", "list-style-type"), I("p-disp", "display")],
       vals: [I("v-inline", "display: inline"), I("v-lstnone", "list-style-type: none")] },
-    { id: "6.6",
-      tags: [I("a", "<a>")],
-      attrs: [I("attr-href", "href"), I("attr-newtab", "target=\"_blank\" (new tab)"), I("attr-sametab", "links in the same tab"), I("a-wrap", "a link around a heading, a paragraph, or words")] },
-    { id: "6.7",
-      tags: [I("img", "<img>")],
-      attrs: [I("attr-src", "src"), I("attr-alt", "alt"), I("attr-imgsize", "width on an image"), I("attr-imglink", "image inside a link")],
-      props: [I("p-w", "width")],
-      vals: [I("v-pct", "width in %")] },
     { id: "7.1",
       props: [I("p-pad", "padding"), I("p-mar", "margin")] },
     { id: "7.2",
@@ -77,7 +77,7 @@
     { id: "9.6", tags: [I("form", "<form>")], sels: [I("b-form", "form-label and form-control")] }
   ];
   var ORDER = C.map(function (x) { return x.id; });
-  var FULL = ["6.1", "6.2", "6.20", "6.3", "6.35", "6.4", "6.5", "6.6", "6.7", "7.1", "7.2", "7.3", "7.4", "7.5", "7.6", "8.1", "8.2", "8.3", "8.4", "8.5", "8.6", "8.7", "9.1", "9.2", "9.3", "9.4", "9.5", "9.6", "9.7"];
+  var FULL = ["6.1", "6.2", "6.20", "6.3", "6.35", "6.4", "6.7", "6.6", "6.5", "7.1", "7.2", "7.3", "7.4", "7.5", "7.6", "8.1", "8.2", "8.3", "8.4", "8.5", "8.6", "8.7", "9.1", "9.2", "9.3", "9.4", "9.5", "9.6", "9.7"];
   function num(id) { var i = FULL.indexOf(String(id)); return i < 0 ? 1000 : i; }
   function before(a, b) { return num(a) < num(b); }
   var GROUPS = [["tags", "HTML tags"], ["attrs", "Attributes"], ["props", "CSS properties"], ["vals", "CSS values"], ["sels", "Selectors and classes"]];
@@ -99,7 +99,7 @@
     var li = idxOf(lesson), fi = idxOf(fromId); if (li < 0 || fi < 0 || fi >= li) return null;
     var age = li - fi;
     if (age <= FRESH) return { tier: "fresh", min: 2 };
-    if (age <= FRESH + (li <= idxOf("6.7") ? KEEP : 3)) return { tier: "keep", min: 1 };
+    if (age <= FRESH + (li <= idxOf("6.5") ? KEEP : 3)) return { tier: "keep", min: 1 };
     return STAPLES[key] ? { tier: "keep", min: 1 } : null;
   }
   root.U7_CONCEPTS = {
