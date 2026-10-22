@@ -474,8 +474,9 @@ function buildLessonList() {
   var sel = $("lesson"); sel.innerHTML = "";
   H.ORDER.forEach(function (l) {
     if (lessonClosed(l)) return;
-    if (!SHOW_ALL && l !== S.lesson && !MY_LESSONS[l] && !hasLocalWork(l)) return;
-    var o = document.createElement("option"); o.value = l; o.textContent = dispLesson(l) + "  " + H.LESSONS[l].name; sel.appendChild(o);
+    var isT = !!S.email && TEACHER_EMAILS.indexOf(S.email) > -1;   /* the teacher account sees every lesson, including ones still closed to students */
+    if (!SHOW_ALL && !isT && l !== S.lesson && !MY_LESSONS[l] && !hasLocalWork(l)) return;
+    var o = document.createElement("option"); o.value = l; o.textContent = dispLesson(l) + "  " + H.LESSONS[l].name + (isT && window.U7_STEPCHECKS && U7_STEPCHECKS.LESSONS[l] && (window.U7_LIVE || []).indexOf(l) < 0 ? "  (closed to students)" : ""); sel.appendChild(o);
   });
   sel.value = S.lesson;
 }
