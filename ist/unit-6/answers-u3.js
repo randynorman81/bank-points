@@ -129,11 +129,10 @@
     S("Use your fonts", [
       "Use **at least 3 different Google fonts** on your page. Set each one with **font-family** in a style attribute: the font's name in quotes",
       "End **every** font-family with a **fallback family** (**serif**, **sans-serif**, **monospace**, **cursive**, or **fantasy**), after a comma, so your page still works if a font fails to load",
-      "Your fonts must come from **at least 2 different families** (the fallback at the end). For example: a **cursive** title font and a **sans-serif** paragraph font",
       "Put a **font-family** on **at least 6 tags** (headings and paragraphs)",
       "Make it look **designed**: **at least 4 paragraphs** share the **same font**, and **at least 2 headings** share the **same font**. Use the other fonts as accents",
       "Use **at least 3 spans**, each with its own style attribute, to change a few words for effect (a different **font**, **color**, **font-size**, or **background-color**). Click the help button to see how a span works",
-      "**BONUS (+5 points):** use fonts from **4 different families** (serif, sans-serif, monospace, and cursive) and still make the page look good, not thrown together"
+      "**BONUS (+5 points):** use fallback families from **4 different families** (serif, sans-serif, monospace, and cursive) and still make the page look good, not thrown together"
     ]),
     S("Use what you already know", [
       "Use **at least 3 different colors** on the page and **at least 2 different background-colors** (the body counts)",

@@ -152,7 +152,6 @@
     "Step 4": [
       [K("At least 3 different Google fonts are used in font-family styles", function (c) { var g = gNames(c), used = {}; ffList(c).forEach(function (v) { var f = ffFirst(v); if (g.indexOf(f) > -1) used[f] = 1; }); return Object.keys(used).length >= 3; })],
       [K("Every font-family ends with a fallback family (serif, sans-serif, monospace, cursive, or fantasy)", function (c) { var l = ffList(c); return l.length >= 1 && l.every(function (v) { return v.indexOf(",") > -1 && /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v)); }); })],
-      [K("Your fonts come from at least 2 different families (for example a cursive for the title and a sans-serif for the paragraphs)", function (c) { return families(c).length >= 2; })],
       [K("At least 6 tags use a font-family", function (c) { return allEls(c).filter(function (x) { return h.vals(c, x, "font-family").length > 0; }).length >= 6; })],
       [K("It looks designed, not thrown together: at least 4 paragraphs share the same font, and at least 2 headings share the same font", function (c) { return sharedFont(c, ["p"], 4) && sharedFont(c, ["h1", "h2", "h3"], 2); })],
       [K("At least 3 span tags, each with its own style (a different font, color, size, or background-color on a few words)", function (c) { return c.all("span").filter(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style) && txt(c, k).length > 0; }).length >= 3; })],
