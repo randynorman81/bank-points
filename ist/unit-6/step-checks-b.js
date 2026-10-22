@@ -127,6 +127,37 @@
   } };
   lastStep("6.3", "Step 6", [[h.ALLGREEN], []]);
 
+  /* =============== 6.35  (3.5) Google Fonts: a page that shows off fonts (open-ended, minimum counts) =============== */
+  function gfLinks(c) { return c.all("link").filter(function (l) { return /^https:\/\/fonts\.googleapis\.com\/css2?\?/i.test(l.attrs.href || "") && /stylesheet/i.test(l.attrs.rel || "stylesheet"); }); }
+  function gNames(c) { var n = {}; gfLinks(c).forEach(function (l) { var m, re = /family=([^&:;]+)/g; while ((m = re.exec(l.attrs.href || ""))) { var nm; try { nm = decodeURIComponent(m[1].replace(/\+/g, " ")); } catch (e) { nm = m[1]; } n[nm.trim().toLowerCase()] = 1; } }); return Object.keys(n); }
+  function ffList(c) { var out = []; allEls(c).forEach(function (x) { h.vals(c, x, "font-family").forEach(function (v) { out.push(String(v).toLowerCase()); }); }); return out; }
+  function ffFirst(v) { return String(v).split(",")[0].replace(/['"]/g, "").trim(); }
+  function ffLast(v) { var p = String(v).split(","); return p[p.length - 1].replace(/['"]/g, "").trim(); }
+  SC.LESSONS["6.35"] = { inlineOnly: true, steps: {
+    "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color)")]],
+    "Step 2": [
+      [K("There is at least 1 link tag in the head that loads a Google font (https://fonts.googleapis.com)", function (c) { var g = gfLinks(c); return g.length >= 1 && g.every(function (l) { return !!c.ancestor(l, ["head"]); }); })],
+      [K("Your links bring in at least 3 different fonts", function (c) { return gNames(c).length >= 3; })]
+    ],
+    "Step 3": [
+      [K("There is a heading 1", function (c) { return c.count("h1") >= 1; }), K("There is a heading 2", function (c) { return c.count("h2") >= 1; }), K("There are at least 2 heading 3s", function (c) { return c.count("h3") >= 2; })],
+      [CNT("There are at least 6 paragraphs", "p", 6)]
+    ],
+    "Step 4": [
+      [K("At least 3 different Google fonts are used in font-family styles", function (c) { var g = gNames(c), used = {}; ffList(c).forEach(function (v) { var f = ffFirst(v); if (g.indexOf(f) > -1) used[f] = 1; }); return Object.keys(used).length >= 3; })],
+      [K("Every font-family ends with a fallback family (serif, sans-serif, monospace, or cursive)", function (c) { var l = ffList(c); return l.length >= 1 && l.every(function (v) { return v.indexOf(",") > -1 && /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v)); }); })],
+      [K("At least 6 tags use a font-family", function (c) { return allEls(c).filter(function (x) { return h.vals(c, x, "font-family").length > 0; }).length >= 6; })],
+      [K("At least 2 spans have their own font-family", function (c) { return c.all("span").filter(function (k) { return h.vals(c, k, "font-family").length > 0 && txt(c, k).length > 0; }).length >= 2; })]
+    ],
+    "Step 5": [
+      [K("At least 3 different colors are used on the page", function (c) { return distinctColors(c).length >= 3; })],
+      [K("At least 2 bold words or phrases", function (c) { return c.all("strong").concat(c.all("b")).length >= 2; }), K("At least 2 italic words or phrases", function (c) { return c.all("em").concat(c.all("i")).length >= 2; })],
+      [K("At least 2 line breaks", function (c) { return c.all("br").length >= 2; }), K("At least 2 horizontal lines, outside any paragraph", function (c) { return c.all("hr").filter(function (x) { return !c.ancestor(x, ["p"]); }).length >= 2; })],
+      [K("At least 2 different font sizes in px", function (c) { var n = {}; allEls(c).forEach(function (x) { h.vals(c, x, "font-size").forEach(function (v) { if (h.isPx(v)) n[v] = 1; }); }); return Object.keys(n).length >= 2; }), K("At least 2 tags are text-align center (or right)", function (c) { return allEls(c).filter(function (x) { return h.vals(c, x, "text-align").some(function (v) { return v === "center" || v === "right"; }); }).length >= 2; }), K("At least 2 things are text-transform uppercase", function (c) { return allEls(c).filter(function (x) { return h.vals(c, x, "text-transform").some(function (v) { return v === "uppercase"; }); }).length >= 2; })]
+    ]
+  } };
+  lastStep("6.35", "Step 6", [[h.ALLGREEN], []]);
+
   /* =============== 6.4  (3.5) Border: the wanted poster =============== */
   var wanted = T("h1"), crimes = afterEl(T("h1"), "p"), desc = HW("h2", /description/i), descP1 = afterEl(desc, "p"), descP2 = function (c) { return h.nextEl(descP1(c)); };
   var marks = HW("h3", /distinguishing/i), lastSeen = HW("h2", /last seen/i), hide = HW("h3", /hideout/i), reward = HW("h2", /reward/i);

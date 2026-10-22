@@ -113,6 +113,31 @@
     ]),
     done()]));
 
+  /* ======================================================================= 6.35  (3.5) ===== */
+  A["6.35"] = build([].concat(head("A **font showcase page** where the fonts are the stars. Pick **one**: a fancy restaurant sign, a band's tour page, a movie title page, a spooky haunted-house page, a gaming channel page, or a wedding invitation for two things that should not marry.", "", notes("unit-6/google-fonts-notes.html")), [RULE2,
+    skeleton(["On the **body** tag, add a style: **background-color** (a named color)"]),
+    S("Pick and link your fonts", [
+      "Go to **fonts.google.com**, pick **at least 3 fonts** that fit your theme, and get the **link** code for them. Paste the **link** tag (or tags) **inside the head**, under your title. Click the help button for the steps",
+      "Check that your link(s) bring in **at least 3 different fonts** (one link can hold several fonts)"
+    ]),
+    S("Build your content", [
+      "Add **at least one heading 1**, **one heading 2**, and **two heading 3s**",
+      "Write **at least 6 paragraphs** about your theme (real words, in your own voice)"
+    ]),
+    S("Use your fonts", [
+      "Use **at least 3 different Google fonts** on your page. Set each one with **font-family** in a style attribute: the font's name in quotes",
+      "End **every** font-family with a **fallback family** (**serif**, **sans-serif**, **monospace**, or **cursive**), after a comma, so your page still works if a font fails to load",
+      "Put a **font-family** on **at least 6 tags** (headings and paragraphs). Mix a bold display font for headings with an easy-to-read font for paragraphs",
+      "Use a **span** with its **own font-family** at least **2 times** to change the font of just a few words inside a paragraph"
+    ]),
+    S("Bring back what you know", [
+      "Use **at least 3 different colors** on the page (text colors and background colors count together)",
+      "Make **at least 2** words or phrases **bold** and **at least 2** in **italics**",
+      "Use **at least 2 line breaks** and **at least 2 horizontal lines** (outside any paragraph)",
+      "Use **at least 2 different font sizes** in pixels, make **at least 2** tags **text-align** center (or right), and make **at least 2** things **text-transform** uppercase"
+    ]),
+    done()]));
+
   /* ======================================================================= 6.4  (3.5) ===== */
   A["6.4"] = build([].concat(head("The **ultimate Wanted poster** for an outlaw on the loose.", "a villain, your pet who stole the snacks, or a made-up criminal", notes("unit-6/borders-notes.html")), [RULE,
     skeleton(["On the **body** tag, add a style: **background-color** (a light named color)"]),

@@ -20,6 +20,11 @@
       vals: [I("v-px", "font-size in px"), I("v-center", "text-align: center"), I("v-upper", "text-transform: uppercase")] },
     { id: "6.3",
       tags: [I("strong", "<strong> or <b>"), I("em", "<em> or <i>"), I("br", "<br>"), I("hr", "<hr>"), I("span", "<span>")] },
+    { id: "6.35",
+      tags: [I("link", "<link> in the head", "once")],
+      attrs: [I("attr-gfont", "a Google Fonts link (href)", "once")],
+      props: [I("p-ff", "font-family")],
+      vals: [I("v-fallback", "a fallback family (serif, sans-serif, monospace, cursive)")] },
     { id: "6.4",
       props: [I("p-border", "border"), I("p-bside", "border-top, -bottom, -left, or -right")],
       vals: [I("v-solid", "border style: solid"), I("v-dashed", "border style: dashed"), I("v-dotted", "border style: dotted")] },
@@ -72,7 +77,7 @@
     { id: "9.6", tags: [I("form", "<form>")], sels: [I("b-form", "form-label and form-control")] }
   ];
   var ORDER = C.map(function (x) { return x.id; });
-  var FULL = ["6.1", "6.2", "6.20", "6.3", "6.4", "6.5", "6.6", "6.7", "7.1", "7.2", "7.3", "7.4", "7.5", "7.6", "8.1", "8.2", "8.3", "8.4", "8.5", "8.6", "8.7", "9.1", "9.2", "9.3", "9.4", "9.5", "9.6", "9.7"];
+  var FULL = ["6.1", "6.2", "6.20", "6.3", "6.35", "6.4", "6.5", "6.6", "6.7", "7.1", "7.2", "7.3", "7.4", "7.5", "7.6", "8.1", "8.2", "8.3", "8.4", "8.5", "8.6", "8.7", "9.1", "9.2", "9.3", "9.4", "9.5", "9.6", "9.7"];
   function num(id) { var i = FULL.indexOf(String(id)); return i < 0 ? 1000 : i; }
   function before(a, b) { return num(a) < num(b); }
   var GROUPS = [["tags", "HTML tags"], ["attrs", "Attributes"], ["props", "CSS properties"], ["vals", "CSS values"], ["sels", "Selectors and classes"]];

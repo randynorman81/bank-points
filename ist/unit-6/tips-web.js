@@ -149,6 +149,12 @@
   ]);
 
   var ED = cat("Editing tags");
+  add("googlefont", ED, "How do I add a Google font?", [
+    { steps: ["Go to **fonts.google.com** and pick a font you like.", "Click **Get font**, then **Get embed code**, and choose the **link** option (not @import).", "Copy the **link** tag (or tags) and paste them inside your **head**, under the title.", "In a style attribute, write **font-family**, the font's name in quotes, a comma, and a fallback family."] },
+    { ex: ["<head>", "  <title>Fonts</title>", "  <link href=\"https://fonts.googleapis.com/css2?family=Pacifico&display=swap\" rel=\"stylesheet\">", "</head>", "<h1 style=\"font-family: 'Pacifico', cursive;\">Hello</h1>"] },
+    { list: ["The link goes in the **head**, never the body.", "A font only works on your page if its link is in your head.", "One link can load several fonts: add &family=Lobster after the first family.", "Always end with a fallback: serif, sans-serif, monospace, or cursive."] },
+    { warn: "Font names with spaces (like Bebas Neue) go in single quotes inside the style." }
+  ]);
   add("fontfamily", ED, "How do I change the font?", [
     { p: "`font-family` picks the style of the letters. Give one font name, then a back-up group." },
     { rows: [["serif", "letters with little feet, like a book", "font-family: Georgia, serif;"], ["sans-serif", "clean letters with no feet", "font-family: Verdana, sans-serif;"], ["monospace", "every letter the same width, like code", "font-family: 'Courier New', monospace;"]] },
@@ -343,6 +349,7 @@
 
   /* ---------- which help shows under which step text (first words that match decide; most specific first) ---------- */
   var R = [
+    [/google font|font link|fonts\.google|fallback/i, ["googlefont", "fontfamily"]],
     [/head.*title|title.*head/i, ["titledemo", "titletag"]],
     [/sneak peek|span tag wraps|at least 3 words|EXTRA CREDIT.*span|span tags? for effect/i, ["spandemo", "spantag"]],
     [/whole heading|whole paragraph|inside a link|inside the a tag|around the h3/i, ["linkanything", "atag"]],
