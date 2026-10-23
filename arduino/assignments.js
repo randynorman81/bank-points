@@ -30,12 +30,12 @@
 
   A.a2 = { title: "Wire an External LED", intro: "Now you will build a real circuit: an LED and a resistor on the breadboard, wired to pin 8. The resistor protects the LED. Without it the LED burns out!", steps: [
     { h: "Step 1: Add the parts", items: [
-      { t: "Click <b>LED</b> in the parts bar, and click <b>Resistor</b>. They appear on the canvas.", check: function (c) { return c.count("led") >= 1 && c.count("resistor") >= 1; } },
+      { t: "Click, <b>hold</b>, and drag an <b>LED</b> from the parts bar onto the breadboard. Then do the same with a <b>Resistor</b>. (Hover over each leg to see what it is.)", check: function (c) { return c.count("led") >= 1 && c.count("resistor") >= 1; } },
       { t: "Click the resistor, then choose <b>220</b> ohms in the box under the canvas.", check: function (c) { return c.parts("resistor").some(function (p) { return +(p.props && p.props.ohms) === 220; }); } }
     ] },
     { h: "Step 2: Build the circuit", items: [
-      { t: "Drag the resistor onto the breadboard so <b>both</b> of its legs go into holes (the leg dots turn green).", check: function (c) { return c.parts("resistor").some(function (p) { return c.plugged(p); }); } },
-      { t: "Drag the LED onto the breadboard so its <b>long leg</b> (the + leg, marked +) is in the same column as <b>one leg of the resistor</b>, and its short leg is in a different column.", check: function (c) { var l = ledOnPin(c), r = c.parts("resistor")[0]; return !!l && !!r && c.plugged(l) && (c.netOf(l, "A") === c.netOf(r, "1") || c.netOf(l, "A") === c.netOf(r, "2")) && c.netOf(l, "A") !== c.netOf(l, "K"); } },
+      { t: "Make sure <b>both</b> resistor legs are in breadboard holes (the leg dots turn green). Drag the resistor if you need to move it.", check: function (c) { return c.parts("resistor").some(function (p) { return c.plugged(p); }); } },
+      { t: "Plug the LED in so its <b>long, bent leg</b> (the <b>anode</b>, marked +) is in the same column as <b>one leg of the resistor</b>, and its short leg (the <b>cathode</b>, marked &minus;) is in a different column.", check: function (c) { var l = ledOnPin(c), r = c.parts("resistor")[0]; return !!l && !!r && c.plugged(l) && (c.netOf(l, "A") === c.netOf(r, "1") || c.netOf(l, "A") === c.netOf(r, "2")) && c.netOf(l, "A") !== c.netOf(l, "K"); } },
       { t: "Use a wire to connect <b>pin 8</b> on the Arduino to the <b>other leg of the resistor</b> (click a hole or pin, drag, and let go on the other one).", check: function (c) { var l = ledOnPin(c), r = c.parts("resistor")[0]; if (!l || !r) return false; var d8 = c.pin("D8"), a1 = c.netOf(r, "1"), a2 = c.netOf(r, "2"), la = c.netOf(l, "A"); return (d8 === a1 && a2 === la) || (d8 === a2 && a1 === la); } },
       { t: "Use a wire to connect the LED's <b>short leg</b> to <b>GND</b> on the Arduino (the GND pin on the top row, or the blue &minus; rail).", check: function (c) { var l = ledOnPin(c); return !!l && c.netOf(l, "K") === c.gnd; } },
       { t: "Test: when pin 8 is HIGH, the LED should glow (about 10 to 15 mA flows). Look for the <b>green leg dots</b> if it does not.", check: function (c) { return ledCircuit(c, 8, 5, 25); } }
@@ -51,7 +51,7 @@
       { t: "Build the LED circuit from Assignment 2 again: <b>pin 8</b> to a <b>220 &#937; resistor</b> to the LED's <b>long leg</b>, and the LED's <b>short leg</b> to <b>GND</b>.", check: function (c) { return ledCircuit(c, 8, 5, 25); } }
     ] },
     { h: "Step 2: Add the button", items: [
-      { t: "Click <b>Pushbutton</b>. Drag it onto the breadboard so it <b>straddles the center gap</b>: two legs on the top half and two legs on the bottom half. All four leg dots must turn green.", check: function (c) { var b = c.parts("button")[0]; return !!b && c.plugged(b) && c.netOf(b, "TL") !== c.netOf(b, "BL"); } },
+      { t: "Click, <b>hold</b>, and drag a <b>Pushbutton</b> from the parts bar onto the breadboard so it <b>straddles the center gap</b>: two legs on the top half and two legs on the bottom half. All four leg dots must turn green.", check: function (c) { var b = c.parts("button")[0]; return !!b && c.plugged(b) && c.netOf(b, "TL") !== c.netOf(b, "BL"); } },
       { t: "Use a wire to connect <b>one side</b> of the button to <b>pin 2</b> on the Arduino.", check: function (c) { var b = c.parts("button")[0]; if (!b) return false; var d2 = c.pin("D2"); return c.netOf(b, "TL") === d2 || c.netOf(b, "BL") === d2; } },
       { t: "Use a wire to connect the <b>other side</b> of the button to <b>GND</b>.", check: function (c) { var b = c.parts("button")[0]; if (!b) return false; return (c.netOf(b, "TL") === c.gnd && c.netOf(b, "BL") === c.pin("D2")) || (c.netOf(b, "BL") === c.gnd && c.netOf(b, "TL") === c.pin("D2")); } }
     ] },

@@ -107,7 +107,7 @@
   function bboxLocal(p) {
     switch (p.type) {
       case "uno": return [-16, 0, C.UNO_W, C.UNO_H]; case "breadboard": var d = C.PARTS.breadboard.dims(p); return [0, 0, d.w, d.h];
-      case "led": return [-10, -44, 24, 48]; case "resistor": return [-4, -14, 56, 24]; case "button": return [-10, -10, 38, 56]; case "buzzer": return [-6, -40, 40, 44];
+      case "led": return [-16, -62, 40, 66]; case "resistor": return [-4, -14, 56, 24]; case "button": return [-10, -10, 38, 56]; case "buzzer": return [-6, -40, 40, 44];
     }
     return [0, 0, 10, 10];
   }
@@ -124,7 +124,7 @@
       var w = wireById(sel.id); if (w) { var a = R.termPos(project, w.a.term), bb = R.termPos(project, w.b.term); if (a && bb) h += '<circle cx="' + a.x + '" cy="' + a.y + '" r="6" fill="#22D3EE" fill-opacity=".35" stroke="#22D3EE" stroke-width="2" data-whandle="a"/><circle cx="' + bb.x + '" cy="' + bb.y + '" r="6" fill="#22D3EE" fill-opacity=".35" stroke="#22D3EE" stroke-width="2" data-whandle="b"/>'; }
     }
     if (overlay.snap) h += '<circle cx="' + overlay.snap.x + '" cy="' + overlay.snap.y + '" r="7" fill="none" stroke="#34D399" stroke-width="2.5"/>';
-    if (overlay.hover) h += '<circle cx="' + overlay.hover.x + '" cy="' + overlay.hover.y + '" r="6.5" fill="#22D3EE" fill-opacity=".3" stroke="#22D3EE" stroke-width="2"/>';
+    if (overlay.hover) { var hc = overlay.hover.pol === "+" ? "#fb7185" : overlay.hover.pol === "-" ? "#60a5fa" : "#22D3EE"; h += '<circle cx="' + overlay.hover.x + '" cy="' + overlay.hover.y + '" r="7" fill="' + hc + '" fill-opacity=".3" stroke="' + hc + '" stroke-width="2"/>'; }
     if (overlay.wirePreview) { var wp = overlay.wirePreview; h += '<path d="' + R.wireD(wp.a.x, wp.a.y, wp.b.x, wp.b.y) + '" fill="none" stroke="' + (R.WIRE_COLORS[wireColor] || "#16a34a") + '" stroke-width="3.6" stroke-linecap="round" stroke-dasharray="6 5" opacity=".9"/>'; }
     overG.innerHTML = h;
   }
@@ -142,17 +142,123 @@
   var changeT; function changed() { clearTimeout(changeT); changeT = setTimeout(function () { sim && sim.markDirty(); scheduleEval(); cloudSoon(); }, 80); }
 
   /* ------------------------------------------------------------------ the canvas: parts */
-  function addPart(kind) {
-    var type = kind, props = {};
-    if (kind === "breadboard-mini") { type = "breadboard"; props = { size: "mini" }; } else if (kind === "breadboard") props = { size: "half" };
-    else if (kind === "led") props = { color: "red" }; else if (kind === "resistor") props = { ohms: 220 };
-    var r = stage.getBoundingClientRect(), cx = (r.width / 2 - view.x) / view.z, cy = (r.height / 2 - view.y) / view.z, off = (project.parts.length % 5) * 14;
-    var p = { id: nextId(PREFIX[type], project.parts), type: type, x: Math.round(cx / P) * P + off, y: Math.round(cy / P) * P + off, rot: 0, props: props };
-    if (type === "led" || type === "buzzer") p.y += 40;
-    project.parts.push(p); sel = { type: "part", id: p.id }; buildStage(); commit(); showProps();
-    setHint("Drag the " + C.PARTS[type].label.toLowerCase() + " onto the breadboard. The leg dots turn green when it is plugged in.");
+  /* ---- adding parts: click, hold, and drag a part from the parts bar onto the canvas (a plain click only shows how) */
+  var KIND_NAME = { led: "LED", resistor: "resistor", button: "pushbutton", buzzer: "buzzer", breadboard: "breadboard", "breadboard-mini": "mini breadboard" };
+  function partProps(kind) {
+    if (kind === "breadboard-mini") return { type: "breadboard", props: { size: "mini" } };
+    if (kind === "breadboard") return { type: "breadboard", props: { size: "half" } };
+    if (kind === "led") return { type: "led", props: { color: "red" } };
+    if (kind === "resistor") return { type: "resistor", props: { ohms: 220 } };
+    return { type: kind, props: {} };
   }
-  document.querySelectorAll("[data-add]").forEach(function (b) { b.onclick = function () { addPart(b.getAttribute("data-add")); }; });
+  function placePart(kind, wx, wy) {
+    var k = partProps(kind), p = { id: nextId(PREFIX[k.type], project.parts), type: k.type, x: Math.round(wx), y: Math.round(wy), rot: 0, props: k.props };
+    if (C.PARTS[k.type].board) { p.x -= 20; p.y -= 20; } else snapPart(p);
+    project.parts.push(p); sel = { type: "part", id: p.id }; buildStage(); commit(); showProps();
+    var plugged = !C.PARTS[k.type].board && C.worldTerms(p).every(function (t) { return lastRes && lastRes.legs[t.key]; });
+    setHint(C.PARTS[k.type].board ? "Drag it to where you want it." : plugged ? "Plugged in! The leg dots are green. Hover over a leg to learn what it is." : "Not plugged in yet. Drag it so its legs go into the breadboard holes (the leg dots turn green).");
+  }
+  var pal = null;
+  function paletteDown(e) {
+    if (e.button !== undefined && e.button !== 0) return; e.preventDefault();
+    var kind = e.currentTarget.getAttribute("data-add"), k = partProps(kind), ns = "http://www.w3.org/2000/svg";
+    var ghost = document.createElementNS(ns, "svg"); ghost.setAttribute("style", "position:fixed;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none;z-index:300;opacity:.9");
+    var tmp = { id: "ghost", type: k.type, x: 0, y: 0, rot: 0, props: k.props };
+    ghost.innerHTML = '<g class="ghostg">' + R.partGroup(tmp) + "</g>"; document.body.appendChild(ghost);
+    pal = { kind: kind, ghost: ghost, sx: e.clientX, sy: e.clientY, moved: false, type: k.type };
+    paletteMove(e); document.addEventListener("pointermove", paletteMove); document.addEventListener("pointerup", paletteUp); document.addEventListener("pointercancel", paletteCancel);
+    hideTip();
+  }
+  function paletteMove(e) {
+    if (!pal) return; if (Math.abs(e.clientX - pal.sx) + Math.abs(e.clientY - pal.sy) > 6) pal.moved = true;
+    var z = view.z; pal.ghost.firstChild.setAttribute("transform", "translate(" + e.clientX + " " + e.clientY + ") scale(" + z + ")");
+    var r = stage.getBoundingClientRect(), over = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+    if (over && !C.PARTS[pal.type].board) {
+      var w = toWorld(e), h = C.nearestBoardTerm(project, w.x, w.y, 16, null); overlay.snap = h ? { x: h.x, y: h.y } : null;
+    } else overlay.snap = null;
+    drawOverlay();
+  }
+  function paletteEnd() { document.removeEventListener("pointermove", paletteMove); document.removeEventListener("pointerup", paletteUp); document.removeEventListener("pointercancel", paletteCancel); if (pal && pal.ghost.parentNode) pal.ghost.parentNode.removeChild(pal.ghost); overlay.snap = null; drawOverlay(); }
+  function paletteUp(e) {
+    var p = pal; paletteEnd(); pal = null; if (!p) return;
+    var r = stage.getBoundingClientRect(), over = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+    if (!p.moved) { setHint("To add a " + (KIND_NAME[p.kind] || "part") + ": click it, HOLD the mouse button, and drag it onto the canvas. Let go over the breadboard."); return; }
+    if (!over) { setHint("Let go over the canvas to place the part. Try again."); return; }
+    if (sim.running) { sim.stop(); }
+    var w = toWorld(e); placePart(p.kind, w.x, w.y);
+  }
+  function paletteCancel() { paletteEnd(); pal = null; }
+  document.querySelectorAll("[data-add]").forEach(function (b) { b.addEventListener("pointerdown", paletteDown); b.addEventListener("click", function (e) { e.preventDefault(); }); b.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setHint("To add a " + (KIND_NAME[b.getAttribute("data-add")] || "part") + ": click it, HOLD the mouse button, and drag it onto the canvas."); } }); });
+
+  /* ---- hover help: what is this leg, pin or hole? (positive, negative, or neither) */
+  var PWM_PINS = { 3: 1, 5: 1, 6: 1, 9: 1, 10: 1, 11: 1 };
+  function ohmsWords(o) { return C.ohmsText(o) + " ohms"; }
+  function termInfo(t) {
+    var p = partById(t.part); if (!p) return null; var id = t.id;
+    switch (p.type) {
+      case "led":
+        if (id === "A") return { t: "LED anode", pol: "+", d: "The LONGER, bent leg. Current flows IN here, so connect it toward the positive side (a pin or 5V), with a resistor in the path." };
+        return { t: "LED cathode", pol: "-", d: "The SHORTER, straight leg (next to the flat edge of the LED). Current flows OUT here, so connect it toward GND." };
+      case "resistor": return { t: "Resistor leg", pol: null, d: "Resistors have NO polarity: either leg can go either way. This one is " + ohmsWords(+p.props.ohms || 220) + ". It limits how much current flows." };
+      case "button":
+        return { t: "Pushbutton leg", pol: null, d: "No polarity. The two legs on the same side are always connected to each other. Pressing the button connects the top pair to the bottom pair, so place it across the center gap." };
+      case "buzzer":
+        if (id === "P") return { t: "Buzzer positive leg", pol: "+", d: "The + leg. Connect it to an Arduino pin, then play it with tone(pin, 440)." };
+        return { t: "Buzzer negative leg", pol: "-", d: "The - leg. Connect it to GND." };
+      case "uno": return unoPinInfo(id);
+      case "breadboard": return boardHoleInfo(t);
+    }
+    return null;
+  }
+  function unoPinInfo(id) {
+    var n = C.pinNumber(id);
+    if (n !== null && n < 14) { var x = "Digital pin " + n + ". Can be an INPUT or an OUTPUT: use pinMode(" + n + ", OUTPUT) in setup()."; if (PWM_PINS[n]) x += " The ~ means it also does PWM: analogWrite(" + n + ", 0 to 255) can dim an LED."; if (n < 2) x += " Pins 0 and 1 are also used for the Serial Monitor, so avoid them when you use Serial."; return { t: "Pin D" + n, pol: null, d: x }; }
+    if (n !== null) return { t: "Pin A" + (n - 14), pol: null, d: "Analog input " + "A" + (n - 14) + ". analogRead(A" + (n - 14) + ") returns 0 to 1023 for 0 to 5 volts. It can also be used as a digital pin." };
+    if (/^GND/.test(id)) return { t: "GND (ground)", pol: "-", d: "Ground: 0 volts, the NEGATIVE side of your circuit. All GND pins are connected together. Every circuit needs a path back to GND." };
+    if (id === "5V") return { t: "5V power", pol: "+", d: "A steady 5 volts: the POSITIVE supply. Use it to power parts, or to feed a pull-up." };
+    if (id === "3V3") return { t: "3.3V power", pol: "+", d: "A steady 3.3 volts (positive). Not needed for the parts in this editor." };
+    if (id === "VIN") return { t: "VIN", pol: "+", d: "The voltage that comes in from the power plug or battery (positive). Leave it alone for now." };
+    if (id === "AREF") return { t: "AREF", pol: null, d: "Analog reference voltage. You will not need it in this editor." };
+    if (id === "RESET") return { t: "RESET", pol: null, d: "Connect to GND to restart the program (like the red reset button)." };
+    if (id === "IOREF") return { t: "IOREF", pol: null, d: "Tells shields what voltage the board uses. Not needed here." };
+    if (id === "SDA" || id === "SCL") return { t: id, pol: null, d: "Used by I2C sensors and displays. Not needed in this editor." };
+    return { t: "Not connected", pol: null, d: "This pin is not used." };
+  }
+  function boardHoleInfo(t) {
+    var m = /^col(\d+)(u|l)$/.exec(t.strip || "");
+    if (m) return { t: "Breadboard hole (column " + m[1] + ", row " + t.id.slice(-1) + ")", pol: null, d: "These 5 holes are connected under the board: column " + m[1] + ", rows " + (m[2] === "u" ? "a to e" : "f to j") + ". Anything plugged into one of them is connected to the other four. The center gap keeps the top and bottom halves apart." };
+    if (/^rail(TP|BP)$/.test(t.strip || "")) return { t: "Power rail (+)", pol: "+", d: "Every hole in this long red row is connected. Connect it to 5V and use it for the positive side of many parts." };
+    return { t: "Ground rail (-)", pol: "-", d: "Every hole in this long blue row is connected. Connect it to GND and use it for the negative side of many parts." };
+  }
+  var PART_BODY = {
+    led: { t: "LED (light emitting diode)", d: "Lights up when current flows in the anode (+, long leg) and out the cathode (-, short leg). It has two legs that are NOT the same, so check the order. Always use a resistor." },
+    resistor: { t: "Resistor", d: "Limits the current. No polarity. The colored bands tell the value." },
+    button: { t: "Pushbutton", d: "A switch you hold down. While the simulation runs, click and hold it to press it." },
+    buzzer: { t: "Piezo buzzer", d: "Makes a sound when a pin plays a tone: tone(pin, 440). Has a + leg and a - leg." },
+    uno: { t: "Arduino Uno", d: "The brain. Your code runs here. The orange L light is pin 13. Hover over the pins to learn what they do." },
+    breadboard: { t: "Breadboard", d: "Plug parts into the holes and they connect without soldering. Holes in a column of 5 are connected, and the long power rails run along the top and bottom." }
+  };
+  var ttEl = $("tt");
+  function showTip(info, cx, cy) {
+    if (!info) { hideTip(); return; }
+    var pol = info.pol === "+" ? '<span class="pol plus">POSITIVE (+)</span>' : info.pol === "-" ? '<span class="pol minus">NEGATIVE (&minus;)</span>' : (info.pol === null && info.nopol !== false && info.showNone ? '<span class="pol none">no polarity</span>' : "");
+    ttEl.innerHTML = "<b>" + esc(info.t) + "</b> " + pol + "<br>" + esc(info.d) + (info.live ? '<br><i class="live">' + esc(info.live) + "</i>" : "");
+    ttEl.className = "show"; var w = ttEl.offsetWidth, h = ttEl.offsetHeight, x = cx + 16, y = cy + 18;
+    if (x + w > window.innerWidth - 8) x = cx - w - 14; if (y + h > window.innerHeight - 8) y = cy - h - 14; ttEl.style.left = Math.max(6, x) + "px"; ttEl.style.top = Math.max(6, y) + "px";
+  }
+  function hideTip() { ttEl.className = ""; }
+  function hoverInfo(w, e) {
+    var n = nearestTerm(w, Math.max(5, 7 / view.z)), t = n.part || n.board;
+    if (t) {
+      var info = termInfo(t); if (info) { info = Object.assign({}, info); var p = partById(t.part);
+        if (p && p.type === "led" && lastRes && lastRes.leds[p.id] && sim.running) info.live = lastRes.leds[p.id].blown ? "This LED is burned out." : "Right now: " + lastRes.leds[p.id].current.toFixed(1) + " mA flows through this LED.";
+        if (p && p.type === "resistor") info.showNone = true; if (p && p.type === "button") info.showNone = true; if (p && p.type === "uno" && info.pol === null) info.showNone = false;
+        return { info: info, pt: t }; }
+    }
+    var partEl = e.target.closest ? e.target.closest(".part") : null;
+    if (partEl) { var pp = partById(partEl.getAttribute("data-id")); if (pp && PART_BODY[pp.type]) return { info: Object.assign({}, PART_BODY[pp.type], pp.type === "resistor" ? { t: "Resistor (" + ohmsWords(+pp.props.ohms || 220) + ")" } : {}), pt: null }; }
+    return null;
+  }
   function selectedPart() { return sel && sel.type === "part" ? partById(sel.id) : null; }
   function deleteSel() {
     if (!sel) return;
@@ -189,7 +295,7 @@
     return { part: best, board: board };
   }
   stage.addEventListener("pointerdown", function (e) {
-    if (e.button === 2) return; stage.setPointerCapture(e.pointerId); var w = toWorld(e), tgt = e.target, z = 1 / view.z;
+    hideTip(); if (e.button === 2) return; stage.setPointerCapture(e.pointerId); var w = toWorld(e), tgt = e.target, z = 1 / view.z;
     ensureAudio();
     var wh = tgt.closest ? tgt.closest("[data-whandle]") : null;
     if (wh && sel && sel.type === "wire") { drag = { kind: "wend", id: sel.id, end: wh.getAttribute("data-whandle") }; return; }
@@ -215,7 +321,8 @@
   var pressRefresh; function refreshVisualsSoon() { sim.markDirty(); }
   stage.addEventListener("pointermove", function (e) {
     var w = toWorld(e);
-    if (!drag) { var n = nearestTerm(w, Math.max(5, 6 / view.z)), h = n.part || n.board; overlay.hover = h ? { x: h.x, y: h.y } : null; drawOverlay(); return; }
+    if (!drag) { var hv = pal ? null : hoverInfo(w, e); overlay.hover = hv && hv.pt ? { x: hv.pt.x, y: hv.pt.y, pol: hv.info.pol } : null; drawOverlay(); if (hv) showTip(hv.info, e.clientX, e.clientY); else hideTip(); return; }
+    hideTip();
     if (drag.kind === "pan") { view.x = drag.vx + (e.clientX - drag.sx); view.y = drag.vy + (e.clientY - drag.sy); applyView(); }
     else if (drag.kind === "part") {
       var dx = w.x - drag.sx, dy = w.y - drag.sy; if (!drag.moved && Math.abs(dx) + Math.abs(dy) < 3 / view.z) return; drag.moved = true;
@@ -252,7 +359,7 @@
     } else if (d.kind === "press") { sim.press(d.id, false); }
   }
   stage.addEventListener("pointerup", endDrag); stage.addEventListener("pointercancel", endDrag);
-  stage.addEventListener("pointerleave", function () { if (!drag) { overlay.hover = null; drawOverlay(); } });
+  stage.addEventListener("pointerleave", function () { hideTip(); if (!drag) { overlay.hover = null; drawOverlay(); } });
   stage.addEventListener("wheel", function (e) {
     e.preventDefault(); var r = stage.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top, f = e.deltaY < 0 ? 1.12 : 1 / 1.12, nz = Math.max(0.25, Math.min(4, view.z * f));
     view.x = mx - (mx - view.x) * (nz / view.z); view.y = my - (my - view.y) * (nz / view.z); view.z = nz; applyView();
@@ -378,7 +485,7 @@
   function renderAssignment() {
     var A = ASSIGN[slot], body = $("assBody"); $("assTitle").textContent = A ? A.title : "Free build";
     $("assHead").className = A ? "show" : ""; document.body.classList.toggle("free", !A);
-    if (!A) { body.innerHTML = '<p class="intro">This is a free build. Add parts, wire them up, and write code to try your own ideas. Nothing here is graded.</p><div class="hintbox"><b>How to build a circuit</b><br>1. Click a part in the bar above the canvas (it appears in the middle).<br>2. Drag it onto the breadboard. When its leg dots turn <span style="color:#22c55e">green</span>, it is plugged in.<br>3. <b>Drag from a pin or hole to another pin or hole</b> to make a wire.<br>4. Type your code on the right and click <b>Start Simulation</b>.</div>'; return; }
+    if (!A) { body.innerHTML = '<p class="intro">This is a free build. Add parts, wire them up, and write code to try your own ideas. Nothing here is graded.</p><div class="hintbox"><b>How to build a circuit</b><br>1. <b>Click, hold, and drag</b> a part from the bar above the canvas onto the breadboard.<br>2. When its leg dots turn <span style="color:#22c55e">green</span>, it is plugged in. <b>Hover over any leg, pin or hole</b> to learn what it is and whether it is positive (+) or negative (&minus;).<br>3. <b>Drag from a pin or hole to another pin or hole</b> to make a wire.<br>4. Type your code on the right and click <b>Start Simulation</b>.</div>'; return; }
     var h = '<p class="intro">' + A.intro + "</p>", n = 0;
     A.steps.forEach(function (s, si) {
       h += "<h3>" + esc(s.h) + "</h3>"; if (s.code) h += '<pre class="codebox">' + esc(s.code) + "</pre>";

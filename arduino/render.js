@@ -69,13 +69,17 @@
   }
   function ledSVG(part) {
     var col = LED_COLORS[(part.props && part.props.color) || "red"] || "#ef4444";
-    var s = '<circle cx="6" cy="-26" r="26" fill="' + col + '" opacity="0" data-glow="' + part.id + '" style="filter:blur(7px)"/>';
-    s += '<line x1="0" y1="0" x2="0" y2="-14" stroke="#cbd5e1" stroke-width="2"/><line x1="12" y1="0" x2="12" y2="-10" stroke="#cbd5e1" stroke-width="2"/>';
-    s += '<path d="M-6,-12 L-6,-28 A12,12 0 0 1 18,-28 L18,-12 Z" fill="' + col + '" fill-opacity="0.55" stroke="' + col + '" stroke-width="1.2" data-ledbody="' + part.id + '"/>';
-    s += '<rect x="-8" y="-14" width="28" height="4" rx="1.5" fill="' + col + '" fill-opacity="0.8"/>';
-    s += '<path d="M-1,-16 L-1,-26 M2,-16 L2,-20" stroke="#fff" stroke-opacity="0.5" stroke-width="1.4" fill="none"/>';
-    s += '<g data-burn="' + part.id + '" style="display:none"><path d="M-3,-30 L15,-14 M15,-30 L-3,-14" stroke="#111" stroke-width="2.6"/></g>';
-    s += '<text x="-5" y="10" font-size="7" fill="#e5e7eb" font-weight="700">+</text>';
+    var s = '<circle cx="6" cy="-44" r="28" fill="' + col + '" opacity="0" data-glow="' + part.id + '" style="filter:blur(8px)"/>';
+    /* the two legs: the anode (+) is the longer one and has a bend; the cathode (-) is the shorter, straight one */
+    s += '<path d="M0,0 L0,-9 L-4,-14 L-4,-24" fill="none" stroke="#e5e7eb" stroke-width="2.4" stroke-linejoin="round" data-legline="A"/>';
+    s += '<path d="M12,0 L12,-24" fill="none" stroke="#e5e7eb" stroke-width="2.4" data-legline="K"/>';
+    s += '<path d="M-6,-26 L-6,-44 A12,12 0 0 1 18,-44 L18,-26 Z" fill="' + col + '" fill-opacity="0.55" stroke="' + col + '" stroke-width="1.2" data-ledbody="' + part.id + '"/>';
+    s += '<rect x="-8" y="-28" width="28" height="4" rx="1.5" fill="' + col + '" fill-opacity="0.85"/>';
+    s += '<path d="M19.5,-27 L19.5,-34" stroke="#0b1220" stroke-width="1.5" opacity=".55"/>';              /* the flat edge on the cathode side */
+    s += '<path d="M-1,-30 L-1,-42 M2,-30 L2,-34" stroke="#fff" stroke-opacity="0.5" stroke-width="1.4" fill="none"/>';
+    s += '<g data-burn="' + part.id + '" style="display:none"><path d="M-3,-46 L15,-30 M15,-46 L-3,-30" stroke="#111" stroke-width="2.6"/></g>';
+    s += '<text x="-12" y="-6" font-size="11" font-weight="800" fill="#fb7185" text-anchor="middle" stroke="#0b1220" stroke-width="2.4" paint-order="stroke">+</text>';
+    s += '<text x="20" y="-6" font-size="12" font-weight="800" fill="#60a5fa" text-anchor="middle" stroke="#0b1220" stroke-width="2.4" paint-order="stroke">&#8722;</text>';
     return s + legDots(part);
   }
   function resistorSVG(part) {
@@ -95,6 +99,7 @@
   function buzzerSVG(part) {
     var s = '<circle cx="12" cy="-20" r="17" fill="#111827" stroke="#374151" stroke-width="2"/><circle cx="12" cy="-20" r="4" fill="#374151"/>';
     s += '<text x="3" y="-26" font-size="9" fill="#e5e7eb" font-weight="800">+</text>';
+    s += '<text x="-9" y="-4" font-size="11" font-weight="800" fill="#fb7185" text-anchor="middle" stroke="#0b1220" stroke-width="2.4" paint-order="stroke">+</text><text x="33" y="-4" font-size="12" font-weight="800" fill="#60a5fa" text-anchor="middle" stroke="#0b1220" stroke-width="2.4" paint-order="stroke">&#8722;</text>';
     s += '<line x1="0" y1="0" x2="0" y2="-10" stroke="#cbd5e1" stroke-width="2"/><line x1="24" y1="0" x2="24" y2="-10" stroke="#cbd5e1" stroke-width="2"/>';
     s += '<g data-wave="' + part.id + '" style="display:none" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"><path d="M34,-30 Q40,-20 34,-10"/><path d="M40,-34 Q50,-20 40,-6"/><path d="M46,-38 Q60,-20 46,-2"/></g>';
     return s + legDots(part);
