@@ -5,7 +5,7 @@
   var $ = function (id) { return document.getElementById(id); };
   var API = "/api/arduinocode", GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
   var TEACHER_EMAILS = ["randy.norman@socialcircleschools.org"];
-  var PERIODS = ["1A", "2B", "3A", "3B", "4A"];          /* the class periods students can pick; edit this list for your classes */
+  var PERIODS = ["4B"];          /* the class periods students can pick; edit this list for your classes */
   var STARTER = "void setup() {\n  \n}\n\nvoid loop() {\n  \n}\n";
   var P = C.P;
 
@@ -694,7 +694,7 @@
       return j;
     });
   }
-  function currentPeriod() { return lsGet("period") || ""; }
+  function currentPeriod() { var p = lsGet("period") || ""; return PERIODS.indexOf(p) > -1 ? p : PERIODS[0]; }
   function buildPeriods() {
     var h = '<span class="pl">Period:</span> ' + PERIODS.map(function (p) { return '<button type="button" class="btn pbtn' + (p === currentPeriod() ? " on" : "") + '" data-p="' + p + '">' + p + "</button>"; }).join(" ");
     $("periodBtns").innerHTML = h;
