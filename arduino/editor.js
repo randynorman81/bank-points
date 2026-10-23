@@ -489,6 +489,10 @@
     outT = setTimeout(function () { outT = null; var o = $("out"), near = o.scrollHeight - o.scrollTop - o.clientHeight < 40; o.textContent += outBuf; outBuf = ""; if (o.textContent.length > 60000) o.textContent = o.textContent.slice(-40000); if (near) o.scrollTop = o.scrollHeight; }, 40);
   }
   $("clearOut").onclick = function () { $("out").textContent = ""; };
+  function setSerial(on) { document.body.classList.toggle("noser", !on); $("serBtn").classList.toggle("on", on); lsSet("ser", on ? "1" : "0"); setTimeout(function () { if (typeof fitView === "function") fitView(); }, 50); }
+  $("serBtn").onclick = function () { setSerial(document.body.classList.contains("noser")); };
+  $("hideSer").onclick = function () { setSerial(false); };
+  if (lsGet("ser") === "0") setSerial(false);
   function sendSerial() { var i = $("serIn"); if (!i.value && !sim.running) return; if (!sim.running) { toast("Start the simulation first."); return; } sim.sendSerial(i.value + "\n"); appendOut("> " + i.value + "\n"); i.value = ""; }
   $("serSend").onclick = sendSerial; $("serIn").addEventListener("keydown", function (e) { if (e.key === "Enter") sendSerial(); });
 
