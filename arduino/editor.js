@@ -616,7 +616,7 @@
   function widgetHTML(it, k) {
     if (it.kind === "ask") {
       var v = ANS[k] || "";
-      return '<textarea class="askbox" data-k="' + k + '" rows="' + (it.rows || 4) + '" placeholder="' + esc(it.ph || "Type your answer here...") + '"' + (it.mono ? ' style="font-family:JetBrains Mono,monospace"' : "") + ">" + esc(v) + '</textarea><div class="askmeta" data-meta="' + k + '">' + wordCount(v) + " / " + (it.min || 15) + " words</div>";
+      return '<textarea class="askbox" data-k="' + k + '" rows="' + (it.rows || 4) + '" placeholder="' + esc(it.ph || "Type your answer here...") + '"' + (it.mono ? ' style="font-family:JetBrains Mono,monospace"' : "") + ">" + esc(v) + '</textarea><div class="askmeta" data-meta="' + k + '">' + (it.min === 0 ? "" : wordCount(v) + " / " + (it.min || 15) + " words") + "</div>";
     }
     if (it.kind === "match") {
       var a = ANS[k] || [], h = '<div class="matchopts">' + it.options.map(function (o) { return "<div><b>" + o[0] + ".</b> " + o[1] + "</div>"; }).join("") + '</div><table class="matchtbl">';
@@ -668,7 +668,7 @@
   /* typing in an answer box or choosing a word saves it and re-checks */
   $("assBody").addEventListener("input", function (e) {
     var t = e.target, k = t.getAttribute && t.getAttribute("data-k"); if (!k) return;
-    if (t.tagName === "TEXTAREA") { ANS[k] = t.value; var m = $("assBody").querySelector('[data-meta="' + k + '"]'); var A = ASSIGN[slot], p = k.split("."), it = A && A.steps[p[0]].items[p[1]]; if (m) m.textContent = wordCount(t.value) + " / " + ((it && it.min) || 15) + " words"; saveAns(); scheduleEval(); }
+    if (t.tagName === "TEXTAREA") { ANS[k] = t.value; var m = $("assBody").querySelector('[data-meta="' + k + '"]'); var A = ASSIGN[slot], p = k.split("."), it = A && A.steps[p[0]].items[p[1]]; if (m) m.textContent = it && it.min === 0 ? "" : wordCount(t.value) + " / " + ((it && it.min) || 15) + " words"; saveAns(); scheduleEval(); }
   });
   $("assBody").addEventListener("change", function (e) {
     var t = e.target, k = t.getAttribute && t.getAttribute("data-k"); if (!k || t.tagName !== "SELECT") return;
@@ -691,7 +691,7 @@
       var it = A.steps[si].items[ii], k = si + "." + ii, ok = false, label = null;
       if (it.kind === "note") continue;
       try {
-        if (it.kind === "ask") { var w = wordCount(ANS[k]); ok = w >= (it.min || 15) && (!it.test || !!it.test(ANS[k] || "", ctx)); label = w + " / " + (it.min || 15) + " words"; }
+        if (it.kind === "ask") { var w = wordCount(ANS[k]); var mn = it.min === 0 ? 1 : (it.min || 15); ok = w >= mn && (!it.test || !!it.test(ANS[k] || "", ctx)); label = it.min === 0 ? null : w + " / " + mn + " words"; }
         else if (it.kind === "match") { var a = ANS[k] || [], good = it.rows.filter(function (r, i) { return a[i] === r[1]; }).length; ok = good === it.rows.length; label = good + " / " + it.rows.length + " right"; }
         else if (it.kind === "cloze") { var a3 = ANS[k] || [], g3 = it.answers.filter(function (x, i) { return a3[i] === x; }).length; ok = g3 === it.answers.length; label = g3 + " / " + it.answers.length + " right"; }
         else { ok = !!(await it.check(ctx)); if (it.sticky) { if (ok) { if (!ANS["ok." + k]) { ANS["ok." + k] = "1"; saveAns(); } } else if (ANS["ok." + k]) ok = true; } }
