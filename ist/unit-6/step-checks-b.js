@@ -321,7 +321,7 @@
   } };
   lastStep("6.7", "Step 8", [[h.ALLGREEN], []]);
   /* =============== 6.75  (3.8) Emojis and Symbols: pasted characters are text. One of 6 themes (or the student's own) =============== */
-  var CH = root.HTMLCheck.chars;
+  var CH = h.chars;
   function chOf(c, el) { return txt(c, el); }
   function hasEmoji(c, el) { return !!el && CH.emojis(chOf(c, el)).length > 0; }
   function hasAnyCh(c, el) { return !!el && CH.has(chOf(c, el)); }

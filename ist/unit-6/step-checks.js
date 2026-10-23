@@ -98,7 +98,7 @@
   var HELP = { K: K, P: P, PX: PX, EACH: EACH, CNT: CNT, IN: IN, UNDER: UNDER, exists: exists, T: T, LAST: LAST, HW: HW, AFTER: AFTER, ALL: ALL, FOLLOW: FOLLOW, has: has, vals: vals, decls: decls, kids: kids, nextEl: nextEl,
     txt: txt, words: words, within: within, before: before, order: order, descendants: descendants, inTag: inTag, ruleHas: ruleHas, sheetRule: sheetRule,
     isNamed: isNamed, isWhite: isWhite, isPx: isPx, px: px, bs: bs, serif: serif, sans: sans, mono: mono, eq: eq, borderStyle: borderStyle, borderColor: borderColor,
-    BOLD: BOLD, ITAL: ITAL, BORDER: BORDER, SKELETON: SKELETON, TITLE: TITLE };
+    BOLD: BOLD, ITAL: ITAL, BORDER: BORDER, SKELETON: SKELETON, TITLE: TITLE, chars: H ? H.chars : null };
 
   /* ---------- running ---------- */
   /* run(lesson, html, css) -> { "Step 2": { comment: true/false, bullets: [ [ {label, ok}, ... ], ... ] }, ... }, or null for a lesson with no step checks */
