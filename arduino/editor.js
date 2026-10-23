@@ -273,7 +273,7 @@
   }
   function hideTip() { ttEl.className = ""; }
   function hoverInfo(w, e) {
-    var n = nearestTerm(w, Math.max(5, 7 / view.z)), t = n.part;
+    var n = nearestTerm(w, Math.max(5, 7 / view.z)), t = n.part || (n.board && (partById(n.board.part) || {}).type === "uno" ? n.board : null);
     if (t) {
       var info = termInfo(t); if (info) { info = Object.assign({}, info); var p = partById(t.part);
         if (p && p.type === "led" && lastRes && lastRes.leds[p.id] && sim.running) info.live = lastRes.leds[p.id].blown ? "This LED is burned out." : "Right now: " + lastRes.leds[p.id].current.toFixed(1) + " mA flows through this LED.";
