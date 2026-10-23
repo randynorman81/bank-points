@@ -45,6 +45,19 @@
     }
     return n > 0;
   }
+  /* "choose 6 lines to comment": at least 6 different lines of real code (never a line that is only a bracket, or the void setup() / void loop() line itself)
+     have a comment (at the end of the line, or right above it); cls(codeLine) says whether a line is "old" (an earlier idea) or "new" (this lesson's idea).
+     At least 3 commented lines must be old and at least 3 new. */
+  function sixComments(raw, cls, minOld, minNew) {
+    var lines = raw.split("\n"), old = 0, nw = 0;
+    for (var i = 0; i < lines.length; i++) {
+      var code = lines[i].replace(/\/\/.*$/, "").trim(); if (!code || /^[{}();\s]+$/.test(code) || /^void\s+\w+\s*\(\s*\)\s*\{?$/.test(code) || /^\/\*/.test(code)) continue;
+      var trailing = lines[i].match(/\/\/\s*(.*)$/), above = i > 0 ? lines[i - 1].match(/^\s*\/\/\s*(.*)$/) : null, words = function (m) { return m ? m[1].trim().split(/\s+/).filter(Boolean).length : 0; };
+      if (words(trailing) < 2 && words(above) < 2) continue;
+      var k = cls(code); if (k === "old") old++; else if (k === "new") nw++;
+    }
+    return old >= (minOld || 3) && nw >= (minNew || 3) && old + nw >= 6;
+  }
   /* is there a comment (at least minWords long) right above the line that matches re? */
   function commentAbove(raw, re, minWords) { var lines = raw.split("\n"); for (var i = 1; i < lines.length; i++) if (re.test(lines[i])) { var p = lines[i - 1].match(/^\s*\/\/\s*(.*)$/); if (p && (p[1].trim().split(/\s+/).length >= (minWords || 3))) return true; } return false; }
 
@@ -61,7 +74,7 @@
   }
 
   root.ARD_H = { I: I, ASK: ASK, MATCH: MATCH, CLOZE: CLOZE, NOTE: NOTE, squash: squash, body: body, stmts: stmts, loopStmts: loopStmts, setupStmts: setupStmts, startsWith: startsWith, delaysIn: delaysIn,
-    everyLineCommented: everyLineCommented, commentAboveEach: commentAboveEach, commentAbove: commentAbove, sameHalf: sameHalf, every: every, litAt: litAt, sampleTimes: sampleTimes, sequenceOf: sequenceOf };
+    everyLineCommented: everyLineCommented, commentAboveEach: commentAboveEach, commentAbove: commentAbove, sixComments: sixComments, sameHalf: sameHalf, every: every, litAt: litAt, sampleTimes: sampleTimes, sequenceOf: sequenceOf };
   root.ARD_SLOTS = [["free", "Free build (practice)"]];
   root.ARD_SLOT_ADD = function (id, label) { root.ARD_SLOTS.push([id, label]); };
 })(typeof window !== "undefined" ? window : globalThis);
