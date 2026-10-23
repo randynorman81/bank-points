@@ -71,8 +71,8 @@
     var col = LED_COLORS[(part.props && part.props.color) || "red"] || "#ef4444";
     var s = '<circle cx="6" cy="-44" r="28" fill="' + col + '" opacity="0" data-glow="' + part.id + '" style="filter:blur(8px)"/>';
     /* the two legs: the anode (+) is the longer one and has a bend; the cathode (-) is the shorter, straight one */
-    s += '<path d="M0,0 L0,-9 L-4,-14 L-4,-24" fill="none" stroke="#e5e7eb" stroke-width="2.4" stroke-linejoin="round" data-legline="A"/>';
-    s += '<path d="M12,0 L12,-24" fill="none" stroke="#e5e7eb" stroke-width="2.4" data-legline="K"/>';
+    s += '<path d="M0,0 L0,-9 L-4,-14 L-4,-24" fill="none" stroke="#0b0b0b" stroke-width="2.8" stroke-linejoin="round" data-legline="A"/>';
+    s += '<path d="M12,0 L12,-24" fill="none" stroke="#0b0b0b" stroke-width="2.8" data-legline="K"/>';
     s += '<path d="M-6,-26 L-6,-44 A12,12 0 0 1 18,-44 L18,-26 Z" fill="' + col + '" fill-opacity="0.55" stroke="' + col + '" stroke-width="1.2" data-ledbody="' + part.id + '"/>';
     s += '<rect x="-8" y="-28" width="28" height="4" rx="1.5" fill="' + col + '" fill-opacity="0.85"/>';
     s += '<path d="M19.5,-27 L19.5,-34" stroke="#0b1220" stroke-width="1.5" opacity=".55"/>';              /* the flat edge on the cathode side */
