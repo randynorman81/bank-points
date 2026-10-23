@@ -1001,7 +1001,7 @@ $("btnRun").addEventListener("click", renderPreview);
 $("btnCopy").addEventListener("click", function () { ta.select(); try { navigator.clipboard.writeText(ta.value); toast("Copied " + (S.file === "css" ? "style.css" : "index.html")); } catch (e) { document.execCommand("copy"); toast("Copied"); } });
 function setTab(t) { $("main").setAttribute("data-tab", t); [].forEach.call(document.querySelectorAll("#tabsm button"), function (b) { b.classList.toggle("on", b.getAttribute("data-t") === t); }); }
 $("tabsm").addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) { setTab(b.getAttribute("data-t")); if (b.getAttribute("data-t") === "code") layoutGutter(); } });
-function guideUrl() { return /^[89]\./.test(S.lesson) ? "../unit-" + S.lesson.charAt(0) + "/index.html" : "study-guide.html#l" + S.lesson.replace(".", "-"); }
+function guideUrl() { return S.lesson === "6.75" ? "emojis-symbols-notes.html" : /^[89]\./.test(S.lesson) ? "../unit-" + S.lesson.charAt(0) + "/index.html" : "study-guide.html#l" + S.lesson.replace(".", "-"); }
 function unitUrl() { var u = S.lesson.charAt(0); return u === "6" ? "index.html" : "../unit-" + u + "/index.html"; }
 function updateGuideLink() { $("linkGuide").href = guideUrl(); $("linkUnit").href = unitUrl(); }
 
