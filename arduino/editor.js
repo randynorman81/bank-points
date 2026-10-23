@@ -648,8 +648,26 @@
     results.forEach(function (r) { var el = $("assBody").querySelector('[data-si="' + r[0] + '"][data-ii="' + r[1] + '"]'); if (!el) return; el.className = "item" + (r[2] ? " done" : ""); el.querySelector(".badge").textContent = r[3] ? (r[2] ? "done: " : "") + r[3] : (r[2] ? "auto-check: met" : "auto-check: not yet"); });
     var pct = total ? Math.floor(100 * passed / total) : 0; autoState = { pct: pct, passed: passed, total: total };
     $("assCount").innerHTML = "<b>" + passed + "</b> of " + total + " steps done"; $("assScore").innerHTML = "Auto score: <b>" + pct + " / 100</b>";
+    paintLeft(A, results, passed, total);
     coachCheck(lastRes, sim && sim.io);
   }
+  /* "still to do": a progress bar and one button per step that is not done yet (click it to jump to the step) */
+  function plain(h) { var d = document.createElement("div"); d.innerHTML = h; return (d.textContent || "").replace(/\s+/g, " ").trim(); }
+  function paintLeft(A, results, passed, total) {
+    var bar = document.querySelector("#assBar i"), box = $("assLeft"); if (!box) return;
+    if (bar) bar.style.width = (total ? Math.round(100 * passed / total) : 0) + "%";
+    var left = results.filter(function (r) { return !r[2]; });
+    if (!left.length) { box.innerHTML = '<span class="alldone">&#10003; Every step is checked off. Check your work, then Submit!</span>'; return; }
+    var n = 0, nums = {}; A.steps.forEach(function (s, si) { s.items.forEach(function (it, ii) { if (it.kind !== "note") nums[si + "." + ii] = ++n; }); });
+    box.innerHTML = '<div class="lt">STILL TO DO (' + left.length + "): click one to jump to it</div>" + left.map(function (r) {
+      var it = A.steps[r[0]].items[r[1]], txt = plain(it.t), part = it.kind === "ask" ? "write" : it.kind === "match" || it.kind === "cloze" ? "answer" : "build";
+      return '<button type="button" class="' + (it.kind ? "w" : "") + '" data-jump="' + r[0] + "." + r[1] + '" title="' + esc(txt) + '">' + nums[r[0] + "." + r[1]] + ". " + esc(part) + ": " + esc(txt.length > 56 ? txt.slice(0, 54) + "..." : txt) + "</button>";
+    }).join("");
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest("[data-jump]") : null; if (!b) return; var p = b.getAttribute("data-jump").split("."), el = $("assBody").querySelector('[data-si="' + p[0] + '"][data-ii="' + p[1] + '"]');
+    if (el) { el.scrollIntoView({ behavior: "smooth", block: "center" }); el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
+  });
 
   /* ------------------------------------------------------------------ slots and local storage */
   function loadSlot(s) {
