@@ -240,6 +240,29 @@
     uno: { t: "Arduino Uno", d: "The brain. Your code runs here. The orange L light is pin 13. Hover over the pins to learn what they do." },
     breadboard: { t: "Breadboard", d: "Plug parts into the holes and they connect without soldering. Holes in a column of 5 are connected, and the long power rails run along the top and bottom." }
   };
+  var UNO_PARTS = {
+    usb: { t: "USB-B port", d: "Plug a USB cable in here. It powers the board (5V) AND carries your program and Serial Monitor text to your computer. In this simulator it is already plugged in.", pol: null },
+    jack: { t: "Barrel jack (DC power)", d: "Power the Uno from a wall adapter or battery pack, 7 to 12 volts. Use it when the board is not connected to a computer. The Vin pin connects to this input.", pol: null },
+    chip: { t: "ATmega328P microcontroller", d: "The brain of the Uno. It stores your sketch and runs it, one line at a time, over and over in loop(). It has 32 KB of program memory and 2 KB for variables.", pol: null },
+    usbchip: { t: "ATmega16U2 (USB chip)", d: "A second, small chip that translates between USB and the main chip's Serial pins (0 and 1). It is why Serial.print shows up on your computer.", pol: null },
+    usbxtal: { t: "16 MHz crystal (USB chip)", d: "A tiny quartz crystal that vibrates 16 million times a second. It gives the USB chip a steady clock.", pol: null },
+    xtal: { t: "16 MHz crystal (main chip)", d: "The Uno's heartbeat. The ATmega328P ticks 16 million times a second to this crystal, which is how delay() and millis() keep time.", pol: null },
+    fuse: { t: "Resettable fuse (polyfuse)", d: "Protects your computer's USB port. If more than about 500 mA flows, it heats up and cuts the current, then resets itself when it cools.", pol: null },
+    caps: { t: "Capacitors", d: "Little energy tanks that smooth out the power so the voltage stays steady even when a part suddenly pulls current.", pol: null },
+    reg5: { t: "5V voltage regulator", d: "Turns the 7 to 12 volts from the barrel jack into a steady 5 volts for the chip and your circuit.", pol: null },
+    reg33: { t: "3.3V voltage regulator", d: "Makes the 3.3 volts that comes out of the 3.3V pin, for parts that cannot handle 5V.", pol: null },
+    diode: { t: "Protection diode", d: "A one-way street for current. It stops power from flowing backwards into the barrel jack and damaging the board.", pol: null },
+    reset: { t: "Reset button", d: "Press it to restart your program from the very start of setup(). It briefly connects the RESET pin to GND.", pol: null },
+    ledl: { t: "L light (pin 13)", d: "A small orange LED wired to digital pin 13. It lights up when your code sets pin 13 HIGH, which is why the basic Blink example works with no parts at all.", pol: null },
+    ledtx: { t: "TX light", d: "Blinks when the Uno is TRANSMITTING (sending) data to the computer, like Serial.print.", pol: null },
+    ledrx: { t: "RX light", d: "Blinks when the Uno is RECEIVING data from the computer, like when you upload a program.", pol: null },
+    ledon: { t: "ON light (power)", d: "Green when the board has power. If it is off, nothing will run.", pol: null },
+    icsp: { t: "ICSP header (main chip)", d: "In-Circuit Serial Programming. A 6-pin port that talks straight to the ATmega328P, used to load a new bootloader or program the chip without USB. Not needed in this class.", pol: null },
+    icsp2: { t: "ICSP header (USB chip)", d: "A 6-pin port that talks to the ATmega16U2 USB chip, used to update its firmware. Not needed in this class.", pol: null }
+  };
+  [["miso", "MISO", "Master In Slave Out: data coming from the chip.", null], ["5v", "5V", "Power. Connected to the Uno's 5V.", "+"], ["sck", "SCK", "Serial Clock: the beat that keeps the data in step.", null], ["mosi", "MOSI", "Master Out Slave In: data going to the chip.", null], ["reset", "RESET", "Pulling this low restarts the chip.", null], ["gnd", "GND", "Ground (0 volts).", "-"]].forEach(function (p) {
+    UNO_PARTS["icsp-" + p[0]] = { t: "ICSP pin: " + p[1], d: p[2], pol: p[3] }; UNO_PARTS["icsp2-" + p[0]] = { t: "ICSP pin: " + p[1] + " (USB chip)", d: p[2], pol: p[3] };
+  });
   var ttEl = $("tt");
   function showTip(info, cx, cy) {
     if (!info) { hideTip(); return; }
@@ -257,6 +280,7 @@
         if (p && p.type === "resistor") info.showNone = true; if (p && p.type === "button") info.showNone = true; if (p && p.type === "uno" && info.pol === null) info.showNone = false;
         return { info: info, pt: t }; }
     }
+    var up = e.target.closest ? e.target.closest("[data-uno-part]") : null; if (up && UNO_PARTS[up.getAttribute("data-uno-part")]) return { info: Object.assign({}, UNO_PARTS[up.getAttribute("data-uno-part")]), pt: null };
     var partEl = e.target.closest ? e.target.closest(".part") : null;
     if (partEl) { var pp = partById(partEl.getAttribute("data-id")); if (pp && pp.type !== "breadboard" && PART_BODY[pp.type]) return { info: Object.assign({}, PART_BODY[pp.type], pp.type === "resistor" ? { t: "Resistor (" + ohmsWords(+pp.props.ohms || 220) + ")" } : {}), pt: null }; }
     return null;

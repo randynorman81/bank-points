@@ -33,13 +33,25 @@
   /* ---------- the Arduino Uno */
   function unoSVG() {
     var W = C.UNO_W, H = C.UNO_H, s = "", terms = C.PARTS.uno.terms();
-    s += '<rect x="-16" y="30" width="46" height="36" rx="2" fill="#c7cbd3" stroke="#8d93a0"/><rect x="-10" y="36" width="30" height="24" fill="#9aa0ac"/>';
-    s += '<rect x="-12" y="118" width="38" height="40" rx="3" fill="#1b1e24"/><circle cx="8" cy="138" r="9" fill="#2c3038"/>';
+    s += '<g data-uno-part="usb"><rect x="-16" y="30" width="46" height="36" rx="2" fill="#c7cbd3" stroke="#8d93a0"/><rect x="-10" y="36" width="30" height="24" fill="#9aa0ac"/><text x="4" y="52" font-size="6" fill="#444" text-anchor="middle">USB</text></g>';
+    s += '<g data-uno-part="jack"><rect x="-12" y="118" width="38" height="40" rx="3" fill="#1b1e24"/><circle cx="8" cy="138" r="9" fill="#2c3038"/><circle cx="8" cy="138" r="3" fill="#0a0b0e"/></g>';
     s += '<rect x="0" y="0" width="' + W + '" height="' + H + '" rx="9" fill="#0b7285" stroke="#064f5d" stroke-width="2"/>';
     s += '<rect x="6" y="6" width="' + (W - 12) + '" height="' + (H - 12) + '" rx="6" fill="none" stroke="#0e8aa0" stroke-width="1"/>';
     s += '<circle cx="14" cy="14" r="4" fill="#06323b"/><circle cx="14" cy="' + (H - 14) + '" r="4" fill="#06323b"/><circle cx="' + (W - 12) + '" cy="14" r="4" fill="#06323b"/><circle cx="' + (W - 12) + '" cy="' + (H - 14) + '" r="4" fill="#06323b"/>';
-    s += '<rect x="122" y="76" width="92" height="30" rx="2" fill="#15171c"/><circle cx="130" cy="91" r="3" fill="#0a0b0e"/><text x="168" y="95" font-size="7" fill="#aab" text-anchor="middle">ATMEGA328P</text>';
-    s += '<circle cx="52" cy="100" r="9" fill="#d1d5db" stroke="#6b7280"/><circle cx="52" cy="100" r="5.5" fill="#dc2626"/><text x="52" y="120" font-size="6.5" fill="#cfe9ee" text-anchor="middle">RESET</text>';
+    s += '<g data-uno-part="chip"><rect x="122" y="76" width="92" height="30" rx="2" fill="#15171c"/><circle cx="130" cy="91" r="3" fill="#0a0b0e"/><text x="168" y="95" font-size="7" fill="#aab" text-anchor="middle">ATMEGA328P</text></g>';
+    /* every other part on a real Uno */
+    s += '<g data-uno-part="usbchip"><rect x="62" y="56" width="26" height="26" rx="2" fill="#15171c"/><circle cx="67" cy="61" r="2" fill="#0a0b0e"/><text x="75" y="72" font-size="5.5" fill="#aab" text-anchor="middle">16U2</text></g>';
+    s += '<g data-uno-part="usbxtal"><rect x="94" y="62" width="12" height="7" rx="3" fill="#cbd0d8" stroke="#8d93a0"/></g>';
+    s += '<g data-uno-part="fuse"><rect x="34" y="38" width="14" height="8" rx="1" fill="#c9a227" stroke="#7a6212"/><text x="41" y="44.5" font-size="5" fill="#3b2f06" text-anchor="middle">F</text></g>';
+    s += '<g data-uno-part="xtal"><rect x="146" y="112" width="28" height="10" rx="5" fill="#cbd0d8" stroke="#8d93a0"/><text x="160" y="119.5" font-size="5.5" fill="#444" text-anchor="middle">16MHz</text></g>';
+    s += '<g data-uno-part="caps"><circle cx="40" cy="134" r="7" fill="#1f2937" stroke="#4b5563"/><rect x="36" y="128" width="3" height="12" fill="#d1d5db"/><circle cx="40" cy="152" r="7" fill="#1f2937" stroke="#4b5563"/><rect x="36" y="146" width="3" height="12" fill="#d1d5db"/></g>';
+    s += '<g data-uno-part="reg5"><rect x="54" y="130" width="18" height="14" rx="1" fill="#15171c"/><rect x="56" y="125" width="14" height="5" fill="#9aa0ac"/><text x="63" y="140" font-size="5" fill="#aab" text-anchor="middle">5V</text></g>';
+    s += '<g data-uno-part="reg33"><rect x="82" y="132" width="12" height="9" rx="1" fill="#15171c"/><text x="88" y="139" font-size="4.5" fill="#aab" text-anchor="middle">3.3</text></g>';
+    s += '<g data-uno-part="diode"><rect x="58" y="150" width="14" height="6" rx="1" fill="#15171c"/><rect x="69" y="150" width="2" height="6" fill="#cbd0d8"/></g>';
+    var ic = [["MISO", 0, 0], ["5V", 6, 0], ["SCK", 0, 6], ["MOSI", 6, 6], ["RESET", 0, 12], ["GND", 6, 12]];
+    function icsp(ox, oy, key, label) { s += '<rect x="' + (ox - 4) + '" y="' + (oy - 4) + '" width="14" height="24" rx="1.5" fill="#16181d" data-uno-part="' + key + '"/><text x="' + (ox + 3) + '" y="' + (oy + 30) + '" font-size="5" fill="#d7eef2" text-anchor="middle">' + label + '</text>'; ic.forEach(function (p) { s += '<rect x="' + (ox + p[1] - 2) + '" y="' + (oy + p[2] - 2) + '" width="4" height="4" fill="#d4af37" data-uno-part="' + key + '-' + p[0].toLowerCase() + '"/>'; }); }
+    icsp(272, 92, "icsp", "ICSP"); icsp(36, 62, "icsp2", "ICSP");
+    s += '<g data-uno-part="reset"><circle cx="52" cy="100" r="9" fill="#d1d5db" stroke="#6b7280"/><circle cx="52" cy="100" r="5.5" fill="#dc2626"/></g><text x="52" y="120" font-size="6.5" fill="#cfe9ee" text-anchor="middle">RESET</text>';
     s += '<text x="150" y="150" font-size="13" font-weight="800" fill="#fff" letter-spacing="1" text-anchor="middle">ARDUINO UNO</text>';
     /* headers */
     var topT = terms.filter(function (t) { return t.y < 40; }), botT = terms.filter(function (t) { return t.y > 100; });
@@ -56,10 +68,10 @@
     });
     s += '<text x="88" y="42" font-size="6.5" fill="#bfe6ee" text-anchor="middle">DIGITAL (PWM ~)</text><text x="238" y="' + (H - 34) + '" font-size="6.5" fill="#bfe6ee" text-anchor="middle">ANALOG IN</text><text x="152" y="' + (H - 34) + '" font-size="6.5" fill="#bfe6ee" text-anchor="middle">POWER</text>';
     /* the little lights */
-    s += '<rect x="132" y="36" width="9" height="5" rx="1" fill="#7c4a0a" data-uno="L"/><text x="136.5" y="50" font-size="6" fill="#d7eef2" text-anchor="middle">L</text>';
-    s += '<rect x="146" y="36" width="9" height="5" rx="1" fill="#6b5a05" data-uno="TX"/><text x="150.5" y="50" font-size="6" fill="#d7eef2" text-anchor="middle">TX</text>';
-    s += '<rect x="160" y="36" width="9" height="5" rx="1" fill="#6b5a05" data-uno="RX"/><text x="164.5" y="50" font-size="6" fill="#d7eef2" text-anchor="middle">RX</text>';
-    s += '<rect x="186" y="36" width="9" height="5" rx="1" fill="#16a34a" data-uno="ON"/><text x="190.5" y="50" font-size="6" fill="#d7eef2" text-anchor="middle">ON</text>';
+    s += '<rect x="132" y="36" width="9" height="5" rx="1" fill="#7c4a0a" data-uno="L" data-uno-part="ledl"/><text x="136.5" y="50" font-size="6" fill="#d7eef2" text-anchor="middle">L</text>';
+    s += '<rect x="146" y="36" width="9" height="5" rx="1" fill="#6b5a05" data-uno="TX" data-uno-part="ledtx"/><text x="150.5" y="50" font-size="6" fill="#d7eef2" text-anchor="middle">TX</text>';
+    s += '<rect x="160" y="36" width="9" height="5" rx="1" fill="#6b5a05" data-uno="RX" data-uno-part="ledrx"/><text x="164.5" y="50" font-size="6" fill="#d7eef2" text-anchor="middle">RX</text>';
+    s += '<rect x="186" y="36" width="9" height="5" rx="1" fill="#16a34a" data-uno="ON" data-uno-part="ledon"/><text x="190.5" y="50" font-size="6" fill="#d7eef2" text-anchor="middle">ON</text>';
     return s;
   }
 
