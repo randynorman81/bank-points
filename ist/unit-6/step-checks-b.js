@@ -320,4 +320,51 @@
     ]
   } };
   lastStep("6.7", "Step 8", [[h.ALLGREEN], []]);
+  /* =============== 6.75  (3.8) Emojis and Symbols: pasted characters are text. One of 6 themes (or the student's own) =============== */
+  var CH = root.HTMLCheck.chars;
+  function chOf(c, el) { return txt(c, el); }
+  function hasEmoji(c, el) { return !!el && CH.emojis(chOf(c, el)).length > 0; }
+  function hasAnyCh(c, el) { return !!el && CH.has(chOf(c, el)); }
+  function sideBorderOf(c, el) { return ["border-top", "border-bottom", "border-left", "border-right"].some(function (p) { return h.vals(c, el, p).length > 0; }); }
+  function bodyChars(c) { var b = c.all("body")[0]; return b ? txt(c, b) : ""; }
+  function borderCount(c, style) { var n = 0; allEls(c).forEach(function (x) { ["border", "border-top", "border-bottom", "border-left", "border-right"].forEach(function (p) { h.vals(c, x, p).forEach(function (v) { if (new RegExp("\\b" + style + "\\b").test(v) && h.BORDER.test(v)) n++; }); }); }); return n; }
+  function hasSolid(c, el, style) { return has(c, el, "border", h.bs(style)); }
+  var imgs675 = function (c) { return c.all("img"); };
+  SC.LESSONS["6.75"] = { inlineOnly: true, steps: {
+    "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color)")]],
+    "Step 2": [[]],
+    "Step 3": [
+      [K("There is a favicon: a link tag with rel icon and an href, inside the head", function (c) { var f = faviconEls(c); return f.length >= 1 && f.every(function (l) { return !!c.ancestor(l, ["head"]); }); })],
+      [K("There is a link tag in the head that loads a Google font (https://fonts.googleapis.com)", function (c) { var g = gfLinks(c); return g.length >= 1 && g.every(function (l) { return !!c.ancestor(l, ["head"]); }); })]
+    ],
+    "Step 4": [
+      [exists("There is a heading 1", H1), K("It has an emoji pasted in", function (c) { return hasEmoji(c, H1(c)); }), P("It has a color", H1, "color", named), P("It has a background-color", H1, "background-color", named), P("Its font-size is in pixels", H1, "font-size", h.isPx),
+       P("It is text-align center", H1, "text-align", center), P("It is text-transform uppercase", H1, "text-transform", upper), P("It has a solid border", H1, "border", h.bs("solid")),
+       K("Your Google font is in its font-family, ending with a fallback family", function (c) { var e = H1(c); if (!e) return false; var g = gNames(c); return h.vals(c, e, "font-family").some(function (v) { return g.indexOf(ffFirst(v)) > -1 && v.indexOf(",") > -1 && /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v)); }); })],
+      [exists("A paragraph is under the heading 1", AFTER(H1, "p")), P("It is text-align center", AFTER(H1, "p"), "text-align", center), P("Its font-size is 20px", AFTER(H1, "p"), "font-size", h.px(20)), IN("One phrase is in italics", AFTER(H1, "p"), ITAL),
+       K("At least 2 spans each wrap a symbol, with their own font-size in px and color", function (c) { var p = AFTER(H1, "p")(c); return !!p && within(p, ["span"]).filter(function (s) { return CH.symbols(chOf(c, s)).length > 0 && has(c, s, "font-size", h.isPx) && has(c, s, "color", named); }).length >= 2; })],
+      [K("There are at least 3 heading 2s", function (c) { return c.count("h2") >= 3; }), K("Every heading 2 has an emoji or a symbol pasted in", function (c) { var a = c.all("h2"); return a.length >= 3 && a.every(function (x) { return hasAnyCh(c, x); }); }), K("Every heading 2 has a color", function (c) { var a = c.all("h2"); return a.length >= 3 && a.every(function (x) { return has(c, x, "color", named); }); }),
+       K("Every heading 2 has a border on one side only", function (c) { var a = c.all("h2"); return a.length >= 3 && a.every(function (x) { return sideBorderOf(c, x); }); })],
+      [K("There are at least 2 heading 3s", function (c) { return c.count("h3") >= 2; }), K("Every heading 3 has a symbol or an emoji pasted in", function (c) { var a = c.all("h3"); return a.length >= 2 && a.every(function (x) { return hasAnyCh(c, x); }); }), K("At least one heading 3 is text-transform uppercase", function (c) { return c.all("h3").some(function (x) { return has(c, x, "text-transform", upper); }); })],
+      [K("At least 6 paragraphs or list items have 4 or more real words each", function (c) { return c.all("p").concat(c.all("li")).filter(function (x) { return CH.words(chOf(c, x)) >= 4; }).length >= 6; })]
+    ],
+    "Step 5": [
+      [K("At least 10 emojis are pasted into your text", function (c) { return CH.emojis(bodyChars(c)).length >= 10; }), K("At least 6 of the emojis are different", function (c) { return CH.distinct(CH.emojis(bodyChars(c))) >= 6; })],
+      [K("At least 4 different symbols are pasted into your text (like a star, a heart, an arrow, or a degree sign)", function (c) { return CH.distinct(CH.symbols(bodyChars(c))) >= 4; })],
+      [K("There is a list (ul or ol) with at least 4 items", function (c) { return c.all("ul").concat(c.all("ol")).some(function (l) { return l.children.filter(function (n) { return n.tag === "li"; }).length >= 4; }); }),
+       K("Every item in it starts with an emoji or a symbol", function (c) { return c.all("ul").concat(c.all("ol")).some(function (l) { var li = l.children.filter(function (n) { return n.tag === "li"; }); return li.length >= 4 && li.every(function (x) { return CH.startsWith(chOf(c, x)); }); }); })],
+      [K("At least one tag that holds an emoji or a symbol has a font-size of 40px or more", function (c) { return allEls(c).some(function (x) { return hasAnyCh(c, x) && h.vals(c, x, "font-size").some(function (v) { var m = /^(\d+(?:\.\d+)?)px$/.exec(v); return !!m && +m[1] >= 40; }); }); })],
+      [K("The last paragraph has the copyright symbol", function (c) { var p = lastP(c); return !!p && chOf(c, p).indexOf("©") > -1; }), P("It is text-align center", lastP, "text-align", center), P("Its font-size is 14px", lastP, "font-size", h.px(14)), P("It has a border", lastP, "border", function (v) { return h.BORDER.test(v); })]
+    ],
+    "Step 6": [
+      [K("There are at least 2 pictures (img tags)", function (c) { return imgs675(c).length >= 2; }), K("Every picture has a src that is a web address", function (c) { var im = imgs675(c); return im.length >= 1 && im.every(function (i) { return /^(https?:)?\/\//i.test(i.attrs.src || "") || /^\/api\/code\?img=/.test(i.attrs.src || ""); }); }),
+       K("Every picture has a real alt description", function (c) { var im = imgs675(c); return im.length >= 1 && im.every(function (i) { var a = (i.attrs.alt || "").trim().toLowerCase(); return a.length >= 3 && a !== "describe your image here"; }); }),
+       K("Every picture has a width in percent", function (c) { var im = imgs675(c); return im.length >= 1 && im.every(function (i) { return h.vals(c, i, "width").some(function (v) { return /^\d+(\.\d+)?%$/.test(v); }); }); })],
+      [K("Solid borders are used at least 2 times", function (c) { return borderCount(c, "solid") >= 2; }), K("Dashed borders are used at least 2 times", function (c) { return borderCount(c, "dashed") >= 2; }), K("Dotted borders are used at least 2 times", function (c) { return borderCount(c, "dotted") >= 2; })],
+      [K("At least 2 one-sided borders (like border-bottom)", function (c) { var n = 0; allEls(c).forEach(function (x) { ["border-top", "border-bottom", "border-left", "border-right"].forEach(function (p) { if (h.vals(c, x, p).length) n++; }); }); return n >= 2; })],
+      [K("There is at least 1 bold word or phrase", function (c) { return c.all("strong").concat(c.all("b")).length >= 1; }), K("There is at least 1 line break (br)", function (c) { return c.all("br").length >= 1; }), K("There is at least 1 horizontal line (hr), outside any paragraph", function (c) { return c.all("hr").filter(function (x) { return !c.ancestor(x, ["p"]); }).length >= 1; })]
+    ]
+  } };
+  lastStep("6.75", "Step 7", [[h.ALLGREEN], []]);
+
 })(typeof window !== "undefined" ? window : globalThis);

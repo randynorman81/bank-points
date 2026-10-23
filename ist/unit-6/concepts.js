@@ -33,6 +33,8 @@
       attrs: [I("attr-src", "src"), I("attr-alt", "alt"), I("attr-imgsize", "width on an image"), I("attr-favicon", "a favicon link (rel=icon) in the head", "once")],
       props: [I("p-w", "width")],
       vals: [I("v-pct", "width in %")] },
+    { id: "6.75",
+      chars: [I("ch-emoji", "an emoji pasted into your text", "until:6.75"), I("ch-symbol", "a symbol pasted into your text (© ♥ ★ →)", "until:6.75")] },
     { id: "6.6",
       tags: [I("a", "<a>")],
       attrs: [I("attr-href", "href"), I("attr-newtab", "target=\"_blank\" (new tab)"), I("attr-sametab", "links in the same tab"), I("a-wrap", "a link around a heading, a paragraph, or words"), I("attr-imglink", "image inside a link (a clickable image)")] },
@@ -77,10 +79,10 @@
     { id: "9.6", tags: [I("form", "<form>")], sels: [I("b-form", "form-label and form-control")] }
   ];
   var ORDER = C.map(function (x) { return x.id; });
-  var FULL = ["6.1", "6.2", "6.20", "6.3", "6.35", "6.4", "6.7", "6.6", "6.5", "7.1", "7.2", "7.3", "7.4", "7.5", "7.6", "8.1", "8.2", "8.3", "8.4", "8.5", "8.6", "8.7", "9.1", "9.2", "9.3", "9.4", "9.5", "9.6", "9.7"];
+  var FULL = ["6.1", "6.2", "6.20", "6.3", "6.35", "6.4", "6.7", "6.75", "6.6", "6.5", "7.1", "7.2", "7.3", "7.4", "7.5", "7.6", "8.1", "8.2", "8.3", "8.4", "8.5", "8.6", "8.7", "9.1", "9.2", "9.3", "9.4", "9.5", "9.6", "9.7"];
   function num(id) { var i = FULL.indexOf(String(id)); return i < 0 ? 1000 : i; }
   function before(a, b) { return num(a) < num(b); }
-  var GROUPS = [["tags", "HTML tags"], ["attrs", "Attributes"], ["props", "CSS properties"], ["vals", "CSS values"], ["sels", "Selectors and classes"]];
+  var GROUPS = [["tags", "HTML tags"], ["attrs", "Attributes"], ["props", "CSS properties"], ["vals", "CSS values"], ["sels", "Selectors and classes"], ["chars", "Emojis and symbols"]];
 
   /* THE REVIEW POLICY (a spiral, so assignments do not keep getting longer):
        - FRESH:  items from the previous 2 lessons must appear at least 2 times
@@ -97,7 +99,7 @@
     var test = TESTS_UNIT[lesson];
     if (test) return test.test(fromId) ? { tier: "test", min: 1 } : (STAPLES[key] ? { tier: "keep", min: 1 } : null);
     var li = idxOf(lesson), fi = idxOf(fromId); if (li < 0 || fi < 0 || fi >= li) return null;
-    var age = li - fi;
+    var age = li - fi; if (lesson !== "6.75" && fi < idxOf("6.75") && li > idxOf("6.75")) age--;   /* 3.8 does not count as a lesson back for the lessons after it, so their review rules stay as they were */
     if (age <= FRESH) return { tier: "fresh", min: 2 };
     if (age <= FRESH + (li <= idxOf("6.5") ? KEEP : 3)) return { tier: "keep", min: 1 };
     return STAPLES[key] ? { tier: "keep", min: 1 } : null;

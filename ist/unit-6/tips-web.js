@@ -343,6 +343,25 @@
     { ex: ["display: block;"] }
   ]);
 
+  var EMO = cat("Emojis and symbols");
+  add("themes38", EMO, "See all 6 theme choices", [
+    { p: "Pick **one** of these. Every theme uses the same steps. There is no set layout: you decide where the headings, lists, and characters go." },
+    { list: ["**Emoji Dictionary**: a glossary of emojis with what each one means and when to use it, like \"😂 means you are laughing so hard you are crying\"", "**Emoji Story**: a short story or comic told mostly in emojis, with a decoder key so readers can follow along", "**My Day in Emojis**: your schedule hour by hour, with an emoji for each part of the day", "**Restaurant Menu**: every dish and price gets an emoji or a symbol, like a dollar sign or a star rating", "**Game Scoreboard**: a leaderboard and rules page with medals, stars, hearts, and arrows", "**Weather Report**: a forecast for the week with weather emojis and the degree symbol"] },
+    { good: "Whichever theme you pick, the words come first. The emojis and symbols add to your words, they do not replace them." }
+  ]);
+  add("pasteemoji", EMO, "How do I paste an emoji or a symbol?", [
+    { p: "Emojis and symbols are **text characters**, not pictures. You copy one and paste it **between your tags**, just like a word." },
+    { steps: ["Open the **notes** for this lesson and find the **character pad**. Click any character to copy it.", "Click inside your code, **between** the opening and closing tags (for example after the words in a heading).", "Press **Ctrl + V** (Command + V on a Mac) to paste it."] },
+    { ex: ["<h2>Pizza Night 🍕</h2>", "<p>Rating: ★★★★ and 72° outside</p>"] },
+    { list: ["Paste **between** the tags, never inside a tag's angle brackets.", "A symbol like ★ ♥ → ° © is a plain character, so it can take a color. An emoji keeps its own colors.", "Need more? Search for \"emoji list\" in your browser, then copy and paste from there."] },
+    { warn: "Do not use an img tag for an emoji. It is just text." }
+  ]);
+  add("charstyle", EMO, "How do I make an emoji or symbol big or colored?", [
+    { p: "Style a character like text. Put it in a tag (or wrap just that one character in a **span**) and give the tag a **font-size** in pixels. A **color** changes a symbol, but an emoji keeps its own colors." },
+    { ex: ["<p style=\"font-size: 56px;\">🍕🍔🍟</p>", "<p>I <span style=\"color: crimson; font-size: 30px;\">♥</span> pizza</p>"] },
+    { list: ["Big: `font-size: 40px;` or more on the tag that holds the character.", "A span around one symbol lets you style just that one.", "A list can start each item with a pasted emoji or symbol. Add `list-style-type: none;` on the list to drop the bullets."] }
+  ]);
+
   var EDT = cat("Using this editor");
   add("autocheck", EDT, "How does the auto-check work?", [
     { p: "Every step has boxes. Next to each box is a badge such as **auto-check: 3 of 5 met**. It looks at your page and counts what is already done." },
@@ -375,7 +394,9 @@
   var R = [
     [/favicon/i, ["favicon", "faviconemoji"]],
     [/border.*(picture|image)|(picture|image).*border/i, ["imgborder", "border"]],
-    [/theme.*(click|button)|see all the theme/i, ["themes37"]],
+    [/all 6 choices/i, ["themes38"]],
+    [/^(?!.*all 6 choices)[^]*(theme.*(click|button)|see all the theme)/i, ["themes37"]],
+    [/emoji|symbol|©/i, ["pasteemoji", "charstyle"]],
     [/google font|font link|fonts\.google|fallback/i, ["googlefont", "fontfamily"]],
     [/head.*title|title.*head/i, ["titledemo", "titletag"]],
     [/sneak peek|span tag wraps|at least 3 words|EXTRA CREDIT.*span|span tags? for effect/i, ["spandemo", "spantag"]],

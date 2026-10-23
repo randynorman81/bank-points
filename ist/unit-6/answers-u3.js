@@ -262,6 +262,39 @@
     done()]));
 
 
+  /* ======================================================================= 6.75  (3.8) ===== */
+  A["6.75"] = build([].concat(head("An **emoji and symbol page** where pasted characters do the talking. Every emoji and symbol is **text** you copy and paste: no image tags, no uploads. Pick one of **6 themes**. There is no set layout: you decide where everything goes.", "", notes("unit-6/emojis-symbols-notes.html")), [{ tip: "themes38", label: "See all 6 theme choices" }, RULE2,
+    { p: "**Every theme uses the same steps.** Each step gives the **minimum** you need, and you can ALWAYS add more. Open the **notes** and use the **character pad** to copy emojis and symbols, then paste them **between your tags**, never inside a tag's angle brackets." },
+    skeleton(["On the **body** tag, add a style: **background-color** (a named color)"]),
+    S("Pick your theme", [
+      "Choose a theme (click the button above to see all 6 choices) and plan where your pasted characters will go"
+    ]),
+    S("The head: favicon and font", [
+      "Add a **favicon** inside the head: a **link** tag with **rel** set to icon and an **href**. Make it from an **emoji** with the emoji trick in the help. Look at the tab above your preview to see it",
+      "Add a **Google Fonts link** inside the head and pick at least one font that fits your theme (use Filters and sample text, like in 3.5)"
+    ]),
+    S("Headings and words", [
+      "Add **one heading 1** with your page's name, and **paste an emoji** into it. Style it: **color**, **background-color**, **font-size** in pixels (like 46px), **text-align** center, **text-transform** uppercase, a **solid border** (thickness, style, color in that order), and your **Google font** in a **font-family** that ends with a **fallback family**",
+      "Under it, add a **paragraph** that introduces your theme. Style it: **text-align** center and **font-size** 20px. **Inside** it, put one phrase in **italics**, and add **2 spans**, each wrapped around a single pasted **symbol** (like a star or a heart) with its own **font-size** in pixels and its own **color**",
+      "Add **at least 3 heading 2s**, one for each section of your page. **Paste an emoji or a symbol** into each one. Style each with a **color** and a border on **one side only** (like border-bottom: 4px dashed)",
+      "Under them, add **at least 2 heading 3s**, each with a **symbol** pasted in. Style at least one with **text-transform** uppercase",
+      "Write **at least 6 paragraphs or list items** about your theme, each with **4 or more real words**. The emojis add to your words, they never replace them"
+    ]),
+    S("Paste your characters", [
+      "Paste **at least 10 emojis** in all, with **at least 6 different** ones. Spread them through your headings, paragraphs, and lists",
+      "Paste **at least 4 different symbols** (like ★ ♥ → ° © ®) from the Symbols groups of the pad",
+      "Make a **list** (a ul or an ol) with **at least 4 items**, and **start every item** with a pasted emoji or symbol. Add **list-style-type: none** to the list if you do not want the bullets as well",
+      "Make **one emoji or symbol big**: give the tag that holds it a **font-size** of **40px or more** (a row of three big emojis works well)",
+      "At the very bottom, add a **footer paragraph** with the **copyright symbol** (©) in it. Style it: **text-align** center, **font-size** 14px, and a **border**"
+    ]),
+    S("Bring back what you know", [
+      "Add **at least 2 pictures**. Each needs a **src** web address (the Insert button in **My images** adds one for you), a real **alt** description, and a **width** in **percent** (like 50%)",
+      "Use **solid**, **dashed**, and **dotted** borders **at least 2 times each**. Your picture borders count, and you can add borders to headings or paragraphs too",
+      "Use a border on **one side only** (like border-bottom) **at least 2 times**. Your heading 2s count",
+      "Use **bold** on at least one phrase, at least **1 line break** inside a paragraph, and at least **1 horizontal line** outside any paragraph"
+    ]),
+    done()]));
+
   /* From 3.9 on (lessons 7.1 to 9.7), every assignment also needs 3 links, 3 pictures, and 2 pictures that are links (html-check.js checks it). Add one step before "Test and submit". */
   Object.keys(A).forEach(function (l) {
     if (!/^[789]\./.test(l) || !A[l] || A[l].__links) return;

@@ -349,6 +349,18 @@
   function firstFont(v) { return String(v).split(",")[0].replace(/['"]/g, "").trim(); }
   function lastFont(v) { var p = String(v).split(","); return p[p.length - 1].replace(/['"]/g, "").trim(); }
   var GENERIC = /^(serif|sans-serif|monospace|cursive|fantasy)$/;
+  /* emojis and symbols (3.8): characters pasted into the text. An emoji is drawn in color (or has the emoji selector after it); a symbol is a plain character like © ♥ ★ → ° */
+  var EMOJI_SRC = "(?:\\p{Emoji_Presentation}|\\p{Extended_Pictographic}\uFE0F)(?:\u200D(?:\\p{Emoji_Presentation}|\\p{Extended_Pictographic}\uFE0F?))*";
+  var SYMBOL_SRC = "[\u00A9\u00AE\u2122\u00B0\u00A7\u00B6\u2020\u2021\u2022\u00B1\u00D7\u00F7\u00A2\u00A3\u00A5\u20AC\u2190-\u21FF\u2200-\u22FF\u2300-\u23FF\u25A0-\u25FF\u2600-\u27BF\u2B00-\u2BFF]";
+  var EMOJI_RE = new RegExp(EMOJI_SRC, "gu"), SYMBOL_RE = new RegExp(SYMBOL_SRC, "gu"), STARTCH_RE = new RegExp("^(?:" + EMOJI_SRC + "|" + SYMBOL_SRC + ")", "u");
+  function bodyText(c) { var b = c.all("body")[0]; return b ? textOf(b) : ""; }
+  function emojisIn(s) { return String(s).match(EMOJI_RE) || []; }
+  function symbolsIn(s) { return String(s).replace(EMOJI_RE, "").match(SYMBOL_RE) || []; }
+  function hasChar(s) { return emojisIn(s).length + symbolsIn(s).length > 0; }
+  function distinctOf(a) { var o = {}; a.forEach(function (x) { o[x] = 1; }); return Object.keys(o).length; }
+  function realWords(s) { return (String(s).toLowerCase().match(/[a-z']{2,}/g) || []).length; }
+  function pxOf(el, c) { var best = 0; c.inline.forEach(function (d) { if (d.el === el && d.prop === "font-size") { var m = /^(\d+(?:\.\d+)?)px$/i.exec(String(d.value).replace(/;$/, "").trim()); if (m) best = Math.max(best, +m[1]); } }); return best; }
+  function hasInline(el, c, prop) { return c.inline.some(function (d) { return d.el === el && d.prop === prop; }); }
   var TESTS = {
     "h2": function (c) { return c.count("h2"); }, "h3": function (c) { return c.count("h3"); }, "p": function (c) { return c.count("p"); },
     "attr-style": function (c) { return elsWithAttr(c, "style").length; },
@@ -363,6 +375,8 @@
     "br": function (c) { return c.count("br"); }, "hr": function (c) { return c.count("hr"); }, "span": function (c) { return c.count("span"); },
     "p-ff": function (c) { return c.prop("font-family"); },
     "link": function (c) { return c.count("link"); },
+    "ch-emoji": function (c) { return emojisIn(bodyText(c)).length; },
+    "ch-symbol": function (c) { return symbolsIn(bodyText(c)).length; },
     "attr-favicon": function (c) { return faviconLinks(c).length; },
     "attr-gfont": function (c) { return gfontLinks(c).length; },
     "v-fallback": function (c) { return valCount(c, ["font-family"], /(^|[\s,'"])(serif|sans-serif|monospace|cursive|fantasy)$/i); },
@@ -553,6 +567,18 @@
       r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\""),
       r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
+    "6.75": { name: "Emojis and Symbols", rules: [
+      r("At least 10 emojis pasted into your text, and at least 6 different ones", function (c) { var e = emojisIn(bodyText(c)); return e.length >= 10 && distinctOf(e) >= 6; }, "Copy emojis from the pad in the notes and paste them between your tags."),
+      r("At least 4 different symbols pasted into your text (like © ♥ ★ → °)", function (c) { return distinctOf(symbolsIn(bodyText(c))) >= 4; }, "Symbols are in the Symbols groups of the pad: marks, arrows, math and money, shapes."),
+      r("The heading 1 has an emoji or a symbol in it, and at least 3 headings in all do", function (c) { var hs = c.all("h1").concat(c.all("h2"), c.all("h3")), h1 = c.all("h1")[0]; return !!h1 && hasChar(textOf(h1)) && hs.filter(function (x) { return hasChar(textOf(x)); }).length >= 3; }),
+      r("A list (ul or ol) with at least 4 items, where every item starts with an emoji or a symbol", function (c) { return c.all("ul").concat(c.all("ol")).some(function (l) { var li = l.children.filter(function (n) { return n.tag === "li"; }); return li.length >= 4 && li.every(function (x) { return STARTCH_RE.test(textOf(x).trim()); }); }); }, "Paste a character at the start of each list item. Add list-style-type: none; if you do not want the bullets too."),
+      r("At least 2 spans around an emoji or symbol, each with its own font-size in px and color", function (c) { return c.all("span").filter(function (s) { return hasChar(textOf(s)) && pxOf(s, c) > 0 && hasInline(s, c, "color"); }).length >= 2; }, "Wrap a single character in a span with style=\"font-size: 30px; color: gold;\"."),
+      r("At least 1 emoji or symbol is big: font-size 40px or more on the tag that holds it", function (c) { return els(c).some(function (x) { return pxOf(x, c) >= 40 && hasChar(textOf(x)); }); }),
+      r("Words come first: at least 6 paragraphs or list items with 4 or more real words each", function (c) { return c.all("p").concat(c.all("li")).filter(function (x) { return realWords(textOf(x)) >= 4; }).length >= 6; }, "Emojis add to your words. They do not replace them."),
+      r("Has a favicon: a <link rel=\"icon\"> with an href inside the <head>", function (c) { var f = faviconLinks(c); return f.length >= 1 && f.every(function (l) { return !!c.ancestor(l, ["head"]); }); }, "Put the favicon link tag in the head, under your title. You can make one from an emoji."),
+      r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\""),
+      r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
+    ] },
     "7.1": { name: "Box Model", rules: [
       r("Padding, border, and margin are all used on the same element", function (c) {
         var by = new Map(); c.inline.forEach(function (d) { var s = by.get(d.el) || {}; if (/^padding/.test(d.prop)) s.p = 1; if (/^margin/.test(d.prop)) s.m = 1; if (/^border/.test(d.prop)) s.b = 1; by.set(d.el, s); });
@@ -711,7 +737,7 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
   ] };
   LESSONS["9.7"] = { name: "Unit Test Website (Bootstrap)", rules: [] };
 
-  var ORDER = ["6.1", "6.2", "6.20", "6.3", "6.35", "6.4", "6.7", "6.6", "6.5", "7.1", "7.2", "7.3", "7.4", "7.5", "7.6",
+  var ORDER = ["6.1", "6.2", "6.20", "6.3", "6.35", "6.4", "6.7", "6.75", "6.6", "6.5", "7.1", "7.2", "7.3", "7.4", "7.5", "7.6",
                "8.1", "8.2", "8.3", "8.4", "8.5", "8.6", "8.7", "9.1", "9.2", "9.3", "9.4", "9.5", "9.6", "9.7"];
 
   var TOTAL_POINTS = 50;      // points a lesson is worth
@@ -782,6 +808,7 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
     var c = analyze(merged); c.cssLinked = linked; c.cssFile = css; c.rawSrc = src;
     return c;
   }
-  var API = { context: context, TESTS: TESTS, REVIEW_MIN: REVIEW_MIN, quality: function (src) { return quality(analyze(String(src || ""))); }, analyze: analyze, check: check, openTags: openTags, previewDoc: previewDoc, VOID: VOID, NAMED: NAMED, LESSONS: LESSONS, ORDER: ORDER, TOTAL_POINTS: TOTAL_POINTS };
+  var CHARS = { emojis: emojisIn, symbols: symbolsIn, has: hasChar, startsWith: function (s) { return STARTCH_RE.test(String(s).trim()); }, distinct: distinctOf, words: realWords };
+  var API = { chars: CHARS, context: context, TESTS: TESTS, REVIEW_MIN: REVIEW_MIN, quality: function (src) { return quality(analyze(String(src || ""))); }, analyze: analyze, check: check, openTags: openTags, previewDoc: previewDoc, VOID: VOID, NAMED: NAMED, LESSONS: LESSONS, ORDER: ORDER, TOTAL_POINTS: TOTAL_POINTS };
   if (typeof module !== "undefined" && module.exports) module.exports = API; else root.HTMLCheck = API;
 })(typeof window !== "undefined" ? window : globalThis);
