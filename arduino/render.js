@@ -116,10 +116,73 @@
     s += '<g data-wave="' + part.id + '" style="display:none" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"><path d="M34,-30 Q40,-20 34,-10"/><path d="M40,-34 Q50,-20 40,-6"/><path d="M46,-38 Q60,-20 46,-2"/></g>';
     return s + legDots(part);
   }
+  /* ---------- Unit 3 parts */
+  function rgbSVG(part) {
+    var s = '<circle cx="18" cy="-38" r="30" fill="#fff" opacity="0" data-rgbglow="' + part.id + '" style="filter:blur(9px)"/>';
+    s += '<path d="M0,0 L0,-8 M24,0 L24,-8 M36,0 L36,-8" stroke="#0b0b0b" stroke-width="2.8" fill="none"/><path d="M12,0 L12,-30" stroke="#0b0b0b" stroke-width="3" fill="none"/>';
+    s += '<path d="M-4,-24 L40,-24 L40,-38 Q40,-62 18,-62 Q-4,-62 -4,-38 Z" fill="#e5e7eb" fill-opacity=".55" stroke="#9ca3af" stroke-width="1.5" data-rgbbody="' + part.id + '"/>';
+    s += '<path d="M-4,-24 L6,-24" stroke="#6b7280" stroke-width="2"/>';
+    s += '<text x="0" y="-12" font-size="7" font-weight="800" fill="#ef4444" text-anchor="middle" stroke="#0b1220" stroke-width="2" paint-order="stroke">R</text><text x="12" y="-33" font-size="8" font-weight="800" fill="#93c5fd" text-anchor="middle" stroke="#0b1220" stroke-width="2" paint-order="stroke">&#8722;</text><text x="24" y="-12" font-size="7" font-weight="800" fill="#22c55e" text-anchor="middle" stroke="#0b1220" stroke-width="2" paint-order="stroke">G</text><text x="36" y="-12" font-size="7" font-weight="800" fill="#3b82f6" text-anchor="middle" stroke="#0b1220" stroke-width="2" paint-order="stroke">B</text>';
+    s += '<g data-rgbburn="' + part.id + '" style="display:none"><path d="M6,-50 L30,-26 M30,-50 L6,-26" stroke="#111" stroke-width="4"/></g>';
+    return s + legDots(part);
+  }
+  function servoSVG(part) {
+    var s = '<path d="M0,0 L0,-24" stroke="#7c4a1e" stroke-width="3"/><path d="M12,0 L12,-24" stroke="#dc2626" stroke-width="3"/><path d="M24,0 L24,-24" stroke="#f97316" stroke-width="3"/>';
+    s += '<rect x="-16" y="-72" width="58" height="48" rx="4" fill="#1e40af" stroke="#172554" stroke-width="2"/><rect x="-24" y="-60" width="8" height="22" rx="2" fill="#1e40af" stroke="#172554"/><rect x="42" y="-60" width="8" height="22" rx="2" fill="#1e40af" stroke="#172554"/>';
+    s += '<text x="13" y="-34" font-size="8" fill="#bfdbfe" text-anchor="middle" font-weight="800">SERVO</text>';
+    s += '<g transform="translate(30 -62)"><circle r="9" fill="#e5e7eb" stroke="#6b7280"/><g data-horn="' + part.id + '" style="transform:rotate(0deg);transition:transform .3s ease-out"><rect x="-3.5" y="-36" width="7" height="38" rx="3.5" fill="#f3f4f6" stroke="#6b7280"/><circle cx="0" cy="-30" r="1.6" fill="#6b7280"/><circle cx="0" cy="-22" r="1.6" fill="#6b7280"/><circle cx="0" cy="-14" r="1.6" fill="#6b7280"/></g><circle r="3.5" fill="#6b7280"/></g>';
+    s += '<g data-servoangle="' + part.id + '"></g><text x="13" y="-76" font-size="8" fill="#e5e7eb" text-anchor="middle" font-weight="800" data-servotext="' + part.id + '" stroke="#0b1220" stroke-width="2" paint-order="stroke"></text>';
+    return s + legDots(part);
+  }
+  function potSVG(part) {
+    var pos = Math.max(0, Math.min(1, part.props && part.props.pos !== undefined ? +part.props.pos : 0.5));
+    var s = '<path d="M0,0 L0,-12 M12,0 L12,-12 M24,0 L24,-12" stroke="#cbd5e1" stroke-width="2.2"/>';
+    s += '<rect x="-12" y="-24" width="48" height="14" rx="3" fill="#0e7490" stroke="#164e63"/>';
+    s += '<g data-pot="' + part.id + '" style="cursor:grab"><circle cx="12" cy="-38" r="19" fill="#1f2937" stroke="#4b5563" stroke-width="2"/><g data-potknob="' + part.id + '" transform="translate(12 -38) rotate(' + (-135 + pos * 270) + ')"><circle r="14" fill="#9ca3af" stroke="#6b7280"/><rect x="-1.8" y="-15" width="3.6" height="12" rx="1.5" fill="#111827"/></g></g>';
+    s += '<text x="0" y="-14" font-size="7" font-weight="800" fill="#e0f2fe" text-anchor="middle">1</text><text x="12" y="-14" font-size="7" font-weight="800" fill="#fde68a" text-anchor="middle">W</text><text x="24" y="-14" font-size="7" font-weight="800" fill="#e0f2fe" text-anchor="middle">2</text>';
+    return s + legDots(part);
+  }
+  function npnSVG(part) {
+    var s = '<path d="M0,0 L0,-12 M12,0 L12,-12 M24,0 L24,-12" stroke="#cbd5e1" stroke-width="2.2"/>';
+    s += '<path d="M-5,-12 L29,-12 L29,-26 Q29,-44 12,-44 Q-5,-44 -5,-26 Z" fill="#111827" stroke="#374151" stroke-width="1.5"/><path d="M-5,-12 L29,-12" stroke="#6b7280" stroke-width="2"/>';
+    s += '<text x="12" y="-28" font-size="8" fill="#e5e7eb" text-anchor="middle" font-weight="800">NPN</text><text x="0" y="-17" font-size="7" fill="#fbbf24" text-anchor="middle" font-weight="800">C</text><text x="12" y="-17" font-size="7" fill="#a7f3d0" text-anchor="middle" font-weight="800">B</text><text x="24" y="-17" font-size="7" fill="#93c5fd" text-anchor="middle" font-weight="800">E</text>';
+    return s + legDots(part);
+  }
+  function motorSVG(part) {
+    var s = '<path d="M0,0 L0,-14 M36,0 L36,-14" stroke="#cbd5e1" stroke-width="2.2"/>';
+    s += '<rect x="-10" y="-58" width="56" height="44" rx="10" fill="#9ca3af" stroke="#4b5563" stroke-width="2"/><rect x="-10" y="-34" width="56" height="4" fill="#6b7280"/>';
+    s += '<text x="18" y="-20" font-size="10" fill="#111827" text-anchor="middle" font-weight="800">M</text>';
+    s += '<g transform="translate(18 -68)"><rect x="-2" y="0" width="4" height="12" fill="#e5e7eb"/><g data-spin="' + part.id + '"><rect x="-13" y="-1.5" width="26" height="3" rx="1.5" fill="#f97316"/><rect x="-1.5" y="-13" width="3" height="26" rx="1.5" fill="#f97316"/></g></g>';
+    s += '<text x="-6" y="-6" font-size="9" font-weight="800" fill="#e5e7eb" stroke="#0b1220" stroke-width="2" paint-order="stroke" text-anchor="middle" data-motortext="' + part.id + '"></text>';
+    return s + legDots(part);
+  }
+  function diodeSVG(part) {
+    var s = '<path d="M0,0 L48,0" stroke="#cbd5e1" stroke-width="2.2"/>';
+    s += '<rect x="12" y="-6" width="24" height="12" rx="4" fill="#111827" stroke="#374151" stroke-width="1.5"/><rect x="30" y="-6" width="5" height="12" fill="#e5e7eb"/>';
+    s += '<text x="22" y="3" font-size="6" fill="#9ca3af" text-anchor="middle">1N</text><text x="0" y="-5" font-size="7" font-weight="800" fill="#fb7185" text-anchor="middle">+</text><text x="48" y="-5" font-size="8" font-weight="800" fill="#60a5fa" text-anchor="middle">&#8722;</text>';
+    return s + legDots(part);
+  }
+  var SEG = { 0: "abcdef", 1: "bc", 2: "abdeg", 3: "abcdg", 4: "bcfg", 5: "acdfg", 6: "acdefg", 7: "abc", 8: "abcdefg", 9: "abcdfg", "-": "g", A: "abcefg", B: "cdefg", C: "adef", D: "bcdeg", E: "adefg", F: "aefg" };
+  function digitSVG(i, x) {
+    var segs = { a: [1, 0, 8, 2], b: [8, 1, 2, 8], c: [8, 9, 2, 8], d: [1, 16, 8, 2], e: [0, 9, 2, 8], f: [0, 1, 2, 8], g: [1, 8, 8, 2] }, s = '<g transform="translate(' + x + ' -64)" data-digit="' + i + '">';
+    Object.keys(segs).forEach(function (k) { var r = segs[k]; s += '<rect x="' + r[0] + '" y="' + r[1] + '" width="' + r[2] + '" height="' + r[3] + '" rx="0.8" fill="#3b0d0d" data-sg="' + k + '"/>'; });
+    return s + '<circle cx="11.5" cy="17.5" r="1.3" fill="#3b0d0d" data-sg="dp"/></g>';
+  }
+  function seg7SVG(part) {
+    var s = '<path d="M0,0 L0,-10 M12,0 L12,-10 M24,0 L24,-10 M36,0 L36,-10" stroke="#cbd5e1" stroke-width="2.2"/>';
+    s += '<rect x="-16" y="-78" width="80" height="68" rx="5" fill="#7f1d1d" stroke="#450a0a" stroke-width="2"/><rect x="-10" y="-72" width="68" height="30" rx="3" fill="#0a0a0a"/>';
+    s += digitSVG(0, -6) + digitSVG(1, 8) + digitSVG(2, 28) + digitSVG(3, 42);
+    s += '<circle cx="24" cy="-60" r="1.6" fill="#3b0d0d" data-colon="1"/><circle cx="24" cy="-52" r="1.6" fill="#3b0d0d" data-colon="2"/>';
+    s += '<text x="0" y="-16" font-size="7" font-weight="800" fill="#fecaca" text-anchor="middle">+</text><text x="12" y="-16" font-size="8" font-weight="800" fill="#fecaca" text-anchor="middle">&#8722;</text><text x="24" y="-16" font-size="7" font-weight="800" fill="#fecaca" text-anchor="middle">D</text><text x="36" y="-16" font-size="7" font-weight="800" fill="#fecaca" text-anchor="middle">C</text>';
+    s += '<text x="24" y="-36" font-size="5.5" fill="#fca5a5" text-anchor="middle">HT16K33</text>';
+    return s + legDots(part);
+  }
   function innerSVG(part) {
     switch (part.type) {
       case "uno": return unoSVG(); case "breadboard": return breadboardSVG(part); case "led": return ledSVG(part); case "resistor": return resistorSVG(part);
       case "button": return buttonSVG(part); case "buzzer": return buzzerSVG(part);
+      case "rgb": return rgbSVG(part); case "servo": return servoSVG(part); case "pot": return potSVG(part); case "npn": return npnSVG(part);
+      case "motor": return motorSVG(part); case "diode": return diodeSVG(part); case "seg7": return seg7SVG(part);
     }
     return "";
   }
@@ -166,6 +229,30 @@
         if (cap) cap.setAttribute("fill", down ? "#6b7280" : "#9ca3af"); if (cap2) cap2.setAttribute("fill", down ? "#9ca3af" : "#d1d5db");
       } else if (p.type === "buzzer") {
         var bz = res && res.buzzers[p.id], wv = g.querySelector("[data-wave]"); if (wv) wv.style.display = bz && bz.sounding ? "" : "none";
+      } else if (p.type === "rgb") {
+        var rr = res && res.rgb && res.rgb[p.id] || { R: 0, G: 0, B: 0, blown: false }, rgl = g.querySelector("[data-rgbglow]"), rbd = g.querySelector("[data-rgbbody]"), rbn = g.querySelector("[data-rgbburn]");
+        var cc = "rgb(" + Math.round(255 * rr.R) + "," + Math.round(255 * rr.G) + "," + Math.round(255 * rr.B) + ")", lum = Math.max(rr.R, rr.G, rr.B);
+        if (rgl) { rgl.setAttribute("fill", cc); rgl.setAttribute("opacity", String(Math.min(0.95, lum * 0.95))); }
+        if (rbd) { rbd.setAttribute("fill", lum > 0.05 ? cc : "#e5e7eb"); rbd.setAttribute("fill-opacity", String(lum > 0.05 ? 0.55 + lum * 0.45 : 0.55)); }
+        if (rbn) rbn.style.display = rr.blown ? "" : "none";
+      } else if (p.type === "servo") {
+        var sv = res && res.servos && res.servos[p.id], hn = g.querySelector("[data-horn]"), stx = g.querySelector("[data-servotext]"), ang = sv && io && io.dev && io.dev.servo ? io.dev.servo[sv.pin] : undefined;
+        if (hn && ang !== undefined && sv.powered) { hn.style.transform = "rotate(" + (ang - 90) + "deg)"; if (stx) stx.textContent = ang + "\u00B0"; }
+        else if (hn && stx && !(sv && sv.powered)) stx.textContent = "";
+      } else if (p.type === "motor") {
+        var mo = res && res.motors && res.motors[p.id], sp = g.querySelector("[data-spin]"), mtx = g.querySelector("[data-motortext]");
+        if (sp) { var spd = mo ? mo.speed : 0; if (spd > 0.03) { sp.style.transformBox = "fill-box"; sp.style.transformOrigin = "center"; sp.style.animation = "ardspin " + (0.9 - 0.8 * Math.min(1, spd)).toFixed(2) + "s linear infinite"; } else sp.style.animation = "none"; }
+        if (mtx) mtx.textContent = mo && mo.speed > 0.03 ? Math.round(mo.speed * 100) + "%" : "";
+      } else if (p.type === "pot") {
+        var kb = g.querySelector("[data-potknob]"), pv = io && io.pots && io.pots[p.id] !== undefined ? io.pots[p.id] : (p.props && p.props.pos !== undefined ? +p.props.pos : 0.5);
+        if (kb) kb.setAttribute("transform", "translate(12 -38) rotate(" + (-135 + Math.max(0, Math.min(1, pv)) * 270) + ")");
+      } else if (p.type === "seg7") {
+        var so = res && res.seg && res.seg[p.id], shown = so && so.wired && io && io.dev && io.dev.seg ? io.dev.seg.shown : null, on = "#ff3b30", off = "#3b0d0d";
+        g.querySelectorAll("[data-digit]").forEach(function (dg) {
+          var di = +dg.getAttribute("data-digit"), d = shown && shown.digits[di], lit = d && SEG[String(d.ch).toUpperCase()] ? SEG[String(d.ch).toUpperCase()] : "";
+          dg.querySelectorAll("[data-sg]").forEach(function (sgEl) { var k = sgEl.getAttribute("data-sg"); sgEl.setAttribute("fill", k === "dp" ? (d && d.dot ? on : off) : (lit.indexOf(k) > -1 ? on : off)); });
+        });
+        g.querySelectorAll("[data-colon]").forEach(function (c2) { c2.setAttribute("fill", shown && shown.colon ? on : off); });
       } else if (p.type === "uno") {
         var l13 = io && io.pins && io.pins[13] && io.pins[13].mode === 1 && io.pins[13].value, L = g.querySelector('[data-uno="L"]');
         if (L) { L.setAttribute("fill", l13 ? "#fb923c" : "#7c4a0a"); L.style.filter = l13 ? "drop-shadow(0 0 4px #fb923c)" : ""; }

@@ -21,7 +21,12 @@
     true: [1, "bool"], false: [0, "bool"], NULL: [0, "int"]
   };
   var TYPE_WORDS = { void: 1, int: 1, long: 1, short: 1, char: 1, float: 1, double: 1, bool: 1, boolean: 1, byte: 1, word: 1, unsigned: 1, signed: 1, String: 1,
-    uint8_t: 1, uint16_t: 1, uint32_t: 1, int8_t: 1, int16_t: 1, int32_t: 1, size_t: 1, const: 1, static: 1, volatile: 1 };
+    Servo: 1, Adafruit_7segment: 1, uint8_t: 1, uint16_t: 1, uint32_t: 1, int8_t: 1, int16_t: 1, int32_t: 1, size_t: 1, const: 1, static: 1, volatile: 1 };
+  /* library objects: Servo and the 4-digit 7-segment display. type -> { header the #include must name, methods: name -> return type } */
+  var LIBS = {
+    Servo: { header: "Servo.h", methods: { attach: "void", detach: "void", write: "void", writeMicroseconds: "void", read: "int", attached: "bool" } },
+    Adafruit_7segment: { header: "Adafruit_LEDBackpack.h", needs: "Wire.h", methods: { begin: "void", print: "void", println: "void", writeDisplay: "void", clear: "void", setBrightness: "void", drawColon: "void", writeDigitNum: "void", writeDigitRaw: "void", blinkRate: "void" } }
+  };
   var UNSUPPORTED = { struct: "structs", class: "classes", enum: "enums", typedef: "typedef", template: "templates", namespace: "namespaces", goto: "goto", union: "unions" };
   var RESERVED_JS = {};
   var INTLIKE = { int: 1, uint: 1, long: 1, ulong: 1, byte: 1, char: 1, bool: 1 };
@@ -193,6 +198,7 @@
   function compile(source) {
     var errors = [], warnings = [];
     var toks = tokenize(String(source || ""), errors), p = 0;
+    var includes = {}; String(source || "").replace(/^[ \t]*#[ \t]*include[ \t]*[<"]([^>"\n]+)[>"]/gm, function (m, h) { includes[h.trim()] = 1; return m; });
     if (errors.length) return { ok: false, errors: errors, warnings: warnings };
 
     var globals = {}, funcs = {}, funcOrder = [], tmpCount = 0, curFn = null, curFnDefined = {}, scopes = [], pass = 1;
@@ -242,7 +248,12 @@
       if (!words.length) { p = start; return isConst ? null : null; }
       var uns = words.indexOf("unsigned") > -1, lng = words.filter(function (w) { return w === "long"; }).length, t;
       var base = words.filter(function (w) { return w !== "unsigned" && w !== "signed" && w !== "long" && w !== "short"; })[0];
-      if (base === "String") t = "String";
+      if (LIBS[base]) {
+        var lib = LIBS[base], ln = peek().line;
+        if (!includes[lib.header]) fail(ln, base + " is not a built-in type. Add  #include <" + lib.header + ">  as the very first line of your code. A library is a pack of ready-made code, and #include loads it.");
+        if (lib.needs && !includes[lib.needs]) fail(ln, base + " talks to the display over I2C, so you also need  #include <" + lib.needs + ">  at the top, above the other #include line.");
+        t = "obj:" + base;
+      } else if (base === "String") t = "String";
       else if (base === "void") t = "void";
       else if (base === "float" || base === "double") t = "float";
       else if (base === "bool" || base === "boolean") t = "bool";
@@ -468,6 +479,17 @@
           expectOp("("); var sargs = []; if (!isOp(")")) { do { sargs.push(expression()); } while (isOp(",") && next()); } expectOp(")");
           return serialCall(m.v, sargs, m.line);
         }
+        /* Wire.begin() and friends: nothing to simulate, just must exist */
+        if (name === "Wire" && isOp(".")) {
+          if (!includes["Wire.h"]) fail(t.line, "Wire is the I2C library. Add  #include <Wire.h>  as the first line of your code.");
+          next(); var wm = next(); expectOp("("); if (!isOp(")")) { do { expression(); } while (isOp(",") && next()); } expectOp(")");
+          return { c: "0", t: "void" };
+        }
+        /* constructors: Adafruit_7segment() */
+        if (LIBS[name] && isOp("(")) {
+          if (!includes[LIBS[name].header]) fail(t.line, "Add  #include <" + LIBS[name].header + ">  at the top of your code to use " + name + ".");
+          next(); expectOp(")"); return { c: "rt.newObj(\"" + name + "\")", t: "obj:" + name };
+        }
         /* function-style cast / constructor: int(x), float(x), String(x) */
         if ((name === "int" || name === "float" || name === "long" || name === "byte" || name === "char" || name === "double" || name === "String" || name === "bool" || name === "boolean") && isOp("(")) {
           next(); var a = expression(); expectOp(")");
@@ -482,6 +504,16 @@
         }
         if (name === "F" && isOp("(")) { next(); var f = expression(); expectOp(")"); return f; }
         var v = lookup(name);
+        if (v && !v.fn && typeof v.type === "string" && v.type.indexOf("obj:") === 0) {
+          var otype = v.type.slice(4), obase = jsName(name);
+          if (!isOp(".")) fail(t.line, name + " is a " + otype + ". Use a dot and a command after it, like " + (otype === "Servo" ? name + ".write(90);" : name + ".print(5);"));
+          next(); var om = next(); if (om.t !== "id") fail(om.line, "I expected a command after " + name + ".");
+          if (!Object.prototype.hasOwnProperty.call(LIBS[otype].methods, om.v)) { var mn = Object.keys(LIBS[otype].methods), sgm = suggest(om.v, mn); fail(om.line, name + " (a " + otype + ") does not have a command called " + om.v + "." + (sgm ? " Did you mean " + sgm + "?" : " Try " + mn.slice(0, 5).join(", ") + ".")); }
+          expectOp("("); var oargs = []; if (!isOp(")")) { do { oargs.push(expression()); } while (isOp(",") && next()); } expectOp(")");
+          oargs.forEach(function (ea) { if (ea.t === "void") fail(om.line, "That value does not exist (it is void)."); });
+          var okind = oargs.length && oargs[0] ? (oargs[0].t === "float" ? "float" : oargs[0].t === "char" ? "char" : (oargs[0].t === "String" || oargs[0].t === "cstr") ? "str" : "int") : "int";
+          return { c: "rt.objCall(" + obase + "," + JSON.stringify(om.v) + ",[" + oargs.map(function (ea) { return ea.c; }).join(",") + "],\"" + okind + "\"," + om.line + ")", t: LIBS[otype].methods[om.v] };
+        }
         if (v && !v.fn) {
           var base = jsName(name);
           if (v.isArray) return { c: base, t: v.type, arr: { dims: v.dims }, lv: { name: name, isConst: v.isConst, get: base, set: function () { fail(t.line, "You can not assign a whole array with =. Change one spot at a time, like " + name + "[0] = 5;"); } } };
@@ -623,7 +655,8 @@
             init = arrayInit(typ, dims, nameTok.line);
           } else {
             var ex = expression();
-            if (dims) {
+            if (typ.indexOf("obj:") === 0) { if (ex.t !== typ) fail(nameTok.line, "'" + name + "' is a " + typ.slice(4) + ", so it can only be set to " + typ.slice(4) + "()."); init = { c: ex.c }; }
+            else if (dims) {
               if (typ === "char" && ex.t === "cstr") { init = { text: ex.c }; }
               else fail(nameTok.line, "To fill an array, put the values in curly braces, like int pins[] = {2, 3, 4};");
             } else init = { c: coerceChecked(ex.c, ex.t, typ, nameTok.line, name) };
@@ -642,7 +675,7 @@
           var zero = isNum(typ) ? "0" : "\"\"";
           s += "let " + js + "=" + (init && init.arr ? init.arr : "rt.makeArray([" + dimCodes.join(",") + "]," + zero + ")") + ";";
         } else {
-          var dflt = typ === "String" || typ === "cstr" ? "\"\"" : "0";
+          var dflt = typ === "String" || typ === "cstr" ? "\"\"" : typ.indexOf("obj:") === 0 ? "rt.newObj(\"" + typ.slice(4) + "\")" : "0";
           s += "let " + js + "=" + (init ? init.c : dflt) + ";";
         }
       } while (isOp(",") && next());

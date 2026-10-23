@@ -19,6 +19,13 @@
 .cell small{display:block;color:var(--ink-soft);font-size:10.5px}
 .cell.on{border-color:var(--hi);background:var(--hi-tint)}
 </style>
+<script src="../../arduino/compiler.js"></script>
+<script src="../../arduino/circuit.js"></script>
+<script src="../../arduino/sim.js"></script>
+<script src="../../arduino/render.js"></script>
+<script src="../../arduino/coach.js"></script>
+<script src="../../arduino/tips.js"></script>
+<script src="../../arduino/embed.js"></script>
 </head>
 <body>
 
@@ -26,6 +33,7 @@
   <a href="../index.html">&larr; Embedded Computing</a>
   <a href="3-2-buzzer-tones-and-melodies.html">3.2 Lesson Page</a>
   <a href="3-2-notes.html" class="current">Notes</a>
+  <a href="../../arduino/editor.html?slot=u3-2">Open the Editor</a>
 </nav>
 
 <header class="hero">
@@ -34,6 +42,7 @@
     <h1>Buzzer: Tones and Melodies</h1>
     <p class="deck">Everything you need for the 3.2 assignment: how a buzzer makes sound, the note frequencies, tone() and noTone(), arrays, for loops, and a song that starts with a button. Turn your sound on.</p>
     <div class="map">
+      <a href="#lab">&#9889; <span>Live lab</span></a>
       <a href="#sound">01 <span>How sound works</span></a>
       <a href="#wire">02 <span>Wiring (Part 1)</span></a>
       <a href="#arr">03 <span>Arrays + the scale (Part 2)</span></a>
@@ -69,7 +78,29 @@
         <tr><td><b>Button</b>, the other side</td><td>GND</td></tr>
       </table>
     </div>
-    <div class="hint-panel"><b>Remember from 2.7:</b> with <code>INPUT_PULLUP</code>, the pin reads <b>HIGH</b> normally and <b>LOW</b> when you press the button. Hover over each leg in Tinkercad to check its label before you wire.</div>
+    <div class="hint-panel"><b>Remember from 2.7:</b> with <code>INPUT_PULLUP</code>, the pin reads <b>HIGH</b> normally and <b>LOW</b> when you press the button. Hover over each leg in the Circuit Editor to check its label before you wire.</div>
+  </div>
+</section>
+
+<section class="part" id="lab">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">LIVE</div><h2>Live Lab: Play a Song</h2><span class="for">Try it right here</span></div>
+    <p class="story">The buzzer is on pin 8 and the button on pin 2. Press <b>Start</b>, then <b>hold the button on the circuit</b>. Watch the pin chip: the buzzer pin switches 262 to 440 times <b>every second</b>, and that is the pitch. Then try the bugs.</p>
+    <div id="lab-mount"></div>
+    <script>
+(function () {
+  ArduinoEmbed.mount(document.getElementById("lab-mount"), { preset: "buzzer", title: "A melody started by a button", slot: "u3-2", editable: true, height: 300,
+    variants: [
+      { label: "Scale (no button)", code: "const int BUZZER = 8;\nint scale[] = {262, 294, 330, 349, 392, 440, 494, 523};\n\nvoid setup() {\n}\n\nvoid loop() {\n  for (int i = 0; i < 8; i++) {\n    tone(BUZZER, scale[i]);\n    delay(400);\n  }\n  noTone(BUZZER);\n  delay(2000);\n}\n" },
+      { label: "Bug: no delay after tone()", code: "const int BUZZER = 8;\nint notes[] = {262, 262, 392, 392, 440, 440, 392, 349};\nint beats[] = {400, 400, 400, 400, 400, 400, 800, 400};\n\nvoid setup() {\n  pinMode(2, INPUT_PULLUP);\n}\n\nvoid loop() {\n  if (digitalRead(2) == LOW) {\n    for (int i = 0; i < 8; i++) {\n      tone(BUZZER, notes[i], beats[i]);\n    }\n    noTone(BUZZER);\n  }\n}\n" }
+    ],
+    goals: [
+      { text: "Press <b>Start</b>, then <b>hold the button</b>: your song plays.", title: "A button starts the song", say: "<code>if (digitalRead(2) == LOW)</code> only runs while the button is held (INPUT_PULLUP: pressed = LOW). The for loop plays one note after another.", when: function (s) { var l = s.sim.history && s.sim.history.toneLog; return !!l && l.length >= 8; } },
+      { text: "Try the <b>Scale</b> and watch the pitch chip climb from 262 to 523.", title: "Higher = faster", say: "A bigger number means the pin switches faster, which sounds higher. C is 262 Hz, high C (523 Hz) is exactly double.", when: function (s) { var l = s.sim.history && s.sim.history.toneLog; return !!l && l.indexOf(523) > -1 && /scale/.test(s.code); } },
+      { text: "Run <b>Bug: no delay after tone()</b> and hold the button. What do you hear?", title: "All the notes at once", say: "Without <code>delay()</code>, the loop races through all 8 <code>tone()</code> calls in a blink, so each note is cut off by the next one. Only the last one is heard.", when: function (s) { var l = s.sim.history && s.sim.history.toneLog; return !!l && l.length >= 8 && !/delay\s*\(\s*beats/.test(s.code); } }
+    ] });
+})();
+    </script>
   </div>
 </section>
 

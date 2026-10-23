@@ -10,6 +10,13 @@
 <link rel="icon" href="../../assets/logo.png">
 <link rel="stylesheet" href="../unit-2/notes.css">
 <style>@keyframes spin{to{transform:rotate(360deg)}} #rotor{transform-box:fill-box;transform-origin:center}</style>
+<script src="../../arduino/compiler.js"></script>
+<script src="../../arduino/circuit.js"></script>
+<script src="../../arduino/sim.js"></script>
+<script src="../../arduino/render.js"></script>
+<script src="../../arduino/coach.js"></script>
+<script src="../../arduino/tips.js"></script>
+<script src="../../arduino/embed.js"></script>
 </head>
 <body>
 
@@ -17,6 +24,7 @@
   <a href="../index.html">&larr; Embedded Computing</a>
   <a href="3-4-dc-motor-and-transistor.html">3.4 Lesson Page</a>
   <a href="3-4-notes.html" class="current">Notes</a>
+  <a href="../../arduino/editor.html?slot=u3-4">Open the Editor</a>
 </nav>
 
 <header class="hero">
@@ -25,6 +33,7 @@
     <h1>DC Motor + Transistor</h1>
     <p class="deck">Everything you need for the 3.4 assignment: why a pin can't power a motor, how a transistor works like a switch, what the flyback diode protects, wiring it all, and controlling speed with PWM.</p>
     <div class="map">
+      <a href="#lab">&#9889; <span>Live lab</span></a>
       <a href="#why">01 <span>The current problem</span></a>
       <a href="#tr">02 <span>The transistor</span></a>
       <a href="#diode">03 <span>The flyback diode</span></a>
@@ -33,6 +42,29 @@
     </div>
   </div>
 </header>
+
+<section class="part" id="lab">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">LIVE</div><h2>Live Lab: Spin a Motor</h2><span class="for">Try it right here</span></div>
+    <p class="story">Pin 9 sends a tiny signal through a 1 kilohm resistor to the transistor's base. The transistor lets the big current flow from 5V through the motor to GND. Press <b>Start</b> and watch the motor speed, then <b>break it on purpose</b> with the experiments.</p>
+    <div id="lab-mount"></div>
+    <script>
+(function () {
+  ArduinoEmbed.mount(document.getElementById("lab-mount"), { preset: "motor", title: "Pin 9 &rarr; transistor &rarr; motor", slot: "u3-4", editable: true, speed: 4, height: 300,
+    experiments: ["flipDiode", "noBaseRes"],
+    variants: [
+      { label: "Smooth ramp", code: "const int MOTOR = 9;\n\nvoid setup() {\n  pinMode(MOTOR, OUTPUT);\n}\n\nvoid loop() {\n  for (int speed = 0; speed <= 255; speed += 5) {\n    analogWrite(MOTOR, speed);\n    delay(50);\n  }\n  for (int speed = 255; speed >= 0; speed -= 5) {\n    analogWrite(MOTOR, speed);\n    delay(50);\n  }\n}\n" },
+      { label: "Very low number (30)", code: "const int MOTOR = 9;\n\nvoid setup() {\n  pinMode(MOTOR, OUTPUT);\n}\n\nvoid loop() {\n  analogWrite(MOTOR, 30);\n  delay(2000);\n}\n" }
+    ],
+    goals: [
+      { text: "Press <b>Start</b>: the motor spins fast, then slower, then stops.", title: "Three speeds", say: "<code>analogWrite(MOTOR, 255)</code> is full speed, 128 is about half, 0 is off. PWM works on a motor just like on an LED.", when: function (s, g) { var m = s.res && s.res.motors; if (!m) return false; g.sp = g.sp || {}; Object.keys(m).forEach(function (k) { var v = m[k].speed; if (v > 0.8) g.sp.hi = 1; else if (v > 0.3 && v < 0.7) g.sp.mid = 1; else if (v < 0.03 && g.sp.hi) g.sp.lo = 1; }); return g.sp.hi && g.sp.mid && g.sp.lo; } },
+      { text: "Click <b>Turn the diode around</b>. What does the editor warn you about?", title: "Backwards diode", say: "The stripe (cathode) must point toward the 5V side. Backwards, the diode is a short circuit across the transistor.", when: function (s) { return !!(s.res && s.res.warnings.some(function (w) { return /diode is wired/.test(w.msg); })); } },
+      { text: "Click <b>Take the base resistor out</b> and run it. Which pin complains?", title: "Too much current", say: "Without the 1 kilohm resistor, pin 9 pours current into the base: far over its 20 mA limit. The resistor protects the pin.", when: function (s) { return !!(s.res && s.res.warnings.some(function (w) { return /supplying/.test(w.msg); })); } }
+    ] });
+})();
+    </script>
+  </div>
+</section>
 
 <section class="part" id="why">
   <div class="wrap">
@@ -78,7 +110,7 @@
         <tr><td><b>Emitter</b></td><td>Connects to GND. Current flows out here.</td></tr>
       </table>
     </div>
-    <div class="warn"><b>Leg order changes from part to part.</b> In Tinkercad, hover over each leg of your transistor to read its label before you wire. Don't trust a picture's order.</div>
+    <div class="warn"><b>Leg order changes from part to part.</b> In the Circuit Editor, hover over each leg of your transistor to read its label before you wire. Don't trust a picture's order.</div>
   </div>
 </section>
 
@@ -128,13 +160,13 @@
     <div class="panel">
       <h3>Try a speed: analogWrite(MOTOR, <span class="big" id="sOut"></span>)</h3>
       <input id="sR" type="range" min="0" max="255" value="128" aria-label="speed">
-      <p class="small">This spins the motor in section 02. Try a very low number like 30 in Tinkercad too (Step 4) and write down what the real simulation does.</p>
+      <p class="small">This spins the motor in section 02. Try a very low number like 30 in the Circuit Editor too (Step 6) and write down what the real simulation does.</p>
     </div>
     <div class="two" style="margin-top:12px">
       <div class="box b"><h3>The ramp (Part 3, you write it)</h3><ul><li>One for loop: start <b>speed</b> at 0, go up to 255, adding 5 each time with <code>speed += 5</code>. Inside: <code>analogWrite(MOTOR, speed);</code> then <code>delay(50);</code></li><li>A second for loop goes back down from 255 to 0, subtracting 5 each time.</li></ul></div>
       <div class="box a"><h3><code>+= 5</code> and <code>-= 5</code></h3><p><code>speed += 5</code> is a shortcut for <code>speed = speed + 5</code>. <code>speed -= 5</code> means <code>speed = speed - 5</code>. Counting by 5 from 0 hits 0, 5, 10 &hellip; 255 exactly.</p></div>
     </div>
-    <div class="hint-panel"><b>Low-number thinking (Reflection 3):</b> a motor has to overcome friction and the weight of its own parts before it can start turning. A very small push might not be enough. Compare what you see in Tinkercad at 30 to what an LED did at 30 in 2.5.</div>
+    <div class="hint-panel"><b>Low-number thinking (Reflection 3):</b> a motor has to overcome friction and the weight of its own parts before it can start turning. A very small push might not be enough. Compare what you see in the Circuit Editor at 30 to what an LED did at 30 in 2.5.</div>
     <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
     <div class="quiz" id="quiz"></div>
   </div>

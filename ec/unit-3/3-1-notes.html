@@ -9,6 +9,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="../../assets/logo.png">
 <link rel="stylesheet" href="../unit-2/notes.css">
+<script src="../../arduino/compiler.js"></script>
+<script src="../../arduino/circuit.js"></script>
+<script src="../../arduino/sim.js"></script>
+<script src="../../arduino/render.js"></script>
+<script src="../../arduino/coach.js"></script>
+<script src="../../arduino/tips.js"></script>
+<script src="../../arduino/embed.js"></script>
 </head>
 <body>
 
@@ -16,6 +23,7 @@
   <a href="../index.html">&larr; Embedded Computing</a>
   <a href="3-1-rgb-leds-and-color-mixing.html">3.1 Lesson Page</a>
   <a href="3-1-notes.html" class="current">Notes</a>
+  <a href="../../arduino/editor.html?slot=u3-1">Open the Editor</a>
 </nav>
 
 <header class="hero">
@@ -24,6 +32,7 @@
     <h1>RGB LEDs and Color Mixing</h1>
     <p class="deck">Everything you need for the 3.1 assignment: how an RGB LED works, wiring it, your first custom function (setColor), mixing colors with numbers, and the fading challenge.</p>
     <div class="map">
+      <a href="#lab">&#9889; <span>Live lab</span></a>
       <a href="#what">01 <span>What an RGB LED is</span></a>
       <a href="#wire">02 <span>Wiring (Part 1)</span></a>
       <a href="#code">03 <span>The code (Part 2)</span></a>
@@ -51,8 +60,8 @@
       </div>
       <div class="box b">
         <h3>4 legs, 1 shared</h3>
-        <p>Three legs are the colors: red, green, blue. The fourth, the <b>longest</b>, is shared by all three. In Tinkercad it's called the <b>common cathode</b>, and it connects to <b>GND</b>.</p>
-        <p><b>Tip:</b> in Tinkercad, hover your mouse over any leg and a label pops up telling you what it is. Always check the label before you wire. (The order of the legs in the drawing is common, but always trust the label.)</p>
+        <p>Three legs are the colors: red, green, blue. The fourth, the <b>longest</b>, is shared by all three. In the Circuit Editor it's called the <b>common cathode</b>, and it connects to <b>GND</b>.</p>
+        <p><b>Tip:</b> in the Circuit Editor, hover your mouse over any leg and a label pops up telling you what it is. Always check the label before you wire. (The order of the legs in the drawing is common, but always trust the label.)</p>
       </div>
     </div>
   </div>
@@ -72,6 +81,31 @@
       </table>
     </div>
     <div class="hint-panel"><b>Why 9, 10, and 11?</b> All three have a <b>~</b> next to them: they're PWM pins (2.5). That's what lets each color be dim or bright instead of only on or off. Put the RGB LED on the breadboard so each of its 4 legs is in a <b>different row</b>.</div>
+  </div>
+</section>
+
+<section class="part" id="lab">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">LIVE</div><h2>Live Lab: Mix Light</h2><span class="for">Try it right here</span></div>
+    <p class="story">The RGB LED is wired to pins 9, 10 and 11. Press <b>Start</b> to watch it cycle red, green, blue, then swap in the <b>mixing</b> and <b>fade</b> code and watch what two or three colors do together.</p>
+    <div id="lab-mount"></div>
+    <script>
+(function () {
+  ArduinoEmbed.mount(document.getElementById("lab-mount"), { preset: "rgb", title: "RGB LED on pins 9, 10 and 11", slot: "u3-1", editable: true, height: 300,
+    variants: [
+      { label: "Mix 7 colors", code: "const int RED = 9;\nconst int GREEN = 10;\nconst int BLUE = 11;\n\nvoid setup() {\n  pinMode(RED, OUTPUT);\n  pinMode(GREEN, OUTPUT);\n  pinMode(BLUE, OUTPUT);\n}\n\nvoid setColor(int r, int g, int b) {\n  analogWrite(RED, r);\n  analogWrite(GREEN, g);\n  analogWrite(BLUE, b);\n}\n\nvoid loop() {\n  setColor(255, 0, 0);\n  delay(700);\n  setColor(255, 255, 0);\n  delay(700);\n  setColor(0, 255, 0);\n  delay(700);\n  setColor(0, 255, 255);\n  delay(700);\n  setColor(0, 0, 255);\n  delay(700);\n  setColor(255, 0, 255);\n  delay(700);\n  setColor(255, 255, 255);\n  delay(700);\n}\n" },
+      { label: "Smooth fade red to blue", code: "const int RED = 9;\nconst int GREEN = 10;\nconst int BLUE = 11;\n\nvoid setup() {\n  pinMode(RED, OUTPUT);\n  pinMode(GREEN, OUTPUT);\n  pinMode(BLUE, OUTPUT);\n}\n\nvoid setColor(int r, int g, int b) {\n  analogWrite(RED, r);\n  analogWrite(GREEN, g);\n  analogWrite(BLUE, b);\n}\n\nvoid loop() {\n  for (int i = 0; i <= 255; i++) {\n    setColor(255 - i, 0, i);\n    delay(10);\n  }\n  for (int i = 0; i <= 255; i++) {\n    setColor(i, 0, 255 - i);\n    delay(10);\n  }\n}\n" }
+    ],
+    events: [
+      { id: "rgb-mix2", when: function (c) { var r = c.res && c.res.rgb; if (!r) return false; return Object.keys(r).some(function (k) { var o = r[k]; return [o.R, o.G, o.B].filter(function (x) { return x > 0.4; }).length >= 2; }); }, title: "You are mixing light!", help: ["rgb", "rgbmix"], html: "Two or more of the three tiny LEDs are on at once, so your eyes blend them. <b>Red + green = yellow</b>, <b>green + blue = cyan</b>, <b>red + blue = magenta</b>, and all three at full power make white." }
+    ],
+    goals: [
+      { text: "Press <b>Start</b> and watch red, green, then blue.", title: "Three colors", say: "Each color leg has its own pin and resistor. <code>analogWrite(pin, 255)</code> is full power, 0 is off.", when: function (s, g) { var r = s.res && s.res.rgb; if (!r) return false; g.seen = g.seen || {}; Object.keys(r).forEach(function (k) { if (r[k].R > 0.5 && r[k].G < 0.1) g.seen.R = 1; if (r[k].G > 0.5 && r[k].R < 0.1) g.seen.G = 1; if (r[k].B > 0.5 && r[k].R < 0.1) g.seen.B = 1; }); return g.seen.R && g.seen.G && g.seen.B; } },
+      { text: "Click <b>Mix 7 colors</b> and find <b>yellow</b>.", title: "Yellow!", say: "Red 255 + green 255 + blue 0 = yellow. Light adds up, paint does not.", when: function (s) { var r = s.res && s.res.rgb; return !!r && Object.keys(r).some(function (k) { return r[k].R > 0.5 && r[k].G > 0.5 && r[k].B < 0.1; }); } },
+      { text: "Click <b>Smooth fade</b> and watch the LED slide from red to blue.", title: "A smooth fade", say: "A <code>for</code> loop counts 0 to 255. The counter goes up in one color and (255 - the counter) goes down in the other.", when: function (s, g) { var r = s.res && s.res.rgb; if (!r || !/for\s*\(/.test(s.code)) return false; g.lv = g.lv || {}; Object.keys(r).forEach(function (k) { g.lv[Math.round(r[k].R * 10)] = 1; }); return Object.keys(g.lv).length >= 6; } }
+    ] });
+})();
+    </script>
   </div>
 </section>
 
@@ -102,7 +136,7 @@
 }</div>
     <div class="two">
       <div class="box b"><h3>Reading the function</h3><ul><li><code>void</code>: it does a job but doesn't hand anything back.</li><li><code>setColor</code>: the name you made up.</li><li><code>(int r, int g, int b)</code>: three <b>parameters</b>, slots for the numbers you pass in.</li><li><code>setColor(255, 0, 0)</code> fills r = 255, g = 0, b = 0, then runs the three lines inside.</li></ul></div>
-      <div class="box a"><h3>Tinkercad setup</h3><p>Click <b>Code</b>, then switch the view from <b>Blocks</b> to <b>Text</b>. Delete what's there and build your code in order. Put setColor <b>between</b> setup() and loop(), not inside either one.</p></div>
+      <div class="box a"><h3>Typing the code</h3><p>Type your code in the code box on the right of the editor, in order. Put setColor <b>between</b> setup() and loop(), not inside either one.</p></div>
     </div>
   </div>
 </section>
@@ -175,7 +209,7 @@
 <script>
 window.QUIZ = [
   { s: "Which leg of the RGB LED goes to GND?", o: ["The red leg", "The longest leg (common cathode)", "Any of them"], a: 1, e: "The longest leg is shared by all three colors." },
-  { s: "Why are the color legs on pins 9, 10, and 11?", o: ["They're PWM (~) pins, so each color can be dimmed", "They're the only pins that work in Tinkercad"], a: 0, e: "analogWrite() needs a ~ pin." },
+  { s: "Why are the color legs on pins 9, 10, and 11?", o: ["They're PWM (~) pins, so each color can be dimmed", "They're the only pins that work in the editor"], a: 0, e: "analogWrite() needs a ~ pin." },
   { s: "In <code>setColor(0, 255, 0)</code>, what is g?", o: ["0", "255"], a: 1, e: "The second number fills the second parameter, g." },
   { s: "Where does the setColor function go?", o: ["Inside loop()", "Inside setup()", "Between setup() and loop()"], a: 2, e: "A function is written on its own, not inside another function." }
 ];

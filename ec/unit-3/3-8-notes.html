@@ -9,7 +9,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="../../assets/logo.png">
 <link rel="stylesheet" href="../unit-2/notes.css">
-<style>.steps{display:grid;gap:8px}.st{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;cursor:pointer;text-align:left;color:var(--ink);font:inherit}.st .n{font:700 20px "JetBrains Mono",monospace;color:var(--acc-ink);min-width:28px}.st .x{display:none;color:#C4CDD8;font-size:14.5px;margin-top:6px}.st.open{border-color:var(--ard)}.st.open .x{display:block}</style>
+<style>.steps{display:grid;gap:8px}.st{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;cursor:pointer;text-align:left;color:var(--ink);font:inherit}.st .n{font:700 20px "JetBrains Mono",monospace;color:var(--acc-ink);min-width:28px}.st .x{display:none;color:#C4CDD8;font-size:14.5px;margin-top:6px}.st.open{border-color:var(--ard)}.st.open .x{display:block}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;cursor:pointer;text-align:left;color:var(--ink);font:inherit;width:100%}.cardx .v{display:none;margin-top:8px;font-size:14.5px}.cardx.open .v{display:block}.cardx.good{border-color:var(--ok)}.cardx.bad{border-color:var(--red)}
+.tag{font:700 11px "JetBrains Mono",monospace;padding:2px 8px;border-radius:4px;margin-right:8px}.tag.g{background:rgba(52,211,153,.15);color:#6EE7B7}.tag.b{background:var(--red-tint);color:#FCA5A5}.grid3{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:760px){.grid3{grid-template-columns:1fr}}</style>
+<script src="../../arduino/compiler.js"></script>
+<script src="../../arduino/circuit.js"></script>
+<script src="../../arduino/sim.js"></script>
+<script src="../../arduino/render.js"></script>
+<script src="../../arduino/coach.js"></script>
+<script src="../../arduino/tips.js"></script>
+<script src="../../arduino/embed.js"></script>
 </head>
 <body>
 
@@ -17,103 +26,89 @@
   <a href="../index.html">&larr; Embedded Computing</a>
   <a href="3-8-test-and-debug.html">3.8 Lesson Page</a>
   <a href="3-8-notes.html" class="current">Notes</a>
+  <a href="../../arduino/editor.html?slot=u3-8">Open the Editor</a>
 </nav>
 
 <header class="hero">
   <div class="wrap">
     <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lesson 3.8</div>
-    <h1>Test and Debug</h1>
-    <p class="deck">Notes for the 3.8 detective case: the 5-step debugging method, the two tools (Serial Monitor and multimeter), and a refresher on every idea the bug hints point to. It won't tell you what the 5 bugs are. Finding them is the assignment.</p>
+    <h1>Test and Debug: Break It, Then Fix It</h1>
+    <p class="deck">Notes for the 3.8 assignment: build a circuit that is broken in at least 3 places, show what is wrong, then fix it. What makes a good bug, a 5-step method for finding bugs, a live lab with real bugs to hunt, and how to write a bug report.</p>
     <div class="map">
-      <a href="#method">01 <span>The 5-step method</span></a>
-      <a href="#tools">02 <span>Two tools</span></a>
-      <a href="#refresh">03 <span>Concept refreshers (Part 3 hints)</span></a>
-      <a href="#meter">04 <span>Multimeter (Part 4)</span></a>
-      <a href="#log">05 <span>Logging your bugs</span></a>
+      <a href="#lab">&#9889; <span>Live lab</span></a>
+      <a href="#good">01 <span>What makes a good bug</span></a>
+      <a href="#method">02 <span>The 5-step method</span></a>
+      <a href="#report">03 <span>Writing it up</span></a>
     </div>
   </div>
 </header>
 
+<section class="part" id="lab">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">LIVE</div><h2>Live Lab: Hunt the Bugs</h2><span class="for">Try it right here</span></div>
+    <p class="story">Three LEDs that are supposed to blink together. Press <b>Start</b> to see them work. Then click a bug button (or an experiment) and use the 5-step method to work out <b>what is wrong</b> and <b>why</b>. The goals tick off when you have seen each bug in action.</p>
+    <div id="lab-mount"></div>
+    <script>
+(function () {
+  var OK = "void setup() {\n  pinMode(8, OUTPUT);\n  pinMode(9, OUTPUT);\n  pinMode(10, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(8, HIGH);\n  digitalWrite(9, HIGH);\n  digitalWrite(10, HIGH);\n  delay(500);\n  digitalWrite(8, LOW);\n  digitalWrite(9, LOW);\n  digitalWrite(10, LOW);\n  delay(500);\n}\n";
+  ArduinoEmbed.mount(document.getElementById("lab-mount"), { preset: "debug", title: "Three LEDs, pins 8, 9, 10", slot: "u3-8", editable: true, height: 300,
+    experiments: ["flipFirstLed", "noResistor"],
+    variants: [
+      { label: "Bug A: forgot pinMode(9)", code: OK.replace("  pinMode(9, OUTPUT);\n", "") },
+      { label: "Bug B: wrong pin number", code: OK.replace("digitalWrite(10, HIGH);", "digitalWrite(11, HIGH);") },
+      { label: "Bug C: LOW instead of HIGH", code: OK.replace("digitalWrite(9, HIGH);", "digitalWrite(9, LOW);") },
+      { label: "Bug D: no second delay()", code: OK.replace("  delay(500);\n}", "}") },
+      { label: "The working version", code: OK }
+    ],
+    goals: [
+      { text: "Press <b>Start</b>: all 3 LEDs blink together.", title: "The working version", say: "This is what <b>should</b> happen. Step 1 of debugging is knowing exactly what the working program does.", when: function (s, g) { var p = s.io.pins; if (!p[8] || !p[9] || !p[10]) return false; var v = p[8].value && p[9].value && p[10].value; if (v) g.on = 1; if (g.on && !p[8].value && !p[9].value && !p[10].value) g.off = 1; return g.on && g.off; } },
+      { text: "Click <b>Turn LED 1 around</b>. What is different?", title: "A circuit bug", say: "The code is perfect, but an LED is a one-way street. This is a <b>component</b> bug: no amount of code editing can fix it.", when: function (s) { return !!(s.res && Object.keys(s.res.leds).some(function (k) { return s.res.leds[k].reversed; })); } },
+      { text: "Run <b>Bug A</b>. Which LED never lights, and why?", title: "The missing setup line", say: "A pin that was never set to OUTPUT just sits there. <code>pinMode</code> in setup() is easy to forget and the program still compiles.", when: function (s) { return !/pinMode\(9/.test(s.code) && s.running && s.io.pins[9] && s.io.pins[9].mode !== 1 && /digitalWrite\(9/.test(s.code); } },
+      { text: "Run <b>Bug B</b> (a wrong pin number).", title: "The wrong pin", say: "The code controls pin 11, but the LED is wired to pin 10. Always match the number in the code to the wire in the circuit.", when: function (s) { return /digitalWrite\(11/.test(s.code) && s.running; } },
+      { text: "Run <b>Bug D</b> (no second delay).", title: "Looks always on", say: "Without the second delay(), the LEDs turn off and back on in a few microseconds. Your eyes see a steady glow.", when: function (s) { return !/LOW\);\s*delay/.test(s.code) && s.running && /digitalWrite\(8, LOW\)/.test(s.code); } }
+    ] });
+})();
+    </script>
+  </div>
+</section>
+
+<section class="part" id="good">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>What Makes a Good Bug?</h2><span class="for">Part 1</span></div>
+    <p class="story">Your job is to break the program <b>on purpose</b>, in ways that compile and run but do the wrong thing. Some bugs live in the <b>parts</b> and some in the <b>code</b>. Click each idea to see if it counts.</p>
+    <div class="grid3" id="cards"></div>
+    <div class="warn"><b>Do not</b> use a missing bracket or a typo that stops the program from compiling. Those just show a red error. The point is bugs that <b>look fine</b> and still misbehave.</div>
+  </div>
+</section>
+
 <section class="part" id="method">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">01</div><h2>The 5-Step Debugging Method</h2><span class="for">Reflections 2 + 3</span></div>
-    <p class="story">A detective doesn't arrest the first suspect they see. They list what should have happened, what did happen, collect evidence, and test one theory at a time. Debugging is exactly that. Click each step.</p>
+    <div class="part-head"><div class="part-tag">02</div><h2>The 5-Step Debugging Method</h2><span class="for">Part 2 + Reflections</span></div>
+    <p class="story">A detective does not arrest the first suspect. They list what should have happened, what did happen, collect evidence, and test one theory at a time. Click each step.</p>
     <div class="steps" id="steps">
-      <button class="st" type="button"><span class="n">1</span><span>Say what <b>should</b> happen.<span class="x">For this night light: turning the dial changes the LED's brightness, and the Serial Monitor prints the dial's reading.</span></span></button>
-      <button class="st" type="button"><span class="n">2</span><span>Say what <b>actually</b> happens.<span class="x">Be specific: "the LED never lights" and "nothing prints" are two different clues.</span></span></button>
-      <button class="st" type="button"><span class="n">3</span><span><b>Print</b> values with Serial.println to see what the program sees.<span class="x">If the number the code reads never changes when you turn the dial, the problem is before the LED ever gets involved.</span></span></button>
-      <button class="st" type="button"><span class="n">4</span><span><b>Measure</b> with the multimeter to see what the circuit is doing.<span class="x">The code can be perfect and the wiring still wrong, or the other way around. The meter tells you what the wires really carry.</span></span></button>
-      <button class="st" type="button"><span class="n">5</span><span>Change <b>one</b> thing at a time, then test again.<span class="x">Fix, restart the simulation, test, write it down. Then the next one.</span></span></button>
+      <button class="st" type="button"><span class="n">1</span><span>Say what <b>should</b> happen.<span class="x">Write it down in a sentence: "All three LEDs blink together, half a second on, half a second off."</span></span></button>
+      <button class="st" type="button"><span class="n">2</span><span>Say what <b>actually</b> happens.<span class="x">Be specific. "LED 2 never lights" is a very different clue from "LED 2 is dim".</span></span></button>
+      <button class="st" type="button"><span class="n">3</span><span>Check the <b>circuit</b> first: hover over every leg.<span class="x">Leg dots green? LED the right way around? A resistor on every LED? GND connected? Does the pin you wired match the pin in your code?</span></span></button>
+      <button class="st" type="button"><span class="n">4</span><span>Check the <b>code</b>, line by line.<span class="x">Did you pinMode every pin? HIGH or LOW? Is there a delay? Add a Serial.println to see what the program is doing.</span></span></button>
+      <button class="st" type="button"><span class="n">5</span><span>Change <b>one</b> thing at a time, then test again.<span class="x">Fix, run, check, write it down. Then the next one.</span></span></button>
     </div>
-    <div class="warn"><b>Never change several things at once.</b> If it starts working, you won't know which change fixed it. If it gets worse, you won't know which change broke it.</div>
+    <div class="warn"><b>Never change several things at once.</b> If it starts working you will not know which change fixed it, and if it gets worse you will not know which one broke it.</div>
   </div>
 </section>
 
-<section class="part" id="tools">
+<section class="part" id="report">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">02</div><h2>Two Tools, Two Questions</h2></div>
-    <p class="story">Every bug lives in one of two places: the code or the circuit. Each tool looks into one of them.</p>
+    <div class="part-head"><div class="part-tag">03</div><h2>Writing It Up</h2><span class="for">Break It + Fix It</span></div>
+    <p class="story">A good bug report has three parts. Here is one for a bug that is <b>not</b> in your circuit, as an example. In 3.8 you write three of these: first just <b>what is broken</b> (Break It), then <b>how you fixed it</b> (Fix It).</p>
+    <div class="tblwrap"><table>
+      <tr><th>Symptom (what you saw)</th><th>Cause</th><th>Fix</th></tr>
+      <tr><td>The buzzer from 3.2 was silent the whole time.</td><td>The code used <code>tone(7, 440)</code>, but the buzzer was wired to pin 8.</td><td>Changed the code to <code>tone(8, 440)</code>.</td></tr>
+      <tr><td>The servo from 3.3 did not move at all.</td><td>The code never ran <code>myServo.attach(9);</code> in setup().</td><td>Added the attach line.</td></tr>
+    </table></div>
     <div class="two">
-      <div class="box b"><h3>Serial Monitor: what the code sees</h3><p>Prints numbers while the program runs. It answers "what value is the program working with?" It only prints if communication was opened in setup(), the same way as in 2.4 and 3.6.</p></div>
-      <div class="box a"><h3>Multimeter: what the circuit does</h3><p>Measures the actual voltage between two points. It answers "is electricity really getting where it should?"</p></div>
+      <div class="box b"><h3>Break It (3.8, part 1)</h3><p>Build 3 or more LEDs. Hide at least <b>3 bugs</b>: some in the parts, some in the code. Run it, write down <b>exactly</b> what is broken (which LED, which line).</p></div>
+      <div class="box a"><h3>Fix It (3.8, part 2)</h3><p>Bring your broken project over with <b>Start from my circuit</b>, fix all three, and write how you fixed each one. Every LED must work, and none may be backwards or burned out.</p></div>
     </div>
-    <div class="panel">
-      <h3>Which tool would you reach for?</h3>
-      <div class="quiz" id="toolQuiz"></div>
-    </div>
-  </div>
-</section>
-
-<section class="part" id="refresh">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">03</div><h2>Concept Refreshers</h2><span class="for">Part 3 hints</span></div>
-    <p class="story">Each hint in your assignment points back to something you've already learned. Here's that idea again, so you can check the broken circuit and code against it yourself.</p>
-    <div class="cards">
-      <div class="cardx box b"><h4 style="color:#fff">Printing needs setup</h4><p class="small">The Serial Monitor shows nothing unless <code>Serial.begin(9600);</code> runs in setup() first (2.4).</p></div>
-      <div class="cardx box b"><h4 style="color:#fff">Which pin, really?</h4><p class="small">The code reads whatever pin it names. The wire has to be on that same pin. A0 and A1 are different pins (3.6).</p></div>
-      <div class="cardx box b"><h4 style="color:#fff">LED direction</h4><p class="small">Current flows one way through an LED: anode (long leg) toward the pin, cathode (short leg) toward GND. Backwards, it blocks (2.2).</p></div>
-      <div class="cardx box b"><h4 style="color:#fff">What protects an LED</h4><p class="small">Every LED needs something in line to limit its current (2.2, 2.7).</p></div>
-      <div class="cardx box b"><h4 style="color:#fff">Pin modes</h4><p class="small"><code>INPUT</code> means the pin <b>listens</b>. <code>OUTPUT</code> means the pin <b>drives</b> power out. A pin that should light something must be set to drive (2.3).</p></div>
-    </div>
-    <div class="hint-panel">Try your own detective work first, as the assignment says. Use these only when you're stuck, and when you find a bug, fix <b>only</b> that one, then restart the simulation and test.</div>
-  </div>
-</section>
-
-<section class="part" id="meter">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">04</div><h2>Using the Multimeter</h2><span class="for">Part 4</span></div>
-    <p class="story">A multimeter is a voltage detective. Touch its two probes to two points, and it tells you the voltage difference between them. In Tinkercad it's in the components panel, like any other part.</p>
-    <div class="two">
-      <div class="box b"><h3>Setting it up in Tinkercad</h3><ol><li>Drag a <b>Multimeter</b> in from the components panel.</li><li>Click it and set its mode to <b>Voltage</b> (DC).</li><li>Connect its two probes to the two points you want to compare. Red goes to the higher (+) side, black to the lower (&minus;) side.</li><li>Start the simulation and read the number.</li></ol></div>
-      <div class="box a"><h3>What to expect</h3><ul><li><b>Across a lit LED + its resistor:</b> the 5 volts from the pin gets <b>split</b> between them. The two readings together add up to about the pin's voltage.</li><li><b>The dial's middle leg to GND:</b> it slides between the voltages on the two outer legs as you turn it (3.6).</li></ul></div>
-    </div>
-    <div class="panel">
-      <h3>Practice: measure the dial's middle leg</h3>
-      <div class="two" style="align-items:center">
-        <svg viewBox="0 0 280 170" role="img" aria-label="Multimeter reading the potentiometer wiper voltage">
-          <rect x="150" y="10" width="120" height="150" rx="12" fill="#FACC15"/><rect x="164" y="24" width="92" height="44" rx="4" fill="#0B0E14"/><text id="mv" x="210" y="54" fill="#A7F3D0" font-family="JetBrains Mono" font-size="20" text-anchor="middle">2.50 V</text>
-          <circle cx="210" cy="112" r="26" fill="#1F2937"/><text x="210" y="116" fill="#FDD877" font-family="JetBrains Mono" font-size="11" text-anchor="middle">V DC</text>
-          <circle cx="60" cy="80" r="40" fill="#1F2937" stroke="#94A3B8" stroke-width="3"/><g id="kn"><rect x="56" y="44" width="8" height="30" rx="4" fill="#FDD877"/></g>
-          <path d="M60 120 V150 H150" stroke="#EF4444" stroke-width="3" fill="none"/><path d="M100 80 H130 V140 H150" stroke="#1F2937" stroke-width="3" fill="none"/>
-          <text x="20" y="160" fill="#8B9AAE" font-family="Manrope" font-size="11">wiper &rarr; red, GND &rarr; black</text>
-        </svg>
-        <div><p class="small">Turn the dial:</p><input id="pR" type="range" min="0" max="100" value="50" aria-label="Dial position"><p class="small">Record the far-left and far-right readings from <b>your own</b> Tinkercad circuit in the assignment table.</p></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="part" id="log">
-  <div class="wrap">
-    <div class="part-head"><div class="part-tag">05</div><h2>Logging Each Bug</h2><span class="for">Part 3 table + Reflection 1</span></div>
-    <p class="story">A good bug report has three parts, and they're the three columns of your table. Here's one done for a bug that is <b>not</b> in your circuit, as an example.</p>
-    <div class="tblwrap">
-      <table>
-        <tr><th>Symptom (what you saw)</th><th>Cause</th><th>Fix</th></tr>
-        <tr><td>The buzzer from 3.2 was silent the whole time.</td><td>The code used <code>tone(7, 440)</code>, but the buzzer was wired to pin 8.</td><td>Changed the code to <code>tone(8, 440)</code>, restarted, and heard the note.</td></tr>
-      </table>
-    </div>
-    <div class="hint-panel"><b>Part 2 first:</b> before fixing anything, run the broken version, open the Serial Monitor, and write down exactly what you see (or don't see). That's your step 2: what actually happens.</div>
     <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
     <div class="quiz" id="quiz"></div>
   </div>
@@ -122,32 +117,33 @@
 <footer class="final">
   <div class="wrap">
     <h2>Guessing is slow. Evidence is fast.</h2>
-    <p>Say what should happen, see what does, print, measure, and change one thing at a time.</p>
+    <p>Say what should happen, see what does, check the circuit, check the code, and change one thing at a time.</p>
     <a class="back" href="3-8-test-and-debug.html">&larr; Back to 3.8</a>
+    <a class="back" href="../../arduino/editor.html?slot=u3-8">Open the Editor &rarr;</a>
     <a class="back" href="../index.html">&larr; Embedded Computing</a>
   </div>
 </footer>
 
 <script>
 window.QUIZ = [
-  { s: "You fix two things at once and it starts working. What's the problem?", o: ["Nothing, it works", "You don't know which change fixed it"], a: 1, e: "And one of them might have broken something else." },
-  { s: "The multimeter measures...", o: ["What value the code is using", "The actual voltage between two points"], a: 1, e: "Serial shows the code's view; the meter shows the circuit's." },
-  { s: "After each single fix, you should...", o: ["Restart the simulation and test", "Fix the next bug right away"], a: 0, e: "Test after every change." }
+  { s: "You fix two things at once and it starts working. What is the problem?", o: ["Nothing, it works", "You do not know which change fixed it"], a: 1, e: "And one of them might have broken something else." },
+  { s: "An LED is wired backwards but the code is perfect. Can you fix it by editing the code?", o: ["Yes, change HIGH to LOW", "No, it is a circuit bug: turn the LED around"], a: 1, e: "Parts bugs and code bugs need different fixes. Check both." },
+  { s: "Which of these is a <b>good</b> deliberate bug for 3.8?", o: ["A missing semicolon", "pinMode left out for one LED's pin"], a: 1, e: "A missing semicolon is just a red compile error. Leaving out pinMode compiles and runs, but misbehaves." },
+  { s: "After each single fix, you should...", o: ["Run it again and test", "Fix the next bug right away"], a: 0, e: "Test after every change." }
 ];
 (function () {
   var $ = function (i) { return document.getElementById(i); };
   [].forEach.call(document.querySelectorAll(".st"), function (b) { b.onclick = function () { b.classList.toggle("open"); }; });
-  var TQ = [
-    { s: "\"I'm not sure the code is getting any number from the dial.\"", o: ["Serial Monitor", "Multimeter"], a: 0, e: "Print the reading and watch whether it changes." },
-    { s: "\"I'm not sure any voltage is reaching the LED.\"", o: ["Serial Monitor", "Multimeter"], a: 1, e: "Measure across the LED." },
-    { s: "\"Is the dial's middle leg really changing voltage when I turn it?\"", o: ["Serial Monitor", "Multimeter"], a: 1, e: "Measure the wiper to GND at both ends." }
+  var C = [
+    ["An LED turned around (anode and cathode swapped)", true, "Circuit bug. Compiles, runs, and the LED stays dark. A great one."],
+    ["A wire on pin 11 while the code uses pin 10", true, "Wiring/code mismatch. Hard to spot until you compare both."],
+    ["Leaving out pinMode(9, OUTPUT); in setup()", true, "Code bug that compiles and runs, but pin 9 never works."],
+    ["A resistor swapped for a plain wire", true, "Circuit bug: the LED burns out. Good, but you only get one burn per LED."],
+    ["A missing bracket or semicolon", false, "Not allowed: it is just a red compile error and never runs."],
+    ["Writing digitalWrite(8, LOW) where it should be HIGH", true, "Code bug. The LED never turns on, and the program still runs."]
   ];
-  TQ.forEach(function (q) {
-    var d = document.createElement("div"); d.className = "q"; d.innerHTML = "<div>" + q.s + '</div><div class="opts"></div><div class="fb"></div>';
-    q.o.forEach(function (t, i) { var b = document.createElement("button"); b.className = "btn"; b.type = "button"; b.textContent = t; b.onclick = function () { d.querySelector(".fb").innerHTML = i === q.a ? '<b style="color:#34D399">Right.</b> ' + q.e : '<b style="color:#FCA5A5">Not quite.</b> Try the other one.'; }; d.querySelector(".opts").appendChild(b); });
-    $("toolQuiz").appendChild(d);
-  });
-  $("pR").oninput = function () { var p = +this.value / 100; $("mv").textContent = (5 * p).toFixed(2) + " V"; $("kn").setAttribute("transform", "rotate(" + (p * 270 - 135) + " 60 80)"); }; $("pR").oninput();
+  $("cards").innerHTML = C.map(function (c, i) { return '<button type="button" class="cardx" data-i="' + i + '"><b>' + c[0] + '</b><div class="v"><span class="tag ' + (c[1] ? "g" : "b") + '">' + (c[1] ? "GOOD BUG" : "NOT ALLOWED") + "</span>" + c[2] + "</div></button>"; }).join("");
+  [].forEach.call(document.querySelectorAll(".cardx"), function (b) { b.onclick = function () { var c = C[+b.getAttribute("data-i")]; b.classList.toggle("open"); b.classList.add(c[1] ? "good" : "bad"); }; });
 })();
 </script>
 <script src="../unit-2/notes.js"></script>

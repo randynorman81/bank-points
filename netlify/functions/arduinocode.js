@@ -9,7 +9,7 @@ import { getStore } from "@netlify/blobs";
 const JSON_HEADERS = { "Content-Type": "application/json" };
 const GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
 const SCHOOL_EMAIL_DOMAIN = "socialcircleschools.org";
-const SLOTS = ["free", "u2-2", "u2-2a", "u2-3", "u2-3b", "u2-4", "u2-5", "u2-6", "u2-7", "u2-7b"].concat(Array.from({ length: 30 }, (_, i) => "a" + (i + 1)));
+const SLOTS = ["free", "u2-2", "u2-2a", "u2-3", "u2-3b", "u2-4", "u2-5", "u2-6", "u2-7", "u2-7b", "u3-1", "u3-2", "u3-3", "u3-4", "u3-5", "u3-6", "u3-7", "u3-8", "u3-8b"].concat(Array.from({ length: 30 }, (_, i) => "a" + (i + 1)));
 const MAX_CODE = 60000;
 const MAX_PROJECT = 200000;
 
@@ -34,7 +34,7 @@ const now = () => new Date().toISOString();
 const cleanPeriod = (p) => String(p || "").slice(0, 12).replace(/[^A-Za-z0-9 ]/g, "");
 const cleanAuto = (a) => (a && typeof a === "object" ? { pct: Math.max(0, Math.min(100, Number(a.pct) || 0)), passed: Math.max(0, Math.min(500, Number(a.passed) || 0)), total: Math.max(0, Math.min(500, Number(a.total) || 0)) } : null);
 /* the circuit: a list of parts and a list of wires. Only known part types and plain numbers/strings are kept, so nothing odd can be stored. */
-const PART_TYPES = ["uno", "breadboard", "led", "resistor", "button", "buzzer"];
+const PART_TYPES = ["uno", "breadboard", "led", "resistor", "button", "buzzer", "rgb", "servo", "pot", "npn", "motor", "diode", "seg7"];
 function cleanProject(p) {
   if (!p || typeof p !== "object" || !Array.isArray(p.parts) || !Array.isArray(p.wires)) return null;
   if (p.parts.length > 120 || p.wires.length > 400) return null;
@@ -42,7 +42,7 @@ function cleanProject(p) {
   const id = (v) => String(v || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 24);
   const parts = p.parts.filter((x) => x && PART_TYPES.indexOf(x.type) > -1).map((x) => ({
     id: id(x.id), type: x.type, x: num(x.x), y: num(x.y), rot: ((Math.trunc(Number(x.rot)) || 0) % 4 + 4) % 4,
-    props: { size: x.props && x.props.size === "mini" ? "mini" : "half", color: String((x.props && x.props.color) || "").replace(/[^a-z]/g, "").slice(0, 12), ohms: Math.max(1, Math.min(1e7, Number(x.props && x.props.ohms) || 220)), span: Math.max(3, Math.min(12, Math.round(Number(x.props && x.props.span)) || 4)) }
+    props: { size: x.props && x.props.size === "mini" ? "mini" : "half", color: String((x.props && x.props.color) || "").replace(/[^a-z]/g, "").slice(0, 12), pos: Math.max(0, Math.min(1, Number(x.props && x.props.pos !== undefined ? x.props.pos : 0.5) || 0)), ohms: Math.max(1, Math.min(1e7, Number(x.props && x.props.ohms) || 220)), span: Math.max(3, Math.min(12, Math.round(Number(x.props && x.props.span)) || 4)) }
   }));
   const term = (t) => String((t && t.term) || "").replace(/[^A-Za-z0-9_:-]/g, "").slice(0, 40);
   const wires = p.wires.map((w) => ({ id: id(w && w.id), a: { term: term(w && w.a) }, b: { term: term(w && w.b) }, color: String((w && w.color) || "green").replace(/[^a-z#0-9]/gi, "").slice(0, 12) })).filter((w) => w.a.term && w.b.term);

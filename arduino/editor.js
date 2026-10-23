@@ -22,7 +22,7 @@
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
   function partById(id) { for (var i = 0; i < project.parts.length; i++) if (project.parts[i].id === id) return project.parts[i]; return null; }
   function wireById(id) { for (var i = 0; i < project.wires.length; i++) if (project.wires[i].id === id) return project.wires[i]; return null; }
-  var PREFIX = { uno: "uno", breadboard: "bb", led: "led", resistor: "r", button: "btn", buzzer: "bz" };
+  var PREFIX = { uno: "uno", breadboard: "bb", led: "led", resistor: "r", button: "btn", buzzer: "bz", rgb: "rgb", servo: "sv", pot: "pot", npn: "q", motor: "m", diode: "d", seg7: "seg" };
   function nextId(prefix, list) { var n = 1; for (;;) { var id = prefix + n; if (!list.some(function (x) { return x.id === id; })) return id; n++; } }
   function rebuildTerms() { termCache = C.allTerms(project); }
   function validProject(p) { return p && Array.isArray(p.parts) && Array.isArray(p.wires) && p.parts.every(function (x) { return x && C.PARTS[x.type] && typeof x.x === "number" && typeof x.y === "number"; }); }
@@ -111,6 +111,7 @@
       case "uno": return [-16, 0, C.UNO_W, C.UNO_H]; case "breadboard": var d = C.PARTS.breadboard.dims(p); return [0, 0, d.w, d.h];
       case "led": return [-16, -62, 40, 66]; case "resistor": return [-4, -14, Math.max(3, Math.min(12, Math.round(+(p.props && p.props.span) || 4))) * P + 8, 24]; case "button": return [-10, -10, 38, 56]; case "buzzer": return [-6, -40, 40, 44];
     }
+    if (C.PARTS[p.type] && C.PARTS[p.type].box) return C.PARTS[p.type].box.slice();
     return [0, 0, 10, 10];
   }
   function bboxWorld(p) {
@@ -145,12 +146,13 @@
 
   /* ------------------------------------------------------------------ the canvas: parts */
   /* ---- adding parts: click, hold, and drag a part from the parts bar onto the canvas (a plain click only shows how) */
-  var KIND_NAME = { led: "LED", resistor: "resistor", button: "pushbutton", buzzer: "buzzer", breadboard: "breadboard", "breadboard-mini": "mini breadboard" };
+  var KIND_NAME = { led: "LED", resistor: "resistor", button: "pushbutton", buzzer: "buzzer", rgb: "RGB LED", servo: "servo", pot: "potentiometer", npn: "transistor", motor: "DC motor", diode: "diode", seg7: "7-segment display", breadboard: "breadboard", "breadboard-mini": "mini breadboard" };
   function partProps(kind) {
     if (kind === "breadboard-mini") return { type: "breadboard", props: { size: "mini" } };
     if (kind === "breadboard") return { type: "breadboard", props: { size: "half" } };
     if (kind === "led") return { type: "led", props: { color: "red" } };
     if (kind === "resistor") return { type: "resistor", props: { ohms: 220 } };
+    if (kind === "pot") return { type: "pot", props: { pos: 0.5 } };
     return { type: kind, props: {} };
   }
   function placePart(kind, wx, wy) {
@@ -207,6 +209,29 @@
       case "buzzer":
         if (id === "P") return { t: "Buzzer positive leg", pol: "+", d: "The + leg. Connect it to an Arduino pin, then play it with tone(pin, 440)." };
         return { t: "Buzzer negative leg", pol: "-", d: "The - leg. Connect it to GND." };
+      case "rgb":
+        if (id === "K") return { t: "RGB LED common cathode", pol: "-", d: "The LONGEST leg. All three colors share it, so it goes to GND. The other three legs (red, green, blue) each go through their own 220 ohm resistor to a PWM pin." };
+        return { t: "RGB LED " + (id === "R" ? "red" : id === "G" ? "green" : "blue") + " leg", pol: "+", d: "The " + (id === "R" ? "red" : id === "G" ? "green" : "blue") + " anode. Connect it through a 220 ohm resistor to a PWM (~) pin. analogWrite(pin, 0 to 255) sets how much " + (id === "R" ? "red" : id === "G" ? "green" : "blue") + " light you get." };
+      case "servo":
+        if (id === "G") return { t: "Servo ground wire (brown)", pol: "-", d: "Connect to GND. It is the servo's 0 volt side." };
+        if (id === "V") return { t: "Servo power wire (red)", pol: "+", d: "Connect to 5V. It powers the motor inside the servo." };
+        return { t: "Servo signal wire (orange)", pol: null, d: "Connect to a digital pin (like 9). The Servo library sends pulses on this wire that tell the servo what angle to turn to." };
+      case "pot":
+        if (id === "W") return { t: "Potentiometer wiper (middle leg)", pol: null, d: "The output. Its voltage slides between 0V and 5V as you turn the dial. Connect it to an analog pin like A0 and read it with analogRead(A0)." };
+        return { t: "Potentiometer outer leg", pol: null, d: "Connect one outer leg to 5V and the other to GND. The dial then slides the middle leg's voltage between them. It does not matter which is which, but swapping them reverses the direction." };
+      case "npn":
+        if (id === "B") return { t: "Transistor base", pol: null, d: "The switch input. Connect an Arduino pin here through a 1 kilohm resistor. A tiny current into the base turns the transistor ON." };
+        if (id === "C") return { t: "Transistor collector", pol: null, d: "The load connects here (the motor). Current flows IN through the collector when the transistor is ON." };
+        return { t: "Transistor emitter", pol: "-", d: "Connect to GND. Current flows OUT here, back to ground." };
+      case "motor": return { t: "Motor wire", pol: null, d: "A small DC motor. One wire goes to 5V and the other to the transistor's collector. It needs about 15 times more current than an Arduino pin can give, which is why a transistor drives it." };
+      case "diode":
+        if (id === "A") return { t: "Diode anode", pol: "+", d: "Current flows IN here. For a flyback diode across a motor, the anode goes to the transistor side." };
+        return { t: "Diode cathode (the stripe)", pol: "-", d: "The end with the stripe. Current is blocked from coming in here. For a flyback diode, the stripe end goes toward the 5V side of the motor." };
+      case "seg7":
+        if (id === "+") return { t: "Display + (power)", pol: "+", d: "Connect to 5V." };
+        if (id === "-") return { t: "Display - (ground)", pol: "-", d: "Connect to GND." };
+        if (id === "D") return { t: "Display D (data, SDA)", pol: null, d: "The I2C data wire. On an Uno it connects to pin A4 (also called SDA)." };
+        return { t: "Display C (clock, SCL)", pol: null, d: "The I2C clock wire. On an Uno it connects to pin A5 (also called SCL)." };
       case "uno": return unoPinInfo(id);
       case "breadboard": return boardHoleInfo(t);
     }
@@ -237,6 +262,13 @@
     resistor: { t: "Resistor", d: "Limits the current. No polarity. The colored bands tell the value." },
     button: { t: "Pushbutton", d: "A switch you hold down. While the simulation runs, click and hold it to press it." },
     buzzer: { t: "Piezo buzzer", d: "Makes a sound when a pin plays a tone: tone(pin, 440). Has a + leg and a - leg." },
+    rgb: { t: "RGB LED", d: "Three LEDs (red, green, blue) in one bulb. Mix them with analogWrite to make any color. The longest leg is shared and goes to GND." },
+    servo: { t: "Servo motor", d: "A motor that turns to an exact angle (0 to 180 degrees) and holds it. Three wires: ground, power, signal." },
+    pot: { t: "Potentiometer (dial)", d: "A knob that changes its resistance. Click and drag the knob up and down (even while the simulation runs) to change the voltage on the middle leg." },
+    npn: { t: "NPN transistor", d: "An electronic switch. A small current into the base lets a big current flow from collector to emitter." },
+    motor: { t: "DC motor", d: "Spins when current flows through it. Faster with more voltage, or with a higher PWM number. Needs a transistor (it draws too much current for a pin)." },
+    diode: { t: "Diode", d: "A one-way street for current. Across a motor it is a flyback diode: it gives the motor's backwards voltage spike a safe path so it can not hurt the transistor." },
+    seg7: { t: "4-digit 7-segment display", d: "Four number digits driven by a small chip (HT16K33) over I2C. It only needs 4 wires: +, -, D (data) and C (clock)." },
     uno: { t: "Arduino Uno", d: "The brain. Your code runs here. The orange L light is pin 13. Hover over the pins to learn what they do." },
     breadboard: { t: "Breadboard", d: "Plug parts into the holes and they connect without soldering. Holes in a column of 5 are connected, and the long power rails run along the top and bottom." }
   };
@@ -325,6 +357,8 @@
     ensureAudio();
     var wh = tgt.closest ? tgt.closest("[data-whandle]") : null;
     if (wh && sel && sel.type === "wire") { drag = { kind: "wend", id: sel.id, end: wh.getAttribute("data-whandle") }; return; }
+    var potEl = tgt.closest ? tgt.closest("[data-pot]") : null;
+    if (potEl) { var ppart = partById(potEl.getAttribute("data-pot")); if (ppart) { sel = { type: "part", id: ppart.id }; showProps(); drawOverlay(); drag = { kind: "pot", id: ppart.id, y0: e.clientY, pos0: ppart.props.pos !== undefined ? +ppart.props.pos : 0.5 }; return; } }
     var wireEl = tgt.closest ? tgt.closest(".wire") : null;
     var near = nearestTerm(w, wireEl ? 4 * z : 6 * z);
     var partEl0 = tgt.closest ? tgt.closest(".part") : null, part0 = partEl0 ? partById(partEl0.getAttribute("data-id")) : null;
@@ -349,6 +383,7 @@
     var w = toWorld(e);
     if (!drag) { var hv = pal ? null : hoverInfo(w, e); overlay.hover = hv && hv.pt ? { x: hv.pt.x, y: hv.pt.y, pol: hv.info.pol } : null; drawOverlay(); if (hv) showTip(hv.info, e.clientX, e.clientY); else hideTip(); return; }
     hideTip();
+    if (drag.kind === "pot") { var pq = partById(drag.id); pq.props.pos = Math.max(0, Math.min(1, drag.pos0 + (drag.y0 - e.clientY) / 120)); sim.markDirty(); var ppi = $("potPos"); if (ppi) { ppi.value = Math.round(pq.props.pos * 100); var pvl = $("potVal"); if (pvl) pvl.textContent = Math.round(pq.props.pos * 1023) + " (analogRead)"; } return; }
     if (drag.kind === "pan") { view.x = drag.vx + (e.clientX - drag.sx); view.y = drag.vy + (e.clientY - drag.sy); applyView(); }
     else if (drag.kind === "part") {
       var dx = w.x - drag.sx, dy = w.y - drag.sy; if (!drag.moved && Math.abs(dx) + Math.abs(dy) < 3 / view.z) return; drag.moved = true;
@@ -383,6 +418,7 @@
       var n4 = nearestTerm(w, Math.max(7, 8 / view.z)), t4 = n4.board || n4.part; overlay.wirePreview = null; overlay.hover = null;
       if (t4) { var wr = wireById(d.id); wr[d.end].term = t4.key; renderWires(); commit(); } drawOverlay();
     } else if (d.kind === "press") { sim.press(d.id, false); }
+    else if (d.kind === "pot") { commit(); }
   }
   stage.addEventListener("pointerup", endDrag); stage.addEventListener("pointercancel", endDrag);
   stage.addEventListener("pointerleave", function () { hideTip(); if (!drag) { overlay.hover = null; drawOverlay(); } });
@@ -417,6 +453,13 @@
     else if (p && p.type === "resistor") h = "<b>Resistor</b> value: <select id=\"ohms\">" + C.RESISTOR_VALUES.map(function (v) { return '<option value="' + v + '"' + (v === (+p.props.ohms || 220) ? " selected" : "") + ">" + C.ohmsText(v) + " ohms</option>"; }).join("") + '</select> &nbsp; Legs <button type="button" class="btn sm" id="spanM">&minus;</button> <b>' + (Math.max(3, Math.min(12, Math.round(+p.props.span || 4)))) + '</b> holes apart <button type="button" class="btn sm" id="spanP">+</button> <span style="color:var(--soft)">220 ohms is a good size for an LED. Spread the legs to reach a rail or another column.</span>';
     else if (p && p.type === "button") h = "<b>Pushbutton</b> <span style=\"color:var(--soft)\">Put it across the center gap of the breadboard. While the simulation runs, click and hold it to press it.</span>";
     else if (p && p.type === "buzzer") h = "<b>Piezo buzzer</b> <span style=\"color:var(--soft)\">Connect one leg to a pin and the other to GND, then use tone(pin, 440); in your code. Turn up your speakers!</span>";
+    else if (p && p.type === "rgb") h = "<b>RGB LED</b> <span style=\"color:var(--soft)\">The longest leg is the common cathode (GND). Each color leg needs its own 220 ohm resistor and a PWM (~) pin.</span>";
+    else if (p && p.type === "servo") h = "<b>Servo</b> <span style=\"color:var(--soft)\">Brown = GND, red = 5V, orange = signal (a digital pin). Add #include &lt;Servo.h&gt; and use myServo.attach(pin) and myServo.write(angle).</span>";
+    else if (p && p.type === "pot") h = '<b>Potentiometer</b> turn it: <input type="range" id="potPos" min="0" max="100" value="' + Math.round((p.props.pos !== undefined ? +p.props.pos : 0.5) * 100) + '" style="vertical-align:middle;width:160px"> <span id="potVal" style="color:var(--soft)"></span> <span style="color:var(--soft)">You can also click and drag the knob on the canvas.</span>';
+    else if (p && p.type === "npn") h = "<b>NPN transistor</b> <span style=\"color:var(--soft)\">Collector = the load (motor), Base = from a pin through 1 kilohm, Emitter = GND. Hover each leg to check it.</span>";
+    else if (p && p.type === "motor") h = "<b>DC motor</b> <span style=\"color:var(--soft)\">One wire to 5V, the other to the transistor's collector. Do not connect it straight to an Arduino pin.</span>";
+    else if (p && p.type === "diode") h = "<b>Diode</b> <span style=\"color:var(--soft)\">The stripe end is the cathode. A flyback diode goes across the motor with the stripe toward 5V.</span>";
+    else if (p && p.type === "seg7") h = "<b>7-segment display</b> <span style=\"color:var(--soft)\">+ to 5V, - to GND, D to A4 (SDA), C to A5 (SCL). In code: #include &lt;Wire.h&gt;, #include \"Adafruit_LEDBackpack.h\", then matrix.begin(0x70);</span>";
     else if (p && p.type === "breadboard") h = "<b>Breadboard</b> <span style=\"color:var(--soft)\">The 5 holes in each column (a to e, or f to j) are connected. The long rows at the top and bottom are power rails: each whole row is connected.</span>";
     else if (p && p.type === "uno") h = "<b>Arduino Uno</b> <span style=\"color:var(--soft)\">Drag from any pin to a breadboard hole to make a wire. The orange L light shows pin 13.</span>";
     else if (w) h = "<b>Wire</b> color: " + swatches(R.WIRE_COLORS, w.color || "green", "wirec") + ' <span style="color:var(--soft)">Drag the blue end dots to move an end. Press Delete to remove it.</span>';
@@ -426,6 +469,7 @@
     box.querySelectorAll("[data-wirec]").forEach(function (b) { b.onclick = function () { w.color = b.getAttribute("data-wirec"); wireColor = w.color; renderWires(); commit(); showProps(); }; });
     function spanBy(d) { p.props.span = Math.max(3, Math.min(12, (Math.round(+p.props.span || 4)) + d)); snapPart(p); buildStage(); commit(); showProps(); }
     var sm = $("spanM"), spn = $("spanP"); if (sm) sm.onclick = function () { spanBy(-1); }; if (spn) spn.onclick = function () { spanBy(1); };
+    var pp = $("potPos"); if (pp && p) { var pv = $("potVal"); function potShow() { pv.textContent = Math.round(+pp.value / 100 * 1023) + " (analogRead)"; } potShow(); pp.oninput = function () { p.props.pos = +pp.value / 100; potShow(); sim.markDirty(); }; pp.onchange = function () { commit(); }; }
     var oh = $("ohms"); if (oh) oh.onchange = function () { p.props.ohms = +oh.value; buildStage(); commit(); showProps(); };
   }
 
@@ -591,9 +635,14 @@
     var a = ANS[k] || [], want = it.kind === "match" ? it.rows.map(function (r) { return r[1]; }) : it.answers;
     el.querySelectorAll("select[data-r]").forEach(function (s) { var i = +s.getAttribute("data-r"); s.className = (s.className || "").replace(/\b(ok|bad)\b/g, "").trim() + (a[i] ? (a[i] === want[i] ? " ok" : " bad") : ""); });
   }
+  var BASE_PARTS = ["led", "resistor", "button", "buzzer", "breadboard-mini", "breadboard"];
+  function applyParts(A) {
+    var allowed = A ? (A.parts ? A.parts.concat(["breadboard-mini", "breadboard"]) : BASE_PARTS) : null;
+    document.querySelectorAll("[data-add]").forEach(function (b) { b.style.display = !allowed || allowed.indexOf(b.getAttribute("data-add")) > -1 ? "" : "none"; });
+  }
   function renderAssignment() {
     var A = ASSIGN[slot], body = $("assBody"); $("assTitle").textContent = A ? A.title : "Free build";
-    $("assHead").className = A ? "show" : ""; document.body.classList.toggle("free", !A);
+    applyParts(A); $("assHead").className = A ? "show" : ""; document.body.classList.toggle("free", !A);
     if (coach) { coach.reset(); coach.setExtra(A && A.events ? A.events : []); }
     if (!A) { body.innerHTML = '<p class="intro">This is a free build. Add parts, wire them up, and write code to try your own ideas. Nothing here is graded.</p><div class="hintbox"><b>How to build a circuit</b><br>1. <b>Click, hold, and drag</b> a part from the bar above the canvas onto the breadboard.<br>2. When its leg dots turn <span style="color:#22c55e">green</span>, it is plugged in. <b>Hover over any leg, pin or hole</b> to learn what it is and whether it is positive (+) or negative (&minus;).<br>3. <b>Drag from a pin or hole to another pin or hole</b> to make a wire.<br>4. Type your code on the right and click <b>Start Simulation</b>.</div><div class="helprow"><span class="helplbl">Help bubbles:</span>' + pillsHTML(["tour", "skeleton", "functions-all", "dragpart", "makewire", "startsim", "trouble"]) + "</div>"; return; }
     var h = '<p class="intro">' + inlineBubbles(A.intro) + "</p>";
@@ -645,7 +694,7 @@
         if (it.kind === "ask") { var w = wordCount(ANS[k]); ok = w >= (it.min || 15) && (!it.test || !!it.test(ANS[k] || "", ctx)); label = w + " / " + (it.min || 15) + " words"; }
         else if (it.kind === "match") { var a = ANS[k] || [], good = it.rows.filter(function (r, i) { return a[i] === r[1]; }).length; ok = good === it.rows.length; label = good + " / " + it.rows.length + " right"; }
         else if (it.kind === "cloze") { var a3 = ANS[k] || [], g3 = it.answers.filter(function (x, i) { return a3[i] === x; }).length; ok = g3 === it.answers.length; label = g3 + " / " + it.answers.length + " right"; }
-        else ok = !!(await it.check(ctx));
+        else { ok = !!(await it.check(ctx)); if (it.sticky) { if (ok) { if (!ANS["ok." + k]) { ANS["ok." + k] = "1"; saveAns(); } } else if (ANS["ok." + k]) ok = true; } }
       } catch (e) { ok = false; }
       if (seq !== evalSeq) return; total++; if (ok) passed++; results.push([si, ii, ok, label]);
     }

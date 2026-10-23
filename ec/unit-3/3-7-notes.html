@@ -10,6 +10,13 @@
 <link rel="icon" href="../../assets/logo.png">
 <link rel="stylesheet" href="../unit-2/notes.css">
 <style>.arr{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.cell{min-width:64px;text-align:center;border:1px solid var(--rule);border-radius:5px;background:#0E131B;padding:8px 4px;font-family:"JetBrains Mono",monospace;font-size:14px;color:#fff}.cell small{display:block;color:var(--ink-soft);font-size:11px}.cell.on{border-color:var(--hi);background:var(--hi-tint)}.cell.bad{border-color:var(--red);background:var(--red-tint);color:#FCA5A5}</style>
+<script src="../../arduino/compiler.js"></script>
+<script src="../../arduino/circuit.js"></script>
+<script src="../../arduino/sim.js"></script>
+<script src="../../arduino/render.js"></script>
+<script src="../../arduino/coach.js"></script>
+<script src="../../arduino/tips.js"></script>
+<script src="../../arduino/embed.js"></script>
 </head>
 <body>
 
@@ -17,6 +24,7 @@
   <a href="../index.html">&larr; Embedded Computing</a>
   <a href="3-7-code-toolkit-functions-and-arrays.html">3.7 Lesson Page</a>
   <a href="3-7-notes.html" class="current">Notes</a>
+  <a href="../../arduino/editor.html?slot=u3-7">Open the Editor</a>
 </nav>
 
 <header class="hero">
@@ -25,6 +33,7 @@
     <h1>Code Toolkit: Functions and Arrays</h1>
     <p class="deck">Everything you need for the 3.7 scanner light: arrays and indexes, functions with parameters, functions that return a value, and how your functions call each other.</p>
     <div class="map">
+      <a href="#lab">&#9889; <span>Live lab</span></a>
       <a href="#arr">01 <span>Arrays + indexes</span></a>
       <a href="#wire">02 <span>Wiring + setup (Parts 1, 2)</span></a>
       <a href="#fn">03 <span>Functions (Part 3)</span></a>
@@ -58,6 +67,29 @@
       <div class="tblwrap"><table><tr><th>LED</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr><tr><td><b>Pin</b></td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td></tr></table><p class="small" style="padding:10px 16px">Pin &rarr; 220 &Omega; resistor &rarr; LED long leg (anode). Short leg (cathode) &rarr; GND. Optional: a potentiometer (3.6) for a speed dial.</p></div>
       <div class="box b"><h3>setup() with a loop</h3><p>A for loop with i from 0 up to (but not including) NUM_LEDS that calls <code>pinMode(ledPins[i], OUTPUT);</code>. One line of work, done 5 times, once for each pin in the list.</p></div>
     </div>
+  </div>
+</section>
+
+<section class="part" id="lab">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">LIVE</div><h2>Live Lab: The Scanner</h2><span class="for">Try it right here</span></div>
+    <p class="story">Five LEDs on pins 2 to 6, one array, three little functions. Press <b>Start</b> and watch one light sweep. Then change <code>scan(100)</code> to a different number and run it again.</p>
+    <div id="lab-mount"></div>
+    <script>
+(function () {
+  ArduinoEmbed.mount(document.getElementById("lab-mount"), { preset: "scan", title: "allOff, showLed, scan", slot: "u3-7", editable: true, height: 300,
+    variants: [
+      { label: "Faster: scan(30)", code: "const int ledPins[] = {2, 3, 4, 5, 6};\nconst int NUM_LEDS = 5;\n\nvoid setup() {\n  for (int i = 0; i < NUM_LEDS; i++) {\n    pinMode(ledPins[i], OUTPUT);\n  }\n}\n\nvoid allOff() {\n  for (int i = 0; i < NUM_LEDS; i++) {\n    digitalWrite(ledPins[i], LOW);\n  }\n}\n\nvoid showLed(int index) {\n  allOff();\n  digitalWrite(ledPins[index], HIGH);\n}\n\nvoid scan(int speed) {\n  for (int i = 0; i < NUM_LEDS; i++) {\n    showLed(i);\n    delay(speed);\n  }\n  for (int i = NUM_LEDS - 2; i >= 1; i--) {\n    showLed(i);\n    delay(speed);\n  }\n}\n\nvoid loop() {\n  scan(30);\n}\n" },
+      { label: "Bug: index 5 (there is no spot 5)", code: "const int ledPins[] = {2, 3, 4, 5, 6};\nconst int NUM_LEDS = 5;\n\nvoid setup() {\n  for (int i = 0; i < NUM_LEDS; i++) {\n    pinMode(ledPins[i], OUTPUT);\n  }\n}\n\nvoid showLed(int index) {\n  digitalWrite(ledPins[index], HIGH);\n}\n\nvoid loop() {\n  showLed(5);\n}\n" },
+      { label: "A function that returns a value", code: "const int ledPins[] = {2, 3, 4, 5, 6};\nconst int NUM_LEDS = 5;\n\nvoid setup() {\n  for (int i = 0; i < NUM_LEDS; i++) {\n    pinMode(ledPins[i], OUTPUT);\n  }\n  Serial.begin(9600);\n}\n\nint doubleIt(int x) {\n  return x * 2;\n}\n\nvoid loop() {\n  for (int i = 0; i < NUM_LEDS; i++) {\n    int p = ledPins[i];\n    Serial.println(doubleIt(p));\n    delay(300);\n  }\n}\n" }
+    ],
+    goals: [
+      { text: "Press <b>Start</b> and watch the light sweep to the right end and back.", title: "A scanner!", say: "<code>scan()</code> calls <code>showLed(i)</code> for each LED, and <code>showLed()</code> calls <code>allOff()</code> first. Small functions, big result.", when: function (s, g) { var p = s.io.pins, idx = -1; [2, 3, 4, 5, 6].forEach(function (k, i) { if (p[k] && p[k].value) idx = i; }); if (idx >= 0 && g.last !== idx) { g.seq = (g.seq || "") + idx; g.last = idx; } return /01234321/.test(g.seq || ""); } },
+      { text: "Run <b>Bug: index 5</b>. Read the red message.", title: "Out of range", say: "An array with 5 spots has indexes 0, 1, 2, 3, 4. There is NO index 5, so the program stops with an error telling you which line.", when: function (s) { return !!(s.sim.runtimeError); } },
+      { text: "Run <b>A function that returns a value</b> and watch the Serial Monitor.", title: "A return value", say: "<code>doubleIt(p)</code> hands a value back, which goes straight into <code>Serial.println</code>. A function with a parameter takes a value IN; a return value comes OUT.", when: function (s) { return /doubleIt/.test(s.code) && /\n/.test(s.serial || "") && (s.serial || "").split("\n").length > 3; } }
+    ] });
+})();
+    </script>
   </div>
 </section>
 

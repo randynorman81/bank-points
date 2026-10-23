@@ -9,6 +9,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="../../assets/logo.png">
 <link rel="stylesheet" href="../unit-2/notes.css">
+<script src="../../arduino/compiler.js"></script>
+<script src="../../arduino/circuit.js"></script>
+<script src="../../arduino/sim.js"></script>
+<script src="../../arduino/render.js"></script>
+<script src="../../arduino/coach.js"></script>
+<script src="../../arduino/tips.js"></script>
+<script src="../../arduino/embed.js"></script>
 </head>
 <body>
 
@@ -16,6 +23,7 @@
   <a href="../index.html">&larr; Embedded Computing</a>
   <a href="3-3-servo-angles-and-sweeps.html">3.3 Lesson Page</a>
   <a href="3-3-notes.html" class="current">Notes</a>
+  <a href="../../arduino/editor.html?slot=u3-3">Open the Editor</a>
 </nav>
 
 <header class="hero">
@@ -24,6 +32,7 @@
     <h1>Servo: Angles and Sweeps</h1>
     <p class="deck">Everything you need for the 3.3 assignment: what a servo is, wiring it, libraries, the three angles, how a counting loop makes a smooth sweep, and how a variable remembers whether the lock is locked.</p>
     <div class="map">
+      <a href="#lab">&#9889; <span>Live lab</span></a>
       <a href="#what">01 <span>Servo vs. motor</span></a>
       <a href="#wire">02 <span>Wiring (Part 1)</span></a>
       <a href="#lib">03 <span>Library + 3 angles (Part 2)</span></a>
@@ -56,7 +65,7 @@
 <section class="part" id="wire">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">02</div><h2>Wiring the Servo and Button</h2><span class="for">Part 1</span></div>
-    <p class="story">The servo's three wires each have one job. Hover over them in Tinkercad to read their labels; they're usually colored, but the label is what counts.</p>
+    <p class="story">The servo's three wires each have one job. Hover over them in the Circuit Editor to read their labels; they're usually colored, but the label is what counts.</p>
     <div class="tblwrap">
       <table>
         <tr><th>Part</th><th>Where it connects</th></tr>
@@ -67,6 +76,30 @@
         <tr><td><b>Button</b>, the other side</td><td>GND</td></tr>
       </table>
     </div>
+  </div>
+</section>
+
+<section class="part" id="lab">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">LIVE</div><h2>Live Lab: The Door Lock</h2><span class="for">Try it right here</span></div>
+    <p class="story">A servo on pin 9 and a button on pin 2. Press <b>Start</b>, then <b>click the button</b>: the arm goes to 90 (unlocked), click again and it goes back to 0 (locked). The angle shows right above the servo.</p>
+    <div id="lab-mount"></div>
+    <script>
+(function () {
+  ArduinoEmbed.mount(document.getElementById("lab-mount"), { preset: "servo", title: "Lock and unlock", slot: "u3-3", editable: true, height: 300,
+    variants: [
+      { label: "Three angles (0, 90, 180)", code: "#include <Servo.h>\n\nServo myServo;\n\nvoid setup() {\n  myServo.attach(9);\n}\n\nvoid loop() {\n  myServo.write(0);\n  delay(1000);\n  myServo.write(90);\n  delay(1000);\n  myServo.write(180);\n  delay(1000);\n}\n" },
+      { label: "Smooth sweep", code: "#include <Servo.h>\n\nServo myServo;\n\nvoid setup() {\n  myServo.attach(9);\n}\n\nvoid loop() {\n  for (int angle = 0; angle <= 180; angle++) {\n    myServo.write(angle);\n    delay(15);\n  }\n  for (int angle = 180; angle >= 0; angle--) {\n    myServo.write(angle);\n    delay(15);\n  }\n}\n" },
+      { label: "Bug: no delay(400)", code: "#include <Servo.h>\n\nServo myServo;\nbool locked = true;\n\nvoid setup() {\n  pinMode(2, INPUT_PULLUP);\n  myServo.attach(9);\n  myServo.write(0);\n}\n\nvoid loop() {\n  if (digitalRead(2) == LOW) {\n    if (locked) {\n      myServo.write(90);\n      locked = false;\n    } else {\n      myServo.write(0);\n      locked = true;\n    }\n  }\n}\n" },
+      { label: "Bug: forgot attach()", code: "#include <Servo.h>\n\nServo myServo;\n\nvoid setup() {\n}\n\nvoid loop() {\n  myServo.write(90);\n  delay(1000);\n}\n" }
+    ],
+    goals: [
+      { text: "Press <b>Start</b> and <b>click the button twice</b>: unlock, then lock.", title: "Locked and unlocked", say: "A <code>bool</code> variable remembers the state. <code>if (locked)</code> unlocks, <code>else</code> locks, and the delay(400) makes one press count once.", when: function (s) { var l = s.sim.history && s.sim.history.servoLog; return !!l && l.indexOf(90) > -1 && l.lastIndexOf(0) > l.indexOf(90); } },
+      { text: "Run the <b>Smooth sweep</b> and watch the angle number climb.", title: "A sweep", say: "A for loop nudges the angle by 1 each time, with a tiny delay, so the arm glides instead of jumping.", when: function (s) { var l = s.sim.history && s.sim.history.servoLog; return !!l && l.length > 60 && /for\s*\(/.test(s.code); } },
+      { text: "Run <b>Bug: no delay(400)</b> and hold the button. What does the lock do?", title: "Chatter!", say: "Holding the button for a moment counts as many presses, because the loop runs thousands of times a second. The lock flips back and forth so fast it looks random.", when: function (s) { var l = s.sim.history && s.sim.history.servoLog; return !!l && l.length > 12 && !/delay\s*\(\s*400/.test(s.code); } }
+    ] });
+})();
+    </script>
   </div>
 </section>
 
@@ -138,7 +171,7 @@ Servo myServo;             <span class="cm">// make a servo object named myServo
         </div>
       </div>
     </div>
-    <div class="hint-panel"><b>Test it for real (Reflection 2):</b> delete the delay(400) in Tinkercad, press the button several times, and describe exactly what you see. <b>Reflection 3:</b> think about things around you that lock, latch, or open on command.</div>
+    <div class="hint-panel"><b>Test it for real (Reflection 2):</b> delete the delay(400) in the Circuit Editor, press the button several times, and describe exactly what you see. <b>Reflection 3:</b> think about things around you that lock, latch, or open on command.</div>
     <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
     <div class="quiz" id="quiz"></div>
   </div>

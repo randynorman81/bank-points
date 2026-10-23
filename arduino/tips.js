@@ -450,4 +450,83 @@
   add("doorbell", PA, "The doorbell analogy for a button", [
     { p: "A doorbell button is a gap in a wire. While nobody pushes, the gap is open and nothing happens. When a visitor **pushes**, the gap closes, current flows, and the bell rings. In the Arduino circuit, pressing the button connects the input pin to GND, so the pin reads **LOW**. Letting go lets the pull-up resistor pull the pin back to **HIGH**." }
   ], "doorbell analogy button press circuit gap");
+
+  /* ---------- Unit 3 */
+  add("rgb", PA, "What is an RGB LED? (4 legs, 3 colors)", [
+    { p: "An **RGB LED** is three tiny LEDs (one red, one green, one blue) packed into one bulb. It has **4 legs**: one for each color, and one shared leg that is the longest. In this editor it is a **common cathode** LED: the long shared leg goes to **GND**." },
+    { rows: [["R", "red anode (+)", "220 ohm resistor, then pin 9"], ["long leg (K)", "common cathode (-)", "GND"], ["G", "green anode (+)", "220 ohm resistor, then pin 10"], ["B", "blue anode (+)", "220 ohm resistor, then pin 11"]], head: ["Leg", "What it is", "Goes to"] },
+    { p: "Use PWM pins (the ones marked ~) so each color can be dim or bright with **analogWrite(pin, 0 to 255)**. Every color leg needs its **own** resistor, or that color can burn out." },
+    { links: ["rgbmix", "pwm", "ledresistor"] }
+  ], "rgb led color red green blue common cathode legs");
+  add("rgbmix", PA, "How do I mix colors with an RGB LED?", [
+    { p: "Your eyes blend the three lights. Each color gets a number from **0 (off)** to **255 (full)**." },
+    { rows: [["Red", "255, 0, 0"], ["Green", "0, 255, 0"], ["Blue", "0, 0, 255"], ["Yellow", "255, 255, 0"], ["Cyan", "0, 255, 255"], ["Magenta", "255, 0, 255"], ["White", "255, 255, 255"], ["Orange", "255, 80, 0"], ["Off", "0, 0, 0"]], head: ["Color", "red, green, blue"] },
+    { good: "Light mixes differently from paint: red + green light = yellow, but red + green paint = brown. Light ADDS, paint takes away." },
+    { links: ["rgb", "functions", "loops"] }
+  ], "mix color yellow cyan magenta white fade values 255");
+  add("include", CO, "What does #include do? (libraries)", [
+    { p: "A **library** is a pack of ready-made code someone else wrote, so you do not have to. **#include** loads it. It goes at the **very top** of your file, before everything else." },
+    { ex: ["#include <Servo.h>   // gives you the Servo type", "#include <Wire.h>    // I2C: 2-wire communication", "#include \"Adafruit_LEDBackpack.h\"   // the 7-segment display"] },
+    { warn: "<angle brackets> are for libraries that come with the Arduino. \"quotes\" are for libraries you add yourself. No semicolon after an #include line!" },
+    { links: ["servo", "i2c", "sevenseg"] }
+  ], "include library header servo wire angle brackets");
+  add("servo", PA, "What is a servo? (and how do I use one?)", [
+    { p: "A regular motor just spins. A **servo** turns to the **exact angle** you tell it (0 to 180 degrees) and **holds** it there. Robot arms, camera mounts and door locks use servos." },
+    { rows: [["Brown wire", "GND (-)"], ["Red wire", "5V (+)"], ["Orange wire", "signal: a digital pin like 9"]], head: ["Wire", "Goes to"] },
+    { ex: ["#include <Servo.h>", "", "Servo myServo;          // make a servo called myServo", "", "void setup() {", "  myServo.attach(9);    // tell it which pin", "}", "", "void loop() {", "  myServo.write(90);    // turn to 90 degrees", "}"] },
+    { warn: "Forgot attach()? The servo does not know which pin to use, so write() does nothing." },
+    { links: ["include", "toggle", "pot"] }
+  ], "servo motor angle write attach 180 degrees library");
+  add("pot", PA, "What is a potentiometer (dial)?", [
+    { p: "A **potentiometer** (pot for short) is a dial with 3 legs. Connect one **outer leg to 5V** and the other **outer leg to GND**. The **middle leg (the wiper)** then gives a voltage anywhere from 0V to 5V depending on where the dial is turned." },
+    { p: "Connect the wiper to an **analog pin** like A0 and read it with **analogRead(A0)**. In this editor you can **click and drag the knob** (even while the program runs) or use the slider under the canvas." },
+    { good: "Swap the two outer legs and the dial works backwards. Nothing breaks!" },
+    { links: ["analogread", "map", "voltage"] }
+  ], "potentiometer pot dial knob wiper analog a0 voltage");
+  add("transistor", PA, "What is a transistor? (the electronic switch)", [
+    { p: "An Arduino pin can only give about **20 mA**. A small motor wants 10 times that. A **transistor** is an electronic switch: a **tiny current into the base** lets a **big current flow from the collector to the emitter**." },
+    { rows: [["Base (B)", "The switch. Arduino pin through a 1 kilohm resistor."], ["Collector (C)", "Connects to the motor (the load)."], ["Emitter (E)", "Connects to GND."]], head: ["Leg", "Job"] },
+    { p: "The 1 kilohm resistor on the base is **required**. Without it the pin would try to push far too much current into the base." },
+    { links: ["flyback", "motorspeed", "pins"] }
+  ], "transistor npn base collector emitter switch motor 1k");
+  add("flyback", PA, "What is a flyback diode?", [
+    { p: "When you switch off a spinning motor, it pushes a short burst of electricity **backward**, like a wave sloshing back. That burst can damage the transistor." },
+    { p: "A **diode** across the motor gives that burst a safe path. It is a one-way street for current, so it does nothing the rest of the time. The **stripe end (cathode) points toward the 5V side**, and the other end goes to the transistor's collector." },
+    { warn: "Backwards, the diode is a short circuit: it connects 5V straight to the transistor." },
+    { links: ["transistor", "polarity"] }
+  ], "flyback diode motor stripe cathode spike protection");
+  add("motorspeed", CO, "How do I control a motor's speed?", [
+    { p: "Exactly like LED brightness: **PWM**. Put the motor's transistor on a ~ pin and use **analogWrite(pin, 0 to 255)**. 255 is full speed, 128 is about half, 0 is stopped." },
+    { good: "A very low number (like 30) may not give the motor enough push to start turning at all. That is normal for real motors, too." },
+    { links: ["pwm", "analogwrite", "transistor"] }
+  ], "motor speed pwm analogwrite 255 128 low number stall");
+  add("i2c", PA, "What is I2C? (2 wires, many devices)", [
+    { p: "**I2C** is a way for the Arduino to talk to a part using just **2 wires**: **SDA** (data, pin **A4** on an Uno) and **SCL** (clock, pin **A5**). Many parts can share the same 2 wires; each one listens for its own **address** (the display here is **0x70**)." },
+    { rows: [["Display +", "5V"], ["Display -", "GND"], ["Display D (data)", "A4 (SDA)"], ["Display C (clock)", "A5 (SCL)"]], head: ["Display pin", "Arduino"] },
+    { p: "You need #include <Wire.h> at the top, and the library for your part. matrix.begin(0x70) starts the conversation." },
+    { links: ["include", "sevenseg"] }
+  ], "i2c wire sda scl a4 a5 address 0x70 two wire");
+  add("sevenseg", PA, "How does the 4-digit 7-segment display work?", [
+    { p: "Each digit is made of **7 little bars (segments)** plus a dot. A chip on the back (the **HT16K33**) lights the right segments by itself, all the time. Your Arduino only sends it the number to show." },
+    { ex: ["#include <Wire.h>", "#include \"Adafruit_LEDBackpack.h\"", "", "Adafruit_7segment matrix = Adafruit_7segment();", "", "void setup() {", "  matrix.begin(0x70);", "}", "", "void loop() {", "  matrix.print(1234);     // put the number in memory", "  matrix.writeDisplay();  // send it to the display", "}"] },
+    { warn: "You need BOTH lines: print() only loads the number, writeDisplay() shows it. A number bigger than 9999 shows ----." },
+    { links: ["i2c", "include"] }
+  ], "seven segment display digits matrix print writedisplay ht16k33 counter");
+  add("returns", CO, "Functions that return a value", [
+    { p: "A function can hand a value **back** to the code that called it. Use the **type** instead of void, and **return** the answer." },
+    { ex: ["int doubleIt(int x) {", "  return x * 2;", "}", "", "void loop() {", "  int y = doubleIt(21);   // y is now 42", "}"] },
+    { p: "A **parameter** (like x) is a value you hand INTO a function. A **return value** is what comes back OUT." },
+    { links: ["functions"] }
+  ], "function return value parameter int void");
+  add("toggle", CO, "How do I remember a state (locked or unlocked)?", [
+    { p: "Use a **variable that remembers**. Declare it above setup() so it keeps its value between loops, then flip it each time something happens." },
+    { ex: ["bool locked = true;", "", "if (digitalRead(2) == LOW) {", "  if (locked) { myServo.write(90); locked = false; }", "  else        { myServo.write(0);  locked = true;  }", "  delay(400);   // wait so ONE press counts ONE time", "}"] },
+    { good: "Without the delay, one long press flips the lock many times a second, so it looks random." },
+    { links: ["globalvar", "notop", "ifelse"] }
+  ], "toggle state remember locked unlock bool button debounce delay 400");
+  add("debugging", TR, "How do I find a bug?", [
+    { steps: ["**Read the symptom**: what exactly is wrong? (LED never lights, motor will not stop, wrong number)", "**Check the circuit first**: legs green? LED the right way? A resistor on every LED? GND connected? Hover over each leg.", "**Check the pin numbers**: does the number in your code match the pin you wired?", "**Check setup()**: did you pinMode every pin you use?", "**Check HIGH vs LOW** and your delay numbers.", "**Change ONE thing at a time** and run it again."] },
+    { p: "Adding a **Serial.println** inside your code shows you what the Arduino is thinking, line by line." },
+    { links: ["trouble", "trouble-nolight", "serialmon", "errors"] }
+  ], "debug bug fix broken test troubleshoot find error");
 })(typeof window !== "undefined" ? window : globalThis);

@@ -47,6 +47,13 @@
     c.pinOfLed = function (led) { for (var p = 2; p <= 13; p++) if (c.ledsOnPin(p).indexOf(led.id) > -1) return p; return 0; };
     /* LEDs that glow from the 5V pin alone (no code needed) */
     c.litFromPower = function () { var r = c.staticRun({}); return Object.keys(r.leds).filter(function (id) { var l = r.leds[id]; return !l.blown && l.current >= 4 && l.current <= 26; }); };
+    /* Unit 3: with this pin driven, which RGB channels glow, which motors spin, does a buzzer sound? */
+    function pinHighTone(pin, f) { var o = {}; o[pin] = { mode: 1, value: 1, pwm: null, tone: f || 0 }; return o; }
+    c.rgbOnPin = function (pin) { var r = c.staticRun({ pins: pinHigh(pin) }), out = []; Object.keys(r.rgb).forEach(function (id) { var o = r.rgb[id]; if (o.blown) return; ["R", "G", "B"].forEach(function (ch) { if (o[ch] > 0.25) out.push(id + ":" + ch); }); }); return out; };
+    c.motorsOnPin = function (pin) { var r = c.staticRun({ pins: pinHigh(pin) }); return Object.keys(r.motors).filter(function (id) { return r.motors[id].speed > 0.5; }); };
+    c.warningsOnPin = function (pin) { return c.staticRun({ pins: pinHigh(pin) }).warnings.map(function (w) { return w.msg; }); };
+    c.buzzerOnPin = function (pin) { var r = c.staticRun({ pins: pinHighTone(pin, 440) }); return Object.keys(r.buzzers).filter(function (id) { return r.buzzers[id].sounding; }); };
+    c.statics = function () { return c.staticRun({}); };
     c.run = function (opts) { var k = pkey + "|" + code + "|" + JSON.stringify(opts); if (!runCache[k]) { if (Object.keys(runCache).length > 40) runCache = {}; runCache[k] = Sim.virtual(clone(project), code, opts); } return runCache[k]; };
     return c;
   }

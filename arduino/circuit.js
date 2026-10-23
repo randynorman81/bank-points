@@ -53,7 +53,15 @@
     led: { label: "LED", w: 24, h: 40, terms: function () { return [{ id: "A", x: 0, y: 0, name: "anode (+, long leg)" }, { id: "K", x: P, y: 0, name: "cathode (-, short leg)" }]; } },
     resistor: { label: "Resistor", w: 4 * P, h: 14, terms: function (p) { var sp = Math.max(3, Math.min(12, Math.round(+(p && p.props && p.props.span) || 4))); return [{ id: "1", x: 0, y: 0 }, { id: "2", x: sp * P, y: 0 }]; } },
     button: { label: "Pushbutton", w: 2 * P, h: 3 * P, terms: function () { return [{ id: "TL", x: 0, y: 0 }, { id: "TR", x: 2 * P, y: 0 }, { id: "BL", x: 0, y: 3 * P }, { id: "BR", x: 2 * P, y: 3 * P }]; } },
-    buzzer: { label: "Piezo buzzer", w: 2 * P, h: 30, terms: function () { return [{ id: "P", x: 0, y: 0, name: "+" }, { id: "N", x: 2 * P, y: 0, name: "-" }]; } }
+    buzzer: { label: "Piezo buzzer", w: 2 * P, h: 30, terms: function () { return [{ id: "P", x: 0, y: 0, name: "+" }, { id: "N", x: 2 * P, y: 0, name: "-" }]; } },
+    /* ---- Unit 3 parts */
+    rgb: { label: "RGB LED", box: [-14, -64, 62, 70], terms: function () { return [{ id: "R", x: 0, y: 0, name: "red anode (+)" }, { id: "K", x: P, y: 0, name: "common cathode (-)" }, { id: "G", x: 2 * P, y: 0, name: "green anode (+)" }, { id: "B", x: 3 * P, y: 0, name: "blue anode (+)" }]; } },
+    servo: { label: "Servo", box: [-14, -86, 64, 92], terms: function () { return [{ id: "G", x: 0, y: 0, name: "ground wire (brown, -)" }, { id: "V", x: P, y: 0, name: "power wire (red, +5V)" }, { id: "S", x: 2 * P, y: 0, name: "signal wire (orange)" }]; } },
+    pot: { label: "Potentiometer", box: [-14, -52, 52, 58], terms: function () { return [{ id: "1", x: 0, y: 0, name: "outer leg" }, { id: "W", x: P, y: 0, name: "wiper (middle)" }, { id: "2", x: 2 * P, y: 0, name: "outer leg" }]; } },
+    npn: { label: "NPN transistor", box: [-14, -46, 52, 52], terms: function () { return [{ id: "C", x: 0, y: 0, name: "collector" }, { id: "B", x: P, y: 0, name: "base" }, { id: "E", x: 2 * P, y: 0, name: "emitter" }]; } },
+    motor: { label: "DC motor", box: [-14, -56, 64, 62], terms: function () { return [{ id: "1", x: 0, y: 0, name: "motor wire" }, { id: "2", x: 3 * P, y: 0, name: "motor wire" }]; } },
+    diode: { label: "Diode", box: [-8, -14, 4 * P + 16, 24], terms: function () { return [{ id: "A", x: 0, y: 0, name: "anode (+)" }, { id: "K", x: 4 * P, y: 0, name: "cathode (-, the stripe)" }]; } },
+    seg7: { label: "4-digit 7-segment display", box: [-16, -74, 4 * P + 32, 80], terms: function () { return [{ id: "+", x: 0, y: 0, name: "+ (5V)" }, { id: "-", x: P, y: 0, name: "- (GND)" }, { id: "D", x: 2 * P, y: 0, name: "D (data, SDA)" }, { id: "C", x: 3 * P, y: 0, name: "C (clock, SCL)" }]; } }
   };
   function rot(x, y, r) { switch (((r % 4) + 4) % 4) { case 1: return [-y, x]; case 2: return [-x, -y]; case 3: return [y, -x]; default: return [x, y]; } }
   /* world position of every terminal of a part */
@@ -103,22 +111,29 @@
     terms.forEach(function (t) { var r = uf.find(t.key); if (netIdx[r] === undefined) netIdx[r] = nets++; keyNet[t.key] = netIdx[r]; });
     var net = function (k) { return keyNet[k] === undefined ? -1 : keyNet[k]; };
     var uno = project.parts.filter(function (p) { return p.type === "uno"; })[0], unoNet = function (id) { return uno ? net(uno.id + ":" + id) : -1; };
-    var elems = [];
+    var elems = [], servos = [], segs = [];
     project.parts.forEach(function (p) {
       var n = function (id) { return net(p.id + ":" + id); };
       if (p.type === "resistor") elems.push({ type: "R", a: n("1"), b: n("2"), r: Math.max(1, +(p.props && p.props.ohms) || 220), part: p.id });
       else if (p.type === "led") elems.push({ type: "LED", a: n("A"), b: n("K"), vf: LED_VF[(p.props && p.props.color) || "red"] || 2, part: p.id });
       else if (p.type === "buzzer") elems.push({ type: "R", a: n("P"), b: n("N"), r: 1000, part: p.id, buzzer: true });
       else if (p.type === "button") elems.push({ type: "BTN", a: n("TL"), b: n("BL"), part: p.id });
+      else if (p.type === "rgb") { [["R", 1.9], ["G", 2.2], ["B", 3.0]].forEach(function (c) { elems.push({ type: "LED", a: n(c[0]), b: n("K"), vf: c[1], part: p.id, ch: c[0] }); }); }
+      else if (p.type === "diode") elems.push({ type: "LED", a: n("A"), b: n("K"), vf: 0.7, part: p.id, plain: true, key: p.id });
+      else if (p.type === "motor") elems.push({ type: "R", a: n("1"), b: n("2"), r: 15, part: p.id, motor: true, nocarry: true });
+      else if (p.type === "servo") { elems.push({ type: "R", a: n("V"), b: n("G"), r: 100, part: p.id, servo: true, nocarry: true }); servos.push({ part: p.id, s: n("S"), v: n("V"), g: n("G") }); }
+      else if (p.type === "seg7") { elems.push({ type: "R", a: n("+"), b: n("-"), r: 1000, part: p.id, seg: true, nocarry: true }); segs.push({ part: p.id, v: n("+"), g: n("-"), d: n("D"), c: n("C") }); }
+      else if (p.type === "pot") { var pos = Math.max(0, Math.min(1, p.props && p.props.pos !== undefined ? +p.props.pos : 0.5)); elems.push({ type: "R", a: n("1"), b: n("W"), r: 10000, part: p.id, pot: 1, pos: pos, nocarry: true }); elems.push({ type: "R", a: n("W"), b: n("2"), r: 10000, part: p.id, pot: 2, pos: pos, nocarry: true }); }
+      else if (p.type === "npn") { elems.push({ type: "LED", a: n("B"), b: n("E"), vf: 0.7, part: p.id, plain: true, be: true, key: p.id + ":be" }); elems.push({ type: "SW", a: n("C"), b: n("E"), part: p.id, ctrl: p.id + ":be" }); }
     });
     var pinNets = {}; for (var pn = 0; pn < 20; pn++) pinNets[pn] = unoNet(pn < 14 ? "D" + pn : "A" + (pn - 14));
     /* only the nets that something is connected to take part in the math (the other 600 holes would just slow it down), so renumber those */
     var power = { gndNet: unoNet("GND_b1"), v5Net: unoNet("5V"), v33Net: unoNet("3V3"), vinNet: unoNet("VIN") }, cmap = {}, count = 0;
     function use(n) { if (n >= 0 && cmap[n] === undefined) cmap[n] = count++; }
-    elems.forEach(function (e) { use(e.a); use(e.b); }); Object.keys(pinNets).forEach(function (k) { use(pinNets[k]); }); Object.keys(power).forEach(function (k) { use(power[k]); });
+    elems.forEach(function (e) { use(e.a); use(e.b); }); servos.forEach(function (s) { use(s.s); use(s.v); use(s.g); }); segs.forEach(function (s) { use(s.v); use(s.g); use(s.d); use(s.c); }); Object.keys(pinNets).forEach(function (k) { use(pinNets[k]); }); Object.keys(power).forEach(function (k) { use(power[k]); });
     var cm = function (n) { return n >= 0 ? cmap[n] : -1; };
-    elems.forEach(function (e) { e.a = cm(e.a); e.b = cm(e.b); }); Object.keys(pinNets).forEach(function (k) { pinNets[k] = cm(pinNets[k]); });
-    var prep = { N: count, keyNet: keyNet, legs: legs, elems: elems, pinNets: pinNets, gndNet: cm(power.gndNet), v5Net: cm(power.v5Net), v33Net: cm(power.v33Net), vinNet: cm(power.vinNet) };
+    elems.forEach(function (e) { e.a = cm(e.a); e.b = cm(e.b); }); servos.forEach(function (s) { s.s = cm(s.s); s.v = cm(s.v); s.g = cm(s.g); }); segs.forEach(function (s) { s.v = cm(s.v); s.g = cm(s.g); s.d = cm(s.d); s.c = cm(s.c); }); Object.keys(pinNets).forEach(function (k) { pinNets[k] = cm(pinNets[k]); });
+    var prep = { N: count, keyNet: keyNet, legs: legs, elems: elems, servos: servos, segs: segs, pinNets: pinNets, gndNet: cm(power.gndNet), v5Net: cm(power.v5Net), v33Net: cm(power.v33Net), vinNet: cm(power.vinNet) };
     prepCache = { key: key, prep: prep, proj: fixed ? project : null };
     return prep;
   }
@@ -127,13 +142,17 @@
      io = { pins: {n: {mode, value, pwm, tone}}, pressed: {partId: true}, blown: {partId: true} } (blown is updated) */
   function analyze(project, io, fixed) {
     io = io || {}; io.pins = io.pins || {}; io.pressed = io.pressed || {}; io.blown = io.blown || {};
-    var P = prepare(project, fixed), N = P.N, warnings = [], res = { warnings: warnings, leds: {}, buzzers: {}, legs: P.legs, netOf: function (key) { var v = P.keyNet[key]; return v === undefined ? -1 : v; }, volt: null };
+    var P = prepare(project, fixed), N = P.N, warnings = [], res = { warnings: warnings, leds: {}, rgb: {}, diodes: {}, motors: {}, servos: {}, seg: {}, transistors: {}, buzzers: {}, legs: P.legs, netOf: function (key) { var v = P.keyNet[key]; return v === undefined ? -1 : v; }, volt: null };
     var gndNet = P.gndNet;
     var elems = [];
     P.elems.forEach(function (e) {
       if (e.type === "BTN") { if (io.pressed[e.part]) elems.push({ type: "R", a: e.a, b: e.b, r: 0.1, part: e.part }); }
-      else elems.push({ type: e.type, a: e.a, b: e.b, r: e.r, vf: e.vf, part: e.part, buzzer: e.buzzer, on: false });
+      else {
+        var rr = e.r; if (e.pot) { var pv = io.pots && io.pots[e.part] !== undefined ? io.pots[e.part] : e.pos; rr = Math.max(1, 10000 * (e.pot === 1 ? pv : 1 - pv)); }
+        elems.push({ type: e.type, a: e.a, b: e.b, r: rr, vf: e.vf, part: e.part, buzzer: e.buzzer, nocarry: e.nocarry, motor: e.motor, servo: e.servo, seg: e.seg, ch: e.ch, plain: e.plain, be: e.be, key: e.key, ctrl: e.ctrl, on: false });
+      }
     });
+    elems.forEach(function (e) { if (e.type === "SW") e.ctrlEl = elems.filter(function (x) { return x.key === e.ctrl; })[0]; });
     if (!N || gndNet < 0) return finish(res, N);
 
     /* ---- fixed-voltage nets and driven pins */
@@ -159,6 +178,7 @@
       elems.forEach(function (e) {
         if (e.type === "R") stampG(e.a, e.b, 1 / e.r);
         else if (e.type === "LED") { if (e.on) { var g = 1 / 4; stampG(e.a, e.b, g); I[e.a] += e.vf * g; I[e.b] -= e.vf * g; } }
+        else if (e.type === "SW") { if (e.on) stampG(e.a, e.b, 0.5); }
       });
       drives.forEach(function (d) { G[d.net][d.net] += 1 / d.r; I[d.net] += d.v / d.r; });
       Object.keys(fixed).forEach(function (k) { k = +k; for (j = 0; j < N; j++) G[k][j] = 0; G[k][k] = 1; I[k] = fixed[k]; });
@@ -169,6 +189,7 @@
       volts = solveOnce();
       var changed = false;
       elems.forEach(function (e) {
+        if (e.type === "SW") { var want = !!(e.ctrlEl && e.ctrlEl.on && !io.blown[e.part]); if (want !== e.on) { e.on = want; changed = true; } return; }
         if (e.type !== "LED") return;
         var vd = volts[e.a] - volts[e.b];
         if (!e.on && vd > e.vf + 1e-6) { e.on = true; changed = true; }
@@ -181,8 +202,30 @@
     /* ---- read-outs */
     var duties = {}; drives.forEach(function (d) { if (d.net >= 0) duties[d.net] = Math.max(duties[d.net] || 0, d.duty); });
     /* a PWM duty carries through resistors (and a pressed button), so an LED behind its resistor still dims */
-    for (var di = 0; di < 6; di++) { var dch = false; elems.forEach(function (e) { if (e.type !== "R" || e.buzzer) return; var da = duties[e.a], db = duties[e.b]; if (da !== undefined && db === undefined) { duties[e.b] = da; dch = true; } else if (db !== undefined && da === undefined) { duties[e.a] = db; dch = true; } }); if (!dch) break; }
+    for (var di = 0; di < 6; di++) { var dch = false; elems.forEach(function (e) { if (e.type !== "R" || e.buzzer || e.nocarry) return; var da = duties[e.a], db = duties[e.b]; if (da !== undefined && db === undefined) { duties[e.b] = da; dch = true; } else if (db !== undefined && da === undefined) { duties[e.a] = db; dch = true; } }); if (!dch) break; }
+    /* a transistor that is ON passes the base's PWM duty on to whatever is on its collector */
+    elems.forEach(function (e) { if (e.type === "SW" && e.on && e.ctrlEl) { var bd = duties[e.ctrlEl.a]; if (bd !== undefined) { duties[e.a] = bd; duties[e.b] = bd; } } });
     elems.forEach(function (e) {
+      if (e.type === "LED" && e.plain) {
+        var pcur = e.on ? Math.max(0, (volts[e.a] - volts[e.b] - e.vf) / 4) * 1000 : 0;
+        if (e.be) res.transistors[e.part] = { baseCurrent: pcur, on: !!e.on };
+        else { res.diodes[e.part] = { current: pcur, conducting: !!e.on }; if (pcur > 300) warnings.push({ part: e.part, msg: "A diode is wired the wrong way around, so it is a short circuit (" + Math.round(pcur) + " mA). The stripe end (cathode) must point toward the + side." }); }
+        return;
+      }
+      if (e.type === "LED" && e.ch) {
+        var rc = e.on ? Math.max(0, (volts[e.a] - volts[e.b] - e.vf) / 4) : 0, rd = duties[e.a] !== undefined && duties[e.a] < 1 ? duties[e.a] : 1, rmA = rc * 1000 * rd, rb = !!io.blown[e.part];
+        if (rc * 1000 > 40 && !rb) { io.blown[e.part] = true; rb = true; }
+        var ro = res.rgb[e.part] = res.rgb[e.part] || { R: 0, G: 0, B: 0, blown: false, current: 0 };
+        ro[e.ch] = rb ? 0 : Math.min(1, rmA / 15); ro.blown = rb; ro.current += rmA;
+        if (rb) warnings.push({ part: e.part, msg: "An RGB LED burned out because too much current went through it. Every color leg needs its own 220 ohm resistor." });
+        return;
+      }
+      if (e.type === "R" && e.motor) {
+        var mv = Math.abs(volts[e.a] - volts[e.b]), md = duties[e.a] !== undefined ? duties[e.a] : duties[e.b] !== undefined ? duties[e.b] : 1;
+        res.motors[e.part] = { volts: mv, current: mv / e.r * 1000 * md, speed: mv < 1.5 ? 0 : Math.min(1, mv / 4.5) * md };
+        return;
+      }
+      if (e.type === "R" && e.servo) { return; }
       if (e.type === "LED") {
         var vd = volts[e.a] - volts[e.b], cur = e.on ? Math.max(0, (vd - e.vf) / 4) : 0;
         var duty = 1, anodeDuty = duties[e.a]; if (anodeDuty !== undefined && anodeDuty < 1) duty = anodeDuty;
@@ -198,6 +241,16 @@
         res.buzzers[e.part] = { sounding: dv > 1.5 && toneFreq > 0, freq: toneFreq, volts: dv };
       }
     });
+    P.servos.forEach(function (sv) {
+      var vv = sv.v >= 0 && sv.g >= 0 ? volts[sv.v] - volts[sv.g] : 0, pinNo = -1;
+      for (var qp = 0; qp < 20; qp++) if (sv.s >= 0 && P.pinNets[qp] === sv.s) { pinNo = qp; break; }
+      res.servos[sv.part] = { powered: vv > 3.5, reversed: vv < -3.5, pin: pinNo };
+      if (vv < -3.5) warnings.push({ part: sv.part, msg: "The servo's power wires are backwards. Brown is GND (-) and red is 5V (+)." });
+    });
+    P.segs.forEach(function (sg) {
+      var sv2 = sg.v >= 0 && sg.g >= 0 ? volts[sg.v] - volts[sg.g] : 0, sda = sg.d >= 0 && sg.d === P.pinNets[18], scl = sg.c >= 0 && sg.c === P.pinNets[19];
+      res.seg[sg.part] = { powered: sv2 > 4, sda: sda, scl: scl, swapped: sg.d >= 0 && sg.d === P.pinNets[19] && sg.c === P.pinNets[18], wired: sv2 > 4 && sda && scl };
+    });
     /* pins that supply too much current */
     drives.forEach(function (d) {
       if (d.pullup) return;
@@ -207,7 +260,7 @@
     /* which nets are connected to a source (so a pin on them is not "floating") */
     var linked = new Array(N).fill(false), adj = [];
     for (var q = 0; q < N; q++) adj.push([]);
-    elems.forEach(function (e) { if (e.type === "R" || (e.type === "LED" && e.on)) { adj[e.a].push(e.b); adj[e.b].push(e.a); } });
+    elems.forEach(function (e) { if (e.type === "R" || ((e.type === "LED" || e.type === "SW") && e.on)) { adj[e.a].push(e.b); adj[e.b].push(e.a); } });
     var stack = Object.keys(fixed).map(Number).concat(drives.map(function (d) { return d.net; }));
     while (stack.length) { var s = stack.pop(); if (s < 0 || linked[s]) continue; linked[s] = true; adj[s].forEach(function (x) { if (!linked[x]) stack.push(x); }); }
     res.floating = function (n) { return n >= 0 ? !linked[n] : true; };

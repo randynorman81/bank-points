@@ -9,10 +9,12 @@
 
   function Sim(env) {
     this.env = env || {}; this.running = false; this.stopFlag = false; this.speed = 1; this.virtualMode = !!(env && env.virtual);
-    this.io = { pins: {}, pressed: {}, blown: {} }; this.res = null; this.dirty = true; this.serialOut = ""; this.serialIn = []; this.rngState = (Date.now() & 0x7fffffff) || 1;
+    this.io = { pins: {}, pressed: {}, blown: {}, pots: {} }; this.dev = newDev(); this.io.dev = this.dev; this.res = null; this.dirty = true; this.serialOut = ""; this.serialIn = []; this.rngState = (Date.now() & 0x7fffffff) || 1;
     this.t0 = 0; this.vt = 0; this.events = []; this.lastYield = 0; this.status = ""; this.history = { ledOn: {}, ledOff: {}, maxLed: {}, pinHigh: {}, pinLow: {}, toneSeen: {}, serialBytes: 0 };
     this.userPinMode = {}; this.resetPins();
   }
+  function newDev() { return { servo: {}, seg: { begun: false, addrBad: false, buf: [blankDigit(), blankDigit(), blankDigit(), blankDigit()], colon: false, shown: null, brightness: 15 } }; }
+  function blankDigit() { return { ch: " ", dot: false }; }
   Sim.prototype.resetPins = function () { var pins = {}; for (var i = 0; i < 20; i++) pins[i] = { mode: undefined, pullup: false, value: 0, pwm: null, tone: 0 }; this.io.pins = pins; };
   Sim.prototype.markDirty = function () { this.dirty = true; this.schedule(); };
   Sim.prototype.schedule = function () {
@@ -24,7 +26,7 @@
   /* the circuit solved for the current pin states (cached until something changes) */
   Sim.prototype.analysis = function () {
     if (this.dirty || !this.res) {
-      var io = { pins: {}, pressed: this.io.pressed, blown: this.io.blown }, self = this;
+      var io = { pins: {}, pressed: this.io.pressed, blown: this.io.blown, pots: this.io.pots || {} }, self = this;
       Object.keys(this.io.pins).forEach(function (k) { var s = self.io.pins[k]; io.pins[k] = { mode: s.mode === 0 && s.pullup ? 2 : s.mode, value: s.value, pwm: s.pwm, tone: s.tone }; });
       this.res = root.ArduinoCircuit.analyze(this.env.getProject(), io, this.virtualMode); this.dirty = false;
       /* history for the auto-checks */
@@ -34,6 +36,7 @@
     }
     return this.res;
   };
+  Sim.prototype.setPot = function (partId, v) { this.io.pots = this.io.pots || {}; this.io.pots[partId] = Math.max(0, Math.min(1, +v)); this.markDirty(); };
   Sim.prototype.press = function (partId, down) { if (this.io.pressed[partId] === !!down) return; this.io.pressed[partId] = !!down; this.markDirty(); };
 
   /* ---------- clock */
@@ -58,8 +61,9 @@
     var r = this.analysis(), leds = {}, buz = {}, pins = {};
     Object.keys(r.leds).forEach(function (id) { leds[id] = r.leds[id].brightness; });
     Object.keys(r.buzzers).forEach(function (id) { buz[id] = r.buzzers[id].sounding; });
-    for (var i = 0; i < 20; i++) pins[i] = this.io.pins[i].value;
-    this.out.samples.push({ t: t, leds: leds, buzzers: buz, pins: pins });
+    var lvl = {}, tones = {};
+    for (var i = 0; i < 20; i++) { var ps = this.io.pins[i]; pins[i] = ps.value; if (ps.mode === 1) lvl[i] = ps.pwm !== null && ps.pwm !== undefined ? ps.pwm : (ps.value ? 255 : 0); if (ps.tone) tones[i] = ps.tone; }
+    this.out.samples.push({ t: t, leds: leds, buzzers: buz, pins: pins, lvl: lvl, tones: tones, rgb: JSON.parse(JSON.stringify(r.rgb || {})), motors: JSON.parse(JSON.stringify(r.motors || {})), servo: JSON.parse(JSON.stringify(this.dev.servo)), seg: this.dev.seg.shown ? JSON.parse(JSON.stringify(this.dev.seg.shown)) : null });
   };
   var chan = null;
   function yieldNow() {
@@ -114,7 +118,7 @@
       return Math.max(0, Math.min(1023, Math.round(r.pinVolt(p) / 5 * 1023)));
     };
     rt.tone = function (p, f, d) {
-      p = pinOk(p, "tone"); var s = pins()[p]; s.mode = 1; s.tone = Math.max(0, Math.trunc(f)); s.pwm = null; s.value = 1; self.markDirty();
+      p = pinOk(p, "tone"); var s = pins()[p]; self.history.toneLog = self.history.toneLog || []; if (self.history.toneLog.length < 400) self.history.toneLog.push(Math.trunc(f)); s.mode = 1; s.tone = Math.max(0, Math.trunc(f)); s.pwm = null; s.value = 1; self.markDirty();
       if (d > 0) { var tt = self.now() + d; if (self.virtualMode) { self.events.push({ t: self.vt + d, fn: function () { s.tone = 0; s.value = 0; self.markDirty(); } }); self.events.sort(function (a, b) { return a.t - b.t; }); } else setTimeout(function () { if (s.tone) { s.tone = 0; s.value = 0; self.markDirty(); } }, d / self.speed); }
     };
     rt.noTone = function (p) { p = pinOk(p, "noTone"); var s = pins()[p]; s.tone = 0; s.value = 0; self.markDirty(); };
@@ -125,6 +129,45 @@
     rt.mod = function (a, b) { if (b === 0) throw new Error("You used % with 0. Make sure the number after % is never 0."); return a % b; };
     rt.ci = function (arr, i) { if (!Array.isArray(arr)) throw new Error("That is not an array."); i = Math.trunc(i); if (i < 0 || i >= arr.length) throw new Error("Array index " + i + " is out of range. This array has " + arr.length + " spot" + (arr.length === 1 ? "" : "s") + " (numbered 0 to " + (arr.length - 1) + ")."); return i; };
     rt.makeArray = function (dims, z) { function mk(d) { var a = new Array(dims[d]); for (var i = 0; i < dims[d]; i++) a[i] = d === dims.length - 1 ? z : mk(d + 1); return a; } return mk(0); };
+    /* library objects: Servo and the 7-segment display (Adafruit_7segment) */
+    rt.newObj = function (kind) { return kind === "Servo" ? { kind: "Servo", pin: -1, attached: false, angle: 0 } : { kind: kind }; };
+    function digitsOf(text) {
+      var out = [], i; for (i = 0; i < text.length; i++) { var ch = text[i]; if (ch === "." && out.length) { out[out.length - 1].dot = true; continue; } out.push({ ch: ch, dot: false }); }
+      return out;
+    }
+    rt.objCall = function (o, m, a, kind, line) {
+      var h = self.history, dv = self.dev;
+      if (o.kind === "Servo") {
+        if (m === "attach") { var pp = pinOk(a[0], "attach"); o.pin = pp; o.attached = true; var st = pins()[pp]; st.mode = 1; st.value = 0; st.pwm = null; h.servoAttach = (h.servoAttach || {}); h.servoAttach[pp] = true; self.markDirty(); return 0; }
+        if (m === "detach") { o.attached = false; self.markDirty(); return 0; }
+        if (m === "attached") return o.attached ? 1 : 0;
+        if (m === "read") return Math.trunc(o.angle);
+        if (m === "write" || m === "writeMicroseconds") {
+          if (!o.attached) { h.servoNoAttach = true; if (!self.warnedServo) { self.warnedServo = true; self.say("A servo needs  myServo.attach(pin);  in setup() before you can write() to it. Right now it does not know which pin it is on.\n"); } return 0; }
+          var ang = m === "write" ? Math.trunc(a[0]) : Math.round((+a[0] - 544) * 180 / (2400 - 544));
+          if (m === "write" && ang >= 544) ang = Math.round((ang - 544) * 180 / (2400 - 544));
+          if (ang < 0 || ang > 180) { h.servoClamped = true; ang = Math.max(0, Math.min(180, ang)); }
+          o.angle = ang; dv.servo[o.pin] = ang; h.servoLog = h.servoLog || []; if (h.servoLog.length < 4000) h.servoLog.push(ang); h.servoWrites = (h.servoWrites || 0) + 1; h.servoAngles = h.servoAngles || {}; h.servoAngles[ang] = true; self.markDirty(); return 0;
+        }
+      }
+      if (o.kind === "Adafruit_7segment") {
+        var sg = dv.seg;
+        if (m === "begin") { sg.begun = true; sg.addrBad = Math.trunc(a[0]) !== 0x70; h.segBegin = true; if (sg.addrBad && !self.warnedAddr) { self.warnedAddr = true; self.say("The display answers to I2C address 0x70, but begin() was given 0x" + Math.trunc(a[0]).toString(16).toUpperCase() + ". Nothing will show until they match.\n"); } self.markDirty(); return 0; }
+        if (!sg.begun) { h.segNoBegin = true; if (!self.warnedBegin) { self.warnedBegin = true; self.say("The display has not been started. Add  matrix.begin(0x70);  inside setup().\n"); } }
+        if (m === "print" || m === "println") {
+          var txt, v = a[0];
+          if (kind === "float") txt = (+v).toFixed(a[1] !== undefined ? Math.trunc(a[1]) : 2); else if (kind === "char") txt = String.fromCharCode(v); else if (kind === "str") txt = String(v); else txt = (a[1] === 16 ? Math.trunc(v).toString(16).toUpperCase() : a[1] === 2 ? Math.trunc(v).toString(2) : String(Math.trunc(v)));
+          var ds = digitsOf(txt); if (ds.length > 4) ds = digitsOf("----"); while (ds.length < 4) ds.unshift(blankDigit()); sg.buf = ds; h.segPrint = (h.segPrint || 0) + 1; return 0;
+        }
+        if (m === "writeDisplay") { sg.shown = { digits: sg.buf.map(function (d) { return { ch: d.ch, dot: d.dot }; }), colon: sg.colon }; h.segWrites = (h.segWrites || 0) + 1; h.segSeen = h.segSeen || {}; h.segSeen[sg.buf.map(function (d) { return d.ch; }).join("")] = true; self.markDirty(); return 0; }
+        if (m === "clear") { sg.buf = [blankDigit(), blankDigit(), blankDigit(), blankDigit()]; sg.colon = false; return 0; }
+        if (m === "drawColon") { sg.colon = !!a[0]; return 0; }
+        if (m === "setBrightness") { sg.brightness = Math.max(0, Math.min(15, Math.trunc(a[0]))); return 0; }
+        if (m === "writeDigitNum") { var pos = Math.trunc(a[0]), idx = pos === 0 ? 0 : pos === 1 ? 1 : pos === 3 ? 2 : pos === 4 ? 3 : -1; if (idx >= 0) sg.buf[idx] = { ch: String(Math.trunc(a[1]) % 16 > 9 ? Math.trunc(a[1]).toString(16).toUpperCase() : Math.trunc(a[1]) % 10), dot: !!a[2] }; return 0; }
+        return 0;
+      }
+      return 0;
+    };
     rt.numstr = function (v, t) { return t === "float" ? fmtFloat(v, 2) : String(v); };
     function fmtFloat(v, d) { if (!isFinite(v)) return isNaN(v) ? "nan" : (v < 0 ? "-inf" : "inf"); return v.toFixed(d); }
     function fmt(v, kind, f) {
@@ -159,7 +202,7 @@
     if (!c.ok) return c;
     this.stop(true);
     var tok = this.token = { stop: false }; this.stopFlag = false; this.running = true; this.t0 = performance.now(); this.vt = 0; this.guard = 0; this.serialOut = ""; this.serialStarted = false; this.warnedSerial = false; this.warnedPwm = null;
-    this.io.blown = {}; this.io.pressed = this.io.pressed || {}; this.resetPins(); this.res = null; this.dirty = true;
+    this.io.blown = {}; this.io.pressed = this.io.pressed || {}; this.dev = newDev(); this.io.dev = this.dev; this.resetPins(); this.res = null; this.dirty = true;
     this.history = { ledOn: {}, ledOff: {}, maxLed: {}, pinHigh: {}, pinLow: {}, toneSeen: {}, serialBytes: 0 };
     var rt = this.makeRuntime(tok), self = this, prog;
     try { prog = c.make(rt); } catch (e) { this.running = false; return { ok: false, errors: [{ line: 1, msg: "The program could not start: " + e.message }], warnings: [] }; }
@@ -186,7 +229,7 @@
     opts = opts || {};
     var out = { ok: false, errors: [], samples: [], serial: "" }, sim = new Sim({ virtual: true, getProject: function () { return project; } });
     sim.limit = opts.until || 5000; sim.samples = (opts.samples || []).slice().sort(function (a, b) { return a - b; }); sim.nextSample = 0; sim.out = out; sim.deadline = Date.now() + (opts.maxMs || 1500);
-    sim.events = (opts.events || []).map(function (e) { return { t: e.t, fn: function (s) { if (e.press !== undefined) s.press(e.press, e.down !== false); if (e.serial) s.sendSerial(e.serial); } }; }).sort(function (a, b) { return a.t - b.t; });
+    sim.events = (opts.events || []).map(function (e) { return { t: e.t, fn: function (s) { if (e.press !== undefined) s.press(e.press, e.down !== false); if (e.pot !== undefined) s.setPot(e.pot, e.pos); if (e.serial) s.sendSerial(e.serial); } }; }).sort(function (a, b) { return a.t - b.t; });
     var c = root.ArduinoCompiler.compile(code);
     if (!c.ok) { out.errors = c.errors; return out; }
     sim.io.pressed = {}; sim.stopFlag = false; sim.running = true;

@@ -9,7 +9,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="../../assets/logo.png">
 <link rel="stylesheet" href="../unit-2/notes.css">
-<style>.seg{cursor:pointer;transition:fill .12s} .grid2 td,.grid2 th{text-align:center}</style>
+<style>.chip{display:inline-block;font:600 12px "JetBrains Mono",monospace;padding:4px 10px;margin:3px;border-radius:100px;border:1px solid var(--rule);background:#0E131B;color:#C4CDD8}.chip.hot{border-color:var(--hi);color:var(--hi-ink)}.chip.i2c{border-color:var(--acc);color:var(--acc-ink)}
+.lcd{background:#0a0a0a;border:2px solid #3b0d0d;border-radius:8px;padding:10px 16px;font:700 44px "JetBrains Mono",monospace;color:#ff3b30;letter-spacing:.2em;text-align:center;min-height:70px;text-shadow:0 0 12px #ff3b30}.lcd.dim{color:#3b0d0d;text-shadow:none}</style>
+<script src="../../arduino/compiler.js"></script>
+<script src="../../arduino/circuit.js"></script>
+<script src="../../arduino/sim.js"></script>
+<script src="../../arduino/render.js"></script>
+<script src="../../arduino/coach.js"></script>
+<script src="../../arduino/tips.js"></script>
+<script src="../../arduino/embed.js"></script>
 </head>
 <body>
 
@@ -17,106 +25,120 @@
   <a href="../index.html">&larr; Embedded Computing</a>
   <a href="3-5-displays-7-segment-counter.html">3.5 Lesson Page</a>
   <a href="3-5-notes.html" class="current">Notes</a>
+  <a href="../../arduino/editor.html?slot=u3-5">Open the Editor</a>
 </nav>
 
 <header class="hero">
   <div class="wrap">
     <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lesson 3.5</div>
     <h1>Displays: 7-Segment Counter</h1>
-    <p class="deck">Everything you need for the 3.5 assignment: how the display draws digits, wiring 7 segments, testing your wiring, lookup tables (2D arrays), and the button counter that wraps from 9 back to 0.</p>
+    <p class="deck">Everything you need for the 3.5 assignment, in the same order: why this display needs only 4 wires, wiring it, setting it up in code, showing a number, and the button counter that wraps back to 0 after 9999.</p>
     <div class="map">
-      <a href="#segs">01 <span>The 7 segments</span></a>
-      <a href="#wire">02 <span>Wiring (Part 1)</span></a>
-      <a href="#test">03 <span>Test first (Part 2)</span></a>
-      <a href="#lut">04 <span>Lookup table (Part 3)</span></a>
-      <a href="#count">05 <span>Button counter (Part 4)</span></a>
+      <a href="#lab">&#9889; <span>Live lab</span></a>
+      <a href="#why">01 <span>Why 4 wires (Step 1)</span></a>
+      <a href="#wire">02 <span>Wire it (Step 2)</span></a>
+      <a href="#setup">03 <span>Set it up in code (Steps 3-4)</span></a>
+      <a href="#show">04 <span>Show a number (Step 5)</span></a>
+      <a href="#count">05 <span>Count with the button (Step 6)</span></a>
     </div>
   </div>
 </header>
 
-<section class="part" id="segs">
+<section class="part" id="lab">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">01</div><h2>Seven Bars, Ten Digits</h2><span class="for">Part 3 table</span></div>
-    <p class="story">Look at a microwave clock or a scoreboard up close: every number is built from the same 7 little bars. Light the right bars and you get the right digit. Click the bars below to light them, and watch the pattern build.</p>
-    <div class="two" style="align-items:center">
-      <div class="fig" style="text-align:center">
-        <svg id="disp" viewBox="0 0 200 300" width="190" role="img" aria-label="Clickable 7-segment display with segments a through g">
-          <rect x="10" y="10" width="180" height="280" rx="14" fill="#0E131B" stroke="#232B38"/>
-        </svg>
-        <div class="btns"><button class="btn" id="clr" type="button">Clear</button><button class="btn" id="all" type="button">All on</button></div>
-      </div>
-      <div>
-        <div class="tblwrap"><table class="grid2"><tr><th>a</th><th>b</th><th>c</th><th>d</th><th>e</th><th>f</th><th>g</th></tr><tr id="patRow"></tr></table></div>
-        <div class="big" id="patCode" style="font-size:16px;margin-top:10px"></div>
-        <div class="tblwrap" style="margin-top:12px">
-          <table>
-            <tr><th>Segment</th><th>Where it is</th></tr>
-            <tr><td><b>a</b></td><td>top bar</td></tr><tr><td><b>b</b></td><td>top right</td></tr><tr><td><b>c</b></td><td>bottom right</td></tr><tr><td><b>d</b></td><td>bottom bar</td></tr><tr><td><b>e</b></td><td>bottom left</td></tr><tr><td><b>f</b></td><td>top left</td></tr><tr><td><b>g</b></td><td>middle bar</td></tr>
-          </table>
-        </div>
-      </div>
-    </div>
-    <div class="hint-panel"><b>Your job in Part 3:</b> the assignment gives you 0 and 1. Draw each digit from 2 to 9 here, read the pattern (1 = on, 0 = off, in the order a b c d e f g), and type it into your assignment table. Check it against how the digit really looks on a clock.</div>
+    <div class="part-head"><div class="part-tag">LIVE</div><h2>Live Lab: The Counter</h2><span class="for">Try it right here</span></div>
+    <p class="story">The display, the button and the code are ready. Press <b>Start</b>, then <b>click the button</b> a few times and watch the digits climb. Then break the wiring on purpose with the experiment and see what a display with the wires swapped does.</p>
+    <div id="lab-mount"></div>
+    <script>
+(function () {
+  ArduinoEmbed.mount(document.getElementById("lab-mount"), { preset: "seg7", title: "4 wires and a button", slot: "u3-5", editable: true, height: 320,
+    experiments: ["unplugD"],
+    variants: [
+      { label: "Show 1234 with a colon", code: "#include <Wire.h>\n#include \"Adafruit_LEDBackpack.h\"\n\nAdafruit_7segment matrix = Adafruit_7segment();\n\nvoid setup() {\n  matrix.begin(0x70);\n}\n\nvoid loop() {\n  matrix.print(1234);\n  matrix.drawColon(true);\n  matrix.writeDisplay();\n}\n" },
+      { label: "Bug: forgot writeDisplay()", code: "#include <Wire.h>\n#include \"Adafruit_LEDBackpack.h\"\n\nAdafruit_7segment matrix = Adafruit_7segment();\nint count = 0;\n\nvoid setup() {\n  matrix.begin(0x70);\n  pinMode(2, INPUT_PULLUP);\n}\n\nvoid loop() {\n  if (digitalRead(2) == LOW) {\n    count++;\n    delay(150);\n  }\n  matrix.print(count);\n}\n" },
+      { label: "Bug: forgot matrix.begin()", code: "#include <Wire.h>\n#include \"Adafruit_LEDBackpack.h\"\n\nAdafruit_7segment matrix = Adafruit_7segment();\nint count = 5;\n\nvoid setup() {\n}\n\nvoid loop() {\n  matrix.print(count);\n  matrix.writeDisplay();\n}\n" }
+    ],
+    goals: [
+      { text: "Press <b>Start</b>. The display shows <b>0</b>.", title: "It is alive", say: "<code>matrix.print(count)</code> loaded 0 into the display's memory and <code>writeDisplay()</code> sent it over the I2C wires.", when: function (s) { var d = s.sim.dev.seg.shown; return !!d && d.digits.map(function (x) { return x.ch; }).join("") === "   0"; } },
+      { text: "<b>Click the button 3 times</b>. The count climbs to 3.", title: "Counting", say: "INPUT_PULLUP reads LOW while the button is held. Each press adds 1 to <code>count</code>, and the <code>delay(150)</code> makes one press count once.", when: function (s) { var d = s.sim.dev.seg.shown; return !!d && d.digits.map(function (x) { return x.ch; }).join("").trim() === "3"; } },
+      { text: "Run <b>Bug: forgot writeDisplay()</b>. What does the display show?", title: "Nothing changes", say: "print() only fills the display's <b>memory</b>. Without writeDisplay() nothing is ever sent to the chip, so the screen never updates.", when: function (s) { return /count\+\+/.test(s.code) && !/writeDisplay/.test(s.code) && s.running; } },
+      { text: "Run <b>Bug: forgot matrix.begin()</b>.", title: "Never started", say: "begin(0x70) starts the conversation with the chip at I2C address 0x70. Skip it and the display never wakes up.", when: function (s) { return !!(s.sim.history && s.sim.history.segNoBegin); } }
+    ] });
+})();
+    </script>
+  </div>
+</section>
+
+<section class="part" id="why">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Why This Display Only Needs 4 Wires</h2><span class="for">Step 1</span></div>
+    <p class="story">Every number on a microwave or a scoreboard is built from 7 little bars. A <b>raw</b> 4-digit display needs a wire for every bar plus a wire to pick the digit, and your code has to flip between digits so fast they all look lit. This one hides all of that behind a small chip. Click to compare.</p>
+    <div class="btns"><button class="btn on" id="bRaw" type="button">A raw display</button><button class="btn" id="bI2C" type="button">This display (I2C backpack)</button></div>
+    <div class="panel" style="margin-top:12px"><h3 id="wTitle">11 wires</h3><div id="wChips"></div><p class="small" id="wText"></p></div>
+    <div class="hint-panel"><b>Trade-off:</b> a little extra code (a library) in exchange for far fewer wires and far less code to write and debug. That is a common deal in real hardware.</div>
   </div>
 </section>
 
 <section class="part" id="wire">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">02</div><h2>Wiring 7 Segments</h2><span class="for">Part 1</span></div>
-    <p class="story">Each bar is its own little LED. So each bar follows the LED rule you've used since 2.2: its own pin and its own 220 &Omega; resistor. That's a lot of wires, so go slowly.</p>
-    <div class="tblwrap">
-      <table>
-        <tr><th>Segment</th><th>a</th><th>b</th><th>c</th><th>d</th><th>e</th><th>f</th><th>g</th><th>Common cathode</th><th>Button</th></tr>
-        <tr><td><b>Arduino pin</b></td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>GND</td><td>pin 9 + GND</td></tr>
-      </table>
-    </div>
-    <div class="hint-panel">The Tinkercad display is <b>common cathode</b>: the shared leg goes to <b>GND</b> (like the RGB LED in 3.1). Hover over each display leg to read its label before wiring. Parts: Arduino, breadboard, 7-segment display, <b>seven</b> 220 &Omega; resistors, pushbutton.</div>
+    <div class="part-head"><div class="part-tag">02</div><h2>Wire It Up</h2><span class="for">Step 2</span></div>
+    <p class="story">Look at the top of the display: 4 labeled pins: <b>+</b>, <b>&minus;</b>, <b>D</b> and <b>C</b>. Hover over each one in the editor to double-check.</p>
+    <div class="tblwrap"><table>
+      <tr><th>Display pin</th><th>Connects to</th><th>Why</th></tr>
+      <tr><td><b>+</b></td><td>Arduino <b>5V</b></td><td>Power for the chip and the digits.</td></tr>
+      <tr><td><b>&minus;</b></td><td>Arduino <b>GND</b></td><td>The 0 volt return path.</td></tr>
+      <tr><td><b>D</b> (data)</td><td>Arduino <b>A4</b> (SDA)</td><td>Bits of information go this way.</td></tr>
+      <tr><td><b>C</b> (clock)</td><td>Arduino <b>A5</b> (SCL)</td><td>The beat that keeps data and listener in step.</td></tr>
+      <tr><td>Button, one side</td><td>pin <b>2</b></td><td>Read with INPUT_PULLUP.</td></tr>
+      <tr><td>Button, other side</td><td><b>GND</b></td><td>Pressing connects pin 2 to GND (LOW).</td></tr>
+    </table></div>
+    <div class="hint-panel"><b>I2C is a shared bus.</b> D and C are the same 2 wires any other I2C part on this Arduino would use too. Every device on the bus listens only for messages sent to its own <b>address</b>. This display's address is <code>0x70</code>.</div>
   </div>
 </section>
 
-<section class="part" id="test">
+<section class="part" id="setup">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">03</div><h2>Test the Wiring First</h2><span class="for">Part 2</span></div>
-    <p class="story">Fourteen wires means fourteen chances to swap two. Finding that mistake now takes a minute. Finding it after you've written a lookup table takes an hour, because you won't know if the problem is the wires or the table.</p>
+    <div class="part-head"><div class="part-tag">03</div><h2>Set the Display Up in Code</h2><span class="for">Steps 3 and 4</span></div>
+    <p class="story">The library for this display is already built into the editor. You load it with two <code>#include</code> lines at the very top.</p>
+    <div class="code"><span class="kw">#include</span> &lt;Wire.h&gt;                         <span class="cm">// the I2C library (2-wire talking)</span>
+<span class="kw">#include</span> "Adafruit_LEDBackpack.h"          <span class="cm">// the display's library</span>
+
+Adafruit_7segment matrix = Adafruit_7segment();   <span class="cm">// make a display called matrix</span>
+<span class="kw">int</span> count = <span class="n">0</span>;                         <span class="cm">// the number to show</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  matrix.<span class="fn">begin</span>(<span class="n">0x70</span>);                  <span class="cm">// start talking to address 0x70</span>
+  <span class="fn">pinMode</span>(<span class="n">2</span>, INPUT_PULLUP);          <span class="cm">// the button</span>
+}</div>
     <div class="two">
-      <div class="box b"><h3>What the test does</h3><p>Turns on pin 2, waits half a second, turns it off; then pin 3; and so on through pin 8. Each bar should light <b>in order a, b, c, d, e, f, g</b>. If the wrong bar lights, or none does, fix that wire now.</p><p class="small">You build this test. Think about what you learned in 2.3 (digitalWrite, delay) and 3.2 (for loops).</p></div>
-      <div class="box a" style="text-align:center"><h3>What a good test looks like</h3><div class="btns"><button class="btn" id="runTest" type="button">&#9654; Watch the test</button></div><p class="small" id="testMsg"></p></div>
+      <div class="box b"><h3>What is 0x70?</h3><p>The display chip's I2C address: the &quot;name&quot; it listens for. <code>0x</code> means the number is written in <b>hexadecimal</b> (base 16). 0x70 is 112 in everyday numbers.</p></div>
+      <div class="box a"><h3>Don't forget</h3><ul><li>No semicolon after <code>#include</code> lines.</li><li><code>&lt;angle brackets&gt;</code> for built-in libraries, <code>"quotes"</code> for added ones.</li><li><code>matrix.begin(0x70)</code> goes in <b>setup()</b>.</li></ul></div>
     </div>
   </div>
 </section>
 
-<section class="part" id="lut">
+<section class="part" id="show">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">04</div><h2>The Lookup Table</h2><span class="for">Part 3</span></div>
-    <p class="story">Ten digits could mean ten separate blocks of code. Instead, store all ten patterns in one table, like a cheat sheet, and write just one function that looks up the row it needs. That's a lookup table, one of the most useful tricks in programming.</p>
+    <div class="part-head"><div class="part-tag">04</div><h2>Show a Number: print + writeDisplay</h2><span class="for">Step 5</span></div>
+    <p class="story">Two lines, both required. Try them: type a number, then press the buttons in order, and watch where the number lives.</p>
     <div class="two">
-      <div class="box b"><h3>A 2D array: a table of rows</h3><div class="code" style="margin:6px 0 8px"><span class="kw">const byte</span> digits[<span class="n">10</span>][<span class="n">7</span>] = {
-  {<span class="n">1</span>,<span class="n">1</span>,<span class="n">1</span>,<span class="n">1</span>,<span class="n">1</span>,<span class="n">1</span>,<span class="n">0</span>},  <span class="cm">// 0</span>
-  {<span class="n">0</span>,<span class="n">1</span>,<span class="n">1</span>,<span class="n">0</span>,<span class="n">0</span>,<span class="n">0</span>,<span class="n">0</span>},  <span class="cm">// 1</span>
-  <span class="cm">// your rows for 2 to 9 go here</span>
-};</div><p><code>[10][7]</code> means 10 rows (digits 0&ndash;9), 7 columns (segments a&ndash;g). Rows are separated by commas, and the whole thing ends with <code>};</code></p></div>
-      <div class="box a"><h3>Reading a cell</h3><p><code>digits[n][s]</code> means "row <b>n</b>, column <b>s</b>." <code>digits[1][1]</code> is row 1 (the digit 1), column 1 (segment b), which is <b>1</b>: on.</p><p>Paired with <code>segPins[] = {2,3,4,5,6,7,8}</code>, column <b>s</b> of the table and position <b>s</b> of segPins always mean the same segment.</p></div>
+      <div class="panel"><h3>The Arduino's memory</h3><input id="num" type="number" value="1234" style="width:100%;background:#0E131B;border:1px solid var(--rule);color:#fff;border-radius:5px;padding:8px;font:600 18px 'JetBrains Mono',monospace"><div class="btns"><button class="btn" id="bPrint" type="button">matrix.print(number);</button><button class="btn" id="bWrite" type="button">matrix.writeDisplay();</button></div><p class="small" id="memTxt">Memory: (empty)</p></div>
+      <div class="panel"><h3>The display</h3><div class="lcd dim" id="lcd">----</div><p class="small" id="lcdTxt">Nothing has been sent yet.</p></div>
     </div>
-    <div class="tblwrap" style="margin-top:12px">
-      <table>
-        <tr><th>Piece</th><th>What it does</th></tr>
-        <tr><td><code>void showDigit(int n)</code></td><td>Between setup() and loop(). A for loop with s from 0 to 6 calls <code>digitalWrite(segPins[s], digits[n][s]);</code> so each segment gets its on/off value from row n.</td></tr>
-        <tr><td>In <code>setup()</code></td><td>A for loop with s from 0 to 6 calls <code>pinMode(segPins[s], OUTPUT);</code></td></tr>
-        <tr><td>In <code>loop()</code></td><td>A for loop with n from 0 to 9 calls <code>showDigit(n);</code> then <code>delay(1000);</code></td></tr>
-      </table>
-    </div>
+    <div class="hint-panel"><b>Same idea as Serial:</b> <code>print()</code> loads the number into the display's memory, the way <code>Serial.print()</code> works. <code>writeDisplay()</code> is what actually sends it over I2C and lights the screen. You need <b>both</b>, every time you want it to update.</div>
   </div>
 </section>
 
 <section class="part" id="count">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">05</div><h2>The Button Counter</h2><span class="for">Part 4 + Reflections</span></div>
-    <p class="story">Every press adds one. After 9, it has to go back to 0, because there's no single-digit 10. Then the lookup table does the rest: showDigit(count).</p>
-    <div class="two">
-      <div class="box b"><h3>What Part 4 needs</h3><ul><li>A <code>count</code> variable that starts at 0.</li><li>In setup(): <code>pinMode(9, INPUT_PULLUP);</code> and <code>showDigit(count);</code></li><li>In loop(): if the button is pressed (<code>digitalRead(9) == LOW</code>), add 1 to count, wrap it to 0 if it goes past 9, call showDigit(count), then <code>delay(300);</code></li><li>The delay(300) stops one press from counting many times (like the lock in 3.3).</li></ul></div>
-      <div class="box a" style="text-align:center"><h3>Try it</h3><div class="big" id="cOut">count = 0</div><div class="btns"><button class="btn" id="press" type="button">Press the button</button></div><p class="small">The display in section 01 shows the count using your drawing tool's patterns.</p></div>
-    </div>
-    <div class="hint-panel"><b>Reflection 2 (two digits):</b> count the pins your one-digit display uses. How many would two separate digits need? Compare that with how many digital pins the Uno has (0&ndash;13).</div>
+    <div class="part-head"><div class="part-tag">05</div><h2>Count Up with the Button</h2><span class="for">Step 6 + Reflections</span></div>
+    <p class="story">Add this above the two display lines, so the display always shows the most recent count. After 9999 there is no 5-digit number, so it wraps back to 0.</p>
+    <div class="code"><span class="kw">if</span> (<span class="fn">digitalRead</span>(<span class="n">2</span>) == LOW) {   <span class="cm">// button held down?</span>
+  count++;                         <span class="cm">// add 1</span>
+  <span class="kw">if</span> (count &gt; <span class="n">9999</span>) count = <span class="n">0</span>;   <span class="cm">// wrap around</span>
+  <span class="fn">delay</span>(<span class="n">150</span>);                    <span class="cm">// one press = one count</span>
+}</div>
+    <div class="panel"><h3>Try the wrap</h3><div class="lcd" id="lcd2">0</div><div class="btns"><button class="btn" id="p1" type="button">Press (+1)</button><button class="btn" id="p10" type="button">+1000</button><button class="btn" id="p9" type="button">Jump to 9999</button><button class="btn" id="p0" type="button">Reset</button></div><p class="small" id="lcd2Txt">count = 0</p></div>
     <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
     <div class="quiz" id="quiz"></div>
   </div>
@@ -124,52 +146,42 @@
 
 <footer class="final">
   <div class="wrap">
-    <h2>Store the pattern once. Look it up whenever you need it.</h2>
-    <p>A 2D array plus one showDigit() function replaces ten blocks of copy-pasted code.</p>
+    <h2>Four wires. One shared bus. A chip that does the hard part.</h2>
+    <p>print() loads the memory, writeDisplay() lights the screen, and count wraps at 9999.</p>
     <a class="back" href="3-5-displays-7-segment-counter.html">&larr; Back to 3.5</a>
+    <a class="back" href="../../arduino/editor.html?slot=u3-5">Open the Editor &rarr;</a>
     <a class="back" href="../index.html">&larr; Embedded Computing</a>
   </div>
 </footer>
 
 <script>
 window.QUIZ = [
-  { s: "Which segment is the middle bar?", o: ["a", "d", "g"], a: 2, e: "a is top, d is bottom, g is the middle." },
-  { s: "In <code>digits[10][7]</code>, what does the 7 stand for?", o: ["7 digits", "7 segments (a through g)"], a: 1, e: "10 rows of digits, 7 columns of segments." },
-  { s: "count is 9 and the button is pressed. What should the display show next?", o: ["10", "0"], a: 1, e: "After 9 it wraps back to 0." },
-  { s: "Why test each segment before writing the lookup table?", o: ["So a wiring mistake isn't confused with a table mistake", "The Arduino requires it"], a: 0, e: "Test one thing at a time, and you always know where the problem is." }
+  { s: "What does the <b>D</b> pin on the display connect to?", o: ["A4 (SDA, the data wire)", "pin 2", "5V"], a: 0, e: "D is data and goes to A4. C (clock) goes to A5." },
+  { s: "You call <code>matrix.print(count);</code> but never <code>matrix.writeDisplay();</code>. What shows?", o: ["The new number", "Nothing new: the number is only in memory"], a: 1, e: "print() loads memory. writeDisplay() sends it to the chip." },
+  { s: "What is <code>0x70</code>?", o: ["The I2C address of the display chip", "The number of digits"], a: 0, e: "The address is the name the chip listens for on the shared 2-wire bus." },
+  { s: "count is 9999 and the button is pressed. What does the display show next?", o: ["10000", "0"], a: 1, e: "The if (count > 9999) count = 0; line wraps it back to 0." },
+  { s: "Why does the raw display need so many wires?", o: ["Every bar of every digit, plus digit-select wires, go straight to the Arduino", "I2C needs them"], a: 0, e: "That is 7 segment wires plus 4 digit wires = 11, before the code even starts flipping between digits." }
 ];
 (function () {
   var $ = function (i) { return document.getElementById(i); };
-  // segment shapes: a b c d e f g
-  var P = { a: "M50 30 h100 l-12 16 h-76 z", b: "M154 34 v100 l-16 -12 v-76 z", c: "M154 166 v100 l-16 -16 v-76 z", d: "M50 270 h100 l-12 -16 h-76 z", e: "M46 166 v100 l16 -16 v-76 z", f: "M46 34 v100 l16 -12 v-76 z", g: "M52 150 l12 -10 h72 l12 10 l-12 10 h-72 z" };
-  var L = "abcdefg".split(""), on = [0, 0, 0, 0, 0, 0, 0];
-  var svg = $("disp"), h = svg.innerHTML;
-  L.forEach(function (k, i) { h += '<path class="seg" data-i="' + i + '" d="' + P[k] + '"/><text x="' + ({ a: 100, b: 172, c: 172, d: 100, e: 28, f: 28, g: 100 }[k]) + '" y="' + ({ a: 26, b: 88, c: 220, d: 290, e: 220, f: 88, g: 148 }[k]) + '" fill="#8B9AAE" font-family="JetBrains Mono" font-size="12" text-anchor="middle" pointer-events="none">' + k + "</text>"; });
-  svg.innerHTML = h;
-  function draw() {
-    [].forEach.call(svg.querySelectorAll(".seg"), function (p) { p.setAttribute("fill", on[+p.getAttribute("data-i")] ? "#EF4444" : "#2A1414"); });
-    $("patRow").innerHTML = on.map(function (v) { return "<td><b>" + v + "</b></td>"; }).join("");
-    $("patCode").textContent = "{" + on.join(",") + "}";
+  var RAW = ["a", "b", "c", "d", "e", "f", "g", "digit 1", "digit 2", "digit 3", "digit 4"];
+  function show(raw) {
+    $("bRaw").className = "btn" + (raw ? " on" : ""); $("bI2C").className = "btn" + (raw ? "" : " on");
+    $("wTitle").textContent = raw ? "11 wires, plus code that multiplexes" : "4 wires: + - D C";
+    $("wChips").innerHTML = raw ? RAW.map(function (r) { return '<span class="chip hot">' + r + "</span>"; }).join("") : ["+ (5V)", "- (GND)", "D (data, A4)", "C (clock, A5)"].map(function (r) { return '<span class="chip i2c">' + r + "</span>"; }).join("");
+    $("wText").textContent = raw ? "7 segment pins plus 4 digit-select pins, and your own code has to flip between the digits so quickly that they all look lit. That trick is called multiplexing." : "A chip on the back (the HT16K33) does the multiplexing by itself, all the time. Your Arduino only sends it commands like show a 7 in position 2, over the 2-wire I2C bus.";
   }
-  svg.addEventListener("click", function (e) { var i = e.target.getAttribute && e.target.getAttribute("data-i"); if (i === null || i === undefined) return; on[+i] = on[+i] ? 0 : 1; draw(); });
-  $("clr").onclick = function () { on = [0, 0, 0, 0, 0, 0, 0]; draw(); };
-  $("all").onclick = function () { on = [1, 1, 1, 1, 1, 1, 1]; draw(); };
-  draw();
-  var T = [];
-  $("runTest").onclick = function () {
-    T.forEach(clearTimeout); T = []; window.scrollTo({ top: $("segs").offsetTop, behavior: "smooth" });
-    L.forEach(function (k, i) { T.push(setTimeout(function () { on = [0, 0, 0, 0, 0, 0, 0]; on[i] = 1; draw(); $("testMsg").textContent = "pin " + (i + 2) + " HIGH → segment " + k; }, 500 + i * 500)); });
-    T.push(setTimeout(function () { on = [0, 0, 0, 0, 0, 0, 0]; draw(); $("testMsg").textContent = "all 7 lit in order a to g: wiring is good"; }, 500 + 7 * 500));
+  $("bRaw").onclick = function () { show(true); }; $("bI2C").onclick = function () { show(false); }; show(true);
+  var mem = null;
+  $("bPrint").onclick = function () { mem = $("num").value === "" ? 0 : Math.trunc(+$("num").value); $("memTxt").textContent = "Memory: " + mem + "  (it is NOT on the display yet)"; };
+  $("bWrite").onclick = function () {
+    if (mem === null) { $("lcdTxt").textContent = "writeDisplay() sent an empty memory. Press print() first."; return; }
+    var s = mem > 9999 || mem < -999 ? "----" : String(mem); while (s.length < 4) s = " " + s; $("lcd").textContent = s.replace(/ /g, "\u00A0"); $("lcd").className = "lcd"; $("lcdTxt").textContent = "writeDisplay() sent the memory over I2C. Now it shows.";
   };
-  // counter shows only 0 and 1 from the assignment; other digits use whatever the student drew last, so we don't give the patterns away
-  var count = 0, KNOWN = { 0: [1, 1, 1, 1, 1, 1, 0], 1: [0, 1, 1, 0, 0, 0, 0] }, mine = {};
-  $("press").onclick = function () {
-    mine[count] = on.slice();
-    count = count + 1; if (count > 9) count = 0;
-    $("cOut").textContent = "count = " + count;
-    on = (KNOWN[count] || mine[count] || [0, 0, 0, 0, 0, 0, 0]).slice(); draw();
-    if (!KNOWN[count] && !mine[count]) $("cOut").textContent += " (draw this digit!)";
-  };
+  var cnt = 0;
+  function draw2(msg) { $("lcd2").textContent = String(cnt); $("lcd2Txt").textContent = msg || "count = " + cnt; }
+  function add(n) { cnt += n; var wrapped = false; if (cnt > 9999) { cnt = 0; wrapped = true; } draw2(wrapped ? "count went past 9999, so  if (count > 9999) count = 0;  wrapped it to 0" : null); }
+  $("p1").onclick = function () { add(1); }; $("p10").onclick = function () { add(1000); }; $("p9").onclick = function () { cnt = 9999; draw2(); }; $("p0").onclick = function () { cnt = 0; draw2(); };
 })();
 </script>
 <script src="../unit-2/notes.js"></script>
