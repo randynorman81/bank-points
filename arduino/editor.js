@@ -250,7 +250,7 @@
   }
   function hideTip() { ttEl.className = ""; }
   function hoverInfo(w, e) {
-    var n = nearestTerm(w, Math.max(5, 7 / view.z)), t = n.part || n.board;
+    var n = nearestTerm(w, Math.max(5, 7 / view.z)), t = n.part;
     if (t) {
       var info = termInfo(t); if (info) { info = Object.assign({}, info); var p = partById(t.part);
         if (p && p.type === "led" && lastRes && lastRes.leds[p.id] && sim.running) info.live = lastRes.leds[p.id].blown ? "This LED is burned out." : "Right now: " + lastRes.leds[p.id].current.toFixed(1) + " mA flows through this LED.";
@@ -258,7 +258,7 @@
         return { info: info, pt: t }; }
     }
     var partEl = e.target.closest ? e.target.closest(".part") : null;
-    if (partEl) { var pp = partById(partEl.getAttribute("data-id")); if (pp && PART_BODY[pp.type]) return { info: Object.assign({}, PART_BODY[pp.type], pp.type === "resistor" ? { t: "Resistor (" + ohmsWords(+pp.props.ohms || 220) + ")" } : {}), pt: null }; }
+    if (partEl) { var pp = partById(partEl.getAttribute("data-id")); if (pp && pp.type !== "breadboard" && PART_BODY[pp.type]) return { info: Object.assign({}, PART_BODY[pp.type], pp.type === "resistor" ? { t: "Resistor (" + ohmsWords(+pp.props.ohms || 220) + ")" } : {}), pt: null }; }
     return null;
   }
   function selectedPart() { return sel && sel.type === "part" ? partById(sel.id) : null; }
