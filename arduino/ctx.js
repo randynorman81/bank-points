@@ -53,6 +53,8 @@
     c.motorsOnPin = function (pin) { var r = c.staticRun({ pins: pinHigh(pin) }); return Object.keys(r.motors).filter(function (id) { return r.motors[id].speed > 0.5; }); };
     c.warningsOnPin = function (pin) { return c.staticRun({ pins: pinHigh(pin) }).warnings.map(function (w) { return w.msg; }); };
     c.buzzerOnPin = function (pin) { var r = c.staticRun({ pins: pinHighTone(pin, 440) }); return Object.keys(r.buzzers).filter(function (id) { return r.buzzers[id].sounding; }); };
+    /* is there a resistor with one end on net a and the other on net b? (judges just that wire, so it does not depend on the steps that come later) */
+    c.resistorBetween = function (a, b, ohms) { return a >= 0 && b >= 0 && a !== b && c.parts("resistor").some(function (r) { var x = c.netOf(r, "1"), y = c.netOf(r, "2"); return ((x === a && y === b) || (x === b && y === a)) && (!ohms || +(r.props && r.props.ohms) === ohms); }); };
     c.statics = function () { return c.staticRun({}); };
     c.run = function (opts) { var k = pkey + "|" + code + "|" + JSON.stringify(opts); if (!runCache[k]) { if (Object.keys(runCache).length > 40) runCache = {}; runCache[k] = Sim.virtual(clone(project), code, opts); } return runCache[k]; };
     return c;
