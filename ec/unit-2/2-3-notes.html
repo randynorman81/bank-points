@@ -118,6 +118,13 @@ td b{color:#fff}
 
 @media (max-width:820px){ .two,.sim{grid-template-columns:1fr} th,td{padding:10px 12px} }
 </style>
+<script src="../../arduino/compiler.js"></script>
+<script src="../../arduino/circuit.js"></script>
+<script src="../../arduino/sim.js"></script>
+<script src="../../arduino/render.js"></script>
+<script src="../../arduino/coach.js"></script>
+<script src="../../arduino/tips.js"></script>
+<script src="../../arduino/embed.js"></script>
 </head>
 <body>
 
@@ -133,6 +140,7 @@ td b{color:#fff}
     <h1>Your First Sketch: Blink</h1>
     <p class="deck">Everything you need for the 2.3 Blink assignment, in the same order as the assignment. Each section says which part of the assignment it helps with.</p>
     <div class="map">
+      <a href="#lab">&#9889; <span>Live lab</span></a>
       <a href="#pin">01 <span>Why the wiring changed</span></a>
       <a href="#vocab">02 <span>Vocabulary (Sections 1 + 2)</span></a>
       <a href="#build">03 <span>Core Blink build (Section 3)</span></a>
@@ -145,6 +153,35 @@ td b{color:#fff}
 </header>
 
 <!-- 01 WHY THE WIRING CHANGED -->
+<section class="part" id="lab">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">LIVE</div><h2>Live Lab: Blink</h2><span class="for">Try it right here</span></div>
+    <p class="story">The circuit and the code are ready. Press <b>Start</b>, watch pin 8 go HIGH and LOW in the chips under the circuit, then <b>change the code</b> and run it again.</p>
+    <div id="lab-mount"></div>
+    <script>
+(function () {
+  ArduinoEmbed.mount(document.getElementById("lab-mount"), { preset: "blink", title: "Blink: pin 8, resistor, LED, GND", slot: "u2-3", editable: true, height: 300,
+    intro: "The pin chips under the circuit show what the Arduino is doing with each pin right now.",
+    variants: [
+      { label: "Faster (200 ms)", code: "int ledPin = 8;\n\nvoid setup() {\n  pinMode(ledPin, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(ledPin, HIGH);\n  delay(200);\n  digitalWrite(ledPin, LOW);\n  delay(200);\n}\n" },
+      { label: "Quarter second ON, 2 seconds OFF", code: "int ledPin = 8;\n\nvoid setup() {\n  pinMode(ledPin, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(ledPin, HIGH);\n  delay(250);\n  digitalWrite(ledPin, LOW);\n  delay(2000);\n}\n" },
+      { label: "Bug: forgot the second delay()", code: "int ledPin = 8;\n\nvoid setup() {\n  pinMode(ledPin, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(ledPin, HIGH);\n  delay(1000);\n  digitalWrite(ledPin, LOW);\n}\n" },
+      { label: "Bug: pinMode inside loop()", code: "int ledPin = 8;\n\nvoid setup() {\n}\n\nvoid loop() {\n  pinMode(ledPin, OUTPUT);\n  digitalWrite(ledPin, HIGH);\n  delay(1000);\n  digitalWrite(ledPin, LOW);\n  delay(1000);\n}\n" }
+    ],
+    events: [
+      { id: "pin8-high", when: function (c) { var p = c.io && c.io.pins && c.io.pins[8]; return !!(c.sim && c.sim.running && p && p.mode === 1 && p.value); }, title: "Pin 8 just went HIGH", help: ["digitalwrite", "constants-hl"], html: "<code>digitalWrite(ledPin, HIGH)</code> made pin 8 push out <b>5 volts</b>. The pin is now a tiny 5V power source, and your LED lights up." },
+      { id: "pin8-low", when: function (c) { var p = c.io && c.io.pins && c.io.pins[8]; return !!(c.sim && c.sim.running && p && p.mode === 1 && !p.value && c.sim.history && c.sim.history.pinHigh && c.sim.history.pinHigh[8]); }, title: "Pin 8 went LOW", help: ["digitalwrite", "delay"], html: "<code>digitalWrite(ledPin, LOW)</code> drops the pin to <b>0 volts</b>, the same as GND, so no current flows. The <code>delay()</code> lines decide how long each state lasts." }
+    ],
+    goals: [
+      { text: "Press <b>Start</b> and watch the LED blink at least <b>3 times</b>.", title: "That's Blink!", say: "loop() runs forever: HIGH, wait, LOW, wait, again and again.", when: function (s, g) { var v = s.io.pins[8] && s.io.pins[8].value; if (g.last !== undefined && v !== g.last) g.n = (g.n || 0) + 1; g.last = v; return s.running && (g.n || 0) >= 6; } },
+      { text: "Click <b>Bug: forgot the second delay()</b>. What does the LED look like?", title: "Always on?", say: "Without the second delay(), the LED goes LOW and then HIGH again instantly. It turns off for a few microseconds, far too fast to see, so it looks solid.", when: function (s) { return s.running && (s.code.match(/delay\s*\(/g) || []).length === 1; } },
+      { text: "Click <b>Bug: pinMode inside loop()</b>. Does it still work?", title: "It works... but why is that bad?", say: "pinMode only needs to happen once. Putting it in loop() repeats it for no reason. Setup is for things that happen once.", when: function (s) { return s.running && /void\s+setup\s*\(\s*\)\s*\{\s*\}/.test(s.code); } }
+    ] });
+})();
+    </script>
+  </div>
+</section>
+
 <section class="part" id="pin">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">01</div><h2>Why the Wiring Changed from 2.2</h2><span class="for">Intro + Section 2</span></div>
@@ -228,7 +265,7 @@ td b{color:#fff}
 <section class="part" id="build">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">03</div><h2>Building Blink, Line by Line</h2><span class="for">Section 3: Part 1</span></div>
-    <p class="story">Tinkercad's code editor starts you with an empty setup() and an empty loop(). Every Arduino program needs both of them, no exceptions. Your job is to fill them in.</p>
+    <p class="story">The Circuit Editor's code box starts you with an empty setup() and an empty loop(). Every Arduino program needs both of them, no exceptions. Your job is to fill them in.</p>
     <div class="code"><span class="kw">int</span> ledPin = <span class="n">8</span>;              <span class="cm">// ABOVE setup(): name the pin you wired to</span>
 
 <span class="kw">void</span> <span class="fn">setup</span>() {
@@ -538,7 +575,7 @@ td b{color:#fff}
 
   /* 07: mistakes quiz */
   var Q = [
-    { s: "Tinkercad shows an error on the line <code>pinMode(ledPin, OUTPUT)</code>.", o: ["Add a semicolon at the end", "Change OUTPUT to INPUT", "Move it into loop()"], a: 0, e: "Every statement in Arduino code ends with a <code>;</code>. A missing semicolon is the most common error there is." },
+    { s: "The editor shows a red error on the line <code>pinMode(ledPin, OUTPUT)</code>.", o: ["Add a semicolon at the end", "Change OUTPUT to INPUT", "Move it into loop()"], a: 0, e: "Every statement in Arduino code ends with a <code>;</code>. A missing semicolon is the most common error there is." },
     { s: "The code runs with no errors, but the LED never lights up.", o: ["Add more delay()", "Check that the LED isn't backwards and the pin number matches your wiring", "Delete setup()"], a: 1, e: "An LED only works one way around (the longer leg, the anode, goes toward the pin). And <code>int ledPin</code> must match the pin you actually wired." },
     { s: "The error says something about an unexpected end or a missing <code>}</code>.", o: ["Every { needs a matching }", "Add a semicolon after loop()", "Change void to int"], a: 0, e: "setup() and loop() each open with <code>{</code> and must close with <code>}</code>. Count them." },
     { s: "The LED is on, but it looks steady instead of blinking.", o: ["Check that both delay() lines are there", "Change HIGH to LOW everywhere", "Unplug GND"], a: 0, e: "Without a pause after turning the LED off, loop() jumps back to HIGH almost instantly. Try it in the simulator in section 04." },

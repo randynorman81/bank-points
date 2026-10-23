@@ -11,6 +11,13 @@
 <link rel="stylesheet" href="notes.css">
 <style>.pinbtn{font-family:"JetBrains Mono",monospace;font-size:13px;width:44px;height:36px;border-radius:5px;border:1px solid var(--rule);background:#0E131B;color:#fff;cursor:pointer}
 .pinbtn.pwm{border-color:var(--hi)} .pinbtn.sel{background:var(--acc);color:#05070B}</style>
+<script src="../../arduino/compiler.js"></script>
+<script src="../../arduino/circuit.js"></script>
+<script src="../../arduino/sim.js"></script>
+<script src="../../arduino/render.js"></script>
+<script src="../../arduino/coach.js"></script>
+<script src="../../arduino/tips.js"></script>
+<script src="../../arduino/embed.js"></script>
 </head>
 <body>
 
@@ -26,6 +33,7 @@
     <h1>PWM: Controlling Brightness</h1>
     <p class="deck">Everything you need for the 2.5 assignment: what PWM really is, why your LED moves to pin 9, how analogWrite() works, and how to explain PWM in your two cartoons.</p>
     <div class="map">
+      <a href="#lab">&#9889; <span>Live lab</span></a>
       <a href="#what">01 <span>What PWM is</span></a>
       <a href="#pins">02 <span>The ~ pins</span></a>
       <a href="#aw">03 <span>analogWrite() (Part 1)</span></a>
@@ -55,6 +63,28 @@
       </div>
     </div>
     <p class="cap">Slow motion shows what's really happening: the LED is only ever fully on or fully off. At normal speed, it switches about 490 times a second on pin 9.</p>
+  </div>
+</section>
+
+<section class="part" id="lab">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">LIVE</div><h2>Live Lab: Dim It, Brighten It</h2><span class="for">Part 1</span></div>
+    <p class="story">The circuit is wired to pin 9, a PWM (~) pin. Press <b>Start</b> and watch the PWM chip under the circuit change from 20 to 100 to 255. Then <b>move the wire to pin 8</b> and see why that does not work.</p>
+    <div id="lab-mount"></div>
+    <script>
+(function () {
+  ArduinoEmbed.mount(document.getElementById("lab-mount"), { preset: "pwm", title: "analogWrite: three brightness levels", slot: "u2-5", editable: true, height: 300,
+    experiments: ["moveWire8"],
+    variants: [
+      { label: "Fade up and down", code: "int ledPin = 9;\n\nvoid setup() {\n  pinMode(ledPin, OUTPUT);\n}\n\nvoid loop() {\n  for (int b = 0; b <= 255; b = b + 5) {\n    analogWrite(ledPin, b);\n    delay(30);\n  }\n  for (int b = 255; b >= 0; b = b - 5) {\n    analogWrite(ledPin, b);\n    delay(30);\n  }\n}\n" }
+    ],
+    goals: [
+      { text: "Press <b>Start</b> and see <b>3 different brightness levels</b>.", title: "Three brightness levels", say: "The LED is never half on. The pin flips on and off about 490 times a second, and a bigger number means it spends more of each moment ON.", when: function (s, g) { var p = s.io.pins[9]; g.v = g.v || {}; if (p) g.v[p.pwm === null || p.pwm === undefined ? (p.value ? 255 : 0) : p.pwm] = 1; return s.running && Object.keys(g.v).length >= 3; } },
+      { text: "Click <b>Move the LED wire to pin 8</b> and run again. Does it still dim?", title: "Pin 8 cannot dim", say: "Only the pins marked with a ~ can do PWM (3, 5, 6, 9, 10, 11). On pin 8, analogWrite just turns it fully on or off.", when: function (s) { return !!(s.sim.history && s.sim.history.badPwm); } },
+      { text: "Try <b>Fade up and down</b>.", title: "A smooth fade", say: "Change the number a little each time and the brightness glides. That is how phone screens and breathing lights work.", when: function (s) { return /for\s*\(/.test(s.code) && s.running; } }
+    ] });
+})();
+    </script>
   </div>
 </section>
 

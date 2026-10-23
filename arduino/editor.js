@@ -27,22 +27,24 @@
   function rebuildTerms() { termCache = C.allTerms(project); }
   function validProject(p) { return p && Array.isArray(p.parts) && Array.isArray(p.wires) && p.parts.every(function (x) { return x && C.PARTS[x.type] && typeof x.x === "number" && typeof x.y === "number"; }); }
   function serialize() { return JSON.stringify(project); }
+  function sigNow() { return serialize() + "||" + ta.value + "||" + JSON.stringify(ANS); }
 
   /* ------------------------------------------------------------------ simulation */
-  var sim, lastRes = null, audio = null, osc = {}, serialBlink = 0;
+  var sim, lastRes = null, audio = null, osc = {}, serialBlink = 0, coach = null, coachArmed = false;
+  function coachCheck(res, io) { if (!coach || !coachArmed) return; coach.check({ res: res || lastRes, io: io || (sim && sim.io), project: project, sim: sim, serial: sim ? sim.serialOut : "", slot: slot }); }
   function makeSim() {
     sim = new Sim({
       getProject: function () { return project; },
-      onUpdate: function (res, io) { lastRes = res; R.update($("stage"), project, res, io, { serialActive: Date.now() - serialBlink < 250 }); updatePins(io); updateWarnings(res); updateAudio(res); scheduleEval(); },
-      onSerial: appendOut,
+      onUpdate: function (res, io) { lastRes = res; R.update($("stage"), project, res, io, { serialActive: Date.now() - serialBlink < 250 }); updatePins(io); updateWarnings(res); updateAudio(res); coachCheck(res, io); scheduleEval(); },
+      onSerial: function (t) { appendOut(t); coachCheck(lastRes, sim && sim.io); },
       onError: function (e) { status("Stopped. Line " + e.line + ": " + e.msg, true); showRuntimeError(e); },
       onStop: function () { $("run").className = "btn run"; $("run").innerHTML = "&#9654; Start Simulation"; $("stage").classList.remove("running"); lastRes = sim.analysis(); R.update($("stage"), project, lastRes, sim.io, {}); updatePins(sim.io); updateAudio(lastRes); if (!sim.runtimeError) status("Stopped"); }
     });
     sim.speed = +$("speed").value || 1;
   }
-  function refreshVisuals() { if (!sim) return; sim.markDirty(); lastRes = sim.analysis(); R.update($("stage"), project, lastRes, sim.io, {}); updateWarnings(lastRes); }
+  function refreshVisuals() { if (!sim) return; sim.markDirty(); lastRes = sim.analysis(); R.update($("stage"), project, lastRes, sim.io, {}); updateWarnings(lastRes); coachCheck(lastRes, sim.io); }
   function startSim() {
-    ensureAudio();
+    ensureAudio(); coachArmed = true;
     var r = sim.start($("ta").value);
     if (!r.ok) { showCompile(r); status("Fix the red error first", true); return; }
     sim.runtimeError = null; showCompile(r);
@@ -107,7 +109,7 @@
   function bboxLocal(p) {
     switch (p.type) {
       case "uno": return [-16, 0, C.UNO_W, C.UNO_H]; case "breadboard": var d = C.PARTS.breadboard.dims(p); return [0, 0, d.w, d.h];
-      case "led": return [-16, -62, 40, 66]; case "resistor": return [-4, -14, 56, 24]; case "button": return [-10, -10, 38, 56]; case "buzzer": return [-6, -40, 40, 44];
+      case "led": return [-16, -62, 40, 66]; case "resistor": return [-4, -14, Math.max(3, Math.min(12, Math.round(+(p.props && p.props.span) || 4))) * P + 8, 24]; case "button": return [-10, -10, 38, 56]; case "buzzer": return [-6, -40, 40, 44];
     }
     return [0, 0, 10, 10];
   }
@@ -133,7 +135,7 @@
   function persist() { lsSet("proj:" + slot, serialize()); lsSet("pt:" + slot, String(Date.now())); }
   function commit(noHist) {
     if (!noHist) { hist.push(serialize()); if (hist.length > 80) hist.shift(); redo = []; }
-    persist(); rebuildTerms(); updateUndo(); changed();
+    coachArmed = true; persist(); rebuildTerms(); updateUndo(); changed();
   }
   function updateUndo() { $("undo").disabled = hist.length < 2; $("redo").disabled = !redo.length; }
   function doUndo() { if (hist.length < 2) return; redo.push(hist.pop()); project = JSON.parse(hist[hist.length - 1]); sel = null; buildStage(); persist(); updateUndo(); showProps(); changed(); }
@@ -388,7 +390,7 @@
     var h = "", box = $("props"), p = selectedPart(), w = sel && sel.type === "wire" ? wireById(sel.id) : null;
     function swatches(map, cur, attr) { return Object.keys(map).map(function (k) { return '<button type="button" class="sw' + (k === cur ? " on" : "") + '" style="background:' + map[k] + '" data-' + attr + '="' + k + '" title="' + k + '"></button>'; }).join(""); }
     if (p && p.type === "led") h = "<b>LED</b> color: " + swatches(R.LED_COLORS, p.props.color || "red", "ledc") + ' <span style="color:var(--soft)">The long leg (+) goes toward power. Always use a resistor with an LED.</span>';
-    else if (p && p.type === "resistor") h = "<b>Resistor</b> value: <select id=\"ohms\">" + C.RESISTOR_VALUES.map(function (v) { return '<option value="' + v + '"' + (v === (+p.props.ohms || 220) ? " selected" : "") + ">" + C.ohmsText(v) + " ohms</option>"; }).join("") + '</select> <span style="color:var(--soft)">220 ohms is a good size for an LED.</span>';
+    else if (p && p.type === "resistor") h = "<b>Resistor</b> value: <select id=\"ohms\">" + C.RESISTOR_VALUES.map(function (v) { return '<option value="' + v + '"' + (v === (+p.props.ohms || 220) ? " selected" : "") + ">" + C.ohmsText(v) + " ohms</option>"; }).join("") + '</select> &nbsp; Legs <button type="button" class="btn sm" id="spanM">&minus;</button> <b>' + (Math.max(3, Math.min(12, Math.round(+p.props.span || 4)))) + '</b> holes apart <button type="button" class="btn sm" id="spanP">+</button> <span style="color:var(--soft)">220 ohms is a good size for an LED. Spread the legs to reach a rail or another column.</span>';
     else if (p && p.type === "button") h = "<b>Pushbutton</b> <span style=\"color:var(--soft)\">Put it across the center gap of the breadboard. While the simulation runs, click and hold it to press it.</span>";
     else if (p && p.type === "buzzer") h = "<b>Piezo buzzer</b> <span style=\"color:var(--soft)\">Connect one leg to a pin and the other to GND, then use tone(pin, 440); in your code. Turn up your speakers!</span>";
     else if (p && p.type === "breadboard") h = "<b>Breadboard</b> <span style=\"color:var(--soft)\">The 5 holes in each column (a to e, or f to j) are connected. The long rows at the top and bottom are power rails: each whole row is connected.</span>";
@@ -398,6 +400,8 @@
     box.innerHTML = h;
     box.querySelectorAll("[data-ledc]").forEach(function (b) { b.onclick = function () { p.props.color = b.getAttribute("data-ledc"); buildStage(); commit(); showProps(); }; });
     box.querySelectorAll("[data-wirec]").forEach(function (b) { b.onclick = function () { w.color = b.getAttribute("data-wirec"); wireColor = w.color; renderWires(); commit(); showProps(); }; });
+    function spanBy(d) { p.props.span = Math.max(3, Math.min(12, (Math.round(+p.props.span || 4)) + d)); snapPart(p); buildStage(); commit(); showProps(); }
+    var sm = $("spanM"), spn = $("spanP"); if (sm) sm.onclick = function () { spanBy(-1); }; if (spn) spn.onclick = function () { spanBy(1); };
     var oh = $("ohms"); if (oh) oh.onchange = function () { p.props.ohms = +oh.value; buildStage(); commit(); showProps(); };
   }
 
@@ -531,47 +535,96 @@
   /* ------------------------------------------------------------------ assignments and auto-checks */
   var evalT, evalSeq = 0, runCache = {}, autoState = { pct: null, passed: 0, total: 0 };
   function stripComments(c) { return c.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, ""); }
-  function makeCtx() {
-    var code = ta.value, noC = stripComments(code), base = C.analyze(project, { pins: {}, pressed: {}, blown: {} }), uno = project.parts.filter(function (p) { return p.type === "uno"; })[0], unoId = uno ? uno.id : "uno1";
-    var comp = ArduinoCompiler.compile(code), pkey = serialize();
-    return {
-      project: project, compiled: comp.ok, base: base,
-      code: function (re, incl) { return re.test(incl ? code : noC); },
-      count: function (type) { return project.parts.filter(function (p) { return p.type === type; }).length; },
-      parts: function (type) { return project.parts.filter(function (p) { return p.type === type; }); },
-      plugged: function (part) { return C.worldTerms(part).every(function (t) { return base.legs[t.key]; }); },
-      netOf: function (part, term) { return base.netOf(part.id + ":" + term); },
-      pin: function (label) { return base.netOf(unoId + ":" + label); }, gnd: base.netOf(unoId + ":GND_b1"),
-      staticRun: function (o) { return C.analyze(project, { pins: o.pins || {}, pressed: o.pressed || {}, blown: {} }); },
-      run: function (opts) { var k = pkey + "|" + code + "|" + JSON.stringify(opts); if (!runCache[k]) { if (Object.keys(runCache).length > 40) runCache = {}; runCache[k] = Sim.virtual(clone(project), code, opts); } return runCache[k]; }
-    };
+  function makeCtx() { return ArduinoCtx.make(project, ta.value); }
+  /* ---- written answers, matching and fill-in-the-blank items are saved with the student's work */
+  var ANS = {};
+  function loadAns() { try { ANS = JSON.parse(lsGet("ans:" + slot) || "{}") || {}; } catch (e) { ANS = {}; } }
+  function saveAns() { lsSet("ans:" + slot, JSON.stringify(ANS)); lsSet("pt:" + slot, String(Date.now())); cloudSoon(); }
+  function wordCount(s) { return (String(s || "").trim().match(/\S+/g) || []).length; }
+  function widgetHTML(it, k) {
+    if (it.kind === "ask") {
+      var v = ANS[k] || "";
+      return '<textarea class="askbox" data-k="' + k + '" rows="' + (it.rows || 4) + '" placeholder="' + esc(it.ph || "Type your answer here...") + '"' + (it.mono ? ' style="font-family:JetBrains Mono,monospace"' : "") + ">" + esc(v) + '</textarea><div class="askmeta" data-meta="' + k + '">' + wordCount(v) + " / " + (it.min || 15) + " words</div>";
+    }
+    if (it.kind === "match") {
+      var a = ANS[k] || [], h = '<div class="matchopts">' + it.options.map(function (o) { return "<div><b>" + o[0] + ".</b> " + o[1] + "</div>"; }).join("") + '</div><table class="matchtbl">';
+      it.rows.forEach(function (r, i) { h += "<tr><td>" + r[0] + '</td><td><select data-k="' + k + '" data-r="' + i + '"><option value="">--</option>' + it.options.map(function (o) { return '<option value="' + o[0] + '"' + (a[i] === o[0] ? " selected" : "") + ">" + o[0] + "</option>"; }).join("") + "</select></td></tr>"; });
+      return h + "</table>";
+    }
+    if (it.kind === "cloze") {
+      var a2 = ANS[k] || [];
+      return '<div class="bank">Word bank: ' + it.bank.map(esc).join(" &nbsp;|&nbsp; ") + '</div><ol class="cloze">' + it.sentences.map(function (s) {
+        return "<li>" + s.replace(/\{(\d+)\}/g, function (m, n) { n = +n; return '<select class="cz" data-k="' + k + '" data-r="' + n + '"><option value="">____</option>' + it.bank.map(function (w) { return '<option value="' + esc(w) + '"' + (a2[n] === w ? " selected" : "") + ">" + esc(w) + "</option>"; }).join("") + "</select>"; }) + "</li>";
+      }).join("") + "</ol>";
+    }
+    return "";
+  }
+  function markRows(el, it, k) {
+    var a = ANS[k] || [], want = it.kind === "match" ? it.rows.map(function (r) { return r[1]; }) : it.answers;
+    el.querySelectorAll("select[data-r]").forEach(function (s) { var i = +s.getAttribute("data-r"); s.className = (s.className || "").replace(/\b(ok|bad)\b/g, "").trim() + (a[i] ? (a[i] === want[i] ? " ok" : " bad") : ""); });
   }
   function renderAssignment() {
     var A = ASSIGN[slot], body = $("assBody"); $("assTitle").textContent = A ? A.title : "Free build";
     $("assHead").className = A ? "show" : ""; document.body.classList.toggle("free", !A);
+    if (coach) { coach.reset(); coach.setExtra(A && A.events ? A.events : []); }
     if (!A) { body.innerHTML = '<p class="intro">This is a free build. Add parts, wire them up, and write code to try your own ideas. Nothing here is graded.</p><div class="hintbox"><b>How to build a circuit</b><br>1. <b>Click, hold, and drag</b> a part from the bar above the canvas onto the breadboard.<br>2. When its leg dots turn <span style="color:#22c55e">green</span>, it is plugged in. <b>Hover over any leg, pin or hole</b> to learn what it is and whether it is positive (+) or negative (&minus;).<br>3. <b>Drag from a pin or hole to another pin or hole</b> to make a wire.<br>4. Type your code on the right and click <b>Start Simulation</b>.</div><div class="helprow"><span class="helplbl">Help bubbles:</span>' + pillsHTML(["tour", "skeleton", "functions-all", "dragpart", "makewire", "startsim", "trouble"]) + "</div>"; return; }
-    var h = '<p class="intro">' + inlineBubbles(A.intro) + "</p>", n = 0;
+    var h = '<p class="intro">' + inlineBubbles(A.intro) + "</p>";
+    if (A.from && ASSIGN[A.from]) h += '<div class="fromrow"><button type="button" class="btn sm" id="fromPrev">&#8635; Start from my circuit and code from ' + esc(ASSIGN[A.from].short || ASSIGN[A.from].title) + "</button></div>";
     if (A.help) h += '<div class="helprow"><span class="helplbl">Start here:</span>' + pillsHTML(A.help) + "</div>";
     A.steps.forEach(function (s, si) {
       var ids = (s.help || []).slice(); s.items.forEach(function (it) { (it.help || []).forEach(function (x) { if (ids.indexOf(x) < 0) ids.push(x); }); });
       var real = ids.filter(function (x) { return TIPS.topics[x]; });
       h += "<h3>" + esc(s.h) + "</h3>";
+      if (s.intro) h += '<p class="intro">' + inlineBubbles(s.intro) + "</p>";
       if (real.length) h += '<div class="helprow"><button type="button" class="helpstep" data-tiplist="' + esc(JSON.stringify(real)).replace(/"/g, "&quot;") + '">&#128161; Help for this step <small>(' + real.length + " topic" + (real.length === 1 ? "" : "s") + ")</small></button></div>";
       if (s.code) h += '<pre class="codebox">' + esc(s.code) + "</pre>";
-      s.items.forEach(function (it, ii) { h += '<label class="item" data-si="' + si + '" data-ii="' + ii + '"><span class="box">&#10003;</span><span class="txt">' + inlineBubbles(it.t) + (it.help && it.help.length ? '<span class="helprow">' + pillsHTML(it.help) + "</span>" : "") + '</span><span class="badge">checking</span></label>'; n++; });
+      s.items.forEach(function (it, ii) {
+        var k = si + "." + ii, info = it.kind === "note";
+        h += '<div class="item' + (info ? " info" : "") + '" data-si="' + si + '" data-ii="' + ii + '"><span class="box">' + (info ? "i" : "&#10003;") + '</span><div class="txt">' + inlineBubbles(it.t) + widgetHTML(it, k) + (it.help && it.help.length ? '<span class="helprow">' + pillsHTML(it.help) + "</span>" : "") + "</div>" + (info ? "" : '<span class="badge">checking</span>') + "</div>";
+      });
     });
-    body.innerHTML = h; scheduleEval(true);
+    body.innerHTML = h;
+    A.steps.forEach(function (s, si) { s.items.forEach(function (it, ii) { if (it.kind === "match" || it.kind === "cloze") { var el = body.querySelector('[data-si="' + si + '"][data-ii="' + ii + '"]'); if (el) markRows(el, it, si + "." + ii); } }); });
+    var fp = $("fromPrev"); if (fp) fp.onclick = function () { copyFrom(A.from); };
+    scheduleEval(true);
+  }
+  /* typing in an answer box or choosing a word saves it and re-checks */
+  $("assBody").addEventListener("input", function (e) {
+    var t = e.target, k = t.getAttribute && t.getAttribute("data-k"); if (!k) return;
+    if (t.tagName === "TEXTAREA") { ANS[k] = t.value; var m = $("assBody").querySelector('[data-meta="' + k + '"]'); var A = ASSIGN[slot], p = k.split("."), it = A && A.steps[p[0]].items[p[1]]; if (m) m.textContent = wordCount(t.value) + " / " + ((it && it.min) || 15) + " words"; saveAns(); scheduleEval(); }
+  });
+  $("assBody").addEventListener("change", function (e) {
+    var t = e.target, k = t.getAttribute && t.getAttribute("data-k"); if (!k || t.tagName !== "SELECT") return;
+    var r = +t.getAttribute("data-r"); ANS[k] = ANS[k] || []; ANS[k][r] = t.value; saveAns();
+    var A = ASSIGN[slot], p = k.split("."), it = A && A.steps[p[0]].items[p[1]]; if (it) markRows(t.closest(".item"), it, k); scheduleEval(true);
+  });
+  function copyFrom(from) {
+    if (!from) return; var pj = lsGet("proj:" + from), cd = lsGet("code:" + from);
+    function apply(p, c) { if (!p && !c) { toast("Nothing saved yet in that assignment."); return; } if (p && validProject(p)) project = p; if (typeof c === "string") ta.value = c; hist = [serialize()]; redo = []; sel = null; persist(); lsSet("code:" + slot, ta.value); buildStage(); fitView(); paintEditor(); showProps(); updateUndo(); compileSoon(); scheduleEval(true); toast("Copied your circuit and code."); }
+    if (!isBlankWork() && !confirm("Replace what is here with your circuit and code from the earlier assignment?")) return;
+    var pr = null; try { pr = pj ? JSON.parse(pj) : null; } catch (e) {}
+    if (pr || cd) { apply(pr, cd); return; }
+    if (CRED) api({ action: "mine", slot: from }).then(function (j) { var r = j && (j.draft || j.submission); if (r) apply(r.project, r.code); else toast("Nothing saved yet in that assignment."); });
+    else toast("Nothing saved on this computer for that assignment. Sign in to load it from your account.");
   }
   function scheduleEval(now) { if (!ASSIGN[slot]) return; clearTimeout(evalT); evalT = setTimeout(evaluate, now ? 50 : 900); }
   async function evaluate() {
     var A = ASSIGN[slot]; if (!A) return; var seq = ++evalSeq, ctx = makeCtx(), passed = 0, total = 0, results = [];
     for (var si = 0; si < A.steps.length; si++) for (var ii = 0; ii < A.steps[si].items.length; ii++) {
-      var ok = false; try { ok = !!(await A.steps[si].items[ii].check(ctx)); } catch (e) { ok = false; }
-      if (seq !== evalSeq) return; total++; if (ok) passed++; results.push([si, ii, ok]);
+      var it = A.steps[si].items[ii], k = si + "." + ii, ok = false, label = null;
+      if (it.kind === "note") continue;
+      try {
+        if (it.kind === "ask") { var w = wordCount(ANS[k]); ok = w >= (it.min || 15) && (!it.test || !!it.test(ANS[k] || "", ctx)); label = w + " / " + (it.min || 15) + " words"; }
+        else if (it.kind === "match") { var a = ANS[k] || [], good = it.rows.filter(function (r, i) { return a[i] === r[1]; }).length; ok = good === it.rows.length; label = good + " / " + it.rows.length + " right"; }
+        else if (it.kind === "cloze") { var a3 = ANS[k] || [], g3 = it.answers.filter(function (x, i) { return a3[i] === x; }).length; ok = g3 === it.answers.length; label = g3 + " / " + it.answers.length + " right"; }
+        else ok = !!(await it.check(ctx));
+      } catch (e) { ok = false; }
+      if (seq !== evalSeq) return; total++; if (ok) passed++; results.push([si, ii, ok, label]);
     }
-    results.forEach(function (r) { var el = $("assBody").querySelector('[data-si="' + r[0] + '"][data-ii="' + r[1] + '"]'); if (!el) return; el.className = "item" + (r[2] ? " done" : ""); el.querySelector(".badge").textContent = r[2] ? "auto-check: met" : "auto-check: not yet"; });
+    results.forEach(function (r) { var el = $("assBody").querySelector('[data-si="' + r[0] + '"][data-ii="' + r[1] + '"]'); if (!el) return; el.className = "item" + (r[2] ? " done" : ""); el.querySelector(".badge").textContent = r[3] ? (r[2] ? "done: " : "") + r[3] : (r[2] ? "auto-check: met" : "auto-check: not yet"); });
     var pct = total ? Math.floor(100 * passed / total) : 0; autoState = { pct: pct, passed: passed, total: total };
     $("assCount").innerHTML = "<b>" + passed + "</b> of " + total + " steps done"; $("assScore").innerHTML = "Auto score: <b>" + pct + " / 100</b>";
+    coachCheck(lastRes, sim && sim.io);
   }
 
   /* ------------------------------------------------------------------ slots and local storage */
@@ -579,7 +632,7 @@
     slot = s; lsSet("slot", s); sim && sim.stop(true);
     var pj = lsGet("proj:" + s), cd = lsGet("code:" + s), pr = null; try { pr = pj ? JSON.parse(pj) : null; } catch (e) { pr = null; }
     project = validProject(pr) ? pr : defaultProject(); ta.value = cd != null ? cd : STARTER; hist = [serialize()]; redo = []; sel = null;
-    $("out").textContent = ""; $("errbox").className = ""; errLines = {}; $("teach").className = "teach"; $("teach").innerHTML = "";
+    loadAns(); $("out").textContent = ""; $("errbox").className = ""; errLines = {}; $("teach").className = "teach"; $("teach").innerHTML = "";
     buildStage(); fitView(); paintEditor(); showProps(); renderAssignment(); updateUndo(); status("Ready"); updatePins({ pins: {} }); $("warnbox").innerHTML = "";
     afterSlot();
   }
@@ -647,8 +700,9 @@
     $("periodBtns").innerHTML = h;
     $("periodBtns").querySelectorAll("[data-p]").forEach(function (b) { b.onclick = function () { lsSet("period", b.getAttribute("data-p")); buildPeriods(); }; });
   }
-  function isBlankWork() { return serialize() === JSON.stringify(defaultProject()) && (ta.value === STARTER || !ta.value.trim()); }
+  function isBlankWork() { return serialize() === JSON.stringify(defaultProject()) && (ta.value === STARTER || !ta.value.trim()) && !Object.keys(ANS).some(function (k) { var v = ANS[k]; return v && (typeof v === "string" ? v.trim() : v.some(Boolean)); }); }
   function applyRecord(rec) {
+    if (rec.answers && typeof rec.answers === "object") { ANS = rec.answers; lsSet("ans:" + slot, JSON.stringify(ANS)); }
     if (rec.project && validProject(rec.project)) project = rec.project; if (typeof rec.code === "string") ta.value = rec.code;
     hist = [serialize()]; redo = []; sel = null; persist(); lsSet("code:" + slot, ta.value); buildStage(); fitView(); paintEditor(); showProps(); renderAssignment(); updateUndo(); compileSoon();
   }
@@ -660,7 +714,7 @@
         var localT = +lsGet("pt:" + sl) || 0, cloudT2 = Date.parse(rec.savedAt || rec.submittedAt || 0) || 0;
         if (isBlankWork() || cloudT2 > localT + 1000) { applyRecord(rec); toast("Loaded your saved work"); }
       }
-      showTeacher(sub); lastCloud = serialize() + "||" + ta.value; updateSaveInd();
+      showTeacher(sub); lastCloud = sigNow(); updateSaveInd();
       if (sub) status("Submitted " + new Date(sub.submittedAt).toLocaleString());
     });
   }
@@ -671,9 +725,9 @@
   }
   function cloudSoon() { clearTimeout(cloudT); cloudT = setTimeout(cloudSave, 4000); updateSaveInd(); }
   function cloudSave() {
-    if (!CRED) return Promise.resolve(); var sig = serialize() + "||" + ta.value;
+    if (!CRED) return Promise.resolve(); var sig = sigNow();
     if (sig === lastCloud || (isBlankWork())) return Promise.resolve();
-    return api({ action: "saveDraft", slot: slot, project: project, code: ta.value, auto: autoState, period: currentPeriod() }).then(function (j) {
+    return api({ action: "saveDraft", slot: slot, project: project, code: ta.value, answers: ANS, auto: autoState, period: currentPeriod() }).then(function (j) {
       if (j && j.ok) { lastCloud = sig; saveFailed = false; savedAtTxt = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); if (!MY[slot]) { MY[slot] = "draft"; buildSlots(); } }
       else if (j && !j.needLogin) saveFailed = true; updateSaveInd();
     }).catch(function () { saveFailed = true; updateSaveInd(); });
@@ -682,11 +736,11 @@
     var el = $("saveInd"), t, c = "saveind";
     if (!CRED) { t = "Saved on this computer only. Sign in to save to your account."; c += " warn"; }
     else if (saveFailed) { t = "Not saved to your account! Check your internet or sign in again."; c += " bad"; }
-    else if (serialize() + "||" + ta.value === lastCloud) { t = "☁ Saved to your account" + (savedAtTxt ? " " + savedAtTxt : ""); c += " ok"; }
+    else if (sigNow() === lastCloud) { t = "☁ Saved to your account" + (savedAtTxt ? " " + savedAtTxt : ""); c += " ok"; }
     else { t = "Saving..."; }
     el.textContent = t; el.className = c;
   }
-  window.addEventListener("beforeunload", function () { if (CRED && serialize() + "||" + ta.value !== lastCloud && !isBlankWork()) { try { navigator.sendBeacon && 0; } catch (e) {} } });
+  window.addEventListener("beforeunload", function () { if (CRED && sigNow() !== lastCloud && !isBlankWork()) { try { navigator.sendBeacon && 0; } catch (e) {} } });
 
   /* submit */
   $("submit").onclick = function () {
@@ -699,7 +753,7 @@
   $("mCancel").onclick = function () { $("mSub").className = "modal"; };
   $("mGo").onclick = function () {
     var b = $("mGo"); b.disabled = true;
-    api({ action: "submit", slot: slot, project: project, code: ta.value, auto: autoState, period: currentPeriod(), output: $("out").textContent.slice(-3000) }).then(function (j) {
+    api({ action: "submit", slot: slot, project: project, code: ta.value, answers: ANS, auto: autoState, period: currentPeriod(), output: $("out").textContent.slice(-3000) }).then(function (j) {
       b.disabled = false;
       if (j && j.ok) { $("mSub").className = "modal"; MY[slot] = "sub"; buildSlots(); toast("Submitted! (" + j.count + (j.count === 1 ? " time" : " times") + ")"); status("Submitted " + new Date(j.submittedAt).toLocaleString()); }
       else { toast((j && j.error) || "Could not submit. Try again."); }
@@ -709,8 +763,10 @@
   /* ------------------------------------------------------------------ start up */
   makeSim(); buildPeriods(); buildSlots();
   var want = lsGet("slot") || "free"; if (!SLOTS.some(function (x) { return x[0] === want; })) want = "free";
-  var q = /[?&]slot=([\w]+)/.exec(location.search); if (q && SLOTS.some(function (x) { return x[0] === q[1]; })) want = q[1];
+  var q = /[?&]slot=([\w-]+)/.exec(location.search); if (q && SLOTS.some(function (x) { return x[0] === q[1]; })) want = q[1];
   if (lsGet("ass") === "0") document.body.classList.add("noass");
+  coach = ArduinoCoach.attach($("stagewrap"), { topics: TIPS.topics, openTopic: openTip });
+  (function () { var on = lsGet("coach") !== "0"; coach.enabled(on); $("coachBtn").className = "btn" + (on ? " on" : ""); $("coachBtn").onclick = function () { on = !on; lsSet("coach", on ? "1" : "0"); coach.enabled(on); this.className = "btn" + (on ? " on" : ""); toast(on ? "Coach tips are on." : "Coach tips are off."); }; })();
   loadSlot(want); $("slot").value = want; initGoogle();
   setTimeout(fitView, 60); window.addEventListener("resize", function () { setTimeout(fitView, 80); });
   updatePins({ pins: {} });

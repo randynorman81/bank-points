@@ -83,11 +83,11 @@
     return s + legDots(part);
   }
   function resistorSVG(part) {
-    var ohms = +(part.props && part.props.ohms) || 220, b = C.bands(ohms);
-    var s = '<line x1="0" y1="0" x2="10" y2="0" stroke="#cbd5e1" stroke-width="2"/><line x1="38" y1="0" x2="48" y2="0" stroke="#cbd5e1" stroke-width="2"/>';
-    s += '<path d="M8,-5 Q8,-7 12,-7 L36,-7 Q40,-7 40,-5 L40,5 Q40,7 36,7 L12,7 Q8,7 8,5 Z" fill="#d9c28f" stroke="#a88f55"/>';
-    s += '<rect x="14" y="-7" width="4" height="14" fill="' + b[0] + '"/><rect x="21" y="-7" width="4" height="14" fill="' + b[1] + '"/><rect x="28" y="-7" width="4" height="14" fill="' + b[2] + '"/><rect x="34.5" y="-7" width="3" height="14" fill="#d4a017"/>';
-    s += '<text x="24" y="-11" font-size="8" fill="#e5e7eb" text-anchor="middle" font-weight="700" data-reslabel="1">' + C.ohmsText(ohms) + '&#937;</text>';
+    var ohms = +(part.props && part.props.ohms) || 220, b = C.bands(ohms), sp = Math.max(3, Math.min(12, Math.round(+(part.props && part.props.span) || 4))), len = sp * P, mid = len / 2, x0 = mid - 16, x1 = mid + 16;
+    var s = '<line x1="0" y1="0" x2="' + (x0 + 2) + '" y2="0" stroke="#cbd5e1" stroke-width="2"/><line x1="' + (x1 - 2) + '" y1="0" x2="' + len + '" y2="0" stroke="#cbd5e1" stroke-width="2"/>';
+    s += '<path d="M' + x0 + ',-5 Q' + x0 + ',-7 ' + (x0 + 4) + ',-7 L' + (x1 - 4) + ',-7 Q' + x1 + ',-7 ' + x1 + ',-5 L' + x1 + ',5 Q' + x1 + ',7 ' + (x1 - 4) + ',7 L' + (x0 + 4) + ',7 Q' + x0 + ',7 ' + x0 + ',5 Z" fill="#d9c28f" stroke="#a88f55"/>';
+    s += '<rect x="' + (x0 + 6) + '" y="-7" width="4" height="14" fill="' + b[0] + '"/><rect x="' + (x0 + 13) + '" y="-7" width="4" height="14" fill="' + b[1] + '"/><rect x="' + (x0 + 20) + '" y="-7" width="4" height="14" fill="' + b[2] + '"/><rect x="' + (x0 + 26.5) + '" y="-7" width="3" height="14" fill="#d4a017"/>';
+    s += '<text x="' + mid + '" y="-11" font-size="8" fill="#e5e7eb" text-anchor="middle" font-weight="700" data-reslabel="1">' + C.ohmsText(ohms) + '&#937;</text>';
     return s + legDots(part);
   }
   function buttonSVG(part) {

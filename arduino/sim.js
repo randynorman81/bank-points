@@ -96,7 +96,7 @@
       p = pinOk(p, "analogWrite"); var s = pins()[p]; v = Math.max(0, Math.min(255, Math.trunc(v)));
       s.mode = 1; s.tone = 0;
       if (PWM_PINS[p]) { s.pwm = v === 0 || v === 255 ? null : v; s.value = v >= 128 ? 1 : 0; if (v === 255) s.value = 1; if (v === 0) s.value = 0; }
-      else { s.pwm = null; s.value = v >= 128 ? 1 : 0; if (!self.warnedPwm || !self.warnedPwm[p]) { self.warnedPwm = self.warnedPwm || {}; self.warnedPwm[p] = 1; self.say("Pin " + pinName(p) + " can not do PWM (the ~ pins can: 3, 5, 6, 9, 10, 11), so analogWrite only turns it fully on or off.\n"); } }
+      else { s.pwm = null; s.value = v >= 128 ? 1 : 0; self.history.badPwm = true; if (!self.warnedPwm || !self.warnedPwm[p]) { self.warnedPwm = self.warnedPwm || {}; self.warnedPwm[p] = 1; self.say("Pin " + pinName(p) + " can not do PWM (the ~ pins can: 3, 5, 6, 9, 10, 11), so analogWrite only turns it fully on or off.\n"); } }
       self.history.pwmUsed = self.history.pwmUsed || {}; self.history.pwmUsed[p] = true; self.markDirty();
     };
     rt.digitalRead = function (p) {

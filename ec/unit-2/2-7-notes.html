@@ -15,6 +15,13 @@
 .readout{font-family:"JetBrains Mono",monospace;font-size:14px;color:#C4CDD8;line-height:1.9}
 .readout b{color:var(--hi-ink)}
 </style>
+<script src="../../arduino/compiler.js"></script>
+<script src="../../arduino/circuit.js"></script>
+<script src="../../arduino/sim.js"></script>
+<script src="../../arduino/render.js"></script>
+<script src="../../arduino/coach.js"></script>
+<script src="../../arduino/tips.js"></script>
+<script src="../../arduino/embed.js"></script>
 </head>
 <body>
 
@@ -30,6 +37,7 @@
     <h1>Circuit Fundamentals: Buttons, Pull-Ups, and Ohm's Law</h1>
     <p class="deck">Everything you need for the 2.7 assignment: source and sink, floating pins, pull-up resistors, wiring a 4-leg button, digitalRead(), the ! trick, the red light / walking light, and the math behind every resistor.</p>
     <div class="map">
+      <a href="#lab">&#9889; <span>Live lab</span></a>
       <a href="#ss">01 <span>Source + sink</span></a>
       <a href="#float">02 <span>Floating + pull-up</span></a>
       <a href="#btn">03 <span>Wiring the button</span></a>
@@ -40,6 +48,31 @@
     </div>
   </div>
 </header>
+
+<section class="part" id="lab">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">LIVE</div><h2>Live Lab: Press the Button</h2><span class="for">Part 1</span></div>
+    <p class="story">A button on pin 8, an LED on pin 9. <b>Click and hold the button</b> right on the circuit. The pin chips show pin 8 drop to <b>LOW</b> while you hold it. Then break the circuit on purpose.</p>
+    <div id="lab-mount"></div>
+    <script>
+(function () {
+  ArduinoEmbed.mount(document.getElementById("lab-mount"), { preset: "button", title: "INPUT_PULLUP + button + LED", slot: "u2-7", editable: true, height: 300,
+    intro: "Pressing the button connects pin 8 to <b>GND</b>. The pull-up resistor holds the pin at <b>HIGH</b> the rest of the time, which is why the code uses <code>!buttonState</code>.",
+    experiments: ["cutGnd"],
+    variants: [
+      { label: "Bug: plain INPUT (floating pin)", code: "int buttonPin = 8;\nint ledPin = 9;\n\nvoid setup() {\n  pinMode(buttonPin, INPUT);\n  pinMode(ledPin, OUTPUT);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int buttonState = digitalRead(buttonPin);\n  Serial.println(buttonState);\n  digitalWrite(ledPin, !buttonState);\n  delay(100);\n}\n" },
+      { label: "Backwards doorbell (no !)", code: "int buttonPin = 8;\nint ledPin = 9;\n\nvoid setup() {\n  pinMode(buttonPin, INPUT_PULLUP);\n  pinMode(ledPin, OUTPUT);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int buttonState = digitalRead(buttonPin);\n  Serial.println(buttonState);\n  digitalWrite(ledPin, buttonState);\n  delay(100);\n}\n" }
+    ],
+    goals: [
+      { text: "Press <b>Start</b>, then <b>click and hold the button</b> on the circuit. The LED lights only while you hold it.", title: "A working doorbell", say: "Pressed = connected to GND = <b>LOW</b>. The <code>!</code> flips that into HIGH for the LED.", when: function (s) { var pr = Object.keys(s.io.pressed || {}).some(function (k) { return s.io.pressed[k]; }); return s.running && pr && s.res && Object.keys(s.res.leds).some(function (k) { return s.res.leds[k].brightness > 0.2; }); } },
+      { text: "Click <b>Unplug the button's GND wire</b> and press the button. Does anything happen?", title: "No path to ground", say: "Pressing the button now connects pin 8 to nothing. With no way to reach GND, the pin never goes LOW, so the LED never lights.", when: function (s) { var cut = s.project.wires.some(function (w) { return w.b.term === "bb1:c29j"; }); return cut && Object.keys(s.io.pressed || {}).some(function (k) { return s.io.pressed[k]; }); } },
+      { text: "Click <b>Bug: plain INPUT</b> and watch the Serial Monitor without touching anything.", title: "A ghost in the machine", say: "With no pull-up, the unconnected pin picks up noise and flickers between 0 and 1. That is a <b>floating pin</b>. INPUT_PULLUP is the fix.", when: function (s) { return !!(s.sim.history && s.sim.history.floatRead); } },
+      { text: "Click <b>Backwards doorbell</b>. What is the LED doing when nobody is pressing?", title: "Backwards!", say: "Without the <code>!</code>, the LED follows the pin directly: HIGH (not pressed) = on. The doorbell rings all day and goes quiet when a visitor pushes it.", when: function (s) { return s.running && /digitalWrite\(ledPin, buttonState\)/.test(s.code) && s.io.pins[9] && s.io.pins[9].value; } }
+    ] });
+})();
+    </script>
+  </div>
+</section>
 
 <section class="part" id="ss">
   <div class="wrap">
@@ -139,6 +172,22 @@
       </div>
     </div>
     <div class="hint-panel"><b>No delay() here.</b> Nothing pauses loop(), so it reads the button thousands of times a second and the lights react instantly. Wire each LED with its own resistor and its own pin; the button and LEDs can all share one GND.</div>
+  </div>
+</section>
+
+<section class="part" id="lab2">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">LIVE</div><h2>Live Lab: Red Light / Walking Light</h2><span class="for">Part 2</span></div>
+    <p class="story">Two LEDs, one button. The red light is on by default. <b>Hold the button</b>: red goes off and the walking light turns on.</p>
+    <div id="lab2-mount"></div>
+    <script>
+(function () {
+  ArduinoEmbed.mount(document.getElementById("lab2-mount"), { preset: "walk", title: "Red by default, green while pressed", slot: "u2-7b", editable: true, height: 300,
+    goals: [
+      { text: "Press <b>Start</b>, hold the button, and watch the lights <b>trade places</b>.", title: "Opposites", say: "<code>digitalWrite(redPin, buttonState)</code> and <code>digitalWrite(walkPin, !buttonState)</code> always get opposite values, so they can never both be on.", when: function (s) { var pr = Object.keys(s.io.pressed || {}).some(function (k) { return s.io.pressed[k]; }); return s.running && pr && s.io.pins[10] && s.io.pins[10].value && s.io.pins[9] && !s.io.pins[9].value; } }
+    ] });
+})();
+    </script>
   </div>
 </section>
 

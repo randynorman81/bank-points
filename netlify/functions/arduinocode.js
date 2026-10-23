@@ -9,7 +9,7 @@ import { getStore } from "@netlify/blobs";
 const JSON_HEADERS = { "Content-Type": "application/json" };
 const GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
 const SCHOOL_EMAIL_DOMAIN = "socialcircleschools.org";
-const SLOTS = ["free"].concat(Array.from({ length: 30 }, (_, i) => "a" + (i + 1)));
+const SLOTS = ["free", "u2-2", "u2-2a", "u2-3", "u2-3b", "u2-4", "u2-5", "u2-6", "u2-7", "u2-7b"].concat(Array.from({ length: 30 }, (_, i) => "a" + (i + 1)));
 const MAX_CODE = 60000;
 const MAX_PROJECT = 200000;
 
@@ -42,11 +42,19 @@ function cleanProject(p) {
   const id = (v) => String(v || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 24);
   const parts = p.parts.filter((x) => x && PART_TYPES.indexOf(x.type) > -1).map((x) => ({
     id: id(x.id), type: x.type, x: num(x.x), y: num(x.y), rot: ((Math.trunc(Number(x.rot)) || 0) % 4 + 4) % 4,
-    props: { size: x.props && x.props.size === "mini" ? "mini" : "half", color: String((x.props && x.props.color) || "").replace(/[^a-z]/g, "").slice(0, 12), ohms: Math.max(1, Math.min(1e7, Number(x.props && x.props.ohms) || 220)) }
+    props: { size: x.props && x.props.size === "mini" ? "mini" : "half", color: String((x.props && x.props.color) || "").replace(/[^a-z]/g, "").slice(0, 12), ohms: Math.max(1, Math.min(1e7, Number(x.props && x.props.ohms) || 220)), span: Math.max(3, Math.min(12, Math.round(Number(x.props && x.props.span)) || 4)) }
   }));
   const term = (t) => String((t && t.term) || "").replace(/[^A-Za-z0-9_:-]/g, "").slice(0, 40);
   const wires = p.wires.map((w) => ({ id: id(w && w.id), a: { term: term(w && w.a) }, b: { term: term(w && w.b) }, color: String((w && w.color) || "green").replace(/[^a-z#0-9]/gi, "").slice(0, 12) })).filter((w) => w.a.term && w.b.term);
   return { parts, wires };
+}
+
+/* written / matching / fill-in answers: { itemKey: "text" or ["A","B",...] } */
+function cleanAnswers(a) {
+  const out = {}; if (!a || typeof a !== "object") return out;
+  Object.keys(a).slice(0, 200).forEach((k) => { const key = String(k).replace(/[^A-Za-z0-9_.:-]/g, "").slice(0, 40); const v = a[k]; if (!key) return;
+    if (typeof v === "string") out[key] = v.slice(0, 4000); else if (Array.isArray(v)) out[key] = v.slice(0, 30).map((x) => String(x == null ? "" : x).slice(0, 80)); });
+  return out;
 }
 
 async function mine(body, user) {
@@ -76,7 +84,7 @@ function readWork(body) {
 async function saveDraft(body, user) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
   const w = readWork(body); if (w.error) return w;
-  await store().setJSON("draft:" + body.slot + ":" + enc(user.email), { email: user.email, name: user.name, period: cleanPeriod(body.period), slot: body.slot, code: w.code, project: w.project, auto: cleanAuto(body.auto), savedAt: now() });
+  await store().setJSON("draft:" + body.slot + ":" + enc(user.email), { email: user.email, name: user.name, period: cleanPeriod(body.period), slot: body.slot, code: w.code, project: w.project, answers: cleanAnswers(body.answers), auto: cleanAuto(body.auto), savedAt: now() });
   return { ok: true };
 }
 async function submit(body, user) {
@@ -85,7 +93,7 @@ async function submit(body, user) {
   if (!w.project.parts.some((p) => p.type !== "uno" && p.type !== "breadboard") && !w.code.trim()) return { error: "There is nothing to submit yet. Build a circuit and write some code first!" };
   const key = "sub:" + body.slot + ":" + enc(user.email), prev = await readJSON(key, null);
   const rec = {
-    email: user.email, name: user.name, period: cleanPeriod(body.period), slot: body.slot, code: w.code, project: w.project, auto: cleanAuto(body.auto),
+    email: user.email, name: user.name, period: cleanPeriod(body.period), slot: body.slot, code: w.code, project: w.project, answers: cleanAnswers(body.answers), auto: cleanAuto(body.auto),
     output: String(body.output || "").slice(0, 3000), submittedAt: now(), count: (prev && prev.count ? prev.count : 0) + 1, teacher: prev && prev.teacher ? prev.teacher : null
   };
   await store().setJSON(key, rec);

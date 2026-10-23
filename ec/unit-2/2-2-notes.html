@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>First Circuits in Tinkercad | Embedded Computing Notes</title>
+<title>First Circuits in the Circuit Editor | Embedded Computing Notes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,22 +15,31 @@
 .bb .hole.hit{fill:#FDD877}
 .bb .hole.pick{fill:#EF4444}
 </style>
+<script src="../../arduino/compiler.js"></script>
+<script src="../../arduino/circuit.js"></script>
+<script src="../../arduino/sim.js"></script>
+<script src="../../arduino/render.js"></script>
+<script src="../../arduino/coach.js"></script>
+<script src="../../arduino/tips.js"></script>
+<script src="../../arduino/embed.js"></script>
 </head>
 <body>
 
 <nav class="pillnav">
   <a href="../index.html">&larr; Embedded Computing</a>
   <a href="2-2-tinkercad-setup-and-first-circuit.html">2.2 Lesson Page</a>
+  <a href="../../arduino/editor.html?slot=u2-2">Open the Editor</a>
   <a href="2-2-notes.html" class="current">Notes</a>
 </nav>
 
 <header class="hero">
   <div class="wrap">
     <div class="brief-no">Embedded Computing Notes &nbsp;/&nbsp; Lessons 2.2 + 2.2A</div>
-    <h1>Your First Circuits in Tinkercad</h1>
-    <p class="deck">Notes for both assignments: <b>2.2 Tinkercad First Circuit</b> and <b>2.2A Dual-LED Circuit Design</b>. Setting up Tinkercad, how a breadboard is connected inside, LED polarity, what the resistor does, and the two fault experiments.</p>
+    <h1>Your First Circuits in the Circuit Editor</h1>
+    <p class="deck">Notes for both assignments: <b>2.2 First Circuit</b> and <b>2.2A Dual-LED Circuit Design</b>. Setting up the Circuit Editor, how a breadboard is connected inside, LED polarity, what the resistor does, and the two fault experiments.</p>
     <div class="map">
-      <a href="#setup">01 <span>Tinkercad setup</span></a>
+      <a href="#lab">&#9889; <span>Live lab</span></a>
+      <a href="#setup">01 <span>Editor setup</span></a>
       <a href="#bb">02 <span>Inside the breadboard</span></a>
       <a href="#led">03 <span>LEDs + polarity</span></a>
       <a href="#res">04 <span>The resistor + Ohm's law</span></a>
@@ -42,17 +51,18 @@
 
 <section class="part" id="setup">
   <div class="wrap">
-    <div class="part-head"><div class="part-tag">01</div><h2>Getting Set Up in Tinkercad</h2><span class="for">2.2 Step 1 + 2.2A Part 1</span></div>
-    <p class="story">Engineers build circuits in a simulator before touching real parts. In a simulator, a mistake costs nothing: no burned-out LEDs, no damaged boards. Tinkercad is where you'll do that all unit.</p>
+    <div class="part-head"><div class="part-tag">01</div><h2>Getting Set Up in the Circuit Editor</h2><span class="for">2.2 Step 1 + 2.2A Part 1</span></div>
+    <p class="story">Engineers build circuits in a simulator before touching real parts. In a simulator, a mistake costs nothing: no burned-out LEDs, no damaged boards. The Circuit Editor is where you'll do that all unit. It checks your work as you go and pops up help when something interesting happens.</p>
     <div class="tblwrap">
       <table>
         <tr><th>Step</th><th>What to do</th></tr>
-        <tr><td><b>New circuit</b></td><td>Log in, then click <b>Designs</b> &gt; <b>Circuits</b> &gt; <b>Create your first Circuit</b>.</td></tr>
-        <tr><td><b>Add parts</b></td><td>Drag components from the menu on the right onto the workspace: <b>Arduino Uno R3</b>, <b>Breadboard Small</b>, <b>LEDs</b>, and <b>Resistors</b>.</td></tr>
-        <tr><td><b>Change a part</b></td><td>Click it to open the <b>component inspector</b>. That's where you change an LED's color or a resistor's value.</td></tr>
-        <tr><td><b>Set a resistor</b></td><td>Type <b>220</b> and switch the unit dropdown to <b>&Omega; (ohms)</b>. The color bands should read <b>red, red, brown, gold</b>.</td></tr>
-        <tr><td><b>Wires</b></td><td>Click a pin or hole, then click where the wire should end. Click the wire to change its color: red for power, black for ground.</td></tr>
-        <tr><td><b>Test</b></td><td>Click <b>Start Simulation</b>. Always click <b>Stop Simulation</b> before you move a wire or change a part.</td></tr>
+        <tr><td><b>Open the editor</b></td><td>Click <b>Open the Editor</b> at the top of this page (or go to Embedded Computing &gt; Circuit Editor), sign in with your school Google account, and choose <b>2.2 First Circuit</b> from the assignment list.</td></tr>
+        <tr><td><b>Add parts</b></td><td><b>Click, hold, and drag</b> a part from the bar above the canvas onto the breadboard: <b>LED</b>, <b>Resistor</b>. The Arduino and a breadboard are already there. When a part's leg dots turn <b>green</b>, it is plugged in.</td></tr>
+        <tr><td><b>Change a part</b></td><td>Click it. A box under the canvas lets you change an LED's color or a resistor's value (and how far its legs stretch).</td></tr>
+        <tr><td><b>Set a resistor</b></td><td>Choose <b>220</b> ohms. The color bands should read <b>red, red, brown, gold</b>.</td></tr>
+        <tr><td><b>Wires</b></td><td><b>Drag from a pin or hole to another pin or hole.</b> Click a wire to change its color: red for power, black for ground.</td></tr>
+        <tr><td><b>Learn as you go</b></td><td><b>Hover</b> over any leg, pin or hole to see what it is and whether it is positive or negative. Click the yellow <b>help bubbles</b> any time you wonder how something works.</td></tr>
+        <tr><td><b>Test</b></td><td>Click <b>Start Simulation</b>. Stop it before you move a wire or change a part.</td></tr>
       </table>
     </div>
     <div class="fig" style="margin-top:12px">
@@ -64,6 +74,26 @@
         <text x="600" y="30" fill="#C4CDD8" font-family="JetBrains Mono" font-size="13" text-anchor="middle">= 220 &Omega;</text>
       </svg>
     </div>
+  </div>
+</section>
+
+<section class="part" id="lab">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">LIVE</div><h2>Live Lab: Your First Circuit</h2><span class="for">Try it right here</span></div>
+    <p class="story">This is the same simulator you will use in the editor. The circuit below is already built: 5V, a resistor, an LED, and GND. Press <b>Start</b>, then use the <b>experiments</b> to break it on purpose and watch the pop-ups.</p>
+    <div id="lab-mount"></div>
+    <script>
+(function () {
+  ArduinoEmbed.mount(document.getElementById("lab-mount"), { preset: "led5v", title: "5V + resistor + LED", slot: "u2-2", height: 300,
+    intro: "Follow the electricity: <b>5V &rarr; resistor &rarr; LED anode &rarr; LED cathode &rarr; GND</b>. Hover over the parts in the real editor to see which leg is which.",
+    experiments: ["reverseLed", "noResistor", "bigResistor"],
+    goals: [
+      { text: "Press <b>Start</b> and watch the LED glow.", title: "It's glowing!", say: "A complete loop from 5V to GND, with a resistor in the way. That is a circuit.", when: function (s) { return s.running && s.res && Object.keys(s.res.leds).some(function (k) { return s.res.leds[k].brightness > 0.2; }); } },
+      { text: "Click <b>Turn the LED around</b>. What happens to the glow?", title: "One-way street", say: "LEDs only let current go anode &rarr; cathode. Turned around, it blocks the current. It isn't broken. Click the button again to fix it.", when: function (s) { return s.res && Object.keys(s.res.leds).some(function (k) { return s.res.leds[k].reversed; }); } },
+      { text: "Click <b>Replace the resistor with a plain wire</b>. (Turn the LED back first.)", title: "Burned out!", say: "With nothing to limit the current, far too much flowed through the LED. In the real editor, press Reset to put in a fresh one.", when: function (s) { return s.res && Object.keys(s.res.leds).some(function (k) { return s.res.leds[k].blown; }); } }
+    ] });
+})();
+    </script>
   </div>
 </section>
 
@@ -109,7 +139,7 @@
           <tr><th></th><th>Anode (+)</th><th>Cathode (&minus;)</th></tr>
           <tr><td><b>Connects to</b></td><td>the higher voltage side (5V)</td><td>the 0V side (GND)</td></tr>
           <tr><td><b>Real LED</b></td><td>longer leg</td><td>shorter leg, flat edge on the rim</td></tr>
-          <tr><td><b>Tinkercad</b></td><td>bent leg</td><td>straight leg</td></tr>
+          <tr><td><b>Circuit Editor</b></td><td>bent leg (labeled A)</td><td>straight leg (labeled K)</td></tr>
         </table>
         <p style="margin-top:10px">Current can flow from anode to cathode, but a diode blocks it from flowing the other way.</p>
       </div>
@@ -161,10 +191,29 @@
   </div>
 </section>
 
+<section class="part" id="lab2">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">LIVE</div><h2>Live Lab: Two Branches in Parallel</h2><span class="for">2.2A</span></div>
+    <p class="story">Both LEDs hang off the same two rails, each with its own resistor. Break one on purpose and see whether the other one notices.</p>
+    <div id="lab2-mount"></div>
+    <script>
+(function () {
+  ArduinoEmbed.mount(document.getElementById("lab2-mount"), { preset: "dual", title: "Two LEDs, two resistors, one set of rails", slot: "u2-2a", height: 300,
+    experiments: ["reverseLed", "noResistor"],
+    tip: "The experiments change the <b>first LED / resistor</b> only. Watch the other one stay on. That is what makes it parallel.",
+    goals: [
+      { text: "Press <b>Start</b>: both LEDs glow from one 5V pin.", title: "Both on", say: "One 5V pin and one GND pin feed both branches through the rails.", when: function (s) { return s.running && s.res && Object.keys(s.res.leds).filter(function (k) { return s.res.leds[k].brightness > 0.2; }).length >= 2; } },
+      { text: "Burn out the <b>first</b> LED, then check that the green one is still lit.", title: "Parallel!", say: "The green LED has its own path from + to &minus;, so it does not care what happens in the red branch.", when: function (s) { var r = s.res; if (!r) return false; var ks = Object.keys(r.leds); return ks.some(function (k) { return r.leds[k].blown; }) && ks.some(function (k) { return r.leds[k].brightness > 0.2; }); } }
+    ] });
+})();
+    </script>
+  </div>
+</section>
+
 <section class="part" id="faults">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">06</div><h2>The Fault Experiments</h2><span class="for">2.2A Part 4 (and 2.2 Step 8)</span></div>
-    <p class="story">Breaking a circuit on purpose is one of the fastest ways to understand it. In a simulator, you can do it for free. Do each experiment yourself in Tinkercad and write down exactly what you see.</p>
+    <p class="story">Breaking a circuit on purpose is one of the fastest ways to understand it. In a simulator, you can do it for free. Try the live experiments below, then do each one yourself in the Circuit Editor and write down exactly what you see.</p>
     <div class="two">
       <div class="box b">
         <h3>Experiment A: short circuit</h3>
@@ -172,7 +221,7 @@
       </div>
       <div class="box a">
         <h3>Experiment B: overcurrent</h3>
-        <p>Replacing the resistor with a plain wire removes the only thing limiting the current (look back at section 04 with R near 0). Watch the LED for a <b>warning symbol</b> and hover your mouse over it to read Tinkercad's message. Then think about which LEDs share that path, and which have their own branch.</p>
+        <p>Replacing the resistor with a plain wire removes the only thing limiting the current (look back at section 04 with R near 0). Watch the LED for a <b>warning symbol</b> and hover your mouse over it to read the editor's message. Then think about which LEDs share that path, and which have their own branch.</p>
       </div>
     </div>
     <div class="warn"><b>Stop the simulation</b> before moving any wire, then start it again to test.</div>
@@ -194,9 +243,9 @@
 window.QUIZ = [
   { s: "You plug a part into e10 and another into d10. Are they connected?", o: ["Yes, same row, same side of the divider", "No, every hole is separate"], a: 0, e: "a&ndash;e in the same numbered row share one metal strip." },
   { s: "You plug a part into e10 and another into f10. Are they connected?", o: ["Yes", "No, the center divider separates them"], a: 1, e: "a&ndash;e and f&ndash;j are two different strips." },
-  { s: "In Tinkercad, which LED leg goes toward 5V?", o: ["The bent leg (anode)", "The straight leg (cathode)"], a: 0, e: "The anode connects to the higher voltage side." },
+  { s: "In the Circuit Editor, which LED leg goes toward 5V?", o: ["The bent leg (anode, A)", "The straight leg (cathode, K)"], a: 0, e: "The anode connects to the higher voltage side." },
   { s: "Using I = V &divide; R, what happens to current if you use a bigger resistor?", o: ["Current goes up", "Current goes down"], a: 1, e: "Dividing by a bigger number gives a smaller answer." },
-  { s: "Why does each LED get its own resistor?", o: ["Tinkercad requires it", "So each branch's current is limited separately", "Resistors make LEDs brighter"], a: 1, e: "Every branch you add draws its own current. One resistor per LED keeps each branch safe on its own." }
+  { s: "Why does each LED get its own resistor?", o: ["The editor requires it", "So each branch's current is limited separately", "Resistors make LEDs brighter"], a: 1, e: "Every branch you add draws its own current. One resistor per LED keeps each branch safe on its own." }
 ];
 
 (function () {

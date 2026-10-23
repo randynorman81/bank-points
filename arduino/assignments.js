@@ -1,91 +1,67 @@
-/* The Arduino assignments for the editor (arduino/editor.html).
-   Each step item has a text and an auto-check. The check gets a context (c) with the student's circuit and code:
-     c.count("led")  c.parts("resistor")  c.code(/regex/)  c.comments()  c.compiled  c.pin("D8")  c.netOf(part, "A")  c.gnd
-     await c.run({ until, samples, events })  -> a simulated run (pin values and LED brightness at the sample times)
-   A check returns true or false. Add more assignments below the same way (a4, a5, ...). */
+/* The Arduino assignments for the editor (arduino/editor.html): the shared tools for writing them.
+   The assignments themselves are in assign-u2a.js and assign-u2b.js (EC Unit 2).
+
+   An assignment:  A["id"] = { title, short, intro, from, help:[topic ids], events:[...], steps:[ { h, intro, code, items:[...] } ] }
+   An item is one of:
+     I(text, check, helpIds)                       auto-checked: check(c) returns true/false or a promise (c = the circuit and code, see ctx.js)
+     ASK(text, minWords, helpIds, {test, mono, rows, ph})   a written answer (counts when it has enough words, and passes test(answer) if given)
+     MATCH(text, rows, options, helpIds)           vocabulary matching:  rows = [[term, correctLetter]], options = [[letter, text]]
+     CLOZE(text, sentences, bank, answers, helpIds) fill in the blanks: "{0}", "{1}" ... in the sentences, answers[n] from the word bank
+     NOTE(text, helpIds)                           information only (not scored)
+   A check can use  c.count("led")  c.parts("resistor")  c.code(/regex/)  c.plugged(part)  c.netOf(part,"A")  c.pin("D8")  c.rail("plus")
+   c.wireBetween(net, nets, color)  c.staticRun({pins})  c.pinOfLed(led)  c.litFromPower()  await c.run({until, samples, events}) ... (ctx.js) */
 (function (root) {
   "use strict";
-  function every(r, t, fn) { return r.samples.length > 0 && r.samples.every(function (s, i) { return fn(s, i); }); }
-  function ledOnPin(c) { return c.parts("led")[0]; }
-  /* is there a working LED circuit on the given pin (with a resistor)? */
-  function ledCircuit(c, pin, lo, hi) {
-    var led = ledOnPin(c); if (!led) return false;
-    var r = c.staticRun({ pins: (function () { var o = {}; o[pin] = { mode: 1, value: 1, pwm: null, tone: 0 }; return o; })() });
-    var L = r.leds[led.id]; return !!L && !L.blown && L.current >= lo && L.current <= hi;
+  var A = root.ARD_ASSIGN = {};
+  function I(t, check, help) { return { t: t, check: check, help: help || [] }; }
+  function ASK(t, min, help, o) { o = o || {}; return { t: t, kind: "ask", min: min, help: help || [], test: o.test, mono: o.mono, rows: o.rows, ph: o.ph }; }
+  function MATCH(t, rows, options, help) { return { t: t, kind: "match", rows: rows, options: options, help: help || [] }; }
+  function CLOZE(t, sentences, bank, answers, help) { return { t: t, kind: "cloze", sentences: sentences, bank: bank, answers: answers, help: help || [] }; }
+  function NOTE(t, help) { return { t: t, kind: "note", help: help || [] }; }
+
+  /* ---------- code helpers (all work on the code with comments removed unless they say otherwise) */
+  function squash(s) { return String(s).replace(/\s+/g, ""); }
+  function body(noC, fn) {                                  /* the text inside void setup() { ... } or void loop() { ... } */
+    var m = new RegExp("void\\s+" + fn + "\\s*\\(\\s*\\)\\s*\\{").exec(noC); if (!m) return null;
+    var i = m.index + m[0].length, d = 1, j = i; for (; j < noC.length && d > 0; j++) { if (noC[j] === "{") d++; else if (noC[j] === "}") d--; }
+    return noC.slice(i, j - 1);
   }
-  var A = {};
+  function stmts(b) { return b ? b.split(";").map(function (x) { return squash(x); }).filter(Boolean) : []; }
+  function loopStmts(c) { return stmts(body(c.noComments, "loop")); }
+  function setupStmts(c) { return stmts(body(c.noComments, "setup")); }
+  function startsWith(arr, want) { return want.every(function (w, i) { return arr[i] === w; }); }
+  function delaysIn(c) { var out = [], re = /delay\s*\(\s*(\d+)\s*\)/g, m; while ((m = re.exec(c.noComments))) out.push(+m[1]); return out; }
+  /* every line that does something (ends in ; or opens a { ) has a comment on it */
+  function everyLineCommented(raw) {
+    var lines = raw.split("\n").filter(function (l) { var t = l.replace(/\/\/.*$/, "").trim(); return /;\s*$/.test(t) || /\{\s*$/.test(t); });
+    return lines.length > 0 && lines.every(function (l) { return /\/\/\s*\S/.test(l); });
+  }
+  /* every line that does something has a comment right above it, or at the end of the line */
+  function commentAboveEach(raw) {
+    var lines = raw.split("\n"), n = 0;
+    for (var i = 0; i < lines.length; i++) {
+      var code = lines[i].replace(/\/\/.*$/, "").trim(); if (!code || /^[{}]+$/.test(code) || /^\/\*/.test(code)) continue;
+      n++; var above = i > 0 && /^\s*\/\/\s*\S/.test(lines[i - 1]), trailing = /\/\/\s*\S/.test(lines[i]); if (!above && !trailing) return false;
+    }
+    return n > 0;
+  }
+  /* is there a comment (at least minWords long) right above the line that matches re? */
+  function commentAbove(raw, re, minWords) { var lines = raw.split("\n"); for (var i = 1; i < lines.length; i++) if (re.test(lines[i])) { var p = lines[i - 1].match(/^\s*\/\/\s*(.*)$/); if (p && (p[1].trim().split(/\s+/).length >= (minWords || 3))) return true; } return false; }
 
-  A.a1 = { title: "Blink the Built-in Light", intro: "The Arduino has a small orange light marked <b>L</b> that is wired to pin 13. You will make it blink. No wires are needed for this one.", steps: [
-    { h: "Step 1: Type the blink program", code: "void setup() {\n  pinMode(13, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(13, HIGH);\n  delay(1000);\n  digitalWrite(13, LOW);\n  delay(1000);\n}", items: [
-      { t: "Type the program from the code box above into the code editor (the Code tab on the right). Type it yourself, line by line.", check: function (c) { return c.compiled && c.code(/void\s+setup\s*\(\s*\)\s*\{[^}]*pinMode\s*\(\s*(13|LED_BUILTIN)\s*,\s*OUTPUT\s*\)\s*;/) && c.code(/void\s+loop\s*\(\s*\)\s*\{[^}]*digitalWrite\s*\(\s*(13|LED_BUILTIN)\s*,\s*HIGH\s*\)\s*;[^}]*delay\s*\(/) && c.code(/digitalWrite\s*\(\s*(13|LED_BUILTIN)\s*,\s*LOW\s*\)\s*;/); } }
-    ] },
-    { h: "Step 2: Run it", items: [
-      { t: "Click <b>Start Simulation</b>. Watch the orange <b>L</b> light on the Arduino. It should be on for one second, then off for one second.", check: function (c) { return c.run({ until: 4200, samples: [500, 1500, 2500, 3500] }).then(function (r) { return every(r, 0, function (s, i) { return s.pins[13] === (i % 2 === 0 ? 1 : 0); }); }); } }
-    ] },
-    { h: "Step 3: Blink faster", items: [
-      { t: "Change both <b>delay(1000)</b> numbers to <b>delay(200)</b>. The light should now blink 5 times as fast.", check: function (c) { return c.run({ until: 900, samples: [100, 300, 500, 700] }).then(function (r) { return every(r, 0, function (s, i) { return s.pins[13] === (i % 2 === 0 ? 1 : 0); }); }); } },
-      { t: "Add a comment at the end of the <b>pinMode</b> line that says what it does (start the comment with //).", check: function (c) { return c.code(/pinMode\s*\([^)]*\)\s*;[ \t]*\/\/[ \t]*\S/, true); } }
-    ] }
-  ] };
+  /* ---------- circuit and behavior helpers */
+  function sameHalf(c, l) { return c.strip(l, "A").slice(-1); }          /* "u" (rows a to e) or "l" (rows f to j) */
+  function every(r, fn) { return !!r && r.samples.length > 0 && r.samples.every(fn); }
+  /* which LEDs are on (bright) at each sample */
+  function litAt(s, ids) { return ids.filter(function (id) { return (s.leds[id] || 0) > 0.25; }); }
+  /* a run of samples every `step` ms to find the order lights come on */
+  function sampleTimes(until, step) { var t = [], x = step; while (x < until) { t.push(x); x += step; } return t; }
+  function sequenceOf(r, ids) {
+    var out = []; r.samples.forEach(function (s) { var key = litAt(s, ids).sort().join("+"); if (out.length === 0 || out[out.length - 1] !== key) out.push(key); });
+    return out;
+  }
 
-  A.a2 = { title: "Wire an External LED", intro: "Now you will build a real circuit: an LED and a resistor on the breadboard, wired to pin 8. The resistor protects the LED. Without it the LED burns out!", steps: [
-    { h: "Step 1: Add the parts", items: [
-      { t: "Click, <b>hold</b>, and drag an <b>LED</b> from the parts bar onto the breadboard. Then do the same with a <b>Resistor</b>. (Hover over each leg to see what it is.)", check: function (c) { return c.count("led") >= 1 && c.count("resistor") >= 1; } },
-      { t: "Click the resistor, then choose <b>220</b> ohms in the box under the canvas.", check: function (c) { return c.parts("resistor").some(function (p) { return +(p.props && p.props.ohms) === 220; }); } }
-    ] },
-    { h: "Step 2: Build the circuit", items: [
-      { t: "Make sure <b>both</b> resistor legs are in breadboard holes (the leg dots turn green). Drag the resistor if you need to move it.", check: function (c) { return c.parts("resistor").some(function (p) { return c.plugged(p); }); } },
-      { t: "Plug the LED in so its <b>long, bent leg</b> (the <b>anode</b>, marked +) is in the same column as <b>one leg of the resistor</b>, and its short leg (the <b>cathode</b>, marked &minus;) is in a different column.", check: function (c) { var l = ledOnPin(c), r = c.parts("resistor")[0]; return !!l && !!r && c.plugged(l) && (c.netOf(l, "A") === c.netOf(r, "1") || c.netOf(l, "A") === c.netOf(r, "2")) && c.netOf(l, "A") !== c.netOf(l, "K"); } },
-      { t: "Use a wire to connect <b>pin 8</b> on the Arduino to the <b>other leg of the resistor</b> (click a hole or pin, drag, and let go on the other one).", check: function (c) { var l = ledOnPin(c), r = c.parts("resistor")[0]; if (!l || !r) return false; var d8 = c.pin("D8"), a1 = c.netOf(r, "1"), a2 = c.netOf(r, "2"), la = c.netOf(l, "A"); return (d8 === a1 && a2 === la) || (d8 === a2 && a1 === la); } },
-      { t: "Use a wire to connect the LED's <b>short leg</b> to <b>GND</b> on the Arduino (the GND pin on the top row, or the blue &minus; rail).", check: function (c) { var l = ledOnPin(c); return !!l && c.netOf(l, "K") === c.gnd; } },
-      { t: "Test: when pin 8 is HIGH, the LED should glow (about 10 to 15 mA flows). Look for the <b>green leg dots</b> if it does not.", check: function (c) { return ledCircuit(c, 8, 5, 25); } }
-    ] },
-    { h: "Step 3: Make it blink", code: "void setup() {\n  pinMode(8, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(8, HIGH);\n  delay(500);\n  digitalWrite(8, LOW);\n  delay(500);\n}", items: [
-      { t: "Type the program from the code box into the code editor.", check: function (c) { return c.compiled && c.code(/pinMode\s*\(\s*8\s*,\s*OUTPUT\s*\)/) && c.code(/digitalWrite\s*\(\s*8\s*,\s*HIGH\s*\)/) && c.code(/digitalWrite\s*\(\s*8\s*,\s*LOW\s*\)/); } },
-      { t: "Click <b>Start Simulation</b>. Your LED should blink twice every second.", check: function (c) { var l = ledOnPin(c); if (!l) return false; return c.run({ until: 2200, samples: [250, 750, 1250, 1750] }).then(function (r) { return every(r, 0, function (s, i) { var b = s.leds[l.id] || 0; return i % 2 === 0 ? b > 0.3 : b < 0.05; }); }); } }
-    ] }
-  ] };
-
-  A.a3 = { title: "Pushbutton Controls the LED", intro: "A button is a switch. When you press it, it joins two sides of a circuit. You will wire a button to pin 2 so that holding it turns the LED on.", steps: [
-    { h: "Step 1: The LED circuit", items: [
-      { t: "Build the LED circuit from Assignment 2 again: <b>pin 8</b> to a <b>220 &#937; resistor</b> to the LED's <b>long leg</b>, and the LED's <b>short leg</b> to <b>GND</b>.", check: function (c) { return ledCircuit(c, 8, 5, 25); } }
-    ] },
-    { h: "Step 2: Add the button", items: [
-      { t: "Click, <b>hold</b>, and drag a <b>Pushbutton</b> from the parts bar onto the breadboard so it <b>straddles the center gap</b>: two legs on the top half and two legs on the bottom half. All four leg dots must turn green.", check: function (c) { var b = c.parts("button")[0]; return !!b && c.plugged(b) && c.netOf(b, "TL") !== c.netOf(b, "BL"); } },
-      { t: "Use a wire to connect <b>one side</b> of the button to <b>pin 2</b> on the Arduino.", check: function (c) { var b = c.parts("button")[0]; if (!b) return false; var d2 = c.pin("D2"); return c.netOf(b, "TL") === d2 || c.netOf(b, "BL") === d2; } },
-      { t: "Use a wire to connect the <b>other side</b> of the button to <b>GND</b>.", check: function (c) { var b = c.parts("button")[0]; if (!b) return false; return (c.netOf(b, "TL") === c.gnd && c.netOf(b, "BL") === c.pin("D2")) || (c.netOf(b, "BL") === c.gnd && c.netOf(b, "TL") === c.pin("D2")); } }
-    ] },
-    { h: "Step 3: The program", code: "void setup() {\n  pinMode(2, INPUT_PULLUP);\n  pinMode(8, OUTPUT);\n}\n\nvoid loop() {\n  if (digitalRead(2) == LOW) {\n    digitalWrite(8, HIGH);\n  } else {\n    digitalWrite(8, LOW);\n  }\n}", items: [
-      { t: "Type the program from the code box. <b>INPUT_PULLUP</b> keeps pin 2 HIGH until the button connects it to GND (LOW).", check: function (c) { return c.compiled && c.code(/pinMode\s*\(\s*2\s*,\s*INPUT_PULLUP\s*\)/) && c.code(/digitalRead\s*\(\s*2\s*\)/) && c.code(/digitalWrite\s*\(\s*8\s*,\s*HIGH\s*\)/) && c.code(/digitalWrite\s*\(\s*8\s*,\s*LOW\s*\)/); } },
-      { t: "Click <b>Start Simulation</b>, then <b>press and hold</b> the button on the canvas. The LED should be on only while you hold it.", check: function (c) { var l = ledOnPin(c), b = c.parts("button")[0]; if (!l || !b) return false; return c.run({ until: 1300, samples: [150, 600, 1100], events: [{ t: 300, press: b.id, down: true }, { t: 800, press: b.id, down: false }] }).then(function (r) { var s = r.samples; return s.length === 3 && (s[0].leds[l.id] || 0) < 0.05 && (s[1].leds[l.id] || 0) > 0.3 && (s[2].leds[l.id] || 0) < 0.05; }); } },
-      { t: "Add a comment above the <b>if</b> line that explains why the program checks for LOW.", check: function (c) { return c.code(/\/\/[^\n]*\n\s*if\s*\(/, true); } }
-    ] }
-  ] };
-
-
-  /* the clickable help bubbles under each step item (ids come from tips.js) */
-  var HELP = {
-    a1: { start: ["tour", "skeleton", "functions-all"], steps: [
-      [["skeleton", "setuploop", "pinmode", "digitalwrite", "delay", "semicolon"]],
-      [["startsim", "builtinled", "serialmon"]],
-      [["delay"], ["comments"]]
-    ] },
-    a2: { start: ["tour", "circuit", "breadboard"], steps: [
-      [["dragpart", "ledhow", "polarity"], ["resistor", "resistorvalue", "ohmslaw"]],
-      [["plugged", "breadboard"], ["ledhow", "polarity", "breadboard"], ["makewire", "pins", "breadboard"], ["gnd", "rails", "makewire"], ["ledresistor", "ohmslaw", "trouble-nolight"]],
-      [["skeleton", "setuploop", "pinmode", "digitalwrite", "delay"], ["startsim", "trouble-nolight"]]
-    ] },
-    a3: { start: ["tour", "button", "pullup"], steps: [
-      [["ledresistor", "ohmslaw", "makewire"]],
-      [["button", "breadboard", "plugged"], ["makewire", "pullup", "pins"], ["gnd", "makewire", "pullup"]],
-      [["pullup", "digitalread", "ifelse", "pinmode", "semicolon"], ["startsim", "buttonfix", "pullup"], ["comments", "pullup"]]
-    ] }
-  };
-  Object.keys(HELP).forEach(function (k) {
-    var a = A[k]; if (!a) return; a.help = HELP[k].start;
-    a.steps.forEach(function (s, si) { s.items.forEach(function (it, ii) { it.help = (HELP[k].steps[si] || [])[ii] || []; }); });
-  });
-
-  root.ARD_ASSIGN = A;
-  root.ARD_SLOTS = [["free", "Free build (practice)"], ["a1", "Assignment 1: Blink the Built-in Light"], ["a2", "Assignment 2: Wire an External LED"], ["a3", "Assignment 3: Pushbutton Controls the LED"]];
+  root.ARD_H = { I: I, ASK: ASK, MATCH: MATCH, CLOZE: CLOZE, NOTE: NOTE, squash: squash, body: body, stmts: stmts, loopStmts: loopStmts, setupStmts: setupStmts, startsWith: startsWith, delaysIn: delaysIn,
+    everyLineCommented: everyLineCommented, commentAboveEach: commentAboveEach, commentAbove: commentAbove, sameHalf: sameHalf, every: every, litAt: litAt, sampleTimes: sampleTimes, sequenceOf: sequenceOf };
+  root.ARD_SLOTS = [["free", "Free build (practice)"]];
+  root.ARD_SLOT_ADD = function (id, label) { root.ARD_SLOTS.push([id, label]); };
 })(typeof window !== "undefined" ? window : globalThis);

@@ -406,4 +406,48 @@
     { rows: [["LED never lights", "No pinMode OUTPUT, wrong pin number, missing GND wire, or LED backwards."], ["LED is dim", "Resistor too big (try 220 ohms)."], ["LED burned out", "No resistor. Click Reset."], ["Button seems backwards", "INPUT_PULLUP: LOW means pressed."], ["Random 0s and 1s", "A floating input. Use INPUT_PULLUP."], ["Nothing in Serial Monitor", "Missing Serial.begin(9600)."], ["Red error box", "Read the line number and message."], ["Part will not stay put", "Drag it so the leg dots turn green."]], head: ["Problem", "Fix"] },
     { links: ["trouble-nolight", "buttonfix", "nosound", "errors"] }
   ], "problem fix troubleshooting common mistakes");
+
+  /* ---------- Unit 2 extras */
+  add("resistorspan", EL, "How do I stretch a resistor across the breadboard?", [
+    { p: "A resistor has no polarity, so either leg can go either way. Its legs can be spread **3 to 12 holes apart**. Click the resistor, then use the **Longer / Shorter** buttons in the box under the canvas to change how far apart the legs are." },
+    { good: "A resistor that spans the center gap lets one leg sit in the top half and one in the bottom half." }
+  ], "resistor span stretch long short legs holes");
+  add("seriesparallel", EL, "Series and parallel: two ways to join parts", [
+    { p: "**Series:** parts one after another in a single path, like beads on a string. The same current flows through all of them. **Parallel:** parts side by side, each with its own path between the same two points. Each branch gets the full voltage." },
+    { rows: [["Series", "One path. Break it anywhere and everything stops.", "Two resistors in a row make the current smaller."], ["Parallel", "Several paths. One branch can be off while others stay on.", "Two LEDs each with their own resistor."]], head: ["Type", "Idea", "Example"] },
+    { good: "Each LED gets its own resistor. That is how a traffic light works: three parallel branches." }
+  ], "series parallel branch path current");
+  add("tracepath", EL, "How do I trace where the electricity flows?", [
+    { p: "Put your finger on the **5V** pin (or a pin set HIGH) and follow the wire. Every time you reach a part, ask: which leg did I enter, and which leg leaves? Keep going until you get back to **GND**. If you cannot get all the way to GND, the circuit is not complete and nothing will light." },
+    { steps: ["Start at 5V or an output pin.", "Follow the wire to a breadboard strip (the 5 holes in a column are joined).", "Cross the part (resistor, LED, button).", "Follow wires or strips to GND."] }
+  ], "trace path flow follow current loop complete");
+  add("trafficlight", CO, "How does a traffic light sequence work in code?", [
+    { p: "A traffic light is a list of steps that repeats forever: **turn one light on, wait, turn it off, move to the next light**. Because loop() repeats automatically, you only write the cycle once." },
+    { ex: ["digitalWrite(greenPin, HIGH);", "delay(greenTime);", "digitalWrite(greenPin, LOW);", "// then yellow, then red"] },
+    { warn: "If you forget to turn a light LOW, it stays on forever and two lights are on at once." }
+  ], "traffic light sequence order green yellow red");
+  add("datatypes", CO, "Data types: boolean, byte, int, long, float, char", [
+    { rows: [["boolean", "true or false", "1 byte"], ["byte", "0 to 255", "1 byte"], ["char", "one character like 'A'", "1 byte"], ["int", "-32,768 to 32,767", "2 bytes"], ["long", "about -2.1 billion to 2.1 billion", "4 bytes"], ["float", "decimal numbers like 0.5", "4 bytes"]], head: ["Type", "Holds", "Size"] },
+    { p: "The Uno has only **2,048 bytes** of memory for variables, so use the smallest box that fits." },
+    { links: ["variables", "bytewrap", "globalvar"] }
+  ], "data type boolean byte int long float char size range memory");
+  add("globalvar", CO, "Global variables: why declare them at the top?", [
+    { p: "A variable declared **above setup()** is global: every function can use it, and it **keeps its value** between loops. A variable declared **inside loop()** is created fresh every time loop() restarts, so it forgets what it learned last time." },
+    { ex: ["int blinkSpeed = 500;   // global", "void loop() {", "  int x = 0;           // local: reset every loop", "}"] }
+  ], "global local scope variable top declare reset");
+  add("notop", CO, "The NOT operator (!) and flipping a value", [
+    { p: "The exclamation point means **NOT**. It flips true to false and false to true. So `ledState = !ledState;` toggles the variable every time it runs. In the button circuit, `!buttonState` turns the reading (LOW when pressed) into true when pressed." },
+    { rows: [["!true", "false"], ["!false", "true"], ["!HIGH", "LOW"], ["!LOW", "HIGH"]], head: ["Expression", "Result"] }
+  ], "not operator exclamation flip toggle invert boolean");
+  add("bytewrap", CO, "What happens when a byte goes past 255?", [
+    { p: "A byte can only hold 0 to 255. Add 1 to 255 and it **wraps around to 0**, like a car odometer rolling over. The same thing happens to an int at 32,767 (it wraps to -32,768)." },
+    { good: "Use a bigger type (int or long) for anything that might count past 255." }
+  ], "byte wrap overflow 255 rollover odometer");
+  add("sourcesink", EL, "Source and sink: where the current goes", [
+    { p: "A pin set HIGH can **source** current: push it out to a part. A pin set LOW can **sink** current: pull it in. An LED wired from a pin to GND is **sourced** (HIGH turns it on). An LED wired from 5V to a pin is **sunk** (LOW turns it on). Either way current needs a full loop from + to -." },
+    { warn: "A pin can only safely handle about 20 mA, so always use a resistor." }
+  ], "source sink current high low direction");
+  add("doorbell", PA, "The doorbell analogy for a button", [
+    { p: "A doorbell button is a gap in a wire. While nobody pushes, the gap is open and nothing happens. When a visitor **pushes**, the gap closes, current flows, and the bell rings. In the Arduino circuit, pressing the button connects the input pin to GND, so the pin reads **LOW**. Letting go lets the pull-up resistor pull the pin back to **HIGH**." }
+  ], "doorbell analogy button press circuit gap");
 })(typeof window !== "undefined" ? window : globalThis);

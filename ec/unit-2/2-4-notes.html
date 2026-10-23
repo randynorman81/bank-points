@@ -17,6 +17,13 @@
 details.gate{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:14px 18px;margin-top:12px}
 details.gate summary{cursor:pointer;font-weight:700;color:var(--hi-ink)}
 </style>
+<script src="../../arduino/compiler.js"></script>
+<script src="../../arduino/circuit.js"></script>
+<script src="../../arduino/sim.js"></script>
+<script src="../../arduino/render.js"></script>
+<script src="../../arduino/coach.js"></script>
+<script src="../../arduino/tips.js"></script>
+<script src="../../arduino/embed.js"></script>
 </head>
 <body>
 
@@ -32,6 +39,7 @@ details.gate summary{cursor:pointer;font-weight:700;color:var(--hi-ink)}
     <h1>Variables and Data Types</h1>
     <p class="deck">Everything you need for the 2.4 assignment, in the same order: the six data types, global variables, the ! operator, byte wraparound, and printing to the Serial Monitor.</p>
     <div class="map">
+      <a href="#lab">&#9889; <span>Live lab</span></a>
       <a href="#types">01 <span>The 6 data types (Section 1)</span></a>
       <a href="#global">02 <span>Global vs. inside loop()</span></a>
       <a href="#not">03 <span>The ! operator</span></a>
@@ -165,11 +173,34 @@ details.gate summary{cursor:pointer;font-weight:700;color:var(--hi-ink)}
         <tr><td><code>Serial.println(x);</code></td><td>Prints x and then <b>starts a new line</b>. Use it for the last thing on each line.</td></tr>
       </table>
     </div>
-    <p class="lede" style="margin-top:16px">Open the Serial Monitor before you run: in the Arduino IDE it's the <b>magnifying glass icon</b> or <b>Tools &gt; Serial Monitor</b>; in Tinkercad, click <b>Code</b>, then <b>Serial Monitor</b> at the bottom of the code panel. The six Serial.print lines plus the println build one line of output per blink, like this:</p>
-    <div class="serial" id="mon1">LED A blink count: 1 total blinks: 1 0.50
-LED A blink count: 2 total blinks: 2 0.50
-LED A blink count: 3 total blinks: 3 0.50</div>
+    <p class="lede" style="margin-top:16px">Open the Serial Monitor before you run: in the Arduino IDE it's the <b>magnifying glass icon</b> or <b>Tools &gt; Serial Monitor</b>; in the Circuit Editor, the <b>Serial Monitor</b> panel is below the code box and fills with text as soon as your code prints. The Serial.print lines plus the println build one line of output per blink, like this:</p>
+    <div class="serial" id="mon1">LED A blink count: 1 total blinks: 1 seconds: 0.50
+LED A blink count: 2 total blinks: 2 seconds: 0.50
+LED A blink count: 3 total blinks: 3 seconds: 0.50</div>
     <p class="cap">Order in loop(): the lines from Part 1, then a line that adds 1 to your total-blinks variable (a long), then the Serial lines in the order listed in your assignment.</p>
+  </div>
+</section>
+
+<section class="part" id="lab">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">LIVE</div><h2>Live Lab: Watch a Byte Wrap Around</h2><span class="for">Part 2 + the prediction</span></div>
+    <p class="story">This is the Part 2 program with the delay shortened so you do not wait all day. Press <b>Start</b> at 10x speed and keep your eyes on the Serial Monitor: <code>blinkCount</code> is a <b>byte</b>, <code>totalBlinks</code> is a <b>long</b>.</p>
+    <div id="lab-mount"></div>
+    <script>
+(function () {
+  ArduinoEmbed.mount(document.getElementById("lab-mount"), { preset: "bytecount", title: "byte vs long", slot: "u2-4", editable: true, speed: 10, height: 300,
+    variants: [
+      { label: "Make blinkCount an int", code: "int ledPin = 8;\nint blinkSpeed = 100;\nboolean ledState = false;\nint blinkCount = 0;\nlong totalBlinks = 0;\n\nvoid setup() {\n  pinMode(ledPin, OUTPUT);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  ledState = !ledState;\n  digitalWrite(ledPin, ledState);\n  blinkCount = blinkCount + 1;\n  totalBlinks = totalBlinks + 1;\n  Serial.print(\"blinkCount: \");\n  Serial.print(blinkCount);\n  Serial.print(\"   totalBlinks: \");\n  Serial.println(totalBlinks);\n  delay(blinkSpeed);\n}\n" }
+    ],
+    events: [
+      { id: "byte-wrap-live", when: function (c) { return /blinkCount: 255 +totalBlinks: 255\s*blinkCount: 0 /.test(c.serial || ""); }, title: "Byte wraparound!", help: ["bytewrap", "datatypes"], html: "<code>blinkCount</code> hit <b>255</b>, the biggest a byte can hold, then rolled over to <b>0</b> like a car odometer. <code>totalBlinks</code> is a <b>long</b>, so it just keeps counting: 256, 257... Which data type would you pick for a counter that might go past 255?" }
+    ],
+    goals: [
+      { text: "Press <b>Start</b>. Find the moment <b>blinkCount</b> goes from 255 to <b>0</b> while totalBlinks keeps climbing.", title: "You saw it wrap", say: "That is exactly what your Part 1 prediction was about. A byte cannot count past 255.", when: function (s) { return /blinkCount: 255 +totalBlinks: 255\s*blinkCount: 0 /.test(s.serial || ""); } },
+      { text: "Click <b>Make blinkCount an int</b> and run it again. Does it wrap at 255 now?", title: "An int has room", say: "An int holds up to 32,767 (2 bytes), so the count sails past 255 without wrapping.", when: function (s) { return /int blinkCount/.test(s.code) && /blinkCount: 256 /.test(s.serial || ""); } }
+    ] });
+})();
+    </script>
   </div>
 </section>
 
@@ -230,7 +261,7 @@ window.QUIZ = [
   var bc = 0, tb = 0, run = null;
   function line() {
     bc = (bc + 1) % 256; tb++;
-    var m = $("mon2"); m.textContent += "LED A blink count: " + bc + " total blinks: " + tb + " 0.50\n";
+    var m = $("mon2"); m.textContent += "LED A blink count: " + bc + " total blinks: " + tb + " seconds: 0.50\n";
     if (m.textContent.length > 6000) m.textContent = m.textContent.slice(-4000);
     m.scrollTop = m.scrollHeight;
   }

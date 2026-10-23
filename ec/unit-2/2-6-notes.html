@@ -9,6 +9,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="../../assets/logo.png">
 <link rel="stylesheet" href="notes.css">
+<script src="../../arduino/compiler.js"></script>
+<script src="../../arduino/circuit.js"></script>
+<script src="../../arduino/sim.js"></script>
+<script src="../../arduino/render.js"></script>
+<script src="../../arduino/coach.js"></script>
+<script src="../../arduino/tips.js"></script>
+<script src="../../arduino/embed.js"></script>
 </head>
 <body>
 
@@ -24,6 +31,7 @@
     <h1>Timing and Sequences</h1>
     <p class="deck">Everything you need for the 2.6 traffic light: wiring 3 LEDs, building the sequence line by line, why a light stays on until you turn it off, timing variables, and real traffic light timing.</p>
     <div class="map">
+      <a href="#lab">&#9889; <span>Live lab</span></a>
       <a href="#wire">01 <span>Wiring 3 LEDs</span></a>
       <a href="#seq">02 <span>The sequence</span></a>
       <a href="#sim">03 <span>Traffic light simulator</span></a>
@@ -32,6 +40,30 @@
     </div>
   </div>
 </header>
+
+<section class="part" id="lab">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">LIVE</div><h2>Live Lab: A Traffic Light</h2><span class="for">Part 1 + the zombie question</span></div>
+    <p class="story">Three LEDs, three pins, one GND. Press <b>Start</b> and watch the order: green, yellow, red. Then swap in the <b>zombie code</b>, where a rogue AI deleted one line, and see what a driver would see.</p>
+    <div id="lab-mount"></div>
+    <script>
+(function () {
+  ArduinoEmbed.mount(document.getElementById("lab-mount"), { preset: "traffic", title: "Traffic light: pins 8, 9, 10", slot: "u2-6", editable: true, speed: 4, height: 300,
+    variants: [
+      { label: "Zombie code (yellow LOW deleted)", code: "int redPin = 8;\nint yellowPin = 9;\nint greenPin = 10;\nint greenTime = 3000;\nint yellowTime = 1000;\nint redTime = 2500;\n\nvoid setup() {\n  pinMode(redPin, OUTPUT);\n  pinMode(yellowPin, OUTPUT);\n  pinMode(greenPin, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(greenPin, HIGH);\n  delay(greenTime);\n  digitalWrite(greenPin, LOW);\n  digitalWrite(yellowPin, HIGH);\n  delay(yellowTime);\n  digitalWrite(redPin, HIGH);\n  delay(redTime);\n  digitalWrite(redPin, LOW);\n}\n" },
+      { label: "Real timing (green 35 s)", code: "int redPin = 8;\nint yellowPin = 9;\nint greenPin = 10;\nint greenTime = 35000;\nint yellowTime = 4000;\nint redTime = 30000;\n\nvoid setup() {\n  pinMode(redPin, OUTPUT);\n  pinMode(yellowPin, OUTPUT);\n  pinMode(greenPin, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(greenPin, HIGH);\n  delay(greenTime);\n  digitalWrite(greenPin, LOW);\n  digitalWrite(yellowPin, HIGH);\n  delay(yellowTime);\n  digitalWrite(yellowPin, LOW);\n  digitalWrite(redPin, HIGH);\n  delay(redTime);\n  digitalWrite(redPin, LOW);\n}\n" }
+    ],
+    events: [
+      { id: "two-on", when: function (c) { var p = c.io && c.io.pins; if (!p || !c.sim || !c.sim.running) return false; return [8, 9, 10].filter(function (k) { return p[k] && p[k].mode === 1 && p[k].value; }).length >= 2; }, title: "Two lights are on at once! \u26A0\uFE0F", help: ["digitalwrite", "trafficlight"], html: "A pin stays <b>HIGH until your code sets it LOW</b>. Nothing turns a light off for you. A driver facing two lights at once has no idea whether to stop or go." }
+    ],
+    goals: [
+      { text: "Press <b>Start</b> and watch one full cycle: <b>green &rarr; yellow &rarr; red</b>.", title: "A full cycle", say: "Each light comes on, waits, and is turned OFF before the next one starts. loop() then repeats the whole thing forever.", when: function (s, g) { var p = s.io.pins, on = p[10] && p[10].value ? "G" : p[9] && p[9].value ? "Y" : p[8] && p[8].value ? "R" : ""; if (on && g.last !== on) { g.seq = (g.seq || "") + on; g.last = on; } return /GYR/.test(g.seq || ""); } },
+      { text: "Click <b>Zombie code</b> and run it. Watch what the yellow light does.", title: "Zombie light", say: "The line <code>digitalWrite(yellowPin, LOW);</code> is the only thing that ever turns yellow off. Without it yellow stays on forever, and red joins it. Put the line back to fix it.", when: function (s) { return s.running && !/yellowPin, LOW/.test(s.code) && s.io.pins[9] && s.io.pins[9].value && s.io.pins[8] && s.io.pins[8].value; } }
+    ] });
+})();
+    </script>
+  </div>
+</section>
 
 <section class="part" id="wire">
   <div class="wrap">

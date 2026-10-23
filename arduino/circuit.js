@@ -13,13 +13,13 @@
   /* ------------------------------------------------------------------ geometry of each part (local coordinates) */
   function breadboardInfo(size) {
     var cols = size === "mini" ? 17 : 30, rails = size === "mini" ? 10 : 25;
-    var x0 = 30, yRail1 = 12, yRail2 = 24, yTop = 54;               /* rows a..e start at yTop, 12 apart */
+    var x0 = 30, yRail1 = 12, yRail2 = 24, yTop = 60;               /* rows a..e start at yTop, 12 apart */
     var yLow = yTop + 4 * P + 3 * P;                              /* row f is 3 pitches below row e (the center gap) */
-    var yBot1 = yLow + 4 * P + 2 * P + 6, yBot2 = yBot1 + P;
+    var yBot1 = yLow + 4 * P + 3 * P, yBot2 = yBot1 + P;
     return { cols: cols, rails: rails, x0: x0, yRail1: yRail1, yRail2: yRail2, yTop: yTop, yLow: yLow, yBot1: yBot1, yBot2: yBot2,
       w: x0 * 2 + (cols - 1) * P, h: yBot2 + 14 };
   }
-  function railX(info, k) { return info.x0 + k * P + Math.floor(k / 5) * (P / 2); }
+  function railX(info, k) { return info.x0 + (k + Math.floor(k / 5)) * P; }   /* groups of 5 holes with one missing hole between, lined up with the columns */
   function breadboardTerms(size) {
     var b = breadboardInfo(size), t = [], c, r, k;
     for (c = 1; c <= b.cols; c++) {
@@ -51,7 +51,7 @@
     breadboard: { label: "Breadboard", terms: function (p) { return breadboardTerms(p.props && p.props.size); }, board: true,
       dims: function (p) { var b = breadboardInfo(p.props && p.props.size); return { w: b.w, h: b.h }; } },
     led: { label: "LED", w: 24, h: 40, terms: function () { return [{ id: "A", x: 0, y: 0, name: "anode (+, long leg)" }, { id: "K", x: P, y: 0, name: "cathode (-, short leg)" }]; } },
-    resistor: { label: "Resistor", w: 4 * P, h: 14, terms: function () { return [{ id: "1", x: 0, y: 0 }, { id: "2", x: 4 * P, y: 0 }]; } },
+    resistor: { label: "Resistor", w: 4 * P, h: 14, terms: function (p) { var sp = Math.max(3, Math.min(12, Math.round(+(p && p.props && p.props.span) || 4))); return [{ id: "1", x: 0, y: 0 }, { id: "2", x: sp * P, y: 0 }]; } },
     button: { label: "Pushbutton", w: 2 * P, h: 3 * P, terms: function () { return [{ id: "TL", x: 0, y: 0 }, { id: "TR", x: 2 * P, y: 0 }, { id: "BL", x: 0, y: 3 * P }, { id: "BR", x: 2 * P, y: 3 * P }]; } },
     buzzer: { label: "Piezo buzzer", w: 2 * P, h: 30, terms: function () { return [{ id: "P", x: 0, y: 0, name: "+" }, { id: "N", x: 2 * P, y: 0, name: "-" }]; } }
   };
@@ -180,6 +180,8 @@
 
     /* ---- read-outs */
     var duties = {}; drives.forEach(function (d) { if (d.net >= 0) duties[d.net] = Math.max(duties[d.net] || 0, d.duty); });
+    /* a PWM duty carries through resistors (and a pressed button), so an LED behind its resistor still dims */
+    for (var di = 0; di < 6; di++) { var dch = false; elems.forEach(function (e) { if (e.type !== "R" || e.buzzer) return; var da = duties[e.a], db = duties[e.b]; if (da !== undefined && db === undefined) { duties[e.b] = da; dch = true; } else if (db !== undefined && da === undefined) { duties[e.a] = db; dch = true; } }); if (!dch) break; }
     elems.forEach(function (e) {
       if (e.type === "LED") {
         var vd = volts[e.a] - volts[e.b], cur = e.on ? Math.max(0, (vd - e.vf) / 4) : 0;
