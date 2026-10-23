@@ -201,7 +201,12 @@
        P("Its font-size is 13px", lastP, "font-size", h.px(13)), P("It is text-align center", lastP, "text-align", center), P("It has a dotted border", lastP, "border", h.bs("dotted"))]
     ]
   } };
-  lastStep("6.4", "Step 6", [[h.ALLGREEN], []]);
+  SC.LESSONS["6.4"].steps["Step 6"] = [
+    [K("There is a link tag in the head that loads a Google font (https://fonts.googleapis.com)", function (c) { var g = gfLinks(c); return g.length >= 1 && g.every(function (l) { return !!c.ancestor(l, ["head"]); }); }), K("Your link brings in at least 2 different fonts", function (c) { return gNames(c).length >= 2; })],
+    [K("At least 2 different Google fonts are used in font-family styles", function (c) { var g = gNames(c), used = {}; ffList(c).forEach(function (v) { var f = ffFirst(v); if (g.indexOf(f) > -1) used[f] = 1; }); return Object.keys(used).length >= 2; }),
+     K("At least 2 font-family styles, and every one ends with a fallback family (serif, sans-serif, monospace, cursive, or fantasy)", function (c) { var l = ffList(c); return l.length >= 2 && l.every(function (v) { return v.indexOf(",") > -1 && /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v)); }); })]
+  ];
+  lastStep("6.4", "Step 7", [[h.ALLGREEN], []]);
 
   /* =============== 6.5  (3.6) Lists: the guide page =============== */
   var menu = afterEl(T("h1"), "ul");

@@ -164,6 +164,10 @@
       "Add a **heading 2** that says Reward, with a **color**. Under it, add a **paragraph** with the amount in **bold**. Style it: **background-color**, a **solid border**, **text-align** center, and **font-size** 24px",
       "Add one last **paragraph** with a warning in **italics** and a **line break**. Style it: **font-size** 13px, **text-align** center, and a **dotted border**"
     ]),
+    S("Use what you already know", [
+      "Go to **fonts.google.com**, pick **2 fonts** that fit your poster, and paste the **link** tag **inside the head**, under your title (one link can hold both fonts)",
+      "Use **font-family** on **at least 2 tags** (like your heading 1 and a paragraph), a **different** Google font on each. End **each** font-family with a **fallback family** (**serif**, **sans-serif**, **monospace**, **cursive**, or **fantasy**), after a comma: one fallback for each of the 2 fonts"
+    ]),
     done()]));
 
   /* ======================================================================= 6.5  (3.6) ===== */
