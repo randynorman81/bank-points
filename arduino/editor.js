@@ -770,5 +770,28 @@
   loadSlot(want); $("slot").value = want; initGoogle();
   setTimeout(fitView, 60); window.addEventListener("resize", function () { setTimeout(fitView, 80); });
   updatePins({ pins: {} });
+  /* ---- no copy and paste from outside: students type their own code and answers.
+     Text copied inside the code box or an answer box can still be moved around in it. */
+  (function () {
+    var own = "";
+    function typing(el) { return el && el.tagName === "TEXTAREA" && (el.id === "ta" || (el.classList && el.classList.contains("askbox"))); }
+    function say() { status("Pasting is turned off. Type it in your own words and your own code.", true); }
+    document.addEventListener("copy", function (e) {
+      var el = e.target; if (typing(el)) { own = String(window.getSelection ? window.getSelection() : "") || (el.value || "").slice(el.selectionStart, el.selectionEnd); return; }
+      if (e.target && e.target.closest && e.target.closest("#assBody, .modal, #out, .codebox")) { e.preventDefault(); }
+    }, true);
+    document.addEventListener("cut", function (e) { var el = e.target; if (typing(el)) own = (el.value || "").slice(el.selectionStart, el.selectionEnd); }, true);
+    document.addEventListener("paste", function (e) {
+      var el = e.target; if (!typing(el)) return;
+      var txt = (e.clipboardData && e.clipboardData.getData("text")) || "";
+      e.preventDefault();
+      if (txt && own && txt === own) { var s = el.selectionStart, en = el.selectionEnd; el.setRangeText(txt, s, en, "end"); el.dispatchEvent(new Event("input", { bubbles: true })); }
+      else say();
+    }, true);
+    document.addEventListener("drop", function (e) { if (typing(e.target)) { e.preventDefault(); say(); } }, true);
+    document.addEventListener("dragover", function (e) { if (typing(e.target)) e.preventDefault(); }, true);
+    document.addEventListener("keydown", function (e) { if (typing(e.target) && e.shiftKey && e.key === "Insert") { e.preventDefault(); say(); } }, true);
+    ["#assBody", "#out"].forEach(function (s) { var el = document.querySelector(s); if (el) { el.addEventListener("contextmenu", function (e) { if (e.target.closest(".codebox")) e.preventDefault(); }); } });
+  })();
   window.ARD = { get project() { return project; }, get sim() { return sim; }, ta: ta, evaluate: evaluate, fitView: fitView };
 })();
