@@ -28,9 +28,9 @@
       var t = txt(c, k);
       if (/^[A-Za-z]$/.test(t)) letters++; else if (/^[A-Za-z']{3,}$/.test(t)) whole++;
     });
-    return whole + Math.floor(letters / 3);
+    return whole + (letters >= 3 ? 3 : 0);   /* one rainbow word (3+ single-letter spans) earns the whole bonus */
   }
-  var RAINBOW = [["BONUS: at least 3 words colored with span tags (a whole word in one span, or each letter of a word in its own span)", function (c) { return spanWords(c) >= 3; }]];
+  var RAINBOW = [["BONUS: 3 words colored with span tags (a whole word in one span each), or one rainbow word (each letter in its own span)", function (c) { return spanWords(c) >= 3; }]];
   RAINBOW.bonus = 5;
 
   /* =============== 6.2  (3.2) The "Style" Attribute + Color: the ugliest website you can make =============== */
