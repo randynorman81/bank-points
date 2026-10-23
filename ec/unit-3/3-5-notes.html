@@ -84,15 +84,15 @@
     <div class="part-head"><div class="part-tag">02</div><h2>Wire It Up</h2><span class="for">Step 2</span></div>
     <p class="story">Look at the top of the display: 4 labeled pins: <b>+</b>, <b>&minus;</b>, <b>D</b> and <b>C</b>. Hover over each one in the editor to double-check.</p>
     <div class="tblwrap"><table>
-      <tr><th>Display pin</th><th>Connects to</th><th>Why</th></tr>
-      <tr><td><b>+</b></td><td>Arduino <b>5V</b></td><td>Power for the chip and the digits.</td></tr>
-      <tr><td><b>&minus;</b></td><td>Arduino <b>GND</b></td><td>The 0 volt return path.</td></tr>
-      <tr><td><b>D</b> (data)</td><td>Arduino <b>A4</b> (SDA)</td><td>Bits of information go this way.</td></tr>
-      <tr><td><b>C</b> (clock)</td><td>Arduino <b>A5</b> (SCL)</td><td>The beat that keeps data and listener in step.</td></tr>
-      <tr><td>Button, one side</td><td>pin <b>2</b></td><td>Read with INPUT_PULLUP.</td></tr>
-      <tr><td>Button, other side</td><td><b>GND</b></td><td>Pressing connects pin 2 to GND (LOW).</td></tr>
+      <tr><th>Display pin</th><th>Connects to</th><th>Think about it</th></tr>
+      <tr><td><b>+</b></td><td>Arduino <b>5V</b></td><td>Hover over it in the editor. What does it say?</td></tr>
+      <tr><td><b>&minus;</b></td><td>Arduino <b>GND</b></td><td>Where does current need to end up?</td></tr>
+      <tr><td><b>D</b> (data)</td><td>Arduino <b>A4</b> (SDA)</td><td>Hover over it. What name does the editor give it?</td></tr>
+      <tr><td><b>C</b> (clock)</td><td>Arduino <b>A5</b> (SCL)</td><td>Hover over it. How is it different from D?</td></tr>
+      <tr><td>Button, one side</td><td>pin <b>2</b></td><td>You used this setup in 2.7 and 3.2.</td></tr>
+      <tr><td>Button, other side</td><td><b>GND</b></td><td>What does pin 2 read before you press? After?</td></tr>
     </table></div>
-    <div class="hint-panel"><b>I2C is a shared bus.</b> D and C are the same 2 wires any other I2C part on this Arduino would use too. Every device on the bus listens only for messages sent to its own <b>address</b>. This display's address is <code>0x70</code>.</div>
+    <div class="hint-panel"><b>Reflection 4 is yours to answer:</b> look up what I2C is and what it does for this display, and explain it in your own words. For the code you only need one fact: this display's I2C <b>address</b> is <code>0x70</code>.</div>
   </div>
 </section>
 
@@ -125,7 +125,7 @@ Adafruit_7segment matrix = Adafruit_7segment();   <span class="cm">// make a dis
       <div class="panel"><h3>The Arduino's memory</h3><input id="num" type="number" value="1234" style="width:100%;background:#0E131B;border:1px solid var(--rule);color:#fff;border-radius:5px;padding:8px;font:600 18px 'JetBrains Mono',monospace"><div class="btns"><button class="btn" id="bPrint" type="button">matrix.print(number);</button><button class="btn" id="bWrite" type="button">matrix.writeDisplay();</button></div><p class="small" id="memTxt">Memory: (empty)</p></div>
       <div class="panel"><h3>The display</h3><div class="lcd dim" id="lcd">----</div><p class="small" id="lcdTxt">Nothing has been sent yet.</p></div>
     </div>
-    <div class="hint-panel"><b>Same idea as Serial:</b> <code>print()</code> loads the number into the display's memory, the way <code>Serial.print()</code> works. <code>writeDisplay()</code> is what actually sends it over I2C and lights the screen. You need <b>both</b>, every time you want it to update.</div>
+    <div class="hint-panel"><b>Experiment:</b> press the two buttons in different orders (print only, write only, both, write then print). Write down what you notice. That is Reflection 3, and you need to explain it in your own words.</div>
   </div>
 </section>
 
