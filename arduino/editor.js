@@ -651,21 +651,30 @@
     paintLeft(A, results, passed, total);
     coachCheck(lastRes, sim && sim.io);
   }
-  /* "still to do": a progress bar and one button per step that is not done yet (click it to jump to the step) */
+  /* "what's left": a progress bar, and a button that opens a pop-up listing every step not done yet (click one to jump to it) */
+  var leftData = { A: null, results: [], passed: 0, total: 0 };
+  function leftHTML() {
+    var A = leftData.A, left = leftData.results.filter(function (r) { return !r[2]; });
+    if (!A) return "";
+    if (!left.length) return '<div class="alldone">&#10003; Every step is checked off. Check your work, then Submit!</div>';
+    var n = 0, nums = {}; A.steps.forEach(function (s, si) { s.items.forEach(function (it, ii) { if (it.kind !== "note") nums[si + "." + ii] = ++n; }); });
+    return "<p>" + leftData.passed + " of " + leftData.total + " done. <b>" + left.length + " still to do.</b> Click one to jump to it.</p>" + '<div id="assLeftList">' + left.map(function (r) {
+      var it = A.steps[r[0]].items[r[1]], txt = plain(it.t), part = it.kind === "ask" ? "write" : it.kind === "match" || it.kind === "cloze" ? "answer" : "build";
+      return '<button type="button" class="' + (it.kind ? "w" : "") + '" data-jump="' + r[0] + "." + r[1] + '">' + nums[r[0] + "." + r[1]] + ". <b>" + part + ":</b> " + esc(txt.length > 150 ? txt.slice(0, 148) + "..." : txt) + "</button>";
+    }).join("") + "</div>";
+  }
   function plain(h) { var d = document.createElement("div"); d.innerHTML = h; return (d.textContent || "").replace(/\s+/g, " ").trim(); }
   function paintLeft(A, results, passed, total) {
-    var bar = document.querySelector("#assBar i"), box = $("assLeft"); if (!box) return;
+    leftData = { A: A, results: results, passed: passed, total: total };
+    var bar = document.querySelector("#assBar i"), btn = $("assLeftBtn"), left = total - passed;
     if (bar) bar.style.width = (total ? Math.round(100 * passed / total) : 0) + "%";
-    var left = results.filter(function (r) { return !r[2]; });
-    if (!left.length) { box.innerHTML = '<span class="alldone">&#10003; Every step is checked off. Check your work, then Submit!</span>'; return; }
-    var n = 0, nums = {}; A.steps.forEach(function (s, si) { s.items.forEach(function (it, ii) { if (it.kind !== "note") nums[si + "." + ii] = ++n; }); });
-    box.innerHTML = '<div class="lt">STILL TO DO (' + left.length + "): click one to jump to it</div>" + left.map(function (r) {
-      var it = A.steps[r[0]].items[r[1]], txt = plain(it.t), part = it.kind === "ask" ? "write" : it.kind === "match" || it.kind === "cloze" ? "answer" : "build";
-      return '<button type="button" class="' + (it.kind ? "w" : "") + '" data-jump="' + r[0] + "." + r[1] + '" title="' + esc(txt) + '">' + nums[r[0] + "." + r[1]] + ". " + esc(part) + ": " + esc(txt.length > 56 ? txt.slice(0, 54) + "..." : txt) + "</button>";
-    }).join("");
+    if (btn) { btn.innerHTML = left ? "&#9776; What's left (" + left + ")" : "&#10003; All done"; btn.className = "btn sm" + (left ? "" : " allok"); }
+    if ($("mTip").className.indexOf("show") > -1 && $("tipTitle").textContent === "What's left to do") $("tipBody").innerHTML = leftHTML();
   }
+  $("assLeftBtn").onclick = function () { tipStack = []; showTipModal("What's left to do", leftHTML(), false); };
   document.addEventListener("click", function (e) {
     var b = e.target.closest ? e.target.closest("[data-jump]") : null; if (!b) return; var p = b.getAttribute("data-jump").split("."), el = $("assBody").querySelector('[data-si="' + p[0] + '"][data-ii="' + p[1] + '"]');
+    closeTip(); if (!document.body.classList.contains("noass")) {} else setAssOpen(true);
     if (el) { el.scrollIntoView({ behavior: "smooth", block: "center" }); el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
   });
 
