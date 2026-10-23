@@ -464,6 +464,69 @@
   function sendSerial() { var i = $("serIn"); if (!i.value && !sim.running) return; if (!sim.running) { toast("Start the simulation first."); return; } sim.sendSerial(i.value + "\n"); appendOut("> " + i.value + "\n"); i.value = ""; }
   $("serSend").onclick = sendSerial; $("serIn").addEventListener("keydown", function (e) { if (e.key === "Enter") sendSerial(); });
 
+  /* ------------------------------------------------------------------ help bubbles and the help pop-up */
+  var TIPS = window.ARD_TIPS || { topics: {}, order: [], cats: [] }, tipStack = [];
+  function fmtText(t) { return esc(t).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>"); }
+  function inlineBubbles(html) { return String(html).replace(/\[\[([^|\]]+)\|([a-z0-9-]+)\]\]/g, function (m, label, id) { return TIPS.topics[id] ? '<button type="button" class="tipbtn" data-tip="' + id + '">' + label + "</button>" : label; }); }
+  function pillsHTML(ids) {
+    var seen = {}, out = ""; (ids || []).forEach(function (id) { if (!TIPS.topics[id] || seen[id]) return; seen[id] = 1; out += '<button type="button" class="tipbtn" data-tip="' + id + '">&#128161; ' + esc(TIPS.topics[id].title) + "</button>"; });
+    return out;
+  }
+  function sectionHTML(s) {
+    if (s.p) return "<p>" + fmtText(s.p) + "</p>";
+    if (s.ex) return '<pre class="tipcode">' + esc(s.ex.join("\n")) + "</pre>";
+    if (s.anno) return '<table class="annot">' + s.anno.map(function (r) { return '<tr><td><code class="cl">' + esc(r[0]) + "</code></td><td>" + fmtText(r[1]) + "</td></tr>"; }).join("") + "</table>";
+    if (s.list) return "<ul>" + s.list.map(function (x) { return "<li>" + fmtText(x) + "</li>"; }).join("") + "</ul>";
+    if (s.steps) return "<ol>" + s.steps.map(function (x) { return "<li>" + fmtText(x) + "</li>"; }).join("") + "</ol>";
+    if (s.rows) return '<table class="tiptbl">' + (s.head ? "<thead><tr>" + s.head.map(function (h) { return "<th>" + fmtText(h) + "</th>"; }).join("") + "</tr></thead>" : "") + "<tbody>" + s.rows.map(function (r) { return "<tr>" + r.map(function (c, i) { return (i === 0 ? "<td><b>" : "<td>") + fmtText(c) + (i === 0 ? "</b>" : "") + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody></table>";
+    if (s.good) return '<div class="tipgood">&#128161; ' + fmtText(s.good) + "</div>";
+    if (s.warn) return '<div class="tipwarn">&#9888;&#65039; ' + fmtText(s.warn) + "</div>";
+    if (s.svg) return '<div class="tipsvg">' + s.svg + "</div>";
+    if (s.links) return '<div class="tiplinks"><b>Related:</b> ' + pillsHTML(s.links) + "</div>";
+    return "";
+  }
+  function showTipModal(title, html, canBack) {
+    $("tipTitle").textContent = title; $("tipBody").innerHTML = html; $("tipBack").style.display = canBack ? "" : "none";
+    $("mTip").className = "modal show"; $("tipBody").scrollTop = 0;
+  }
+  function openTip(id, noPush) {
+    var t = TIPS.topics[id]; if (!t) return;
+    if (!noPush) tipStack.push({ kind: "tip", id: id });
+    showTipModal(t.title, t.sections.map(sectionHTML).join("") + '<div class="tipfoot"><button type="button" class="tipbtn" id="tipAll">&#128218; All help topics</button></div>', tipStack.length > 1);
+  }
+  function openList(title, ids, noPush) {
+    if (!noPush) tipStack.push({ kind: "list", title: title, ids: ids });
+    showTipModal(title, '<div class="helplist">' + pillsHTML(ids) + '</div><div class="tipfoot"><button type="button" class="tipbtn" id="tipAll">&#128218; All help topics</button></div>', tipStack.length > 1);
+  }
+  function openHelpCenter(noPush) {
+    if (!noPush) tipStack.push({ kind: "center" });
+    var h = '<input id="tipSearch" class="tipsearch" placeholder="Search help (try: LED, button, pullup, setup, error...)" autocomplete="off"><div id="tipResults"></div>';
+    showTipModal("Help center: everything you might wonder", h, tipStack.length > 1);
+    function draw(q) {
+      q = (q || "").toLowerCase().trim(); var out = "";
+      TIPS.cats.forEach(function (c) {
+        var ids = TIPS.order.filter(function (id) { var t = TIPS.topics[id]; return t.cat === c && (!q || (t.title + " " + t.keys).toLowerCase().indexOf(q) > -1); });
+        if (ids.length) out += "<h4 class=\"tipcat\">" + esc(c) + '</h4><div class="helplist">' + pillsHTML(ids) + "</div>";
+      });
+      $("tipResults").innerHTML = out || "<p>Nothing found. Try a different word, like <i>LED</i>, <i>wire</i>, or <i>error</i>.</p>";
+    }
+    draw(""); $("tipSearch").addEventListener("input", function () { draw(this.value); }); setTimeout(function () { try { $("tipSearch").focus(); } catch (e) {} }, 50);
+  }
+  function tipBack() {
+    tipStack.pop(); var prev = tipStack[tipStack.length - 1]; if (!prev) { $("mTip").className = "modal"; return; }
+    if (prev.kind === "tip") openTip(prev.id, true); else if (prev.kind === "list") openList(prev.title, prev.ids, true); else openHelpCenter(true);
+  }
+  function closeTip() { $("mTip").className = "modal"; tipStack = []; }
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest ? e.target.closest("[data-tip],[data-tiplist],#tipAll,#tipBack,#tipClose,#helpBtn,#codeGuide") : null; if (!t) { if (e.target === $("mTip")) closeTip(); return; }
+    e.preventDefault();
+    if (t.id === "tipAll") openHelpCenter(); else if (t.id === "tipBack") tipBack(); else if (t.id === "tipClose") closeTip();
+    else if (t.id === "helpBtn") { tipStack = []; openHelpCenter(); } else if (t.id === "codeGuide") { tipStack = []; openTip("skeleton"); }
+    else if (t.getAttribute("data-tiplist")) { var ids = JSON.parse(t.getAttribute("data-tiplist")); openList("Help for this step", ids); }
+    else openTip(t.getAttribute("data-tip"));
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && $("mTip").className.indexOf("show") > -1) closeTip(); });
+
   /* ------------------------------------------------------------------ assignments and auto-checks */
   var evalT, evalSeq = 0, runCache = {}, autoState = { pct: null, passed: 0, total: 0 };
   function stripComments(c) { return c.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, ""); }
@@ -485,11 +548,16 @@
   function renderAssignment() {
     var A = ASSIGN[slot], body = $("assBody"); $("assTitle").textContent = A ? A.title : "Free build";
     $("assHead").className = A ? "show" : ""; document.body.classList.toggle("free", !A);
-    if (!A) { body.innerHTML = '<p class="intro">This is a free build. Add parts, wire them up, and write code to try your own ideas. Nothing here is graded.</p><div class="hintbox"><b>How to build a circuit</b><br>1. <b>Click, hold, and drag</b> a part from the bar above the canvas onto the breadboard.<br>2. When its leg dots turn <span style="color:#22c55e">green</span>, it is plugged in. <b>Hover over any leg, pin or hole</b> to learn what it is and whether it is positive (+) or negative (&minus;).<br>3. <b>Drag from a pin or hole to another pin or hole</b> to make a wire.<br>4. Type your code on the right and click <b>Start Simulation</b>.</div>'; return; }
-    var h = '<p class="intro">' + A.intro + "</p>", n = 0;
+    if (!A) { body.innerHTML = '<p class="intro">This is a free build. Add parts, wire them up, and write code to try your own ideas. Nothing here is graded.</p><div class="hintbox"><b>How to build a circuit</b><br>1. <b>Click, hold, and drag</b> a part from the bar above the canvas onto the breadboard.<br>2. When its leg dots turn <span style="color:#22c55e">green</span>, it is plugged in. <b>Hover over any leg, pin or hole</b> to learn what it is and whether it is positive (+) or negative (&minus;).<br>3. <b>Drag from a pin or hole to another pin or hole</b> to make a wire.<br>4. Type your code on the right and click <b>Start Simulation</b>.</div><div class="helprow"><span class="helplbl">Help bubbles:</span>' + pillsHTML(["tour", "skeleton", "functions-all", "dragpart", "makewire", "startsim", "trouble"]) + "</div>"; return; }
+    var h = '<p class="intro">' + inlineBubbles(A.intro) + "</p>", n = 0;
+    if (A.help) h += '<div class="helprow"><span class="helplbl">Start here:</span>' + pillsHTML(A.help) + "</div>";
     A.steps.forEach(function (s, si) {
-      h += "<h3>" + esc(s.h) + "</h3>"; if (s.code) h += '<pre class="codebox">' + esc(s.code) + "</pre>";
-      s.items.forEach(function (it, ii) { h += '<label class="item" data-si="' + si + '" data-ii="' + ii + '"><span class="box">&#10003;</span><span class="txt">' + it.t + '</span><span class="badge">checking</span></label>'; n++; });
+      var ids = (s.help || []).slice(); s.items.forEach(function (it) { (it.help || []).forEach(function (x) { if (ids.indexOf(x) < 0) ids.push(x); }); });
+      var real = ids.filter(function (x) { return TIPS.topics[x]; });
+      h += "<h3>" + esc(s.h) + "</h3>";
+      if (real.length) h += '<div class="helprow"><button type="button" class="helpstep" data-tiplist="' + esc(JSON.stringify(real)).replace(/"/g, "&quot;") + '">&#128161; Help for this step <small>(' + real.length + " topic" + (real.length === 1 ? "" : "s") + ")</small></button></div>";
+      if (s.code) h += '<pre class="codebox">' + esc(s.code) + "</pre>";
+      s.items.forEach(function (it, ii) { h += '<label class="item" data-si="' + si + '" data-ii="' + ii + '"><span class="box">&#10003;</span><span class="txt">' + inlineBubbles(it.t) + (it.help && it.help.length ? '<span class="helprow">' + pillsHTML(it.help) + "</span>" : "") + '</span><span class="badge">checking</span></label>'; n++; });
     });
     body.innerHTML = h; scheduleEval(true);
   }

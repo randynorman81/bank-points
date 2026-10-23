@@ -62,6 +62,30 @@
     ] }
   ] };
 
+
+  /* the clickable help bubbles under each step item (ids come from tips.js) */
+  var HELP = {
+    a1: { start: ["tour", "skeleton", "functions-all"], steps: [
+      [["skeleton", "setuploop", "pinmode", "digitalwrite", "delay", "semicolon"]],
+      [["startsim", "builtinled", "serialmon"]],
+      [["delay"], ["comments"]]
+    ] },
+    a2: { start: ["tour", "circuit", "breadboard"], steps: [
+      [["dragpart", "ledhow", "polarity"], ["resistor", "resistorvalue", "ohmslaw"]],
+      [["plugged", "breadboard"], ["ledhow", "polarity", "breadboard"], ["makewire", "pins", "breadboard"], ["gnd", "rails", "makewire"], ["ledresistor", "ohmslaw", "trouble-nolight"]],
+      [["skeleton", "setuploop", "pinmode", "digitalwrite", "delay"], ["startsim", "trouble-nolight"]]
+    ] },
+    a3: { start: ["tour", "button", "pullup"], steps: [
+      [["ledresistor", "ohmslaw", "makewire"]],
+      [["button", "breadboard", "plugged"], ["makewire", "pullup", "pins"], ["gnd", "makewire", "pullup"]],
+      [["pullup", "digitalread", "ifelse", "pinmode", "semicolon"], ["startsim", "buttonfix", "pullup"], ["comments", "pullup"]]
+    ] }
+  };
+  Object.keys(HELP).forEach(function (k) {
+    var a = A[k]; if (!a) return; a.help = HELP[k].start;
+    a.steps.forEach(function (s, si) { s.items.forEach(function (it, ii) { it.help = (HELP[k].steps[si] || [])[ii] || []; }); });
+  });
+
   root.ARD_ASSIGN = A;
   root.ARD_SLOTS = [["free", "Free build (practice)"], ["a1", "Assignment 1: Blink the Built-in Light"], ["a2", "Assignment 2: Wire an External LED"], ["a3", "Assignment 3: Pushbutton Controls the LED"]];
 })(typeof window !== "undefined" ? window : globalThis);
