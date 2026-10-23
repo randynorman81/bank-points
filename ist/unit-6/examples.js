@@ -17,6 +17,34 @@ window.U7_EXAMPLES = {
    }
   ]
  },
+ "6.75": {
+  "variants": [
+   {
+    "name": "Restaurant menu",
+    "img": "examples/6.75-0.png"
+   },
+   {
+    "name": "Emoji dictionary",
+    "img": "examples/6.75-1.png"
+   },
+   {
+    "name": "Emoji story",
+    "img": "examples/6.75-2.png"
+   },
+   {
+    "name": "My day in emojis",
+    "img": "examples/6.75-3.png"
+   },
+   {
+    "name": "Game scoreboard",
+    "img": "examples/6.75-4.png"
+   },
+   {
+    "name": "Weather report",
+    "img": "examples/6.75-5.png"
+   }
+  ]
+ },
  "7.1": {
   "variants": [
    {
