@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arduino Grading | SCHS Computer Science</title>
+<link rel="icon" href="../assets/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0B0E14;--panel:#121722;--card:#171D2B;--rule:#26304A;--ink:#E8ECF3;--soft:#93A0B8;--acc:#22D3EE;--ok:#34D399;--bad:#F87171}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 Manrope,system-ui,sans-serif;display:flex;flex-direction:column}
+.top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.top h1{font-size:14px;margin:0 8px 0 0}
+.btn,select,input{background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:4px 10px;font:700 12px Manrope,sans-serif}
+.btn{cursor:pointer}.btn:hover{border-color:var(--acc)}.btn.go{background:var(--ok);color:#052e1b;border-color:var(--ok)}.btn.stop{background:#7f1d1d;border-color:#b91c1c}
+main{flex:1;min-height:0;display:grid;grid-template-columns:340px 1fr}
+#list{overflow:auto;border-right:1px solid var(--rule);background:#080B11}
+.row{padding:8px 12px;border-bottom:1px solid var(--rule);cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+.row:hover,.row.on{background:#0c2a33}.row small{color:var(--soft)}
+.badge{font:700 11px "JetBrains Mono",monospace;padding:1px 7px;border-radius:99px;border:1px solid var(--rule);color:var(--soft)}
+.badge.ok{border-color:var(--ok);color:#6EE7B7}.badge.mid{border-color:#FBBF24;color:#FDE68A}
+#detail{overflow:auto;padding:12px 16px;display:flex;flex-direction:column;gap:12px}
+#svgbox{background:#0d1118;border:1px solid var(--rule);border-radius:10px;height:380px;position:relative}
+#svgbox svg{position:absolute;inset:0;width:100%;height:100%}
+pre{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:10px 12px;margin:0;overflow:auto;font:12.5px/1.55 "JetBrains Mono",monospace;max-height:340px;white-space:pre}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+textarea{width:100%;min-height:70px;background:#05070B;color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:6px 8px;font:13px Manrope,sans-serif}
+h3{margin:0 0 4px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:#67E8F9;font-family:"JetBrains Mono",monospace}
+.msg{color:var(--soft);padding:20px}
+</style></head><body>
+<div class="top"><h1>&#9889; Arduino Grading</h1><select id="slot"></select><button class="btn" id="load">Load</button><button class="btn" id="pin">Change PIN</button><span id="info" style="color:var(--soft);font-size:12px"></span></div>
+<main><div id="list"><div class="msg">Choose an assignment and click Load.</div></div><div id="detail"><div class="msg">Pick a student on the left.</div></div></main>
+<script src="compiler.js"></script><script src="circuit.js"></script><script src="sim.js"></script><script src="render.js"></script><script src="assignments.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); }, API = "/api/arduinocode", C = ArduinoCircuit, R = ArduinoRender, rows = [], cur = null, sim = null, view = { x: 10, y: 10, z: 0.8 };
+  function esc(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function pin() { var p = null; try { p = sessionStorage.getItem("ardpin"); } catch (e) {} if (!p) { p = prompt("Teacher PIN:") || ""; try { sessionStorage.setItem("ardpin", p); } catch (e) {} } return p; }
+  function api(b) { b.pin = pin(); return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }).then(function (r) { return r.json(); }).then(function (j) { if (j && j.error === "Invalid PIN") { try { sessionStorage.removeItem("ardpin"); } catch (e) {} } return j; }); }
+  $("slot").innerHTML = ARD_SLOTS.map(function (s) { return '<option value="' + s[0] + '">' + esc(s[1]) + "</option>"; }).join("");
+  $("pin").onclick = function () { try { sessionStorage.removeItem("ardpin"); } catch (e) {} pin(); };
+  $("load").onclick = function () {
+    $("info").textContent = "Loading..."; api({ action: "adminList", slot: $("slot").value }).then(function (j) {
+      if (!j || !j.ok) { $("info").textContent = (j && j.error) || "Could not load."; return; }
+      rows = j.students.sort(function (a, b) { return String(a.period).localeCompare(String(b.period)) || String(a.name).localeCompare(String(b.name)); });
+      $("info").textContent = rows.length + " students (" + rows.filter(function (r) { return r.submission; }).length + " submitted)"; drawList();
+    });
+  };
+  function drawList() {
+    $("list").innerHTML = rows.map(function (r, i) {
+      var s = r.submission, a = s && s.auto ? s.auto.pct : null, g = s && s.teacher && s.teacher.score !== null && s.teacher.score !== undefined;
+      return '<div class="row' + (cur === i ? " on" : "") + '" data-i="' + i + '"><div><b>' + esc(r.rosterName || r.name) + "</b><br><small>" + esc(r.period || "?") + (s ? " &middot; " + new Date(s.submittedAt).toLocaleDateString() + " &middot; sent " + s.count + "x" : " &middot; not submitted (draft only)") + "</small></div><div>" +
+        (a !== null ? '<span class="badge ' + (a >= 95 ? "ok" : a >= 60 ? "mid" : "") + '">auto ' + a + "</span> " : "") + (g ? '<span class="badge ok">' + esc(s.teacher.score) + "</span>" : "") + "</div></div>";
+    }).join("") || '<div class="msg">No students have saved work here yet.</div>';
+    $("list").querySelectorAll(".row").forEach(function (el) { el.onclick = function () { show(+el.getAttribute("data-i")); }; });
+  }
+  function show(i) {
+    stopSim(); cur = i; drawList(); var r = rows[i], s = r.submission || r.draft; if (!s) return;
+    var proj = s.project, d = $("detail");
+    d.innerHTML = '<div><b style="font-size:16px">' + esc(r.rosterName || r.name) + "</b> <span class=\"badge\">" + esc(r.period || "?") + "</span> " + (r.submission ? '<span class="badge ok">submitted ' + new Date(s.submittedAt).toLocaleString() + "</span>" : '<span class="badge mid">draft only</span>') + (s.auto ? ' <span class="badge">auto score ' + s.auto.pct + " (" + s.auto.passed + "/" + s.auto.total + ")</span>" : "") + "</div>" +
+      '<div id="svgbox"><svg id="gs" xmlns="http://www.w3.org/2000/svg"></svg></div>' +
+      '<div><button class="btn go" id="runb">&#9654; Run this circuit with their code</button> <button class="btn" id="fit">Fit</button> <span id="rinfo" style="color:var(--soft);font-size:12px"></span></div>' +
+      '<div class="grid"><div><h3>Their code</h3><pre id="gcode"></pre></div><div><h3>Serial output when they submitted / live run</h3><pre id="gout"></pre></div></div>' +
+      '<div><h3>Teacher score and comment</h3><input id="sc" placeholder="Score" style="width:90px" value="' + (s.teacher && s.teacher.score !== null && s.teacher.score !== undefined ? esc(s.teacher.score) : "") + '"> <button class="btn go" id="save">Save grade</button> <span id="saved" style="color:var(--ok);font-size:12px"></span><br><textarea id="cm" placeholder="Comment for the student (optional)">' + esc(s.teacher && s.teacher.comment || "") + "</textarea></div>";
+    $("gcode").textContent = s.code || ""; $("gout").textContent = s.output || "";
+    var svg = $("gs"); svg.innerHTML = '<g id="world" transform="translate(' + view.x + " " + view.y + ") scale(" + view.z + ')">' + R.projectSVG(proj) + "</g>";
+    function fit() { var b = $("svgbox").getBoundingClientRect(), x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; proj.parts.forEach(function (p) { var bb = bbox(p); x0 = Math.min(x0, bb.x); y0 = Math.min(y0, bb.y - 20); x1 = Math.max(x1, bb.x + bb.w); y1 = Math.max(y1, bb.y + bb.h); }); var z = Math.min(2, (b.width - 20) / (x1 - x0), (b.height - 20) / (y1 - y0)); view = { z: z, x: (b.width - (x1 - x0) * z) / 2 - x0 * z, y: (b.height - (y1 - y0) * z) / 2 - y0 * z }; svg.querySelector("#world").setAttribute("transform", "translate(" + view.x + " " + view.y + ") scale(" + view.z + ")"); }
+    function bbox(p) { var d = { uno: [-16, 0, C.UNO_W, C.UNO_H], led: [-10, -44, 24, 48], resistor: [-4, -14, 56, 24], button: [-10, -10, 38, 56], buzzer: [-6, -40, 40, 44] }[p.type]; if (p.type === "breadboard") { var q = C.PARTS.breadboard.dims(p); d = [0, 0, q.w, q.h]; } var pts = [[d[0], d[1]], [d[0] + d[2], d[1]], [d[0], d[1] + d[3]], [d[0] + d[2], d[1] + d[3]]].map(function (q) { var r = C.rot(q[0], q[1], p.rot || 0); return [p.x + r[0], p.y + r[1]]; }), xs = pts.map(function (q) { return q[0]; }), ys = pts.map(function (q) { return q[1]; }); return { x: Math.min.apply(null, xs), y: Math.min.apply(null, ys), w: Math.max.apply(null, xs) - Math.min.apply(null, xs), h: Math.max.apply(null, ys) - Math.min.apply(null, ys) }; }
+    fit(); $("fit").onclick = fit;
+    var holdMap = {}; svg.querySelectorAll('.part[data-id]').forEach(function (g) { var id = g.getAttribute("data-id"), p = proj.parts.filter(function (x) { return x.id === id; })[0]; if (p && p.type === "button") { g.style.cursor = "pointer"; g.addEventListener("pointerdown", function () { if (sim) sim.press(id, true); }); g.addEventListener("pointerup", function () { if (sim) sim.press(id, false); }); g.addEventListener("pointerleave", function () { if (sim) sim.press(id, false); }); } });
+    var base = new ArduinoSim({ virtual: true, getProject: function () { return proj; } }); R.update(svg, proj, base.analysis(), base.io, {});
+    $("runb").onclick = function () { if (sim && sim.running) { stopSim(); return; } $("gout").textContent = ""; sim = new ArduinoSim({ getProject: function () { return proj; }, onUpdate: function (res, io) { R.update(svg, proj, res, io, {}); }, onSerial: function (t) { $("gout").textContent += t; }, onError: function (e) { $("rinfo").textContent = "Stopped at line " + e.line + ": " + e.msg; }, onStop: function () { $("runb").innerHTML = "&#9654; Run this circuit with their code"; $("runb").className = "btn go"; } }); var res = sim.start(s.code || ""); if (!res.ok) { $("rinfo").textContent = "Their code does not compile: line " + res.errors[0].line + " " + res.errors[0].msg; return; } $("rinfo").textContent = "Running. Click their buttons to press them."; $("runb").innerHTML = "&#9632; Stop"; $("runb").className = "btn stop"; };
+    $("save").onclick = function () { if (!r.submission) { $("saved").textContent = "Only submissions can be graded."; $("saved").style.color = "var(--bad)"; return; } api({ action: "adminGrade", slot: $("slot").value, email: r.email, score: $("sc").value, comment: $("cm").value }).then(function (j) { if (j && j.ok) { r.submission.teacher = j.teacher; $("saved").textContent = "Saved."; $("saved").style.color = "var(--ok)"; drawList(); } else { $("saved").textContent = (j && j.error) || "Could not save"; $("saved").style.color = "var(--bad)"; } }); };
+  }
+  function stopSim() { if (sim) { sim.stop(true); sim = null; } }
+})();
+</script></body></html>
