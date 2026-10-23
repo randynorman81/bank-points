@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arduino Cheat Sheet | SCHS Computer Science</title>
+<link rel="icon" href="../assets/logo.png">
+<style>
+@page{size:letter;margin:.35in}
+*{box-sizing:border-box}
+body{margin:0;background:#e5e7eb;font:8.8pt/1.27 "Segoe UI",Arial,sans-serif;color:#111827}
+.bar{max-width:8.5in;margin:10px auto 0;display:flex;gap:10px;align-items:center;padding:0 4px}
+.bar button,.bar a{background:#0e7490;color:#fff;border:0;border-radius:6px;padding:7px 14px;font:700 13px "Segoe UI",Arial,sans-serif;cursor:pointer;text-decoration:none}
+.bar span{color:#4b5563;font-size:12px}
+.sheet{width:7.8in;margin:8px auto 24px;background:#fff;padding:.12in .15in;box-shadow:0 2px 14px rgba(0,0,0,.25)}
+h1{margin:0 0 3px;font-size:15pt;color:#0e7490;display:flex;justify-content:space-between;align-items:baseline}
+h1 small{font-size:8pt;color:#6b7280;font-weight:600}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-items:start}
+.box{border:1.2px solid #0e7490;border-radius:6px;padding:4px 7px 5px;break-inside:avoid;margin:0 0 7px;display:block}
+.box h2{margin:0 0 3px;font-size:9.5pt;color:#fff;background:#0e7490;margin:-4px -7px 4px;padding:2px 7px;border-radius:4px 4px 0 0;letter-spacing:.02em}
+.box.warn{border-color:#b91c1c}.box.warn h2{background:#b91c1c}
+.box.ok{border-color:#15803d}.box.ok h2{background:#15803d}
+pre{margin:0;font:7.7pt/1.27 Consolas,"Courier New",monospace;background:#f3f4f6;border-radius:4px;padding:3px 6px;white-space:pre}
+code{font:8pt Consolas,"Courier New",monospace;background:#f3f4f6;padding:0 2px;border-radius:2px}
+.c{color:#6b7280}.k{color:#7c3aed;font-weight:700}.f{color:#c2410c}
+table{width:100%;border-collapse:collapse;font-size:7.9pt}
+td,th{padding:.5px 3px;border-bottom:1px solid #e5e7eb;vertical-align:top;text-align:left}
+th{font-size:7.5pt;text-transform:uppercase;color:#0e7490;border-bottom:1.2px solid #0e7490}
+td:first-child{white-space:nowrap}
+ul{margin:1px 0 0 13px;padding:0}li{margin:0}
+.plus{color:#be123c;font-weight:800}.minus{color:#1d4ed8;font-weight:800}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.full{grid-column:1/-1}
+@media print{body{background:#fff}.bar{display:none}.sheet{margin:0;box-shadow:none;width:auto;padding:0}}
+</style></head><body>
+<div class="bar"><button onclick="window.print()">&#128424; Print this page</button><a href="editor.html">&larr; Back to the editor</a><span>Prints on one page (Letter). Tip: choose "Fit to page" if your printer cuts it off.</span></div>
+<div class="sheet" id="sheet">
+<h1>Arduino Cheat Sheet <small>SCHS Computer Science &middot; Embedded Computing</small></h1>
+<div class="cols">
+
+<div><div class="box"><h2>1. The skeleton of every program</h2>
+<pre><span class="c">// notes to yourself (the Arduino skips this)</span>
+<span class="k">const int</span> ledPin = 8;      <span class="c">// global: name your pins</span>
+<span class="k">void</span> <span class="f">setup</span>() {            <span class="c">// runs ONCE at the start</span>
+  <span class="f">pinMode</span>(ledPin, OUTPUT);
+  <span class="f">Serial.begin</span>(9600);
+}
+<span class="k">void</span> <span class="f">loop</span>() {             <span class="c">// runs OVER AND OVER</span>
+  <span class="f">digitalWrite</span>(ledPin, HIGH);
+  <span class="f">delay</span>(1000);            <span class="c">// 1000 ms = 1 s</span>
+  <span class="f">digitalWrite</span>(ledPin, LOW);
+  <span class="f">delay</span>(1000);
+}</pre>
+<table style="margin-top:3px"><tr><th>Where</th><th>What goes there</th></tr>
+<tr><td><b>setup()</b></td><td>pinMode(...), Serial.begin(9600), starting values: things that happen <b>once</b></td></tr>
+<tr><td><b>loop()</b></td><td>reading buttons/sensors, if statements, digitalWrite, analogWrite, tone, delay, Serial.print: things that <b>repeat</b></td></tr></table>
+<ul><li>Every statement ends with <b>;</b> &nbsp; Blocks use <b>{ }</b> &nbsp; Values go in <b>( )</b></li><li><b>Capital letters matter:</b> digitalWrite works, digitalwrite does not.</li></ul>
+</div>
+<div class="box"><h2>2. Functions you will use</h2>
+<table>
+<tr><td><code>pinMode(pin, mode)</code></td><td>OUTPUT, INPUT or INPUT_PULLUP (in setup)</td></tr>
+<tr><td><code>digitalWrite(pin, v)</code></td><td>HIGH (5V) or LOW (0V) on an output pin</td></tr>
+<tr><td><code>digitalRead(pin)</code></td><td>gives HIGH or LOW</td></tr>
+<tr><td><code>analogWrite(pin, 0-255)</code></td><td>PWM on a <b>~</b> pin (3 5 6 9 10 11): dim an LED</td></tr>
+<tr><td><code>analogRead(A0)</code></td><td>0 to 1023 for 0 to 5 volts</td></tr>
+<tr><td><code>delay(ms)</code></td><td>wait (1000 ms = 1 second)</td></tr>
+<tr><td><code>millis()</code></td><td>ms since the program started</td></tr>
+<tr><td><code>tone(pin, hz)</code> <code>noTone(pin)</code></td><td>play / stop a note (440 = A)</td></tr>
+<tr><td><code>Serial.begin(9600)</code></td><td>turn on the Serial Monitor (setup)</td></tr>
+<tr><td><code>Serial.print()</code> <code>println()</code></td><td>print (println adds a new line)</td></tr>
+<tr><td><code>Serial.available()</code> <code>read()</code></td><td>read what you typed in</td></tr>
+<tr><td><code>map(v, a, b, c, d)</code></td><td>scale a number from a-b to c-d</td></tr>
+<tr><td><code>constrain(v, lo, hi)</code></td><td>keep v between lo and hi</td></tr>
+<tr><td><code>random(min, max)</code></td><td>random whole number (max not included)</td></tr>
+<tr><td><code>min max abs pow sqrt</code></td><td>math helpers</td></tr>
+</table>
+<table style="margin-top:3px"><tr><th>Name</th><th>Meaning</th></tr>
+<tr><td><b>HIGH / LOW</b></td><td>5 volts / 0 volts (1 / 0)</td></tr>
+<tr><td><b>LED_BUILTIN</b></td><td>pin 13: the orange L light on the board</td></tr>
+<tr><td><b>A0 to A5</b></td><td>analog pins &nbsp;&middot;&nbsp; <b>true / false</b> for bool</td></tr></table>
+</div>
+<div class="box warn"><h2>6. When something goes wrong</h2>
+<table>
+<tr><td><b>LED will not light</b></td><td>No <code>pinMode(OUTPUT)</code>? Wrong pin number? Leg dots red? LED backwards? No wire to GND?</td></tr>
+<tr><td><b>LED burned (black X)</b></td><td>No resistor. Add 220 &Omega;, then click Reset.</td></tr>
+<tr><td><b>Button does nothing</b></td><td>Across the gap? One side to GND? <code>INPUT_PULLUP</code>? Check for <code>== LOW</code>.</td></tr>
+<tr><td><b>Random 0s and 1s</b></td><td>Floating input: use <code>INPUT_PULLUP</code>.</td></tr>
+<tr><td><b>Serial Monitor empty</b></td><td>Forgot <code>Serial.begin(9600);</code> in setup().</td></tr>
+<tr><td><b>Red error box</b></td><td>Read the <b>line number</b>. Usual cause: missing <b>;</b> or <b>}</b>, a misspelled name, or wrong capital letters.</td></tr>
+</table>
+</div>
+</div><div><div class="box"><h2>3. Variables and operators</h2>
+<table><tr><th>Type</th><th>Holds</th><th>Example</th></tr>
+<tr><td><b>int</b></td><td>whole numbers (-32768 to 32767)</td><td><code>int n = 8;</code></td></tr>
+<tr><td><b>long</b> / unsigned long</td><td>big whole numbers</td><td><code>unsigned long t = millis();</code></td></tr>
+<tr><td><b>float</b></td><td>decimals</td><td><code>float v = 4.75;</code></td></tr>
+<tr><td><b>bool</b></td><td>true or false</td><td><code>bool on = false;</code></td></tr>
+<tr><td><b>String</b> / char</td><td>text / one letter</td><td><code>String s = "hi";</code></td></tr></table>
+<table style="margin-top:3px"><tr><td><code>+ - * /</code> <code>%</code></td><td>math; % is the remainder</td></tr>
+<tr><td><code>==</code> <code>!=</code> <code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code></td><td>compare (<b>==</b> has TWO equals; <b>=</b> stores)</td></tr>
+<tr><td><code>&amp;&amp;</code> <code>||</code> <code>!</code></td><td>AND, OR, NOT</td></tr>
+<tr><td><code>i++</code> <code>x += 2</code></td><td>add 1; add 2 to x</td></tr></table>
+<ul><li><code>7 / 2</code> is <b>3</b> (whole-number math). Use <code>7 / 2.0</code> for 3.5.</li><li>An int wraps: 32767 + 1 becomes -32768.</li></ul>
+</div>
+
+<div class="box"><h2>4. Decisions and loops</h2>
+<pre><span class="k">if</span> (digitalRead(2) == LOW) {
+  digitalWrite(8, HIGH);   <span class="c">// pressed</span>
+} <span class="k">else</span> {
+  digitalWrite(8, LOW);
+}
+
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; 5; i++) {
+  <span class="c">// runs 5 times: i is 0,1,2,3,4</span>
+}
+<span class="k">while</span> (x &lt; 10) { x++; }   <span class="c">// repeats while true</span>
+
+<span class="k">int</span> pins[] = {2, 3, 4};   <span class="c">// array: pins[0] is 2</span></pre>
+<ul><li>No <b>;</b> after <code>if ( )</code>, <code>for ( )</code> or <code>while ( )</code>.</li><li><code>delay()</code> freezes everything. <code>millis()</code> lets you time things without freezing.</li></ul>
+</div>
+
+<div class="box ok"><h2>5. Building circuits</h2>
+<table>
+<tr><td><b>LED</b></td><td><span class="plus">anode (+)</span> = <b>long, bent</b> leg &rarr; toward the pin / 5V.<br><span class="minus">cathode (&minus;)</span> = <b>short, straight</b> leg (flat edge) &rarr; toward GND.</td></tr>
+<tr><td><b>Resistor</b></td><td>No polarity. Use <b>220 &Omega;</b> (red-red-brown) in series with every LED, or it burns out. <code>I = V / R</code>: (5 &minus; 2) / 220 &asymp; 14 mA.</td></tr>
+<tr><td><b>Button</b></td><td>No polarity. Put it <b>across the center gap</b>. Wire one side to a pin, the other to <b>GND</b>, and use <code>INPUT_PULLUP</code>: <b>LOW = pressed</b>.</td></tr>
+<tr><td><b>Buzzer</b></td><td><span class="plus">+</span> leg to a pin, <span class="minus">&minus;</span> leg to GND. Play it with <code>tone(pin, 440)</code>.</td></tr>
+<tr><td><b>Breadboard</b></td><td>The 5 holes in a column (a-e or f-j) are connected. The center gap splits the halves. The long <span class="plus">red (+)</span> and <span class="minus">blue (&minus;)</span> rows are power rails (whole row connected).</td></tr>
+<tr><td><b>Pins</b></td><td>D0-D13 digital (pins 0/1 are used by Serial). <b>~</b> pins do PWM. A0-A5 analog. <span class="plus">5V = +</span>, <span class="minus">GND = &minus;</span>. The orange <b>L</b> light is pin 13.</td></tr>
+</table>
+</div>
+
+</div></div></div>
+</body></html>

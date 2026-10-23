@@ -215,6 +215,7 @@
     { rows: [["setup()", "runs once", "pinMode(...), Serial.begin(...), starting values"], ["loop()", "runs forever", "digitalWrite, digitalRead, if statements, delay, Serial.print"]], head: ["Function", "How often", "What goes inside"] },
     { list: ["Every statement ends with a **semicolon ;**", "Code blocks are wrapped in **curly braces { }**. Every { needs a matching }.", "Function calls use **parentheses ( )**, like `delay(1000)`.", "**Capital letters matter:** `digitalWrite` works, `digitalwrite` does not.", "`void` means the function does not give back an answer."] },
     { good: "Try this order: (1) global variables, (2) setup(), (3) loop(). It is the same every time." },
+    { href: ["cheat-sheet.html", "Print the one-page cheat sheet"] },
     { links: ["setuploop", "semicolon", "comments", "variables", "functions-all"] }
   ], "skeleton structure basics c++ template setup loop void");
   add("setuploop", CO, "What goes in setup() and what goes in loop()?", [
@@ -304,6 +305,7 @@
   var FN = cat("Arduino functions (all of them)");
   add("functions-all", FN, "Cheat sheet: every function you will use", [
     { p: "Click any name to learn more." },
+    { href: ["cheat-sheet.html", "Print the one-page cheat sheet"] },
     { rows: [["pinMode(pin, mode)", "Set a pin to OUTPUT, INPUT or INPUT_PULLUP. (setup)"], ["digitalWrite(pin, value)", "Set an output pin HIGH (5V) or LOW (0V)."], ["digitalRead(pin)", "Read a pin: HIGH or LOW."], ["analogWrite(pin, 0-255)", "PWM on a ~ pin: dim an LED."], ["analogRead(A0)", "Read a voltage: 0 to 1023."], ["delay(ms)", "Wait that many milliseconds."], ["millis()", "Milliseconds since the program started."], ["tone(pin, hz)  noTone(pin)", "Play and stop a note on a buzzer."], ["Serial.begin(9600)", "Turn on the Serial Monitor."], ["Serial.print / println", "Print to the Serial Monitor."], ["Serial.available() / read()", "Read what you typed into the Serial Monitor."], ["map(v, a, b, c, d)", "Scale a number from one range to another."], ["constrain(v, lo, hi)", "Keep a number between two limits."], ["random(min, max)", "A random whole number (max is not included)."], ["min  max  abs  pow  sqrt", "Math helpers."]], head: ["Function", "What it does"] },
     { links: ["pinmode", "digitalwrite", "digitalread", "analogwrite", "analogread", "delay", "millisfn", "tone", "serial", "map", "random", "mathfns", "constants-hl"] }
   ], "functions list reference cheat sheet all commands");

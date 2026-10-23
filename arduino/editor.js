@@ -482,6 +482,7 @@
     if (s.good) return '<div class="tipgood">&#128161; ' + fmtText(s.good) + "</div>";
     if (s.warn) return '<div class="tipwarn">&#9888;&#65039; ' + fmtText(s.warn) + "</div>";
     if (s.svg) return '<div class="tipsvg">' + s.svg + "</div>";
+    if (s.href) return '<p><a class="tipbtn" href="' + s.href[0] + '" target="_blank" rel="noopener">&#128424; ' + esc(s.href[1]) + "</a></p>";
     if (s.links) return '<div class="tiplinks"><b>Related:</b> ' + pillsHTML(s.links) + "</div>";
     return "";
   }
