@@ -126,8 +126,11 @@ async function adminRecent(body) {
   out.sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
   return { ok: true, hours, rows: out };
 }
+/* a closed (not live) assignment can not be saved to or submitted by a student, however well they did on the others; only the teacher account can */
+async function closedToStudent(slot, user) { if (slot === "free" || isTeacherUser(user)) return false; const a = await readJSON("assign:" + slot, null); return !!a && a.live === false; }
 async function saveDraft(body, user) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
+  if (await closedToStudent(body.slot, user)) return { error: "That assignment is not open yet." };
   const code = String(body.code == null ? "" : body.code);
   if (code.length > MAX_CODE) return { error: "That file is too big to save." };
   await store().setJSON("draft:" + body.slot + ":" + enc(user.email), {
@@ -162,6 +165,7 @@ async function autoGradeFor(slot, code, current, period) {
 }
 async function submit(body, user) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
+  if (await closedToStudent(body.slot, user)) return { error: "That assignment is not open yet." };
   const code = String(body.code == null ? "" : body.code);
   if (!code.trim()) return { error: "Your code is empty. Write something first!" };
   if (code.length > MAX_CODE) return { error: "That file is too big to submit." };
