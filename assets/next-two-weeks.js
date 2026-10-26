@@ -142,8 +142,11 @@ async function renderNextTwoWeeks(rootId, source) {
     let noteHtml = "";
     if (before) noteHtml = '<p class="hint">The school year hasn\'t started yet &mdash; showing the first two scheduled weeks.</p>';
     if (after) noteHtml = '<p class="hint">This is the last week with a scheduled date on the pacing guide.</p>';
+    // last week goes first, for grading; nothing before the first scheduled week (or once the schedule has run out, "this week" is the final week and last week is the one before it)
+    const ci = weeks.indexOf(current), prev = before ? null : weeks[ci - 1];
     root.innerHTML = noteHtml + `
       <div class="ntw-grid">
+        ${prev ? weekCardHtml(prev, "Last Week") : ""}
         ${weekCardHtml(current, "This Week")}
         ${next ? weekCardHtml(next, "Next Week") : ""}
       </div>`;
