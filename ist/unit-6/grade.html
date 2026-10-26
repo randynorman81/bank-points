@@ -121,6 +121,9 @@ iframe{width:100%;height:100%;border:0;background:#fff;display:block}
 <script src="answers-site.js"></script>
 <script src="answers-u3.js"></script>
 <script src="html-check.js"></script>
+<script src="step-checks.js"></script>
+<script src="step-checks-a.js"></script>
+<script src="step-checks-b.js"></script>
 <script>
 "use strict";
 var API = "/api/code", $ = function (i) { return document.getElementById(i); }, H = window.HTMLCheck;
@@ -222,7 +225,7 @@ function load() {
     rowsData = j.students.map(function (s) {
       var _row;
       var code = s.submission ? s.submission.code : (s.draft ? s.draft.code : ""), css = s.submission ? (s.submission.css || "") : (s.draft ? (s.draft.css || "") : "");
-      var rep = H.check(lesson, code, css);
+      var rep = H.check(lesson, code, css); var SCg = window.U7_STEPCHECKS, scr = SCg && SCg.LESSONS && SCg.LESSONS[lesson] ? SCg.score(lesson, code, css) : null; if (scr) { rep.score = scr.pct; rep.total = 100; }
       _row = { email: s.email, name: s.rosterName || s.name || s.email, period: String(s.period || (s.submission && s.submission.period) || "").toUpperCase(), sub: s.submission, draft: s.draft, code: code, css: css, rep: rep, status: s.submission ? "submitted" : (s.draft ? "draft" : "missing"), teacher: s.submission ? s.submission.teacher : null };
       _row.org = analyzeOrigin(_row);
       _row.pasteBad = !!_row.org.penalize;
