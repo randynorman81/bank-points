@@ -182,7 +182,7 @@ async function submit(body, user) {
   const rec = {
     email: user.email, name: user.name, period, slot: body.slot, mode: cleanMode(body.mode), code, world: cleanWorld(body.world), ticks: cleanTicks(body.ticks),
     output: String(body.output || "").slice(0, 4000),
-    submittedAt: now(), count: (prev && prev.count ? prev.count : 0) + 1,
+    submittedAt: now(), firstSubmittedAt: (prev && (prev.firstSubmittedAt || prev.submittedAt)) || now(), count: (prev && prev.count ? prev.count : 0) + 1,
     teacher: prev && prev.teacher ? prev.teacher : null
   };
   try { const g = await autoGradeFor(body.slot, code, rec.teacher, period); if (g) rec.teacher = g; } catch (e) { console.error("autograde failed", e); }

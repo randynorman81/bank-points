@@ -117,6 +117,7 @@ select,input,textarea{background:var(--card);color:var(--ink);border:1px solid v
 </div>
 <div class="toast" id="toast"></div>
 
+<script src="/assets/due-dates.js"></script>
 <script>
 "use strict";
 var API = "/api/pycode", $ = function (i) { return document.getElementById(i); };
@@ -228,13 +229,18 @@ function inPeriod(r, per) {
   var m = /^(.*)#([0-9])$/.exec(per);
   if (!m) return r.period === per; var o = setOf1A(r); return r.period === m[1] && !!o && o.set === +m[2];
 }
+/* due dates: every assignment is due the Friday of the week it is listed on the APCSP calendar, 11:59 pm Eastern */
+var CUR_DUE = null;
+function dueNum(slot) { var A = ASSIGN[slot]; return A && A.num ? A.num : /^a[0-9]+$/.test(slot) ? slot.slice(1) : ""; }
+function dueStatus(r) { var s = r.submission; return s && CUR_DUE ? DueDates.status(CUR_DUE, s.firstSubmittedAt, s.submittedAt) : null; }
+function loadDue() { CUR_DUE = null; return DueDates.deadline("apcsp", dueNum($("slot").value)).then(function (d) { CUR_DUE = d; }); }
 function load() {
   return loadAssignments().then(function () { return api({ action: "adminList", slot: $("slot").value }); }).then(function (j) {
     if (j.error) { toast(j.error); return; }
     rows = j.students || [];
     var periods = {}; rows.forEach(function (r) { if (r.period) periods[r.period] = 1; });
     var cur = $("period").value; $("period").innerHTML = '<option value="">All periods</option>' + Object.keys(periods).sort().map(function (p) { return "<option>" + esc(p) + "</option>" + (p === "1A" ? '<option value="1A#1">1A Set 1</option><option value="1A#2">1A Set 2</option>' : ""); }).join(""); $("period").value = periods[cur] || /#[0-9]$/.test(cur) && periods["1A"] ? cur : "";
-    render();
+    render(); loadDue().then(render);
   });
 }
 function render() {
@@ -242,7 +248,7 @@ function render() {
   var list = rows.filter(function (r) { return inPeriod(r, per) && (!only || r.submission); }).sort(function (a, b) { var x = /#[0-9]$/.test(per) ? setOf1A(a).idx - setOf1A(b).idx : 0; return x || String(a.rosterName || a.name).localeCompare(String(b.rosterName || b.name)); });
   $("rows").innerHTML = list.map(function (r) {
     var t = r.submission && r.submission.teacher;
-    return '<tr class="row' + (sel === r.email ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td>' + esc(r.rosterName || r.name) + '</td><td>' + esc(r.period) + '</td><td>' + (r.submission ? '<span class="pill s">Submitted</span>' : '<span class="pill d">Draft</span>') + '</td><td>' + ago(Math.max(r.draft ? Date.parse(r.draft.savedAt) || 0 : 0, r.submission ? Date.parse(r.submission.submittedAt) || 0 : 0) ? new Date(Math.max(r.draft ? Date.parse(r.draft.savedAt) || 0 : 0, r.submission ? Date.parse(r.submission.submittedAt) || 0 : 0)).toISOString() : "1970-01-01", true) + '</td><td>' + (t && t.score !== null ? '<span class="pill g" title="' + (t.auto ? "Autograded when submitted. Change it and click Save grade to override." : "Saved grade") + '">' + esc(t.score) + (t.auto ? " auto" : "") + "</span>" : "") + "</td></tr>";
+    return '<tr class="row' + (sel === r.email ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td>' + esc(r.rosterName || r.name) + '</td><td>' + esc(r.period) + '</td><td>' + (r.submission ? '<span class="pill s">Submitted</span>' + DueDates.pill(dueStatus(r)) : '<span class="pill d">Draft</span>') + '</td><td>' + ago(Math.max(r.draft ? Date.parse(r.draft.savedAt) || 0 : 0, r.submission ? Date.parse(r.submission.submittedAt) || 0 : 0) ? new Date(Math.max(r.draft ? Date.parse(r.draft.savedAt) || 0 : 0, r.submission ? Date.parse(r.submission.submittedAt) || 0 : 0)).toISOString() : "1970-01-01", true) + '</td><td>' + (t && t.score !== null ? '<span class="pill g" title="' + (t.auto ? "Autograded when submitted. Change it and click Save grade to override." : "Saved grade") + '">' + esc(t.score) + (t.auto ? " auto" : "") + "</span>" : "") + "</td></tr>";
   }).join("");
   $("noRows").style.display = list.length ? "none" : "block";
   $("count").textContent = list.filter(function (r) { return r.submission; }).length + " submitted, " + list.length + " total";
@@ -252,7 +258,7 @@ function render() {
 function showDetail() {
   var r = rows.filter(function (x) { return x.email === sel; })[0]; if (!r) return;
   var rec = r.submission || r.draft, t = r.submission && r.submission.teacher, lines = (rec.code || "").split("\n"), g = lines.map(function (_, i) { return i + 1; }).join("\n");
-  $("detail").innerHTML = '<div class="dhead"><h2>' + esc(r.rosterName || r.name) + '</h2><small>' + esc(r.email) + ' &middot; Period ' + esc(r.period) + ' &middot; ' + (r.submission ? "Submitted " + esc(fmt(rec.submittedAt)) + (rec.count > 1 ? " (#" + rec.count + ")" : "") : "Draft saved " + esc(fmt(rec.savedAt)) + " (not submitted)") + ' &middot; ' + (rec.mode === "karel" ? "Karel" : "Python") + "</small></div>" +
+  $("detail").innerHTML = '<div class="dhead"><h2>' + esc(r.rosterName || r.name) + '</h2><small>' + esc(r.email) + ' &middot; Period ' + esc(r.period) + ' &middot; ' + (r.submission ? "Submitted " + esc(fmt(rec.submittedAt)) + (rec.count > 1 ? " (#" + rec.count + ")" : "") : "Draft saved " + esc(fmt(rec.savedAt)) + " (not submitted)") + ' &middot; ' + (rec.mode === "karel" ? "Karel" : "Python") + "</small></div>" + DueDates.detail(dueStatus(r)) +
     '<div class="dbody"><div class="view"><div class="code"><div class="g">' + g + '</div><div class="cw"><div id="hlm"></div><pre>' + esc(rec.code) + '</pre></div></div></div><div class="right">' +
     autoPanel(r, rec) + "<h3>Student's output</h3><div class=\"outbox\">" + (esc(rec.output) || "<span style='color:var(--soft)'>(none saved)</span>") + "</div>" +
     (r.submission ? '<h3>Your grade</h3>' + (t && t.auto ? '<div style="color:var(--soft);font-size:12px;margin-bottom:4px">Autograded when submitted. Change the score and click Save grade to replace it.</div>' : "") + '<div class="grade"><label>Score <input type="number" id="gScore" min="0" max="1000" value="' + esc(t && t.score !== null ? t.score : "") + '"></label><textarea id="gComment" placeholder="Comment for the student">' + esc(t ? t.comment : "") + '</textarea><button class="btn pri" id="gSave">Save grade</button> <button class="btn sm" id="gDel" style="float:right">Delete submission</button></div>' : '<p style="color:var(--soft)">Not submitted yet, so it cannot be graded.</p>') +
@@ -407,7 +413,7 @@ $("unlock").onclick = function () {
 $("autograde").onclick = function () { if (!confirm("Autograde every submission of this assignment? Grades you saved by hand are kept.")) return; api({ action: "adminAutograde", slot: $("slot").value }).then(function (j) { if (j && j.ok) { toast("Graded " + j.graded + (j.keptByHand ? " (kept " + j.keptByHand + " you graded by hand)" : "")); load(); } else toast((j && j.error) || "Could not autograde"); }); };
 $("csv").onclick = function () {
   var q = function (v) { return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };
-  var csv = [["Name", "Email", "Period", "Status", "Score", "Comment"].join(",")].concat(render().map(function (r) { var t = r.submission && r.submission.teacher; return [q(r.rosterName || r.name), q(r.email), q(r.period), q(r.submission ? "Submitted" : "Draft"), q(t && t.score !== null ? t.score : ""), q(t ? t.comment : "")].join(","); })).join("\n");
+  var csv = [["Name", "Email", "Period", "Status", "Score", "Comment", "Due", "First submitted", "Last submitted", "Late?"].join(",")].concat(render().map(function (r) { var t = r.submission && r.submission.teacher; return [q(r.rosterName || r.name), q(r.email), q(r.period), q(r.submission ? "Submitted" : "Draft"), q(t && t.score !== null ? t.score : ""), q(t ? t.comment : "")].concat(DueDates.csv(dueStatus(r)).map(q)).join(","); })).join("\n");
   var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "python-" + $("slot").value + ".csv"; a.click();
 };
 

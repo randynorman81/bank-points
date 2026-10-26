@@ -124,6 +124,7 @@ iframe{width:100%;height:100%;border:0;background:#fff;display:block}
 <script src="step-checks.js"></script>
 <script src="step-checks-a.js"></script>
 <script src="step-checks-b.js"></script>
+<script src="/assets/due-dates.js"></script>
 <script>
 "use strict";
 var API = "/api/code", $ = function (i) { return document.getElementById(i); }, H = window.HTMLCheck;
@@ -217,6 +218,11 @@ function highlight(code, ranges) {
 }
 
 /* ---------- load + compute ---------- */
+/* due dates: every lesson is due the Friday of the week it is listed on the IST pacing guide, 11:59 pm Eastern (3.3 Part 2 and 3 count as 3.3) */
+var CUR_DUE = null;
+function dueStatus(r) { var s = r.sub; return s && CUR_DUE ? DueDates.status(CUR_DUE, s.firstSubmittedAt, s.submittedAt) : null; }
+function dueInline(r) { var st = dueStatus(r); return st ? " " + DueDates.pill(st) + (st.firstMs !== st.lastMs ? " · first submitted " + esc(DueDates.fmt(st.firstMs)) + (st.firstLate ? " (late)" : "") : "") + " · due " + esc(DueDates.fmt(st.due)) : ""; }
+function loadDue() { CUR_DUE = null; return DueDates.deadline("ist", dispLesson($("lesson").value)).then(function (d) { CUR_DUE = d; }); }
 function load() {
   var lesson = $("lesson").value;
   $("rows").innerHTML = ""; $("count").textContent = "Loading…";
@@ -242,7 +248,7 @@ function load() {
     var ps = $("period"), cur = ps.value, other = rowsData.some(function (r) { return IST_PERIODS.indexOf(r.period) < 0; });
     ps.innerHTML = '<option value="IST">All IST (3A, 3B, 4A)</option>' + IST_PERIODS.map(function (p) { return "<option>" + p + "</option>"; }).join("") + (other ? '<option value="OTHER">Other / no period</option>' : "");
     ps.value = [].some.call(ps.options, function (o) { return o.value === cur; }) ? cur : "IST";
-    render();
+    render(); loadDue().then(render);
   });
 }
 $("lesson").onchange = function () { selEmail = null; $("detail").innerHTML = '<div class="empty">Pick a student on the left.</div>'; load(); };
@@ -270,7 +276,7 @@ function render() {
   a.forEach(function (r) {
     var g = r.teacher && r.teacher.score != null ? r.teacher.score : "";
     h += '<tr class="row' + (r.email === selEmail ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td><b>' + esc(r.name) + '</b><br><small style="color:var(--soft)">' + esc(r.period) + "</small></td><td>" +
-      (r.status === "submitted" ? '<span class="pill s">Submitted</span><br><small style="color:var(--soft)">' + esc(fmt(r.sub.submittedAt)) + (r.sub.count > 1 ? " (#" + r.sub.count + ")" : "") + "</small>" : r.status === "draft" ? '<span class="pill d">Draft only</span>' : '<span class="pill d" style="opacity:.6">Nothing yet</span>') +
+      (r.status === "submitted" ? '<span class="pill s">Submitted</span>' + DueDates.pill(dueStatus(r)) + '<br><small style="color:var(--soft)">' + esc(fmt(r.sub.submittedAt)) + (r.sub.count > 1 ? " (#" + r.sub.count + ")" : "") + "</small>" : r.status === "draft" ? '<span class="pill d">Draft only</span>' : '<span class="pill d" style="opacity:.6">Nothing yet</span>') +
       '</td><td class="num">' + (r.status === "missing" ? "&ndash;" : r.rep.score + (r.rep.errors.length ? '<br><small style="color:var(--bad)">' + r.rep.errors.length + " err</small>" : "")) + '</td><td title="' + esc(r.org.reasons.join(" ")) + '">' + (r.status === "missing" ? "" : LV[r.org.level] + (r.org.penalize ? '<br><small style="color:#FCA5A5">-50%</small>' : '')) + '</td><td class="num">' + (g !== "" ? '<span class="pill g">' + esc(g) + "</span>" : "") + "</td></tr>";
   });
   $("rows").innerHTML = h; $("noRows").style.display = a.length ? "none" : "block";
@@ -345,7 +351,7 @@ function select(email) {
   var penOn = r.teacher ? !!r.teacher.penalty : r.org.penalize;
   var g = r.teacher && r.teacher.score != null ? r.teacher.score : Math.round(r.rep.score * (r.org.penalize ? PENALTY : 1) * 10) / 10;
   var d = $("detail");
-  d.innerHTML = '<div class="dhead"><h2>' + esc(r.name) + '</h2><small>' + esc(r.email) + " · Period " + esc(r.period || "?") + " · " + (r.status === "submitted" ? "Submitted " + esc(fmt(r.sub.submittedAt)) : "Draft only (not submitted). Last saved " + esc(fmt(r.draft && r.draft.savedAt))) + '</small><span class="sp"></span><button class="btn sm" id="dDel" style="color:#FCA5A5;margin-right:12px">🗑 Delete ' + (r.sub ? "submission" : "draft") + '</button><button class="btn sm" id="prevS">◀ Prev</button><button class="btn sm" id="nextS">Next ▶</button></div>' +
+  d.innerHTML = '<div class="dhead"><h2>' + esc(r.name) + '</h2><small>' + esc(r.email) + " · Period " + esc(r.period || "?") + " · " + (r.status === "submitted" ? "Submitted " + esc(fmt(r.sub.submittedAt)) + dueInline(r) : "Draft only (not submitted). Last saved " + esc(fmt(r.draft && r.draft.savedAt))) + '</small><span class="sp"></span><button class="btn sm" id="dDel" style="color:#FCA5A5;margin-right:12px">🗑 Delete ' + (r.sub ? "submission" : "draft") + '</button><button class="btn sm" id="prevS">◀ Prev</button><button class="btn sm" id="nextS">Next ▶</button></div>' +
     '<div class="dtabs"><button class="btn sm' + (view === "code" ? " on" : "") + '" data-v="code">index.html</button><button class="btn sm' + (view === "css" ? " on" : "") + '" data-v="css">style.css' + (r.css.trim() ? "" : " (empty)") + '</button><button class="btn sm' + (view === "prev" ? " on" : "") + '" data-v="prev">Website</button>' + (window.U7_ANSWERS && window.U7_ANSWERS[$("lesson").value] && window.U7_ANSWER_LEAVES(window.U7_ANSWERS[$("lesson").value]).length ? '<button class="btn sm' + (view === "ans" ? " on" : "") + '" data-v="ans">Answers ' + ansSummary(r) + "</button>" : "") + '</div>' +
     '<div class="dbody"><div class="view" id="view"></div><div class="right" id="right"></div></div>';
   var errLines = {}; r.rep.errors.forEach(function (e) { errLines[e.line] = 1; });
@@ -402,8 +408,8 @@ document.addEventListener("keydown", function (e) { if (/INPUT|TEXTAREA|SELECT/.
 
 /* ---------- export + bulk ---------- */
 $("csv").onclick = function () {
-  var lesson = $("lesson").value, out = [["Name", "Email", "Period", "Lesson", "Status", "Submitted", "Auto score", "Originality", "Penalty applied", "Teacher score", "Comment"]];
-  visible().forEach(function (r) { out.push([r.name, r.email, r.period, lesson, r.status, r.sub ? r.sub.submittedAt : "", r.rep.score, r.org.level, r.teacher ? (r.teacher.penalty ? "yes" : "no") : (r.org.penalize ? "suggested" : ""), r.teacher && r.teacher.score != null ? r.teacher.score : "", r.teacher ? r.teacher.comment : ""]); });
+  var lesson = $("lesson").value, out = [["Name", "Email", "Period", "Lesson", "Status", "Submitted", "Auto score", "Originality", "Penalty applied", "Teacher score", "Comment", "Due", "First submitted", "Last submitted", "Late?"]];
+  visible().forEach(function (r) { out.push([r.name, r.email, r.period, lesson, r.status, r.sub ? r.sub.submittedAt : "", r.rep.score, r.org.level, r.teacher ? (r.teacher.penalty ? "yes" : "no") : (r.org.penalize ? "suggested" : ""), r.teacher && r.teacher.score != null ? r.teacher.score : "", r.teacher ? r.teacher.comment : ""].concat(DueDates.csv(dueStatus(r)))); });
   var csv = out.map(function (row) { return row.map(function (c) { c = String(c == null ? "" : c); return /[",\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(","); }).join("\n");
   var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "ist-" + lesson + "-grades.csv"; a.click();
 };

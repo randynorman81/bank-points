@@ -159,7 +159,7 @@ async function submit(body, user) {
   const rec = {
     email: user.email, name: user.name, period: cleanPeriod(body.period), lesson: body.lesson, code, css, activity: cleanActivity(body.activity),
     answers: body.answers === undefined && prev && prev.answers ? prev.answers : cleanAnswers(body.answers),
-    submittedAt: now(), count: (prev && prev.count ? prev.count : 0) + 1, auto: sc ? { pct: sc.pct, boxes: sc.boxes } : null,
+    submittedAt: now(), firstSubmittedAt: (prev && (prev.firstSubmittedAt || prev.submittedAt)) || now(), count: (prev && prev.count ? prev.count : 0) + 1, auto: sc ? { pct: sc.pct, boxes: sc.boxes } : null,
     teacher: prev && prev.teacher ? prev.teacher : null
   };
   await store().setJSON(key, rec);

@@ -29,6 +29,7 @@ h3{margin:0 0 4px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;c
 <div class="top"><h1>&#9889; Arduino Grading</h1><select id="slot"></select><button class="btn" id="load">Load</button><button class="btn" id="pin">Change PIN</button><span id="info" style="color:var(--soft);font-size:12px"></span></div>
 <main><div id="list"><div class="msg">Choose an assignment and click Load.</div></div><div id="detail"><div class="msg">Pick a student on the left.</div></div></main>
 <script src="compiler.js"></script><script src="circuit.js"></script><script src="sim.js"></script><script src="ctx.js"></script><script src="render.js"></script><script src="assignments.js"></script><script src="assign-u2a.js"></script><script src="assign-u2b.js"></script><script src="assign-u3a.js"></script><script src="assign-u3b.js"></script>
+<script src="../assets/due-dates.js"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); }, API = "/api/arduinocode", C = ArduinoCircuit, R = ArduinoRender, rows = [], cur = null, sim = null, view = { x: 10, y: 10, z: 0.8 };
@@ -42,12 +43,16 @@ h3{margin:0 0 4px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;c
       if (!j || !j.ok) { $("info").textContent = (j && j.error) || "Could not load."; return; }
       rows = j.students.sort(function (a, b) { return String(a.period).localeCompare(String(b.period)) || String(a.name).localeCompare(String(b.name)); });
       $("info").textContent = rows.length + " students (" + rows.filter(function (r) { return r.submission; }).length + " submitted)"; drawList();
+      CUR_DUE = null; DueDates.deadline("ec", $("slot").value).then(function (d) { CUR_DUE = d; drawList(); });
     });
   };
+  /* due dates: due the Friday of the week the lesson is listed on the EC pacing guide, 11:59 pm Eastern */
+  var CUR_DUE = null;
+  function dueStatus(r) { var s = r.submission; return s && CUR_DUE ? DueDates.status(CUR_DUE, s.firstSubmittedAt, s.submittedAt) : null; }
   function drawList() {
     $("list").innerHTML = rows.map(function (r, i) {
       var s = r.submission, a = s && s.auto ? s.auto.pct : null, g = s && s.teacher && s.teacher.score !== null && s.teacher.score !== undefined;
-      return '<div class="row' + (cur === i ? " on" : "") + '" data-i="' + i + '"><div><b>' + esc(r.rosterName || r.name) + "</b><br><small>" + esc(r.period || "?") + (s ? " &middot; " + new Date(s.submittedAt).toLocaleDateString() + " &middot; sent " + s.count + "x" : " &middot; not submitted (draft only)") + "</small></div><div>" +
+      return '<div class="row' + (cur === i ? " on" : "") + '" data-i="' + i + '"><div><b>' + esc(r.rosterName || r.name) + "</b><br><small>" + esc(r.period || "?") + (s ? " &middot; " + new Date(s.submittedAt).toLocaleDateString() + " &middot; sent " + s.count + "x" + DueDates.pill(dueStatus(r)) : " &middot; not submitted (draft only)") + "</small></div><div>" +
         (a !== null ? '<span class="badge ' + (a >= 95 ? "ok" : a >= 60 ? "mid" : "") + '">auto ' + a + "</span> " : "") + (g ? '<span class="badge ok">' + esc(s.teacher.score) + "</span>" : "") + "</div></div>";
     }).join("") || '<div class="msg">No students have saved work here yet.</div>';
     $("list").querySelectorAll(".row").forEach(function (el) { el.onclick = function () { show(+el.getAttribute("data-i")); }; });
@@ -56,7 +61,7 @@ h3{margin:0 0 4px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;c
     stopSim(); cur = i; drawList(); var r = rows[i], s = r.submission || r.draft; if (!s) return;
     var proj = s.project, d = $("detail");
     d.innerHTML = '<div><b style="font-size:16px">' + esc(r.rosterName || r.name) + "</b> <span class=\"badge\">" + esc(r.period || "?") + "</span> " + (r.submission ? '<span class="badge ok">submitted ' + new Date(s.submittedAt).toLocaleString() + "</span>" : '<span class="badge mid">draft only</span>') + (s.auto ? ' <span class="badge">auto score ' + s.auto.pct + " (" + s.auto.passed + "/" + s.auto.total + ")</span>" : "") + "</div>" +
-      '<div id="svgbox"><svg id="gs" xmlns="http://www.w3.org/2000/svg"></svg></div>' +
+      DueDates.detail(dueStatus(r)) + '<div id="svgbox"><svg id="gs" xmlns="http://www.w3.org/2000/svg"></svg></div>' +
       '<div><button class="btn go" id="runb">&#9654; Run this circuit with their code</button> <button class="btn" id="fit">Fit</button> <span id="rinfo" style="color:var(--soft);font-size:12px"></span></div>' +
       '<div class="grid"><div><h3>Their code</h3><pre id="gcode"></pre></div><div><h3>Serial output when they submitted / live run</h3><pre id="gout"></pre></div></div>' +
       '<div id="gans"></div><div><h3>Teacher score and comment</h3><input id="sc" placeholder="Score" style="width:90px" value="' + (s.teacher && s.teacher.score !== null && s.teacher.score !== undefined ? esc(s.teacher.score) : "") + '"> <button class="btn go" id="save">Save grade</button> <span id="saved" style="color:var(--ok);font-size:12px"></span><br><textarea id="cm" placeholder="Comment for the student (optional)">' + esc(s.teacher && s.teacher.comment || "") + "</textarea></div>";
