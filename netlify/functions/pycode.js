@@ -216,6 +216,8 @@ async function adminList(body) {
   roster.forEach((s) => {
     const email = String(s.email || "").toLowerCase();
     if (email && byEmail[email]) { byEmail[email].period = s.period || byEmail[email].period; byEmail[email].rosterName = s.name; }
+    // every student in a Python class (1A, 2B) is listed, even before they have saved anything
+    else if (email && ["1A", "2B"].indexOf(String(s.period || "").toUpperCase()) > -1) byEmail[email] = { email, name: s.name, rosterName: s.name, period: s.period, submission: null, draft: null };
   });
   return { ok: true, slot: body.slot, students: Object.values(byEmail) };
 }
