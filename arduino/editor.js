@@ -654,7 +654,7 @@
       h += "<h3>" + esc(s.h) + "</h3>";
       if (s.intro) h += '<p class="intro">' + inlineBubbles(s.intro) + "</p>";
       if (real.length) h += '<div class="helprow"><button type="button" class="helpstep" data-tiplist="' + esc(JSON.stringify(real)).replace(/"/g, "&quot;") + '">&#128161; Help for this step <small>(' + real.length + " topic" + (real.length === 1 ? "" : "s") + ")</small></button></div>";
-      if (s.code) h += '<pre class="codebox">' + esc(s.code) + "</pre>";
+      if (s.code) h += '<pre class="codebox' + (s.copy ? " copyok" : "") + '">' + esc(s.code) + "</pre>";
       s.items.forEach(function (it, ii) {
         var k = si + "." + ii, info = it.kind === "note";
         h += '<div class="item' + (info ? " info" : "") + '" data-si="' + si + '" data-ii="' + ii + '"><span class="box">' + (info ? "i" : "&#10003;") + '</span><div class="txt">' + inlineBubbles(it.t) + widgetHTML(it, k) + (it.help && it.help.length ? '<span class="helprow">' + pillsHTML(it.help) + "</span>" : "") + "</div>" + (info ? "" : '<span class="badge">checking</span>') + "</div>";
@@ -884,6 +884,8 @@
     function say() { status("Pasting is turned off. Type it in your own words and your own code.", true); }
     document.addEventListener("copy", function (e) {
       var el = e.target; if (typing(el)) { own = String(window.getSelection ? window.getSelection() : "") || (el.value || "").slice(el.selectionStart, el.selectionEnd); return; }
+      if (e.target && e.target.closest && e.target.closest(".codebox.copyok")) { own = String(window.getSelection ? window.getSelection() : ""); return; }
+      var sel0 = window.getSelection && window.getSelection(), cbk = sel0 && sel0.anchorNode && (sel0.anchorNode.nodeType === 1 ? sel0.anchorNode : sel0.anchorNode.parentNode); if (cbk && cbk.closest && cbk.closest(".codebox.copyok")) { own = String(sel0); return; }
       if (!teacher() && e.target && e.target.closest && e.target.closest("#assBody, .modal, #out, .codebox")) { e.preventDefault(); }
     }, true);
     document.addEventListener("cut", function (e) { var el = e.target; if (typing(el)) own = (el.value || "").slice(el.selectionStart, el.selectionEnd); }, true);
