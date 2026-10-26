@@ -748,7 +748,7 @@ function refresh() {
   $("tags").innerHTML = tg || '<span style="color:var(--soft);border:0;background:none">No tags yet.</span>';
   layoutGutter.errs = errLines; layoutGutter(); syncCssTab();
   $("chkScore").textContent = rep.score + "/" + rep.total; stepUpdate();
-  var wq = H.quality(getHtml()), wn = Math.max(0, wq.n - (wq.gibberish || 0)); $("wcount").textContent = wn + (wn === 1 ? " word" : " words");
+  var wq = H.quality(getHtml()), wn = Math.max(0, wq.n - (wq.gibberish || 0)); $("wcount").textContent = wn + (wn === 1 ? " word" : " words"); $("wcount").style.display = S.lesson === "6.1" ? "none" : "";
   $("btnChecks").classList.toggle("hasErr", rep.errors.length > 0);
 }
 $("probs").addEventListener("click", function (e) {

@@ -10,8 +10,7 @@
     { map: [
       "The skeleton (typed by you, from memory)",
       "Heading 1: your topic",
-      "3 section headings (heading 2), each with 2 paragraphs",
-      "A last paragraph that lists at least 2 sources"
+      "3 section headings (heading 2), each with 2 paragraphs"
     ] },
     { p: "Stuck? Read the notes: schscomputerscience.com/ist/unit-6/html-intro-notes.html" },
 
@@ -38,19 +37,13 @@
     { h: "Step 4: Paragraphs" },
     { build: [
       "Under each section heading, add **2 paragraphs**. Each one goes in its **own** paragraph, not inside a heading",
-      "Write **6 paragraphs** in all (2 under each heading 2), and make at least **5 of them 25 words or longer**",
-      "Keep writing until your page has at least **250 words**"
+      "Write **6 paragraphs** in all (2 under each heading 2), and make at least **5 of them 25 words or longer**"
     ] },
 
-    { h: "Step 5: Sources" },
-    { build: [
-      "Make your **last paragraph** list at least **2 sources** (a book, an encyclopedia, or a trusted website)"
-    ] },
-
-    { h: "Step 6: Check and submit" },
+    { h: "Step 5: Check and submit" },
     { build: [
       "Fix anything in the **Problems** list (click a problem to jump to that line)",
-      "Make sure **Checks** shows 50 / 50",
+      "Make sure **Checks** shows all green",
       "Choose your class period at the top, then click **Submit**"
     ] }
   ];

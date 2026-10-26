@@ -44,22 +44,11 @@
     "Step 4": [
       [K("Every heading 2 has 2 paragraphs under it", function (c) { var s = sections(c); return s.length >= 3 && s.every(function (x) { return x.ps.length >= 2; }); }),
        K("No paragraph is inside a heading", function (c) { return c.all("p").every(function (p) { return !h.inTag(c, p, ["h1", "h2", "h3", "h4", "h5", "h6"]); }) && c.count("p") > 0; })],
-      [CNT("At least 6 paragraphs", "p", 6), K("At least 5 paragraphs are 25 words or longer", function (c) { return c.all("p").filter(function (p) { return words(c, p) >= 25; }).length >= 5; })],
-      [K("The page has at least 250 words", function (c) { return (allText(c).match(/\S+/g) || []).length >= 250; })]
+      [CNT("At least 6 paragraphs", "p", 6), K("At least 5 paragraphs are 25 words or longer", function (c) { return c.all("p").filter(function (p) { return words(c, p) >= 25; }).length >= 5; })]
     ],
-    "Step 6": [[h.NOERRORS], [h.ALLGREEN], []],
-    "Step 5": [[
-      K("The last paragraph lists at least 2 sources", function (c) {
-        var p = c.all("p"), t = p.length ? txt(c, p[p.length - 1]) : "";
-        var hits = (t.match(/\.(com|org|gov|edu|net)\b|www\.|https?:|encyclopedia|britannica|wikipedia|\bbook\b|\bby [A-Z]|\(\d{4}\)|\b(19|20)\d\d\b/gi) || []).length;
-        var lab = /sources?|references?|bibliography|works cited/i.exec(t);
-        if (!lab) return hits >= 2;
-        var items = t.slice(lab.index + lab[0].length).split(/[;,]|\band\b|\d\)/i).map(function (x) { return x.replace(/[^A-Za-z0-9.]/g, ""); }).filter(function (x) { return x.length >= 3; });
-        return (hits >= 2 || items.length >= 2) && words(c, p[p.length - 1]) >= 6;
-      })
-    ]]
+    "Step 5": [[h.NOERRORS], [h.ALLGREEN], []],
   } };
 
   /* the last step of each lesson ("Test and submit"): the Checks list has to be all green. These steps have no step comment. */
-  SC.LESSONS["6.1"].steps["Step 6"].comment = false;
+  SC.LESSONS["6.1"].steps["Step 5"].comment = false;
 })(typeof window !== "undefined" ? window : globalThis);

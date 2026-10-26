@@ -91,7 +91,7 @@
   ]);
   add("writing", TXT, "How do I write enough, in my own words?", [
     { p: "Some assignments need a lot of real writing. The checker counts real words, not tags or nonsense." },
-    { steps: ["Pick a topic you can find good information about.", "Read about one section, then close the page.", "Write what you remember in your own words, in whole sentences.", "Check your word count at the top of the editor."] },
+    { steps: ["Pick a topic you can find good information about.", "Read about one section, then close the page.", "Write what you remember in your own words, in whole sentences.",] },
     { good: "Aim for sentences with about 25 words or more. Explain, give an example, then add one more fact." },
     { warn: "Typing the same words again and again, or random letters, is flagged by the checker. Copying from other places is blocked in this editor." }
   ]);
