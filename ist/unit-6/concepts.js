@@ -94,6 +94,8 @@
   var FRESH = 2, KEEP = 30;   /* KEEP 30 = through the Unit 3 lessons (3.2 to 3.8), every earlier item stays required at least once; later lessons keep the older rule of 3 lessons back */
   var STAPLES = { "h2": 1, "p": 1, "ul": 1, "ol": 1, "a": 1, "attr-href": 1, "img": 1, "attr-alt": 1, "p-color": 1, "p-bg": 1, "p-fs": 1, "p-ta": 1, "p-border": 1, "p-pad": 1, "p-mar": 1, "p-w": 1 };
   var TESTS_UNIT = { "7.6": /^[67]\./, "8.7": /^8\./, "9.7": /^9\./ };
+  /* the two extra 3.3 practice assignments review exactly what 3.3 reviews (they are not separate steps in the spiral) */
+  var ALIAS = { "6.21": "6.20", "6.22": "6.20" };
   function idxOf(id) { for (var i = 0; i < C.length; i++) if (C[i].id === id) return i; return -1; }
   function tierFor(lesson, fromId, key) {
     var test = TESTS_UNIT[lesson];
@@ -107,9 +109,10 @@
   root.U7_CONCEPTS = {
     list: C, groups: GROUPS, FRESH: FRESH, KEEP: KEEP,
     /* the items a lesson adds (the "new" section), grouped */
-    newFor: function (lesson) { var o = null; C.forEach(function (x) { if (x.id === lesson) o = x; }); return o; },
+    newFor: function (lesson) { lesson = ALIAS[lesson] || lesson; var o = null; C.forEach(function (x) { if (x.id === lesson) o = x; }); return o; },
     /* every earlier item still required for this lesson, grouped; each item has .min (1 or 2) and .tier (fresh, keep, test) */
     reviewFor: function (lesson) {
+      lesson = ALIAS[lesson] || lesson;
       var out = {}; GROUPS.forEach(function (g) { out[g[0]] = []; });
       C.forEach(function (x) {
         GROUPS.forEach(function (g) {

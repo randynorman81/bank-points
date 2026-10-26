@@ -87,6 +87,57 @@
     ]),
     done()]));
 
+  /* ======================================================================= 6.21  (3.3 Part 2: extra practice) ===== */
+  A["6.21"] = build([].concat(head("**A menu board** for a place you would love to eat. This is **extra 3.3 practice**: the same font-size, text-align, and letter-case skills as the poster, on a brand-new page.", "a pizza place, a boba shop, a food truck, a taco stand, or a dessert cafe", notes("unit-6/text-size-align-notes.html")), [RULE,
+    RULE2,
+    S("Skeleton, title, and colors", [
+      "Type the **doctype** line, then **html** with a **head** and a **body** inside it (head first)",
+      "Inside the head, add a **title** with your restaurant's name",
+      "On the **body** tag, add a style with a **background-color** and a **color** (two **different** named colors, so the text can be read)"
+    ]),
+    S("The name and the tagline", [
+      "Inside the body, add **one heading 1** with the restaurant's name. Style it: **color**, **font-size** in pixels (**36px or bigger**), **text-align** center, and **text-transform** uppercase",
+      "Under it, add a **heading 2** for a short tagline. Style it: **color**, **font-size** in pixels, **text-align** center, and **text-transform** capitalize (so every word starts with a capital letter)"
+    ]),
+    S("The menu sections", [
+      "Add **at least 3 more heading 2s** after the tagline: the sections of your menu (like Starters, Mains, Desserts). Style **every one** of them with a **color**, a **font-size** in pixels, **text-transform** uppercase, and **text-align** center"
+    ]),
+    S("The menu items", [
+      "Under your sections, add **at least 6 paragraphs**: one for each menu item, with its name, a short description, and a price. Style **every paragraph** with a **color** and a **font-size** in pixels (like 18px)",
+      "Make **at least 3** of your paragraphs **text-align** center",
+      "Give **at least 2** of your paragraphs **both a color and a background-color** (two **different** named colors) so your best sellers stand out"
+    ]),
+    S("Hours and location", [
+      "At the bottom, add **at least 2 heading 3s**: one that says Hours and one that says Location. Style **every** heading 3 with a **color** and **text-align** center, and make **at least one** of them **text-transform** lowercase",
+      "Put a **paragraph right after each heading 3** (the hours, and the address, which can be made up). Style each one with a **color** and a **font-size** in pixels"
+    ]),
+    done()]));
+
+  /* ======================================================================= 6.22  (3.3 Part 3: extra practice) ===== */
+  A["6.22"] = build([].concat(head("**A trading card** for a character, athlete, animal, or monster, built so the **sizes shrink** from the biggest heading to the smallest. This is **extra 3.3 practice** (Part 3): the same font-size, text-align, and letter-case skills, on another brand-new page.", "a video game hero, a sports star, a made-up monster, or a favorite animal", notes("unit-6/text-size-align-notes.html")), [RULE,
+    RULE2,
+    S("Skeleton, title, and colors", [
+      "Type the **doctype** line, then **html** with a **head** and a **body** inside it (head first)",
+      "Inside the head, add a **title** with your card's name",
+      "On the **body** tag, add a style with a **background-color** and a **color** (two **different** named colors)"
+    ]),
+    S("The size staircase", [
+      "Add **one heading 1** with your card's name. Style it: **color**, **font-size** in pixels (**40px or bigger**), **text-align** center, and **text-transform** uppercase",
+      "Add **at least 3 heading 2s** for the card's sections (like Stats, Abilities, Story). Style **every** heading 2 with a **color**, a **font-size** in pixels, and **text-transform** capitalize",
+      "Add **at least 2 heading 3s** for little details (like Type or Rarity). Style **every** heading 3 with a **color** and a **font-size** in pixels",
+      "**The staircase:** your heading 1's font-size must be **bigger than every heading 2's**, and every heading 2's must be **bigger than every heading 3's** (for example 48px, then 32px, then 22px)"
+    ]),
+    S("The card text", [
+      "Add **at least 8 paragraphs** of real card text (stats, abilities, a short story). Style **every paragraph** with a **font-size** in pixels and a **color**",
+      "Make **at least 4** of your paragraphs **text-align** center",
+      "Use **all three letter-case values** somewhere on the page: **text-transform** uppercase on **at least 3** elements, **lowercase** on **at least 1**, and **capitalize** on **at least 1** more (the headings above may count)"
+    ]),
+    S("Make it pop", [
+      "Give **at least 3 elements** both a **color** and a **background-color** (two **different** named colors), like a banner heading or a stat box",
+      "Make sure **at least 3 different font-sizes** show up on your page (the staircase already gives you three)"
+    ]),
+    done()]));
+
   /* ======================================================================= 6.3  (3.4) ===== */
   A["6.3"] = build([].concat(head("A **text-heavy page** where bold, italics, line breaks, horizontal lines, and **spans** do the work. You choose the topic from **20 ideas**, from a weird restaurant menu to a song lyrics page to a tier list.", "", notes("unit-6/editing-tags-notes.html")), [{ tip: "themes34", label: "See all 20 theme choices" }, RULE,
     { p: "**Every idea uses the same steps.** There is no set layout: you decide what goes where. The steps give the **minimum** you need of each tag and style, and you can ALWAYS add more." },

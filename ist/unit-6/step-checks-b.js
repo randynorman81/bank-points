@@ -97,6 +97,66 @@
   } };
   lastStep("6.20", "Step 5", [[h.ALLGREEN], []]);
 
+  /* =============== 6.21 and 6.22 (3.3 Part 2 and Part 3): extra practice with font-size, text-align, and letter-case on brand-new pages =============== */
+  var lower = h.eq("lowercase"), capital = h.eq("capitalize");
+  function pxNum(c, el) { var v = h.vals(c, el, "font-size")[0]; var m = /^(\d+(?:\.\d+)?)px$/i.exec(String(v || "").replace(/;$/, "").trim()); return m ? +m[1] : null; }
+  function everyHas(label, tag, prop, test, min) { return K(label, function (c) { var a = c.all(tag); return a.length >= (min || 1) && a.every(function (x) { return has(c, x, prop, test); }); }); }
+  function countWith(c, prop, test) { return h.order(c).filter(function (x) { return x.tag !== "#text" && has(c, x, prop, test); }).length; }
+  function bothColorsAndDiffer(c, x) { return has(c, x, "color", named) && has(c, x, "background-color", named) && bothDiffer(c, x); }
+  var bodyTwoColors = [bodyBg(), P("The body has a color (a named color)", T("body"), "color", named), K("The text color is different from the background-color", function (c) { var b = T("body")(c); return !!b && bothDiffer(c, b); })];
+
+  /* ---- 6.21: a menu board ---- */
+  var tag6 = function (c) { return c.all("h2")[0] || null; }, sections6 = function (c) { return c.all("h2").slice(1); };
+  SC.LESSONS["6.21"] = { inlineOnly: true, steps: {
+    "Step 1": [SK, TITLE, bodyTwoColors],
+    "Step 2": [
+      [exists("There is a heading 1", T("h1")), P("It has a color (a named color)", T("h1"), "color", named), K("Its font-size is in pixels and is 36px or bigger", function (c) { var e = T("h1")(c); var n = e ? pxNum(c, e) : null; return n !== null && n >= 36; }), P("It is text-align center", T("h1"), "text-align", center), P("It is text-transform uppercase", T("h1"), "text-transform", upper)],
+      [exists("There is a heading 2 for the tagline", tag6), UNDER("It comes after the heading 1", T("h1"), tag6), P("It has a color (a named color)", tag6, "color", named), P("Its font-size is in pixels", tag6, "font-size", h.isPx), P("It is text-align center", tag6, "text-align", center), P("It is text-transform capitalize", tag6, "text-transform", capital)]
+    ],
+    "Step 3": [
+      [K("There are at least 3 more heading 2s after the tagline (the menu sections)", function (c) { return sections6(c).length >= 3; }),
+       K("Every section heading has a color (a named color)", function (c) { var a = sections6(c); return a.length >= 3 && a.every(function (x) { return has(c, x, "color", named); }); }),
+       K("Every section heading has a font-size in pixels", function (c) { var a = sections6(c); return a.length >= 3 && a.every(function (x) { return has(c, x, "font-size", h.isPx); }); }),
+       K("Every section heading is text-transform uppercase", function (c) { var a = sections6(c); return a.length >= 3 && a.every(function (x) { return has(c, x, "text-transform", upper); }); }),
+       K("Every section heading is text-align center", function (c) { var a = sections6(c); return a.length >= 3 && a.every(function (x) { return has(c, x, "text-align", center); }); })]
+    ],
+    "Step 4": [
+      [CNT("There are at least 6 paragraphs", "p", 6), everyHas("Every paragraph has a color (a named color)", "p", "color", named, 6), everyHas("Every paragraph has a font-size in pixels", "p", "font-size", h.isPx, 6)],
+      [K("At least 3 paragraphs are text-align center", function (c) { return c.all("p").filter(function (x) { return has(c, x, "text-align", center); }).length >= 3; })],
+      [K("At least 2 paragraphs have both a color and a background-color, and the two colors are different", function (c) { return c.all("p").filter(function (x) { return bothColorsAndDiffer(c, x); }).length >= 2; })]
+    ],
+    "Step 5": [
+      [K("There are at least 2 heading 3s", function (c) { return c.count("h3") >= 2; }), everyHas("Every heading 3 has a color (a named color)", "h3", "color", named, 2), everyHas("Every heading 3 is text-align center", "h3", "text-align", center, 2),
+       K("At least one heading 3 is text-transform lowercase", function (c) { return c.all("h3").some(function (x) { return has(c, x, "text-transform", lower); }); })],
+      [K("A paragraph comes right after at least 2 of the heading 3s", function (c) { return c.all("h3").filter(function (x) { var n = h.nextEl(x); return !!n && n.tag === "p"; }).length >= 2; }),
+       K("Every paragraph right after a heading 3 has a color and a font-size in pixels", function (c) { var a = c.all("h3").map(function (x) { return h.nextEl(x); }).filter(function (n) { return !!n && n.tag === "p"; }); return a.length >= 2 && a.every(function (p) { return has(c, p, "color", named) && has(c, p, "font-size", h.isPx); }); })]
+    ]
+  } };
+  lastStep("6.21", "Step 6", [[h.ALLGREEN], []]);
+
+  /* ---- 6.22: a trading card with a size staircase ---- */
+  var h1px = function (c) { var e = T("h1")(c); return e ? pxNum(c, e) : null; };
+  SC.LESSONS["6.22"] = { inlineOnly: true, steps: {
+    "Step 1": [SK, TITLE, bodyTwoColors],
+    "Step 2": [
+      [K("There is one heading 1", function (c) { return c.count("h1") === 1; }), P("It has a color (a named color)", T("h1"), "color", named), K("Its font-size is in pixels and is 40px or bigger", function (c) { var n = h1px(c); return n !== null && n >= 40; }), P("It is text-align center", T("h1"), "text-align", center), P("It is text-transform uppercase", T("h1"), "text-transform", upper)],
+      [CNT("There are at least 3 heading 2s", "h2", 3), everyHas("Every heading 2 has a color (a named color)", "h2", "color", named, 3), everyHas("Every heading 2 has a font-size in pixels", "h2", "font-size", h.isPx, 3), everyHas("Every heading 2 is text-transform capitalize", "h2", "text-transform", capital, 3)],
+      [CNT("There are at least 2 heading 3s", "h3", 2), everyHas("Every heading 3 has a color (a named color)", "h3", "color", named, 2), everyHas("Every heading 3 has a font-size in pixels", "h3", "font-size", h.isPx, 2)],
+      [K("The heading 1's font-size is bigger than every heading 2's", function (c) { var n = h1px(c), a = c.all("h2").map(function (x) { return pxNum(c, x); }); return n !== null && a.length >= 3 && a.every(function (v) { return v !== null && n > v; }); }),
+       K("Every heading 2's font-size is bigger than every heading 3's", function (c) { var a = c.all("h2").map(function (x) { return pxNum(c, x); }), b = c.all("h3").map(function (x) { return pxNum(c, x); }); return a.length >= 3 && b.length >= 2 && a.concat(b).every(function (v) { return v !== null; }) && Math.min.apply(null, a) > Math.max.apply(null, b); })]
+    ],
+    "Step 3": [
+      [CNT("There are at least 8 paragraphs", "p", 8), everyHas("Every paragraph has a font-size in pixels", "p", "font-size", h.isPx, 8), everyHas("Every paragraph has a color (a named color)", "p", "color", named, 8)],
+      [K("At least 4 paragraphs are text-align center", function (c) { return c.all("p").filter(function (x) { return has(c, x, "text-align", center); }).length >= 4; })],
+      [K("text-transform uppercase is used on at least 3 elements", function (c) { return countWith(c, "text-transform", upper) >= 3; }), K("text-transform lowercase is used on at least 1 element", function (c) { return countWith(c, "text-transform", lower) >= 1; }), K("text-transform capitalize is used on at least 1 element", function (c) { return countWith(c, "text-transform", capital) >= 1; })]
+    ],
+    "Step 4": [
+      [K("At least 3 elements have both a color and a background-color, and the two colors are different", function (c) { return h.order(c).filter(function (x) { return x.tag !== "#text" && bothColorsAndDiffer(c, x); }).length >= 3; })],
+      [K("At least 3 different font-sizes (in pixels) show up on the page", function (c) { var s = {}; h.order(c).forEach(function (x) { if (x.tag === "#text") return; var n = pxNum(c, x); if (n !== null) s[n] = 1; }); return Object.keys(s).length >= 3; })]
+    ]
+  } };
+  lastStep("6.22", "Step 5", [[h.ALLGREEN], []]);
+
   /* =============== 6.3  (3.4) Editing Tags, Span Tag: a text-heavy page of the student's own theme (20 ideas), built from minimum counts =============== */
   function allEls(c) { return h.order(c).filter(function (x) { return x.tag !== "#text"; }); }
   function distinctColors(c) { var n = {}; allEls(c).forEach(function (x) { ["color", "background-color"].forEach(function (p) { var v = h.vals(c, x, p)[0]; if (v && named(v)) n[v] = 1; }); }); return Object.keys(n); }

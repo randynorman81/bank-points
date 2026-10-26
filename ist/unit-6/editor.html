@@ -375,7 +375,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   <div id="mSubmitBody" style="color:var(--soft)"></div>
   <div class="row"><button class="btn" id="mCancel">Not yet</button><button class="btn pri" id="mGo">Submit it</button></div>
 </div></div>
-<div id="closedMsg" style="display:none"><div class="cbox"><h2 id="closedTitle">Not open yet</h2><p>This assignment is not open yet. Your teacher will open it when your class is ready for it.</p><p style="font-size:14px">Teacher? Use the <b>Sign in with Google</b> button at the top of the page, with your school account.</p><p><a class="btn pri" id="closedBack" href="index.html">Back to the unit</a></p></div></div>
+<div id="closedMsg" style="display:none"><div class="cbox"><h2 id="closedTitle">Not open yet</h2><p id="closedText">This assignment is not open yet. Your teacher will open it when your class is ready for it.</p><p style="font-size:14px">Teacher? Use the <b>Sign in with Google</b> button at the top of the page, with your school account.</p><p><a class="btn pri" id="closedBack" href="index.html">Back to the unit</a></p></div></div>
 <div class="modal" id="mHelp"><div class="box cnbox">
   <div class="exhead"><h3 id="hlTitle">Help</h3><span><button class="btn" id="hlBack" style="display:none">&larr; Back</button> <button class="btn" id="hlClose">Close</button></span></div>
   <div class="cnbody" id="hlBody"></div>
@@ -416,7 +416,7 @@ var H = window.HTMLCheck;
    would orphan every student's saved drafts and submissions. This map only changes what
    students SEE on screen, to match the 2026-27 pacing guide's renumbering. */
 var DISPLAY_LESSON = {
-  "6.1": "3.1", "6.2": "3.2", "6.20": "3.3", "6.3": "3.4", "6.35": "3.5", "6.4": "3.6", "6.7": "3.7", "6.75": "3.8", "6.6": "3.9", "6.5": "3.10",
+  "6.1": "3.1", "6.2": "3.2", "6.20": "3.3", "6.21": "3.3 Part 2", "6.22": "3.3 Part 3", "6.3": "3.4", "6.35": "3.5", "6.4": "3.6", "6.7": "3.7", "6.75": "3.8", "6.6": "3.9", "6.5": "3.10",
   "7.1": "3.11", "7.2": "3.12", "7.3": "3.13", "7.4": "3.14", "7.5": "3.15", "7.6": "3.16",
   "8.1": "4.1", "8.2": "4.2", "8.3": "4.3", "8.4": "4.4", "8.5": "4.5", "8.6": "4.6", "8.7": "4.7",
   "9.1": "5.1", "9.2": "5.2", "9.3": "5.3", "9.4": "5.4", "9.5": "5.5", "9.6": "5.6", "9.7": "5.7"
@@ -470,7 +470,7 @@ function syncCssTab() {
 var SHOW_ALL = new URLSearchParams(location.search).get("all") === "1";
 /* The list shows only lessons the student has already started (saved on this computer or in the cloud),
    plus the one they are on. A new lesson is started from its lesson page's Assignment button. */
-var MY_LESSONS = {};
+var MY_LESSONS = {}, MY_SUB = {};
 function hasLocalWork(l) { return !isBlank(lsGet("u7:code:" + l) || "") || !isBlank(lsGet("u7:css:" + l) || ""); }
 function buildLessonList() {
   var sel = $("lesson"); sel.innerHTML = "";
@@ -1021,9 +1021,11 @@ function showSignInButton() {
 function lessonClosed(l) {
   var SCx = window.U7_STEPCHECKS; if (!SCx || !SCx.LESSONS[l]) return false;
   if (S.email && TEACHER_EMAILS.indexOf(S.email) > -1) return false;
-  return (window.U7_LIVE || []).indexOf(l) < 0;
+  return (window.U7_LIVE || []).indexOf(l) < 0 || lessonNeedsEarlier(l);
 }
-function applyClosed() { var c = lessonClosed(S.lesson), m = $("closedMsg"); if (!m) return; if (c) $("closedTitle").textContent = "Assignment " + dispLesson(S.lesson) + " is not open yet"; m.style.display = c ? "" : "none"; document.body.classList.toggle("isclosed", !!c); }
+/* some lessons stay locked until the student has submitted an earlier one (live.js lists them in U7_PREREQ) */
+function lessonNeedsEarlier(l) { var pre = (window.U7_PREREQ || {})[l]; return !!pre && !MY_SUB[pre]; }
+function applyClosed() { var c = lessonClosed(S.lesson), m = $("closedMsg"); if (!m) return; if (c) { var needs = (window.U7_LIVE || []).indexOf(S.lesson) > -1 && lessonNeedsEarlier(S.lesson), pre = (window.U7_PREREQ || {})[S.lesson]; $("closedTitle").textContent = needs ? "Finish Assignment " + dispLesson(pre) + " first" : "Assignment " + dispLesson(S.lesson) + " is not open yet"; if ($("closedText")) $("closedText").textContent = needs ? "This assignment opens after you SUBMIT Assignment " + dispLesson(pre) + " (it needs an auto score of 95 to submit). Sign in, finish that one, and then come back." : "This assignment is not open yet. Your teacher will open it when your class is ready for it."; } m.style.display = c ? "" : "none"; document.body.classList.toggle("isclosed", !!c); }
 function onCredential(resp) {
   var p = decodeJwt(resp.credential);
   if ((p.hd || "").toLowerCase() !== "socialcircleschools.org") { banner("Please sign in with your school account (@socialcircleschools.org).", "err"); return; }
@@ -1031,7 +1033,7 @@ function onCredential(resp) {
   $("who").textContent = "Signed in: " + (S.name || S.email); $("gbtn").innerHTML = ""; $("note").className = "note";
   $("banner").className = "banner";
   afterLessonChange(true); applyClosed(); buildLessonList();
-  api({ action: "myLessons" }).then(function (j) { if (j && j.ok) { (j.lessons || []).forEach(function (l) { MY_LESSONS[l] = 1; }); buildLessonList(); } });
+  api({ action: "myLessons" }).then(function (j) { if (j && j.ok) { (j.lessons || []).forEach(function (l) { MY_LESSONS[l] = 1; }); (j.submitted || []).forEach(function (l) { MY_SUB[l] = 1; }); buildLessonList(); applyClosed(); } });
 }
 function api(body) {
   body.credential = S.cred;
@@ -1096,7 +1098,7 @@ $("mGo").addEventListener("click", function () {
   var btn = this; btn.disabled = true;
   api({ action: "submit", lesson: S.lesson, code: S.buf.html, css: S.buf.css, answers: S.ans, period: $("period").value, activity: ACT }).then(function (j) {
     btn.disabled = false; $("mSubmit").classList.remove("show");
-    if (j && j.ok) { lastCloud = cloudKey(); banner("Submitted " + fmtTime(j.submittedAt) + ". (Submission #" + j.count + ") Auto score: " + (lastReport ? lastReport.score : "") + " / 50. Your teacher will review it.", "good"); $("status").textContent = "Submitted " + fmtTime(j.submittedAt); }
+    if (j && j.ok) { MY_SUB[S.lesson] = 1; lastCloud = cloudKey(); banner("Submitted " + fmtTime(j.submittedAt) + ". (Submission #" + j.count + ") Auto score: " + (lastReport ? lastReport.score : "") + " / 50. Your teacher will review it.", "good"); $("status").textContent = "Submitted " + fmtTime(j.submittedAt); }
     else if (j && j.error && !j.needLogin) banner(j.error, "err");
     else banner("Could not submit. Sign in again and try once more.", "err");
   }).catch(function () { btn.disabled = false; $("mSubmit").classList.remove("show"); banner("Could not reach the server. Check your internet and try again. Your code is saved on this computer.", "err"); });

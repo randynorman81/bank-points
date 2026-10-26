@@ -14,7 +14,7 @@ import "../../ist/unit-6/step-checks-b.js";
 const JSON_HEADERS = { "Content-Type": "application/json" };
 const GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
 const SCHOOL_EMAIL_DOMAIN = "socialcircleschools.org";
-const LESSONS = ["6.1", "6.2", "6.20", "6.3", "6.35", "6.4", "6.5", "6.6", "6.7", "6.75", "6.8", "6.9", "6.10", "6.11", "6.12", "6.13",
+const LESSONS = ["6.1", "6.2", "6.20", "6.21", "6.22", "6.3", "6.35", "6.4", "6.5", "6.6", "6.7", "6.75", "6.8", "6.9", "6.10", "6.11", "6.12", "6.13",
   "7.1", "7.2", "7.3", "7.4", "7.5", "7.6",
   "8.1", "8.2", "8.3", "8.4", "8.5", "8.6", "8.7",
   "9.1", "9.2", "9.3", "9.4", "9.5", "9.6", "9.7"];
@@ -25,6 +25,12 @@ function lessonClosedFor(lesson, user) {
   try { const S = globalThis.U7_STEPCHECKS; if (!S || !S.LESSONS || !S.LESSONS[lesson]) return false; } catch (e) { return false; }
   if (user && TEACHER_EMAILS.indexOf(String(user.email || "").toLowerCase()) > -1) return false;
   return (globalThis.U7_LIVE || []).indexOf(lesson) < 0;
+}
+/* a lesson in U7_PREREQ stays locked until the student has submitted the lesson it names (teacher account excepted) */
+async function lockedByPrereq(lesson, user) {
+  const pre = (globalThis.U7_PREREQ || {})[lesson]; if (!pre || !user) return false;
+  if (TEACHER_EMAILS.indexOf(String(user.email || "").toLowerCase()) > -1) return false;
+  return !(await store().getMetadata("sub:" + pre + ":" + enc(user.email)));
 }
 const WEB_PASS = 95; // students need this auto score (out of 100) to submit a lesson that has step checks
 function autoScore(lesson, code, css) {
@@ -120,14 +126,15 @@ async function myLessons(user) {
   const e = enc(user.email);
   const has = await Promise.all(LESSONS.map(async (l) => {
     const [s, d] = await Promise.all([store().getMetadata("sub:" + l + ":" + e), store().getMetadata("draft:" + l + ":" + e)]);
-    return s || d ? l : null;
+    return { l, s: !!s, any: !!(s || d) };
   }));
-  return { ok: true, lessons: has.filter(Boolean) };
+  return { ok: true, lessons: has.filter((x) => x.any).map((x) => x.l), submitted: has.filter((x) => x.s).map((x) => x.l) };
 }
 
 async function saveDraft(body, user) {
   if (!goodLesson(body.lesson)) return { error: "Unknown lesson" };
   if (lessonClosedFor(body.lesson, user)) return { error: "This assignment is not open yet." };
+  if (await lockedByPrereq(body.lesson, user)) return { error: "Finish and submit the assignment before this one first." };
   const code = String(body.code == null ? "" : body.code);
   const css = String(body.css == null ? "" : body.css);
   if (code.length > MAX_CODE || css.length > MAX_CSS) return { error: "That file is too big to save." };
@@ -140,6 +147,7 @@ async function saveDraft(body, user) {
 async function submit(body, user) {
   if (!goodLesson(body.lesson)) return { error: "Unknown lesson" };
   if (lessonClosedFor(body.lesson, user)) return { error: "This assignment is not open yet." };
+  if (await lockedByPrereq(body.lesson, user)) return { error: "Finish and submit the assignment before this one first." };
   const code = String(body.code == null ? "" : body.code);
   if (!code.trim()) return { error: "Your code is empty. Write something first!" };
   const css = String(body.css == null ? "" : body.css);
