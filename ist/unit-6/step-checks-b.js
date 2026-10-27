@@ -69,7 +69,7 @@
 
   /* =============== 6.20  (3.3) Font-Size, Text-Alignment, Letter-Case: the epic poster =============== */
   var H1 = T("h1"), H2a = T("h2", 0);
-  var whenH = HW("h3", /when/i), whereH = HW("h3", /where/i), ticketsH = HW("h3", /ticket/i); var contactH = HW("h2", /contact/i), funP = function (c) { var t = pUnder(ticketsH)(c), n = h.nextEl(t); return n && n.tag === "p" ? n : null; };
+  var whenH = HW("h3", /when/i), whereH = HW("h3", /where/i), ticketsH = HW("h3", /tradition/i); var contactH = HW("h2", /contact/i), funP = function (c) { var t = pUnder(ticketsH)(c), n = h.nextEl(t); return n && n.tag === "p" ? n : null; };
   function pUnder(pick) { return AFTER(pick, "p"); }
   SC.LESSONS["6.20"] = { inlineOnly: true, steps: {
     "Step 1": [SK, TITLE, [bodyBg()]],
@@ -85,10 +85,10 @@
        P("The paragraph has a color", pUnder(whereH), "color", named), P("Its font-size is 20px", pUnder(whereH), "font-size", h.px(20))]
     ],
     "Step 4": [
-      [exists("There is a third heading 3 that says Tickets", ticketsH), K("It is the third heading 3 on the page (after When and Where)", function (c) { return c.all("h3").indexOf(ticketsH(c)) === 2; }), P("It has a color", ticketsH, "color", named), P("It is text-transform uppercase", ticketsH, "text-transform", upper), P("It is text-align center", ticketsH, "text-align", center)],
-      [exists("A paragraph is under the Tickets heading", pUnder(ticketsH)), P("It has a color", pUnder(ticketsH), "color", named), P("Its font-size is 20px", pUnder(ticketsH), "font-size", h.px(20)),
+      [exists("There is a third heading 3 that says Traditions", ticketsH), K("It is the third heading 3 on the page (after When and Where)", function (c) { return c.all("h3").indexOf(ticketsH(c)) === 2; }), P("It has a color", ticketsH, "color", named), P("It is text-transform uppercase", ticketsH, "text-transform", upper), P("It is text-align center", ticketsH, "text-align", center)],
+      [exists("A paragraph is under the Traditions heading", pUnder(ticketsH)), P("It has a color", pUnder(ticketsH), "color", named), P("Its font-size is 20px", pUnder(ticketsH), "font-size", h.px(20)),
        P("It is text-align center", pUnder(ticketsH), "text-align", center), P("It has a background-color", pUnder(ticketsH), "background-color", named)],
-      [exists("There is a paragraph after the tickets paragraph (the fun fact or warning)", funP), P("It has a color", funP, "color", named), P("Its font-size is 16px", funP, "font-size", h.px(16)), P("It is text-align center", funP, "text-align", center)],
+      [exists("There is a paragraph after the traditions paragraph (the fun fact or warning)", funP), P("It has a color", funP, "color", named), P("Its font-size is 16px", funP, "font-size", h.px(16)), P("It is text-align center", funP, "text-align", center)],
       [exists("There is a second heading 2 that says Contact Information", contactH), K("It is the last heading on the page", function (c) { var hs = c.all("h1").concat(c.all("h2"), c.all("h3")); return hs.length > 0 && hs.every(function (x) { return x === contactH(c) || h.before(c, x, contactH(c)); }); }), P("It has a color", contactH, "color", named), P("It is text-align center", contactH, "text-align", center)],
       [exists("A paragraph is under the Contact Information heading", pUnder(contactH)), K("It has at least 4 words of contact info", function (c) { var p = pUnder(contactH)(c); return !!p && h.words(c, p) >= 4; }), P("It has a color", pUnder(contactH), "color", named), P("It is text-align center", pUnder(contactH), "text-align", center)],
       SPAN2,
@@ -105,7 +105,7 @@
   function bothColorsAndDiffer(c, x) { return has(c, x, "color", named) && has(c, x, "background-color", named) && bothDiffer(c, x); }
   var bodyTwoColors = [bodyBg(), P("The body has a color (a named color)", T("body"), "color", named), K("The text color is different from the background-color", function (c) { var b = T("body")(c); return !!b && bothDiffer(c, b); })];
 
-  /* ---- 6.21: a menu board ---- */
+  /* ---- 6.21: a movie or game review ---- */
   var tag6 = function (c) { return c.all("h2")[0] || null; }, sections6 = function (c) { return c.all("h2").slice(1); };
   SC.LESSONS["6.21"] = { inlineOnly: true, steps: {
     "Step 1": [SK, TITLE, bodyTwoColors],
@@ -114,7 +114,7 @@
       [exists("There is a heading 2 for the tagline", tag6), UNDER("It comes after the heading 1", T("h1"), tag6), P("It has a color (a named color)", tag6, "color", named), P("Its font-size is in pixels", tag6, "font-size", h.isPx), P("It is text-align center", tag6, "text-align", center), P("It is text-transform capitalize", tag6, "text-transform", capital)]
     ],
     "Step 3": [
-      [K("There are at least 3 more heading 2s after the tagline (the menu sections)", function (c) { return sections6(c).length >= 3; }),
+      [K("There are at least 3 more heading 2s after the tagline (the review sections)", function (c) { return sections6(c).length >= 3; }),
        K("Every section heading has a color (a named color)", function (c) { var a = sections6(c); return a.length >= 3 && a.every(function (x) { return has(c, x, "color", named); }); }),
        K("Every section heading has a font-size in pixels", function (c) { var a = sections6(c); return a.length >= 3 && a.every(function (x) { return has(c, x, "font-size", h.isPx); }); }),
        K("Every section heading is text-transform uppercase", function (c) { var a = sections6(c); return a.length >= 3 && a.every(function (x) { return has(c, x, "text-transform", upper); }); }),
@@ -134,7 +134,7 @@
   } };
   lastStep("6.21", "Step 6", [[h.ALLGREEN], []]);
 
-  /* ---- 6.22: a trading card with a size staircase ---- */
+  /* ---- 6.22: a band or artist profile with a size staircase ---- */
   var h1px = function (c) { var e = T("h1")(c); return e ? pxNum(c, e) : null; };
   SC.LESSONS["6.22"] = { inlineOnly: true, steps: {
     "Step 1": [SK, TITLE, bodyTwoColors],

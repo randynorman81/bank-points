@@ -61,25 +61,25 @@
     ])]));
 
   /* ======================================================================= 6.20  (3.3) ===== */
-  A["6.20"] = build([].concat(head("An **epic poster** for the biggest event of the year.", "a band's world tour, a movie premiere, an esports tournament, or a made-up holiday", notes("unit-6/text-size-align-notes.html")), [RULE,
+  A["6.20"] = build([].concat(head("An **epic poster** for a **made-up holiday**: invent a holiday (like National Pizza Rolls Day or Opposite Day) and design the poster that announces it.", "", notes("unit-6/text-size-align-notes.html")), [RULE,
     RULE2,
     S("Skeleton, title, and background", [
       "Type the **doctype** line, then **html** with a **head** and a **body** inside it (head first)",
-      "Inside the head, add a **title** with your poster's name",
+      "Inside the head, add a **title** with your holiday's name",
       "On the **body** tag, add a style: **background-color** (a named color, like black or navy)"
     ]),
     S("The name and tagline", [
-      "Inside the body, add **one heading 1** with the event's name. Style it: **color** (a bright named color), **font-size** in pixels (like 58px), **text-align** center, and **text-transform** uppercase",
+      "Inside the body, add **one heading 1** with the holiday's name. Style it: **color** (a bright named color), **font-size** in pixels (like 58px), **text-align** center, and **text-transform** uppercase",
       "Under it, add a **heading 2** with a short tagline. Style it: **color** (any named color, even the same one as your heading 1 if you want them to match), **text-transform** uppercase, **text-align** center, and **font-size** 24px"
     ]),
     S("When and where", [
-      "Add a **heading 3** that says When, with a **color** style. Under it, add a **paragraph** with the date and time. Style the paragraph: **color** (light on a dark background), **font-size** 20px, and a **background-color** (a named color)",
-      "Add a **heading 3** that says Where, with a **color** style. Under it, add a **paragraph** with the place. Style it: **color** and **font-size** 20px"
+      "Add a **heading 3** that says When, with a **color** style. Under it, add a **paragraph** with the date (and time, if it has one). Style the paragraph: **color** (light on a dark background), **font-size** 20px, and a **background-color** (a named color)",
+      "Add a **heading 3** that says Where, with a **color** style. Under it, add a **paragraph** with where people celebrate it. Style it: **color** and **font-size** 20px"
     ]),
-    S("Tickets, a finishing touch, and contact info", [
-      "Add a third **heading 3** that says Tickets (after your When and Where headings). Style it: **color**, **text-transform** uppercase, **text-align** center. You can reuse the same colors as your other headings so everything looks uniform",
-      "Under it, add a **paragraph** about how to get tickets. Style it: **color**, **font-size** 20px, **text-align** center, and a **background-color**",
-      "Add one **paragraph** with a fun fact or a warning. Style it: **color**, **font-size** 16px, and **text-align** center",
+    S("Traditions, a finishing touch, and contact info", [
+      "Add a third **heading 3** that says Traditions (after your When and Where headings). Style it: **color**, **text-transform** uppercase, **text-align** center. You can reuse the same colors as your other headings so everything looks uniform",
+      "Under it, add a **paragraph** about how people celebrate (the food, the games, the things you do). Style it: **color**, **font-size** 20px, **text-align** center, and a **background-color**",
+      "Add one **paragraph** with a fun fact or a funny warning about the holiday. Style it: **color**, **font-size** 16px, and **text-align** center",
       "At the very bottom, add a second **heading 2** that says Contact Information. Style it: **color** and **text-align** center",
       "Under it, add a **paragraph** that lists your contact info (an email, a phone number, or a social media name; it can be made up). Style it: **color** and **text-align** center",
       "**EXTRA CREDIT (+5 points): the span tag.** A **span** wraps just a few words inside a paragraph or heading so those words can have their own style attribute, different from the rest of the line (we cover it fully in 3.4). Use the span tag **at least twice** anywhere on your poster, each with its own style, like a different **color**, **font-size**, or **text-transform** on a few words. Click the help button to see how it works",
@@ -88,47 +88,47 @@
     done()]));
 
   /* ======================================================================= 6.21  (3.3 Part 2: extra practice) ===== */
-  A["6.21"] = build([].concat(head("**A menu board** for a place you would love to eat. This is **extra 3.3 practice**: the same font-size, text-align, and letter-case skills as the poster, on a brand-new page.", "a pizza place, a boba shop, a food truck, a taco stand, or a dessert cafe", notes("unit-6/text-size-align-notes.html")), [RULE,
+  A["6.21"] = build([].concat(head("**A review page** for a movie or video game you know well. This is **extra 3.3 practice** (Part 1): the same font-size, text-align, and letter-case skills as the poster, on a brand-new page.", "a movie or a video game", notes("unit-6/text-size-align-notes.html")), [RULE,
     RULE2,
     S("Skeleton, title, and colors", [
       "Type the **doctype** line, then **html** with a **head** and a **body** inside it (head first)",
-      "Inside the head, add a **title** with your restaurant's name",
+      "Inside the head, add a **title** with the name of what you are reviewing",
       "On the **body** tag, add a style with a **background-color** and a **color** (two **different** named colors, so the text can be read)"
     ]),
     S("The name and the tagline", [
-      "Inside the body, add **one heading 1** with the restaurant's name. Style it: **color**, **font-size** in pixels (**36px or bigger**), **text-align** center, and **text-transform** uppercase",
-      "Under it, add a **heading 2** for a short tagline. Style it: **color**, **font-size** in pixels, **text-align** center, and **text-transform** capitalize (so every word starts with a capital letter)"
+      "Inside the body, add **one heading 1** with the title of the movie or game. Style it: **color**, **font-size** in pixels (**36px or bigger**), **text-align** center, and **text-transform** uppercase",
+      "Under it, add a **heading 2** for a short verdict (like Fast, funny, and worth watching). Style it: **color**, **font-size** in pixels, **text-align** center, and **text-transform** capitalize (so every word starts with a capital letter)"
     ]),
-    S("The menu sections", [
-      "Add **at least 3 more heading 2s** after the tagline: the sections of your menu (like Starters, Mains, Desserts). Style **every one** of them with a **color**, a **font-size** in pixels, **text-transform** uppercase, and **text-align** center"
+    S("The review sections", [
+      "Add **at least 3 more heading 2s** after the tagline: the sections of your review (like Story, Characters, Final Verdict). Style **every one** of them with a **color**, a **font-size** in pixels, **text-transform** uppercase, and **text-align** center"
     ]),
-    S("The menu items", [
-      "Under your sections, add **at least 6 paragraphs**: one for each menu item, with its name, a short description, and a price. Style **every paragraph** with a **color** and a **font-size** in pixels (like 18px)",
+    S("The review text", [
+      "Under your sections, add **at least 6 paragraphs**: two or three sentences each, about the story, the characters or gameplay, and what you liked or did not like. Style **every paragraph** with a **color** and a **font-size** in pixels (like 18px)",
       "Make **at least 3** of your paragraphs **text-align** center",
-      "Give **at least 2** of your paragraphs **both a color and a background-color** (two **different** named colors) so your best sellers stand out"
+      "Give **at least 2** of your paragraphs **both a color and a background-color** (two **different** named colors) so your favorite parts stand out"
     ]),
-    S("Hours and location", [
-      "At the bottom, add **at least 2 heading 3s**: one that says Hours and one that says Location. Style **every** heading 3 with a **color** and **text-align** center, and make **at least one** of them **text-transform** lowercase",
-      "Put a **paragraph right after each heading 3** (the hours, and the address, which can be made up). Style each one with a **color** and a **font-size** in pixels"
+    S("Rating and release info", [
+      "At the bottom, add **at least 2 heading 3s**: one that says Rating and one that says Release Info. Style **every** heading 3 with a **color** and **text-align** center, and make **at least one** of them **text-transform** lowercase",
+      "Put a **paragraph right after each heading 3** (your rating out of 10 with a reason, and the year it came out and who made it). Style each one with a **color** and a **font-size** in pixels"
     ]),
     done()]));
 
   /* ======================================================================= 6.22  (3.3 Part 3: extra practice) ===== */
-  A["6.22"] = build([].concat(head("**A trading card** for a character, athlete, animal, or monster, built so the **sizes shrink** from the biggest heading to the smallest. This is **extra 3.3 practice** (Part 3): the same font-size, text-align, and letter-case skills, on another brand-new page.", "a video game hero, a sports star, a made-up monster, or a favorite animal", notes("unit-6/text-size-align-notes.html")), [RULE,
+  A["6.22"] = build([].concat(head("**A profile page** for a band or music artist, built so the **sizes shrink** from the biggest heading to the smallest. This is **extra 3.3 practice** (Part 2): the same font-size, text-align, and letter-case skills, on another brand-new page.", "a real band or artist you like, or a made-up one", notes("unit-6/text-size-align-notes.html")), [RULE,
     RULE2,
     S("Skeleton, title, and colors", [
       "Type the **doctype** line, then **html** with a **head** and a **body** inside it (head first)",
-      "Inside the head, add a **title** with your card's name",
+      "Inside the head, add a **title** with the band or artist's name",
       "On the **body** tag, add a style with a **background-color** and a **color** (two **different** named colors)"
     ]),
     S("The size staircase", [
-      "Add **one heading 1** with your card's name. Style it: **color**, **font-size** in pixels (**40px or bigger**), **text-align** center, and **text-transform** uppercase",
-      "Add **at least 3 heading 2s** for the card's sections (like Stats, Abilities, Story). Style **every** heading 2 with a **color**, a **font-size** in pixels, and **text-transform** capitalize",
-      "Add **at least 2 heading 3s** for little details (like Type or Rarity). Style **every** heading 3 with a **color** and a **font-size** in pixels",
+      "Add **one heading 1** with the band or artist's name. Style it: **color**, **font-size** in pixels (**40px or bigger**), **text-align** center, and **text-transform** uppercase",
+      "Add **at least 3 heading 2s** for the profile's sections (like Albums, Famous Songs, Tour Dates). Style **every** heading 2 with a **color**, a **font-size** in pixels, and **text-transform** capitalize",
+      "Add **at least 2 heading 3s** for little details (like Genre or Formed In). Style **every** heading 3 with a **color** and a **font-size** in pixels",
       "**The staircase:** your heading 1's font-size must be **bigger than every heading 2's**, and every heading 2's must be **bigger than every heading 3's** (for example 48px, then 32px, then 22px)"
     ]),
     S("The card text", [
-      "Add **at least 8 paragraphs** of real card text (stats, abilities, a short story). Style **every paragraph** with a **font-size** in pixels and a **color**",
+      "Add **at least 8 paragraphs** of real profile text (the band's story, the albums, the songs, the tour). Style **every paragraph** with a **font-size** in pixels and a **color**",
       "Make **at least 4** of your paragraphs **text-align** center",
       "Use **all three letter-case values** somewhere on the page: **text-transform** uppercase on **at least 3** elements, **lowercase** on **at least 1**, and **capitalize** on **at least 1** more (the headings above may count)"
     ]),
