@@ -413,7 +413,7 @@ function scoreCode(checks, code) {
   pre.forEach((p) => {
     const c = p.c, n = p.n, w = c.pts || 1, frac = Math.min(1, n / c.min), housekeeping = /^Earlier work kept/i.test(c.label || "");
     if (!housekeeping) { possible += w; credit += w * frac; }
-    if (!housekeeping && c.box !== undefined && c.box !== null) (Array.isArray(c.box) ? c.box : [c.box]).forEach((bx) => { const o = boxes[bx] || (boxes[bx] = { t: 0, m: 0, e: 0, p: 0, f: 0 }); o.t++; o.p += w; o.e += w * frac; o.f += frac; if (n >= c.min) o.m++; });
+    if (!housekeeping && c.box !== undefined && c.box !== null) { const bl = Array.isArray(c.box) ? c.box : [c.box]; bl.forEach((bx, j) => { /* a check shared by several checkboxes (one per step) is split up: the first box needs its share of the matches, the second box twice that, and so on */ const need = bl.length > 1 ? Math.max(1, Math.ceil(c.min * (j + 1) / bl.length)) : c.min, fj = Math.min(1, n / need); const o = boxes[bx] || (boxes[bx] = { t: 0, m: 0, e: 0, p: 0, f: 0 }); o.t++; o.p += w; o.e += w * fj; o.f += fj; if (n >= need) o.m++; }); }
     if (n >= c.min) passed++;
     else if (!housekeeping) missing.push({ label: c.label, box: c.box, have: Math.min(n, c.min - 1), need: c.min, pts: w, hint: hintFor(c, text, p.flags, { st: stepOf(c), steps, lastMet }, n) });
   });
