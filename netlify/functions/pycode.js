@@ -400,6 +400,11 @@ function scoreCode(checks, code) {
     let n = 0, ml = []; const flags = String(c.flags || "").replace(/g/g, "");
     try {
       if (c.where === "comments" || c.where === "notes") { const re = new RegExp(c.re, flags); (c.where === "notes" ? sp.notes : sp.comments).forEach((l) => { if (re.test(l)) n++; }); }
+      else if (/^A # (Step|Trace) N/.test(c.label || "") && Array.isArray(c.box)) {
+        /* the "# Step N" heading comments: a heading that sits on two lines in a row (like "# Step 6: Tip calculator" then "# Tip calculator") counts once, so a stray extra line cannot fill in for a step that has no comment yet */
+        const re = new RegExp(c.re, flags.replace(/m/g, "")); let prev = false;
+        text.split(String.fromCharCode(10)).forEach((ln) => { if (!ln.trim()) return; const hit = re.test(ln); if (hit && !prev) n++; prev = hit; });
+      }
       else { const m = (c.where === "code" ? sp.code : text).match(new RegExp(c.re, "g" + flags)); n = m ? m.length : 0; }
       if (n >= c.min && c.where !== "comments" && c.where !== "notes") ml = matchLines(c.re, flags, text);
     } catch (e) { n = 0; }
