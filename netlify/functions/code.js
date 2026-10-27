@@ -166,6 +166,16 @@ async function submit(body, user) {
   return { ok: true, submittedAt: rec.submittedAt, count: rec.count };
 }
 
+// Teacher account only: wipe my own draft and submission for one lesson so the next class can walk through it from scratch.
+async function resetMine(body, user) {
+  if (TEACHER_EMAILS.indexOf(String(user.email || "").toLowerCase()) < 0) return { error: "Only the teacher account can reset a page." };
+  if (!goodLesson(body.lesson)) return { error: "Unknown lesson" };
+  const e = enc(user.email);
+  await store().delete("draft:" + body.lesson + ":" + e);
+  await store().delete("sub:" + body.lesson + ":" + e);
+  return { ok: true };
+}
+
 async function uploadImage(body, user) {
   const type = String(body.type || "");
   if (!IMG_TYPES[type]) return { error: "Please upload a PNG, JPG, GIF, or WEBP image." };
@@ -318,6 +328,7 @@ export default async (req) => {
     if (action === "myLessons") return ok(await myLessons(user));
     if (action === "saveDraft") return ok(await saveDraft(body, user));
     if (action === "submit") return ok(await submit(body, user));
+    if (action === "resetMine") return ok(await resetMine(body, user));
     if (action === "uploadImage") return ok(await uploadImage(body, user));
     if (action === "deleteImage") return ok(await deleteImage(body, user));
     return ok({ error: "Unknown action" });

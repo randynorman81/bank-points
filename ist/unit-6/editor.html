@@ -133,6 +133,7 @@ main[data-view="code"] #split,main[data-view="prev"] .split{display:none}
 #btnSubmit.locked{opacity:.55}
 body.isclosed #gbtn,body.isclosed #who{position:relative;z-index:95}#closedMsg{position:fixed;inset:0;z-index:90;background:#0B0E14;display:grid;place-items:center;text-align:center;padding:24px}#closedMsg .cbox{max-width:480px}#closedMsg h2{margin:0 0 10px;font-size:26px}#closedMsg p{color:var(--soft);font-size:16px;line-height:1.6;margin:0 0 14px}
 body.teacher #ansPane pre.pat{user-select:text}
+#btnReset{display:none}body.teacher #btnReset{display:inline-block}
 .tiprow{display:flex;flex-wrap:wrap;gap:5px;margin:2px 0 10px 26px}
 .tipbtn{background:#2B2208;border:1px solid #D4A017;color:#FCD34D;border-radius:999px;padding:3px 11px;font:700 11.5px Manrope,sans-serif;cursor:pointer;text-align:left}.tipbtn:hover{background:#3a2d0a}
 .helpstep{display:inline-block;margin:0 0 10px;border:1px solid #D4A017;background:#2B2208;color:#FCD34D;border-radius:999px;padding:5px 14px;font:700 12.5px Manrope,sans-serif;cursor:pointer}.helpstep span{font-weight:600;opacity:.8}.helpstep:hover{background:#3a2d0a}
@@ -309,6 +310,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   <button class="btn" id="btnHelp" title="Help for every part of the assignment">&#128161; Help</button>
   <button class="btn" id="btnChecks" title="Open your checklist, problems, and images">✓ Checks <b id="chkScore">0/50</b><span class="dot">●</span></button>
   <button class="btn" id="btnCopy" title="Copy the file you are editing">Copy code</button>
+  <button class="btn" id="btnReset" title="Teacher only: clear all the code, checkboxes, and answers on this page, including your saved copy">Reset page</button>
   <button class="btn pri" id="btnSubmit">Submit</button>
   <a class="btn" id="linkGuide" href="study-guide.html" target="_blank" rel="noopener">Study guide</a>
   <a class="btn" id="linkUnit" href="index.html">Back to the unit</a>
@@ -1079,6 +1081,19 @@ function cloudSave() {
 setInterval(cloudSave, 60000); // every 60 seconds, only when something changed
 document.addEventListener("visibilitychange", function () { if (document.hidden) { saveNow(false); cloudSave(); } });
 window.addEventListener("beforeunload", function () { saveNow(false); });
+
+/* ---------- teacher: reset the whole page (code, checkboxes, answers, saved copy) ---------- */
+$("btnReset").addEventListener("click", function () {
+  if (!isTeacher()) return;
+  if (!confirm("Reset lesson " + dispLesson(S.lesson) + "? This clears ALL the code, checkboxes, and answers on this page, and deletes your saved copy and submission for it.")) return;
+  var L = S.lesson;
+  ["u7:code:", "u7:css:", "u7:ans:", "u7:act:"].forEach(function (p) { try { localStorage.removeItem(p + L); } catch (e) {} });
+  S.ans = {}; S.buf.html = ""; S.buf.css = ""; S.file = "html"; ta.value = ""; lastCloud = ""; ACT = freshAct();
+  delete MY_SUB[L];
+  loadLocal();
+  var done = function () { var c = $("cloud"); c.innerHTML = ""; c.className = "cloud"; $("status").textContent = "Page reset"; toast("Page reset. Ready for the next class."); };
+  if (S.cred) api({ action: "resetMine", lesson: L }).then(function (j) { if (j && j.error && !j.needLogin) toast(j.error); done(); }); else done();
+});
 
 /* ---------- submit ---------- */
 $("btnSubmit").addEventListener("click", function () {
