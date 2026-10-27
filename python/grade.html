@@ -212,22 +212,28 @@ if (pin) openApp();
 
 /* the district gradebook splits 1A into two sets, each in last-name order. Rosters show names as "First Last" with nicknames and spelling differences
    (Max/Maxwell, Liam/William, Satterfield), so most students match on last name alone; the two Falangas also need the first name (either one can be the shorter form). */
-var SETS_1A = [
-  ["bleshoy", "carter", "cooper", "herrick", "kinney", "reid", "rickards", "salers", "vazquez"],
-  ["canelo", "falanga mark", "falanga max", "petersheim", "watson"]
-];
+var SETS = {
+  "1A": [
+    ["bleshoy", "carter", "cooper", "herrick", "kinney", "reid", "rickards", "salers", "vazquez"],
+    ["canelo", "falanga mark", "falanga max", "petersheim", "watson"]
+  ],
+  "2B": [
+    ["arney", "gardner", "grijalva", "lee", "lilyander", "marlowe", "minnif", "mitchell", "orr", "young"],
+    ["chambers", "chavez", "christian", "lantrip"]
+  ]
+};
 function nameWords(r) { return String(r.rosterName || r.name || "").toLowerCase().split(/[^a-z]+/).filter(Boolean); }
-function setOf1A(r) {
-  var w = nameWords(r);
-  for (var s = 0; s < SETS_1A.length; s++) for (var i = 0; i < SETS_1A[s].length; i++) {
-    if (SETS_1A[s][i].split(" ").every(function (x) { return w.some(function (y) { return y === x || (x.length >= 3 && y.length >= 3 && (y.indexOf(x) === 0 || x.indexOf(y) === 0)); }); })) return { set: s + 1, idx: i };
+function setOf(r) {
+  var w = nameWords(r), L = SETS[r.period] || [];
+  for (var s = 0; s < L.length; s++) for (var i = 0; i < L[s].length; i++) {
+    if (L[s][i].split(" ").every(function (x) { return w.some(function (y) { return y === x || (x.length >= 3 && y.length >= 3 && (y.indexOf(x) === 0 || x.indexOf(y) === 0)); }); })) return { set: s + 1, idx: i };
   }
   return null;
 }
 function inPeriod(r, per) {
   if (!per) return true;
   var m = /^(.*)#([0-9])$/.exec(per);
-  if (!m) return r.period === per; var o = setOf1A(r); return r.period === m[1] && !!o && o.set === +m[2];
+  if (!m) return r.period === per; var o = setOf(r); return r.period === m[1] && !!o && o.set === +m[2];
 }
 /* due dates: every assignment is due the Friday of the week it is listed on the APCSP calendar, 11:59 pm Eastern */
 var CUR_DUE = null;
@@ -239,13 +245,13 @@ function load() {
     if (j.error) { toast(j.error); return; }
     rows = j.students || [];
     var periods = {}; rows.forEach(function (r) { if (r.period) periods[r.period] = 1; });
-    var cur = $("period").value; $("period").innerHTML = '<option value="">All periods</option>' + Object.keys(periods).sort().map(function (p) { return "<option>" + esc(p) + "</option>" + (p === "1A" ? '<option value="1A#1">1A Set 1</option><option value="1A#2">1A Set 2</option>' : ""); }).join(""); $("period").value = periods[cur] || /#[0-9]$/.test(cur) && periods["1A"] ? cur : "";
+    var cur = $("period").value; $("period").innerHTML = '<option value="">All periods</option>' + Object.keys(periods).sort().map(function (p) { return "<option>" + esc(p) + "</option>" + (SETS[p] ? '<option value="' + p + '#1">' + p + ' Set 1</option><option value="' + p + '#2">' + p + ' Set 2</option>' : ""); }).join(""); $("period").value = periods[cur] || /#[0-9]$/.test(cur) && periods[cur.split("#")[0]] ? cur : "";
     render(); loadDue().then(render);
   });
 }
 function render() {
   var per = $("period").value, only = $("onlySub").checked;
-  var list = rows.filter(function (r) { return inPeriod(r, per) && (!only || r.submission); }).sort(function (a, b) { var x = /#[0-9]$/.test(per) ? setOf1A(a).idx - setOf1A(b).idx : 0; return x || String(a.rosterName || a.name).localeCompare(String(b.rosterName || b.name)); });
+  var list = rows.filter(function (r) { return inPeriod(r, per) && (!only || r.submission); }).sort(function (a, b) { var x = /#[0-9]$/.test(per) ? setOf(a).idx - setOf(b).idx : 0; return x || String(a.rosterName || a.name).localeCompare(String(b.rosterName || b.name)); });
   $("rows").innerHTML = list.map(function (r) {
     var t = r.submission && r.submission.teacher;
     return '<tr class="row' + (sel === r.email ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td>' + esc(r.rosterName || r.name) + '</td><td>' + esc(r.period) + '</td><td>' + (r.submission ? '<span class="pill s">Submitted</span>' + DueDates.pill(dueStatus(r)) : r.draft ? '<span class="pill d">Draft</span>' : '<span class="pill d" style="opacity:.6">Not started</span>') + '</td><td>' + ago(Math.max(r.draft ? Date.parse(r.draft.savedAt) || 0 : 0, r.submission ? Date.parse(r.submission.submittedAt) || 0 : 0) ? new Date(Math.max(r.draft ? Date.parse(r.draft.savedAt) || 0 : 0, r.submission ? Date.parse(r.submission.submittedAt) || 0 : 0)).toISOString() : "1970-01-01", true) + '</td><td>' + (t && t.score !== null ? '<span class="pill g" title="' + (t.auto ? "Autograded when submitted. Change it and click Save grade to override." : "Saved grade") + '">' + esc(t.score) + (t.auto ? " auto" : "") + "</span>" : "") + "</td></tr>";
