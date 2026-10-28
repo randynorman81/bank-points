@@ -1,7 +1,7 @@
 /* Every HTML/CSS named color (148 names, counting the gray/grey spellings), shown as small squares grouped by main color.
    Used by the Style Attribute notes page and by the "See all the named colors" help button in the Web Editor.
    U7_COLORGRID(options) returns an HTML string: { filter: "text" } keeps only names that contain the text.
-   Clicking a square copies the color name. The browser works out each color itself, so there is no list of codes to get wrong. */
+   The squares are plain labels (students cannot click-copy a name). The browser works out each color itself, so there is no list of codes to get wrong. */
 (function (root) {
   var NAMES = ["aliceblue","antiquewhite","aqua","aquamarine","azure","beige","bisque","black","blanchedalmond","blue","blueviolet","brown","burlywood","cadetblue","chartreuse","chocolate","coral","cornflowerblue","cornsilk","crimson","cyan","darkblue","darkcyan","darkgoldenrod","darkgray","darkgreen","darkgrey","darkkhaki","darkmagenta","darkolivegreen","darkorange","darkorchid","darkred","darksalmon","darkseagreen","darkslateblue","darkslategray","darkslategrey","darkturquoise","darkviolet","deeppink","deepskyblue","dimgray","dimgrey","dodgerblue","firebrick","floralwhite","forestgreen","fuchsia","gainsboro","ghostwhite","gold","goldenrod","gray","green","greenyellow","grey","honeydew","hotpink","indianred","indigo","ivory","khaki","lavender","lavenderblush","lawngreen","lemonchiffon","lightblue","lightcoral","lightcyan","lightgoldenrodyellow","lightgray","lightgreen","lightgrey","lightpink","lightsalmon","lightseagreen","lightskyblue","lightslategray","lightslategrey","lightsteelblue","lightyellow","lime","limegreen","linen","magenta","maroon","mediumaquamarine","mediumblue","mediumorchid","mediumpurple","mediumseagreen","mediumslateblue","mediumspringgreen","mediumturquoise","mediumvioletred","midnightblue","mintcream","mistyrose","moccasin","navajowhite","navy","oldlace","olive","olivedrab","orange","orangered","orchid","palegoldenrod","palegreen","paleturquoise","palevioletred","papayawhip","peachpuff","peru","pink","plum","powderblue","purple","rebeccapurple","red","rosybrown","royalblue","saddlebrown","salmon","sandybrown","seagreen","seashell","sienna","silver","skyblue","slateblue","slategray","slategrey","snow","springgreen","steelblue","tan","teal","thistle","tomato","turquoise","violet","wheat","white","whitesmoke","yellow","yellowgreen"];
   var GROUPS = ["Red", "Orange", "Yellow", "Green", "Blue and cyan", "Purple", "Pink", "Brown", "White, gray, and black"];
@@ -45,19 +45,12 @@
       if (!items.length) return; shown += items.length;
       html += '<div style="margin:14px 0 6px;font:700 12px Manrope,sans-serif;letter-spacing:.06em;text-transform:uppercase;opacity:.85">' + GROUPS[i] + ' <span style="opacity:.6">(' + items.length + ')</span></div><div style="display:flex;flex-wrap:wrap;gap:6px">';
       items.forEach(function (c) {
-        html += '<button type="button" class="u7sw" data-color="' + c.n + '" title="Click to copy ' + c.n + '" style="display:inline-flex;align-items:center;gap:7px;background:rgba(127,127,127,.10);border:1px solid rgba(127,127,127,.35);color:inherit;border-radius:7px;padding:3px 9px 3px 4px;cursor:pointer;font:12px/1.2 \'JetBrains Mono\',monospace"><span style="width:22px;height:22px;border-radius:4px;border:1px solid rgba(127,127,127,.55);background:' + c.n + ';flex:0 0 22px"></span>' + c.n + '</button>';
+        html += '<span class="u7sw" style="display:inline-flex;align-items:center;gap:8px;background:rgba(127,127,127,.10);border:1px solid rgba(127,127,127,.35);color:inherit;border-radius:7px;padding:3px 10px 3px 4px;user-select:none;-webkit-user-select:none;font:12px/1.2 \'JetBrains Mono\',monospace"><span style="width:29px;height:29px;border-radius:5px;border:1px solid rgba(127,127,127,.55);background:' + c.n + ';flex:0 0 29px"></span>' + c.n + '</span>';
       });
       html += "</div>";
     });
     if (!shown) html += '<p style="opacity:.7">No color has that in its name.</p>';
     return html + "</div>";
   }
-  /* one click handler for every grid on the page: copy the name */
-  document.addEventListener("click", function (e) {
-    var b = e.target.closest && e.target.closest(".u7sw"); if (!b) return;
-    var n = b.getAttribute("data-color"), old = b.getAttribute("data-old") || b.lastChild.textContent;
-    try { navigator.clipboard.writeText(n); } catch (er) {}
-    b.setAttribute("data-old", old); b.lastChild.textContent = "copied!"; clearTimeout(b._t); b._t = setTimeout(function () { b.lastChild.textContent = old; }, 900);
-  });
   root.U7_COLORS = NAMES; root.U7_COLORGRID = grid;
 })(typeof window !== "undefined" ? window : globalThis);

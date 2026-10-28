@@ -119,7 +119,7 @@
     { ex: ["color: navy;", "font-size: 24px;"] }
   ]);
   add("colorlist", STY, "See all the named colors", [
-    { p: "HTML knows 148 color names. Use the name exactly as written (all lowercase, one word). Click a square to copy its name, or type in the box to search." },
+    { p: "HTML knows 148 color names. Use the name exactly as written (all lowercase, one word). Type in the box to search." },
     { colors: true }
   ]);
   add("namedcolor", STY, "What is a named color?", [
