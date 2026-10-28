@@ -470,7 +470,7 @@ function loadTimeline(r) {
     var el = $("tl"); if (!el) return; var log = (j && j.log) || [], lv = (j && j.leaves) || [];
     var sb = r.submission;
     if (sb && sb.mcScore) {
-      var LET = ["A", "B", "C", "D", "E", "F"], mh = '<div style="margin:0 0 10px;padding:8px 10px;border-radius:8px;background:rgba(96,165,250,.14)"><b>Multiple choice: ' + sb.mcScore.correct + " of " + sb.mcScore.total + "</b>";
+      var LET = ["A", "B", "C", "D", "E", "F"], codeSc = sb.teacher && sb.teacher.score != null ? Number(sb.teacher.score) : null, mcPts = sb.mcScore.correct * Math.round(100 / sb.mcScore.total), totalLine = codeSc === null ? "" : " | Quiz total: " + (Math.round((codeSc + mcPts) * 10) / 10) + " / 200 (coding " + codeSc + " + multiple choice " + mcPts + ")", mh = '<div style="margin:0 0 10px;padding:8px 10px;border-radius:8px;background:rgba(96,165,250,.14)"><b>Multiple choice: ' + sb.mcScore.correct + " of " + sb.mcScore.total + totalLine + "</b>";
       if (sb.mcScore.wrong && sb.mcScore.wrong.length) mh += '<div style="margin-top:4px;font-size:13px">Missed: ' + sb.mcScore.wrong.map(function (w) { return "Q" + w.q + (w.picked >= 0 ? " (picked " + LET[w.picked] + ")" : " (blank)"); }).join(", ") + "</div>";
       el.insertAdjacentHTML("beforebegin", mh + "</div>");
     }

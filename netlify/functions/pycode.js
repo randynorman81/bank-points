@@ -293,7 +293,8 @@ async function adminSetAssignment(body) {
   const mc = Array.isArray(body.mc) ? body.mc.slice(0, 30).map((q) => ({ q: String(q.q || "").slice(0, 600), code: q.code ? String(q.code).slice(0, 1200) : "", choices: (Array.isArray(q.choices) ? q.choices : []).slice(0, 6).map((c) => String(c).slice(0, 300)) })) : null;
   const mcKey = Array.isArray(body.mcKey) ? body.mcKey.slice(0, 30).map((x) => Number(x) | 0) : null;
   const prevAsg = await readJSON("assign:" + body.slot, null);
-  const text = JSON.stringify({ title, unit, num, mc, mcKey, mcReleased: !!(prevAsg && prevAsg.mcReleased), blocks: body.blocks, checks: cleanChecks(body.checks), tips: cleanTips(body.tips), variants, live: body.live !== false, publishedAt: now() });
+  const points = Math.max(0, Math.min(1000, Number(body.points) || 0));
+  const text = JSON.stringify({ title, unit, num, points, mc, mcKey, mcReleased: !!(prevAsg && prevAsg.mcReleased), blocks: body.blocks, checks: cleanChecks(body.checks), tips: cleanTips(body.tips), variants, live: body.live !== false, publishedAt: now() });
   if (text.length > 400000) return { error: "That assignment is too big" };
   await store().setJSON("assign:" + body.slot, JSON.parse(text));
   return { ok: true, slot: body.slot, title };
