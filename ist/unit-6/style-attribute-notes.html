@@ -61,7 +61,15 @@
 .sh-slot{color:#86EFAC;background:rgba(134,239,172,.08);border:2px dashed #86EFAC;border-radius:6px;padding:4px 10px;margin:0 4px}
 .shelllegend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--ink-soft);margin:0 0 6px}.shelllegend i{font-style:normal;font-family:"JetBrains Mono",monospace;font-weight:700}
 .guessgrid .prompt code{font-size:13px;word-break:break-word}
-</style></head>
+</style><script>
+/* Updating an iframe with srcdoc adds an entry to the browser's history every time, so the Back button walks through old previews instead of leaving the page.
+   Loading the preview with location.replace() changes the frame without adding history entries. */
+function setFrame(f, html) {
+  try { var u = URL.createObjectURL(new Blob([html], { type: "text/html" })), old = f._u; f.contentWindow.location.replace(u); f._u = u; if (old) setTimeout(function () { URL.revokeObjectURL(old); }, 5000); }
+  catch (e) { f.srcdoc = html; }
+}
+</script>
+</head>
 <body>
 <nav class="pillnav"><a href="index.html">&larr; Unit 3</a><a href="6-2-creation-tags-inline-styling.html">Back to 3.2</a><a href="style-attribute-notes.html" class="current">Notes</a></nav>
 
@@ -255,7 +263,7 @@
   var ta = document.getElementById("labcode"), pv = document.getElementById("labprev"), done = {}, broke = false, t;
   function mark(n) { if (done[n]) return; done[n] = 1; document.getElementById("s" + n).classList.add("done"); var c = Object.keys(done).length; document.getElementById("prog").textContent = c + " OF 5 STEPS DONE" + (c === 5 ? "  ·  NICE WORK" : ""); }
   function run() {
-    pv.srcdoc = HTMLCheck.previewDoc(ta.value, "");
+    setFrame(pv, HTMLCheck.previewDoc(ta.value, ""));
     var c = HTMLCheck.analyze(ta.value), d = c.inline;
     var bad = c.errors.some(function (e) { return /On </.test(e.msg); }) || c.warnings.some(function (w) { return /double quotes/.test(w.msg); });
     function per(el) { return d.filter(function (x) { return x.el === el; }).length; }

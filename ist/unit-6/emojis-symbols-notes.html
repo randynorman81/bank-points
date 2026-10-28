@@ -80,7 +80,15 @@
 .wrongright .w h4{color:#FCA5A5}.wrongright .r h4{color:#6EE7B7}
 .wrongright .codeblk{margin:0}
 .guessgrid .prompt code{font-size:13px;word-break:break-word}
-</style></head>
+</style><script>
+/* Updating an iframe with srcdoc adds an entry to the browser's history every time, so the Back button walks through old previews instead of leaving the page.
+   Loading the preview with location.replace() changes the frame without adding history entries. */
+function setFrame(f, html) {
+  try { var u = URL.createObjectURL(new Blob([html], { type: "text/html" })), old = f._u; f.contentWindow.location.replace(u); f._u = u; if (old) setTimeout(function () { URL.revokeObjectURL(old); }, 5000); }
+  catch (e) { f.srcdoc = html; }
+}
+</script>
+</head>
 <body>
 <nav class="pillnav"><a href="index.html">&larr; Unit 3</a><a href="6-75-emojis-and-symbols.html">Back to 3.8</a><a href="emojis-symbols-notes.html" class="current">Notes</a></nav>
 
@@ -435,7 +443,7 @@
   function mark(n) { if (done[n]) return; done[n] = 1; document.getElementById("s" + n).classList.add("done"); var c = Object.keys(done).length; document.getElementById("prog").textContent = c + " OF 5 STEPS DONE" + (c === 5 ? "  \u00B7  NICE WORK" : ""); }
   function run() {
     var v = ta.value, re = new RegExp(PIC, "u");
-    pv.srcdoc = "<!DOCTYPE html><meta charset=\"utf-8\"><style>body{font-family:Georgia,serif;margin:12px}</style>" + v;
+    setFrame(pv, "<!DOCTYPE html><meta charset=\"utf-8\"><style>body{font-family:Georgia,serif;margin:12px}</style>" + v);
     var h1 = /<h1[^>]*>([\s\S]*?)<\/h1>/i.exec(v), p = /<p[^>]*>([\s\S]*?)<\/p>/i.exec(v);
     if (h1 && re.test(h1[1])) mark(1);
     if (p && re.test(p[1])) mark(2);

@@ -719,7 +719,13 @@ function updateTab(html) {
   $("tmTitle").textContent = t || "(no title yet)";
   var im = $("tmIcon"); if (ic) { im.src = ic; im.style.visibility = "visible"; } else { im.removeAttribute("src"); im.style.visibility = "hidden"; }
 }
-function renderPreview() { var h0 = getHtml(); updateTab(h0); $("prev").srcdoc = H.previewDoc(h0, getCss()); }
+/* Updating an iframe with srcdoc adds an entry to the browser's history every time, so the Back button walks through old previews instead of leaving the page.
+   Loading the preview with location.replace() changes the frame without adding history entries. */
+function setFrame(f, html) {
+  try { var u = URL.createObjectURL(new Blob([html], { type: "text/html" })), old = f._u; f.contentWindow.location.replace(u); f._u = u; if (old) setTimeout(function () { URL.revokeObjectURL(old); }, 5000); }
+  catch (e) { f.srcdoc = html; }
+}
+function renderPreview() { var h0 = getHtml(); updateTab(h0); setFrame($("prev"), H.previewDoc(h0, getCss())); }
 function saveNow(show) {
   S.buf[S.file] = ta.value; saveAct();
   lsSet("u7:code:" + S.lesson, S.buf.html); lsSet("u7:css:" + S.lesson, S.buf.css); lsSet("u7:lesson", S.lesson);
