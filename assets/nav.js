@@ -254,6 +254,9 @@ function renderHeader(opts) {
           <div class="nav-item${opts.current === "ec" ? " current" : ""}">
             <a class="nav-link" href="${NAV_ROOT}ec/index.html">EC Home</a>
           </div>
+          <div class="nav-item${opts.current === "skillsusa" ? " current" : ""}">
+            <a class="nav-link" href="${NAV_ROOT}skillsusa/index.html">SkillsUSA Home</a>
+          </div>
           ${toolsDropdown}
           ${announcementsDropdown}
           <div class="nav-item${opts.current === "presentations" ? " current" : ""}">
