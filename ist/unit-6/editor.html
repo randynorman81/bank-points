@@ -570,8 +570,8 @@ function handleAuto(ch) {
     var st = H.openTags(before.slice(0, before.length - m[0].length));
     if (st.raw) return;
     if (v.slice(pos).indexOf("</" + name + ">") === 0) return;
-    if (name === "head" || name === "body") {   /* leave room to type: the closing tag drops 4 lines (head) or 15 lines (body) below the opening tag, and the cursor lands on the first empty line */
-      var NLC = String.fromCharCode(10), gap = name === "head" ? 4 : 15, ls = before.lastIndexOf(NLC) + 1, ind = /^[ \t]*/.exec(before.slice(ls))[0], first = NLC + ind + "  ";
+    if (name === "head" || name === "body") {   /* leave room to type: the closing tag drops 4 lines below the opening tag, which leaves 3 empty lines in between, and the cursor lands on the first empty line */
+      var NLC = String.fromCharCode(10), gap = 4, ls = before.lastIndexOf(NLC) + 1, ind = /^[ \t]*/.exec(before.slice(ls))[0], first = NLC + ind + "  ";
       var txt = first + new Array(gap).join(NLC) + ind + "</" + name + ">";
       noteAuto(txt.length); ta.setRangeText(txt, pos, pos, "preserve"); ta.setSelectionRange(pos + first.length, pos + first.length);
       return;
