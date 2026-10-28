@@ -100,9 +100,20 @@ async function logActivity(slot, email, code, period, submitted) {
     await store().setJSON(key, log.slice(-300));
   } catch (e) { console.error("activity log failed", e); }
 }
+/* Quiz mode: the editor reports every time a student leaves the quiz page (another tab or window, minimizing, or leaving fullscreen). Only for assignments whose title starts with "Quiz". */
+async function quizLeave(body, user) {
+  if (!goodSlot(body.slot) || body.slot === "free") return { error: "Unknown assignment" };
+  const rec = await readJSON("assign:" + body.slot, null);
+  if (!rec || !/^Quiz\b/i.test(String(rec.title || ""))) return { ok: true };
+  const key = "leave:" + body.slot + ":" + enc(user.email), log = await readJSON(key, []);
+  const kind = ["hidden", "blur", "fullscreen", "start"].indexOf(body.kind) > -1 ? body.kind : "hidden";
+  log.push({ t: now(), kind, ms: Math.max(0, Math.min(36000000, Number(body.ms) || 0)) });
+  await store().setJSON(key, log.slice(-200));
+  return { ok: true };
+}
 async function adminActivity(body) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
-  return { ok: true, log: await readJSON("act:" + body.slot + ":" + enc(String(body.email || "").toLowerCase()), []) };
+  return { ok: true, log: await readJSON("act:" + body.slot + ":" + enc(String(body.email || "").toLowerCase()), []), leaves: await readJSON("leave:" + body.slot + ":" + enc(String(body.email || "").toLowerCase()), []) };
 }
 /* who has been working lately, across every published assignment */
 async function adminRecent(body) {
@@ -473,6 +484,7 @@ export default async (req) => {
     if (action === "mySlots") return ok(await mySlots(user));
     if (action === "saveDraft") return ok(await saveDraft(body, user));
     if (action === "submit") return ok(await submit(body, user));
+    if (action === "quizLeave") return ok(await quizLeave(body, user));
     return ok({ error: "Unknown action" });
   } catch (err) {
     return new Response(JSON.stringify({ error: "Server error: " + err.message }), { status: 500, headers: JSON_HEADERS });

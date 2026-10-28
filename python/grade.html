@@ -459,7 +459,13 @@ function loadTimeline(r) {
   var slotId = $("slot").value, box = document.querySelector(".right"); if (!box) return;
   box.insertAdjacentHTML("afterbegin", '<h3>Work timeline</h3><div class="tl" id="tl"><div style="padding:8px;color:var(--soft)">Loading...</div></div>');
   api({ action: "adminActivity", slot: slotId, email: r.email }).then(function (j) {
-    var el = $("tl"); if (!el) return; var log = (j && j.log) || [];
+    var el = $("tl"); if (!el) return; var log = (j && j.log) || [], lv = (j && j.leaves) || [];
+    if (lv.length) {
+      var gone = lv.filter(function (x) { return x.kind !== "start"; }), tot = gone.reduce(function (n, x) { return n + (x.ms || 0); }, 0);
+      var lh = '<div style="margin:0 0 10px;padding:8px 10px;border-radius:8px;background:' + (gone.length ? "rgba(248,113,113,.14)" : "rgba(52,211,153,.12)") + '"><b>Quiz: left the page ' + gone.length + " time" + (gone.length === 1 ? "" : "s") + (gone.length ? ", " + Math.round(tot / 1000) + " seconds away in all" : "") + "</b>";
+      if (gone.length) lh += '<table style="margin-top:6px"><thead><tr><th>Time</th><th>How</th><th>Away</th></tr></thead><tbody>' + gone.map(function (x) { return "<tr><td>" + esc(new Date(x.t).toLocaleString()) + "</td><td>" + ({ hidden: "switched tab or window", blur: "clicked another window", fullscreen: "left fullscreen" }[x.kind] || esc(x.kind)) + "</td><td>" + Math.round((x.ms || 0) / 1000) + " s</td></tr>"; }).join("") + "</tbody></table>";
+      el.insertAdjacentHTML("beforebegin", lh + "</div>");
+    }
     if (!log.length) {
       var rec = r.submission || r.draft;
       el.innerHTML = '<div style="padding:8px;color:var(--soft)">No step-by-step history yet. History is recorded from now on, each time the code changes. Last saved: ' + esc(fmt(r.draft ? r.draft.savedAt : "")) + (r.submission ? ". Submitted: " + esc(fmt(r.submission.submittedAt)) : "") + ".</div>"; return;

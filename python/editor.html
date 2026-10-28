@@ -205,6 +205,9 @@ body.teacher #assBody pre,body.teacher #tipBody pre{user-select:text;cursor:text
 @media (max-width:820px){.topbanner{flex-direction:column}#legend{grid-auto-flow:row;grid-template-rows:none}#assInfo{margin-left:0;border-left:0;padding-left:0;flex:1 1 auto;width:100%}}
 </style></head>
 <body>
+<div id="quizGate" style="display:none;position:fixed;inset:0;z-index:300;background:#0B0E14;color:#E8ECF3;place-items:center;text-align:center;padding:24px"><div style="max-width:520px"><h2 id="qgTitle" style="margin:0 0 10px;font-size:26px">This is a quiz</h2><p id="qgMsg" style="color:#9AA6BC;font-size:16px;line-height:1.6;margin:0 0 16px">The quiz runs in <b>fullscreen</b>. If you leave this page (another tab or window) or leave fullscreen, it is <b>recorded</b> and your teacher will see it.</p><p><button class="btn pri" id="qgGo" style="font-size:17px;padding:12px 26px">Start the quiz</button></p></div></div>
+<div id="quizBadge" style="display:none;position:fixed;right:12px;bottom:12px;z-index:200;background:#7F1D1D;color:#fff;border-radius:10px;padding:8px 14px;font:700 13px Manrope,sans-serif"></div>
+
 <div class="top">
   <h1>Python Editor</h1>
   <select id="mode" aria-label="Mode"><option value="python">Python</option><option value="karel">Karel</option></select>
@@ -1086,7 +1089,7 @@ function buildSlots() {
   });
   var h = top; order.forEach(function (u) { h += '<optgroup label="' + escA(u) + '">' + groups[u] + "</optgroup>"; });
   (window.PY_LOCKED || []).forEach(function (L) { h += '<option value="" disabled>\uD83D\uDD12 Assignment ' + L.num + " (score 80 or more on Assignment " + L.needNum + " to unlock)</option>"; });
-  $("slot").innerHTML = h; $("slot").value = slot;
+  $("slot").innerHTML = h; $("slot").value = slot; if (typeof quizSetup === "function") quizSetup();
 }
 function escA(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function decodeJwt(t) { try { var p = t.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"); return JSON.parse(decodeURIComponent(escape(atob(p)))); } catch (e) { return {}; } }
@@ -1204,10 +1207,48 @@ function updateSaveInd() {
 setInterval(updateSaveInd, 2000);
 setInterval(cloudSave, 30000);
 document.addEventListener("visibilitychange", function () { if (document.hidden) cloudSave(); });
+
+/* ---------- quiz mode: fullscreen, and every time the student leaves the page is recorded for the teacher ---------- */
+var QZ = { on: false, goneAt: 0, kind: "", left: 0 };
+function isQuizSlot() { var A = window.PY_ASSIGN && window.PY_ASSIGN[slot]; return !!A && /^Quiz\b/i.test(String(A.title || "")); }
+function quizReport(kind, ms) { if (!CRED) return; api({ action: "quizLeave", slot: slot, kind: kind, ms: ms }); }
+function quizOpenGate(title, msg, btn) {
+  var g = $("quizGate"); $("qgTitle").textContent = title; $("qgMsg").innerHTML = msg; $("qgGo").textContent = btn; g.style.display = "grid";
+}
+function quizGoFull() {
+  var el = document.documentElement, rq = el.requestFullscreen || el.webkitRequestFullscreen;
+  var p; try { p = rq && rq.call(el); } catch (er) {}
+  $("quizGate").style.display = "none"; QZ.on = true;
+  if (p && p.catch) p.catch(function () { /* fullscreen refused: the quiz still runs, leaving the page is still recorded */ });
+}
+function quizUpdateBadge() { var b = $("quizBadge"); if (!QZ.left) { b.style.display = "none"; return; } b.style.display = "block"; b.textContent = "You left the quiz " + QZ.left + " time" + (QZ.left === 1 ? "" : "s") + " (your teacher can see this)"; }
+function quizLeft(kind) { if (!QZ.on || QZ.goneAt) return; QZ.goneAt = Date.now(); QZ.kind = kind; }
+function quizBack() {
+  if (!QZ.on || !QZ.goneAt) return;
+  var ms = Date.now() - QZ.goneAt, kind = QZ.kind; QZ.goneAt = 0;
+  if (ms < 800) return;   /* a flicker (a pop-up, an alert), not leaving */
+  QZ.left++; quizUpdateBadge(); quizReport(kind, ms);
+  flash("You left the quiz for " + Math.round(ms / 1000) + " seconds. This was recorded for your teacher.");
+}
+function quizSetup() {
+  if (isTeacherNow() || !isQuizSlot()) { QZ.on = false; $("quizGate").style.display = "none"; $("quizBadge").style.display = "none"; return; }
+  if (QZ.on) return;
+  QZ.left = 0; quizUpdateBadge();
+  quizOpenGate("This is a quiz", "The quiz runs in <b>fullscreen</b>. If you leave this page (another tab or window) or leave fullscreen, it is <b>recorded</b> and your teacher will see it. There are no hints. Good luck.", "Start the quiz");
+}
+$("qgGo").onclick = function () { var first = !QZ.on; quizGoFull(); if (first) quizReport("start", 0); };
+document.addEventListener("visibilitychange", function () { if (document.hidden) quizLeft("hidden"); else quizBack(); });
+window.addEventListener("blur", function () { quizLeft("blur"); });
+window.addEventListener("focus", function () { quizBack(); });
+document.addEventListener("fullscreenchange", function () {
+  if (!QZ.on) return;
+  if (!document.fullscreenElement) { quizLeft("fullscreen"); quizOpenGate("You left fullscreen", "Leaving fullscreen is <b>recorded</b> for your teacher. Click to go back to the quiz.", "Back to the quiz"); }
+  else quizBack();
+});
 $("slot").addEventListener("change", function () {
   lsSet(codeKey(), ta.value); cloudSave().then(function () {
     slot = $("slot").value; lsSet("py:slot", slot); renderAssignment(); lastCloud = ""; $("cloud").className = "cloud"; showTeacher(null); statusEl.textContent = py ? "Ready" : statusEl.textContent;
-    var v = savedCode(); ta.value = v !== null ? v : starter(); gutter(); afterSlotChange();
+    var v = savedCode(); ta.value = v !== null ? v : starter(); gutter(); afterSlotChange(); quizSetup();
   });
 });
 /* period buttons (a plain select would not open on some Chromebooks): they drive the hidden select, and light up whenever its value changes */
