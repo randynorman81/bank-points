@@ -76,6 +76,7 @@ async function mine(body, user) {
   if (goodSlot(body.slot)) {
     out.submission = await readJSON("sub:" + body.slot + ":" + enc(user.email), null);
     out.draft = await readJSON("draft:" + body.slot + ":" + enc(user.email), null);
+    if (out.submission && out.submission.mcScore) { const asg = await readJSON("assign:" + body.slot, null); if (!(asg && asg.mcReleased)) { out.submission = Object.assign({}, out.submission); delete out.submission.mcScore; } }
   }
   return out;
 }
@@ -139,13 +140,22 @@ async function adminRecent(body) {
 }
 /* a closed (not live) assignment can not be saved to or submitted by a student, however well they did on the others; only the teacher account can */
 async function closedToStudent(slot, user) { if (slot === "free" || isTeacherUser(user)) return false; const a = await readJSON("assign:" + slot, null); return !!a && a.live === false; }
+/* multiple-choice section of a quiz: the student's picks are saved with the draft and the submission; the answer key never leaves the server, and the score is hidden from the student until the teacher releases it */
+const cleanMcPicks = (a) => (Array.isArray(a) ? a.slice(0, 30).map((x) => { const n = Number(x); return Number.isInteger(n) && n >= -1 && n <= 7 ? n : -1; }) : null);
+function mcScoreOf(key, picks) {
+  if (!Array.isArray(key) || !key.length) return null;
+  const p = picks || [], wrong = [];
+  let correct = 0;
+  key.forEach((k, i) => { if (p[i] === k) correct++; else wrong.push({ q: i + 1, picked: p[i] === undefined ? -1 : p[i] }); });
+  return { correct, total: key.length, wrong };
+}
 async function saveDraft(body, user) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
   if (await closedToStudent(body.slot, user)) return { error: "That assignment is not open yet." };
   const code = String(body.code == null ? "" : body.code);
   if (code.length > MAX_CODE) return { error: "That file is too big to save." };
   await store().setJSON("draft:" + body.slot + ":" + enc(user.email), {
-    email: user.email, name: user.name, period: cleanPeriod(body.period), slot: body.slot, mode: cleanMode(body.mode), code, world: cleanWorld(body.world), ticks: cleanTicks(body.ticks), savedAt: now()
+    email: user.email, name: user.name, period: cleanPeriod(body.period), slot: body.slot, mode: cleanMode(body.mode), code, world: cleanWorld(body.world), ticks: cleanTicks(body.ticks), mc: cleanMcPicks(body.mc), savedAt: now()
   });
   await logActivity(body.slot, user.email, code, cleanPeriod(body.period), false);
   return { ok: true };
@@ -194,7 +204,8 @@ async function submit(body, user) {
     email: user.email, name: user.name, period, slot: body.slot, mode: cleanMode(body.mode), code, world: cleanWorld(body.world), ticks: cleanTicks(body.ticks),
     output: String(body.output || "").slice(0, 4000),
     submittedAt: now(), firstSubmittedAt: (prev && (prev.firstSubmittedAt || prev.submittedAt)) || now(), count: (prev && prev.count ? prev.count : 0) + 1,
-    teacher: prev && prev.teacher ? prev.teacher : null
+    teacher: prev && prev.teacher ? prev.teacher : null,
+    mc: cleanMcPicks(body.mc), mcScore: mcScoreOf(asg && asg.mcKey, cleanMcPicks(body.mc))
   };
   try { const g = await autoGradeFor(body.slot, code, rec.teacher, period); if (g) rec.teacher = g; } catch (e) { console.error("autograde failed", e); }
   await store().setJSON(key, rec);
@@ -279,10 +290,21 @@ async function adminSetAssignment(body) {
   if (!title || !Array.isArray(body.blocks) || !body.blocks.length) return { error: "Needs a title and blocks" };
   const variants = {};
   if (body.variants && typeof body.variants === "object") Object.keys(body.variants).forEach((p) => { const v = body.variants[p]; if (cleanPeriod(p) && v && Array.isArray(v.blocks)) variants[cleanPeriod(p)] = { blocks: v.blocks, checks: cleanChecks(v.checks), tips: cleanTips(v.tips) }; });
-  const text = JSON.stringify({ title, unit, num, blocks: body.blocks, checks: cleanChecks(body.checks), tips: cleanTips(body.tips), variants, live: body.live !== false, publishedAt: now() });
+  const mc = Array.isArray(body.mc) ? body.mc.slice(0, 30).map((q) => ({ q: String(q.q || "").slice(0, 600), code: q.code ? String(q.code).slice(0, 1200) : "", choices: (Array.isArray(q.choices) ? q.choices : []).slice(0, 6).map((c) => String(c).slice(0, 300)) })) : null;
+  const mcKey = Array.isArray(body.mcKey) ? body.mcKey.slice(0, 30).map((x) => Number(x) | 0) : null;
+  const prevAsg = await readJSON("assign:" + body.slot, null);
+  const text = JSON.stringify({ title, unit, num, mc, mcKey, mcReleased: !!(prevAsg && prevAsg.mcReleased), blocks: body.blocks, checks: cleanChecks(body.checks), tips: cleanTips(body.tips), variants, live: body.live !== false, publishedAt: now() });
   if (text.length > 400000) return { error: "That assignment is too big" };
   await store().setJSON("assign:" + body.slot, JSON.parse(text));
   return { ok: true, slot: body.slot, title };
+}
+async function adminSetMcRelease(body) {
+  if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
+  const rec = await readJSON("assign:" + body.slot, null);
+  if (!rec) return { error: "That assignment is not published" };
+  rec.mcReleased = !!body.released;
+  await store().setJSON("assign:" + body.slot, rec);
+  return { ok: true, slot: body.slot, released: rec.mcReleased };
 }
 async function adminDeleteAssignment(body) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
@@ -293,18 +315,18 @@ async function adminDeleteAssignment(body) {
 async function gatedAssignments(user, period) {
   const all = (await publicAssignments(true)).assignments, order = Object.keys(all).sort((a, b) => parseInt(a.slice(1), 10) - parseInt(b.slice(1), 10));
   const out = {}, locked = []; let prev = null;
-  if (isTeacherUser(user)) { for (const id of order) { const v = Object.assign({}, variantFor(all[id], period)); delete v.checks; delete v.variants; out[id] = v; } return { ok: true, assignments: out, locked }; }
+  if (isTeacherUser(user)) { for (const id of order) { const v = Object.assign({}, variantFor(all[id], period)); delete v.checks; delete v.variants; delete v.mcKey; out[id] = v; } return { ok: true, assignments: out, locked }; }
   for (const id of order) {
     const live = all[id].live !== false;
     let open = prev === null || (user && (await subPassed(prev, user.email)));
-    if (live) { if (open) { const v = Object.assign({}, variantFor(all[id], period)); delete v.checks; delete v.variants; out[id] = v; } else locked.push({ id, need: prev, num: all[id].num || Number(id.slice(1)), needNum: all[prev].num || Number(prev.slice(1)) }); }
+    if (live) { if (open) { const v = Object.assign({}, variantFor(all[id], period)); delete v.checks; delete v.variants; delete v.mcKey; out[id] = v; } else locked.push({ id, need: prev, num: all[id].num || Number(id.slice(1)), needNum: all[prev].num || Number(prev.slice(1)) }); }
     if (live) prev = id;
   }
   return { ok: true, assignments: out, locked };
 }
 async function publicAssignments(all) {
   const out = {};
-  for (const k of await listPrefix("assign:")) { const v = await store().get(k, { type: "json" }); if (v && (all || v.live !== false)) { if (!all) delete v.checks; out[k.slice(7)] = v; } }
+  for (const k of await listPrefix("assign:")) { const v = await store().get(k, { type: "json" }); if (v && (all || v.live !== false)) { if (!all) { delete v.checks; delete v.mcKey; } out[k.slice(7)] = v; } }
   return { ok: true, assignments: out };
 }
 
@@ -461,13 +483,14 @@ export default async (req) => {
     try { body = await req.json(); } catch (e) { return ok({ error: "Malformed request" }); }
     const action = body.action;
 
-    if (["adminList", "adminCounts", "adminGrade", "adminDelete", "adminSetAssignment", "adminDeleteAssignment", "adminAssignments", "adminAutograde", "adminSetLive", "adminActivity", "adminRecent"].indexOf(action) > -1) {
+    if (["adminList", "adminCounts", "adminGrade", "adminDelete", "adminSetAssignment", "adminSetMcRelease", "adminDeleteAssignment", "adminAssignments", "adminAutograde", "adminSetLive", "adminActivity", "adminRecent"].indexOf(action) > -1) {
       if (!isAdmin(body)) return ok({ error: "Invalid PIN" });
       if (action === "adminList") return ok(await adminList(body));
       if (action === "adminCounts") return ok(await adminCounts());
       if (action === "adminDelete") return ok(await adminDelete(body));
       if (action === "adminAssignments") return ok(await publicAssignments(true));
       if (action === "adminSetAssignment") return ok(await adminSetAssignment(body));
+      if (action === "adminSetMcRelease") return ok(await adminSetMcRelease(body));
       if (action === "adminDeleteAssignment") return ok(await adminDeleteAssignment(body));
       if (action === "adminAutograde") return ok(await adminAutograde(body));
       if (action === "adminSetLive") return ok(await adminSetLive(body));

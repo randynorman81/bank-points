@@ -90,6 +90,8 @@ select,input,textarea{background:var(--card);color:var(--ink);border:1px solid v
   <label>Period <select id="period"><option value="">All periods</option></select></label>
   <label><input type="checkbox" id="onlySub"> Submitted only</label>
   <button class="btn" id="reload">Reload</button>
+  <button class="btn" id="mcShow" title="Quizzes with a multiple-choice part: let students see their multiple-choice score">Release multiple-choice scores</button>
+  <button class="btn" id="mcHide" title="Hide the multiple-choice scores from students again">Hide them</button>
   <button class="btn pri" id="liveBtn" title="Who is working right now, and when they last saved">Live class</button>
   <button class="btn" id="unlock" title="Students only see the assignments you have unlocked"></button>
   <button class="btn" id="autograde" title="Grade every submission of this assignment that does not have a grade you saved by hand">Autograde all</button>
@@ -452,6 +454,12 @@ function liveRender() {
   });
 }
 function liveStop() { clearInterval(liveT); $("live").style.display = "none"; }
+function mcRelease(on) {
+  var slotId = $("slot").value;
+  if (!confirm(on ? "Let every student see their multiple-choice score for this quiz?" : "Hide the multiple-choice scores from students for this quiz?")) return;
+  api({ action: "adminSetMcRelease", slot: slotId, released: on }).then(function (j) { alert(j && j.ok ? (on ? "Released: students can now see their multiple-choice score." : "Hidden from students.") : ((j && j.error) || "Could not change it.")); });
+}
+$("mcShow").onclick = function () { mcRelease(true); }; $("mcHide").onclick = function () { mcRelease(false); };
 $("liveBtn").onclick = function () { $("live").style.display = "block"; liveLoad(); clearInterval(liveT); liveT = setInterval(liveLoad, 20000); };
 $("liveClose").onclick = liveStop; $("liveHours").onchange = liveLoad; $("livePeriod").onchange = liveRender;
 /* the history of one student's work on this assignment: every time the code changed */
@@ -460,6 +468,12 @@ function loadTimeline(r) {
   box.insertAdjacentHTML("afterbegin", '<h3>Work timeline</h3><div class="tl" id="tl"><div style="padding:8px;color:var(--soft)">Loading...</div></div>');
   api({ action: "adminActivity", slot: slotId, email: r.email }).then(function (j) {
     var el = $("tl"); if (!el) return; var log = (j && j.log) || [], lv = (j && j.leaves) || [];
+    var sb = r.submission;
+    if (sb && sb.mcScore) {
+      var LET = ["A", "B", "C", "D", "E", "F"], mh = '<div style="margin:0 0 10px;padding:8px 10px;border-radius:8px;background:rgba(96,165,250,.14)"><b>Multiple choice: ' + sb.mcScore.correct + " of " + sb.mcScore.total + "</b>";
+      if (sb.mcScore.wrong && sb.mcScore.wrong.length) mh += '<div style="margin-top:4px;font-size:13px">Missed: ' + sb.mcScore.wrong.map(function (w) { return "Q" + w.q + (w.picked >= 0 ? " (picked " + LET[w.picked] + ")" : " (blank)"); }).join(", ") + "</div>";
+      el.insertAdjacentHTML("beforebegin", mh + "</div>");
+    }
     if (lv.length) {
       var gone = lv.filter(function (x) { return x.kind !== "start"; }), tot = gone.reduce(function (n, x) { return n + (x.ms || 0); }, 0);
       var lh = '<div style="margin:0 0 10px;padding:8px 10px;border-radius:8px;background:' + (gone.length ? "rgba(248,113,113,.14)" : "rgba(52,211,153,.12)") + '"><b>Quiz: left the page ' + gone.length + " time" + (gone.length === 1 ? "" : "s") + (gone.length ? ", " + Math.round(tot / 1000) + " seconds away in all" : "") + "</b>";

@@ -203,6 +203,7 @@ body.karel #karel{display:flex}
 #tipBody pre{user-select:none}
 body.teacher #assBody pre,body.teacher #tipBody pre{user-select:text;cursor:text}
 @media (max-width:820px){.topbanner{flex-direction:column}#legend{grid-auto-flow:row;grid-template-rows:none}#assInfo{margin-left:0;border-left:0;padding-left:0;flex:1 1 auto;width:100%}}
+.mcq{margin:0 0 16px;padding:12px 14px;border:1px solid var(--rule);border-radius:10px;background:rgba(255,255,255,.03)}.mcn{font-weight:700;margin:0 0 8px;line-height:1.45}.mccode{margin:0 0 8px;padding:10px 12px;border-radius:8px;background:#05070B;font:13px/1.5 "JetBrains Mono",monospace;overflow:auto;white-space:pre}.mcc{display:flex;gap:8px;align-items:flex-start;padding:5px 4px;cursor:pointer;line-height:1.4}.mcc input{margin-top:4px}.mcc code{font-size:13px}
 </style></head>
 <body>
 <div id="quizGate" style="display:none;position:fixed;inset:0;z-index:300;background:#0B0E14;color:#E8ECF3;place-items:center;text-align:center;padding:24px"><div style="max-width:520px"><h2 id="qgTitle" style="margin:0 0 10px;font-size:26px">This is a quiz</h2><p id="qgMsg" style="color:#9AA6BC;font-size:16px;line-height:1.6;margin:0 0 16px">The quiz runs in <b>fullscreen</b>. If you leave this page (another tab or window) or leave fullscreen, it is <b>recorded</b> and your teacher will see it.</p><p><button class="btn pri" id="qgGo" style="font-size:17px;padding:12px 26px">Start the quiz</button></p></div></div>
@@ -938,7 +939,8 @@ function renderAssignment() {
       h += '<div class="cb ' + kind + '">' + items.map(function (t) { var id = "i" + (n++); return '<label class="' + (done[id] ? "done" : "") + '"><input type="checkbox" data-id="' + id + '"' + (done[id] ? " checked" : "") + "><span>" + inl(t) + "</span></label>"; }).join("") + "</div>";
     }
   });
-  body.innerHTML = h; updateProg(); updateScore();
+  if (A.mc && A.mc.length) h += mcHtml(A);
+  body.innerHTML = h; updateProg(); updateScore(); mcBind(A);
 }
 function updateProg() {
   var all = $("assBody").querySelectorAll("input[type=checkbox]"), on = 0; Array.prototype.forEach.call(all, function (c) { if (c.checked) on++; });
@@ -1159,8 +1161,27 @@ function stepsNotDone(ids) {
   ids.forEach(function (i) { var inp = $("assBody").querySelector('input[data-id="i' + i + '"]'); if (!inp) return; var lab = inp.closest("label"), sp = lab && lab.querySelector("span"); out.push("<li>" + escA((sp ? sp.textContent : "").replace(/\s+/g, " ").slice(0, 110)) + "</li>"); });
   return out.length ? "<details style=\"margin-top:4px\"><summary>Steps not completed (" + out.length + ")</summary><ul style=\"margin:4px 0 0 18px;padding:0\">" + out.join("") + "</ul></details>" : "";
 }
+
+/* ---------- multiple-choice section of a quiz ---------- */
+var MC_LET = ["A", "B", "C", "D", "E", "F"], lastMcSig = "";
+function mcHtml(A) {
+  var h = '<h3>Part 9: Multiple choice (' + A.mc.length + ' questions)</h3><p class="hint mchint">Pick one answer for each question. You see your coding score right after you submit. Your teacher will share the multiple-choice score later.</p><div class="mcwrap">';
+  A.mc.forEach(function (q, i) {
+    h += '<div class="mcq" data-q="' + i + '"><div class="mcn">' + (i + 1) + '. ' + inl(q.q) + '</div>' + (q.code ? '<pre class="mccode">' + escA(q.code) + '</pre>' : "") + q.choices.map(function (c, j) { return '<label class="mcc"><input type="radio" name="mc' + i + '" value="' + j + '"><span><b>' + MC_LET[j] + '.</b> <code>' + escA(c) + '</code></span></label>'; }).join("") + "</div>";
+  });
+  return h + "</div>";
+}
+function getMc() { var A = (window.PY_ASSIGN || {})[slot]; if (!A || !A.mc) return null; return A.mc.map(function (q, i) { var r = document.querySelector('input[name="mc' + i + '"]:checked'); return r ? Number(r.value) : -1; }); }
+function mcSig() { var m = getMc(); return m ? m.join(",") : ""; }
+function setMc(arr) { if (!arr) return; arr.forEach(function (v, i) { if (v < 0) return; var r = document.querySelector('input[name="mc' + i + '"][value="' + v + '"]'); if (r) r.checked = true; }); }
+function mcBind(A) {
+  if (!A || !A.mc) return;
+  try { setMc(JSON.parse(lsGet("py:mc:" + slot) || "null")); } catch (er) {}
+  Array.prototype.forEach.call(document.querySelectorAll(".mcq input"), function (r) { r.addEventListener("change", function () { lsSet("py:mc:" + slot, JSON.stringify(getMc())); cloudSave(); }); });
+}
 function showTeacher(sub) {
   var t = $("teach");
+  if (sub && sub.mcScore) { var mcb = document.querySelector(".mchint"); if (mcb) mcb.innerHTML = "<b>Your multiple-choice score: " + sub.mcScore.correct + " out of " + sub.mcScore.total + "</b>"; }
   if (sub && sub.teacher && (sub.teacher.score !== null || sub.teacher.comment)) { t.className = "teach show"; t.innerHTML = (sub.teacher.auto ? "<b>Your grade</b>" : "<b>Teacher feedback</b>") + (sub.teacher.score !== null ? " &middot; Score: <b>" + escA(sub.teacher.score) + "</b>" + (sub.teacher.auto ? ' <small style="color:var(--soft)">(graded automatically when you submitted)</small>' : "") : "") + (sub.teacher.detail && sub.teacher.detail.total ? "<br>You completed <b>" + sub.teacher.detail.done + " of " + sub.teacher.detail.total + "</b> steps." + stepsNotDone(sub.teacher.detail.notDone) : "") + (sub.teacher.comment ? "<br>" + escA(sub.teacher.comment) : ""); }
   else { t.className = "teach"; t.innerHTML = ""; }
 }
@@ -1171,6 +1192,7 @@ function afterSlotChange() {
     if (!j || j.error || sl !== slot) return;
     CLOUD = j; var dr = j.draft, sub = j.submission, rec = dr && dr.code && dr.code.trim() ? dr : sub, c = $("cloud"), opts = "";
     var untouched = !ta.value.trim() || ta.value === STARTER_PY || ta.value === STARTER_KAREL;
+    if (rec && rec.mc) setMc(rec.mc);
     if (rec && untouched) { applyRecord(rec); flash("Loaded your saved work"); }
     else if (dr && dr.code !== ta.value && dr.code.trim()) opts += "<span>Cloud draft from " + escA(new Date(dr.savedAt).toLocaleString()) + " differs from this screen.</span> <button class=\"btn sm\" id=\"ldDraft\">Load cloud draft</button>";
     if (sub && sub.code !== ta.value && !(rec === sub && untouched)) opts += " <button class=\"btn sm\" id=\"ldSub\">Load my last submission (" + escA(new Date(sub.submittedAt).toLocaleString()) + ")</button>";
@@ -1184,10 +1206,10 @@ function afterSlotChange() {
   });
 }
 function cloudSave() {
-  if (slot === "example" || !CRED || !ta.value.trim() || ta.value === lastCloud || ta.value === STARTER_PY || ta.value === STARTER_KAREL) return Promise.resolve();
+  if (slot === "example" || !CRED || !ta.value.trim() || (ta.value === lastCloud && mcSig() === lastMcSig) || ta.value === STARTER_PY || ta.value === STARTER_KAREL) return Promise.resolve();
   var code = ta.value;
-  return api({ action: "saveDraft", slot: slot, mode: mode, code: code, world: curWorld(), ticks: currentTicks(), period: $("period").value }).then(function (j) {
-    if (j && j.ok) { lastCloud = code; saveFailed = false; savedAtTxt = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); if (!MY[slot]) { MY[slot] = "draft"; } }
+  return api({ action: "saveDraft", slot: slot, mode: mode, code: code, world: curWorld(), ticks: currentTicks(), period: $("period").value, mc: getMc() }).then(function (j) {
+    if (j && j.ok) { lastCloud = code; lastMcSig = mcSig(); saveFailed = false; savedAtTxt = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); if (!MY[slot]) { MY[slot] = "draft"; } }
     else if (j && !j.needLogin) saveFailed = true;
     updateSaveInd();
   }).catch(function () { saveFailed = true; updateSaveInd(); });
@@ -1271,9 +1293,9 @@ $("submit").addEventListener("click", function () {
 $("mCancel").addEventListener("click", function () { $("mSub").classList.remove("show"); });
 $("mGo").addEventListener("click", function () {
   var b = this; b.disabled = true;
-  api({ action: "submit", slot: slot, mode: mode, code: ta.value, world: curWorld(), ticks: currentTicks(), period: $("period").value, output: out.textContent.slice(-3500) }).then(function (j) {
+  api({ action: "submit", slot: slot, mode: mode, code: ta.value, world: curWorld(), ticks: currentTicks(), period: $("period").value, output: out.textContent.slice(-3500), mc: getMc() }).then(function (j) {
     b.disabled = false; $("mSub").classList.remove("show");
-    if (j && j.ok) { MY[slot] = "sub"; lastCloud = ta.value; loadAssignments(); buildSlots(); statusEl.textContent = "Submitted " + new Date(j.submittedAt).toLocaleString() + (j.count > 1 ? " (#" + j.count + ")" : ""); alert("Submitted! ✓"); }
+    if (j && j.ok) { MY[slot] = "sub"; lastCloud = ta.value; loadAssignments(); buildSlots(); statusEl.textContent = "Submitted " + new Date(j.submittedAt).toLocaleString() + (j.count > 1 ? " (#" + j.count + ")" : ""); alert("Submitted! ✓" + (getMc() ? "\n\nYour multiple-choice answers were turned in too. Your teacher will share that score later." : "")); }
     else if (j && !j.needLogin) alert((j && j.error) || "Could not submit. Try again.");
   }).catch(function () { b.disabled = false; alert("Could not reach the server. Check your internet and try again."); });
 });
