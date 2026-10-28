@@ -65,7 +65,7 @@
   add("autoclose", SKEL, "Why did the editor type a closing tag for me?", [
     { p: "To save you time, the editor finishes your tags. When you type an opening tag and its `>`, the closing tag appears right after it with your cursor in the middle." },
     { ex: ["type:   <p>", "you get: <p></p>   (cursor between them)"] },
-    { list: ["Tags with no closing tag (like `<br>` and `<hr>`) are left alone.", "Typing `<!--` also finishes the comment.", "For `<head>` and `<body>` the closing tag drops down so there are 3 empty lines between the tags, so you have room to type. Your cursor lands on the first empty line.", "Press **Enter** between the tags to put the content on its own line."] },
+    { list: ["Tags with no closing tag (like `<br>` and `<hr>`) are left alone.", "Typing `<!--` also finishes the comment.", "For `<head>` and `<body>` the closing tag drops down so there are 3 empty lines between the tags, and for `<html>` there are 8, so you have room to type. Editing tags (`strong`, `b`, `em`, `i`, `span`, and the like) only get the opening tag: type the closing tag yourself when the words are done. Your cursor lands on the first empty line.", "Press **Enter** between the tags to put the content on its own line."] },
     { warn: "Don't type the closing tag again. Check that there is only one." }
   ]);
 

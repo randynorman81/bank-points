@@ -560,6 +560,7 @@ ta.addEventListener("keyup", cursorInfo); ta.addEventListener("click", cursorInf
 /* auto-close tags, quotes, and smart Enter (index.html only) */
 function insertAt(pos, text, caretAfter) { noteAuto(text.length); ta.setRangeText(text, pos, pos, "preserve"); ta.setSelectionRange(caretAfter, caretAfter); }
 function insideTag(before) { var lt = before.lastIndexOf("<"), gt = before.lastIndexOf(">"); return lt > gt && before.charAt(lt + 1) !== "/" && before.charAt(lt + 1) !== "!"; }
+var EDIT_TAGS = { strong: 1, b: 1, em: 1, i: 1, u: 1, s: 1, mark: 1, small: 1, sub: 1, sup: 1, del: 1, ins: 1, span: 1 };
 function handleAuto(ch) {
   if (S.file !== "html") return;
   var pos = ta.selectionStart, v = ta.value, before = v.slice(0, pos);
@@ -570,8 +571,9 @@ function handleAuto(ch) {
     var st = H.openTags(before.slice(0, before.length - m[0].length));
     if (st.raw) return;
     if (v.slice(pos).indexOf("</" + name + ">") === 0) return;
-    if (name === "head" || name === "body") {   /* leave room to type: the closing tag drops 4 lines below the opening tag, which leaves 3 empty lines in between, and the cursor lands on the first empty line */
-      var NLC = String.fromCharCode(10), gap = 4, ls = before.lastIndexOf(NLC) + 1, ind = /^[ \t]*/.exec(before.slice(ls))[0], first = NLC + ind + "  ";
+    if (EDIT_TAGS[name]) return;   /* editing tags (strong, em, span...) sit INSIDE a line of text: only the opening tag is typed, so the closing tag does not push the student's words to the right */
+    if (name === "html" || name === "head" || name === "body") {   /* leave room to type: head and body leave 3 empty lines between the tags, html leaves 8, and the cursor lands on the first empty line */
+      var NLC = String.fromCharCode(10), gap = name === "html" ? 9 : 4, ls = before.lastIndexOf(NLC) + 1, ind = /^[ \t]*/.exec(before.slice(ls))[0], first = NLC + ind + "  ";
       var txt = first + new Array(gap).join(NLC) + ind + "</" + name + ">";
       noteAuto(txt.length); ta.setRangeText(txt, pos, pos, "preserve"); ta.setSelectionRange(pos + first.length, pos + first.length);
       return;
