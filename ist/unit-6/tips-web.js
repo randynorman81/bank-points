@@ -118,11 +118,16 @@
     { p: "The semicolon tells the browser where one style ends and the next begins. Leave it out and the next style may not work." },
     { ex: ["color: navy;", "font-size: 24px;"] }
   ]);
+  add("colorlist", STY, "See all the named colors", [
+    { p: "HTML knows 148 color names. Use the name exactly as written (all lowercase, one word). Click a square to copy its name, or type in the box to search." },
+    { colors: true }
+  ]);
   add("namedcolor", STY, "What is a named color?", [
     { p: "CSS knows over 100 color names. Use the name as the value." },
     { ex: ["color: tomato;", "background-color: navy;"] },
     { list: ["Examples: red, gold, navy, tomato, teal, orchid, coral, crimson, indigo, wheat, black, white.", "No quotes and no # sign for a named color."] },
-    { warn: "Misspelled colors do nothing. Check the spelling if nothing changes." }
+    { warn: "Misspelled colors do nothing. Check the spelling if nothing changes." },
+    { p: "Want to see every color? Open **See all the named colors** in the help list." }
   ]);
   add("color", STY, "color and background-color: what's the difference?", [
     { rows: [["color", "the color of the **text**", "color: gold;"], ["background-color", "the color **behind** the text", "background-color: navy;"]] },
@@ -392,6 +397,7 @@
 
   /* ---------- which help shows under which step text (first words that match decide; most specific first) ---------- */
   var R = [
+    [/see all the named colors/i, ["colorlist"]],
     [/favicon/i, ["favicon", "faviconemoji"]],
     [/border.*(picture|image)|(picture|image).*border/i, ["imgborder", "border"]],
     [/all 6 choices/i, ["themes38"]],
