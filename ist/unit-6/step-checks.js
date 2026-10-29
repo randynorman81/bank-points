@@ -89,16 +89,27 @@
     K("The <head> and <body> are inside <html>", function (c) { var h = c.all("html")[0]; return !!h && kids(h).some(function (k) { return k.tag === "head"; }) && kids(h).some(function (k) { return k.tag === "body"; }); }),
     K("The <head> comes before the <body>", function (c) { var s = c.rawSrc || c.src, i = s.search(/<head\b/i), j = s.search(/<body\b/i); return i >= 0 && j > i; })
   ];
-  var TITLE = [
+  var TITLECK = [
     K("There is a <title> inside the <head>", function (c) { var t = c.all("title")[0]; return !!t && inTag(c, t, ["head"]); }),
     K("The title has words in it", function (c) { var t = c.all("title")[0]; return !!t && words(c, t) >= 1; })
+  ];
+  /* Step 1 of every lesson is typed in chronological order, so the two shared bullets are:
+       SKELETON = the doctype, the html tag, the head tags inside html, and the title inside the head
+       TITLE    = the body tags (inside html, under the head)
+     (the names are kept so every lesson's step-1 list stays [SK, TITLE, ...]) */
+  var SKELETON_NEW = [SKELETON[0], SKELETON[1],
+    K("The <head> is inside <html>", function (c) { var h = c.all("html")[0]; return !!h && kids(h).some(function (k) { return k.tag === "head"; }); })
+  ].concat(TITLECK);
+  var BODYCK = [
+    K("The <body> is inside <html>", function (c) { var h = c.all("html")[0]; return !!h && kids(h).some(function (k) { return k.tag === "body"; }); }),
+    K("The <body> comes after (under) the <head>", function (c) { var s = c.rawSrc || c.src, he = s.search(/<\/head\s*>/i), bs = s.search(/<body\b/i); return he >= 0 && bs > he; })
   ];
 
   var LESSONS = {};
   var HELP = { K: K, P: P, PX: PX, EACH: EACH, CNT: CNT, IN: IN, UNDER: UNDER, exists: exists, T: T, LAST: LAST, HW: HW, AFTER: AFTER, ALL: ALL, FOLLOW: FOLLOW, has: has, vals: vals, decls: decls, kids: kids, nextEl: nextEl,
     txt: txt, words: words, within: within, before: before, order: order, descendants: descendants, inTag: inTag, ruleHas: ruleHas, sheetRule: sheetRule,
     isNamed: isNamed, isWhite: isWhite, isPx: isPx, px: px, bs: bs, serif: serif, sans: sans, mono: mono, eq: eq, borderStyle: borderStyle, borderColor: borderColor,
-    BOLD: BOLD, ITAL: ITAL, BORDER: BORDER, SKELETON: SKELETON, TITLE: TITLE, chars: H ? H.chars : null };
+    BOLD: BOLD, ITAL: ITAL, BORDER: BORDER, SKELETON: SKELETON_NEW, TITLE: BODYCK, TITLECK: TITLECK, DOCTYPECK: SKELETON[0], chars: H ? H.chars : null };
 
   /* ---------- running ---------- */
   /* run(lesson, html, css) -> { "Step 2": { comment: true/false, bullets: [ [ {label, ok}, ... ], ... ] }, ... }, or null for a lesson with no step checks */

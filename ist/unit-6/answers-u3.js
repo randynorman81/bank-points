@@ -19,8 +19,8 @@
   var RULE2 = { p: "Every style goes in a **style attribute**: the word style, an equals sign, and quotes, with each property and value **inside** the quotes. When you put **two or more** properties in one style attribute, put a **semicolon between them** (a single property does not need one). Each step says the least you must add: you can ALWAYS add more." };
   function skeleton(extra) {
     return S("Skeleton and title", [
-      "Type the **doctype** line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point), then **html** with a **head** and a **body** inside it (head first)",
-      "Inside the head, add a **title** with your page's name"
+      "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point). Then type the opening **html** tag, and inside it the **head** tags. The editor puts your cursor under the closing head tag, so click on the empty line **between** the head tags and add a **title** with your page's name",
+      "Click on the line **under** the closing head tag (still inside the html tags) and type the **body** tags"
     ].concat(extra || []));
   }
   function done(extra) {
@@ -34,8 +34,8 @@
   A["6.2"] = build([].concat(head("**The Ugliest Website Ever.** Make the most **god-awful, eye-burning** website you can using **text colors and background colors**. The uglier the better (but every word must still be there).", "a **terrible movie fan page**, a **terrible holiday page**, or a **terrible school-cafeteria review page**", notes("unit-6/style-attribute-notes.html")), [{ tip: "colorlist", label: "See all the named colors" }, RULE2,
     { p: "**The big idea:** almost every tag on your page gets BOTH a **color** (the text) and a **background-color** (behind the text). Then you build a **pattern**: reuse the same two or three color combinations over and over, so your page is ugly **on purpose**." },
     S("Skeleton and title", [
-      "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point), then **html** with a **head** and a **body** inside it (head first)",
-      "Inside the head, add a **title** with your terrible page's name"
+      "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point). Then type the opening **html** tag, and inside it the **head** tags. The editor puts your cursor under the closing head tag, so click on the empty line **between** the head tags and add a **title** with your terrible page's name",
+      "Click on the line **under** the closing head tag (still inside the html tags) and type the **body** tags"
     ]),
     { p: "**From here on you build and style each tag at the same time:** when you add a tag, put its style on it right away, before you move on to the next tag." },
     S("Color the whole page", [
@@ -71,8 +71,8 @@
   A["6.20"] = build([].concat(head("An **epic poster** for a **made-up holiday**: invent a holiday (like National Pizza Rolls Day or Opposite Day) and design the poster that announces it.", "", notes("unit-6/text-size-align-notes.html")), [RULE,
     RULE2,
     S("Skeleton, title, and background", [
-      "Type the **doctype** line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point), then **html** with a **head** and a **body** inside it (head first)",
-      "Inside the head, add a **title** with your holiday's name",
+      "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point). Then type the opening **html** tag, and inside it the **head** tags. The editor puts your cursor under the closing head tag, so click on the empty line **between** the head tags and add a **title** with your holiday's name",
+      "Click on the line **under** the closing head tag (still inside the html tags) and type the **body** tags",
       "On the **body** tag, add a style: **background-color** (a named color, like black or navy)"
     ]),
     S("The name and tagline", [
@@ -98,8 +98,8 @@
   A["6.21"] = build([].concat(head("**A review page** for a movie or video game you know well. This is **extra 3.3 practice** (Part 2): the same font-size, text-align, and letter-case skills as the poster, on a brand-new page.", "a movie or a video game", notes("unit-6/text-size-align-notes.html")), [RULE,
     RULE2,
     S("Skeleton, title, and colors", [
-      "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point), then **html** with a **head** and a **body** inside it (head first)",
-      "Inside the head, add a **title** with the name of what you are reviewing",
+      "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point). Then type the opening **html** tag, and inside it the **head** tags. The editor puts your cursor under the closing head tag, so click on the empty line **between** the head tags and add a **title** with the name of what you are reviewing",
+      "Click on the line **under** the closing head tag (still inside the html tags) and type the **body** tags",
       "On the **body** tag, add a style with a **background-color** and a **color** (two **different** named colors, so the text can be read)"
     ]),
     { p: "**From here on you build and style each tag at the same time:** when you add a tag, put its style on it right away, before you move on to the next tag." },
@@ -131,8 +131,8 @@
   A["6.22"] = build([].concat(head("**A profile page** for a band or music artist, built so the **sizes shrink** from the biggest heading to the smallest. This is **extra 3.3 practice** (Part 3): the same font-size, text-align, and letter-case skills, on another brand-new page.", "a real band or artist you like, or a made-up one", notes("unit-6/text-size-align-notes.html")), [RULE,
     RULE2,
     S("Skeleton, title, and colors", [
-      "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point), then **html** with a **head** and a **body** inside it (head first)",
-      "Inside the head, add a **title** with the band or artist's name",
+      "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point). Then type the opening **html** tag, and inside it the **head** tags. The editor puts your cursor under the closing head tag, so click on the empty line **between** the head tags and add a **title** with the band or artist's name",
+      "Click on the line **under** the closing head tag (still inside the html tags) and type the **body** tags",
       "On the **body** tag, add a style with a **background-color** and a **color** (two **different** named colors)"
     ]),
     { p: "**From here on you build and style each tag at the same time:** when you add a tag, put its style on it right away, before you move on to the next tag." },

@@ -10,37 +10,43 @@
     { map: [
       "The skeleton (typed by you, from memory)",
       "Heading 1: your topic",
-      "3 section headings (heading 2), each with 2 paragraphs"
+      "3 sections: a heading 2, then its 2 paragraphs, one section at a time"
     ] },
     { p: "Stuck? Read the notes: schscomputerscience.com/ist/unit-6/html-intro-notes.html" },
 
     { h: "Step 1: The skeleton" },
     { build: [
-      "Type the **doctype line** as the very first line of the page, from memory: exactly **\"<!DOCTYPE html>\"**, with the exclamation point",
-      "Open the **html** container: an opening and a closing html tag. Everything else goes **inside** it",
-      "Inside the html tags, add the **head** tags first (an opening and a closing head tag)",
-      "Under the head tags, still inside the html tags, add the **body** tags (an opening and a closing body tag)",
-      "Inside the head, add a **title** with your topic (pick a topic you can find good information about)"
+      "Type the **doctype line** as the very first line of the page, from memory: exactly **\"<!DOCTYPE html>\"** (with the exclamation point)",
+      "Under it, open the **html** container: type the opening html tag (the editor adds the closing tag for you). Everything else goes **inside** the html tags",
+      "Inside the html tags, type the **head** tags (an opening and a closing head tag). The editor puts your cursor on the line under the closing head tag",
+      "Click on the empty line **between** the two head tags and add a **title** with your topic (pick a topic you can find good information about)",
+      "Click on the line **under** the closing head tag, still inside the html tags, and type the **body** tags (an opening and a closing body tag). Everything you see on your page goes in the body"
     ] },
 
     { h: "Step 2: Main heading" },
     { build: [
-      "Inside the body, add **one heading 1** with your topic's name"
+      "Inside the body tags, type **one heading 1** with your topic's name"
     ] },
 
-    { h: "Step 3: Section headings" },
+    { h: "Step 3: Section 1" },
     { build: [
-      "Right under the heading 1, add your **first heading 2** (the title of your first section, like History). Under it, add a **second heading 2** (like How It Works), and under that a **third heading 2** (like Why It Matters). For now they sit one after another: you will fill in the space between them in Step 4",
-      "Use only **heading 1** and **heading 2** on this page. Do not use heading 3 or smaller"
+      "Right under the heading 1, add your **first heading 2**: the title of your first section, like History. Use only **heading 1** and **heading 2** on this page (no heading 3 or smaller)",
+      "**Right under that heading 2**, add **2 paragraphs**. Each one goes in its **own** paragraph, not inside a heading. Write about your topic, and make each paragraph **25 words or longer** (about two full sentences)"
     ] },
 
-    { h: "Step 4: Paragraphs" },
+    { h: "Step 4: Section 2" },
     { build: [
-      "Put **2 paragraphs** between your **first heading 2** and your **second heading 2**. Each one goes in its **own** paragraph, not inside a heading",
-      "Put **2 more paragraphs** between your **second heading 2** and your **third heading 2**, and **2 more paragraphs** under your **third heading 2**. That is **6 paragraphs** in all, 2 under every heading 2. Make at least **5 of them 25 words or longer** (about two full sentences each)"
+      "Under your second paragraph, add your **second heading 2**: the title of your next section, like How It Works",
+      "**Right under that heading 2**, add **2 paragraphs** about your topic, each **25 words or longer** (about two full sentences)"
     ] },
 
-    { h: "Step 5: Check and submit" },
+    { h: "Step 5: Section 3" },
+    { build: [
+      "Under your last paragraph, add your **third heading 2**: the title of your last section, like Why It Matters",
+      "**Right under that heading 2**, add **2 paragraphs** about your topic. That makes **6 paragraphs** in all, 2 under every heading 2, and at least **5 of them 25 words or longer**"
+    ] },
+
+    { h: "Step 6: Check and submit" },
     { build: [
       "Fix anything in the **Problems** list (click a problem to jump to that line)",
       "Make sure **Checks** shows all green",

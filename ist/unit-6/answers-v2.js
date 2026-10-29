@@ -21,8 +21,8 @@
   var RULE = { p: "**Every theme uses these same steps.** Use **named colors** (like navy or tomato) unless a step says hex. Dark backgrounds need light text. Each step says the least you must add: you can ALWAYS add more." };
   function skeleton(extra) {
     return S("Skeleton and title", [
-      "Type the **doctype** line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point), then **html** with a **head** and a **body** inside it (head first)",
-      "Inside the head, add a **title** with your page's name"
+      "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point). Then type the opening **html** tag, and inside it the **head** tags. The editor puts your cursor under the closing head tag, so click on the empty line **between** the head tags and add a **title** with your page's name",
+      "Click on the line **under** the closing head tag (still inside the html tags) and type the **body** tags"
     ].concat(extra || []));
   }
   function done(extra) {
@@ -234,8 +234,8 @@
     var H2 = "Style every **heading 2** the same way: **color** and **font-size** 26px";
     var steps = [
       S("Skeleton and title", [
-        "Type the **doctype** line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point), then **html** with a **head** and a **body** inside it (head first)",
-        "Inside the head, add a **title** with your page's name",
+        "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point). Then type the opening **html** tag, and inside it the **head** tags. The editor puts your cursor under the closing head tag, so click on the empty line **between** the head tags and add a **title** with your page's name",
+        "Click on the line **under** the closing head tag (still inside the html tags) and type the **body** tags",
         "On the **body** tag, add a style: **background-color** (a light named color)"
       ]),
       S("The banner and menu bar", [
