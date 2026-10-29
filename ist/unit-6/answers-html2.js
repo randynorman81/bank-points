@@ -8,7 +8,7 @@
 
   function skeleton(what) {
     return { build: [
-      "Type the **skeleton** first: the doctype line, then **html** with a **head** and a **body** inside it (the head comes first)",
+      "Type the **skeleton** first: the doctype line (exactly **\"<!DOCTYPE html>\"**, with the exclamation point), then **html** with a **head** and a **body** inside it (the head comes first)",
       "Inside the head, add a **title** with " + what,
       "Add exactly **one heading 1** at the top of the body"
     ] };

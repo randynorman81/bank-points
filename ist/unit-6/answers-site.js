@@ -21,7 +21,7 @@
   },
   {
    "build": [
-    "This is a **new website**. Open the **index.html** tab and type the **doctype**, **html**, **head**, and **body**. In the head, add a **title** with your site's name",
+    "This is a **new website**. Open the **index.html** tab and type the **doctype** (exactly **\"<!DOCTYPE html>\"**, with the exclamation point), **html**, **head**, and **body**. In the head, add a **title** with your site's name",
     "Click the **style.css** tab (all your styling goes there, not in the page)",
     "In the head, add a **link** to your CSS file, which is named **style.css**"
    ]
@@ -103,7 +103,7 @@
   },
   {
    "build": [
-    "This is a **new website**. Open the **index.html** tab and type the **doctype**, **html**, **head**, and **body**. In the head, add a **title** with your site's name",
+    "This is a **new website**. Open the **index.html** tab and type the **doctype** (exactly **\"<!DOCTYPE html>\"**, with the exclamation point), **html**, **head**, and **body**. In the head, add a **title** with your site's name",
     "Click the **style.css** tab (all your styling goes there, not in the page)",
     "In the head, add a **link** to your CSS file, which is named **style.css**"
    ]
@@ -193,7 +193,7 @@
   },
   {
    "build": [
-    "This is a **new website**. Open the **index.html** tab and type the **doctype**, **html**, **head**, and **body**. In the head, add a **title** with your site's name",
+    "This is a **new website**. Open the **index.html** tab and type the **doctype** (exactly **\"<!DOCTYPE html>\"**, with the exclamation point), **html**, **head**, and **body**. In the head, add a **title** with your site's name",
     "Click the **style.css** tab (all your styling goes there, not in the page)",
     "In the head, add a **link** to your CSS file, which is named **style.css**"
    ]
@@ -287,7 +287,7 @@
   },
   {
    "build": [
-    "This is a **new website**. Open the **index.html** tab and type the **doctype**, **html**, **head**, and **body**. In the head, add a **title** with your site's name",
+    "This is a **new website**. Open the **index.html** tab and type the **doctype** (exactly **\"<!DOCTYPE html>\"**, with the exclamation point), **html**, **head**, and **body**. In the head, add a **title** with your site's name",
     "Click the **style.css** tab (all your styling goes there, not in the page)",
     "In the head, add a **link** to your CSS file, which is named **style.css**"
    ]
@@ -382,7 +382,7 @@
   },
   {
    "build": [
-    "This is a **new website**. Open the **index.html** tab and type the **doctype**, **html**, **head**, and **body**. In the head, add a **title** with your site's name",
+    "This is a **new website**. Open the **index.html** tab and type the **doctype** (exactly **\"<!DOCTYPE html>\"**, with the exclamation point), **html**, **head**, and **body**. In the head, add a **title** with your site's name",
     "Click the **style.css** tab (all your styling goes there, not in the page)",
     "In the head, add a **link** to your CSS file, which is named **style.css**"
    ]
@@ -477,7 +477,7 @@
   },
   {
    "build": [
-    "This is a **new website**. Open the **index.html** tab and type the **doctype**, **html**, **head**, and **body**. In the head, add a **title** with your site's name",
+    "This is a **new website**. Open the **index.html** tab and type the **doctype** (exactly **\"<!DOCTYPE html>\"**, with the exclamation point), **html**, **head**, and **body**. In the head, add a **title** with your site's name",
     "Click the **style.css** tab (all your styling goes there, not in the page)",
     "In the head, add a **link** to your CSS file, which is named **style.css**"
    ]
@@ -569,7 +569,7 @@
   },
   {
    "build": [
-    "This is a **new website**. Open the **index.html** tab and type the **doctype**, **html**, **head**, and **body**. In the head, add a **title** with your site's name",
+    "This is a **new website**. Open the **index.html** tab and type the **doctype** (exactly **\"<!DOCTYPE html>\"**, with the exclamation point), **html**, **head**, and **body**. In the head, add a **title** with your site's name",
     "Go to **getbootstrap.com**, open **Getting Started**, and copy the official **CSS link** (a full https:// address). Add it **inside the head**",
     "In the head, add a **link** to your CSS file, which is named **style.css**, **under** the Bootstrap link so your styles win"
    ]
@@ -661,7 +661,7 @@
   },
   {
    "build": [
-    "This is a **new website**. Open the **index.html** tab and type the **doctype**, **html**, **head**, and **body**. In the head, add a **title** with your site's name",
+    "This is a **new website**. Open the **index.html** tab and type the **doctype** (exactly **\"<!DOCTYPE html>\"**, with the exclamation point), **html**, **head**, and **body**. In the head, add a **title** with your site's name",
     "Go to **getbootstrap.com**, open **Getting Started**, and copy the official **CSS link** (a full https:// address). Add it **inside the head**",
     "In the head, add a **link** to your CSS file, which is named **style.css**, **under** the Bootstrap link so your styles win"
    ]
@@ -752,7 +752,7 @@
   },
   {
    "build": [
-    "This is a **new website**. Open the **index.html** tab and type the **doctype**, **html**, **head**, and **body**. In the head, add a **title** with your site's name",
+    "This is a **new website**. Open the **index.html** tab and type the **doctype** (exactly **\"<!DOCTYPE html>\"**, with the exclamation point), **html**, **head**, and **body**. In the head, add a **title** with your site's name",
     "Go to **getbootstrap.com**, open **Getting Started**, and copy the official **CSS link** (a full https:// address). Add it **inside the head**",
     "In the head, add a **link** to your CSS file, which is named **style.css**, **under** the Bootstrap link so your styles win"
    ]
@@ -840,7 +840,7 @@
   },
   {
    "build": [
-    "This is a **new website**. Open the **index.html** tab and type the **doctype**, **html**, **head**, and **body**. In the head, add a **title** with your site's name",
+    "This is a **new website**. Open the **index.html** tab and type the **doctype** (exactly **\"<!DOCTYPE html>\"**, with the exclamation point), **html**, **head**, and **body**. In the head, add a **title** with your site's name",
     "Go to **getbootstrap.com**, open **Getting Started**, and copy the official **CSS link** (a full https:// address). Add it **inside the head**",
     "In the head, add a **link** to your CSS file, which is named **style.css**, **under** the Bootstrap link so your styles win"
    ]
@@ -942,7 +942,7 @@
   },
   {
    "build": [
-    "This is a **new website**. Open the **index.html** tab and type the **doctype**, **html**, **head**, and **body**. In the head, add a **title** with your site's name",
+    "This is a **new website**. Open the **index.html** tab and type the **doctype** (exactly **\"<!DOCTYPE html>\"**, with the exclamation point), **html**, **head**, and **body**. In the head, add a **title** with your site's name",
     "Go to **getbootstrap.com**, open **Getting Started**, and copy the official **CSS link** (a full https:// address). Add it **inside the head**",
     "In the head, add a **link** to your CSS file, which is named **style.css**, **under** the Bootstrap link so your styles win"
    ]
@@ -1036,7 +1036,7 @@
   },
   {
    "build": [
-    "This is a **new website**. Open the **index.html** tab and type the **doctype**, **html**, **head**, and **body**. In the head, add a **title** with your site's name",
+    "This is a **new website**. Open the **index.html** tab and type the **doctype** (exactly **\"<!DOCTYPE html>\"**, with the exclamation point), **html**, **head**, and **body**. In the head, add a **title** with your site's name",
     "Go to **getbootstrap.com**, open **Getting Started**, and copy the official **CSS link** (a full https:// address). Add it **inside the head**",
     "In the head, add a **link** to your CSS file, which is named **style.css**, **under** the Bootstrap link so your styles win"
    ]

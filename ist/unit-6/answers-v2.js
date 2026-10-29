@@ -21,7 +21,7 @@
   var RULE = { p: "**Every theme uses these same steps.** Use **named colors** (like navy or tomato) unless a step says hex. Dark backgrounds need light text. Each step says the least you must add: you can ALWAYS add more." };
   function skeleton(extra) {
     return S("Skeleton and title", [
-      "Type the **doctype** line, then **html** with a **head** and a **body** inside it (head first)",
+      "Type the **doctype** line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point), then **html** with a **head** and a **body** inside it (head first)",
       "Inside the head, add a **title** with your page's name"
     ].concat(extra || []));
   }
@@ -35,7 +35,7 @@
   /* ======================================================================= 6.2 ===== */
   A["6.2"] = build([].concat(head("An **epic poster** for the biggest event of the year.", "a band's world tour, a movie premiere, an esports tournament, or a made-up holiday", notes("unit-6/style-attribute-notes.html")), [RULE,
     { p: "Every style goes in a **style attribute**: the word style, an equals sign, and quotes, with the property and value **inside** the quotes and a semicolon after each." },
-    S("Skeleton and title", ["Type the **doctype** line, then **html** with a **head** and a **body** inside it (head first)", "Inside the head, add a **title** with your poster's name", "On the **body** tag, add a style: **background-color** (a named color, like black or navy)"]),
+    S("Skeleton and title", ["Type the **doctype** line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point), then **html** with a **head** and a **body** inside it (head first)", "Inside the head, add a **title** with your poster's name", "On the **body** tag, add a style: **background-color** (a named color, like black or navy)"]),
     S("The name and tagline", [
       "Inside the body, add **one heading 1** with the event's name. Style it: **color** (a bright named color), **font-size** in pixels (like 58px), **text-align** center, and **text-transform** uppercase",
       "Under it, add a **heading 2** with a short tagline. Style it: **color** (a second named color), **text-transform** uppercase, **text-align** center, and **font-size** 24px"
@@ -126,7 +126,7 @@
   /* ======================================================================= 6.6 ===== */
   A["6.6"] = build([].concat(head("A **link hub**: a one-page website that points people to the best sites about something you love.", "games, careers, or music (school-appropriate)", notes("unit-6/links-notes.html")), [RULE,
     S("Skeleton, title, and your first style block", [
-      "Type the **doctype** line, then **html** with a **head** and a **body** inside it (head first). Inside the head, add a **title** with your hub's name",
+      "Type the **doctype** line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point), then **html** with a **head** and a **body** inside it (head first). Inside the head, add a **title** with your hub's name",
       "Under the title, still inside the head, add a **style block**. Inside it there are **no quotes** and you do **not** write the word style. Write these rules, in this order: **a:link** (a text **color**), **a:visited** (a text color), **a:hover** (change **two** things: text **color** and **background-color**), then **a:active** (a text color)",
       "In the same style block, add a rule for **h1**: **color** white, **background-color**, **font-family** serif, **font-size** 38px, **text-align** center, and a **solid border** (like 4px solid)",
       "Add a rule for **h2**: **color**, **font-size** 26px, **text-transform** uppercase, and **font-family** serif. Add a rule for **body**: **background-color** (a light named color) and **font-family** sans-serif"
@@ -177,7 +177,7 @@
       "Click **Checks**, find **My images**, and upload each picture. Wait for it to show up in the list. You need **at least 2** uploaded this way"
     ]),
     S("Skeleton, title, and your style block", [
-      "Type the **doctype** line, then **html** with a **head** and a **body** inside it (head first). Inside the head, add a **title** with your brochure's name",
+      "Type the **doctype** line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point), then **html** with a **head** and a **body** inside it (head first). Inside the head, add a **title** with your brochure's name",
       "Under the title, add a **style block** with these rules: **a:link** (**color**), **a:visited** (**color**), **a:hover** (**color** and **background-color**), **a:active** (**color**), **h1** (**color** white, **background-color**, **font-family** serif, **font-size** 38px, **text-align** center, a **solid border**), **h2** (**color**, **font-size** 26px, **text-transform** uppercase, **font-family** serif), and **body** (**background-color** and **font-family** sans-serif)"
     ]),
     S("Banner, menu bar, and tagline", [
@@ -234,7 +234,7 @@
     var H2 = "Style every **heading 2** the same way: **color** and **font-size** 26px";
     var steps = [
       S("Skeleton and title", [
-        "Type the **doctype** line, then **html** with a **head** and a **body** inside it (head first)",
+        "Type the **doctype** line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point), then **html** with a **head** and a **body** inside it (head first)",
         "Inside the head, add a **title** with your page's name",
         "On the **body** tag, add a style: **background-color** (a light named color)"
       ]),
