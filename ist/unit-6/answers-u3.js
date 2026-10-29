@@ -38,7 +38,7 @@
       "Inside the head, add a **title** with your terrible page's name"
     ]),
     S("Build the page", [
-      "Inside the body, add **one heading 1** with the page's name, **at least 3 heading 2s** (sections of your page), and **at least 6 paragraphs** under them with a couple of real sentences each, about your topic"
+      "Inside the body, add **one heading 1** with the page's name. Under it, add your **first heading 2** (the title of a section), and **right under that heading 2** add **2 paragraphs** (a couple of real sentences each, about your topic). Then add a **second heading 2** with **2 paragraphs** under it, and a **third heading 2** with **2 paragraphs** under it. That is **1 heading 1, 3 heading 2s, and 6 paragraphs** in all"
     ]),
     S("Color the whole page", [
       "On the **body** tag, add a style: **background-color** (a loud named color)",
@@ -100,12 +100,12 @@
       "Under it, add a **heading 2** for a short verdict (like Fast, funny, and worth watching). Style it: **color**, **font-size** in pixels, **text-align** center, and **text-transform** capitalize (so every word starts with a capital letter)"
     ]),
     S("The review sections", [
-      "Add **at least 3 more heading 2s** after the tagline: the sections of your review (like Story, Characters, Final Verdict). Style **every one** of them with a **color**, a **font-size** in pixels, **text-transform** uppercase, and **text-align** center"
+      "After the tagline, add your **first review heading 2** (like Story), then a **second heading 2** (like Characters or Gameplay), then a **third heading 2** (like Final Verdict), one after another. For now they sit in a row: you will put paragraphs between them in Step 4. Style **every one** of them with a **color**, a **font-size** in pixels, **text-transform** uppercase, and **text-align** center"
     ]),
     S("The review text", [
-      "Under your sections, add **at least 6 paragraphs**: two or three sentences each, about the story, the characters or gameplay, and what you liked or did not like. Style **every paragraph** with a **color** and a **font-size** in pixels (like 18px)",
-      "Make **at least 3** of your paragraphs **text-align** center",
-      "Give **at least 2** of your paragraphs **both a color and a background-color** (two **different** named colors) so your favorite parts stand out"
+      "Put **2 paragraphs** between your first review heading 2 and your second one, **2 paragraphs** between the second and the third, and **2 paragraphs** under the third. That is **6 paragraphs** in all, 2 under every heading 2. Write two or three sentences in each, about the story, the characters or gameplay, and what you liked or did not like. Style **every paragraph** with a **color** and a **font-size** in pixels (like 18px)",
+      "Make **at least 3 of your 6 paragraphs** **text-align** center (for example the first paragraph under each heading 2)",
+      "Give **at least 2 of your 6 paragraphs** **both a color and a background-color** (two **different** named colors) so your favorite parts stand out"
     ]),
     S("Rating and release info", [
       "At the bottom, add **at least 2 heading 3s**: one that says Rating and one that says Release Info. Style **every** heading 3 with a **color** and **text-align** center, and make **at least one** of them **text-transform** lowercase",
@@ -123,13 +123,13 @@
     ]),
     S("The size staircase", [
       "Add **one heading 1** with the band or artist's name. Style it: **color**, **font-size** in pixels (**40px or bigger**), **text-align** center, and **text-transform** uppercase",
-      "Add **at least 3 heading 2s** for the profile's sections (like Albums, Famous Songs, Tour Dates). Style **every** heading 2 with a **color**, a **font-size** in pixels, and **text-transform** capitalize",
-      "Add **at least 2 heading 3s** for little details (like Genre or Formed In). Style **every** heading 3 with a **color** and a **font-size** in pixels",
+      "Under the heading 1, add your **first heading 2** (like Albums), then a **second heading 2** (like Famous Songs), then a **third heading 2** (like Tour Dates), one after another. For now they sit in a row: the next bullets and step fill in the space between them. Style **every** heading 2 with a **color**, a **font-size** in pixels, and **text-transform** capitalize",
+      "Add a **heading 3** (like Genre) **right under your first heading 2**, and a second **heading 3** (like Formed In) **right under your second heading 2**. Style **every** heading 3 with a **color** and a **font-size** in pixels",
       "**The staircase:** your heading 1's font-size must be **bigger than every heading 2's**, and every heading 2's must be **bigger than every heading 3's** (for example 48px, then 32px, then 22px)"
     ]),
     S("The card text", [
-      "Add **at least 8 paragraphs** of real profile text (the band's story, the albums, the songs, the tour). Style **every paragraph** with a **font-size** in pixels and a **color**",
-      "Make **at least 4** of your paragraphs **text-align** center",
+      "Add **8 paragraphs** of real profile text (the band's story, the albums, the songs, the tour): **3 paragraphs** under your first heading 3, **3 paragraphs** under your second heading 3, and **2 paragraphs** under your third heading 2. Style **every paragraph** with a **font-size** in pixels and a **color**",
+      "Make **at least 4 of your 8 paragraphs** **text-align** center",
       "Use **all three letter-case values** somewhere on the page: **text-transform** uppercase on **at least 3** elements, **lowercase** on **at least 1**, and **capitalize** on **at least 1** more (the headings above may count)"
     ]),
     S("Make it pop", [
@@ -143,8 +143,8 @@
     { p: "**Every idea uses the same steps.** There is no set layout: you decide what goes where. The steps give the **minimum** you need of each tag and style, and you can ALWAYS add more." },
     skeleton(["On the **body** tag, add a style: **background-color** (a light named color) and **color** (a dark named color for the text)"]),
     S("Build your content", [
-      "Use **at least 3 headings**: at least one **heading 1**, one **heading 2**, and **two heading 3s** (use more if your theme needs them)",
-      "Under your headings, write **at least 8 paragraphs** about your theme (real words, in your own voice)"
+      "Add your headings from top to bottom: **one heading 1** (the page's title), then a **heading 2**, then a **heading 3**, then a second **heading 3** (use more if your theme needs them). For now they sit in a row: the next bullet puts paragraphs between them",
+      "Put **2 paragraphs** under the heading 1, **2 paragraphs** under the heading 2, **2 paragraphs** under the first heading 3, and **2 paragraphs** under the second heading 3. That is **8 paragraphs** in all about your theme (real words, in your own voice)"
     ]),
     S("Editing tags", [
       "Make **at least 3** words or phrases **bold**",
@@ -174,8 +174,8 @@
       "Check that your link(s) bring in **at least 3 different fonts** (one link can hold several fonts)"
     ]),
     S("Build your content", [
-      "Add **at least one heading 1**, **one heading 2**, and **two heading 3s**",
-      "Under your headings, write **at least 6 paragraphs** for your theme (real words, in your own voice)"
+      "Add your headings from top to bottom: **one heading 1**, then a **heading 2**, then a **heading 3**, then a second **heading 3**. For now they sit in a row: the next bullet puts paragraphs between them",
+      "Put **2 paragraphs** under the heading 1, **2 paragraphs** under the heading 2, and **1 paragraph** under each heading 3. That is **6 paragraphs** in all for your theme (real words, in your own voice)"
     ]),
     S("Use your fonts", [
       "Use **at least 3 different Google fonts** on your page. Set each one with **font-family** in a style attribute: the font's name in quotes",
@@ -289,12 +289,12 @@
       "Add a **Google Fonts link** inside the head and pick at least one font that fits your theme (use Filters and sample text, like in 3.5)"
     ]),
     S("Build your page", [
-      "Add **at least 1 heading** with your page's name",
-      "Add **at least 1 paragraph** that introduces your theme",
-      "Use **at least 1 line break** (br) and **at least 1 horizontal line** (hr), outside any paragraph"
+      "At the top of the body, add **one heading 1** with your page's name",
+      "Right under the heading, add a **paragraph** that introduces your theme. **Inside** that paragraph, add a **line break** (br) so the text continues on a second line",
+      "Under the paragraph (**outside** it), add a **horizontal line** (hr). Your pictures go under this line in the next step"
     ]),
     S("The pictures", [
-      "Add **at least 5 pictures**. Each one needs a **src** that is a web address (upload one with Insert, or use a real address)",
+      "Under the horizontal line, add **5 pictures**, one after another. Each one needs a **src** that is a web address (upload one with Insert, or use a real address)",
       "Give **every** picture a real **alt** attribute that describes it (never leave the placeholder)",
       "Give **every** picture a **border** in its style attribute (thickness, style, and color, like 4px solid navy). Try different styles and colors",
       "Give **every** picture a **width** in its style attribute (like 300px) so none is giant. Put it in the same style attribute as the border, with a semicolon between"
@@ -327,9 +327,9 @@
     S("Headings and words", [
       "Add **one heading 1** with your page's name, and **paste an emoji** into it. Style it: **color**, **background-color**, **font-size** in pixels (like 46px), **text-align** center, **text-transform** uppercase, a **solid border** (thickness, style, color in that order), and your **Google font** in a **font-family** that ends with a **fallback family**",
       "Under it, add a **paragraph** that introduces your theme. Style it: **text-align** center and **font-size** 20px. **Inside** it, put one phrase in **italics**, and add **2 spans**, each wrapped around a single pasted **symbol** (like a star or a heart) with its own **font-size** in pixels and its own **color**",
-      "Add **at least 3 heading 2s**, one for each section of your page. **Paste an emoji or a symbol** into each one. Style each with a **color** and a border on **one side only** (like border-bottom: 4px dashed)",
-      "Under them, add **at least 2 heading 3s**, each with a **symbol** pasted in. Style at least one with **text-transform** uppercase",
-      "Write **at least 6 paragraphs or list items** about your theme, each with **4 or more real words**. The emojis add to your words, they never replace them"
+      "Under the paragraph, add your **first heading 2** (a section of your page), then a **second heading 2**, then a **third heading 2**, one after another. **Paste an emoji or a symbol** into each one. Style each with a **color** and a border on **one side only** (like border-bottom: 4px dashed). The next bullets fill in the space between them",
+      "Add a **heading 3** **right under your first heading 2** and a second **heading 3** **right under your second heading 2**, each with a **symbol** pasted in. Style at least one with **text-transform** uppercase",
+      "Write **6 paragraphs** about your theme, each with **4 or more real words**: **2 paragraphs** under your first heading 3, **2 paragraphs** under your second heading 3, and **2 paragraphs** under your third heading 2. The emojis add to your words, they never replace them"
     ]),
     S("Paste your characters", [
       "Paste **at least 10 emojis** in all, with **at least 6 different** ones. Spread them through your headings, paragraphs, and lists",

@@ -30,14 +30,14 @@
 
     { h: "Step 3: Section headings" },
     { build: [
-      "Under the heading 1, add **3 section headings** (heading 2), like History, How It Works, Why It Matters",
+      "Right under the heading 1, add your **first heading 2** (the title of your first section, like History). Under it, add a **second heading 2** (like How It Works), and under that a **third heading 2** (like Why It Matters). For now they sit one after another: you will fill in the space between them in Step 4",
       "Use only **heading 1** and **heading 2** on this page. Do not use heading 3 or smaller"
     ] },
 
     { h: "Step 4: Paragraphs" },
     { build: [
-      "Under each section heading, add **2 paragraphs**. Each one goes in its **own** paragraph, not inside a heading",
-      "Write **6 paragraphs** in all (2 under each heading 2), and make at least **5 of them 25 words or longer**"
+      "Put **2 paragraphs** between your **first heading 2** and your **second heading 2**. Each one goes in its **own** paragraph, not inside a heading",
+      "Put **2 more paragraphs** between your **second heading 2** and your **third heading 2**, and **2 more paragraphs** under your **third heading 2**. That is **6 paragraphs** in all, 2 under every heading 2. Make at least **5 of them 25 words or longer** (about two full sentences each)"
     ] },
 
     { h: "Step 5: Check and submit" },
