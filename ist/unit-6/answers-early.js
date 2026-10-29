@@ -31,19 +31,19 @@
     { h: "Step 3: Section 1" },
     { build: [
       "Right under the heading 1, add your **first heading 2**: the title of your first section, like History. Use only **heading 1** and **heading 2** on this page (no heading 3 or smaller)",
-      "**Right under that heading 2**, add **2 paragraphs**. Each one goes in its **own** paragraph, not inside a heading. Write about your topic, and make each paragraph **25 words or longer** (about two full sentences)"
+      "**Right under that heading 2**, add **2 paragraphs**. Each one goes in its **own** paragraph, not inside a heading. Write about your topic in your own words (a couple of sentences each)"
     ] },
 
     { h: "Step 4: Section 2" },
     { build: [
       "Under your second paragraph, add your **second heading 2**: the title of your next section, like How It Works",
-      "**Right under that heading 2**, add **2 paragraphs** about your topic, each **25 words or longer** (about two full sentences)"
+      "**Right under that heading 2**, add **2 paragraphs** about your topic (a couple of sentences each)"
     ] },
 
     { h: "Step 5: Section 3" },
     { build: [
       "Under your last paragraph, add your **third heading 2**: the title of your last section, like Why It Matters",
-      "**Right under that heading 2**, add **2 paragraphs** about your topic. That makes **6 paragraphs** in all, 2 under every heading 2, and at least **5 of them 25 words or longer**"
+      "**Right under that heading 2**, add **2 paragraphs** about your topic. That makes **6 paragraphs** in all, and 2 under every heading 2"
     ] },
 
     { h: "Step 6: Check and submit" },

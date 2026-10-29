@@ -471,7 +471,6 @@
         for (var i = 1; i < hs.length; i++) if (hs[i] > hs[i - 1] + 1) return false; return true;
       }, "Use only heading 1 and heading 2 on this page: the h1 first, then the h2 sections.", true),
       r("At least 6 <p> paragraphs, all inside the <body>", function (c) { var a = c.all("p"); return a.length >= 6 && a.every(function (n) { return !!c.ancestor(n, ["body"]); }); }, "", true),
-      r("At least 5 of your paragraphs have 25 words or more", function (c) { return c.all("p").filter(function (n) { return c.words(n) >= 25; }).length >= 5; }, "Write full paragraphs of 3 to 5 sentences.", true),
       r("Your writing is real: no keyboard mashing, nonsense words, or filler text", function (c) { var q = quality(c); return !q.flags.some(function (f) { return f.sev === "high" && /^(gibberish|filler|salad)$/.test(f.id); }); }, "Write real sentences in your own words.", true),
       r("Your writing is not the same content over and over (no repeated paragraphs, sentences, or phrases)", function (c) { var q = quality(c); return !q.flags.some(function (f) { return f.sev === "high" && /^(dup-paras|dup-sents|phrase|word-run|variety)$/.test(f.id); }); }, "Every paragraph should say something new.", true),
       r("Every tag is closed and nested correctly", function (c) { return c.errors.length === 0 && c.has("html"); }, "See the Problems list for exactly which line to fix.", false, true)

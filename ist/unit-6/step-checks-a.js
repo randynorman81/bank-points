@@ -29,12 +29,12 @@
     var H2 = function (c) { var x = sections(c)[i]; return x ? x.h2 : null; }, PS = function (c) { var x = sections(c)[i]; return x ? x.ps : []; };
     return [
       [K("There is heading 2 number " + (i + 1) + " (under the heading 1)", function (c) { var e = H2(c), h1 = c.all("h1")[0]; return !!e && !!h1 && h.before(c, h1, e); }), K("The heading 2 has words in it", function (c) { var e = H2(c); return !!e && words(c, e) >= 1; })],
-      [K("There are 2 paragraphs right under that heading 2", function (c) { return PS(c).length >= 2; }), K("At least one of the 2 paragraphs is 25 words or longer", function (c) { return PS(c).slice(0, 2).some(function (p) { return words(c, p) >= 25; }); })]
+      [K("There are 2 paragraphs right under that heading 2", function (c) { return PS(c).length >= 2; })]
     ];
   }
   var sec1 = section(0), sec2 = section(1), sec3 = section(2);
   sec3[0].push(K("Only heading 1 and heading 2 are used (no heading 3 or smaller)", function (c) { return c.count("h1") >= 1 && c.count("h2") >= 1 && ["h3", "h4", "h5", "h6"].every(function (t) { return c.count(t) === 0; }); }));
-  sec3[1].push(CNT("At least 6 paragraphs in all", "p", 6), K("At least 5 paragraphs are 25 words or longer", function (c) { return c.all("p").filter(function (p) { return words(c, p) >= 25; }).length >= 5; }), K("No paragraph is inside a heading", function (c) { return c.all("p").every(function (p) { return !h.inTag(c, p, ["h1", "h2", "h3", "h4", "h5", "h6"]); }) && c.count("p") > 0; }));
+  sec3[1].push(CNT("At least 6 paragraphs in all", "p", 6), K("No paragraph is inside a heading", function (c) { return c.all("p").every(function (p) { return !h.inTag(c, p, ["h1", "h2", "h3", "h4", "h5", "h6"]); }) && c.count("p") > 0; }));
   SC.LESSONS["6.1"] = { inlineOnly: false, steps: {
     "Step 1": [
       [h.DOCTYPECK],
