@@ -87,8 +87,8 @@
     ]),
     done()]));
 
-  /* ======================================================================= 6.21  (3.3 Part 2: extra practice) ===== */
-  A["6.21"] = build([].concat(head("**A review page** for a movie or video game you know well. This is **extra 3.3 practice** (Part 1): the same font-size, text-align, and letter-case skills as the poster, on a brand-new page.", "a movie or a video game", notes("unit-6/text-size-align-notes.html")), [RULE,
+  /* ======================================================================= 6.21  (3.3 Part 2: extra practice, movie or game review) ===== */
+  A["6.21"] = build([].concat(head("**A review page** for a movie or video game you know well. This is **extra 3.3 practice** (Part 2): the same font-size, text-align, and letter-case skills as the poster, on a brand-new page.", "a movie or a video game", notes("unit-6/text-size-align-notes.html")), [RULE,
     RULE2,
     S("Skeleton, title, and colors", [
       "Type the **doctype** line, then **html** with a **head** and a **body** inside it (head first)",
@@ -113,8 +113,8 @@
     ]),
     done()]));
 
-  /* ======================================================================= 6.22  (3.3 Part 3: extra practice) ===== */
-  A["6.22"] = build([].concat(head("**A profile page** for a band or music artist, built so the **sizes shrink** from the biggest heading to the smallest. This is **extra 3.3 practice** (Part 2): the same font-size, text-align, and letter-case skills, on another brand-new page.", "a real band or artist you like, or a made-up one", notes("unit-6/text-size-align-notes.html")), [RULE,
+  /* ======================================================================= 6.22  (3.3 Part 3: extra practice, band or artist profile) ===== */
+  A["6.22"] = build([].concat(head("**A profile page** for a band or music artist, built so the **sizes shrink** from the biggest heading to the smallest. This is **extra 3.3 practice** (Part 3): the same font-size, text-align, and letter-case skills, on another brand-new page.", "a real band or artist you like, or a made-up one", notes("unit-6/text-size-align-notes.html")), [RULE,
     RULE2,
     S("Skeleton, title, and colors", [
       "Type the **doctype** line, then **html** with a **head** and a **body** inside it (head first)",
