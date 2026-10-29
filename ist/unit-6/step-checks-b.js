@@ -426,4 +426,104 @@
   } };
   lastStep("6.75", "Step 7", [[h.ALLGREEN], []]);
 
+
+  /* =============== BUILD AND STYLE TOGETHER: 3.2, 3.3 Part 2, 3.3 Part 3 ===============
+     Each tag is built AND styled in the same bullet (a heading with its style, then the paragraphs right under it with their styles), one section at a time.
+     These replace the older versions above (which built every tag first and styled them in a later step). */
+  function nth(tag, i) { return function (c) { return c.all(tag)[i] || null; }; }
+  function psAfter(c, el) { var out = [], n = el ? h.nextEl(el) : null; while (n && n.tag === "p") { out.push(n); n = h.nextEl(n); } return out; }
+  function bothStyled(c, x) { return has(c, x, "color", named) && has(c, x, "background-color", named) && bothDiffer(c, x); }
+  function twoPs(label, pickHead, test) { return K(label, function (c) { var p = psAfter(c, pickHead(c)); return p.length >= 2 && p.slice(0, 2).every(function (x) { return test(c, x); }); }); }
+  function nPs(n, where, pickHead) { return K("There are " + n + " paragraphs right under " + where, function (c) { return psAfter(c, pickHead(c)).length >= n; }); }
+
+  /* ---- 3.2 (6.2) ---- */
+  (function () {
+    function headChecks(i, extra) {
+      var H = nth("h2", i);
+      return [exists("There is heading 2 number " + (i + 1) + " (under your heading 1)", H), K("It has a color and a background-color, two different named colors", function (c) { var e = H(c); return !!e && bothStyled(c, e); })].concat(extra || []);
+    }
+    function parChecks(i, extra) {
+      var H = nth("h2", i);
+      return [nPs(2, "heading 2 number " + (i + 1), H), twoPs("Each of those 2 paragraphs has a color and a background-color, two different named colors", H, bothStyled)].concat(extra || []);
+    }
+    var pattern = K("Pattern: this heading 2 uses exactly the same text color and background-color as your first heading 2", function (c) { var a = c.all("h2"); if (a.length < 2) return false; return h.vals(c, a[0], "color")[0] + "|" + h.vals(c, a[0], "background-color")[0] === h.vals(c, a[1], "color")[0] + "|" + h.vals(c, a[1], "background-color")[0] && !!h.vals(c, a[0], "color")[0]; });
+    var uniq = [
+      CNT("There are at least 6 paragraphs", "p", 6),
+      K("No two paragraphs share a background-color (every paragraph has its own)", function (c) { var a = c.all("p"), seen = {}; return a.length >= 6 && a.every(function (x) { var v = h.vals(c, x, "background-color")[0]; if (!v || seen[v]) return false; seen[v] = 1; return true; }); }),
+      K("No two paragraphs share a text color (every paragraph has its own)", function (c) { var a = c.all("p"), seen = {}; return a.length >= 6 && a.every(function (x) { var v = h.vals(c, x, "color")[0]; if (!v || seen[v]) return false; seen[v] = 1; return true; }); })
+    ];
+    var old = SC.LESSONS["6.2"].steps;
+    SC.LESSONS["6.2"] = { inlineOnly: true, steps: {
+      "Step 1": old["Step 1"],
+      "Step 2": [old["Step 3"][0].concat(old["Step 3"][1]), []],
+      "Step 3": [[K("There is one heading 1", function (c) { return c.count("h1") === 1; }), K("The heading 1 has a color and a background-color, two different named colors", function (c) { var e = T("h1")(c); return !!e && bothStyled(c, e); })]],
+      "Step 4": [headChecks(0), parChecks(0)],
+      "Step 5": [headChecks(1, [pattern]), parChecks(1)],
+      "Step 6": [headChecks(2), parChecks(2, uniq)],
+      "Step 7": [old["Step 5"][1], [], RAINBOW]
+    } };
+    lastStep("6.2", "Step 8", [[h.ALLGREEN], []]);
+  })();
+
+  /* ---- 3.3 Part 2 (6.21): the review ---- */
+  (function () {
+    var old = SC.LESSONS["6.21"].steps;
+    function sec(i, hasBg) {
+      var H = nth("h2", i + 1);
+      return [
+        [exists("There is a review heading 2 (number " + (i + 1) + " after the tagline)", H), P("It has a color (a named color)", H, "color", named), P("Its font-size is in pixels", H, "font-size", h.isPx), P("It is text-transform uppercase", H, "text-transform", upper), P("It is text-align center", H, "text-align", center)],
+        [nPs(2, "that heading 2", H),
+         K("Both paragraphs have a color (a named color) and a font-size in pixels", function (c) { var p = psAfter(c, H(c)); return p.length >= 2 && p.slice(0, 2).every(function (x) { return has(c, x, "color", named) && has(c, x, "font-size", h.isPx); }); }),
+         K("The first paragraph is text-align center", function (c) { var p = psAfter(c, H(c)); return p.length >= 1 && has(c, p[0], "text-align", center); })
+        ].concat(hasBg ? [K("The second paragraph has both a color and a background-color (two different named colors)", function (c) { var p = psAfter(c, H(c)); return p.length >= 2 && bothColorsAndDiffer(c, p[1]); })] : [])
+      ];
+    }
+    var ratingH = HW("h3", /rating/i), relH = HW("h3", /release/i);
+    SC.LESSONS["6.21"] = { inlineOnly: true, steps: {
+      "Step 1": old["Step 1"],
+      "Step 2": old["Step 2"],
+      "Step 3": sec(0, true),
+      "Step 4": sec(1, true),
+      "Step 5": sec(2, false),
+      "Step 6": [
+        [exists("There is a heading 3 that says Rating", ratingH), P("It has a color (a named color)", ratingH, "color", named), P("It is text-align center", ratingH, "text-align", center), P("It is text-transform lowercase", ratingH, "text-transform", lower)],
+        [exists("A paragraph is right under the Rating heading", AFTER(ratingH, "p")), P("It has a color (a named color)", AFTER(ratingH, "p"), "color", named), P("Its font-size is in pixels", AFTER(ratingH, "p"), "font-size", h.isPx)],
+        [exists("There is a heading 3 that says Release Info", relH), P("It has a color (a named color)", relH, "color", named), P("It is text-align center", relH, "text-align", center)],
+        [exists("A paragraph is right under the Release Info heading", AFTER(relH, "p")), P("It has a color (a named color)", AFTER(relH, "p"), "color", named), P("Its font-size is in pixels", AFTER(relH, "p"), "font-size", h.isPx)]
+      ]
+    } };
+    lastStep("6.21", "Step 7", [[h.ALLGREEN], []]);
+  })();
+
+  /* ---- 3.3 Part 3 (6.22): the band profile ---- */
+  (function () {
+    var old = SC.LESSONS["6.22"].steps;
+    function h2Checks(i) {
+      var H = nth("h2", i);
+      return [exists("There is heading 2 number " + (i + 1), H), P("It has a color (a named color)", H, "color", named), P("Its font-size is in pixels", H, "font-size", h.isPx), P("It is text-transform capitalize", H, "text-transform", capital),
+        K("It has both a color and a background-color (two different named colors)", function (c) { var e = H(c); return !!e && bothColorsAndDiffer(c, e); })];
+    }
+    function h3Checks(i, tt) {
+      var H3 = nth("h3", i), H2 = nth("h2", i);
+      var out = [exists("There is a heading 3 right under heading 2 number " + (i + 1), function (c) { var e = h.nextEl(H2(c)); return e && e.tag === "h3" ? e : null; }), P("It has a color (a named color)", H3, "color", named), P("Its font-size is in pixels", H3, "font-size", h.isPx)];
+      if (tt) out.push(P("It is text-transform " + tt, H3, "text-transform", tt === "uppercase" ? upper : lower));
+      return out;
+    }
+    function pChecks(pickHead, n, where, centered, lastUpper) {
+      var out = [nPs(n, where, pickHead), K("Every one of them has a color (a named color) and a font-size in pixels", function (c) { var p = psAfter(c, pickHead(c)); return p.length >= n && p.slice(0, n).every(function (x) { return has(c, x, "color", named) && has(c, x, "font-size", h.isPx); }); })];
+      if (centered) out.push(K("The first " + centered + " are text-align center", function (c) { var p = psAfter(c, pickHead(c)); return p.length >= centered && p.slice(0, centered).every(function (x) { return has(c, x, "text-align", center); }); }));
+      if (lastUpper) out.push(K("The last one is text-transform uppercase", function (c) { var p = psAfter(c, pickHead(c)); return p.length >= n && has(c, p[n - 1], "text-transform", upper); }));
+      return out;
+    }
+    SC.LESSONS["6.22"] = { inlineOnly: true, steps: {
+      "Step 1": old["Step 1"],
+      "Step 2": [old["Step 2"][0]],
+      "Step 3": [h2Checks(0), h3Checks(0, "uppercase"), pChecks(nth("h3", 0), 3, "your first heading 3", 2)],
+      "Step 4": [h2Checks(1), h3Checks(1, "lowercase"), pChecks(nth("h3", 1), 3, "your second heading 3", 2)],
+      "Step 5": [h2Checks(2), pChecks(nth("h2", 2), 2, "your third heading 2", 0, true)],
+      "Step 6": [old["Step 2"][3]]
+    } };
+    lastStep("6.22", "Step 7", [[h.ALLGREEN], []]);
+  })();
+
 })(typeof window !== "undefined" ? window : globalThis);

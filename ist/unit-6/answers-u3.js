@@ -37,19 +37,27 @@
       "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point), then **html** with a **head** and a **body** inside it (head first)",
       "Inside the head, add a **title** with your terrible page's name"
     ]),
-    S("Build the page", [
-      "Inside the body, add **one heading 1** with the page's name. Under it, add your **first heading 2** (the title of a section), and **right under that heading 2** add **2 paragraphs** (a couple of real sentences each, about your topic). Then add a **second heading 2** with **2 paragraphs** under it, and a **third heading 2** with **2 paragraphs** under it. That is **1 heading 1, 3 heading 2s, and 6 paragraphs** in all"
-    ]),
+    { p: "**From here on you build and style each tag at the same time:** when you add a tag, put its style on it right away, before you move on to the next tag." },
     S("Color the whole page", [
       "On the **body** tag, add a style with **both** a **background-color** (a loud named color) **and** a **color** (a different named color for the text). Put both properties in **one** style attribute, with a semicolon between them",
       "**Remember:** the style on the body gives the **whole page** its basic colors, and every tag inside inherits them. But you can **override** those colors on any single tag by giving that tag its own style attribute with new colors. That is how you will make each heading and paragraph different in the next steps"
     ]),
-    S("Color the headings", [
-      "Style the **heading 1** with **color** and **background-color** together (two different named colors)",
-      "Style **every heading 2** with **color** and **background-color** together. Make a **pattern**: **at least 2 of your heading 2s** must use exactly the same two colors (like orange on purple every time), so your headings look like a matching set"
+    S("The heading 1", [
+      "Inside the body, add **one heading 1** with the page's name. **Right away**, style it with **color** and **background-color** together (two different named colors)"
     ]),
-    S("Color the paragraphs: no two alike", [
-      "Style **every paragraph** with **color** and **background-color** together. **Every paragraph must look different from all the others**: no two paragraphs can share the same text color, and no two can share the same background color. On each paragraph, the text color and background must also be different from each other",
+    S("Section 1", [
+      "Under the heading 1, add your **first heading 2** (the title of a section). **Right away**, style it with **color** and **background-color** together (two different named colors). Remember the two colors: your next heading 2 has to use the same ones",
+      "**Right under that heading 2**, add **2 paragraphs** (a couple of real sentences each, about your topic). Style **each paragraph** as soon as you add it, with **color** and **background-color** together (two different named colors). **Every paragraph on the page must look different from all the others**: no two can share a text color, and no two can share a background color"
+    ]),
+    S("Section 2", [
+      "Add your **second heading 2**. **Right away**, style it with **exactly the same** **color** and **background-color** as your first heading 2, so your headings look like a matching set (a **pattern**)",
+      "**Right under it**, add **2 paragraphs** about your topic, each styled as soon as you add it with **color** and **background-color** (two different named colors, and different from every other paragraph so far)"
+    ]),
+    S("Section 3", [
+      "Add your **third heading 2**. **Right away**, style it with **color** and **background-color** together (two different named colors; the same ones as the other headings is fine)",
+      "**Right under it**, add **2 paragraphs** about your topic, each styled as soon as you add it with **color** and **background-color**. That makes **6 paragraphs** in all, and **no two of them** share a text color or a background color"
+    ]),
+    S("Finishing touches", [
       "Check that nothing is hidden: wherever you use both **color** and **background-color**, they must be **different** colors. Ugly is fine. Invisible is not",
       "**A sneak peek (we cover it fully in 3.4):** the **span** tag wraps just a few words inside a paragraph or heading, and the span can have its own style attribute. So you can give a word, or even a single letter, its own **color** (or **background-color**) that overrides the paragraph's. Put the span **inside** the tag, and close it before the tag closes. Click the help button to see it work",
       "**BONUS (+5 points):** use the span tag to color words on your page. Either wrap **at least 3 whole words**, each in its own span with a **color**, OR make **one rainbow word** by giving **each letter** of a word its own span and its own **color**. Your auto score goes above 100 when you finish all the required steps AND earn this bonus"
@@ -90,25 +98,32 @@
   A["6.21"] = build([].concat(head("**A review page** for a movie or video game you know well. This is **extra 3.3 practice** (Part 2): the same font-size, text-align, and letter-case skills as the poster, on a brand-new page.", "a movie or a video game", notes("unit-6/text-size-align-notes.html")), [RULE,
     RULE2,
     S("Skeleton, title, and colors", [
-      "Type the **doctype** line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point), then **html** with a **head** and a **body** inside it (head first)",
+      "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point), then **html** with a **head** and a **body** inside it (head first)",
       "Inside the head, add a **title** with the name of what you are reviewing",
       "On the **body** tag, add a style with a **background-color** and a **color** (two **different** named colors, so the text can be read)"
     ]),
+    { p: "**From here on you build and style each tag at the same time:** when you add a tag, put its style on it right away, before you move on to the next tag." },
     S("The name and the tagline", [
-      "Inside the body, add **one heading 1** with the title of the movie or game. Style it: **color**, **font-size** in pixels (**36px or bigger**), **text-align** center, and **text-transform** uppercase",
-      "Under it, add a **heading 2** for a short verdict (like Fast, funny, and worth watching). Style it: **color**, **font-size** in pixels, **text-align** center, and **text-transform** capitalize (so every word starts with a capital letter)"
+      "Inside the body, add **one heading 1** with the title of the movie or game. **Right away**, style it: **color**, **font-size** in pixels (**36px or bigger**), **text-align** center, and **text-transform** uppercase",
+      "Under it, add a **heading 2** for a short verdict (like Fast, funny, and worth watching). **Right away**, style it: **color**, **font-size** in pixels, **text-align** center, and **text-transform** capitalize (so every word starts with a capital letter)"
     ]),
-    S("The review sections", [
-      "After the tagline, add your **first review heading 2** (like Story), then a **second heading 2** (like Characters or Gameplay), then a **third heading 2** (like Final Verdict), one after another. For now they sit in a row: you will put paragraphs between them in Step 4. Style **every one** of them with a **color**, a **font-size** in pixels, **text-transform** uppercase, and **text-align** center"
+    S("Review section 1", [
+      "Under the verdict, add your **first review heading 2** (like Story). **Right away**, style it: **color**, **font-size** in pixels, **text-transform** uppercase, and **text-align** center",
+      "**Right under that heading 2**, add **2 paragraphs** (two or three sentences each, about the story, the characters or gameplay, and what you liked or did not like). Style **each paragraph** as soon as you add it with a **color** and a **font-size** in pixels (like 18px). Make the **first** paragraph **text-align** center, and give the **second** paragraph **both a color and a background-color** (two **different** named colors) so it stands out"
     ]),
-    S("The review text", [
-      "Put **2 paragraphs** between your first review heading 2 and your second one, **2 paragraphs** between the second and the third, and **2 paragraphs** under the third. That is **6 paragraphs** in all, 2 under every heading 2. Write two or three sentences in each, about the story, the characters or gameplay, and what you liked or did not like. Style **every paragraph** with a **color** and a **font-size** in pixels (like 18px)",
-      "Make **at least 3 of your 6 paragraphs** **text-align** center (for example the first paragraph under each heading 2)",
-      "Give **at least 2 of your 6 paragraphs** **both a color and a background-color** (two **different** named colors) so your favorite parts stand out"
+    S("Review section 2", [
+      "Add your **second review heading 2** (like Characters or Gameplay). **Right away**, style it the same way: **color**, **font-size** in pixels, **text-transform** uppercase, and **text-align** center",
+      "**Right under it**, add **2 paragraphs**, each styled as soon as you add it with a **color** and a **font-size** in pixels. Make the **first** one **text-align** center, and give the **second** one **both a color and a background-color** (two **different** named colors)"
+    ]),
+    S("Review section 3", [
+      "Add your **third review heading 2** (like Final Verdict). **Right away**, style it the same way: **color**, **font-size** in pixels, **text-transform** uppercase, and **text-align** center",
+      "**Right under it**, add **2 paragraphs**, each styled as soon as you add it with a **color** and a **font-size** in pixels. Make the **first** one **text-align** center. That makes **6 paragraphs** in all, 2 under every heading 2"
     ]),
     S("Rating and release info", [
-      "At the bottom, add **at least 2 heading 3s**: one that says Rating and one that says Release Info. Style **every** heading 3 with a **color** and **text-align** center, and make **at least one** of them **text-transform** lowercase",
-      "Put a **paragraph right after each heading 3** (your rating out of 10 with a reason, and the year it came out and who made it). Style each one with a **color** and a **font-size** in pixels"
+      "At the bottom, add a **heading 3** that says **\"Rating\"** (the word Rating has to be in it). **Right away**, style it: **color**, **text-align** center, and **text-transform** lowercase",
+      "**Right under it**, add a **paragraph** with your rating out of 10 and a reason. Style it as soon as you add it with a **color** and a **font-size** in pixels",
+      "Add a second **heading 3** that says **\"Release Info\"** (those words have to be in it). **Right away**, style it: **color** and **text-align** center",
+      "**Right under it**, add a **paragraph** with the year it came out and who made it. Style it as soon as you add it with a **color** and a **font-size** in pixels"
     ]),
     done()]));
 
@@ -116,24 +131,30 @@
   A["6.22"] = build([].concat(head("**A profile page** for a band or music artist, built so the **sizes shrink** from the biggest heading to the smallest. This is **extra 3.3 practice** (Part 3): the same font-size, text-align, and letter-case skills, on another brand-new page.", "a real band or artist you like, or a made-up one", notes("unit-6/text-size-align-notes.html")), [RULE,
     RULE2,
     S("Skeleton, title, and colors", [
-      "Type the **doctype** line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point), then **html** with a **head** and a **body** inside it (head first)",
+      "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point), then **html** with a **head** and a **body** inside it (head first)",
       "Inside the head, add a **title** with the band or artist's name",
       "On the **body** tag, add a style with a **background-color** and a **color** (two **different** named colors)"
     ]),
+    { p: "**From here on you build and style each tag at the same time:** when you add a tag, put its style on it right away, before you move on to the next tag." },
+    S("The band name", [
+      "Add **one heading 1** with the band or artist's name. **Right away**, style it: **color**, **font-size** in pixels (**40px or bigger**), **text-align** center, and **text-transform** uppercase"
+    ]),
+    S("Section 1", [
+      "Under the heading 1, add your **first heading 2** (like Albums). **Right away**, style it: **color**, **background-color** (a different named color), **font-size** in pixels, and **text-transform** capitalize",
+      "**Right under that heading 2**, add a **heading 3** (like Genre). **Right away**, style it: **color**, **font-size** in pixels, and **text-transform** uppercase",
+      "**Right under the heading 3**, add **3 paragraphs** of real profile text. Style **each paragraph** as soon as you add it with a **font-size** in pixels and a **color**, and make the **first 2** paragraphs **text-align** center"
+    ]),
+    S("Section 2", [
+      "Add your **second heading 2** (like Famous Songs). **Right away**, style it: **color**, **background-color** (a different named color), **font-size** in pixels, and **text-transform** capitalize",
+      "**Right under it**, add a **heading 3** (like Formed In). **Right away**, style it: **color**, **font-size** in pixels, and **text-transform** lowercase",
+      "**Right under the heading 3**, add **3 paragraphs** of real profile text. Style **each paragraph** as soon as you add it with a **font-size** in pixels and a **color**, and make the **first 2** paragraphs **text-align** center"
+    ]),
+    S("Section 3", [
+      "Add your **third heading 2** (like Tour Dates). **Right away**, style it: **color**, **background-color** (a different named color), **font-size** in pixels, and **text-transform** capitalize",
+      "**Right under it**, add **2 paragraphs** of real profile text. Style **each paragraph** as soon as you add it with a **font-size** in pixels and a **color**, and make the **last** paragraph **text-transform** uppercase"
+    ]),
     S("The size staircase", [
-      "Add **one heading 1** with the band or artist's name. Style it: **color**, **font-size** in pixels (**40px or bigger**), **text-align** center, and **text-transform** uppercase",
-      "Under the heading 1, add your **first heading 2** (like Albums), then a **second heading 2** (like Famous Songs), then a **third heading 2** (like Tour Dates), one after another. For now they sit in a row: the next bullets and step fill in the space between them. Style **every** heading 2 with a **color**, a **font-size** in pixels, and **text-transform** capitalize",
-      "Add a **heading 3** (like Genre) **right under your first heading 2**, and a second **heading 3** (like Formed In) **right under your second heading 2**. Style **every** heading 3 with a **color** and a **font-size** in pixels",
-      "**The staircase:** your heading 1's font-size must be **bigger than every heading 2's**, and every heading 2's must be **bigger than every heading 3's** (for example 48px, then 32px, then 22px)"
-    ]),
-    S("The card text", [
-      "Add **8 paragraphs** of real profile text (the band's story, the albums, the songs, the tour): **3 paragraphs** under your first heading 3, **3 paragraphs** under your second heading 3, and **2 paragraphs** under your third heading 2. Style **every paragraph** with a **font-size** in pixels and a **color**",
-      "Make **at least 4 of your 8 paragraphs** **text-align** center",
-      "Use **all three letter-case values** somewhere on the page: **text-transform** uppercase on **at least 3** elements, **lowercase** on **at least 1**, and **capitalize** on **at least 1** more (the headings above may count)"
-    ]),
-    S("Make it pop", [
-      "Give **at least 3 elements** both a **color** and a **background-color** (two **different** named colors), like a banner heading or a stat box",
-      "Make sure **at least 3 different font-sizes** show up on your page (the staircase already gives you three)"
+      "**Check the staircase:** your heading 1's font-size must be **bigger than every heading 2's**, and every heading 2's must be **bigger than every heading 3's** (for example 48px, then 32px, then 22px). Change a size if one is out of order"
     ]),
     done()]));
 
