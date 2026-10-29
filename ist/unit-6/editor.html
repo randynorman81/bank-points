@@ -558,7 +558,7 @@ ta.addEventListener("scroll", function () { $("gut").scrollTop = ta.scrollTop; }
 function cursorInfo() { var b = ta.value.slice(0, ta.selectionStart).split("\n"); $("lineinfo").textContent = "Line " + b.length + ", Col " + (b[b.length - 1].length + 1); }
 ta.addEventListener("keyup", cursorInfo); ta.addEventListener("click", cursorInfo);
 
-/* auto-close tags, quotes, and smart Enter (index.html only) */
+/* auto-close tags and smart Enter (quotes are NOT auto-closed: students type both quotes themselves) (index.html only) */
 function insertAt(pos, text, caretAfter) { noteAuto(text.length); ta.setRangeText(text, pos, pos, "preserve"); ta.setSelectionRange(caretAfter, caretAfter); }
 function insideTag(before) { var lt = before.lastIndexOf("<"), gt = before.lastIndexOf(">"); return lt > gt && before.charAt(lt + 1) !== "/" && before.charAt(lt + 1) !== "!"; }
 var EDIT_TAGS = { strong: 1, b: 1, em: 1, i: 1, u: 1, s: 1, mark: 1, small: 1, sub: 1, sup: 1, del: 1, ins: 1, span: 1 };
@@ -596,10 +596,6 @@ function handleAuto(ch) {
     /* typing <!-- opens a comment: close it for the student and leave the cursor in the middle (<!-- | -->) */
     if (/^\s*-->/.test(v.slice(pos)) || v.slice(pos).indexOf("-->") === 0) return;
     insertAt(pos, "  -->", pos + 1);
-  } else if (ch === '"') {
-    if (!insideTag(before.slice(0, -1))) return;
-    if (v.charAt(pos) === '"') { ta.setRangeText("", pos - 1, pos, "preserve"); ta.setSelectionRange(pos, pos); }
-    else insertAt(pos, '"', pos);
   }
 }
 /* Copy and paste: students can copy and paste CODE THEY HAVE ALREADY WRITTEN in their own HTML and CSS (to move or repeat a piece of their page), but they cannot paste anything that came from the notes, the steps, other websites, or anywhere else.

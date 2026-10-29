@@ -106,7 +106,7 @@
     { p: "A style changes how a tag looks. You put it **inside the opening tag**, after the tag name." },
     { ex: ["<p style=\"color: red;\">Red text</p>"] },
     { rows: [["style=", "the word style and an equals sign", "starts the style"], ["\" \"", "quotes around everything", "the styles go inside the quotes"], ["color: red;", "property: value;", "what to change, and how"]] },
-    { good: "The editor adds the second quote for you when you type the first." },
+    { good: "Type both quotes yourself: one before the styles and one after." },
     { warn: "Styles go in the **opening** tag only, never in the closing tag." }
   ]);
   add("stylemulti", STY, "How do I write more than one style?", [
