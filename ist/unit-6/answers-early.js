@@ -16,7 +16,7 @@
 
     { h: "Step 1: The skeleton" },
     { build: [
-      "Type the **doctype line** on the first line of the page, from memory",
+      "Type the **doctype line** as the very first line of the page, from memory (it has to say **\"DOCTYPE html\"** between angle brackets)",
       "Open the **html** container: an opening and a closing html tag. Everything else goes **inside** it",
       "Inside the html tags, add the **head** tags first (an opening and a closing head tag)",
       "Under the head tags, still inside the html tags, add the **body** tags (an opening and a closing body tag)",

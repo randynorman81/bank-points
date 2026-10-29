@@ -34,7 +34,7 @@
   A["6.2"] = build([].concat(head("**The Ugliest Website Ever.** Make the most **god-awful, eye-burning** website you can using **text colors and background colors**. The uglier the better (but every word must still be there).", "a **terrible movie fan page**, a **terrible holiday page**, or a **terrible school-cafeteria review page**", notes("unit-6/style-attribute-notes.html")), [{ tip: "colorlist", label: "See all the named colors" }, RULE2,
     { p: "**The big idea:** almost every tag on your page gets BOTH a **color** (the text) and a **background-color** (behind the text). Then you build a **pattern**: reuse the same two or three color combinations over and over, so your page is ugly **on purpose**." },
     S("Skeleton and title", [
-      "Type the **doctype** line, then **html** with a **head** and a **body** inside it (head first)",
+      "Type the **doctype** line as the very first line (it has to say **\"DOCTYPE html\"** between angle brackets), then **html** with a **head** and a **body** inside it (head first)",
       "Inside the head, add a **title** with your terrible page's name"
     ]),
     S("Build the page", [
@@ -73,15 +73,15 @@
       "Under it, add a **heading 2** with a short tagline. Style it: **color** (any named color, even the same one as your heading 1 if you want them to match), **text-transform** uppercase, **text-align** center, and **font-size** 24px"
     ]),
     S("When and where", [
-      "Add a **heading 3** that says **"When"** (the word When has to be in it), with a **color** style. Under it, add a **paragraph** with the date (and time, if it has one). Style the paragraph: **color** (light on a dark background), **font-size** 20px, and a **background-color** (a named color)",
-      "Add a **heading 3** that says **"Where"** (the word Where has to be in it), with a **color** style. Under it, add a **paragraph** with where people celebrate it. Style it: **color** and **font-size** 20px"
+      "Add a **heading 3** that says **\"When\"** (the word When has to be in it), with a **color** style. Under it, add a **paragraph** with the date (and time, if it has one). Style the paragraph: **color** (light on a dark background), **font-size** 20px, and a **background-color** (a named color)",
+      "Add a **heading 3** that says **\"Where\"** (the word Where has to be in it), with a **color** style. Under it, add a **paragraph** with where people celebrate it. Style it: **color** and **font-size** 20px"
     ]),
     S("Traditions, a finishing touch, and contact info", [
-      "Add a third **heading 3** that says **"Traditions"** (the word Traditions has to be in it), after your When and Where headings. Style it: **color**, **text-transform** uppercase, **text-align** center. You can reuse the same colors as your other headings so everything looks uniform",
+      "Add a third **heading 3** that says **\"Traditions\"** (the word Traditions has to be in it), after your When and Where headings. Style it: **color**, **text-transform** uppercase, **text-align** center. You can reuse the same colors as your other headings so everything looks uniform",
       "Under it, add a **paragraph** about how people celebrate (the food, the games, the things you do). Style it: **color**, **font-size** 20px, **text-align** center, and a **background-color**",
       "Add one **paragraph** with a fun fact or a funny warning about the holiday. Style it: **color**, **font-size** 16px, and **text-align** center",
-      "At the very bottom, add a second **heading 2** that says **"Contact Information"** (those two words have to be in it). Style it: **color** and **text-align** center",
-      "Under it, add a **paragraph** that lists your contact info with **at least 4 words** (an email, a phone number, or a social media name; it can be made up, like "Email sleepy@example.org or call 555-0199"). Style it: **color** and **text-align** center",
+      "At the very bottom, add a second **heading 2** that says **\"Contact Information\"** (those two words have to be in it). Style it: **color** and **text-align** center",
+      "Under it, add a **paragraph** that lists your contact info with **at least 4 words** (an email, a phone number, or a social media name; it can be made up, like \"Email sleepy@example.org or call 555-0199\"). Style it: **color** and **text-align** center",
       "**EXTRA CREDIT (+5 points): the span tag.** A **span** wraps just a few words inside a paragraph or heading so those words can have their own style attribute, different from the rest of the line (we cover it fully in 3.4). Use the span tag **at least twice** anywhere on your poster, each with its own style, like a different **color**, **font-size**, or **text-transform** on a few words. Click the help button to see how it works",
       "**EXTRA CREDIT (+5 more points):** put a span **inside your heading 1** so part of the title has its own **color** and its own **font-size** in pixels (like one big word in a different color). Your auto score can go above 100 when everything required is done"
     ]),
@@ -197,22 +197,22 @@
   A["6.4"] = build([].concat(head("The **ultimate Wanted poster** for an outlaw on the loose.", "a villain, your pet who stole the snacks, or a made-up criminal", notes("unit-6/borders-notes.html")), [RULE,
     skeleton(["On the **body** tag, add a style: **background-color** (a light named color)"]),
     S("The banner", [
-      "Add **one heading 1** that says **"WANTED"** (the word WANTED has to be in it; you can add more words, like WANTED: Captain Crumbs). Style it: **color**, **background-color**, **font-size** 56px, **text-align** center, **text-transform** uppercase, and a **solid border** (thickness, style, color in that order, like 6px solid)",
+      "Add **one heading 1** that says **\"WANTED\"** (the word WANTED has to be in it; you can add more words, like WANTED: Captain Crumbs). Style it: **color**, **background-color**, **font-size** 56px, **text-align** center, **text-transform** uppercase, and a **solid border** (thickness, style, color in that order, like 6px solid)",
       "Under it, add a **paragraph** listing the crimes. Style it: **font-size** 20px. **Inside** it, color two phrases with **spans** (a **color** style each) and make one phrase **bold**",
       "Under the paragraph (**outside** it), add a **horizontal line**"
     ]),
     S("Description", [
-      "Add a **heading 2** that says **"Description"** (that word has to be in it). Style it: **color**, **font-size** 30px, and a border on the **bottom only** (like border-bottom: 4px solid)",
+      "Add a **heading 2** that says **\"Description\"** (that word has to be in it). Style it: **color**, **font-size** 30px, and a border on the **bottom only** (like border-bottom: 4px solid)",
       "Under it, add a **paragraph** with a **bold** word, an **italic** word, and **2 line breaks**",
       "Add a second **paragraph** about the outlaw's habits, with an **italic** word, a **bold** word, and a **line break**. Style it with a **dashed border**"
     ]),
     S("Marks and last seen", [
-      "Add a **heading 3** that says **"Distinguishing Marks"** (those two words have to be in it). Style it: **text-align** center and **color**. Under it, add a **paragraph** with a **dotted border**",
-      "Add a **horizontal line**, then a **heading 2** that says **"Last Seen"** (those two words have to be in it). Style it: **text-transform** uppercase, **color**, and a border on the **left only**",
-      "Add a **heading 3** that says **"Known Hideouts"** (the word Hideouts has to be in it). Style it: **color** and **font-size** 22px. Under it, add a **paragraph** with a **dashed border** in a **different color** than your other dashed border"
+      "Add a **heading 3** that says **\"Distinguishing Marks\"** (those two words have to be in it). Style it: **text-align** center and **color**. Under it, add a **paragraph** with a **dotted border**",
+      "Add a **horizontal line**, then a **heading 2** that says **\"Last Seen\"** (those two words have to be in it). Style it: **text-transform** uppercase, **color**, and a border on the **left only**",
+      "Add a **heading 3** that says **\"Known Hideouts\"** (the word Hideouts has to be in it). Style it: **color** and **font-size** 22px. Under it, add a **paragraph** with a **dashed border** in a **different color** than your other dashed border"
     ]),
     S("Reward and warning", [
-      "Add a **heading 2** that says **"Reward"** (that word has to be in it), with a **color**. Under it, add a **paragraph** with the amount in **bold**. Style it: **background-color**, a **solid border**, **text-align** center, and **font-size** 24px",
+      "Add a **heading 2** that says **\"Reward\"** (that word has to be in it), with a **color**. Under it, add a **paragraph** with the amount in **bold**. Style it: **background-color**, a **solid border**, **text-align** center, and **font-size** 24px",
       "Add one last **paragraph** with a warning in **italics** and a **line break**. Style it: **font-size** 13px, **text-align** center, and a **dotted border**"
     ]),
     S("Use what you already know", [
@@ -267,7 +267,7 @@
       "Each item is a **link** (https://) that opens in the **same tab**, with the name in **bold** inside the link and an **italic** note after it"
     ]),
     S("Make anything a link", [
-      "Add a **heading 3** that says **"Featured"** (that word has to be in it) and wrap the **whole heading** inside a **link** (an a tag around the h3) with a real https:// address that opens in a **new tab**",
+      "Add a **heading 3** that says **\"Featured\"** (that word has to be in it) and wrap the **whole heading** inside a **link** (an a tag around the h3) with a real https:// address that opens in a **new tab**",
       "Add a **paragraph** where a **bold phrase** is inside a link (the strong tag goes **inside** the a tag)",
       "Finish with a **bullet list** of 3 items. In each item, one link wraps a **bold word** and an **italic word** together. Style the list: **list-style-type** none and **text-align** center"
     ]),
