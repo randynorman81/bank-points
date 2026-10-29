@@ -160,56 +160,65 @@
 
   /* ======================================================================= 6.3  (3.4) ===== */
   A["6.3"] = build([].concat(head("A **text-heavy page** where bold, italics, line breaks, horizontal lines, and **spans** do the work. You choose the topic from **20 ideas**, from a weird restaurant menu to a song lyrics page to a tier list.", "", notes("unit-6/editing-tags-notes.html")), [{ tip: "themes34", label: "See all 20 theme choices" }, RULE,
-    { p: "**Every idea uses the same steps.** There is no set layout: you decide what goes where. The steps give the **minimum** you need of each tag and style, and you can ALWAYS add more." },
-    skeleton(["On the **body** tag, add a style: **background-color** (a light named color) and **color** (a dark named color for the text)"]),
-    S("Build your content", [
-      "Add your headings from top to bottom: **one heading 1** (the page's title), then a **heading 2**, then a **heading 3**, then a second **heading 3** (use more if your theme needs them). For now they sit in a row: the next bullet puts paragraphs between them",
-      "Put **2 paragraphs** under the heading 1, **2 paragraphs** under the heading 2, **2 paragraphs** under the first heading 3, and **2 paragraphs** under the second heading 3. That is **8 paragraphs** in all about your theme (real words, in your own voice)"
+    { p: "**Every idea uses the same steps, and you build the page from the top to the bottom, in order.** Each bullet adds one piece and styles it right away, so you never go back to an earlier step. Your theme decides the words, colors, and fonts. Each step says the least you must add: you can ALWAYS add more." },
+    skeleton(["On the **body** tag, add a style with **both** a **background-color** (a light named color) **and** a **color** (a dark named color for the text)"]),
+    S("The title and the intro", [
+      "Inside the body, add **one heading 1** with your page's title. **Right away**, style it: **color**, **font-size** in pixels (like 44px), **text-align** center, and **text-transform** uppercase",
+      "Right under the heading 1, add a **paragraph** that introduces your theme. Inside it, make a phrase **bold** and add a **line break** (a new line inside the paragraph). **Right away**, style the paragraph: **color** and **font-size** in pixels (like 18px)",
+      "Under that paragraph (**outside** it), add a **horizontal line**"
     ]),
-    S("Editing tags", [
-      "Make **at least 3** words or phrases **bold**",
-      "Make **at least 1** word or phrase in **italics**",
-      "Use **at least 3 line breaks** (a new line inside a paragraph, like lyrics or an address)",
-      "Use **at least 2 horizontal lines**, each one **outside** any paragraph, to separate sections of your page"
+    S("Section 1", [
+      "Add your first **heading 2** (a section of your page). **Right away**, style it: **color** and **text-transform** uppercase",
+      "Right under it, add a **paragraph** about your theme. Inside it, put a phrase in **italics** and one word in a **span** with its own style (like a **color**). **Right away**, style the paragraph: **color** and **background-color** (two different named colors)",
+      "Under it, add your first **heading 3**. **Right away**, style it: **color** and **font-size** in pixels (like 22px)",
+      "Right under the heading 3, add **2 paragraphs**. In the **first**, put a **bold** phrase, a **line break**, and a **span** with its own style. In the **second**, put a **span** with its own style (like a **background-color** on a phrase). Style each paragraph right away with a **color**",
+      "Under the last paragraph (**outside** it), add a second **horizontal line**"
     ]),
-    S("Style it", [
-      "Use **at least 3 different colors** on the page (text colors and background colors count together)",
-      "Use **at least 2 different font sizes** in pixels (like 44px for a title and 16px for small print)",
-      "Make **at least 1** tag **text-align** center (or right, if it fits)",
-      "Make **at least 1** thing **text-transform** uppercase: a whole section, a paragraph, a single word, or even just one letter"
+    S("Section 2", [
+      "Add your second **heading 3**. **Right away**, style it: **color** and **text-align** center",
+      "Right under it, add **2 paragraphs**. In the **first**, put a **bold** phrase, a **line break**, and a **span** with its own style. Style **each** paragraph right away with a **color** and a **font-size** in pixels"
     ]),
-    S("Spans and double styles", [
-      "Use **at least 4 span tags** for effect, each with its own style attribute: color one word in a paragraph, make the first letter of a word bigger, highlight a phrase with a **background-color**, and so on. Click the help button to see how a span works",
-      "Make sure **at least 6** of your tags each have **two or more style properties** in their style attribute (with a semicolon between them). You can use more"
+    S("Closing and minimums", [
+      "At the bottom, add **2 closing paragraphs** (that makes **8 paragraphs** in all). Style each right away with a **color** and a **font-size** in pixels",
+      "Check your editing tags: you should have at least **3 bold** phrases, **3 line breaks**, and **4 spans** with their own styles in all. Your steps above already add them, so count them in your page",
+      "Check your styles: at least **3 different colors**, **2 different font sizes** in pixels, and **6 tags** that each have **two or more style properties**"
     ]),
     done()]));
 
   /* ======================================================================= 6.35  (3.5) ===== */
   A["6.35"] = build([].concat(head("A **font showcase page** where the fonts are the joke. Pick one of **6 themes** (or your own, with your teacher's OK). Use fonts that match the **mood**, so the page looks designed, not thrown together.", "", notes("unit-6/google-fonts-notes.html")), [{ tip: "themes35", label: "See the theme choices" }, RULE2,
-    { p: "**Every theme uses the same steps.** There is no set layout: you decide what goes where. The steps give the **minimum** you need, and you can ALWAYS add more. **Design rule:** give your headings one display font, your paragraphs one easy-to-read font, and use other fonts as accents with spans." },
-    skeleton(["On the **body** tag, add a style: **background-color** (a named color)"]),
-    S("Choose and link your fonts", [
-      "Pick your theme (click the button above to see the choices)",
-      "Go to **fonts.google.com** and click **Filters**. Type your page's title as **sample text** and browse by **feeling** to pick **at least 3 fonts** that fit your theme, then get the **link** code. Paste the **link** tag (or tags) **inside the head**, under your title. Click the help button for the steps",
-      "Check that your link(s) bring in **at least 3 different fonts** (one link can hold several fonts)"
+    { p: "**Every theme uses the same steps, and you build the page from the top to the bottom, in order.** Each bullet adds one piece and styles it right away, so you never go back to an earlier step. Your theme decides the words, colors, and fonts. Each step says the least you must add: you can ALWAYS add more." },
+    S("The head and the body", [
+      "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point). Then type the opening **html** tag, and inside it the **head** tags. The editor puts your cursor under the closing head tag, so click on the empty line **between** the head tags and add a **title** with your page's title",
+      "Pick your theme (click the button above to see the choices). Go to **fonts.google.com** and click **Filters**. Type your page's title as **sample text** and browse by **feeling** to pick **at least 3 fonts** that fit your theme, then get the **link** code. Click on the line **under** the title (still inside the head) and paste the **link** tag (or tags). Click the help button for the steps",
+      "Check that your link(s) bring in **at least 3 different fonts** (one link can hold several fonts)",
+      "Click on the line **under** the closing head tag (still inside the html tags) and type the **body** tags",
+      "On the **body** tag, add a style: **background-color** (a named color)"
     ]),
-    S("Build your content", [
-      "Add your headings from top to bottom: **one heading 1**, then a **heading 2**, then a **heading 3**, then a second **heading 3**. For now they sit in a row: the next bullet puts paragraphs between them",
-      "Put **2 paragraphs** under the heading 1, **2 paragraphs** under the heading 2, and **1 paragraph** under each heading 3. That is **6 paragraphs** in all for your theme (real words, in your own voice)"
+    S("The heading 1", [
+      "Inside the body, add **one heading 1** with your page's title. **Right away**, style it: **font-family** (your headline font in quotes, then a comma and a **fallback family** like **cursive**), **color**, **font-size** in pixels (like 44px), **text-align** center, and **text-transform** uppercase. Use this same headline font on your other headings"
     ]),
-    S("Use your fonts", [
-      "Use **at least 3 different Google fonts** on your page. Set each one with **font-family** in a style attribute: the font's name in quotes",
-      "End **every** font-family with a **fallback family** (**serif**, **sans-serif**, **monospace**, **cursive**, or **fantasy**), after a comma, so your page still works if a font fails to load",
-      "Put a **font-family** on **at least 6 tags** (headings and paragraphs)",
-      "Make it look **designed**: **at least 4 paragraphs** share the **same font**, and **at least 2 headings** share the **same font**. Use the other fonts as accents",
-      "Use **at least 3 spans**, each with its own style attribute, to change a few words for effect (a different **font**, **color**, **font-size**, or **background-color**). Click the help button to see how a span works",
+    S("The intro", [
+      "Right under the heading 1, add a **paragraph** that introduces your theme. Inside it, put a phrase in **bold** and add a **line break**. **Right away**, style it: **font-family** (an easy-to-read font in quotes, then a fallback family), **color**, and **font-size** in pixels. Use this same easy-to-read font on **every paragraph**",
+      "Under that paragraph (**outside** it), add a **horizontal line**"
+    ]),
+    S("Section 1", [
+      "Add a **heading 2**. **Right away**, style it: your headline **font-family** (with a fallback), **color**, and **text-transform** uppercase",
+      "Right under it, add a **paragraph**. Inside it, put a phrase in **italics** and a **span** with its own style that uses your **third font** as an accent (a different **font-family** and a **color**). **Right away**, style the paragraph: your paragraph **font-family**, **color**, and **background-color**",
+      "Add your first **heading 3**. **Right away**, style it: your headline **font-family** (with a fallback), **color**, and **text-align** center",
+      "Right under it, add **2 paragraphs** about your theme. In the **first**, put an **italic** phrase. In the **second**, put a **bold** phrase and a **line break**. Style each right away with your paragraph **font-family** and a **color**",
+      "Under the last paragraph (**outside** it), add a second **horizontal line**"
+    ]),
+    S("Section 2", [
+      "Add your second **heading 3**. **Right away**, style it: your headline **font-family** (with a fallback), **color**, and **background-color**",
+      "Right under it, add **2 paragraphs**. In the **first**, also add a **line break**. Style each right away with your paragraph **font-family** and a **color**, and put a **span** with its own style (a different **font**, **color**, **font-size**, or **background-color** on a few words) in each"
+    ]),
+    S("Check your minimums", [
+      "Check your fonts: at least **6 paragraphs** in all, **3 different Google fonts** used in font-family styles, **every** font-family ending with a **fallback family**, and at least **6 tags** with a font-family",
+      "Make sure it looks **designed**: at least **4 paragraphs** share the **same font**, and at least **2 headings** share the **same font**",
+      "Check your extras: at least **2 bold**, **2 italic**, **3 line breaks**, and **3 spans** with their own styles in all",
+      "Check your styles: at least **3 different colors**, **2 different background-colors** (the body counts), and **2 different font sizes** in pixels",
       "**BONUS (+5 points):** use fallback families from **4 different families** (serif, sans-serif, monospace, and cursive) and still make the page look good, not thrown together"
-    ]),
-    S("Use what you already know", [
-      "Use **at least 3 different colors** on the page and **at least 2 different background-colors** (the body counts)",
-      "Make **at least 2** words or phrases **bold** and **at least 2** in **italics**",
-      "Use **at least 3 line breaks** and **at least 2 horizontal lines** (outside any paragraph)",
-      "Use **at least 2 different font sizes** in pixels, make **at least 2** tags **text-align** center (or right), and make **at least 2** things **text-transform** uppercase"
     ]),
     done()]));
 
@@ -298,71 +307,80 @@
     ])]));
 
   /* ======================================================================= 6.7  (3.8) ===== */
-  A["6.7"] = build([].concat(head("A **photo page** where the pictures are the stars, with a **favicon** on the browser tab. Pick one of **10 themes**, or make up your own with your teacher's OK. There is no set layout: you decide where everything goes.", "", notes("unit-6/images-notes.html")), [{ tip: "themes37", label: "See all the theme choices" }, RULE2,
-    { p: "**Every theme uses the same steps.** Each step gives the **minimum** you need, and you can ALWAYS add more. Use your own pictures (**Checks**, then **My images**, then **Insert**) or real web addresses." },
-    skeleton(["On the **body** tag, add a style: **background-color** (a named color)"]),
-    S("Pick your theme", [
-      "Choose a theme (click the button above to see all 10 choices, or make up your own with your teacher's OK) and plan where your pictures will go"
+  A["6.7"] = build([].concat(head("A **photo page** where the pictures are the stars, with a **favicon** on the browser tab. Pick one of **10 themes**, or make up your own with your teacher's OK.", "", notes("unit-6/images-notes.html")), [{ tip: "themes37", label: "See all the theme choices" }, RULE2,
+    { p: "**Every theme uses the same steps, and you build the page from the top to the bottom, in order.** Each bullet adds one piece and styles it right away, so you never go back to an earlier step. Your theme decides the words, colors, and fonts. Each step says the least you must add: you can ALWAYS add more." },
+    S("The head and the body", [
+      "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point). Then type the opening **html** tag, and inside it the **head** tags. The editor puts your cursor under the closing head tag, so click on the empty line **between** the head tags and add a **title** with your page's name",
+      "Click on the line **under** the title (still inside the head) and add a **favicon**: a **link** tag with **rel** set to icon and an **href** with the address of a small picture (or the emoji trick in the help). Look at the tab above your preview to see it",
+      "On the next line (still inside the head), add a **Google Fonts link** and pick at least one font that fits your theme (use Filters and sample text, like in 3.5)",
+      "Click on the line **under** the closing head tag (still inside the html tags) and type the **body** tags",
+      "On the **body** tag, add a style: **background-color** (a named color)"
     ]),
-    S("The head: favicon and font", [
-      "Add a **favicon** inside the head: a **link** tag with **rel** set to icon and an **href** with the address of a small picture (or the emoji trick in the help). Look at the tab above your preview to see it",
-      "Add a **Google Fonts link** inside the head and pick at least one font that fits your theme (use Filters and sample text, like in 3.5)"
+    S("The top of the page", [
+      "Pick your theme first (click the button above to see all 10 choices) and plan where your pictures will go. Then, inside the body, add **one heading 1** with your page's name. **Right away**, style it: **font-family** (your Google font in quotes, then a comma and a **fallback family**), **font-size** in pixels (like 44px), **text-align** center, **text-transform** uppercase, and a border on **one side only** (like border-bottom: 4px solid)",
+      "Right under it, add a **paragraph** that introduces your theme. Inside it, make a phrase **bold** and add a **line break**. **Right away**, style the paragraph with a **font-family** that is a **fallback family** (like sans-serif)",
+      "Under the paragraph (**outside** it), add a **horizontal line**"
     ]),
-    S("Build your page", [
-      "At the top of the body, add **one heading 1** with your page's name",
-      "Right under the heading, add a **paragraph** that introduces your theme. **Inside** that paragraph, add a **line break** (br) so the text continues on a second line",
-      "Under the paragraph (**outside** it), add a **horizontal line** (hr). Your pictures go under this line in the next step"
+    S("Pictures 1 and 2", [
+      "Add a **heading 2** for your first group of pictures. **Right away**, give it a border on **one side only** (like border-bottom: 4px dashed)",
+      "Under it, add your **first picture** (Checks, then My images, then Insert, or a real web address). It needs a **src**, a real **alt** description, and, in its style attribute, a **width** (like 300px) and a **solid border** (like 4px solid navy)",
+      "Add your **second picture** the same way: a **src**, a real **alt**, and, in its style attribute, a **width** and a **dashed border** (like 4px dashed)"
     ]),
-    S("The pictures", [
-      "Under the horizontal line, add **5 pictures**, one after another. Each one needs a **src** that is a web address (upload one with Insert, or use a real address)",
-      "Give **every** picture a real **alt** attribute that describes it (never leave the placeholder)",
-      "Give **every** picture a **border** in its style attribute (thickness, style, and color, like 4px solid navy). Try different styles and colors",
-      "Give **every** picture a **width** in its style attribute (like 300px) so none is giant. Put it in the same style attribute as the border, with a semicolon between"
+    S("Pictures 3 to 5", [
+      "Add a **heading 3** (a caption for the next pictures)",
+      "Under it, add a **paragraph** with a phrase in **italics** and a **span** with its own style (a color, size, or font) that describes the pictures",
+      "Add your **third picture**: a **src**, a real **alt**, and, in its style attribute, a **width** and a **dotted border** (like 4px dotted)",
+      "Add your **fourth picture** the same way, with a **dotted border**",
+      "Add your **fifth picture** the same way, with any border you like (solid, dashed, or dotted)"
     ]),
-    S("Style the words", [
-      "Use your **Google font** on at least one tag with **font-family**, ending with a **fallback family**",
-      "Make at least one word or phrase **bold** or in **italics**",
-      "Use at least one **span** with its own style to change a few words (a color, size, or font)"
-    ]),
-    S("Bring back what you know", [
-      "Use **at least one heading 2** and **at least one heading 3** (headings above your pictures work well)",
-      "Make **at least one** thing **text-transform** uppercase",
-      "Use **solid**, **dashed**, and **dotted** borders **at least 2 times each**. Your picture borders count, and you can add borders to headings or paragraphs too",
-      "Use a **one-sided border** (like border-bottom) **at least 2 times**, for example under your headings"
+    S("Check your borders", [
+      "Check that **solid**, **dashed**, and **dotted** borders are each used **at least 2 times** (your picture borders and heading borders count), that you have **at least 2** borders on **one side only**, and that **at least 1** thing is **text-transform** uppercase. Your steps above already add them, so count them in your page"
     ]),
     done()]));
 
-
   /* ======================================================================= 6.75  (3.8) ===== */
-  A["6.75"] = build([].concat(head("An **emoji and symbol page** where pasted characters do the talking. Every emoji and symbol is **text** you copy and paste: no image tags, no uploads. Pick one of **6 themes**. There is no set layout: you decide where everything goes.", "", notes("unit-6/emojis-symbols-notes.html")), [{ tip: "themes38", label: "See all 6 theme choices" }, RULE2,
-    { p: "**Every theme uses the same steps.** Each step gives the **minimum** you need, and you can ALWAYS add more. Open the **notes** and use the **character pad** to copy emojis and symbols, then paste them **between your tags**, never inside a tag's angle brackets." },
-    skeleton(["On the **body** tag, add a style: **background-color** (a named color)"]),
-    S("Pick your theme", [
-      "Choose a theme (click the button above to see all 6 choices) and plan where your pasted characters will go"
+  A["6.75"] = build([].concat(head("An **emoji and symbol page** where pasted characters do the talking. Every emoji and symbol is **text** you copy and paste: no image tags, no uploads. Pick one of **6 themes**.", "", notes("unit-6/emojis-symbols-notes.html")), [{ tip: "themes38", label: "See all 6 theme choices" }, RULE2,
+    { p: "**Every theme uses the same steps, and you build the page from the top to the bottom, in order.** Each bullet adds one piece and styles it right away, so you never go back to an earlier step. Your theme decides the words, colors, and fonts. Each step says the least you must add: you can ALWAYS add more." },
+    S("The head and the body", [
+      "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point). Then type the opening **html** tag, and inside it the **head** tags. The editor puts your cursor under the closing head tag, so click on the empty line **between** the head tags and add a **title** with your page's name",
+      "Click on the line **under** the title (still inside the head) and add a **favicon**: a **link** tag with **rel** set to icon and an **href**. Make it from an **emoji** with the emoji trick in the help. Look at the tab above your preview to see it",
+      "On the next line (still inside the head), add a **Google Fonts link** and pick at least one font that fits your theme (use Filters and sample text, like in 3.5)",
+      "Click on the line **under** the closing head tag (still inside the html tags) and type the **body** tags",
+      "On the **body** tag, add a style: **background-color** (a named color)"
     ]),
-    S("The head: favicon and font", [
-      "Add a **favicon** inside the head: a **link** tag with **rel** set to icon and an **href**. Make it from an **emoji** with the emoji trick in the help. Look at the tab above your preview to see it",
-      "Add a **Google Fonts link** inside the head and pick at least one font that fits your theme (use Filters and sample text, like in 3.5)"
+    S("The heading 1", [
+      "Choose a theme (click the button above to see all 6 choices). Inside the body, add **one heading 1** with your page's name, and **paste an emoji** into it. **Right away**, style it: **color**, **background-color**, **font-size** in pixels (like 46px), **text-align** center, **text-transform** uppercase, a **solid border** (thickness, style, color in that order), and your **Google font** in a **font-family** that ends with a **fallback family**"
     ]),
-    S("Headings and words", [
-      "Add **one heading 1** with your page's name, and **paste an emoji** into it. Style it: **color**, **background-color**, **font-size** in pixels (like 46px), **text-align** center, **text-transform** uppercase, a **solid border** (thickness, style, color in that order), and your **Google font** in a **font-family** that ends with a **fallback family**",
-      "Under it, add a **paragraph** that introduces your theme. Style it: **text-align** center and **font-size** 20px. **Inside** it, put one phrase in **italics**, and add **2 spans**, each wrapped around a single pasted **symbol** (like a star or a heart) with its own **font-size** in pixels and its own **color**",
-      "Under the paragraph, add your **first heading 2** (a section of your page), then a **second heading 2**, then a **third heading 2**, one after another. **Paste an emoji or a symbol** into each one. Style each with a **color** and a border on **one side only** (like border-bottom: 4px dashed). The next bullets fill in the space between them",
-      "Add a **heading 3** **right under your first heading 2** and a second **heading 3** **right under your second heading 2**, each with a **symbol** pasted in. Style at least one with **text-transform** uppercase",
-      "Write **6 paragraphs** about your theme, each with **4 or more real words**: **2 paragraphs** under your first heading 3, **2 paragraphs** under your second heading 3, and **2 paragraphs** under your third heading 2. The emojis add to your words, they never replace them"
+    S("The intro", [
+      "Right under it, add a **paragraph** that introduces your theme. Inside it, put one phrase in **italics**, make a phrase **bold**, add a **line break**, and add **2 spans**, each wrapped around a single pasted **symbol** (like a star or a heart) with its own **font-size** in pixels and its own **color**. **Right away**, style the paragraph: **text-align** center and **font-size** 20px",
+      "Under the paragraph (**outside** it), add a **horizontal line**"
     ]),
-    S("Paste your characters", [
-      "Paste **at least 10 emojis** in all, with **at least 6 different** ones. Spread them through your headings, paragraphs, and lists",
-      "Paste **at least 4 different symbols** (like ★ ♥ → ° © ®) from the Symbols groups of the pad",
+    S("Section 1", [
+      "Add your first **heading 2** and **paste an emoji or a symbol** into it. **Right away**, style it: **color** and a border on **one side only**, a dashed one (like border-bottom: 4px dashed)",
+      "Right under it, add a **heading 3** with a **symbol** pasted in. **Right away**, style it: **text-transform** uppercase",
+      "Right under the heading 3, add **2 paragraphs** about your theme, each with **4 or more real words**. The emojis add to your words, they never replace them",
+      "Add your **first picture** (the Insert button in **My images** adds one for you): a **src** web address, a real **alt** description, and, in its style attribute, a **width** in **percent** (like 50%) and a **solid border**"
+    ]),
+    S("Section 2", [
+      "Add your second **heading 2** and **paste an emoji or a symbol** into it. **Right away**, style it: **color** and a **dashed** border on **one side only**",
+      "Right under it, add a **heading 3** with a **symbol** pasted in",
+      "Right under the heading 3, add **2 paragraphs** about your theme, each with **4 or more real words**",
+      "Add your **second picture** the same way, with a **width** in **percent** and a **dotted border**"
+    ]),
+    S("Section 3", [
+      "Add your third **heading 2** and **paste an emoji or a symbol** into it. **Right away**, style it: **color** and a **dashed** border on **one side only**",
+      "Right under it, add **2 paragraphs** about your theme, each with **4 or more real words**",
       "Make a **list** (a ul or an ol) with **at least 4 items**, and **start every item** with a pasted emoji or symbol. Add **list-style-type: none** to the list if you do not want the bullets as well",
-      "Make **one emoji or symbol big**: give the tag that holds it a **font-size** of **40px or more** (a row of three big emojis works well)",
-      "At the very bottom, add a **footer paragraph** with the **copyright symbol** (©) in it. Style it: **text-align** center, **font-size** 14px, and a **border**"
+      "Make **one emoji or symbol big**: give the tag that holds it a **font-size** of **40px or more** (a row of three big emojis works well)"
     ]),
-    S("Bring back what you know", [
-      "Add **at least 2 pictures**. Each needs a **src** web address (the Insert button in **My images** adds one for you), a real **alt** description, and a **width** in **percent** (like 50%)",
-      "Use **solid**, **dashed**, and **dotted** borders **at least 2 times each**. Your picture borders count, and you can add borders to headings or paragraphs too",
-      "Use a border on **one side only** (like border-bottom) **at least 2 times**. Your heading 2s count",
-      "Use **bold** on at least one phrase, at least **1 line break** inside a paragraph, and at least **1 horizontal line** outside any paragraph"
+    S("The footer", [
+      "At the very bottom, add a **footer paragraph** with the **copyright symbol** (©) in it. **Right away**, style it: **text-align** center, **font-size** 14px, and a **dotted border**"
+    ]),
+    S("Check your characters and borders", [
+      "Check that you pasted **at least 10 emojis** in all, with **at least 6 different** ones, spread through your headings, paragraphs, and lists",
+      "Check that you pasted **at least 4 different symbols** (like ★ ♥ → ° © ®) from the Symbols groups of the pad",
+      "Check that **solid**, **dashed**, and **dotted** borders are each used **at least 2 times** (your picture and heading borders count)",
+      "Check that you have **at least 2** borders on **one side only** (your heading 2s count)"
     ]),
     done()]));
 

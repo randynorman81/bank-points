@@ -526,4 +526,142 @@
     lastStep("6.22", "Step 7", [[h.ALLGREEN], []]);
   })();
 
+
+  /* =============== STRICT TOP-TO-BOTTOM ORDER: 3.4 (6.3), 3.5 (6.35), 3.7 (6.7), 3.8 (6.75) ===============
+     Every bullet builds ONE piece of the page and styles it right away, from the top of the page to the bottom, so a student never goes back to
+     an earlier step. Head items (the favicon and the font links) come before the body. The requirements are the same ones the older versions
+     checked, regrouped onto the bullet where each one gets met. These replace the older versions above. */
+  var hrOut = function (c) { return c.all("hr").filter(function (x) { return !c.ancestor(x, ["p"]); }).length; };
+  var boldN = function (c) { return c.all("strong").concat(c.all("b")).length; }, italN = function (c) { return c.all("em").concat(c.all("i")).length; };
+  var spansN = function (c) { return c.all("span").filter(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style) && txt(c, k).length > 0; }).length; };
+  var inP = function (pick, tag) { return function (c) { var p = pick(c); return !!p && within(p, [tag]).length >= 1; }; };
+  var pxSizes = function (c) { var n = {}; allEls(c).forEach(function (x) { h.vals(c, x, "font-size").forEach(function (v) { if (h.isPx(v)) n[v] = 1; }); }); return Object.keys(n).length; };
+  function twoPsUnder(label, pick) { return K(label, function (c) { var e = pick(c); return !!e && psAfter(c, e).length >= 2; }); }
+  var nthTag = function (tag, i) { return function (c) { return c.all(tag)[i] || null; }; };
+  var firstPAfter = function (pick) { return function (c) { var e = pick(c); return e ? psAfter(c, e)[0] || null : null; }; };
+  var secondPAfter = function (pick) { return function (c) { var e = pick(c); return e ? psAfter(c, e)[1] || null : null; }; };
+
+  /* ---- 3.4 (6.3): editing tags and spans ---- */
+  (function () {
+    var H1x = T("h1"), H2x = nthTag("h2", 0), H3a = nthTag("h3", 0), H3b = nthTag("h3", 1);
+    var introP = AFTER(H1x, "p"), s1p = AFTER(H2x, "p");
+    var old = SC.LESSONS["6.3"].steps;
+    SC.LESSONS["6.3"] = { inlineOnly: true, steps: {
+      "Step 1": old["Step 1"],
+      "Step 2": [
+        [exists("There is a heading 1", H1x), P("It has a color (a named color)", H1x, "color", named), P("Its font-size is in pixels", H1x, "font-size", h.isPx), P("It is text-align center", H1x, "text-align", center), P("It is text-transform uppercase", H1x, "text-transform", upper)],
+        [exists("A paragraph is right under the heading 1", introP), K("A phrase in it is bold", inP(introP, "strong")), K("It has a line break (br) inside", inP(introP, "br")), P("It has a color (a named color)", introP, "color", named), P("Its font-size is in pixels", introP, "font-size", h.isPx)],
+        [hrAfter("There is a horizontal line right under that paragraph (outside it)", introP)]
+      ],
+      "Step 3": [
+        [exists("There is a heading 2", H2x), P("It has a color (a named color)", H2x, "color", named), P("It is text-transform uppercase", H2x, "text-transform", upper)],
+        [exists("A paragraph is right under the heading 2", s1p), IN("A phrase in it is in italics", s1p, ITAL), K("It has a span with its own style", function (c) { var p = s1p(c); return !!p && within(p, ["span"]).some(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style); }); }), P("It has a color (a named color)", s1p, "color", named), P("It has a background-color (a named color)", s1p, "background-color", named)],
+        [exists("There is a heading 3 (the first one)", H3a), P("It has a color (a named color)", H3a, "color", named), P("Its font-size is in pixels", H3a, "font-size", h.isPx)],
+        [twoPsUnder("There are 2 paragraphs right under the heading 3", H3a), K("The first one has a bold phrase, a line break, and a span with its own style", function (c) { var p = firstPAfter(H3a)(c); return !!p && within(p, ["strong", "b"]).length >= 1 && within(p, ["br"]).length >= 1 && within(p, ["span"]).some(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style); }); }), K("The second one has a span with its own style", function (c) { var p = secondPAfter(H3a)(c); return !!p && within(p, ["span"]).some(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style); }); })],
+        [K("There is a second horizontal line (outside any paragraph)", function (c) { return hrOut(c) >= 2; })]
+      ],
+      "Step 4": [
+        [exists("There is a second heading 3", H3b), P("It has a color (a named color)", H3b, "color", named), P("It is text-align center", H3b, "text-align", center)],
+        [twoPsUnder("There are 2 paragraphs right under the second heading 3", H3b), K("The first one has a bold phrase, a line break, and a span with its own style", function (c) { var p = firstPAfter(H3b)(c); return !!p && within(p, ["strong", "b"]).length >= 1 && within(p, ["br"]).length >= 1 && within(p, ["span"]).some(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style); }); }), K("Both have a color and a font-size in pixels", function (c) { var a = psAfter(c, H3b(c)).slice(0, 2); return a.length >= 2 && a.every(function (x) { return has(c, x, "color", named) && has(c, x, "font-size", h.isPx); }); })]
+      ],
+      "Step 5": [
+        [CNT("There are at least 8 paragraphs in all", "p", 8), K("The last paragraph has a color and a font-size in pixels", function (c) { var p = lastP(c); return !!p && has(c, p, "color", named) && has(c, p, "font-size", h.isPx); })],
+        [K("At least 3 bold words or phrases (strong or b)", function (c) { return boldN(c) >= 3; }), K("At least 3 line breaks (br)", function (c) { return c.all("br").length >= 3; }), K("At least 4 span tags, each with its own style", function (c) { return spansN(c) >= 4; })],
+        [K("At least 3 different colors are used on the page", function (c) { return distinctColors(c).length >= 3; }), K("At least 2 different font-sizes in px", function (c) { return pxSizes(c) >= 2; }), K("At least 6 tags each have 2 or more style properties", function (c) { return allEls(c).filter(function (x) { return propCount(c, x) >= 2; }).length >= 6; })]
+      ]
+    } };
+    lastStep("6.3", "Step 6", [[h.ALLGREEN], []]);
+  })();
+
+  /* ---- 3.5 (6.35): Google fonts ---- */
+  (function () {
+    var old = SC.LESSONS["6.35"].steps, H1x = T("h1"), introP = AFTER(H1x, "p"), H2x = nthTag("h2", 0), H3a = nthTag("h3", 0), H3b = nthTag("h3", 1);
+    var spanOk = function (c) { return spansN(c); };
+    SC.LESSONS["6.35"] = { inlineOnly: true, steps: {
+      "Step 1": [old["Step 1"][0],
+        old["Step 2"][1], old["Step 2"][2],
+        h.TITLE, old["Step 1"][2]],
+      "Step 2": [[exists("There is a heading 1", H1x), P("It has a color (a named color)", H1x, "color", named), P("Its font-size is in pixels", H1x, "font-size", h.isPx), P("It is text-align center", H1x, "text-align", center), P("It is text-transform uppercase", H1x, "text-transform", upper),
+        K("It has a font-family that ends with a fallback family", function (c) { var e = H1x(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return v.indexOf(",") > -1 && /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v)); }); })]],
+      "Step 3": [
+        [exists("A paragraph is right under the heading 1", introP), K("It uses a font-family that ends with a fallback family", function (c) { var e = introP(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return v.indexOf(",") > -1 && /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v)); }); }), P("It has a color (a named color)", introP, "color", named), P("Its font-size is in pixels", introP, "font-size", h.isPx), K("It has a bold phrase and a line break inside", function (c) { var e = introP(c); return !!e && within(e, ["strong", "b"]).length >= 1 && within(e, ["br"]).length >= 1; })],
+        [hrAfter("There is a horizontal line right under that paragraph (outside it)", introP)]
+      ],
+      "Step 4": [
+        [exists("There is a heading 2", H2x), K("It has a font-family that ends with a fallback family", function (c) { var e = H2x(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return v.indexOf(",") > -1; }); }), P("It has a color (a named color)", H2x, "color", named), P("It is text-transform uppercase", H2x, "text-transform", upper)],
+        [exists("A paragraph is right under the heading 2", AFTER(H2x, "p")), IN("A phrase in it is in italics", AFTER(H2x, "p"), ITAL), K("It has a span with its own style", function (c) { var p = AFTER(H2x, "p")(c); return !!p && within(p, ["span"]).some(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style); }); }), K("It has a font-family, a color and a background-color", function (c) { var p = AFTER(H2x, "p")(c); return !!p && h.vals(c, p, "font-family").length > 0 && has(c, p, "color", named) && has(c, p, "background-color", named); })],
+        [exists("There is a heading 3 (the first one)", H3a), K("It has a font-family that ends with a fallback family", function (c) { var e = H3a(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return v.indexOf(",") > -1; }); }), P("It has a color (a named color)", H3a, "color", named), P("It is text-align center", H3a, "text-align", center)],
+        [twoPsUnder("There are 2 paragraphs right under the heading 3", H3a), K("Both have a font-family and a color", function (c) { var a = psAfter(c, H3a(c)).slice(0, 2); return a.length >= 2 && a.every(function (x) { return h.vals(c, x, "font-family").length > 0 && has(c, x, "color", named); }); }), K("The first has an italic phrase, and the second has a bold phrase with a line break", function (c) { var a = psAfter(c, H3a(c)); return a.length >= 2 && within(a[0], ["em", "i"]).length >= 1 && within(a[1], ["strong", "b"]).length >= 1 && within(a[1], ["br"]).length >= 1; })],
+        [hrAfter("There is a second horizontal line (outside any paragraph)", function (c) { var e = H3a(c); var a = e ? psAfter(c, e) : []; return a.length ? a[a.length - 1] : null; })]
+      ],
+      "Step 5": [
+        [exists("There is a second heading 3", H3b), K("It has a font-family that ends with a fallback family", function (c) { var e = H3b(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return v.indexOf(",") > -1; }); }), P("It has a color (a named color)", H3b, "color", named), P("It has a background-color (a named color)", H3b, "background-color", named)],
+        [twoPsUnder("There are 2 paragraphs right under the second heading 3", H3b), K("Both have a font-family and a color", function (c) { var a = psAfter(c, H3b(c)).slice(0, 2); return a.length >= 2 && a.every(function (x) { return h.vals(c, x, "font-family").length > 0 && has(c, x, "color", named); }); }), K("Each has a span with its own style (a different font, color, size, or background-color on a few words)", function (c) { var a = psAfter(c, H3b(c)).slice(0, 2); return a.length >= 2 && a.every(function (x) { return within(x, ["span"]).some(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style); }); }); })]
+      ],
+      "Step 6": [
+        [CNT("There are at least 6 paragraphs in all", "p", 6), K("At least 3 different Google fonts are used in font-family styles", function (c) { var g = gNames(c), used = {}; ffList(c).forEach(function (v) { var f = ffFirst(v); if (g.indexOf(f) > -1) used[f] = 1; }); return Object.keys(used).length >= 3; }), K("Every font-family ends with a fallback family (serif, sans-serif, monospace, cursive, or fantasy)", function (c) { var l = ffList(c); return l.length >= 1 && l.every(function (v) { return v.indexOf(",") > -1 && /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v)); }); }), K("At least 6 tags use a font-family", function (c) { return allEls(c).filter(function (x) { return h.vals(c, x, "font-family").length > 0; }).length >= 6; })],
+        old["Step 4"][3],
+        [K("At least 2 italic words or phrases and at least 2 bold words or phrases", function (c) { return italN(c) >= 2 && boldN(c) >= 2; }), K("At least 3 line breaks", function (c) { return c.all("br").length >= 3; }), K("At least 3 span tags, each with its own style", function (c) { return spansN(c) >= 3; })],
+        [K("At least 3 different text and background colors are used on the page", function (c) { return distinctColors(c).length >= 3; }), K("At least 2 different background-colors are used (the body counts)", function (c) { return bgs(c).length >= 2; }), K("At least 2 different font sizes in px", function (c) { return pxSizes(c) >= 2; })],
+        FAM4
+      ]
+    } };
+    lastStep("6.35", "Step 7", [[h.ALLGREEN], []]);
+  })();
+
+  /* ---- 3.7 (6.7): images and favicons ---- */
+  (function () {
+    var old = SC.LESSONS["6.7"].steps, H1x = T("h1"), introP = AFTER(H1x, "p");
+    var imgN = function (i) { return function (c) { return c.all("img")[i] || null; }; };
+    var okSrc = function (i) { return /^(https?:)?\/\//i.test(i.attrs.src || "") || /^\/api\/code\?img=/.test(i.attrs.src || ""); };
+    function picChecks(n, borderStyle) {
+      var I = imgN(n);
+      return [exists("There is picture number " + (n + 1), I), K("It has a src that is a web address (upload one or use a real address)", function (c) { var i = I(c); return !!i && okSrc(i); }), K("It has a real alt description", function (c) { var i = I(c); var a = i ? (i.attrs.alt || "").trim().toLowerCase() : ""; return a.length >= 3 && a !== "describe your image here"; }),
+        K("It has a border (thickness, style, color)" + (borderStyle ? ", a " + borderStyle + " one" : ""), function (c) { var i = I(c); return !!i && has(c, i, "border", borderStyle ? h.bs(borderStyle) : h.BORDER); }), K("It has a width", function (c) { var i = I(c); return !!i && (has(c, i, "width") || i.attrs.width !== undefined); })];
+    }
+    SC.LESSONS["6.7"] = { inlineOnly: true, steps: {
+      "Step 1": [old["Step 1"][0], old["Step 3"][0], old["Step 3"][1], h.TITLE, old["Step 1"][2]],
+      "Step 2": [
+        [exists("There is a heading 1", H1x), K("It uses your Google font in a font-family that ends with a fallback family", function (c) { return fontUsedOk(c); }), P("Its font-size is in pixels", H1x, "font-size", h.isPx), P("It is text-align center", H1x, "text-align", center), P("It is text-transform uppercase", H1x, "text-transform", upper), K("It has a border on one side only (like border-bottom)", function (c) { var e = H1x(c); return !!e && ["border-top", "border-bottom", "border-left", "border-right"].some(function (p) { return h.vals(c, e, p).length > 0; }); })],
+        [exists("A paragraph is right under the heading 1", introP), K("It has a bold phrase and a line break inside", function (c) { var p = introP(c); return !!p && within(p, ["strong", "b"]).length >= 1 && within(p, ["br"]).length >= 1; }), K("It has a font-family that is a fallback family (like sans-serif)", function (c) { var e = introP(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v)); }); })],
+        [hrAfter("There is a horizontal line right under that paragraph (outside it)", introP)]
+      ],
+      "Step 3": [
+        [K("There is a heading 2", function (c) { return c.count("h2") >= 1; }), K("It has a border on one side only (like border-bottom)", function (c) { var e = c.all("h2")[0]; return !!e && ["border-top", "border-bottom", "border-left", "border-right"].some(function (p) { return h.vals(c, e, p).length > 0; }); })],
+        picChecks(0, "solid"), picChecks(1, "dashed")
+      ],
+      "Step 4": [
+        [K("There is a heading 3", function (c) { return c.count("h3") >= 1; })],
+        [K("A paragraph has an italic phrase and a span with its own style", function (c) { return c.all("p").some(function (p) { return within(p, ["em", "i"]).length >= 1 && within(p, ["span"]).some(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style); }); }); })],
+        picChecks(2, "dotted"), picChecks(3, "dotted"), picChecks(4)
+      ],
+      "Step 5": [[K("Solid, dashed, and dotted borders are each used at least 2 times (your picture borders count)", old["Step 7"][2][0] ? function (c) { return old["Step 7"][2][0][1](c); } : function () { return true; }), K("At least 2 one-sided borders (like border-bottom)", function (c) { return old["Step 7"][3][0][1](c); }), K("At least 1 thing is text-transform uppercase", function (c) { return anyVal(c, "text-transform", function (v) { return v === "uppercase"; }); })]]
+    } };
+    lastStep("6.7", "Step 6", [[h.ALLGREEN], []]);
+  })();
+
+
+  /* ---- 3.8 (6.75): emojis and symbols ---- */
+  (function () {
+    var old = SC.LESSONS["6.75"].steps, H1x = T("h1"), introP = AFTER(H1x, "p");
+    var nthH2 = nthTag("h2", 0), nthH2b = nthTag("h2", 1), nthH2c = nthTag("h2", 2), nthH3a = nthTag("h3", 0), nthH3b = nthTag("h3", 1);
+    function h2Checks(pick, n) { return [exists("There is heading 2 number " + n, pick), K("It has an emoji or a symbol pasted in", function (c) { return hasAnyCh(c, pick(c)); }), P("It has a color", pick, "color", named), K("It has a border on one side only, a dashed one (like border-bottom: 4px dashed)", function (c) { var e = pick(c); return !!e && sideBorderOf(c, e) && ["border-top", "border-bottom", "border-left", "border-right"].some(function (p) { return h.vals(c, e, p).some(function (v) { return /dashed/.test(v); }); }); })]; }
+    function h3Checks(pick, n, up) { var out = [exists("There is heading 3 number " + n, pick), K("It has a symbol or an emoji pasted in", function (c) { return hasAnyCh(c, pick(c)); })]; if (up) out.push(P("It is text-transform uppercase", pick, "text-transform", upper)); return out; }
+    function realWords(label, pick, k) { return K(label, function (c) { var a = psAfter(c, pick(c)).slice(0, k); return a.length >= k && a.every(function (x) { return CH.words(chOf(c, x)) >= 4; }); }); }
+    var imgN = function (i) { return function (c) { return imgs675(c)[i] || null; }; };
+    function pic(n, st) { var I = imgN(n); return [exists("There is picture number " + n, function (c) { return imgN(n - 1)(c); }), K("It has a src that is a web address", function (c) { var i = imgN(n - 1)(c); return !!i && (/^(https?:)?\/\//i.test(i.attrs.src || "") || /^\/api\/code\?img=/.test(i.attrs.src || "")); }), K("It has a real alt description", function (c) { var i = imgN(n - 1)(c); var a = i ? (i.attrs.alt || "").trim().toLowerCase() : ""; return a.length >= 3 && a !== "describe your image here"; }), K("It has a width in percent", function (c) { var i = imgN(n - 1)(c); return !!i && h.vals(c, i, "width").some(function (v) { return /^\d+(\.\d+)?%$/.test(v); }); }), K("It has a " + st + " border", function (c) { var i = imgN(n - 1)(c); return !!i && has(c, i, "border", h.bs(st)); })]; }
+    SC.LESSONS["6.75"] = { inlineOnly: true, steps: {
+      "Step 1": [old["Step 1"][0], old["Step 3"][0], old["Step 3"][1], h.TITLE, old["Step 1"][2]],
+      "Step 2": [old["Step 4"][0]],
+      "Step 3": [old["Step 4"][1].concat([K("It has a bold phrase and a line break inside", function (c) { var p = introP(c); return !!p && within(p, ["strong", "b"]).length >= 1 && within(p, ["br"]).length >= 1; })]),
+        [hrAfter("There is a horizontal line right under that paragraph (outside it)", introP)]],
+      "Step 4": [h2Checks(nthH2, 1), h3Checks(nthH3a, 1, true), [twoPsUnder("There are 2 paragraphs right under that heading 3", nthH3a), realWords("Each has 4 or more real words", nthH3a, 2)], pic(1, "solid")],
+      "Step 5": [h2Checks(nthH2b, 2), h3Checks(nthH3b, 2, false), [twoPsUnder("There are 2 paragraphs right under that heading 3", nthH3b), realWords("Each has 4 or more real words", nthH3b, 2)], pic(2, "dotted")],
+      "Step 6": [h2Checks(nthH2c, 3), [twoPsUnder("There are 2 paragraphs right under that heading 2", nthH2c), realWords("Each has 4 or more real words", nthH2c, 2)], old["Step 5"][2], old["Step 5"][3]],
+      "Step 7": [old["Step 5"][4]],
+      "Step 8": [old["Step 5"][0], old["Step 5"][1], old["Step 6"][1], old["Step 6"][2]]
+    } };
+    lastStep("6.75", "Step 9", [[h.ALLGREEN], []]);
+  })();
+
 })(typeof window !== "undefined" ? window : globalThis);
