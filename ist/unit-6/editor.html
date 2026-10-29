@@ -576,6 +576,10 @@ function handleAuto(ch) {
     if (name === "html" || name === "head" || name === "body") {   /* leave room to type: head and body leave 3 empty lines between the tags, html leaves 8, and the cursor lands on the first empty line */
       var NLC = String.fromCharCode(10), gap = name === "html" ? 9 : 4, ls = before.lastIndexOf(NLC) + 1, ind = /^[ \t]*/.exec(before.slice(ls))[0], first = NLC + ind + "  ";
       var txt = first + new Array(gap).join(NLC) + ind + "</" + name + ">";
+      if (name === "head") {   /* the cursor goes on the line AFTER the closing head tag, so the student keeps writing the next tag (body) and is never confused by a cursor inside the head */
+        txt += NLC + ind; noteAuto(txt.length); ta.setRangeText(txt, pos, pos, "preserve"); ta.setSelectionRange(pos + txt.length, pos + txt.length);
+        return;
+      }
       noteAuto(txt.length); ta.setRangeText(txt, pos, pos, "preserve"); ta.setSelectionRange(pos + first.length, pos + first.length);
       return;
     }
