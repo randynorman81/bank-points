@@ -255,8 +255,9 @@ async function adminSetLive(body) {
   const rec = await readJSON("assign:" + body.slot, null);
   if (!rec) return { error: "That assignment has not been uploaded yet" };
   rec.live = body.live === true || body.live === "true";
+  if (body.ungated !== undefined) rec.ungated = body.ungated === true || body.ungated === "true";
   await store().setJSON("assign:" + body.slot, rec);
-  return { ok: true, slot: body.slot, live: rec.live };
+  return { ok: true, slot: body.slot, live: rec.live, ungated: rec.ungated === true };
 }
 async function adminAutograde(body) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
@@ -319,7 +320,7 @@ async function gatedAssignments(user, period) {
   if (isTeacherUser(user)) { for (const id of order) { const v = Object.assign({}, variantFor(all[id], period)); delete v.checks; delete v.variants; delete v.mcKey; out[id] = v; } return { ok: true, assignments: out, locked }; }
   for (const id of order) {
     const live = all[id].live !== false;
-    let open = prev === null || (user && (await subPassed(prev, user.email)));
+    let open = prev === null || all[id].ungated === true || (user && (await subPassed(prev, user.email)));   /* ungated: the teacher opened this one to every student, whatever they have finished */
     if (live) { if (open) { const v = Object.assign({}, variantFor(all[id], period)); delete v.checks; delete v.variants; delete v.mcKey; out[id] = v; } else locked.push({ id, need: prev, num: all[id].num || Number(id.slice(1)), needNum: all[prev].num || Number(prev.slice(1)) }); }
     if (live) prev = id;
   }
