@@ -41,8 +41,7 @@
       "Inside the body, add **one heading 1** with the page's name. Under it, add your **first heading 2** (the title of a section), and **right under that heading 2** add **2 paragraphs** (a couple of real sentences each, about your topic). Then add a **second heading 2** with **2 paragraphs** under it, and a **third heading 2** with **2 paragraphs** under it. That is **1 heading 1, 3 heading 2s, and 6 paragraphs** in all"
     ]),
     S("Color the whole page", [
-      "On the **body** tag, add a style: **background-color** (a loud named color)",
-      "In the same style, add **color** (a named color for the text). Put both properties in **one** style attribute, with a semicolon between them, and make the two **different** colors",
+      "On the **body** tag, add a style with **both** a **background-color** (a loud named color) **and** a **color** (a different named color for the text). Put both properties in **one** style attribute, with a semicolon between them",
       "**Remember:** the style on the body gives the **whole page** its basic colors, and every tag inside inherits them. But you can **override** those colors on any single tag by giving that tag its own style attribute with new colors. That is how you will make each heading and paragraph different in the next steps"
     ]),
     S("Color the headings", [

@@ -40,8 +40,7 @@
     "Step 1": [SK, TITLE],
     "Step 2": [[K("There is one heading 1", function (c) { return c.count("h1") === 1; }), CNT("There are at least 3 heading 2s", "h2", 3), CNT("There are at least 6 paragraphs", "p", 6)]],
     "Step 3": [
-      [bodyBg("The body has a background-color (a named color)")],
-      [P("The body has a text color (a named color)", T("body"), "color", named), K("The text color is different from the background-color", function (c) { var b = T("body")(c); return !!b && bothDiffer(c, b); })],
+      [bodyBg("The body has a background-color (a named color)"), P("The body has a text color (a named color)", T("body"), "color", named), K("The text color is different from the background-color", function (c) { var b = T("body")(c); return !!b && bothDiffer(c, b); })],
       []
     ],
     "Step 4": [
