@@ -156,30 +156,33 @@
     ]),
     done()]));
 
-  /* ======================================================================= 6.23  (3.3 HYBRID DRAFT, teacher only: ordered start, then must-haves and design limits) ===== */
-  A["6.23"] = build([].concat(head("**A real-looking page for a place or club.** This is the **hybrid** style: you start with a few ordered steps, then the rest of the page is yours. You get a list of **must-haves** (they can go anywhere on your page) and **design limits** (they keep it looking like a real website).", "a pizza shop, a gym, a bakery, a school club, or a band", notes("unit-6/text-size-align-notes.html")), [RULE,
+  /* ======================================================================= 6.23  (3.3 CHECKLIST DRAFT, teacher only: skeleton walkthrough, pick a theme, then a checklist of counts and design limits that can go anywhere) ===== */
+  A["6.23"] = build([].concat(head("**A page about a theme you pick.** You build the skeleton step by step, then the rest is **yours**: a checklist says how many of each tag and style your page needs **somewhere**, and a few **design limits** keep it looking like a real website.", "", notes("unit-6/text-size-align-notes.html")), [RULE,
     RULE2,
     S("Skeleton, title, and colors", [
-      "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point). Then type the opening **html** tag, and inside it the **head** tags. The editor puts your cursor under the closing head tag, so click on the empty line **between** the head tags and add a **title** with the name of your place or club",
+      "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point). Then type the opening **html** tag, and inside it the **head** tags. The editor puts your cursor under the closing head tag, so click on the empty line **between** the head tags and add a **title** with the name of your page",
       "Click on the line **under** the closing head tag (still inside the html tags) and type the **body** tags",
       "On the **body** tag, add a style with a **background-color** and a **color** (two **different** named colors, so the text can be read)"
     ]),
-    S("The name and the tagline", [
-      "Inside the body, add **one heading 1** with the name of your place or club. **Right away**, style it: **color**, **font-size** in pixels (**36px or bigger**), **text-align** center, and **text-transform** uppercase",
-      "Under it, add a **heading 2** for a short tagline (like Fresh, fast, and friendly). **Right away**, style it: **color**, **font-size** in pixels, **text-align** center, and **text-transform** capitalize"
+    { h: "Pick your theme" },
+    { p: "Pick **one** theme and make the whole page about it: **a pizza shop, a gym, a bakery, a school club, a band, a video game, a sports team, or an animal shelter.** Write real sentences about it (what it is, what is great about it, when and where to find it). The checklist below does not tell you where anything goes: **you decide the layout.**" },
+    S("The checklist: tags (anywhere on your page)", [
+      "Use **exactly 1 heading 1** (the name of your page)",
+      "Use **at least 3 heading 2s** (the titles of your sections)",
+      "Use **at least 1 heading 3** (a small label, like Hours or Menu)",
+      "Use **at least 5 paragraphs** (a few real sentences each)"
     ]),
-    { p: "**Now the page is yours.** From here on you can build in **any order** you like. The two lists below are not steps: they are the things your page must have **somewhere**. Think like a designer and keep it clean." },
-    S("The must-haves (anywhere on your page)", [
-      "Add at least **3 sections**. Each section has its own **heading 2** (after your tagline) with a **color**, a **font-size** in pixels, and a **text-transform**, and **at least one paragraph** somewhere under it (before your next section heading), with a few real sentences, a **color**, and a **font-size** in pixels",
-      "Make your **sizes step down**: your heading 1 is the **biggest**, every section heading 2 is **smaller than the heading 1**, and every paragraph is **smaller than every heading 2** (all in pixels)",
-      "Use **text-align** center on your heading 1, your tagline, and every section heading 2. Keep most paragraphs left-aligned, but **center at least one** on purpose (like a closing line)",
-      "Use **text-transform** on purpose: **uppercase** on your heading 1 **and at least one more tag**, and **capitalize** on at least one heading 2",
-      "Add at least one **heading 3** (a small label, like Hours, Menu, or Contact) with a **color** and a **font-size** in pixels, and a **paragraph** right under it"
+    S("The checklist: styles (anywhere on your page)", [
+      "Use **text color at least 3 times** (on 3 different tags, not counting the body)",
+      "Use **background-color at least 2 times** (on 2 different tags, not counting the body)",
+      "Use **font-size in pixels at least 4 times**, with **at least 3 different sizes** (like 40px, 28px, 18px)",
+      "Use **text-align at least 3 times**: either **center** or **right**",
+      "Use **text-transform at least 3 times**, with **at least 2 different values** (uppercase, lowercase, or capitalize)"
     ]),
     S("Design limits (this is what makes it look real)", [
-      "Use **no more than 4 different colors** on the whole page (text colors and background colors together). Pick a small palette and reuse it",
+      "Use **no more than 5 different colors** on the whole page (text colors and background colors together). Pick a small palette and reuse it",
       "Wherever a tag has **both** a color and a background-color, they must be **different**, and the text must be easy to read",
-      "Use **no more than 5 different font sizes** on the whole page, and keep them consistent: **every section heading 2 uses the same size**, and **every paragraph uses the same size**"
+      "Use **no more than 5 different font sizes** on the whole page. Same kind of tag, same size: for example, all your heading 2s match"
     ]),
     done()]));
 

@@ -738,7 +738,7 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
   function noCarry(rs) { return rs.map(function (x) { var y = {}; for (var k in x) y[k] = x[k]; y.base = false; return y; }); }
   LESSONS["6.21"] = { name: "Font-Size, Text-Alignment, Letter-Case (Part 2: movie or game review)", rules: noCarry(LESSONS["6.20"].rules) };
   LESSONS["6.22"] = { name: "Font-Size, Text-Alignment, Letter-Case (Part 3: band or artist profile)", rules: noCarry(LESSONS["6.20"].rules) };
-  LESSONS["6.23"] = { name: "Font-Size, Text-Alignment, Letter-Case (HYBRID DRAFT: a real-looking page)", rules: [] };
+  LESSONS["6.23"] = { name: "Font-Size, Text-Alignment, Letter-Case (CHECKLIST DRAFT: a themed page)", rules: [] };
 
   var ORDER = ["6.1", "6.2", "6.20", "6.21", "6.22", "6.23", "6.3", "6.35", "6.4", "6.7", "6.75", "6.6", "6.5", "7.1", "7.2", "7.3", "7.4", "7.5", "7.6",
                "8.1", "8.2", "8.3", "8.4", "8.5", "8.6", "8.7", "9.1", "9.2", "9.3", "9.4", "9.5", "9.6", "9.7"];

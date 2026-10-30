@@ -665,37 +665,36 @@
   })();
 
 
-  /* ---- 3.3 HYBRID DRAFT (6.23, teacher only): two ordered steps, then must-haves and design limits that can sit anywhere on the page ---- */
+  /* ---- 3.3 CHECKLIST DRAFT (6.23, teacher only): a skeleton walkthrough, then a checklist of counts and design limits that can sit anywhere on the page ---- */
   (function () {
     var old = SC.LESSONS["6.21"].steps;
-    var sec = function (c) { return c.all("h2").slice(1); };
-    var H1 = T("h1");
     function px(c, e) { return pxNum(c, e); }
-    function allP(c) { return c.all("p"); }
-    var sizeSet = function (c) { var n = {}; allEls(c).forEach(function (x) { var v = px(c, x); if (v !== null) n[v] = 1; }); return Object.keys(n); };
+    function notBody(c) { return h.order(c).filter(function (x) { return x.tag !== "#text" && x.tag !== "body" && x.tag !== "html"; }); }
+    function withProp(c, prop, test) { return notBody(c).filter(function (x) { return has(c, x, prop, test); }); }
+    function distinctVals(c, prop, test) { var n = {}; withProp(c, prop, test).forEach(function (x) { h.vals(c, x, prop).forEach(function (v) { if (!test || test(v)) n[v] = 1; }); }); return Object.keys(n); }
+    var align = function (v) { return v === "center" || v === "right"; };
+    var transform = function (v) { return v === "uppercase" || v === "lowercase" || v === "capitalize"; };
     SC.LESSONS["6.23"] = { inlineOnly: true, steps: {
       "Step 1": old["Step 1"],
-      "Step 2": old["Step 2"],
+      "Step 2": [
+        [K("Exactly 1 heading 1", function (c) { return c.count("h1") === 1; })],
+        [CNT("At least 3 heading 2s", "h2", 3)],
+        [CNT("At least 1 heading 3", "h3", 1)],
+        [CNT("At least 5 paragraphs", "p", 5)]
+      ],
       "Step 3": [
-        [K("There are at least 3 section headings (heading 2s after the tagline)", function (c) { return sec(c).length >= 3; }),
-         K("Every section heading has a color, a font-size in pixels, and a text-transform", function (c) { var a = sec(c); return a.length >= 3 && a.every(function (x) { return has(c, x, "color", named) && has(c, x, "font-size", h.isPx) && has(c, x, "text-transform"); }); }),
-         K("Every section heading has a paragraph under it (before the next section heading)", function (c) { var a = sec(c); return a.length >= 3 && a.every(function (x) { var n = h.nextEl(x); while (n && n.tag !== "h1" && n.tag !== "h2") { if (n.tag === "p") return true; n = h.nextEl(n); } return false; }); }),
-         K("Every paragraph has a color and a font-size in pixels", function (c) { var a = allP(c); return a.length >= 3 && a.every(function (x) { return has(c, x, "color", named) && has(c, x, "font-size", h.isPx); }); })],
-        [K("The heading 1 is bigger than every section heading", function (c) { var a = H1(c), s = sec(c); return !!a && px(c, a) !== null && s.length >= 3 && s.every(function (x) { return px(c, x) !== null && px(c, x) < px(c, a); }); }),
-         K("Every section heading is bigger than every paragraph", function (c) { var s = sec(c), p = allP(c); return s.length >= 3 && p.length >= 3 && s.every(function (x) { return px(c, x) !== null && p.every(function (y) { return px(c, y) !== null && px(c, y) < px(c, x); }); }); })],
-        [K("The heading 1, the tagline, and every section heading are text-align center", function (c) { var els = [H1(c), tag6(c)].concat(sec(c)); return sec(c).length >= 3 && els.every(function (x) { return !!x && has(c, x, "text-align", center); }); }),
-         K("At least one paragraph is text-align center", function (c) { return allP(c).some(function (x) { return has(c, x, "text-align", center); }); }),
-         K("Most paragraphs are left-aligned (no more than half are centered)", function (c) { var a = allP(c); return a.length >= 3 && a.filter(function (x) { return has(c, x, "text-align", center); }).length * 2 <= a.length; })],
-        [K("The heading 1 is uppercase, and at least one other tag is uppercase too", function (c) { var a = H1(c); return !!a && has(c, a, "text-transform", upper) && countWith(c, "text-transform", upper) >= 2; }),
-         K("At least one heading 2 is capitalize", function (c) { return c.all("h2").some(function (x) { return has(c, x, "text-transform", capital); }); })],
-        [K("There is at least one heading 3 with a color and a font-size in pixels", function (c) { var a = c.all("h3"); return a.length >= 1 && a.some(function (x) { return has(c, x, "color", named) && has(c, x, "font-size", h.isPx); }); }),
-         K("A paragraph is right under a heading 3", function (c) { return c.all("h3").some(function (x) { return psAfter(c, x).length >= 1; }); })]
+        [K("Text color used on at least 3 tags (not counting the body)", function (c) { return withProp(c, "color", named).length >= 3; })],
+        [K("Background-color used on at least 2 tags (not counting the body)", function (c) { return withProp(c, "background-color", named).length >= 2; })],
+        [K("Font-size in pixels used at least 4 times", function (c) { return withProp(c, "font-size", h.isPx).length >= 4; }),
+         K("At least 3 different font sizes", function (c) { return distinctVals(c, "font-size", h.isPx).length >= 3; })],
+        [K("Text-align (center or right) used at least 3 times", function (c) { return withProp(c, "text-align", align).length >= 3; })],
+        [K("Text-transform used at least 3 times", function (c) { return withProp(c, "text-transform", transform).length >= 3; }),
+         K("At least 2 different text-transform values", function (c) { return distinctVals(c, "text-transform", transform).length >= 2; })]
       ],
       "Step 4": [
-        [K("The whole page uses 4 different colors or fewer (and at least 2)", function (c) { var n = distinctColors(c).length; return n >= 2 && n <= 4; })],
-        [K("Wherever a tag has both a color and a background-color, they are different", function (c) { var seen = false, ok = true; h.order(c).forEach(function (x) { if (x.tag !== "#text" && has(c, x, "color") && has(c, x, "background-color")) { seen = true; if (!bothDiffer(c, x)) ok = false; } }); return ok; })],
-        [K("The whole page uses 5 different font sizes or fewer (and at least 3)", function (c) { var n = sizeSet(c).length; return n >= 3 && n <= 5; }),
-         K("Every section heading uses the same size, and every paragraph uses the same size", function (c) { var s = sec(c).map(function (x) { return px(c, x); }), p = allP(c).map(function (x) { return px(c, x); }); function same(a) { return a.length >= 3 && a.every(function (v) { return v !== null && v === a[0]; }); } return same(s) && same(p); })]
+        [K("The whole page uses 5 different colors or fewer (and at least 2)", function (c) { var n = distinctColors(c).length; return n >= 2 && n <= 5; })],
+        [K("Wherever a tag has both a color and a background-color, they are different", function (c) { var ok = true; h.order(c).forEach(function (x) { if (x.tag !== "#text" && has(c, x, "color") && has(c, x, "background-color") && !bothDiffer(c, x)) ok = false; }); return ok; })],
+        [K("The whole page uses 5 different font sizes or fewer", function (c) { var n = distinctVals(c, "font-size", h.isPx).length; return n >= 1 && n <= 5; })]
       ]
     } };
     lastStep("6.23", "Step 5", [[]]);
