@@ -52,8 +52,8 @@
     "Step 5": [
       [CNT("There are at least 6 paragraphs", "p", 6), K("Every paragraph has a color and a background-color", function (c) { var a = c.all("p"); return a.length >= 6 && a.every(function (x) { return has(c, x, "color", named) && has(c, x, "background-color", named); }); }),
        K("On every paragraph the text color is different from its own background-color", function (c) { var a = c.all("p"); return a.length >= 6 && a.every(function (x) { return bothDiffer(c, x); }); }),
-       K("No two paragraphs share a background-color (every paragraph has its own)", function (c) { var a = c.all("p"), seen = {}; return a.length >= 6 && a.every(function (x) { var v = h.vals(c, x, "background-color")[0]; if (!v || seen[v]) return false; seen[v] = 1; return true; }); }),
-       K("No two paragraphs share a text color (every paragraph has its own)", function (c) { var a = c.all("p"), seen = {}; return a.length >= 6 && a.every(function (x) { var v = h.vals(c, x, "color")[0]; if (!v || seen[v]) return false; seen[v] = 1; return true; }); })],
+       K("No two paragraphs share a background-color (every paragraph has its own)", function (c) { var a = c.all("p").filter(function (x) { return h.vals(c, x, "color")[0] || h.vals(c, x, "background-color")[0]; }), seen = {}; return a.length >= 6 && a.every(function (x) { var v = h.vals(c, x, "background-color")[0]; if (!v || seen[v]) return false; seen[v] = 1; return true; }); }),
+       K("No two paragraphs share a text color (every paragraph has its own)", function (c) { var a = c.all("p").filter(function (x) { return h.vals(c, x, "color")[0] || h.vals(c, x, "background-color")[0]; }), seen = {}; return a.length >= 6 && a.every(function (x) { var v = h.vals(c, x, "color")[0]; if (!v || seen[v]) return false; seen[v] = 1; return true; }); })],
       [K("Nothing is hidden: wherever color and background-color are both used, they are different colors", function (c) { var seen = false, ok = true; h.order(c).forEach(function (x) { if (has(c, x, "color") && has(c, x, "background-color")) { seen = true; if (!bothDiffer(c, x)) ok = false; } }); return seen && ok; })],
       [],
       RAINBOW
@@ -449,8 +449,8 @@
     var pattern = K("Pattern: this heading 2 uses exactly the same text color and background-color as your first heading 2", function (c) { var a = c.all("h2"); if (a.length < 2) return false; return h.vals(c, a[0], "color")[0] + "|" + h.vals(c, a[0], "background-color")[0] === h.vals(c, a[1], "color")[0] + "|" + h.vals(c, a[1], "background-color")[0] && !!h.vals(c, a[0], "color")[0]; });
     var uniq = [
       CNT("There are at least 6 paragraphs", "p", 6),
-      K("No two paragraphs share a background-color (every paragraph has its own)", function (c) { var a = c.all("p"), seen = {}; return a.length >= 6 && a.every(function (x) { var v = h.vals(c, x, "background-color")[0]; if (!v || seen[v]) return false; seen[v] = 1; return true; }); }),
-      K("No two paragraphs share a text color (every paragraph has its own)", function (c) { var a = c.all("p"), seen = {}; return a.length >= 6 && a.every(function (x) { var v = h.vals(c, x, "color")[0]; if (!v || seen[v]) return false; seen[v] = 1; return true; }); })
+      K("No two paragraphs share a background-color (every paragraph has its own)", function (c) { var a = c.all("p").filter(function (x) { return h.vals(c, x, "color")[0] || h.vals(c, x, "background-color")[0]; }), seen = {}; return a.length >= 6 && a.every(function (x) { var v = h.vals(c, x, "background-color")[0]; if (!v || seen[v]) return false; seen[v] = 1; return true; }); }),
+      K("No two paragraphs share a text color (every paragraph has its own)", function (c) { var a = c.all("p").filter(function (x) { return h.vals(c, x, "color")[0] || h.vals(c, x, "background-color")[0]; }), seen = {}; return a.length >= 6 && a.every(function (x) { var v = h.vals(c, x, "color")[0]; if (!v || seen[v]) return false; seen[v] = 1; return true; }); })
     ];
     var old = SC.LESSONS["6.2"].steps;
     SC.LESSONS["6.2"] = { inlineOnly: true, steps: {
