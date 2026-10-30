@@ -156,6 +156,33 @@
     ]),
     done()]));
 
+  /* ======================================================================= 6.23  (3.3 HYBRID DRAFT, teacher only: ordered start, then must-haves and design limits) ===== */
+  A["6.23"] = build([].concat(head("**A real-looking page for a place or club.** This is the **hybrid** style: you start with a few ordered steps, then the rest of the page is yours. You get a list of **must-haves** (they can go anywhere on your page) and **design limits** (they keep it looking like a real website).", "a pizza shop, a gym, a bakery, a school club, or a band", notes("unit-6/text-size-align-notes.html")), [RULE,
+    RULE2,
+    S("Skeleton, title, and colors", [
+      "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point). Then type the opening **html** tag, and inside it the **head** tags. The editor puts your cursor under the closing head tag, so click on the empty line **between** the head tags and add a **title** with the name of your place or club",
+      "Click on the line **under** the closing head tag (still inside the html tags) and type the **body** tags",
+      "On the **body** tag, add a style with a **background-color** and a **color** (two **different** named colors, so the text can be read)"
+    ]),
+    S("The name and the tagline", [
+      "Inside the body, add **one heading 1** with the name of your place or club. **Right away**, style it: **color**, **font-size** in pixels (**36px or bigger**), **text-align** center, and **text-transform** uppercase",
+      "Under it, add a **heading 2** for a short tagline (like Fresh, fast, and friendly). **Right away**, style it: **color**, **font-size** in pixels, **text-align** center, and **text-transform** capitalize"
+    ]),
+    { p: "**Now the page is yours.** From here on you can build in **any order** you like. The two lists below are not steps: they are the things your page must have **somewhere**. Think like a designer and keep it clean." },
+    S("The must-haves (anywhere on your page)", [
+      "Add at least **3 sections**. Each section has its own **heading 2** (after your tagline) with a **color**, a **font-size** in pixels, and a **text-transform**, and **at least one paragraph** somewhere under it (before your next section heading), with a few real sentences, a **color**, and a **font-size** in pixels",
+      "Make your **sizes step down**: your heading 1 is the **biggest**, every section heading 2 is **smaller than the heading 1**, and every paragraph is **smaller than every heading 2** (all in pixels)",
+      "Use **text-align** center on your heading 1, your tagline, and every section heading 2. Keep most paragraphs left-aligned, but **center at least one** on purpose (like a closing line)",
+      "Use **text-transform** on purpose: **uppercase** on your heading 1 **and at least one more tag**, and **capitalize** on at least one heading 2",
+      "Add at least one **heading 3** (a small label, like Hours, Menu, or Contact) with a **color** and a **font-size** in pixels, and a **paragraph** right under it"
+    ]),
+    S("Design limits (this is what makes it look real)", [
+      "Use **no more than 4 different colors** on the whole page (text colors and background colors together). Pick a small palette and reuse it",
+      "Wherever a tag has **both** a color and a background-color, they must be **different**, and the text must be easy to read",
+      "Use **no more than 5 different font sizes** on the whole page, and keep them consistent: **every section heading 2 uses the same size**, and **every paragraph uses the same size**"
+    ]),
+    done()]));
+
   /* ======================================================================= 6.3  (3.4) ===== */
   A["6.3"] = build([].concat(head("A **text-heavy page** where bold, italics, line breaks, horizontal lines, and **spans** do the work. You choose the topic from **20 ideas**, from a weird restaurant menu to a song lyrics page to a tier list.", "", notes("unit-6/editing-tags-notes.html")), [{ tip: "themes34", label: "See all 20 theme choices" }, RULE,
     { p: "**Every idea uses the same steps, and you build the page from the top to the bottom, in order.** Each bullet adds one piece and styles it right away, so you never go back to an earlier step. Your theme decides the words, colors, and fonts. Each step says the least you must add: you can ALWAYS add more." },
