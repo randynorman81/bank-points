@@ -454,6 +454,51 @@
     ]),
     done()]));
 
+  /* ======================================================================= THE CHECKLIST LESSONS (3.3 Parts 1 to 3, 3.4 to 3.10), built from checklist-config.js ===== */
+  (function () {
+    var CL = root.U7_CL; if (!CL) return;
+    var BUL = "\n\u2022 ";
+    CL.lessons.forEach(function (l) {
+      var B = CL.basics, pool = CL.poolFor(l), need = CL.need[l];
+      var list = [
+        { h: "What you are building" },
+        { p: "A page about a theme you pick. Build the skeleton, then the checklist tells you what your page needs **somewhere**. Styles go inside a **style attribute**, with a **semicolon** between properties. Use named colors (or hex codes if you know them)." },
+        { id: "theme", t: "pick", q: "Pick your theme (check ONE box)", opts: CL.themes[l] },
+        S("Skeleton", [
+          "**DOCTYPE** added at the very top of the page",
+          "**html** tags added (the head tags and body tags go inside the html tags)",
+          "**head** tags added (with a **title** tag inside)",
+          "**body** tags added"
+        ]),
+        S("The basics (anywhere on your page)", [
+          "Use **exactly " + B.h1 + " heading 1** (the name of your page)",
+          "Use **at least " + B.h2 + " heading 2s** (the titles of your sections)",
+          "Use **at least " + B.p + " paragraphs** (a few real sentences each)",
+          "Use a **text color** on at least " + B.colorTags + " tags and a **background-color** on at least " + B.bgTags + " tag (not counting the body)"
+        ]),
+        S("New this lesson: use each one at least 3 times", CL.news[l].map(function (it) { return it.text; }))
+      ];
+      if (pool.length) list.push(S("From earlier lessons: use at least " + need + " of these " + pool.length, [
+        "Use **at least " + need + "** of these " + pool.length + " anywhere on your page (pick the ones that fit your theme):" + pool.map(function (f) { return BUL + "**" + f.label + "**"; }).join("")
+      ]));
+      var lim = [
+        "Use **no more than 5 different colors** on the whole page (text colors and background colors together; span words do not count). Pick a small palette and reuse it",
+        "Wherever a tag has **both** a color and a background-color, they must be **different**, and the text must be easy to read",
+        "Use **no more than 5 different font sizes** on the whole page. Same kind of tag, same size"
+      ];
+      if (CL.fontLimit[l]) lim.push("Use **no more than 3 different fonts** on the whole page");
+      list.push(S("Design limits (this is what makes it look real)", lim));
+      if (pool.length) {
+        var bn = Math.min(pool.length, need + 3);
+        list.push(S("Bonus (optional, for when you finish early)", ["**BONUS (+5 points):** use **" + bn + " or more** of the " + pool.length + " earlier items and still keep the page looking clean. Your teacher may also add extra credit for good design"]));
+      } else {
+        list.push(S("Bonus (optional, for when you finish early)", ["**BONUS (+5 points):** use the **span** tag to color words on your page. Wrap **at least 3 whole words**, each in its own span with a **color**, OR make **one rainbow word** by giving **each letter** of a word its own span and its own **color**. Your teacher may also add extra credit for good design"]));
+      }
+      list.push(done());
+      A[l] = build(list);
+    });
+  })();
+
   /* From 3.9 on (lessons 7.1 to 9.7), every assignment also needs 3 links, 3 pictures, and 2 pictures that are links (html-check.js checks it). Add one step before "Test and submit". */
   Object.keys(A).forEach(function (l) {
     if (!/^[789]\./.test(l) || !A[l] || A[l].__links) return;

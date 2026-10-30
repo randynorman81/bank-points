@@ -740,6 +740,72 @@
     lastStep("6.24", "Step 7", [[]]);
   })();
 
+  /* ---- THE CHECKLIST LESSONS: 3.3 Parts 1 to 3 and 3.4 to 3.10 are built from checklist-config.js (themes, new items, earlier items, design limits) ---- */
+  (function () {
+    var CL = root.U7_CL, HC = root.HTMLCheck; if (!CL || !HC || !HC.TESTS) return;
+    var TE = HC.TESTS;
+    function notBody(c) { return h.order(c).filter(function (x) { return x.tag !== "#text" && x.tag !== "body" && x.tag !== "html"; }); }
+    function withProp(c, prop, test) { return notBody(c).filter(function (x) { return has(c, x, prop, test); }); }
+    function distinctVals(c, prop, test) { var n = {}; withProp(c, prop, test).forEach(function (x) { h.vals(c, x, prop).forEach(function (v) { if (!test || test(v)) n[v] = 1; }); }); return Object.keys(n); }
+    function styledSpans(c) { return c.all("span").filter(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style); }).length; }
+    function distinctFonts(c) { var n = {}; c.inline.forEach(function (d) { if (d.prop === "font-family") { var f = String(d.value).replace(/;$/, "").split(",")[0].replace(/['"]/g, "").trim().toLowerCase(); if (f) n[f] = 1; } }); return Object.keys(n).length; }
+    var transform = function (v) { return v === "uppercase" || v === "lowercase" || v === "capitalize"; };
+    var CUSTOM = {
+      pxSizes3: function (c) { return (TE["v-px"](c) || 0) >= 3 && distinctVals(c, "font-size", h.isPx).length >= 3; },
+      tt3x2: function (c) { return withProp(c, "text-transform", transform).length >= 3 && distinctVals(c, "text-transform", transform).length >= 2; },
+      spans3: function (c) { return styledSpans(c) >= 3; },
+      spans1: function (c) { return styledSpans(c) >= 1; },
+      fonts2: function (c) { return distinctFonts(c) >= 2; },
+      imgLinked: function (c) { var im = c.all("img"); return im.length >= 1 && im.every(function (i) { return !!c.ancestor(i, ["a"]); }); }
+    };
+    function spec(c, s) {
+      switch (s[0]) {
+        case "count": return ((TE[s[1]] ? TE[s[1]](c) : 0) || 0) >= s[2];
+        case "sum": return s[1].reduce(function (a, k) { return a + ((TE[k] ? TE[k](c) : 0) || 0); }, 0) >= s[2];
+        case "distinct": return s[1].filter(function (k) { return (TE[k] ? TE[k](c) : 0) > 0; }).length >= s[2];
+        case "any": return s[1].some(function (x) { return spec(c, x); });
+        case "all": return s[1].every(function (x) { return spec(c, x); });
+        case "custom": return !!CUSTOM[s[1]](c);
+      }
+      return false;
+    }
+    CL.test = spec;
+    CL.lessons.forEach(function (l) {
+      var B = CL.basics, pool = CL.poolFor(l), need = CL.need[l], st = {}, n = 1;
+      st["Step " + n++] = [[SK[0]], [SK[1], SK[2]], [SK[3], SK[4]], [TITLE[0], TITLE[1]]];
+      st["Step " + n++] = [
+        [K("Exactly " + B.h1 + " heading 1", function (c) { return c.count("h1") === B.h1; })],
+        [CNT("At least " + B.h2 + " heading 2s", "h2", B.h2)],
+        [CNT("At least " + B.p + " paragraphs", "p", B.p)],
+        [K("Text color used on at least " + B.colorTags + " tags (not counting the body)", function (c) { return withProp(c, "color", named).length >= B.colorTags; }),
+         K("Background-color used on at least " + B.bgTags + " tag (not counting the body)", function (c) { return withProp(c, "background-color", named).length >= B.bgTags; })]
+      ];
+      st["Step " + n++] = CL.news[l].map(function (it) { return [K(it.label, function (c) { return spec(c, it.spec); })]; });
+      if (pool.length) {
+        st["Step " + n++] = [[K("At least " + need + " of these " + pool.length + " earlier items are on your page", function (c) { return pool.filter(function (f) { return spec(c, f.spec); }).length >= need; })]];
+      }
+      var fontLimit = !!CL.fontLimit[l];
+      var limits = [
+        [K("The whole page uses 5 different colors or fewer, not counting span words (and at least 2)", function (c) { var seen = {}; notBody(c).concat(c.all("body")).forEach(function (x) { if (x.tag === "span") return; ["color", "background-color"].forEach(function (p) { h.vals(c, x, p).forEach(function (v) { if (named(v)) seen[v] = 1; }); }); }); var k = Object.keys(seen).length; return k >= 2 && k <= 5; })],
+        [K("Wherever a tag has both a color and a background-color, they are different", function (c) { var ok = true; h.order(c).forEach(function (x) { if (x.tag !== "#text" && has(c, x, "color") && has(c, x, "background-color") && !bothDiffer(c, x)) ok = false; }); return ok; })],
+        [K("The whole page uses 5 different font sizes or fewer", function (c) { return distinctVals(c, "font-size", h.isPx).length <= 5; })]
+      ];
+      if (fontLimit) limits.push([K("The whole page uses 3 different fonts or fewer", function (c) { return distinctFonts(c) <= 3; })]);
+      st["Step " + n++] = limits;
+      var bonus;
+      if (pool.length) {
+        var bn = Math.min(pool.length, need + 3);
+        bonus = [["BONUS: " + bn + " or more of the " + pool.length + " earlier items are on the page", function (c) { return pool.filter(function (f) { return spec(c, f.spec); }).length >= bn; }]];
+        bonus.bonus = 5;
+        st["Step " + n++] = [bonus];
+      } else {
+        st["Step " + n++] = [RAINBOW];
+      }
+      SC.LESSONS[l] = { inlineOnly: true, steps: st };
+      lastStep(l, "Step " + n, [[]]);
+    });
+  })();
+
   /* The "Click Checks" box (every item in the Checks list is green) is gone from every lesson. Every box counts the same in the score,
      so taking it out spreads its share across the other boxes. The matching "Click Checks" bullet is gone from the Assignment tab too. */
   Object.keys(SC.LESSONS).forEach(function (l) {

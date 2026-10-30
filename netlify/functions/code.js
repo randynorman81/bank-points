@@ -4,6 +4,7 @@ import "../../ist/unit-6/html-check.js";
 import "../../ist/unit-6/live.js";
 import "../../ist/unit-6/step-checks.js";
 import "../../ist/unit-6/step-checks-a.js";
+import "../../ist/unit-6/checklist-config.js";
 import "../../ist/unit-6/step-checks-b.js";
 
 // Student code editor backend (Unit 7 web design).
