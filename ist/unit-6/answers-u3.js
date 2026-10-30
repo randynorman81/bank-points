@@ -191,6 +191,44 @@
     ]),
     done()]));
 
+  /* ======================================================================= 6.24  (3.4 CHECKLIST DRAFT, teacher only: new items 3 times each, a few older ones to choose, design limits) ===== */
+  A["6.24"] = build([].concat([
+    { h: "What you are building" },
+    { p: "A text page about a theme you pick. Build the skeleton, then the checklist tells you what your page needs **somewhere**. Styles go inside a **style attribute**, with a **semicolon** between properties. Use named colors (or hex codes if you know them)." },
+    { id: "theme", t: "pick", q: "Pick your theme (check ONE box)", opts: ["A weird restaurant menu", "Song lyrics", "A tier list", "A movie review", "A recipe", "A sports recap", "A study guide", "A top 10 list", "A product review", "A funny story"] }
+  ], [
+    S("Skeleton", [
+      "**DOCTYPE** added at the very top of the page",
+      "**html** tags added (the head tags and body tags go inside the html tags)",
+      "**head** tags added (with a **title** tag inside)",
+      "**body** tags added"
+    ]),
+    S("The basics (anywhere on your page)", [
+      "Use **exactly 1 heading 1** (the name of your page)",
+      "Use **at least 2 heading 2s** (the titles of your sections)",
+      "Use **at least 4 paragraphs** (a few real sentences each)",
+      "Use a **text color** on at least 2 tags and a **background-color** on at least 1 tag (not counting the body)"
+    ]),
+    S("New this lesson: use each one at least 3 times", [
+      "**Bold** text: at least **3** (use the strong tag or the b tag)",
+      "**Italic** text: at least **3** (use the em tag or the i tag)",
+      "**Line breaks**: at least **3** (the br tag, inside a paragraph)",
+      "**Horizontal lines**: at least **3** (the hr tag, between your sections)",
+      "**Spans with their own style**: at least **3** (a span around a few words, with a color or other style)"
+    ]),
+    S("From earlier lessons: use at least 3 of these 4", [
+      "Use **at least 3** of these 4 anywhere on your page: **heading 3**, **font-size in pixels**, **text-align**, **text-transform**. Pick the ones that fit your theme"
+    ]),
+    S("Design limits (this is what makes it look real)", [
+      "Use **no more than 5 different colors** on the whole page (text colors and background colors together; span words do not count). Pick a small palette and reuse it",
+      "Wherever a tag has **both** a color and a background-color, they must be **different**, and the text must be easy to read",
+      "Use **no more than 5 different font sizes** on the whole page. Same kind of tag, same size"
+    ]),
+    S("Bonus (optional, for when you finish early)", [
+      "**BONUS (+5 points):** use **all 4** of the earlier-lesson items (heading 3, font-size in pixels, text-align, and text-transform) and still keep the page looking clean. Your teacher may also add extra credit for good design"
+    ]),
+    done()]));
+
   /* ======================================================================= 6.3  (3.4) ===== */
   A["6.3"] = build([].concat(head("A **text-heavy page** where bold, italics, line breaks, horizontal lines, and **spans** do the work. You choose the topic from **20 ideas**, from a weird restaurant menu to a song lyrics page to a tier list.", "", notes("unit-6/editing-tags-notes.html")), [{ tip: "themes34", label: "See all 20 theme choices" }, RULE,
     { p: "**Every idea uses the same steps, and you build the page from the top to the bottom, in order.** Each bullet adds one piece and styles it right away, so you never go back to an earlier step. Your theme decides the words, colors, and fonts. Each step says the least you must add: you can ALWAYS add more." },

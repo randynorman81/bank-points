@@ -701,6 +701,45 @@
     lastStep("6.23", "Step 6", [[]]);
   })();
 
+  /* ---- 3.4 CHECKLIST DRAFT (6.24, teacher only) ---- */
+  (function () {
+    function notBody(c) { return h.order(c).filter(function (x) { return x.tag !== "#text" && x.tag !== "body" && x.tag !== "html"; }); }
+    function withProp(c, prop, test) { return notBody(c).filter(function (x) { return has(c, x, prop, test); }); }
+    function distinctVals(c, prop, test) { var n = {}; withProp(c, prop, test).forEach(function (x) { h.vals(c, x, prop).forEach(function (v) { if (!test || test(v)) n[v] = 1; }); }); return Object.keys(n); }
+    function styledSpans(c) { return c.all("span").filter(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style); }).length; }
+    var anyAlign = function (v) { return !!v; };
+    function families(c) { return [c.all("h3").length >= 1, withProp(c, "font-size", h.isPx).length >= 1, withProp(c, "text-align", anyAlign).length >= 1, withProp(c, "text-transform", anyAlign).length >= 1].filter(Boolean).length; }
+    SC.LESSONS["6.24"] = { inlineOnly: true, steps: {
+      "Step 1": [[SK[0]], [SK[1], SK[2]], [SK[3], SK[4]], [TITLE[0], TITLE[1]]],
+      "Step 2": [
+        [K("Exactly 1 heading 1", function (c) { return c.count("h1") === 1; })],
+        [CNT("At least 2 heading 2s", "h2", 2)],
+        [CNT("At least 4 paragraphs", "p", 4)],
+        [K("Text color used on at least 2 tags (not counting the body)", function (c) { return withProp(c, "color", named).length >= 2; }),
+         K("Background-color used on at least 1 tag (not counting the body)", function (c) { return withProp(c, "background-color", named).length >= 1; })]
+      ],
+      "Step 3": [
+        [K("At least 3 bold words or phrases (strong or b)", function (c) { return boldN(c) >= 3; })],
+        [K("At least 3 italic words or phrases (em or i)", function (c) { return italN(c) >= 3; })],
+        [K("At least 3 line breaks (br)", function (c) { return c.all("br").length >= 3; })],
+        [K("At least 3 horizontal lines (hr)", function (c) { return c.all("hr").length >= 3; })],
+        [K("At least 3 span tags, each with its own style", function (c) { return styledSpans(c) >= 3; })]
+      ],
+      "Step 4": [
+        [K("At least 3 of these 4 are on your page: heading 3, font-size in pixels, text-align, text-transform", function (c) { return families(c) >= 3; })]
+      ],
+      "Step 5": [
+        [K("The whole page uses 5 different colors or fewer, not counting span words (and at least 2)", function (c) { var seen = {}; notBody(c).concat(c.all("body")).forEach(function (x) { if (x.tag === "span") return; ["color", "background-color"].forEach(function (p) { h.vals(c, x, p).forEach(function (v) { if (named(v)) seen[v] = 1; }); }); }); var n = Object.keys(seen).length; return n >= 2 && n <= 5; })],
+        [K("Wherever a tag has both a color and a background-color, they are different", function (c) { var ok = true; h.order(c).forEach(function (x) { if (x.tag !== "#text" && has(c, x, "color") && has(c, x, "background-color") && !bothDiffer(c, x)) ok = false; }); return ok; })],
+        [K("The whole page uses 5 different font sizes or fewer", function (c) { return distinctVals(c, "font-size", h.isPx).length <= 5; })]
+      ]
+    } };
+    var ALL4 = [["BONUS: all 4 earlier-lesson items are on the page (heading 3, font-size in pixels, text-align, text-transform)", function (c) { return families(c) >= 4; }]];
+    ALL4.bonus = 5;
+    SC.LESSONS["6.24"].steps["Step 6"] = [ALL4];
+    lastStep("6.24", "Step 7", [[]]);
+  })();
+
   /* The "Click Checks" box (every item in the Checks list is green) is gone from every lesson. Every box counts the same in the score,
      so taking it out spreads its share across the other boxes. The matching "Click Checks" bullet is gone from the Assignment tab too. */
   Object.keys(SC.LESSONS).forEach(function (l) {

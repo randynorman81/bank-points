@@ -95,7 +95,7 @@
   var STAPLES = { "h2": 1, "p": 1, "ul": 1, "ol": 1, "a": 1, "attr-href": 1, "img": 1, "attr-alt": 1, "p-color": 1, "p-bg": 1, "p-fs": 1, "p-ta": 1, "p-border": 1, "p-pad": 1, "p-mar": 1, "p-w": 1 };
   var TESTS_UNIT = { "7.6": /^[67]\./, "8.7": /^8\./, "9.7": /^9\./ };
   /* the two extra 3.3 practice assignments review exactly what 3.3 reviews (they are not separate steps in the spiral) */
-  var ALIAS = { "6.21": "6.20", "6.22": "6.20", "6.23": "6.20" };
+  var ALIAS = { "6.21": "6.20", "6.22": "6.20", "6.23": "6.20", "6.24": "6.3" };
   function idxOf(id) { for (var i = 0; i < C.length; i++) if (C[i].id === id) return i; return -1; }
   function tierFor(lesson, fromId, key) {
     var test = TESTS_UNIT[lesson];
