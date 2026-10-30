@@ -162,10 +162,11 @@
     { p: "A page about a theme you pick. Build the skeleton first, then the checklist tells you what your page needs **somewhere**. Styles go inside a **style attribute**, with a **semicolon** between properties. Use named colors (or hex codes if you know them)." },
     { id: "theme", t: "pick", q: "Pick your theme (check ONE box)", opts: ["A pizza shop", "A gym", "A bakery", "A school club", "A band", "A video game", "A sports team", "An animal shelter", "A movie", "A food truck"] }
   ], [
-    S("Skeleton, title, and colors", [
-      "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point). Then type the opening **html** tag, and inside it the **head** tags. The editor puts your cursor under the closing head tag, so click on the empty line **between** the head tags and add a **title** with the name of your page",
-      "Click on the line **under** the closing head tag (still inside the html tags) and type the **body** tags",
-      "On the **body** tag, add a style with a **background-color** and a **color** (two **different** named colors, so the text can be read)"
+    S("Skeleton", [
+      "**DOCTYPE** added at the very top of the page",
+      "**html** tags added (the head tags and body tags go inside the html tags)",
+      "**head** tags added (with a **title** tag inside)",
+      "**body** tags added"
     ]),
     S("The checklist: tags (anywhere on your page)", [
       "Use **exactly 1 heading 1** (the name of your page)",

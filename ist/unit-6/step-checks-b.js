@@ -675,7 +675,7 @@
     var align = function (v) { return v === "center" || v === "right"; };
     var transform = function (v) { return v === "uppercase" || v === "lowercase" || v === "capitalize"; };
     SC.LESSONS["6.23"] = { inlineOnly: true, steps: {
-      "Step 1": old["Step 1"],
+      "Step 1": [[SK[0]], [SK[1], SK[2]], [SK[3], SK[4]], [TITLE[0], TITLE[1]]],
       "Step 2": [
         [K("Exactly 1 heading 1", function (c) { return c.count("h1") === 1; })],
         [CNT("At least 3 heading 2s", "h2", 3)],
