@@ -679,7 +679,7 @@
       "Step 2": [
         [K("Exactly 1 heading 1", function (c) { return c.count("h1") === 1; })],
         [CNT("At least 3 heading 2s", "h2", 3)],
-        [CNT("At least 1 heading 3", "h3", 1)],
+        [CNT("At least 3 heading 3s", "h3", 3)],
         [CNT("At least 5 paragraphs", "p", 5)]
       ],
       "Step 3": [

@@ -171,7 +171,7 @@
     S("The checklist: tags (anywhere on your page)", [
       "Use **exactly 1 heading 1** (the name of your page)",
       "Use **at least 3 heading 2s** (the titles of your sections)",
-      "Use **at least 1 heading 3** (a small label, like Hours or Menu)",
+      "Use **at least 3 heading 3s** (small labels, like Hours, Menu, or Contact)",
       "Use **at least 5 paragraphs** (a few real sentences each)"
     ]),
     S("The checklist: styles (anywhere on your page)", [
