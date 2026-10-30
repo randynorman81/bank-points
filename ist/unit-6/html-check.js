@@ -215,7 +215,7 @@
   /* style values on one element (style attribute only), lower-cased, without the trailing semicolon */
   function declOf(c, el, prop) { return c.inline.filter(function (d) { return d.el === el && d.prop === prop; }).map(function (d) { return String(d.value).replace(/;$/, "").trim().toLowerCase(); }); }
   function hasDecl(c, el, prop, re) { return declOf(c, el, prop).some(function (v) { return !re || (typeof re === "function" ? re(v) : re.test(v)); }); }
-  function isNamedColor(v) { return !!NAMED[v]; }
+  function isNamedColor(v) { return !!NAMED[v] || /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(v); }
   function colorsDiffer(c, el) { var a = declOf(c, el, "color")[0], b = declOf(c, el, "background-color")[0]; return !!a && !!b && a !== b; }
   function bothColors(c, el) { return hasDecl(c, el, "color", isNamedColor) && hasDecl(c, el, "background-color", isNamedColor); }
   function realLinks(c) { return c.all("a").filter(function (a) { return /^https:\/\//i.test(a.attrs.href || "") && !/example\.com/i.test(a.attrs.href || ""); }); }
@@ -370,7 +370,7 @@
     "v-px": function (c) { return valCount(c, ["font-size"], /^\d+(\.\d+)?px$/i); },
     "v-center": function (c) { return valCount(c, ["text-align"], /^center$/i); },
     "v-upper": function (c) { return valCount(c, ["text-transform"], /^uppercase$/i); },
-    "v-named": function (c) { return colorTokens(c).filter(function (t) { return NAMED[t.toLowerCase()]; }).length; },
+    "v-named": function (c) { return colorTokens(c).filter(function (t) { return NAMED[t.toLowerCase()] || HEX.test(t); }).length; },
     "strong": function (c) { return c.count("strong") + c.count("b"); }, "em": function (c) { return c.count("em") + c.count("i"); },
     "br": function (c) { return c.count("br"); }, "hr": function (c) { return c.count("hr"); }, "span": function (c) { return c.count("span"); },
     "p-ff": function (c) { return c.prop("font-family"); },
@@ -477,7 +477,7 @@
     ] },
     "6.2": { name: "The \"Style\" Attribute + Color", rules: [
       r("Has one heading 1, at least 3 heading 2s, and at least 6 paragraphs", function (c) { return c.count("h1") === 1 && c.count("h2") >= 3 && c.count("p") >= 6; }, "Pick your topic, then build the page: 1 h1, 3 or more h2, 6 or more p."),
-      r("The body has a background-color (a named color)", function (c) { var b = c.all("body")[0]; return !!b && hasDecl(c, b, "background-color", isNamedColor); }, "Put style=\"background-color: lime;\" on the body tag."),
+      r("The body has a background-color (a named color or hex code)", function (c) { var b = c.all("body")[0]; return !!b && hasDecl(c, b, "background-color", isNamedColor); }, "Put style=\"background-color: lime;\" on the body tag."),
       r("The body also has a text color that is different from its background-color", function (c) { var b = c.all("body")[0]; return !!b && hasDecl(c, b, "color", isNamedColor) && colorsDiffer(c, b); }, "Chain it after the background-color: style=\"background-color: lime; color: purple;\""),
       r("The heading 1 uses color and background-color together", function (c) { var h = c.all("h1")[0]; return !!h && bothColors(c, h) && colorsDiffer(c, h); }, "Two properties in one style attribute, with a semicolon between them."),
       r("EVERY heading 2 and EVERY paragraph uses color and background-color together (two different colors)", function (c) { var e = c.all("h2").concat(c.all("p")); return e.length >= 9 && e.every(function (x) { return bothColors(c, x) && colorsDiffer(c, x); }); }, "Almost every tag on an ugly page has both colors."),

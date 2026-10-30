@@ -8,7 +8,7 @@
   var named = h.isNamed, center = h.eq("center"), upper = h.eq("uppercase");
 
   /* ---------- shapes used over and over ---------- */
-  function bodyBg(label) { return P(label || "The body has a background-color (a named color)", T("body"), "background-color", named); }
+  function bodyBg(label) { return P(label || "The body has a background-color (a named color or hex code)", T("body"), "background-color", named); }
   function afterEl(pick, tag) { return AFTER(pick, tag); }
   function hrAfter(label, pick) { return K(label, function (c) { var e = pick(c), n = h.nextEl(e); return !!n && n.tag === "hr"; }); }
   function onlySide(side) { return function (c, el) { return has(c, el, "border-" + side) && !has(c, el, "border"); }; }
@@ -40,7 +40,7 @@
     "Step 1": [SK, TITLE],
     "Step 2": [[K("There is one heading 1", function (c) { return c.count("h1") === 1; }), CNT("There are at least 3 heading 2s", "h2", 3), CNT("There are at least 6 paragraphs", "p", 6)]],
     "Step 3": [
-      [bodyBg("The body has a background-color (a named color)"), P("The body has a text color (a named color)", T("body"), "color", named), K("The text color is different from the background-color", function (c) { var b = T("body")(c); return !!b && bothDiffer(c, b); })],
+      [bodyBg("The body has a background-color (a named color or hex code)"), P("The body has a text color (a named color or hex code)", T("body"), "color", named), K("The text color is different from the background-color", function (c) { var b = T("body")(c); return !!b && bothDiffer(c, b); })],
       []
     ],
     "Step 4": [
@@ -73,8 +73,8 @@
   SC.LESSONS["6.20"] = { inlineOnly: true, steps: {
     "Step 1": [SK, TITLE, [bodyBg()]],
     "Step 2": [
-      [exists("There is a heading 1", H1), P("It has a color (a named color)", H1, "color", named), P("Its font-size is in pixels", H1, "font-size", h.isPx), P("It is text-align center", H1, "text-align", center), P("It is text-transform uppercase", H1, "text-transform", upper)],
-      [exists("There is a heading 2 for the tagline", H2a), UNDER("It comes after the heading 1", H1, H2a), P("It has a color (a named color)", H2a, "color", named),
+      [exists("There is a heading 1", H1), P("It has a color (a named color or hex code)", H1, "color", named), P("Its font-size is in pixels", H1, "font-size", h.isPx), P("It is text-align center", H1, "text-align", center), P("It is text-transform uppercase", H1, "text-transform", upper)],
+      [exists("There is a heading 2 for the tagline", H2a), UNDER("It comes after the heading 1", H1, H2a), P("It has a color (a named color or hex code)", H2a, "color", named),
        P("It is text-transform uppercase", H2a, "text-transform", upper), P("It is text-align center", H2a, "text-align", center), P("Its font-size is 24px", H2a, "font-size", h.px(24))]
     ],
     "Step 3": [
@@ -102,30 +102,30 @@
   function everyHas(label, tag, prop, test, min) { return K(label, function (c) { var a = c.all(tag); return a.length >= (min || 1) && a.every(function (x) { return has(c, x, prop, test); }); }); }
   function countWith(c, prop, test) { return h.order(c).filter(function (x) { return x.tag !== "#text" && has(c, x, prop, test); }).length; }
   function bothColorsAndDiffer(c, x) { return has(c, x, "color", named) && has(c, x, "background-color", named) && bothDiffer(c, x); }
-  var bodyTwoColors = [bodyBg(), P("The body has a color (a named color)", T("body"), "color", named), K("The text color is different from the background-color", function (c) { var b = T("body")(c); return !!b && bothDiffer(c, b); })];
+  var bodyTwoColors = [bodyBg(), P("The body has a color (a named color or hex code)", T("body"), "color", named), K("The text color is different from the background-color", function (c) { var b = T("body")(c); return !!b && bothDiffer(c, b); })];
 
   /* ---- 6.21: a movie or game review ---- */
   var tag6 = function (c) { return c.all("h2")[0] || null; }, sections6 = function (c) { return c.all("h2").slice(1); };
   SC.LESSONS["6.21"] = { inlineOnly: true, steps: {
     "Step 1": [SK, TITLE, bodyTwoColors],
     "Step 2": [
-      [exists("There is a heading 1", T("h1")), P("It has a color (a named color)", T("h1"), "color", named), K("Its font-size is in pixels and is 36px or bigger", function (c) { var e = T("h1")(c); var n = e ? pxNum(c, e) : null; return n !== null && n >= 36; }), P("It is text-align center", T("h1"), "text-align", center), P("It is text-transform uppercase", T("h1"), "text-transform", upper)],
-      [exists("There is a heading 2 for the tagline", tag6), UNDER("It comes after the heading 1", T("h1"), tag6), P("It has a color (a named color)", tag6, "color", named), P("Its font-size is in pixels", tag6, "font-size", h.isPx), P("It is text-align center", tag6, "text-align", center), P("It is text-transform capitalize", tag6, "text-transform", capital)]
+      [exists("There is a heading 1", T("h1")), P("It has a color (a named color or hex code)", T("h1"), "color", named), K("Its font-size is in pixels and is 36px or bigger", function (c) { var e = T("h1")(c); var n = e ? pxNum(c, e) : null; return n !== null && n >= 36; }), P("It is text-align center", T("h1"), "text-align", center), P("It is text-transform uppercase", T("h1"), "text-transform", upper)],
+      [exists("There is a heading 2 for the tagline", tag6), UNDER("It comes after the heading 1", T("h1"), tag6), P("It has a color (a named color or hex code)", tag6, "color", named), P("Its font-size is in pixels", tag6, "font-size", h.isPx), P("It is text-align center", tag6, "text-align", center), P("It is text-transform capitalize", tag6, "text-transform", capital)]
     ],
     "Step 3": [
       [K("There are at least 3 more heading 2s after the tagline (the review sections)", function (c) { return sections6(c).length >= 3; }),
-       K("Every section heading has a color (a named color)", function (c) { var a = sections6(c); return a.length >= 3 && a.every(function (x) { return has(c, x, "color", named); }); }),
+       K("Every section heading has a color (a named color or hex code)", function (c) { var a = sections6(c); return a.length >= 3 && a.every(function (x) { return has(c, x, "color", named); }); }),
        K("Every section heading has a font-size in pixels", function (c) { var a = sections6(c); return a.length >= 3 && a.every(function (x) { return has(c, x, "font-size", h.isPx); }); }),
        K("Every section heading is text-transform uppercase", function (c) { var a = sections6(c); return a.length >= 3 && a.every(function (x) { return has(c, x, "text-transform", upper); }); }),
        K("Every section heading is text-align center", function (c) { var a = sections6(c); return a.length >= 3 && a.every(function (x) { return has(c, x, "text-align", center); }); })]
     ],
     "Step 4": [
-      [CNT("There are at least 6 paragraphs", "p", 6), everyHas("Every paragraph has a color (a named color)", "p", "color", named, 6), everyHas("Every paragraph has a font-size in pixels", "p", "font-size", h.isPx, 6)],
+      [CNT("There are at least 6 paragraphs", "p", 6), everyHas("Every paragraph has a color (a named color or hex code)", "p", "color", named, 6), everyHas("Every paragraph has a font-size in pixels", "p", "font-size", h.isPx, 6)],
       [K("At least 3 paragraphs are text-align center", function (c) { return c.all("p").filter(function (x) { return has(c, x, "text-align", center); }).length >= 3; })],
       [K("At least 2 paragraphs have both a color and a background-color, and the two colors are different", function (c) { return c.all("p").filter(function (x) { return bothColorsAndDiffer(c, x); }).length >= 2; })]
     ],
     "Step 5": [
-      [K("There are at least 2 heading 3s", function (c) { return c.count("h3") >= 2; }), everyHas("Every heading 3 has a color (a named color)", "h3", "color", named, 2), everyHas("Every heading 3 is text-align center", "h3", "text-align", center, 2),
+      [K("There are at least 2 heading 3s", function (c) { return c.count("h3") >= 2; }), everyHas("Every heading 3 has a color (a named color or hex code)", "h3", "color", named, 2), everyHas("Every heading 3 is text-align center", "h3", "text-align", center, 2),
        K("At least one heading 3 is text-transform lowercase", function (c) { return c.all("h3").some(function (x) { return has(c, x, "text-transform", lower); }); })],
       [K("A paragraph comes right after at least 2 of the heading 3s", function (c) { return c.all("h3").filter(function (x) { var n = h.nextEl(x); return !!n && n.tag === "p"; }).length >= 2; }),
        K("Every paragraph right after a heading 3 has a color and a font-size in pixels", function (c) { var a = c.all("h3").map(function (x) { return h.nextEl(x); }).filter(function (n) { return !!n && n.tag === "p"; }); return a.length >= 2 && a.every(function (p) { return has(c, p, "color", named) && has(c, p, "font-size", h.isPx); }); })]
@@ -138,14 +138,14 @@
   SC.LESSONS["6.22"] = { inlineOnly: true, steps: {
     "Step 1": [SK, TITLE, bodyTwoColors],
     "Step 2": [
-      [K("There is one heading 1", function (c) { return c.count("h1") === 1; }), P("It has a color (a named color)", T("h1"), "color", named), K("Its font-size is in pixels and is 40px or bigger", function (c) { var n = h1px(c); return n !== null && n >= 40; }), P("It is text-align center", T("h1"), "text-align", center), P("It is text-transform uppercase", T("h1"), "text-transform", upper)],
-      [CNT("There are at least 3 heading 2s", "h2", 3), everyHas("Every heading 2 has a color (a named color)", "h2", "color", named, 3), everyHas("Every heading 2 has a font-size in pixels", "h2", "font-size", h.isPx, 3), everyHas("Every heading 2 is text-transform capitalize", "h2", "text-transform", capital, 3)],
-      [CNT("There are at least 2 heading 3s", "h3", 2), everyHas("Every heading 3 has a color (a named color)", "h3", "color", named, 2), everyHas("Every heading 3 has a font-size in pixels", "h3", "font-size", h.isPx, 2)],
+      [K("There is one heading 1", function (c) { return c.count("h1") === 1; }), P("It has a color (a named color or hex code)", T("h1"), "color", named), K("Its font-size is in pixels and is 40px or bigger", function (c) { var n = h1px(c); return n !== null && n >= 40; }), P("It is text-align center", T("h1"), "text-align", center), P("It is text-transform uppercase", T("h1"), "text-transform", upper)],
+      [CNT("There are at least 3 heading 2s", "h2", 3), everyHas("Every heading 2 has a color (a named color or hex code)", "h2", "color", named, 3), everyHas("Every heading 2 has a font-size in pixels", "h2", "font-size", h.isPx, 3), everyHas("Every heading 2 is text-transform capitalize", "h2", "text-transform", capital, 3)],
+      [CNT("There are at least 2 heading 3s", "h3", 2), everyHas("Every heading 3 has a color (a named color or hex code)", "h3", "color", named, 2), everyHas("Every heading 3 has a font-size in pixels", "h3", "font-size", h.isPx, 2)],
       [K("The heading 1's font-size is bigger than every heading 2's", function (c) { var n = h1px(c), a = c.all("h2").map(function (x) { return pxNum(c, x); }); return n !== null && a.length >= 3 && a.every(function (v) { return v !== null && n > v; }); }),
        K("Every heading 2's font-size is bigger than every heading 3's", function (c) { var a = c.all("h2").map(function (x) { return pxNum(c, x); }), b = c.all("h3").map(function (x) { return pxNum(c, x); }); return a.length >= 3 && b.length >= 2 && a.concat(b).every(function (v) { return v !== null; }) && Math.min.apply(null, a) > Math.max.apply(null, b); })]
     ],
     "Step 3": [
-      [CNT("There are at least 8 paragraphs", "p", 8), everyHas("Every paragraph has a font-size in pixels", "p", "font-size", h.isPx, 8), everyHas("Every paragraph has a color (a named color)", "p", "color", named, 8)],
+      [CNT("There are at least 8 paragraphs", "p", 8), everyHas("Every paragraph has a font-size in pixels", "p", "font-size", h.isPx, 8), everyHas("Every paragraph has a color (a named color or hex code)", "p", "color", named, 8)],
       [K("At least 4 paragraphs are text-align center", function (c) { return c.all("p").filter(function (x) { return has(c, x, "text-align", center); }).length >= 4; })],
       [K("text-transform uppercase is used on at least 3 elements", function (c) { return countWith(c, "text-transform", upper) >= 3; }), K("text-transform lowercase is used on at least 1 element", function (c) { return countWith(c, "text-transform", lower) >= 1; }), K("text-transform capitalize is used on at least 1 element", function (c) { return countWith(c, "text-transform", capital) >= 1; })]
     ],
@@ -162,7 +162,7 @@
   function propCount(c, el) { var n = {}; c.inline.forEach(function (d) { if (d.el === el) n[d.prop] = 1; }); return Object.keys(n).length; }
   function anyVal(c, prop, test) { return allEls(c).some(function (x) { return h.vals(c, x, prop).some(test); }); }
   SC.LESSONS["6.3"] = { inlineOnly: true, steps: {
-    "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color)"), P("The body has a color (a named color)", T("body"), "color", named)]],
+    "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color or hex code)"), P("The body has a color (a named color or hex code)", T("body"), "color", named)]],
     "Step 2": [
       [K("There is a heading 1", function (c) { return c.count("h1") >= 1; }), K("There is a heading 2", function (c) { return c.count("h2") >= 1; }), K("There are at least 2 heading 3s", function (c) { return c.count("h3") >= 2; })],
       [CNT("There are at least 8 paragraphs", "p", 8)]
@@ -198,7 +198,7 @@
   function bgs(c) { var n = {}; allEls(c).forEach(function (x) { var v = h.vals(c, x, "background-color")[0]; if (v && named(v)) n[v] = 1; }); return Object.keys(n); }
   var FAM4 = [["BONUS: your fonts come from 4 different families (serif, sans-serif, monospace, and cursive) and still look designed", function (c) { return families(c).length >= 4; }]]; FAM4.bonus = 5;
   SC.LESSONS["6.35"] = { inlineOnly: true, steps: {
-    "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color)")]],
+    "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color or hex code)")]],
     "Step 2": [
       [],
       [K("There is at least 1 link tag in the head that loads a Google font (https://fonts.googleapis.com)", function (c) { var g = gfLinks(c); return g.length >= 1 && g.every(function (l) { return !!c.ancestor(l, ["head"]); }); })],
@@ -229,7 +229,7 @@
   var wanted = T("h1"), crimes = afterEl(T("h1"), "p"), desc = HW("h2", /description/i), descP1 = afterEl(desc, "p"), descP2 = function (c) { return h.nextEl(descP1(c)); };
   var marks = HW("h3", /distinguishing/i), lastSeen = HW("h2", /last seen/i), hide = HW("h3", /hideout/i), reward = HW("h2", /reward/i);
   SC.LESSONS["6.4"] = { inlineOnly: true, steps: {
-    "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color)")]],
+    "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color or hex code)")]],
     "Step 2": [
       [exists("There is a heading 1", wanted), K("It says WANTED", function (c) { var e = wanted(c); return !!e && /wanted/i.test(txt(c, e)); }), P("It has a color", wanted, "color", named), P("It has a background-color", wanted, "background-color", named),
        P("Its font-size is 56px", wanted, "font-size", h.px(56)), P("It is text-align center", wanted, "text-align", center), P("It is text-transform uppercase", wanted, "text-transform", upper), P("It has a solid border", wanted, "border", h.bs("solid"))],
@@ -273,7 +273,7 @@
   var h2a = T("h2", 0), h2b = T("h2", 1), ol0 = T("ol", 0), ol1 = T("ol", 1), ul1 = T("ul", 1), ul2 = T("ul", 2);
   var h3AfterP = function (pickP) { return function (c) { var p = pickP(c), n = h.nextEl(p); return n && n.tag === "h3" ? n : null; }; };
   SC.LESSONS["6.5"] = { inlineOnly: true, steps: {
-    "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color)")]],
+    "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color or hex code)")]],
     "Step 2": [
       [exists("There is a heading 1", T("h1")), P("It has a background-color (dark)", T("h1"), "background-color", named), P("It has a white color", T("h1"), "color", h.isWhite), P("It is text-align center", T("h1"), "text-align", center),
        P("Its font-size is 36px", T("h1"), "font-size", h.px(36)), PX("It has a border on the bottom only", T("h1"), onlySide("bottom"))],
@@ -316,7 +316,7 @@
   var italicNote = function (pick) { return eachLi("Each item has an italic note", pick, 3, function (c, li) { return within(li, ITAL).length >= 1; }); };
   var featured = HW("h3", /featured/i);
   SC.LESSONS["6.6"] = { inlineOnly: true, steps: {
-    "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color)")]],
+    "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color or hex code)")]],
     "Step 2": [
       [exists("There is a heading 1", T("h1")), P("It has a white color", T("h1"), "color", h.isWhite), P("It has a background-color", T("h1"), "background-color", named), P("It is text-align center", T("h1"), "text-align", center), P("Its font-size is 38px", T("h1"), "font-size", h.px(38))],
       [exists("A bullet list is under the heading 1", hubUl0), listItems(hubUl0, 3), PX("Each item has a link starting with https:// that opens in the same tab", hubUl0, linksOk(3, false)), P("The list has list-style-type none", hubUl0, "list-style-type", h.eq("none")),
@@ -349,7 +349,7 @@
   function allImgs(c) { return c.all("img"); }
   function fontUsedOk(c) { var g = gNames(c), ok = false; ffList(c).forEach(function (v) { if (g.indexOf(ffFirst(v)) > -1 && v.indexOf(",") > -1 && /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v))) ok = true; }); return g.length >= 1 && ok; }
   SC.LESSONS["6.7"] = { inlineOnly: true, steps: {
-    "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color)")]],
+    "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color or hex code)")]],
     "Step 2": [[]],
     "Step 3": [
       [K("There is a favicon: a link tag with rel icon and an href, inside the head", function (c) { var f = faviconEls(c); return f.length >= 1 && f.every(function (l) { return !!c.ancestor(l, ["head"]); }); })],
@@ -390,7 +390,7 @@
   function hasSolid(c, el, style) { return has(c, el, "border", h.bs(style)); }
   var imgs675 = function (c) { return c.all("img"); };
   SC.LESSONS["6.75"] = { inlineOnly: true, steps: {
-    "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color)")]],
+    "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color or hex code)")]],
     "Step 2": [[]],
     "Step 3": [
       [K("There is a favicon: a link tag with rel icon and an href, inside the head", function (c) { var f = faviconEls(c); return f.length >= 1 && f.every(function (l) { return !!c.ancestor(l, ["head"]); }); })],
@@ -471,9 +471,9 @@
     function sec(i, hasBg) {
       var H = nth("h2", i + 1);
       return [
-        [exists("There is a review heading 2 (number " + (i + 1) + " after the tagline)", H), P("It has a color (a named color)", H, "color", named), P("Its font-size is in pixels", H, "font-size", h.isPx), P("It is text-transform uppercase", H, "text-transform", upper), P("It is text-align center", H, "text-align", center)],
+        [exists("There is a review heading 2 (number " + (i + 1) + " after the tagline)", H), P("It has a color (a named color or hex code)", H, "color", named), P("Its font-size is in pixels", H, "font-size", h.isPx), P("It is text-transform uppercase", H, "text-transform", upper), P("It is text-align center", H, "text-align", center)],
         [nPs(2, "that heading 2", H),
-         K("Both paragraphs have a color (a named color) and a font-size in pixels", function (c) { var p = psAfter(c, H(c)); return p.length >= 2 && p.slice(0, 2).every(function (x) { return has(c, x, "color", named) && has(c, x, "font-size", h.isPx); }); }),
+         K("Both paragraphs have a color (a named color or hex code) and a font-size in pixels", function (c) { var p = psAfter(c, H(c)); return p.length >= 2 && p.slice(0, 2).every(function (x) { return has(c, x, "color", named) && has(c, x, "font-size", h.isPx); }); }),
          K("The first paragraph is text-align center", function (c) { var p = psAfter(c, H(c)); return p.length >= 1 && has(c, p[0], "text-align", center); })
         ].concat(hasBg ? [K("The second paragraph has both a color and a background-color (two different named colors)", function (c) { var p = psAfter(c, H(c)); return p.length >= 2 && bothColorsAndDiffer(c, p[1]); })] : [])
       ];
@@ -486,10 +486,10 @@
       "Step 4": sec(1, true),
       "Step 5": sec(2, false),
       "Step 6": [
-        [exists("There is a heading 3 that says Rating", ratingH), P("It has a color (a named color)", ratingH, "color", named), P("It is text-align center", ratingH, "text-align", center), P("It is text-transform lowercase", ratingH, "text-transform", lower)],
-        [exists("A paragraph is right under the Rating heading", AFTER(ratingH, "p")), P("It has a color (a named color)", AFTER(ratingH, "p"), "color", named), P("Its font-size is in pixels", AFTER(ratingH, "p"), "font-size", h.isPx)],
-        [exists("There is a heading 3 that says Release Info", relH), P("It has a color (a named color)", relH, "color", named), P("It is text-align center", relH, "text-align", center)],
-        [exists("A paragraph is right under the Release Info heading", AFTER(relH, "p")), P("It has a color (a named color)", AFTER(relH, "p"), "color", named), P("Its font-size is in pixels", AFTER(relH, "p"), "font-size", h.isPx)]
+        [exists("There is a heading 3 that says Rating", ratingH), P("It has a color (a named color or hex code)", ratingH, "color", named), P("It is text-align center", ratingH, "text-align", center), P("It is text-transform lowercase", ratingH, "text-transform", lower)],
+        [exists("A paragraph is right under the Rating heading", AFTER(ratingH, "p")), P("It has a color (a named color or hex code)", AFTER(ratingH, "p"), "color", named), P("Its font-size is in pixels", AFTER(ratingH, "p"), "font-size", h.isPx)],
+        [exists("There is a heading 3 that says Release Info", relH), P("It has a color (a named color or hex code)", relH, "color", named), P("It is text-align center", relH, "text-align", center)],
+        [exists("A paragraph is right under the Release Info heading", AFTER(relH, "p")), P("It has a color (a named color or hex code)", AFTER(relH, "p"), "color", named), P("Its font-size is in pixels", AFTER(relH, "p"), "font-size", h.isPx)]
       ]
     } };
     lastStep("6.21", "Step 7", [[h.ALLGREEN], []]);
@@ -500,17 +500,17 @@
     var old = SC.LESSONS["6.22"].steps;
     function h2Checks(i) {
       var H = nth("h2", i);
-      return [exists("There is heading 2 number " + (i + 1), H), P("It has a color (a named color)", H, "color", named), P("Its font-size is in pixels", H, "font-size", h.isPx), P("It is text-transform capitalize", H, "text-transform", capital),
+      return [exists("There is heading 2 number " + (i + 1), H), P("It has a color (a named color or hex code)", H, "color", named), P("Its font-size is in pixels", H, "font-size", h.isPx), P("It is text-transform capitalize", H, "text-transform", capital),
         K("It has both a color and a background-color (two different named colors)", function (c) { var e = H(c); return !!e && bothColorsAndDiffer(c, e); })];
     }
     function h3Checks(i, tt) {
       var H3 = nth("h3", i), H2 = nth("h2", i);
-      var out = [exists("There is a heading 3 right under heading 2 number " + (i + 1), function (c) { var e = h.nextEl(H2(c)); return e && e.tag === "h3" ? e : null; }), P("It has a color (a named color)", H3, "color", named), P("Its font-size is in pixels", H3, "font-size", h.isPx)];
+      var out = [exists("There is a heading 3 right under heading 2 number " + (i + 1), function (c) { var e = h.nextEl(H2(c)); return e && e.tag === "h3" ? e : null; }), P("It has a color (a named color or hex code)", H3, "color", named), P("Its font-size is in pixels", H3, "font-size", h.isPx)];
       if (tt) out.push(P("It is text-transform " + tt, H3, "text-transform", tt === "uppercase" ? upper : lower));
       return out;
     }
     function pChecks(pickHead, n, where, centered, lastUpper) {
-      var out = [nPs(n, where, pickHead), K("Every one of them has a color (a named color) and a font-size in pixels", function (c) { var p = psAfter(c, pickHead(c)); return p.length >= n && p.slice(0, n).every(function (x) { return has(c, x, "color", named) && has(c, x, "font-size", h.isPx); }); })];
+      var out = [nPs(n, where, pickHead), K("Every one of them has a color (a named color or hex code) and a font-size in pixels", function (c) { var p = psAfter(c, pickHead(c)); return p.length >= n && p.slice(0, n).every(function (x) { return has(c, x, "color", named) && has(c, x, "font-size", h.isPx); }); })];
       if (centered) out.push(K("The first " + centered + " are text-align center", function (c) { var p = psAfter(c, pickHead(c)); return p.length >= centered && p.slice(0, centered).every(function (x) { return has(c, x, "text-align", center); }); }));
       if (lastUpper) out.push(K("The last one is text-transform uppercase", function (c) { var p = psAfter(c, pickHead(c)); return p.length >= n && has(c, p[n - 1], "text-transform", upper); }));
       return out;
@@ -549,19 +549,19 @@
     SC.LESSONS["6.3"] = { inlineOnly: true, steps: {
       "Step 1": old["Step 1"],
       "Step 2": [
-        [exists("There is a heading 1", H1x), P("It has a color (a named color)", H1x, "color", named), P("Its font-size is in pixels", H1x, "font-size", h.isPx), P("It is text-align center", H1x, "text-align", center), P("It is text-transform uppercase", H1x, "text-transform", upper)],
-        [exists("A paragraph is right under the heading 1", introP), K("A phrase in it is bold", inP(introP, "strong")), K("It has a line break (br) inside", inP(introP, "br")), P("It has a color (a named color)", introP, "color", named), P("Its font-size is in pixels", introP, "font-size", h.isPx)],
+        [exists("There is a heading 1", H1x), P("It has a color (a named color or hex code)", H1x, "color", named), P("Its font-size is in pixels", H1x, "font-size", h.isPx), P("It is text-align center", H1x, "text-align", center), P("It is text-transform uppercase", H1x, "text-transform", upper)],
+        [exists("A paragraph is right under the heading 1", introP), K("A phrase in it is bold", inP(introP, "strong")), K("It has a line break (br) inside", inP(introP, "br")), P("It has a color (a named color or hex code)", introP, "color", named), P("Its font-size is in pixels", introP, "font-size", h.isPx)],
         [hrAfter("There is a horizontal line right under that paragraph (outside it)", introP)]
       ],
       "Step 3": [
-        [exists("There is a heading 2", H2x), P("It has a color (a named color)", H2x, "color", named), P("It is text-transform uppercase", H2x, "text-transform", upper)],
-        [exists("A paragraph is right under the heading 2", s1p), IN("A phrase in it is in italics", s1p, ITAL), K("It has a span with its own style", function (c) { var p = s1p(c); return !!p && within(p, ["span"]).some(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style); }); }), P("It has a color (a named color)", s1p, "color", named), P("It has a background-color (a named color)", s1p, "background-color", named)],
-        [exists("There is a heading 3 (the first one)", H3a), P("It has a color (a named color)", H3a, "color", named), P("Its font-size is in pixels", H3a, "font-size", h.isPx)],
+        [exists("There is a heading 2", H2x), P("It has a color (a named color or hex code)", H2x, "color", named), P("It is text-transform uppercase", H2x, "text-transform", upper)],
+        [exists("A paragraph is right under the heading 2", s1p), IN("A phrase in it is in italics", s1p, ITAL), K("It has a span with its own style", function (c) { var p = s1p(c); return !!p && within(p, ["span"]).some(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style); }); }), P("It has a color (a named color or hex code)", s1p, "color", named), P("It has a background-color (a named color or hex code)", s1p, "background-color", named)],
+        [exists("There is a heading 3 (the first one)", H3a), P("It has a color (a named color or hex code)", H3a, "color", named), P("Its font-size is in pixels", H3a, "font-size", h.isPx)],
         [twoPsUnder("There are 2 paragraphs right under the heading 3", H3a), K("The first one has a bold phrase, a line break, and a span with its own style", function (c) { var p = firstPAfter(H3a)(c); return !!p && within(p, ["strong", "b"]).length >= 1 && within(p, ["br"]).length >= 1 && within(p, ["span"]).some(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style); }); }), K("The second one has a span with its own style", function (c) { var p = secondPAfter(H3a)(c); return !!p && within(p, ["span"]).some(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style); }); })],
         [K("There is a second horizontal line (outside any paragraph)", function (c) { return hrOut(c) >= 2; })]
       ],
       "Step 4": [
-        [exists("There is a second heading 3", H3b), P("It has a color (a named color)", H3b, "color", named), P("It is text-align center", H3b, "text-align", center)],
+        [exists("There is a second heading 3", H3b), P("It has a color (a named color or hex code)", H3b, "color", named), P("It is text-align center", H3b, "text-align", center)],
         [twoPsUnder("There are 2 paragraphs right under the second heading 3", H3b), K("The first one has a bold phrase, a line break, and a span with its own style", function (c) { var p = firstPAfter(H3b)(c); return !!p && within(p, ["strong", "b"]).length >= 1 && within(p, ["br"]).length >= 1 && within(p, ["span"]).some(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style); }); }), K("Both have a color and a font-size in pixels", function (c) { var a = psAfter(c, H3b(c)).slice(0, 2); return a.length >= 2 && a.every(function (x) { return has(c, x, "color", named) && has(c, x, "font-size", h.isPx); }); })]
       ],
       "Step 5": [
@@ -581,21 +581,21 @@
       "Step 1": [old["Step 1"][0],
         old["Step 2"][1], old["Step 2"][2],
         h.TITLE, old["Step 1"][2]],
-      "Step 2": [[exists("There is a heading 1", H1x), P("It has a color (a named color)", H1x, "color", named), P("Its font-size is in pixels", H1x, "font-size", h.isPx), P("It is text-align center", H1x, "text-align", center), P("It is text-transform uppercase", H1x, "text-transform", upper),
+      "Step 2": [[exists("There is a heading 1", H1x), P("It has a color (a named color or hex code)", H1x, "color", named), P("Its font-size is in pixels", H1x, "font-size", h.isPx), P("It is text-align center", H1x, "text-align", center), P("It is text-transform uppercase", H1x, "text-transform", upper),
         K("It has a font-family that ends with a fallback family", function (c) { var e = H1x(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return v.indexOf(",") > -1 && /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v)); }); })]],
       "Step 3": [
-        [exists("A paragraph is right under the heading 1", introP), K("It uses a font-family that ends with a fallback family", function (c) { var e = introP(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return v.indexOf(",") > -1 && /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v)); }); }), P("It has a color (a named color)", introP, "color", named), P("Its font-size is in pixels", introP, "font-size", h.isPx), K("It has a bold phrase and a line break inside", function (c) { var e = introP(c); return !!e && within(e, ["strong", "b"]).length >= 1 && within(e, ["br"]).length >= 1; })],
+        [exists("A paragraph is right under the heading 1", introP), K("It uses a font-family that ends with a fallback family", function (c) { var e = introP(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return v.indexOf(",") > -1 && /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v)); }); }), P("It has a color (a named color or hex code)", introP, "color", named), P("Its font-size is in pixels", introP, "font-size", h.isPx), K("It has a bold phrase and a line break inside", function (c) { var e = introP(c); return !!e && within(e, ["strong", "b"]).length >= 1 && within(e, ["br"]).length >= 1; })],
         [hrAfter("There is a horizontal line right under that paragraph (outside it)", introP)]
       ],
       "Step 4": [
-        [exists("There is a heading 2", H2x), K("It has a font-family that ends with a fallback family", function (c) { var e = H2x(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return v.indexOf(",") > -1; }); }), P("It has a color (a named color)", H2x, "color", named), P("It is text-transform uppercase", H2x, "text-transform", upper)],
+        [exists("There is a heading 2", H2x), K("It has a font-family that ends with a fallback family", function (c) { var e = H2x(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return v.indexOf(",") > -1; }); }), P("It has a color (a named color or hex code)", H2x, "color", named), P("It is text-transform uppercase", H2x, "text-transform", upper)],
         [exists("A paragraph is right under the heading 2", AFTER(H2x, "p")), IN("A phrase in it is in italics", AFTER(H2x, "p"), ITAL), K("It has a span with its own style", function (c) { var p = AFTER(H2x, "p")(c); return !!p && within(p, ["span"]).some(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style); }); }), K("It has a font-family, a color and a background-color", function (c) { var p = AFTER(H2x, "p")(c); return !!p && h.vals(c, p, "font-family").length > 0 && has(c, p, "color", named) && has(c, p, "background-color", named); })],
-        [exists("There is a heading 3 (the first one)", H3a), K("It has a font-family that ends with a fallback family", function (c) { var e = H3a(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return v.indexOf(",") > -1; }); }), P("It has a color (a named color)", H3a, "color", named), P("It is text-align center", H3a, "text-align", center)],
+        [exists("There is a heading 3 (the first one)", H3a), K("It has a font-family that ends with a fallback family", function (c) { var e = H3a(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return v.indexOf(",") > -1; }); }), P("It has a color (a named color or hex code)", H3a, "color", named), P("It is text-align center", H3a, "text-align", center)],
         [twoPsUnder("There are 2 paragraphs right under the heading 3", H3a), K("Both have a font-family and a color", function (c) { var a = psAfter(c, H3a(c)).slice(0, 2); return a.length >= 2 && a.every(function (x) { return h.vals(c, x, "font-family").length > 0 && has(c, x, "color", named); }); }), K("The first has an italic phrase, and the second has a bold phrase with a line break", function (c) { var a = psAfter(c, H3a(c)); return a.length >= 2 && within(a[0], ["em", "i"]).length >= 1 && within(a[1], ["strong", "b"]).length >= 1 && within(a[1], ["br"]).length >= 1; })],
         [hrAfter("There is a second horizontal line (outside any paragraph)", function (c) { var e = H3a(c); var a = e ? psAfter(c, e) : []; return a.length ? a[a.length - 1] : null; })]
       ],
       "Step 5": [
-        [exists("There is a second heading 3", H3b), K("It has a font-family that ends with a fallback family", function (c) { var e = H3b(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return v.indexOf(",") > -1; }); }), P("It has a color (a named color)", H3b, "color", named), P("It has a background-color (a named color)", H3b, "background-color", named)],
+        [exists("There is a second heading 3", H3b), K("It has a font-family that ends with a fallback family", function (c) { var e = H3b(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return v.indexOf(",") > -1; }); }), P("It has a color (a named color or hex code)", H3b, "color", named), P("It has a background-color (a named color or hex code)", H3b, "background-color", named)],
         [twoPsUnder("There are 2 paragraphs right under the second heading 3", H3b), K("Both have a font-family and a color", function (c) { var a = psAfter(c, H3b(c)).slice(0, 2); return a.length >= 2 && a.every(function (x) { return h.vals(c, x, "font-family").length > 0 && has(c, x, "color", named); }); }), K("Each has a span with its own style (a different font, color, size, or background-color on a few words)", function (c) { var a = psAfter(c, H3b(c)).slice(0, 2); return a.length >= 2 && a.every(function (x) { return within(x, ["span"]).some(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style); }); }); })]
       ],
       "Step 6": [

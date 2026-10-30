@@ -46,7 +46,7 @@
   function ruleHas(c, sel, prop, test) { return sheetRule(c, sel).some(function (rl) { return rl.decls.some(function (d) { var v = String(d.value).replace(/;\s*$/, "").trim().toLowerCase(); return d.prop === prop && (!test || (typeof test === "function" ? test(v) : test.test(v))); }); }); }
 
   /* value tests */
-  var isNamed = function (v) { return !!NAMED[v]; };
+  var isNamed = function (v) { return !!NAMED[v] || /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(v); };
   var isWhite = function (v) { return v === "white" || v === "#fff" || v === "#ffffff"; };
   var isPx = function (v) { return /^\d+(\.\d+)?px$/.test(v); };
   var px = function (n) { return function (v) { return v === n + "px"; }; };

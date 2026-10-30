@@ -125,7 +125,7 @@
   add("namedcolor", STY, "What is a named color?", [
     { p: "CSS knows over 100 color names. Use the name as the value." },
     { ex: ["color: tomato;", "background-color: navy;"] },
-    { list: ["Examples: red, gold, navy, tomato, teal, orchid, coral, crimson, indigo, wheat, black, white.", "No quotes and no # sign for a named color."] },
+    { list: ["Examples: red, gold, navy, tomato, teal, orchid, coral, crimson, indigo, wheat, black, white.", "No quotes and no # sign for a named color.", "If you already know hex codes (like #1E90FF), you may use those instead. Every color step accepts either one."] },
     { warn: "Misspelled colors do nothing. Check the spelling if nothing changes." },
     { p: "Want to see every color? Open **See all the named colors** in the help list." }
   ]);

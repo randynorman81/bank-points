@@ -15,8 +15,8 @@
   }
   function notes(url) { return { p: "Stuck? Read the notes: schscomputerscience.com/ist/" + url }; }
   function head(what, themes, note) { return [{ h: "What you are building" }, { p: what + (themes ? " Pick **one**: " + themes + "." : "") + " Click **Checks** any time to see your score. The **Concepts** tab lists every tag and style this page needs." }, note].filter(Boolean); }
-  var RULE = { p: "**Every theme uses these same steps.** Use **named colors** (like navy or tomato) unless a step says hex. Dark backgrounds need light text. Each step says the least you must add: you can ALWAYS add more." };
-  var RULE2 = { p: "Every style goes in a **style attribute**: the word style, an equals sign, and quotes, with each property and value **inside** the quotes. When you put **two or more** properties in one style attribute, put a **semicolon between them** (a single property does not need one). Each step says the least you must add: you can ALWAYS add more." };
+  var RULE = { p: "**Every theme uses these same steps.** Use **named colors** (like navy or tomato) unless a step says hex. If you already know **hex codes** (like #1E90FF), you may use those instead anywhere a color is asked for. Dark backgrounds need light text. Each step says the least you must add: you can ALWAYS add more." };
+  var RULE2 = { p: "You may use **hex codes** (like #1E90FF) instead of named colors if you already know them. Every style goes in a **style attribute**: the word style, an equals sign, and quotes, with each property and value **inside** the quotes. When you put **two or more** properties in one style attribute, put a **semicolon between them** (a single property does not need one). Each step says the least you must add: you can ALWAYS add more." };
   function skeleton(extra) {
     return S("Skeleton and title", [
       "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point). Then type the opening **html** tag, and inside it the **head** tags. The editor puts your cursor under the closing head tag, so click on the empty line **between** the head tags and add a **title** with your page's name",

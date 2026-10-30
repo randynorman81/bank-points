@@ -13,7 +13,7 @@
     { id: "6.2",
       attrs: [I("attr-style", "style", "until:7.6")],
       props: [I("p-color", "color"), I("p-bg", "background-color")],
-      vals: [I("v-named", "named colors (like tomato)")] },
+      vals: [I("v-named", "colors: named (like tomato) or hex (like #FF6347)")] },
     { id: "6.20",
       tags: [I("h3", "<h3>")],
       props: [I("p-fs", "font-size"), I("p-ta", "text-align"), I("p-tt", "text-transform")],
