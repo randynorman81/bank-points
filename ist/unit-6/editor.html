@@ -1113,7 +1113,8 @@ $("btnSubmit").addEventListener("click", function () {
   if (!S.cred) { banner("Sign in with your school Google account (top right) to submit.", "err"); return; }
   if (!$("period").value) { banner("Choose your class period at the top before you submit.", "err"); $("period").focus(); return; }
   var SCg = window.U7_STEPCHECKS, scg = null; try { scg = SCg && SCg.LESSONS[S.lesson] ? SCg.score(S.lesson, S.buf.html, S.buf.css) : null; } catch (e) { scg = null; }
-  if (scg && scg.pct < (SCg.PASS || 95)) { banner("Your auto score is " + scg.pct + " out of 100. You need at least " + (SCg.PASS || 95) + " to submit. Click a black \"What's wrong?\" button in the steps on the left to see what is missing, fix it, then submit.", "err"); setTab("ans"); return; }
+  var passN = (S.cloud && S.cloud.passNeed) || SCg.PASS || 95;
+  if (scg && scg.pct < passN) { banner("Your auto score is " + scg.pct + " out of 100. You need at least " + passN + " to submit. Click a black \"What's wrong?\" button in the steps on the left to see what is missing, fix it, then submit.", "err"); setTab("ans"); return; }
   var r = lastReport || H.check(S.lesson, S.buf.html, S.buf.css), bad = r.errors.length;
   $("mSubmitBody").innerHTML = "<p>Lesson <b>" + esc(dispLesson(S.lesson)) + "</b> for period <b>" + esc($("period").value) + "</b>.</p><p>Auto score: <b>" + (scg ? scg.pct + " / 100" : r.score + " / " + r.total) + "</b>" + (scg ? "" : " (" + r.passed + " of " + r.count + " checks)") + ".</p>" +
     (bad ? '<p style="color:#FCA5A5">You still have ' + bad + " problem" + (bad > 1 ? "s" : "") + " with your tags. You can still submit, or fix them first.</p>" : "") + ansSubmitNote() + "<p>You can submit again later to replace this one.</p>";
@@ -1562,7 +1563,7 @@ function stepUpdate() {
     var wb = box.querySelector(".wrongbtn"); if (wb) wb.classList.toggle("open", !!stepOpen[id]);
     if (stepOpen[id]) { var d = document.createElement("div"); d.className = "stepmiss"; d.innerHTML = done ? '<div class="allok">&#10003; Nothing is wrong here. Every check for this box is met.</div>' : "<b>What is wrong with this box:</b>" + list.filter(function (x) { return !x.ok; }).map(function (x) { return "<div>• " + esc(x.label) + "</div>"; }).join(""); box.appendChild(d); }
   });
-  var asc = $("autoSc"), pass = SCx.PASS || 95, sc = null; try { sc = SCx.score(S.lesson, getHtml(), getCss()); } catch (e) { sc = null; }
+  var asc = $("autoSc"), pass = (S.cloud && S.cloud.passNeed) || SCx.PASS || 95, sc = null; try { sc = SCx.score(S.lesson, getHtml(), getCss()); } catch (e) { sc = null; }
   if (asc && sc) { asc.style.display = ""; asc.className = "autosc" + (sc.pct >= pass ? " ok" : ""); asc.innerHTML = "Auto score: <b>" + sc.pct + "</b> / 100" + (sc.pct >= pass ? "<small>(ready to submit)</small>" : "<small>(you need " + pass + " to submit)</small>"); }
   missList = missing; missUpdate();
   var sb = $("btnSubmit"); if (sb) { sb.classList.toggle("locked", !!sc && sc.pct < pass); sb.title = sc && sc.pct < pass ? "You need an auto score of " + pass + " to submit (yours is " + sc.pct + ")" : ""; }
