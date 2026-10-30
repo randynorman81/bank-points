@@ -272,6 +272,8 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
 #paneAns .ftabs button.on{background:#fff;color:#000;border-color:#cfd5df}
 .ftabs .exbtn{margin-left:10px;border:1px solid var(--acc);border-bottom:1px solid var(--acc);border-radius:6px;color:var(--acc);padding:5px 10px;font-weight:700}
 .ftabs .exbtn:hover{background:var(--acc);color:#0B0E14}
+.ftabs .acbtn.off{border-color:#6b7280;color:#9ca3af}.ftabs .acbtn.off:hover{background:#374151;color:#fff}
+#paneAns .ftabs .acbtn.off{background:#f3f4f6;color:#4b5563;border-color:#9ca3af}
 #paneAns .ftabs .exbtn{background:#fff7ed;color:#9a3412;border-color:#ea580c}
 #paneAns .ftabs .exbtn:hover{background:#ea580c;color:#fff}
 .modal .box.exbox{max-width:1020px;width:96%;height:90vh;display:flex;flex-direction:column;padding:16px 18px}
@@ -325,7 +327,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
 
 <main id="main" data-tab="code">
   <section class="pane" id="paneAns">
-    <h2><span class="ftabs" id="atabs"><button class="on" data-f="ans" id="ansTab">Assignment<span id="ansBadge"></span></button><button data-f="wt" id="wtTab" style="display:none">Walkthrough<span id="wtBadge"></span></button><button type="button" id="cnBtn" class="exbtn" style="display:none" title="The tags, styles, and values this assignment uses">Concepts</button><button type="button" id="exBtn" class="exbtn" style="display:none" title="See what a finished page for this assignment might look like">See an example</button></span></h2>
+    <h2><span class="ftabs" id="atabs"><button class="on" data-f="ans" id="ansTab">Assignment<span id="ansBadge"></span></button><button data-f="wt" id="wtTab" style="display:none">Walkthrough<span id="wtBadge"></span></button><button type="button" id="cnBtn" class="exbtn" style="display:none" title="The tags, styles, and values this assignment uses">Concepts</button><button type="button" id="acBtn" class="exbtn acbtn" title="Turn the automatic closing tag (typing &lt;p&gt; adds &lt;/p&gt; for you) on or off">Auto-close tags: ON</button><button type="button" id="exBtn" class="exbtn" style="display:none" title="See what a finished page for this assignment might look like">See an example</button></span></h2>
     <div class="aswrap"><div id="ansPane" aria-label="Assignment"></div><div id="wtPane" aria-label="Walkthrough"></div></div>
   </section>
   <div class="split" id="split0" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize the assignment column. Double-click to reset."></div>
@@ -564,8 +566,10 @@ ta.addEventListener("keyup", cursorInfo); ta.addEventListener("click", cursorInf
 function insertAt(pos, text, caretAfter) { noteAuto(text.length); ta.setRangeText(text, pos, pos, "preserve"); ta.setSelectionRange(caretAfter, caretAfter); }
 function insideTag(before) { var lt = before.lastIndexOf("<"), gt = before.lastIndexOf(">"); return lt > gt && before.charAt(lt + 1) !== "/" && before.charAt(lt + 1) !== "!"; }
 var EDIT_TAGS = { strong: 1, b: 1, em: 1, i: 1, u: 1, s: 1, mark: 1, small: 1, sub: 1, sup: 1, del: 1, ins: 1, span: 1 };
+var AUTOCLOSE = lsGet("u7:autoclose") !== "off";   /* each student can turn automatic closing tags on or off (the Auto-close tags button next to Concepts) */
+function acPaint() { var b = $("acBtn"); if (!b) return; b.textContent = "Auto-close tags: " + (AUTOCLOSE ? "ON" : "OFF"); b.classList.toggle("off", !AUTOCLOSE); b.setAttribute("aria-pressed", AUTOCLOSE ? "true" : "false"); }
 function handleAuto(ch) {
-  if (S.file !== "html") return;
+  if (S.file !== "html" || !AUTOCLOSE) return;
   var pos = ta.selectionStart, v = ta.value, before = v.slice(0, pos);
   if (ch === ">") {
     var m = /<([a-zA-Z][a-zA-Z0-9-]*)(?:\s[^<>]*)?>$/.exec(before);
@@ -1363,6 +1367,8 @@ function cnOpen() {
 }
 function cnClose() { $("mCn").classList.remove("show"); }
 $("cnBtn").addEventListener("click", cnOpen);
+$("acBtn").addEventListener("click", function () { AUTOCLOSE = !AUTOCLOSE; lsSet("u7:autoclose", AUTOCLOSE ? "on" : "off"); acPaint(); toast(AUTOCLOSE ? "Auto-close tags is ON: typing an opening tag adds the closing tag for you." : "Auto-close tags is OFF: you type every closing tag yourself."); ta.focus(); });
+acPaint();
 $("cnClose").addEventListener("click", cnClose);
 $("mCn").addEventListener("click", function (e) { if (e.target === this) cnClose(); });
 document.addEventListener("keydown", function (e) { if (e.key === "Escape" && $("mCn").classList.contains("show")) cnClose(); });
