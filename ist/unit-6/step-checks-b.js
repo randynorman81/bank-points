@@ -534,7 +534,7 @@
   var hrOut = function (c) { return c.all("hr").filter(function (x) { return !c.ancestor(x, ["p"]); }).length; };
   var boldN = function (c) { return c.all("strong").concat(c.all("b")).length; }, italN = function (c) { return c.all("em").concat(c.all("i")).length; };
   var spansN = function (c) { return c.all("span").filter(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style) && txt(c, k).length > 0; }).length; };
-  var inP = function (pick, tag) { return function (c) { var p = pick(c); return !!p && within(p, [tag]).length >= 1; }; };
+  var inP = function (pick, tag) { return function (c) { var p = pick(c); return !!p && within(p, tag === "strong" ? ["strong", "b"] : [tag]).length >= 1; }; };
   var pxSizes = function (c) { var n = {}; allEls(c).forEach(function (x) { h.vals(c, x, "font-size").forEach(function (v) { if (h.isPx(v)) n[v] = 1; }); }); return Object.keys(n).length; };
   function twoPsUnder(label, pick) { return K(label, function (c) { var e = pick(c); return !!e && psAfter(c, e).length >= 2; }); }
   var nthTag = function (tag, i) { return function (c) { return c.all(tag)[i] || null; }; };
