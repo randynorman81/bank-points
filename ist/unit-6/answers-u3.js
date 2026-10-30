@@ -217,7 +217,7 @@
       "**Spans with their own style**: at least **3** (a span around a few words, with a color or other style)"
     ]),
     S("From earlier lessons: use at least 3 of these 4", [
-      "Use **at least 3** of these 4 anywhere on your page: **heading 3**, **font-size in pixels**, **text-align**, **text-transform**. Pick the ones that fit your theme"
+      "Use **at least 3** of these 4 anywhere on your page (pick the ones that fit your theme):\n\u2022 **heading 3**\n\u2022 **font-size** in pixels\n\u2022 **text-align**\n\u2022 **text-transform**"
     ]),
     S("Design limits (this is what makes it look real)", [
       "Use **no more than 5 different colors** on the whole page (text colors and background colors together; span words do not count). Pick a small palette and reuse it",
@@ -225,7 +225,7 @@
       "Use **no more than 5 different font sizes** on the whole page. Same kind of tag, same size"
     ]),
     S("Bonus (optional, for when you finish early)", [
-      "**BONUS (+5 points):** use **all 4** of the earlier-lesson items (heading 3, font-size in pixels, text-align, and text-transform) and still keep the page looking clean. Your teacher may also add extra credit for good design"
+      "**BONUS (+5 points):** use **all 4** of the earlier-lesson items and still keep the page looking clean:\n\u2022 **heading 3**\n\u2022 **font-size** in pixels\n\u2022 **text-align**\n\u2022 **text-transform**\nYour teacher may also add extra credit for good design"
     ]),
     done()]));
 

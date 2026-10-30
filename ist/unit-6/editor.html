@@ -1399,7 +1399,7 @@ function setWt(on) { showLeft(on ? "wt" : "ans"); }
 function wtSchema() { return (window.U7_WALK || {})[S.lesson] || null; }
 function wtItems() { var o = []; (wtSchema() || []).forEach(function (g) { g.items.forEach(function (i) { o.push(i); }); }); return o; }
 function wtCount() { var L = wtItems(), n = 0; L.forEach(function (i) { if (S.ans["wt_" + i.id] === "1") n++; }); return { n: n, total: L.length }; }
-function wtText(s) { return esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>"); }
+function wtText(s) { return esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>").replace(/\n/g, "<br>"); }   /* a new line in the text shows as a line break, so a list of items can sit one per line */
 function wtRender() {
   var sc = wtSchema(), pane = $("wtPane"), tab = $("wtTab");
   if (tab) tab.style.display = sc ? "" : "none";
@@ -1529,7 +1529,7 @@ $("btnOpenTab").addEventListener("click", openInTab);
 /* a short name for a box in the "still missing" list: the step comment, or the start of the bullet cut at a word */
 function shortTx(bi, text) {
   if (bi === "c") return "Type the step comment";
-  var t = String(text).replace(/[*`]/g, ""), cut = 64; if (t.length <= cut) return t;
+  var t = String(text).split("\n")[0].replace(/[*`]/g, ""), cut = 64; if (t.length <= cut) return t;
   t = t.slice(0, cut); var i = t.lastIndexOf(" "); return (i > 30 ? t.slice(0, i) : t) + "…";
 }
 function stepBox(bi, key, text) { var on = (S.ans || {})["sx_" + key + ":" + bi] === "1"; return '<div class="sbx' + (on ? " done" : "") + '" data-sk="' + key + '" data-bi="' + bi + '" data-tx="' + esc(shortTx(bi, text)) + '"><label><input type="checkbox"' + (on ? " checked" : "") + ' aria-label="Check this off when you have finished it"><span>' + wtText(text) + '</span></label><button type="button" class="abadge btn2" data-sk="' + key + '" data-bi="' + bi + '">auto-check</button><button type="button" class="wrongbtn" data-sk="' + key + '" data-bi="' + bi + '">What&#39;s wrong?</button></div>'; }
