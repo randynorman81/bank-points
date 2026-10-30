@@ -118,7 +118,7 @@ async function mine(body, user) {
     out.draft = await readJSON("draft:" + lesson + ":" + enc(user.email), null);
   }
   out.images = await readJSON("imgs:" + enc(user.email), []);
-  if (goodLesson(lesson)) { const ov = await readJSON("passover:" + lesson + ":" + enc(user.email), null); if (ov && ov.need) out.passNeed = ov.need; }
+  if (goodLesson(lesson)) { const pn = await passNeedFor(lesson, user.email); if (pn < WEB_PASS) out.passNeed = pn; }
   return out;
 }
 
@@ -154,7 +154,7 @@ async function submit(body, user) {
   const css = String(body.css == null ? "" : body.css);
   if (code.length > MAX_CODE || css.length > MAX_CSS) return { error: "That file is too big to submit." };
   const sc = autoScore(body.lesson, code, css);
-  const ovKey = "passover:" + body.lesson + ":" + enc(user.email), ov = await readJSON(ovKey, null), PASS_NEED = ov && ov.need ? Math.min(Number(ov.need) || WEB_PASS, WEB_PASS) : WEB_PASS;   /* the teacher can lower the pass mark for one student, for one submit */
+  const ovKey = "passover:" + body.lesson + ":" + enc(user.email), ov = await readJSON(ovKey, null), PASS_NEED = await passNeedFor(body.lesson, user.email);   /* the teacher can lower the pass mark for one student, for one submit */
   if (sc && sc.pct < PASS_NEED) return { error: "Your score is " + sc.pct + " out of 100. You need at least " + PASS_NEED + " to submit. Open the steps on the left, click an auto-check badge to see what is missing, fix those parts, and submit again.", pct: sc.pct, need: PASS_NEED };
   const key = "sub:" + body.lesson + ":" + enc(user.email);
   const prev = await readJSON(key, null);
@@ -213,6 +213,22 @@ async function listPrefix(prefix) {
 }
 
 /* teacher: let ONE student submit one lesson once with a lower auto score (need), e.g. 80 instead of 95. need: 0 or missing clears it. */
+/* the lowest auto score that lets this student submit this lesson: 95, unless the teacher lowered it for the whole lesson (lessonpass:<lesson>) or for this one student (passover:<lesson>:<email>) */
+async function passNeedFor(lesson, email) {
+  let need = WEB_PASS;
+  const lo = await readJSON("lessonpass:" + lesson, null); if (lo && typeof lo.need === "number") need = Math.min(need, lo.need);
+  const ov = await readJSON("passover:" + lesson + ":" + enc(email), null); if (ov && ov.need) need = Math.min(need, Number(ov.need) || need);
+  return need;
+}
+/* teacher: lower (or restore) the submit score for a whole lesson. need: 0 = anything can be submitted; 1-94 = that score; missing or 95 = back to normal. */
+async function adminLessonPass(body) {
+  if (!goodLesson(body.lesson)) return { error: "Unknown lesson" };
+  const key = "lessonpass:" + body.lesson;
+  if (body.need === undefined || body.need === null || body.need === "" || Number(body.need) >= WEB_PASS) { await store().delete(key); return { ok: true, lesson: body.lesson, need: WEB_PASS, cleared: true }; }
+  const need = Math.max(0, Number(body.need) || 0);
+  await store().setJSON(key, { need, setAt: now() });
+  return { ok: true, lesson: body.lesson, need };
+}
 async function adminPassOver(body) {
   if (!goodLesson(body.lesson)) return { error: "Unknown lesson" };
   const email = String(body.email || "").trim().toLowerCase(); if (!email) return { error: "Needs a student email" };
@@ -324,7 +340,7 @@ export default async (req) => {
     try { body = await req.json(); } catch (e) { return ok({ error: "Malformed request" }); }
     const action = body.action;
 
-    if (["adminList", "adminCounts", "adminGrade", "adminDelete", "adminMigrate", "adminScore", "adminPassOver"].indexOf(action) > -1) {
+    if (["adminList", "adminCounts", "adminGrade", "adminDelete", "adminMigrate", "adminScore", "adminPassOver", "adminLessonPass"].indexOf(action) > -1) {
       if (!isAdmin(body)) return ok({ error: "Invalid PIN" });
       if (action === "adminList") return ok(await adminList(body));
       if (action === "adminCounts") return ok(await adminCounts());
@@ -332,6 +348,7 @@ export default async (req) => {
       if (action === "adminScore") { const sc = autoScore(String(body.lesson || ""), String(body.code || ""), String(body.css || "")); return ok(sc ? { ok: true, pct: sc.pct, boxes: sc.boxes, need: WEB_PASS } : { ok: true, pct: null, note: "no step checks for that lesson" }); }
       if (action === "adminDelete") return ok(await adminDelete(body));
       if (action === "adminPassOver") return ok(await adminPassOver(body));
+      if (action === "adminLessonPass") return ok(await adminLessonPass(body));
       return ok(await adminGrade(body));
     }
 
