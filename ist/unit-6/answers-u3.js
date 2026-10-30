@@ -157,15 +157,16 @@
     done()]));
 
   /* ======================================================================= 6.23  (3.3 CHECKLIST DRAFT, teacher only: skeleton walkthrough, pick a theme, then a checklist of counts and design limits that can go anywhere) ===== */
-  A["6.23"] = build([].concat(head("**A page about a theme you pick.** You build the skeleton step by step, then the rest is **yours**: a checklist says how many of each tag and style your page needs **somewhere**, and a few **design limits** keep it looking like a real website.", "", notes("unit-6/text-size-align-notes.html")), [RULE,
-    RULE2,
+  A["6.23"] = build([].concat([
+    { h: "What you are building" },
+    { p: "A page about a theme you pick. Build the skeleton first, then the checklist tells you what your page needs **somewhere**. Styles go inside a **style attribute**, with a **semicolon** between properties. Use named colors (or hex codes if you know them)." },
+    { id: "theme", t: "pick", q: "Pick your theme (check ONE box)", opts: ["A pizza shop", "A gym", "A bakery", "A school club", "A band", "A video game", "A sports team", "An animal shelter", "A movie", "A food truck"] }
+  ], [
     S("Skeleton, title, and colors", [
       "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point). Then type the opening **html** tag, and inside it the **head** tags. The editor puts your cursor under the closing head tag, so click on the empty line **between** the head tags and add a **title** with the name of your page",
       "Click on the line **under** the closing head tag (still inside the html tags) and type the **body** tags",
       "On the **body** tag, add a style with a **background-color** and a **color** (two **different** named colors, so the text can be read)"
     ]),
-    { h: "Pick your theme" },
-    { p: "Pick **one** theme and make the whole page about it: **a pizza shop, a gym, a bakery, a school club, a band, a video game, a sports team, or an animal shelter.** Write real sentences about it (what it is, what is great about it, when and where to find it). The checklist below does not tell you where anything goes: **you decide the layout.**" },
     S("The checklist: tags (anywhere on your page)", [
       "Use **exactly 1 heading 1** (the name of your page)",
       "Use **at least 3 heading 2s** (the titles of your sections)",

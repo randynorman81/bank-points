@@ -89,6 +89,7 @@ main[data-view="code"] #split,main[data-view="prev"] .split{display:none}
 #ansPane h3.first{margin-top:6px}
 #ansPane .q{margin:0 0 12px}
 #ansPane .q label{display:block;font-weight:600;margin-bottom:4px}
+#ansPane .pickopts{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:4px 14px;margin:6px 0 4px}#ansPane .pickopts .pickopt{display:flex;align-items:center;gap:8px;font-weight:500;margin:0;cursor:pointer}#ansPane .pickopts input{width:17px;height:17px;flex:0 0 auto}
 #ansPane input[type=text],#ansPane textarea,#ansPane select{width:100%;background:#0D1220;color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:8px 10px;font:inherit}
 #ansPane textarea{min-height:70px;resize:vertical}
 #ansPane input:focus,#ansPane textarea:focus,#ansPane select:focus{outline:0;border-color:var(--acc)}
@@ -1424,6 +1425,7 @@ $("wtPane").addEventListener("change", function (e) {
 
 function ansField(f) {
   var id = "ans_" + f.id, v = S.ans[f.id] || "", h = '<div class="q"><label for="' + id + '">' + wtText(f.q) + "</label>";
+  if (f.t === "pick") return h + '<div class="pickopts" id="' + id + '">' + f.opts.map(function (o) { return '<label class="pickopt"><input type="checkbox" data-pick="' + f.id + '" value="' + esc(o) + '"' + (o === v ? " checked" : "") + "> " + esc(o) + "</label>"; }).join("") + "</div></div>";
   if (f.t === "area") h += '<textarea id="' + id + '" data-a="' + f.id + '" placeholder="Type your answer">' + esc(v) + "</textarea>";
   else if (f.t === "yn" || f.t === "sel") { var o = f.t === "yn" ? ["Yes", "No"] : f.opts; h += '<select id="' + id + '" data-a="' + f.id + '"><option value="">Choose</option>' + o.map(function (x) { return "<option" + (x === v ? " selected" : "") + ">" + esc(x) + "</option>"; }).join("") + "</select>"; }
   else h += '<input type="text" id="' + id + '" data-a="' + f.id + '" value="' + esc(v) + '" placeholder="Type here" autocomplete="off">';
@@ -1595,6 +1597,12 @@ $("ansPane").addEventListener("input", function (e) {
   clearTimeout(tAns); tAns = setTimeout(function () { saveNow(false); }, 800);
 });
 $("ansPane").addEventListener("change", function (e) {
+  var pk = e.target.getAttribute && e.target.getAttribute("data-pick");
+  if (pk) {
+    [].forEach.call(document.querySelectorAll('#ansPane input[data-pick="' + pk + '"]'), function (x) { if (x !== e.target) x.checked = false; });
+    S.ans[pk] = e.target.checked ? e.target.value : ""; ansSaveLocal(); ansBadge(); touch(); $("status").textContent = "Typing…";
+    clearTimeout(tAns); tAns = setTimeout(function () { saveNow(false); }, 800); return;
+  }
   var id = e.target.getAttribute && e.target.getAttribute("data-a"); if (!id) return;
   S.ans[id] = e.target.value; ansSaveLocal(); ansBadge();
 });
