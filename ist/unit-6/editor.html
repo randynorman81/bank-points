@@ -160,6 +160,8 @@ body.teacher #ansPane pre.pat{user-select:text}
 #ansPane .abadge{font:700 11px Manrope,sans-serif;border:1px solid #F87171;color:#F87171;border-radius:999px;padding:1px 9px;white-space:nowrap;margin-left:26px}
 #ansPane .abadge.ok{border-color:#34D399;color:#34D399}
 #ansPane .abadge.btn2{cursor:pointer;background:none}
+#ansPane .wrongbtn{font:700 11px Manrope,sans-serif;background:#000;color:#fff;border:1px solid #6b7280;border-radius:999px;padding:2px 11px;margin-left:8px;cursor:pointer;white-space:nowrap}#ansPane .wrongbtn:hover{background:#1f2937}#ansPane .wrongbtn.open{background:#fff;color:#000;border-color:#000}
+#ansPane .stepmiss b{display:block;margin-bottom:3px}#ansPane .stepmiss .allok{color:#34D399}#paneAns #ansPane .stepmiss .allok{color:#15803d}
 #paneAns #ansPane .sbx label{color:#111}#paneAns #ansPane .abadge{border-color:#b91c1c;color:#b91c1c}#paneAns #ansPane .abadge.ok{border-color:#15803d;color:#15803d}
 #ansPane .stepmiss{margin:2px 0 0 26px;padding:6px 10px;background:#0D1220;border:1px solid var(--rule);border-radius:8px;font-size:12.5px;flex:1 1 100%}#ansPane .stepmiss div{margin:2px 0}
 #paneAns #ansPane .stepmiss{background:#f3f4f6;border-color:#cfd5df;color:#111}
@@ -1111,7 +1113,7 @@ $("btnSubmit").addEventListener("click", function () {
   if (!S.cred) { banner("Sign in with your school Google account (top right) to submit.", "err"); return; }
   if (!$("period").value) { banner("Choose your class period at the top before you submit.", "err"); $("period").focus(); return; }
   var SCg = window.U7_STEPCHECKS, scg = null; try { scg = SCg && SCg.LESSONS[S.lesson] ? SCg.score(S.lesson, S.buf.html, S.buf.css) : null; } catch (e) { scg = null; }
-  if (scg && scg.pct < (SCg.PASS || 95)) { banner("Your auto score is " + scg.pct + " out of 100. You need at least " + (SCg.PASS || 95) + " to submit. Click an auto-check badge in the steps on the left to see what is missing, fix it, then submit.", "err"); setTab("ans"); return; }
+  if (scg && scg.pct < (SCg.PASS || 95)) { banner("Your auto score is " + scg.pct + " out of 100. You need at least " + (SCg.PASS || 95) + " to submit. Click a black \"What's wrong?\" button in the steps on the left to see what is missing, fix it, then submit.", "err"); setTab("ans"); return; }
   var r = lastReport || H.check(S.lesson, S.buf.html, S.buf.css), bad = r.errors.length;
   $("mSubmitBody").innerHTML = "<p>Lesson <b>" + esc(dispLesson(S.lesson)) + "</b> for period <b>" + esc($("period").value) + "</b>.</p><p>Auto score: <b>" + (scg ? scg.pct + " / 100" : r.score + " / " + r.total) + "</b>" + (scg ? "" : " (" + r.passed + " of " + r.count + " checks)") + ".</p>" +
     (bad ? '<p style="color:#FCA5A5">You still have ' + bad + " problem" + (bad > 1 ? "s" : "") + " with your tags. You can still submit, or fix them first.</p>" : "") + ansSubmitNote() + "<p>You can submit again later to replace this one.</p>";
@@ -1521,7 +1523,7 @@ function shortTx(bi, text) {
   var t = String(text).replace(/[*`]/g, ""), cut = 64; if (t.length <= cut) return t;
   t = t.slice(0, cut); var i = t.lastIndexOf(" "); return (i > 30 ? t.slice(0, i) : t) + "…";
 }
-function stepBox(bi, key, text) { var on = (S.ans || {})["sx_" + key + ":" + bi] === "1"; return '<div class="sbx' + (on ? " done" : "") + '" data-sk="' + key + '" data-bi="' + bi + '" data-tx="' + esc(shortTx(bi, text)) + '"><label><input type="checkbox"' + (on ? " checked" : "") + ' aria-label="Check this off when you have finished it"><span>' + wtText(text) + '</span></label><button type="button" class="abadge btn2" data-sk="' + key + '" data-bi="' + bi + '">auto-check</button></div>'; }
+function stepBox(bi, key, text) { var on = (S.ans || {})["sx_" + key + ":" + bi] === "1"; return '<div class="sbx' + (on ? " done" : "") + '" data-sk="' + key + '" data-bi="' + bi + '" data-tx="' + esc(shortTx(bi, text)) + '"><label><input type="checkbox"' + (on ? " checked" : "") + ' aria-label="Check this off when you have finished it"><span>' + wtText(text) + '</span></label><button type="button" class="abadge btn2" data-sk="' + key + '" data-bi="' + bi + '">auto-check</button><button type="button" class="wrongbtn" data-sk="' + key + '" data-bi="' + bi + '">What&#39;s wrong?</button></div>'; }
 var stepLast = null, stepOpen = {}, missList = [], missShown = false;
 /* "N still missing": everything the auto-check has not found yet, by step and checkbox, with a Go to box button (like the Python editor) */
 function missUpdate() {
@@ -1557,7 +1559,8 @@ function stepUpdate() {
     var ticked = box.querySelector("input").checked; box.classList.toggle("done", ticked); tot++; if (ticked) okn++;
     b.className = "abadge btn2" + (done ? " ok" : ""); b.textContent = done ? "✓ auto-check: " + (n === 1 ? "met" : "all " + n + " met") : "auto-check: " + m + " of " + n + " met";
     var old = box.querySelector(".stepmiss"); if (old) old.remove();
-    if (stepOpen[id] && !done) { var d = document.createElement("div"); d.className = "stepmiss"; d.innerHTML = list.filter(function (x) { return !x.ok; }).map(function (x) { return "<div>• " + esc(x.label) + "</div>"; }).join(""); box.appendChild(d); }
+    var wb = box.querySelector(".wrongbtn"); if (wb) wb.classList.toggle("open", !!stepOpen[id]);
+    if (stepOpen[id]) { var d = document.createElement("div"); d.className = "stepmiss"; d.innerHTML = done ? '<div class="allok">&#10003; Nothing is wrong here. Every check for this box is met.</div>' : "<b>What is wrong with this box:</b>" + list.filter(function (x) { return !x.ok; }).map(function (x) { return "<div>• " + esc(x.label) + "</div>"; }).join(""); box.appendChild(d); }
   });
   var asc = $("autoSc"), pass = SCx.PASS || 95, sc = null; try { sc = SCx.score(S.lesson, getHtml(), getCss()); } catch (e) { sc = null; }
   if (asc && sc) { asc.style.display = ""; asc.className = "autosc" + (sc.pct >= pass ? " ok" : ""); asc.innerHTML = "Auto score: <b>" + sc.pct + "</b> / 100" + (sc.pct >= pass ? "<small>(ready to submit)</small>" : "<small>(you need " + pass + " to submit)</small>"); }
@@ -1571,7 +1574,7 @@ $("ansPane").addEventListener("change", function (e) {
   S.ans["sx_" + box.getAttribute("data-sk") + ":" + box.getAttribute("data-bi")] = e.target.checked ? "1" : ""; ansSaveLocal(); stepUpdate(); touch(); $("status").textContent = "Typing…";
   clearTimeout(tAns); tAns = setTimeout(function () { saveNow(false); }, 800);
 });
-$("ansPane").addEventListener("click", function (e) { var b = e.target.closest && e.target.closest(".abadge"); if (!b) return; var id = b.getAttribute("data-sk") + ":" + b.getAttribute("data-bi"); stepOpen[id] = !stepOpen[id]; stepUpdate(); });
+$("ansPane").addEventListener("click", function (e) { var b = e.target.closest && e.target.closest(".abadge, .wrongbtn"); if (!b) return; var id = b.getAttribute("data-sk") + ":" + b.getAttribute("data-bi"); stepOpen[id] = !stepOpen[id]; stepUpdate(); });
 function ansInit() {
   var a = null; try { a = JSON.parse(lsGet("u7:ans:" + S.lesson) || "null"); } catch (e) {}
   S.ans = a && typeof a === "object" ? a : {};
