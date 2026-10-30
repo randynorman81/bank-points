@@ -180,9 +180,12 @@
       "Use **text-transform at least 3 times**, with **at least 2 different values** (uppercase, lowercase, or capitalize)"
     ]),
     S("Design limits (this is what makes it look real)", [
-      "Use **no more than 5 different colors** on the whole page (text colors and background colors together). Pick a small palette and reuse it",
+      "Use **no more than 5 different colors** on the whole page (text colors and background colors together; span words for the bonus do not count). Pick a small palette and reuse it",
       "Wherever a tag has **both** a color and a background-color, they must be **different**, and the text must be easy to read",
       "Use **no more than 5 different font sizes** on the whole page. Same kind of tag, same size: for example, all your heading 2s match"
+    ]),
+    S("Bonus (optional, for when you finish early)", [
+      "**BONUS (+5 points):** use the **span** tag to color words on your page. A span wraps just a few words inside a paragraph or heading, and it can have its own style attribute. Either wrap **at least 3 whole words**, each in its own span with a **color**, OR make **one rainbow word** by giving **each letter** of a word its own span and its own **color**. Put the span **inside** the tag and close it before the tag closes. Your auto score goes above 100 when you finish the whole checklist AND earn this bonus"
     ]),
     done()]));
 

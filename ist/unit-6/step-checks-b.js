@@ -692,12 +692,13 @@
          K("At least 2 different text-transform values", function (c) { return distinctVals(c, "text-transform", transform).length >= 2; })]
       ],
       "Step 4": [
-        [K("The whole page uses 5 different colors or fewer (and at least 2)", function (c) { var n = distinctColors(c).length; return n >= 2 && n <= 5; })],
+        [K("The whole page uses 5 different colors or fewer, not counting span words (and at least 2)", function (c) { var seen = {}; notBody(c).concat(c.all("body")).forEach(function (x) { if (x.tag === "span") return; ["color", "background-color"].forEach(function (p) { h.vals(c, x, p).forEach(function (v) { if (named(v)) seen[v] = 1; }); }); }); var n = Object.keys(seen).length; return n >= 2 && n <= 5; })],
         [K("Wherever a tag has both a color and a background-color, they are different", function (c) { var ok = true; h.order(c).forEach(function (x) { if (x.tag !== "#text" && has(c, x, "color") && has(c, x, "background-color") && !bothDiffer(c, x)) ok = false; }); return ok; })],
         [K("The whole page uses 5 different font sizes or fewer", function (c) { var n = distinctVals(c, "font-size", h.isPx).length; return n >= 1 && n <= 5; })]
       ]
     } };
-    lastStep("6.23", "Step 5", [[]]);
+    SC.LESSONS["6.23"].steps["Step 5"] = [RAINBOW];
+    lastStep("6.23", "Step 6", [[]]);
   })();
 
   /* The "Click Checks" box (every item in the Checks list is green) is gone from every lesson. Every box counts the same in the score,
