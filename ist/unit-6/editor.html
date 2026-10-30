@@ -745,16 +745,19 @@ function saveNow(show) {
 var lastReport = null;
 function refresh() {
   var rep = H.check(S.lesson, getHtml(), getCss()); lastReport = rep;
+  var CHKL = !!(window.U7_CL && U7_CL.lessons.indexOf(S.lesson) > -1);   /* checklist lessons: the checklist is in the Assignment tab, so the old rubric and review lists are not shown here (the Problems list still is) */
+  if (CHKL) { rep.results = []; }
+  [$("scoreNum").parentNode, $("scoreBar").parentNode].forEach(function (x) { x.style.display = CHKL ? "none" : ""; });
   $("lname").textContent = dispLesson(S.lesson) + " " + H.LESSONS[S.lesson].name;
   $("scoreNum").textContent = rep.score; $("scoreTot").textContent = rep.total;
   $("scoreBar").style.width = Math.min(100, rep.score / rep.total * 100) + "%";
-  $("scoreNote").textContent = isBlank(getHtml()) ? "Start by typing <!DOCTYPE html> on the first line. Your checklist fills in as you go." : rep.passed + " of " + rep.count + " checks passed. This is an automatic estimate. Your teacher gives the final grade.";
+  $("scoreNote").style.display = CHKL ? "none" : ""; $("scoreNote").textContent = isBlank(getHtml()) ? "Start by typing <!DOCTYPE html> on the first line. Your checklist fills in as you go." : rep.passed + " of " + rep.count + " checks passed. This is an automatic estimate. Your teacher gives the final grade.";
   var nw = "", old = "", nOld = 0, rev = "", nRev = 0, okRev = 0;
   rep.results.forEach(function (x) {
     var h = '<div class="rule ' + (x.ok ? "ok" : "no") + '"><span class="m">' + (x.ok ? "✓" : "!") + '</span><span>' + esc(x.label) + (x.tip && !x.ok ? "<small>" + esc(x.tip) + "</small>" : "") + "</span></div>";
     if (/^R-/.test(x.id)) { rev += h; nRev++; if (x.ok) okRev++; } else if (x.isNew) nw += h; else { old += h; nOld++; }
   });
-  $("rulesNew").innerHTML = nw || '<span style="color:var(--soft)">No rules yet.</span>';
+  $("rulesNew").innerHTML = nw || (CHKL ? '<span style="color:var(--soft)">Your checklist is in the <b>Assignment</b> tab. This panel shows the Problems in your code.</span>' : '<span style="color:var(--soft)">No rules yet.</span>');
   $("rulesOld").innerHTML = old; $("oldWrap").style.display = nOld ? "" : "none";
   $("rulesRev").innerHTML = rev; $("revWrap").style.display = nRev ? "" : "none";
   $("revSum").textContent = "Use what you already know (" + okRev + " of " + nRev + " done)"; $("revWrap").classList.toggle("incomplete", okRev < nRev);
@@ -766,7 +769,7 @@ function refresh() {
   names.forEach(function (n) { tg += "<span>&lt;" + esc(n) + "&gt; <b>" + rep.tags[n] + "</b></span>"; });
   $("tags").innerHTML = tg || '<span style="color:var(--soft);border:0;background:none">No tags yet.</span>';
   layoutGutter.errs = errLines; layoutGutter(); syncCssTab();
-  $("chkScore").textContent = rep.score + "/" + rep.total; stepUpdate();
+  $("chkScore").textContent = CHKL ? "" : rep.score + "/" + rep.total; stepUpdate();
   var wq = H.quality(getHtml()), wn = Math.max(0, wq.n - (wq.gibberish || 0)); $("wcount").textContent = wn + (wn === 1 ? " word" : " words"); $("wcount").style.display = S.lesson === "6.1" ? "none" : "";
   $("btnChecks").classList.toggle("hasErr", rep.errors.length > 0);
 }
