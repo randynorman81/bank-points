@@ -27,7 +27,6 @@
   }
   function done(extra) {
     return S("Test and submit", (extra || []).concat([
-      "Click **Checks**. Fix every red line. The **Use what you already know** list has to turn green too: for each red item, add the missing use where it fits the page",
       "Choose your class period at the top, then click **Submit** (you can submit again to replace it)"
     ]));
   }

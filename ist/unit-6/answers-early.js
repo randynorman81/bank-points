@@ -49,7 +49,6 @@
     { h: "Step 6: Check and submit" },
     { build: [
       "Fix anything in the **Problems** list (click a problem to jump to that line)",
-      "Make sure **Checks** shows all green",
       "Choose your class period at the top, then click **Submit**"
     ] }
   ];

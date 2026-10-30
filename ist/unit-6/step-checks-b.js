@@ -664,4 +664,11 @@
     lastStep("6.75", "Step 9", [[h.ALLGREEN], []]);
   })();
 
+
+  /* The "Click Checks" box (every item in the Checks list is green) is gone from every lesson. Every box counts the same in the score,
+     so taking it out spreads its share across the other boxes. The matching "Click Checks" bullet is gone from the Assignment tab too. */
+  Object.keys(SC.LESSONS).forEach(function (l) {
+    var st = SC.LESSONS[l].steps, ks = Object.keys(st), last = st[ks[ks.length - 1]];
+    for (var i = last.length - 1; i >= 0; i--) if (last[i].length === 1 && last[i][0][0] === h.ALLGREEN[0]) last.splice(i, 1);
+  });
 })(typeof window !== "undefined" ? window : globalThis);

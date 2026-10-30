@@ -25,7 +25,6 @@
   }
   function done(extra) {
     return S("Test and submit", (extra || []).concat([
-      "Click **Checks**. Fix every red line. The **Use what you already know** list has to turn green too: for each red item, add the missing use where it fits the page",
       "Choose your class period at the top, then click **Submit** (you can submit again to replace it)"
     ]));
   }
@@ -63,7 +62,6 @@
       "**BONUS (+5 points):** use the span tag to color words on your page. Either wrap **at least 3 whole words**, each in its own span with a **color**, OR make **one rainbow word** by giving **each letter** of a word its own span and its own **color**. Your auto score goes above 100 when you finish all the required steps AND earn this bonus"
     ]),
     S("Test and submit", [
-      "Click **Checks**. Fix every red line. The **Use what you already know** list has to turn green too: for each red item, add the missing use where it fits the page",
       "Choose your class period at the top, then click **Submit** (you can submit again to replace it)"
     ])]));
 
@@ -302,7 +300,6 @@
     ]),
     S("Test and submit", [
       "Click each of your links in the preview and make sure it goes where you expect (and new-tab links open a new tab)",
-      "Click **Checks**. Fix every red line. The **Use what you already know** list has to turn green too: for each red item, add the missing use where it fits the page",
       "Choose your class period at the top, then click **Submit** (you can submit again to replace it)"
     ])]));
 
