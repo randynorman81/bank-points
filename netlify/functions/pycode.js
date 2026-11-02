@@ -162,7 +162,7 @@ async function saveDraft(body, user) {
 }
 
 /* automatic grade: the percent the assignment's checks give. Returns the new teacher record, or null to keep what is there (a grade the teacher saved by hand is never replaced). */
-const PASS = 80;   // a student needs this score to submit, and to open the next assignment
+const PASS = 0;   // submitting an assignment at ANY score opens the next one (was 80 until 2 Nov 2026); the score is still the grade
 /* an assignment can carry a different version for one class period (variants: { "1A": { blocks, checks, tips } }) */
 function variantFor(rec, period) {
   if (rec && rec.variants && period && rec.variants[period]) { const v = rec.variants[period]; return Object.assign({}, rec, { blocks: v.blocks, checks: v.checks, tips: v.tips }); }
@@ -194,7 +194,7 @@ async function submit(body, user) {
   const asg = await readJSON("assign:" + body.slot, null);
   if (asg && asg.live !== false && body.slot !== "free" && !isTeacherUser(user)) {
     const open = await gatedAssignments(user, period);
-    if (!open.assignments[body.slot]) { const L = open.locked.find((x) => x.id === body.slot); return { error: L ? "Assignment " + L.num + " is locked. Finish Assignment " + L.needNum + " with a score of at least " + PASS + " first." : "That assignment is not open yet." }; }
+    if (!open.assignments[body.slot]) { const L = open.locked.find((x) => x.id === body.slot); return { error: L ? "Assignment " + L.num + " is locked. Submit Assignment " + L.needNum + " first (any score opens the next one)." : "That assignment is not open yet." }; }
     const v = variantFor(asg, period);
     if (Array.isArray(v.checks) && v.checks.length) { const r = scoreCode(v.checks, code); if (r.pct !== null && r.pct < PASS && v.submitAny !== true) return { error: "Your score is " + r.pct + " out of 100. You need at least " + PASS + " to submit. Open the \"still missing\" list, fix those parts so they match the steps exactly, and submit again.", pct: r.pct, need: PASS }; }
   }
