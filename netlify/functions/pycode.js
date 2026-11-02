@@ -196,7 +196,7 @@ async function submit(body, user) {
     const open = await gatedAssignments(user, period);
     if (!open.assignments[body.slot]) { const L = open.locked.find((x) => x.id === body.slot); return { error: L ? "Assignment " + L.num + " is locked. Finish Assignment " + L.needNum + " with a score of at least " + PASS + " first." : "That assignment is not open yet." }; }
     const v = variantFor(asg, period);
-    if (Array.isArray(v.checks) && v.checks.length) { const r = scoreCode(v.checks, code); if (r.pct !== null && r.pct < PASS) return { error: "Your score is " + r.pct + " out of 100. You need at least " + PASS + " to submit. Open the \"still missing\" list, fix those parts so they match the steps exactly, and submit again.", pct: r.pct, need: PASS }; }
+    if (Array.isArray(v.checks) && v.checks.length) { const r = scoreCode(v.checks, code); if (r.pct !== null && r.pct < PASS && v.submitAny !== true) return { error: "Your score is " + r.pct + " out of 100. You need at least " + PASS + " to submit. Open the \"still missing\" list, fix those parts so they match the steps exactly, and submit again.", pct: r.pct, need: PASS }; }
   }
   const key = "sub:" + body.slot + ":" + enc(user.email);
   const prev = await readJSON(key, null);
@@ -257,9 +257,10 @@ async function adminSetLive(body) {
   rec.live = body.live === true || body.live === "true";
   if (body.ungated !== undefined) rec.ungated = body.ungated === true || body.ungated === "true";
   if (body.commentsCount !== undefined) { const on = body.commentsCount === true || body.commentsCount === "true", mark = (arr) => (Array.isArray(arr) ? arr : []).forEach((c) => { if (on) c.unc = true; else delete c.unc; }); mark(rec.checks); Object.keys(rec.variants || {}).forEach((p) => mark(rec.variants[p].checks)); }
+  if (body.submitAny !== undefined) rec.submitAny = body.submitAny === true || body.submitAny === "true";   /* submitAny: students can submit whatever score they earn (no 80 needed) */
   if (body.quizFree !== undefined) rec.quizFree = body.quizFree === true || body.quizFree === "true";   /* quizFree: a Quiz that does NOT run in fullscreen or record leaving the page */
   await store().setJSON("assign:" + body.slot, rec);
-  return { ok: true, slot: body.slot, live: rec.live, ungated: rec.ungated === true, quizFree: rec.quizFree === true };
+  return { ok: true, slot: body.slot, live: rec.live, ungated: rec.ungated === true, quizFree: rec.quizFree === true, submitAny: rec.submitAny === true };
 }
 async function adminAutograde(body) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
@@ -479,7 +480,7 @@ async function liveScore(body) {
   if (!rec || !Array.isArray(rec.checks) || !rec.checks.length) return { ok: true, pct: null };
   if (rec.live === false && !isAdmin(body) && !(body.credential && isTeacherUser(await verifyGoogleToken(body.credential)))) return { ok: true, pct: null };
   const r = scoreCode(rec.checks, code);
-  return { ok: true, need: PASS, pct: r.pct, passed: r.passed, total: r.total, missing: r.missing, boxes: r.boxes };
+  return { ok: true, need: rec.submitAny === true ? 0 : PASS, pct: r.pct, passed: r.passed, total: r.total, missing: r.missing, boxes: r.boxes };
 }
 
 /* ---------------- request handler ---------------- */
