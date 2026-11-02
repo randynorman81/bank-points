@@ -159,6 +159,7 @@ async function submit(body, user) {
   if (sc && sc.pct < PASS_NEED) return { error: "Your score is " + sc.pct + " out of 100. You need at least " + PASS_NEED + " to submit. Open the steps on the left, click an auto-check badge to see what is missing, fix those parts, and submit again.", pct: sc.pct, need: PASS_NEED };
   const key = "sub:" + body.lesson + ":" + enc(user.email);
   const prev = await readJSON(key, null);
+  if (body.lesson === "6.2" && prev && prev.auto && typeof prev.auto.pct === "number" && sc && sc.pct < prev.auto.pct) return { error: "Your new score is " + sc.pct + ", but the work you already submitted scored " + prev.auto.pct + ". A retake only replaces your old submission when it scores at least as high. Keep fixing this version, or just leave your old submission as it is.", pct: sc.pct };
   const rec = {
     email: user.email, name: user.name, period: cleanPeriod(body.period), lesson: body.lesson, code, css, activity: cleanActivity(body.activity),
     answers: body.answers === undefined && prev && prev.answers ? prev.answers : cleanAnswers(body.answers),

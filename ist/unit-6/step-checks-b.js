@@ -681,6 +681,11 @@
       spans3: function (c) { return styledSpans(c) >= 3; },
       spans1: function (c) { return styledSpans(c) >= 1; },
       fonts2: function (c) { return distinctFonts(c) >= 2; },
+      bodyBoth: function (c) { var b = c.all("body")[0]; return !!b && bothStyled(c, b); },
+      color8: function (c) { return withProp(c, "color", named).length >= 8; },
+      bg8: function (c) { return withProp(c, "background-color", named).length >= 8; },
+      both6: function (c) { return notBody(c).filter(function (x) { return x.tag !== "#text" && bothStyled(c, x); }).length >= 6; },
+      pattern3: function (c) { var seen = {}, best = 0; notBody(c).forEach(function (x) { if (x.tag === "#text" || !bothStyled(c, x)) return; var k = h.vals(c, x, "color")[0] + "|" + h.vals(c, x, "background-color")[0]; seen[k] = (seen[k] || 0) + 1; if (seen[k] > best) best = seen[k]; }); return best >= 3; },
       imgLinked: function (c) { var im = c.all("img"); return im.length >= 1 && im.every(function (i) { return !!c.ancestor(i, ["a"]); }); }
     };
     function spec(c, s) {
@@ -696,25 +701,27 @@
     }
     CL.test = spec;
     CL.lessons.forEach(function (l) {
-      var B = CL.basics, pool = CL.poolFor(l), need = CL.need[l], st = {}, n = 1;
+      var B = CL.basicsFor ? CL.basicsFor(l) : CL.basics, pool = CL.poolFor(l), need = CL.need[l], st = {}, n = 1;
       st["Step " + n++] = [[SK[0]], [SK[1], SK[2]], [SK[3], SK[4]], [TITLE[0], TITLE[1]]];
       st["Step " + n++] = [
         [K("Exactly " + B.h1 + " heading 1", function (c) { return c.count("h1") === B.h1; })],
         [CNT("At least " + B.h2 + " heading 2s", "h2", B.h2)],
-        [CNT("At least " + B.p + " paragraphs", "p", B.p)],
+        [CNT("At least " + B.p + " paragraphs", "p", B.p)]
+      ].concat(!B.colorTags ? [] : [
         [K("Text color used on at least " + B.colorTags + " tags (not counting the body)", function (c) { return withProp(c, "color", named).length >= B.colorTags; }),
          K("Background-color used on at least " + B.bgTags + " tag (not counting the body)", function (c) { return withProp(c, "background-color", named).length >= B.bgTags; })]
-      ];
+      ]);
       st["Step " + n++] = CL.news[l].map(function (it) { return [K(it.label, function (c) { return spec(c, it.spec); })]; });
       if (pool.length) {
         st["Step " + n++] = [[K("At least " + need + " of these " + pool.length + " earlier items are on your page", function (c) { return pool.filter(function (f) { return spec(c, f.spec); }).length >= need; })]];
       }
       var fontLimit = !!CL.fontLimit[l];
       var limits = [
-        [K("The whole page uses 5 different colors or fewer, not counting span words (and at least 2)", function (c) { var seen = {}; notBody(c).concat(c.all("body")).forEach(function (x) { if (x.tag === "span") return; ["color", "background-color"].forEach(function (p) { h.vals(c, x, p).forEach(function (v) { if (named(v)) seen[v] = 1; }); }); }); var k = Object.keys(seen).length; return k >= 2 && k <= 5; })],
+        [K("The whole page uses " + CL.maxColors(l) + " different colors or fewer, not counting span words (and at least 2)", function (c) { var seen = {}; notBody(c).concat(c.all("body")).forEach(function (x) { if (x.tag === "span") return; ["color", "background-color"].forEach(function (p) { h.vals(c, x, p).forEach(function (v) { if (named(v)) seen[v] = 1; }); }); }); var k = Object.keys(seen).length; return k >= 2 && k <= CL.maxColors(l); })],
         [K("Wherever a tag has both a color and a background-color, they are different", function (c) { var ok = true; h.order(c).forEach(function (x) { if (x.tag !== "#text" && has(c, x, "color") && has(c, x, "background-color") && !bothDiffer(c, x)) ok = false; }); return ok; })],
         [K("The whole page uses 5 different font sizes or fewer", function (c) { return distinctVals(c, "font-size", h.isPx).length <= 5; })]
       ];
+      if (CL.noSizeLimit && CL.noSizeLimit[l]) limits.splice(2, 1);
       if (fontLimit) limits.push([K("The whole page uses 3 different fonts or fewer", function (c) { return distinctFonts(c) <= 3; })]);
       st["Step " + n++] = limits;
       var bonus;

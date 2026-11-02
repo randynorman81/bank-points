@@ -233,6 +233,7 @@ function load() {
       var _row;
       var code = s.submission ? s.submission.code : (s.draft ? s.draft.code : ""), css = s.submission ? (s.submission.css || "") : (s.draft ? (s.draft.css || "") : "");
       var rep = H.check(lesson, code, css); var SCg = window.U7_STEPCHECKS, scr = SCg && SCg.LESSONS && SCg.LESSONS[lesson] ? SCg.score(lesson, code, css) : null; if (scr) { rep.score = scr.pct; rep.total = 100; }
+      if (lesson === "6.2" && s.submission && s.submission.auto && typeof s.submission.auto.pct === "number" && String(s.submission.submittedAt || "") < "2026-11-02T14:00:00Z") { rep.score = s.submission.auto.pct; rep.total = 100; }   /* 3.2 was rebuilt as a checklist on 2 Nov 2026: earlier submissions keep the score they had */
       _row = { email: s.email, name: s.rosterName || s.name || s.email, period: String(s.period || (s.submission && s.submission.period) || "").toUpperCase(), sub: s.submission, draft: s.draft, code: code, css: css, rep: rep, status: s.submission ? "submitted" : (s.draft ? "draft" : "missing"), teacher: s.submission ? s.submission.teacher : null };
       _row.org = analyzeOrigin(_row);
       _row.pasteBad = !!_row.org.penalize;

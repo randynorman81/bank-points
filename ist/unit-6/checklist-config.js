@@ -14,10 +14,11 @@
 (function (root) {
   var CL = root.U7_CL = {};
 
-  CL.lessons = ["6.20", "6.21", "6.22", "6.3", "6.35", "6.4", "6.7", "6.75", "6.6", "6.5"];
-  CL.name = { "6.20": "3.3 Part 1", "6.21": "3.3 Part 2", "6.22": "3.3 Part 3", "6.3": "3.4", "6.35": "3.5", "6.4": "3.6", "6.7": "3.7", "6.75": "3.8", "6.6": "3.9", "6.5": "3.10" };
+  CL.lessons = ["6.2", "6.20", "6.21", "6.22", "6.3", "6.35", "6.4", "6.7", "6.75", "6.6", "6.5"];
+  CL.name = { "6.2": "3.2", "6.20": "3.3 Part 1", "6.21": "3.3 Part 2", "6.22": "3.3 Part 3", "6.3": "3.4", "6.35": "3.5", "6.4": "3.6", "6.7": "3.7", "6.75": "3.8", "6.6": "3.9", "6.5": "3.10" };
 
   CL.themes = {
+    "6.2": ["A terrible movie fan page", "A terrible holiday page", "A terrible band page", "A terrible pizza shop", "A terrible school club page", "A terrible video game page", "A terrible sports team page", "A terrible pet page", "A terrible restaurant menu", "A terrible travel page"],
     "6.20": ["A pizza shop", "A gym", "A bakery", "A school club", "A band", "A video game", "A sports team", "An animal shelter", "A movie", "A food truck"],
     "6.21": ["A movie review", "A video game review", "A restaurant review", "A book review", "A song or album review", "A TV show review", "A sports team review", "A snack review", "A product review", "A school cafeteria review"],
     "6.22": ["A band", "A solo artist", "An athlete", "A sports team", "A famous scientist", "A video game character", "A YouTuber", "An actor", "A coach or teacher", "A person from history"],
@@ -43,6 +44,13 @@
     { label: "text-transform at least 3 times, with 2 different values", text: "**text-transform** (uppercase, lowercase, or capitalize): at least **3** uses, with at least **2 different** values", spec: ["custom", "tt3x2"] }
   ];
   CL.news = {
+    "6.2": [
+      { label: "The body has a color and a background-color", text: "**Color the whole page:** the **body** tag has **both** a **color** and a **background-color** (two different named colors), in one style attribute with a semicolon between them", spec: ["custom", "bodyBoth"] },
+      { label: "Text color on at least 8 tags", text: "**Text color** (the color property): on at least **8 tags** (headings and paragraphs, not counting the body)", spec: ["custom", "color8"] },
+      { label: "Background-color on at least 8 tags", text: "**Background-color**: on at least **8 tags** (headings and paragraphs, not counting the body)", spec: ["custom", "bg8"] },
+      { label: "At least 6 tags have BOTH a color and a different background-color", text: "**Both together:** at least **6 tags** that have a **color** AND a **background-color**, and the two colors on that tag are **different**", spec: ["custom", "both6"] },
+      { label: "A pattern: one color combination used on 3 tags", text: "**A pattern:** pick one **text color + background-color** pair and use that exact pair on at least **3 tags**, so your page looks ugly on purpose", spec: ["custom", "pattern3"] }
+    ],
     "6.20": THREE33, "6.21": THREE33, "6.22": THREE33,
     "6.3": [
       { label: "Bold at least 3 times (strong or b)", text: "**Bold** text: at least **3** (the strong tag or the b tag)", spec: ["count", "strong", 3] },
@@ -127,6 +135,13 @@
       { label: "link around words", spec: ["count", "a-wrap", 1] }
     ]
   };
+  /* 3.2 is the first lesson: its basics skip the color line (the new items below cover it), it needs more headings and paragraphs, and it has no font-size limit */
+  CL.basicsFor = function (lesson) { return lesson === "6.2" ? { h1: 1, h2: 3, p: 6, colorTags: 0, bgTags: 0 } : CL.basics; };
+  CL.noSizeLimit = { "6.2": 1 };
+  CL.maxColors = function (lesson) { return lesson === "6.2" ? 6 : 5; };
+  CL.newHead = { "6.2": "New this lesson (the number tells you how many)" };
+  CL.intro = { "6.2": "**The Ugliest Website Ever.** Pick a theme and make the most **eye-burning** page you can using **text colors** and **background colors**. Ugly on purpose is the goal, but every word must still be there. Build the skeleton, then the checklist tells you what your page needs **somewhere**. Styles go inside a **style attribute**, with a **semicolon** between properties. Use named colors (or hex codes if you know them)." };
+  CL.bonusText = { "6.2": "**BONUS (+5 points):** a sneak peek at the **span** tag (we cover it fully in 3.4). A span wraps just a few words inside a paragraph or heading and can have its own style attribute. Wrap **at least 3 whole words**, each in its own span with a **color**, OR make **one rainbow word** by giving **each letter** of a word its own span and its own **color**. Your teacher may also add extra credit for good design" };
   CL.famOrder = ["6.20", "6.3", "6.35", "6.4", "6.7", "6.75", "6.6"];
   /* the three 3.3 assignments share one family list (3.3 itself), and each later lesson pools every family before it */
   CL.poolFor = function (lesson) {
