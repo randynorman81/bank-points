@@ -46,7 +46,13 @@
   }
 
   /* ---------- parse attributes ---------- */
-  function parseAttrs(str, line, warnings) {
+  // A style attribute only counts when it is exactly style="..." (an opening AND a closing double quote, no stray quote marks left in the tag).
+  function styleBroken(str) {
+    if (!/(^|[\s"'])style\s*=/i.test(str)) return false;
+    if (/(^|[\s"'])style\s*=\s*(?!")/i.test(str)) return true;
+    return /["']/.test(str.replace(/"[^"<]*"|'[^'<]*'/g, ""));
+  }
+  function parseAttrs(str, line, warnings, errors, tag) {
     var attrs = {}, re = /([^\s=\/"']+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+)))?/g, m;
     while ((m = re.exec(str))) {
       var name = m[1].toLowerCase();
@@ -55,6 +61,10 @@
       else if (m[3] !== undefined) warnings.push({ line: line, msg: 'Use double quotes (") instead of single quotes (\') around the value of "' + name + '".' });
       attrs[name] = val;
     }
+    if (errors && styleBroken(str)) {
+      delete attrs.style;
+      errors.push({ line: line, msg: "On <" + tag + "> (line " + line + "): the style attribute is not written correctly, so it does nothing. It must look like style=\"color: blue;\" with a double quote (\") BEFORE the first property and another AFTER the last one. Check for a missing or extra quote." });
+    }
     return attrs;
   }
 
@@ -62,7 +72,7 @@
   function parse(src) {
     var root = { tag: "#root", attrs: {}, children: [], parent: null, line: 1 };
     var errors = [], warnings = [], stack = [root], text = [], forced = {}, openRaw = null;
-    var re = /<!--[\s\S]*?-->|<!doctype[^>]*>|<\/\s*([a-zA-Z][a-zA-Z0-9-]*)\s*>|<([a-zA-Z][a-zA-Z0-9-]*)((?:"[^"]*"|'[^']*'|[^>"'])*)>/gi;
+    var re = /<!--[\s\S]*?-->|<!doctype[^>]*>|<\/\s*([a-zA-Z][a-zA-Z0-9-]*)\s*>|<([a-zA-Z][a-zA-Z0-9-]*)((?:"[^"<]*"|'[^'<]*'|[^>"']|["'])*)>/gi;
     var last = 0, m, hasDoctype = false;
 
     function cur() { return stack[stack.length - 1]; }
@@ -94,7 +104,7 @@
       var tag = m[2].toLowerCase(), rawAttrs = m[3] || "";
       var selfClosed = /\/\s*$/.test(rawAttrs);
       if (selfClosed) rawAttrs = rawAttrs.replace(/\/\s*$/, "");
-      var node = { tag: tag, attrs: parseAttrs(rawAttrs, line, warnings), children: [], parent: cur(), line: line, raw: m[0] };
+      var node = { tag: tag, attrs: parseAttrs(rawAttrs, line, warnings, errors, tag), children: [], parent: cur(), line: line, raw: m[0] };
       cur().children.push(node);
       if (VOID[tag]) continue;
       if (selfClosed) { warnings.push({ line: line, msg: "<" + tag + "> does not need a slash. Use <" + tag + "></" + tag + "> with content between." }); continue; }
@@ -798,6 +808,11 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
   var BASE_STYLE = "<base target=\"_blank\"><style id=\"__base\">html{overflow-wrap:anywhere;word-wrap:break-word}body{margin:0;padding:16px 20px}</style>";
   function previewDoc(html, css) {
     html = String(html || ""); css = String(css || "");
+    // a style attribute that is not exactly style="..." does nothing in the preview, same as the checker
+    html = html.replace(/<([a-zA-Z][a-zA-Z0-9-]*)((?:"[^"<]*"|'[^'<]*'|[^>"']|["'])*)>/g, function (all, tg, at) {
+      if (!styleBroken(at)) return all;
+      return "<" + tg + at.replace(/(^|[\s"'])style\s*=\s*(?:"[^"<]*"|'[^'<]*'|[^\s"'>]*)/ig, "$1") + ">";
+    });
     if (css.trim()) html = html.replace(/<link\b[^>]*\bhref\s*=\s*["']?style\.css["']?[^>]*>/i, function () { return "<style>" + css.replace(/<\/style/gi, "<\\/style") + "</style>"; });
     if (/<head\b[^>]*>/i.test(html)) return html.replace(/<head\b[^>]*>/i, function (m) { return m + BASE_STYLE; });
     return BASE_STYLE + html;
