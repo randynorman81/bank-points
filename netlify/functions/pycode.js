@@ -431,12 +431,15 @@ function placementCount(c, flags, text) {
 function tidySpaces(code) { return String(code || "").replace(/\r/g, "").replace(/\([ \t]+/g, "(").replace(/[ \t]+\)/g, ")"); }
 function scoreCode(checks, code) {
   code = tidySpaces(code);
-  /* unc: this assignment lets students comment out finished work, so a commented-out line of code still counts (comment marks are stripped before scoring) */
-  if (checks.some((c) => c.unc)) code = code.split("\n").map((l) => l.replace(/^([ \t]*)#+[ \t]?/, "$1")).join("\n");
-  const sp = splitCode(code); let passed = 0, credit = 0, possible = 0; const missing = []; let lastMet = 0; const text = String(code || ""); const boxes = {};
+  /* unc: this assignment lets students comment out finished work, so a commented-out line of code still counts. Checks about code are scored on a copy with the comment marks stripped; checks about comments (their pattern has a #, or where is comments/notes) see the text as typed */
+  const sp0 = splitCode(code), text0 = String(code || "");
+  const uncOn = checks.some((c) => c.unc), codeU = uncOn ? code.split("\n").map((l) => l.replace(/^([ \t]*)#+[ \t]?/, "$1")).join("\n") : code;
+  const spU = uncOn ? splitCode(codeU) : sp0, textU = String(codeU || "");
+  const sp = sp0, text = text0; let passed = 0, credit = 0, possible = 0; const missing = []; let lastMet = 0; const boxes = {};
   // pass 1: how many times each check is found, and (for met checks) the lines it matched
   const pre = checks.map((c) => {
     let n = 0, ml = []; const flags = String(c.flags || "").replace(/g/g, "");
+    const useU = !!c.unc && c.where !== "comments" && c.where !== "notes" && String(c.re || "").indexOf("#") < 0, sp = useU ? spU : sp0, text = useU ? textU : text0;
     try {
       if (c.where === "comments" || c.where === "notes") { const re = new RegExp(c.re, flags); (c.where === "notes" ? sp.notes : sp.comments).forEach((l) => { if (re.test(l)) n++; }); }
       else if (/^A # (Step|Trace) N/.test(c.label || "") && Array.isArray(c.box)) {
