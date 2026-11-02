@@ -155,6 +155,7 @@ function openApp() {
     var sel = $("lesson"); sel.innerHTML = "";
     H.ORDER.forEach(function (l) { var o = document.createElement("option"); o.value = l; o.textContent = dispLesson(l) + " " + H.LESSONS[l].name + "  (" + (j.counts[l] || 0) + ")"; sel.appendChild(o); });
     var q = new URLSearchParams(location.search).get("lesson"); if (q && H.LESSONS[q]) sel.value = q;
+    else try { var savedL = localStorage.getItem("u7grade:lesson"); if (savedL && H.LESSONS[savedL]) sel.value = savedL; } catch (e) {}
     load();
   }).catch(function () { $("lerr").textContent = "Could not reach the server."; });
 }
@@ -253,7 +254,7 @@ function load() {
     render(); loadDue().then(render);
   });
 }
-$("lesson").onchange = function () { selEmail = null; $("detail").innerHTML = '<div class="empty">Pick a student on the left.</div>'; load(); };
+$("lesson").onchange = function () { try { localStorage.setItem("u7grade:lesson", this.value); } catch (e) {} selEmail = null; $("detail").innerHTML = '<div class="empty">Pick a student on the left.</div>'; load(); };
 $("period").onchange = function () { try { localStorage.setItem("u7grade:period", this.value); } catch (e) {} render(); };
 $("onlySub").onchange = render; $("reload").onclick = load;
 try { var savedP = localStorage.getItem("u7grade:period"); if (savedP && [].some.call($("period").options, function (o) { return o.value === savedP; })) $("period").value = savedP; } catch (e) {}
