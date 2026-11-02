@@ -702,7 +702,8 @@
     CL.test = spec;
     CL.lessons.forEach(function (l) {
       var B = CL.basicsFor ? CL.basicsFor(l) : CL.basics, pool = CL.poolFor(l), need = CL.need[l], st = {}, n = 1;
-      st["Step " + n++] = [[SK[0]], [SK[1], SK[2]], [SK[3], SK[4]], [TITLE[0], TITLE[1]]];
+      /* box 2 (the html tags) is green only when the html, head AND body tags are all there, with the head above the body */
+      st["Step " + n++] = [[SK[0]], [SK[1], SK[2], TITLE[0], TITLE[1]], [SK[3], SK[4]], [TITLE[0], TITLE[1]]];
       st["Step " + n++] = [
         [K("Exactly " + B.h1 + " heading 1", function (c) { return c.count("h1") === B.h1; })],
         [CNT("At least " + B.h2 + " heading 2s", "h2", B.h2)],
