@@ -354,7 +354,7 @@ function select(email) {
   var penOn = r.teacher ? !!r.teacher.penalty : r.org.penalize;
   var g = r.teacher && r.teacher.score != null ? r.teacher.score : Math.round(r.rep.score * (r.org.penalize ? PENALTY : 1) * 10) / 10;
   var d = $("detail");
-  d.innerHTML = '<div class="dhead"><h2>' + esc(r.name) + '</h2><small>' + esc(r.email) + " · Period " + esc(r.period || "?") + " · " + (r.status === "submitted" ? "Submitted " + esc(fmt(r.sub.submittedAt)) + dueInline(r) : "Draft only (not submitted). Last saved " + esc(fmt(r.draft && r.draft.savedAt))) + '</small><span class="sp"></span><button class="btn sm" id="dDel" style="color:#FCA5A5;margin-right:12px">🗑 Delete ' + (r.sub ? "submission" : "draft") + '</button><button class="btn sm" id="prevS">◀ Prev</button><button class="btn sm" id="nextS">Next ▶</button></div>' +
+  d.innerHTML = '<div class="dhead"><h2>' + esc(r.name) + '</h2><small>' + esc(r.email) + " · Period " + esc(r.period || "?") + " · " + (r.status === "submitted" ? "Submitted " + esc(fmt(r.sub.submittedAt)) + dueInline(r) : "Draft only (not submitted). Last saved " + esc(fmt(r.draft && r.draft.savedAt))) + '</small><span class="sp"></span><button class="btn sm" id="dPdf" style="margin-right:12px">📄 Generate PDF</button><button class="btn sm" id="dDel" style="color:#FCA5A5;margin-right:12px">🗑 Delete ' + (r.sub ? "submission" : "draft") + '</button><button class="btn sm" id="prevS">◀ Prev</button><button class="btn sm" id="nextS">Next ▶</button></div>' +
     '<div class="dtabs"><button class="btn sm' + (view === "code" ? " on" : "") + '" data-v="code">index.html</button><button class="btn sm' + (view === "css" ? " on" : "") + '" data-v="css">style.css' + (r.css.trim() ? "" : " (empty)") + '</button><button class="btn sm' + (view === "prev" ? " on" : "") + '" data-v="prev">Website</button>' + (window.U7_ANSWERS && window.U7_ANSWERS[$("lesson").value] && window.U7_ANSWER_LEAVES(window.U7_ANSWERS[$("lesson").value]).length ? '<button class="btn sm' + (view === "ans" ? " on" : "") + '" data-v="ans">Answers ' + ansSummary(r) + "</button>" : "") + '</div>' +
     '<div class="dbody"><div class="view" id="view"></div><div class="right" id="right"></div></div>';
   var errLines = {}; r.rep.errors.forEach(function (e) { errLines[e.line] = 1; });
@@ -390,6 +390,7 @@ function select(email) {
       if (j.ok) { r.teacher = j.teacher; toast("Saved"); $("gInfo").textContent = "Saved " + fmt(j.teacher.gradedAt); render(); } else toast(j.error || "Error");
     });
   };
+  $("dPdf").onclick = function () { studentPdf(r, g, penOn); };
   $("dDel").onclick = function () {
     var lesson = $("lesson").value, alsoDraft = !r.sub;
     var what = r.sub ? "the " + lesson + " submission" : "the saved " + lesson + " draft";
@@ -405,6 +406,23 @@ function select(email) {
   $("prevS").onclick = function () { step(-1); }; $("nextS").onclick = function () { step(1); };
   [].forEach.call(d.querySelectorAll(".dtabs button"), function (b) { b.onclick = function () { view = b.getAttribute("data-v"); select(email); }; });
   render();
+}
+/* One-student report: opens a clean printable page. In the print box choose "Save as PDF", then attach it to an email. */
+function studentPdf(r, g, penOn) {
+  var lesson = $("lesson").value, og = r.org, t = r.teacher;
+  var rule = function (x) { return '<div class="ru"><b>' + (x.ok ? "&#10003;" : "&#10007;") + "</b> " + esc(x.label) + "</div>"; };
+  var nw = r.rep.results.filter(function (x) { return x.isNew; }).map(rule).join(""), old = r.rep.results.filter(function (x) { return !x.isNew; }).map(rule).join("");
+  var probs = r.rep.errors.map(function (e) { return "<div class=ru>Line " + e.line + ": " + esc(e.msg) + "</div>"; }).join("") + r.rep.warnings.map(function (w) { return "<div class=ru>Line " + w.line + " (warning): " + esc(w.msg) + "</div>"; }).join("");
+  var tags = Object.keys(r.rep.tags).sort().map(function (n) { return "&lt;" + esc(n) + "&gt; " + r.rep.tags[n]; }).join(" &nbsp; ");
+  var orig = og.has ? "<ul>" + og.reasons.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul><p>Typed by hand: " + og.act.typed + " &middot; Pasted from outside: " + og.act.ext + " &middot; Still in the final page: " + og.inFinal + " &middot; Active writing time: " + og.minutes.toFixed(1) + " min &middot; Words on the page: " + og.words + "</p>" : "<p>No paste data for this work.</p>";
+  var h = "<!doctype html><meta charset=utf-8><title>" + esc(r.name) + " - " + esc(dispLesson(lesson)) + "</title><style>body{font:13px/1.45 Arial,sans-serif;color:#111;margin:24px}h1{font-size:20px;margin:0}h2{font-size:15px;border-bottom:1px solid #999;margin:18px 0 6px;padding-bottom:2px}.ru{margin:2px 0}pre{white-space:pre-wrap;word-break:break-word;font:11.5px/1.4 Consolas,monospace;background:#f4f4f4;padding:8px;border:1px solid #ccc}.big{font-size:18px;font-weight:bold}@media print{h2{break-after:avoid}}</style>" +
+    "<h1>" + esc(r.name) + "</h1><div>" + esc(r.email) + " &middot; Period " + esc(r.period || "?") + "<br>" + esc(dispLesson(lesson)) + " " + esc(H.LESSONS[lesson].name) + "<br>" + (r.status === "submitted" ? "Submitted " + esc(fmt(r.sub.submittedAt)) : "Draft only (not submitted). Last saved " + esc(fmt(r.draft && r.draft.savedAt))) + "</div>" +
+    "<h2>Grade</h2><div>Auto check: <span class=big>" + r.rep.score + "</span> / " + r.rep.total + " (" + r.rep.passed + "/" + r.rep.count + " checks)</div><div>Teacher score: <span class=big>" + esc(g) + "</span> / " + r.rep.total + (penOn ? " (50% penalty applied)" : "") + "</div>" + (t && t.comment ? "<p><b>Comment:</b> " + esc(t.comment) + "</p>" : "") +
+    "<h2>Originality</h2>" + orig + "<h2>This lesson's requirements</h2>" + (nw || "None") + (old ? "<h2>Carried over</h2>" + old : "") + "<h2>Problems</h2>" + (probs || "None") + "<h2>Tags used</h2><div>" + (tags || "None") + "</div>" +
+    "<h2>index.html</h2><pre>" + esc(r.code || "(empty)") + "</pre>" + (r.css && r.css.trim() ? "<h2>style.css</h2><pre>" + esc(r.css) + "</pre>" : "");
+  var w = window.open("", "_blank");
+  if (!w) { toast("Allow pop-ups for this site, then try again."); return; }
+  w.document.open(); w.document.write(h); w.document.close(); w.focus(); setTimeout(function () { w.print(); }, 300);
 }
 function step(dir) { var a = visible(), i = a.map(function (x) { return x.email; }).indexOf(selEmail); var n = a[i + dir]; if (n) select(n.email); }
 document.addEventListener("keydown", function (e) { if (/INPUT|TEXTAREA|SELECT/.test((e.target.tagName || ""))) return; if (e.key === "ArrowDown" || e.key === "ArrowRight") step(1); if (e.key === "ArrowUp" || e.key === "ArrowLeft") step(-1); });
