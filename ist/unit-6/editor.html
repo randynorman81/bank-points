@@ -1047,7 +1047,7 @@ function lessonClosed(l) {
 }
 /* some lessons stay locked until the student has submitted an earlier one (live.js lists them in U7_PREREQ) */
 function lessonNeedsEarlier(l) { var pre = (window.U7_PREREQ || {})[l]; return !!pre && !MY_SUB[pre]; }
-function applyClosed() { var c = lessonClosed(S.lesson), m = $("closedMsg"); if (!m) return; if (c) { var needs = (window.U7_LIVE || []).indexOf(S.lesson) > -1 && lessonNeedsEarlier(S.lesson), pre = (window.U7_PREREQ || {})[S.lesson]; $("closedTitle").textContent = needs ? "Finish Assignment " + dispLesson(pre) + " first" : "Assignment " + dispLesson(S.lesson) + " is not open yet"; if ($("closedText")) $("closedText").textContent = needs ? "This assignment opens after you SUBMIT Assignment " + dispLesson(pre) + " (it needs an auto score of 95 to submit). Sign in, finish that one, and then come back." : "This assignment is not open yet. Your teacher will open it when your class is ready for it."; } m.style.display = c ? "" : "none"; document.body.classList.toggle("isclosed", !!c); }
+function applyClosed() { var c = lessonClosed(S.lesson), m = $("closedMsg"); if (!m) return; if (c) { var needs = (window.U7_LIVE || []).indexOf(S.lesson) > -1 && lessonNeedsEarlier(S.lesson), pre = (window.U7_PREREQ || {})[S.lesson]; $("closedTitle").textContent = needs ? "Finish Assignment " + dispLesson(pre) + " first" : "Assignment " + dispLesson(S.lesson) + " is not open yet"; if ($("closedText")) $("closedText").textContent = needs ? "This assignment opens after you SUBMIT Assignment " + dispLesson(pre) + " (any score works). Sign in, submit that one, and then come back." : "This assignment is not open yet. Your teacher will open it when your class is ready for it."; } m.style.display = c ? "" : "none"; document.body.classList.toggle("isclosed", !!c); }
 function onCredential(resp) {
   var p = decodeJwt(resp.credential);
   if ((p.hd || "").toLowerCase() !== "socialcircleschools.org") { banner("Please sign in with your school account (@socialcircleschools.org).", "err"); return; }
@@ -1122,7 +1122,7 @@ $("btnSubmit").addEventListener("click", function () {
   if (!S.cred) { banner("Sign in with your school Google account (top right) to submit.", "err"); return; }
   if (!$("period").value) { banner("Choose your class period at the top before you submit.", "err"); $("period").focus(); return; }
   var SCg = window.U7_STEPCHECKS, scg = null; try { scg = SCg && SCg.LESSONS[S.lesson] ? SCg.score(S.lesson, S.buf.html, S.buf.css) : null; } catch (e) { scg = null; }
-  var passN = S.cloud && typeof S.cloud.passNeed === "number" ? S.cloud.passNeed : SCg.PASS || 95;
+  var passN = S.cloud && typeof S.cloud.passNeed === "number" ? S.cloud.passNeed : (typeof SCg.PASS === "number" ? SCg.PASS : 0);
   if (scg && scg.pct < passN) { banner("Your auto score is " + scg.pct + " out of 100. You need at least " + passN + " to submit. Click a black \"What's wrong?\" button in the steps on the left to see what is missing, fix it, then submit.", "err"); setTab("ans"); return; }
   var r = lastReport || H.check(S.lesson, S.buf.html, S.buf.css), bad = r.errors.length;
   $("mSubmitBody").innerHTML = "<p>Lesson <b>" + esc(dispLesson(S.lesson)) + "</b> for period <b>" + esc($("period").value) + "</b>.</p><p>Auto score: <b>" + (scg ? scg.pct + " / 100" : r.score + " / " + r.total) + "</b>" + (scg ? "" : " (" + r.passed + " of " + r.count + " checks)") + ".</p>" +
@@ -1575,7 +1575,7 @@ function stepUpdate() {
     var wb = box.querySelector(".wrongbtn"); if (wb) wb.classList.toggle("open", !!stepOpen[id]);
     if (stepOpen[id]) { var d = document.createElement("div"); d.className = "stepmiss"; d.innerHTML = done ? '<div class="allok">&#10003; Nothing is wrong here. Every check for this box is met.</div>' : "<b>What is wrong with this box:</b>" + list.filter(function (x) { return !x.ok; }).map(function (x) { return "<div>• " + esc(x.label) + "</div>"; }).join(""); box.appendChild(d); }
   });
-  var asc = $("autoSc"), pass = S.cloud && typeof S.cloud.passNeed === "number" ? S.cloud.passNeed : SCx.PASS || 95, sc = null; try { sc = SCx.score(S.lesson, getHtml(), getCss()); } catch (e) { sc = null; }
+  var asc = $("autoSc"), pass = S.cloud && typeof S.cloud.passNeed === "number" ? S.cloud.passNeed : (typeof SCx.PASS === "number" ? SCx.PASS : 0), sc = null; try { sc = SCx.score(S.lesson, getHtml(), getCss()); } catch (e) { sc = null; }
   if (asc && sc) { asc.style.display = ""; asc.className = "autosc" + (sc.pct >= pass ? " ok" : ""); asc.innerHTML = "Auto score: <b>" + sc.pct + "</b> / 100" + (sc.pct >= pass ? "<small>(ready to submit)</small>" : "<small>(you need " + pass + " to submit)</small>"); }
   missList = missing; missUpdate();
   var sb = $("btnSubmit"); if (sb) { sb.classList.toggle("locked", !!sc && sc.pct < pass); sb.title = sc && sc.pct < pass ? "You need an auto score of " + pass + " to submit (yours is " + sc.pct + ")" : ""; }

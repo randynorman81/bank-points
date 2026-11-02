@@ -141,5 +141,5 @@
   var ALLGREEN = K("Every item in your Checks list is green", function (c) { var rep = H.check(c.lesson, c.rawSrc, c.cssFile || ""); return rep.results.every(function (x) { return x.ok; }) && rep.errors.length === 0; });
   var NOERRORS = K("The Problems list is empty", function (c) { return String(c.rawSrc || "").trim().length > 0 && H.check(c.lesson, c.rawSrc, c.cssFile || "").errors.length === 0; });
   HELP.ALLGREEN = ALLGREEN; HELP.NOERRORS = NOERRORS;
-  root.U7_STEPCHECKS = { LESSONS: LESSONS, run: run, score: score, stepComment: stepComment, H: HELP, PASS: 95 };
+  root.U7_STEPCHECKS = { LESSONS: LESSONS, run: run, score: score, stepComment: stepComment, H: HELP, PASS: 0 };   /* any score can be submitted (was 95 until 2 Nov 2026) */
 })(typeof window !== "undefined" ? window : globalThis);

@@ -33,7 +33,7 @@ async function lockedByPrereq(lesson, user) {
   if (TEACHER_EMAILS.indexOf(String(user.email || "").toLowerCase()) > -1) return false;
   return !(await store().getMetadata("sub:" + pre + ":" + enc(user.email)));
 }
-const WEB_PASS = 95; // students need this auto score (out of 100) to submit a lesson that has step checks
+const WEB_PASS = 0; // a student can submit a lesson that has step checks at ANY auto score (was 95 until 2 Nov 2026); the score is still the grade
 function autoScore(lesson, code, css) {
   try { const S = globalThis.U7_STEPCHECKS; if (!S || !S.LESSONS || !S.LESSONS[lesson]) return null; return S.score(lesson, code, css); } catch (e) { return null; }
 }
