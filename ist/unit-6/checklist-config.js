@@ -138,6 +138,7 @@
   /* 3.2 is the first lesson: its basics skip the color line (the new items below cover it), it needs more headings and paragraphs, and it has no font-size limit */
   CL.basicsFor = function (lesson) { return lesson === "6.2" ? { h1: 1, h2: 3, p: 6, colorTags: 0, bgTags: 0 } : CL.basics; };
   CL.noSizeLimit = { "6.2": 1 };
+  CL.noColorLimit = { "6.2": 1 };   /* 3.2 is supposed to be ugly: no limit on how many colors */
   CL.maxColors = function (lesson) { return lesson === "6.2" ? 6 : 5; };
   CL.newHead = { "6.2": "New this lesson (the number tells you how many)" };
   CL.intro = { "6.2": "**The Ugliest Website Ever.** Pick a theme and make the most **eye-burning** page you can using **text colors** and **background colors**. Ugly on purpose is the goal, but every word must still be there. Build the skeleton, then the checklist tells you what your page needs **somewhere**. Styles go inside a **style attribute**, with a **semicolon** between properties. Use named colors (or hex codes if you know them)." };

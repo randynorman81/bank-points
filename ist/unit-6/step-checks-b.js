@@ -722,6 +722,7 @@
         [K("The whole page uses 5 different font sizes or fewer", function (c) { return distinctVals(c, "font-size", h.isPx).length <= 5; })]
       ];
       if (CL.noSizeLimit && CL.noSizeLimit[l]) limits.splice(2, 1);
+      if (CL.noColorLimit && CL.noColorLimit[l]) limits.splice(0, 1);
       if (fontLimit) limits.push([K("The whole page uses 3 different fonts or fewer", function (c) { return distinctFonts(c) <= 3; })]);
       st["Step " + n++] = limits;
       var bonus;

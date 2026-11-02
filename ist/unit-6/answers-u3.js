@@ -413,6 +413,7 @@
         "Use **no more than 5 different font sizes** on the whole page. Same kind of tag, same size"
       ];
       if (CL.noSizeLimit && CL.noSizeLimit[l]) lim.splice(2, 1);
+      if (CL.noColorLimit && CL.noColorLimit[l]) lim.splice(0, 1);
       if (CL.fontLimit[l]) lim.push("Use **no more than 3 different fonts** on the whole page");
       list.push(S("Design limits (this is what makes it look real)", lim));
       if (pool.length) {
