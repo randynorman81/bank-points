@@ -177,5 +177,33 @@ async function renderPreviousWeek(rootId, source) {
   }
 }
 
+// "Previous Two Weeks": the two spans just before this week's, oldest first, i.e. what was
+// assigned (and turned in) over the last two weeks. Past the end of the schedule, the final
+// week and the one before it are the most recent two that are over.
+async function renderPreviousTwoWeeks(rootId, source) {
+  const root = document.getElementById(rootId);
+  if (!root) return;
+  try {
+    const weeks = source.type === "api" ? await fetchApiWeeks(source.courseId) : await fetchStaticWeeks(source.url);
+    const { current, before, after } = pickCurrentAndNext(weeks);
+    if (!current || before) {
+      root.innerHTML = '<div class="hint">The school year hasn\'t started yet, so there are no previous weeks.</div>';
+      return;
+    }
+    const idx = weeks.indexOf(current);
+    const last = after ? idx : idx - 1;
+    const picked = [weeks[last - 1], weeks[last]].filter(Boolean);
+    if (!picked.length) {
+      root.innerHTML = '<div class="hint">This is the first scheduled week, so there are no previous weeks yet.</div>';
+      return;
+    }
+    const note = picked.length === 1 ? '<p class="hint">Only one week has been scheduled before this one.</p>' : "";
+    root.innerHTML = note + '<div class="ntw-grid">' + picked.map((w, i) => weekCardHtml(w, picked.length === 1 ? "Last Week" : (i === 0 ? "Two Weeks Ago" : "Last Week"))).join("") + "</div>";
+  } catch (err) {
+    root.innerHTML = '<div class="alert alert-error">Could not load the pacing guide.</div>';
+  }
+}
+
 window.renderNextTwoWeeks = renderNextTwoWeeks;
+window.renderPreviousTwoWeeks = renderPreviousTwoWeeks;
 window.renderPreviousWeek = renderPreviousWeek;
