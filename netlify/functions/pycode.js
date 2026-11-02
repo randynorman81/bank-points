@@ -50,7 +50,7 @@ const cleanBox = (b) => { const l = (Array.isArray(b) ? b : [b]).map(Number).fil
 const cleanChecks = (c) => (Array.isArray(c) ? c : []).slice(0, 300).map((x) => ({
   label: String((x && x.label) || "").slice(0, 140), re: String((x && x.re) || "").slice(0, 1200), flags: /^[gimsu]{0,4}$/.test(String((x && x.flags) || "")) ? String(x.flags || "") : "",
   min: Math.max(1, Math.min(200, Number(x && x.min) || 1)), pts: Math.max(1, Math.min(50, Number(x && x.pts) || 1)), where: ["code", "comments", "raw", "notes"].indexOf(x && x.where) > -1 ? x.where : "code",
-  box: cleanBox(x && x.box)
+  box: cleanBox(x && x.box), unc: x && x.unc === true ? true : undefined
 })).filter((x) => x.label && x.re);
 const cleanTips = (t) => {
   const out = {}; if (!t || typeof t !== "object") return out;
@@ -256,6 +256,7 @@ async function adminSetLive(body) {
   if (!rec) return { error: "That assignment has not been uploaded yet" };
   rec.live = body.live === true || body.live === "true";
   if (body.ungated !== undefined) rec.ungated = body.ungated === true || body.ungated === "true";
+  if (body.commentsCount !== undefined) { const on = body.commentsCount === true || body.commentsCount === "true", mark = (arr) => (Array.isArray(arr) ? arr : []).forEach((c) => { if (on) c.unc = true; else delete c.unc; }); mark(rec.checks); Object.keys(rec.variants || {}).forEach((p) => mark(rec.variants[p].checks)); }
   if (body.quizFree !== undefined) rec.quizFree = body.quizFree === true || body.quizFree === "true";   /* quizFree: a Quiz that does NOT run in fullscreen or record leaving the page */
   await store().setJSON("assign:" + body.slot, rec);
   return { ok: true, slot: body.slot, live: rec.live, ungated: rec.ungated === true, quizFree: rec.quizFree === true };
@@ -430,6 +431,8 @@ function placementCount(c, flags, text) {
 function tidySpaces(code) { return String(code || "").replace(/\r/g, "").replace(/\([ \t]+/g, "(").replace(/[ \t]+\)/g, ")"); }
 function scoreCode(checks, code) {
   code = tidySpaces(code);
+  /* unc: this assignment lets students comment out finished work, so a commented-out line of code still counts (comment marks are stripped before scoring) */
+  if (checks.some((c) => c.unc)) code = code.split("\n").map((l) => l.replace(/^([ \t]*)#+[ \t]?/, "$1")).join("\n");
   const sp = splitCode(code); let passed = 0, credit = 0, possible = 0; const missing = []; let lastMet = 0; const text = String(code || ""); const boxes = {};
   // pass 1: how many times each check is found, and (for met checks) the lines it matched
   const pre = checks.map((c) => {
