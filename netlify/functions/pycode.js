@@ -105,7 +105,7 @@ async function logActivity(slot, email, code, period, submitted) {
 async function quizLeave(body, user) {
   if (!goodSlot(body.slot) || body.slot === "free") return { error: "Unknown assignment" };
   const rec = await readJSON("assign:" + body.slot, null);
-  if (!rec || !/^Quiz\b/i.test(String(rec.title || ""))) return { ok: true };
+  if (!rec || rec.quizFree === true || !/^Quiz\b/i.test(String(rec.title || ""))) return { ok: true };
   const key = "leave:" + body.slot + ":" + enc(user.email), log = await readJSON(key, []);
   const kind = ["hidden", "blur", "fullscreen", "start"].indexOf(body.kind) > -1 ? body.kind : "hidden";
   log.push({ t: now(), kind, ms: Math.max(0, Math.min(36000000, Number(body.ms) || 0)) });
@@ -256,8 +256,9 @@ async function adminSetLive(body) {
   if (!rec) return { error: "That assignment has not been uploaded yet" };
   rec.live = body.live === true || body.live === "true";
   if (body.ungated !== undefined) rec.ungated = body.ungated === true || body.ungated === "true";
+  if (body.quizFree !== undefined) rec.quizFree = body.quizFree === true || body.quizFree === "true";   /* quizFree: a Quiz that does NOT run in fullscreen or record leaving the page */
   await store().setJSON("assign:" + body.slot, rec);
-  return { ok: true, slot: body.slot, live: rec.live, ungated: rec.ungated === true };
+  return { ok: true, slot: body.slot, live: rec.live, ungated: rec.ungated === true, quizFree: rec.quizFree === true };
 }
 async function adminAutograde(body) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };

@@ -1232,7 +1232,7 @@ document.addEventListener("visibilitychange", function () { if (document.hidden)
 
 /* ---------- quiz mode: fullscreen, and every time the student leaves the page is recorded for the teacher ---------- */
 var QZ = { on: false, goneAt: 0, kind: "", left: 0 };
-function isQuizSlot() { var A = window.PY_ASSIGN && window.PY_ASSIGN[slot]; return !!A && /^Quiz\b/i.test(String(A.title || "")); }
+function isQuizSlot() { var A = window.PY_ASSIGN && window.PY_ASSIGN[slot]; return !!A && A.quizFree !== true && /^Quiz\b/i.test(String(A.title || "")); }
 function quizReport(kind, ms) { if (!CRED) return; api({ action: "quizLeave", slot: slot, kind: kind, ms: ms }); }
 function quizOpenGate(title, msg, btn) {
   var g = $("quizGate"); $("qgTitle").textContent = title; $("qgMsg").innerHTML = msg; $("qgGo").textContent = btn; g.style.display = "grid";
