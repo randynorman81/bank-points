@@ -1321,14 +1321,28 @@ function loadAssignments() {
   }).catch(function () {});
 }
 loadAssignments();
-/* students cannot copy, cut, paste, or drag text anywhere in the editor; the teacher preview (?teacher) can */
+/* students cannot paste or drag in anything from outside, or copy the steps; they CAN copy/cut their own code from the code box and paste it back; the teacher preview (?teacher) is unrestricted */
 {
-  var blockMsg = "Copy and paste are turned off. Type your own code.";
-  ["paste", "copy", "cut", "drop"].forEach(function (ev) {
-    document.addEventListener(ev, function (e) { if (isTeacherNow()) return; e.preventDefault(); e.stopPropagation(); flash(blockMsg); }, true);
+  /* the one exception: a student can copy or cut their OWN code from the code box and paste that same text back into it (repeated lines, like ten prints) */
+  var blockMsg = "You can only copy and paste your own code from this box. Type everything else.", ownClip = null, pasteOK = false;
+  var norm = function (s) { return String(s || "").replace(/\r\n?/g, "\n"); };
+  ["copy", "cut"].forEach(function (ev) {
+    document.addEventListener(ev, function (e) {
+      if (isTeacherNow()) return;
+      if (e.target === ta && ta.selectionStart !== ta.selectionEnd) { ownClip = norm(ta.value.slice(ta.selectionStart, ta.selectionEnd)); return; }
+      e.preventDefault(); e.stopPropagation(); flash(blockMsg);
+    }, true);
   });
+  document.addEventListener("paste", function (e) {
+    if (isTeacherNow()) return;
+    var txt = e.clipboardData ? norm(e.clipboardData.getData("text")) : "";
+    if (e.target === ta && ownClip !== null && txt === ownClip) { pasteOK = true; return; }
+    pasteOK = false; e.preventDefault(); e.stopPropagation(); flash(blockMsg);
+  }, true);
+  document.addEventListener("drop", function (e) { if (isTeacherNow()) return; e.preventDefault(); e.stopPropagation(); flash(blockMsg); }, true);
   document.addEventListener("beforeinput", function (e) {
     if (isTeacherNow()) return;
+    if (e.inputType === "insertFromPaste" && pasteOK) { pasteOK = false; return; }
     if (/^insertFrom(Paste|Drop|Yank)/.test(e.inputType || "")) { e.preventDefault(); flash(blockMsg); }
   }, true);
 }
