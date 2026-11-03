@@ -252,6 +252,28 @@ function load() {
     render(); loadDue().then(render);
   });
 }
+/* auto-update: every 15 seconds pull fresh work for this assignment; if the open student's code changed, redraw their panel */
+function sigOf(r) { return r ? [r.draft && r.draft.savedAt, r.draft && (r.draft.code || "").length, r.submission && r.submission.submittedAt, r.submission && r.submission.teacher && r.submission.teacher.score].join("|") : ""; }
+var refreshBusy = false;
+function autoRefresh() {
+  if (refreshBusy || document.hidden || !$("slot") || !$("slot").value || $("live").style.display === "block") return;
+  var ae = document.activeElement; if (ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName) && ae.id !== "onlySub") return;
+  refreshBusy = true; var slotNow = $("slot").value, selNow = sel, before = sigOf(rows.filter(function (x) { return x.email === selNow; })[0]);
+  api({ action: "adminList", slot: slotNow }).then(function (j) {
+    refreshBusy = false;
+    if (!j || j.error || slotNow !== $("slot").value) return;
+    rows = j.students || [];
+    render();
+    var now = rows.filter(function (x) { return x.email === selNow; })[0];
+    if (selNow && selNow === sel && sigOf(now) !== before) {
+      var v = document.querySelector(".view"), rt = document.querySelector(".right"), vs = v ? v.scrollTop : 0, rs = rt ? rt.scrollTop : 0;
+      showDetail();
+      v = document.querySelector(".view"); rt = document.querySelector(".right"); if (v) v.scrollTop = vs; if (rt) rt.scrollTop = rs;
+      toast("Updated: " + (now.rosterName || now.name) + " saved new work");
+    }
+  }).catch(function () { refreshBusy = false; });
+}
+setInterval(autoRefresh, 15000);
 function render() {
   var per = $("period").value, only = $("onlySub").checked;
   var list = rows.filter(function (r) { return inPeriod(r, per) && (!only || r.submission); }).sort(function (a, b) { var x = /#[0-9]$/.test(per) ? setOf(a).idx - setOf(b).idx : 0; return x || String(a.rosterName || a.name).localeCompare(String(b.rosterName || b.name)); });
