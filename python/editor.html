@@ -712,7 +712,25 @@ function play(fr, done) {
 }
 
 /* ---------- Python (Pyodide) ---------- */
+/* Python errors: ONE short message with the exact line. Python stops at the first error, so the student fixes it, runs again, and gets the next one. */
 function friendlyError(msg) {
+  if (mode === "karel") return friendlyErrorLong(msg);
+  var lines = String(msg).split("\n"), at = -1, i;
+  for (i = 0; i < lines.length; i++) if (/File "<exec>", line \d+/.test(lines[i])) at = i;   /* the last frame in the student's own code */
+  var last = lines.filter(function (l) { return l.trim(); }).pop() || "Error";
+  var where = "", src = "";
+  if (at > -1) {
+    var m = /File "<exec>", line (\d+)(?:, in (\S+))?/.exec(lines[at]);
+    where = "Line " + m[1] + (m[2] && m[2] !== "<module>" ? " (in " + m[2] + ")" : "");
+    if (lines[at + 1] && /^\s+\S/.test(lines[at + 1]) && !/File "/.test(lines[at + 1])) src = lines[at + 1].trim();
+  }
+  var help = explainError(last, String(msg)), tip = "";
+  if (help) { var fx = /(?:^|\n)Fix: ([^\n]*)/.exec(help); tip = fx ? fx[1] : help.split("\n")[0]; if (tip.length > 170) tip = tip.slice(0, 167).replace(/\s+\S*$/, "") + "..."; }
+  var nm = /^NameError: name '(\w+)' is not defined/.exec(last); if (nm) tip = "Check the spelling and capital letters of " + nm[1] + ", and that it is created on an earlier line.";
+  var syn = /^(Syntax|Indentation|Tab)Error/.test(last);
+  return (where ? "❌ " + where + (src ? ":  " + src : "") + "\n" : "") + last + (tip ? "\n💡 " + tip : "") + (syn ? "\nFix this line, then press Run again. If there is another error, it will show the next line." : "");
+}
+function friendlyErrorLong(msg) {
   /* show only the frames from the student's own code (not Karel's internal helpers), then the error line */
   var INTERNAL = /^(_go|move|turn_left|turn_right|turn_around|put_ball|take_ball)$/, lines = String(msg).split("\n"), keep = [];
   for (var i = 0; i < lines.length; i++) {
@@ -798,6 +816,8 @@ function explainError(last, full) {
     return "Python could not read this line: it breaks a grammar rule.\nCheck: a variable name with a space, symbol, or keyword in it (like  total pts  or  class ), a missing colon  :  at the end of if/for/while/def/else, a missing or extra bracket or quote, = used where == is needed inside an if, or a typo in a keyword. The mistake is often on this line or the line just above.";
   if (/^SyntaxError: '\(' was never closed|^SyntaxError: '\[' was never closed|^SyntaxError: '\{' was never closed/.test(last))
     return "You opened a bracket and never closed it. Every  (  needs a  )  and every  [  needs a  ].\nFix: count the opening and closing brackets on this line and the one above.";
+  if ((m = /^SyntaxError: unmatched '(.)'/.exec(last)))
+    return "There is an extra  " + m[1] + "  with nothing to close.\nFix: delete the extra  " + m[1] + "  on this line (check that the brackets on it come in matching pairs).";
   if (/^SyntaxError: unterminated string literal|^SyntaxError: EOL while scanning/.test(last))
     return "A string started with a quote but never ended on the same line.\nFix: add the matching closing quote. The opening and closing quote must be the same kind (both \" or both ').";
   if (/^SyntaxError: cannot assign to|^SyntaxError: invalid assignment|^SyntaxError: .*maybe you meant '=='/.test(last))
