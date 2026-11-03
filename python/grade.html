@@ -205,6 +205,7 @@ function openApp() {
     ids.forEach(function (id) { h += '<option value="' + id + '">' + slotLabel(id) + " (" + (counts[id] || 0) + ")</option>"; });
     $("slot").innerHTML = h;
     var first = ids.filter(function (id) { return id !== "free" && counts[id]; })[0] || "free"; $("slot").value = first;
+    try { var savedS = localStorage.getItem("pygrade:slot"); if (savedS && ids.indexOf(savedS) > -1) $("slot").value = savedS; } catch (e) {}
     load();
   });
 }
@@ -405,7 +406,7 @@ function afterDetail(r, rec) {
   loadCoverage(rec); loadTimeline(r);
     syntaxCheck(rec.code || "").then(function (msg) { var e = $("synRes"); if (e) { e.textContent = msg ? msg : "OK, no syntax errors"; e.className = msg ? "warn" : ""; } }, function () { var e = $("synRes"); if (e) e.textContent = "could not load the checker"; });
 }
-$("slot").onchange = function () { sel = null; $("detail").innerHTML = '<div class="empty">Pick a student on the left.</div>'; load(); };
+$("slot").onchange = function () { try { localStorage.setItem("pygrade:slot", this.value); } catch (e) {} sel = null; $("detail").innerHTML = '<div class="empty">Pick a student on the left.</div>'; load(); };
 $("period").onchange = render; $("onlySub").onchange = render; $("reload").onclick = load;
 function showUnlock() {
   var b = $("unlock"), A = ASSIGN[$("slot").value];
@@ -450,7 +451,7 @@ function liveRender() {
   }).join("");
   $("liveNone").style.display = list.length ? "none" : "block";
   Array.prototype.forEach.call($("liveRows").querySelectorAll("tr.lr"), function (tr) {
-    tr.onclick = function () { var r = list[+tr.getAttribute("data-i")]; liveStop(); $("slot").value = "a" + r.num; if ($("slot").value !== "a" + r.num) $("slot").value = "a" + r.num; sel = r.email; load().then(function () { render(); showDetail(); }); };
+    tr.onclick = function () { var r = list[+tr.getAttribute("data-i")]; liveStop(); $("slot").value = "a" + r.num; if ($("slot").value !== "a" + r.num) $("slot").value = "a" + r.num; try { localStorage.setItem("pygrade:slot", $("slot").value); } catch (e) {} sel = r.email; load().then(function () { render(); showDetail(); }); };
   });
 }
 function liveStop() { clearInterval(liveT); $("live").style.display = "none"; }
