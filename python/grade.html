@@ -267,8 +267,10 @@ function render() {
 function showDetail() {
   var r = rows.filter(function (x) { return x.email === sel; })[0]; if (!r) return;
   if (!r.submission && !r.draft) { $("detail").innerHTML = '<div class="dhead"><h2>' + esc(r.rosterName || r.name) + '</h2><small>' + esc(r.email) + ' &middot; Period ' + esc(r.period) + ' &middot; has not started this assignment</small></div>'; return; }
-  var rec = r.submission || r.draft, t = r.submission && r.submission.teacher, lines = (rec.code || "").split("\n"), g = lines.map(function (_, i) { return i + 1; }).join("\n");
-  $("detail").innerHTML = '<div class="dhead"><h2>' + esc(r.rosterName || r.name) + '</h2><small>' + esc(r.email) + ' &middot; Period ' + esc(r.period) + ' &middot; ' + (r.submission ? "Submitted " + esc(fmt(rec.submittedAt)) + (rec.count > 1 ? " (#" + rec.count + ")" : "") : "Draft saved " + esc(fmt(rec.savedAt)) + " (not submitted)") + ' &middot; ' + (rec.mode === "karel" ? "Karel" : "Python") + "</small></div>" + DueDates.detail(dueStatus(r)) +
+  /* a draft saved after the submission is the student's newer work: show it (the grade still belongs to the submission) */
+  var newer = !!(r.submission && r.draft && (Date.parse(r.draft.savedAt) || 0) > (Date.parse(r.submission.submittedAt) || 0) + 2000);
+  var rec = newer ? r.draft : (r.submission || r.draft), t = r.submission && r.submission.teacher, lines = (rec.code || "").split("\n"), g = lines.map(function (_, i) { return i + 1; }).join("\n");
+  $("detail").innerHTML = '<div class="dhead"><h2>' + esc(r.rosterName || r.name) + '</h2><small>' + esc(r.email) + ' &middot; Period ' + esc(r.period) + ' &middot; ' + (newer ? "Submitted " + esc(fmt(r.submission.submittedAt)) + (r.submission.count > 1 ? " (#" + r.submission.count + ")" : "") + ' &middot; <b style="color:#F59E0B">showing newer work saved ' + esc(fmt(rec.savedAt)) + " (not resubmitted; the grade below is for the submission)</b>" : r.submission ? "Submitted " + esc(fmt(rec.submittedAt)) + (rec.count > 1 ? " (#" + rec.count + ")" : "") : "Draft saved " + esc(fmt(rec.savedAt)) + " (not submitted)") + ' &middot; ' + (rec.mode === "karel" ? "Karel" : "Python") + "</small></div>" + DueDates.detail(dueStatus(r)) +
     '<div class="dbody"><div class="view"><div class="code"><div class="g">' + g + '</div><div class="cw"><div id="hlm"></div><pre>' + esc(rec.code) + '</pre></div></div></div><div class="right">' +
     autoPanel(r, rec) + "<h3>Student's output</h3><div class=\"outbox\">" + (esc(rec.output) || "<span style='color:var(--soft)'>(none saved)</span>") + "</div>" +
     (r.submission ? '<h3>Your grade</h3>' + (t && t.auto ? '<div style="color:var(--soft);font-size:12px;margin-bottom:4px">Autograded when submitted. Change the score and click Save grade to replace it.</div>' : "") + '<div class="grade"><label>Score <input type="number" id="gScore" min="0" max="1000" value="' + esc(t && t.score !== null ? t.score : "") + '"></label><textarea id="gComment" placeholder="Comment for the student">' + esc(t ? t.comment : "") + '</textarea><button class="btn pri" id="gSave">Save grade</button> <button class="btn sm" id="gDel" style="float:right">Delete submission</button></div>' : '<p style="color:var(--soft)">Not submitted yet, so it cannot be graded.</p>') +
@@ -482,7 +484,7 @@ function loadTimeline(r) {
       el.insertAdjacentHTML("beforebegin", lh + "</div>");
     }
     if (!log.length) {
-      var rec = r.submission || r.draft;
+      var rec = (r.submission && r.draft && (Date.parse(r.draft.savedAt) || 0) > (Date.parse(r.submission.submittedAt) || 0) + 2000) ? r.draft : (r.submission || r.draft);
       el.innerHTML = '<div style="padding:8px;color:var(--soft)">No step-by-step history yet. History is recorded from now on, each time the code changes. Last saved: ' + esc(fmt(r.draft ? r.draft.savedAt : "")) + (r.submission ? ". Submitted: " + esc(fmt(r.submission.submittedAt)) : "") + ".</div>"; return;
     }
     var prev = 0, h = "<table><thead><tr><th>Time</th><th>Lines</th><th>Change</th><th>Auto score</th><th></th></tr></thead><tbody>", day = "";
