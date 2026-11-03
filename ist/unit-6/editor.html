@@ -305,6 +305,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   <label>Lesson <select id="lesson"></select></label>
   <select id="period" aria-label="Class period" style="display:none"><option value="">Choose…</option><option>3A</option><option>3B</option><option>4A</option></select><span id="periodBtns" role="group" aria-label="Class period"><span class="pl">Period:</span><button type="button" class="btn pbtn" data-p="3A">3A</button><button type="button" class="btn pbtn" data-p="3B">3B</button><button type="button" class="btn pbtn" data-p="4A">4A</button></span>
   <span class="status" id="status"></span>
+  <span class="status" id="cloudInd" style="font-weight:600"></span>
   <span class="sp"></span>
   <span class="who" id="who"></span>
   <span id="gbtn"></span>
@@ -1066,6 +1067,7 @@ function api(body) {
 }
 function applyRecord(rec) { ansMerge(rec); if (rec.activity) { ACT = Object.assign(freshAct(), rec.activity); ACT.base = 0; } else { ACT.loaded += rec.code.length + (rec.css || "").length; } S.buf.html = rec.code; S.buf.css = rec.css || ""; S.file = "html"; ta.value = S.buf.html; markTabs(); saveNow(false); refresh(); renderPreview(); }
 function afterLessonChange() {
+  cloudFail = "";
   if (!S.cred) return;
   updateGuideLink();
   api({ action: "mine", lesson: S.lesson }).then(function (j) {
@@ -1090,15 +1092,30 @@ function showTeacher(subs) {
     t.style.display = ""; t.innerHTML = '<div class="teach"><b>Teacher feedback</b><br>' + (subs.teacher.score !== null ? "Score: <b>" + esc(subs.teacher.score) + "</b><br>" : "") + (subs.teacher.penalty ? "<span style=\"color:#FCA5A5\"><b>50% originality penalty applied.</b></span><br>" : "") + (subs.teacher.comment ? esc(subs.teacher.comment) : "") + "</div>";
   } else t.style.display = "none";
 }
-var lastCloud = "";
+var lastCloud = "", cloudFail = "", cloudAt = "";
 function cloudSave() {
   S.buf[S.file] = ta.value;
   var key = cloudKey();
   if (!S.cred || key === lastCloud || (isBlank(S.buf.html) && !ansCount().n && !wtCount().n)) return Promise.resolve();
   var html = S.buf.html, css = S.buf.css;
-  return api({ action: "saveDraft", lesson: S.lesson, code: html, css: css, answers: S.ans, period: $("period").value, activity: ACT }).then(function (j) { if (j && j.ok) lastCloud = key; });
+  return api({ action: "saveDraft", lesson: S.lesson, code: html, css: css, answers: S.ans, period: $("period").value, activity: ACT }).then(function (j) {
+    if (j && j.ok) { lastCloud = key; cloudFail = ""; cloudAt = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); }
+    else if (j && !j.needLogin) cloudFail = j.error || "The server did not accept the save.";
+    updateCloudInd();
+  }).catch(function () { cloudFail = "Could not reach the server."; updateCloudInd(); });
 }
-setInterval(cloudSave, 60000); // every 60 seconds, only when something changed
+/* the small status next to "Saved": is this work in the student's ACCOUNT (not just this computer)? */
+function updateCloudInd() {
+  var el = $("cloudInd"); if (!el) return;
+  var t, c = "#9AA7BD", blank = isBlank(S.buf.html) && !ansCount().n && !wtCount().n;
+  if (!S.cred) { t = "⚠ On this computer only. Sign in to save to your account."; c = "#F59E0B"; }
+  else if (cloudFail) { t = "❌ NOT saved to your account: " + cloudFail + " Your work is still on this computer."; c = "#F87171"; }
+  else if (blank || cloudKey() === lastCloud) { t = blank ? "" : "☁ Saved to your account" + (cloudAt ? " " + cloudAt : ""); c = "#34D399"; }
+  else t = "☁ Saving to your account soon...";
+  if (el.textContent !== t) el.textContent = t; el.style.color = c;
+}
+setInterval(updateCloudInd, 2000);
+setInterval(cloudSave, 30000); // every 30 seconds, only when something changed
 document.addEventListener("visibilitychange", function () { if (document.hidden) { saveNow(false); cloudSave(); } });
 window.addEventListener("beforeunload", function () { saveNow(false); });
 
