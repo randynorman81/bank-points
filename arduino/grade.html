@@ -25,7 +25,11 @@ pre{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:10
 textarea{width:100%;min-height:70px;background:#05070B;color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:6px 8px;font:13px Manrope,sans-serif}
 h3{margin:0 0 4px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:#67E8F9;font-family:"JetBrains Mono",monospace}
 .msg{color:var(--soft);padding:20px}
+#gate{display:none;position:fixed;inset:0;background:rgba(5,7,11,.92);z-index:50}
+#gate div.box{max-width:320px;margin:18vh auto;background:#0B0F17;border:1px solid var(--rule);border-radius:12px;padding:22px;color:var(--ink)}
+#gate input{width:100%;box-sizing:border-box;margin:10px 0;padding:8px;background:#05070B;color:var(--ink);border:1px solid var(--rule);border-radius:6px}
 </style></head><body>
+<div id="gate"><div class="box"><b>Teacher PIN</b><input id="gpin" type="password" placeholder="PIN" autocomplete="off"><button class="btn" id="ggo" style="width:100%">Open</button><div id="gerr" style="color:#F87171;font-size:13px;margin-top:8px"></div></div></div>
 <div class="top"><h1>&#9889; Arduino Grading</h1><select id="slot"></select><button class="btn" id="load">Load</button><button class="btn" id="pin">Change PIN</button><span id="info" style="color:var(--soft);font-size:12px"></span></div>
 <main><div id="list"><div class="msg">Choose an assignment and click Load.</div></div><div id="detail"><div class="msg">Pick a student on the left.</div></div></main>
 <script src="compiler.js"></script><script src="circuit.js"></script><script src="sim.js"></script><script src="ctx.js"></script><script src="render.js"></script><script src="assignments.js"></script><script src="assign-u2a.js"></script><script src="assign-u2b.js"></script><script src="assign-u3a.js"></script><script src="assign-u3b.js"></script>
@@ -34,10 +38,15 @@ h3{margin:0 0 4px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;c
 (function () {
   var $ = function (id) { return document.getElementById(id); }, API = "/api/arduinocode", C = ArduinoCircuit, R = ArduinoRender, rows = [], cur = null, sim = null, view = { x: 10, y: 10, z: 0.8 };
   function esc(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-  function pin() { var p = null; try { p = sessionStorage.getItem("ardpin"); } catch (e) {} if (!p) { p = prompt("Teacher PIN:") || ""; try { sessionStorage.setItem("ardpin", p); } catch (e) {} } return p; }
-  function api(b) { b.pin = pin(); return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }).then(function (r) { return r.json(); }).then(function (j) { if (j && j.error === "Invalid PIN") { try { sessionStorage.removeItem("ardpin"); } catch (e) {} } return j; }); }
+  var PIN = ""; try { PIN = sessionStorage.getItem("ardpin") || ""; } catch (e) {}
+  function gate(msg) { $("gerr").textContent = msg || ""; $("gate").style.display = "block"; $("gpin").value = ""; $("gpin").focus(); }
+  function pin() { return PIN; }
+  $("gpin").onkeydown = function (e) { if (e.key === "Enter") $("ggo").click(); };
+  $("ggo").onclick = function () { PIN = $("gpin").value; try { sessionStorage.setItem("ardpin", PIN); } catch (e) {} $("gate").style.display = "none"; };
+  function api(b) { b.pin = pin(); return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }).then(function (r) { return r.json(); }).then(function (j) { if (j && j.error === "Invalid PIN") { PIN = ""; try { sessionStorage.removeItem("ardpin"); } catch (e) {} gate("Wrong PIN. Try again."); } return j; }); }
+  if (!PIN) gate();
   $("slot").innerHTML = ARD_SLOTS.map(function (s) { return '<option value="' + s[0] + '">' + esc(s[1]) + "</option>"; }).join("");
-  $("pin").onclick = function () { try { sessionStorage.removeItem("ardpin"); } catch (e) {} pin(); };
+  $("pin").onclick = function () { PIN = ""; try { sessionStorage.removeItem("ardpin"); } catch (e) {} gate(); };
   $("load").onclick = function () {
     $("info").textContent = "Loading..."; api({ action: "adminList", slot: $("slot").value }).then(function (j) {
       if (!j || !j.ok) { $("info").textContent = (j && j.error) || "Could not load."; return; }
