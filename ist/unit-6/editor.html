@@ -816,22 +816,22 @@ function setAnsw(a, save) {
   if (save) lsSet(ANSW_KEY, String(a));
 }
 (function () {
-  var main = $("main"), dragging = null, raf = 0;
+  var main = $("main"), dragging = null, raf = 0, grab = 0;   /* grab = how far from the divider's center the mouse was when pressed, so it never jumps */
   var savedR = parseFloat(lsGet(RATIO_KEY)), savedA = parseFloat(lsGet(ANSW_KEY));
   setAnsw(savedA > 0 ? savedA : 0.25, false); setRatio(savedR > 0 ? savedR : 0.38, false);
   var savedR2 = parseFloat(lsGet(RATIO2_KEY)); setRatio2(savedR2 > 0 ? savedR2 : 0.63, false);
   function leftOn() { return !main.classList.contains("noleft"); }
   function move(clientX) {
-    var b = main.getBoundingClientRect(), x = (clientX - b.left) / b.width;
+    var b = main.getBoundingClientRect(), x = (clientX - 4.5 - b.left) / b.width;   /* 4.5 = half the divider, so its center sits under the mouse */
     if (dragging === "ans") setAnsw(x, false); else if (leftOn()) setRatio(x - S.answ - 9 / b.width, false); else setRatio2(x, false);
     if (!raf) raf = requestAnimationFrame(function () { raf = 0; layoutGutter(); });
   }
-  function onMove(e) { if (dragging) move(e.clientX); }
+  function onMove(e) { if (dragging) move(e.clientX - grab); }
   function end() { if (!dragging) return; dragging = null; main.classList.remove("dragging"); lsSet(RATIO_KEY, String(S.ratio)); lsSet(ANSW_KEY, String(S.answ)); lsSet(RATIO2_KEY, String(S.ratio2)); document.removeEventListener("pointermove", onMove); document.removeEventListener("pointerup", end); document.removeEventListener("pointercancel", end); layoutGutter(); }
   [["split", "code"], ["split0", "ans"]].forEach(function (p) {
     var el = $(p[0]);
     el.addEventListener("pointerdown", function (e) {
-      dragging = p[1]; main.classList.add("dragging");
+      dragging = p[1]; main.classList.add("dragging"); var rc = el.getBoundingClientRect(); grab = e.clientX - (rc.left + rc.width / 2);
       try { el.setPointerCapture(e.pointerId); } catch (er) {}
       document.addEventListener("pointermove", onMove); document.addEventListener("pointerup", end); document.addEventListener("pointercancel", end);
       e.preventDefault();
