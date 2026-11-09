@@ -6,6 +6,7 @@
 <title>DOK Test Analyzer</title>
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 </head>
 <body>
@@ -41,8 +42,10 @@
   <section id="results" hidden>
     <div class="bar">
       <div><h2 id="title">Results</h2><p id="status" class="fine"></p></div>
-      <div class="actions"><button id="doc">Download updated test (Word)</button><label class="fine"><input type="checkbox" id="withDok"> include DOK levels</label><button id="csv" class="ghost">Download CSV</button><button id="print" class="ghost">Print / save as PDF</button><button id="again" class="ghost">Analyze another</button></div>
+      <div class="actions"><button id="pdf">Download new test (PDF)</button><button id="doc" class="ghost">Word</button><button id="gcopy" class="ghost">Copy for Google Docs</button><label class="fine"><input type="checkbox" id="withKey" checked> answer key</label><label class="fine"><input type="checkbox" id="withDok"> DOK levels</label><button id="csv" class="ghost">CSV</button><button id="print" class="ghost">Print / save as PDF</button><button id="again" class="ghost">Analyze another</button></div>
     </div>
+
+    <div id="gbox" class="fine"><span id="gmsg" class="aimsg" role="status"></span> <a id="gorig" href="#" target="_blank" rel="noopener" hidden>Open your original Google Doc</a> <a href="https://docs.new" target="_blank" rel="noopener">Start a new Google Doc</a><textarea id="copybox" readonly rows="6" hidden aria-label="The test text to copy"></textarea></div>
 
     <div class="card" id="summary">
       <h3>DOK across the whole test</h3>
