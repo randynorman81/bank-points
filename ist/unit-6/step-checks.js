@@ -77,7 +77,7 @@
   function CNT(label, tag, n) { return K(label, function (c) { return c.count(tag) >= n; }); }
   function IN(label, pick, tags, k) { return K(label, function (c) { var e = pick(c); return !!e && within(e, tags).length >= (k || 1); }); }
   function UNDER(label, pickA, pickB) { return K(label, function (c) { var a = pickA(c), b = pickB(c); return !!a && !!b && before(c, a, b); }); }
-  var BOLD = ["strong", "b"], ITAL = ["em", "i"];
+  var BOLD = ["strong"], ITAL = ["em"];   /* bold is always strong and italics is always em: b and i are never used in this class */
 
   /* ---------- the first box of every step: an HTML comment with the step number ---------- */
   function stepComment(c, n) { return new RegExp("<!--\\s*step\\s*" + n + "\\b[^>]*-->", "i").test(c.rawSrc || c.src); }

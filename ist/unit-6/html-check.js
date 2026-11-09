@@ -382,7 +382,7 @@
     "v-upper": function (c) { return valCount(c, ["text-transform"], /^uppercase$/i); },
     "v-named": function (c) { return colorTokens(c).filter(function (t) { return NAMED[t.toLowerCase()] || HEX.test(t); }).length; },
     "strong-only": function (c) { return c.count("strong"); }, "em-only": function (c) { return c.count("em"); }, "no-bi": function (c) { return c.count("b") + c.count("i") === 0 ? 1 : 0; },
-    "strong": function (c) { return c.count("strong") + c.count("b"); }, "em": function (c) { return c.count("em") + c.count("i"); },
+    "strong": function (c) { return c.count("strong"); }, "em": function (c) { return c.count("em"); },
     "br": function (c) { return c.count("br"); }, "hr": function (c) { return c.count("hr"); }, "span": function (c) { return c.count("span"); },
     "p-ff": function (c) { return c.prop("font-family"); },
     "link": function (c) { return c.count("link"); },
@@ -511,7 +511,6 @@
     "6.3": { name: "Editing Tags, Span Tag", rules: [
       r("At least 8 paragraphs, and at least one heading 1, one heading 2, and two heading 3s", function (c) { return c.count("p") >= 8 && c.has("h1") && c.has("h2") && c.count("h3") >= 2; }, "Write at least 8 paragraphs about your theme and use three heading levels."),
       r("At least 3 bold words or phrases (<strong>) and at least 1 italic (<em>)", function (c) { return c.all("strong").length >= 3 && c.all("em").length >= 1; }),
-      r("Use only <strong> for bold and <em> for italics: no <b> or <i> tags", function (c) { return c.all("b").length === 0 && c.all("i").length === 0; }, "Change every <b> to <strong> and every <i> to <em>."),
       r("At least 3 line breaks (<br>, never closed) and at least 2 horizontal lines (<hr>) outside paragraphs", function (c) { return c.all("br").length >= 3 && c.all("hr").filter(function (x) { return !c.ancestor(x, ["p"]); }).length >= 2; }),
       r("Editing tags (strong/em) are inside a creation tag like <p> or <h1>", function (c) {
         var e = c.all("strong").concat(c.all("em")); return e.length > 0 && e.every(function (n) { return !!c.ancestor(n, ["p", "h1", "h2", "h3", "h4", "h5", "h6", "li"]); });
@@ -573,7 +572,7 @@
       r("Has a favicon: a <link rel=\"icon\"> with an href inside the <head>", function (c) { var f = faviconLinks(c); return f.length >= 1 && f.every(function (l) { return !!c.ancestor(l, ["head"]); }); }, "Put the favicon link tag in the head, under your title."),
       r("Uses at least one Google font: a link to fonts.googleapis.com in the head AND that font in a font-family with a fallback", function (c) { var g = gfontNames(c), ok = false; fontFamilyList(c).forEach(function (v) { if (g.indexOf(firstFont(v)) > -1 && v.indexOf(",") > -1 && GENERIC.test(lastFont(v))) ok = true; }); return g.length >= 1 && ok; }, "Link the font in the head, then: font-family: 'Lobster', cursive;"),
       r("Has at least 1 heading, 1 paragraph, 1 <br> and 1 <hr> (outside a paragraph)", function (c) { return (c.has("h1") || c.has("h2") || c.has("h3") || c.has("h4")) && c.has("p") && c.has("br") && c.all("hr").some(function (x) { return !c.ancestor(x, ["p"]); }); }),
-      r("Uses bold or italic at least once, and at least one <span> with a style", function (c) { return (c.has("strong") || c.has("b") || c.has("em") || c.has("i")) && c.all("span").some(function (s) { return s.attrs.style !== undefined && /:/.test(s.attrs.style); }); }),
+      r("Uses bold or italic at least once, and at least one <span> with a style", function (c) { return (c.has("strong") || c.has("em")) && c.all("span").some(function (s) { return s.attrs.style !== undefined && /:/.test(s.attrs.style); }); }),
       r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\""),
       r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
@@ -777,6 +776,7 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
     });
     reviewRules(lesson).forEach(function (rr) { if (!out.some(function (x) { return x.id === rr.id; })) out.push(rr); });
     /* once links and pictures have been taught (3.7 and 3.8), EVERY assignment after them needs a few of each */
+    if (idx >= ORDER.indexOf("6.3")) out.push({ id: "A-nobi", lesson: lesson, label: "Bold is always <strong> and italics is always <em>: no <b> or <i> tags", tip: "Change every <b> to <strong> and every <i> to <em>.", isNew: true, test: function (c) { return c.all("b").length === 0 && c.all("i").length === 0; } });
     if (idx > ORDER.indexOf("6.6")) {
       out.push({ id: "A-links", lesson: lesson, label: "At least 3 links, each with an https:// address", tip: "Link to real sites that fit your page. Use <a href=\"https://...\">words</a>.", isNew: true, test: function (c) { return realLinks(c).length >= 3; } });
       out.push({ id: "A-images", lesson: lesson, label: "At least 3 pictures, each with a real alt description", tip: "Upload pictures in Checks, then My images, then Insert.", isNew: true, test: function (c) { var im = c.all("img"); return im.length >= 3 && im.every(function (i) { return /\S{3,}/.test(i.attrs.alt || ""); }); } });
