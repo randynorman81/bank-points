@@ -110,7 +110,6 @@ $("go").onclick = () => {
   fileName = picked ? picked.name.replace(/\.[^.]+$/, "") : "Pasted test"; srcUrl = picked && picked.url ? picked.url : "";
   questions = DOK.analyze(text); filter = 0;
   questions.forEach(q => { q.base = q.question; q.dok0 = q.dok; q.why0 = q.why; });
-  $("rawtext").textContent = text;
   if (!questions.length) return showErr("Couldn't find any questions. Number them like 1. 2. 3. and try again.");
   $("setup").hidden = true; $("results").hidden = false;
   $("title").textContent = fileName;
@@ -440,7 +439,7 @@ function loadSession() { try { const s = JSON.parse(localStorage.getItem(SAVE_KE
   const s = loadSession(); if (!s) return;
   const box = $("resume"); box.hidden = false;
   box.querySelector("span").textContent = `You have a saved version of "${s.fileName}" (${s.questions.length} questions, saved ${new Date(s.savedAt).toLocaleString()}).`;
-  $("resumeGo").onclick = () => { fileName = s.fileName; srcUrl = s.srcUrl || ""; questions = s.questions; filter = 0; $("setup").hidden = true; $("results").hidden = false; $("title").textContent = fileName; $("rawtext").textContent = "(Original text isn't kept when you continue a saved test.)"; render(); };
+  $("resumeGo").onclick = () => { fileName = s.fileName; srcUrl = s.srcUrl || ""; questions = s.questions; filter = 0; $("setup").hidden = true; $("results").hidden = false; $("title").textContent = fileName; render(); };
   $("resumeClear").onclick = () => { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} box.hidden = true; };
 })();
 $("again").onclick = () => { $("results").hidden = true; $("setup").hidden = false; picked = null; $("picked").hidden = true; $("paste").value = ""; showErr(""); refresh(); };
