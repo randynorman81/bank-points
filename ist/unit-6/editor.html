@@ -630,6 +630,25 @@ var TEACHER = /[?&](teacher|all=1)/.test(location.search);
 function pasteFree() { return SANDBOX || isTeacher() || (window.HTMLCheck && HTMLCheck.ORDER.indexOf(S.lesson) >= HTMLCheck.ORDER.indexOf("6.35")); }
 function isTeacher() { return TEACHER || (!!S.email && TEACHER_EMAILS.indexOf(S.email) > -1); }
 var blockMsg = "You can only paste code you copied from your own page. Type everything else yourself.";
+/* NO PASTING BETWEEN ASSIGNMENTS: students may look at their older assignments, and copy and paste inside the SAME assignment,
+   but code that came from a different assignment cannot be pasted into this one (students only; the sandbox and the teacher are free). */
+var crossMsg = "You can't paste code from a different assignment. Build this one fresh (you can still copy and paste inside this assignment).";
+function crossLesson(t) {
+  if (SANDBOX || isTeacher()) return false;
+  var CR = String.fromCharCode(13), LF = String.fromCharCode(10);
+  function norm(x) { return String(x || "").split(CR).join(""); }
+  t = norm(t); if (!t.trim()) return false;
+  var hay = norm([ta.value, S.buf.html, S.buf.css].join(LF));
+  if (hay.indexOf(t) > -1 || hay.indexOf(t.trim()) > -1) return false;          /* it is already in this assignment */
+  var c = norm(clip || lsGet("u7:clip") || ""), cl = lsGet("u7:cliplesson");
+  if (c && cl && cl !== S.lesson && (t === c || t.trim() === c.trim())) return true;   /* it was copied in a different assignment */
+  if (t.trim().length >= 20) for (var i = 0; i < H.ORDER.length; i++) {
+    var l = H.ORDER[i]; if (l === S.lesson) continue;
+    var o = norm((lsGet("u7:code:" + l) || "") + LF + (lsGet("u7:css:" + l) || ""));
+    if (o.indexOf(t) > -1 || o.indexOf(t.trim()) > -1) return true;               /* it is written in a different assignment */
+  }
+  return false;
+}
 function ownText(t) {
   var CR = String.fromCharCode(13), LF = String.fromCharCode(10);
   function norm(x) { return String(x || "").split(CR).join(""); }
@@ -648,20 +667,23 @@ function ownText(t) {
   }, true);
   document.addEventListener("cut", function (e) { if (pasteFree() || e.target === ta) return; if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return; e.preventDefault(); e.stopPropagation(); }, true);
   document.addEventListener("paste", function (e) {
-    if (pasteFree() || e.target !== ta) return;
+    if (e.target !== ta) return;
     var t = ""; try { t = (e.clipboardData || window.clipboardData).getData("text"); } catch (er) {}
+    if (crossLesson(t)) { e.preventDefault(); e.stopPropagation(); toast(crossMsg); return; }
+    if (pasteFree()) return;
     if (!ownText(t)) { e.preventDefault(); e.stopPropagation(); toast(blockMsg); }
   }, true);
   document.addEventListener("drop", function (e) {
-    if (pasteFree()) return;
     var t = ""; try { t = e.dataTransfer.getData("text"); } catch (er) {}
+    if (e.target === ta && crossLesson(t)) { e.preventDefault(); e.stopPropagation(); toast(crossMsg); return; }
+    if (pasteFree()) return;
     if (e.target === ta && ownText(t)) return;
     e.preventDefault(); e.stopPropagation(); if (e.target === ta) toast(blockMsg);
   }, true);
   document.addEventListener("dragover", function (e) { if (!pasteFree() && e.target !== ta) { e.preventDefault(); } }, true);
 }
 /* remember what was last copied from the editor, even after a page reload */
-["copy", "cut"].forEach(function (ev) { ta.addEventListener(ev, function () { var t = ta.value.slice(ta.selectionStart, ta.selectionEnd); if (t) { clip = t; try { lsSet("u7:clip", t.slice(0, 60000)); } catch (er) {} } }); });
+["copy", "cut"].forEach(function (ev) { ta.addEventListener(ev, function () { var t = ta.value.slice(ta.selectionStart, ta.selectionEnd); if (t) { clip = t; try { lsSet("u7:clip", t.slice(0, 60000)); lsSet("u7:cliplesson", S.lesson); } catch (er) {} } }); });
 /* Undo / redo (Ctrl+Z, Ctrl+Y, Ctrl+Shift+Z): our own history, because the browser's is wiped every time the editor adds a tab, auto-closes a tag, or presses Enter for you */
 var undoS = [], redoS = [], undoCur = { v: "", s: 0, e: 0 }, undoKey = null, undoT = 0, undoBusy = false;
 function undoSync(force) {
@@ -1042,7 +1064,7 @@ $("lesson").addEventListener("change", function () { saveNow(false); cloudSave()
 })();
 $("period").addEventListener("change", function () { lsSet("u7:period", this.value); });
 $("btnRun").addEventListener("click", renderPreview);
-$("btnCopy").addEventListener("click", function () { ta.select(); try { navigator.clipboard.writeText(ta.value); toast("Copied " + (S.file === "css" ? "style.css" : "index.html")); } catch (e) { document.execCommand("copy"); toast("Copied"); } });
+$("btnCopy").addEventListener("click", function () { ta.select(); clip = ta.value; lsSet("u7:clip", clip.slice(0, 60000)); lsSet("u7:cliplesson", S.lesson); try { navigator.clipboard.writeText(ta.value); toast("Copied " + (S.file === "css" ? "style.css" : "index.html")); } catch (e) { document.execCommand("copy"); toast("Copied"); } });
 function setTab(t) { $("main").setAttribute("data-tab", t); [].forEach.call(document.querySelectorAll("#tabsm button"), function (b) { b.classList.toggle("on", b.getAttribute("data-t") === t); }); }
 $("tabsm").addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) { setTab(b.getAttribute("data-t")); if (b.getAttribute("data-t") === "code") layoutGutter(); } });
 function guideUrl() { return S.lesson === "6.75" ? "emojis-symbols-notes.html" : /^[89]\./.test(S.lesson) ? "../unit-" + S.lesson.charAt(0) + "/index.html" : "study-guide.html#l" + S.lesson.replace(".", "-"); }
