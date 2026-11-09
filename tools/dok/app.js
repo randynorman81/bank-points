@@ -44,14 +44,62 @@ async function take(f) {
     } else if (ext === "docx") {
       if (!window.mammoth) throw new Error("Word reader didn't load. Check your connection or upload a PDF.");
       text = (await mammoth.extractRawText({ arrayBuffer: await f.arrayBuffer() })).value;
-    } else if (["txt", "md"].includes(ext)) text = await f.text();
-    else throw new Error(ext === "doc" ? "Old .doc files aren't supported. Save as .docx or PDF." : "Use a PDF, .docx or .txt file.");
+    } else if (ext === "csv") text = csvToText(await f.text());
+    else if (["txt", "md"].includes(ext)) text = await f.text();
+    else throw new Error(ext === "doc" ? "Old .doc files aren't supported. Save as .docx or PDF." : "Use a PDF, .docx, .csv or .txt file.");
     picked = { name: f.name, text };
   } catch (e) { showErr(e.message); }
   $("picked").hidden = !picked;
   if (picked) $("picked").textContent = "Ready: " + picked.name;
   refresh();
 }
+// CSV: one question per row. If there is a header with a question/prompt column, that column is the question and the other columns
+// (answer choices, etc.) are added after it; otherwise each non-empty row is one question.
+function parseCsv(s) {
+  const rows = []; let row = [], cell = "", q = false;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (q) { if (c === '"') { if (s[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; }
+    else if (c === '"') q = true;
+    else if (c === ",") { row.push(cell); cell = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && s[i + 1] === "\n") i++; row.push(cell); cell = ""; if (row.some(x => x.trim())) rows.push(row); row = []; }
+    else cell += c;
+  }
+  row.push(cell); if (row.some(x => x.trim())) rows.push(row);
+  return rows;
+}
+function csvToText(s) {
+  const rows = parseCsv(s.replace(/^﻿/, ""));
+  if (!rows.length) return "";
+  const head = rows[0].map(x => x.trim().toLowerCase());
+  const qi = head.findIndex(x => /^(question|questions|prompt|item|q|text|question text)$/.test(x));
+  const body = qi > -1 ? rows.slice(1) : rows;
+  return body.map((r, i) => {
+    const main = qi > -1 ? r[qi] : r.filter(x => x.trim()).join(" ");
+    const rest = qi > -1 ? r.filter((x, j) => j !== qi && x.trim() && !/^\d+$/.test(x.trim())).join("  ") : "";
+    return (i + 1) + ". " + String(main || "").replace(/\s+/g, " ").trim() + (rest ? "  " + rest : "");
+  }).filter(l => /\d+\.\s*\S/.test(l)).join("\n");
+}
+
+// Google Doc link: the site fetches the text of a doc that is shared "Anyone with the link can view"
+$("gdgo").onclick = async () => {
+  showErr("");
+  const v = $("gdlink").value.trim();
+  const m = v.match(/\/document\/(?:u\/\d+\/)?d\/([A-Za-z0-9_-]{20,})/) || v.match(/^([A-Za-z0-9_-]{25,})$/);
+  if (!m) return showErr("Paste the full link to a Google Doc (it looks like docs.google.com/document/d/...).");
+  $("gdgo").disabled = true; $("gdgo").textContent = "Loading...";
+  try {
+    const r = await fetch("/api/gdoc?id=" + encodeURIComponent(m[1]));
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || "Couldn't read that document.");
+    picked = { name: "Google Doc", text: j.text }; $("paste").value = "";
+    $("picked").hidden = false; $("picked").textContent = "Ready: Google Doc";
+    refresh();
+  } catch (e) { showErr(e.message); }
+  $("gdgo").disabled = false; $("gdgo").textContent = "Load Google Doc";
+};
+$("gdlink").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); $("gdgo").click(); } };
+
 function refresh() { $("go").disabled = !(picked || $("paste").value.trim()); }
 function showErr(m) { $("err").hidden = !m; $("err").textContent = m; }
 
