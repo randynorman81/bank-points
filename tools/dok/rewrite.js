@@ -154,7 +154,12 @@
       if (level === 1 && ex) add(`Calculate ${ex}.`);
     };
 
-    if (raising) { wrap(); byTopic(); math(); }
+    if (raising) {
+      // a plain recall command ("Define X", "List X") reads better rebuilt around its topic than with a justification tacked on
+      if (/^\s*(?:define|identify|list|name|state|label|match|recall|recite)\b/i.test(stem) && topic) { byTopic(); wrap(); }
+      else { wrap(); byTopic(); }
+      math();
+    }
     else {
       if (orig === 4) byClause();
       if (innerQ && level === 2) add(`${innerQ} Explain your answer in your own words.`);
