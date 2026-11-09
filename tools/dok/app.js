@@ -122,6 +122,7 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "
 function render() {
   const { counts, pct, n } = DOK.tally(questions);
   saveSession();
+  $("gupd").hidden = !gdocId();
   $("status").textContent = n + " questions found";
   $("stack").innerHTML = [1, 2, 3, 4].map(l => counts[l] ? `<div style="width:${counts[l] / n * 100}%;background:${COL[l]}">${pct[l]}%</div>` : "").join("");
   $("legend").innerHTML = [1, 2, 3, 4].map(l => `<div><span class="dot" style="background:${COL[l]}"></span><b>DOK ${l}</b> ${NAMES[l]}: ${pct[l]}% (${counts[l]})</div>`).join("");
@@ -334,6 +335,45 @@ $("gcopy").onclick = () => {
   const link = $("gorig"); link.hidden = !srcUrl; if (srcUrl) link.href = srcUrl;
 };
 
+
+// Update the teacher's own Google Doc (needs the school's Google sign-in set up once: see google-config.js)
+function gdocId() { const m = String(srcUrl).match(/\/document\/(?:u\/\d+\/)?d\/([A-Za-z0-9_-]{20,})/); return m ? m[1] : ""; }
+function gToken() {
+  return new Promise((resolve, reject) => {
+    if (!window.DOK_GOOGLE_CLIENT_ID) return reject(new Error("NOCLIENT"));
+    if (!(window.google && google.accounts && google.accounts.oauth2)) return reject(new Error("Google sign-in didn't load. Check your connection and try again."));
+    const tc = google.accounts.oauth2.initTokenClient({
+      client_id: window.DOK_GOOGLE_CLIENT_ID, scope: "https://www.googleapis.com/auth/documents",
+      callback: r => r.error ? reject(new Error(r.error === "access_denied" ? "You didn't allow access to your Google Doc." : (r.error_description || r.error))) : resolve(r.access_token),
+      error_callback: e => reject(new Error(e && e.type === "popup_closed" ? "The Google sign-in window was closed." : "Google sign-in was blocked. Allow pop-ups for this page and try again."))
+    });
+    tc.requestAccessToken({ prompt: "" });
+  });
+}
+$("gupd").onclick = async () => {
+  const msg = $("gmsg"), id = gdocId(); msg.textContent = "";
+  if (!id) return (msg.textContent = "This test didn't come from a Google Doc link, so use Download or Copy for Google Docs.");
+  const changed = questions.filter(q => q.edited && q.question !== q.base).length;
+  if (!changed) return (msg.textContent = "Nothing has been rewritten yet, so there is nothing to update.");
+  try {
+    const token = await gToken();
+    const get = await fetch("https://docs.googleapis.com/v1/documents/" + id, { headers: { Authorization: "Bearer " + token } });
+    if (!get.ok) throw new Error(get.status === 403 || get.status === 404 ? "Couldn't open that Google Doc with the account you signed in with. Sign in with the account that owns or can edit it." : "Google couldn't read the document (" + get.status + ").");
+    const doc = await get.json();
+    const keys = $("withKey").checked ? questions.filter(q => q.answer).map(q => q.label + ". " + q.answer) : [];
+    const plan = DOK_GDOC.buildRequests(doc, questions, keys.length ? "Answer Key\n" + keys.join("\n") : "");
+    if (!plan.found.length) throw new Error("Couldn't find the original questions in that document. It may have been edited since it was loaded. Use Copy for Google Docs instead.");
+    const ok = confirm(`Update the Google Doc "${doc.title}"?\n\n${plan.found.length} question${plan.found.length === 1 ? "" : "s"} will be replaced` + (keys.length ? " and an Answer Key added at the end" : "") + (plan.missing.length ? `.\nCouldn't find: ${plan.missing.join(", ")} (those stay as they are)` : "") + `.\n\nYou can undo this in Google Docs under File > Version history.`);
+    if (!ok) return (msg.textContent = "Cancelled. Your Google Doc was not changed.");
+    msg.textContent = "Updating...";
+    const post = await fetch("https://docs.googleapis.com/v1/documents/" + id + ":batchUpdate", { method: "POST", headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" }, body: JSON.stringify({ requests: plan.requests }) });
+    if (!post.ok) throw new Error(post.status === 403 ? "You can view that document but not edit it. Ask the owner for edit access." : "Google couldn't update the document (" + post.status + "). Nothing was changed.");
+    msg.textContent = `Done. Updated ${plan.found.length} question${plan.found.length === 1 ? "" : "s"} in your Google Doc` + (plan.missing.length ? `; couldn't find ${plan.missing.join(", ")}.` : ".");
+    const l = $("gorig"); l.hidden = false; l.href = srcUrl; l.textContent = "Open your Google Doc";
+  } catch (e) {
+    msg.textContent = e.message === "NOCLIENT" ? "Updating a Google Doc directly isn't turned on for this site yet. Use Copy for Google Docs for now." : e.message;
+  }
+};
 
 // Keep the current version in this browser so a refresh or closed tab doesn't lose the work
 const SAVE_KEY = "dokAnalyzer:last";
