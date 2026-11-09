@@ -319,7 +319,11 @@ function finalLines() {
 }
 $("doc").onclick = () => {
   const { qs, keys } = finalLines();
-  const body = qs.map(x => `<p><b>${esc(x.head)}</b> ${esc(x.text).replace(/\n/g, "<br>")}</p>`).join("\n")
+  const isCh = l => /^\s*\(?[A-Ha-h][.)]\s/.test(l);
+  const body = qs.map(x => {
+    const ls = (x.head + " " + x.text).split("\n").filter(l => l.trim());
+    return ls.map((l, k) => isCh(l) ? `<p style="margin:12pt 0 12pt 18pt">${esc(l)}</p>` : `<p style="margin:0 0 ${ls[k + 1] && isCh(ls[k + 1]) ? "12pt" : "6pt"}">${k === 0 ? `<b>${esc(x.head)}</b> ${esc(l.slice(x.head.length + 1))}` : esc(l)}</p>`).join("");
+  }).join('\n<hr style="border:0;border-top:1.5pt solid #777;margin:14pt 0">\n')
     + (keys.length ? `<br style="page-break-before:always"><h3 style="page-break-before:always">Answer Key</h3>` + keys.map(k => `<p>${esc(k)}</p>`).join("\n") : "");
   const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${esc(fileName)}</title></head><body style="font-family:Calibri,Arial,sans-serif"><h2>${esc(fileName)}</h2>\n${body}</body></html>`;
   const a = document.createElement("a");
@@ -337,7 +341,21 @@ $("pdf").onclick = () => {
     doc.splitTextToSize(plain(t), W - 2 * M).forEach(s => { if (y > H - M) { doc.addPage(); y = M; } doc.text(s, M, y); y += (size && size > 12 ? size + 4 : LH); });
   };
   line(fileName, true, 16); y += 6;
-  qs.forEach(x => { line(x.head + " " + x.text, false); y += 8; });
+  // each answer choice on its own line with a blank line between, and a horizontal rule between questions
+  const isChoice = l => /^\s*\(?[A-Ha-h][.)]\s/.test(l);
+  doc.setFont("helvetica", "normal"); doc.setFontSize(11);
+  qs.forEach((x, i) => {
+    const lines = (x.head + " " + x.text).split("\n").filter(l => l.trim());
+    let need = 0;
+    lines.forEach((l, k) => { need += doc.splitTextToSize(plain(l), W - 2 * M).length * LH + ((isChoice(l) || (lines[k + 1] && isChoice(lines[k + 1]))) ? LH : 0); });
+    if (y + need > H - M && need < H - 2 * M) { doc.addPage(); y = M; }   // keep a short question together on one page
+    lines.forEach((l, k) => { line(l, false); if (isChoice(l) || (lines[k + 1] && isChoice(lines[k + 1]))) y += LH; });
+    y += 4;
+    if (i < qs.length - 1) {
+      if (y > H - M) { doc.addPage(); y = M; }
+      doc.setDrawColor(120); doc.setLineWidth(0.8); doc.line(M, y, W - M, y); y += 20;
+    }
+  });
   if (keys.length) { doc.addPage(); y = M; line("Answer Key", true, 14); y += 6; keys.forEach(k => line(k, false)); }
   doc.save(fileName + "-updated.pdf");
 };
