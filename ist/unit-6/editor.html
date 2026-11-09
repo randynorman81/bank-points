@@ -43,7 +43,7 @@ main.dragging{transition:none}
 main.dragging iframe{pointer-events:none}
 main[data-view="code"]{grid-template-columns:var(--answ,25%) 9px minmax(0,1fr) 0 46px}
 main[data-view="prev"]{grid-template-columns:0 0 46px 0 minmax(0,1fr)}
-main.noleft{grid-template-columns:0 0 calc(var(--codew,38%) + var(--answ,25%)) 9px minmax(0,1fr)}
+main.noleft{grid-template-columns:0 0 var(--codew2,63%) 9px minmax(0,1fr)}
 main.noleft[data-view="code"]{grid-template-columns:0 0 minmax(0,1fr) 0 46px}
 main.noleft #paneAns,main.noleft #split0,main[data-view="prev"] #paneAns,main[data-view="prev"] #split0{visibility:hidden;overflow:hidden;border:0;padding:0}
 .aswrap{flex:1;min-height:0;position:relative;background:#080B11}
@@ -804,6 +804,12 @@ function setRatio(r, save) {
   $("main").style.setProperty("--codew", (r * 100).toFixed(2) + "%");
   if (save) lsSet(RATIO_KEY, String(r));
 }
+var RATIO2_KEY = "u7:ratio2";
+function setRatio2(r, save) {   /* code width when there is no assignment column (the sandbox and lessons without one) */
+  r = Math.max(0.2, Math.min(0.8, r)); S.ratio2 = r;
+  $("main").style.setProperty("--codew2", (r * 100).toFixed(2) + "%");
+  if (save) lsSet(RATIO2_KEY, String(r));
+}
 function setAnsw(a, save) {
   a = Math.max(0.16, Math.min(0.42, a)); S.answ = a;
   $("main").style.setProperty("--answ", (a * 100).toFixed(2) + "%");
@@ -813,14 +819,15 @@ function setAnsw(a, save) {
   var main = $("main"), dragging = null, raf = 0;
   var savedR = parseFloat(lsGet(RATIO_KEY)), savedA = parseFloat(lsGet(ANSW_KEY));
   setAnsw(savedA > 0 ? savedA : 0.25, false); setRatio(savedR > 0 ? savedR : 0.38, false);
+  var savedR2 = parseFloat(lsGet(RATIO2_KEY)); setRatio2(savedR2 > 0 ? savedR2 : 0.63, false);
   function leftOn() { return !main.classList.contains("noleft"); }
   function move(clientX) {
     var b = main.getBoundingClientRect(), x = (clientX - b.left) / b.width;
-    if (dragging === "ans") setAnsw(x, false); else setRatio(x - (leftOn() ? S.answ : 0) - 9 / b.width, false);
+    if (dragging === "ans") setAnsw(x, false); else if (leftOn()) setRatio(x - S.answ - 9 / b.width, false); else setRatio2(x, false);
     if (!raf) raf = requestAnimationFrame(function () { raf = 0; layoutGutter(); });
   }
   function onMove(e) { if (dragging) move(e.clientX); }
-  function end() { if (!dragging) return; dragging = null; main.classList.remove("dragging"); lsSet(RATIO_KEY, String(S.ratio)); lsSet(ANSW_KEY, String(S.answ)); document.removeEventListener("pointermove", onMove); document.removeEventListener("pointerup", end); document.removeEventListener("pointercancel", end); layoutGutter(); }
+  function end() { if (!dragging) return; dragging = null; main.classList.remove("dragging"); lsSet(RATIO_KEY, String(S.ratio)); lsSet(ANSW_KEY, String(S.answ)); lsSet(RATIO2_KEY, String(S.ratio2)); document.removeEventListener("pointermove", onMove); document.removeEventListener("pointerup", end); document.removeEventListener("pointercancel", end); layoutGutter(); }
   [["split", "code"], ["split0", "ans"]].forEach(function (p) {
     var el = $(p[0]);
     el.addEventListener("pointerdown", function (e) {
@@ -829,10 +836,10 @@ function setAnsw(a, save) {
       document.addEventListener("pointermove", onMove); document.addEventListener("pointerup", end); document.addEventListener("pointercancel", end);
       e.preventDefault();
     });
-    el.addEventListener("dblclick", function () { setAnsw(0.25, true); setRatio(0.38, true); setTimeout(layoutGutter, 220); });
+    el.addEventListener("dblclick", function () { setAnsw(0.25, true); setRatio(0.38, true); setRatio2(0.63, true); setTimeout(layoutGutter, 220); });
     el.addEventListener("keydown", function (e) {
       var d = e.key === "ArrowLeft" ? -0.03 : e.key === "ArrowRight" ? 0.03 : 0; if (!d) return;
-      if (p[1] === "ans") setAnsw(S.answ + d, true); else setRatio(S.ratio + d, true);
+      if (p[1] === "ans") setAnsw(S.answ + d, true); else if (leftOn()) setRatio(S.ratio + d, true); else setRatio2(S.ratio2 + d, true);
       layoutGutter(); e.preventDefault();
     });
   });
