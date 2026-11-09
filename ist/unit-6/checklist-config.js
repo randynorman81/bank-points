@@ -14,8 +14,8 @@
 (function (root) {
   var CL = root.U7_CL = {};
 
-  CL.lessons = ["6.2", "6.20", "6.21", "6.22", "6.3", "6.35", "6.4", "6.7", "6.75", "6.6", "6.5"];
-  CL.name = { "6.2": "3.2", "6.20": "3.3 Part 1", "6.21": "3.3 Part 2", "6.22": "3.3 Part 3", "6.3": "3.4", "6.35": "3.5", "6.4": "3.6", "6.7": "3.7", "6.75": "3.8", "6.6": "3.9", "6.5": "3.10" };
+  CL.lessons = ["6.2", "6.20", "6.3", "6.35", "6.4", "6.7", "6.75", "6.6", "6.5"];
+  CL.name = { "6.2": "3.2", "6.20": "3.3", "6.3": "3.4", "6.35": "3.5", "6.4": "3.6", "6.7": "3.7", "6.75": "3.8", "6.6": "3.9", "6.5": "3.10" };
 
   CL.themes = {
     "6.2": ["A terrible movie fan page", "A terrible holiday page", "A terrible band page", "A terrible pizza shop", "A terrible school club page", "A terrible video game page", "A terrible sports team page", "A terrible pet page", "A terrible restaurant menu", "A terrible travel page"],
