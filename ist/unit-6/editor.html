@@ -478,6 +478,18 @@ function syncCssTab() {
 /* ---------- lessons ---------- */
 /* Add ?all=1 to the address to see every lesson (teacher preview). */
 var SHOW_ALL = new URLSearchParams(location.search).get("all") === "1";
+/* SANDBOX: the editor opened with no ?lesson= (the unit page's Web Editor link). No sign-in, no submit, no lesson list,
+   and nothing is saved to the cloud, so students can just play with what the class is learning. Assignments are
+   reached only from a lesson page's Assignment button (editor.html?lesson=...). Teacher: ?all=1 or ?teacher still work. */
+var SANDBOX = !new URLSearchParams(location.search).get("lesson") && !SHOW_ALL && !/[?&]teacher/.test(location.search);
+if (SANDBOX) {
+  document.body.classList.add("sandbox");
+  var sbs = document.createElement("style");
+  sbs.textContent = "body.sandbox #lesson,body.sandbox label:has(#lesson),body.sandbox #periodBtns,body.sandbox #who,body.sandbox #gbtn,body.sandbox #btnSubmit,body.sandbox #btnChecks,body.sandbox #cloudInd,body.sandbox #btnReset,body.sandbox #stepTick,body.sandbox #autoSc,body.sandbox #missBtn,body.sandbox #linkGuide{display:none!important}";
+  document.head.appendChild(sbs);
+  var sbn = document.createElement("span"); sbn.className = "status"; sbn.style.fontWeight = "600"; sbn.textContent = "Sandbox: practice here. Nothing is graded or turned in. For an assignment, use the Assignment button on its lesson page.";
+  document.querySelector(".top .brand").insertAdjacentElement("afterend", sbn);
+}
 /* The list shows only lessons the student has already started (saved on this computer or in the cloud),
    plus the one they are on. A new lesson is started from its lesson page's Assignment button. */
 var MY_LESSONS = {}, MY_SUB = {};
@@ -497,6 +509,8 @@ function buildLessonList() {
 
   S.lesson = (q && H.LESSONS[q]) ? q : (lsGet("u7:lesson") || "6.1");
   if (!H.LESSONS[S.lesson]) S.lesson = "6.1";
+  if (SANDBOX) S.lesson = "sandbox";
+  else if (S.lesson === "sandbox") S.lesson = "6.1";
   buildLessonList();
   $("period").value = lsGet("u7:period") || "";
 })();
@@ -613,7 +627,7 @@ function handleAuto(ch) {
 var TEACHER_EMAILS = ["randy.norman@socialcircleschools.org"];
 var TEACHER = /[?&](teacher|all=1)/.test(location.search);
 /* from 3.5 (Google Fonts) on, everyone can copy and paste freely (fonts links, text, code) */
-function pasteFree() { return isTeacher() || (window.HTMLCheck && HTMLCheck.ORDER.indexOf(S.lesson) >= HTMLCheck.ORDER.indexOf("6.35")); }
+function pasteFree() { return SANDBOX || isTeacher() || (window.HTMLCheck && HTMLCheck.ORDER.indexOf(S.lesson) >= HTMLCheck.ORDER.indexOf("6.35")); }
 function isTeacher() { return TEACHER || (!!S.email && TEACHER_EMAILS.indexOf(S.email) > -1); }
 var blockMsg = "You can only paste code you copied from your own page. Type everything else yourself.";
 function ownText(t) {
@@ -737,7 +751,7 @@ function setFrame(f, html) {
 function renderPreview() { var h0 = getHtml(); updateTab(h0); setFrame($("prev"), H.previewDoc(h0, getCss())); }
 function saveNow(show) {
   S.buf[S.file] = ta.value; saveAct();
-  lsSet("u7:code:" + S.lesson, S.buf.html); lsSet("u7:css:" + S.lesson, S.buf.css); lsSet("u7:lesson", S.lesson);
+  lsSet("u7:code:" + S.lesson, S.buf.html); lsSet("u7:css:" + S.lesson, S.buf.css); if (!SANDBOX) lsSet("u7:lesson", S.lesson);
   $("status").textContent = "Saved " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   if (show) toast("Saved");
 }
@@ -1031,6 +1045,7 @@ function updateGuideLink() { $("linkGuide").href = guideUrl(); $("linkUnit").hre
 /* ---------- Google sign-in + cloud ---------- */
 function decodeJwt(t) { try { var p = t.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"); return JSON.parse(decodeURIComponent(escape(atob(p)))); } catch (e) { return {}; } }
 function initGoogle() {
+  if (SANDBOX) return;   /* the sandbox never asks for a sign-in */
   if (!window.google || !google.accounts || !google.accounts.id) { setTimeout(initGoogle, 300); return; }
   google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onCredential, hd: "socialcircleschools.org", auto_select: true });
   showSignInButton();
