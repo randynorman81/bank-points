@@ -381,6 +381,7 @@
     "v-center": function (c) { return valCount(c, ["text-align"], /^center$/i); },
     "v-upper": function (c) { return valCount(c, ["text-transform"], /^uppercase$/i); },
     "v-named": function (c) { return colorTokens(c).filter(function (t) { return NAMED[t.toLowerCase()] || HEX.test(t); }).length; },
+    "strong-only": function (c) { return c.count("strong"); }, "em-only": function (c) { return c.count("em"); }, "no-bi": function (c) { return c.count("b") + c.count("i") === 0 ? 1 : 0; },
     "strong": function (c) { return c.count("strong") + c.count("b"); }, "em": function (c) { return c.count("em") + c.count("i"); },
     "br": function (c) { return c.count("br"); }, "hr": function (c) { return c.count("hr"); }, "span": function (c) { return c.count("span"); },
     "p-ff": function (c) { return c.prop("font-family"); },
@@ -509,10 +510,11 @@
     ] },
     "6.3": { name: "Editing Tags, Span Tag", rules: [
       r("At least 8 paragraphs, and at least one heading 1, one heading 2, and two heading 3s", function (c) { return c.count("p") >= 8 && c.has("h1") && c.has("h2") && c.count("h3") >= 2; }, "Write at least 8 paragraphs about your theme and use three heading levels."),
-      r("At least 3 bold words or phrases (<strong> or <b>) and at least 1 italic (<em> or <i>)", function (c) { return c.all("strong").concat(c.all("b")).length >= 3 && c.all("em").concat(c.all("i")).length >= 1; }),
+      r("At least 3 bold words or phrases (<strong>) and at least 1 italic (<em>)", function (c) { return c.all("strong").length >= 3 && c.all("em").length >= 1; }),
+      r("Use only <strong> for bold and <em> for italics: no <b> or <i> tags", function (c) { return c.all("b").length === 0 && c.all("i").length === 0; }, "Change every <b> to <strong> and every <i> to <em>."),
       r("At least 3 line breaks (<br>, never closed) and at least 2 horizontal lines (<hr>) outside paragraphs", function (c) { return c.all("br").length >= 3 && c.all("hr").filter(function (x) { return !c.ancestor(x, ["p"]); }).length >= 2; }),
       r("Editing tags (strong/em) are inside a creation tag like <p> or <h1>", function (c) {
-        var e = c.all("strong").concat(c.all("em"), c.all("b"), c.all("i")); return e.length > 0 && e.every(function (n) { return !!c.ancestor(n, ["p", "h1", "h2", "h3", "h4", "h5", "h6", "li"]); });
+        var e = c.all("strong").concat(c.all("em")); return e.length > 0 && e.every(function (n) { return !!c.ancestor(n, ["p", "h1", "h2", "h3", "h4", "h5", "h6", "li"]); });
       }),
       r("At least 3 different colors are used (text colors and background colors together)", function (c) { var n = {}; (function w(x) { x.children.forEach(function (e) { if (e.tag === "#text") return; ["color", "background-color"].forEach(function (p) { var v = declOf(c, e, p)[0]; if (v && isNamedColor(v)) n[v] = 1; }); w(e); }); })(c.tree); return Object.keys(n).length >= 3; }),
       r("At least 2 different font sizes in px, at least 1 centered (or right-aligned) tag, and at least 1 text-transform: uppercase", function (c) { var sz = {}, al = false, up = false; c.inline.forEach(function (d) { var v = String(d.value).replace(/;$/, "").trim().toLowerCase(); if (d.prop === "font-size" && /^\d+(\.\d+)?px$/.test(v)) sz[v] = 1; if (d.prop === "text-align" && (v === "center" || v === "right")) al = true; if (d.prop === "text-transform" && v === "uppercase") up = true; }); return Object.keys(sz).length >= 2 && al && up; }),

@@ -53,8 +53,9 @@
     ],
     "6.20": THREE33, "6.21": THREE33, "6.22": THREE33,
     "6.3": [
-      { label: "Bold at least 3 times (strong or b)", text: "**Bold** text: at least **3** (the strong tag or the b tag)", spec: ["count", "strong", 3] },
-      { label: "Italic at least 3 times (em or i)", text: "**Italic** text: at least **3** (the em tag or the i tag)", spec: ["count", "em", 3] },
+      { label: "Bold at least 3 times (strong)", text: "**Bold** text: at least **3** (the **strong** tag only)", spec: ["count", "strong-only", 3] },
+      { label: "Italic at least 3 times (em)", text: "**Italic** text: at least **3** (the **em** tag only)", spec: ["count", "em-only", 3] },
+      { label: "No b or i tags anywhere", text: "**Never use the b tag or the i tag.** Bold is always **strong** and italics is always **em**", spec: ["count", "no-bi", 1] },
       { label: "Line breaks (br) at least 3 times", text: "**Line breaks**: at least **3** (the br tag, inside a paragraph)", spec: ["count", "br", 3] },
       { label: "Horizontal lines (hr) at least 3 times", text: "**Horizontal lines**: at least **3** (the hr tag, between your sections)", spec: ["count", "hr", 3] },
       { label: "Spans with their own style at least 3 times", text: "**Spans with their own style**: at least **3** (a span around a few words, with a color or another style)", spec: ["custom", "spans3"] }
