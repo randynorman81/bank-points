@@ -307,7 +307,7 @@ function card(q) {
     : `<p class="qtext">${esc(q.question)}</p>`;
   return `<article class="q" id="q-${q.n}">
     <div class="qhead"><span class="qn">Question ${esc(q.label)}</span><span class="badge" style="background:${COL[q.dok]}">DOK ${q.dok} &middot; ${NAMES[q.dok]}</span>
-      ${q.edited ? '<span class="fine">rewritten</span>' : q.conf === "low" ? '<span class="fine">low confidence: double-check</span>' : ""}
+      ${q.edited ? '<span class="fine">rewritten</span>' : ""}
       </div>
     <div class="chg" role="group" aria-label="Rewrite question ${esc(q.label)} at a different DOK level"><span>Rewrite at level:</span>${sel}</div>
     ${body}
