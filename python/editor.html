@@ -201,6 +201,7 @@ body.karel #karel{display:flex}
 #assMiss ul{position:fixed;top:var(--missTop,120px);right:10px;left:auto;width:min(640px,calc(100vw - 20px));max-height:calc(100vh - var(--missTop,120px) - 16px);overflow:auto;white-space:normal;box-sizing:border-box}
 /* students can't select or copy code samples in the steps or in the help popups; the teacher preview (?teacher) can */
 #tipBody pre{user-select:none}
+body:not(.teacher) #assBody,body:not(.teacher) #assBody *:not(input):not(textarea),body:not(.teacher) #tipBody,body:not(.teacher) #tipBody *{user-select:none;-webkit-user-select:none}
 body.teacher #assBody pre,body.teacher #tipBody pre{user-select:text;cursor:text}
 @media (max-width:820px){.topbanner{flex-direction:column}#legend{grid-auto-flow:row;grid-template-rows:none}#assInfo{margin-left:0;border-left:0;padding-left:0;flex:1 1 auto;width:100%}}
 .mcq{margin:0 0 16px;padding:12px 14px;border:1px solid var(--rule);border-radius:10px;background:rgba(255,255,255,.03)}.mcn{font-weight:700;margin:0 0 8px;line-height:1.45}.mccode{margin:0 0 8px;padding:10px 12px;border-radius:8px;background:#05070B;font:13px/1.5 "JetBrains Mono",monospace;overflow:auto;white-space:pre}.mcc{display:flex;gap:8px;align-items:flex-start;padding:5px 4px;cursor:pointer;line-height:1.4}.mcc input{margin-top:4px}.mcc code{font-size:13px}
@@ -1373,6 +1374,8 @@ loadAssignments();
   ["copy", "cut"].forEach(function (ev) {
     document.addEventListener(ev, function (e) {
       if (isTeacherNow()) return;
+      var gs = window.getSelection ? window.getSelection() : null, gn = gs && gs.rangeCount ? gs.anchorNode : null;
+      if (gn && (($("assBody") && $("assBody").contains(gn)) || ($("tipBody") && $("tipBody").contains(gn)))) { e.preventDefault(); e.stopPropagation(); flash(blockMsg); return; }
       if (e.target === ta && ta.selectionStart !== ta.selectionEnd) { ownClip = norm(ta.value.slice(ta.selectionStart, ta.selectionEnd)); return; }
       e.preventDefault(); e.stopPropagation(); flash(blockMsg);
     }, true);
