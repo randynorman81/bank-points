@@ -197,7 +197,7 @@ ${q.base}
 function aiBlock(q) {
   const btns = [1, 2, 3, 4].map(l => `<button type="button" class="ghost sm${q.aiLevel === l ? " on" : ""}" data-ai="${l}" data-n="${q.n}" style="border-color:${COL[l]}" title="Copy the prompt for DOK ${l}">DOK ${l}</button>`).join("");
   return `<div class="ai">
-    <div class="rwbar"><b>Write a ${qFormat(q).id === "mc" ? "multiple-choice " : ""}version with AI:</b><span class="fine">click a level to copy the prompt, then paste it into <a href="https://gemini.google.com" target="_blank" rel="noopener">Gemini</a></span></div>
+    <div class="rwbar"><b>Write a ${qFormat(q).id === "mc" ? "multiple-choice " : ""}version with AI:</b><span class="fine">click a level to copy the prompt, then paste it into Gemini</span></div>
     <div class="rwbar">${btns}<span class="aimsg" role="status"></span></div>
     <textarea class="aitext" readonly rows="5" hidden aria-label="The prompt that was copied"></textarea>
     <div class="aipaste"${q.aiLevel ? "" : " hidden"}>
