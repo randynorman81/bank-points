@@ -246,26 +246,41 @@ document.addEventListener("click", e => {
 });
 
 // Changing a question's DOK level rewrites the question itself (free, rule-based; see rewrite.js)
-function restore(q) { q.question = q.base; q.dok = q.dok0; q.why = q.why0; q.edited = false; q.alts = null; q.hand = false; q.note = ""; q.fromAI = false; q.aiLevel = 0; q.answer = ""; }
+// Every level a teacher works on keeps its own saved version of the question, so switching levels and coming back never loses it
+function snap(q) {
+  if (!q.edited) return;
+  (q.vers = q.vers || {})[q.dok] = { question: q.question, answer: q.answer || "", alts: q.alts || null, altIdx: q.altIdx || 0, verified: q.verified || [], note: q.note || "", tip: q.tip || "", why: q.why || "", fromAI: !!q.fromAI, hand: !!q.hand };
+}
+function restore(q) {   // back to the question as uploaded (the other levels' saved versions are kept)
+  snap(q);
+  q.question = q.base; q.dok = q.dok0; q.why = q.why0; q.edited = false; q.alts = null; q.hand = false; q.note = ""; q.fromAI = false; q.aiLevel = 0; q.answer = "";
+}
 function useAlt(q) {
   q.question = q.alts[q.altIdx]; q.hand = false;
   const ok = q.verified[q.altIdx];
   q.why = `Rewritten for DOK ${q.dok} (${NAMES[q.dok]}). ${DOK.MEANS[q.dok]} ` + (ok ? `Check: the new wording rates DOK ${q.dok} on the same scale the analyzer uses.` : "This is a best effort. Read it over and adjust the wording.");
 }
 function setLevel(q, L) {
+  snap(q);
+  const v = q.vers && q.vers[L];
+  if (v) {   // this level was worked on before: bring that version back
+    Object.assign(q, { dok: L, edited: true, question: v.question, answer: v.answer, alts: v.alts, altIdx: v.altIdx, verified: v.verified, note: v.note, tip: v.tip, why: v.why, fromAI: v.fromAI, hand: v.hand });
+    return;
+  }
   if (L === q.dok0) return restore(q);
   const r = DOK.rewrite(q.base, L);
+  q.answer = ""; q.fromAI = false;
   q.dok = L; q.edited = true; q.alts = r.alts; q.verified = r.verified; q.altIdx = 0; q.tip = r.tip;
   q.note = r.dropsChoices ? "The answer choices were removed because this is now an open-response question." : "";
   useAlt(q);
 }
 
 function card(q) {
-  const sel = [1, 2, 3, 4].map(l => `<button type="button" class="lv${l === q.dok ? " on" : ""}" data-n="${q.n}" data-dok="${l}" style="--c:${COL[l]}" aria-pressed="${l === q.dok}" title="${NAMES[l]}">DOK ${l}</button>`).join("");
+  const sel = [1, 2, 3, 4].map(l => `<button type="button" class="lv${l === q.dok ? " on" : ""}" data-n="${q.n}" data-dok="${l}" style="--c:${COL[l]}" aria-pressed="${l === q.dok}" title="${NAMES[l]}${q.vers && q.vers[l] ? " (saved version)" : ""}">DOK ${l}${q.vers && q.vers[l] ? " ✓" : ""}</button>`).join("");
   const rewritten = q.edited;
   const body = rewritten
     ? `<textarea class="rw" data-n="${q.n}" rows="3" aria-label="Rewritten question ${esc(q.label)}">${esc(q.question)}</textarea><div class="printq">${esc(q.question)}</div>
-    <div class="rwbar">${q.alts && q.alts.length > 1 ? `<button type="button" class="ghost sm" data-act="another" data-n="${q.n}">Try another version (${q.altIdx + 1} of ${q.alts.length})</button>` : ""}<button type="button" class="ghost sm" data-act="copy" data-n="${q.n}">Copy</button><button type="button" class="ghost sm" data-act="reset" data-n="${q.n}">Reset to original</button></div>
+    <div class="rwbar">${q.alts && q.alts.length > 1 ? `<button type="button" class="ghost sm" data-act="another" data-n="${q.n}">Try another version (${q.altIdx + 1} of ${q.alts.length})</button>` : ""}<button type="button" class="ghost sm" data-act="copy" data-n="${q.n}">Copy</button><button type="button" class="ghost sm" data-act="reset" data-n="${q.n}" title="Show the question as you uploaded it. Your saved versions at other levels are kept.">Back to original</button></div>
     ${q.answer ? `<p class="ans"><b>Answer:</b> ${esc(q.answer)}</p>` : ""}
     ${q.note ? `<p class="fine">${esc(q.note)}</p>` : ""}
     <details class="orig"><summary>Show the original question</summary><p class="qtext">${esc(q.base)}</p></details>`
@@ -377,7 +392,7 @@ $("gupd").onclick = async () => {
 
 // Keep the current version in this browser so a refresh or closed tab doesn't lose the work
 const SAVE_KEY = "dokAnalyzer:last";
-function saveSession() { try { localStorage.setItem(SAVE_KEY, JSON.stringify({ fileName, srcUrl, questions, savedAt: Date.now() })); } catch (e) {} }
+function saveSession() { questions.forEach(snap); try { localStorage.setItem(SAVE_KEY, JSON.stringify({ fileName, srcUrl, questions, savedAt: Date.now() })); } catch (e) {} }
 function loadSession() { try { const s = JSON.parse(localStorage.getItem(SAVE_KEY) || "null"); return s && s.questions && s.questions.length ? s : null; } catch (e) { return null; } }
 (function offerResume() {
   const s = loadSession(); if (!s) return;
