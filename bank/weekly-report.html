@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Weekly Student Report | SCHS Computer Science</title>
+<link rel="icon" href="assets/logo.png">
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--ink:#1c2230;--mute:#5d6678;--line:#e1e5ee;--acc:#2f5bd8;--ok:#1f9d6b;--warn:#c98a00;--bad:#c9503f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header,main{max-width:1100px;margin:0 auto;padding:0 16px}
+header{padding-top:22px}h1{margin:0 0 2px;font-size:1.5rem}header p{margin:0 0 14px;color:var(--mute)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+label.f{display:flex;flex-direction:column;gap:3px;font-size:.8rem;color:var(--mute)}
+input,select,textarea,button{font:inherit}
+input,select,textarea{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:#fff;color:var(--ink)}
+button{border:0;border-radius:8px;padding:8px 14px;background:var(--acc);color:#fff;font-weight:600;cursor:pointer}
+button.ghost{background:#fff;color:var(--acc);border:1px solid var(--line)}button:disabled{opacity:.5;cursor:not-allowed}
+.fine{color:var(--mute);font-size:.82rem}.err{color:var(--bad);font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--mute);font-weight:600;font-size:.78rem;position:sticky;top:0;background:var(--card)}
+td.n,th.n{text-align:right}
+.pill{display:inline-block;border-radius:999px;padding:1px 10px;font-size:.78rem;font-weight:700;color:#fff}
+.r-Excellent{background:#1f9d6b}.r-Good{background:#4f8f2f}.r-Inconsistent{background:#c98a00}.r-Needs{background:#d9731f}.r-Not{background:#c9503f}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;min-width:70px}.bar i{display:block;height:100%;background:var(--acc)}
+.flag{color:var(--bad);font-size:.78rem}
+#cards{display:grid;gap:18px}
+.report{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px 26px;break-inside:avoid}
+.report h2{margin:0;font-size:1.3rem}.report .sub{color:var(--mute);margin:2px 0 12px}
+.report h3{margin:16px 0 6px;font-size:.95rem;text-transform:uppercase;letter-spacing:.04em;color:var(--mute)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.stat{border:1px solid var(--line);border-radius:10px;padding:8px 10px}.stat b{display:block;font-size:1.25rem}.stat span{color:var(--mute);font-size:.78rem}
+.report ul{margin:4px 0 0 18px;padding:0}.report li{margin:3px 0}
+.report textarea{width:100%;min-height:70px}
+.rate{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rbtn{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+details{margin-top:8px}summary{cursor:pointer;color:var(--acc)}
+.printnote{display:none}
+@media print{
+  body{background:#fff}header,.panel.noprint,.rbtn,.noprint,details{display:none!important}
+  .report{border:0;border-radius:0;padding:0;margin:0;page-break-after:always;break-inside:avoid}
+  .report.skip{display:none}
+  .report textarea{border:0;padding:0;resize:none;overflow:visible}
+  #cards{display:block}.printnote{display:block}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Weekly Student Report</h1>
+  <p>Teacher page. Builds a one-page summary of each student's week (what they opened, how far they got, time spent, bank points) that you can print, save as a PDF, or copy into an email to a parent or coach.</p>
+</header>
+<main>
+  <section class="panel noprint" id="gate">
+    <div class="row">
+      <label class="f">Teacher PIN<input id="pin" type="password" autocomplete="off" style="width:130px"></label>
+      <button id="pinGo">Unlock</button><span id="pinMsg" class="err"></span>
+    </div>
+  </section>
+
+  <section class="panel noprint" id="controls" hidden>
+    <div class="row">
+      <label class="f">Class period<select id="period"></select></label>
+      <label class="f">Week starting (Monday)<input type="date" id="weekStart"></label>
+      <button class="ghost" id="thisWeek">This week</button>
+      <button class="ghost" id="lastWeek">Last week</button>
+      <button id="load">Build report</button>
+      <span id="status" class="fine"></span>
+    </div>
+    <p class="fine" style="margin:8px 0 0">Data comes from the HTML editor, Python editor, Arduino editor and the bank. A "week" runs Monday 12:00 am to the next Monday.</p>
+  </section>
+
+  <section class="panel noprint" id="overviewBox" hidden>
+    <div class="row" style="justify-content:space-between;margin-bottom:8px">
+      <b id="ovTitle">Class overview</b>
+      <span class="row"><button class="ghost" id="selAll">Select all</button><button class="ghost" id="selNone">Select none</button><button class="ghost" id="csv">Download class CSV</button><button id="printSel">Print / save selected as PDF</button></span>
+    </div>
+    <div style="overflow:auto"><table id="overview"></table></div>
+    <details><summary>How the "work ethic" label is decided</summary>
+      <p class="fine">It is only a suggestion; change it on any student's report before you send it. It uses the week's activity: <b>days with work saved</b>, <b>minutes active</b>, and <b>assignments submitted</b>.
+      Excellent: 4+ days and (a submission or 60+ minutes). Good: 3+ days, or a submission with 20+ minutes. Inconsistent: 2 days or some work. Needs improvement: 1 day with little work. Not working: no work saved all week.
+      HTML assignments only record their latest save, so a student who worked on HTML on several days may show fewer days than they really worked. Python work is tracked minute by minute, so it is more exact. A student who was absent will look low: add a note.</p>
+    </details>
+  </section>
+
+  <div id="cards"></div>
+  <p class="fine noprint" style="margin:18px 0 30px">These reports contain student education records. Send them only to the student's parents/guardians or to coaches and staff with a school need to know.</p>
+</main>
+
+<!-- the same scripts the HTML editor uses, so unsubmitted HTML work can be scored too -->
+<script src="../ist/unit-6/concepts.js"></script>
+<script src="../ist/unit-6/checklist-config.js"></script>
+<script src="../ist/unit-6/answers.js"></script>
+<script src="../ist/unit-6/answers-early.js"></script>
+<script src="../ist/unit-6/answers-html2.js"></script>
+<script src="../ist/unit-6/answers-v2.js"></script>
+<script src="../ist/unit-6/answers-site.js"></script>
+<script src="../ist/unit-6/answers-u3.js"></script>
+<script src="../ist/unit-6/examples.js"></script>
+<script src="../ist/unit-6/html-check.js"></script>
+<script src="../ist/unit-6/step-checks.js"></script>
+<script src="../ist/unit-6/step-checks-a.js"></script>
+<script src="../ist/unit-6/step-checks-b.js"></script>
+<script src="../ist/unit-6/live.js"></script>
+<script src="weekly-report.js"></script>
+</body>
+</html>
