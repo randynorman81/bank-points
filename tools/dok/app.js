@@ -151,6 +151,64 @@ function render() {
   });
 }
 
+// "Write it with AI": a ready-made prompt the teacher pastes into Gemini (or Claude / ChatGPT) with their own account.
+const AI_VERBS = {
+  1: "define, identify, list, name, label, recall, state, match",
+  2: "explain, describe, compare, classify, summarize, interpret, predict, estimate, organize, solve a multi-step problem",
+  3: "justify, argue, evaluate, critique, support with evidence, draw conclusions, hypothesize, analyze a new situation",
+  4: "design, create, synthesize across sources, investigate over time, connect ideas across texts or fields, prove, develop a plan or model"
+};
+function qFormat(q) {
+  const t = q.base;
+  if (q.mc || /^\s*\(?[A-Ha-h][.)]\s/m.test(t)) return { id: "mc", text: "multiple choice with four options (A, B, C, D) and exactly one correct answer" };
+  if (/\btrue\s*(or|\/)\s*false\b/i.test(t)) return { id: "tf", text: "true/false" };
+  if (/_{3,}|\bfill in\b/i.test(t)) return { id: "fill", text: "fill in the blank" };
+  if ((t.match(/\d+/g) || []).length >= 2) return { id: "math", text: "a problem with numbers that has one correct numerical answer" };
+  return { id: "open", text: "an open-response question (a written answer)" };
+}
+function aiPrompt(q, L) {
+  const f = qFormat(q), mc = f.id === "mc";
+  const extra = mc
+    ? "Write four answer choices (A-D). Make the wrong choices believable: each should come from a real misconception or a plausible mistake, not an obviously silly answer. Put the correct answer in a different position than in the original."
+    : f.id === "open" ? "Include a short scoring guide: what a strong answer must include."
+    : f.id === "math" ? "Give the correct numerical answer and show the steps." : "Include the correct answer.";
+  return `You are an expert test writer who knows Webb's Depth of Knowledge (DOK).
+
+TASK: Rewrite the test question below as a NEW question at DOK Level ${L} (${NAMES[L]}).
+- DOK ${L} means: ${DOK.MEANS[L]}
+- Typical DOK ${L} thinking: ${AI_VERBS[L]}.
+- Keep the SAME TOPIC, subject and grade level as the original, and keep the SAME FORMAT: ${f.text}.
+- Change the thinking the question demands. Do not just add words like "explain" or "justify" to the old question, and do not make it harder only by making it longer or using bigger words.
+- ${extra}
+
+OUTPUT:
+1. The new question${mc ? " with its four choices" : ""}.
+2. The answer key${mc ? " (the correct letter) and one sentence on why each wrong choice is tempting" : ""}.
+3. One sentence on why this question is DOK ${L}.
+
+ORIGINAL QUESTION (currently rated DOK ${q.dok0}, ${NAMES[q.dok0]}):
+${q.base}
+
+(If the original refers to a passage, graph, or picture that is not shown here, tell me what you need, or write the question so it does not depend on it.)`;
+}
+function aiBlock(q) {
+  const btns = [1, 2, 3, 4].map(l => `<button type="button" class="ghost sm" data-ai="${l}" data-n="${q.n}" style="border-color:${COL[l]}">DOK ${l}</button>`).join("");
+  return `<details class="ai"><summary>Write a ${qFormat(q).id === "mc" ? "multiple-choice " : ""}version with AI (Gemini)</summary>
+    <p class="fine">Pick a level. The prompt is copied, then paste it into <a href="https://gemini.google.com" target="_blank" rel="noopener">Gemini</a> signed in with your school account. It keeps this question's format (${esc(qFormat(q).text)}). Claude or ChatGPT work too. Check the answer key before using it.</p>
+    <div class="rwbar"><span class="fine">Copy prompt for:</span>${btns}<span class="aimsg fine" role="status"></span></div>
+    <textarea class="aitext" readonly rows="6" hidden></textarea>
+  </details>`;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("button[data-ai]");
+  if (!b) return;
+  const q = questions.find(x => x.n === +b.dataset.n), box = b.closest("details"), msg = box.querySelector(".aimsg"), ta = box.querySelector(".aitext");
+  const text = aiPrompt(q, +b.dataset.ai);
+  ta.value = text; ta.hidden = false;
+  const done = ok => { msg.textContent = ok ? "Copied. Now paste it into Gemini." : "Select the text below and copy it."; if (!ok) { ta.focus(); ta.select(); } };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => done(true), () => done(false)); else done(false);
+});
+
 // Changing a question's DOK level rewrites the question itself (free, rule-based; see rewrite.js)
 function restore(q) { q.question = q.base; q.dok = q.dok0; q.why = q.why0; q.edited = false; q.alts = null; q.hand = false; q.note = ""; }
 function useAlt(q) {
@@ -183,6 +241,7 @@ function card(q) {
     ${body}
     <p class="why"><b>Why:</b> ${esc(q.why.replace(/^(Rated|Rewritten for) DOK \d \([^)]*\)\.?:? ?/, "") || q.why)}</p>
     ${rewritten ? `<p class="why"><b>How to score it:</b> ${esc(q.tip)}</p><p class="fine">If this question uses a passage, graph, or picture, keep it with the rewritten question.</p>` : `<div class="verbs">${q.verbs.map(v => `<span>${esc(v)}</span>`).join("")}</div>`}
+    ${aiBlock(q)}
   </article>`;
 }
 
