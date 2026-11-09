@@ -130,6 +130,7 @@ function render() {
   $("advice").textContent = hi >= 40 ? `${Math.round(hi)}% of this test is DOK 3-4, a strong balance of deeper thinking.`
     : hi >= 20 ? `${Math.round(hi)}% of this test is DOK 3-4.`
     : `Only ${Math.round(hi)}% of this test is DOK 3-4; it mostly measures recall and routine skills.`;
+  renderLevelList();
 
   $("filter").innerHTML = [0, 1, 2, 3, 4].map(l => `<button data-f="${l}" class="${filter === l ? "on" : ""}">${l ? "DOK " + l : "All"}</button>`).join("");
   $("filter").querySelectorAll("button").forEach(b => b.onclick = () => { filter = +b.dataset.f; render(); });
@@ -245,6 +246,26 @@ document.addEventListener("click", e => {
   }
 });
 
+// "Which questions are in each level?": a list of question numbers (with the start of each question) under every DOK level
+let levelOpen = false;
+function renderLevelList() {
+  const box = $("levelList"); box.hidden = !levelOpen;
+  $("byLevel").textContent = levelOpen ? "Hide the question list" : "Which questions are in each DOK level?";
+  $("byLevel").setAttribute("aria-expanded", levelOpen);
+  if (!levelOpen) return;
+  box.innerHTML = [1, 2, 3, 4].map(l => {
+    const qs = questions.filter(q => q.dok === l);
+    return `<div class="lvl"><div class="lvlh"><span class="dot" style="background:${COL[l]}"></span><b>DOK ${l} &middot; ${NAMES[l]}</b> <span class="fine">${qs.length} question${qs.length === 1 ? "" : "s"}${qs.length ? ": " + qs.map(q => esc(q.label)).join(", ") : ""}</span></div>`
+      + (qs.length ? `<ul>${qs.map(q => `<li><a href="#q-${q.n}" data-go="${q.n}"><b>${esc(q.label)}.</b> ${esc(String(q.question).replace(/\s+/g, " ").slice(0, 90))}${String(q.question).length > 90 ? "..." : ""}</a></li>`).join("")}</ul>` : `<p class="fine">No questions are at this level.</p>`) + `</div>`;
+  }).join("");
+}
+$("byLevel").onclick = () => { levelOpen = !levelOpen; renderLevelList(); };
+$("levelList").addEventListener("click", e => {
+  const a = e.target.closest && e.target.closest("a[data-go]"); if (!a) return;
+  e.preventDefault(); filter = 0; render();
+  const el = document.getElementById("q-" + a.dataset.go); if (el) { el.scrollIntoView({ behavior: "smooth", block: "start" }); el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1600); }
+});
+
 // Changing a question's DOK level rewrites the question itself (free, rule-based; see rewrite.js)
 // Every level a teacher works on keeps its own saved version of the question, so switching levels and coming back never loses it
 function snap(q) {
@@ -285,7 +306,7 @@ function card(q) {
     ${q.note ? `<p class="fine">${esc(q.note)}</p>` : ""}
     <details class="orig"><summary>Show the original question</summary><p class="qtext">${esc(q.base)}</p></details>`
     : `<p class="qtext">${esc(q.question)}</p>`;
-  return `<article class="q">
+  return `<article class="q" id="q-${q.n}">
     <div class="qhead"><span class="qn">Question ${esc(q.label)}</span><span class="badge" style="background:${COL[q.dok]}">DOK ${q.dok} &middot; ${NAMES[q.dok]}</span>
       ${q.edited ? '<span class="fine">rewritten</span>' : q.conf === "low" ? '<span class="fine">low confidence: double-check</span>' : ""}
       </div>
