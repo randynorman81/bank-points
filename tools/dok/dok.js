@@ -10,7 +10,7 @@
       "which of the following", "true or false", "true/false", "fill in", "is called", "is known as", "how many", "how much", "spell", "round", "add", "subtract", "multiply", "divide", "evaluate the expression", "simplify"],
     2: ["describe", "explain", "interpret", "categorize", "classify", "compare", "contrast", "construct", "distinguish", "estimate", "graph",
       "identify patterns", "infer", "make observations", "modify", "organize", "predict", "relate", "separate", "show", "summarize", "use context",
-      "context clues", "cause", "effect", "main idea", "how does", "how do", "solve", "sequence", "paraphrase", "convert", "represent", "why does", "why do",
+      "context clues", "cause", "effect", "main idea", "how does", "how do", "solve", "sequence", "paraphrase", "convert", "represent", "why does", "why do", "why did", "why was", "why were",
       "result of", "what happens", "differences", "similarities", "plot", "sort", "meaning of", "which best describes", "best summarizes", "theme"],
     3: ["justify", "support your", "evidence", "cite", "argue", "argument", "defend", "evaluate", "assess", "critique", "appraise", "hypothesize",
       "draw conclusions", "conclusion", "differentiate", "formulate", "investigate", "revise", "which is the best", "most likely", "author's purpose",
@@ -133,6 +133,7 @@
     return { counts: c, pct, n };
   }
 
-  const api = { analyze, tally, splitQuestions, NAMES };
+  const rateText = t => rate({ n: 1, label: "1", lines: String(t).split("\n") });
+  const api = { analyze, tally, splitQuestions, rateText, NAMES };
   if (typeof module !== "undefined") module.exports = api; else root.DOK = api;
 })(typeof window !== "undefined" ? window : globalThis);

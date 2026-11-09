@@ -109,6 +109,7 @@ $("go").onclick = () => {
   const text = picked ? picked.text : $("paste").value;
   fileName = picked ? picked.name.replace(/\.[^.]+$/, "") : "Pasted test";
   questions = DOK.analyze(text); filter = 0;
+  questions.forEach(q => { q.base = q.question; q.dok0 = q.dok; q.why0 = q.why; });
   $("rawtext").textContent = text;
   if (!questions.length) return showErr("Couldn't find any questions. Number them like 1. 2. 3. and try again.");
   $("setup").hidden = true; $("results").hidden = false;
@@ -135,27 +136,60 @@ function render() {
   $("list").querySelectorAll("button[data-dok]").forEach(b => b.onclick = () => {
     const q = questions.find(x => x.n === +b.dataset.n);
     if (q.dok === +b.dataset.dok) return;
-    q.dok = +b.dataset.dok; q.edited = true; q.why = `Changed to DOK ${q.dok} (${NAMES[q.dok]}) by you.`; render();
+    setLevel(q, +b.dataset.dok); render();
   });
+  $("list").querySelectorAll("button[data-act]").forEach(b => b.onclick = () => {
+    const q = questions.find(x => x.n === +b.dataset.n), act = b.dataset.act;
+    if (act === "another" && q.alts && q.alts.length > 1) { q.altIdx = (q.altIdx + 1) % q.alts.length; useAlt(q); }
+    else if (act === "reset") { restore(q); }
+    else if (act === "copy") { navigator.clipboard && navigator.clipboard.writeText(q.question); b.textContent = "Copied"; setTimeout(() => { b.textContent = "Copy"; }, 1200); return; }
+    render();
+  });
+  $("list").querySelectorAll("textarea.rw").forEach(t => {
+    t.oninput = () => { const q = questions.find(x => x.n === +t.dataset.n); q.question = t.value; q.hand = true; t.style.height = "auto"; t.style.height = t.scrollHeight + "px"; };
+    t.style.height = "auto"; t.style.height = t.scrollHeight + "px";
+  });
+}
+
+// Changing a question's DOK level rewrites the question itself (free, rule-based; see rewrite.js)
+function restore(q) { q.question = q.base; q.dok = q.dok0; q.why = q.why0; q.edited = false; q.alts = null; q.hand = false; q.note = ""; }
+function useAlt(q) {
+  q.question = q.alts[q.altIdx]; q.hand = false;
+  const ok = q.verified[q.altIdx];
+  q.why = `Rewritten for DOK ${q.dok} (${NAMES[q.dok]}). ${DOK.MEANS[q.dok]} ` + (ok ? `Check: the new wording rates DOK ${q.dok} on the same scale the analyzer uses.` : "This is a best effort. Read it over and adjust the wording.");
+}
+function setLevel(q, L) {
+  if (L === q.dok0) return restore(q);
+  const r = DOK.rewrite(q.base, L);
+  q.dok = L; q.edited = true; q.alts = r.alts; q.verified = r.verified; q.altIdx = 0; q.tip = r.tip;
+  q.note = r.dropsChoices ? "The answer choices were removed because this is now an open-response question." : "";
+  useAlt(q);
 }
 
 function card(q) {
   const sel = [1, 2, 3, 4].map(l => `<button type="button" class="lv${l === q.dok ? " on" : ""}" data-n="${q.n}" data-dok="${l}" style="--c:${COL[l]}" aria-pressed="${l === q.dok}" title="${NAMES[l]}">DOK ${l}</button>`).join("");
+  const rewritten = q.edited && q.alts;
+  const body = rewritten
+    ? `<textarea class="rw" data-n="${q.n}" rows="3" aria-label="Rewritten question ${esc(q.label)}">${esc(q.question)}</textarea><div class="printq">${esc(q.question)}</div>
+    <div class="rwbar">${q.alts.length > 1 ? `<button type="button" class="ghost sm" data-act="another" data-n="${q.n}">Try another version (${q.altIdx + 1} of ${q.alts.length})</button>` : ""}<button type="button" class="ghost sm" data-act="copy" data-n="${q.n}">Copy</button><button type="button" class="ghost sm" data-act="reset" data-n="${q.n}">Reset to original</button></div>
+    ${q.note ? `<p class="fine">${esc(q.note)}</p>` : ""}
+    <details class="orig"><summary>Show the original question</summary><p class="qtext">${esc(q.base)}</p></details>`
+    : `<p class="qtext">${esc(q.question)}</p>`;
   return `<article class="q">
     <div class="qhead"><span class="qn">Question ${esc(q.label)}</span><span class="badge" style="background:${COL[q.dok]}">DOK ${q.dok} &middot; ${NAMES[q.dok]}</span>
-      ${q.edited ? '<span class="fine">edited</span>' : q.conf === "low" ? '<span class="fine">low confidence: double-check</span>' : ""}
+      ${q.edited ? '<span class="fine">rewritten</span>' : q.conf === "low" ? '<span class="fine">low confidence: double-check</span>' : ""}
       </div>
-    <div class="chg" role="group" aria-label="Change the DOK level of question ${esc(q.label)}"><span>Change level:</span>${sel}</div>
-    <p class="qtext">${esc(q.question)}</p>
-    <p class="why"><b>Why:</b> ${esc(q.why.replace(/^(Rated|Changed to) DOK \d \([^)]*\)( by you)?:? ?/, "") || q.why)}</p>
-    <div class="verbs">${q.verbs.map(v => `<span>${esc(v)}</span>`).join("")}</div>
+    <div class="chg" role="group" aria-label="Rewrite question ${esc(q.label)} at a different DOK level"><span>Rewrite at level:</span>${sel}</div>
+    ${body}
+    <p class="why"><b>Why:</b> ${esc(q.why.replace(/^(Rated|Rewritten for) DOK \d \([^)]*\)\.?:? ?/, "") || q.why)}</p>
+    ${rewritten ? `<p class="why"><b>How to score it:</b> ${esc(q.tip)}</p><p class="fine">If this question uses a passage, graph, or picture, keep it with the rewritten question.</p>` : `<div class="verbs">${q.verbs.map(v => `<span>${esc(v)}</span>`).join("")}</div>`}
   </article>`;
 }
 
 $("csv").onclick = () => {
   const q = s => '"' + String(s).replace(/"/g, '""') + '"';
-  const rows = [["Question", "DOK", "Level name", "Why", "Text"].map(q).join(",")]
-    .concat(questions.map(x => [x.label, x.dok, NAMES[x.dok], x.why, x.question.replace(/\s+/g, " ")].map(q).join(",")));
+  const rows = [["Question", "DOK", "Level name", "Why", "Question text (as rewritten)", "Original question"].map(q).join(",")]
+    .concat(questions.map(x => [x.label, x.dok, NAMES[x.dok], x.why, x.question.replace(/\s+/g, " "), String(x.base || x.question).replace(/\s+/g, " ")].map(q).join(",")));
   const t = DOK.tally(questions);
   rows.push("", [1, 2, 3, 4].map(l => q(`DOK ${l}: ${t.pct[l]}% (${t.counts[l]})`)).join(","));
   const a = document.createElement("a");
