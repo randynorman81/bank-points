@@ -322,7 +322,9 @@ $("doc").onclick = () => {
   const isCh = l => /^\s*\(?[A-Ha-h][.)]\s/.test(l);
   const body = qs.map(x => {
     const ls = (x.head + " " + x.text).split("\n").filter(l => l.trim());
-    return ls.map((l, k) => isCh(l) ? `<p style="margin:12pt 0 12pt 18pt">${esc(l)}</p>` : `<p style="margin:0 0 ${ls[k + 1] && isCh(ls[k + 1]) ? "12pt" : "6pt"}">${k === 0 ? `<b>${esc(x.head)}</b> ${esc(l.slice(x.head.length + 1))}` : esc(l)}</p>`).join("");
+    // a choice and any lines that run on from it stay in one paragraph; each choice gets space around it
+    const blocks = []; ls.forEach(l => { if (isCh(l) || !blocks.length) blocks.push({ ch: isCh(l), lines: [l] }); else blocks[blocks.length - 1].lines.push(l); });
+    return blocks.map((b, k) => { const txt = b.lines.map((l, j) => (k === 0 && j === 0 ? "<b>" + esc(x.head) + "</b> " + esc(l.slice(x.head.length + 1)) : esc(l))).join("<br>"); return b.ch ? "<p style=\"margin:12pt 0 12pt 18pt\">" + txt + "</p>" : "<p style=\"margin:0 0 " + (blocks[k + 1] && blocks[k + 1].ch ? "12pt" : "6pt") + "\">" + txt + "</p>"; }).join("");
   }).join('\n<hr style="border:0;border-top:1.5pt solid #777;margin:14pt 0">\n')
     + (keys.length ? `<br style="page-break-before:always"><h3 style="page-break-before:always">Answer Key</h3>` + keys.map(k => `<p>${esc(k)}</p>`).join("\n") : "");
   const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${esc(fileName)}</title></head><body style="font-family:Calibri,Arial,sans-serif"><h2>${esc(fileName)}</h2>\n${body}</body></html>`;
@@ -347,9 +349,10 @@ $("pdf").onclick = () => {
   qs.forEach((x, i) => {
     const lines = (x.head + " " + x.text).split("\n").filter(l => l.trim());
     let need = 0;
-    lines.forEach((l, k) => { need += doc.splitTextToSize(plain(l), W - 2 * M).length * LH + ((isChoice(l) || (lines[k + 1] && isChoice(lines[k + 1]))) ? LH : 0); });
+    lines.forEach((l, k) => { need += doc.splitTextToSize(plain(l), W - 2 * M).length * LH + ((lines[k + 1] && isChoice(lines[k + 1])) ? LH : 0); });
     if (y + need > H - M && need < H - 2 * M) { doc.addPage(); y = M; }   // keep a short question together on one page
-    lines.forEach((l, k) => { line(l, false); if (isChoice(l) || (lines[k + 1] && isChoice(lines[k + 1]))) y += LH; });
+    // one blank line before each new answer choice, but none inside a choice that runs onto a second line
+    lines.forEach((l, k) => { line(l, false); if (lines[k + 1] && isChoice(lines[k + 1])) y += LH; });
     y += 4;
     if (i < qs.length - 1) {
       if (y > H - M) { doc.addPage(); y = M; }
