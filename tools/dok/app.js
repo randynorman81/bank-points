@@ -121,6 +121,7 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "
 
 function render() {
   const { counts, pct, n } = DOK.tally(questions);
+  saveSession();
   $("status").textContent = n + " questions found";
   $("stack").innerHTML = [1, 2, 3, 4].map(l => counts[l] ? `<div style="width:${counts[l] / n * 100}%;background:${COL[l]}">${pct[l]}%</div>` : "").join("");
   $("legend").innerHTML = [1, 2, 3, 4].map(l => `<div><span class="dot" style="background:${COL[l]}"></span><b>DOK ${l}</b> ${NAMES[l]}: ${pct[l]}% (${counts[l]})</div>`).join("");
@@ -146,7 +147,7 @@ function render() {
     render();
   });
   $("list").querySelectorAll("textarea.rw").forEach(t => {
-    t.oninput = () => { const q = questions.find(x => x.n === +t.dataset.n); q.question = t.value; q.hand = true; t.style.height = "auto"; t.style.height = t.scrollHeight + "px"; };
+    t.oninput = () => { const q = questions.find(x => x.n === +t.dataset.n); q.question = t.value; q.hand = true; saveSession(); t.style.height = "auto"; t.style.height = t.scrollHeight + "px"; };
     t.style.height = "auto"; t.style.height = t.scrollHeight + "px";
   });
 }
@@ -192,25 +193,47 @@ ${q.base}
 (If the original refers to a passage, graph, or picture that is not shown here, tell me what you need, or write the question so it does not depend on it.)`;
 }
 function aiBlock(q) {
-  const btns = [1, 2, 3, 4].map(l => `<button type="button" class="ghost sm" data-ai="${l}" data-n="${q.n}" style="border-color:${COL[l]}">DOK ${l}</button>`).join("");
-  return `<details class="ai"><summary>Write a ${qFormat(q).id === "mc" ? "multiple-choice " : ""}version with AI (Gemini)</summary>
-    <p class="fine">Pick a level. The prompt is copied, then paste it into <a href="https://gemini.google.com" target="_blank" rel="noopener">Gemini</a> signed in with your school account. It keeps this question's format (${esc(qFormat(q).text)}). Claude or ChatGPT work too. Check the answer key before using it.</p>
-    <div class="rwbar"><span class="fine">Copy prompt for:</span>${btns}<span class="aimsg fine" role="status"></span></div>
-    <textarea class="aitext" readonly rows="6" hidden></textarea>
-  </details>`;
+  const btns = [1, 2, 3, 4].map(l => `<button type="button" class="ghost sm${q.aiLevel === l ? " on" : ""}" data-ai="${l}" data-n="${q.n}" style="border-color:${COL[l]}" title="Copy the prompt for DOK ${l}">DOK ${l}</button>`).join("");
+  return `<div class="ai">
+    <div class="rwbar"><b>Write a ${qFormat(q).id === "mc" ? "multiple-choice " : ""}version with AI:</b><span class="fine">click a level to copy the prompt, then paste it into <a href="https://gemini.google.com" target="_blank" rel="noopener">Gemini</a></span></div>
+    <div class="rwbar">${btns}<span class="aimsg" role="status"></span></div>
+    <textarea class="aitext" readonly rows="5" hidden aria-label="The prompt that was copied"></textarea>
+    <div class="aipaste"${q.aiLevel ? "" : " hidden"}>
+      <label class="fine" for="aiin${q.n}">Paste the question Gemini gave you (it will be saved as DOK ${q.aiLevel || "?"} in your test):</label>
+      <textarea class="aiin" id="aiin${q.n}" rows="5" placeholder="Paste Gemini's new question here"></textarea>
+      <div class="rwbar"><button type="button" class="sm" data-use="${q.n}">Use this question in my test</button></div>
+    </div>
+  </div>`;
+}
+function legacyCopy(ta) { try { ta.hidden = false; ta.focus(); ta.select(); return document.execCommand("copy"); } catch (e) { return false; } }
+function copyText(text, ta) {
+  ta.value = text; ta.hidden = false;
+  const p = navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(text).then(() => true, () => false) : Promise.resolve(false);
+  return p.then(ok => ok || legacyCopy(ta));
 }
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest("button[data-ai]");
-  if (!b) return;
-  const q = questions.find(x => x.n === +b.dataset.n), box = b.closest("details"), msg = box.querySelector(".aimsg"), ta = box.querySelector(".aitext");
-  const text = aiPrompt(q, +b.dataset.ai);
-  ta.value = text; ta.hidden = false;
-  const done = ok => { msg.textContent = ok ? "Copied. Now paste it into Gemini." : "Select the text below and copy it."; if (!ok) { ta.focus(); ta.select(); } };
-  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => done(true), () => done(false)); else done(false);
+  if (b) {
+    const q = questions.find(x => x.n === +b.dataset.n), box = b.closest(".ai"), msg = box.querySelector(".aimsg"), ta = box.querySelector(".aitext"), L = +b.dataset.ai;
+    q.aiLevel = L;
+    box.querySelectorAll("button[data-ai]").forEach(x => x.classList.toggle("on", +x.dataset.ai === L));
+    const pa = box.querySelector(".aipaste"); pa.hidden = false;
+    pa.querySelector("label").textContent = `Paste the question Gemini gave you (it will be saved as DOK ${L} in your test):`;
+    copyText(aiPrompt(q, L), ta).then(ok => { msg.textContent = ok ? "Copied. Now paste it into Gemini." : "Press Ctrl+C to copy the text below."; });
+    return;
+  }
+  const u = e.target.closest && e.target.closest("button[data-use]");
+  if (u) {
+    const q = questions.find(x => x.n === +u.dataset.use), v = u.closest(".ai").querySelector(".aiin").value.trim();
+    if (!v) { u.textContent = "Paste Gemini's question first"; setTimeout(() => { u.textContent = "Use this question in my test"; }, 1800); return; }
+    q.question = v; q.dok = q.aiLevel; q.edited = true; q.alts = null; q.note = "This question came from AI. Check the answer key and wording before you use it.";
+    q.tip = DOK.TIPS[q.dok]; q.why = `Written with AI for DOK ${q.dok} (${NAMES[q.dok]}). ${DOK.MEANS[q.dok]}`; q.fromAI = true;
+    render();
+  }
 });
 
 // Changing a question's DOK level rewrites the question itself (free, rule-based; see rewrite.js)
-function restore(q) { q.question = q.base; q.dok = q.dok0; q.why = q.why0; q.edited = false; q.alts = null; q.hand = false; q.note = ""; }
+function restore(q) { q.question = q.base; q.dok = q.dok0; q.why = q.why0; q.edited = false; q.alts = null; q.hand = false; q.note = ""; q.fromAI = false; q.aiLevel = 0; }
 function useAlt(q) {
   q.question = q.alts[q.altIdx]; q.hand = false;
   const ok = q.verified[q.altIdx];
@@ -226,10 +249,10 @@ function setLevel(q, L) {
 
 function card(q) {
   const sel = [1, 2, 3, 4].map(l => `<button type="button" class="lv${l === q.dok ? " on" : ""}" data-n="${q.n}" data-dok="${l}" style="--c:${COL[l]}" aria-pressed="${l === q.dok}" title="${NAMES[l]}">DOK ${l}</button>`).join("");
-  const rewritten = q.edited && q.alts;
+  const rewritten = q.edited;
   const body = rewritten
     ? `<textarea class="rw" data-n="${q.n}" rows="3" aria-label="Rewritten question ${esc(q.label)}">${esc(q.question)}</textarea><div class="printq">${esc(q.question)}</div>
-    <div class="rwbar">${q.alts.length > 1 ? `<button type="button" class="ghost sm" data-act="another" data-n="${q.n}">Try another version (${q.altIdx + 1} of ${q.alts.length})</button>` : ""}<button type="button" class="ghost sm" data-act="copy" data-n="${q.n}">Copy</button><button type="button" class="ghost sm" data-act="reset" data-n="${q.n}">Reset to original</button></div>
+    <div class="rwbar">${q.alts && q.alts.length > 1 ? `<button type="button" class="ghost sm" data-act="another" data-n="${q.n}">Try another version (${q.altIdx + 1} of ${q.alts.length})</button>` : ""}<button type="button" class="ghost sm" data-act="copy" data-n="${q.n}">Copy</button><button type="button" class="ghost sm" data-act="reset" data-n="${q.n}">Reset to original</button></div>
     ${q.note ? `<p class="fine">${esc(q.note)}</p>` : ""}
     <details class="orig"><summary>Show the original question</summary><p class="qtext">${esc(q.base)}</p></details>`
     : `<p class="qtext">${esc(q.question)}</p>`;
@@ -256,4 +279,26 @@ $("csv").onclick = () => {
   a.download = fileName + "-dok.csv"; a.click();
 };
 $("print").onclick = () => window.print();
+
+// Download the test as it stands now (with the rewrites and the questions pasted from AI) as a Word file
+$("doc").onclick = () => {
+  const labels = $("withDok").checked;
+  const body = questions.map(q => `<p><b>${esc(q.label)}.</b> ${esc(q.question).replace(/\n/g, "<br>")}${labels ? ` <i style="color:#666">[DOK ${q.dok}]</i>` : ""}</p>`).join("\n");
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${esc(fileName)}</title></head><body style="font-family:Calibri,Arial,sans-serif"><h2>${esc(fileName)}</h2>\n${body}</body></html>`;
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["﻿", html], { type: "application/msword" }));
+  a.download = fileName + "-updated.doc"; a.click();
+};
+
+// Keep the current version in this browser so a refresh or closed tab doesn't lose the work
+const SAVE_KEY = "dokAnalyzer:last";
+function saveSession() { try { localStorage.setItem(SAVE_KEY, JSON.stringify({ fileName, questions, savedAt: Date.now() })); } catch (e) {} }
+function loadSession() { try { const s = JSON.parse(localStorage.getItem(SAVE_KEY) || "null"); return s && s.questions && s.questions.length ? s : null; } catch (e) { return null; } }
+(function offerResume() {
+  const s = loadSession(); if (!s) return;
+  const box = $("resume"); box.hidden = false;
+  box.querySelector("span").textContent = `You have a saved version of "${s.fileName}" (${s.questions.length} questions, saved ${new Date(s.savedAt).toLocaleString()}).`;
+  $("resumeGo").onclick = () => { fileName = s.fileName; questions = s.questions; filter = 0; $("setup").hidden = true; $("results").hidden = false; $("title").textContent = fileName; $("rawtext").textContent = "(Original text isn't kept when you continue a saved test.)"; render(); };
+  $("resumeClear").onclick = () => { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} box.hidden = true; };
+})();
 $("again").onclick = () => { $("results").hidden = true; $("setup").hidden = false; picked = null; $("picked").hidden = true; $("paste").value = ""; showErr(""); refresh(); };

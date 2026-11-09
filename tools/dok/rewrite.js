@@ -195,5 +195,5 @@
     return { alts, verified: alts.map((_, i) => i < good.length), topic: T, means: MEANS[level], tip: TIPS[level], dropsChoices: hadChoices && level > 1 };
   }
 
-  D.rewrite = rewrite; D.topicOf = topicOf; D.stemOf = stemOf; D.MEANS = MEANS;
+  D.rewrite = rewrite; D.topicOf = topicOf; D.stemOf = stemOf; D.MEANS = MEANS; D.TIPS = TIPS;
 })(typeof window !== "undefined" ? window : globalThis);
