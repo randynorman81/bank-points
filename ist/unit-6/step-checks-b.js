@@ -719,7 +719,7 @@
       }
       var fontLimit = !!CL.fontLimit[l];
       var limits = [
-        [K("The whole page uses " + CL.maxColors(l) + " different colors or fewer, not counting span words (and at least 2)", function (c) { var seen = {}; notBody(c).concat(c.all("body")).forEach(function (x) { if (x.tag === "span") return; ["color", "background-color"].forEach(function (p) { h.vals(c, x, p).forEach(function (v) { if (named(v)) seen[v] = 1; }); }); }); var k = Object.keys(seen).length; return k >= 2 && k <= CL.maxColors(l); })],
+        [K("Use between 2 and " + CL.maxColors(l) + " different colors on the page (text colors and background colors together; colors inside span tags do not count)", function (c) { var seen = {}; notBody(c).concat(c.all("body")).forEach(function (x) { if (x.tag === "span") return; ["color", "background-color"].forEach(function (p) { h.vals(c, x, p).forEach(function (v) { if (named(v)) seen[v] = 1; }); }); }); var k = Object.keys(seen).length; return k >= 2 && k <= CL.maxColors(l); })],
         [K("Wherever a tag has both a color and a background-color, they are different", function (c) { var ok = true; h.order(c).forEach(function (x) { if (x.tag !== "#text" && has(c, x, "color") && has(c, x, "background-color") && !bothDiffer(c, x)) ok = false; }); return ok; })],
         [K("The whole page uses 5 different font sizes or fewer", function (c) { return distinctVals(c, "font-size", h.isPx).length <= 5; })]
       ];

@@ -408,7 +408,7 @@
         "Use **at least " + need + "** of these " + pool.length + " anywhere on your page (pick the ones that fit your theme):" + pool.map(function (f) { return BUL + "**" + f.label + "**"; }).join("")
       ]));
       var lim = [
-        "Use **no more than " + CL.maxColors(l) + " different colors** on the whole page (text colors and background colors together; span words do not count). Pick a small palette and reuse it",
+        "Use **between 2 and " + CL.maxColors(l) + " different colors** on the whole page (text colors and background colors together; colors inside span tags do not count). Pick a small palette and reuse it",
         "Wherever a tag has **both** a color and a background-color, they must be **different**, and the text must be easy to read",
         "Use **no more than 5 different font sizes** on the whole page. Same kind of tag, same size"
       ];
