@@ -149,11 +149,31 @@ function mcScoreOf(key, picks) {
   key.forEach((k, i) => { if (p[i] === k) correct++; else wrong.push({ q: i + 1, picked: p[i] === undefined ? -1 : p[i] }); });
   return { correct, total: key.length, wrong };
 }
+/* version history: before a draft is overwritten, the old code is kept (at most one every 3 minutes, or right away when the new code is much shorter, like after a big delete). The last 25 are kept so a student can get lost work back. */
+const HIST_MAX = 25, HIST_GAP_MS = 180000;
+async function keepHistory(slot, email, code) {
+  try {
+    const prev = await readJSON("draft:" + slot + ":" + enc(email), null);
+    if (!prev || !prev.code || prev.code.trim().length < 20 || prev.code === code) return;
+    const key = "hist:" + slot + ":" + enc(email), list = await readJSON(key, []), last = list[list.length - 1];
+    if (last && last.code === prev.code) return;
+    const shrank = code.length < prev.code.length * 0.6;
+    if (last && !shrank && Date.now() - Date.parse(last.t) < HIST_GAP_MS) return;
+    list.push({ t: prev.savedAt || now(), code: prev.code });
+    await store().setJSON(key, list.slice(-HIST_MAX));
+  } catch (e) { console.error("history failed", e); }
+}
+async function myHistory(body, user) {
+  if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
+  const list = await readJSON("hist:" + body.slot + ":" + enc(user.email), []);
+  return { ok: true, versions: list.slice().reverse() };
+}
 async function saveDraft(body, user) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
   if (await closedToStudent(body.slot, user)) return { error: "That assignment is not open yet." };
   const code = String(body.code == null ? "" : body.code);
   if (code.length > MAX_CODE) return { error: "That file is too big to save." };
+  await keepHistory(body.slot, user.email, code);
   await store().setJSON("draft:" + body.slot + ":" + enc(user.email), {
     email: user.email, name: user.name, period: cleanPeriod(body.period), slot: body.slot, mode: cleanMode(body.mode), code, world: cleanWorld(body.world), ticks: cleanTicks(body.ticks), mc: cleanMcPicks(body.mc), savedAt: now()
   });
@@ -516,6 +536,7 @@ export default async (req) => {
     if (action === "mine") return ok(await mine(body, user));
     if (action === "mySlots") return ok(await mySlots(user));
     if (action === "saveDraft") return ok(await saveDraft(body, user));
+    if (action === "history") return ok(await myHistory(body, user));
     if (action === "submit") return ok(await submit(body, user));
     if (action === "quizLeave") return ok(await quizLeave(body, user));
     return ok({ error: "Unknown action" });

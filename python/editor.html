@@ -215,6 +215,7 @@ body.teacher #assBody pre,body.teacher #tipBody pre{user-select:text;cursor:text
   <button class="btn run" id="run" disabled>&#9654; Run</button>
   <button class="btn" id="clear">Clear output</button>
   <button class="btn" id="reset">Reset code</button>
+  <button class="btn" id="histBtn" title="Get back an earlier version of your code">History</button>
   <select id="slot" aria-label="Assignment"></select>
   <button class="btn on" id="assBtn" title="Show or hide the assignment instructions">Instructions</button>
   <span class="status" id="status">Loading Python&hellip;</span>
@@ -268,6 +269,7 @@ body.teacher #assBody pre,body.teacher #tipBody pre{user-select:text;cursor:text
   </section>
 </main>
 <div class="modal" id="mSub"><div class="box"><div id="mSubBody"></div><div class="row"><button class="btn" id="mCancel">Cancel</button><button class="btn go" id="mGo">Submit</button></div></div></div>
+<div class="modal" id="mHist"><div class="box" role="dialog" aria-label="Code history" style="max-width:640px;width:92vw;max-height:84vh;overflow:auto"><h3 style="margin:0 0 6px">Your saved versions</h3><p style="color:var(--soft);margin:0 0 10px">Lost some code? Pick an earlier version and click Restore. Your current code goes into Undo (Ctrl+Z), so you can come back.</p><div id="histBody"></div><div class="row"><button class="btn" id="histClose">Close</button></div></div></div>
 <div class="modal" id="mTip"><div class="box tipbox" role="dialog" aria-label="Help"><div class="tiphead"><h3 id="tipTitle"></h3><button class="btn" id="tipClose">Got it</button></div><div id="tipBody"></div></div></div>
 <script src="assignments.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -1246,6 +1248,28 @@ function updateSaveInd() {
   else t = "\u2601 Saving soon...";
   if (el.textContent !== t) el.textContent = t; if (el.className !== c) el.className = c;
 }
+/* History: earlier saved versions of this assignment's code (kept by the server) */
+function histRestore(code) {
+  undoSync(true); ta.value = code; gutter(); ta.dispatchEvent(new Event("input")); lsSet(codeKey(), ta.value);
+  $("mHist").classList.remove("show"); flash("Restored. Ctrl+Z undoes it."); cloudSave();
+}
+$("histBtn").addEventListener("click", function () {
+  var body = $("histBody"), m = $("mHist"); m.classList.add("show");
+  if (!CRED || slot === "example") { body.innerHTML = "<p>Sign in with your school Google account to see your saved versions.</p>"; return; }
+  body.innerHTML = "<p>Loading...</p>";
+  api({ action: "history", slot: slot }).then(function (j) {
+    if (!j || !j.ok) { body.innerHTML = "<p>Could not load your history. Try again in a moment.</p>"; return; }
+    var v = j.versions || [];
+    if (!v.length) { body.innerHTML = "<p>No earlier versions yet. The editor starts keeping them as you work and your code changes.</p>"; return; }
+    body.innerHTML = v.map(function (x, i) {
+      var lines = x.code.split("\n"), pre = lines.slice(0, 8).join("\n") + (lines.length > 8 ? "\n..." : "");
+      return '<div style="border:1px solid var(--rule);border-radius:8px;padding:8px 10px;margin:0 0 8px"><div style="display:flex;gap:10px;align-items:center;margin-bottom:6px"><b>' + escH(new Date(x.t).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })) + '</b><span style="color:var(--soft)">' + lines.length + ' lines</span><span class="sp"></span><button class="btn sm go" data-h="' + i + '">Restore</button></div><pre style="margin:0;font-size:12px;max-height:120px;overflow:auto;white-space:pre-wrap">' + escH(pre) + '</pre></div>';
+    }).join("");
+    Array.prototype.forEach.call(body.querySelectorAll("button[data-h]"), function (b) { b.addEventListener("click", function () { histRestore(v[+b.getAttribute("data-h")].code); }); });
+  }).catch(function () { body.innerHTML = "<p>Could not load your history. Try again in a moment.</p>"; });
+});
+$("histClose").addEventListener("click", function () { $("mHist").classList.remove("show"); });
+$("mHist").addEventListener("click", function (e) { if (e.target === this) this.classList.remove("show"); });
 setInterval(updateSaveInd, 2000);
 setInterval(cloudSave, 30000);
 document.addEventListener("visibilitychange", function () { if (document.hidden) cloudSave(); });
