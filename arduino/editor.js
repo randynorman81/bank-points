@@ -740,8 +740,11 @@
     buildStage(); fitView(); paintEditor(); showProps(); renderAssignment(); updateUndo(); status("Ready"); updatePins({ pins: {} }); $("warnbox").innerHTML = "";
     afterSlot();
   }
+  /* assignments listed in arduino/live.js are closed to students (the teacher account sees everything) */
+  function closedSlot(id) { return (window.ARD_CLOSED || []).indexOf(id) > -1 && userEmail !== "randy.norman@socialcircleschools.org"; }
+  var pendingSlot = null;
   function buildSlots() {
-    $("slot").innerHTML = SLOTS.map(function (x) { return '<option value="' + x[0] + '">' + esc(x[1]) + (MY[x[0]] === "sub" ? " (submitted)" : MY[x[0]] === "draft" ? " (saved)" : "") + "</option>"; }).join("");
+    $("slot").innerHTML = SLOTS.filter(function (x) { return !closedSlot(x[0]) || x[0] === slot; }).map(function (x) { return '<option value="' + x[0] + '">' + esc(x[1]) + (MY[x[0]] === "sub" ? " (submitted)" : MY[x[0]] === "draft" ? " (saved)" : "") + "</option>"; }).join("");
     $("slot").value = slot;
   }
   $("slot").onchange = function () { cloudSave(); loadSlot($("slot").value); };
@@ -780,7 +783,7 @@
     var owner = lsGet("owner"); if (owner && owner !== userEmail) { try { Object.keys(localStorage).filter(function (k) { return /^ard:(proj|code|pt|ct):/.test(k); }).forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {} lsSet("owner", userEmail); loadSlot(slot); }
     lsSet("owner", userEmail);
     $("who").innerHTML = "Signed in: " + esc(USER) + ' <a href="#" id="signOut">Sign out</a>'; $("gbtn").innerHTML = ""; $("signOut").onclick = function (e) { e.preventDefault(); signOut(); };
-    api({ action: "mySlots" }).then(function (j) { if (j && j.ok) { (j.slots || []).forEach(function (x) { MY[x.slot] = x.submitted ? "sub" : "draft"; }); buildSlots(); } });
+    api({ action: "mySlots" }).then(function (j) { if (j && j.ok) { (j.slots || []).forEach(function (x) { MY[x.slot] = x.submitted ? "sub" : "draft"; }); buildSlots(); if (pendingSlot && !closedSlot(pendingSlot)) { var ps = pendingSlot; pendingSlot = null; loadSlot(ps); $("slot").value = ps; } } });
     afterSlot(); updateSaveInd();
   }
   function signOut() {
@@ -868,10 +871,12 @@
   makeSim(); buildPeriods(); buildSlots();
   var want = lsGet("slot") || "free"; if (!SLOTS.some(function (x) { return x[0] === want; })) want = "free";
   var q = /[?&]slot=([\w-]+)/.exec(location.search); if (q && SLOTS.some(function (x) { return x[0] === q[1]; })) want = q[1];
+  var closedNote = false; if (closedSlot(want)) { pendingSlot = want; want = "free"; closedNote = true; }
   if (lsGet("ass") === "0") document.body.classList.add("noass");
   coach = ArduinoCoach.attach($("stagewrap"), { topics: TIPS.topics, openTopic: openTip });
   (function () { var on = lsGet("coach") !== "0"; coach.enabled(on); $("coachBtn").className = "btn" + (on ? " on" : ""); $("coachBtn").onclick = function () { on = !on; lsSet("coach", on ? "1" : "0"); coach.enabled(on); this.className = "btn" + (on ? " on" : ""); toast(on ? "Coach tips are on." : "Coach tips are off."); }; })();
   loadSlot(want); $("slot").value = want; initGoogle();
+  if (closedNote) setTimeout(function () { toast("That assignment is not open yet. Your teacher will open it when it is time."); }, 600);
   setTimeout(fitView, 60); window.addEventListener("resize", function () { setTimeout(fitView, 80); });
   updatePins({ pins: {} });
   /* ---- no copy and paste from outside: students type their own code and answers.

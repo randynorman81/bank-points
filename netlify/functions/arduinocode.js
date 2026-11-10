@@ -1,4 +1,5 @@
 import { getStore } from "@netlify/blobs";
+import "../../arduino/live.js";
 
 // Arduino circuit editor backend (arduino/editor.html).
 //   - Students sign in with their school Google account (same setup as the Python and HTML editors).
@@ -27,6 +28,12 @@ async function verifyGoogleToken(credential) {
   return { email: (p.email || "").toLowerCase(), name: String(p.name || "").slice(0, 80) };
 }
 
+const TEACHER_EMAILS = ["randy.norman@socialcircleschools.org"];
+/* an assignment listed in arduino/live.js (ARD_CLOSED) is closed to students: it cannot be saved or submitted until the list is changed */
+function closedToStudent(slot, user) {
+  if (user && TEACHER_EMAILS.indexOf(String(user.email || "").toLowerCase()) > -1) return false;
+  return (globalThis.ARD_CLOSED || []).indexOf(slot) > -1;
+}
 function isAdmin(body) { return body && body.pin === (process.env.ADMIN_PIN || "1234"); }
 const enc = (s) => encodeURIComponent(s);
 const goodSlot = (l) => SLOTS.indexOf(l) > -1;
@@ -83,12 +90,14 @@ function readWork(body) {
 }
 async function saveDraft(body, user) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
+  if (closedToStudent(body.slot, user)) return { error: "That assignment is not open yet." };
   const w = readWork(body); if (w.error) return w;
   await store().setJSON("draft:" + body.slot + ":" + enc(user.email), { email: user.email, name: user.name, period: cleanPeriod(body.period), slot: body.slot, code: w.code, project: w.project, answers: cleanAnswers(body.answers), auto: cleanAuto(body.auto), savedAt: now() });
   return { ok: true };
 }
 async function submit(body, user) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
+  if (closedToStudent(body.slot, user)) return { error: "That assignment is not open yet." };
   const w = readWork(body); if (w.error) return w;
   if (!w.project.parts.some((p) => p.type !== "uno" && p.type !== "breadboard") && !w.code.trim()) return { error: "There is nothing to submit yet. Build a circuit and write some code first!" };
   const key = "sub:" + body.slot + ":" + enc(user.email), prev = await readJSON(key, null);
