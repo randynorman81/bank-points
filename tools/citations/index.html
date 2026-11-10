@@ -116,7 +116,7 @@ footer{max-width:900px;margin:0 auto;padding:6px 16px 40px;color:var(--soft);fon
   $("types").onclick = function (e) { var b = e.target.closest("[data-t]"); if (!b) return; st.type = b.dataset.t; [].forEach.call($("types").children, function (x) { x.classList.toggle("on", x === b); }); drawFields(); update(); };
   ["month", "day", "year", "amonth", "aday", "ayear", "fixCase"].forEach(function (id) { $(id).oninput = $(id).onchange = update; });
   function source() {
-    var s = { type: st.type, authors: st.authors, fixCase: $("fixCase").checked, month: $("month").value, day: $("day").value, year: $("year").value, accessed: { year: $("ayear").value, month: $("amonth").value, day: $("aday").value } };
+    var s = { type: st.type, authors: JSON.parse(JSON.stringify(st.authors)), fixCase: $("fixCase").checked, month: $("month").value, day: $("day").value, year: $("year").value, accessed: { year: $("ayear").value, month: $("amonth").value, day: $("aday").value } };
     document.querySelectorAll("#fields [data-f]").forEach(function (el) { s[el.dataset.f] = el.value; }); return s;
   }
   var last = null;

@@ -107,7 +107,7 @@
   }
   function apa(s, w) {
     const A = apaAuthors(s.authors), fix = s.fixCase !== false;
-    const T = fix ? sentenceCase(s.title) : t(s.title), site = t(s.site), cont = t(s.container);
+    const T = fix ? sentenceCase(s.title) : t(s.title), site = fix ? titleCase(s.site || "") : t(s.site), cont = fix ? titleCase(s.container || "") : t(s.container);
     const dateFull = apaDate(s.year, s.month, s.day, true), yearOnly = apaDate(s.year, s.month, s.day, false);
     const url = urlFor(s.url, false); let H = "";
     const lead = (title, d) => (A ? endWith(esc(A)) + " (" + esc(d) + "). " : (title ? "" : "")); // author and date
