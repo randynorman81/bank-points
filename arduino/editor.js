@@ -328,7 +328,14 @@
     sel = null; buildStage(); commit(); showProps();
   }
   $("delete").onclick = deleteSel;
-  function rotateSel() { var p = selectedPart(); if (!p || C.PARTS[p.type].board) return; p.rot = ((p.rot || 0) + 1) % 4; snapPart(p); buildStage(); commit(); showProps(); }
+  function rotateBoard(b) {
+    /* turn a board (Arduino or breadboard) a quarter turn clockwise about its middle, carrying every part plugged into it */
+    var carried = attachedTo(b), bb = bboxLocal(b), lc = [bb[0] + bb[2] / 2, bb[1] + bb[3] / 2], o = C.rot(lc[0], lc[1], b.rot || 0), cx = b.x + o[0], cy = b.y + o[1];
+    var rd = function (v) { return Math.round(v * 100) / 100; };
+    carried.forEach(function (a) { var vx = a.x - cx, vy = a.y - cy; a.x = rd(cx - vy); a.y = rd(cy + vx); a.rot = (((a.rot || 0) + 1) % 4 + 4) % 4; });
+    b.rot = (((b.rot || 0) + 1) % 4 + 4) % 4; var n = C.rot(lc[0], lc[1], b.rot); b.x = rd(cx - n[0]); b.y = rd(cy - n[1]);
+  }
+  function rotateSel() { var p = selectedPart(); if (!p) return; if (C.PARTS[p.type].board) { rotateBoard(p); buildStage(); commit(); showProps(); return; } p.rot = ((p.rot || 0) + 1) % 4; snapPart(p); buildStage(); commit(); showProps(); }
   $("rotate").onclick = rotateSel;
   $("clearc").onclick = function () { if (!project.parts.some(function (p) { return !C.PARTS[p.type].board; }) && !project.wires.length) return; if (!confirm("Remove all your parts and wires and start the circuit over?")) return; if (sim.running) sim.stop(); project = defaultProject(); sel = null; buildStage(); commit(); fitView(); showProps(); };
   function snapPart(p) {
