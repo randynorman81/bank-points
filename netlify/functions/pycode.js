@@ -208,7 +208,10 @@ async function submit(body, user) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
   if (await closedToStudent(body.slot, user)) return { error: "That assignment is not open yet." };
   const code = String(body.code == null ? "" : body.code);
-  if (!code.trim()) return { error: "Your code is empty. Write something first!" };
+  /* a multiple-choice-only assignment (mcOnly) has no code to write: answering at least one question is enough */
+  const picks0 = cleanMcPicks(body.mc), asg0 = await readJSON("assign:" + body.slot, null);
+  const mcOnlyOk = !!(asg0 && asg0.mcOnly && Array.isArray(picks0) && picks0.some((x) => x >= 0));
+  if (!code.trim() && !mcOnlyOk) return { error: "Your code is empty. Write something first!" };
   if (code.length > MAX_CODE) return { error: "That file is too big to submit." };
   const period = cleanPeriod(body.period);
   const asg = await readJSON("assign:" + body.slot, null);
@@ -318,7 +321,7 @@ async function adminSetAssignment(body) {
   const mcKey = Array.isArray(body.mcKey) ? body.mcKey.slice(0, 30).map((x) => Number(x) | 0) : null;
   const prevAsg = await readJSON("assign:" + body.slot, null);
   const points = Math.max(0, Math.min(1000, Number(body.points) || 0));
-  const text = JSON.stringify({ title, unit, num, points, mc, mcKey, mcReleased: !!(prevAsg && prevAsg.mcReleased), blocks: body.blocks, checks: cleanChecks(body.checks), tips: cleanTips(body.tips), variants, live: body.live !== false, publishedAt: now() });
+  const text = JSON.stringify({ title, unit, num, points, mc, mcKey, mcReleased: !!(prevAsg && prevAsg.mcReleased), mcOnly: !!body.mcOnly, blocks: body.blocks, checks: cleanChecks(body.checks), tips: cleanTips(body.tips), variants, live: body.live !== false, publishedAt: now() });
   if (text.length > 400000) return { error: "That assignment is too big" };
   await store().setJSON("assign:" + body.slot, JSON.parse(text));
   return { ok: true, slot: body.slot, title };

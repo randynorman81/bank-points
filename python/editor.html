@@ -1187,8 +1187,11 @@ function stepsNotDone(ids) {
 
 /* ---------- multiple-choice section of a quiz ---------- */
 var MC_LET = ["A", "B", "C", "D", "E", "F"], lastMcSig = "";
+function mcOnlySlot() { var A = (window.PY_ASSIGN || {})[slot]; return !!(A && A.mcOnly && A.mc); }
+function hasMcPicks() { var m = getMc(); return !!m && m.some(function (x) { return x >= 0; }); }
 function mcHtml(A) {
-  var h = '<h3>Part 9: Multiple choice (' + A.mc.length + ' questions)</h3><p class="hint mchint">Pick one answer for each question. You see your coding score right after you submit. Your teacher will share the multiple-choice score later.</p><div class="mcwrap">';
+  var h = A.mcOnly ? '<h3>Multiple choice (' + A.mc.length + ' questions)</h3><p class="hint mchint">Pick one answer for each question. Stuck? Click <b>Walk me through it</b> under a question to see how to work it out. Your answers save automatically. Your teacher will share your score later.</p><div class="mcwrap">'
+    : '<h3>Part 9: Multiple choice (' + A.mc.length + ' questions)</h3><p class="hint mchint">Pick one answer for each question. You see your coding score right after you submit. Your teacher will share the multiple-choice score later.</p><div class="mcwrap">';
   A.mc.forEach(function (q, i) {
     h += '<div class="mcq" data-q="' + i + '"><div class="mcn">' + (i + 1) + '. ' + inl(q.q) + '</div>' + (q.code ? '<pre class="mccode">' + escA(q.code) + '</pre>' : "") + q.choices.map(function (c, j) { return '<label class="mcc"><input type="radio" name="mc' + i + '" value="' + j + '"><span><b>' + MC_LET[j] + '.</b> <code>' + escA(c) + '</code></span></label>'; }).join("") + "</div>";
   });
@@ -1213,7 +1216,7 @@ function afterSlotChange() {
   var sl = slot;
   api({ action: "mine", slot: sl }).then(function (j) {
     if (!j || j.error || sl !== slot) return;
-    CLOUD = j; var dr = j.draft, sub = j.submission, rec = dr && dr.code && dr.code.trim() ? dr : sub, c = $("cloud"), opts = "";
+    CLOUD = j; var dr = j.draft, sub = j.submission, rec = dr && ((dr.code && dr.code.trim()) || (mcOnlySlot() && dr.mc)) ? dr : sub, c = $("cloud"), opts = "";
     var untouched = !ta.value.trim() || ta.value === STARTER_PY || ta.value === STARTER_KAREL;
     if (rec && rec.mc) setMc(rec.mc);
     if (rec && untouched) { applyRecord(rec); flash("Loaded your saved work"); }
@@ -1229,7 +1232,7 @@ function afterSlotChange() {
   });
 }
 function cloudSave() {
-  if (slot === "example" || !CRED || !ta.value.trim() || (ta.value === lastCloud && mcSig() === lastMcSig) || ta.value === STARTER_PY || ta.value === STARTER_KAREL) return Promise.resolve();
+  if (slot === "example" || !CRED || ((!ta.value.trim() || ta.value === STARTER_PY || ta.value === STARTER_KAREL) && !(mcOnlySlot() && hasMcPicks())) || (ta.value === lastCloud && mcSig() === lastMcSig)) return Promise.resolve();
   var code = ta.value;
   return api({ action: "saveDraft", slot: slot, mode: mode, code: code, world: curWorld(), ticks: currentTicks(), period: $("period").value, mc: getMc() }).then(function (j) {
     if (j && j.ok) { lastCloud = code; lastMcSig = mcSig(); saveFailed = false; savedAtTxt = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); if (!MY[slot]) { MY[slot] = "draft"; } }
@@ -1327,7 +1330,8 @@ $("slot").addEventListener("change", function () {
 })();
 $("period").addEventListener("change", function () { lsSet("py:period", this.value); if (typeof loadAssignments === "function") loadAssignments(); });
 $("submit").addEventListener("click", function () {
-  if (!ta.value.trim()) { flash("Write some code first"); return; }
+  if (mcOnlySlot()) { if (!hasMcPicks()) { flash("Answer a question first"); return; } }
+  else if (!ta.value.trim()) { flash("Write some code first"); return; }
   if (!CRED) { alert("Sign in with your school Google account (top right) to submit."); return; }
   if (slot === "example") { alert("This is an example to read. Pick an assignment in the Assignment box to submit your own work."); return; }
   if (slot === "free") { alert("Practice work is saved for you but not graded. Pick an assignment in the Assignment box to submit."); return; }
