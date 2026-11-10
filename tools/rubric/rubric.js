@@ -171,12 +171,13 @@
   function levelPoints(rubric, ci, li) { var cr = rubric.criteria[ci], top = Math.max.apply(null, rubric.levels.map(function (l) { return l.points; })); return cr.max && top ? Math.round(rubric.levels[li].points / top * cr.max * 100) / 100 : rubric.levels[li].points; }
 
   /* ---------------------------------------------------------------- spreadsheet rows */
-  function sheetRows(rubric, students, title) {
-    var head = ["Student", "Date"].concat(rubric.criteria.map(function (c) { return c.name + " (/" + criterionMax(c) + ")"; }), ["Total", "Out of", "Percent", "Letter", "Comments"]);
+  function scaled(t, n) { return n ? Math.round(t.pct / 100 * n * 100) / 100 : null; }
+  function sheetRows(rubric, students, title, scaleTo) {
+    var head = ["Student", "Date"].concat(rubric.criteria.map(function (c) { return c.name + " (/" + criterionMax(c) + ")"; }), ["Total", "Out of", "Percent", "Letter"], scaleTo ? ["Scaled (/" + scaleTo + ")"] : [], ["Comments"]);
     var rows = [head];
     students.forEach(function (s) {
       var t = totals(rubric, s.grades);
-      rows.push([s.name, s.date || ""].concat(rubric.criteria.map(function (c, i) { var g = s.grades[i]; return g && g.points !== null && g.points !== undefined && g.points !== "" ? +g.points : ""; }), [t.got, t.max, t.pct, t.letter, commentText(rubric, s)]));
+      rows.push([s.name, s.date || ""].concat(rubric.criteria.map(function (c, i) { var g = s.grades[i]; return g && g.points !== null && g.points !== undefined && g.points !== "" ? +g.points : ""; }), [t.got, t.max, t.pct, t.letter], scaleTo ? [scaled(t, scaleTo)] : [], [commentText(rubric, s)]));
     });
     return rows;
   }
@@ -185,6 +186,6 @@
   function toCSV(rows) { return rows.map(function (r) { return r.map(csvCell).join(","); }).join("\r\n"); }
   function toTSV(rows) { return rows.map(function (r) { return r.map(function (v) { return String(v == null ? "" : v).replace(/[\t\r\n]+/g, " "); }).join("\t"); }).join("\n"); }
 
-  root.RubricEngine = { gridFromLayout: gridFromLayout, rubricFromGrid: rubricFromGrid, gridFromTable: gridFromTable, typedMarks: typedMarks, pickOutliers: pickOutliers, totals: totals, letter: letter, levelPoints: levelPoints, sheetRows: sheetRows, toCSV: toCSV, toTSV: toTSV, parseLevelHeader: parseLevelHeader, clean: clean, commentText: commentText };
+  root.RubricEngine = { gridFromLayout: gridFromLayout, rubricFromGrid: rubricFromGrid, gridFromTable: gridFromTable, typedMarks: typedMarks, pickOutliers: pickOutliers, totals: totals, scaled: scaled, letter: letter, levelPoints: levelPoints, sheetRows: sheetRows, toCSV: toCSV, toTSV: toTSV, parseLevelHeader: parseLevelHeader, clean: clean, commentText: commentText };
   if (typeof module !== "undefined" && module.exports) module.exports = root.RubricEngine;
 })(typeof window !== "undefined" ? window : this);

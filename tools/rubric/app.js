@@ -2,10 +2,10 @@
   "use strict";
   var E = RubricEngine, $ = function (id) { return document.getElementById(id); };
   var KEY = "rubricGrader:v1", DEFAULT_BANK = ["Great work!", "Needs more detail.", "Check your spelling and grammar.", "Good start. Explain your thinking more.", "Missing this part.", "Excellent, keep it up."];
-  var S = { title: "", rubric: null, students: [], bank: DEFAULT_BANK.slice(), roster: [], grades: [], comment: "", editId: null };
+  var S = { scale: 0, title: "", rubric: null, students: [], bank: DEFAULT_BANK.slice(), roster: [], grades: [], comment: "", editId: null };
   var SRC = null; /* the uploaded rubric: { canvas, parsed (rubric+geo), marks } */
-  try { var sv = JSON.parse(localStorage.getItem(KEY) || "null"); if (sv && sv.rubric) { S.title = sv.title || ""; S.rubric = sv.rubric; S.students = sv.students || []; S.bank = sv.bank && sv.bank.length ? sv.bank : S.bank; S.roster = sv.roster || []; } } catch (e) {}
-  function save() { try { localStorage.setItem(KEY, JSON.stringify({ title: S.title, rubric: S.rubric, students: S.students, bank: S.bank, roster: S.roster })); } catch (e) {} }
+  try { var sv = JSON.parse(localStorage.getItem(KEY) || "null"); if (sv && sv.rubric) { S.title = sv.title || ""; S.rubric = sv.rubric; S.students = sv.students || []; S.bank = sv.bank && sv.bank.length ? sv.bank : S.bank; S.roster = sv.roster || []; S.scale = +sv.scale || 0; } } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify({ title: S.title, rubric: S.rubric, students: S.students, bank: S.bank, roster: S.roster, scale: S.scale })); } catch (e) {} }
   function esc(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
   function status(el, text, kind) { el.hidden = !text; el.textContent = text || ""; el.className = "msg" + (kind ? " " + kind : ""); }
   function progress(bar, fill, p) { bar.hidden = p === null; if (p !== null) fill.style.width = Math.round(p * 100) + "%"; }
@@ -232,7 +232,7 @@
     });
     $("crits").innerHTML = h; $("ocomment").value = S.comment; updateTotal();
   }
-  function updateTotal() { var t = E.totals(S.rubric, S.grades); $("totpts").textContent = t.got + " / " + t.max; $("totpct").textContent = t.pct + "%  " + t.letter; $("totpct").className = "pill " + (t.pct >= 80 ? "g" : t.pct >= 60 ? "a" : ""); var left = S.grades.filter(function (g) { return g.points === "" || g.points == null; }).length; $("totnote").textContent = left ? left + " row" + (left > 1 ? "s" : "") + " not scored yet" : "All rows scored"; }
+  function updateTotal() { var t = E.totals(S.rubric, S.grades); $("totpts").textContent = t.got + " / " + t.max; $("totpct").textContent = t.pct + "%  " + t.letter; $("totpct").className = "pill " + (t.pct >= 80 ? "g" : t.pct >= 60 ? "a" : ""); $("totscaled").hidden = !S.scale; if (S.scale) $("totscaled").textContent = "Scaled: " + E.scaled(t, S.scale) + " / " + S.scale; var left = S.grades.filter(function (g) { return g.points === "" || g.points == null; }).length; $("totnote").textContent = left ? left + " row" + (left > 1 ? "s" : "") + " not scored yet" : "All rows scored"; }
   $("crits").addEventListener("click", function (e) {
     var b = e.target.closest("button"); if (!b) return;
     var a = b.getAttribute("data-lv");
@@ -258,7 +258,7 @@
   $("print").onclick = function () {
     var R = S.rubric, t = E.totals(R, S.grades), w = window.open("", "_blank"); if (!w) return;
     var rows = R.criteria.map(function (c, i) { var g = S.grades[i] || {}; return "<tr><td><b>" + esc(c.name) + "</b></td><td>" + (g.pick >= 0 ? esc(R.levels[g.pick].name) : "") + "</td><td>" + esc(g.points) + " / " + esc(c.max) + "</td><td>" + esc(g.comment) + "</td></tr>"; }).join("");
-    w.document.write("<html><head><title>Feedback</title><style>body{font:14px system-ui;margin:30px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #999;padding:6px;text-align:left;vertical-align:top}h2{margin:0}</style></head><body><h2>" + esc(S.title || "Rubric") + "</h2><p><b>" + esc($("sname").value) + "</b></p><table><tr><th>Criteria</th><th>Level</th><th>Points</th><th>Comments</th></tr>" + rows + "</table><p><b>Total: " + t.got + " / " + t.max + " (" + t.pct + "%, " + t.letter + ")</b></p><p>" + esc(S.comment) + "</p></body></html>"); w.document.close(); w.focus(); w.print();
+    w.document.write("<html><head><title>Feedback</title><style>body{font:14px system-ui;margin:30px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #999;padding:6px;text-align:left;vertical-align:top}h2{margin:0}</style></head><body><h2>" + esc(S.title || "Rubric") + "</h2><p><b>" + esc($("sname").value) + "</b></p><table><tr><th>Criteria</th><th>Level</th><th>Points</th><th>Comments</th></tr>" + rows + "</table><p><b>Total: " + t.got + " / " + t.max + " (" + t.pct + "%, " + t.letter + ")</b>" + (S.scale ? " &nbsp; <b>Scaled: " + E.scaled(t, S.scale) + " / " + S.scale + "</b>" : "") + "</p><p>" + esc(S.comment) + "</p></body></html>"); w.document.close(); w.focus(); w.print();
   };
   function setTab(n) { $("pane1").hidden = n !== 1; $("pane2").hidden = n !== 2; $("tab1").className = n === 1 ? "on" : ""; $("tab2").className = n === 2 ? "on" : ""; }
   $("tab1").onclick = function () { setTab(1); }; $("tab2").onclick = function () { setTab(2); };
@@ -318,7 +318,7 @@
 
   /* ================================================================= step 4: spreadsheet */
   function drawSheet() {
-    var R = S.rubric; if (!R) return; var rows = E.sheetRows(R, S.students, S.title); $("shinfo").textContent = S.students.length ? "(" + S.students.length + " student" + (S.students.length > 1 ? "s" : "") + ", class average " + avg() + "%)" : "(no students yet)";
+    var R = S.rubric; if (!R) return; var rows = E.sheetRows(R, S.students, S.title, S.scale); $("shinfo").textContent = S.students.length ? "(" + S.students.length + " student" + (S.students.length > 1 ? "s" : "") + ", class average " + avg() + "%)" : "(no students yet)";
     var h = "<table><tr>" + rows[0].map(function (c) { return "<th>" + esc(c) + "</th>"; }).join("") + "<th></th></tr>";
     for (var i = 1; i < rows.length; i++) h += "<tr>" + rows[i].map(function (c, j) { return "<td" + (j === rows[0].length - 1 ? " style='white-space:normal;min-width:200px'" : "") + ">" + esc(c) + "</td>"; }).join("") + "<td><button class='ghost sm' data-ed='" + i + "'>Edit</button> <button class='danger sm' data-rm='" + i + "'>x</button></td></tr>";
     $("sheet").innerHTML = S.students.length ? h + "</table>" : "<p class='small' style='padding:10px'>Graded students appear here.</p>";
@@ -331,15 +331,17 @@
   });
   function fname(ext) { return (S.title || "rubric-grades").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-") + ext; }
   function download(blob, name) { var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
-  $("csv").onclick = function () { download(new Blob(["﻿" + E.toCSV(E.sheetRows(S.rubric, S.students, S.title))], { type: "text/csv" }), fname(".csv")); };
+  $("csv").onclick = function () { download(new Blob(["﻿" + E.toCSV(E.sheetRows(S.rubric, S.students, S.title, S.scale))], { type: "text/csv" }), fname(".csv")); };
   $("xlsx").onclick = function () {
     if (!window.XLSX) return alert("The Excel maker didn't load. Use the CSV button instead.");
-    var rows = E.sheetRows(S.rubric, S.students, S.title), ws = XLSX.utils.aoa_to_sheet(rows), wb = XLSX.utils.book_new(); ws["!cols"] = rows[0].map(function (c, i) { return { wch: i === 0 ? 22 : i === rows[0].length - 1 ? 50 : Math.max(8, Math.min(22, String(c).length + 2)) }; });
+    var rows = E.sheetRows(S.rubric, S.students, S.title, S.scale), ws = XLSX.utils.aoa_to_sheet(rows), wb = XLSX.utils.book_new(); ws["!cols"] = rows[0].map(function (c, i) { return { wch: i === 0 ? 22 : i === rows[0].length - 1 ? 50 : Math.max(8, Math.min(22, String(c).length + 2)) }; });
     XLSX.utils.book_append_sheet(wb, ws, "Grades"); XLSX.writeFile(wb, fname(".xlsx"));
   };
-  $("copy").onclick = function () { var tsv = E.toTSV(E.sheetRows(S.rubric, S.students, S.title)); (navigator.clipboard ? navigator.clipboard.writeText(tsv) : Promise.reject()).then(function () { $("copy").textContent = "Copied! Paste into Google Sheets"; setTimeout(function () { $("copy").textContent = "Copy for Google Sheets"; }, 2500); }).catch(function () { prompt("Copy this (Ctrl+C), then paste into Google Sheets:", tsv); }); };
+  $("copy").onclick = function () { var tsv = E.toTSV(E.sheetRows(S.rubric, S.students, S.title, S.scale)); (navigator.clipboard ? navigator.clipboard.writeText(tsv) : Promise.reject()).then(function () { $("copy").textContent = "Copied! Paste into Google Sheets"; setTimeout(function () { $("copy").textContent = "Copy for Google Sheets"; }, 2500); }).catch(function () { prompt("Copy this (Ctrl+C), then paste into Google Sheets:", tsv); }); };
   $("wipe").onclick = function () { if (S.students.length && confirm("Remove all " + S.students.length + " graded students? The rubric stays.")) { S.students = []; save(); drawSheet(); drawRoster(); } };
 
-  showAll();
+  function syncScale() { var sel = $("scale"), v = String(S.scale || 0); if (![].some.call(sel.options, function (o) { return o.value === v; })) { var o = document.createElement("option"); o.value = v; o.textContent = v + " points"; sel.insertBefore(o, sel.lastChild); } sel.value = v; }
+  $("scale").onchange = function () { var v = this.value; if (v === "custom") { var n = parseFloat(prompt("Scale each score to be out of how many points?", "100")); if (!(n > 0)) { syncScale(); return; } S.scale = n; } else S.scale = +v; save(); syncScale(); updateTotal(); drawSheet(); };
+  showAll(); syncScale();
   window.__rubricApp = { S: S, analyze: analyze, setRubric: setRubric, addCopyCard: addCopyCard, handle: handle, readFile: readFile };
 })();
