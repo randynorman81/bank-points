@@ -13,12 +13,29 @@
   /* ================================================================= reading files */
   if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
   function loadImage(file) { return new Promise(function (res, rej) { var u = URL.createObjectURL(file), im = new Image(); im.onload = function () { res(im); }; im.onerror = function () { rej(new Error("I couldn't open that image. Try a JPG or PNG (iPhone HEIC photos may need to be saved as JPG first).")); }; im.src = u; }); }
-  var ocrWorker = null;
+  var ocrWorker = null, ocrProg = null;
+  /* clean a copy for reading: colored pen fades away (we keep the biggest color channel), and long table lines are erased so they don't confuse the reader */
+  function prepForOcr(src) {
+    var c = document.createElement("canvas"); c.width = src.width; c.height = src.height; var x = c.getContext("2d"); x.drawImage(src, 0, 0);
+    var im = x.getImageData(0, 0, c.width, c.height), d = im.data, w = c.width, h = c.height, g = new Uint8Array(w * h), i, y, xx;
+    for (i = 0; i < w * h; i++) g[i] = Math.max(d[i * 4], d[i * 4 + 1], d[i * 4 + 2]);
+    var dark = function (v) { return v < 150; }, kill = new Uint8Array(w * h), minRun = 70, run, start;
+    for (y = 0; y < h; y++) { run = 0; for (xx = 0; xx <= w; xx++) { if (xx < w && dark(g[y * w + xx])) run++; else { if (run >= minRun) for (var k = xx - run; k < xx; k++) for (var dy = -2; dy <= 2; dy++) { var yy = y + dy; if (yy >= 0 && yy < h) kill[yy * w + k] = 1; } run = 0; } } }
+    for (xx = 0; xx < w; xx++) { run = 0; for (y = 0; y <= h; y++) { if (y < h && dark(g[y * w + xx])) run++; else { if (run >= minRun) for (var k2 = y - run; k2 < y; k2++) for (var dx = -2; dx <= 2; dx++) { var xq = xx + dx; if (xq >= 0 && xq < w) kill[k2 * w + xq] = 1; } run = 0; } } }
+    for (i = 0; i < w * h; i++) { var v = kill[i] ? 255 : g[i]; d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = v; d[i * 4 + 3] = 255; }
+    x.putImageData(im, 0, 0); return c;
+  }
+  function getWorker() {
+    if (ocrWorker) return ocrWorker;
+    ocrWorker = Tesseract.createWorker("eng", 1, { logger: function (m) { if (m.status === "recognizing text" && ocrProg) ocrProg(m.progress); } }).then(function (wk) { return wk.setParameters({ tessedit_pageseg_mode: "11" }).then(function () { return wk; }); });
+    return ocrWorker;
+  }
   function ocr(canvas, onp) {
     if (!window.Tesseract) return Promise.reject(new Error("The photo reader didn't load. Check your connection, or upload a PDF instead."));
-    return Tesseract.recognize(canvas, "eng", { logger: function (m) { if (m.status === "recognizing text" && onp) onp(m.progress); } }).then(function (r) {
+    var clean = prepForOcr(canvas); ocrProg = onp;
+    return getWorker().then(function (wk) { return wk.recognize(clean); }).then(function (r) {
       var words = r.data.words || []; if (!words.length && r.data.blocks) r.data.blocks.forEach(function (b) { (b.paragraphs || []).forEach(function (p) { (p.lines || []).forEach(function (l) { words = words.concat(l.words || []); }); }); });
-      return words.filter(function (w) { return w.text && w.text.trim() && w.confidence > 25; }).map(function (w) { return { s: w.text, x: w.bbox.x0, y: w.bbox.y0, w: w.bbox.x1 - w.bbox.x0, h: w.bbox.y1 - w.bbox.y0 }; });
+      return words.filter(function (w) { return w.text && w.text.trim().length && w.confidence > 20 && /[A-Za-z0-9]/.test(w.text); }).map(function (w) { return { s: w.text, x: w.bbox.x0, y: w.bbox.y0, w: w.bbox.x1 - w.bbox.x0, h: w.bbox.y1 - w.bbox.y0 }; });
     });
   }
   function imageSource(file, onp) {
