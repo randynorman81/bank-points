@@ -97,7 +97,7 @@
     goals: [
       { text: "Press <b>Start</b>, then <b>hold the button</b>: your song plays.", title: "A button starts the song", say: "<code>if (digitalRead(2) == LOW)</code> only runs while the button is held (INPUT_PULLUP: pressed = LOW). The for loop plays one note after another.", when: function (s) { var l = s.sim.history && s.sim.history.toneLog; return !!l && l.length >= 8; } },
       { text: "Try the <b>Scale</b> and watch the pitch chip climb from 262 to 523.", title: "Higher = faster", say: "A bigger number means the pin switches faster, which sounds higher. C is 262 Hz, high C (523 Hz) is exactly double.", when: function (s) { var l = s.sim.history && s.sim.history.toneLog; return !!l && l.indexOf(523) > -1 && /scale/.test(s.code); } },
-      { text: "Run <b>Bug: no delay after tone()</b> and hold the button. What do you hear?", title: "All the notes at once", say: "Without <code>delay()</code>, the loop races through all 8 <code>tone()</code> calls in a blink, so each note is cut off by the next one. Only the last one is heard.", when: function (s) { var l = s.sim.history && s.sim.history.toneLog; return !!l && l.length >= 8 && !/delay\s*\(\s*beats/.test(s.code); } }
+      { text: "Run <b>Bug: no delay after tone()</b> and hold the button. What do you hear?", title: "All the notes at once", say: "Without <code>delay()</code>, <code>tone()</code> starts a note and the loop instantly moves on and starts the next one. All 8 happen in a tiny fraction of a second, each one replacing the one before it. Then <code>noTone()</code> runs and turns the sound off. So the sound just stops: you hear almost nothing, maybe a tiny click. <code>delay()</code> is the waiting that gives each note time to play.", when: function (s) { var l = s.sim.history && s.sim.history.toneLog; return !!l && l.length >= 8 && !/delay\s*\(\s*beats/.test(s.code); } }
     ] });
 })();
     </script>
@@ -159,6 +159,7 @@
       <p>Play the scale two ways and compare. Then think about what the Arduino does in the time between the two tone() calls.</p>
       <div class="btns" style="justify-content:flex-start"><button class="btn" id="withD" type="button">With delay(400)</button><button class="btn" id="noD" type="button">With the delay removed</button></div>
     </div>
+    <div class="hint-panel"><b>What delay() does (Reflection 1):</b> <code>tone()</code> starts the sound and the Arduino moves to the next line right away. <code>delay()</code> is the waiting: while the Arduino waits, the note keeps playing. Take the delay away and the next <code>tone()</code>, and then <code>noTone()</code>, run almost instantly, so the note is replaced or switched off before you can hear it. The sound just stops.</div>
     <div class="hint-panel"><b>Arrays vs. a line per note (Reflection 2):</b> picture a 40-note song written as 80 lines of tone() and delay(). Now picture changing the tempo, or fixing one wrong note. Where would you make those changes each way?</div>
     <h3 style="color:#fff;margin:26px 0 12px">Test yourself</h3>
     <div class="quiz" id="quiz"></div>

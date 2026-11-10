@@ -370,8 +370,9 @@
     { p: "Plays a note on a buzzer. The **frequency** is in hertz (Hz): bigger numbers make higher notes." },
     { ex: ["tone(9, 440);          // note A, plays until noTone", "tone(9, 880, 500);     // plays for 500 milliseconds", "noTone(9);             // stop"] },
     { rows: [["262", "C (middle C)"], ["294", "D"], ["330", "E"], ["349", "F"], ["392", "G"], ["440", "A"], ["494", "B"], ["523", "C (one octave up)"]], head: ["Frequency", "Note"] },
+    { good: "`tone()` does not wait. It starts the sound and the Arduino moves to the next line right away. `delay()` is the waiting that lets the note play. With no delay, the next `tone()` (or the `noTone()` after the loop) runs almost instantly, so the sound stops before you can hear it." },
     { links: ["buzzer"] }
-  ], "tone notrone buzzer note music frequency hz");
+  ], "tone notrone buzzer note music frequency hz delay wait");
   add("serial", FN, "Serial.begin, Serial.print, Serial.println", [
     { ex: ["void setup() {", "  Serial.begin(9600);            // do this once", "}", "void loop() {", "  Serial.print(\"Light: \");        // no new line after", "  Serial.println(42);            // prints 42, then a new line", "  Serial.println(3.14159, 3);    // prints 3.142 (3 decimals)", "  delay(500);", "}"] },
     { list: ["`print` stays on the same line. `println` moves to the next line after.", "Text goes in \"double quotes\". Numbers and variables do not.", "`Serial.available()` says how many typed characters are waiting. `Serial.read()` takes one."] },
