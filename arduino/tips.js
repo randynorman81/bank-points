@@ -274,6 +274,22 @@
     { rows: [["int i = 0", "start", ""], ["i < 5", "keep going while this is true", ""], ["i++", "add 1 after each time", ""]], head: ["Part of the for ( )", "Meaning", ""] },
     { warn: "A `while` loop with a condition that never becomes false repeats forever and your program is stuck." }
   ], "for while loop repeat count iterate");
+  add("fadewalk", CO, "How does the fade loop work? (help with Question 3)", [
+    { p: "Question 3 is about what the loop does to the numbers. Take it one piece at a time. Do not rush to the answer: work through each step first." },
+    { p: "**Step 1: what does the for loop do?**" },
+    { ex: ["for (int i = 0; i <= 255; i++) {", "  setColor(i, 255 - i, 0);", "  delay(10);", "}"] },
+    { anno: [["int i = 0", "Make a counter called `i` and start it at 0."], ["i <= 255", "Keep repeating as long as `i` is 255 or less."], ["i++", "After each trip through the loop, add 1 to `i`."]] },
+    { p: "So on the first trip `i` is 0, on the next trip it is 1, then 2, then 3, and so on, all the way up to 255. Every trip sends a **new set of numbers** to `setColor`, and `delay(10)` pauses a moment so your eyes can see each step." },
+    { p: "**Step 2: look at the numbers going into setColor**" },
+    { p: "`setColor(red, green, blue)`. The first number is red, the second is green, the third is blue. Work out each box below on paper:" },
+    { rows: [["0", "0", "?"], ["1", "1", "?"], ["100", "100", "?"], ["255", "255", "?"]], head: ["i is", "red (the first number)", "green (the second number, `255 - i`)"] },
+    { p: "**Step 3: ask yourself these questions**" },
+    { steps: ["While `i` goes **up** from 0 to 255, what is the **red** number doing?", "Now look at the **green** number in your table. Is it going **up** or **down** while `i` goes up?", "Use the color table in the RGB mixing help to name the color the LED shows at the **start** (`i` is 0) and at the **end** (`i` is 255). What happened in between?", "Why would you want one color to go up while the other goes down? What would you see if they both went the same way?"] },
+    { p: "**Step 4: test your idea**" },
+    { p: "Change `255 - i` to just `i` in your sketch, run it, and watch the LED closely. Does the **color** change, or does something else change? Write down what you see, then change it back to `255 - i`." },
+    { good: "Your answer has two parts: (1) **why** the second number is `255 - i`, and (2) **what the fade would look like** with just `i`. Write both in your own words." },
+    { links: ["loops", "rgbmix", "functions"] }
+  ], "fade for loop 255 minus i counter setcolor question 3 smooth");
   add("functions", CO, "How do I write my own function?", [
     { p: "A function is a **named chunk of code** you can reuse. Write it once, call it many times." },
     { ex: ["void blinkOnce() {            // void = gives back nothing", "  digitalWrite(8, HIGH);", "  delay(200);", "  digitalWrite(8, LOW);", "  delay(200);", "}", "", "int doubleIt(int n) {         // int = gives back a whole number", "  return n * 2;", "}", "", "void loop() {", "  blinkOnce();                // call it by name", "  blinkOnce();", "  int x = doubleIt(5);        // x is 10", "}"] },
