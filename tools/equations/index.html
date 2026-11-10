@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Equation Helper: solve it step by step</title>
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#1c2230;--soft:#5d6678;--line:#e1e5ee;--acc:#2f5bd8;--ok:#1f9d6b;--warn:#b45309;--bad:#c0392b;--mathbg:#eef2ff}
+@media (prefers-color-scheme:dark){:root{--bg:#12151c;--card:#1b202b;--ink:#e8ecf4;--soft:#9aa4b8;--line:#2c3342;--acc:#7b9bff;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--mathbg:#232a3d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header,main{max-width:860px;margin:0 auto;padding:0 16px}
+header{padding-top:24px}h1{margin:0 0 4px;font-size:1.7rem}header p{margin:0 0 18px;color:var(--soft)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.inrow{display:flex;gap:8px;flex-wrap:wrap}
+#eq{flex:1;min-width:220px;font:600 1.4rem ui-monospace,Consolas,monospace;padding:12px 14px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
+#eq:focus{outline:none;border-color:var(--acc)}
+button{font:inherit;border:0;border-radius:10px;padding:10px 18px;font-weight:700;background:var(--acc);color:#fff;cursor:pointer}
+button.ghost{background:transparent;color:var(--acc);border:1px solid var(--line)}button.ghost:hover{border-color:var(--acc)}
+.keys,.ex{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.keys button,.ex button{padding:6px 11px;font-weight:600;font-size:.92rem}
+.small{font-size:.86rem;color:var(--soft)}
+.err{color:var(--bad);font-weight:600;margin:10px 0 0}
+.step{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.step:first-child{border-top:0}
+.num{flex:none;width:30px;height:30px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+.step h3{margin:0;font-size:1rem}
+.math{font:600 1.35rem ui-monospace,Consolas,monospace;background:var(--mathbg);border-radius:10px;padding:8px 12px;margin:6px 0;display:inline-block;max-width:100%;overflow-x:auto}
+.why{color:var(--soft);margin:2px 0 0}
+.answer{border:2px solid var(--ok);border-radius:14px;padding:14px 18px;background:var(--card)}
+.answer b{display:block;color:var(--ok);font-size:.85rem;text-transform:uppercase;letter-spacing:.06em}
+.answer .math{font-size:1.6rem}
+.check li{margin:4px 0}
+.prac input{font:600 1.1rem ui-monospace,Consolas,monospace;padding:8px 10px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);width:150px}
+.res{font-weight:700;margin-left:8px}
+.res.ok{color:var(--ok)}.res.no{color:var(--bad)}
+details summary{cursor:pointer;color:var(--acc);font-weight:600}
+footer{max-width:860px;margin:0 auto;padding:10px 16px 40px;color:var(--soft);font-size:.85rem}
+@media print{header p,.keys,.ex,#practice,button{display:none}body{background:#fff;color:#000}}
+</style>
+</head>
+<body>
+<header>
+  <h1>&#10134; Equation Helper</h1>
+  <p>Type an equation or inequality and see every step explained. It handles brackets, fractions, decimals, x on both sides, inequalities, and x&sup2; equations. It runs in your browser, so nothing is sent anywhere.</p>
+</header>
+<main>
+  <div class="card">
+    <div class="inrow">
+      <input id="eq" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="3x + 5 = 2(x - 4)" aria-label="Type your equation">
+      <button id="go">Solve</button>
+    </div>
+    <div class="keys" id="keys" aria-label="Symbol keys"></div>
+    <div class="ex" id="ex"></div>
+    <p class="small" style="margin:10px 0 0">Tip: write multiplication as 2x or 2(x+1). For a power use ^, like x^2. Fractions: x/2 or 1/2 x.</p>
+    <div class="err" id="err" role="alert"></div>
+  </div>
+  <div id="out" hidden>
+    <div class="card" id="stepsCard"><div id="steps"></div></div>
+    <div class="answer" id="answerBox"><b>Answer</b><div class="math" id="answer"></div></div>
+    <div class="card" id="checkCard" style="margin-top:14px"><b>Check your answer</b><ul class="check" id="check"></ul></div>
+  </div>
+  <div class="card prac" id="practice">
+    <b>Practice</b> <span class="small">Try one yourself, then check.</span>
+    <div class="inrow" style="margin-top:8px">
+      <button class="ghost" data-lv="one">One step</button><button class="ghost" data-lv="two">Two steps</button><button class="ghost" data-lv="both">x on both sides</button><button class="ghost" data-lv="paren">With brackets</button><button class="ghost" data-lv="quad">Quadratic</button><button class="ghost" data-lv="">Surprise me</button>
+    </div>
+    <div id="pbox" hidden style="margin-top:12px">
+      <div class="math" id="pq"></div>
+      <div style="margin-top:8px">Your answer: <input id="pa" placeholder="x = ?" aria-label="Your answer"> <button id="pcheck">Check</button> <button class="ghost" id="pshow">Show the steps</button><span class="res" id="pres"></span></div>
+      <p class="small" id="phint">For a quadratic, type both answers separated by a comma, like 2, 3.</p>
+    </div>
+  </div>
+</main>
+<footer>Made for classroom use. This tool shows the reasoning so you can learn the method, but always check your own work too.</footer>
+<script src="solver.js"></script>
+<script>
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  var KEYS = ["x", "x²", "^", "(", ")", "/", "+", "−", "×", "=", "<", ">", "≤", "≥"];
+  $("keys").innerHTML = KEYS.map(function (k) { return '<button class="ghost" data-k="' + k + '">' + k + "</button>"; }).join("");
+  $("keys").onclick = function (e) { var b = e.target.closest("[data-k]"); if (!b) return; var el = $("eq"), s = el.selectionStart, t = el.selectionEnd, k = b.dataset.k; el.value = el.value.slice(0, s) + k + el.value.slice(t); el.focus(); el.selectionStart = el.selectionEnd = s + k.length; };
+  var EXAMPLES = ["3x + 5 = 20", "2(x + 3) = 14", "5x - 7 = 2x + 8", "x/2 + 3 = 8", "-2x + 3 < 11", "3(x - 1) - 2(x + 2) = 5", "x^2 - 5x + 6 = 0", "2x^2 + 3x - 5 = 0", "x^2 - 2x - 1 = 0"];
+  $("ex").innerHTML = '<span class="small" style="align-self:center">Try:</span>' + EXAMPLES.map(function (x) { return '<button class="ghost" data-e="' + x.replace(/"/g, "&quot;") + '">' + x.replace("^2", "²") + "</button>"; }).join("");
+  $("ex").onclick = function (e) { var b = e.target.closest("[data-e]"); if (!b) return; $("eq").value = b.dataset.e; run(); };
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function run() {
+    var r = DOK_SOLVE.solve($("eq").value); $("err").textContent = "";
+    if (!r.ok) { $("out").hidden = true; $("err").textContent = r.error; return; }
+    $("steps").innerHTML = r.steps.map(function (s, i) { return '<div class="step"><div class="num">' + (i + 1) + '</div><div><h3>' + esc(s.title) + '</h3><div class="math">' + esc(s.math) + '</div><p class="why">' + esc(s.why) + "</p></div></div>"; }).join("");
+    $("answer").textContent = r.answer; $("check").innerHTML = r.check.map(function (c) { return "<li>" + esc(c) + "</li>"; }).join(""); $("checkCard").hidden = !r.check.length; $("out").hidden = false;
+    try { $("out").scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) {}
+  }
+  $("go").onclick = run; $("eq").onkeydown = function (e) { if (e.key === "Enter") run(); };
+  // practice
+  var cur = null;
+  document.querySelector("#practice .inrow").onclick = function (e) { var b = e.target.closest("[data-lv]"); if (!b) return; cur = DOK_SOLVE.practice(b.dataset.lv); $("pq").textContent = cur; $("pbox").hidden = false; $("pa").value = ""; $("pres").textContent = ""; $("pres").className = "res"; $("pa").focus(); };
+  function nums(s) { return (s.replace(/[a-z]\s*=/gi, "").match(/-?\d+(\.\d+)?(\s*\/\s*\d+)?/g) || []).map(function (t) { if (t.indexOf("/") > -1) { var p = t.split("/"); return parseFloat(p[0]) / parseFloat(p[1]); } return parseFloat(t); }).sort(function (a, b) { return a - b; }); }
+  $("pcheck").onclick = function () {
+    if (!cur) return; var r = DOK_SOLVE.solve(cur); if (!r.ok) return; var mine = nums($("pa").value); var want = r.kind === "quad" ? r.roots.slice().sort(function (a, b) { return a - b; }) : [r.solution];
+    var ok = mine.length === want.length && mine.every(function (v, i) { return Math.abs(v - want[i]) < 1e-6; });
+    $("pres").textContent = ok ? "Correct! ✓" : (mine.length ? "Not quite. Try again, or show the steps." : "Type your answer first."); $("pres").className = "res " + (ok ? "ok" : "no");
+  };
+  $("pshow").onclick = function () { if (!cur) return; $("eq").value = cur; run(); };
+})();
+</script>
+</body>
+</html>

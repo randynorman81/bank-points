@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Citation Generator: MLA and APA</title>
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#1c2230;--soft:#5d6678;--line:#e1e5ee;--acc:#2f5bd8;--ok:#1f9d6b;--warn:#b45309;--bad:#c0392b;--out:#f8faff}
+@media (prefers-color-scheme:dark){:root{--bg:#12151c;--card:#1b202b;--ink:#e8ecf4;--soft:#9aa4b8;--line:#2c3342;--acc:#7b9bff;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--out:#232a3d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header,main{max-width:900px;margin:0 auto;padding:0 16px}
+header{padding-top:24px}h1{margin:0 0 4px;font-size:1.7rem}header p{margin:0 0 16px;color:var(--soft)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-right:10px}
+.seg button{border:0;border-radius:0;background:transparent;color:var(--ink);padding:8px 16px}
+.seg button.on{background:var(--acc);color:#fff}
+button{font:inherit;border:0;border-radius:10px;padding:9px 16px;font-weight:700;background:var(--acc);color:#fff;cursor:pointer}
+button.ghost{background:transparent;color:var(--acc);border:1px solid var(--line)}button.ghost:hover{border-color:var(--acc)}
+button.mini{padding:4px 10px;font-size:.85rem}
+.types{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 4px}
+.types button{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.types button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}
+.grid .full{grid-column:1/-1}
+label{display:block;font-size:.85rem;color:var(--soft);margin-bottom:3px}
+input,select{width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)}
+input:focus,select:focus{outline:2px solid var(--acc);outline-offset:0;border-color:transparent}
+.arow{display:grid;grid-template-columns:1.1fr .7fr 1.1fr auto;gap:6px;margin-bottom:6px}
+.arow.org{grid-template-columns:1fr auto}
+.dates{display:grid;grid-template-columns:1.2fr .8fr 1fr;gap:8px}
+.out{background:var(--out);border:2px solid var(--acc);border-radius:12px;padding:14px 16px;margin-top:14px}
+.cite{padding-left:2em;text-indent:-2em;font-family:Georgia,"Times New Roman",serif;font-size:1.08rem;line-height:1.6;word-break:break-word}
+.warn{color:var(--warn);font-size:.9rem;margin:6px 0 0}
+.small{font-size:.86rem;color:var(--soft)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.list .item{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line)}
+.list .item:first-child{border-top:0}
+.list .cite{flex:1}
+details summary{cursor:pointer;color:var(--acc);font-weight:600}
+.msg{color:var(--ok);font-weight:700;margin-left:6px}
+footer{max-width:900px;margin:0 auto;padding:6px 16px 40px;color:var(--soft);font-size:.85rem}
+@media (max-width:640px){.grid{grid-template-columns:1fr}.arow{grid-template-columns:1fr 1fr}.arow input:nth-child(3){grid-column:1}}
+@media print{header,.card.form,.actions,.noprint{display:none}body{background:#fff;color:#000}.list .item{border:0}}
+</style>
+</head>
+<body>
+<header>
+  <h1>&#128218; Citation Generator</h1>
+  <p>Fill in the source and get a correctly formatted MLA 9 or APA 7 citation, plus an in-text citation. Build a Works Cited or References list and copy it or download it for Word and Google Docs. Everything stays in your browser.</p>
+</header>
+<main>
+  <div class="card form">
+    <div><span class="seg" id="styleSeg"><button data-s="mla" class="on">MLA 9</button><button data-s="apa">APA 7</button></span>
+      <label style="display:inline-flex;gap:6px;align-items:center;font-size:.9rem;color:var(--soft)"><input type="checkbox" id="fixCase" checked style="width:auto"> Fix title capitalization for me</label></div>
+    <div class="types" id="types"><button data-t="website" class="on">&#127760; Website</button><button data-t="book">&#128214; Book</button><button data-t="article">&#128240; Article</button><button data-t="video">&#127916; Video</button></div>
+    <h3 style="margin:14px 0 6px;font-size:1rem">Author(s)</h3>
+    <div id="authors"></div>
+    <div class="actions" style="margin-top:4px"><button class="ghost mini" id="addAuthor">+ Add a person</button><button class="ghost mini" id="addOrg">+ Organization as author</button><span class="small">No author? Leave this empty.</span></div>
+    <div class="grid" style="margin-top:14px" id="fields"></div>
+    <h3 style="margin:14px 0 6px;font-size:1rem">Date published</h3>
+    <div class="dates"><div><label for="month">Month</label><select id="month"></select></div><div><label for="day">Day</label><input id="day" inputmode="numeric" placeholder="optional"></div><div><label for="year">Year</label><input id="year" inputmode="numeric" placeholder="2024"></div></div>
+    <div id="accRow" style="margin-top:10px"><label>Date you looked at it (MLA, optional)</label><div class="dates"><select id="amonth"></select><input id="aday" inputmode="numeric" placeholder="day"><input id="ayear" inputmode="numeric" placeholder="year"></div></div>
+  </div>
+  <div class="out" id="out" aria-live="polite">
+    <b id="outLabel">Works Cited entry</b>
+    <div class="cite" id="cite"></div>
+    <div class="small" style="margin-top:8px">In-text citation: <b id="intext"></b></div>
+    <div id="warns"></div>
+    <div class="actions"><button id="copy">Copy citation</button><button class="ghost" id="add">+ Add to my list</button><span class="msg" id="msg"></span></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b id="listTitle">My Works Cited</b><span class="actions" style="margin:0"><button class="ghost mini" id="copyAll">Copy list</button><button class="ghost mini" id="dlAll">Download for Word</button><button class="ghost mini" id="printAll">Print</button><button class="ghost mini" id="clearAll">Clear</button></span></div>
+    <div class="list" id="list"></div>
+    <p class="small" id="listHint">Your list is saved on this computer. It is sorted A to Z for you.</p>
+  </div>
+</main>
+<footer>Always compare with your teacher's instructions and your style guide. Titles use standard rules, but a computer cannot tell proper nouns (like names of places), so check capitalization.</footer>
+<script src="cite.js"></script>
+<script>
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  var store = { get: function (k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+  var st = { style: "mla", type: "website", authors: [{ first: "", middle: "", last: "" }], list: store.get("cite:list") || [] };
+  var MON = DOK_CITE.MONTHS;
+  ["month", "amonth"].forEach(function (id) { $(id).innerHTML = '<option value="">' + (id === "month" ? "(none)" : "month") + "</option>" + MON.map(function (m, i) { return '<option value="' + (i + 1) + '">' + m + "</option>"; }).join(""); });
+  var FIELDS = {
+    book: [["title", "Title of the book", "full"], ["edition", "Edition (like 2nd, optional)"], ["publisher", "Publisher"]],
+    website: [["title", "Title of the page or article", "full"], ["site", "Website name (like National Geographic)"], ["publisher", "Publisher (only if different from the website)"], ["url", "Web address (URL)", "full"]],
+    article: [["title", "Title of the article", "full"], ["container", "Name of the journal, magazine or newspaper", "full"], ["kind", "Kind", "select"], ["volume", "Volume (journal)"], ["issue", "Issue (journal)"], ["pages", "Pages (like 112-120)"], ["url", "Web address or DOI (optional)", "full"]],
+    video: [["title", "Title of the video", "full"], ["site", "Site (YouTube by default)"], ["uploader", "Channel or uploader"], ["url", "Web address (URL)", "full"]]
+  };
+  function drawFields() {
+    var old = {}; document.querySelectorAll("#fields [data-f]").forEach(function (el) { old[el.dataset.f] = el.value; });
+    $("fields").innerHTML = FIELDS[st.type].map(function (f) {
+      var cls = f[2] === "full" ? "full" : "";
+      if (f[2] === "select") return '<div class="' + cls + '"><label>' + f[1] + '</label><select data-f="kind"><option value="journal">Journal</option><option value="magazine">Magazine</option><option value="newspaper">Newspaper</option></select></div>';
+      return '<div class="' + cls + '"><label>' + f[1] + '</label><input data-f="' + f[0] + '" autocomplete="off"></div>';
+    }).join("");
+    document.querySelectorAll("#fields [data-f]").forEach(function (el) { if (old[el.dataset.f] !== undefined) el.value = old[el.dataset.f]; el.oninput = el.onchange = update; });
+    $("accRow").hidden = st.style !== "mla" || st.type === "book";
+  }
+  function drawAuthors() {
+    $("authors").innerHTML = st.authors.map(function (a, i) {
+      return a.org !== undefined ? '<div class="arow org"><input data-a="' + i + '" data-k="org" placeholder="Organization name" value="' + esc(a.org) + '"><button class="ghost mini" data-del="' + i + '">Remove</button></div>'
+        : '<div class="arow"><input data-a="' + i + '" data-k="first" placeholder="First name" value="' + esc(a.first) + '"><input data-a="' + i + '" data-k="middle" placeholder="Middle (optional)" value="' + esc(a.middle) + '"><input data-a="' + i + '" data-k="last" placeholder="Last name" value="' + esc(a.last) + '"><button class="ghost mini" data-del="' + i + '">Remove</button></div>';
+    }).join("");
+  }
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
+  $("authors").oninput = function (e) { var i = e.target.dataset.a; if (i === undefined) return; st.authors[+i][e.target.dataset.k] = e.target.value; update(); };
+  $("authors").onclick = function (e) { var b = e.target.closest("[data-del]"); if (!b) return; st.authors.splice(+b.dataset.del, 1); drawAuthors(); update(); };
+  $("addAuthor").onclick = function () { st.authors.push({ first: "", middle: "", last: "" }); drawAuthors(); update(); };
+  $("addOrg").onclick = function () { st.authors.push({ org: "" }); drawAuthors(); update(); };
+  $("styleSeg").onclick = function (e) { var b = e.target.closest("[data-s]"); if (!b) return; st.style = b.dataset.s; [].forEach.call($("styleSeg").children, function (x) { x.classList.toggle("on", x === b); }); $("accRow").hidden = st.style !== "mla" || st.type === "book"; update(); drawList(); };
+  $("types").onclick = function (e) { var b = e.target.closest("[data-t]"); if (!b) return; st.type = b.dataset.t; [].forEach.call($("types").children, function (x) { x.classList.toggle("on", x === b); }); drawFields(); update(); };
+  ["month", "day", "year", "amonth", "aday", "ayear", "fixCase"].forEach(function (id) { $(id).oninput = $(id).onchange = update; });
+  function source() {
+    var s = { type: st.type, authors: st.authors, fixCase: $("fixCase").checked, month: $("month").value, day: $("day").value, year: $("year").value, accessed: { year: $("ayear").value, month: $("amonth").value, day: $("aday").value } };
+    document.querySelectorAll("#fields [data-f]").forEach(function (el) { s[el.dataset.f] = el.value; }); return s;
+  }
+  var last = null;
+  function update() {
+    var s = source(), has = s.title || s.authors.some(function (a) { return (a.last || a.org || a.first); });
+    last = DOK_CITE.cite(st.style, s);
+    $("outLabel").textContent = st.style === "mla" ? "Works Cited entry (MLA 9)" : "References entry (APA 7)";
+    $("cite").innerHTML = has ? last.html : '<span class="small">Your citation will appear here as you type.</span>'; $("intext").textContent = has ? last.intext : ""; $("warns").innerHTML = has ? last.warnings.map(function (w) { return '<div class="warn">⚠ ' + esc(w) + "</div>"; }).join("") : "";
+    $("listTitle").textContent = st.style === "mla" ? "My Works Cited" : "My References";
+  }
+  function clip(html, text, msgEl) {
+    var done = function (ok) { msgEl.textContent = ok ? "Copied!" : "Select the text and copy it."; setTimeout(function () { msgEl.textContent = ""; }, 2200); };
+    try { if (navigator.clipboard && window.ClipboardItem) { navigator.clipboard.write([new ClipboardItem({ "text/html": new Blob([html], { type: "text/html" }), "text/plain": new Blob([text], { type: "text/plain" }) })]).then(function () { done(true); }, function () { fall(); }); return; } } catch (e) {}
+    fall(); function fall() { var d = document.createElement("div"); d.innerHTML = html; d.style.cssText = "position:fixed;left:-9999px"; document.body.appendChild(d); var r = document.createRange(); r.selectNodeContents(d); var sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); var ok = false; try { ok = document.execCommand("copy"); } catch (e) {} sel.removeAllRanges(); document.body.removeChild(d); done(ok); }
+  }
+  $("copy").onclick = function () { if (last) clip('<p style="padding-left:.5in;text-indent:-.5in">' + last.html + "</p>", last.text, $("msg")); };
+  $("add").onclick = function () { var s = source(); if (!(s.title || s.authors.some(function (a) { return a.last || a.org; }))) { $("msg").textContent = "Fill in the source first."; return; } st.list.push(s); store.set("cite:list", st.list); drawList(); $("msg").textContent = "Added!"; setTimeout(function () { $("msg").textContent = ""; }, 1800); };
+  function sorted() { return st.list.map(function (s, i) { return { s: s, i: i }; }).sort(function (a, b) { return DOK_CITE.sortKey(st.style, a.s).localeCompare(DOK_CITE.sortKey(st.style, b.s)); }); }
+  function drawList() {
+    var rows = sorted(); $("listTitle").textContent = st.style === "mla" ? "My Works Cited" : "My References";
+    $("list").innerHTML = rows.length ? rows.map(function (r) { var c = DOK_CITE.cite(st.style, r.s); return '<div class="item"><div class="cite">' + c.html + '</div><span class="noprint"><button class="ghost mini" data-edit="' + r.i + '">Edit</button> <button class="ghost mini" data-rm="' + r.i + '">&times;</button></span></div>'; }).join("") : '<p class="small">Nothing here yet. Make a citation above and click "Add to my list".</p>';
+  }
+  $("list").onclick = function (e) {
+    var rm = e.target.closest("[data-rm]"), ed = e.target.closest("[data-edit]");
+    if (rm) { st.list.splice(+rm.dataset.rm, 1); store.set("cite:list", st.list); drawList(); }
+    if (ed) { var s = st.list[+ed.dataset.edit]; st.list.splice(+ed.dataset.edit, 1); store.set("cite:list", st.list); load(s); drawList(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+  };
+  function load(s) {
+    st.type = s.type; st.authors = s.authors && s.authors.length ? JSON.parse(JSON.stringify(s.authors)) : []; [].forEach.call($("types").children, function (x) { x.classList.toggle("on", x.dataset.t === st.type); });
+    $("fixCase").checked = s.fixCase !== false; $("month").value = s.month || ""; $("day").value = s.day || ""; $("year").value = s.year || ""; var a = s.accessed || {}; $("amonth").value = a.month || ""; $("aday").value = a.day || ""; $("ayear").value = a.year || "";
+    drawAuthors(); st.type = s.type; var keep = s; drawFields(); document.querySelectorAll("#fields [data-f]").forEach(function (el) { el.value = keep[el.dataset.f] || (el.dataset.f === "kind" ? "journal" : ""); }); update();
+  }
+  function listHtml() { return rowsOut().map(function (h) { return '<p style="padding-left:.5in;text-indent:-.5in;font-family:Times New Roman,serif;font-size:12pt;line-height:2;margin:0">' + h + "</p>"; }).join(""); }
+  function rowsOut() { return sorted().map(function (r) { return DOK_CITE.cite(st.style, r.s).html; }); }
+  $("copyAll").onclick = function () { if (!st.list.length) return; var title = st.style === "mla" ? "Works Cited" : "References"; clip('<p style="text-align:center;font-family:Times New Roman,serif;font-size:12pt">' + title + "</p>" + listHtml(), title + "\n" + sorted().map(function (r) { return DOK_CITE.cite(st.style, r.s).text; }).join("\n"), $("listHint")); };
+  $("dlAll").onclick = function () {
+    if (!st.list.length) return; var title = st.style === "mla" ? "Works Cited" : "References";
+    var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>' + title + '</title></head><body><p style="text-align:center;font-family:Times New Roman,serif;font-size:12pt">' + title + "</p>" + listHtml() + "</body></html>";
+    var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿", html], { type: "application/msword" })); a.download = title.replace(" ", "-") + ".doc"; a.click();
+  };
+  $("printAll").onclick = function () { window.print(); };
+  $("clearAll").onclick = function () { if (st.list.length && confirm("Remove every citation from your list?")) { st.list = []; store.set("cite:list", st.list); drawList(); } };
+  drawAuthors(); drawFields(); update(); drawList();
+})();
+</script>
+</body>
+</html>
