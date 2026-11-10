@@ -48,6 +48,15 @@
   /* "choose 6 lines to comment": at least 6 different lines of real code (never a line that is only a bracket, or the void setup() / void loop() line itself)
      have a comment (at the end of the line, or right above it); cls(codeLine) says whether a line is "old" (an earlier idea) or "new" (this lesson's idea).
      At least 3 commented lines must be old and at least 3 new. */
+  /* comments counted ANYWHERE in the code: double-slash or block comments with at least minWords words */
+  function anyComments(raw, n, minWords) {
+    var cnt = 0, words = function (t) { return t.trim().split(/\s+/).filter(Boolean).length; }; raw = raw || ""; minWords = minWords || 2;
+    (raw.match(/\/\/[^\n]*/g) || []).forEach(function (m) { if (words(m.replace(/^\/+/, "")) >= minWords) cnt++; });
+    (raw.match(/\/\*[\s\S]*?\*\//g) || []).forEach(function (m) { if (words(m.replace(/^\/\*+|\*+\/$/g, "")) >= minWords) cnt++; });
+    return cnt >= n;
+  }
+  var ANY6_TEXT = "<b>Comments:</b> write <b>6 comments</b> anywhere in your code (above a line or at the end of one) saying what that part does in your own words. Each comment needs at least two words. Don't comment lines that are only brackets.";
+  function any6Comments(c) { return anyComments(c.raw, 6, 2); }
   function sixComments(raw, cls, minOld, minNew) {
     var lines = raw.split("\n"), old = 0, nw = 0;
     for (var i = 0; i < lines.length; i++) {
@@ -74,7 +83,7 @@
   }
 
   root.ARD_H = { I: I, ASK: ASK, MATCH: MATCH, CLOZE: CLOZE, NOTE: NOTE, squash: squash, body: body, stmts: stmts, loopStmts: loopStmts, setupStmts: setupStmts, startsWith: startsWith, delaysIn: delaysIn,
-    everyLineCommented: everyLineCommented, commentAboveEach: commentAboveEach, commentAbove: commentAbove, sixComments: sixComments, sameHalf: sameHalf, every: every, litAt: litAt, sampleTimes: sampleTimes, sequenceOf: sequenceOf };
+    everyLineCommented: everyLineCommented, commentAboveEach: commentAboveEach, commentAbove: commentAbove, sixComments: sixComments, anyComments: anyComments, any6Comments: any6Comments, ANY6_TEXT: ANY6_TEXT, sameHalf: sameHalf, every: every, litAt: litAt, sampleTimes: sampleTimes, sequenceOf: sequenceOf };
   root.ARD_SLOTS = [["free", "Free build (practice)"]];
   root.ARD_SLOT_ADD = function (id, label) { root.ARD_SLOTS.push([id, label]); };
 })(typeof window !== "undefined" ? window : globalThis);
