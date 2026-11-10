@@ -55,7 +55,7 @@
     ] },
     { h: "Reflection (type your answers)", items: [
       ASK("Why does mixing red and green <b>light</b> make yellow, when mixing red and green <b>paint</b> makes brown?", 25, ["rgb", "rgbmix"]),
-      ASK("What does the <code>setColor</code> function save you from having to do?", 20, ["functions"])
+      ASK("What does the <code>setColor</code> function save you from having to do?", 15, ["functions"])
     ] }
   ], events: [
     { id: "rgb-mix", when: function (c) { var r = c.res && c.res.rgb; if (!r) return false; return Object.keys(r).some(function (k) { var o = r[k]; return [o.R, o.G, o.B].filter(function (x) { return x > 0.4; }).length >= 2; }); }, title: "You are mixing light! 🌈", help: ["rgb", "rgbmix"], html: "Two or more of the three tiny LEDs are on at once, so your eyes blend them. <b>Red + green = yellow</b>, <b>green + blue = cyan</b>, <b>red + blue = magenta</b>, and all three at full power make white." }
