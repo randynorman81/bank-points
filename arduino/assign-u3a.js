@@ -21,6 +21,9 @@
   }
   function setColors(c) { var out = [], re = /setColor\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/g, m, b = H.body(c.noComments, "loop") || ""; while ((m = re.exec(b))) out.push([+m[1], +m[2], +m[3]]); return out; }
   function commentsCheck(oldRe, newRe) { return function (c) { return H.sixComments(c.raw, function (l) { if (newRe.test(l)) return "new"; if (oldRe.test(l)) return "old"; return null; }); }; }
+  /* "6 general comments, anywhere in the code": counts // and block comments that have at least two words */
+  var ANY6_TEXT = "<b>Comments:</b> write <b>6 comments</b> anywhere in your code (above a line or at the end of one) saying what that part does in your own words. Each comment needs at least two words. Don't comment lines that are only brackets.";
+  function any6Comments(c) { var n = 0, raw = c.raw || ""; (raw.match(/\/\/[^\n]*/g) || []).forEach(function (m) { if (m.replace(/^\/+\s*/, "").trim().split(/\s+/).filter(Boolean).length >= 2) n++; }); (raw.match(/\/\*[\s\S]*?\*\//g) || []).forEach(function (m) { if (m.replace(/^\/\*+|\*+\/$/g, "").trim().split(/\s+/).filter(Boolean).length >= 2) n++; }); return n >= 6; }
   var SIX = function (olds, news) { return "<b>Comments:</b> choose <b>6 lines of code</b> you wrote and add a comment to each one (above the line or at the end of it) saying what it does in your own words. Pick <b>3 lines from earlier lessons</b> (" + olds + ") and <b>3 lines with this lesson's new ideas</b> (" + news + "). Don't comment lines that are only brackets."; };
 
   /* ===================================================================================== 3.1 */
@@ -78,7 +81,7 @@
       I("<b>Inside setup():</b> <code>pinMode(2, INPUT_PULLUP);</code>", function (c) { return H.setupStmts(c).indexOf("pinMode(2,INPUT_PULLUP)") > -1; }, ["pinmode", "pullup"]),
       I("<b>Inside loop():</b> an <code>if</code> that checks <code>digitalRead(2) == LOW</code>, a <code>for</code> loop that plays each note with <code>tone(BUZZER, notes[i], beats[i]);</code> and waits <code>delay(beats[i] + 50);</code>, then <code>noTone(BUZZER);</code> after the loop.", function (c) { var b = H.body(c.noComments, "loop") || ""; return /if\s*\(\s*digitalRead\s*\(\s*2\s*\)\s*==\s*LOW\s*\)/.test(b) && /for\s*\(/.test(b) && /tone\s*\(\s*BUZZER\s*,\s*notes\s*\[\s*i\s*\]\s*,\s*beats\s*\[\s*i\s*\]\s*\)/.test(b) && /delay\s*\(\s*beats\s*\[\s*i\s*\]\s*\+\s*\d+\s*\)/.test(b) && /noTone\s*\(\s*BUZZER\s*\)/.test(b); }, ["ifelse", "loops", "tone", "digitalread"]),
       I("<b>Press and hold the button</b> on the canvas while the simulation runs: your melody plays. It stays <b>silent until you press</b>.", function (c) { var b = c.parts("button")[0]; if (!b || !c.compiled) return false; return c.run({ until: 7000, samples: [400, 4000], events: [{ t: 1000, press: b.id, down: true }, { t: 1300, press: b.id, down: false }] }).then(function (r) { var log = (r.history && r.history.toneLog) || []; return log.length >= 8 && log.every(function (f) { return f > 0; }); }); }, ["button", "pullup", "tone"]),
-      I(SIX("<code>pinMode</code>, <code>digitalRead</code>, <code>delay</code>, <code>const int</code>", "the arrays and the <code>tone</code> / <code>noTone</code> lines"), commentsCheck(/pinMode|digitalRead|delay|\bconst\b/, /\[\s*\]|tone|notes\s*\[|beats\s*\[/), ["comments"])
+      I(ANY6_TEXT, any6Comments, ["comments"])
     ] },
     { h: "Reflection (type your answers)", items: [
       ASK("What happens to the sound if you <b>remove the delay()</b> after tone()? Why?", 25, ["tone", "delay"]),
