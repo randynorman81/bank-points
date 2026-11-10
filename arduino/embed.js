@@ -200,17 +200,31 @@
       });
     }
     function check(res, io) { lastRes = res || lastRes; if (!armed) { return; } var ctx = state(); ctx.res = lastRes; ctx.io = io || sim.io; coach.check(ctx); goals(); }
+    /* sound: a buzzer that is sounding plays its tone (same as the full Circuit Editor). The audio context starts on the Start click. */
+    var audio = null, osc = {};
+    function ensureAudio() { try { if (!audio) { var AC = window.AudioContext || window.webkitAudioContext; if (AC) audio = new AC(); } if (audio && audio.state === "suspended") audio.resume(); } catch (e) {} }
+    function stopAudio() { Object.keys(osc).forEach(function (id) { try { osc[id].o.stop(); } catch (e) {} delete osc[id]; }); }
+    function updateAudio(res) {
+      if (!audio) return;
+      var wanted = {}; if (res && res.buzzers && sim && sim.running) Object.keys(res.buzzers).forEach(function (id) { var b = res.buzzers[id]; if (b.sounding && b.freq > 0) wanted[id] = b.freq; });
+      Object.keys(osc).forEach(function (id) { if (!wanted[id]) { try { osc[id].o.stop(); } catch (e) {} delete osc[id]; } });
+      Object.keys(wanted).forEach(function (id) {
+        if (!osc[id]) { var o = audio.createOscillator(), g = audio.createGain(); o.type = "square"; g.gain.value = 0.04; o.connect(g); g.connect(audio.destination); o.frequency.value = wanted[id]; o.start(); osc[id] = { o: o, g: g }; }
+        else osc[id].o.frequency.setTargetAtTime(wanted[id], audio.currentTime, 0.01);
+      });
+    }
     sim = new Sim({
       getProject: function () { return project; },
-      onUpdate: function (res, io) { lastRes = res; R.update(svg, project, res, io, { serialActive: Date.now() - serialBlink < 250 }); chips(io); check(res, io); },
+      onUpdate: function (res, io) { lastRes = res; R.update(svg, project, res, io, { serialActive: Date.now() - serialBlink < 250 }); chips(io); updateAudio(res); check(res, io); },
       onSerial: function (t) { serialBlink = Date.now(); if (out) { out.textContent += t; if (out.textContent.length > 4000) out.textContent = out.textContent.slice(-3000); out.scrollTop = out.scrollHeight; } check(lastRes, sim.io); },
       onError: function (e) { msg.textContent = "Stopped at line " + e.line + ": " + e.msg; },
-      onStop: function () { runB.className = "aem-btn run"; runB.innerHTML = "&#9654; Start"; lastRes = sim.analysis(); R.update(svg, project, lastRes, sim.io, {}); chips(sim.io); }
+      onStop: function () { stopAudio(); runB.className = "aem-btn run"; runB.innerHTML = "&#9654; Start"; lastRes = sim.analysis(); R.update(svg, project, lastRes, sim.io, {}); chips(sim.io); }
     });
     sim.speed = cfg.speed || 1; host.querySelector('[data-a="speed"]').value = String(sim.speed);
     coach = root.ArduinoCoach.attach(wrap, { topics: TIPS.topics, openTopic: openTip, events: cfg.events || [] });
     function refresh() { draw(); sim.markDirty(); lastRes = sim.analysis(); R.update(svg, project, lastRes, sim.io, {}); chips(sim.io); check(lastRes, sim.io); }
     function start() {
+      ensureAudio();
       if (sim.running) { sim.stop(true); return; }
       armed = true; msg.textContent = ""; if (out) out.textContent = ""; goalState = {};
       var r = sim.start(ta ? ta.value : "void setup() {}\nvoid loop() {}");
