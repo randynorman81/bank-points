@@ -66,14 +66,19 @@ h3{margin:0 0 4px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;c
     }).join("") || '<div class="msg">No students have saved work here yet.</div>';
     $("list").querySelectorAll(".row").forEach(function (el) { el.onclick = function () { show(+el.getAttribute("data-i")); }; });
   }
-  function show(i) {
-    stopSim(); cur = i; drawList(); var r = rows[i], s = r.submission || r.draft; if (!s) return;
+  function show(i, mode) {
+    stopSim(); cur = i; drawList(); var r = rows[i]; if (!r.submission && !r.draft) return;
+    /* a student can keep working after submitting: show the newest work, and let the teacher flip to what was submitted */
+    var differ = !!(r.submission && r.draft && (r.draft.code || "") !== (r.submission.code || "")), newer = differ && String(r.draft.savedAt || "") > String(r.submission.submittedAt || "");
+    if (!mode) mode = newer ? "draft" : (r.submission ? "sub" : "draft");
+    var s = (mode === "draft" ? r.draft : r.submission) || r.draft || r.submission;
     var proj = s.project, d = $("detail");
-    d.innerHTML = '<div><b style="font-size:16px">' + esc(r.rosterName || r.name) + "</b> <span class=\"badge\">" + esc(r.period || "?") + "</span> " + (r.submission ? '<span class="badge ok">submitted ' + new Date(s.submittedAt).toLocaleString() + "</span>" : '<span class="badge mid">draft only</span>') + (s.auto ? ' <span class="badge">auto score ' + s.auto.pct + " (" + s.auto.passed + "/" + s.auto.total + ")</span>" : "") + "</div>" +
+    d.innerHTML = '<div><b style="font-size:16px">' + esc(r.rosterName || r.name) + "</b> <span class=\"badge\">" + esc(r.period || "?") + "</span> " + (mode === "draft" && r.submission ? '<span class="badge mid">latest work in progress, saved ' + new Date(s.savedAt).toLocaleString() + "</span> <span class=\"badge ok\">submitted " + new Date(r.submission.submittedAt).toLocaleString() + "</span>" : r.submission ? '<span class="badge ok">submitted ' + new Date(s.submittedAt).toLocaleString() + "</span>" : '<span class="badge mid">draft only</span>') + (differ ? ' <button class="btn" id="tgl">' + (mode === "draft" ? "Show what they submitted" : "Show latest work in progress") + "</button>" : "") + (s.auto ? ' <span class="badge">auto score ' + s.auto.pct + " (" + s.auto.passed + "/" + s.auto.total + ")</span>" : "") + "</div>" +
       DueDates.detail(dueStatus(r)) + '<div id="svgbox"><svg id="gs" xmlns="http://www.w3.org/2000/svg"></svg></div>' +
       '<div><button class="btn go" id="runb">&#9654; Run this circuit with their code</button> <button class="btn" id="fit">Fit</button> <span id="rinfo" style="color:var(--soft);font-size:12px"></span></div>' +
       '<div class="grid"><div><h3>Their code</h3><pre id="gcode"></pre></div><div><h3>Serial output when they submitted / live run</h3><pre id="gout"></pre></div></div>' +
       '<div id="gans"></div><div><h3>Teacher score and comment</h3><input id="sc" placeholder="Score" style="width:90px" value="' + (s.teacher && s.teacher.score !== null && s.teacher.score !== undefined ? esc(s.teacher.score) : "") + '"> <button class="btn go" id="save">Save grade</button> <span id="saved" style="color:var(--ok);font-size:12px"></span><br><textarea id="cm" placeholder="Comment for the student (optional)">' + esc(s.teacher && s.teacher.comment || "") + "</textarea></div>";
+    if ($("tgl")) $("tgl").onclick = function () { show(i, mode === "draft" ? "sub" : "draft"); };
     $("gans").innerHTML = answersHTML($("slot").value, s.answers || {}); $("gcode").textContent = s.code || ""; $("gout").textContent = s.output || "";
     var svg = $("gs"); svg.innerHTML = '<g id="world" transform="translate(' + view.x + " " + view.y + ") scale(" + view.z + ')">' + R.projectSVG(proj) + "</g>";
     function fit() { var b = $("svgbox").getBoundingClientRect(), x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; proj.parts.forEach(function (p) { var bb = bbox(p); x0 = Math.min(x0, bb.x); y0 = Math.min(y0, bb.y - 20); x1 = Math.max(x1, bb.x + bb.w); y1 = Math.max(y1, bb.y + bb.h); }); var z = Math.min(2, (b.width - 20) / (x1 - x0), (b.height - 20) / (y1 - y0)); view = { z: z, x: (b.width - (x1 - x0) * z) / 2 - x0 * z, y: (b.height - (y1 - y0) * z) / 2 - y0 * z }; svg.querySelector("#world").setAttribute("transform", "translate(" + view.x + " " + view.y + ") scale(" + view.z + ")"); }
