@@ -538,7 +538,8 @@
       ta.setRangeText(out, ls, le, "select"); ta.dispatchEvent(new Event("input"));
     }
   });
-  var compT; function compileSoon() { clearTimeout(compT); compT = setTimeout(function () { var r = ArduinoCompiler.compile(ta.value); if (!sim.running || !r.ok) showCompile(r, true); }, 600); }
+  /* errors are shown only when they press Start, never while they are typing; typing just clears the old message */
+  function compileSoon() { var box = $("errbox"); if (box.className || Object.keys(errLines).length) { errLines = {}; box.className = ""; box.innerHTML = ""; paintEditor(); } }
   function showCompile(r, quiet) {
     var box = $("errbox"); errLines = {};
     if (!r.ok) {
