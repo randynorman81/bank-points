@@ -77,6 +77,11 @@
   Sim.prototype.makeRuntime = function (tok) {
     tok = tok || { stop: false };
     var self = this, rt = { L: 0, n: 0 }, pins = function () { return self.io.pins; };
+    if (self.env.trace && !self.virtualMode) {
+      /* remember the order lines run in, so the editor can highlight them as they happen */
+      var curL = 0; self.trace = []; self.traceTok = tok;
+      Object.defineProperty(rt, "L", { get: function () { return curL; }, set: function (v) { if (v !== curL) { curL = v; var q = self.trace; q.push(v); if (q.length > 60) q.splice(0, q.length - 20); } }, enumerable: true });
+    }
     function badPin(p, what) { throw new Error("Pin " + p + " does not exist on the Arduino Uno. Use pins 0 to 13 and A0 to A5 (" + what + ")."); }
     function pinOk(p, what) { p = Math.trunc(p); if (!(p >= 0 && p <= 19)) badPin(p, what); return p; }
     rt.tick = function () {

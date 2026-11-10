@@ -34,6 +34,7 @@
   function coachCheck(res, io) { if (!coach || !coachArmed) return; coach.check({ res: res || lastRes, io: io || (sim && sim.io), project: project, sim: sim, serial: sim ? sim.serialOut : "", slot: slot }); }
   function makeSim() {
     sim = new Sim({
+      trace: true,
       getProject: function () { return project; },
       onUpdate: function (res, io) { lastRes = res; R.update($("stage"), project, res, io, { serialActive: Date.now() - serialBlink < 250 }); updatePins(io); updateWarnings(res); updateAudio(res); coachCheck(res, io); scheduleEval(); },
       onSerial: function (t) { appendOut(t); coachCheck(lastRes, sim && sim.io); },
@@ -48,7 +49,7 @@
     var r = sim.start($("ta").value);
     if (!r.ok) { showCompile(r); status("Fix the red error first", true); return; }
     sim.runtimeError = null; showCompile(r);
-    $("run").className = "btn stop"; $("run").innerHTML = "&#9632; Stop"; $("stage").classList.add("running"); status("Running... press the buttons on the canvas");
+    $("run").className = "btn stop"; $("run").innerHTML = "&#9632; Stop"; $("stage").classList.add("running"); startRunMark(); status("Running... press the buttons on the canvas");
     if (!sim.serialStartedHint) sim.serialStartedHint = true;
     setHint("");
   }
@@ -501,7 +502,24 @@
     var m = ""; Object.keys(errLines).forEach(function (l) { m += '<div class="' + (errLines[l] === "w" ? "w" : "") + '" style="top:' + (10 + (l - 1) * 20) + 'px"></div>'; });
     marksIn.innerHTML = m; syncScroll();
   }
-  function syncScroll() { hlEl.scrollTop = ta.scrollTop; hlEl.scrollLeft = ta.scrollLeft; gut.scrollTop = ta.scrollTop; marksIn.style.top = -ta.scrollTop + "px"; }
+  /* ---- live "which line is running" highlight ---- */
+  var runMark = document.createElement("div"); runMark.id = "runmark"; $("marks").appendChild(runMark);
+  var runLine = 0, runShownAt = 0, runRaf = 0, runPinned = false;
+  function placeRunMark() { if (!runLine) { runMark.style.display = "none"; return; } runMark.style.display = "block"; runMark.style.top = (10 + (runLine - 1) * 20 - ta.scrollTop) + "px"; }
+  function showRunLine(l) {
+    runLine = l; placeRunMark(); runShownAt = performance.now();
+    var top = 10 + (l - 1) * 20, vh = ta.clientHeight; if (top < ta.scrollTop + 10 || top > ta.scrollTop + vh - 40) ta.scrollTop = Math.max(0, top - vh / 3);
+    var gn = gut.querySelectorAll("b.run"); for (var i = 0; i < gn.length; i++) gn[i].className = "";
+  }
+  function runFrame() {
+    runRaf = 0; if (!sim || !sim.running) { runLine = 0; placeRunMark(); return; }
+    var q = sim.trace, now = performance.now();
+    if (q && q.length && now - runShownAt >= 110) showRunLine(q.shift());   /* each line stays up a moment so it can be read */
+    else if (q && q.length > 12) q.splice(0, q.length - 4);                 /* a fast loop: skip ahead so it never lags behind */
+    runRaf = requestAnimationFrame(runFrame);
+  }
+  function startRunMark() { runLine = 0; placeRunMark(); if (!runRaf) runRaf = requestAnimationFrame(runFrame); }
+  function syncScroll() { placeRunMark(); hlEl.scrollTop = ta.scrollTop; hlEl.scrollLeft = ta.scrollLeft; gut.scrollTop = ta.scrollTop; marksIn.style.top = -ta.scrollTop + "px"; }
   ta.addEventListener("scroll", syncScroll);
   ta.addEventListener("input", function () { paintEditor(); lsSet("code:" + slot, ta.value); lsSet("ct:" + slot, String(Date.now())); compileSoon(); scheduleEval(); cloudSoon(); });
   ta.addEventListener("keydown", function (e) {
