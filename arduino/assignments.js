@@ -14,7 +14,7 @@
   "use strict";
   var A = root.ARD_ASSIGN = {};
   function I(t, check, help) { return { t: t, check: check, help: help || [] }; }
-  function ASK(t, min, help, o) { o = o || {}; return { t: t, kind: "ask", min: min, help: help || [], test: o.test, mono: o.mono, rows: o.rows, ph: o.ph }; }
+  function ASK(t, min, help, o) { o = o || {}; return { t: t, kind: "ask", min: 0, help: help || [], test: o.test, mono: o.mono, rows: o.rows, ph: o.ph }; }
   function MATCH(t, rows, options, help) { return { t: t, kind: "match", rows: rows, options: options, help: help || [] }; }
   function CLOZE(t, sentences, bank, answers, help) { return { t: t, kind: "cloze", sentences: sentences, bank: bank, answers: answers, help: help || [] }; }
   function NOTE(t, help) { return { t: t, kind: "note", help: help || [] }; }
