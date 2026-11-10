@@ -516,9 +516,9 @@
     var q = sim.trace, now = performance.now();
     if (q && q.length && now - runShownAt >= 110) showRunLine(q.shift());   /* each line stays up a moment so it can be read */
     else if (q && q.length > 12) q.splice(0, q.length - 4);                 /* a fast loop: skip ahead so it never lags behind */
-    runRaf = requestAnimationFrame(runFrame);
+    runRaf = setTimeout(runFrame, 40);
   }
-  function startRunMark() { runLine = 0; placeRunMark(); if (!runRaf) runRaf = requestAnimationFrame(runFrame); }
+  function startRunMark() { runLine = 0; placeRunMark(); if (!runRaf) runRaf = setTimeout(runFrame, 40); }
   function syncScroll() { placeRunMark(); hlEl.scrollTop = ta.scrollTop; hlEl.scrollLeft = ta.scrollLeft; gut.scrollTop = ta.scrollTop; marksIn.style.top = -ta.scrollTop + "px"; }
   ta.addEventListener("scroll", syncScroll);
   ta.addEventListener("input", function () { paintEditor(); lsSet("code:" + slot, ta.value); lsSet("ct:" + slot, String(Date.now())); compileSoon(); scheduleEval(); cloudSoon(); });
