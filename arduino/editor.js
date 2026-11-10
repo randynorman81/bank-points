@@ -368,10 +368,10 @@
     var potEl = tgt.closest ? tgt.closest("[data-pot]") : null;
     if (potEl) { var ppart = partById(potEl.getAttribute("data-pot")); if (ppart) { sel = { type: "part", id: ppart.id }; showProps(); drawOverlay(); drag = { kind: "pot", id: ppart.id, y0: e.clientY, pos0: ppart.props.pos !== undefined ? +ppart.props.pos : 0.5 }; return; } }
     var wireEl = tgt.closest ? tgt.closest(".wire") : null;
-    var near = nearestTerm(w, wireEl ? 4 * z : 6 * z);
+    var near = nearestTerm(w, wireEl ? 4 * z : Math.max(5, 6 * z));
     var partEl0 = tgt.closest ? tgt.closest(".part") : null, part0 = partEl0 ? partById(partEl0.getAttribute("data-id")) : null;
     /* a free hole or pin starts a wire (but not when you grab the body of a part sitting on top of it) */
-    if (near.board && !near.part && !(part0 && !C.PARTS[part0.type].board && !wireEl)) { drag = { kind: "wire", from: near.board.key, start: { x: near.board.x, y: near.board.y } }; sel = null; drawOverlay(); showProps(); return; }
+    if (near.board && !near.part && !e.shiftKey && !(part0 && !C.PARTS[part0.type].board && !wireEl)) { drag = { kind: "wire", from: near.board.key, start: { x: near.board.x, y: near.board.y } }; sel = null; drawOverlay(); showProps(); return; }
     var partEl = tgt.closest ? tgt.closest(".part") : null;
     if (partEl && !(wireEl)) {
       var p = partById(partEl.getAttribute("data-id")); if (!p) return;
@@ -468,8 +468,8 @@
     else if (p && p.type === "motor") h = "<b>DC motor</b> <span style=\"color:var(--soft)\">One wire to 5V, the other to the transistor's collector. Do not connect it straight to an Arduino pin.</span>";
     else if (p && p.type === "diode") h = "<b>Diode</b> <span style=\"color:var(--soft)\">The stripe end is the cathode. A flyback diode goes across the motor with the stripe toward 5V.</span>";
     else if (p && p.type === "seg7") h = "<b>7-segment display</b> <span style=\"color:var(--soft)\">+ to 5V, - to GND, D to A4 (SDA), C to A5 (SCL). In code: #include &lt;Wire.h&gt;, #include \"Adafruit_LEDBackpack.h\", then matrix.begin(0x70);</span>";
-    else if (p && p.type === "breadboard") h = "<b>Breadboard</b> <span style=\"color:var(--soft)\">The 5 holes in each column (a to e, or f to j) are connected. The long rows at the top and bottom are power rails: each whole row is connected.</span>";
-    else if (p && p.type === "uno") h = "<b>Arduino Uno</b> <span style=\"color:var(--soft)\">Drag from any pin to a breadboard hole to make a wire. The orange L light shows pin 13.</span>";
+    else if (p && p.type === "breadboard") h = "<b>Breadboard</b> <span style=\"color:var(--soft)\">The 5 holes in each column (a to e, or f to j) are connected. The long rows at the top and bottom are power rails: each whole row is connected. Drag from any hole to make a wire (to a pin or another hole). To move the whole breadboard, drag its edge, or hold Shift and drag.</span>";
+    else if (p && p.type === "uno") h = "<b>Arduino Uno</b> <span style=\"color:var(--soft)\">Drag from any pin to a breadboard hole (or from a hole to a pin) to make a wire. The orange L light shows pin 13.</span>";
     else if (w) h = "<b>Wire</b> color: " + swatches(R.WIRE_COLORS, w.color || "green", "wirec") + ' <span style="color:var(--soft)">Drag the blue end dots to move an end. Press Delete to remove it.</span>';
     else h = '<span style="color:var(--soft)">Click a part or a wire to change it. To make a wire, <b>drag from a pin or hole</b> to another pin or hole. Scroll to zoom, drag the background to move around.</span>';
     box.innerHTML = h;
