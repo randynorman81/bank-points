@@ -67,28 +67,24 @@ footer{max-width:1100px;margin:0 auto;padding:6px 16px 40px;color:var(--soft);fo
   <div class="row" style="margin-top:10px">
     <input id="gdlink" placeholder="Or paste a Google Doc link (shared as Anyone with the link)" style="flex:1;min-width:240px">
     <button class="ghost" id="gdgo">Load Google Doc</button>
-    <button class="ghost" id="blank">Build one from scratch</button>
     <button class="ghost" id="sample">Try a sample rubric</button>
     <button class="ghost" id="tplblank">Get the blank template (Word / Google Docs)</button>
   </div>
   <div class="bar" id="bar" hidden><i id="barfill"></i></div>
   <div class="msg" id="status" hidden></div>
+  <div class="msg" id="markmsg" hidden></div>
+  <div class="row" id="tplrow" style="margin-top:12px" hidden><span class="small"><b>Put this rubric in the Google Doc template:</b></span><button class="sm" id="tpl">Download Word file (opens in Google Docs)</button><button class="ghost sm" id="tplcopy">Copy as a table to paste into a Google Doc</button><span class="small" id="tplnote"></span></div>
 </section>
 
-<section class="card" id="s2" hidden>
-  <h2><span class="step">2</span>Check the rubric <span class="small">(fix anything the reader got wrong, it saves as you type)</span></h2>
-  <div class="row" style="margin-bottom:8px"><label>Assignment name <input id="title" placeholder="Essay 1" style="width:240px"></label>
-    <button class="ghost sm" id="addcrit">+ Add criterion</button><button class="ghost sm" id="addlvl">+ Add level</button></div>
-  <div class="row" style="margin-bottom:10px"><span class="small"><b>Put this rubric in the Google Doc template:</b></span><button class="sm" id="tpl">Download Word file (opens in Google Docs)</button><button class="ghost sm" id="tplcopy">Copy as a table to paste into a Google Doc</button><span class="small" id="tplnote"></span></div>
-  <div>
-    <div style="overflow:auto"><table class="rb" id="rbtable"></table><p class="small" id="ptsnote"></p></div>
-    <div id="srcside" hidden style="max-width:620px;margin-top:14px"><div class="small" style="margin-bottom:4px">What I read (green boxes are marks I found)</div><div class="srcwrap" id="srcbox"></div></div>
-  </div>
-  <div class="msg" id="markmsg" hidden></div>
-</section>
+<div id="s2" hidden style="display:none!important">
+  <div><label><input id="addcritx" hidden></label><button id="addcrit">+</button><button id="addlvl">+</button></div>
+  <div><table class="rb" id="rbtable"></table><p id="ptsnote"></p></div>
+  <div id="srcside" hidden><div class="srcwrap" id="srcbox"></div></div>
+</div>
 
 <section class="card" id="s3" hidden>
-  <h2><span class="step">3</span>Grade</h2>
+  <h2><span class="step">2</span>Grade</h2>
+  <div class="row" style="margin-bottom:8px"><label class="small">Assignment name <input id="title" placeholder="Essay 1" style="width:240px"></label></div>
   <div class="tabs"><button id="tab1" class="on">Grade on screen</button><button id="tab2">Read marked copies</button></div>
 
   <div id="pane1">
@@ -109,7 +105,7 @@ footer{max-width:1100px;margin:0 auto;padding:6px 16px 40px;color:var(--soft);fo
 </section>
 
 <section class="card" id="s4" hidden>
-  <h2><span class="step">4</span>Spreadsheet <span class="small" id="shinfo"></span></h2>
+  <h2><span class="step">3</span>Spreadsheet <span class="small" id="shinfo"></span></h2>
   <div class="row" style="margin-bottom:8px"><label class="small">Scale scores to <select id="scale"><option value="0">Off (raw points)</option><option value="10">10 points</option><option value="20">20 points</option><option value="25">25 points</option><option value="50">50 points</option><option value="100">100 points</option><option value="custom">Other...</option></select></label><button id="xlsx">Download Excel</button><button class="ghost" id="csv">Download CSV</button><button class="ghost" id="copy">Copy for Google Sheets</button><button class="danger sm" id="wipe">Clear all students</button></div>
   <div class="sheet" id="sheet"></div>
   <p class="small">To use Google Sheets: click <b>Copy for Google Sheets</b>, open a new sheet, click cell A1 and paste. Excel and CSV files open in Sheets too (File &gt; Import).</p>

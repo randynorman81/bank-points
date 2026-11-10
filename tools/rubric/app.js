@@ -208,8 +208,8 @@
     readFile(file, function (p) { progress($("bar"), $("barfill"), 0.1 + p * 0.85); status($("status"), "Reading the text in your photo... " + Math.round(p * 100) + "%"); }).then(function (src) {
       var res = analyze(src); progress($("bar"), $("barfill"), null);
       if (res.error) { status($("status"), res.error + " You can also build the rubric by hand: click \"Build one from scratch\".", "err"); return; }
-      status($("status"), "Found a rubric with " + res.rubric.criteria.length + " criteria and " + res.rubric.levels.length + " levels. Check it below.", "good"); setRubric(res, file.name.replace(/\.[^.]+$/, ""));
-      $("s2").scrollIntoView({ behavior: "smooth" });
+      status($("status"), "Found a rubric with " + res.rubric.criteria.length + " criteria and " + res.rubric.levels.length + " levels. Grade it below." + (res.rubric.guessedPoints ? " (I could not find point values in the header, so I numbered the levels downward.)" : ""), "good"); setRubric(res, file.name.replace(/\.[^.]+$/, ""));
+      $("s3").scrollIntoView({ behavior: "smooth" });
     }).catch(function (e) { progress($("bar"), $("barfill"), null); status($("status"), e.message || String(e), "err"); });
   }
   var drop = $("drop"), fileIn = $("file");
@@ -223,21 +223,21 @@
     if (!m) return status($("status"), "Paste the full link to a Google Doc (it looks like docs.google.com/document/d/...).", "err");
     status($("status"), "Loading the Google Doc..."); fetch("/api/gdoc?format=html&id=" + encodeURIComponent(m[1])).then(function (r) { return r.json(); }).then(function (j) {
       if (!j.ok) throw new Error(j.error || "Couldn't read that document."); return tableSource(j.html);
-    }).then(function (src) { var res = analyze(src); if (res.error) throw new Error(res.error); status($("status"), "Found a rubric in your Google Doc. Check it below.", "good"); setRubric(res, "Google Doc rubric"); $("s2").scrollIntoView({ behavior: "smooth" }); }).catch(function (e) { status($("status"), e.message, "err"); });
+    }).then(function (src) { var res = analyze(src); if (res.error) throw new Error(res.error); status($("status"), "Found a rubric in your Google Doc. Check it below.", "good"); setRubric(res, "Google Doc rubric"); $("s3").scrollIntoView({ behavior: "smooth" }); }).catch(function (e) { status($("status"), e.message, "err"); });
   };
   function emptyRubric() { return { title: "", levels: [{ name: "Excellent", points: 4 }, { name: "Good", points: 3 }, { name: "Fair", points: 2 }, { name: "Poor", points: 1 }], criteria: [{ name: "Criterion 1", cells: ["", "", "", ""], max: 4 }] }; }
-  $("blank").onclick = function () { S.rubric = emptyRubric(); S.grades = []; SRC = null; save(); showAll(); drawSource($("srcbox"), null); $("markmsg").hidden = true; $("s2").scrollIntoView({ behavior: "smooth" }); };
+  ($("blank") || {}).onclick = function () { S.rubric = emptyRubric(); S.grades = []; SRC = null; save(); showAll(); drawSource($("srcbox"), null); $("markmsg").hidden = true; $("s3").scrollIntoView({ behavior: "smooth" }); };
   $("sample").onclick = function () {
     S.rubric = { title: "", levels: [{ name: "Excellent", points: 4 }, { name: "Good", points: 3 }, { name: "Fair", points: 2 }, { name: "Needs work", points: 1 }], criteria: [
       { name: "Thesis", max: 4, cells: ["Clear, arguable thesis at the end of the introduction.", "Clear thesis, not very arguable.", "Thesis is vague.", "No thesis."] },
       { name: "Evidence", max: 4, cells: ["Three or more relevant quotes, explained.", "Two relevant quotes with some explanation.", "One quote with little explanation.", "No evidence."] },
       { name: "Organization", max: 4, cells: ["Logical order with strong transitions.", "Mostly logical, a few weak transitions.", "Order is confusing at times.", "No clear order."] },
       { name: "Conventions", max: 4, cells: ["Almost no errors.", "A few small errors.", "Many errors that slow the reader.", "Errors block meaning."] }] };
-    S.title = "Sample essay"; S.grades = []; SRC = null; save(); showAll(); drawSource($("srcbox"), null); $("markmsg").hidden = true; $("s2").scrollIntoView({ behavior: "smooth" });
+    S.title = "Sample essay"; S.grades = []; SRC = null; save(); showAll(); drawSource($("srcbox"), null); $("markmsg").hidden = true; $("s3").scrollIntoView({ behavior: "smooth" });
   };
 
   /* ================================================================= step 2: edit the rubric */
-  function showAll() { $("s2").hidden = !S.rubric; $("s3").hidden = !S.rubric; $("s4").hidden = !S.rubric; if (!S.rubric) return; $("title").value = S.title; drawEditor(); drawGrader(); drawSheet(); $("roster").value = S.roster.join("\n"); drawRoster(); }
+  function showAll() { $("tplrow").hidden = !S.rubric; $("s2").hidden = true; $("s3").hidden = !S.rubric; $("s4").hidden = !S.rubric; if (!S.rubric) return; $("title").value = S.title; drawEditor(); drawGrader(); drawSheet(); $("roster").value = S.roster.join("\n"); drawRoster(); }
   function topPts() { return Math.max.apply(null, S.rubric.levels.map(function (l) { return +l.points || 0; })); }
   function drawEditor() {
     var R = S.rubric, h = "<tr><th style='width:150px'>Criteria</th>";
