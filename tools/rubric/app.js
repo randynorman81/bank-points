@@ -15,20 +15,53 @@
   function loadImage(file) { return new Promise(function (res, rej) { var u = URL.createObjectURL(file), im = new Image(); im.onload = function () { res(im); }; im.onerror = function () { rej(new Error("I couldn't open that image. Try a JPG or PNG (iPhone HEIC photos may need to be saved as JPG first).")); }; im.src = u; }); }
   var ocrWorker = null, ocrProg = null;
   /* clean a copy for reading: colored pen fades away (we keep the biggest color channel), and long table lines are erased so they don't confuse the reader */
-  function prepForOcr(src) {
+  function prepForOcr(src, noLines) {
     var c = document.createElement("canvas"); c.width = src.width; c.height = src.height; var x = c.getContext("2d"); x.drawImage(src, 0, 0);
     var im = x.getImageData(0, 0, c.width, c.height), d = im.data, w = c.width, h = c.height, g = new Uint8Array(w * h), i, y, xx;
     for (i = 0; i < w * h; i++) g[i] = Math.max(d[i * 4], d[i * 4 + 1], d[i * 4 + 2]);
     var dark = function (v) { return v < 150; }, kill = new Uint8Array(w * h), minRun = 70, run, start;
+    if (noLines) {
+      /* even out the lighting: stretch so the paper becomes white and the darkest ink black (gray, shadowed photos read badly otherwise) */
+      var hist = new Uint32Array(256), cnt = 0; for (i = 0; i < w * h; i++) if (g[i] !== 255) { hist[g[i]]++; cnt++; }
+      var lo = 0, hi = 255, acc = 0, v0;
+      if (cnt > 200) { for (v0 = 0; v0 < 256; v0++) { acc += hist[v0]; if (acc >= cnt * 0.01) { lo = v0; break; } } acc = 0; for (v0 = 0; v0 < 256; v0++) { acc += hist[v0]; if (acc >= cnt * 0.55) { hi = v0; break; } } }
+      var span = Math.max(1, hi - lo);
+      for (i = 0; i < w * h; i++) { var vv = g[i] === 255 ? 255 : Math.max(0, Math.min(255, Math.round((g[i] - lo) / span * 235))); if (vv > 235) vv = 255; d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = vv; d[i * 4 + 3] = 255; }
+      x.putImageData(im, 0, 0); return c;
+    }
     for (y = 0; y < h; y++) { run = 0; for (xx = 0; xx <= w; xx++) { if (xx < w && dark(g[y * w + xx])) run++; else { if (run >= minRun) for (var k = xx - run; k < xx; k++) for (var dy = -2; dy <= 2; dy++) { var yy = y + dy; if (yy >= 0 && yy < h) kill[yy * w + k] = 1; } run = 0; } } }
     for (xx = 0; xx < w; xx++) { run = 0; for (y = 0; y <= h; y++) { if (y < h && dark(g[y * w + xx])) run++; else { if (run >= minRun) for (var k2 = y - run; k2 < y; k2++) for (var dx = -2; dx <= 2; dx++) { var xq = xx + dx; if (xq >= 0 && xq < w) kill[k2 * w + xq] = 1; } run = 0; } } }
     for (i = 0; i < w * h; i++) { var v = kill[i] ? 255 : g[i]; d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = v; d[i * 4 + 3] = 255; }
     x.putImageData(im, 0, 0); return c;
   }
-  function getWorker() {
-    if (ocrWorker) return ocrWorker;
-    ocrWorker = Tesseract.createWorker("eng", 1, { logger: function (m) { if (m.status === "recognizing text" && ocrProg) ocrProg(m.progress); } }).then(function (wk) { return wk.setParameters({ tessedit_pageseg_mode: "11" }).then(function () { return wk; }); });
-    return ocrWorker;
+  var ocrWorkers = {};
+  function getWorker(psm) {
+    psm = psm || "11"; if (ocrWorkers[psm]) return ocrWorkers[psm];
+    ocrWorkers[psm] = Tesseract.createWorker("eng", 1, { logger: function (m) { if (m.status === "recognizing text" && ocrProg) ocrProg(m.progress); } }).then(function (wk) { return wk.setParameters({ tessedit_pageseg_mode: psm }).then(function () { return wk; }); });
+    return ocrWorkers[psm];
+  }
+  /* read a table photo one box at a time, using the table's own lines (works on tilted photos) */
+  function inset(q, px) { var cx = (q[0].x + q[1].x + q[2].x + q[3].x) / 4, cy = (q[0].y + q[1].y + q[2].y + q[3].y) / 4; return q.map(function (p) { var dx = p.x - cx, dy = p.y - cy, d = Math.hypot(dx, dy) || 1; return { x: p.x - dx / d * px, y: p.y - dy / d * px }; }); }
+  function ocrCells(c, gl, onp) {
+    var rows = gl.cells.length, cols = gl.cells[0].length, total = rows * cols, done = 0, items = [], grid = [], hs = [];
+    return getWorker("6").then(function (wk) {
+      var chain = Promise.resolve();
+      gl.cells.forEach(function (row, i) { grid.push([]); row.forEach(function (q, j) { chain = chain.then(function () {
+        var iq = inset(q, 6), xs = iq.map(function (p) { return p.x; }), ys = iq.map(function (p) { return p.y; }), x0 = Math.max(0, Math.floor(Math.min.apply(null, xs))), y0 = Math.max(0, Math.floor(Math.min.apply(null, ys))), x1 = Math.min(c.width, Math.ceil(Math.max.apply(null, xs))), y1 = Math.min(c.height, Math.ceil(Math.max.apply(null, ys))), w = x1 - x0, h = y1 - y0;
+        if (w < 20 || h < 12) { grid[i][j] = ""; done++; return; }
+        var tc = document.createElement("canvas"); tc.width = w; tc.height = h; var t = tc.getContext("2d"); t.fillStyle = "#fff"; t.fillRect(0, 0, w, h);
+        t.save(); t.beginPath(); iq.forEach(function (p, n) { n ? t.lineTo(p.x - x0, p.y - y0) : t.moveTo(p.x - x0, p.y - y0); }); t.closePath(); t.clip(); t.drawImage(c, -x0, -y0); t.restore();
+        return wk.recognize(prepForOcr(tc, true)).then(function (r) {
+          done++; if (onp) onp(done / total);
+          var words = (r.data.words || []).filter(function (w2) { return w2.text && /[A-Za-z0-9&]/.test(w2.text) && w2.confidence > 20; });
+          grid[i][j] = E.clean(words.map(function (w2) { return w2.text; }).join(" "));
+          words.forEach(function (w2) { var it = { s: w2.text, x: x0 + w2.bbox.x0, y: y0 + w2.bbox.y0, w: w2.bbox.x1 - w2.bbox.x0, h: w2.bbox.y1 - w2.bbox.y0 }; items.push(it); hs.push(it.h); });
+        });
+      }); }); });
+      return chain;
+    }).then(function () {
+      hs.sort(function (a, b) { return a - b; }); return { kind: "cells", canvas: c, grid: grid, geo: { cells: gl.cells, H: hs.length ? hs[hs.length >> 1] : 20 }, layout: { items: items } };
+    });
   }
   function ocr(canvas, onp) {
     if (!window.Tesseract) return Promise.reject(new Error("The photo reader didn't load. Check your connection, or upload a PDF instead."));
@@ -38,10 +71,15 @@
       return words.filter(function (w) { return w.text && w.text.trim().length && w.confidence > 20 && /[A-Za-z0-9]/.test(w.text); }).map(function (w) { return { s: w.text, x: w.bbox.x0, y: w.bbox.y0, w: w.bbox.x1 - w.bbox.x0, h: w.bbox.y1 - w.bbox.y0 }; });
     });
   }
+  function smartOcr(c, onp) {
+    var gl = null; try { gl = window.GridLines && GridLines.detect(c); } catch (e) { gl = null; }
+    if (gl && gl.cells.length >= 2 && gl.cells[0].length >= 3 && gl.cells.length * gl.cells[0].length <= 120) return ocrCells(c, gl, onp);
+    return ocr(c, onp).then(function (items) { return { kind: "layout", canvas: c, layout: { items: items } }; });
+  }
   function imageSource(file, onp) {
     return loadImage(file).then(function (im) {
       var sc = Math.min(1, 2200 / im.naturalWidth), c = document.createElement("canvas"); c.width = Math.round(im.naturalWidth * sc); c.height = Math.round(im.naturalHeight * sc); c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
-      return ocr(c, onp).then(function (items) { return { kind: "layout", canvas: c, layout: { items: items } }; });
+      return smartOcr(c, onp);
     });
   }
   function pdfSource(file, onp) {
@@ -61,7 +99,7 @@
         pages.forEach(function (p) { ctx.drawImage(p.canvas, 0, y); p.items.forEach(function (it) { items.push({ s: it.s, x: it.x, y: it.y + y, w: it.w, h: it.h }); }); y += p.canvas.height; });
         if (items.length >= 20) return { kind: "layout", canvas: big, layout: { items: items } };
         /* a scanned PDF has no text layer: read it like a photo */
-        return ocr(big, onp).then(function (its) { return { kind: "layout", canvas: big, layout: { items: its } }; });
+        return smartOcr(big, onp);
       });
     });
   }
@@ -96,16 +134,19 @@
   function analyze(src) {
     var parsed, grid, bgs = null;
     if (src.kind === "table") { grid = src.table.grid; bgs = src.table.bgs; parsed = E.rubricFromGrid(grid, null); }
+    else if (src.kind === "cells") { grid = src.grid; parsed = E.rubricFromGrid(grid, src.geo); }
     else { var g = E.gridFromLayout(src.layout); if (g.error) return { error: g.error }; grid = g.grid; parsed = E.rubricFromGrid(grid, g.geo); if (parsed.geo) parsed.geo.H = g.H; }
     if (parsed.error) return { error: parsed.error };
     var res = { rubric: parsed.rubric, geo: parsed.geo, grid: grid, src: src }, typed = E.typedMarks(parsed.rubric, grid, bgs), picks = typed.map(function (t) { return { pick: t.pick, conf: t.pick >= 0 ? 1 : 0, why: t.why, score: t.score }; });
-    if (src.kind === "layout" && src.canvas && parsed.geo) {
+    if ((src.kind === "layout" || src.kind === "cells") && src.canvas && parsed.geo) {
       var px = pixelMarks(src, parsed);
       picks.forEach(function (p, i) { if (p.pick < 0 && px.picks[i].pick >= 0) { p.pick = px.picks[i].pick; p.conf = px.picks[i].conf; p.why = "a pen or highlighter mark"; } else if (p.pick < 0 && px.picks[i].maybe >= 0 && px.picks[i].maybe !== undefined) p.maybe = px.picks[i].maybe; });
     }
     res.picks = picks; return res;
   }
+  function cellQuad(geo, rub, i, k) { var q = geo.cells[rub.criteria[i].srcRow + 1][rub.levels[k].col]; return q; }
   function cellBox(geo, rub, i, k) {
+    if (geo.cells) { var q = cellQuad(geo, rub, i, k), xs = q.map(function (p) { return p.x; }), ys = q.map(function (p) { return p.y; }); return { x0: Math.min.apply(null, xs), y0: Math.min.apply(null, ys), x1: Math.max.apply(null, xs), y1: Math.max.apply(null, ys), quad: q }; }
     var col = rub.levels[k].col, row = rub.criteria[i].srcRow, H = geo.H || 10;
     var x0 = col === 0 ? geo.x0 : geo.colBounds[col - 1], x1 = col >= geo.colBounds.length ? geo.x1 : geo.colBounds[col];
     var y0 = geo.rowStarts[row] - 0.6 * H, y1 = row + 1 < geo.rowStarts.length ? geo.rowStarts[row + 1] - 0.6 * H : geo.lastY;
@@ -119,8 +160,11 @@
         if (w < 12 || h < 12) return 0;
         var d = ctx.getImageData(x0, y0, w, h).data, mask = new Uint8Array(w * h);
         items.forEach(function (it) { if (it.x + it.w < x0 || it.x > x1 || it.y + it.h < y0 || it.y > y1) return; var a = Math.max(0, Math.floor(it.x - x0 - 2)), bb = Math.min(w, Math.ceil(it.x + it.w - x0 + 2)), cc = Math.max(0, Math.floor(it.y - y0 - 2)), dd = Math.min(h, Math.ceil(it.y + it.h - y0 + 2)); for (var yy = cc; yy < dd; yy++) for (var xx = a; xx < bb; xx++) mask[yy * w + xx] = 1; });
-        var edge = Math.max(4, Math.round(H * 0.45)), area = 0, col = 0, dark = 0;
-        for (var y = edge; y < h - edge; y++) for (var x = edge; x < w - edge; x++) {
+        var edge = Math.max(4, Math.round(H * 0.45)), area = 0, col = 0, dark = 0, q = b.quad, qs = 1;
+        if (q) { var cxq = (q[0].x + q[1].x + q[2].x + q[3].x) / 4, cyq = (q[0].y + q[1].y + q[2].y + q[3].y) / 4, e0 = (q[1].x - q[0].x) * (cyq - q[0].y) - (q[1].y - q[0].y) * (cxq - q[0].x); qs = e0 < 0 ? -1 : 1; }
+        var inside = function (px, py) { if (!q) return true; for (var n = 0; n < 4; n++) { var A = q[n], B = q[(n + 1) % 4], len = Math.hypot(B.x - A.x, B.y - A.y) || 1; if (qs * ((B.x - A.x) * (py - A.y) - (B.y - A.y) * (px - A.x)) / len < edge) return false; } return true; };
+        for (var y = q ? 0 : edge; y < (q ? h : h - edge); y++) for (var x = q ? 0 : edge; x < (q ? w : w - edge); x++) {
+          if (q && !inside(x0 + x, y0 + y)) continue;
           var p = (y * w + x) * 4, r = d[p], g = d[p + 1], bl = d[p + 2], mx = Math.max(r, g, bl), mn = Math.min(r, g, bl), sat = mx ? (mx - mn) / mx : 0; area++;
           if (sat > 0.32 && mx > 70) col++; else if (!mask[y * w + x] && mx < 105) dark++;
         }
@@ -135,6 +179,13 @@
     box.innerHTML = ""; if (!res || !res.src || !res.src.canvas) { box.parentNode.hidden = true; return; }
     box.parentNode.hidden = false; var c = res.src.canvas, show = document.createElement("canvas"), s = Math.min(1, 900 / c.width); show.width = Math.round(c.width * s); show.height = Math.round(c.height * s); show.getContext("2d").drawImage(c, 0, 0, show.width, show.height); box.appendChild(show);
     if (!res.geo) return;
+    if (res.geo.cells) {
+      var NS = "http://www.w3.org/2000/svg", svg = document.createElementNS(NS, "svg"); svg.setAttribute("viewBox", "0 0 " + c.width + " " + c.height); svg.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none"; box.appendChild(svg);
+      res.rubric.criteria.forEach(function (cr, i) { res.rubric.levels.forEach(function (lv, k) {
+        var q = cellQuad(res.geo, res.rubric, i, k), p = picks && picks[i], st = p && p.pick === k ? (p.conf >= 0.6 ? "g" : "a") : p && p.maybe === k ? "a" : "n", pg = document.createElementNS(NS, "polygon");
+        pg.setAttribute("points", q.map(function (pt) { return Math.round(pt.x) + "," + Math.round(pt.y); }).join(" ")); pg.setAttribute("fill", st === "g" ? "rgba(31,157,107,.28)" : st === "a" ? "rgba(229,154,0,.25)" : "none"); pg.setAttribute("stroke", st === "g" ? "#1f9d6b" : st === "a" ? "#e59a00" : "rgba(47,91,216,.35)"); pg.setAttribute("stroke-width", st === "n" ? "2" : "6"); svg.appendChild(pg);
+      }); }); return;
+    }
     res.rubric.criteria.forEach(function (cr, i) { res.rubric.levels.forEach(function (lv, k) {
       var b = cellBox(res.geo, res.rubric, i, k), p = picks && picks[i], st = p && p.pick === k ? (p.conf >= 0.6 ? "g" : "a") : p && p.maybe === k ? "a" : "n", el = document.createElement("div");
       if (st === "n" && !(picks === null)) { /* faint outlines only */ }
@@ -342,6 +393,50 @@
 
   function syncScale() { var sel = $("scale"), v = String(S.scale || 0); if (![].some.call(sel.options, function (o) { return o.value === v; })) { var o = document.createElement("option"); o.value = v; o.textContent = v + " points"; sel.insertBefore(o, sel.lastChild); } sel.value = v; }
   $("scale").onchange = function () { var v = this.value; if (v === "custom") { var n = parseFloat(prompt("Scale each score to be out of how many points?", "100")); if (!(n > 0)) { syncScale(); return; } S.scale = n; } else S.scale = +v; save(); syncScale(); updateTotal(); drawSheet(); };
+  /* ================================================================= the Google Doc / Word template */
+  /* one standard layout the grader reads perfectly: criteria down the side, each level (with its points) across the top, a Score column and a Total row */
+  function templateRubric() {
+    return { levels: [{ name: "Excellent", points: 4 }, { name: "Good", points: 3 }, { name: "Fair", points: 2 }, { name: "Needs work", points: 1 }], criteria: [1, 2, 3, 4].map(function (n) { return { name: "Criterion " + n, max: 4, cells: ["Describe what excellent work looks like.", "Describe what good work looks like.", "Describe what fair work looks like.", "Describe what work that needs improvement looks like."] }; }) };
+  }
+  function tplHead(R) { return ["Criteria"].concat(R.levels.map(function (l) { return l.name + " (" + l.points + ")"; }), ["Score"]); }
+  function tplRows(R) {
+    var rows = R.criteria.map(function (c) { return [c.name].concat(R.levels.map(function (l, k) { return c.cells[k] || ""; }), [""]); });
+    var max = R.criteria.reduce(function (a, c) { return a + (+c.max || 0); }, 0);
+    rows.push(["Total"].concat(R.levels.map(function () { return ""; }), ["/ " + max])); return rows;
+  }
+  var TPL_HELP = "How to grade with this page: put an X in the box that matches each row (or highlight the box), and type the points in the Score column. Keep the table layout so the Rubric Grader can read it.";
+  function tplHTML(R, title) {
+    var cell = "border:1px solid #000;padding:6px;vertical-align:top;font-family:Arial,sans-serif;font-size:10pt";
+    var h = "<h2 style='font-family:Arial,sans-serif'>" + esc(title || "Rubric") + "</h2><p style='font-family:Arial,sans-serif;font-size:10pt'>Student: ______________________ &nbsp; Date: ____________</p><p style='font-family:Arial,sans-serif;font-size:9pt;color:#555'>" + esc(TPL_HELP) + "</p><table style='border-collapse:collapse;width:100%'><tr>";
+    tplHead(R).forEach(function (t) { h += "<th style='" + cell + ";background:#e8e8e8;text-align:left'>" + esc(t) + "</th>"; }); h += "</tr>";
+    tplRows(R).forEach(function (r, i, all) { h += "<tr>"; r.forEach(function (t, j) { h += "<td style='" + cell + (j === 0 || i === all.length - 1 ? ";font-weight:bold" : "") + "'>" + esc(t) + "</td>"; }); h += "</tr>"; });
+    return h + "</table>";
+  }
+  function tplBlob(R, title) {
+    var d = window.docx; if (!d) return Promise.resolve({ blob: new Blob(["<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'></head><body>" + tplHTML(R, title) + "</body></html>"], { type: "application/msword" }), ext: ".doc" });
+    var head = tplHead(R), rows = tplRows(R), n = head.length, total = 12960, first = 1900, score = 900, mid = Math.floor((total - first - score) / (n - 2)), widths = [first].concat(R.levels.map(function () { return mid; }), [score]);
+    var line = { style: d.BorderStyle.SINGLE, size: 4, color: "000000" }, borders = { top: line, bottom: line, left: line, right: line };
+    function cell(t, w, bold, shade) { return new d.TableCell({ width: { size: w, type: d.WidthType.DXA }, borders: borders, shading: shade ? { fill: "E8E8E8", type: d.ShadingType.CLEAR, color: "auto" } : undefined, margins: { top: 60, bottom: 60, left: 90, right: 90 }, children: [new d.Paragraph({ children: [new d.TextRun({ text: t, bold: !!bold, size: 20, font: "Arial" })] })] }); }
+    var trs = [new d.TableRow({ tableHeader: true, children: head.map(function (t, i) { return cell(t, widths[i], true, true); }) })].concat(rows.map(function (r, ri) { return new d.TableRow({ cantSplit: true, children: r.map(function (t, i) { return cell(t, widths[i], i === 0 || ri === rows.length - 1, false); }) }); }));
+    var doc = new d.Document({ sections: [{ properties: { page: { size: { orientation: d.PageOrientation.LANDSCAPE } } }, children: [
+      new d.Paragraph({ heading: d.HeadingLevel.HEADING_1, children: [new d.TextRun({ text: title || "Rubric", font: "Arial" })] }),
+      new d.Paragraph({ children: [new d.TextRun({ text: "Student: ______________________     Date: ____________", font: "Arial", size: 20 })] }),
+      new d.Paragraph({ spacing: { after: 120 }, children: [new d.TextRun({ text: TPL_HELP, font: "Arial", size: 18, color: "555555" })] }),
+      new d.Table({ width: { size: total, type: d.WidthType.DXA }, columnWidths: widths, rows: trs })] }] });
+    return d.Packer.toBlob(doc).then(function (b) { return { blob: b, ext: ".docx" }; });
+  }
+  function giveTemplate(R, title) {
+    tplBlob(R, title).then(function (o) { download(o.blob, (title || "Rubric-template").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-") + o.ext); $("tplnote").textContent = "Downloaded. In Google Drive: upload it, then right-click it and choose Open with > Google Docs."; });
+  }
+  $("tpl").onclick = function () { giveTemplate(S.rubric, S.title || "Rubric"); };
+  $("tplblank").onclick = function () { giveTemplate(templateRubric(), "Rubric template"); status($("status"), "Downloaded the blank template. Upload it to Google Drive, open it with Google Docs, fill it in, then upload it here (or paste the Google Doc link).", "good"); };
+  $("tplcopy").onclick = function () {
+    var html = tplHTML(S.rubric, S.title || "Rubric"), text = E.toTSV([tplHead(S.rubric)].concat(tplRows(S.rubric)));
+    var done = function () { $("tplnote").textContent = "Copied. Open a new Google Doc (docs.new) and press Ctrl+V to paste the table."; };
+    if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) navigator.clipboard.write([new ClipboardItem({ "text/html": new Blob([html], { type: "text/html" }), "text/plain": new Blob([text], { type: "text/plain" }) })]).then(done).catch(function () { $("tplnote").textContent = "Your browser blocked copying. Use the Word download instead."; });
+    else $("tplnote").textContent = "Your browser can't copy a table. Use the Word download instead.";
+  };
+
   showAll(); syncScale();
-  window.__rubricApp = { S: S, analyze: analyze, setRubric: setRubric, addCopyCard: addCopyCard, handle: handle, readFile: readFile };
+  window.__rubricApp = { tplHTML: tplHTML, tplBlob: tplBlob, templateRubric: templateRubric, tableSource: tableSource, S: S, analyze: analyze, setRubric: setRubric, addCopyCard: addCopyCard, handle: handle, readFile: readFile };
 })();
