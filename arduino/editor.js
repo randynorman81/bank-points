@@ -886,6 +886,8 @@
       var el = e.target; if (typing(el)) { own = String(window.getSelection ? window.getSelection() : "") || (el.value || "").slice(el.selectionStart, el.selectionEnd); return; }
       if (e.target && e.target.closest && e.target.closest(".codebox.copyok")) { own = String(window.getSelection ? window.getSelection() : ""); return; }
       var sel0 = window.getSelection && window.getSelection(), cbk = sel0 && sel0.anchorNode && (sel0.anchorNode.nodeType === 1 ? sel0.anchorNode : sel0.anchorNode.parentNode); if (cbk && cbk.closest && cbk.closest(".codebox.copyok")) { own = String(sel0); return; }
+      /* Select All (or any selection that runs across the page) must not carry the assignment pane, a help pop-up or the output along with it */
+      if (!teacher() && sel0 && sel0.rangeCount) { var rg0 = sel0.getRangeAt(0), hit0 = false; ["#assBody", ".modal", "#out"].forEach(function (q) { var n0 = document.querySelector(q); if (n0 && rg0.intersectsNode(n0)) hit0 = true; }); if (hit0) { e.preventDefault(); return; } }
       if (!teacher() && e.target && e.target.closest && e.target.closest("#assBody, .modal, #out, .codebox")) { e.preventDefault(); }
     }, true);
     document.addEventListener("cut", function (e) { var el = e.target; if (typing(el)) own = (el.value || "").slice(el.selectionStart, el.selectionEnd); }, true);
