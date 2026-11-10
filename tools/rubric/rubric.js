@@ -72,9 +72,15 @@
     var rows = rowStarts.map(function () { return []; }); for (i = 0; i < rows.length; i++) rows[i] = cols.map(function () { return []; });
     allBelow.forEach(function (it) { var r = -1; for (var k = 0; k < rowStarts.length; k++) if (it.yc >= rowStarts[k] - 0.6 * H) r = k; if (r >= 0) rows[r][it.col].push(it); });
     var grid = [cols.map(function (c) { return clean(c.text); })], geo = { colBounds: bounds, rowStarts: rowStarts, header: { y0: hdr.y0, y1: hdr.y1 }, x0: Math.min.apply(null, items.map(function (i) { return i.x; })) - H, x1: Math.max.apply(null, items.map(function (i) { return i.x + i.w; })) + H, rowItems: [] };
-    rows.forEach(function (r) { grid.push(r.map(function (list) { list.sort(function (a, b) { return a.yc - b.yc || a.x - b.x; }); return clean(list.map(function (i) { return i.s; }).join(" ")); })); geo.rowItems.push(r); });
+    rows.forEach(function (r) { grid.push(r.map(function (list) { return clean(readingOrder(list, H).map(function (i) { return i.s; }).join(" ")); })); geo.rowItems.push(r); });
     geo.lastY = Math.max.apply(null, items.map(function (i) { return i.y + i.h; })) + H;
     return { grid: grid, geo: geo, H: H };
+  }
+  /* words in reading order: group into lines first (so small height differences don't scramble a line), then left to right */
+  function readingOrder(list, H) {
+    var sorted = list.slice().sort(function (a, b) { return a.yc - b.yc; }), lines = [], cur = null;
+    sorted.forEach(function (it) { if (!cur || it.yc - cur.yc > 0.6 * H) { cur = { yc: it.yc, items: [] }; lines.push(cur); } cur.items.push(it); });
+    var out = []; lines.forEach(function (l) { l.items.sort(function (a, b) { return a.x - b.x; }); out = out.concat(l.items); }); return out;
   }
   function segments(items, gap) { var segs = [], cur = null; items.forEach(function (it) { if (cur && it.x - cur.x1 <= gap) { cur.text += " " + it.s; cur.x1 = Math.max(cur.x1, it.x + it.w); } else { cur = { text: it.s, x0: it.x, x1: it.x + it.w }; segs.push(cur); } }); return segs; }
   function findGutters(items, pad) {
