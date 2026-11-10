@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0B0E14;--panel:#121722;--card:#171D2B;--rule:#26304A;--ink:#E8ECF3;--soft:#93A0B8;--acc:#22D3EE;--acc2:#FB923C;--ok:#34D399;--bad:#F87171;--warn:#FBBF24}
+:root{--bg:#0B0E14;--panel:#121722;--card:#171D2B;--rule:#26304A;--ink:#E8ECF3;--soft:#93A0B8;--acc:#22D3EE;--acc2:#FB923C;--ok:#34D399;--bad:#F87171;--warn:#FBBF24;--deep:#05070B;--deep2:#070A10;--bg2:#080B11;--panel2:#0E1320;--panel3:#0A0F19;--canvas:#0D1118;--chip:#0F1522;--line2:#1D2638;--dots:#1A2230;--pop:#0B1220;--acct:#0C2A33;--acct2:#071C24;--accb:#155E75;--accl:#67E8F9;--onacc:#07131A;--onok:#052E1B;--hi:#fff;--ink2:#CBD5E1;--gutx:#4B5A78;--faint:#64748B;--okl:#A7F3D0;--okt:#07241A;--okb:#14532D;--badl:#FECACA;--badt:#2A0F0F;--warnl:#FDE68A;--warnt:#2A2110;--warnb:#854D0E;--sk:#C084FC;--st:#7DD3FC;--sf:#FDBA74;--sc:#64748B;--ss:#86EFAC;--sn:#FCD34D;--sq:#F9A8D4}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--ink);font:14px/1.5 Manrope,system-ui,sans-serif;display:flex;flex-direction:column;overflow:hidden}
@@ -14,18 +14,18 @@ body{background:var(--bg);color:var(--ink);font:14px/1.5 Manrope,system-ui,sans-
 .top .sp{flex:1}
 .btn,select{background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:5px;padding:3px 10px;cursor:pointer;font:700 11.5px Manrope,sans-serif}
 .btn:hover,select:hover{border-color:var(--acc)}
-.btn.run{background:var(--acc);color:#07131a;border-color:var(--acc)}
+.btn.run{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
 .btn.stop{background:#7f1d1d;border-color:#b91c1c;color:#fff}
-.btn.go{background:var(--ok);color:#052e1b;border-color:var(--ok)}
-.btn.on{border-color:var(--acc);background:#0c2a33;color:#fff}
+.btn.go{background:var(--ok);color:var(--onok);border-color:var(--ok)}
+.btn.on{border-color:var(--acc);background:var(--acct);color:var(--hi)}
 .btn.sm{padding:2px 8px;font-size:11px}
 .btn[disabled]{opacity:.45;cursor:not-allowed}
 .status{font-size:11px;color:var(--soft);max-width:330px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .status.bad{color:var(--bad)}
-.saveind{font-size:11px;color:var(--soft)} .saveind.ok{color:#6EE7B7} .saveind.warn{color:#FDE68A} .saveind.bad{color:#FCA5A5}
+.saveind{font-size:11px;color:var(--soft)} .saveind.ok{color:var(--okl)} .saveind.warn{color:var(--warnl)} .saveind.bad{color:var(--badl)}
 .who{font-size:11px;color:var(--soft)} .who a{color:var(--acc)}
 #gbtn{min-height:0}
-.pbtn.on{background:var(--acc);color:#07131a}
+.pbtn.on{background:var(--acc);color:var(--onacc)}
 .pl{font-size:11px;color:var(--soft)}
 main{flex:1;min-height:0;display:grid;grid-template-columns:var(--aw,320px) 6px minmax(0,1fr) 6px var(--cw,420px)}
 body.noass main{grid-template-columns:minmax(0,1fr) 6px var(--cw,420px)}
@@ -33,55 +33,55 @@ body.noass #paneAss,body.noass #split0{display:none}
 .split{background:var(--rule);cursor:col-resize;touch-action:none}.split:hover{background:var(--acc)}
 main.dragging{user-select:none}
 .pane{min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
-#paneAss{background:#080B11}
-#nameBar{padding:4px 12px;background:#0E1320;border-bottom:1px solid var(--rule)}
-#nameBar h2{margin:0;font:700 12px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;color:#67E8F9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#paneAss{background:var(--bg2)}
+#nameBar{padding:4px 12px;background:var(--panel2);border-bottom:1px solid var(--rule)}
+#nameBar h2{margin:0;font:700 12px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;color:var(--accl);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #assHead{display:none;align-items:center;gap:6px 14px;flex-wrap:wrap;padding:4px 12px;background:var(--panel);border-bottom:1px solid var(--rule);font:700 12px "JetBrains Mono",monospace;color:var(--soft)}
 #assHead.show{display:flex} #assHead b{color:var(--ok)}
 #assScore b{font-size:15px;color:var(--acc)}
 #assBody{flex:1;overflow:auto;padding:10px 14px 40px;font-size:13.5px}
-#assBody h3{margin:16px 0 6px;font:800 13px Manrope,sans-serif;color:#fff;border-top:1px solid var(--rule);padding-top:12px}
+#assBody h3{margin:16px 0 6px;font:800 13px Manrope,sans-serif;color:var(--hi);border-top:1px solid var(--rule);padding-top:12px}
 #assBody h3:first-of-type{border-top:0;padding-top:0}
-#assBody p.intro{color:#C4CDD8;margin:4px 0 10px}
-#assBody pre.codebox{background:#05070B;border:1px solid var(--rule);border-radius:7px;padding:9px 12px;margin:6px 0 10px;font:12.5px/1.6 "JetBrains Mono",monospace;color:#E8ECF3;overflow:auto}
+#assBody p.intro{color:var(--ink2);margin:4px 0 10px}
+#assBody pre.codebox{background:var(--deep);border:1px solid var(--rule);border-radius:7px;padding:9px 12px;margin:6px 0 10px;font:12.5px/1.6 "JetBrains Mono",monospace;color:var(--ink);overflow:auto}
 #assBody .item{display:grid;grid-template-columns:20px minmax(0,1fr);gap:4px 9px;align-items:start;margin:6px 0;padding:7px 9px;border:1px solid var(--rule);border-radius:8px;background:var(--card);cursor:default}
 #assBody .item .box{height:18px;border-radius:5px;border:2px solid var(--rule);margin-top:2px;display:grid;place-items:center;font-size:12px;color:transparent}
-#assBody .item.done{border-color:#16794f;background:#0b2a20}
-#assBody .item.done .box{background:var(--ok);border-color:var(--ok);color:#052e1b;font-weight:800}
-#assBody .item .txt{flex:1;color:#DCE4EE}
+#assBody .item.done{border-color:var(--okb);background:var(--okt)}
+#assBody .item.done .box{background:var(--ok);border-color:var(--ok);color:var(--onok);font-weight:800}
+#assBody .item .txt{flex:1;color:var(--ink2)}
 #assBody .item .badge{grid-column:2;justify-self:start;font:700 10.5px "JetBrains Mono",monospace;padding:1px 7px;border-radius:99px;border:1px solid var(--rule);color:var(--soft);white-space:nowrap;align-self:flex-start}
-#assBody .item.done .badge{border-color:var(--ok);color:#6EE7B7}
-#assBody code{font:12px "JetBrains Mono",monospace;background:#0f1522;padding:0 4px;border-radius:4px;color:#7DD3FC}
-.hintbox{margin:10px 0;padding:10px 12px;border:1px dashed #155e75;border-radius:9px;background:#071c24;color:#A5F3FC;font-size:12.5px}
-#paneCanvas{background:#0d1118;position:relative}
+#assBody .item.done .badge{border-color:var(--ok);color:var(--okl)}
+#assBody code{font:12px "JetBrains Mono",monospace;background:var(--chip);padding:0 4px;border-radius:4px;color:var(--accl)}
+.hintbox{margin:10px 0;padding:10px 12px;border:1px dashed var(--accb);border-radius:9px;background:var(--acct2);color:var(--accl);font-size:12.5px}
+#paneCanvas{background:var(--canvas);position:relative}
 .ptools{display:flex;gap:5px;align-items:center;padding:5px 8px;background:var(--panel);border-bottom:1px solid var(--rule);flex-wrap:wrap}
 .ptools .lbl{font:700 10.5px "JetBrains Mono",monospace;color:var(--soft);letter-spacing:.05em;text-transform:uppercase;margin-right:2px}
 .ptools .sep{width:1px;height:20px;background:var(--rule);margin:0 4px}
 .pb{display:inline-flex;align-items:center;gap:5px;background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:3px 9px;color:var(--ink);cursor:pointer;font:700 11.5px Manrope,sans-serif}
-.pb:hover{border-color:var(--acc);background:#0c2a33}
+.pb:hover{border-color:var(--acc);background:var(--acct)}
 .pb svg{width:18px;height:18px}
 #stagewrap{flex:1;min-height:0;position:relative;overflow:hidden;background:
- radial-gradient(circle at 1px 1px,#1a2230 1px,transparent 1.5px) 0 0/20px 20px,#0d1118}
+ radial-gradient(circle at 1px 1px,var(--dots) 1px,transparent 1.5px) 0 0/20px 20px,var(--canvas)}
 #stage{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:default;user-select:none}
 #stage.panning{cursor:grabbing}
 #stage .part{cursor:grab}
 #stage.running .part{cursor:default}
 #stage .part[data-type="button"]{cursor:pointer}
-#tt{position:fixed;z-index:400;max-width:300px;padding:8px 11px;border-radius:9px;background:#0b1220;border:1px solid #38bdf8;color:#E8ECF3;font-size:12.5px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.5);pointer-events:none;opacity:0;transition:opacity .08s;left:0;top:0}
+#tt{position:fixed;z-index:400;max-width:300px;padding:8px 11px;border-radius:9px;background:var(--pop);border:1px solid var(--acc);color:var(--ink);font-size:12.5px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.5);pointer-events:none;opacity:0;transition:opacity .08s;left:0;top:0}
 #tt.show{opacity:1}
-#tt b{color:#fff}
+#tt b{color:var(--hi)}
 #tt .pol{display:inline-block;font:800 10.5px "JetBrains Mono",monospace;padding:1px 7px;border-radius:99px;margin-left:4px}
 #tt .pol.plus{background:#4c0519;color:#fda4af;border:1px solid #fb7185}
 #tt .pol.minus{background:#082f49;color:#93c5fd;border:1px solid #60a5fa}
-#tt .pol.none{background:#1f2937;color:#cbd5e1;border:1px solid #475569}
-#tt .live{color:#86efac}
+#tt .pol.none{background:#1f2937;color:var(--ink2);border:1px solid #475569}
+#tt .live{color:var(--okl)}
 .pb{touch-action:none;user-select:none}
-.tipbtn{display:inline-block;margin:3px 4px 3px 0;padding:2px 10px;border-radius:100px;border:1px solid #FBBF24;background:#2A2110;color:#FDE68A;font:600 12px Manrope,sans-serif;cursor:pointer;line-height:1.5;text-align:left}
-.tipbtn:hover,.tipbtn:focus{background:#3a2d12;border-color:#FDE047;outline:0}
+.tipbtn{display:inline-block;margin:3px 4px 3px 0;padding:2px 10px;border-radius:100px;border:1px solid var(--warn);background:var(--warnt);color:var(--warnl);font:600 12px Manrope,sans-serif;cursor:pointer;line-height:1.5;text-align:left}
+.tipbtn:hover,.tipbtn:focus{background:var(--warnt);border-color:var(--warnl);outline:0}
 .helprow{display:block;margin:4px 0 8px}
-.helplbl{font:700 11px "JetBrains Mono",monospace;color:#FCD34D;margin-right:6px;text-transform:uppercase}
-.helpstep{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:100px;border:1px solid #FBBF24;background:#2A2110;color:#FDE68A;font:700 12.5px Manrope,sans-serif;cursor:pointer}
-.helpstep:hover{background:#3a2d12;border-color:#FDE047}.helpstep small{font-weight:600;color:#FCD34D;opacity:.85}
+.helplbl{font:700 11px "JetBrains Mono",monospace;color:var(--warnl);margin-right:6px;text-transform:uppercase}
+.helpstep{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:100px;border:1px solid var(--warn);background:var(--warnt);color:var(--warnl);font:700 12.5px Manrope,sans-serif;cursor:pointer}
+.helpstep:hover{background:var(--warnt);border-color:var(--warnl)}.helpstep small{font-weight:600;color:var(--warnl);opacity:.85}
 #assBody .item .helprow{margin:6px 0 0;display:block}
 .helprow .tipbtn{display:block;width:fit-content;max-width:100%;margin:4px 0}
 .helplist{flex-direction:column;align-items:flex-start}
@@ -93,97 +93,98 @@ main.dragging{user-select:none}
 #tipBody{padding:14px 18px 18px;overflow:auto;font-size:14px;line-height:1.6}
 #tipBody p{margin:6px 0 10px}
 #tipBody ul,#tipBody ol{margin:6px 0 12px 22px;padding:0}#tipBody li{margin:4px 0}
-#tipBody code{font:12.5px "JetBrains Mono",monospace;background:#0f1522;padding:0 5px;border-radius:4px;color:#7DD3FC}
-.tipcode{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:10px 14px;margin:8px 0 12px;font:12.5px/1.6 "JetBrains Mono",monospace;color:#E8ECF3;overflow:auto;white-space:pre}
+#tipBody code{font:12.5px "JetBrains Mono",monospace;background:var(--chip);padding:0 5px;border-radius:4px;color:var(--accl)}
+.tipcode{background:var(--deep);border:1px solid var(--rule);border-radius:8px;padding:10px 14px;margin:8px 0 12px;font:12.5px/1.6 "JetBrains Mono",monospace;color:var(--ink);overflow:auto;white-space:pre}
 .tiptbl,.annot{width:100%;border-collapse:collapse;margin:8px 0 14px;font-size:13px}
-.tiptbl th{text-align:left;font:700 11px "JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.05em;color:#67E8F9;border-bottom:1px solid var(--rule);padding:5px 8px}
-.tiptbl td,.annot td{padding:6px 8px;border-bottom:1px solid #1d2638;vertical-align:top}
-.annot td:first-child{width:46%}.annot .cl{display:block;white-space:pre;background:#05070B;color:#E8ECF3;padding:3px 8px;border-radius:5px}
-.tipgood{margin:10px 0;padding:9px 12px;border:1px solid #14532d;border-radius:9px;background:#07241a;color:#A7F3D0}
-.tipwarn{margin:10px 0;padding:9px 12px;border:1px solid #7f1d1d;border-radius:9px;background:#2a0f0f;color:#FECACA}
+.tiptbl th{text-align:left;font:700 11px "JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.05em;color:var(--accl);border-bottom:1px solid var(--rule);padding:5px 8px}
+.tiptbl td,.annot td{padding:6px 8px;border-bottom:1px solid var(--line2);vertical-align:top}
+.annot td:first-child{width:46%}.annot .cl{display:block;white-space:pre;background:var(--deep);color:var(--ink);padding:3px 8px;border-radius:5px}
+.tipgood{margin:10px 0;padding:9px 12px;border:1px solid var(--okb);border-radius:9px;background:var(--okt);color:var(--okl)}
+.tipwarn{margin:10px 0;padding:9px 12px;border:1px solid #7f1d1d;border-radius:9px;background:var(--badt);color:var(--badl)}
 .tipsvg{margin:8px 0 12px}.tiplinks{margin:12px 0 4px}.tipfoot{margin-top:16px;padding-top:10px;border-top:1px solid var(--rule)}
 .helplist{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 12px}
-.tipcat{margin:14px 0 4px;font:700 12px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:#67E8F9}
-.tipsearch{width:100%;background:#05070B;color:var(--ink);border:1px solid var(--rule);border-radius:8px;padding:8px 12px;font:14px Manrope,sans-serif;margin-bottom:6px}
-.coachcard{position:absolute;left:12px;bottom:12px;z-index:30;max-width:400px;padding:11px 14px 10px;border-radius:12px;background:#0b1a24;border:1.5px solid #22D3EE;box-shadow:0 10px 30px rgba(0,0,0,.55);color:#E8ECF3;font-size:13px;line-height:1.5;opacity:0;transform:translateY(14px);pointer-events:none;transition:opacity .25s,transform .25s}
+.tipcat{margin:14px 0 4px;font:700 12px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--accl)}
+.tipsearch{width:100%;background:var(--deep);color:var(--ink);border:1px solid var(--rule);border-radius:8px;padding:8px 12px;font:14px Manrope,sans-serif;margin-bottom:6px}
+.coachcard{position:absolute;left:12px;bottom:12px;z-index:30;max-width:400px;padding:11px 14px 10px;border-radius:12px;background:var(--pop);border:1.5px solid #22D3EE;box-shadow:0 10px 30px rgba(0,0,0,.55);color:var(--ink);font-size:13px;line-height:1.5;opacity:0;transform:translateY(14px);pointer-events:none;transition:opacity .25s,transform .25s}
 .coachcard.show{opacity:1;transform:none;pointer-events:auto}
-.coachtop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:4px}.coachtop b{font-size:14.5px;color:#67E8F9}
-.coachx{background:none;border:0;color:#93A0B8;font-size:20px;line-height:1;cursor:pointer;padding:0 2px}.coachx:hover{color:#fff}
-.coachbody code{font:12px "JetBrains Mono",monospace;background:#0f1522;padding:0 4px;border-radius:4px;color:#7DD3FC}
+.coachtop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:4px}.coachtop b{font-size:14.5px;color:var(--accl)}
+.coachx{background:none;border:0;color:var(--soft);font-size:20px;line-height:1;cursor:pointer;padding:0 2px}.coachx:hover{color:var(--hi)}
+.coachbody code{font:12px "JetBrains Mono",monospace;background:var(--chip);padding:0 4px;border-radius:4px;color:var(--accl)}
 .coachhelp{margin-top:7px}.coachhelp .tipbtn{font-size:11.5px}
 .fromrow{margin:4px 0 10px}
-#assBody .item.info{border-style:dashed;background:#0d1320}#assBody .item.info .box{border-color:#155e75;color:#67E8F9;background:#071c24;font:700 12px "JetBrains Mono",monospace}
-.askbox{width:100%;margin-top:7px;background:#05070B;color:var(--ink);border:1px solid var(--rule);border-radius:8px;padding:8px 10px;font:13.5px/1.5 Manrope,sans-serif;resize:vertical}
+#assBody .item.info{border-style:dashed;background:var(--panel3)}#assBody .item.info .box{border-color:var(--accb);color:var(--accl);background:var(--acct2);font:700 12px "JetBrains Mono",monospace}
+.askbox{width:100%;margin-top:7px;background:var(--deep);color:var(--ink);border:1px solid var(--rule);border-radius:8px;padding:8px 10px;font:13.5px/1.5 Manrope,sans-serif;resize:vertical}
 .askbox:focus{outline:0;border-color:var(--acc)}
 .askmeta{font:700 11px "JetBrains Mono",monospace;color:var(--soft);margin:3px 0 0;text-align:right}
-.matchopts{margin:7px 0;padding:8px 10px;background:#0a0f19;border:1px solid var(--rule);border-radius:8px;font-size:12.5px;color:#C4CDD8}.matchopts div{margin:2px 0}
-.matchtbl{width:100%;border-collapse:collapse;margin:4px 0}.matchtbl td{padding:4px 6px;border-bottom:1px solid #1d2638;font-size:13px}.matchtbl td:last-child{width:70px}
-#assBody select{background:#05070B;color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:3px 6px;font:12.5px "JetBrains Mono",monospace;max-width:100%}
-#assBody select.ok{border-color:#34D399;background:#06281c}#assBody select.bad{border-color:#F87171;background:#2a0f0f}
-.bank{margin:7px 0;padding:7px 10px;background:#0a0f19;border:1px solid var(--rule);border-radius:8px;font:12px "JetBrains Mono",monospace;color:#FDE68A}
+.matchopts{margin:7px 0;padding:8px 10px;background:var(--panel3);border:1px solid var(--rule);border-radius:8px;font-size:12.5px;color:var(--ink2)}.matchopts div{margin:2px 0}
+.matchtbl{width:100%;border-collapse:collapse;margin:4px 0}.matchtbl td{padding:4px 6px;border-bottom:1px solid var(--line2);font-size:13px}.matchtbl td:last-child{width:70px}
+#assBody select{background:var(--deep);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:3px 6px;font:12.5px "JetBrains Mono",monospace;max-width:100%}
+#assBody select.ok{border-color:var(--ok);background:var(--okt)}#assBody select.bad{border-color:var(--bad);background:var(--badt)}
+.bank{margin:7px 0;padding:7px 10px;background:var(--panel3);border:1px solid var(--rule);border-radius:8px;font:12px "JetBrains Mono",monospace;color:var(--warnl)}
 ol.cloze{margin:6px 0 4px 20px;padding:0}ol.cloze li{margin:7px 0;line-height:2}
-#hint{position:absolute;left:10px;bottom:10px;max-width:60%;padding:5px 10px;border-radius:8px;background:rgba(7,19,26,.88);border:1px solid #155e75;color:#A5F3FC;font-size:12px;pointer-events:none;opacity:0;transition:opacity .2s}
+#hint{position:absolute;left:10px;bottom:10px;max-width:60%;padding:5px 10px;border-radius:8px;background:color-mix(in srgb,var(--pop) 90%,transparent);border:1px solid var(--accb);color:var(--accl);font-size:12px;pointer-events:none;opacity:0;transition:opacity .2s}
 #hint.show{opacity:1}
 #warnbox{position:absolute;right:10px;top:10px;max-width:46%;display:flex;flex-direction:column;gap:5px;pointer-events:none}
-#warnbox div{background:rgba(63,18,18,.92);border:1px solid #b91c1c;color:#FECACA;border-radius:8px;padding:5px 9px;font-size:12px}
-#warnbox div.tip{background:rgba(7,19,26,.92);border-color:#155e75;color:#A5F3FC}
+#warnbox div{background:color-mix(in srgb,var(--badt) 92%,transparent);border:1px solid var(--bad);color:var(--badl);border-radius:8px;padding:5px 9px;font-size:12px}
+#warnbox div.tip{background:color-mix(in srgb,var(--pop) 92%,transparent);border-color:var(--accb);color:var(--accl)}
 #props{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:5px 10px;background:var(--panel);border-top:1px solid var(--rule);min-height:34px;font-size:12px}
 #props .sw{width:20px;height:20px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}
-#props .sw.on{border-color:#fff}
-#pinbar{display:flex;gap:3px;flex-wrap:wrap;padding:4px 8px;background:#0a0d14;border-top:1px solid var(--rule);font:10.5px "JetBrains Mono",monospace;min-height:26px}
-#pinbar span{padding:1px 5px;border-radius:4px;background:#161c28;color:#6b7a99}
-#pinbar span.hi{background:#4a3410;color:#fde68a} #pinbar span.pw{background:#3b2a52;color:#e9d5ff} #pinbar span.in{background:#0f2a3a;color:#7dd3fc} #pinbar span.lo{background:#16202c;color:#9fb0cc}
-#paneCode{background:#080B11}
-.cbar{display:flex;align-items:center;gap:6px;padding:4px 10px;background:#0E1320;border-bottom:1px solid var(--rule)}
-.cbar h2{margin:0;font:700 12px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;color:#67E8F9;flex:1}
-.edwrap{flex:1 1 55%;min-height:140px;display:flex;position:relative;overflow:hidden;background:#05070B}
-#gut{margin:0;padding:10px 6px 10px 8px;text-align:right;color:#4b5a78;font:13px/20px "JetBrains Mono",monospace;background:#070a10;border-right:1px solid var(--rule);user-select:none;overflow:hidden;min-width:38px}
-#gut b{color:#F87171;font-weight:700}
+#props .sw.on{border-color:var(--hi)}
+#pinbar{display:flex;gap:3px;flex-wrap:wrap;padding:4px 8px;background:var(--panel3);border-top:1px solid var(--rule);font:10.5px "JetBrains Mono",monospace;min-height:26px}
+#pinbar span{padding:1px 5px;border-radius:4px;background:var(--chip);color:var(--faint)}
+#pinbar span.hi{background:#4a3410;color:var(--warnl)} #pinbar span.pw{background:#3b2a52;color:#e9d5ff} #pinbar span.in{background:var(--acct);color:var(--accl)} #pinbar span.lo{background:#16202c;color:var(--soft)}
+#paneCode{background:var(--bg2)}
+.cbar{display:flex;align-items:center;gap:6px;padding:4px 10px;background:var(--panel2);border-bottom:1px solid var(--rule)}
+.cbar h2{margin:0;font:700 12px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;color:var(--accl);flex:1}
+.edwrap{flex:1 1 55%;min-height:140px;display:flex;position:relative;overflow:hidden;background:var(--deep)}
+#gut{margin:0;padding:10px 6px 10px 8px;text-align:right;color:var(--gutx);font:13px/20px "JetBrains Mono",monospace;background:var(--deep2);border-right:1px solid var(--rule);user-select:none;overflow:hidden;min-width:38px}
+#gut b{color:var(--bad);font-weight:700}
 .edbox{position:relative;flex:1;min-width:0}
 #marks{position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none;overflow:hidden}
 #marksIn{position:relative}
-#marksIn div{position:absolute;left:0;right:0;height:20px;background:rgba(248,113,113,.18);border-left:3px solid #F87171}
-#runmark{display:none;position:absolute;left:0;right:0;height:20px;background:rgba(34,211,238,.22);border-left:3px solid #22D3EE;box-shadow:inset 0 0 0 1px rgba(34,211,238,.35);transition:top .08s}
-#marksIn div.w{background:rgba(251,191,36,.12);border-left-color:#FBBF24}
+#marksIn div{position:absolute;left:0;right:0;height:20px;background:color-mix(in srgb,var(--bad) 20%,transparent);border-left:3px solid var(--bad)}
+#runmark{display:none;position:absolute;left:0;right:0;height:20px;background:color-mix(in srgb,var(--acc) 24%,transparent);border-left:3px solid var(--acc);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--acc) 40%,transparent);transition:top .08s}
+#marksIn div.w{background:color-mix(in srgb,var(--warn) 16%,transparent);border-left-color:var(--warn)}
 #hl,#ta{position:absolute;inset:0;margin:0;padding:10px 12px;font:13px/20px "JetBrains Mono",monospace;white-space:pre;tab-size:2;overflow:auto;border:0;outline:0;resize:none;background:transparent;letter-spacing:0}
-#hl{color:#E8ECF3;pointer-events:none;overflow:hidden}
-#ta{color:transparent;caret-color:#fff;-webkit-text-fill-color:transparent}
-#ta::selection{background:rgba(34,211,238,.28);-webkit-text-fill-color:transparent}
-.k{color:#C084FC}.t{color:#7DD3FC}.f{color:#FDBA74}.c{color:#64748B;font-style:italic}.s{color:#86EFAC}.n{color:#FCD34D}.q{color:#F9A8D4}
-#errbox{display:none;padding:8px 12px;background:#2a0f0f;border-top:1px solid #7f1d1d;color:#FECACA;font-size:12.5px;max-height:120px;overflow:auto}
-#errbox.show{display:block}#errbox.okmsg{background:#07241a;border-color:#14532d;color:#A7F3D0}#errbox.warnmsg{background:#2a2108;border-color:#854d0e;color:#FDE68A}
-#errbox b{color:#fff}
-.serial{flex:1 1 38%;min-height:110px;display:flex;flex-direction:column;border-top:1px solid var(--rule);background:#05070B}
-.serial .cbar h2{color:#FDBA74}
-#out{flex:1;margin:0;padding:8px 12px;overflow:auto;font:12.5px/1.45 "JetBrains Mono",monospace;color:#d1fae5;white-space:pre-wrap;word-break:break-all}
-.sendrow{display:flex;gap:6px;padding:6px 8px;border-top:1px solid var(--rule);background:#0b0f18}
-.sendrow input{flex:1;background:#05070B;color:var(--ink);border:1px solid var(--rule);border-radius:5px;padding:4px 8px;font:12.5px "JetBrains Mono",monospace}
+#hl{color:var(--ink);pointer-events:none;overflow:hidden}
+#ta{color:transparent;caret-color:var(--hi);-webkit-text-fill-color:transparent}
+#ta::selection{background:color-mix(in srgb,var(--acc) 30%,transparent);-webkit-text-fill-color:transparent}
+.k{color:var(--sk)}.t{color:var(--st)}.f{color:var(--sf)}.c{color:var(--sc);font-style:italic}.s{color:var(--ss)}.n{color:var(--sn)}.q{color:var(--sq)}
+#errbox{display:none;padding:8px 12px;background:var(--badt);border-top:1px solid #7f1d1d;color:var(--badl);font-size:12.5px;max-height:120px;overflow:auto}
+#errbox.show{display:block}#errbox.okmsg{background:var(--okt);border-color:var(--okb);color:var(--okl)}#errbox.warnmsg{background:var(--warnt);border-color:var(--warnb);color:var(--warnl)}
+#errbox b{color:var(--hi)}
+.serial{flex:1 1 38%;min-height:110px;display:flex;flex-direction:column;border-top:1px solid var(--rule);background:var(--deep)}
+.serial .cbar h2{color:var(--warnl)}
+#out{flex:1;margin:0;padding:8px 12px;overflow:auto;font:12.5px/1.45 "JetBrains Mono",monospace;color:var(--ink2);white-space:pre-wrap;word-break:break-all}
+.sendrow{display:flex;gap:6px;padding:6px 8px;border-top:1px solid var(--rule);background:var(--panel2)}
+.sendrow input{flex:1;background:var(--deep);color:var(--ink);border:1px solid var(--rule);border-radius:5px;padding:4px 8px;font:12.5px "JetBrains Mono",monospace}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
 .modal.show{display:flex}
 .modal .box{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;max-width:480px;width:100%;max-height:90vh;overflow:auto}
 .modal .row{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
-#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#0c2a33;border:1px solid var(--acc);color:#E8ECF3;padding:7px 14px;border-radius:8px;font-size:12.5px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:200}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--acct);border:1px solid var(--acc);color:var(--ink);padding:7px 14px;border-radius:8px;font-size:12.5px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:200}
 #toast.show{opacity:1}
-.teach{display:none;margin:8px 0;padding:10px 12px;border:1px solid #14532d;border-radius:9px;background:#07241a;color:#A7F3D0;font-size:12.5px}.teach.show{display:block}
+.teach{display:none;margin:8px 0;padding:10px 12px;border:1px solid var(--okb);border-radius:9px;background:var(--okt);color:var(--okl);font-size:12.5px}.teach.show{display:block}
 @media(max-width:900px){main{grid-template-columns:1fr !important;grid-auto-rows:minmax(300px,auto);overflow:auto}.split{display:none}body{overflow:auto}}
 .codebox,#assBody pre,.modal pre,#out{-webkit-user-select:none;user-select:none}
 body.teacher .codebox,body.teacher #assBody pre,body.teacher .modal pre,body.teacher #out{-webkit-user-select:text;user-select:text}
-#assBar{flex:1 1 120px;min-width:90px;height:8px;border-radius:99px;background:#1b2436;overflow:hidden}#assBar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#22D3EE,#34D399);transition:width .4s}
-#assLeftBtn.allok{border-color:#34D399;color:#A7F3D0}#assLeftList{display:flex;flex-direction:column;gap:6px;font:600 13px Manrope,sans-serif}
-#assLeftList button{border:1px solid #3a4a68;background:#141c2c;color:#cfe0f5;border-radius:10px;padding:7px 12px;cursor:pointer;text-align:left;width:100%}
-#assLeftList button:hover{border-color:#22D3EE;background:#0f2a36}
-#assLeftList button.w{border-color:#7c5a14;color:#FDE68A}#assLeftList .alldone{color:#34D399;font:700 13px Manrope,sans-serif}
+#assBar{flex:1 1 120px;min-width:90px;height:8px;border-radius:99px;background:var(--line2);overflow:hidden}#assBar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#22D3EE,var(--ok));transition:width .4s}
+#assLeftBtn.allok{border-color:var(--ok);color:var(--okl)}#assLeftList{display:flex;flex-direction:column;gap:6px;font:600 13px Manrope,sans-serif}
+#assLeftList button{border:1px solid var(--line2);background:var(--chip);color:var(--ink2);border-radius:10px;padding:7px 12px;cursor:pointer;text-align:left;width:100%}
+#assLeftList button:hover{border-color:#22D3EE;background:var(--acct)}
+#assLeftList button.w{border-color:var(--warnb);color:var(--warnl)}#assLeftList .alldone{color:var(--ok);font:700 13px Manrope,sans-serif}
 .item.flash{animation:itemflash 1.4s}@keyframes itemflash{0%,60%{box-shadow:0 0 0 3px #22D3EE}100%{box-shadow:0 0 0 0 transparent}}
 body.noser .serial{display:none}
 @keyframes ardspin{to{transform:rotate(360deg)}}
 .codebox.copyok,#assBody .codebox.copyok{-webkit-user-select:text;user-select:text;cursor:text}
-</style></head>
+</style><script src="themes.js"></script></head>
 <body>
 <div class="top">
   <h1>&#9889; Arduino Circuit Editor</h1>
   <button class="btn run" id="run" title="Run the program on the simulated Arduino">&#9654; Start Simulation</button>
   <button class="btn on" id="coachBtn" title="Pop-up tips when something happens in your circuit">&#128172; Coach</button>
   <button class="btn" id="helpBtn" title="Open the help center">&#128161; Help</button>
+  <button class="btn" id="themeBtn" title="Change the color theme of the editor">&#127912; Theme</button>
   <button class="btn" id="reset" title="Stop and start again (burned LEDs are replaced)">&#8635; Reset</button>
   <select id="speed" aria-label="Speed" title="Simulation speed"><option value="1">1x speed</option><option value="2">2x</option><option value="5">5x</option><option value="10">10x</option></select>
   <select id="slot" aria-label="Assignment"></select>
@@ -204,16 +205,16 @@ body.noser .serial{display:none}
   <section class="pane" id="paneCanvas">
     <div class="ptools" id="ptools">
       <span class="lbl" title="Click a part, HOLD the mouse button, and drag it onto the breadboard">Drag onto the board &#10140;</span>
-      <button class="pb" data-add="led" title="LED"><svg viewBox="0 0 24 24"><path d="M6 14V8a6 6 0 0 1 12 0v6z" fill="#ef4444" fill-opacity=".7" stroke="#ef4444" stroke-width="1.5"/><path d="M5 14h14M9 14v7M15 14v5" stroke="#cbd5e1" stroke-width="1.6"/></svg>LED</button>
-      <button class="pb" data-add="resistor" title="Resistor"><svg viewBox="0 0 24 24"><path d="M1 12h4M19 12h4" stroke="#cbd5e1" stroke-width="1.8"/><rect x="5" y="8" width="14" height="8" rx="3" fill="#d9c28f" stroke="#a88f55"/><path d="M9 8v8M12 8v8M15 8v8" stroke="#7c3aed"/></svg>Resistor</button>
-      <button class="pb" data-add="button" title="Pushbutton"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" fill="#1f2937" stroke="#0b1220"/><circle cx="12" cy="12" r="5.5" fill="#9ca3af" stroke="#4b5563" stroke-width="1.5"/></svg>Button</button>
-      <button class="pb" data-add="buzzer" title="Piezo buzzer"><svg viewBox="0 0 24 24"><circle cx="12" cy="11" r="8" fill="#111827" stroke="#374151" stroke-width="1.5"/><circle cx="12" cy="11" r="2" fill="#374151"/><path d="M8 19v3M16 19v3" stroke="#cbd5e1" stroke-width="1.6"/></svg>Buzzer</button>
-      <button class="pb unit3" data-add="rgb" title="RGB LED (3 colors in one)"><svg viewBox="0 0 24 24"><path d="M5 15V9a7 7 0 0 1 14 0v6z" fill="#e5e7eb" fill-opacity=".5" stroke="#9ca3af" stroke-width="1.4"/><circle cx="9" cy="10" r="2" fill="#ef4444"/><circle cx="15" cy="10" r="2" fill="#3b82f6"/><circle cx="12" cy="7" r="2" fill="#22c55e"/><path d="M7 15v6M10 15v4M14 15v6M17 15v5" stroke="#cbd5e1" stroke-width="1.5"/></svg>RGB LED</button>
+      <button class="pb" data-add="led" title="LED"><svg viewBox="0 0 24 24"><path d="M6 14V8a6 6 0 0 1 12 0v6z" fill="#ef4444" fill-opacity=".7" stroke="#ef4444" stroke-width="1.5"/><path d="M5 14h14M9 14v7M15 14v5" stroke="var(--ink2)" stroke-width="1.6"/></svg>LED</button>
+      <button class="pb" data-add="resistor" title="Resistor"><svg viewBox="0 0 24 24"><path d="M1 12h4M19 12h4" stroke="var(--ink2)" stroke-width="1.8"/><rect x="5" y="8" width="14" height="8" rx="3" fill="#d9c28f" stroke="#a88f55"/><path d="M9 8v8M12 8v8M15 8v8" stroke="#7c3aed"/></svg>Resistor</button>
+      <button class="pb" data-add="button" title="Pushbutton"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" fill="#1f2937" stroke="var(--pop)"/><circle cx="12" cy="12" r="5.5" fill="#9ca3af" stroke="#4b5563" stroke-width="1.5"/></svg>Button</button>
+      <button class="pb" data-add="buzzer" title="Piezo buzzer"><svg viewBox="0 0 24 24"><circle cx="12" cy="11" r="8" fill="#111827" stroke="#374151" stroke-width="1.5"/><circle cx="12" cy="11" r="2" fill="#374151"/><path d="M8 19v3M16 19v3" stroke="var(--ink2)" stroke-width="1.6"/></svg>Buzzer</button>
+      <button class="pb unit3" data-add="rgb" title="RGB LED (3 colors in one)"><svg viewBox="0 0 24 24"><path d="M5 15V9a7 7 0 0 1 14 0v6z" fill="#e5e7eb" fill-opacity=".5" stroke="#9ca3af" stroke-width="1.4"/><circle cx="9" cy="10" r="2" fill="#ef4444"/><circle cx="15" cy="10" r="2" fill="#3b82f6"/><circle cx="12" cy="7" r="2" fill="#22c55e"/><path d="M7 15v6M10 15v4M14 15v6M17 15v5" stroke="var(--ink2)" stroke-width="1.5"/></svg>RGB LED</button>
       <button class="pb unit3" data-add="servo" title="Servo motor"><svg viewBox="0 0 24 24"><rect x="3" y="9" width="16" height="11" rx="2" fill="#1e40af" stroke="#172554"/><circle cx="16" cy="9" r="3" fill="#e5e7eb"/><rect x="15" y="1" width="2.6" height="9" rx="1.3" fill="#f3f4f6"/></svg>Servo</button>
       <button class="pb unit3" data-add="pot" title="Potentiometer (dial)"><svg viewBox="0 0 24 24"><rect x="3" y="14" width="18" height="6" rx="2" fill="#0e7490"/><circle cx="12" cy="9" r="7" fill="#1f2937" stroke="#4b5563"/><circle cx="12" cy="9" r="5" fill="#9ca3af"/><path d="M12 9V5" stroke="#111827" stroke-width="2"/></svg>Dial (pot)</button>
-      <button class="pb unit3" data-add="npn" title="NPN transistor"><svg viewBox="0 0 24 24"><path d="M5 16V11a7 7 0 0 1 14 0v5z" fill="#111827" stroke="#374151"/><path d="M8 16v6M12 16v6M16 16v6" stroke="#cbd5e1" stroke-width="1.6"/></svg>Transistor</button>
+      <button class="pb unit3" data-add="npn" title="NPN transistor"><svg viewBox="0 0 24 24"><path d="M5 16V11a7 7 0 0 1 14 0v5z" fill="#111827" stroke="#374151"/><path d="M8 16v6M12 16v6M16 16v6" stroke="var(--ink2)" stroke-width="1.6"/></svg>Transistor</button>
       <button class="pb unit3" data-add="motor" title="DC motor"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="12" rx="4" fill="#9ca3af" stroke="#4b5563"/><rect x="11" y="3" width="2" height="4" fill="#e5e7eb"/><text x="12" y="16" font-size="8" text-anchor="middle" font-weight="800" fill="#111827">M</text></svg>DC motor</button>
-      <button class="pb unit3" data-add="diode" title="Diode"><svg viewBox="0 0 24 24"><path d="M1 12h22" stroke="#cbd5e1" stroke-width="1.8"/><rect x="6" y="8" width="12" height="8" rx="3" fill="#111827" stroke="#374151"/><rect x="14" y="8" width="2.5" height="8" fill="#e5e7eb"/></svg>Diode</button>
+      <button class="pb unit3" data-add="diode" title="Diode"><svg viewBox="0 0 24 24"><path d="M1 12h22" stroke="var(--ink2)" stroke-width="1.8"/><rect x="6" y="8" width="12" height="8" rx="3" fill="#111827" stroke="#374151"/><rect x="14" y="8" width="2.5" height="8" fill="#e5e7eb"/></svg>Diode</button>
       <button class="pb unit3" data-add="seg7" title="4-digit 7-segment display"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="14" rx="2" fill="#7f1d1d"/><rect x="3" y="6" width="18" height="9" fill="#0a0a0a"/><path d="M6 8h3M6 11h3M6 14h3M12 8h3M12 11h3M12 14h3" stroke="#ff3b30" stroke-width="1.2"/></svg>7-segment</button>
       <button class="pb" data-add="breadboard-mini" title="Small breadboard">Mini board</button>
       <button class="pb" data-add="breadboard" title="Half-size breadboard">Breadboard</button>
