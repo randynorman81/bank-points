@@ -84,8 +84,8 @@
       I(ANY6_TEXT, any6Comments, ["comments"])
     ] },
     { h: "Reflection (type your answers)", items: [
-      ASK("What happens to the sound if you <b>remove the delay()</b> after tone()? Why?", 25, ["tone", "delay"]),
-      ASK("Why is it better to use <b>arrays</b> for a song than to write a line for every note?", 25, ["arrays"]),
+      ASK("What happens to the sound if you <b>remove the delay()</b> after tone()? Why?", 15, ["tone", "delay"]),
+      ASK("Why is it better to use <b>arrays</b> for a song than to write a line for every note?", 15, ["arrays"]),
       ASK("What is the <b>name of your song</b>, and how many notes does it have?", 8, ["arrays"])
     ] }
   ], events: [
