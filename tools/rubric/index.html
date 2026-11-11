@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rubric Grader: grade with any rubric</title>
+<title>Rubric Grader: class data from graded rubrics</title>
 <link rel="icon" href="../../assets/logo.png">
 <style>
 :root{--bg:#f4f6fb;--card:#fff;--ink:#1c2230;--soft:#5d6678;--line:#dfe4ee;--acc:#2f5bd8;--acct:#e8eeff;--ok:#1f9d6b;--okt:#e3f6ed;--warn:#b45309;--warnt:#fff4de;--bad:#c0392b;--mid:#f0f3fa}
@@ -22,33 +22,28 @@ button.sm{padding:3px 9px;font-size:.82rem}button[disabled]{opacity:.45;cursor:n
 input,textarea,select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 9px;max-width:100%}
 input:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:0}
 .drop{border:2px dashed var(--line);border-radius:14px;padding:26px 14px;text-align:center;background:var(--mid);cursor:pointer}
-.drop.over{border-color:var(--acc);background:var(--acct)}.drop b{font-size:1.05rem}
+.drop.over{border-color:var(--acc);background:var(--acct)}.drop b{font-size:1.05rem}.drop.small2{padding:14px}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .msg{margin:10px 0 0;padding:9px 12px;border-radius:9px;background:var(--acct)}.msg.err{background:var(--warnt);color:var(--warn)}.msg.good{background:var(--okt);color:var(--ok)}
 .bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .2s}
 .two{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start}
 @media (max-width:860px){.two{grid-template-columns:1fr}}
-table.rb{border-collapse:collapse;width:100%;font-size:.88rem}
-table.rb th,table.rb td{border:1px solid var(--line);padding:4px;vertical-align:top}
-table.rb th{background:var(--mid)}table.rb textarea{width:100%;min-height:62px;resize:vertical;font-size:.85rem;border:0;background:transparent;padding:3px}
-table.rb input.pt{width:54px;text-align:center}table.rb input.nm{width:100%;font-weight:700;margin-bottom:3px}
 .srcwrap{position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;line-height:0}.srcwrap canvas{width:100%;height:auto;display:block}
 .srcwrap .bx{position:absolute;border:2px solid;border-radius:4px;pointer-events:none}.bx.g{border-color:#1f9d6b;background:rgba(31,157,107,.2)}.bx.a{border-color:#e59a00;background:rgba(229,154,0,.18)}.bx.n{border-color:rgba(47,91,216,.35)}
-.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}.tabs button{background:transparent;color:var(--ink);border:1px solid var(--line)}.tabs button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
 .crit{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0}
-.crit h3{margin:0 0 6px;font-size:1rem;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.lvls{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px}
-.lv{text-align:left;background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:7px 9px;font-weight:400;line-height:1.35}
-.lv:hover{border-color:var(--acc)}.lv.on{border-color:var(--ok);background:var(--okt)}.lv b{display:block;font-size:.92rem}.lv span{font-size:.8rem;color:var(--soft)}
-.lv.sug{border-style:dashed;border-color:var(--warn)}
-.chips{display:flex;gap:5px;flex-wrap:wrap;margin:6px 0 4px}.chips button{background:var(--mid);color:var(--ink);font-weight:500;font-size:.8rem;padding:2px 9px;border-radius:99px}
-.cm{width:100%;min-height:42px;margin-top:4px;font-size:.9rem}
-.tot{position:sticky;bottom:0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-top:10px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;box-shadow:0 -6px 18px rgba(0,0,0,.08)}
-.tot .big{font-size:1.4rem;font-weight:800}
-.sheet{overflow:auto;border:1px solid var(--line);border-radius:10px;max-height:420px}
-.sheet table{border-collapse:collapse;font-size:.85rem;width:100%}.sheet th,.sheet td{border-bottom:1px solid var(--line);padding:5px 8px;white-space:nowrap;text-align:left}.sheet th{background:var(--mid);position:sticky;top:0}
+.lv{text-align:left;background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:5px 10px;font-weight:600;line-height:1.35}
+.lv:hover{border-color:var(--acc)}.lv.on{border-color:var(--ok);background:var(--okt)}.lv.sug{border-style:dashed;border-color:var(--warn)}
 .copycard{border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0}
 .pill{display:inline-block;padding:1px 8px;border-radius:99px;font-size:.78rem;background:var(--mid);color:var(--soft)}.pill.g{background:var(--okt);color:var(--ok)}.pill.a{background:var(--warnt);color:var(--warn)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:8px 0 14px}
+.tile{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--mid)}.tile b{display:block;font-size:1.5rem;line-height:1.2}.tile span{font-size:.8rem;color:var(--soft)}
+.ins{margin:0 0 12px;padding-left:20px}.ins li{margin:4px 0}
+h3.sec{margin:16px 0 6px;font-size:1rem}
+.hb{display:flex;align-items:center;gap:8px;margin:4px 0}.hb .lab{width:150px;font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hb .trk{flex:1;height:18px;background:var(--mid);border-radius:6px;overflow:hidden;display:flex}.hb .trk i{display:block;height:100%}.hb .val{width:150px;font-size:.82rem;color:var(--soft)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.82rem;color:var(--soft);margin:4px 0}.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.sheet{overflow:auto;border:1px solid var(--line);border-radius:10px;max-height:460px}
+.sheet table{border-collapse:collapse;font-size:.85rem;width:100%}.sheet th,.sheet td{border-bottom:1px solid var(--line);padding:5px 8px;white-space:nowrap;text-align:left}.sheet th{background:var(--mid);position:sticky;top:0}
+.sheet input.nm{width:170px;padding:2px 6px}
 footer{max-width:1100px;margin:0 auto;padding:6px 16px 40px;color:var(--soft);font-size:.85rem}
 [hidden]{display:none!important}
 </style>
@@ -56,62 +51,57 @@ footer{max-width:1100px;margin:0 auto;padding:6px 16px 40px;color:var(--soft);fo
 <body>
 <header>
   <h1>&#9989; Rubric Grader</h1>
-  <p>Upload a rubric (PDF, photo, Word file or Google Doc), then grade with it on screen or let it read rubrics you already marked. Scores go into a spreadsheet you can download. Everything stays in your browser.</p>
+  <p>Upload rubrics you have already graded (PDF, photo, Word file or Google Doc) and get the class data: averages, strengths, weak spots and who needs support. Everything stays in your browser.</p>
 </header>
 <main>
 
 <section class="card" id="s1">
-  <h2><span class="step">1</span>Add your rubric</h2>
-  <div class="drop" id="drop" tabindex="0"><b>Drop a rubric here, or click to choose a file</b><br><span class="small">PDF, photo (JPG / PNG), Word (.docx) or CSV. Blank or already marked.</span></div>
-  <input type="file" id="file" accept=".pdf,.png,.jpg,.jpeg,.webp,.heic,.docx,.csv,image/*,application/pdf" hidden>
+  <h2><span class="step">1</span>Upload graded rubrics</h2>
+  <p class="small" style="margin:0 0 8px">One file per student, already marked (circle, highlight, check or X in the box for each row). Name each file with the student's name. Colored pen and highlighter are read best.</p>
+  <div class="drop" id="drop" tabindex="0"><b>Drop graded rubrics here, or click to choose files</b><br><span class="small">PDF, photo (JPG / PNG), Word (.docx) or CSV. You can pick many at once.</span></div>
+  <input type="file" id="file" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.docx,.csv,image/*,application/pdf" hidden>
   <div class="row" style="margin-top:10px">
     <input id="gdlink" placeholder="Or paste a Google Doc link (shared as Anyone with the link)" style="flex:1;min-width:240px">
-    <button class="ghost" id="gdgo">Load Google Doc</button>
-    <button class="ghost" id="sample">Try a sample rubric</button>
-    <button class="ghost" id="tplblank">Get the blank template (Word / Google Docs)</button>
+    <input id="gdname" placeholder="Student name (for the Google Doc)" style="width:210px">
+    <button class="ghost" id="gdgo">Add Google Doc</button>
   </div>
+  <div class="row" style="margin-top:10px"><label class="small">Assignment name <input id="title" placeholder="Essay 1" style="width:240px"></label><button class="danger sm" id="reset">Start over</button></div>
   <div class="bar" id="bar" hidden><i id="barfill"></i></div>
   <div class="msg" id="status" hidden></div>
-  <div class="msg" id="markmsg" hidden></div>
-  <div class="row" id="tplrow" style="margin-top:12px" hidden><span class="small"><b>Put this rubric in the Google Doc template:</b></span><button class="sm" id="tpl">Download Word file (opens in Google Docs)</button><button class="ghost sm" id="tplcopy">Copy as a table to paste into a Google Doc</button><span class="small" id="tplnote"></span></div>
 </section>
 
-<div id="s2" hidden style="display:none!important">
-  <div><label><input id="addcritx" hidden></label><button id="addcrit">+</button><button id="addlvl">+</button></div>
-  <div><table class="rb" id="rbtable"></table><p id="ptsnote"></p></div>
-  <div id="srcside" hidden><div class="srcwrap" id="srcbox"></div></div>
-</div>
-
-<section class="card" id="s3" hidden>
-  <h2><span class="step">2</span>Grade</h2>
-  <div class="row" style="margin-bottom:8px"><label class="small">Assignment name <input id="title" placeholder="Essay 1" style="width:240px"></label></div>
-  <div class="tabs"><button id="tab1" class="on">Grade on screen</button><button id="tab2">Read marked copies</button></div>
-
-  <div id="pane1">
-    <div class="row" style="margin-bottom:6px"><label>Student <input id="sname" list="rosterlist" placeholder="Name" style="width:230px"></label><datalist id="rosterlist"></datalist>
-      <details style="flex:1;min-width:200px"><summary class="small" style="cursor:pointer">Class list (optional): paste names, one per line</summary><textarea id="roster" rows="4" style="width:100%" placeholder="Smith, Jane&#10;Lee, Marcus"></textarea></details></div>
-    <div id="crits"></div>
-    <label class="small">Overall comment</label><textarea id="ocomment" class="cm" placeholder="Overall feedback for this student"></textarea>
-    <div class="tot"><span class="big" id="totpts">0 / 0</span><span id="totpct" class="pill"></span><span id="totscaled" class="pill g" hidden></span><span class="small" id="totnote"></span><span style="flex:1"></span>
-      <button class="ghost" id="clear">Clear</button><button class="ghost" id="print">Print feedback</button><button class="ok" id="save">Save &amp; next student</button></div>
-  </div>
-
-  <div id="pane2" hidden>
-    <p class="small">Add photos or PDFs of rubrics a teacher already marked (check marks, circles, highlights or an X in the box). One file per student. I read the marks, you confirm, and the scores go to the spreadsheet. Marks in colored pen or highlighter are found best; for pencil or very faint marks, just click the right box.</p>
-    <div class="drop" id="drop2"><b>Drop marked rubrics here (you can pick many)</b></div><input type="file" id="file2" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,image/*,application/pdf" hidden>
-    <div class="bar" id="bar2" hidden><i id="barfill2"></i></div><div class="msg" id="status2" hidden></div>
-    <div id="copies"></div>
-  </div>
+<section class="card" id="sreview" hidden>
+  <h2>Check these before they count <span class="small" id="revinfo"></span></h2>
+  <p class="small" style="margin:0 0 6px">I couldn't read every row, or the name needs fixing. Click the right box for each row (the page on the right shows what I saw), then add it.</p>
+  <div class="row"><button class="ok sm" id="addall">Add all to the class data</button></div>
+  <div id="copies"></div>
 </section>
 
-<section class="card" id="s4" hidden>
-  <h2><span class="step">3</span>Spreadsheet <span class="small" id="shinfo"></span></h2>
-  <div class="row" style="margin-bottom:8px"><label class="small">Scale scores to <select id="scale"><option value="0">Off (raw points)</option><option value="10">10 points</option><option value="20">20 points</option><option value="25">25 points</option><option value="50">50 points</option><option value="100">100 points</option><option value="custom">Other...</option></select></label><button id="xlsx">Download Excel</button><button class="ghost" id="csv">Download CSV</button><button class="ghost" id="copy">Copy for Google Sheets</button><button class="danger sm" id="wipe">Clear all students</button></div>
+<section class="card" id="s2" hidden>
+  <h2><span class="step">2</span>Class data <span class="small" id="shinfo"></span></h2>
+  <div id="analytics"></div>
+  <h3 class="sec">Student scores</h3>
+  <div class="row" style="margin-bottom:8px"><label class="small">Scale scores to <select id="scale"><option value="0">Off (raw points)</option><option value="10">10 points</option><option value="20">20 points</option><option value="25">25 points</option><option value="50">50 points</option><option value="100">100 points</option><option value="custom">Other...</option></select></label><button id="xlsx">Download Excel</button><button class="ghost" id="csv">Download CSV</button><button class="ghost" id="copy">Copy for Google Sheets</button></div>
   <div class="sheet" id="sheet"></div>
-  <p class="small">To use Google Sheets: click <b>Copy for Google Sheets</b>, open a new sheet, click cell A1 and paste. Excel and CSV files open in Sheets too (File &gt; Import).</p>
+  <p class="small">You can fix a name right in the table. Use Edit to change a student's row choices. To use Google Sheets: click <b>Copy for Google Sheets</b>, open a new sheet, click cell A1 and paste.</p>
+</section>
+
+<section class="card" id="s3">
+  <h2><span class="step">3</span>Rubric template <span class="small">(optional)</span></h2>
+  <p class="small" style="margin:0 0 8px">The Rubric Grader reads this layout perfectly, so a rubric in the template is the most reliable thing to grade. Get the blank template, or upload your own rubric and I will rebuild it in the template for you.</p>
+  <div class="row" style="margin-bottom:10px"><button class="ghost" id="tplblank">Get the blank template (Word / Google Docs)</button></div>
+  <div class="drop small2" id="dropT" tabindex="0"><b>Convert my rubric: drop it here or click</b><br><span class="small">PDF, photo, Word or CSV (a blank or marked rubric)</span></div>
+  <input type="file" id="fileT" accept=".pdf,.png,.jpg,.jpeg,.webp,.docx,.csv,image/*,application/pdf" hidden>
+  <div class="row" style="margin-top:8px"><input id="gdlinkT" placeholder="Or paste a Google Doc link" style="flex:1;min-width:240px"><button class="ghost" id="gdgoT">Convert Google Doc</button></div>
+  <div class="bar" id="barT" hidden><i id="barfillT"></i></div>
+  <div class="msg" id="statusT" hidden></div>
+  <div id="tplresult" hidden style="margin-top:10px">
+    <div class="row"><button id="tpl">Download in the template (Word, opens in Google Docs)</button><button class="ghost" id="tplcopy">Copy as a table to paste into a Google Doc</button></div>
+    <p class="small" id="tplnote" style="margin:6px 0 0"></p>
+  </div>
 </section>
 </main>
-<footer>Photos are read right in your browser (the first photo takes a moment while the reader loads). Nothing you upload is sent anywhere, and saved scores stay on this computer.</footer>
+<footer>Photos are read right in your browser (the first one takes a moment while the reader loads). Nothing you upload is sent anywhere, and saved results stay on this computer.</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>

@@ -170,6 +170,44 @@
   function letter(p) { return p >= 90 ? "A" : p >= 80 ? "B" : p >= 70 ? "C" : p >= 60 ? "D" : "F"; }
   function levelPoints(rubric, ci, li) { var cr = rubric.criteria[ci], top = Math.max.apply(null, rubric.levels.map(function (l) { return l.points; })); return cr.max && top ? Math.round(rubric.levels[li].points / top * cr.max * 100) / 100 : rubric.levels[li].points; }
 
+  /* ---------------------------------------------------------------- class data */
+  function levelOf(rubric, i, g) {
+    if (!g) return -1; if (g.pick !== undefined && g.pick >= 0 && g.pick < rubric.levels.length) return g.pick;
+    var p = parseFloat(g.points); if (g.points === "" || g.points === null || g.points === undefined || isNaN(p)) return -1;
+    for (var k = 0; k < rubric.levels.length; k++) if (Math.abs(levelPoints(rubric, i, k) - p) < 0.01) return k; return -1;
+  }
+  function r1(x) { return Math.round(x * 10) / 10; }
+  function analytics(rubric, students) {
+    var n = students.length; if (!n) return null;
+    var tot = students.map(function (s) { var t = totals(rubric, s.grades); return { name: s.name, got: t.got, max: t.max, pct: t.pct, letter: t.letter }; });
+    var pcts = tot.map(function (t) { return t.pct; }), sorted = pcts.slice().sort(function (a, b) { return a - b; }), avg = pcts.reduce(function (a, b) { return a + b; }, 0) / n;
+    var med = n % 2 ? sorted[n >> 1] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2, sd = Math.sqrt(pcts.reduce(function (a, p) { return a + (p - avg) * (p - avg); }, 0) / n);
+    var letters = { A: 0, B: 0, C: 0, D: 0, F: 0 }; tot.forEach(function (t) { letters[t.letter]++; });
+    var lowIdx = rubric.levels.reduce(function (bi, l, k, arr) { return l.points < arr[bi].points ? k : bi; }, 0), highIdx = rubric.levels.reduce(function (bi, l, k, arr) { return l.points > arr[bi].points ? k : bi; }, 0);
+    var crit = rubric.criteria.map(function (c, i) {
+      var sum = 0, cnt = 0, levels = rubric.levels.map(function () { return 0; }), other = 0, missing = 0;
+      students.forEach(function (s) { var g = s.grades[i], p = g && g.points !== "" && g.points !== null && g.points !== undefined ? parseFloat(g.points) : NaN; if (isNaN(p)) { missing++; return; } sum += p; cnt++; var k = levelOf(rubric, i, g); if (k >= 0) levels[k]++; else other++; });
+      var max = +c.max || 0, a = cnt ? sum / cnt : 0;
+      return { name: c.name, max: max, avg: r1(a * 100) / 100, pct: max ? r1(a / max * 100) : 0, levels: levels, other: other, missing: missing, scored: cnt };
+    });
+    var scoredCrit = crit.filter(function (c) { return c.scored > 0; }), weakest = null, strongest = null;
+    scoredCrit.forEach(function (c) { if (!weakest || c.pct < weakest.pct) weakest = c; if (!strongest || c.pct > strongest.pct) strongest = c; });
+    var below = tot.filter(function (t) { return t.pct < 70; }).sort(function (a, b) { return a.pct - b.pct; });
+    var out = { n: n, avg: r1(avg), median: r1(med), high: Math.max.apply(null, pcts), low: Math.min.apply(null, pcts), sd: r1(sd), letters: letters, totals: tot, criteria: crit, below: below, weakest: weakest, strongest: strongest, levelNames: rubric.levels.map(function (l) { return l.name; }), lowLevel: lowIdx, highLevel: highIdx, insights: [] };
+    var ins = out.insights;
+    ins.push("The class average is " + out.avg + "% (" + letter(out.avg) + "), with scores from " + out.low + "% to " + out.high + "%. The middle score (median) is " + out.median + "%.");
+    if (strongest && weakest && strongest !== weakest) {
+      ins.push("Strongest area: " + strongest.name + " (average " + strongest.avg + " of " + strongest.max + ", " + strongest.pct + "%).");
+      var wl = weakest.levels[lowIdx]; ins.push("Weakest area: " + weakest.name + " (average " + weakest.avg + " of " + weakest.max + ", " + weakest.pct + "%)." + (wl ? " " + wl + " of " + n + " student" + (n > 1 ? "s" : "") + " scored in the lowest level (" + rubric.levels[lowIdx].name + ")." : ""));
+    }
+    crit.forEach(function (c) { if (c !== weakest && c.scored && c.pct < 70) ins.push("Also worth reteaching: " + c.name + " (" + c.pct + "% average)."); });
+    if (below.length) ins.push(below.length + " of " + n + " student" + (n > 1 ? "s are" : " is") + " below 70% and may need support: " + below.slice(0, 12).map(function (t) { return t.name + " (" + t.pct + "%)"; }).join(", ") + (below.length > 12 ? ", and " + (below.length - 12) + " more." : "."));
+    else ins.push("Nobody is below 70%.");
+    var topShare = tot.filter(function (t) { return t.pct >= 90; }).length; if (topShare) ins.push(topShare + " student" + (topShare > 1 ? "s" : "") + " scored 90% or higher.");
+    crit.forEach(function (c) { if (c.missing) ins.push(c.missing + " student" + (c.missing > 1 ? "s have" : " has") + " no score for " + c.name + ". Check those rows."); });
+    return out;
+  }
+
   /* ---------------------------------------------------------------- spreadsheet rows */
   function scaled(t, n) { return n ? Math.round(t.pct / 100 * n * 100) / 100 : null; }
   function sheetRows(rubric, students, title, scaleTo) {
@@ -186,6 +224,6 @@
   function toCSV(rows) { return rows.map(function (r) { return r.map(csvCell).join(","); }).join("\r\n"); }
   function toTSV(rows) { return rows.map(function (r) { return r.map(function (v) { return String(v == null ? "" : v).replace(/[\t\r\n]+/g, " "); }).join("\t"); }).join("\n"); }
 
-  root.RubricEngine = { gridFromLayout: gridFromLayout, rubricFromGrid: rubricFromGrid, gridFromTable: gridFromTable, typedMarks: typedMarks, pickOutliers: pickOutliers, totals: totals, scaled: scaled, letter: letter, levelPoints: levelPoints, sheetRows: sheetRows, toCSV: toCSV, toTSV: toTSV, parseLevelHeader: parseLevelHeader, clean: clean, commentText: commentText };
+  root.RubricEngine = { gridFromLayout: gridFromLayout, rubricFromGrid: rubricFromGrid, gridFromTable: gridFromTable, typedMarks: typedMarks, pickOutliers: pickOutliers, totals: totals, scaled: scaled, analytics: analytics, levelOf: levelOf, letter: letter, levelPoints: levelPoints, sheetRows: sheetRows, toCSV: toCSV, toTSV: toTSV, parseLevelHeader: parseLevelHeader, clean: clean, commentText: commentText };
   if (typeof module !== "undefined" && module.exports) module.exports = root.RubricEngine;
 })(typeof window !== "undefined" ? window : this);
