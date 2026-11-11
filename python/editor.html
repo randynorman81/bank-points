@@ -873,6 +873,31 @@ loadPyodide().then(function (p) {
   runBtn.disabled = false; statusEl.textContent = "Ready";
 }).catch(function () { statusEl.textContent = "Could not load Python"; print("Python could not load. Check your internet connection and refresh the page.\n", "err"); });
 
+/* Assignment 14 (Reading AP Exam Pseudocode): if a student types exam pseudocode (DISPLAY(a), a ← 5, MOD, INPUT()), explain how it works instead of showing a Python error. Those lines are skipped so the real Python lines still run. */
+var PSEUDO_SLOTS = { a14: 1 };
+function pseudoPrep(code) {
+  var notes = {}, hit = false, out = String(code).split("\n").map(function (ln, i) {
+    var c = ln.split("#")[0], found = [];
+    if (/\bDISPLAY\s*\(/.test(c)) found.push("display");
+    if (/\u2190/.test(c) || /^\s*[A-Za-z_]\w*\s*<-/.test(c)) found.push("arrow");
+    if (/\bMOD\b/.test(c)) found.push("mod");
+    if (/\bINPUT\s*\(\s*\)/.test(c)) found.push("input");
+    if (/[\u2260\u2264\u2265]/.test(c)) found.push("cmp");
+    if (!found.length) return ln;
+    found.forEach(function (k) { (notes[k] = notes[k] || []).push(i + 1); }); hit = true;
+    return ln.replace(/\S.*$/, /:\s*$/.test(c) ? "if True:  # (exam pseudocode, skipped)" : "pass  # (exam pseudocode, skipped)");
+  });
+  return hit ? { code: out.join("\n"), notes: notes } : null;
+}
+function pseudoInfo(notes) {
+  var L = function (k) { return "line" + (notes[k].length > 1 ? "s " : " ") + notes[k].join(", "); }, t = "ℹ️ Your code has AP exam pseudocode in it. Python cannot run pseudocode, so I skipped those lines instead of showing an error. Here is how each one works:\n";
+  if (notes.display) t += "\n• DISPLAY(a)  (" + L("display") + ")  shows the value of a on the screen. The exam always writes DISPLAY. In real Python you write print(a).";
+  if (notes.arrow) t += "\n• a ← 5  (" + L("arrow") + ")  means store 5 in the variable a. The arrow is the exam's equals sign: the value on the right goes into the name on the left. In Python you write a = 5.";
+  if (notes.mod) t += "\n• a MOD b  (" + L("mod") + ")  is the remainder after dividing a by b. For example 17 MOD 5 is 2. In Python you write a % b.";
+  if (notes.input) t += "\n• INPUT()  (" + L("input") + ")  asks the user to type a value. In Python you write input(), and wrap it in int() or float() when you need a number.";
+  if (notes.cmp) t += "\n• The exam writes ≠ for not equal (Python: !=), ≤ for less than or equal (<=), and ≥ for greater than or equal (>=).";
+  return t + "\n\nTo run those lines yourself, translate them to Python, or put a # in front of them so they become notes.";
+}
 function run() {
   if (!py || running) return;
   running = true; runBtn.disabled = true; statusEl.textContent = "Running…"; stopPlayback();
@@ -880,12 +905,13 @@ function run() {
   var karelMode = mode === "karel";
   if (karelMode) { world = clone(initial); frames = []; window.karel.count = 0; kmsg.className = "kmsg"; kmsg.textContent = "Karel is running…"; }
   setTimeout(function () {
-    var err = null, ns = null;
+    var err = null, ns = null, pp = !karelMode && PSEUDO_SLOTS[slot] ? pseudoPrep(ta.value) : null;
+    if (pp) print(pseudoInfo(pp.notes) + "\n\n", "sys");
     try {
       ns = py.runPython(karelMode ? "dict(_api, __name__='__main__')" : "{'__name__': '__main__'}");
-      py.runPython(ta.value, { globals: ns });
+      py.runPython(pp ? pp.code : ta.value, { globals: ns });
       if (karelMode && window.karel.count === 0 && ns.has("main")) py.runPython("main()", { globals: ns });
-    } catch (e) { err = friendlyError(e.message || e); }
+    } catch (e) { err = friendlyError(e.message || e); if (pp) err += "\n\n(The pseudocode lines were skipped, so a variable that only a pseudocode line made does not exist yet.)"; }
     if (ns && ns.destroy) ns.destroy();
     function finish() {
       if (err) { print(err + "\n\n", "err"); if (karelMode) { kmsg.className = "kmsg bad"; kmsg.textContent = err.split("\n\n📘")[0].split("\n\n💡")[0].split("\n").pop().replace(/^KarelError: /, ""); } }
