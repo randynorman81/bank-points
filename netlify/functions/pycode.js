@@ -52,6 +52,8 @@ const cleanChecks = (c) => (Array.isArray(c) ? c : []).slice(0, 300).map((x) => 
   min: Math.max(1, Math.min(200, Number(x && x.min) || 1)), pts: Math.max(1, Math.min(50, Number(x && x.pts) || 1)), where: ["code", "comments", "raw", "notes", "output"].indexOf(x && x.where) > -1 ? x.where : "code",
   box: cleanBox(x && x.box), unc: x && x.unc === true ? true : undefined
 })).filter((x) => x.label && x.re);
+/* autoRun: [{ answers: [[prompt pattern, answer], ...] }]. At most 3 runs. The editor answers the program's input() questions from this list, so the grade does not depend on the numbers a student typed. */
+const cleanAutoRun = (r) => (Array.isArray(r) ? r : []).slice(0, 3).map((run) => ({ answers: (run && Array.isArray(run.answers) ? run.answers : []).slice(0, 10).map((a) => [String((a && a[0]) || "").slice(0, 80), String((a && a[1]) == null ? "" : a[1]).slice(0, 60)]) })).filter((run) => run.answers.length);
 const cleanTips = (t) => {
   const out = {}; if (!t || typeof t !== "object") return out;
   const str = (v, n) => String(v == null ? "" : v).slice(0, n);
@@ -197,13 +199,13 @@ async function subPassed(slot, email) {
     const tt = sub.teacher; if (tt && !tt.auto && tt.score !== null && tt.score !== undefined && tt.score !== "" && !isNaN(Number(tt.score)) && Number(tt.score) >= pm) return true;
     const ms = Array.isArray(asgP.mcKey) && asgP.mcKey.length ? mcScoreOf(asgP.mcKey, sub.mc) : null;
     if (ms) return Math.round(ms.correct / ms.total * 100) >= pm;
-    const rc = variantFor(asgP, sub.period); if (rc && Array.isArray(rc.checks) && rc.checks.length) { const r0 = scoreCode(rc.checks, sub.code || "", sub.output); return r0.pct !== null && r0.pct >= pm; }
+    const rc = variantFor(asgP, sub.period); if (rc && Array.isArray(rc.checks) && rc.checks.length) { const r0 = scoreCode(rc.checks, sub.code || "", sub.gradeOutput != null ? sub.gradeOutput : sub.output); return r0.pct !== null && r0.pct >= pm; }
     return false;
   }
   const t = sub.teacher; if (t && t.score !== null && t.score !== undefined && t.score !== "" && !isNaN(Number(t.score))) return Number(t.score) >= PASS;
   const rec = variantFor(await readJSON("assign:" + slot, null), sub.period);
   if (!rec || !Array.isArray(rec.checks) || !rec.checks.length) return true;
-  const r = scoreCode(rec.checks, sub.code || "", sub.output); return r.pct === null || r.pct >= PASS;
+  const r = scoreCode(rec.checks, sub.code || "", sub.gradeOutput != null ? sub.gradeOutput : sub.output); return r.pct === null || r.pct >= PASS;
 }
 async function autoGradeFor(slot, code, current, period, output) {
   if (current && current.score !== null && current.score !== undefined && !current.auto) return null;
@@ -228,18 +230,18 @@ async function submit(body, user) {
     const open = await gatedAssignments(user, period);
     if (!open.assignments[body.slot]) { const L = open.locked.find((x) => x.id === body.slot); return { error: L ? "Assignment " + L.num + " is locked. " + (L.needPass ? "Score " + L.needPass + "% or higher on Assignment " + L.needNum + " first." : "Submit Assignment " + L.needNum + " first (any score opens the next one).") : "That assignment is not open yet." }; }
     const v = variantFor(asg, period);
-    if (Array.isArray(v.checks) && v.checks.length) { const r = scoreCode(v.checks, code, String(body.output || "").slice(0, 4000)); if (r.pct !== null && r.pct < PASS && v.submitAny !== true) return { error: "Your score is " + r.pct + " out of 100. You need at least " + PASS + " to submit. Open the \"still missing\" list, fix those parts so they match the steps exactly, and submit again.", pct: r.pct, need: PASS }; }
+    if (Array.isArray(v.checks) && v.checks.length) { const r = scoreCode(v.checks, code, String(body.gradeOutput != null ? body.gradeOutput : body.output || "").slice(0, 8000)); if (r.pct !== null && r.pct < PASS && v.submitAny !== true) return { error: "Your score is " + r.pct + " out of 100. You need at least " + PASS + " to submit. Open the \"still missing\" list, fix those parts so they match the steps exactly, and submit again.", pct: r.pct, need: PASS }; }
   }
   const key = "sub:" + body.slot + ":" + enc(user.email);
   const prev = await readJSON(key, null);
   const rec = {
     email: user.email, name: user.name, period, slot: body.slot, mode: cleanMode(body.mode), code, world: cleanWorld(body.world), ticks: cleanTicks(body.ticks),
-    output: String(body.output || "").slice(0, 4000),
+    output: String(body.output || "").slice(0, 4000), gradeOutput: body.gradeOutput == null ? undefined : String(body.gradeOutput).slice(0, 8000),
     submittedAt: now(), firstSubmittedAt: (prev && (prev.firstSubmittedAt || prev.submittedAt)) || now(), count: (prev && prev.count ? prev.count : 0) + 1,
     teacher: prev && prev.teacher ? prev.teacher : null,
     mc: cleanMcPicks(body.mc), mcScore: mcScoreOf(asg && asg.mcKey, cleanMcPicks(body.mc))
   };
-  try { const g = await autoGradeFor(body.slot, code, rec.teacher, period, rec.output); if (g) rec.teacher = g; } catch (e) { console.error("autograde failed", e); }
+  try { const g = await autoGradeFor(body.slot, code, rec.teacher, period, rec.gradeOutput != null ? rec.gradeOutput : rec.output); if (g) rec.teacher = g; } catch (e) { console.error("autograde failed", e); }
   await store().setJSON(key, rec);
   await logActivity(body.slot, user.email, code, period, true);
   const res = { ok: true, submittedAt: rec.submittedAt, count: rec.count }, pmv = asg && asg.passMin !== undefined && asg.passMin !== null ? Number(asg.passMin) : null;
@@ -304,7 +306,7 @@ async function adminAutograde(body) {
   let graded = 0, keptByHand = 0;
   for (const k of await listPrefix("sub:" + body.slot + ":")) {
     const sub = await store().get(k, { type: "json" }); if (!sub) continue;
-    const g = await autoGradeFor(body.slot, sub.code || "", sub.teacher, sub.period, sub.output);
+    const g = await autoGradeFor(body.slot, sub.code || "", sub.teacher, sub.period, sub.gradeOutput != null ? sub.gradeOutput : sub.output);
     if (!g) { if (sub.teacher && sub.teacher.score !== null && sub.teacher.score !== undefined && !sub.teacher.auto) keptByHand++; continue; }
     sub.teacher = g; await store().setJSON(k, sub); graded++;
   }
@@ -333,7 +335,7 @@ async function adminSetAssignment(body) {
   const mcKey = Array.isArray(body.mcKey) ? body.mcKey.slice(0, 30).map((x) => Number(x) | 0) : null;
   const prevAsg = await readJSON("assign:" + body.slot, null);
   const points = Math.max(0, Math.min(1000, Number(body.points) || 0));
-  const text = JSON.stringify({ title, unit, num, points, mc, mcKey, mcReleased: !!(prevAsg && prevAsg.mcReleased), passMin: prevAsg && prevAsg.passMin !== undefined && prevAsg.passMin !== null ? prevAsg.passMin : undefined, mcOnly: !!body.mcOnly, blocks: body.blocks, checks: cleanChecks(body.checks), tips: cleanTips(body.tips), variants, live: body.live !== false, publishedAt: now() });
+  const text = JSON.stringify({ title, unit, num, points, mc, mcKey, mcReleased: !!(prevAsg && prevAsg.mcReleased), autoRun: cleanAutoRun(body.autoRun !== undefined ? body.autoRun : (prevAsg && prevAsg.autoRun)), passMin: prevAsg && prevAsg.passMin !== undefined && prevAsg.passMin !== null ? prevAsg.passMin : undefined, mcOnly: !!body.mcOnly, blocks: body.blocks, checks: cleanChecks(body.checks), tips: cleanTips(body.tips), variants, live: body.live !== false, publishedAt: now() });
   if (text.length > 400000) return { error: "That assignment is too big" };
   await store().setJSON("assign:" + body.slot, JSON.parse(text));
   return { ok: true, slot: body.slot, title };
@@ -515,7 +517,7 @@ async function liveScore(body) {
   const rec = variantFor(await readJSON("assign:" + body.slot, null), cleanPeriod(body.period));
   if (!rec || !Array.isArray(rec.checks) || !rec.checks.length) return { ok: true, pct: null };
   if (rec.live === false && !isAdmin(body) && !(body.credential && isTeacherUser(await verifyGoogleToken(body.credential)))) return { ok: true, pct: null };
-  const r = scoreCode(rec.checks, code, String(body.output == null ? "" : body.output).slice(-4000));
+  const r = scoreCode(rec.checks, code, String(body.output == null ? "" : body.output).slice(-8000));
   return { ok: true, need: rec.submitAny === true ? 0 : PASS, pct: r.pct, passed: r.passed, total: r.total, missing: r.missing, boxes: r.boxes };
 }
 

@@ -1063,13 +1063,68 @@ function markBox(n) {
 }
 function goToBox(n) { markBox(n); }
 $("assMissList").addEventListener("click", function (e) { var b = e.target.closest ? e.target.closest(".goBox") : null; if (!b) return; $("assMiss").open = false; goToBox(+b.getAttribute("data-go")); });
+/* Secret test runs. An assignment with autoRun is graded by running the student's program with fixed answers to its input() questions,
+   so the grade does not depend on the numbers the student typed. The student's own Output box is never touched. */
+var GRADER_PY = [
+  'import sys, io, re',
+  'def _grader_run(code, answers):',
+  '    buf = io.StringIO()',
+  '    used = [False] * len(answers)',
+  '    def fake_input(prompt=""):',
+  '        p = str(prompt).lower()',
+  '        for i, a in enumerate(answers):',
+  '            try:',
+  '                hit = (not used[i]) and re.search(a[0], p)',
+  '            except Exception:',
+  '                hit = False',
+  '            if hit:',
+  '                used[i] = True',
+  '                return a[1]',
+  '        for i, a in enumerate(answers):',
+  '            if not used[i]:',
+  '                used[i] = True',
+  '                return a[1]',
+  '        return "1"',
+  '    ns = {"__name__": "__main__", "input": fake_input}',
+  '    steps = [0]',
+  '    def tracer(frame, event, arg):',
+  '        steps[0] += 1',
+  '        if steps[0] > 400000:',
+  '            raise RuntimeError("the program ran too long")',
+  '        return tracer',
+  '    old = sys.stdout',
+  '    sys.stdout = buf',
+  '    err = ""',
+  '    sys.settrace(tracer)',
+  '    try:',
+  '        exec(compile(code, "<student>", "exec"), ns)',
+  '    except BaseException as e:',
+  '        err = type(e).__name__ + ": " + str(e)',
+  '    finally:',
+  '        sys.settrace(None)',
+  '        sys.stdout = old',
+  '    return [buf.getvalue(), err]'
+].join("\n"), graderReady = false;
+function hiddenOutput(code, A) {
+  if (!A || !Array.isArray(A.autoRun) || !A.autoRun.length || !py || mode === "karel") return null;
+  try {
+    if (!graderReady) { py.runPython(GRADER_PY); graderReady = true; }
+    var text = "";
+    A.autoRun.forEach(function (run, i) {
+      py.globals.set("_g_code", code); py.globals.set("_g_ans", JSON.stringify(run.answers));
+      var r = JSON.parse(py.runPython("import json\n_g_r = _grader_run(_g_code, json.loads(_g_ans))\njson.dumps(_g_r)"));
+      text += "[run " + (i + 1) + "]\n" + r[0] + (r[1] ? "[error] " + r[1] + "\n" : "");
+    });
+    return text;
+  } catch (e) { return ""; }
+}
 function updateScore() {
   clearTimeout(scoreT);
   var A = (window.PY_ASSIGN || {})[slot], el = $("assScore");
   if (!A || slot === "free" || slot === "example") { el.innerHTML = ""; $("assMiss").className = ""; return; }
   if (CRED && credLeft(CRED) <= 60) { try { google.accounts.id.prompt(); } catch (e) {} }
   scoreT = setTimeout(function () {
-    var seq = ++scoreSeq, body = { action: "score", slot: slot, code: ta.value, output: out.textContent.slice(-4000), period: $("period").value, credential: CRED || undefined }, tp = ""; try { tp = /[?&]teacher/.test(location.search) ? (sessionStorage.getItem("pypin") || "") : ""; } catch (e) {}
+    var hid = hiddenOutput(ta.value, A), seq = ++scoreSeq, body = { action: "score", slot: slot, code: ta.value, output: hid !== null ? hid : out.textContent.slice(-4000), period: $("period").value, credential: CRED || undefined }, tp = ""; try { tp = /[?&]teacher/.test(location.search) ? (sessionStorage.getItem("pypin") || "") : ""; } catch (e) {}
     if (tp) body.pin = tp;
     fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(function (r) { return r.json(); }).then(function (j) {
       if (seq !== scoreSeq || !j || !j.ok) return;
@@ -1368,7 +1423,7 @@ $("submit").addEventListener("click", function () {
 $("mCancel").addEventListener("click", function () { $("mSub").classList.remove("show"); });
 $("mGo").addEventListener("click", function () {
   var b = this; b.disabled = true;
-  api({ action: "submit", slot: slot, mode: mode, code: ta.value, world: curWorld(), ticks: currentTicks(), period: $("period").value, output: out.textContent.slice(-3500), mc: getMc() }).then(function (j) {
+  api({ action: "submit", slot: slot, mode: mode, code: ta.value, world: curWorld(), ticks: currentTicks(), period: $("period").value, output: out.textContent.slice(-3500), gradeOutput: hiddenOutput(ta.value, (window.PY_ASSIGN || {})[slot]), mc: getMc() }).then(function (j) {
     b.disabled = false; $("mSub").classList.remove("show");
     if (j && j.ok) { MY[slot] = "sub"; lastCloud = ta.value; loadAssignments(); buildSlots(); statusEl.textContent = "Submitted " + new Date(j.submittedAt).toLocaleString() + (j.count > 1 ? " (#" + j.count + ")" : ""); alert("Submitted! ✓" + (j.mc ? "\n\nYour score: " + j.mc.correct + " out of " + j.mc.total + " (" + j.mc.pct + "%)." + (j.mc.need !== null && j.mc.need !== undefined ? (j.mc.pct >= j.mc.need ? "\n\nGreat work! The next assignment is unlocked." : "\n\nYou need " + j.mc.need + "% or higher to move on. Use the \"Walk me through it\" buttons on the ones you missed, fix your answers, and submit again.") : "") : (getMc() ? "\n\nYour multiple-choice answers were turned in too. Your teacher will share that score later." : ""))); }
     else if (j && !j.needLogin) alert((j && j.error) || "Could not submit. Try again.");
