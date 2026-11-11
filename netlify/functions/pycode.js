@@ -337,7 +337,7 @@ async function adminSetAssignment(body) {
   if (!title || !Array.isArray(body.blocks) || !body.blocks.length) return { error: "Needs a title and blocks" };
   const variants = {};
   if (body.variants && typeof body.variants === "object") Object.keys(body.variants).forEach((p) => { const v = body.variants[p]; if (cleanPeriod(p) && v && Array.isArray(v.blocks)) variants[cleanPeriod(p)] = { blocks: v.blocks, checks: cleanChecks(v.checks), tips: cleanTips(v.tips) }; });
-  const mc = Array.isArray(body.mc) ? body.mc.slice(0, 30).map((q) => ({ q: String(q.q || "").slice(0, 600), code: q.code ? String(q.code).slice(0, 1200) : "", choices: (Array.isArray(q.choices) ? q.choices : []).slice(0, 6).map((c) => String(c).slice(0, 300)) })) : null;
+  const mc = Array.isArray(body.mc) ? body.mc.slice(0, 30).map((q) => ({ q: String(q.q || "").slice(0, 600), code: q.code ? String(q.code).slice(0, 1200) : "", choices: (Array.isArray(q.choices) ? q.choices : []).slice(0, 8).map((c) => String(c).slice(0, 300)) })) : null;
   const mcKey = Array.isArray(body.mcKey) ? body.mcKey.slice(0, 30).map((x) => Number(x) | 0) : null;
   const prevAsg = await readJSON("assign:" + body.slot, null);
   const points = Math.max(0, Math.min(1000, Number(body.points) || 0));
