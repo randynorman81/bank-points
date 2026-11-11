@@ -121,10 +121,18 @@
     if (f || cur.length) { cur.push(f); rows.push(cur); }
     return Promise.resolve({ kind: "table", table: E.gridFromTable(rows.filter(function (r) { return r.some(function (c) { return c.trim(); }); }).map(function (r) { return r.map(function (t) { return { text: t, bg: "" }; }); })) });
   }
+  function xlsxSource(file) {
+    if (!window.XLSX) return Promise.reject(new Error("The Excel reader didn't load. Save the sheet as a CSV and upload that."));
+    return file.arrayBuffer().then(function (buf) {
+      var wb = XLSX.read(buf, { type: "array" }), ws = wb.Sheets[wb.SheetNames[0]], rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "", blankrows: false });
+      return { kind: "table", table: E.gridFromTable(rows.map(function (r) { return r.map(function (t) { return { text: String(t), bg: "" }; }); })) };
+    });
+  }
   function readFile(file, onp) {
     var n = file.name.toLowerCase();
     if (/\.pdf$/.test(n) || file.type === "application/pdf") return pdfSource(file, onp);
     if (/\.docx$/.test(n)) { if (!window.mammoth) return Promise.reject(new Error("The Word reader didn't load.")); return file.arrayBuffer().then(function (b) { return mammoth.convertToHtml({ arrayBuffer: b }); }).then(function (r) { return tableSource(r.value); }); }
+    if (/\.xlsx?$/.test(n)) return xlsxSource(file);
     if (/\.csv$/.test(n)) return file.text().then(csvSource);
     if (/^image\//.test(file.type) || /\.(png|jpe?g|webp|gif|bmp)$/.test(n)) return imageSource(file, onp);
     return Promise.reject(new Error("I can read PDF, photo, Word (.docx) and CSV files."));
@@ -193,54 +201,38 @@
     }); });
   }
 
+
   /* ================================================================= helpers */
-  function pts(i, k) { return E.levelPoints(S.rubric, i, k); }
   function nameFromFile(n) { return n.replace(/\.[^.]+$/, "").replace(/[_]+/g, " ").replace(/\s+/g, " ").trim(); }
-  function junkName(n) { return !n || /^(img|dsc|image|photo|scan|screenshot|document|doc|untitled|rubric|copy|pxl|whatsapp)\b/i.test(n) || /\d{4,}/.test(n) || /^student \d+$/i.test(n); }
-  function fname(ext) { return (S.title || "rubric-grades").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-") + ext; }
   function download(blob, name) { var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
-  function isDocLink(v) { return v.match(/\/document\/(?:u\/\d+\/)?d\/([A-Za-z0-9_-]{20,})/) || v.match(/^([A-Za-z0-9_-]{25,})$/); }
-  function loadGoogleDoc(link) {
-    var m = isDocLink(link); if (!m) return Promise.reject(new Error("Paste the full link to a Google Doc (it looks like docs.google.com/document/d/...)."));
+  function safeName(s, fallback) { return (String(s || "").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-")) || fallback; }
+  function topPts(R) { return Math.max.apply(null, R.levels.map(function (l) { return +l.points || 0; })); }
+  /* a Google Doc (table) or a Google Sheet (first tab, or the tab named in the link) */
+  function loadLink(link) {
+    var sh = link.match(/\/spreadsheets\/d\/([A-Za-z0-9_-]{20,})/);
+    if (sh) {
+      var gid = (link.match(/[#&?]gid=(\d+)/) || [])[1];
+      return fetch("/api/gdoc?kind=sheet&id=" + encodeURIComponent(sh[1]) + (gid ? "&gid=" + gid : "")).then(function (r) { return r.json(); }).then(function (j) { if (!j.ok) throw new Error(j.error || "Couldn't read that sheet."); return csvSource(j.csv); });
+    }
+    var m = link.match(/\/document\/(?:u\/\d+\/)?d\/([A-Za-z0-9_-]{20,})/) || link.match(/^([A-Za-z0-9_-]{25,})$/);
+    if (!m) return Promise.reject(new Error("Paste the full link to a Google Doc or Google Sheet (it looks like docs.google.com/document/d/... or docs.google.com/spreadsheets/d/...)."));
     return fetch("/api/gdoc?format=html&id=" + encodeURIComponent(m[1])).then(function (r) { return r.json(); }).then(function (j) { if (!j.ok) throw new Error(j.error || "Couldn't read that document."); return tableSource(j.html); });
   }
+  /* things worth a second look after a rubric is read */
+  function flags(res) {
+    var R = res.rubric, out = [], cells = 0, empty = 0;
+    R.criteria.forEach(function (c) { c.cells.forEach(function (t) { cells++; if (!String(t || "").trim()) empty++; }); });
+    if (R.guessedPoints) out.push("no point values found (I numbered the levels downward)");
+    if (R.criteria.length < 2) out.push("only " + R.criteria.length + " row found");
+    if (R.levels.length < 3) out.push("only " + R.levels.length + " levels found");
+    if (cells && empty / cells > 0.3) out.push("many empty boxes");
+    if (R.criteria.some(function (c) { return /^Criterion \d+$/.test(c.name); })) out.push("a row has no name");
+    return out;
+  }
 
-  /* ================================================================= step 1: upload graded rubrics */
-  var copies = [];
-  function buildCopy(res, name) {
-    var R = S.rubric, n = Math.min(R.criteria.length, res.rubric.criteria.length), cp = { id: "c" + Date.now() + Math.random().toString(36).slice(2, 6), name: name, res: res, picks: [], note: "" };
-    if (res.rubric.criteria.length !== R.criteria.length) cp.note = "This copy has " + res.rubric.criteria.length + " rows but the first rubric had " + R.criteria.length + ". I matched them in order. Please check.";
-    else if (res.rubric.levels.length !== R.levels.length) cp.note = "This copy has " + res.rubric.levels.length + " levels but the first rubric had " + R.levels.length + ". I matched them in order. Please check.";
-    for (var i = 0; i < R.criteria.length; i++) {
-      var p = i < n ? res.picks[i] : { pick: -1, conf: 0, score: null }, k = p.pick >= 0 && p.pick < R.levels.length ? p.pick : -1;
-      cp.picks.push({ pick: k, conf: p.conf || 0, why: p.why || "", score: p.score, points: p.score !== null && p.score !== undefined ? p.score : (k >= 0 ? pts(i, k) : ""), maybe: p.maybe });
-    }
-    return cp;
-  }
-  function unsure(cp) { return cp.picks.filter(function (p) { return p.pick < 0 && (p.points === "" || p.points === null || p.points === undefined); }).length; }
-  function toStudent(cp) { return { id: "s" + Date.now() + Math.random().toString(36).slice(2, 6), name: (cp.name || "").trim(), date: new Date().toLocaleDateString(), grades: cp.picks.map(function (p) { return { pick: p.pick, points: p.points, comment: "" }; }), comment: "" }; }
-  function ingest(res, name) {
-    if (!S.rubric) { S.rubric = res.rubric; }
-    var cp = buildCopy(res, name);
-    if (!unsure(cp) && !cp.note && !junkName(name)) S.students.push(toStudent(cp)); else copies.push(cp);
-  }
-  function runFiles(files) {
-    var pk = pickSupported(files); files = pk.ok; if (!files.length) { status($("status"), "I didn't find any PDFs, photos, Word files or CSVs there.", "err"); return; }
-    var i = 0, bad = [], okN = 0, skipped = pk.skipped;
-    (function next() {
-      if (i >= files.length) {
-        progress($("bar"), $("barfill"), null); save(); drawAll();
-        status($("status"), (okN ? "Read " + okN + " rubric" + (okN > 1 ? "s" : "") + ". " : "") + (skipped ? "(Skipped " + skipped + " other file" + (skipped > 1 ? "s" : "") + ".) " : "") + (bad.length ? "Couldn't read " + bad.length + ": " + bad.join("; ") + ". Tip: upload this same folder in the Rubric template section below to rebuild all of them as clean PDFs. " : "") + (copies.length ? "Check the ones listed below." : ""), bad.length && !okN ? "err" : "good"); return;
-      }
-      var f = files[i++]; status($("status"), "Reading " + f.name + " (" + i + " of " + files.length + ")..."); progress($("bar"), $("barfill"), (i - 1) / files.length);
-      readFile(f, function (p) { progress($("bar"), $("barfill"), (i - 1 + p) / files.length); }).then(function (src) {
-        var res = analyze(src); if (res.error) { bad.push(f.name + " (" + res.error + ")"); return next(); }
-        ingest(res, nameFromFile(f.name)); okN++; next();
-      }).catch(function (e) { bad.push(f.name + " (" + (e.message || e) + ")"); next(); });
-    })();
-  }
-  var drop = $("drop"), fileIn = $("file");
-  var OKFILE = /\.(pdf|png|jpe?g|webp|docx|csv)$/i;
+  /* ================================================================= upload */
+  var T = { rubric: null, title: "" };
+  var OKFILE = /\.(pdf|png|jpe?g|webp|docx|csv|xlsx?)$/i;
   function pickSupported(files) {
     var ok = files.filter(function (f) { return (OKFILE.test(f.name) || /^image\//.test(f.type)) && !/^(\.|~\$)/.test(f.name); });
     ok.sort(function (x, y) { return x.name.localeCompare(y.name, undefined, { numeric: true, sensitivity: "base" }); });
@@ -268,87 +260,96 @@
       if (dt.files.length) onFiles([].slice.call(dt.files));
     });
   }
-  wireDrop(drop, fileIn, runFiles);
+  function handleFiles(files) {
+    var pk = pickSupported(files); files = pk.ok;
+    if (!files.length) { status($("status"), "I didn't find any photos, PDFs, Word files, Excel files or CSVs there.", "err"); return; }
+    $("preview").hidden = true; $("results").hidden = true; $("tplnote").textContent = "";
+    if (files.length > 1) return many(files, pk.skipped);
+    var f = files[0]; status($("status"), "Reading " + f.name + "..."); progress($("bar"), $("barfill"), 0.05);
+    readFile(f, function (p) { progress($("bar"), $("barfill"), 0.1 + p * 0.85); }).then(function (src) {
+      var res = analyze(src); progress($("bar"), $("barfill"), null);
+      if (res.error) { status($("status"), res.error, "err"); return; }
+      showPreview(res, nameFromFile(f.name));
+    }).catch(function (e) { progress($("bar"), $("barfill"), null); status($("status"), e.message || String(e), "err"); });
+  }
+  wireDrop($("drop"), $("file"), handleFiles);
   $("folderBtn").onclick = function () { $("folder").click(); };
-  $("folder").onchange = function () { var l = [].slice.call(this.files); this.value = ""; if (l.length) runFiles(l); };
+  $("folder").onchange = function () { var l = [].slice.call(this.files); this.value = ""; if (l.length) handleFiles(l); };
   $("gdgo").onclick = function () {
-    var link = $("gdlink").value.trim(), nm = $("gdname").value.trim(); status($("status"), "Loading the Google Doc...");
-    loadGoogleDoc(link).then(function (src) { var res = analyze(src); if (res.error) throw new Error(res.error); ingest(res, nm || "Student (Google Doc)"); $("gdlink").value = ""; $("gdname").value = ""; save(); drawAll(); status($("status"), "Read the Google Doc.", "good"); }).catch(function (e) { status($("status"), e.message, "err"); });
+    $("preview").hidden = true; $("results").hidden = true; status($("status"), "Loading your link...");
+    loadLink($("gdlink").value.trim()).then(function (src) { var res = analyze(src); if (res.error) throw new Error(res.error); showPreview(res, /spreadsheets/.test($("gdlink").value) ? "Google Sheet rubric" : "Google Doc rubric"); }).catch(function (e) { status($("status"), e.message, "err"); });
   };
-  $("title").oninput = function () { S.title = this.value; save(); };
-  $("reset").onclick = function () { if ((S.students.length || copies.length || S.rubric) && !confirm("Clear the rubric and all students and start over?")) return; S.rubric = null; S.students = []; copies = []; S.title = ""; $("title").value = ""; save(); status($("status"), ""); drawAll(); };
 
-  /* ---------------- review cards (only for rows or names I'm unsure about) */
-  function drawCopies() {
-    var R = S.rubric; $("sreview").hidden = !copies.length; $("revinfo").textContent = copies.length ? "(" + copies.length + ")" : ""; if (!copies.length) { $("copies").innerHTML = ""; return; }
-    $("copies").innerHTML = copies.map(function (cp) {
-      var t = E.totals(R, cp.picks.map(function (p) { return { points: p.points }; })), un = unsure(cp);
-      var h = "<div class='copycard'><div class='row'><input data-cpn='" + cp.id + "' value='" + esc(cp.name) + "' placeholder='Student name' style='width:220px;font-weight:700'><span class='pill " + (un ? "a" : "g") + "'>" + (un ? un + " row(s) need you" : (junkName(cp.name) ? "type the student's name" : "all rows read")) + "</span><b>" + t.got + " / " + t.max + " (" + t.pct + "%)</b><span style='flex:1'></span><button class='ok sm' data-cpadd='" + cp.id + "'>Add to class data</button><button class='danger sm' data-cpdel='" + cp.id + "'>Remove</button></div>";
-      if (cp.note) h += "<div class='msg err'>" + esc(cp.note) + "</div>";
-      h += "<div class='two' style='margin-top:8px'><div>" + R.criteria.map(function (c, i) {
-        var p = cp.picks[i]; return "<div class='crit' style='margin:6px 0;padding:6px 8px'><div class='row'><b style='min-width:120px'>" + esc(c.name) + "</b>" + R.levels.map(function (l, k) { return "<button class='lv" + (p.pick === k ? " on" : "") + (p.maybe === k && p.pick < 0 ? " sug" : "") + "' data-cpl='" + cp.id + "," + i + "," + k + "'>" + esc(l.name) + "</button>"; }).join("") + "<input type='number' step='0.5' style='width:62px' data-cpp='" + cp.id + "," + i + "' value='" + esc(p.points) + "'><span class='small'>/ " + esc(c.max) + "</span>" + (p.pick >= 0 && p.why ? "<span class='pill " + (p.conf >= 0.6 ? "g" : "a") + "'>" + esc(p.why) + "</span>" : "") + "</div></div>";
-      }).join("") + "</div>" + (cp.res ? "<div class='srcwrap' data-cpimg='" + cp.id + "'></div>" : "") + "</div></div>"; return h;
-    }).join("");
-    copies.forEach(function (cp) { var box = document.querySelector("[data-cpimg='" + cp.id + "']"); if (!box) return; if (cp.res && cp.res.src && cp.res.src.canvas) { var picks = cp.picks.map(function (p) { return { pick: p.pick, conf: p.conf, maybe: p.maybe }; }), holder = document.createElement("div"); box.appendChild(holder); drawSource(holder, { src: cp.res.src, geo: cp.res.geo, rubric: cp.res.rubric }, picks); holder.parentNode.hidden = false; } else box.parentNode.removeChild(box); });
+  /* ================================================================= one rubric: preview + download */
+  function showPreview(res, title) {
+    T.rubric = JSON.parse(JSON.stringify(res.rubric)); T.title = title || "Rubric"; var fl = flags(res);
+    $("ptitle").value = T.title; $("pvwrap").open = fl.length > 0; $("preview").hidden = false;
+    status($("status"), "Read it: " + T.rubric.criteria.length + " rows and " + T.rubric.levels.length + " levels." + (fl.length ? " Please check: " + fl.join("; ") + "." : " Download your template below."), fl.length ? "err" : "good");
+    $("pvsum").textContent = T.rubric.criteria.length + " rows (" + T.rubric.criteria.map(function (c) { return c.name; }).join(", ").slice(0, 160) + ") and " + T.rubric.levels.length + " levels (" + T.rubric.levels.map(function (l) { return l.name + " " + l.points; }).join(", ") + ").";
+    drawPreview(); $("preview").scrollIntoView({ behavior: "smooth" });
   }
-  function findCopy(id) { return copies.filter(function (c) { return c.id === id; })[0]; }
-  $("copies").addEventListener("click", function (e) {
-    var b = e.target.closest("button"); if (!b) return; var a = b.getAttribute("data-cpl");
-    if (a !== null) { var p = a.split(","), cp = findCopy(p[0]), pk = cp.picks[+p[1]], k = +p[2]; if (pk.pick === k) { pk.pick = -1; pk.points = ""; } else { pk.pick = k; pk.points = pts(+p[1], k); pk.conf = 1; pk.why = "you picked it"; pk.score = null; pk.maybe = undefined; } drawCopies(); return; }
-    a = b.getAttribute("data-cpdel"); if (a !== null) { copies = copies.filter(function (c) { return c.id !== a; }); drawAll(); return; }
-    a = b.getAttribute("data-cpadd"); if (a !== null) { var c2 = findCopy(a); if (!(c2.name || "").trim()) return status($("status"), "Type the student's name first.", "err"); S.students.push(toStudent(c2)); copies = copies.filter(function (c) { return c.id !== a; }); save(); drawAll(); }
-  });
-  $("copies").addEventListener("input", function (e) {
-    var t = e.target, a; if ((a = t.getAttribute("data-cpn")) !== null) findCopy(a).name = t.value;
-    else if ((a = t.getAttribute("data-cpp")) !== null) { var p = a.split(","); findCopy(p[0]).picks[+p[1]].points = t.value === "" ? "" : parseFloat(t.value); }
-  });
-  $("addall").onclick = function () { var left = []; copies.forEach(function (cp) { if ((cp.name || "").trim()) S.students.push(toStudent(cp)); else left.push(cp); }); copies = left; save(); drawAll(); if (left.length) status($("status"), "Type a name for the ones still listed, then add them.", "err"); };
-
-  /* ================================================================= step 2: class data */
-  var LCOL = ["#1f9d6b", "#7bc043", "#e6b422", "#e07a1f", "#c0392b", "#8e44ad", "#5d6678"];
-  function levelColor(rank, total) { return LCOL[Math.min(LCOL.length - 1, Math.round(rank * (LCOL.length - 2) / Math.max(1, total - 1)))]; }
-  function drawAnalytics() {
-    var R = S.rubric, A = E.analytics(R, S.students); if (!A) { $("analytics").innerHTML = ""; return; }
-    var order = R.levels.map(function (l, k) { return k; }).sort(function (a, b) { return R.levels[b].points - R.levels[a].points; }), rank = {}; order.forEach(function (k, r) { rank[k] = r; });
-    var h = "<div class='tiles'><div class='tile'><b>" + A.n + "</b><span>students</span></div><div class='tile'><b>" + A.avg + "%</b><span>class average (" + E.letter(A.avg) + ")</span></div><div class='tile'><b>" + A.median + "%</b><span>median</span></div><div class='tile'><b>" + A.high + "%</b><span>highest</span></div><div class='tile'><b>" + A.low + "%</b><span>lowest</span></div><div class='tile'><b>" + A.below.length + "</b><span>below 70%</span></div></div>";
-    h += "<h3 class='sec'>What stands out</h3><ul class='ins'>" + A.insights.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul>";
-    h += "<h3 class='sec'>How each row went</h3><div class='legend'>" + order.map(function (k) { return "<span><i style='background:" + levelColor(rank[k], R.levels.length) + "'></i>" + esc(R.levels[k].name) + "</span>"; }).join("") + "</div>";
-    A.criteria.forEach(function (c) {
-      var tot = c.levels.reduce(function (a, b) { return a + b; }, 0) + c.other;
-      h += "<div class='hb'><span class='lab' title='" + esc(c.name) + "'>" + esc(c.name) + "</span><span class='trk'>" + order.map(function (k) { var n = c.levels[k]; return n ? "<i style='width:" + (n / Math.max(1, tot) * 100) + "%;background:" + levelColor(rank[k], R.levels.length) + "' title='" + esc(R.levels[k].name) + ": " + n + "'></i>" : ""; }).join("") + (c.other ? "<i style='width:" + (c.other / Math.max(1, tot) * 100) + "%;background:#999' title='other scores: " + c.other + "'></i>" : "") + "</span><span class='val'>avg " + c.avg + " / " + c.max + " (" + c.pct + "%)</span></div>";
+  function drawPreview() {
+    var R = T.rubric, h = "<tr><th style='width:150px'>Criteria</th>";
+    R.levels.forEach(function (l, k) { h += "<th><input class='nm' data-lv='" + k + "' value='" + esc(l.name) + "' placeholder='Level name'> <input class='pt' type='number' step='0.5' data-lp='" + k + "' value='" + esc(l.points) + "' title='points'> <button class='danger sm' data-dl='" + k + "' title='Remove this level'>x</button></th>"; });
+    h += "<th></th></tr>";
+    R.criteria.forEach(function (c, i) {
+      h += "<tr><td><textarea data-cn='" + i + "' style='font-weight:700'>" + esc(c.name) + "</textarea></td>";
+      R.levels.forEach(function (l, k) { h += "<td><textarea data-cc='" + i + "," + k + "'>" + esc(c.cells[k] || "") + "</textarea></td>"; });
+      h += "<td><button class='danger sm' data-dc='" + i + "' title='Remove this row'>x</button></td></tr>";
     });
-    h += "<h3 class='sec'>Letter grades</h3>";
-    ["A", "B", "C", "D", "F"].forEach(function (L) { var n = A.letters[L]; h += "<div class='hb'><span class='lab'>" + L + "</span><span class='trk'><i style='width:" + (n / A.n * 100) + "%;background:var(--acc)'></i></span><span class='val'>" + n + " student" + (n === 1 ? "" : "s") + "</span></div>"; });
-    $("analytics").innerHTML = h;
+    $("pvtable").innerHTML = h;
   }
-  function drawSheet() {
-    var R = S.rubric, rows = E.sheetRows(R, S.students, S.title, S.scale);
-    $("shinfo").textContent = S.students.length ? "(" + S.students.length + " student" + (S.students.length > 1 ? "s" : "") + ")" : "";
-    var h = "<table><tr>" + rows[0].map(function (c) { return "<th>" + esc(c) + "</th>"; }).join("") + "<th></th></tr>";
-    for (var i = 1; i < rows.length; i++) h += "<tr>" + rows[i].map(function (c, j) { return j === 0 ? "<td><input class='nm' data-nm='" + (i - 1) + "' value='" + esc(c) + "'></td>" : "<td" + (j === rows[0].length - 1 ? " style='white-space:normal;min-width:200px'" : "") + ">" + esc(c) + "</td>"; }).join("") + "<td><button class='ghost sm' data-ed='" + (i - 1) + "'>Edit</button> <button class='danger sm' data-rm='" + (i - 1) + "'>x</button></td></tr>";
-    $("sheet").innerHTML = h + "</table>";
-  }
-  function drawAll() {
-    $("title").value = S.title || ""; drawCopies(); var has = !!(S.rubric && S.students.length); $("s2").hidden = !has; if (has) { drawAnalytics(); drawSheet(); }
-  }
-  $("sheet").addEventListener("change", function (e) { var a = e.target.getAttribute("data-nm"); if (a !== null) { S.students[+a].name = e.target.value.trim(); save(); drawAll(); } });
-  $("sheet").addEventListener("click", function (e) {
-    var b = e.target.closest("button"); if (!b) return; var a = b.getAttribute("data-rm");
-    if (a !== null) { var s = S.students[+a]; if (confirm("Remove " + s.name + " from the class data?")) { S.students.splice(+a, 1); save(); drawAll(); } return; }
-    a = b.getAttribute("data-ed"); if (a !== null) { var st = S.students.splice(+a, 1)[0]; copies.push({ id: "c" + Date.now(), name: st.name, res: null, note: "", picks: st.grades.map(function (g) { return { pick: g.pick, conf: 1, why: "", score: null, points: g.points }; }) }); save(); drawAll(); $("sreview").scrollIntoView({ behavior: "smooth" }); }
+  $("pvtable").addEventListener("input", function (e) {
+    var t = e.target, R = T.rubric, a;
+    if ((a = t.getAttribute("data-lv")) !== null) R.levels[+a].name = t.value;
+    else if ((a = t.getAttribute("data-lp")) !== null) R.levels[+a].points = parseFloat(t.value) || 0;
+    else if ((a = t.getAttribute("data-cn")) !== null) R.criteria[+a].name = t.value;
+    else if ((a = t.getAttribute("data-cc")) !== null) { var p = a.split(","); R.criteria[+p[0]].cells[+p[1]] = t.value; }
   });
-  $("csv").onclick = function () { download(new Blob(["﻿" + E.toCSV(E.sheetRows(S.rubric, S.students, S.title, S.scale))], { type: "text/csv" }), fname(".csv")); };
-  $("xlsx").onclick = function () {
-    if (!window.XLSX) return alert("The Excel maker didn't load. Use the CSV button instead.");
-    var rows = E.sheetRows(S.rubric, S.students, S.title, S.scale), ws = XLSX.utils.aoa_to_sheet(rows), wb = XLSX.utils.book_new(); ws["!cols"] = rows[0].map(function (c, i) { return { wch: i === 0 ? 22 : i === rows[0].length - 1 ? 50 : Math.max(8, Math.min(22, String(c).length + 2)) }; });
-    XLSX.utils.book_append_sheet(wb, ws, "Grades"); XLSX.writeFile(wb, fname(".xlsx"));
-  };
-  $("copy").onclick = function () { var tsv = E.toTSV(E.sheetRows(S.rubric, S.students, S.title, S.scale)); (navigator.clipboard ? navigator.clipboard.writeText(tsv) : Promise.reject()).then(function () { $("copy").textContent = "Copied! Paste into Google Sheets"; setTimeout(function () { $("copy").textContent = "Copy for Google Sheets"; }, 2500); }).catch(function () { prompt("Copy this (Ctrl+C), then paste into Google Sheets:", tsv); }); };
-  function syncScale() { var sel = $("scale"), v = String(S.scale || 0); if (![].some.call(sel.options, function (o) { return o.value === v; })) { var o = document.createElement("option"); o.value = v; o.textContent = v + " points"; sel.insertBefore(o, sel.lastChild); } sel.value = v; }
-  $("scale").onchange = function () { var v = this.value; if (v === "custom") { var n = parseFloat(prompt("Scale each score to be out of how many points?", "100")); if (!(n > 0)) { syncScale(); return; } S.scale = n; } else S.scale = +v; save(); syncScale(); drawAll(); };
+  $("pvtable").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return; var R = T.rubric, a;
+    if ((a = b.getAttribute("data-dl")) !== null) { if (R.levels.length <= 2) return; R.levels.splice(+a, 1); R.criteria.forEach(function (c) { c.cells.splice(+a, 1); }); }
+    else if ((a = b.getAttribute("data-dc")) !== null) { if (R.criteria.length <= 1) return; R.criteria.splice(+a, 1); }
+    else return; drawPreview();
+  });
+  $("addrow").onclick = function () { var R = T.rubric; R.criteria.push({ name: "Criterion " + (R.criteria.length + 1), cells: R.levels.map(function () { return ""; }), max: topPts(R) }); drawPreview(); };
+  $("addlvl").onclick = function () { var R = T.rubric, low = Math.min.apply(null, R.levels.map(function (l) { return +l.points || 0; })); R.levels.push({ name: "New level", points: Math.max(0, low - 1) }); R.criteria.forEach(function (c) { c.cells.push(""); }); drawPreview(); };
+  $("ptitle").oninput = function () { T.title = this.value; };
+  $("tpl").onclick = function () { if (!T.rubric) return; T.rubric.criteria.forEach(function (c) { c.max = topPts(T.rubric); }); makePdf(T.rubric, T.title || "Rubric", "tplnote"); };
+  $("tplblank").onclick = function () { makePdf(templateRubric(), "Rubric template", "tplnote0"); };
 
-  /* ================================================================= step 3: the template */
+  /* ================================================================= many rubrics: one ZIP of PDFs */
+  function many(files, skipped) {
+    if (!window.JSZip) { status($("status"), "The ZIP maker didn't load. Check your connection and try again.", "err"); return; }
+    var zip = new JSZip(), used = {}, i = 0, okN = 0, items = [];
+    (function next() {
+      if (i >= files.length) {
+        progress($("bar"), $("barfill"), null); drawResults(items);
+        if (!okN) { status($("status"), "I couldn't read any of those files. See the list below.", "err"); return; }
+        zip.generateAsync({ type: "blob" }).then(function (blob) {
+          download(blob, "rubric-templates.zip");
+          status($("status"), "Converted " + okN + " of " + files.length + " rubrics. Your ZIP of template PDFs downloaded." + (skipped ? " (Skipped " + skipped + " other file" + (skipped > 1 ? "s" : "") + ".)" : ""), items.some(function (x) { return !x.ok || x.flags.length; }) ? "err" : "good");
+        });
+        return;
+      }
+      var f = files[i++]; status($("status"), "Converting " + f.name + " (" + i + " of " + files.length + ")..."); progress($("bar"), $("barfill"), (i - 1) / files.length);
+      readFile(f, function (p) { progress($("bar"), $("barfill"), (i - 1 + p) / files.length); }).then(function (src) {
+        var res = analyze(src); if (res.error) { items.push({ name: f.name, ok: false, why: res.error, flags: [] }); return next(); }
+        var base = safeName(nameFromFile(f.name), "rubric"), nm = base, n = 2; while (used[nm]) nm = base + "-" + n++; used[nm] = 1;
+        var blob = makePdf(res.rubric, nameFromFile(f.name), null, true); if (!blob) { items.push({ name: f.name, ok: false, why: "the PDF maker didn't load", flags: [] }); return next(); }
+        zip.file(nm + "-template.pdf", blob); okN++; items.push({ name: f.name, ok: true, rows: res.rubric.criteria.length, levels: res.rubric.levels.length, flags: flags(res) }); next();
+      }).catch(function (e) { items.push({ name: f.name, ok: false, why: e.message || String(e), flags: [] }); next(); });
+    })();
+  }
+  function drawResults(items) {
+    $("results").hidden = !items.length; var bad = items.filter(function (x) { return !x.ok || x.flags.length; }).length; $("resinfo").textContent = "(" + items.length + " files" + (bad ? ", " + bad + " to check" : "") + ")";
+    $("reslist").innerHTML = items.map(function (x) {
+      return "<li>" + (x.ok ? "<span class='pill " + (x.flags.length ? "a" : "g") + "'>" + (x.flags.length ? "check" : "ok") + "</span> " : "<span class='pill a'>not read</span> ") + "<b>" + esc(x.name) + "</b> " + (x.ok ? "<span class='small'>" + x.rows + " rows, " + x.levels + " levels" + (x.flags.length ? " &middot; " + esc(x.flags.join("; ")) : "") + "</span>" : "<span class='small'>" + esc(x.why) + "</span>") + "</li>";
+    }).join("");
+    if (items.length) $("results").scrollIntoView({ behavior: "smooth" });
+  }
 
+  /* ================================================================= the template (PDF) */
   function templateRubric() {
     return { levels: [{ name: "Excellent", points: 4 }, { name: "Good", points: 3 }, { name: "Fair", points: 2 }, { name: "Needs work", points: 1 }], criteria: [1, 2, 3, 4].map(function (n) { return { name: "Criterion " + n, max: 4, cells: ["Describe what excellent work looks like.", "Describe what good work looks like.", "Describe what fair work looks like.", "Describe what work that needs improvement looks like."] }; }) };
   }
@@ -359,27 +360,6 @@
     rows.push(["Total"].concat(R.levels.map(function () { return ""; }), ["/ " + max])); return rows;
   }
   var TPL_HELP = "How to mark this rubric: circle or highlight the box that fits each row (colored pen shows up best), or put an X in it, and write the points in the Score column. Then upload it to the Rubric Grader.";
-  function tplHTML(R, title, help) {
-    var cell = "border:1px solid #000;padding:6px;vertical-align:top;font-family:Arial,sans-serif;font-size:10pt";
-    var h = "<h2 style='font-family:Arial,sans-serif'>" + esc(title || "Rubric") + "</h2><p style='font-family:Arial,sans-serif;font-size:10pt'>Student: ______________________ &nbsp; Date: ____________</p><p style='font-family:Arial,sans-serif;font-size:9pt;color:#555'>" + esc(help || TPL_HELP) + "</p><table style='border-collapse:collapse;width:100%'><tr>";
-    tplHead(R).forEach(function (t) { h += "<th style='" + cell + ";background:#e8e8e8;text-align:left'>" + esc(t) + "</th>"; }); h += "</tr>";
-    tplRows(R).forEach(function (r, i, all) { h += "<tr>"; r.forEach(function (t, j) { h += "<td style='" + cell + (j === 0 || i === all.length - 1 ? ";font-weight:bold" : "") + "'>" + esc(t) + "</td>"; }); h += "</tr>"; });
-    return h + "</table>";
-  }
-  function tplBlob(R, title) {
-    var d = window.docx; if (!d) return Promise.resolve({ blob: null, htmlText: "<html><head><meta charset='utf-8'></head><body>" + tplHTML(R, title) + "</body></html>", ext: ".html" });
-    var head = tplHead(R), rows = tplRows(R), n = head.length, total = 12960, first = 1900, score = 900, mid = Math.floor((total - first - score) / (n - 2)), widths = [first].concat(R.levels.map(function () { return mid; }), [score]);
-    var line = { style: d.BorderStyle.SINGLE, size: 4, color: "000000" }, borders = { top: line, bottom: line, left: line, right: line };
-    function cell(t, w, bold, shade) { return new d.TableCell({ width: { size: w, type: d.WidthType.DXA }, borders: borders, shading: shade ? { fill: "E8E8E8", type: d.ShadingType.CLEAR, color: "auto" } : undefined, margins: { top: 60, bottom: 60, left: 90, right: 90 }, children: [new d.Paragraph({ children: [new d.TextRun({ text: t, bold: !!bold, size: 20, font: "Arial" })] })] }); }
-    var trs = [new d.TableRow({ tableHeader: true, children: head.map(function (t, i) { return cell(t, widths[i], true, true); }) })].concat(rows.map(function (r, ri) { return new d.TableRow({ cantSplit: true, children: r.map(function (t, i) { return cell(t, widths[i], i === 0 || ri === rows.length - 1, false); }) }); }));
-    var doc = new d.Document({ sections: [{ properties: { page: { size: { orientation: d.PageOrientation.LANDSCAPE } } }, children: [
-      new d.Paragraph({ heading: d.HeadingLevel.HEADING_1, children: [new d.TextRun({ text: title || "Rubric", font: "Arial" })] }),
-      new d.Paragraph({ children: [new d.TextRun({ text: "Student: ______________________     Date: ____________", font: "Arial", size: 20 })] }),
-      new d.Paragraph({ spacing: { after: 120 }, children: [new d.TextRun({ text: TPL_HELP, font: "Arial", size: 18, color: "555555" })] }),
-      new d.Table({ width: { size: total, type: d.WidthType.DXA }, columnWidths: widths, rows: trs })] }] });
-    return d.Packer.toBlob(doc).then(function (b) { return { blob: b, ext: ".docx" }; });
-  }
-  var T = { rubric: null, title: "" };
   function note(msg, where) { var el = $(where || "tplnote"); if (el && msg !== undefined) el.textContent = msg; }
   /* the template as a PDF: criteria down the side, each level (with points) across the top, a Score column and a Total row */
   function makePdf(R, title, noteId, noSave) {
@@ -396,50 +376,6 @@
     doc.save((title || "Rubric-template").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-") + ".pdf");
     note("Downloaded. Print it to mark by hand, then upload it above.", noteId); return doc;
   }
-  function templateFromRes(res, label) {
-    T.rubric = res.rubric; T.title = label || "Rubric"; $("tplresult").hidden = false;
-    status($("statusT"), "Rebuilt \"" + T.title + "\" in the template: " + res.rubric.criteria.length + " criteria and " + res.rubric.levels.length + " levels." + (res.rubric.guessedPoints ? " (I could not find point values, so I numbered the levels downward.)" : ""), "good");
-    $("tplnote").textContent = "";
-  }
-  function convertFiles(files) {
-    var pk = pickSupported(files); files = pk.ok; if (!files.length) { status($("statusT"), "I didn't find any PDFs, photos, Word files or CSVs there.", "err"); return; }
-    $("tplresult").hidden = true;
-    if (files.length > 1) return convertMany(files, pk.skipped);
-    var f = files[0]; status($("statusT"), "Reading " + f.name + "..."); progress($("barT"), $("barfillT"), 0.05);
-    readFile(f, function (p) { progress($("barT"), $("barfillT"), 0.1 + p * 0.85); }).then(function (src) {
-      var res = analyze(src); progress($("barT"), $("barfillT"), null); if (res.error) { status($("statusT"), res.error, "err"); return; } templateFromRes(res, nameFromFile(f.name));
-    }).catch(function (e) { progress($("barT"), $("barfillT"), null); status($("statusT"), e.message || String(e), "err"); });
-  }
-  /* a whole folder: every rubric is rebuilt in the template and they all come back in one ZIP of PDFs */
-  function convertMany(files, skipped) {
-    if (!window.JSZip) { status($("statusT"), "The ZIP maker didn't load. Check your connection and try again.", "err"); return; }
-    var zip = new JSZip(), used = {}, i = 0, okN = 0, bad = [];
-    (function next() {
-      if (i >= files.length) {
-        progress($("barT"), $("barfillT"), null);
-        if (!okN) { status($("statusT"), "I couldn't read any of those files. " + bad.join("; "), "err"); return; }
-        zip.generateAsync({ type: "blob" }).then(function (blob) {
-          download(blob, "rubric-templates.zip");
-          status($("statusT"), "Converted " + okN + " of " + files.length + " rubrics. Your ZIP of template PDFs downloaded." + (skipped ? " (Skipped " + skipped + " other file" + (skipped > 1 ? "s" : "") + ".)" : "") + (bad.length ? " Couldn't read: " + bad.join("; ") : ""), bad.length ? "err" : "good");
-        });
-        return;
-      }
-      var f = files[i++]; status($("statusT"), "Converting " + f.name + " (" + i + " of " + files.length + ")..."); progress($("barT"), $("barfillT"), (i - 1) / files.length);
-      readFile(f, function (p) { progress($("barT"), $("barfillT"), (i - 1 + p) / files.length); }).then(function (src) {
-        var res = analyze(src); if (res.error) { bad.push(f.name + " (" + res.error + ")"); return next(); }
-        var base = nameFromFile(f.name).replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-") || "rubric", nm = base, n = 2; while (used[nm]) nm = base + "-" + n++; used[nm] = 1;
-        var blob = makePdf(res.rubric, nameFromFile(f.name), null, true); if (!blob) { bad.push(f.name + " (the PDF maker didn't load)"); return next(); }
-        zip.file(nm + "-template.pdf", blob); okN++; next();
-      }).catch(function (e) { bad.push(f.name + " (" + (e.message || e) + ")"); next(); });
-    })();
-  }
-  wireDrop($("dropT"), $("fileT"), convertFiles);
-  $("folderT").onclick = function () { $("folderTin").click(); };
-  $("folderTin").onchange = function () { var l = [].slice.call(this.files); this.value = ""; if (l.length) convertFiles(l); };
-  $("gdgoT").onclick = function () { status($("statusT"), "Loading the Google Doc..."); $("tplresult").hidden = true; loadGoogleDoc($("gdlinkT").value.trim()).then(function (src) { var res = analyze(src); if (res.error) throw new Error(res.error); templateFromRes(res, "Google Doc rubric"); }).catch(function (e) { status($("statusT"), e.message, "err"); }); };
-  $("tpl").onclick = function () { if (T.rubric) makePdf(T.rubric, T.title, "tplnote"); };
-  $("tplblank").onclick = function () { makePdf(templateRubric(), "Rubric template", "tplnote0"); };
 
-  syncScale(); drawAll();
-  window.__rubricApp = { S: S, analyze: analyze, readFile: readFile, ingest: ingest, runFiles: runFiles, makePdf: makePdf, tplRows: tplRows, tplHead: tplHead, templateRubric: templateRubric, tableSource: tableSource, copies: function () { return copies; } };
+  window.__rubricApp = { S: S, analyze: analyze, readFile: readFile, makePdf: makePdf, templateRubric: templateRubric, tplHead: tplHead, tplRows: tplRows, loadLink: loadLink, flags: flags, handleFiles: handleFiles, T: T };
 })();
