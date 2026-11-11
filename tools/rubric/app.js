@@ -343,7 +343,7 @@
     return h + "</table>";
   }
   function tplBlob(R, title) {
-    var d = window.docx; if (!d) return Promise.resolve({ blob: new Blob(["<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'></head><body>" + tplHTML(R, title) + "</body></html>"], { type: "application/msword" }), ext: ".doc" });
+    var d = window.docx; if (!d) return Promise.resolve({ blob: null, htmlText: "<html><head><meta charset='utf-8'></head><body>" + tplHTML(R, title) + "</body></html>", ext: ".html" });
     var head = tplHead(R), rows = tplRows(R), n = head.length, total = 12960, first = 1900, score = 900, mid = Math.floor((total - first - score) / (n - 2)), widths = [first].concat(R.levels.map(function () { return mid; }), [score]);
     var line = { style: d.BorderStyle.SINGLE, size: 4, color: "000000" }, borders = { top: line, bottom: line, left: line, right: line };
     function cell(t, w, bold, shade) { return new d.TableCell({ width: { size: w, type: d.WidthType.DXA }, borders: borders, shading: shade ? { fill: "E8E8E8", type: d.ShadingType.CLEAR, color: "auto" } : undefined, margins: { top: 60, bottom: 60, left: 90, right: 90 }, children: [new d.Paragraph({ children: [new d.TextRun({ text: t, bold: !!bold, size: 20, font: "Arial" })] })] }); }
@@ -356,8 +356,34 @@
     return d.Packer.toBlob(doc).then(function (b) { return { blob: b, ext: ".docx" }; });
   }
   var T = { rubric: null, title: "" };
-  function giveTemplate(R, title) {
-    tplBlob(R, title).then(function (o) { download(o.blob, (title || "Rubric-template").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-") + o.ext); $("tplnote").textContent = "Downloaded. In Google Drive: upload it, then right-click it and choose Open with > Google Docs."; });
+  var GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com", gToken = null, gTokenAt = 0;
+  function note(msg, where) { var el = $(where || "tplnote"); if (el) el.textContent = msg; }
+  function googleToken() {
+    return new Promise(function (resolve, reject) {
+      if (gToken && Date.now() - gTokenAt < 50 * 60 * 1000) return resolve(gToken);
+      if (!window.google || !google.accounts || !google.accounts.oauth2) return reject(new Error("Google sign-in didn't load. Check your connection and try again."));
+      var tc = google.accounts.oauth2.initTokenClient({ client_id: GOOGLE_CLIENT_ID, scope: "https://www.googleapis.com/auth/drive.file", callback: function (r) { if (r && r.access_token) { gToken = r.access_token; gTokenAt = Date.now(); resolve(gToken); } else reject(new Error((r && (r.error_description || r.error)) || "Google sign-in was cancelled.")); }, error_callback: function (e) { reject(new Error(e && e.type === "popup_closed" ? "Google sign-in was cancelled." : "Google sign-in was blocked. Allow pop-ups for this site and try again.")); } });
+      tc.requestAccessToken({ prompt: "" });
+    });
+  }
+  /* upload the template to the teacher's own Google Drive and let Google convert it to a Google Doc (only this one file is touched) */
+  function createGoogleDoc(R, title, noteId) {
+    var DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    note("Opening Google sign-in...", noteId); $("tpllink").hidden = true;
+    return googleToken().then(function (token) {
+      note("Creating your Google Doc...", noteId);
+      return tplBlob(R, title).then(function (o) {
+        var isDocx = o.ext === ".docx", b = "rubric" + Date.now(), meta = JSON.stringify({ name: title || "Rubric template", mimeType: "application/vnd.google-apps.document" });
+        var body = new Blob(["--" + b + "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" + meta + "\r\n--" + b + "\r\nContent-Type: " + (isDocx ? DOCX : "text/html") + "\r\n\r\n", isDocx ? o.blob : new Blob([o.htmlText || ""], { type: "text/html" }), "\r\n--" + b + "--"]);
+        return fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink", { method: "POST", headers: { Authorization: "Bearer " + token, "Content-Type": "multipart/related; boundary=" + b }, body: body });
+      });
+    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); }).then(function (x) {
+      if (!x.ok) { var reason = x.j && x.j.error && (x.j.error.message || x.j.error.status) || "unknown error"; var e = new Error(reason); e.api = true; throw e; }
+      var url = x.j.webViewLink || ("https://docs.google.com/document/d/" + x.j.id + "/edit"); $("tplopen").href = url; $("tpllink").hidden = false; note("Done! It is in your Google Drive. Fill it in and share it with your class.", noteId); try { window.open(url, "_blank"); } catch (e) {}
+    }).catch(function (e) {
+      gToken = null;
+      note((e.api ? "Google wouldn't create the file (" + e.message + "). " : e.message + " ") + "You can still copy the table and paste it into a new Google Doc: click \"Copy it as a table\", then open docs.new and press Ctrl+V.", noteId);
+    });
   }
   function templateFromRes(res, label) {
     T.rubric = res.rubric; T.title = label || "Rubric"; $("tplresult").hidden = false;
@@ -372,11 +398,11 @@
   }
   wireDrop($("dropT"), $("fileT"), convertFiles);
   $("gdgoT").onclick = function () { status($("statusT"), "Loading the Google Doc..."); $("tplresult").hidden = true; loadGoogleDoc($("gdlinkT").value.trim()).then(function (src) { var res = analyze(src); if (res.error) throw new Error(res.error); templateFromRes(res, "Google Doc rubric"); }).catch(function (e) { status($("statusT"), e.message, "err"); }); };
-  $("tpl").onclick = function () { if (T.rubric) giveTemplate(T.rubric, T.title); };
-  $("tplblank").onclick = function () { giveTemplate(templateRubric(), "Rubric template"); };
+  $("tpl").onclick = function () { if (T.rubric) createGoogleDoc(T.rubric, T.title, "tplnote"); };
+  $("tplblank").onclick = function () { createGoogleDoc(templateRubric(), "Rubric template", "tplnote0"); };
   $("tplcopy").onclick = function () {
-    if (!T.rubric) return; var html = tplHTML(T.rubric, T.title), text = E.toTSV([tplHead(T.rubric)].concat(tplRows(T.rubric)));
-    var done = function () { $("tplnote").textContent = "Copied. Open a new Google Doc (docs.new) and press Ctrl+V to paste the table."; };
+    var TR = T.rubric || templateRubric(), html = tplHTML(TR, T.title || "Rubric template"), text = E.toTSV([tplHead(TR)].concat(tplRows(TR)));
+    var done = function () { $("tplnote").textContent = "Copied. Open a new Google Doc (docs.new) and press Ctrl+V to paste the table."; try { window.open("https://docs.new", "_blank"); } catch (e) {}; };
     if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) navigator.clipboard.write([new ClipboardItem({ "text/html": new Blob([html], { type: "text/html" }), "text/plain": new Blob([text], { type: "text/plain" }) })]).then(done).catch(function () { $("tplnote").textContent = "Your browser blocked copying. Use the Word download instead."; });
     else $("tplnote").textContent = "Your browser can't copy a table. Use the Word download instead.";
   };
