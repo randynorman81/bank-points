@@ -51,13 +51,30 @@ footer{max-width:1100px;margin:0 auto;padding:6px 16px 40px;color:var(--soft);fo
 <body>
 <header>
   <h1>&#9989; Rubric Grader</h1>
-  <p>Upload rubrics you have already graded (PDF, photo, Word file or Google Doc) and get the class data: averages, strengths, weak spots and who needs support. Everything stays in your browser.</p>
+  <p>Step 1: put your rubric in the standard template. Step 2: upload your graded copies. Step 3: get the class data (averages, strengths, weak spots and who needs support). Everything stays in your browser.</p>
 </header>
 <main>
 
+<section class="card" id="s3">
+  <h2><span class="step">1</span>Convert your rubric to the template</h2>
+  <p class="small" style="margin:0 0 8px">Upload your rubric (PDF, photo, Word file or Google Doc) and I rebuild it in one standard PDF template: criteria down the side, each level with its points across the top, a Score column and a Total row. When every rubric uses the same layout, every graded copy is read the same way. Print the template, mark it by hand (circle, highlight or X the box for each row), and upload the marked copies in step 2.</p>
+  <div class="row" style="margin-bottom:10px"><button class="ghost" id="tplblank">Download the blank template (PDF)</button><button class="ghost" id="folderT">Convert a whole folder of rubrics (ZIP of PDFs)</button></div>
+  <input type="file" id="folderTin" webkitdirectory multiple hidden>
+  <div class="drop small2" id="dropT" tabindex="0"><b>Convert my rubric: drop it here or click</b><br><span class="small">PDF, photo, Word or CSV (a blank or marked rubric)</span></div>
+  <input type="file" id="fileT" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.docx,.csv,image/*,application/pdf" hidden>
+  <div class="row" style="margin-top:8px"><input id="gdlinkT" placeholder="Or paste a Google Doc link" style="flex:1;min-width:240px"><button class="ghost" id="gdgoT">Convert Google Doc</button></div>
+  <div class="bar" id="barT" hidden><i id="barfillT"></i></div>
+  <div class="msg" id="statusT" hidden></div>
+  <p class="small" id="tplnote0" style="margin:8px 0 0"></p>
+  <div id="tplresult" hidden style="margin-top:10px">
+    <div class="row"><button id="tpl">Download my rubric in the template (PDF)</button></div>
+    <p class="small" id="tplnote" style="margin:6px 0 0"></p>
+  </div>
+</section>
+
 <section class="card" id="s1">
-  <h2><span class="step">1</span>Upload graded rubrics</h2>
-  <p class="small" style="margin:0 0 8px">One file per student, already marked (circle, highlight, check or X in the box for each row). Name each file with the student's name. Colored pen and highlighter are read best.</p>
+  <h2><span class="step">2</span>Upload graded rubrics</h2>
+  <p class="small" style="margin:0 0 8px">One file per student, marked on the template from step 1 (circle, highlight, check or X in the box for each row). Name each file with the student's name. Colored pen and highlighter are read best.</p>
   <div class="drop" id="drop" tabindex="0"><b>Drop graded rubrics here, or click to choose files</b><br><span class="small">PDF, photo (JPG / PNG), Word (.docx) or CSV. You can pick many at once.</span></div>
   <input type="file" id="folder" webkitdirectory multiple hidden>
   <input type="file" id="file" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.docx,.csv,image/*,application/pdf" hidden>
@@ -80,7 +97,7 @@ footer{max-width:1100px;margin:0 auto;padding:6px 16px 40px;color:var(--soft);fo
 </section>
 
 <section class="card" id="s2" hidden>
-  <h2><span class="step">2</span>Class data <span class="small" id="shinfo"></span></h2>
+  <h2><span class="step">3</span>Class data <span class="small" id="shinfo"></span></h2>
   <div id="analytics"></div>
   <h3 class="sec">Student scores</h3>
   <div class="row" style="margin-bottom:8px"><label class="small">Scale scores to <select id="scale"><option value="0">Off (raw points)</option><option value="10">10 points</option><option value="20">20 points</option><option value="25">25 points</option><option value="50">50 points</option><option value="100">100 points</option><option value="custom">Other...</option></select></label><button id="xlsx">Download Excel</button><button class="ghost" id="csv">Download CSV</button><button class="ghost" id="copy">Copy for Google Sheets</button></div>
@@ -88,22 +105,6 @@ footer{max-width:1100px;margin:0 auto;padding:6px 16px 40px;color:var(--soft);fo
   <p class="small">You can fix a name right in the table. Use Edit to change a student's row choices. To use Google Sheets: click <b>Copy for Google Sheets</b>, open a new sheet, click cell A1 and paste.</p>
 </section>
 
-<section class="card" id="s3">
-  <h2><span class="step">3</span>Rubric template <span class="small">(optional)</span></h2>
-  <p class="small" style="margin:0 0 8px">The Rubric Grader reads this layout perfectly, so a rubric in the template is the most reliable thing to grade. Print it, mark it by hand (circle, highlight or X the box for each row), and upload it above. Get the blank template, or upload your own rubric and I will rebuild it in the template as a PDF.</p>
-  <div class="row" style="margin-bottom:10px"><button class="ghost" id="tplblank">Download the blank template (PDF)</button><button class="ghost" id="folderT">Convert a whole folder of rubrics (ZIP of PDFs)</button></div>
-  <input type="file" id="folderTin" webkitdirectory multiple hidden>
-  <div class="drop small2" id="dropT" tabindex="0"><b>Convert my rubric: drop it here or click</b><br><span class="small">PDF, photo, Word or CSV (a blank or marked rubric)</span></div>
-  <input type="file" id="fileT" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.docx,.csv,image/*,application/pdf" hidden>
-  <div class="row" style="margin-top:8px"><input id="gdlinkT" placeholder="Or paste a Google Doc link" style="flex:1;min-width:240px"><button class="ghost" id="gdgoT">Convert Google Doc</button></div>
-  <div class="bar" id="barT" hidden><i id="barfillT"></i></div>
-  <div class="msg" id="statusT" hidden></div>
-  <p class="small" id="tplnote0" style="margin:8px 0 0"></p>
-  <div id="tplresult" hidden style="margin-top:10px">
-    <div class="row"><button id="tpl">Download my rubric in the template (PDF)</button></div>
-    <p class="small" id="tplnote" style="margin:6px 0 0"></p>
-  </div>
-</section>
 </main>
 <footer>Photos are read right in your browser (the first one takes a moment while the reader loads). Nothing you upload is sent anywhere, and saved results stay on this computer.</footer>
 
