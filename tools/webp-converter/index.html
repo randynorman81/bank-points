@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebP Converter | SCHS Computer Science</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+  .drop-zone {
+    background: var(--white);
+    border: 2px dashed var(--gray-500);
+    border-radius: var(--radius);
+    padding: 40px 20px;
+    text-align: center;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .drop-zone.over { background: var(--gray-200); border-color: var(--black); }
+  .drop-zone h2 { margin: 0 0 6px; font-size: 1.25rem; }
+  .drop-zone p { margin: 0 0 18px; color: var(--gray-700); }
+  .drop-zone input[type=file] { display: none; }
+  .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin: 22px 0 10px; }
+  .toolbar h2 { margin: 0; font-size: 1.1rem; }
+  .toolbar .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .file-list { display: grid; gap: 10px; }
+  .file-row {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius);
+    padding: 10px 14px;
+  }
+  .file-row .thumb {
+    width: 64px; height: 64px; flex-shrink: 0; border-radius: 6px; border: 1px solid var(--gray-300);
+    object-fit: contain;
+    background: repeating-conic-gradient(#e6e6e6 0% 25%, #fff 0% 50%) 50% / 14px 14px;
+  }
+  .file-row .info { flex: 1; min-width: 0; }
+  .file-row .name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-row .meta { font-size: 0.82rem; color: var(--gray-700); }
+  .file-row .meta.err { color: var(--red); font-weight: 600; }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  button.btn { font: inherit; cursor: pointer; }
+  .privacy { margin-top: 26px; }
+</style>
+</head>
+<body>
+
+<div id="site-header-root"></div>
+
+<main>
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span>Teacher Tools<span class="sep">/</span>WebP Converter</div>
+
+  <h1 style="margin:0 0 6px;">WebP Converter</h1>
+  <p style="margin:0 0 22px;color:var(--gray-700);">Turn <b>.webp</b> images into <b>.png</b> files that work in Google Slides, Docs, Canvas, and anywhere else. Convert one or a whole batch at once.</p>
+
+  <div class="drop-zone" id="drop">
+    <h2>Drop WebP images here</h2>
+    <p>or pick them from your computer. You can select as many as you want.</p>
+    <label class="btn btn-primary" for="file-input">Choose images</label>
+    <input type="file" id="file-input" accept="image/webp,.webp,image/*" multiple>
+  </div>
+
+  <div id="results" hidden>
+    <div class="toolbar">
+      <h2 id="summary">Converted images</h2>
+      <div class="actions">
+        <button type="button" class="btn btn-primary" id="download-all">Download all (.zip)</button>
+        <button type="button" class="btn btn-ghost" id="clear">Clear</button>
+      </div>
+    </div>
+    <div class="file-list" id="file-list"></div>
+  </div>
+
+  <p class="hint privacy">Your images never leave your computer. Everything is converted right here in your browser. Animated WebPs are saved as their first frame. Transparency is kept.</p>
+</main>
+
+<footer class="site-footer">
+  Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman
+</footer>
+
+<script src="../../assets/nav.js"></script>
+<script>
+renderHeader();
+
+(function () {
+  const drop = document.getElementById("drop");
+  const input = document.getElementById("file-input");
+  const list = document.getElementById("file-list");
+  const results = document.getElementById("results");
+  const summary = document.getElementById("summary");
+  const allBtn = document.getElementById("download-all");
+  const items = [];   // { name, blob, url }
+
+  const pngName = name => name.replace(/\.[^.]+$/, "") + ".png";
+  const prettySize = b => b < 1024 ? b + " B" : b < 1048576 ? (b / 1024).toFixed(0) + " KB" : (b / 1048576).toFixed(1) + " MB";
+  const esc = s => { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; };
+
+  function uniqueName(name) {
+    let n = name, k = 2;
+    while (items.some(i => i.name === n)) n = name.replace(/\.png$/, "") + " (" + (k++) + ").png";
+    return n;
+  }
+
+  async function decode(file) {
+    if (window.createImageBitmap) {
+      try { return await createImageBitmap(file); } catch (e) { /* fall back below */ }
+    }
+    const url = URL.createObjectURL(file);
+    try {
+      return await new Promise((res, rej) => { const img = new Image(); img.onload = () => res(img); img.onerror = rej; img.src = url; });
+    } finally { setTimeout(() => URL.revokeObjectURL(url), 1000); }
+  }
+
+  async function convert(file) {
+    const row = document.createElement("div");
+    row.className = "file-row";
+    row.innerHTML = `<img class="thumb" alt=""><div class="info"><div class="name">${esc(file.name)}</div><div class="meta">Converting&hellip;</div></div>`;
+    list.appendChild(row);
+    results.hidden = false;
+    const meta = row.querySelector(".meta");
+    try {
+      const img = await decode(file);
+      const w = img.width || img.naturalWidth, h = img.height || img.naturalHeight;
+      if (!w || !h) throw new Error("empty image");
+      const canvas = document.createElement("canvas");
+      canvas.width = w; canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0);
+      if (img.close) img.close();
+      const blob = await new Promise(res => canvas.toBlob(res, "image/png"));
+      if (!blob) throw new Error("could not encode PNG");
+      const name = uniqueName(pngName(file.name));
+      const url = URL.createObjectURL(blob);
+      items.push({ name, blob, url });
+      row.querySelector(".thumb").src = url;
+      row.querySelector(".name").textContent = name;
+      meta.textContent = `${w} × ${h} px · ${prettySize(blob.size)}`;
+      const a = document.createElement("a");
+      a.className = "btn btn-ghost"; a.href = url; a.download = name; a.textContent = "Download";
+      row.appendChild(a);
+    } catch (e) {
+      meta.className = "meta err";
+      meta.textContent = "Couldn't convert this file. Is it really an image?";
+    }
+    updateSummary();
+  }
+
+  function updateSummary() {
+    summary.textContent = items.length === 1 ? "1 converted image" : items.length + " converted images";
+    allBtn.disabled = items.length === 0;
+    allBtn.textContent = items.length > 1 ? "Download all (.zip)" : "Download";
+  }
+
+  async function handle(files) {
+    for (const f of files) await convert(f);
+  }
+
+  input.addEventListener("change", () => { handle([...input.files]); input.value = ""; });
+  drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
+  drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+  drop.addEventListener("drop", e => { e.preventDefault(); drop.classList.remove("over"); handle([...e.dataTransfer.files]); });
+  // Paste an image straight from the clipboard (Ctrl+V)
+  document.addEventListener("paste", e => {
+    const files = [...(e.clipboardData?.files || [])].filter(f => f.type.startsWith("image/"));
+    if (files.length) handle(files.map((f, i) => new File([f], f.name && f.name !== "image.png" ? f.name : `pasted-image-${Date.now()}-${i}.png`, { type: f.type })));
+  });
+
+  function save(blob, name) {
+    const a = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }
+
+  function loadZipLib() {
+    if (window.JSZip) return Promise.resolve();
+    return new Promise((res, rej) => {
+      const s = document.createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+      s.onload = res; s.onerror = () => rej(new Error("zip library failed to load"));
+      document.head.appendChild(s);
+    });
+  }
+
+  allBtn.addEventListener("click", async () => {
+    if (!items.length) return;
+    if (items.length === 1) { save(items[0].blob, items[0].name); return; }
+    const label = allBtn.textContent;
+    allBtn.disabled = true; allBtn.textContent = "Zipping…";
+    try {
+      await loadZipLib();
+      const zip = new JSZip();
+      items.forEach(i => zip.file(i.name, i.blob));
+      save(await zip.generateAsync({ type: "blob" }), "converted-images.zip");
+    } catch (e) {
+      // No internet for the zip helper: fall back to one download per file
+      for (const i of items) { save(i.blob, i.name); await new Promise(r => setTimeout(r, 300)); }
+    } finally { allBtn.disabled = false; allBtn.textContent = label; }
+  });
+
+  document.getElementById("clear").addEventListener("click", () => {
+    items.forEach(i => URL.revokeObjectURL(i.url));
+    items.length = 0; list.innerHTML = ""; results.hidden = true;
+  });
+})();
+</script>
+</body>
+</html>

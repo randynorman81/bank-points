@@ -128,6 +128,12 @@ const TOOLS = [
   { id: "latework", name: "Late Work", url: NAV_ROOT + "late-work.html", description: "List every assignment you've turned in late, so it's ready to grade at the end of the unit." }
 ];
 
+// Tools for teachers (not students). Shows up in a "Teacher Tools" dropdown
+// on every page. To add one: add one object here.
+const TEACHER_TOOLS = [
+  { id: "webp-converter", name: "WebP Converter", url: NAV_ROOT + "tools/webp-converter/index.html", description: "Convert WebP images to PNG right in your browser." }
+];
+
 // Site search: a client-side index of everything a search box on this site
 // can find. Built once from COURSES/TOOLS above.
 function buildStaticSearchIndex() {
@@ -149,6 +155,9 @@ function buildStaticSearchIndex() {
       const label = u.label || ("Unit " + u.n);
       entries.push({ title: label + ": " + u.title, url, category: course.shortName });
     });
+  });
+  TEACHER_TOOLS.forEach((t) => {
+    entries.push({ title: t.name, url: t.url, category: "Teacher Tool" });
   });
   TOOLS.forEach((t) => {
     if (t.url) entries.push({ title: t.name, url: t.url, category: "Tool" });
@@ -224,6 +233,21 @@ function toolsDropdownMarkup() {
   `;
 }
 
+function teacherToolsDropdownMarkup() {
+  const links = TEACHER_TOOLS.map(t =>
+    `<a href="${t.url}">${escapeHtmlNav(t.name)}</a>`
+  ).join("");
+
+  return `
+    <div class="nav-item" data-course="teacher-tools">
+      <button type="button" class="nav-link" aria-haspopup="true" aria-expanded="false">Teacher Tools &#9662;</button>
+      <div class="dropdown-panel">
+        ${links}
+      </div>
+    </div>
+  `;
+}
+
 function renderHeader(opts) {
   opts = opts || {};
   const root = document.getElementById("site-header-root");
@@ -258,6 +282,7 @@ function renderHeader(opts) {
             <a class="nav-link" href="${NAV_ROOT}skillsusa/index.html">SkillsUSA Home</a>
           </div>
           ${toolsDropdown}
+          ${teacherToolsDropdownMarkup()}
           ${announcementsDropdown}
           <div class="nav-item${opts.current === "presentations" ? " current" : ""}">
             <a class="nav-link" href="${NAV_ROOT}presentations/index.html">Presentations</a>
@@ -454,3 +479,4 @@ window.renderUnitGrid = renderUnitGrid;
 window.renderToolsGrid = renderToolsGrid;
 window.COURSES = COURSES;
 window.TOOLS = TOOLS;
+window.TEACHER_TOOLS = TEACHER_TOOLS;
