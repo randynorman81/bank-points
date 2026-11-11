@@ -334,7 +334,7 @@
     var max = R.criteria.reduce(function (a, c) { return a + (+c.max || 0); }, 0);
     rows.push(["Total"].concat(R.levels.map(function () { return ""; }), ["/ " + max])); return rows;
   }
-  var TPL_HELP = "How to grade with this page: put an X in the box that matches each row (or highlight the box), and type the points in the Score column. Keep the table layout so the Rubric Grader can read it.";
+  var TPL_HELP = "How to mark this rubric: circle or highlight the box that fits each row (colored pen shows up best), or put an X in it, and write the points in the Score column. Then upload it to the Rubric Grader.";
   function tplHTML(R, title) {
     var cell = "border:1px solid #000;padding:6px;vertical-align:top;font-family:Arial,sans-serif;font-size:10pt";
     var h = "<h2 style='font-family:Arial,sans-serif'>" + esc(title || "Rubric") + "</h2><p style='font-family:Arial,sans-serif;font-size:10pt'>Student: ______________________ &nbsp; Date: ____________</p><p style='font-family:Arial,sans-serif;font-size:9pt;color:#555'>" + esc(TPL_HELP) + "</p><table style='border-collapse:collapse;width:100%'><tr>";
@@ -356,34 +356,20 @@
     return d.Packer.toBlob(doc).then(function (b) { return { blob: b, ext: ".docx" }; });
   }
   var T = { rubric: null, title: "" };
-  var GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com", gToken = null, gTokenAt = 0;
   function note(msg, where) { var el = $(where || "tplnote"); if (el) el.textContent = msg; }
-  function googleToken() {
-    return new Promise(function (resolve, reject) {
-      if (gToken && Date.now() - gTokenAt < 50 * 60 * 1000) return resolve(gToken);
-      if (!window.google || !google.accounts || !google.accounts.oauth2) return reject(new Error("Google sign-in didn't load. Check your connection and try again."));
-      var tc = google.accounts.oauth2.initTokenClient({ client_id: GOOGLE_CLIENT_ID, scope: "https://www.googleapis.com/auth/drive.file", callback: function (r) { if (r && r.access_token) { gToken = r.access_token; gTokenAt = Date.now(); resolve(gToken); } else reject(new Error((r && (r.error_description || r.error)) || "Google sign-in was cancelled.")); }, error_callback: function (e) { reject(new Error(e && e.type === "popup_closed" ? "Google sign-in was cancelled." : "Google sign-in was blocked. Allow pop-ups for this site and try again.")); } });
-      tc.requestAccessToken({ prompt: "" });
-    });
-  }
-  /* upload the template to the teacher's own Google Drive and let Google convert it to a Google Doc (only this one file is touched) */
-  function createGoogleDoc(R, title, noteId) {
-    var DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-    note("Opening Google sign-in...", noteId); $("tpllink").hidden = true;
-    return googleToken().then(function (token) {
-      note("Creating your Google Doc...", noteId);
-      return tplBlob(R, title).then(function (o) {
-        var isDocx = o.ext === ".docx", b = "rubric" + Date.now(), meta = JSON.stringify({ name: title || "Rubric template", mimeType: "application/vnd.google-apps.document" });
-        var body = new Blob(["--" + b + "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" + meta + "\r\n--" + b + "\r\nContent-Type: " + (isDocx ? DOCX : "text/html") + "\r\n\r\n", isDocx ? o.blob : new Blob([o.htmlText || ""], { type: "text/html" }), "\r\n--" + b + "--"]);
-        return fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink", { method: "POST", headers: { Authorization: "Bearer " + token, "Content-Type": "multipart/related; boundary=" + b }, body: body });
-      });
-    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); }).then(function (x) {
-      if (!x.ok) { var reason = x.j && x.j.error && (x.j.error.message || x.j.error.status) || "unknown error"; var e = new Error(reason); e.api = true; throw e; }
-      var url = x.j.webViewLink || ("https://docs.google.com/document/d/" + x.j.id + "/edit"); $("tplopen").href = url; $("tpllink").hidden = false; note("Done! It is in your Google Drive. Fill it in and share it with your class.", noteId); try { window.open(url, "_blank"); } catch (e) {}
-    }).catch(function (e) {
-      gToken = null;
-      note((e.api ? "Google wouldn't create the file (" + e.message + "). " : e.message + " ") + "You can still copy the table and paste it into a new Google Doc: click \"Copy it as a table\", then open docs.new and press Ctrl+V.", noteId);
-    });
+  /* the template as a PDF: criteria down the side, each level (with points) across the top, a Score column and a Total row */
+  function makePdf(R, title, noteId) {
+    var J = window.jspdf && window.jspdf.jsPDF; if (!J) { note("The PDF maker didn't load. Check your connection and try again.", noteId); return; }
+    var doc = new J({ orientation: "landscape", unit: "pt", format: "letter" }); if (typeof doc.autoTable !== "function") { note("The PDF table maker didn't load. Check your connection and try again.", noteId); return; }
+    var W = doc.internal.pageSize.getWidth(), head = tplHead(R), body = tplRows(R), last = head.length - 1;
+    doc.setFont("helvetica", "bold"); doc.setFontSize(18); doc.text(title || "Rubric", 40, 48);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.text("Student: ______________________________     Date: ______________", 40, 70);
+    doc.setFontSize(8.5); doc.setTextColor(90); doc.text(doc.splitTextToSize(TPL_HELP, W - 80), 40, 86); doc.setTextColor(0);
+    var cs = { 0: { fontStyle: "bold", cellWidth: 105 } }; cs[last] = { cellWidth: 52, halign: "center" };
+    doc.autoTable({ head: [head], body: body, startY: 108, theme: "grid", margin: { left: 40, right: 40, bottom: 40 }, styles: { font: "helvetica", fontSize: 9, cellPadding: 6, lineColor: [0, 0, 0], lineWidth: 0.7, textColor: [0, 0, 0], valign: "top", overflow: "linebreak" }, headStyles: { fillColor: [232, 232, 232], textColor: [0, 0, 0], fontStyle: "bold" }, columnStyles: cs,
+      didParseCell: function (d) { if (d.section === "body" && d.row.index === body.length - 1) d.cell.styles.fontStyle = "bold"; else if (d.section === "body") d.cell.styles.minCellHeight = 62; } });
+    doc.save((title || "Rubric-template").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-") + ".pdf");
+    note("Downloaded. Print it to mark by hand, then upload it above.", noteId); return doc;
   }
   function templateFromRes(res, label) {
     T.rubric = res.rubric; T.title = label || "Rubric"; $("tplresult").hidden = false;
@@ -398,15 +384,8 @@
   }
   wireDrop($("dropT"), $("fileT"), convertFiles);
   $("gdgoT").onclick = function () { status($("statusT"), "Loading the Google Doc..."); $("tplresult").hidden = true; loadGoogleDoc($("gdlinkT").value.trim()).then(function (src) { var res = analyze(src); if (res.error) throw new Error(res.error); templateFromRes(res, "Google Doc rubric"); }).catch(function (e) { status($("statusT"), e.message, "err"); }); };
-  $("tpl").onclick = function () { if (T.rubric) createGoogleDoc(T.rubric, T.title, "tplnote"); };
-  $("tplblank").onclick = function () { createGoogleDoc(templateRubric(), "Rubric template", "tplnote0"); };
-  $("tplcopy").onclick = function () {
-    var TR = T.rubric || templateRubric(), html = tplHTML(TR, T.title || "Rubric template"), text = E.toTSV([tplHead(TR)].concat(tplRows(TR)));
-    var done = function () { $("tplnote").textContent = "Copied. Open a new Google Doc (docs.new) and press Ctrl+V to paste the table."; try { window.open("https://docs.new", "_blank"); } catch (e) {}; };
-    if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) navigator.clipboard.write([new ClipboardItem({ "text/html": new Blob([html], { type: "text/html" }), "text/plain": new Blob([text], { type: "text/plain" }) })]).then(done).catch(function () { $("tplnote").textContent = "Your browser blocked copying. Use the Word download instead."; });
-    else $("tplnote").textContent = "Your browser can't copy a table. Use the Word download instead.";
-  };
-
+  $("tpl").onclick = function () { if (T.rubric) makePdf(T.rubric, T.title, "tplnote"); };
+  $("tplblank").onclick = function () { makePdf(templateRubric(), "Rubric template", "tplnote0"); };
   syncScale(); drawAll();
-  window.__rubricApp = { S: S, analyze: analyze, readFile: readFile, ingest: ingest, runFiles: runFiles, tplHTML: tplHTML, tplBlob: tplBlob, templateRubric: templateRubric, tableSource: tableSource, copies: function () { return copies; } };
+  window.__rubricApp = { S: S, analyze: analyze, readFile: readFile, ingest: ingest, runFiles: runFiles, makePdf: makePdf, tplRows: tplRows, tplHead: tplHead, templateRubric: templateRubric, tableSource: tableSource, copies: function () { return copies; } };
 })();
