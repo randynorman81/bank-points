@@ -76,7 +76,7 @@ async function mine(body, user) {
   if (goodSlot(body.slot)) {
     out.submission = await readJSON("sub:" + body.slot + ":" + enc(user.email), null);
     out.draft = await readJSON("draft:" + body.slot + ":" + enc(user.email), null);
-    if (out.submission && out.submission.mcScore) { const asg = await readJSON("assign:" + body.slot, null); if (!(asg && asg.mcReleased)) { out.submission = Object.assign({}, out.submission); delete out.submission.mcScore; } }
+    if (out.submission && out.submission.mcScore) { const asg = await readJSON("assign:" + body.slot, null); if (!(asg && (asg.mcReleased || (asg.passMin !== undefined && asg.passMin !== null)))) { out.submission = Object.assign({}, out.submission); delete out.submission.mcScore; } }
   }
   return out;
 }
@@ -191,6 +191,15 @@ function variantFor(rec, period) {
 /* did this student pass the assignment: the teacher's saved or automatic grade, or (if none) what the checks give now */
 async function subPassed(slot, email) {
   const sub = await readJSON("sub:" + slot + ":" + enc(email), null); if (!sub) return false;
+  /* passMin: this assignment needs that percent (for example 90) before the next one opens. A score the teacher types in by hand (90 or more) also unlocks it. */
+  const asgP = await readJSON("assign:" + slot, null), pm = asgP && asgP.passMin !== undefined && asgP.passMin !== null ? Number(asgP.passMin) : null;
+  if (pm !== null && !isNaN(pm)) {
+    const tt = sub.teacher; if (tt && !tt.auto && tt.score !== null && tt.score !== undefined && tt.score !== "" && !isNaN(Number(tt.score)) && Number(tt.score) >= pm) return true;
+    const ms = Array.isArray(asgP.mcKey) && asgP.mcKey.length ? mcScoreOf(asgP.mcKey, sub.mc) : null;
+    if (ms) return Math.round(ms.correct / ms.total * 100) >= pm;
+    const rc = variantFor(asgP, sub.period); if (rc && Array.isArray(rc.checks) && rc.checks.length) { const r0 = scoreCode(rc.checks, sub.code || ""); return r0.pct !== null && r0.pct >= pm; }
+    return false;
+  }
   const t = sub.teacher; if (t && t.score !== null && t.score !== undefined && t.score !== "" && !isNaN(Number(t.score))) return Number(t.score) >= PASS;
   const rec = variantFor(await readJSON("assign:" + slot, null), sub.period);
   if (!rec || !Array.isArray(rec.checks) || !rec.checks.length) return true;
@@ -217,7 +226,7 @@ async function submit(body, user) {
   const asg = await readJSON("assign:" + body.slot, null);
   if (asg && asg.live !== false && body.slot !== "free" && !isTeacherUser(user)) {
     const open = await gatedAssignments(user, period);
-    if (!open.assignments[body.slot]) { const L = open.locked.find((x) => x.id === body.slot); return { error: L ? "Assignment " + L.num + " is locked. Submit Assignment " + L.needNum + " first (any score opens the next one)." : "That assignment is not open yet." }; }
+    if (!open.assignments[body.slot]) { const L = open.locked.find((x) => x.id === body.slot); return { error: L ? "Assignment " + L.num + " is locked. " + (L.needPass ? "Score " + L.needPass + "% or higher on Assignment " + L.needNum + " first." : "Submit Assignment " + L.needNum + " first (any score opens the next one).") : "That assignment is not open yet." }; }
     const v = variantFor(asg, period);
     if (Array.isArray(v.checks) && v.checks.length) { const r = scoreCode(v.checks, code); if (r.pct !== null && r.pct < PASS && v.submitAny !== true) return { error: "Your score is " + r.pct + " out of 100. You need at least " + PASS + " to submit. Open the \"still missing\" list, fix those parts so they match the steps exactly, and submit again.", pct: r.pct, need: PASS }; }
   }
@@ -233,7 +242,9 @@ async function submit(body, user) {
   try { const g = await autoGradeFor(body.slot, code, rec.teacher, period); if (g) rec.teacher = g; } catch (e) { console.error("autograde failed", e); }
   await store().setJSON(key, rec);
   await logActivity(body.slot, user.email, code, period, true);
-  return { ok: true, submittedAt: rec.submittedAt, count: rec.count };
+  const res = { ok: true, submittedAt: rec.submittedAt, count: rec.count }, pmv = asg && asg.passMin !== undefined && asg.passMin !== null ? Number(asg.passMin) : null;
+  if (rec.mcScore && rec.mcScore.total && (pmv !== null || (asg && asg.mcReleased))) res.mc = { correct: rec.mcScore.correct, total: rec.mcScore.total, pct: Math.round(rec.mcScore.correct / rec.mcScore.total * 100), need: pmv };
+  return res;
 }
 
 /* ---------------- teacher actions ---------------- */
@@ -281,9 +292,10 @@ async function adminSetLive(body) {
   if (body.ungated !== undefined) rec.ungated = body.ungated === true || body.ungated === "true";
   if (body.commentsCount !== undefined) { const on = body.commentsCount === true || body.commentsCount === "true", mark = (arr) => (Array.isArray(arr) ? arr : []).forEach((c) => { if (on) c.unc = true; else delete c.unc; }); mark(rec.checks); Object.keys(rec.variants || {}).forEach((p) => mark(rec.variants[p].checks)); }
   if (body.submitAny !== undefined) rec.submitAny = body.submitAny === true || body.submitAny === "true";   /* submitAny: students can submit whatever score they earn (no 80 needed) */
+  if (body.passMin !== undefined) { if (body.passMin === null || body.passMin === "") delete rec.passMin; else { const pn = Number(body.passMin); if (pn >= 0 && pn <= 100) rec.passMin = pn; } }   /* passMin: percent needed before the next assignment opens */
   if (body.quizFree !== undefined) rec.quizFree = body.quizFree === true || body.quizFree === "true";   /* quizFree: a Quiz that does NOT run in fullscreen or record leaving the page */
   await store().setJSON("assign:" + body.slot, rec);
-  return { ok: true, slot: body.slot, live: rec.live, ungated: rec.ungated === true, quizFree: rec.quizFree === true, submitAny: rec.submitAny === true };
+  return { ok: true, slot: body.slot, live: rec.live, ungated: rec.ungated === true, quizFree: rec.quizFree === true, submitAny: rec.submitAny === true, passMin: rec.passMin !== undefined ? rec.passMin : null };
 }
 async function adminAutograde(body) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
@@ -321,7 +333,7 @@ async function adminSetAssignment(body) {
   const mcKey = Array.isArray(body.mcKey) ? body.mcKey.slice(0, 30).map((x) => Number(x) | 0) : null;
   const prevAsg = await readJSON("assign:" + body.slot, null);
   const points = Math.max(0, Math.min(1000, Number(body.points) || 0));
-  const text = JSON.stringify({ title, unit, num, points, mc, mcKey, mcReleased: !!(prevAsg && prevAsg.mcReleased), mcOnly: !!body.mcOnly, blocks: body.blocks, checks: cleanChecks(body.checks), tips: cleanTips(body.tips), variants, live: body.live !== false, publishedAt: now() });
+  const text = JSON.stringify({ title, unit, num, points, mc, mcKey, mcReleased: !!(prevAsg && prevAsg.mcReleased), passMin: prevAsg && prevAsg.passMin !== undefined && prevAsg.passMin !== null ? prevAsg.passMin : undefined, mcOnly: !!body.mcOnly, blocks: body.blocks, checks: cleanChecks(body.checks), tips: cleanTips(body.tips), variants, live: body.live !== false, publishedAt: now() });
   if (text.length > 400000) return { error: "That assignment is too big" };
   await store().setJSON("assign:" + body.slot, JSON.parse(text));
   return { ok: true, slot: body.slot, title };
@@ -347,7 +359,7 @@ async function gatedAssignments(user, period) {
   for (const id of order) {
     const live = all[id].live !== false;
     let open = prev === null || all[id].ungated === true || (user && (await subPassed(prev, user.email)));   /* ungated: the teacher opened this one to every student, whatever they have finished */
-    if (live) { if (open) { const v = Object.assign({}, variantFor(all[id], period)); delete v.checks; delete v.variants; delete v.mcKey; out[id] = v; } else locked.push({ id, need: prev, num: all[id].num || Number(id.slice(1)), needNum: all[prev].num || Number(prev.slice(1)) }); }
+    if (live) { if (open) { const v = Object.assign({}, variantFor(all[id], period)); delete v.checks; delete v.variants; delete v.mcKey; out[id] = v; } else locked.push({ id, need: prev, num: all[id].num || Number(id.slice(1)), needNum: all[prev].num || Number(prev.slice(1)), needPass: all[prev].passMin !== undefined && all[prev].passMin !== null ? Number(all[prev].passMin) : null }); }
     if (live) prev = id;
   }
   return { ok: true, assignments: out, locked };
