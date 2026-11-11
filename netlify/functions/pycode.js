@@ -245,7 +245,7 @@ async function submit(body, user) {
   await store().setJSON(key, rec);
   await logActivity(body.slot, user.email, code, period, true);
   const res = { ok: true, submittedAt: rec.submittedAt, count: rec.count }, pmv = asg && asg.passMin !== undefined && asg.passMin !== null ? Number(asg.passMin) : null;
-  if (rec.mcScore && rec.mcScore.total && (pmv !== null || (asg && asg.mcReleased))) res.mc = { correct: rec.mcScore.correct, total: rec.mcScore.total, pct: Math.round(rec.mcScore.correct / rec.mcScore.total * 100), need: pmv };
+  if (rec.mcScore && rec.mcScore.total && (pmv !== null || (asg && asg.mcReleased))) res.mc = { correct: rec.mcScore.correct, total: rec.mcScore.total, pct: Math.round(rec.mcScore.correct / rec.mcScore.total * 100), need: pmv, wrong: (rec.mcScore.wrong || []).map((w) => w.q) };
   return res;
 }
 
