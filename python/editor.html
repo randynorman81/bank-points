@@ -1278,7 +1278,7 @@ var MC_LET = ["A", "B", "C", "D", "E", "F"], lastMcSig = "";
 function mcOnlySlot() { var A = (window.PY_ASSIGN || {})[slot]; return !!(A && A.mcOnly && A.mc); }
 function hasMcPicks() { var m = getMc(); return !!m && m.some(function (x) { return x >= 0; }); }
 function mcHtml(A) {
-  var h = A.mcOnly ? '<h3>Multiple choice (' + A.mc.length + ' questions)</h3><p class="hint mchint">Pick one answer for each question. Stuck? Click <b>Walk me through it</b> under a question to see how to work it out. Your answers save automatically. Your teacher will share your score later.</p><div class="mcwrap">'
+  var h = A.mcOnly ? '<h3>Multiple choice (' + A.mc.length + ' questions)</h3><p class="hint mchint">' + (/\bquiz\b/i.test(A.title || "") ? "Pick one answer for each question. Your answers save automatically. After you submit, your score shows here." : 'Pick one answer for each question. Stuck? Click <b>Walk me through it</b> under a question to see how to work it out. Your answers save automatically. Your teacher will share your score later.') + '</p><div class="mcwrap">'
     : '<h3>Part 9: Multiple choice (' + A.mc.length + ' questions)</h3><p class="hint mchint">Pick one answer for each question. You see your coding score right after you submit. Your teacher will share the multiple-choice score later.</p><div class="mcwrap">';
   A.mc.forEach(function (q, i) {
     h += '<div class="mcq" data-q="' + i + '"><div class="mcn">' + (i + 1) + '. ' + inl(q.q) + '</div>' + (q.code ? '<pre class="mccode">' + escA(q.code) + '</pre>' : "") + q.choices.map(function (c, j) { return '<label class="mcc"><input type="radio" name="mc' + i + '" value="' + j + '"><span><b>' + MC_LET[j] + '.</b> ' + mcChoice(c) + '</span></label>'; }).join("") + "</div>";
