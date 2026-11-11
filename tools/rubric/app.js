@@ -225,11 +225,12 @@
     if (!unsure(cp) && !cp.note && !junkName(name)) S.students.push(toStudent(cp)); else copies.push(cp);
   }
   function runFiles(files) {
-    var i = 0, bad = [], okN = 0;
+    var pk = pickSupported(files); files = pk.ok; if (!files.length) { status($("status"), "I didn't find any PDFs, photos, Word files or CSVs there.", "err"); return; }
+    var i = 0, bad = [], okN = 0, skipped = pk.skipped;
     (function next() {
       if (i >= files.length) {
         progress($("bar"), $("barfill"), null); save(); drawAll();
-        status($("status"), (okN ? "Read " + okN + " rubric" + (okN > 1 ? "s" : "") + ". " : "") + (bad.length ? "Couldn't read: " + bad.join("; ") : "") + (copies.length ? " Check the ones listed below." : ""), bad.length && !okN ? "err" : "good"); return;
+        status($("status"), (okN ? "Read " + okN + " rubric" + (okN > 1 ? "s" : "") + ". " : "") + (skipped ? "(Skipped " + skipped + " other file" + (skipped > 1 ? "s" : "") + ".) " : "") + (bad.length ? "Couldn't read " + bad.length + ": " + bad.join("; ") + ". Tip: upload this same folder in the Rubric template section below to rebuild all of them as clean PDFs. " : "") + (copies.length ? "Check the ones listed below." : ""), bad.length && !okN ? "err" : "good"); return;
       }
       var f = files[i++]; status($("status"), "Reading " + f.name + " (" + i + " of " + files.length + ")..."); progress($("bar"), $("barfill"), (i - 1) / files.length);
       readFile(f, function (p) { progress($("bar"), $("barfill"), (i - 1 + p) / files.length); }).then(function (src) {
@@ -239,14 +240,37 @@
     })();
   }
   var drop = $("drop"), fileIn = $("file");
+  var OKFILE = /\.(pdf|png|jpe?g|webp|docx|csv)$/i;
+  function pickSupported(files) {
+    var ok = files.filter(function (f) { return (OKFILE.test(f.name) || /^image\//.test(f.type)) && !/^(\.|~\$)/.test(f.name); });
+    ok.sort(function (x, y) { return x.name.localeCompare(y.name, undefined, { numeric: true, sensitivity: "base" }); });
+    return { ok: ok, skipped: files.length - ok.length };
+  }
+  function walkEntries(entries) {
+    var out = [];
+    function one(en) {
+      return new Promise(function (res) {
+        if (en.isFile) en.file(function (f) { out.push(f); res(); }, function () { res(); });
+        else if (en.isDirectory) { var rd = en.createReader(), all = []; (function read() { rd.readEntries(function (list) { if (!list.length) Promise.all(all.map(one)).then(function () { res(); }); else { all = all.concat([].slice.call(list)); read(); } }, function () { res(); }); })(); }
+        else res();
+      });
+    }
+    return Promise.all(entries.map(one)).then(function () { return out; });
+  }
   function wireDrop(dz, input, onFiles) {
     dz.onclick = function () { input.click(); }; dz.onkeydown = function (e) { if (e.key === "Enter") input.click(); };
     input.onchange = function () { if (input.files.length) onFiles([].slice.call(input.files)); input.value = ""; };
     ["dragover", "dragenter"].forEach(function (ev) { dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.add("over"); }); });
     ["dragleave", "drop"].forEach(function (ev) { dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.remove("over"); }); });
-    dz.addEventListener("drop", function (e) { if (e.dataTransfer.files.length) onFiles([].slice.call(e.dataTransfer.files)); });
+    dz.addEventListener("drop", function (e) {
+      var dt = e.dataTransfer, items = dt.items;
+      if (items && items.length && items[0].webkitGetAsEntry) { var entries = [].map.call(items, function (it) { return it.webkitGetAsEntry(); }).filter(Boolean); if (entries.length) { walkEntries(entries).then(function (files) { if (files.length) onFiles(files); }); return; } }
+      if (dt.files.length) onFiles([].slice.call(dt.files));
+    });
   }
   wireDrop(drop, fileIn, runFiles);
+  $("folderBtn").onclick = function () { $("folder").click(); };
+  $("folder").onchange = function () { var l = [].slice.call(this.files); this.value = ""; if (l.length) runFiles(l); };
   $("gdgo").onclick = function () {
     var link = $("gdlink").value.trim(), nm = $("gdname").value.trim(); status($("status"), "Loading the Google Doc...");
     loadGoogleDoc(link).then(function (src) { var res = analyze(src); if (res.error) throw new Error(res.error); ingest(res, nm || "Student (Google Doc)"); $("gdlink").value = ""; $("gdname").value = ""; save(); drawAll(); status($("status"), "Read the Google Doc.", "good"); }).catch(function (e) { status($("status"), e.message, "err"); });
@@ -356,9 +380,9 @@
     return d.Packer.toBlob(doc).then(function (b) { return { blob: b, ext: ".docx" }; });
   }
   var T = { rubric: null, title: "" };
-  function note(msg, where) { var el = $(where || "tplnote"); if (el) el.textContent = msg; }
+  function note(msg, where) { var el = $(where || "tplnote"); if (el && msg !== undefined) el.textContent = msg; }
   /* the template as a PDF: criteria down the side, each level (with points) across the top, a Score column and a Total row */
-  function makePdf(R, title, noteId) {
+  function makePdf(R, title, noteId, noSave) {
     var J = window.jspdf && window.jspdf.jsPDF; if (!J) { note("The PDF maker didn't load. Check your connection and try again.", noteId); return; }
     var doc = new J({ orientation: "landscape", unit: "pt", format: "letter" }); if (typeof doc.autoTable !== "function") { note("The PDF table maker didn't load. Check your connection and try again.", noteId); return; }
     var W = doc.internal.pageSize.getWidth(), head = tplHead(R), body = tplRows(R), last = head.length - 1;
@@ -368,6 +392,7 @@
     var cs = { 0: { fontStyle: "bold", cellWidth: 105 } }; cs[last] = { cellWidth: 52, halign: "center" };
     doc.autoTable({ head: [head], body: body, startY: 108, theme: "grid", margin: { left: 40, right: 40, bottom: 40 }, styles: { font: "helvetica", fontSize: 9, cellPadding: 6, lineColor: [0, 0, 0], lineWidth: 0.7, textColor: [0, 0, 0], valign: "top", overflow: "linebreak" }, headStyles: { fillColor: [232, 232, 232], textColor: [0, 0, 0], fontStyle: "bold" }, columnStyles: cs,
       didParseCell: function (d) { if (d.section === "body" && d.row.index === body.length - 1) d.cell.styles.fontStyle = "bold"; else if (d.section === "body") d.cell.styles.minCellHeight = 62; } });
+    if (noSave) return doc.output("blob");
     doc.save((title || "Rubric-template").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-") + ".pdf");
     note("Downloaded. Print it to mark by hand, then upload it above.", noteId); return doc;
   }
@@ -377,12 +402,40 @@
     $("tplnote").textContent = "";
   }
   function convertFiles(files) {
-    var f = files[0]; $("tplresult").hidden = true; status($("statusT"), "Reading " + f.name + "..."); progress($("barT"), $("barfillT"), 0.05);
+    var pk = pickSupported(files); files = pk.ok; if (!files.length) { status($("statusT"), "I didn't find any PDFs, photos, Word files or CSVs there.", "err"); return; }
+    $("tplresult").hidden = true;
+    if (files.length > 1) return convertMany(files, pk.skipped);
+    var f = files[0]; status($("statusT"), "Reading " + f.name + "..."); progress($("barT"), $("barfillT"), 0.05);
     readFile(f, function (p) { progress($("barT"), $("barfillT"), 0.1 + p * 0.85); }).then(function (src) {
       var res = analyze(src); progress($("barT"), $("barfillT"), null); if (res.error) { status($("statusT"), res.error, "err"); return; } templateFromRes(res, nameFromFile(f.name));
     }).catch(function (e) { progress($("barT"), $("barfillT"), null); status($("statusT"), e.message || String(e), "err"); });
   }
+  /* a whole folder: every rubric is rebuilt in the template and they all come back in one ZIP of PDFs */
+  function convertMany(files, skipped) {
+    if (!window.JSZip) { status($("statusT"), "The ZIP maker didn't load. Check your connection and try again.", "err"); return; }
+    var zip = new JSZip(), used = {}, i = 0, okN = 0, bad = [];
+    (function next() {
+      if (i >= files.length) {
+        progress($("barT"), $("barfillT"), null);
+        if (!okN) { status($("statusT"), "I couldn't read any of those files. " + bad.join("; "), "err"); return; }
+        zip.generateAsync({ type: "blob" }).then(function (blob) {
+          download(blob, "rubric-templates.zip");
+          status($("statusT"), "Converted " + okN + " of " + files.length + " rubrics. Your ZIP of template PDFs downloaded." + (skipped ? " (Skipped " + skipped + " other file" + (skipped > 1 ? "s" : "") + ".)" : "") + (bad.length ? " Couldn't read: " + bad.join("; ") : ""), bad.length ? "err" : "good");
+        });
+        return;
+      }
+      var f = files[i++]; status($("statusT"), "Converting " + f.name + " (" + i + " of " + files.length + ")..."); progress($("barT"), $("barfillT"), (i - 1) / files.length);
+      readFile(f, function (p) { progress($("barT"), $("barfillT"), (i - 1 + p) / files.length); }).then(function (src) {
+        var res = analyze(src); if (res.error) { bad.push(f.name + " (" + res.error + ")"); return next(); }
+        var base = nameFromFile(f.name).replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-") || "rubric", nm = base, n = 2; while (used[nm]) nm = base + "-" + n++; used[nm] = 1;
+        var blob = makePdf(res.rubric, nameFromFile(f.name), null, true); if (!blob) { bad.push(f.name + " (the PDF maker didn't load)"); return next(); }
+        zip.file(nm + "-template.pdf", blob); okN++; next();
+      }).catch(function (e) { bad.push(f.name + " (" + (e.message || e) + ")"); next(); });
+    })();
+  }
   wireDrop($("dropT"), $("fileT"), convertFiles);
+  $("folderT").onclick = function () { $("folderTin").click(); };
+  $("folderTin").onchange = function () { var l = [].slice.call(this.files); this.value = ""; if (l.length) convertFiles(l); };
   $("gdgoT").onclick = function () { status($("statusT"), "Loading the Google Doc..."); $("tplresult").hidden = true; loadGoogleDoc($("gdlinkT").value.trim()).then(function (src) { var res = analyze(src); if (res.error) throw new Error(res.error); templateFromRes(res, "Google Doc rubric"); }).catch(function (e) { status($("statusT"), e.message, "err"); }); };
   $("tpl").onclick = function () { if (T.rubric) makePdf(T.rubric, T.title, "tplnote"); };
   $("tplblank").onclick = function () { makePdf(templateRubric(), "Rubric template", "tplnote0"); };

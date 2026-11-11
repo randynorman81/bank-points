@@ -59,7 +59,9 @@ footer{max-width:1100px;margin:0 auto;padding:6px 16px 40px;color:var(--soft);fo
   <h2><span class="step">1</span>Upload graded rubrics</h2>
   <p class="small" style="margin:0 0 8px">One file per student, already marked (circle, highlight, check or X in the box for each row). Name each file with the student's name. Colored pen and highlighter are read best.</p>
   <div class="drop" id="drop" tabindex="0"><b>Drop graded rubrics here, or click to choose files</b><br><span class="small">PDF, photo (JPG / PNG), Word (.docx) or CSV. You can pick many at once.</span></div>
+  <input type="file" id="folder" webkitdirectory multiple hidden>
   <input type="file" id="file" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.docx,.csv,image/*,application/pdf" hidden>
+  <div class="row" style="margin-top:10px"><button id="folderBtn">Upload a whole folder</button><span class="small">Pick a folder (or drag one in) and I read every rubric inside it.</span></div>
   <div class="row" style="margin-top:10px">
     <input id="gdlink" placeholder="Or paste a Google Doc link (shared as Anyone with the link)" style="flex:1;min-width:240px">
     <input id="gdname" placeholder="Student name (for the Google Doc)" style="width:210px">
@@ -89,9 +91,10 @@ footer{max-width:1100px;margin:0 auto;padding:6px 16px 40px;color:var(--soft);fo
 <section class="card" id="s3">
   <h2><span class="step">3</span>Rubric template <span class="small">(optional)</span></h2>
   <p class="small" style="margin:0 0 8px">The Rubric Grader reads this layout perfectly, so a rubric in the template is the most reliable thing to grade. Print it, mark it by hand (circle, highlight or X the box for each row), and upload it above. Get the blank template, or upload your own rubric and I will rebuild it in the template as a PDF.</p>
-  <div class="row" style="margin-bottom:10px"><button class="ghost" id="tplblank">Download the blank template (PDF)</button></div>
+  <div class="row" style="margin-bottom:10px"><button class="ghost" id="tplblank">Download the blank template (PDF)</button><button class="ghost" id="folderT">Convert a whole folder of rubrics (ZIP of PDFs)</button></div>
+  <input type="file" id="folderTin" webkitdirectory multiple hidden>
   <div class="drop small2" id="dropT" tabindex="0"><b>Convert my rubric: drop it here or click</b><br><span class="small">PDF, photo, Word or CSV (a blank or marked rubric)</span></div>
-  <input type="file" id="fileT" accept=".pdf,.png,.jpg,.jpeg,.webp,.docx,.csv,image/*,application/pdf" hidden>
+  <input type="file" id="fileT" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.docx,.csv,image/*,application/pdf" hidden>
   <div class="row" style="margin-top:8px"><input id="gdlinkT" placeholder="Or paste a Google Doc link" style="flex:1;min-width:240px"><button class="ghost" id="gdgoT">Convert Google Doc</button></div>
   <div class="bar" id="barT" hidden><i id="barfillT"></i></div>
   <div class="msg" id="statusT" hidden></div>
@@ -110,6 +113,7 @@ footer{max-width:1100px;margin:0 auto;padding:6px 16px 40px;color:var(--soft);fo
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="rubric.js"></script>
 <script src="gridlines.js"></script>
 <script src="app.js"></script>
