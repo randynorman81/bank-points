@@ -79,7 +79,7 @@ async function mine(body, user) {
     out.submission = await readJSON("sub:" + body.slot + ":" + enc(user.email), null);
     if (out.submission && out.submission.attempts) { out.submission = Object.assign({}, out.submission); delete out.submission.attempts; }
     out.draft = await readJSON("draft:" + body.slot + ":" + enc(user.email), null);
-    if (out.submission && out.submission.mcScore) { const asg = await readJSON("assign:" + body.slot, null); if (!(asg && (asg.mcReleased || (asg.passMin !== undefined && asg.passMin !== null)))) { out.submission = Object.assign({}, out.submission); delete out.submission.mcScore; } }
+    if (out.submission && out.submission.mcScore) { const asg = await readJSON("assign:" + body.slot, null); if (!isTeacherUser(user) && !(asg && (asg.mcReleased || (asg.passMin !== undefined && asg.passMin !== null)))) { out.submission = Object.assign({}, out.submission); delete out.submission.mcScore; } }
   }
   return out;
 }
@@ -251,7 +251,7 @@ async function submit(body, user) {
   await store().setJSON(key, rec);
   await logActivity(body.slot, user.email, code, period, true);
   const res = { ok: true, submittedAt: rec.submittedAt, count: rec.count }, pmv = asg && asg.passMin !== undefined && asg.passMin !== null ? Number(asg.passMin) : null;
-  if (rec.mcScore && rec.mcScore.total && (pmv !== null || (asg && asg.mcReleased))) res.mc = { correct: rec.mcScore.correct, total: rec.mcScore.total, pct: Math.round(rec.mcScore.correct / rec.mcScore.total * 100), need: pmv, wrong: (rec.mcScore.wrong || []).map((w) => w.q) };
+  if (rec.mcScore && rec.mcScore.total && (pmv !== null || (asg && asg.mcReleased) || isTeacherUser(user))) res.mc = { correct: rec.mcScore.correct, total: rec.mcScore.total, pct: Math.round(rec.mcScore.correct / rec.mcScore.total * 100), need: pmv, wrong: (rec.mcScore.wrong || []).map((w) => w.q) };
   return res;
 }
 
