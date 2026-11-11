@@ -498,6 +498,22 @@ function loadTimeline(r) {
       var LET = ["A", "B", "C", "D", "E", "F"], codeSc = sb.teacher && sb.teacher.score != null ? Number(sb.teacher.score) : null, mcPts = sb.mcScore.correct * Math.round(100 / sb.mcScore.total), totalLine = codeSc === null ? "" : " | Quiz total: " + (Math.round((codeSc + mcPts) * 10) / 10) + " / 200 (coding " + codeSc + " + multiple choice " + mcPts + ")", mh = '<div style="margin:0 0 10px;padding:8px 10px;border-radius:8px;background:rgba(96,165,250,.14)"><b>Multiple choice: ' + sb.mcScore.correct + " of " + sb.mcScore.total + totalLine + "</b>";
       if (sb.mcScore.wrong && sb.mcScore.wrong.length) mh += '<div style="margin-top:4px;font-size:13px">Missed: ' + sb.mcScore.wrong.map(function (w) { return "Q" + w.q + (w.picked >= 0 ? " (picked " + LET[w.picked] + ")" : " (blank)"); }).join(", ") + "</div>";
       el.insertAdjacentHTML("beforebegin", mh + "</div>");
+      var tr = sb.attempts || [];
+      if (tr.length) {
+        var L2 = function (n) { return n >= 0 ? LET[n] : "blank"; }, lastT = tr[tr.length - 1],
+          ah = '<div style="margin:0 0 10px;padding:8px 10px;border-radius:8px;background:rgba(167,139,250,.14)"><b>Tries: ' + tr.length + (lastT.pct >= 100 ? " (reached 100%)" : " (not at 100% yet: " + lastT.pct + "%)") + '</b><table style="margin-top:6px"><thead><tr><th>Try</th><th>When</th><th>Score</th><th>Missed (answer picked)</th><th>Changed since the last try</th></tr></thead><tbody>';
+        tr.forEach(function (a, i) {
+          var p = i ? tr[i - 1] : null, ch = "first try";
+          if (p) {
+            var parts = [];
+            p.wrong.forEach(function (w) { var still = a.wrong.filter(function (x) { return x.q === w.q; })[0], now = a.picks ? a.picks[w.q - 1] : -1; parts.push("Q" + w.q + ": " + L2(w.picked) + " to " + (still ? L2(still.picked) + " (still wrong)" : L2(now) + " (fixed)")); });
+            a.wrong.forEach(function (w) { if (!p.wrong.some(function (x) { return x.q === w.q; })) parts.push("Q" + w.q + " was right, now wrong (" + L2(w.picked) + ")"); });
+            ch = parts.join("; ") || "no change";
+          }
+          ah += "<tr><td>" + (i + 1) + "</td><td>" + esc(fmt(a.at)) + "</td><td>" + a.correct + "/" + a.total + " (" + a.pct + "%)</td><td>" + (a.wrong.length ? a.wrong.map(function (w) { return "Q" + w.q + " (" + L2(w.picked) + ")"; }).join(", ") : "none") + "</td><td>" + esc(ch) + "</td></tr>";
+        });
+        el.insertAdjacentHTML("beforebegin", ah + "</tbody></table></div>");
+      }
     }
     if (lv.length) {
       var gone = lv.filter(function (x) { return x.kind !== "start"; }), tot = gone.reduce(function (n, x) { return n + (x.ms || 0); }, 0);

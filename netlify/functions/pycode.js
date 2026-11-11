@@ -77,6 +77,7 @@ async function mine(body, user) {
   const out = { ok: true, name: user.name, email: user.email };
   if (goodSlot(body.slot)) {
     out.submission = await readJSON("sub:" + body.slot + ":" + enc(user.email), null);
+    if (out.submission && out.submission.attempts) { out.submission = Object.assign({}, out.submission); delete out.submission.attempts; }
     out.draft = await readJSON("draft:" + body.slot + ":" + enc(user.email), null);
     if (out.submission && out.submission.mcScore) { const asg = await readJSON("assign:" + body.slot, null); if (!(asg && (asg.mcReleased || (asg.passMin !== undefined && asg.passMin !== null)))) { out.submission = Object.assign({}, out.submission); delete out.submission.mcScore; } }
   }
@@ -198,7 +199,7 @@ async function subPassed(slot, email) {
   if (pm !== null && !isNaN(pm)) {
     const tt = sub.teacher; if (tt && !tt.auto && tt.score !== null && tt.score !== undefined && tt.score !== "" && !isNaN(Number(tt.score)) && Number(tt.score) >= pm) return true;
     const ms = Array.isArray(asgP.mcKey) && asgP.mcKey.length ? mcScoreOf(asgP.mcKey, sub.mc) : null;
-    if (ms) return Math.round(ms.correct / ms.total * 100) >= pm;
+    if (ms) { const best = Math.max(Math.round(ms.correct / ms.total * 100), ...(Array.isArray(sub.attempts) ? sub.attempts.map((a) => a.pct || 0) : [0])); return best >= pm; }
     const rc = variantFor(asgP, sub.period); if (rc && Array.isArray(rc.checks) && rc.checks.length) { const r0 = scoreCode(rc.checks, sub.code || "", sub.gradeOutput != null ? sub.gradeOutput : sub.output); return r0.pct !== null && r0.pct >= pm; }
     return false;
   }
@@ -241,6 +242,11 @@ async function submit(body, user) {
     teacher: prev && prev.teacher ? prev.teacher : null,
     mc: cleanMcPicks(body.mc), mcScore: mcScoreOf(asg && asg.mcKey, cleanMcPicks(body.mc))
   };
+  /* tries: each submit of a multiple-choice assignment is kept (what the student picked, what was wrong), so the teacher can see how answers changed from try to try */
+  const mkTry = (s, n) => ({ n, at: s.submittedAt, correct: s.mcScore.correct, total: s.mcScore.total, pct: s.mcScore.total ? Math.round(s.mcScore.correct / s.mcScore.total * 100) : 0, picks: s.mc || [], wrong: s.mcScore.wrong || [] });
+  let tries = prev && Array.isArray(prev.attempts) ? prev.attempts.slice() : (prev && prev.mcScore ? [mkTry(prev, prev.count || 1)] : []);
+  if (rec.mcScore) tries.push(mkTry(rec, rec.count));
+  if (tries.length) rec.attempts = tries.slice(-60);
   try { const g = await autoGradeFor(body.slot, code, rec.teacher, period, rec.gradeOutput != null ? rec.gradeOutput : rec.output); if (g) rec.teacher = g; } catch (e) { console.error("autograde failed", e); }
   await store().setJSON(key, rec);
   await logActivity(body.slot, user.email, code, period, true);
