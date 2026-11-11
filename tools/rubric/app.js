@@ -359,9 +359,9 @@
     rows.push(["Total"].concat(R.levels.map(function () { return ""; }), ["/ " + max])); return rows;
   }
   var TPL_HELP = "How to mark this rubric: circle or highlight the box that fits each row (colored pen shows up best), or put an X in it, and write the points in the Score column. Then upload it to the Rubric Grader.";
-  function tplHTML(R, title) {
+  function tplHTML(R, title, help) {
     var cell = "border:1px solid #000;padding:6px;vertical-align:top;font-family:Arial,sans-serif;font-size:10pt";
-    var h = "<h2 style='font-family:Arial,sans-serif'>" + esc(title || "Rubric") + "</h2><p style='font-family:Arial,sans-serif;font-size:10pt'>Student: ______________________ &nbsp; Date: ____________</p><p style='font-family:Arial,sans-serif;font-size:9pt;color:#555'>" + esc(TPL_HELP) + "</p><table style='border-collapse:collapse;width:100%'><tr>";
+    var h = "<h2 style='font-family:Arial,sans-serif'>" + esc(title || "Rubric") + "</h2><p style='font-family:Arial,sans-serif;font-size:10pt'>Student: ______________________ &nbsp; Date: ____________</p><p style='font-family:Arial,sans-serif;font-size:9pt;color:#555'>" + esc(help || TPL_HELP) + "</p><table style='border-collapse:collapse;width:100%'><tr>";
     tplHead(R).forEach(function (t) { h += "<th style='" + cell + ";background:#e8e8e8;text-align:left'>" + esc(t) + "</th>"; }); h += "</tr>";
     tplRows(R).forEach(function (r, i, all) { h += "<tr>"; r.forEach(function (t, j) { h += "<td style='" + cell + (j === 0 || i === all.length - 1 ? ";font-weight:bold" : "") + "'>" + esc(t) + "</td>"; }); h += "</tr>"; });
     return h + "</table>";
@@ -438,7 +438,14 @@
   $("folderTin").onchange = function () { var l = [].slice.call(this.files); this.value = ""; if (l.length) convertFiles(l); };
   $("gdgoT").onclick = function () { status($("statusT"), "Loading the Google Doc..."); $("tplresult").hidden = true; loadGoogleDoc($("gdlinkT").value.trim()).then(function (src) { var res = analyze(src); if (res.error) throw new Error(res.error); templateFromRes(res, "Google Doc rubric"); }).catch(function (e) { status($("statusT"), e.message, "err"); }); };
   $("tpl").onclick = function () { if (T.rubric) makePdf(T.rubric, T.title, "tplnote"); };
-  $("tplblank").onclick = function () { makePdf(templateRubric(), "Rubric template", "tplnote0"); };
+  var DOC_HELP = "How to mark this rubric: highlight the box that fits each row (or type an X in it) and type the points in the Score column. Keep the table layout. When you are done, upload the file here or paste this Google Doc's link.";
+  $("tplblankpdf").onclick = function () { makePdf(templateRubric(), "Rubric template", "tplnote0"); };
+  $("tplblank").onclick = function () {
+    var R = templateRubric(), html = tplHTML(R, "Rubric template", DOC_HELP), text = E.toTSV([tplHead(R)].concat(tplRows(R)));
+    var openDoc = function () { var w = null; try { w = window.open("https://docs.new", "_blank"); } catch (e) {} note(w ? "Your template is copied. In the new Google Doc, click in the page and press Ctrl+V (Cmd+V on a Mac). It pastes as a table you can edit like any Google Doc. Then name it and share it." : "Your template is copied. Open a new Google Doc (type docs.new in the address bar), click in the page and press Ctrl+V (Cmd+V on a Mac).", "tplnote0"); };
+    if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) navigator.clipboard.write([new ClipboardItem({ "text/html": new Blob([html], { type: "text/html" }), "text/plain": new Blob([text], { type: "text/plain" }) })]).then(openDoc).catch(function () { note("Your browser blocked copying. Use the PDF version instead.", "tplnote0"); });
+    else note("Your browser can't copy a table. Use the PDF version instead.", "tplnote0");
+  };
   syncScale(); drawAll();
   window.__rubricApp = { S: S, analyze: analyze, readFile: readFile, ingest: ingest, runFiles: runFiles, makePdf: makePdf, tplRows: tplRows, tplHead: tplHead, templateRubric: templateRubric, tableSource: tableSource, copies: function () { return copies; } };
 })();
