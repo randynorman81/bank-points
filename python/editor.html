@@ -209,7 +209,7 @@ body.mconly main{grid-template-columns:minmax(0,1fr)!important;grid-template-row
 body.mconly #split0,body.mconly #split1,body.mconly main>.pane:not(#paneAss){display:none!important}
 body.mconly #paneAss{border-right:0;max-height:none}
 body.mconly #assBody{max-width:900px;margin:0 auto;width:100%}
-body.mconly #resetQuiz{display:inline-block!important}
+body.mconly #resetQuiz,body.hasquiz #resetQuiz{display:inline-block!important}
 #assBody .mcc code,#assBody .mccode,.mcc code,.mccode{font-variant-ligatures:none!important;font-feature-settings:"liga" 0,"calt" 0!important}
 body.mconly #run,body.mconly #clear,body.mconly #reset,body.mconly #histBtn,body.mconly #mode,body.mconly #assBtn,body.mconly #legend{display:none!important}
 </style></head>
@@ -976,7 +976,8 @@ $("assBody").addEventListener("click", function (e) {
 function renderAssignment() {
   ta.readOnly = slot === "example"; document.body.classList.toggle("isExample", slot === "example");
   var A = (window.PY_ASSIGN || {})[slot], body = $("assBody"), title = slotLabel(slot);
-  document.body.classList.toggle("mconly", !!(A && A.mcOnly && A.mc && /\bquiz\b/i.test(A.title || "")));   /* a quiz is just the questions */
+  document.body.classList.toggle("mconly", !!(A && A.mcOnly && A.mc && /\bquiz\b/i.test(A.title || "")));
+  document.body.classList.toggle("hasquiz", !!(A && A.mc && A.mc.length && /\bquiz\b/i.test(A.title || "")));   /* a quiz is just the questions */
   var plain = (slot === "free" || slot === "example") ? title : "Assignment " + aNum(slot, A) + (A && A.title ? ": " + A.title : ""), full = (A && A.unit ? A.unit + " · " : "") + plain; $("assTitle").textContent = (unitShort(A) ? unitShort(A) + " · " : "") + ((slot === "free" || slot === "example") ? title : "Assignment " + aNum(slot, A) + (A && A.title ? ": " + A.title : "")); $("assTitle").title = full;
   if (!A) { body.innerHTML = '<p class="none">Your teacher has not posted instructions for this assignment yet.</p>'; $("assHead").className = ""; return; }
   var done = {}; try { done = JSON.parse(lsGet("py:prog:" + slot) || "{}"); } catch (e) {}
@@ -1434,7 +1435,7 @@ $("submit").addEventListener("click", function () {
 $("mCancel").addEventListener("click", function () { $("mSub").classList.remove("show"); });
 /* Reset quiz: clear every answer, here and in the saved draft, and start over. Tries that were already submitted stay on record. */
 $("resetQuiz").addEventListener("click", function () {
-  if (!mcOnlySlot()) return;
+  if (!getMc()) return;
   if (!confirm("Clear all your answers on this quiz and start over?\n\nTries you already submitted stay on record.")) return;
   Array.prototype.forEach.call(document.querySelectorAll(".mcq input"), function (r) { r.checked = false; });
   lsSet("py:mc:" + slot, JSON.stringify(getMc())); window.LAST_MC = null;
