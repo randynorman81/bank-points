@@ -213,6 +213,8 @@ body.mconly #resetQuiz,body.hasquiz #resetQuiz{display:inline-block!important}
 /* quizzes: "Grade my quiz" until 100%, then Submit */
 #gradeQuiz{display:none;background:#2563EB;border-color:#2563EB;color:#fff;font-weight:800}body.isquiz #gradeQuiz{display:inline-block}
 #submit.locked{opacity:.45;cursor:not-allowed}
+/* a quiz shows ONE button: "Grade my quiz" until it grades at 100%, then "Submit" takes its place */
+body.isquiz.quizlocked #submit{display:none!important}body.isquiz.quizready #gradeQuiz{display:none!important}
 #qres{display:none;margin:0 0 14px;padding:12px 14px;border-radius:10px;border:1px solid var(--rule);line-height:1.5}#qres.show{display:block}
 #qres.bad{background:rgba(248,113,113,.10);border-color:rgba(248,113,113,.55)}#qres.good{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.6)}
 #qres .qbig{font-size:18px;font-weight:800;margin-bottom:4px}#qres .qchips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px}
@@ -1514,7 +1516,8 @@ function isQuizNow() { var A = (window.PY_ASSIGN || {})[slot]; return !!A && slo
 function quizSig() { var A = (window.PY_ASSIGN || {})[slot] || {}; return mcSig() + "|" + (A.mcOnly ? "" : ta.value); }
 function quizSubmitLocked() { return isQuizNow() && !isTeacherNow() && !(QG.slot === slot && QG.perfect && QG.sig === quizSig()); }
 function quizLockSubmit() {
-  var b = $("submit"), L = quizSubmitLocked(); b.classList.toggle("locked", L);
+  var b = $("submit"), L = quizSubmitLocked(), q = isQuizNow() && !isTeacherNow(); b.classList.toggle("locked", L);
+  document.body.classList.toggle("quizlocked", q && L); document.body.classList.toggle("quizready", q && !L);
   b.title = L ? "Grade your quiz first. Submit opens when it grades at 100%." : "";
   if (isQuizNow() && QG.perfect && QG.sig !== quizSig()) { var q = $("qres"); if (q && q.classList.contains("good")) { q.className = "show bad"; q.innerHTML = '<div class="qbig">You changed an answer after grading.</div>Click <b>Grade my quiz</b> again to check it before you submit.'; } }
 }
@@ -1531,7 +1534,7 @@ function quizShow(j) {
   var box = $("qres"); if (!box) return;
   Array.prototype.forEach.call(document.querySelectorAll(".mcq"), function (d) { d.classList.remove("miss", "fixed"); });
   if (j.perfect) {
-    box.className = "show good"; box.innerHTML = '<div class="qbig">\uD83C\uDF89 100%! Every question is right.</div>Click <b>Submit</b> (top right) to turn in your quiz for your grade.';
+    box.className = "show good"; box.innerHTML = '<div class="qbig">\uD83C\uDF89 100%! Every question is right.</div>The <b>Grade my quiz</b> button is now a green <b>Submit</b> button (top right). Click it to turn in your quiz for your grade.';
   } else {
     var w = (j.mc && j.mc.wrong) || [], picks = getMc() || [], blank = w.filter(function (q) { return picks[q - 1] === undefined || picks[q - 1] < 0; }).length;
     w.forEach(function (q) { var d = document.querySelector('.mcq[data-q="' + (q - 1) + '"]'); if (d) d.classList.add("miss"); });
