@@ -778,7 +778,7 @@
         var t = peek();
         if (t.t === "op" && t.v === ";") { next(); continue; }
         if (t.t === "id" && UNSUPPORTED[t.v]) fail(t.line, UNSUPPORTED[t.v] + " are not part of this editor's Arduino code.");
-        if (!startsType()) fail(t.line, "I did not expect " + describe(t) + " here. Outside of functions you can only declare variables and write functions, like void setup() { ... }");
+        if (!startsType()) fail(t.line, "I did not expect " + describe(t) + " here. Outside of functions you can only declare variables and write functions, like void setup() { ... }" + (Object.keys(funcs).length ? " A } above this line probably closed your function too early. Check that every { has its own }, and that a for or if with several lines inside has its { } around all of them." : ""));
         var ty = parseType(); if (!ty) fail(t.line, "I do not understand this.");
         var nameTok = peek(1);
         if (peek().t === "id" && isOp("(", 1)) { functionDef(ty, t.line); continue; }
@@ -829,6 +829,10 @@
       Object.keys(globals).forEach(function (k) { if (!(globals[k] && globals[k].fn)) delete globals[k]; });
       topLevel();
     } catch (e) {
+      if (e instanceof CompileError && pass === 1) {
+        /* the first problem found was outside the functions (like a stray line after a } that closed too early). Mistakes INSIDE the functions that come earlier in the code are the real cause, so look for those and report the earliest one. */
+        try { pass = 2; p = 0; tmpCount = 0; scopes = []; Object.keys(globals).forEach(function (k) { if (!(globals[k] && globals[k].fn)) delete globals[k]; }); topLevel(); } catch (e2) { if (e2 instanceof CompileError && e2.line < e.line) e = e2; }
+      }
       if (e instanceof CompileError) return { ok: false, errors: [{ line: e.line, msg: e.msg }], warnings: warnings };
       return { ok: false, errors: [{ line: 1, msg: "Something in your code confused the editor (" + (e && e.message) + "). Check for a missing ; ) or }." }], warnings: warnings };
     }
