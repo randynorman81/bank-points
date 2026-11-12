@@ -1489,7 +1489,7 @@ $("resetQuiz").addEventListener("click", function () {
   Array.prototype.forEach.call(document.querySelectorAll(".mcq input"), function (r) { r.checked = false; });
   lsSet("py:mc:" + slot, JSON.stringify(getMc())); window.LAST_MC = null;
   var mh = document.querySelector(".mchint"); if (mh && !isQuizNow()) mh.textContent = "Pick one answer for each question. Your answers save automatically. After you submit, your score shows here.";
-  QG = { slot: slot, sig: null, perfect: false, wrong: [] }; var qr0 = $("qres"); if (qr0) { qr0.className = ""; qr0.innerHTML = ""; } Array.prototype.forEach.call(document.querySelectorAll(".mcq.miss"), function (d) { d.classList.remove("miss", "fixed"); }); quizLockSubmit();
+  QG = { slot: slot, sig: null, perfect: false, wrong: [] }; quizFreeze(false); var qr0 = $("qres"); if (qr0) { qr0.className = ""; qr0.innerHTML = ""; } Array.prototype.forEach.call(document.querySelectorAll(".mcq.miss"), function (d) { d.classList.remove("miss", "fixed"); }); quizLockSubmit();
   if (CRED && slot !== "example") api({ action: "saveDraft", slot: slot, mode: mode, code: ta.value, world: curWorld(), ticks: currentTicks(), period: $("period").value, mc: getMc() }).then(function (j) { if (j && j.ok) { lastCloud = ta.value; lastMcSig = mcSig(); } updateSaveInd(); }).catch(function () {});
   try { $("assBody").scrollTop = 0; } catch (e) {} flash("Quiz reset. All answers are cleared.");
 });
@@ -1525,6 +1525,7 @@ function quizChanged(input) {
   var box = input.closest(".mcq"); if (box && box.classList.contains("miss")) { box.classList.add("fixed"); var c = document.querySelector('#qres .qchip[data-goq="' + box.getAttribute("data-q") + '"]'); if (c) c.classList.add("fixed"); }
   quizLockSubmit();
 }
+function quizFreeze(on) { Array.prototype.forEach.call(document.querySelectorAll(".mcq input"), function (r) { r.disabled = on && !isTeacherNow(); }); if (typeof ta !== "undefined" && !((window.PY_ASSIGN || {})[slot] || {}).mcOnly) ta.readOnly = on && !isTeacherNow(); }
 function quizGo(i) {
   var d = document.querySelector('.mcq[data-q="' + i + '"]'); if (!d) return;
   d.scrollIntoView({ behavior: "smooth", block: "center" }); d.classList.remove("pulse"); void d.offsetWidth; d.classList.add("pulse");
@@ -1534,7 +1535,7 @@ function quizShow(j) {
   var box = $("qres"); if (!box) return;
   Array.prototype.forEach.call(document.querySelectorAll(".mcq"), function (d) { d.classList.remove("miss", "fixed"); });
   if (j.perfect) {
-    box.className = "show good"; box.innerHTML = '<div class="qbig">\uD83C\uDF89 100%! Every question is right.</div>The <b>Grade my quiz</b> button is now a green <b>Submit</b> button (top right). Click it to turn in your quiz for your grade.';
+    box.className = "show good"; box.innerHTML = '<div class="qbig">\uD83C\uDF89 100%! Every question is right.</div>Your answers are locked in. Click the green <b>Submit</b> button (top right) to turn in your quiz for your grade.';
   } else {
     var w = (j.mc && j.mc.wrong) || [], picks = getMc() || [], blank = w.filter(function (q) { return picks[q - 1] === undefined || picks[q - 1] < 0; }).length;
     w.forEach(function (q) { var d = document.querySelector('.mcq[data-q="' + (q - 1) + '"]'); if (d) d.classList.add("miss"); });
@@ -1544,6 +1545,7 @@ function quizShow(j) {
       (j.code && j.code.pct !== null && j.code.pct < 100 ? '<div style="margin-top:8px"><b>Code part: ' + j.code.pct + '%.</b> Open the <b>still missing</b> list at the top to see what your code still needs.</div>' : "");
     if (w.length) setTimeout(function () { quizGo(w[0] - 1); }, 250); else { try { $("assBody").scrollTop = 0; } catch (e) {} }
   }
+  quizFreeze(!!j.perfect);   /* at 100% the answers lock: the only thing left to do is Submit */
   if (j.perfect) { try { $("assBody").scrollTop = 0; } catch (e) {} }
 }
 document.addEventListener("click", function (e) { var c = e.target.closest && e.target.closest("#qres .qchip"); if (c) quizGo(+c.getAttribute("data-goq")); });
