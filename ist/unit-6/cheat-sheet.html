@@ -25,7 +25,7 @@ h3.sec{font:700 12px "JetBrains Mono",monospace;letter-spacing:.06em;text-transf
 .pts2{display:grid;gap:6px;margin:0 0 6px}
 .pt{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
 .pt code{font:600 13.5px "JetBrains Mono",monospace;background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:3px 9px;color:#FED7AA;white-space:pre-wrap}
-.pt span{color:#C4CDD8;font-size:15px}
+.pt>span{color:#C4CDD8;font-size:15px}
 .tip{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.45);border-left:4px solid #F87171;border-radius:6px;padding:10px 16px;margin:14px 0;color:#C4CDD8;font-size:15px;line-height:1.55}
 .tip b{color:#FCA5A5}
 .ex{border-top:1px solid var(--rule);padding:16px 0 18px}
@@ -36,7 +36,11 @@ h3.sec{font:700 12px "JetBrains Mono",monospace;letter-spacing:.06em;text-transf
 @media(max-width:760px){.demo{grid-template-columns:minmax(0,1fr)}}
 .bx h4{font:600 11px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;color:var(--acc-ink);margin:0 0 6px}
 pre.code{margin:0;background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:14px 16px;font:13px/1.6 "JetBrains Mono",monospace;color:#E8ECF3;overflow-x:auto;white-space:pre;tab-size:2}
-pre.code .ann{color:#FB923C;font-weight:600}
+pre.code .ann{color:#E2E8F0;font-weight:600}
+/* the same colors the HTML editor uses for tags, attributes, properties and values */
+.t-tag{color:#FB7185}.t-style{color:#F472B6}.t-attr{color:#FBBF24}.t-id{color:#22D3EE}.t-id-v{color:#67E8F9}.t-class{color:#A78BFA}.t-class-v{color:#C4B5FD}.t-val{color:#86EFAC}.t-br{color:#7C8AA5}.t-eq{color:#7C8AA5}
+.c-prop{color:#60A5FA}.c-hex{color:#FDBA74}.c-num{color:#FDBA74}.c-kw{color:#34D399}.c-pun{color:#7C8AA5}.c-cm{color:#5B6B85;font-style:italic}
+.pt code{color:#E6EAF2}.card h2{color:#E6EAF2}
 iframe.out{width:100%;border:1px solid var(--rule);border-radius:8px;background:#fff;display:block;height:70px}
 .more{color:var(--ink-soft);font-size:14px;margin:0 0 22px}
 .more a{color:var(--acc-ink);cursor:pointer;text-decoration:underline;margin-right:10px}
@@ -52,6 +56,8 @@ iframe.out{width:100%;border:1px solid var(--rule);border-radius:8px;background:
 </div></div>
 <main><div class="wrapx" id="res"></div></main>
 
+<script src="html-check.js"></script>
+<script src="syntax-colors.js"></script>
 <script src="cheat-data.js"></script>
 <script>
 (function () {
@@ -84,9 +90,35 @@ iframe.out{width:100%;border:1px solid var(--rule);border-radius:8px;background:
     return best;
   }
 
+  /* ---- colors: the editor's own highlighter ---- */
+  var SYN = window.SYNTAX, sp = function (c, s) { return '<span class="' + c + '">' + esc(s) + "</span>"; };
+  function valueCss(s) { return SYN.decls("a:" + s).replace(/^a<span class="c-pun">:<\/span>/, ""); }
+  function inTag(s) { return SYN.tag("<p " + s + ">").replace(/^<span class="t-br">&lt;<\/span><span class="t-tag">p<\/span> ?/, "").replace(/<span class="t-br">&gt;<\/span>$/, ""); }
+  /* a little code snippet from a "Break it down" row: color it the way the editor would */
+  function colorSnippet(s) {
+    var t = String(s).trim(), h;
+    if (/^<[\/!a-zA-Z]/.test(t)) return SYN.html(t);                                   /* <p>  </p>  <meta charset="utf-8"> */
+    if (/^[a-zA-Z-]+\s*=/.test(t)) return inTag(t);                                    /* style=  href="..."  target="_blank" */
+    if (/^["'].*["']$/.test(t)) return sp("t-val", t);                                 /* "dog.jpg" */
+    if (/^#[0-9a-f]{3,8}$/i.test(t)) return sp("c-hex", t);                            /* #FF6347 */
+    if (/^[a-z-]+\s*:/i.test(t) && !/^:/.test(t)) return SYN.decls(t);                 /* color: teal;  border: */
+    if (/^[.#:][\w-]/.test(t) || /\{/.test(t)) return SYN.css(t);                      /* .note  #title  :hover  p { */
+    if (/^[a-z-]+$/.test(t)) { var ah = inTag(t + '=""').match(/^<span class="t-(?:attr|style|id|class)">[^<]*<[/]span>/); if (ah) return ah[0]; }   /* a bare attribute name like href */
+    h = valueCss(t); return /class="c-(kw|num|hex)"/.test(h) ? h : esc(s);             /* 3px  solid red  teal  (plain words stay plain) */
+  }
+  /* plain sentences: any <tag> typed inside them gets the editor's tag colors */
+  function rich(s) { var out = "", last = 0, re = /<[/]?[a-zA-Z][^<>]*>/g, m; s = String(s); while ((m = re.exec(s))) { out += esc(s.slice(last, m.index)) + SYN.html(m[0]); last = re.lastIndex; } return out + esc(s.slice(last)); }
+  function colorTitle(e) {
+    var n = e.n;
+    if (e.kind === "tag" || /^[<:.]/.test(n)) return /^:/.test(n) ? SYN.css(n) : SYN.html(n);
+    if (e.kind === "attribute") return /=/.test(n) ? inTag(n) : sp(n === "style" ? "t-style" : n === "id" ? "t-id" : n === "class" ? "t-class" : "t-attr", n);
+    if (e.kind === "property") return sp("c-prop", n);
+    return esc(n);
+  }
+
   /* ---- code with arrows ---- */
   function arrowCode(c, anns) {
-    var lines = c.split("\n"), byLine = {}, starts = [], pos = 0;
+    var lines = c.split("\n"), hlLines = SYN.html(c).split("\n"), byLine = {}, starts = [], pos = 0;
     lines.forEach(function (l) { starts.push(pos); pos += l.length + 1; });
     anns.forEach(function (a) {
       var idx = c.indexOf(a[0]); if (idx < 0) return;
@@ -95,7 +127,7 @@ iframe.out{width:100%;border:1px solid var(--rule);border-radius:8px;background:
     });
     var out = [];
     lines.forEach(function (l, i) {
-      out.push(esc(l));
+      out.push(hlLines.length === lines.length ? hlLines[i] : esc(l));
       var A = byLine[i]; if (!A) return;
       A.sort(function (x, y) { return x.col - y.col; });
       var w = A[A.length - 1].col + 1, row = function () { var r = []; for (var k = 0; k < w; k++) r.push(" "); return r; };
@@ -115,9 +147,9 @@ iframe.out{width:100%;border:1px solid var(--rule);border-radius:8px;background:
   }
 
   function card(e) {
-    var h = '<article class="card"><span class="kind">' + esc(e.kind) + "</span><h2>" + esc(e.n) + '</h2><p class="say">' + esc(e.say) + "</p>";
-    if (e.parts.length) { h += '<h3 class="sec">Break it down</h3><div class="pts2">'; e.parts.forEach(function (p) { h += '<div class="pt"><code>' + esc(p[0]) + "</code><span>" + esc(p[1]) + "</span></div>"; }); h += "</div>"; }
-    if (e.tip) h += '<div class="tip"><b>Watch out:</b> ' + esc(e.tip) + "</div>";
+    var h = '<article class="card"><span class="kind">' + esc(e.kind) + "</span><h2>" + colorTitle(e) + '</h2><p class="say">' + rich(e.say) + "</p>";
+    if (e.parts.length) { h += '<h3 class="sec">Break it down</h3><div class="pts2">'; e.parts.forEach(function (p) { h += '<div class="pt"><code>' + colorSnippet(p[0]) + "</code><span>" + rich(p[1]) + "</span></div>"; }); h += "</div>"; }
+    if (e.tip) h += '<div class="tip"><b>Watch out:</b> ' + rich(e.tip) + "</div>";
     e.ex.forEach(function (x, i) {
       h += '<div class="ex"><span class="exl">Example ' + (i + 1) + '</span><span class="excap">' + esc(x.cap) + '</span><div class="demo' + (x.r ? "" : " one") + '"><div class="bx"><h4>Code</h4><pre class="code">' + arrowCode(x.c, x.a) + "</pre></div>";
       if (x.r) h += '<div class="bx"><h4>What the browser shows</h4><iframe class="out" sandbox="allow-same-origin" title="Result" data-src="' + esc(srcdoc(x.c)).replace(/"/g, "&quot;") + '"></iframe></div>';
