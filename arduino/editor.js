@@ -774,9 +774,9 @@
     $("slot").value = slot;
   }
   $("slot").onchange = function () { cloudSave(); loadSlot($("slot").value); };
-  function setAssOpen(on) { document.body.classList.toggle("noass", !on); $("assBtn").classList.toggle("on", on); lsSet("ass", on ? "1" : "0"); setTimeout(fitView, 50); }
+  function setAssOpen(on) { document.body.classList.toggle("noass", !on); $("assBtn").classList.toggle("on", on); $("assBtn").textContent = on ? "Hide instructions" : "Show instructions"; lsSet("ass", on ? "1" : "0"); setTimeout(fitView, 50); }
   $("assBtn").onclick = function () { setAssOpen(document.body.classList.contains("noass")); };
-  function setCodeOpen(on) { document.body.classList.toggle("nocode", !on); $("codeBtn").classList.toggle("on", on); lsSet("codeShown", on ? "1" : "0"); setTimeout(fitView, 50); }
+  function setCodeOpen(on) { document.body.classList.toggle("nocode", !on); $("codeBtn").classList.toggle("on", on); $("codeBtn").textContent = on ? "Hide code" : "Show code"; lsSet("codeShown", on ? "1" : "0"); setTimeout(fitView, 50); }
   $("codeBtn").onclick = function () { setCodeOpen(document.body.classList.contains("nocode")); };
   /* resizing the columns */
   function splitter(id, prop, dir, min, max, key) {
@@ -900,8 +900,8 @@
   var want = lsGet("slot") || "free"; if (!SLOTS.some(function (x) { return x[0] === want; })) want = "free";
   var q = /[?&]slot=([\w-]+)/.exec(location.search); if (q && SLOTS.some(function (x) { return x[0] === q[1]; })) want = q[1];
   var closedNote = false; if (closedSlot(want)) { pendingSlot = want; want = "free"; closedNote = true; }
-  if (lsGet("ass") === "0") document.body.classList.add("noass");
-  if (lsGet("codeShown") === "0") { document.body.classList.add("nocode"); $("codeBtn").classList.remove("on"); }
+  if (lsGet("ass") === "0") { document.body.classList.add("noass"); $("assBtn").classList.remove("on"); $("assBtn").textContent = "Show instructions"; }
+  if (lsGet("codeShown") === "0") { document.body.classList.add("nocode"); $("codeBtn").classList.remove("on"); $("codeBtn").textContent = "Show code"; }
   coach = ArduinoCoach.attach($("stagewrap"), { topics: TIPS.topics, openTopic: openTip });
   (function () { var on = lsGet("coach") !== "0"; coach.enabled(on); $("coachBtn").className = "btn" + (on ? " on" : ""); $("coachBtn").onclick = function () { on = !on; lsSet("coach", on ? "1" : "0"); coach.enabled(on); this.className = "btn" + (on ? " on" : ""); toast(on ? "Coach tips are on." : "Coach tips are off."); }; })();
   loadSlot(want); $("slot").value = want; initGoogle();

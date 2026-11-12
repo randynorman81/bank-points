@@ -12,6 +12,10 @@ body{background:var(--bg);color:var(--ink);font:14px/1.5 Manrope,system-ui,sans-
 .top{display:flex;align-items:center;gap:6px;padding:5px 12px;background:var(--panel);border-bottom:1px solid var(--rule);flex-wrap:wrap}
 .top h1{font-size:13px;margin:0 6px 0 0;letter-spacing:.02em;white-space:nowrap}
 .top .sp{flex:1}
+.brand{display:flex;flex-direction:column;align-items:flex-start;gap:3px;margin-right:6px}
+.brand h1{margin:0}
+.hidebtns{display:flex;gap:5px}
+.hidebtns .btn{padding:1px 8px;font-size:11px}
 .btn,select{background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:5px;padding:3px 10px;cursor:pointer;font:700 11.5px Manrope,sans-serif}
 .btn:hover,select:hover{border-color:var(--acc)}
 .btn.run{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
@@ -183,7 +187,7 @@ body.noser .serial{display:none}
 </style><script src="themes.js"></script></head>
 <body>
 <div class="top">
-  <h1>&#9889; Arduino Circuit Editor</h1>
+  <div class="brand"><h1>&#9889; Arduino Circuit Editor</h1><div class="hidebtns"><button class="btn sm on" id="codeBtn" title="Hide or show the code so your Arduino and breadboard get the whole window">Hide code</button><button class="btn sm on" id="assBtn" title="Hide or show the instructions">Hide instructions</button></div></div>
   <button class="btn run" id="run" title="Run the program on the simulated Arduino">&#9654; Start Simulation</button>
   <button class="btn on" id="coachBtn" title="Pop-up tips when something happens in your circuit">&#128172; Coach</button>
   <button class="btn" id="helpBtn" title="Open the help center">&#128161; Help</button>
@@ -191,8 +195,6 @@ body.noser .serial{display:none}
   <button class="btn" id="reset" title="Stop and start again (burned LEDs are replaced)">&#8635; Reset</button>
   <select id="speed" aria-label="Speed" title="Simulation speed"><option value="1">1x speed</option><option value="2">2x</option><option value="5">5x</option><option value="10">10x</option></select>
   <select id="slot" aria-label="Assignment"></select>
-  <button class="btn on" id="assBtn" title="Show or hide the instructions">Instructions</button>
-  <button class="btn on" id="codeBtn" title="Show or hide the code so your Arduino and breadboard get the whole window">Code</button>
   <span class="status" id="status">Ready</span>
   <span class="sp"></span>
   <span class="saveind" id="saveInd"></span><span class="who" id="who"></span><span id="gbtn"></span>
