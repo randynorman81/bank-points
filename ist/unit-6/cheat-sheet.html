@@ -4,94 +4,152 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="../../assets/logo.png"><link rel="stylesheet" href="../unit-4/notes.css">
-<style>:root{--acc:#FB923C;--acc-tint:rgba(251,146,60,.13);--acc-ink:#FED7AA}
-.codeblk{background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:14px 18px;margin:8px 0 14px;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.65;color:#E8ECF3;overflow-x:auto;white-space:pre}
-.demo{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;margin:10px 0 22px}
-.demo .box{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:14px 16px;min-width:0}
-.demo .box h4{font-family:"JetBrains Mono",monospace;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:8px}
-.demo .box .codeblk{margin:0}
-.demo .out{background:#fff;color:#111;border-radius:6px;padding:18px;font-family:Georgia,serif;font-size:15px;line-height:1.5}
-.out h1{font-size:28px;margin:.3em 0;color:inherit;font-family:inherit;font-weight:700}
-.out h2{font-size:22px;margin:.3em 0;color:inherit;font-family:inherit;font-weight:700}
-.out h3{font-size:18px;margin:.3em 0;color:inherit;font-family:inherit;font-weight:700}
-.out p,.out li,.out span,.out td,.out th,.out div,.out strong,.out em,.out label{color:inherit;font-size:inherit}
-.out p{margin:.7em 0}.out ul,.out ol{margin:.7em 0;padding-left:26px}
-.out a{color:#1a0dab}.out hr{margin:14px 0}
-.out table{border-collapse:collapse;background:none;margin:0}.out th,.out td{padding:6px 10px;background:none;border:1px solid #444}
-.out>*:first-child{margin-top:0}.out>*:last-child{margin-bottom:0}
-.out input{margin:4px 0}
-.part{padding:50px 0 10px}.part-head{margin-bottom:22px}
-.ex{border:1px solid var(--rule);background:rgba(255,255,255,.025);border-radius:12px;padding:22px 24px 8px;margin:26px 0}
-.exl{font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:700;letter-spacing:.04em;color:#0B0E14;background:var(--acc);display:inline-block;padding:4px 12px;border-radius:100px;margin-bottom:14px}
-.lede{margin:0 0 14px;line-height:1.7}
-.lsn{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--acc-ink);white-space:nowrap;margin-left:6px}
-.chips{position:sticky;top:0;z-index:50;background:#0B0E14ee;backdrop-filter:blur(8px);border-bottom:1px solid var(--rule);padding:10px 0}
-.chips .wrap{display:flex;flex-wrap:wrap;gap:6px}
-.chip{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:700;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:6px 12px;text-decoration:none}
-.chip:hover{color:#fff;border-color:var(--acc)}
-code{color:#FED7AA}
+<style>
+:root{--acc:#FB923C;--acc-tint:rgba(251,146,60,.13);--acc-ink:#FED7AA}
+body{margin:0}
+.top{position:sticky;top:0;z-index:20;background:#0B0E14f2;backdrop-filter:blur(8px);border-bottom:1px solid var(--rule);padding:16px 0 14px}
+.wrapx{max-width:980px;margin:0 auto;padding:0 18px}
+.top h1{font-family:"Fraunces",serif;font-size:26px;margin:0 0 4px;color:#fff}
+.top p{margin:0 0 12px;color:var(--ink-soft);font-size:14px}
+#q{width:100%;box-sizing:border-box;font:600 18px "JetBrains Mono",monospace;color:#fff;background:#05070B;border:2px solid var(--rule);border-radius:12px;padding:14px 16px;outline:none}
+#q:focus{border-color:var(--acc)}
+#q::placeholder{color:#6B7788;font-weight:500}
+main{padding:22px 0 80px}
+.hint{color:var(--ink-soft);line-height:1.8;font-size:15px}
+.hint code{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:2px 8px;margin:0 3px;display:inline-block}
+.card{border:1px solid var(--rule);background:rgba(255,255,255,.025);border-radius:14px;padding:22px 24px 10px;margin:0 0 26px}
+.card h2{font-family:"JetBrains Mono",monospace;font-size:24px;margin:0 0 6px;color:#fff;word-break:break-word}
+.kind{display:inline-block;font:700 11px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:#0B0E14;background:var(--acc);border-radius:100px;padding:3px 10px;margin-bottom:10px}
+.say{font-size:17px;line-height:1.65;margin:6px 0 14px;color:#E4E9F0}
+h3.sec{font:700 12px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);margin:18px 0 8px}
+.pts2{display:grid;gap:6px;margin:0 0 6px}
+.pt{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.pt code{font:600 13.5px "JetBrains Mono",monospace;background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:3px 9px;color:#FED7AA;white-space:pre-wrap}
+.pt span{color:#C4CDD8;font-size:15px}
+.tip{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.45);border-left:4px solid #F87171;border-radius:6px;padding:10px 16px;margin:14px 0;color:#C4CDD8;font-size:15px;line-height:1.55}
+.tip b{color:#FCA5A5}
+.ex{border-top:1px solid var(--rule);padding:16px 0 18px}
+.exl{font:700 12px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;color:#0B0E14;background:var(--acc);display:inline-block;padding:3px 10px;border-radius:100px;margin-right:8px}
+.excap{font-weight:600;color:#fff;font-size:15.5px}
+.demo{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;margin-top:12px;align-items:start}
+.demo.one{grid-template-columns:minmax(0,1fr)}
+@media(max-width:760px){.demo{grid-template-columns:minmax(0,1fr)}}
+.bx h4{font:600 11px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;color:var(--acc-ink);margin:0 0 6px}
+pre.code{margin:0;background:#05070B;border:1px solid var(--rule);border-radius:8px;padding:14px 16px;font:13px/1.6 "JetBrains Mono",monospace;color:#E8ECF3;overflow-x:auto;white-space:pre;tab-size:2}
+pre.code .ann{color:#FB923C;font-weight:600}
+iframe.out{width:100%;border:1px solid var(--rule);border-radius:8px;background:#fff;display:block;height:70px}
+.more{color:var(--ink-soft);font-size:14px;margin:0 0 22px}
+.more a{color:var(--acc-ink);cursor:pointer;text-decoration:underline;margin-right:10px}
+.none{color:var(--ink-soft);line-height:1.7}
 </style>
 </head>
 <body>
-<nav class="pillnav"><a href="cheat-sheet.html" class="current">Cheat Sheet</a></nav>
-
-<header class="hero"><div class="wrap">
-  <div class="brief-no">Unit 3 &nbsp;/&nbsp; Web Design - HTML</div>
+<div class="top"><div class="wrapx">
   <h1>HTML Cheat Sheet</h1>
-  <p class="deck">Every tag we use, with a code example and what it looks like in the browser. Keep this open while you build.</p>
-  <span class="stdchip">Tags and attributes</span>
-</div></header>
+  <p>Type a tag, attribute, or value and see what it does, with examples.</p>
+  <input id="q" type="search" list="sugg" placeholder="Try:  p   href   color   border   ul" autocomplete="off" autocapitalize="off" spellcheck="false" autofocus>
+  <datalist id="sugg"></datalist>
+</div></div>
+<main><div class="wrapx" id="res"></div></main>
 
-<div class="chips"><div class="wrap"><a class="chip" href="#g0">The skeleton</a><a class="chip" href="#g1">Text</a><a class="chip" href="#g2">Links and images</a><a class="chip" href="#g3">Lists</a><a class="chip" href="#g4">Tables</a><a class="chip" href="#g5">Forms</a><a class="chip" href="#attrs">Attributes</a></div></div>
+<script src="cheat-data.js"></script>
+<script>
+(function () {
+  var D = window.CHEAT, $ = function (id) { return document.getElementById(id); };
+  var PIC = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200"><rect width="300" height="200" fill="#8ecae6"/><circle cx="150" cy="95" r="55" fill="#2b2d42"/><circle cx="130" cy="85" r="8" fill="#fff"/><circle cx="170" cy="85" r="8" fill="#fff"/><ellipse cx="150" cy="112" rx="14" ry="9" fill="#e5989b"/></svg>');
+  var esc = function (s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); };
+  var norm = function (s) { return String(s).toLowerCase().replace(/[^a-z0-9%#.]/g, ""); };   /* "<p>", "background color", "_blank" all become plain letters */
+  var nrm2 = function (s) { return norm(s).replace(/[#.%]/g, ""); };
 
-<section class="part" id="g0"><div class="wrap"><div class="part-head"><h2>The skeleton</h2></div><div class="lbody"><div class="ex"><div class="exl">&lt;!DOCTYPE html&gt;</div><p class="lede">The very first line. It tells the browser this is a modern HTML page. No closing tag. <span class="lsn">Lesson 3.1</span></p><div class="codeblk">&lt;!DOCTYPE html&gt;</div></div><div class="ex"><div class="exl">&lt;html&gt;</div><p class="lede">Wraps the whole page. Everything else goes inside it. <span class="lsn">Lesson 3.1</span></p><div class="codeblk">&lt;html&gt;
-  ...head and body go here...
-&lt;/html&gt;</div></div><div class="ex"><div class="exl">&lt;head&gt;</div><p class="lede">Information about the page that does not show on the page itself. <span class="lsn">Lesson 3.1</span></p><div class="codeblk">&lt;head&gt;
-  &lt;title&gt;My Page&lt;/title&gt;
-&lt;/head&gt;</div></div><div class="ex"><div class="exl">&lt;title&gt;</div><p class="lede">The words in the browser tab. Goes inside the head. <span class="lsn">Lesson 3.1</span></p><div class="codeblk">&lt;title&gt;My First Website&lt;/title&gt;</div><p class="lede">The title shows in the browser tab, not on the page.</p></div><div class="ex"><div class="exl">&lt;body&gt;</div><p class="lede">Everything the visitor sees on the page goes inside the body. <span class="lsn">Lesson 3.1</span></p><div class="demo"><div class="box"><h4>Code</h4><div class="codeblk">&lt;body&gt;
-  &lt;h1&gt;Welcome!&lt;/h1&gt;
-  &lt;p&gt;This shows on the page.&lt;/p&gt;
-&lt;/body&gt;</div></div><div class="box"><h4>What the browser shows</h4><div class="out"><h1 style='margin:0 0 6px'>Welcome!</h1><p style='margin:0'>This shows on the page.</p></div></div></div></div></div></div></section>
-<section class="part" id="g1"><div class="wrap"><div class="part-head"><h2>Text</h2></div><div class="lbody"><div class="ex"><div class="exl">&lt;h1&gt; to &lt;h6&gt;</div><p class="lede">Headings from largest (h1) to smallest (h6). Use one h1 for the page title. <span class="lsn">Lesson 3.1 and 3.3</span></p><div class="demo"><div class="box"><h4>Code</h4><div class="codeblk">&lt;h1&gt;Honey Bee&lt;/h1&gt;
-&lt;h2&gt;Life in the Colony&lt;/h2&gt;
-&lt;h3&gt;The Queen&lt;/h3&gt;</div></div><div class="box"><h4>What the browser shows</h4><div class="out"><h1>Honey Bee</h1><h2>Life in the Colony</h2><h3>The Queen</h3></div></div></div></div><div class="ex"><div class="exl">&lt;p&gt;</div><p class="lede">A paragraph. The browser puts space above and below it. <span class="lsn">Lesson 3.1</span></p><div class="demo"><div class="box"><h4>Code</h4><div class="codeblk">&lt;p&gt;Bees turn nectar into honey.&lt;/p&gt;
-&lt;p&gt;A hive can hold 50,000 bees.&lt;/p&gt;</div></div><div class="box"><h4>What the browser shows</h4><div class="out"><p>Bees turn nectar into honey.</p><p>A hive can hold 50,000 bees.</p></div></div></div></div><div class="ex"><div class="exl">&lt;strong&gt; and &lt;b&gt;</div><p class="lede">Bold text. <span class="lsn">Lesson 3.4</span></p><div class="demo"><div class="box"><h4>Code</h4><div class="codeblk">&lt;p&gt;This is &lt;strong&gt;very important&lt;/strong&gt;.&lt;/p&gt;</div></div><div class="box"><h4>What the browser shows</h4><div class="out"><p>This is <strong>very important</strong>.</p></div></div></div></div><div class="ex"><div class="exl">&lt;em&gt; and &lt;i&gt;</div><p class="lede">Italic text. <span class="lsn">Lesson 3.4</span></p><div class="demo"><div class="box"><h4>Code</h4><div class="codeblk">&lt;p&gt;I read &lt;em&gt;Hatchet&lt;/em&gt; last week.&lt;/p&gt;</div></div><div class="box"><h4>What the browser shows</h4><div class="out"><p>I read <em>Hatchet</em> last week.</p></div></div></div></div><div class="ex"><div class="exl">&lt;br&gt;</div><p class="lede">A line break. Starts a new line inside a paragraph. No closing tag. <span class="lsn">Lesson 3.4</span></p><div class="demo"><div class="box"><h4>Code</h4><div class="codeblk">&lt;p&gt;Roses are red,&lt;br&gt;Violets are blue.&lt;/p&gt;</div></div><div class="box"><h4>What the browser shows</h4><div class="out"><p>Roses are red,<br>Violets are blue.</p></div></div></div></div><div class="ex"><div class="exl">&lt;hr&gt;</div><p class="lede">A horizontal line across the page. No closing tag. <span class="lsn">Lesson 3.4</span></p><div class="demo"><div class="box"><h4>Code</h4><div class="codeblk">&lt;p&gt;Above the line&lt;/p&gt;
-&lt;hr&gt;
-&lt;p&gt;Below the line&lt;/p&gt;</div></div><div class="box"><h4>What the browser shows</h4><div class="out"><p>Above the line</p><hr><p>Below the line</p></div></div></div></div><div class="ex"><div class="exl">&lt;span&gt;</div><p class="lede">An inline container. It changes just a few words and does nothing until you style it. <span class="lsn">Lesson 3.4</span></p><div class="demo"><div class="box"><h4>Code</h4><div class="codeblk">&lt;p&gt;My favorite color is &lt;span style="color: tomato;"&gt;tomato&lt;/span&gt;.&lt;/p&gt;</div></div><div class="box"><h4>What the browser shows</h4><div class="out"><p>My favorite color is <span style="color: tomato;">tomato</span>.</p></div></div></div></div><div class="ex"><div class="exl">&lt;div&gt;</div><p class="lede">A block container. It groups tags together so you can style them as one box. <span class="lsn">Lesson 4.4</span></p><div class="demo"><div class="box"><h4>Code</h4><div class="codeblk">&lt;div style="background-color: lightyellow; border: 2px solid gold;"&gt;
-  &lt;h3&gt;Heads up&lt;/h3&gt;
-  &lt;p&gt;Everything in this box is grouped.&lt;/p&gt;
-&lt;/div&gt;</div></div><div class="box"><h4>What the browser shows</h4><div class="out"><div style="background-color: lightyellow; border: 2px solid gold;padding:6px 12px"><h3>Heads up</h3><p>Everything in this box is grouped.</p></div></div></div></div></div></div></div></section>
-<section class="part" id="g2"><div class="wrap"><div class="part-head"><h2>Links and images</h2></div><div class="lbody"><div class="ex"><div class="exl">&lt;link&gt;</div><p class="lede">In the head. It loads something from outside, like a Google font or your style.css file. No closing tag. <span class="lsn">Lesson 3.5 and 5.1</span></p><div class="codeblk">&lt;head&gt;
-  &lt;link href="https://fonts.googleapis.com/css2?family=Lobster&amp;display=swap" rel="stylesheet"&gt;
-&lt;/head&gt;</div><p class="lede">The font is loaded, but nothing changes until you use it in a style.</p></div><div class="ex"><div class="exl">&lt;img&gt;</div><p class="lede">Shows an image. src is where the picture lives and alt describes it. No closing tag. <span class="lsn">Lesson 3.7</span></p><div class="demo"><div class="box"><h4>Code</h4><div class="codeblk">&lt;img src="dog.jpg" alt="A black puppy" width="150"&gt;</div></div><div class="box"><h4>What the browser shows</h4><div class="out"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22300%22%20height%3D%22200%22%3E%3Crect%20width%3D%22300%22%20height%3D%22200%22%20fill%3D%22%238ecae6%22%2F%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%2295%22%20r%3D%2255%22%20fill%3D%22%232b2d42%22%2F%3E%3Ccircle%20cx%3D%22130%22%20cy%3D%2285%22%20r%3D%228%22%20fill%3D%22%23fff%22%2F%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%2285%22%20r%3D%228%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%22150%22%20cy%3D%22112%22%20rx%3D%2214%22%20ry%3D%229%22%20fill%3D%22%23e5989b%22%2F%3E%3C%2Fsvg%3E" alt="A black puppy" width="150"></div></div></div></div><div class="ex"><div class="exl">&lt;a&gt;</div><p class="lede">A link. href is where it goes. Add target="_blank" to open a new tab. It can wrap words, a heading, or an image. <span class="lsn">Lesson 3.9</span></p><div class="demo"><div class="box"><h4>Code</h4><div class="codeblk">&lt;a href="https://www.wikipedia.org" target="_blank"&gt;Visit Wikipedia&lt;/a&gt;
+  /* ---- search words for every entry ---- */
+  D.forEach(function (e) {
+    var main = e.n.replace(/\(.*?\)/g, " ");
+    e.names = [nrm2(main)].concat(e.al.map(nrm2));
+    e.words = (e.k + " " + e.kind).toLowerCase().split(/\s+/).map(nrm2).filter(Boolean);
+    e.pieces = main.split(/[,\s]+|\band\b/).map(nrm2).filter(function (x) { return x.length > 1 && x !== "to"; });
+  });
+  var dl = $("sugg"), seen = {};
+  D.forEach(function (e) { e.al.concat([e.n.replace(/[<>]/g, "").replace(/\s*\(.*?\)\s*/, "")]).forEach(function (a) { a = a.trim(); if (a && a.length < 22 && !seen[a]) { seen[a] = 1; dl.insertAdjacentHTML("beforeend", '<option value="' + esc(a) + '">'); } }); });
 
-&lt;a href="https://www.wikipedia.org"&gt;&lt;img src="dog.jpg" alt="A black puppy" width="120"&gt;&lt;/a&gt;</div></div><div class="box"><h4>What the browser shows</h4><div class="out"><a href="#" onclick="return false">Visit Wikipedia</a><br><br><a href="#" onclick="return false"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22300%22%20height%3D%22200%22%3E%3Crect%20width%3D%22300%22%20height%3D%22200%22%20fill%3D%22%238ecae6%22%2F%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%2295%22%20r%3D%2255%22%20fill%3D%22%232b2d42%22%2F%3E%3Ccircle%20cx%3D%22130%22%20cy%3D%2285%22%20r%3D%228%22%20fill%3D%22%23fff%22%2F%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%2285%22%20r%3D%228%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%22150%22%20cy%3D%22112%22%20rx%3D%2214%22%20ry%3D%229%22%20fill%3D%22%23e5989b%22%2F%3E%3C%2Fsvg%3E" alt="A black puppy" width="120"></a></div></div></div></div></div></div></section>
-<section class="part" id="g3"><div class="wrap"><div class="part-head"><h2>Lists</h2></div><div class="lbody"><div class="ex"><div class="exl">&lt;ul&gt; and &lt;li&gt;</div><p class="lede">An unordered (bulleted) list. Each item is an li. <span class="lsn">Lesson 3.10</span></p><div class="demo"><div class="box"><h4>Code</h4><div class="codeblk">&lt;ul&gt;
-  &lt;li&gt;Spawn point&lt;/li&gt;
-  &lt;li&gt;Iron ore&lt;/li&gt;
-  &lt;li&gt;Diamonds&lt;/li&gt;
-&lt;/ul&gt;</div></div><div class="box"><h4>What the browser shows</h4><div class="out"><ul><li>Spawn point</li><li>Iron ore</li><li>Diamonds</li></ul></div></div></div></div><div class="ex"><div class="exl">&lt;ol&gt; and &lt;li&gt;</div><p class="lede">An ordered (numbered) list. Each item is an li. <span class="lsn">Lesson 3.10</span></p><div class="demo"><div class="box"><h4>Code</h4><div class="codeblk">&lt;ol&gt;
-  &lt;li&gt;Crack the egg&lt;/li&gt;
-  &lt;li&gt;Stir&lt;/li&gt;
-  &lt;li&gt;Cook&lt;/li&gt;
-&lt;/ol&gt;</div></div><div class="box"><h4>What the browser shows</h4><div class="out"><ol><li>Crack the egg</li><li>Stir</li><li>Cook</li></ol></div></div></div></div></div></div></section>
-<section class="part" id="g4"><div class="wrap"><div class="part-head"><h2>Tables</h2></div><div class="lbody"><div class="ex"><div class="exl">&lt;table&gt;, &lt;tr&gt;, &lt;th&gt;, &lt;td&gt;</div><p class="lede">A table. tr is a row, th is a header cell (bold), td is a regular cell. <span class="lsn">Lesson 4.5</span></p><div class="demo"><div class="box"><h4>Code</h4><div class="codeblk">&lt;table border="1"&gt;
-  &lt;tr&gt;
-    &lt;th&gt;Name&lt;/th&gt;
-    &lt;th&gt;Score&lt;/th&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-    &lt;td&gt;Ana&lt;/td&gt;
-    &lt;td&gt;95&lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/table&gt;</div></div><div class="box"><h4>What the browser shows</h4><div class="out"><table border="1" style="border-collapse:collapse"><tr><th>Name</th><th>Score</th></tr><tr><td>Ana</td><td>95</td></tr></table></div></div></div></div></div></div></section>
-<section class="part" id="g5"><div class="wrap"><div class="part-head"><h2>Forms</h2></div><div class="lbody"><div class="ex"><div class="exl">&lt;form&gt;</div><p class="lede">Holds the boxes and buttons a visitor fills out. <span class="lsn">Lesson 9.6</span></p><div class="demo"><div class="box"><h4>Code</h4><div class="codeblk">&lt;form&gt;
-  &lt;label&gt;Your name&lt;/label&gt;
-  &lt;input type="text"&gt;
-  &lt;button&gt;Send&lt;/button&gt;
-&lt;/form&gt;</div></div><div class="box"><h4>What the browser shows</h4><div class="out"><form><label>Your name</label><br><input type="text"><br><button type="button">Send</button></form></div></div></div></div></div></div></section>
-<section class="part" id="attrs"><div class="wrap"><div class="part-head"><h2>Attributes you add to tags</h2></div><div class="lbody"><p class="lede">An attribute goes inside the opening tag and gives it extra instructions: <code>name="value"</code>. These two are covered above: <code>href</code>, <code>src</code>, <code>alt</code>, <code>target</code>, <code>width</code>. These three are used to style:</p><div class="ex"><div class="exl">style</div><p class="lede">Holds the CSS for one tag. Goes inside the opening tag.</p><div class="codeblk">&lt;p style="color: teal; font-size: 24px;"&gt;Teal text&lt;/p&gt;</div></div><div class="ex"><div class="exl">class</div><p class="lede">A name you give a tag so one CSS rule can style many tags.</p><div class="codeblk">&lt;p class="note"&gt;Styled by .note { }&lt;/p&gt;</div></div><div class="ex"><div class="exl">id</div><p class="lede">A name that belongs to just one tag.</p><div class="codeblk">&lt;h1 id="title"&gt;Styled by #title { }&lt;/h1&gt;</div></div></div></div></section>
+  function score(e, q) {
+    var best = 0, i;
+    for (i = 0; i < e.names.length; i++) {
+      var n = e.names[i]; if (!n) continue;
+      if (n === q) best = Math.max(best, i === 0 ? 100 : 96);
+      else if (n.indexOf(q) === 0 && q.length > 1) best = Math.max(best, 80);
+      else if (q.length > 2 && n.indexOf(q) > -1) best = Math.max(best, 50);
+    }
+    e.pieces.forEach(function (p) { if (p === q) best = Math.max(best, 90); else if (q.length > 1 && p.indexOf(q) === 0) best = Math.max(best, 70); });
+    if (q.length > 2) e.words.forEach(function (w) { if (w === q) best = Math.max(best, 40); else if (w.indexOf(q) === 0) best = Math.max(best, 30); });
+    return best;
+  }
 
-<footer class="final"><div class="wrap"><h2>Open tag. Content. Close tag.</h2><p>Most tags come in pairs. The tags with no closing tag are DOCTYPE, br, hr, link, img, and input.</p></div></footer>
+  /* ---- code with arrows ---- */
+  function arrowCode(c, anns) {
+    var lines = c.split("\n"), byLine = {}, starts = [], pos = 0;
+    lines.forEach(function (l) { starts.push(pos); pos += l.length + 1; });
+    anns.forEach(function (a) {
+      var idx = c.indexOf(a[0]); if (idx < 0) return;
+      var ln = 0; while (ln + 1 < lines.length && starts[ln + 1] <= idx) ln++;
+      (byLine[ln] = byLine[ln] || []).push({ col: idx - starts[ln], cap: a[1] });
+    });
+    var out = [];
+    lines.forEach(function (l, i) {
+      out.push(esc(l));
+      var A = byLine[i]; if (!A) return;
+      A.sort(function (x, y) { return x.col - y.col; });
+      var w = A[A.length - 1].col + 1, row = function () { var r = []; for (var k = 0; k < w; k++) r.push(" "); return r; };
+      var r0 = row(); A.forEach(function (a) { r0[a.col] = "↑"; }); out.push('<span class="ann">' + r0.join("").replace(/\s+$/, "") + "</span>");
+      for (var k = A.length - 1; k >= 0; k--) {
+        var r = row(); for (var j = 0; j < k; j++) r[A[j].col] = "│";
+        r[A[k].col] = "└"; out.push('<span class="ann">' + esc(r.slice(0, A[k].col + 1).join("") + "─ " + A[k].cap) + "</span>");
+      }
+    });
+    return out.join("\n");
+  }
 
-<script src="../unit-4/notes.js"></script></body></html>
+  /* ---- preview: a sandboxed little page ---- */
+  function srcdoc(c) {
+    var code = c.replace(/(<img[^>]*?\ssrc=")[^"]*(")/g, "$1" + PIC + "$2");
+    return '<!doctype html><meta charset="utf-8"><base target="_blank"><link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Lobster&family=Special+Elite&display=swap" rel="stylesheet"><style>body{font:16px Georgia,serif;margin:12px;color:#111;background:#fff}</style>' + code;
+  }
+
+  function card(e) {
+    var h = '<article class="card"><span class="kind">' + esc(e.kind) + "</span><h2>" + esc(e.n) + '</h2><p class="say">' + esc(e.say) + "</p>";
+    if (e.parts.length) { h += '<h3 class="sec">Break it down</h3><div class="pts2">'; e.parts.forEach(function (p) { h += '<div class="pt"><code>' + esc(p[0]) + "</code><span>" + esc(p[1]) + "</span></div>"; }); h += "</div>"; }
+    if (e.tip) h += '<div class="tip"><b>Watch out:</b> ' + esc(e.tip) + "</div>";
+    e.ex.forEach(function (x, i) {
+      h += '<div class="ex"><span class="exl">Example ' + (i + 1) + '</span><span class="excap">' + esc(x.cap) + '</span><div class="demo' + (x.r ? "" : " one") + '"><div class="bx"><h4>Code</h4><pre class="code">' + arrowCode(x.c, x.a) + "</pre></div>";
+      if (x.r) h += '<div class="bx"><h4>What the browser shows</h4><iframe class="out" sandbox="allow-same-origin" title="Result" data-src="' + esc(srcdoc(x.c)).replace(/"/g, "&quot;") + '"></iframe></div>';
+      h += "</div></div>";
+    });
+    return h + "</article>";
+  }
+
+  function fit(f) { try { var d = f.contentDocument; f.style.height = Math.min(Math.max(d.documentElement.scrollHeight, d.body.scrollHeight) + 4, 360) + "px"; } catch (e) {} }
+  function mount() {
+    Array.prototype.forEach.call(document.querySelectorAll("iframe.out[data-src]"), function (f) {
+      f.addEventListener("load", function () { fit(f); setTimeout(function () { fit(f); }, 700); });
+      f.srcdoc = f.getAttribute("data-src"); f.removeAttribute("data-src");
+    });
+  }
+
+  var HINT = '<p class="hint">Type what you want to look up, and it shows up here.<br>Try a tag like <code>p</code> <code>img</code> <code>a</code> <code>ul</code>, an attribute like <code>href</code> <code>src</code> <code>class</code>, or a style like <code>color</code> <code>border</code> <code>padding</code> <code>center</code>.<br>You can type it with or without the &lt; &gt; marks.</p>';
+  function run(raw) {
+    var res = $("res"), tagm = String(raw).match(/<\s*\/?\s*([a-zA-Z][a-zA-Z0-9]*)/), q = /^\s*%\s*$/.test(raw) ? "percent" : nrm2(tagm ? tagm[1] : raw);   /* "<p></p>" finds p */
+    if (!q) { res.innerHTML = HINT; return; }
+    function find(qq) { return D.map(function (e) { return { e: e, s: score(e, qq) }; }).filter(function (x) { return x.s > 0; }).sort(function (a, b) { return b.s - a.s; }); }
+    var hits = /^\s*#[0-9a-f]{3}([0-9a-f]{3})?\s*$/i.test(raw) ? find("hex") : /^\s*\.[a-z]/i.test(raw) ? find("class") : /^\s*#[a-z]/i.test(raw) ? find("id") : find(q);   /* ".note" is a class selector, "#title" an id selector */
+    if (!hits.length) { res.innerHTML = '<p class="none">Nothing found for <b>' + esc(raw) + "</b>. Check the spelling, or try a shorter word like <code>img</code>, <code>color</code>, or <code>border</code>.</p>"; return; }
+    var gap = hits[0].s >= 90 ? 10 : 20, top = hits.filter(function (x) { return x.s >= hits[0].s - gap; }).slice(0, 3), rest = hits.filter(function (x) { return top.indexOf(x) < 0; }).slice(0, 8), h = "";
+    top.forEach(function (x) { h += card(x.e); });
+    if (rest.length) { h += '<p class="more">Also matches: '; rest.forEach(function (x) { h += '<a data-go="' + D.indexOf(x.e) + '">' + esc(x.e.n) + "</a>"; }); h += "</p>"; }
+    res.innerHTML = h; mount();
+  }
+  $("res").addEventListener("click", function (ev) { var g = ev.target.getAttribute && ev.target.getAttribute("data-go"); if (g !== null && g !== undefined) { var e = D[+g]; $("q").value = e.al[0] || e.n.replace(/[<>]/g, "").replace(/\s*\(.*$/, ""); run($("q").value); window.scrollTo(0, 0); } });
+  var t; $("q").addEventListener("input", function () { clearTimeout(t); var v = this.value; t = setTimeout(function () { run(v); }, 120); });
+  var init = (location.search.match(/[?&]q=([^&]*)/) || [])[1]; if (init) { init = decodeURIComponent(init); $("q").value = init; }
+  run(init || "");
+})();
+</script>
+</body></html>
