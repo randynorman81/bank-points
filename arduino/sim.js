@@ -86,7 +86,7 @@
     function pinOk(p, what) { p = Math.trunc(p); if (!(p >= 0 && p <= 19)) badPin(p, what); return p; }
     rt.tick = function () {
       if (tok.stop) throw STOP;
-      if (self.virtualMode) { self.guard = (self.guard || 0) + 1; if (self.guard > 3000000 || (self.deadline && Date.now() > self.deadline)) throw STOP; return Promise.resolve(); }
+      if (self.virtualMode) { self.guard = (self.guard || 0) + 1; if (self.guard > 3000000 || (self.deadline && Date.now() > self.deadline)) throw STOP; self.vt += 0.5; self.runEvents(); return Promise.resolve(); }
       return yieldNow().then(function () { if (tok.stop) throw STOP; });
     };
     rt.delay = function (ms) { ms = +ms; if (!(ms >= 0)) ms = 0; return self.sleep(ms, tok); };
