@@ -194,7 +194,7 @@ function variantFor(rec, period) {
 /* UNLOCK: every assignment (not quizzes) needs this score before the NEXT new assignment opens (since 12 Nov 2026).
    An assignment can still set its own passMin to override it. Students can submit at any score; the score is the grade. */
 const UNLOCK = 90;
-function passMinOf(a) { if (!a) return null; if (a.passMin !== undefined && a.passMin !== null && a.passMin !== "") return Number(a.passMin); return slotPart(a) === "assignment" ? UNLOCK : null; }
+function passMinOf(a) { if (!a) return null; if (a.passMin !== undefined && a.passMin !== null && a.passMin !== "") return Number(a.passMin); return inChain(a) ? UNLOCK : null; }
 /* did this student pass the assignment: the teacher's saved or automatic grade, or (if none) what the checks give now */
 async function subPassed(slot, email) {
   const sub = await readJSON("sub:" + slot + ":" + enc(email), null); if (!sub) return false;
@@ -264,7 +264,7 @@ async function submit(body, user) {
   }
   if (asg && asg.live !== false && body.slot !== "free" && !isTeacherUser(user)) {
     const open = await gatedAssignments(user, period);
-    if (!open.assignments[body.slot]) { const L = open.locked.find((x) => x.id === body.slot); return { error: L ? "Assignment " + L.num + " is locked. " + (L.needPass ? "Score " + L.needPass + "% or higher on Assignment " + L.needNum + " first." : "Submit Assignment " + L.needNum + " first (any score opens the next one).") : "That assignment is not open yet." }; }
+    if (!open.assignments[body.slot]) { const L = open.locked.find((x) => x.id === body.slot); return { error: L ? L.name + " is locked. " + (L.needPass ? "Score " + L.needPass + "% or higher on " + L.needName + " first." : "Submit " + L.needName + " first.") : "That assignment is not open yet." }; }
     const v = variantFor(asg, period);
     if (Array.isArray(v.checks) && v.checks.length) { const r = scoreCode(v.checks, code, String(body.gradeOutput != null ? body.gradeOutput : body.output || "").slice(0, 8000)); if (r.pct !== null && r.pct < PASS && v.submitAny !== true) return { error: "Your score is " + r.pct + " out of 100. You need at least " + PASS + " to submit. Open the \"still missing\" list, fix those parts so they match the steps exactly, and submit again.", pct: r.pct, need: PASS }; }
   }
@@ -286,7 +286,7 @@ async function submit(body, user) {
   try { const g = await autoGradeFor(body.slot, code, rec.teacher, period, rec.gradeOutput != null ? rec.gradeOutput : rec.output); if (g) rec.teacher = g; } catch (e) { console.error("autograde failed", e); }
   await store().setJSON(key, rec);
   await logActivity(body.slot, user.email, code, period, true);
-  const res = { ok: true, submittedAt: rec.submittedAt, count: rec.count }; if (asg && slotPart(asg) === "assignment") res.unlock = { need: passMinOf(asg), passed: await subPassed(body.slot, user.email) };
+  const res = { ok: true, submittedAt: rec.submittedAt, count: rec.count }; if (asg && inChain(asg)) res.unlock = { need: passMinOf(asg), passed: await subPassed(body.slot, user.email) };
   const pmv = asg && asg.passMin !== undefined && asg.passMin !== null ? Number(asg.passMin) : null;
   if (rec.mcScore && rec.mcScore.total && (pmv !== null || (asg && asg.mcReleased) || isTeacherUser(user))) res.mc = { correct: rec.mcScore.correct, total: rec.mcScore.total, pct: Math.round(rec.mcScore.correct / rec.mcScore.total * 100), need: pmv, wrong: (rec.mcScore.wrong || []).map((w) => w.q) };
   return res;
@@ -339,6 +339,9 @@ async function adminSetLive(body) {
   if (body.submitAny !== undefined) rec.submitAny = body.submitAny === true || body.submitAny === "true";   /* submitAny: students can submit whatever score they earn (no 80 needed) */
   if (body.passMin !== undefined) { if (body.passMin === null || body.passMin === "") delete rec.passMin; else { const pn = Number(body.passMin); if (pn >= 0 && pn <= 100) rec.passMin = pn; } }   /* passMin: percent needed before the next assignment opens */
   if (body.quizFree !== undefined) rec.quizFree = body.quizFree === true || body.quizFree === "true";   /* quizFree: a Quiz that does NOT run in fullscreen or record leaving the page */
+  if (body.seq !== undefined) { if (body.seq === null || body.seq === "") delete rec.seq; else if (!isNaN(Number(body.seq))) rec.seq = Number(body.seq); }   /* seq: where it sits in the unit's timeline (8.5 = right after Walkthrough 8) */
+  if (body.part !== undefined) { if (["assignment", "project", "quiz", "test"].indexOf(body.part) > -1) rec.part = body.part; else delete rec.part; }
+  if (body.points !== undefined && !isNaN(Number(body.points))) rec.points = Math.max(0, Math.min(1000, Number(body.points)));
   await store().setJSON("assign:" + body.slot, rec);
   return { ok: true, slot: body.slot, live: rec.live, ungated: rec.ungated === true, quizFree: rec.quizFree === true, submitAny: rec.submitAny === true, passMin: rec.passMin !== undefined ? rec.passMin : null };
 }
@@ -379,8 +382,9 @@ async function adminSetAssignment(body) {
   const prevAsg = await readJSON("assign:" + body.slot, null);
   const points = Math.max(0, Math.min(1000, Number(body.points) || 0));
   const text = JSON.stringify({ title, unit, num, points, mc, mcKey, mcReleased: !!(prevAsg && prevAsg.mcReleased), autoRun: cleanAutoRun(body.autoRun !== undefined ? body.autoRun : (prevAsg && prevAsg.autoRun)), passMin: prevAsg && prevAsg.passMin !== undefined && prevAsg.passMin !== null ? prevAsg.passMin : undefined, mcOnly: !!body.mcOnly, blocks: body.blocks, checks: cleanChecks(body.checks), tips: cleanTips(body.tips), variants, live: body.live !== false, publishedAt: now() });
+  const keep = JSON.parse(text); ["ungated", "quizFree", "submitAny", "seq", "part"].forEach((k) => { if (prevAsg && prevAsg[k] !== undefined && keep[k] === undefined) keep[k] = prevAsg[k]; });
   if (text.length > 400000) return { error: "That assignment is too big" };
-  await store().setJSON("assign:" + body.slot, JSON.parse(text));
+  await store().setJSON("assign:" + body.slot, keep);
   return { ok: true, slot: body.slot, title };
 }
 async function adminSetMcRelease(body) {
@@ -397,24 +401,39 @@ async function adminDeleteAssignment(body) {
   return { ok: true };
 }
 /* each student sees an assignment only after submitting the one before it (the first one is open to everyone); the teacher still controls which are published */
-/* quiz / test / assignment, so a locked item can sit under the right heading in the editor's Assignment box (same rule as slotPart in python/editor.html) */
-function slotPart(a) { if (!a) return "assignment"; if (a.part) return a.part; const t = String(a.title || ""); return /^Quiz\b/i.test(t) ? "quiz" : /\b(Test|Exam)\b/i.test(t) ? "test" : "assignment"; }
+/* What kind of item this is. "assignment" is shown to students as a WALKTHROUGH (it walks them through a concept).
+   "project" (title starts with Project), "quiz" (title starts with Quiz), "test" (Test or Exam in the title).
+   An item can set part: "assignment" | "project" | "quiz" | "test" to override the title rule. */
+function slotPart(a) { if (!a) return "assignment"; if (a.part) return a.part; const t = String(a.title || ""); return /^Quiz\b/i.test(t) ? "quiz" : /^Project\b/i.test(t) ? "project" : /\b(Test|Exam)\b/i.test(t) ? "test" : "assignment"; }
+const inChain = (a) => { const p = slotPart(a); return p === "assignment" || p === "project"; };   /* walkthroughs and projects need 90 to open the next one; quizzes and tests open only when the teacher opens them */
+const KIND_NAME = { assignment: "Walkthrough", project: "Project", quiz: "Quiz", test: "Test" };
+function itemName(id, a) { return slotPart(a) === "assignment" ? "Walkthrough " + (a.num || Number(id.slice(1))) : (String(a.title || "").match(/^(Quiz|Project|Test|Exam)\s*\d*/i) || [KIND_NAME[slotPart(a)] || "Item"])[0].trim(); }
+/* Chronological order inside the dropdown and for unlocking: units in order (Unit 3 before Unit 4), then
+   seq if the teacher set one, else a walkthrough's number, else a range in the title ("Quiz 1: 1-8" goes right after Walkthrough 8). */
+function orderKey(id, a) {
+  const um = /Unit\s*(\d+)/i.exec(String(a.unit || "")), unit = um ? Number(um[1]) : 99, t = String(a.title || "");
+  if (a.seq !== undefined && a.seq !== null && a.seq !== "" && !isNaN(Number(a.seq))) return unit * 1000 + Number(a.seq);
+  if (slotPart(a) === "assignment") return unit * 1000 + (Number(a.num) || Number(id.slice(1)));
+  const r = /(\d+)\s*(?:-|to)\s*(\d+)/i.exec(t.replace(/^\D*\d+\s*:/, "")), own = /(\d+)/.exec(t);
+  const rank = { quiz: 0, project: 1, test: 2 }[slotPart(a)] || 0;   /* after the same walkthrough: quizzes, then projects, then tests */
+  return unit * 1000 + (r ? Number(r[2]) + 0.5 : 900) + rank * 0.01 + (own ? Number(own[1]) / 1000 : 0);
+}
 async function gatedAssignments(user, period) {
-  const all = (await publicAssignments(true)).assignments, order = Object.keys(all).sort((a, b) => parseInt(a.slice(1), 10) - parseInt(b.slice(1), 10));
-  const out = {}, locked = []; const show = (id) => { const v = Object.assign({}, variantFor(all[id], period)); delete v.checks; delete v.variants; delete v.mcKey; out[id] = v; };
+  const all = (await publicAssignments(true)).assignments, order = Object.keys(all).sort((a, b) => orderKey(a, all[a]) - orderKey(b, all[b]) || parseInt(a.slice(1), 10) - parseInt(b.slice(1), 10));
+  const out = {}, locked = []; const show = (id) => { const v = Object.assign({}, variantFor(all[id], period)); delete v.checks; delete v.variants; delete v.mcKey; v.ord = orderKey(id, all[id]); out[id] = v; };
   if (isTeacherUser(user)) { for (const id of order) show(id); return { ok: true, assignments: out, locked }; }
-  /* A NEW assignment opens only when EVERY earlier assignment has passed (90 or more, see UNLOCK). One the student has already
-     submitted stays open, so they can keep working on it or go back and raise an earlier score. Quizzes are not part of this chain:
-     they open only when the teacher opens them (ungated). */
+  /* A NEW walkthrough or project opens only when EVERY earlier one (in chronological order) has passed (90 or more, see UNLOCK).
+     One the student has already submitted stays open, so they can keep working on it or go back and raise an earlier score.
+     Quizzes are not part of this chain: they open only when the teacher opens them (ungated). */
   let firstFail = null;
   for (const id of order) {
     const a = all[id]; if (a.live === false) continue;
-    const isAsg = slotPart(a) === "assignment";
-    const hasSub = isAsg && firstFail !== null && user ? !!(await readJSON("sub:" + id + ":" + enc(user.email), null)) : false;
+    const chain = inChain(a);
+    const hasSub = chain && firstFail !== null && user ? !!(await readJSON("sub:" + id + ":" + enc(user.email), null)) : false;
     const open = a.ungated === true || firstFail === null || hasSub;
     if (open) show(id);
-    else { const f = all[firstFail]; locked.push({ id, need: firstFail, unit: a.unit || "", part: slotPart(a), title: isAsg ? "" : String(a.title || ""), needName: slotPart(f) === "assignment" ? "" : (String(f.title || "").match(/^(Quiz|Test|Exam)\s*\d*/i) || [""])[0].trim(), num: a.num || Number(id.slice(1)), needNum: f.num || Number(firstFail.slice(1)), needPass: passMinOf(f) }); }
-    if (isAsg && firstFail === null && !(user && (await subPassed(id, user.email)))) firstFail = id;
+    else { const f = all[firstFail]; locked.push({ id, need: firstFail, unit: a.unit || "", part: slotPart(a), ord: orderKey(id, a), title: slotPart(a) === "assignment" ? "" : String(a.title || ""), name: itemName(id, a), needName: itemName(firstFail, f), needName2: slotPart(f) === "assignment" ? "" : itemName(firstFail, f), num: a.num || Number(id.slice(1)), needNum: f.num || Number(firstFail.slice(1)), needPass: passMinOf(f) }); }
+    if (chain && firstFail === null && !(user && (await subPassed(id, user.email)))) firstFail = id;
   }
   return { ok: true, assignments: out, locked };
 }
