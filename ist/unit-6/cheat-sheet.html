@@ -45,16 +45,36 @@ iframe.out{width:100%;border:1px solid var(--rule);border-radius:8px;background:
 .more{color:var(--ink-soft);font-size:14px;margin:0 0 22px}
 .more a{color:var(--acc-ink);cursor:pointer;text-decoration:underline;margin-right:10px}
 .none{color:var(--ink-soft);line-height:1.7}
+
+/* concept buttons: one per concept, right under the search bar */
+#cbar{margin:0 auto 6px}
+#cbar summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:8px;font:700 12px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);padding:4px 0 8px}
+#cbar summary::-webkit-details-marker{display:none}
+#cbar summary::before{content:"\25BE";font-size:13px}
+#cbar:not([open]) summary::before{content:"\25B8"}
+.cgrp{display:flex;gap:8px 10px;align-items:flex-start;margin:0 0 10px}
+.cgrp h4{flex:0 0 108px;margin:9px 0 0;font:700 11px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+.cbtns{display:flex;flex-wrap:wrap;gap:6px;flex:1;min-width:0}
+.cbtn{--bc:#E6EAF2;font:600 13px "JetBrains Mono",monospace;color:var(--bc);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:7px 11px;min-height:34px;cursor:pointer;transition:background .12s,border-color .12s,transform .08s}
+.cbtn:hover{border-color:var(--bc);background:rgba(255,255,255,.06)}
+.cbtn:active{transform:translateY(1px)}
+.cbtn:focus-visible{outline:2px solid var(--bc);outline-offset:2px}
+.cbtn.on{background:var(--bc);border-color:var(--bc);color:#0B0E14}
+.tolink{float:right;margin-top:-30px;font:700 12px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;color:var(--acc-ink);text-decoration:none;border:1px solid var(--rule);border-radius:100px;padding:5px 12px;background:#05070B}
+.tolink:hover{border-color:var(--acc)}
+#res{scroll-margin-top:150px}
+.tolink .sm{display:none}
+@media(max-width:640px){.cgrp{display:block}.cgrp h4{margin:0 0 6px}.tolink .lg{display:none}.tolink .sm{display:inline}.tolink{margin-top:-28px;padding:4px 10px}}
 </style>
 </head>
 <body>
 <div class="top"><div class="wrapx">
-  <h1>HTML Cheat Sheet</h1>
+  <h1>HTML Cheat Sheet</h1><a class="tolink" id="tolink" href="#cbar"><span class="lg">Concept buttons</span><span class="sm">&uarr; Buttons</span></a>
   <p>Type a tag, attribute, or value and see what it does, with examples.</p>
   <input id="q" type="search" list="sugg" placeholder="Try:  p   href   color   border   ul" autocomplete="off" autocapitalize="off" spellcheck="false" autofocus>
   <datalist id="sugg"></datalist>
 </div></div>
-<main><div class="wrapx" id="res"></div></main>
+<main><div class="wrapx"><details id="cbar" open><summary id="cbarSum">Or click a concept</summary><div id="cgroups"></div></details></div><div class="wrapx" id="res"></div></main>
 
 <script src="html-check.js"></script>
 <script src="syntax-colors.js"></script>
@@ -166,7 +186,7 @@ iframe.out{width:100%;border:1px solid var(--rule);border-radius:8px;background:
     });
   }
 
-  var HINT = '<p class="hint">Type what you want to look up, and it shows up here.<br>Try a tag like <code>p</code> <code>img</code> <code>a</code> <code>ul</code>, an attribute like <code>href</code> <code>src</code> <code>class</code>, or a style like <code>color</code> <code>border</code> <code>padding</code> <code>center</code>.<br>You can type it with or without the &lt; &gt; marks.</p>';
+  var HINT = '<p class="hint">Type what you want to look up, and it shows up here.<br>Try a tag like <code>p</code> <code>img</code> <code>a</code> <code>ul</code>, an attribute like <code>href</code> <code>src</code> <code>class</code>, or a style like <code>color</code> <code>border</code> <code>padding</code> <code>center</code>.<br>You can type it with or without the &lt; &gt; marks. Or click any button above.</p>';
   function run(raw) {
     var res = $("res"), tagm = String(raw).match(/<\s*\/?\s*([a-zA-Z][a-zA-Z0-9]*)/), q = /^\s*%\s*$/.test(raw) ? "percent" : nrm2(tagm ? tagm[1] : raw);   /* "<p></p>" finds p */
     if (!q) { res.innerHTML = HINT; return; }
@@ -178,7 +198,59 @@ iframe.out{width:100%;border:1px solid var(--rule);border-radius:8px;background:
     if (rest.length) { h += '<p class="more">Also matches: '; rest.forEach(function (x) { h += '<a data-go="' + D.indexOf(x.e) + '">' + esc(x.e.n) + "</a>"; }); h += "</p>"; }
     res.innerHTML = h; mount();
   }
-  $("res").addEventListener("click", function (ev) { var g = ev.target.getAttribute && ev.target.getAttribute("data-go"); if (g !== null && g !== undefined) { var e = D[+g]; $("q").value = e.al[0] || e.n.replace(/[<>]/g, "").replace(/\s*\(.*$/, ""); run($("q").value); window.scrollTo(0, 0); } });
+  $("res").addEventListener("click", function (ev) { var g = ev.target.getAttribute && ev.target.getAttribute("data-go"); if (g !== null && g !== undefined) { var e = D[+g]; $("q").value = e.al[0] || e.n.replace(/[<>]/g, "").replace(/\s*\(.*$/, ""); run($("q").value); markBtn(D.indexOf(e)); window.scrollTo(0, 0); } });
+
+  /* ---- concept buttons: one per concept, right under the search bar ---- */
+  var LABEL = {
+    "<!DOCTYPE html>": "<!DOCTYPE>", "<html>": "<html>", "<head>": "<head>", "<title>": "<title>", "<body>": "<body>",
+    "<h1> to <h6> (headings)": "<h1> to <h6>", "<p>": "<p>", "<strong> and <b> (bold)": "<strong>", "<em> and <i> (italic)": "<em>",
+    "<br> (line break)": "<br>", "<hr> (horizontal line)": "<hr>", "<span>": "<span>", "<div>": "<div>", "<link>": "<link>",
+    "<img> (image)": "<img>", "<a> (link)": "<a>", "<ul> (bulleted list)": "<ul>", "<ol> (numbered list)": "<ol>", "<li> (list item)": "<li>",
+    "<table> (tr, th, td)": "<table>", "<form>": "<form>", "<style> (internal CSS)": "<style>",
+    "style": "style", "href": "href", "src": "src", "alt": "alt", "target=\"_blank\"": "target", "width and height": "width, height",
+    "class": "class", "id": "id", "rel": "rel",
+    "color": "color", "background-color": "background-color", "font-size": "font-size", "text-align": "text-align", "text-transform": "text-transform",
+    "font-family": "font-family", "border": "border", "padding": "padding", "margin": "margin", "list-style-type": "list-style-type",
+    "display": "display", "vertical-align": "vertical-align", "transition": "transition",
+    ":hover": ":hover", "Selectors: tag, .class, #id": "Selectors",
+    "Color values (names and hex)": "Color names + hex", "px and % (sizes)": "px and %", "center, left, right": "center, left, right",
+    "uppercase, lowercase, capitalize": "uppercase, lowercase", "solid, dashed, dotted": "solid, dashed, dotted",
+    "inline, block, inline-block": "inline, block", "none": "none", "Font families: serif, sans-serif, monospace, cursive": "serif, sans-serif, monospace",
+    "top": "top", "Emojis and symbols": "Emojis + symbols"
+  };
+  var GROUPS = [
+    { name: "Tags", color: "#FB7185", test: function (e) { return e.kind === "tag"; } },
+    { name: "Attributes", color: "#FBBF24", test: function (e) { return /^attribute/.test(e.kind); } },
+    { name: "CSS properties", color: "#60A5FA", test: function (e) { return e.kind === "property"; } },
+    { name: "Selectors", color: "#A78BFA", test: function (e) { return e.kind === "selector"; } },
+    { name: "Values", color: "#86EFAC", test: function (e) { return e.kind === "value"; } },
+    { name: "Symbols", color: "#FED7AA", test: function (e) { return e.kind === "character"; } }
+  ];
+  function labelOf(e) {
+    if (LABEL[e.n]) return LABEL[e.n];
+    var m = /^<[^>]+>/.exec(e.n); return m ? m[0] : e.n;                       /* a new entry still gets a button */
+  }
+  var cg = $("cgroups"), btnFor = [];
+  GROUPS.forEach(function (g) {
+    var list = D.filter(g.test); if (!list.length) return;
+    var h = '<div class="cgrp"><h4>' + esc(g.name) + '</h4><div class="cbtns">';
+    list.forEach(function (e) { h += '<button type="button" class="cbtn" style="--bc:' + g.color + '" data-c="' + D.indexOf(e) + '" aria-pressed="false" title="' + esc(e.n) + '">' + esc(labelOf(e)) + "</button>"; });
+    cg.insertAdjacentHTML("beforeend", h + "</div></div>");
+  });
+  Array.prototype.forEach.call(cg.querySelectorAll(".cbtn"), function (b) { btnFor[+b.getAttribute("data-c")] = b; });
+  function markBtn(i) {
+    btnFor.forEach(function (b, k) { if (b) { var on = k === i; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on ? "true" : "false"); } });
+  }
+  function showConcept(i) {
+    var e = D[i], res = $("res"); if (!e) return;
+    $("q").value = e.al[0] || e.n.replace(/[<>]/g, "").replace(/\s*\(.*$/, "");
+    res.innerHTML = card(e); mount(); markBtn(i);
+    var top = res.getBoundingClientRect().top;
+    if (top > window.innerHeight * 0.5) window.scrollTo({ top: window.pageYOffset + top - 150, behavior: "smooth" });   /* only scroll when the answer would start low on the screen */
+  }
+  cg.addEventListener("click", function (ev) { var b = ev.target.closest && ev.target.closest(".cbtn"); if (b) showConcept(+b.getAttribute("data-c")); });
+  $("tolink").addEventListener("click", function (ev) { ev.preventDefault(); $("cbar").open = true; $("cbar").scrollIntoView({ behavior: "smooth", block: "start" }); });
+  $("q").addEventListener("input", function () { markBtn(-1); });
   var t; $("q").addEventListener("input", function () { clearTimeout(t); var v = this.value; t = setTimeout(function () { run(v); }, 120); });
   var init = (location.search.match(/[?&]q=([^&]*)/) || [])[1]; if (init) { init = decodeURIComponent(init); $("q").value = init; }
   run(init || "");
