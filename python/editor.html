@@ -1199,6 +1199,8 @@ addExample();
    "quiz" (title starts with Quiz), "test" (title has Test or Exam in it), or "assignment" (everything else).
    An assignment can also set part: "quiz" | "test" | "assignment" to override the title rule. */
 function slotPart(A) { if (!A) return "assignment"; if (A.part) return A.part; var t = String(A.title || ""); return /^Quiz\b/i.test(t) ? "quiz" : /\b(Test|Exam)\b/i.test(t) ? "test" : "assignment"; }
+/* order inside a heading: assignments by number; quizzes and tests by the number in their title (Quiz 1, Quiz 2, ...) */
+function partOrder(A, id) { var m = slotPart(A) !== "assignment" && /(\d+)/.exec(String((A && A.title) || "")); return m ? Number(m[1]) : (Number(aNum(id, A)) || 0); }
 var PART_ORDER = ["assignment", "quiz", "test"], PART_NAME = { assignment: "Assignments", quiz: "Quizzes", test: "Tests" };
 function slotLabel(id, inGroup) {
   if (id === "example") return "Example (what finished work looks like)";
@@ -1215,12 +1217,12 @@ function buildSlots() {
     if (id !== "free" && !(window.PY_ASSIGN && window.PY_ASSIGN[id])) return;
     var A = window.PY_ASSIGN && window.PY_ASSIGN[id], grouped = id !== "free" && id !== "example" && A && A.unit;
     var opt = '<option value="' + id + '">' + slotLabel(id, grouped) + (MY[id] === "sub" ? " ✓" : "") + "</option>";
-    if (grouped) put(A.unit, slotPart(A), Number(aNum(id, A)) || 0, opt); else top += opt;
+    if (grouped) put(A.unit, slotPart(A), partOrder(A, id), opt); else top += opt;
   });
   (window.PY_LOCKED || []).forEach(function (L) {
-    var part = L.part || "assignment", name = part === "assignment" ? "Assignment " + L.num : part === "quiz" ? "Quiz" : "Test";
-    var opt = '<option value="" disabled>\uD83D\uDD12 ' + name + " (" + (L.needPass ? "score " + L.needPass + "% on" : "submit") + " Assignment " + L.needNum + " to unlock)</option>";
-    if (L.unit) put(L.unit, part, Number(L.num) || 0, opt); else rest += opt;
+    var part = L.part || "assignment", name = part === "assignment" ? "Assignment " + L.num : (L.title || (part === "quiz" ? "Quiz" : "Test"));
+    var opt = '<option value="" disabled>\uD83D\uDD12 ' + name + " (" + (L.needPass ? "score " + L.needPass + "% on" : "submit") + " " + (L.needName || "Assignment " + L.needNum) + " to unlock)</option>";
+    if (L.unit) put(L.unit, part, part === "assignment" ? Number(L.num) || 0 : partOrder({ title: L.title, part: part }, "a" + L.num), opt); else rest += opt;
   });
   var h = top;
   order.forEach(function (u) {

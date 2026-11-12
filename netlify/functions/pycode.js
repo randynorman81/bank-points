@@ -369,7 +369,7 @@ async function gatedAssignments(user, period) {
   for (const id of order) {
     const live = all[id].live !== false;
     let open = prev === null || all[id].ungated === true || (user && (await subPassed(prev, user.email)));   /* ungated: the teacher opened this one to every student, whatever they have finished */
-    if (live) { if (open) { const v = Object.assign({}, variantFor(all[id], period)); delete v.checks; delete v.variants; delete v.mcKey; out[id] = v; } else locked.push({ id, need: prev, unit: all[id].unit || "", part: slotPart(all[id]), num: all[id].num || Number(id.slice(1)), needNum: all[prev].num || Number(prev.slice(1)), needPass: all[prev].passMin !== undefined && all[prev].passMin !== null ? Number(all[prev].passMin) : null }); }
+    if (live) { if (open) { const v = Object.assign({}, variantFor(all[id], period)); delete v.checks; delete v.variants; delete v.mcKey; out[id] = v; } else locked.push({ id, need: prev, unit: all[id].unit || "", part: slotPart(all[id]), title: slotPart(all[id]) === "assignment" ? "" : String(all[id].title || ""), needName: slotPart(all[prev]) === "assignment" ? "" : (String(all[prev].title || "").match(/^(Quiz|Test|Exam)\s*\d*/i) || [""])[0].trim(), num: all[id].num || Number(id.slice(1)), needNum: all[prev].num || Number(prev.slice(1)), needPass: all[prev].passMin !== undefined && all[prev].passMin !== null ? Number(all[prev].passMin) : null }); }
     if (live) prev = id;
   }
   return { ok: true, assignments: out, locked };
