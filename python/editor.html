@@ -1226,6 +1226,15 @@ function slotLabel(id, inGroup) {
   return (inGroup && part !== "assignment" ? SUB_INDENT : "") + (inGroup || !unitShort(A) ? "" : unitShort(A) + " · ") + name + draft;
 }
 function unitNum(u) { var m = /Unit\s*(\d+)/i.exec(String(u || "")); return m ? Number(m[1]) : 99; }
+/* chronological place in the unit (same rule as orderKey in netlify/functions/pycode.js; the server usually sends it as A.ord) */
+function slotOrd(id, A) {
+  if (A && typeof A.ord === "number") return A.ord;
+  var unit = unitNum(A && A.unit), t = String((A && A.title) || "");
+  if (A && A.seq !== undefined && A.seq !== null && A.seq !== "" && !isNaN(Number(A.seq))) return unit * 1000 + Number(A.seq);
+  if (slotPart(A) === "assignment") return unit * 1000 + (Number(A && A.num) || Number(id.slice(1)));
+  var r = /(\d+)\s*(?:-|to)\s*(\d+)/i.exec(t.replace(/^\D*\d+\s*:/, "")), own = /(\d+)/.exec(t), rank = { quiz: 0, project: 1, test: 2 }[slotPart(A)] || 0;
+  return unit * 1000 + (r ? Number(r[2]) + 0.5 : 900) + rank * 0.01 + (own ? Number(own[1]) / 1000 : 0);
+}
 function buildSlots() {
   var top = "", groups = {}, order = [], rest = "";
   var put = function (unit, ord, html) { if (!groups[unit]) { groups[unit] = []; order.push(unit); } groups[unit].push({ ord: ord, html: html }); };
@@ -1233,7 +1242,7 @@ function buildSlots() {
     if (id !== "free" && !(window.PY_ASSIGN && window.PY_ASSIGN[id])) return;
     var A = window.PY_ASSIGN && window.PY_ASSIGN[id], grouped = id !== "free" && id !== "example" && A && A.unit;
     var opt = '<option value="' + id + '">' + escA(slotLabel(id, grouped)) + (MY[id] === "sub" ? " ✓" : "") + "</option>";
-    if (grouped) put(A.unit, typeof A.ord === "number" ? A.ord : Number(aNum(id, A)) || 0, opt); else top += opt;
+    if (grouped) put(A.unit, slotOrd(id, A), opt); else top += opt;
   });
   (window.PY_LOCKED || []).forEach(function (L) {
     var part = L.part || "assignment", name = part === "assignment" ? "Walkthrough " + L.num : (L.title || L.name || "Quiz");
