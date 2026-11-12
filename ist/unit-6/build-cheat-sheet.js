@@ -127,7 +127,7 @@ code{color:#FED7AA}
 </style>
 </head>
 <body>
-<nav class="pillnav"><a href="index.html">&larr; Unit 3</a><a href="cheat-sheet.html" class="current">Cheat Sheet</a><a href="study-guide.html">Full study guide</a></nav>
+<nav class="pillnav"><a href="cheat-sheet.html" class="current">Cheat Sheet</a></nav>
 
 <header class="hero"><div class="wrap">
   <div class="brief-no">Unit 3 &nbsp;/&nbsp; Web Design - HTML</div>
@@ -139,7 +139,7 @@ code{color:#FED7AA}
 <div class="chips"><div class="wrap">${chips}</div></div>
 
 ${body}
-<footer class="final"><div class="wrap"><h2>Open tag. Content. Close tag.</h2><p>Most tags come in pairs. The tags with no closing tag are DOCTYPE, br, hr, link, img, and input.</p><a class="back" href="index.html">&larr; Unit 3</a></div></footer>
+<footer class="final"><div class="wrap"><h2>Open tag. Content. Close tag.</h2><p>Most tags come in pairs. The tags with no closing tag are DOCTYPE, br, hr, link, img, and input.</p></div></footer>
 
 <script src="../unit-4/notes.js"></script></body></html>
 `;
