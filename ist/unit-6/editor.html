@@ -318,7 +318,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   <button class="btn" id="btnCopy" title="Copy the file you are editing">Copy code</button>
   <button class="btn" id="btnReset" title="Teacher only: clear all the code, checkboxes, and answers on this page, including your saved copy">Reset page</button>
   <button class="btn pri" id="btnSubmit">Submit</button>
-  <a class="btn" id="linkGuide" href="study-guide.html" target="_blank" rel="noopener">Study guide</a>
+  <a class="btn" id="linkGuide" href="cheat-sheet.html" target="_blank" rel="noopener">Cheat sheet</a>
   <a class="btn" id="linkUnit" href="index.html">Back to the unit</a>
 </div>
 <div class="note" id="note"></div>
@@ -375,7 +375,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
     </div>
   </aside>
 </main>
-<div id="guidePop" role="dialog" aria-label="Study guide"><div class="gh" id="guideHead"><b>Study guide</b><a class="btn sm" id="guideFull" href="study-guide.html" target="_blank" rel="noopener">Open full page</a><button class="btn sm" id="guideClose" aria-label="Close study guide">&#10005;</button></div><iframe id="guideFrame" title="Study guide"></iframe></div>
+<div id="guidePop" role="dialog" aria-label="Cheat sheet"><div class="gh" id="guideHead"><b>Cheat sheet</b><a class="btn sm" id="guideFull" href="cheat-sheet.html" target="_blank" rel="noopener">Open full page</a><button class="btn sm" id="guideClose" aria-label="Close cheat sheet">&#10005;</button></div><iframe id="guideFrame" title="Cheat sheet"></iframe></div>
 
 
 <div class="modal" id="mSubmit"><div class="box">
@@ -1068,7 +1068,7 @@ $("btnRun").addEventListener("click", renderPreview);
 $("btnCopy").addEventListener("click", function () { ta.select(); clip = ta.value; lsSet("u7:clip", clip.slice(0, 60000)); lsSet("u7:cliplesson", S.lesson); try { navigator.clipboard.writeText(ta.value); toast("Copied " + (S.file === "css" ? "style.css" : "index.html")); } catch (e) { document.execCommand("copy"); toast("Copied"); } });
 function setTab(t) { $("main").setAttribute("data-tab", t); [].forEach.call(document.querySelectorAll("#tabsm button"), function (b) { b.classList.toggle("on", b.getAttribute("data-t") === t); }); }
 $("tabsm").addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) { setTab(b.getAttribute("data-t")); if (b.getAttribute("data-t") === "code") layoutGutter(); } });
-function guideUrl() { return S.lesson === "6.75" ? "emojis-symbols-notes.html" : /^[89]\./.test(S.lesson) ? "../unit-" + S.lesson.charAt(0) + "/index.html" : "study-guide.html#l" + S.lesson.replace(".", "-"); }
+function guideUrl() { return S.lesson === "6.75" ? "emojis-symbols-notes.html" : /^[89]\./.test(S.lesson) ? "../unit-" + S.lesson.charAt(0) + "/index.html" : "cheat-sheet.html"; }
 function unitUrl() { var u = S.lesson.charAt(0); return u === "6" ? "index.html" : "../unit-" + u + "/index.html"; }
 function updateGuideLink() { $("linkGuide").href = guideUrl(); $("linkUnit").href = unitUrl(); }
 
@@ -1358,7 +1358,7 @@ function paintHL() {
 ta.addEventListener("scroll", paintHL); ta.addEventListener("input", paintHL);
 setInterval(paintHL, 120); paintHL();
 
-/* study guide opens in a floating window so the code stays visible */
+/* cheat sheet opens in a floating window so the code stays visible */
 (function () {
   var pop = $("guidePop"), frame = $("guideFrame"), head = $("guideHead");
   function url() { return guideUrl(); }
