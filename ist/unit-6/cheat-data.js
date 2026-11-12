@@ -12,21 +12,8 @@ T("<!DOCTYPE html>", "tag", ["doctype"], "first line declaration skeleton",
   "This is the very first line of every web page. It tells the browser, \"This page is written in modern HTML.\" Visitors never see it, but the browser needs it.",
   [["<!DOCTYPE html>", "Says what kind of file this is"]],
   "It goes on line 1, before <html>. It has no closing tag.",
-  [E("The smallest real web page", `<!DOCTYPE html>
-<html>
-  <body>
-    <p>Hello!</p>
-  </body>
-</html>`, [["<!DOCTYPE html>", "line 1, always first"]]),
-   E("The doctype sits above the head and body", `<!DOCTYPE html>
-<html>
-  <head>
-    <title>My Page</title>
-  </head>
-  <body>
-    <h1>Welcome</h1>
-  </body>
-</html>`, [["<!DOCTYPE html>", "tells the browser: modern HTML"], ["<html>", "the page itself starts here"]])]),
+  [E("The doctype is the first thing on the page", `<!DOCTYPE html>`, [["<!DOCTYPE html>", "always the very first line"]], false),
+   E("Then the rest of the page follows it", `<!DOCTYPE html><html><body><p>Hello!</p></body></html>`, [["<!DOCTYPE html>", "comes first"], ["<html>", "the page starts after it"]])]),
 
 T("<html>", "tag", ["html"], "skeleton wrapper container page",
   "The <html> tag is the big box that holds your whole page. Everything except the doctype goes inside it, like a lunchbox that holds everything you packed.",
@@ -69,19 +56,8 @@ T("<title>", "tag", ["title"], "browser tab name",
   "The title is the name that shows in the browser TAB at the top of the window. It does not show on the page. It also becomes the name when someone bookmarks your page.",
   [["<title>", "Opening tag"], ["My First Website", "The words that show in the tab"], ["</title>", "Closing tag"]],
   "The title goes inside the <head>, not the <body>.",
-  [E("Title goes in the head", `<head>
-  <title>My First Website</title>
-</head>
-<body>
-  <h1>Welcome!</h1>
-</body>`, [["<title>", "opening tag"], ["My First Website", "shows in the tab"], ["</title>", "closing tag"]], false),
-   E("Same page, different title", `<head>
-  <title>Band Profile: The Comets</title>
-</head>
-<body>
-  <h1>The Comets</h1>
-  <p>Our new album drops Friday.</p>
-</body>`, [["Band Profile: The Comets", "tab says this"], ["<h1>The Comets</h1>", "the page says this"]])]),
+  [E("A title for a page", `<title>My First Website</title>`, [["<title>", "opening tag"], ["My First Website", "shows in the browser tab"], ["</title>", "closing tag"]], false),
+   E("Another title", `<title>Band Profile: The Comets</title>`, [["Band Profile: The Comets", "the tab says this, but the page does not"]], false)]),
 
 T("<body>", "tag", ["body"], "skeleton visible page content",
   "Everything people can SEE on your page goes inside the body: headings, paragraphs, images, links, and lists.",
@@ -100,20 +76,14 @@ T("<h1> to <h6> (headings)", "tag", ["h1", "h2", "h3", "h4", "h5", "h6", "headin
   "Headings are titles. <h1> is the biggest and most important. <h2> is a little smaller, <h3> smaller still, all the way down to <h6>. Use h1 for the page title, then h2 and h3 for sections.",
   [["<h1>", "Biggest heading (page title)"], ["<h2>", "Section heading"], ["<h3>", "Smaller heading under a section"]],
   "Do not pick a heading just because it looks big. Pick it for how important it is. You can change the size later with font-size.",
-  [E("Three levels of headings", `<h1>Honey Bee</h1>
-<h2>Life in the Colony</h2>
-<h3>The Queen</h3>`, [["<h1>", "page title: biggest"], ["<h2>", "a section"], ["<h3>", "a smaller part"]]),
-   E("Headings with paragraphs under them", `<h1>Volcanoes</h1>
-<p>A volcano is an opening in the Earth.</p>
-<h2>Types</h2>
-<p>There are three main types.</p>`, [["<h1>", "the main title"], ["<h2>", "starts a new section"]])]),
+  [E("Three levels of headings", `<h1>Honey Bee</h1><h2>Life in the Colony</h2><h3>The Queen</h3>`, [["<h1>", "page title: biggest"], ["<h2>", "a section"], ["<h3>", "a smaller part"]]),
+   E("Headings with paragraphs under them", `<h1>Volcanoes</h1><p>A volcano is an opening in the Earth.</p><h2>Types</h2><p>There are three main types.</p>`, [["<h1>", "the main title"], ["<h2>", "starts a new section"]])]),
 
 T("<p>", "tag", ["p", "paragraph"], "text paragraph words sentence",
   "The paragraph tag holds a chunk of regular text. The browser adds a little space above and below each paragraph so they do not touch.",
   [["<p>", "Opening tag"], ["Your words", "What the visitor reads"], ["</p>", "Closing tag"]],
   "Pressing Enter in your code does NOT start a new paragraph. You need a new <p> tag for that.",
-  [E("Two paragraphs", `<p>Bees turn nectar into honey.</p>
-<p>One hive can hold 50,000 bees.</p>`, [["<p>Bees", "first paragraph opens"], ["</p>\n", "closes"]]),
+  [E("Two paragraphs", `<p>Bees turn nectar into honey.</p><p>One hive can hold 50,000 bees.</p>`, [["<p>Bees", "first paragraph opens"], ["</p><p>", "closes one, opens the next"]]),
    E("A paragraph with a style", `<p style="color: teal; font-size: 20px;">This text is teal and bigger.</p>`, [["style=", "style goes in the opening tag"], ["color: teal;", "text color"], ["font-size: 20px;", "text size"]])]),
 
 T("<strong> and <b> (bold)", "tag", ["strong", "b", "bold"], "bold heavy thick important text",
@@ -141,14 +111,8 @@ T("<hr> (horizontal line)", "tag", ["hr", "line", "divider", "horizontal rule"],
   "<hr> draws a line across the page. It is a divider that separates one part of your page from the next.",
   [["<hr>", "Draws the line"]],
   "It has no closing tag, and it goes between tags, not inside a paragraph.",
-  [E("Divide two sections", `<h2>Breakfast</h2>
-<p>Pancakes</p>
-<hr>
-<h2>Lunch</h2>
-<p>Tacos</p>`, [["<hr>", "the divider line"]]),
-   E("A colored divider", `<p>Above</p>
-<hr style="border-top: 3px solid red;">
-<p>Below</p>`, [["style=", "style works on hr too"], ["border-top", "the line is really a top border"]])]),
+  [E("Divide two paragraphs", `<p>Above the line</p><hr><p>Below the line</p>`, [["<hr>", "the divider line"]]),
+   E("A colored divider", `<p>Above</p><hr style="border-top: 3px solid red;"><p>Below</p>`, [["style=", "style works on hr too"], ["border-top", "the line is really a top border"]])]),
 
 T("<span>", "tag", ["span"], "inline container few words style part",
   "<span> is an invisible wrapper for just a few words inside a line. By itself it does nothing. Add a style to it, and only those words change.",
@@ -161,29 +125,16 @@ T("<div>", "tag", ["div", "division", "box", "container"], "box container group 
   "<div> is a box that groups other tags together. Anything inside it can be styled as one block, like a border around a whole card.",
   [["<div", "Opening tag"], ["</div>", "Closing tag: end of the box"]],
   "A div always starts on its own line and takes the full width, unlike span.",
-  [E("A box around a heading and paragraph", `<div style="background-color: lightyellow; border: 2px solid gold;">
-  <h3>Heads up</h3>
-  <p>Everything in this box is grouped.</p>
-</div>`, [["<div", "the box starts"], ["border: 2px solid gold;", "border around the whole group"], ["</div>", "the box ends"]]),
-   E("Two boxes side by side with display", `<div style="display: inline-block; border: 2px solid navy;">Box one</div>
-<div style="display: inline-block; border: 2px solid tomato;">Box two</div>`, [["inline-block", "lets boxes sit side by side"]])]),
+  [E("A box around a heading and paragraph", `<div style="background-color: lightyellow; border: 2px solid gold;"><h3>Heads up</h3><p>Everything in this box is grouped.</p></div>`, [["<div", "the box starts"], ["border: 2px solid gold;", "border around the whole group"], ["</div>", "the box ends"]]),
+   E("Two boxes side by side with display", `<div style="display: inline-block; border: 2px solid navy;">Box one</div><div style="display: inline-block; border: 2px solid tomato;">Box two</div>`, [["inline-block", "lets boxes sit side by side"]])]),
 
 T("<link>", "tag", ["link", "stylesheet", "favicon", "google fonts"], "google font css file icon head",
   "<link> connects your page to something outside it. You use it to load a Google Font, to attach your style.css file, or to add the little icon in the browser tab (the favicon).",
   [["href", "Where the thing lives"], ["rel", "What kind of thing it is"]],
   "Goes in the <head>. It has NO closing tag.",
-  [E("Load a Google font", `<head>
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-</head>
-<body>
-  <h1 style="font-family: 'Pacifico', cursive;">Beach Day</h1>
-</body>`, [["href=", "the Google Fonts address"], ["rel=\"stylesheet\"", "this link is for styles"], ["'Pacifico'", "now you can use the font"]]),
-   E("Connect your own CSS file", `<head>
-  <link rel="stylesheet" href="style.css">
-</head>`, [["rel=\"stylesheet\"", "it is a CSS file"], ["href=\"style.css\"", "the file name"]], false),
-   E("Add a favicon (tab icon)", `<head>
-  <link rel="icon" href="logo.png">
-</head>`, [["rel=\"icon\"", "this link is a tab icon"], ["logo.png", "the picture to use"]], false)]),
+  [E("Load a Google font, then use it", `<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet"><h1 style="font-family: 'Pacifico', cursive;">Beach Day</h1>`, [["href=", "the Google Fonts address"], ["rel=\"stylesheet\"", "this link is for styles"], ["'Pacifico'", "now you can use the font"]]),
+   E("Connect your own CSS file", `<link rel="stylesheet" href="style.css">`, [["rel=\"stylesheet\"", "it is a CSS file"], ["href=\"style.css\"", "the file name"]], false),
+   E("Add a favicon (tab icon)", `<link rel="icon" href="logo.png">`, [["rel=\"icon\"", "this link is a tab icon"], ["logo.png", "the picture to use"]], false)]),
 
 T("<img> (image)", "tag", ["img", "image", "picture", "photo"], "picture photo show src alt",
   "<img> shows a picture on your page. You tell it where the picture file is (src) and describe it in words (alt) for people who cannot see it.",
@@ -197,119 +148,49 @@ T("<a> (link)", "tag", ["a", "link", "anchor", "hyperlink", "clickable"], "link 
   [["<a", "Opening tag"], ["href", "The address to go to"], ["Visit Wikipedia", "The clickable words"], ["</a>", "Closing tag"]],
   "Without href it is not a link. You can put a whole image, heading, or paragraph inside the a tag.",
   [E("A text link in a new tab", `<a href="https://www.wikipedia.org" target="_blank">Visit Wikipedia</a>`, [["href=", "where it goes"], ["target=\"_blank\"", "opens in a new tab"], ["Visit Wikipedia", "what people click"]]),
-   E("A clickable image", `<a href="https://www.wikipedia.org">
-  <img src="dog.jpg" alt="A black puppy" width="120">
-</a>`, [["<a href", "the link wraps the image"], ["<img", "click the picture to go"], ["</a>", "link ends"]])]),
+   E("A clickable image", `<a href="https://www.wikipedia.org"><img src="dog.jpg" alt="A black puppy" width="120"></a>`, [["<a href", "the link wraps the image"], ["<img", "click the picture to go"], ["</a>", "link ends"]])]),
 
 T("<ul> (bulleted list)", "tag", ["ul", "unordered list", "bullets", "list", "bullet list"], "list dots bullet items",
   "<ul> makes a bulleted list, where the order does not matter. Each item inside it is an <li>.",
   [["<ul>", "Starts the bullet list"], ["<li>", "One item"], ["</ul>", "Ends the list"]],
   "Only <li> tags go directly inside a <ul>. Do not put plain text there.",
-  [E("A shopping list", `<ul>
-  <li>Milk</li>
-  <li>Eggs</li>
-  <li>Bread</li>
-</ul>`, [["<ul>", "the list starts"], ["<li>Milk", "each item is an li"], ["</ul>", "the list ends"]]),
-   E("A list with the bullets removed", `<ul style="list-style-type: none;">
-  <li>Home</li>
-  <li>About</li>
-</ul>`, [["list-style-type: none;", "no bullet dots"]])]),
+  [E("A shopping list", `<ul><li>Milk</li><li>Eggs</li><li>Bread</li></ul>`, [["<ul>", "the list starts"], ["<li>Milk", "each item is an li"], ["</ul>", "the list ends"]]),
+   E("A list with the bullets removed", `<ul style="list-style-type: none;"><li>Home</li><li>About</li></ul>`, [["list-style-type: none;", "no bullet dots"]])]),
 
 T("<ol> (numbered list)", "tag", ["ol", "ordered list", "numbered list", "numbers"], "list numbers steps order",
   "<ol> makes a numbered list. Use it when the order matters, like steps in a recipe. The browser counts for you.",
   [["<ol>", "Starts the numbered list"], ["<li>", "One step"], ["</ol>", "Ends the list"]],
   "You never type the numbers. If you add a new <li> in the middle, the numbers fix themselves.",
-  [E("Recipe steps", `<ol>
-  <li>Crack the egg</li>
-  <li>Stir it</li>
-  <li>Cook it</li>
-</ol>`, [["<ol>", "numbers start"], ["<li>Crack", "becomes number 1"], ["<li>Cook", "becomes number 3"]]),
-   E("Numbers as letters", `<ol style="list-style-type: upper-alpha;">
-  <li>Red</li>
-  <li>Blue</li>
-</ol>`, [["upper-alpha", "A, B, C instead of 1, 2, 3"]])]),
+  [E("Recipe steps", `<ol><li>Crack the egg</li><li>Stir it</li><li>Cook it</li></ol>`, [["<ol>", "numbers start"], ["<li>Crack", "becomes number 1"], ["<li>Cook", "becomes number 3"]]),
+   E("Numbers as letters", `<ol style="list-style-type: upper-alpha;"><li>Red</li><li>Blue</li></ol>`, [["upper-alpha", "A, B, C instead of 1, 2, 3"]])]),
 
 T("<li> (list item)", "tag", ["li", "list item", "item"], "list item bullet number",
   "<li> is one item in a list. It always goes inside a <ul> (bullets) or an <ol> (numbers).",
   [["<li>", "Opening tag"], ["</li>", "Closing tag"]],
   "An li by itself, outside a list, looks wrong.",
-  [E("Items inside a ul", `<ul>
-  <li>Pencil</li>
-  <li>Notebook</li>
-</ul>`, [["<li>Pencil", "item one"], ["<li>Notebook", "item two"]]),
-   E("An inline li makes a menu row", `<ul style="list-style-type: none;">
-  <li style="display: inline;">Home</li>
-  <li style="display: inline;">About</li>
-  <li style="display: inline;">Contact</li>
-</ul>`, [["display: inline;", "sits on the same line"]])]),
+  [E("Items inside a ul", `<ul><li>Pencil</li><li>Notebook</li></ul>`, [["<li>Pencil", "item one"], ["<li>Notebook", "item two"]]),
+   E("An inline li makes a menu row", `<ul style="list-style-type: none;"><li style="display: inline;">Home</li><li style="display: inline;">About</li><li style="display: inline;">Contact</li></ul>`, [["display: inline;", "sits on the same line"]])]),
 
 T("<table> (tr, th, td)", "tag", ["table", "tr", "th", "td", "row", "cell", "column"], "table grid data row cell header",
   "A table shows information in rows and columns. <table> is the whole grid, <tr> is one row, <th> is a bold header cell, and <td> is a regular cell.",
   [["<table>", "The whole grid"], ["<tr>", "One row"], ["<th>", "Header cell (bold)"], ["<td>", "Regular cell"]],
   "Cells (<th> and <td>) go inside a row (<tr>), and rows go inside the <table>.",
-  [E("A 2 by 2 table", `<table border="1">
-  <tr>
-    <th>Name</th>
-    <th>Score</th>
-  </tr>
-  <tr>
-    <td>Ana</td>
-    <td>95</td>
-  </tr>
-</table>`, [["<table", "the grid starts"], ["<tr>", "a row starts"], ["<th>Name", "a header cell"], ["<td>Ana", "a regular cell"]]),
-   E("A table with a colored header", `<table border="1">
-  <tr>
-    <th style="background-color: navy; color: white;">Team</th>
-    <th style="background-color: navy; color: white;">Wins</th>
-  </tr>
-  <tr>
-    <td>Tigers</td>
-    <td>8</td>
-  </tr>
-</table>`, [["background-color: navy;", "styles one header cell"]])]),
+  [E("A 2 by 2 table", `<table border="1"><tr><th>Name</th><th>Score</th></tr><tr><td>Ana</td><td>95</td></tr></table>`, [["<table", "the grid starts"], ["<tr>", "a row starts"], ["<th>Name", "a header cell"], ["<td>Ana", "a regular cell"]]),
+   E("A table with a colored header", `<table border="1"><tr><th style="background-color: navy; color: white;">Team</th><th style="background-color: navy; color: white;">Wins</th></tr><tr><td>Tigers</td><td>8</td></tr></table>`, [["background-color: navy;", "styles one header cell"]])]),
 
 T("<form>", "tag", ["form", "input", "button", "label", "text box"], "form box button sign up contact fill out",
   "A form lets a visitor type things in and press a button. <form> is the box that holds the pieces. Inside it you put a label (words), an input (a place to type), and a button.",
   [["<form>", "Starts the form"], ["<label>", "The words that name a box"], ["<input", "A box to type in"], ["<button>", "A button to press"]],
   "<input> has no closing tag. The form is for looks in this class, it does not send anything.",
-  [E("A small sign-up form", `<form>
-  <label>Your name</label>
-  <input type="text">
-  <button>Send</button>
-</form>`, [["<form>", "the form starts"], ["<label>", "tells what to type"], ["<input", "the typing box"], ["<button>", "the button"]]),
-   E("Two boxes and a button", `<form>
-  <label>Email</label>
-  <input type="text">
-  <label>Message</label>
-  <input type="text">
-  <button>Submit</button>
-</form>`, [["<label>Email", "label for box one"], ["<label>Message", "label for box two"]])]),
+  [E("A small sign-up form", `<form><label>Your name</label> <input type="text"> <button>Send</button></form>`, [["<form>", "the form starts"], ["<label>", "tells what to type"], ["<input", "the typing box"], ["<button>", "the button"]]),
+   E("Two boxes and a button", `<form><label>Email</label> <input type="text"> <label>Message</label> <input type="text"> <button>Submit</button></form>`, [["<label>Email", "label for box one"], ["<label>Message", "label for box two"]])]),
 
 T("<style> (internal CSS)", "tag", ["style tag", "internal css", "css"], "css rules head selector internal",
   "A <style> tag lets you write CSS rules in the head, so one rule can style EVERY tag of a kind instead of styling each tag by hand.",
   [["<style>", "CSS rules start"], ["p {", "Which tag to style"], ["color: teal;", "What to change"], ["</style>", "CSS rules end"]],
   "Goes in the <head>. The rules inside use { } and end each line with a semicolon.",
-  [E("Style every paragraph at once", `<head>
-  <style>
-    p {
-      color: teal;
-    }
-  </style>
-</head>
-<body>
-  <p>One rule styles me.</p>
-  <p>And me too.</p>
-</body>`, [["<style>", "rules start"], ["p {", "every p"], ["color: teal;", "turn the text teal"]]),
-   E("Two rules", `<head>
-  <style>
-    h1 { color: navy; }
-    p { font-size: 20px; }
-  </style>
-</head>
-<body>
-  <h1>Big Title</h1>
-  <p>Bigger paragraph text.</p>
-</body>`, [["h1 {", "rule for headings"], ["p {", "rule for paragraphs"]])]),
+  [E("Style every paragraph at once", `<style>p { color: teal; }</style><p>One rule styles me.</p><p>And me too.</p>`, [["<style>", "rules start"], ["p {", "every p"], ["color: teal;", "turn the text teal"]]),
+   E("Two rules", `<style>h1 { color: navy; } p { font-size: 20px; }</style><h1>Big Title</h1><p>Bigger paragraph text.</p>`, [["h1 {", "rule for headings"], ["p {", "rule for paragraphs"]])]),
 
 /* ---------- ATTRIBUTES ---------- */
 T("style", "attribute", ["style attribute", "inline style", "inline styling"], "css look change color size inline",
