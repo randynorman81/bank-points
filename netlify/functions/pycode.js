@@ -191,11 +191,15 @@ function variantFor(rec, period) {
   if (rec && rec.variants && period && rec.variants[period]) { const v = rec.variants[period]; return Object.assign({}, rec, { blocks: v.blocks, checks: v.checks, tips: v.tips }); }
   return rec;
 }
+/* UNLOCK: every assignment (not quizzes) needs this score before the NEXT new assignment opens (since 12 Nov 2026).
+   An assignment can still set its own passMin to override it. Students can submit at any score; the score is the grade. */
+const UNLOCK = 90;
+function passMinOf(a) { if (!a) return null; if (a.passMin !== undefined && a.passMin !== null && a.passMin !== "") return Number(a.passMin); return slotPart(a) === "assignment" ? UNLOCK : null; }
 /* did this student pass the assignment: the teacher's saved or automatic grade, or (if none) what the checks give now */
 async function subPassed(slot, email) {
   const sub = await readJSON("sub:" + slot + ":" + enc(email), null); if (!sub) return false;
   /* passMin: this assignment needs that percent (for example 90) before the next one opens. A score the teacher types in by hand (90 or more) also unlocks it. */
-  const asgP = await readJSON("assign:" + slot, null), pm = asgP && asgP.passMin !== undefined && asgP.passMin !== null ? Number(asgP.passMin) : null;
+  const asgP = await readJSON("assign:" + slot, null), pm = passMinOf(asgP);
   if (pm !== null && !isNaN(pm)) {
     const tt = sub.teacher; if (tt && !tt.auto && tt.score !== null && tt.score !== undefined && tt.score !== "" && !isNaN(Number(tt.score)) && Number(tt.score) >= pm) return true;
     const ms = Array.isArray(asgP.mcKey) && asgP.mcKey.length ? mcScoreOf(asgP.mcKey, sub.mc) : null;
@@ -282,7 +286,8 @@ async function submit(body, user) {
   try { const g = await autoGradeFor(body.slot, code, rec.teacher, period, rec.gradeOutput != null ? rec.gradeOutput : rec.output); if (g) rec.teacher = g; } catch (e) { console.error("autograde failed", e); }
   await store().setJSON(key, rec);
   await logActivity(body.slot, user.email, code, period, true);
-  const res = { ok: true, submittedAt: rec.submittedAt, count: rec.count }, pmv = asg && asg.passMin !== undefined && asg.passMin !== null ? Number(asg.passMin) : null;
+  const res = { ok: true, submittedAt: rec.submittedAt, count: rec.count }; if (asg && slotPart(asg) === "assignment") res.unlock = { need: passMinOf(asg), passed: await subPassed(body.slot, user.email) };
+  const pmv = asg && asg.passMin !== undefined && asg.passMin !== null ? Number(asg.passMin) : null;
   if (rec.mcScore && rec.mcScore.total && (pmv !== null || (asg && asg.mcReleased) || isTeacherUser(user))) res.mc = { correct: rec.mcScore.correct, total: rec.mcScore.total, pct: Math.round(rec.mcScore.correct / rec.mcScore.total * 100), need: pmv, wrong: (rec.mcScore.wrong || []).map((w) => w.q) };
   return res;
 }
@@ -396,13 +401,20 @@ async function adminDeleteAssignment(body) {
 function slotPart(a) { if (!a) return "assignment"; if (a.part) return a.part; const t = String(a.title || ""); return /^Quiz\b/i.test(t) ? "quiz" : /\b(Test|Exam)\b/i.test(t) ? "test" : "assignment"; }
 async function gatedAssignments(user, period) {
   const all = (await publicAssignments(true)).assignments, order = Object.keys(all).sort((a, b) => parseInt(a.slice(1), 10) - parseInt(b.slice(1), 10));
-  const out = {}, locked = []; let prev = null;
-  if (isTeacherUser(user)) { for (const id of order) { const v = Object.assign({}, variantFor(all[id], period)); delete v.checks; delete v.variants; delete v.mcKey; out[id] = v; } return { ok: true, assignments: out, locked }; }
+  const out = {}, locked = []; const show = (id) => { const v = Object.assign({}, variantFor(all[id], period)); delete v.checks; delete v.variants; delete v.mcKey; out[id] = v; };
+  if (isTeacherUser(user)) { for (const id of order) show(id); return { ok: true, assignments: out, locked }; }
+  /* A NEW assignment opens only when EVERY earlier assignment has passed (90 or more, see UNLOCK). One the student has already
+     submitted stays open, so they can keep working on it or go back and raise an earlier score. Quizzes are not part of this chain:
+     they open only when the teacher opens them (ungated). */
+  let firstFail = null;
   for (const id of order) {
-    const live = all[id].live !== false;
-    let open = prev === null || all[id].ungated === true || (user && (await subPassed(prev, user.email)));   /* ungated: the teacher opened this one to every student, whatever they have finished */
-    if (live) { if (open) { const v = Object.assign({}, variantFor(all[id], period)); delete v.checks; delete v.variants; delete v.mcKey; out[id] = v; } else locked.push({ id, need: prev, unit: all[id].unit || "", part: slotPart(all[id]), title: slotPart(all[id]) === "assignment" ? "" : String(all[id].title || ""), needName: slotPart(all[prev]) === "assignment" ? "" : (String(all[prev].title || "").match(/^(Quiz|Test|Exam)\s*\d*/i) || [""])[0].trim(), num: all[id].num || Number(id.slice(1)), needNum: all[prev].num || Number(prev.slice(1)), needPass: all[prev].passMin !== undefined && all[prev].passMin !== null ? Number(all[prev].passMin) : null }); }
-    if (live) prev = id;
+    const a = all[id]; if (a.live === false) continue;
+    const isAsg = slotPart(a) === "assignment";
+    const hasSub = isAsg && firstFail !== null && user ? !!(await readJSON("sub:" + id + ":" + enc(user.email), null)) : false;
+    const open = a.ungated === true || firstFail === null || hasSub;
+    if (open) show(id);
+    else { const f = all[firstFail]; locked.push({ id, need: firstFail, unit: a.unit || "", part: slotPart(a), title: isAsg ? "" : String(a.title || ""), needName: slotPart(f) === "assignment" ? "" : (String(f.title || "").match(/^(Quiz|Test|Exam)\s*\d*/i) || [""])[0].trim(), num: a.num || Number(id.slice(1)), needNum: f.num || Number(firstFail.slice(1)), needPass: passMinOf(f) }); }
+    if (isAsg && firstFail === null && !(user && (await subPassed(id, user.email)))) firstFail = id;
   }
   return { ok: true, assignments: out, locked };
 }
@@ -558,7 +570,7 @@ async function liveScore(body) {
   if (!rec || !Array.isArray(rec.checks) || !rec.checks.length) return { ok: true, pct: null };
   if (rec.live === false && !isAdmin(body) && !(body.credential && isTeacherUser(await verifyGoogleToken(body.credential)))) return { ok: true, pct: null };
   const r = scoreCode(rec.checks, code, String(body.output == null ? "" : body.output).slice(-8000));
-  return { ok: true, need: rec.submitAny === true ? 0 : PASS, pct: r.pct, passed: r.passed, total: r.total, missing: r.missing, boxes: r.boxes };
+  return { ok: true, need: rec.submitAny === true ? 0 : PASS, unlock: passMinOf(rec), pct: r.pct, passed: r.passed, total: r.total, missing: r.missing, boxes: r.boxes };
 }
 
 /* ---------------- request handler ---------------- */
