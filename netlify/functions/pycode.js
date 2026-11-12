@@ -216,6 +216,33 @@ async function autoGradeFor(slot, code, current, period, output) {
   if (r.pct === null) return null;
   return { score: r.pct, comment: current && current.comment ? current.comment : "", gradedAt: now(), auto: true, detail: { done: r.doneBoxes, total: r.totalBoxes, notDone: r.notDone.slice(0, 80) } };
 }
+/* ---------------- quizzes: grade as many times as needed, submit only at 100% ----------------
+   A quiz (title starts with "Quiz") is graded with the "Grade my quiz" button (action gradeQuiz). That shows the
+   score and WHICH questions are wrong (never the right answers). Every grade is saved as a try, so the teacher sees
+   how the answers changed. Submit is refused until the quiz grades at 100%. */
+function quizResult(asg, period, picks, code, gradeOutput) {
+  const mc = mcScoreOf(asg && asg.mcKey, picks);
+  const v = variantFor(asg, period);
+  const cr = Array.isArray(v.checks) && v.checks.length ? scoreCode(v.checks, code, String(gradeOutput || "").slice(0, 8000)) : null;
+  const mcPct = mc && mc.total ? Math.round(mc.correct / mc.total * 100) : null, codePct = cr && cr.pct !== null ? cr.pct : null;
+  const parts = [mcPct, codePct].filter((x) => x !== null), pct = parts.length ? Math.round(parts.reduce((a, b) => a + b, 0) / parts.length) : 0;
+  const perfect = parts.length > 0 && (mcPct === null || mc.correct === mc.total) && (codePct === null || codePct === 100);
+  return { pct: perfect ? 100 : Math.min(pct, 99), perfect, mc: mc ? { correct: mc.correct, total: mc.total, pct: mcPct, wrong: mc.wrong.map((w) => w.q) } : null, code: cr ? { pct: codePct, missing: (cr.missing || []).slice(0, 20) } : null, mcScore: mc };
+}
+async function gradeQuiz(body, user) {
+  if (!goodSlot(body.slot) || body.slot === "free") return { error: "Unknown assignment" };
+  if (await closedToStudent(body.slot, user)) return { error: "That quiz is not open yet." };
+  const asg = await readJSON("assign:" + body.slot, null);
+  if (!asg || slotPart(asg) !== "quiz") return { error: "That is not a quiz." };
+  const period = cleanPeriod(body.period);
+  if (asg.live !== false && !isTeacherUser(user)) { const open = await gatedAssignments(user, period); if (!open.assignments[body.slot]) return { error: "That quiz is not open for you yet." }; }
+  const picks = cleanMcPicks(body.mc), code = String(body.code == null ? "" : body.code).slice(0, MAX_CODE);
+  const r = quizResult(asg, period, picks, code, body.gradeOutput != null ? body.gradeOutput : body.output);
+  const key = "qtry:" + body.slot + ":" + enc(user.email), list = await readJSON(key, []);
+  list.push({ n: list.length + 1, at: now(), graded: true, correct: r.mcScore ? r.mcScore.correct : 0, total: r.mcScore ? r.mcScore.total : 0, pct: r.pct, picks: picks || [], wrong: r.mcScore ? r.mcScore.wrong : [], codePct: r.code ? r.code.pct : null });
+  await store().setJSON(key, list.slice(-60));
+  return { ok: true, pct: r.pct, perfect: r.perfect, mc: r.mc, code: r.code, tries: list.length };
+}
 async function submit(body, user) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
   if (await closedToStudent(body.slot, user)) return { error: "That assignment is not open yet." };
@@ -227,6 +254,10 @@ async function submit(body, user) {
   if (code.length > MAX_CODE) return { error: "That file is too big to submit." };
   const period = cleanPeriod(body.period);
   const asg = await readJSON("assign:" + body.slot, null);
+  if (asg && slotPart(asg) === "quiz" && !isTeacherUser(user)) {
+    const qr = quizResult(asg, period, cleanMcPicks(body.mc), code, body.gradeOutput != null ? body.gradeOutput : body.output);
+    if (!qr.perfect) return { error: "Your quiz grades at " + qr.pct + "%. You need 100% to submit. Click \"Grade my quiz\", fix the questions it lists, and grade again until you get 100%.", pct: qr.pct, need: 100, quiz: true };
+  }
   if (asg && asg.live !== false && body.slot !== "free" && !isTeacherUser(user)) {
     const open = await gatedAssignments(user, period);
     if (!open.assignments[body.slot]) { const L = open.locked.find((x) => x.id === body.slot); return { error: L ? "Assignment " + L.num + " is locked. " + (L.needPass ? "Score " + L.needPass + "% or higher on Assignment " + L.needNum + " first." : "Submit Assignment " + L.needNum + " first (any score opens the next one).") : "That assignment is not open yet." }; }
@@ -245,7 +276,8 @@ async function submit(body, user) {
   /* tries: each submit of a multiple-choice assignment is kept (what the student picked, what was wrong), so the teacher can see how answers changed from try to try */
   const mkTry = (s, n) => ({ n, at: s.submittedAt, correct: s.mcScore.correct, total: s.mcScore.total, pct: s.mcScore.total ? Math.round(s.mcScore.correct / s.mcScore.total * 100) : 0, picks: s.mc || [], wrong: s.mcScore.wrong || [] });
   let tries = prev && Array.isArray(prev.attempts) ? prev.attempts.slice() : (prev && prev.mcScore ? [mkTry(prev, prev.count || 1)] : []);
-  if (rec.mcScore) tries.push(mkTry(rec, rec.count));
+  if (asg && slotPart(asg) === "quiz") { const graded = await readJSON("qtry:" + body.slot + ":" + enc(user.email), []); if (graded.length) tries = graded.slice(); }   /* a quiz: every "Grade my quiz" try is the history */
+  if (rec.mcScore) tries.push(mkTry(rec, tries.length + 1));
   if (tries.length) rec.attempts = tries.slice(-60);
   try { const g = await autoGradeFor(body.slot, code, rec.teacher, period, rec.gradeOutput != null ? rec.gradeOutput : rec.output); if (g) rec.teacher = g; } catch (e) { console.error("autograde failed", e); }
   await store().setJSON(key, rec);
@@ -564,6 +596,7 @@ export default async (req) => {
     if (action === "saveDraft") return ok(await saveDraft(body, user));
     if (action === "history") return ok(await myHistory(body, user));
     if (action === "submit") return ok(await submit(body, user));
+    if (action === "gradeQuiz") return ok(await gradeQuiz(body, user));
     if (action === "quizLeave") return ok(await quizLeave(body, user));
     return ok({ error: "Unknown action" });
   } catch (err) {
