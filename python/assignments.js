@@ -1,5 +1,5 @@
 /* Assignment instructions for the Python editor's left column.
-   Key = the assignment slot in the Assignment dropdown: "free" (practice) or "a1" ... "a30".
+   Key = the assignment slot in the Assignment dropdown: "free" (the Sandbox) or "a1" ... "a30".
    Each entry is { title, blocks: [...] } and the blocks are shown top to bottom:
      { h: "Step 1: Ask a question" }          a heading
      { p: "Text. **bold** and `code` work." }  a paragraph
@@ -10,7 +10,7 @@
    To add an assignment, add an entry below and push. Nothing else needs to change. */
 window.PY_ASSIGN = {
   free: {
-    title: "Practice",
+    title: "Sandbox (practice)",
     blocks: [
       { h: "How this editor works" },
       { p: "This is a free space to try Python. Nothing here is graded, and it saves for you as you type." },

@@ -360,6 +360,8 @@ async function adminDeleteAssignment(body) {
   return { ok: true };
 }
 /* each student sees an assignment only after submitting the one before it (the first one is open to everyone); the teacher still controls which are published */
+/* quiz / test / assignment, so a locked item can sit under the right heading in the editor's Assignment box (same rule as slotPart in python/editor.html) */
+function slotPart(a) { if (!a) return "assignment"; if (a.part) return a.part; const t = String(a.title || ""); return /^Quiz\b/i.test(t) ? "quiz" : /\b(Test|Exam)\b/i.test(t) ? "test" : "assignment"; }
 async function gatedAssignments(user, period) {
   const all = (await publicAssignments(true)).assignments, order = Object.keys(all).sort((a, b) => parseInt(a.slice(1), 10) - parseInt(b.slice(1), 10));
   const out = {}, locked = []; let prev = null;
@@ -367,7 +369,7 @@ async function gatedAssignments(user, period) {
   for (const id of order) {
     const live = all[id].live !== false;
     let open = prev === null || all[id].ungated === true || (user && (await subPassed(prev, user.email)));   /* ungated: the teacher opened this one to every student, whatever they have finished */
-    if (live) { if (open) { const v = Object.assign({}, variantFor(all[id], period)); delete v.checks; delete v.variants; delete v.mcKey; out[id] = v; } else locked.push({ id, need: prev, num: all[id].num || Number(id.slice(1)), needNum: all[prev].num || Number(prev.slice(1)), needPass: all[prev].passMin !== undefined && all[prev].passMin !== null ? Number(all[prev].passMin) : null }); }
+    if (live) { if (open) { const v = Object.assign({}, variantFor(all[id], period)); delete v.checks; delete v.variants; delete v.mcKey; out[id] = v; } else locked.push({ id, need: prev, unit: all[id].unit || "", part: slotPart(all[id]), num: all[id].num || Number(id.slice(1)), needNum: all[prev].num || Number(prev.slice(1)), needPass: all[prev].passMin !== undefined && all[prev].passMin !== null ? Number(all[prev].passMin) : null }); }
     if (live) prev = id;
   }
   return { ok: true, assignments: out, locked };

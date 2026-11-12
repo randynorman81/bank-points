@@ -1195,17 +1195,42 @@ var EXAMPLE_CODE = "    # Step 1: Make your first variable\n# shop_name = \"Sunr
 var EXAMPLE_ASSIGN = { title: "Example", blocks: [{"h":"What this is"},{"p":"This is a **finished** assignment for you to read. It is the Variable Names assignment, written about a bakery instead of a player. You cannot change it or submit it. Press **Run** to see what it prints, then lay out your own work the same way."},{"h":"What to notice"},{"p":"**1. Every step starts with a heading comment, one tab over.** It has the word Step, the number, a colon, and the title: `# Step 3: Test the rules`."},{"p":"**2. A finished step is commented out** (select the lines and press ctrl + /) so the next step starts clean. Nothing is deleted. The last step stays active so it runs."},{"p":"**3. Notes go at the END of the same line**, after the code: `2nd_tray = 3   # ILLEGAL: starts with a digit`. A note on its own line is only used when a step tells you to put it above a line, or for a heading like `# About the shop`."},{"p":"**4. Names and values are typed exactly as the steps say.** The checker matches them, so a different name or number counts as missing. Spaces and blank lines do not matter."},{"p":"**5. Each step's work is kept.** Earlier steps are still in the file, just commented out, so your teacher can see all of your work."}], tips: {} };
 function addExample() { window.PY_ASSIGN = window.PY_ASSIGN || {}; window.PY_ASSIGN.example = EXAMPLE_ASSIGN; }
 addExample();
-function slotLabel(id) { if (id === "example") return "Example (what finished work looks like)"; var A = window.PY_ASSIGN && window.PY_ASSIGN[id]; return id === "free" ? "Practice (not graded)" : (unitShort(A) ? unitShort(A) + " · " : "") + "Assignment " + aNum(id, A) + (A && A.title ? ": " + A.title : "") + (A && A.live === false ? " [DRAFT]" : ""); }
+/* Which part of a unit an assignment belongs to, for the headings in the Assignment box:
+   "quiz" (title starts with Quiz), "test" (title has Test or Exam in it), or "assignment" (everything else).
+   An assignment can also set part: "quiz" | "test" | "assignment" to override the title rule. */
+function slotPart(A) { if (!A) return "assignment"; if (A.part) return A.part; var t = String(A.title || ""); return /^Quiz\b/i.test(t) ? "quiz" : /\b(Test|Exam)\b/i.test(t) ? "test" : "assignment"; }
+var PART_ORDER = ["assignment", "quiz", "test"], PART_NAME = { assignment: "Assignments", quiz: "Quizzes", test: "Tests" };
+function slotLabel(id, inGroup) {
+  if (id === "example") return "Example (what finished work looks like)";
+  if (id === "free") return "Sandbox (practice)";
+  var A = window.PY_ASSIGN && window.PY_ASSIGN[id], part = slotPart(A), draft = A && A.live === false ? " [DRAFT]" : "";
+  /* inside a heading the unit is already shown, and a quiz or test is named by its own title */
+  if (inGroup && part !== "assignment" && A && A.title) return A.title + draft;
+  return (inGroup || !unitShort(A) ? "" : unitShort(A) + " · ") + "Assignment " + aNum(id, A) + (A && A.title ? ": " + A.title : "") + draft;
+}
 function buildSlots() {
-  var top = "", groups = {}, order = [];
+  var top = "", groups = {}, order = [], rest = "";
+  var put = function (unit, part, num, html) { if (!groups[unit]) { groups[unit] = { assignment: [], quiz: [], test: [] }; order.push(unit); } groups[unit][part].push({ num: num, html: html }); };
   ["free", "example"].concat(Array.from({ length: 30 }, function (_, i) { return "a" + (i + 1); })).forEach(function (id) {
     if (id !== "free" && !(window.PY_ASSIGN && window.PY_ASSIGN[id])) return;
-    var A = window.PY_ASSIGN && window.PY_ASSIGN[id], opt = '<option value="' + id + '">' + slotLabel(id) + (MY[id] === "sub" ? " ✓" : "") + "</option>";
-    if (id !== "free" && A && A.unit) { if (!groups[A.unit]) { groups[A.unit] = ""; order.push(A.unit); } groups[A.unit] += opt; } else top += opt;
+    var A = window.PY_ASSIGN && window.PY_ASSIGN[id], grouped = id !== "free" && id !== "example" && A && A.unit;
+    var opt = '<option value="' + id + '">' + slotLabel(id, grouped) + (MY[id] === "sub" ? " ✓" : "") + "</option>";
+    if (grouped) put(A.unit, slotPart(A), Number(aNum(id, A)) || 0, opt); else top += opt;
   });
-  var h = top; order.forEach(function (u) { h += '<optgroup label="' + escA(u) + '">' + groups[u] + "</optgroup>"; });
-  (window.PY_LOCKED || []).forEach(function (L) { h += '<option value="" disabled>\uD83D\uDD12 Assignment ' + L.num + " (" + (L.needPass ? "score " + L.needPass + "% on" : "submit") + " Assignment " + L.needNum + " to unlock)</option>"; });
-  $("slot").innerHTML = h; $("slot").value = slot; if (typeof quizSetup === "function") quizSetup();
+  (window.PY_LOCKED || []).forEach(function (L) {
+    var part = L.part || "assignment", name = part === "assignment" ? "Assignment " + L.num : part === "quiz" ? "Quiz" : "Test";
+    var opt = '<option value="" disabled>\uD83D\uDD12 ' + name + " (" + (L.needPass ? "score " + L.needPass + "% on" : "submit") + " Assignment " + L.needNum + " to unlock)</option>";
+    if (L.unit) put(L.unit, part, Number(L.num) || 0, opt); else rest += opt;
+  });
+  var h = top;
+  order.forEach(function (u) {
+    PART_ORDER.forEach(function (p) {
+      var list = groups[u][p]; if (!list.length) return;
+      list.sort(function (a, b) { return a.num - b.num; });
+      h += '<optgroup label="' + escA(unitShort({ unit: u }) + " \u2014 " + PART_NAME[p]) + '">' + list.map(function (x) { return x.html; }).join("") + "</optgroup>";
+    });
+  });
+  $("slot").innerHTML = h + rest; $("slot").value = slot; if (typeof quizSetup === "function") quizSetup();
 }
 function escA(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function decodeJwt(t) { try { var p = t.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"); return JSON.parse(decodeURIComponent(escape(atob(p)))); } catch (e) { return {}; } }
@@ -1427,7 +1452,7 @@ $("submit").addEventListener("click", function () {
   else if (!ta.value.trim()) { flash("Write some code first"); return; }
   if (!CRED) { alert("Sign in with your school Google account (top right) to submit."); return; }
   if (slot === "example") { alert("This is an example to read. Pick an assignment in the Assignment box to submit your own work."); return; }
-  if (slot === "free") { alert("Practice work is saved for you but not graded. Pick an assignment in the Assignment box to submit."); return; }
+  if (slot === "free") { alert("Sandbox work is saved for you but not graded. Pick an assignment in the Assignment box to submit."); return; }
   if (!$("period").value) { alert("Choose your class period at the top first."); $("period").focus(); return; }
   $("mSubBody").innerHTML = "<p>Submit <b>" + escA(slotLabel(slot)) + "</b> for period <b>" + escA($("period").value) + "</b>?</p><p>Your teacher will see your code and your last output. You can submit again later to replace it.</p>" + (running || !out.textContent.trim() ? "<p style=\"color:#FCD34D\">Tip: click Run first so your teacher can see your output.</p>" : "");
   $("mSub").classList.add("show");
