@@ -193,8 +193,8 @@ function variantFor(rec, period) {
 }
 /* UNLOCK: every assignment (not quizzes) needs this score before the NEXT new assignment opens (since 12 Nov 2026).
    An assignment can still set its own passMin to override it. Students can submit at any score; the score is the grade. */
-const UNLOCK = 90;
-function passMinOf(a) { if (!a) return null; if (a.passMin !== undefined && a.passMin !== null && a.passMin !== "") return Number(a.passMin); return inChain(a) ? UNLOCK : null; }
+const UNLOCK = 90, UNLOCK_FROM_UNIT = 4;   /* the 90 rule starts with Unit 4; Unit 3 walkthroughs open the next one on any submitted score */
+function passMinOf(a) { if (!a) return null; if (a.passMin !== undefined && a.passMin !== null && a.passMin !== "") return Number(a.passMin); if (!inChain(a)) return null; const um = /Unit\s*(\d+)/i.exec(String(a.unit || "")); return um && Number(um[1]) >= UNLOCK_FROM_UNIT ? UNLOCK : null; }
 /* did this student pass the assignment: the teacher's saved or automatic grade, or (if none) what the checks give now */
 async function subPassed(slot, email) {
   const sub = await readJSON("sub:" + slot + ":" + enc(email), null); if (!sub) return false;

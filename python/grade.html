@@ -128,10 +128,16 @@ try { pin = sessionStorage.getItem("pypin") || ""; } catch (e) {}
 function esc(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function toast(t) { var e = $("toast"); e.textContent = t; e.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(function () { e.style.display = "none"; }, 2200); }
 function api(b) { b.pin = pin; return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }).then(function (r) { return r.json(); }); }
+/* walkthrough / project / quiz / test, and what each is worth (same rules as the Python editor) */
+function slotPart(A) { if (!A) return "assignment"; if (A.part) return A.part; var t = String(A.title || ""); return /^Quiz\b/i.test(t) ? "quiz" : /^Project\b/i.test(t) ? "project" : /\b(Test|Exam)\b/i.test(t) ? "test" : "assignment"; }
+function slotWorth(id) { var A = (typeof ASSIGN !== "undefined" && ASSIGN[id]) || null; if (!A || id === "free") return null; return Number(A.points) > 0 ? Number(A.points) : ({ assignment: 100, project: 250, quiz: 100, test: 100 })[slotPart(A)] || 100; }
+function ptsOf(score, id) { var w = slotWorth(id), n = Number(score); return w === null || score === null || score === undefined || score === "" || isNaN(n) ? null : Math.round(n / 100 * w); }
 function slotLabel(id) {
-  if (id === "free") return "Practice";
+  if (id === "free") return "Sandbox";
   var A = (typeof ASSIGN !== "undefined" && ASSIGN[id]) || null, u = A && A.unit ? String(A.unit).split(":")[0] + " · " : "";
-  return u + "Assignment " + (A && A.num ? A.num : id.slice(1)) + (A && A.title ? ": " + A.title : "");
+  if (!A) return "Slot " + id.slice(1) + " (empty)";
+  var name = slotPart(A) === "assignment" ? "Walkthrough " + (A.num ? A.num : id.slice(1)) + (A.title ? ": " + A.title : "") : A.title;
+  return u + name + " · " + slotWorth(id) + " pts" + (A.live === false ? " [closed]" : "");
 }
 function fmt(t) { return t ? new Date(t).toLocaleString() : ""; }
 
@@ -140,7 +146,7 @@ function fmt(t) { return t ? new Date(t).toLocaleString() : ""; }
 var ASSIGN = {};
 function loadAssignments() { return api({ action: "adminAssignments" }).then(function (j) { if (j && j.ok) { ASSIGN = j.assignments || {}; rebuildSlots(); if (typeof showUnlock === "function") showUnlock(); } }); }
 function rebuildSlots() {
-  var sl = $("slot"); if (!sl || !sl.options.length) return; var cur = sl.value, ids = ["free"]; for (var i = 1; i <= 30; i++) ids.push("a" + i), 0;
+  var sl = $("slot"); if (!sl || !sl.options.length) return; var cur = sl.value, ids = ["free"]; for (var i = 1; i <= 30; i++) if (ASSIGN["a" + i] || counts["a" + i] || "a" + i === cur) ids.push("a" + i);
   sl.innerHTML = ids.map(function (id) { return '<option value="' + id + '">' + esc(slotLabel(id)) + " (" + (counts[id] || 0) + ")</option>"; }).join(""); sl.value = cur;
 }
 function splitCode(code) {
@@ -279,7 +285,7 @@ function render() {
   var list = rows.filter(function (r) { return inPeriod(r, per) && (!only || r.submission); }).sort(function (a, b) { var x = /#[0-9]$/.test(per) ? setOf(a).idx - setOf(b).idx : 0; return x || String(a.rosterName || a.name).localeCompare(String(b.rosterName || b.name)); });
   $("rows").innerHTML = list.map(function (r) {
     var t = r.submission && r.submission.teacher;
-    return '<tr class="row' + (sel === r.email ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td>' + esc(r.rosterName || r.name) + '</td><td>' + esc(r.period) + '</td><td>' + (r.submission ? '<span class="pill s">Submitted</span>' + DueDates.pill(dueStatus(r)) : r.draft ? '<span class="pill d">Draft</span>' : '<span class="pill d" style="opacity:.6">Not started</span>') + '</td><td>' + ago(Math.max(r.draft ? Date.parse(r.draft.savedAt) || 0 : 0, r.submission ? Date.parse(r.submission.submittedAt) || 0 : 0) ? new Date(Math.max(r.draft ? Date.parse(r.draft.savedAt) || 0 : 0, r.submission ? Date.parse(r.submission.submittedAt) || 0 : 0)).toISOString() : "1970-01-01", true) + '</td><td>' + (t && t.score !== null ? '<span class="pill g" title="' + (t.auto ? "Autograded when submitted. Change it and click Save grade to override." : "Saved grade") + '">' + esc(t.score) + (t.auto ? " auto" : "") + "</span>" : "") + "</td></tr>";
+    return '<tr class="row' + (sel === r.email ? " sel" : "") + '" data-e="' + esc(r.email) + '"><td>' + esc(r.rosterName || r.name) + '</td><td>' + esc(r.period) + '</td><td>' + (r.submission ? '<span class="pill s">Submitted</span>' + DueDates.pill(dueStatus(r)) : r.draft ? '<span class="pill d">Draft</span>' : '<span class="pill d" style="opacity:.6">Not started</span>') + '</td><td>' + ago(Math.max(r.draft ? Date.parse(r.draft.savedAt) || 0 : 0, r.submission ? Date.parse(r.submission.submittedAt) || 0 : 0) ? new Date(Math.max(r.draft ? Date.parse(r.draft.savedAt) || 0 : 0, r.submission ? Date.parse(r.submission.submittedAt) || 0 : 0)).toISOString() : "1970-01-01", true) + '</td><td>' + (t && t.score !== null ? '<span class="pill g" title="' + (t.auto ? "Autograded when submitted. Change it and click Save grade to override." : "Saved grade") + '">' + esc(t.score) + "%" + (ptsOf(t.score, $("slot").value) !== null ? " = " + ptsOf(t.score, $("slot").value) + "/" + slotWorth($("slot").value) + " pts" : "") + (t.auto ? " auto" : "") + "</span>" : "") + "</td></tr>";
   }).join("");
   $("noRows").style.display = list.length ? "none" : "block";
   $("count").textContent = list.filter(function (r) { return r.submission; }).length + " submitted, " + list.length + " total";
@@ -295,7 +301,7 @@ function showDetail() {
   $("detail").innerHTML = '<div class="dhead"><h2>' + esc(r.rosterName || r.name) + '</h2><small>' + esc(r.email) + ' &middot; Period ' + esc(r.period) + ' &middot; ' + (newer ? "Submitted " + esc(fmt(r.submission.submittedAt)) + (r.submission.count > 1 ? " (#" + r.submission.count + ")" : "") + ' &middot; <b style="color:#F59E0B">showing newer work saved ' + esc(fmt(rec.savedAt)) + " (not resubmitted; the grade below is for the submission)</b>" : r.submission ? "Submitted " + esc(fmt(rec.submittedAt)) + (rec.count > 1 ? " (#" + rec.count + ")" : "") : "Draft saved " + esc(fmt(rec.savedAt)) + " (not submitted)") + ' &middot; ' + (rec.mode === "karel" ? "Karel" : "Python") + "</small></div>" + DueDates.detail(dueStatus(r)) +
     '<div class="dbody"><div class="view"><div class="code"><div class="g">' + g + '</div><div class="cw"><div id="hlm"></div><pre>' + esc(rec.code) + '</pre></div></div></div><div class="right">' +
     autoPanel(r, rec) + "<h3>Student's output</h3><div class=\"outbox\">" + (esc(rec.output) || "<span style='color:var(--soft)'>(none saved)</span>") + "</div>" +
-    (r.submission ? '<h3>Your grade</h3>' + (t && t.auto ? '<div style="color:var(--soft);font-size:12px;margin-bottom:4px">Autograded when submitted. Change the score and click Save grade to replace it.</div>' : "") + '<div class="grade"><label>Score <input type="number" id="gScore" min="0" max="1000" value="' + esc(t && t.score !== null ? t.score : "") + '"></label><textarea id="gComment" placeholder="Comment for the student">' + esc(t ? t.comment : "") + '</textarea><button class="btn pri" id="gSave">Save grade</button> <button class="btn sm" id="gDel" style="float:right">Delete submission</button></div>' : '<p style="color:var(--soft)">Not submitted yet, so it cannot be graded.</p>') +
+    (r.submission ? '<h3>Your grade</h3>' + (t && t.auto ? '<div style="color:var(--soft);font-size:12px;margin-bottom:4px">Autograded when submitted. Change the score and click Save grade to replace it.</div>' : "") + '<div class="grade"><label>Score (%) <input type="number" id="gScore" min="0" max="1000" value="' + esc(t && t.score !== null ? t.score : "") + '" oninput="var p=ptsOf(this.value,$(\'slot\').value);document.getElementById(\'gPts\').textContent=p===null?\'\':\'= \'+p+\' of \'+slotWorth($(\'slot\').value)+\' pts\'"></label> <b id="gPts" style="margin-left:6px">' + (t && ptsOf(t.score, $("slot").value) !== null ? "= " + ptsOf(t.score, $("slot").value) + " of " + slotWorth($("slot").value) + " pts" : "") + '</b><textarea id="gComment" placeholder="Comment for the student">' + esc(t ? t.comment : "") + '</textarea><button class="btn pri" id="gSave">Save grade</button> <button class="btn sm" id="gDel" style="float:right">Delete submission</button></div>' : '<p style="color:var(--soft)">Not submitted yet, so it cannot be graded.</p>') +
     "</div></div>";
   afterDetail(r, rec);
   if (r.submission) {
@@ -447,7 +453,7 @@ $("unlock").onclick = function () {
 $("autograde").onclick = function () { if (!confirm("Autograde every submission of this assignment? Grades you saved by hand are kept.")) return; api({ action: "adminAutograde", slot: $("slot").value }).then(function (j) { if (j && j.ok) { toast("Graded " + j.graded + (j.keptByHand ? " (kept " + j.keptByHand + " you graded by hand)" : "")); load(); } else toast((j && j.error) || "Could not autograde"); }); };
 $("csv").onclick = function () {
   var q = function (v) { return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };
-  var csv = [["Name", "Email", "Period", "Status", "Score", "Comment", "Due", "First submitted", "Last submitted", "Late?"].join(",")].concat(render().map(function (r) { var t = r.submission && r.submission.teacher; return [q(r.rosterName || r.name), q(r.email), q(r.period), q(r.submission ? "Submitted" : "Draft"), q(t && t.score !== null ? t.score : ""), q(t ? t.comment : "")].concat(DueDates.csv(dueStatus(r)).map(q)).join(","); })).join("\n");
+  var csv = [["Name", "Email", "Period", "Status", "Score %", "Points", "Out of", "Comment", "Due", "First submitted", "Last submitted", "Late?"].join(",")].concat(render().map(function (r) { var t = r.submission && r.submission.teacher; return [q(r.rosterName || r.name), q(r.email), q(r.period), q(r.submission ? "Submitted" : "Draft"), q(t && t.score !== null ? t.score : ""), q(t && t.score !== null ? ptsOf(t.score, $("slot").value) : ""), q(slotWorth($("slot").value) || ""), q(t ? t.comment : "")].concat(DueDates.csv(dueStatus(r)).map(q)).join(","); })).join("\n");
   var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "python-" + $("slot").value + ".csv"; a.click();
 };
 
