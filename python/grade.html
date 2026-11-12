@@ -129,7 +129,7 @@ function esc(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").repla
 function toast(t) { var e = $("toast"); e.textContent = t; e.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(function () { e.style.display = "none"; }, 2200); }
 function api(b) { b.pin = pin; return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }).then(function (r) { return r.json(); }); }
 /* walkthrough / project / quiz / test, and what each is worth (same rules as the Python editor) */
-function slotPart(A) { if (!A) return "assignment"; if (A.part) return A.part; var t = String(A.title || ""); return /^Quiz\b/i.test(t) ? "quiz" : /^Project\b/i.test(t) ? "project" : /\b(Test|Exam)\b/i.test(t) ? "test" : "assignment"; }
+function slotPart(A) { if (!A) return "assignment"; if (A.part) return A.part; var t = String(A.title || ""); return /^Quiz\b/i.test(t) ? "quiz" : /^(Project|Performance Activity)\b/i.test(t) ? "project" : /\b(Test|Exam)\b/i.test(t) ? "test" : "assignment"; }
 function slotWorth(id) { var A = (typeof ASSIGN !== "undefined" && ASSIGN[id]) || null; if (!A || id === "free") return null; return Number(A.points) > 0 ? Number(A.points) : ({ assignment: 100, project: 250, quiz: 100, test: 100 })[slotPart(A)] || 100; }
 function ptsOf(score, id) { var w = slotWorth(id), n = Number(score); return w === null || score === null || score === undefined || score === "" || isNaN(n) ? null : Math.round(n / 100 * w); }
 function slotLabel(id) {

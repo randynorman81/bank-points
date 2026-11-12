@@ -1214,7 +1214,7 @@ addExample();
 /* What kind of item this is (same rule as slotPart in netlify/functions/pycode.js):
    "assignment" is shown as a WALKTHROUGH, "project" (title starts with Project), "quiz" (title starts with Quiz),
    "test" (Test or Exam in the title). An item can set part to override the title rule. */
-function slotPart(A) { if (!A) return "assignment"; if (A.part) return A.part; var t = String(A.title || ""); return /^Quiz\b/i.test(t) ? "quiz" : /^Project\b/i.test(t) ? "project" : /\b(Test|Exam)\b/i.test(t) ? "test" : "assignment"; }
+function slotPart(A) { if (!A) return "assignment"; if (A.part) return A.part; var t = String(A.title || ""); return /^Quiz\b/i.test(t) ? "quiz" : /^(Project|Performance Activity)\b/i.test(t) ? "project" : /\b(Test|Exam)\b/i.test(t) ? "test" : "assignment"; }
 var KIND_PTS = { assignment: 100, project: 250, quiz: 100, test: 100 };
 function slotPoints(A) { return A && Number(A.points) > 0 ? Number(A.points) : KIND_PTS[slotPart(A)] || 100; }
 var SUB_INDENT = "    ↳ ";   /* projects and quizzes sit indented under the walkthroughs they come after */
@@ -1232,7 +1232,7 @@ function slotOrd(id, A) {
   var unit = unitNum(A && A.unit), t = String((A && A.title) || "");
   if (A && A.seq !== undefined && A.seq !== null && A.seq !== "" && !isNaN(Number(A.seq))) return unit * 1000 + Number(A.seq);
   if (slotPart(A) === "assignment") return unit * 1000 + (Number(A && A.num) || Number(id.slice(1)));
-  var r = /(\d+)\s*(?:-|to)\s*(\d+)/i.exec(t.replace(/^\D*\d+\s*:/, "")), own = /(\d+)/.exec(t), rank = { quiz: 0, project: 1, test: 2 }[slotPart(A)] || 0;
+  var r = /(\d+)\s*(?:-|to)\s*(\d+)/i.exec(t.replace(/^\D*\d+\s*:/, "")), own = /(\d+)/.exec(t), rank = { project: 0, quiz: 1, test: 2 }[slotPart(A)] || 0;
   return unit * 1000 + (r ? Number(r[2]) + 0.5 : 900) + rank * 0.01 + (own ? Number(own[1]) / 1000 : 0);
 }
 function buildSlots() {
