@@ -913,16 +913,18 @@
   (function () {
     var own = "";
     function teacher() { return userEmail === "randy.norman@socialcircleschools.org"; }
-    setInterval(function () { document.body.classList.toggle("teacher", teacher()); }, 700);
-    function typing(el) { return !teacher() && el && el.tagName === "TEXTAREA" && (el.id === "ta" || (el.classList && el.classList.contains("askbox"))); }
+    /* the teacher and the Free build sandbox (nothing there is graded) can copy and paste anything, from anywhere */
+    function exempt() { return teacher() || slot === "free"; }
+    setInterval(function () { document.body.classList.toggle("teacher", teacher()); document.body.classList.toggle("openbox", exempt()); }, 700);
+    function typing(el) { return !exempt() && el && el.tagName === "TEXTAREA" && (el.id === "ta" || (el.classList && el.classList.contains("askbox"))); }
     function say() { status("Pasting is turned off. Type it in your own words and your own code.", true); }
     document.addEventListener("copy", function (e) {
       var el = e.target; if (typing(el)) { own = String(window.getSelection ? window.getSelection() : "") || (el.value || "").slice(el.selectionStart, el.selectionEnd); return; }
       if (e.target && e.target.closest && e.target.closest(".codebox.copyok")) { own = String(window.getSelection ? window.getSelection() : ""); return; }
       var sel0 = window.getSelection && window.getSelection(), cbk = sel0 && sel0.anchorNode && (sel0.anchorNode.nodeType === 1 ? sel0.anchorNode : sel0.anchorNode.parentNode); if (cbk && cbk.closest && cbk.closest(".codebox.copyok")) { own = String(sel0); return; }
       /* Select All (or any selection that runs across the page) must not carry the assignment pane, a help pop-up or the output along with it */
-      if (!teacher() && sel0 && sel0.rangeCount) { var rg0 = sel0.getRangeAt(0), hit0 = false; ["#assBody", ".modal", "#out"].forEach(function (q) { var n0 = document.querySelector(q); if (n0 && rg0.intersectsNode(n0)) hit0 = true; }); if (hit0) { e.preventDefault(); return; } }
-      if (!teacher() && e.target && e.target.closest && e.target.closest("#assBody, .modal, #out, .codebox")) { e.preventDefault(); }
+      if (!exempt() && sel0 && sel0.rangeCount) { var rg0 = sel0.getRangeAt(0), hit0 = false; ["#assBody", ".modal", "#out"].forEach(function (q) { var n0 = document.querySelector(q); if (n0 && rg0.intersectsNode(n0)) hit0 = true; }); if (hit0) { e.preventDefault(); return; } }
+      if (!exempt() && e.target && e.target.closest && e.target.closest("#assBody, .modal, #out, .codebox")) { e.preventDefault(); }
     }, true);
     document.addEventListener("cut", function (e) { var el = e.target; if (typing(el)) own = (el.value || "").slice(el.selectionStart, el.selectionEnd); }, true);
     document.addEventListener("paste", function (e) {
@@ -935,7 +937,7 @@
     document.addEventListener("drop", function (e) { if (typing(e.target)) { e.preventDefault(); say(); } }, true);
     document.addEventListener("dragover", function (e) { if (typing(e.target)) e.preventDefault(); }, true);
     document.addEventListener("keydown", function (e) { if (typing(e.target) && e.shiftKey && e.key === "Insert") { e.preventDefault(); say(); } }, true);
-    ["#assBody", "#out"].forEach(function (s) { var el = document.querySelector(s); if (el) { el.addEventListener("contextmenu", function (e) { if (!teacher() && e.target.closest(".codebox")) e.preventDefault(); }); } });
+    ["#assBody", "#out"].forEach(function (s) { var el = document.querySelector(s); if (el) { el.addEventListener("contextmenu", function (e) { if (!exempt() && e.target.closest(".codebox")) e.preventDefault(); }); } });
   })();
   window.ARD = { get project() { return project; }, get sim() { return sim; }, ta: ta, evaluate: evaluate, fitView: fitView };
 })();
