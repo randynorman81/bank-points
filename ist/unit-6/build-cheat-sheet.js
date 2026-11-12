@@ -1,6 +1,7 @@
 /* Builds cheat-sheet.html: every tag used in the HTML lessons, each with a code example and what the browser shows.
    Run: node build-cheat-sheet.js   (in ist/unit-6). Edit the GROUPS list below to add or change a tag. */
 const fs = require("fs");
+const PIC = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200"><rect width="300" height="200" fill="#8ecae6"/><circle cx="150" cy="95" r="55" fill="#2b2d42"/><circle cx="130" cy="85" r="8" fill="#fff"/><circle cx="170" cy="85" r="8" fill="#fff"/><ellipse cx="150" cy="112" rx="14" ry="9" fill="#e5989b"/></svg>');
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 // [tag label, what it does, lesson, code, closing-tag note]
 const GROUPS = [
@@ -39,9 +40,9 @@ const GROUPS = [
     ["<link>", "In the head. It loads something from outside, like a Google font or your style.css file. No closing tag.", "3.5 and 5.1",
      "<head>\n  <link href=\"https://fonts.googleapis.com/css2?family=Lobster&display=swap\" rel=\"stylesheet\">\n</head>", "The font is loaded, but nothing changes until you use it in a style."],
     ["<img>", "Shows an image. src is where the picture lives and alt describes it. No closing tag.", "3.7",
-     "<img src=\"https://picsum.photos/id/237/300/200\" alt=\"A black puppy\" width=\"150\">", "<img src=\"https://picsum.photos/id/237/300/200\" alt=\"A black puppy\" width=\"150\">"],
+     "<img src=\"dog.jpg\" alt=\"A black puppy\" width=\"150\">", "<img src=\"https://picsum.photos/id/237/300/200\" alt=\"A black puppy\" width=\"150\">"],
     ["<a>", "A link. href is where it goes. Add target=\"_blank\" to open a new tab. It can wrap words, a heading, or an image.", "3.9",
-     "<a href=\"https://www.wikipedia.org\" target=\"_blank\">Visit Wikipedia</a>\n\n<a href=\"https://www.wikipedia.org\"><img src=\"https://picsum.photos/id/237/300/200\" alt=\"A black puppy\" width=\"120\"></a>",
+     "<a href=\"https://www.wikipedia.org\" target=\"_blank\">Visit Wikipedia</a>\n\n<a href=\"https://www.wikipedia.org\"><img src=\"dog.jpg\" alt=\"A black puppy\" width=\"120\"></a>",
      "<a href=\"#\" onclick=\"return false\">Visit Wikipedia</a><br><br><a href=\"#\" onclick=\"return false\"><img src=\"https://picsum.photos/id/237/300/200\" alt=\"A black puppy\" width=\"120\"></a>"],
   ]],
   ["Lists", [
@@ -76,7 +77,7 @@ GROUPS.forEach((g, gi) => {
   body += `<section class="part" id="${id}"><div class="wrap"><div class="part-head"><h2>${esc(g[0])}</h2></div><div class="lbody">`;
   g[1].forEach((t) => {
     const [name, what, lesson, code, shown] = t;
-    const out = shown && shown.charAt(0) === "<" ? shown : null, note = shown && !out ? shown : "";
+    const out = shown && shown.charAt(0) === "<" ? shown.split("https://picsum.photos/id/237/300/200").join(PIC) : null, note = shown && !out ? shown : "";
     body += `<div class="ex"><div class="exl">${esc(name)}</div><p class="lede">${esc(what)} <span class="lsn">Lesson ${lesson}</span></p>`;
     if (out) body += `<div class="demo"><div class="box"><h4>Code</h4><div class="codeblk">${esc(code)}</div></div><div class="box"><h4>What the browser shows</h4><div class="out">${out}</div></div></div>`;
     else body += `<div class="codeblk">${esc(code)}</div>` + (note ? `<p class="lede">${esc(note)}</p>` : "");
