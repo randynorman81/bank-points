@@ -273,6 +273,20 @@ async function adminCounts() {
 
 // One-time helper after the Unit 7 -> Unit 6 renumber: copies sub:/draft: records from lesson 7.N to 6.N. Never deletes.
 // RETIRED 2026-09-29: 7.x is now its own lesson set (HTML Part 2), so copying 7.N into 6.N would mix real work.
+/* teacher: recalculate the saved auto score of every submission for one lesson with the current checker. Only the auto field changes (never the code, answers, times or teacher grade). */
+async function adminRescore(body) {
+  if (!goodLesson(body.lesson)) return { error: "Unknown lesson" };
+  const keys = await listPrefix("sub:" + body.lesson + ":"), changed = [];
+  for (const k of keys) {
+    const rec = await store().get(k, { type: "json" }); if (!rec) continue;
+    const sc = autoScore(body.lesson, String(rec.code || ""), String(rec.css || "")); if (!sc) continue;
+    const was = rec.auto && rec.auto.pct;
+    if (was === sc.pct && rec.auto && rec.auto.boxes === sc.boxes) continue;
+    if (!body.dryRun) { rec.auto = { pct: sc.pct, boxes: sc.boxes }; await store().setJSON(k, rec); }
+    changed.push({ email: rec.email, was, now: sc.pct });
+  }
+  return { ok: true, lesson: body.lesson, dryRun: !!body.dryRun, checked: keys.length, changed };
+}
 async function adminMigrate() {
   return { error: "This migration is retired: lessons 7.1-7.6 are their own lessons now." };
   // eslint-disable-next-line no-unreachable
@@ -342,9 +356,10 @@ export default async (req) => {
     try { body = await req.json(); } catch (e) { return ok({ error: "Malformed request" }); }
     const action = body.action;
 
-    if (["adminList", "adminCounts", "adminGrade", "adminDelete", "adminMigrate", "adminScore", "adminPassOver", "adminLessonPass"].indexOf(action) > -1) {
+    if (["adminList", "adminCounts", "adminGrade", "adminDelete", "adminMigrate", "adminScore", "adminPassOver", "adminLessonPass", "adminRescore"].indexOf(action) > -1) {
       if (!isAdmin(body)) return ok({ error: "Invalid PIN" });
       if (action === "adminList") return ok(await adminList(body));
+      if (action === "adminRescore") return ok(await adminRescore(body));
       if (action === "adminCounts") return ok(await adminCounts());
       if (action === "adminMigrate") return ok(await adminMigrate());
       if (action === "adminScore") { const sc = autoScore(String(body.lesson || ""), String(body.code || ""), String(body.css || "")); return ok(sc ? { ok: true, pct: sc.pct, boxes: sc.boxes, need: WEB_PASS } : { ok: true, pct: null, note: "no step checks for that lesson" }); }
