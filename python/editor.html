@@ -1276,7 +1276,7 @@ function buildSlots() {
   });
   (window.PY_LOCKED || []).forEach(function (L) {
     var part = L.part || "assignment", name = part === "assignment" ? "Walkthrough " + L.num : (L.title || L.name || "Quiz");
-    var opt = '<option value="" disabled>' + (part !== "assignment" ? SUB_INDENT : "") + "🔒 " + escA(name) + " (" + (L.needPass ? "score " + L.needPass + "% on" : "submit") + " " + escA(L.needName || "Walkthrough " + L.needNum) + " to unlock)</option>";
+    var opt = '<option value="" disabled>' + (part !== "assignment" ? SUB_INDENT : "") + "🔒 " + escA(name) + (L.held ? " (your teacher will open this)" : " (" + (L.needPass ? "score " + L.needPass + "% on" : "submit") + " " + escA(L.needName || "Walkthrough " + L.needNum) + " to unlock)") + "</option>";
     if (L.unit) put(L.unit, typeof L.ord === "number" ? L.ord : Number(L.num) || 0, opt); else rest += opt;
   });
   var h = top;

@@ -264,7 +264,7 @@ async function submit(body, user) {
   }
   if (asg && asg.live !== false && body.slot !== "free" && !isTeacherUser(user)) {
     const open = await gatedAssignments(user, period);
-    if (!open.assignments[body.slot]) { const L = open.locked.find((x) => x.id === body.slot); return { error: L ? L.name + " is locked. " + (L.needPass ? "Score " + L.needPass + "% or higher on " + L.needName + " first." : "Submit " + L.needName + " first.") : "That assignment is not open yet." }; }
+    if (!open.assignments[body.slot]) { const L = open.locked.find((x) => x.id === body.slot); return { error: L && L.held ? L.name + " is not open yet. Your teacher will open it when it is time." : L ? L.name + " is locked. " + (L.needPass ? "Score " + L.needPass + "% or higher on " + L.needName + " first." : "Submit " + L.needName + " first.") : "That assignment is not open yet." }; }
     const v = variantFor(asg, period);
     if (Array.isArray(v.checks) && v.checks.length) { const r = scoreCode(v.checks, code, String(body.gradeOutput != null ? body.gradeOutput : body.output || "").slice(0, 8000)); if (r.pct !== null && r.pct < PASS && v.submitAny !== true) return { error: "Your score is " + r.pct + " out of 100. You need at least " + PASS + " to submit. Open the \"still missing\" list, fix those parts so they match the steps exactly, and submit again.", pct: r.pct, need: PASS }; }
   }
@@ -335,6 +335,7 @@ async function adminSetLive(body) {
   if (!rec) return { error: "That assignment has not been uploaded yet" };
   rec.live = body.live === true || body.live === "true";
   if (body.ungated !== undefined) rec.ungated = body.ungated === true || body.ungated === "true";
+  if (body.hold !== undefined) rec.hold = body.hold === true || body.hold === "true";   /* hold: published and listed, but LOCKED for students until the teacher opens it */
   if (body.commentsCount !== undefined) { const on = body.commentsCount === true || body.commentsCount === "true", mark = (arr) => (Array.isArray(arr) ? arr : []).forEach((c) => { if (on) c.unc = true; else delete c.unc; }); mark(rec.checks); Object.keys(rec.variants || {}).forEach((p) => mark(rec.variants[p].checks)); }
   if (body.submitAny !== undefined) rec.submitAny = body.submitAny === true || body.submitAny === "true";   /* submitAny: students can submit whatever score they earn (no 80 needed) */
   if (body.passMin !== undefined) { if (body.passMin === null || body.passMin === "") delete rec.passMin; else { const pn = Number(body.passMin); if (pn >= 0 && pn <= 100) rec.passMin = pn; } }   /* passMin: percent needed before the next assignment opens */
@@ -343,7 +344,7 @@ async function adminSetLive(body) {
   if (body.part !== undefined) { if (["assignment", "project", "quiz", "test"].indexOf(body.part) > -1) rec.part = body.part; else delete rec.part; }
   if (body.points !== undefined && !isNaN(Number(body.points))) rec.points = Math.max(0, Math.min(1000, Number(body.points)));
   await store().setJSON("assign:" + body.slot, rec);
-  return { ok: true, slot: body.slot, live: rec.live, ungated: rec.ungated === true, quizFree: rec.quizFree === true, submitAny: rec.submitAny === true, passMin: rec.passMin !== undefined ? rec.passMin : null };
+  return { ok: true, slot: body.slot, live: rec.live, hold: rec.hold === true, ungated: rec.ungated === true, quizFree: rec.quizFree === true, submitAny: rec.submitAny === true, passMin: rec.passMin !== undefined ? rec.passMin : null };
 }
 async function adminAutograde(body) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
@@ -382,7 +383,7 @@ async function adminSetAssignment(body) {
   const prevAsg = await readJSON("assign:" + body.slot, null);
   const points = Math.max(0, Math.min(1000, Number(body.points) || 0));
   const text = JSON.stringify({ title, unit, num, points, mc, mcKey, mcReleased: !!(prevAsg && prevAsg.mcReleased), autoRun: cleanAutoRun(body.autoRun !== undefined ? body.autoRun : (prevAsg && prevAsg.autoRun)), passMin: prevAsg && prevAsg.passMin !== undefined && prevAsg.passMin !== null ? prevAsg.passMin : undefined, mcOnly: !!body.mcOnly, blocks: body.blocks, checks: cleanChecks(body.checks), tips: cleanTips(body.tips), variants, live: body.live !== false, publishedAt: now() });
-  const keep = JSON.parse(text); ["ungated", "quizFree", "submitAny", "seq", "part"].forEach((k) => { if (prevAsg && prevAsg[k] !== undefined && keep[k] === undefined) keep[k] = prevAsg[k]; });
+  const keep = JSON.parse(text); ["ungated", "quizFree", "submitAny", "seq", "part", "hold"].forEach((k) => { if (prevAsg && prevAsg[k] !== undefined && keep[k] === undefined) keep[k] = prevAsg[k]; });
   if (text.length > 400000) return { error: "That assignment is too big" };
   await store().setJSON("assign:" + body.slot, keep);
   return { ok: true, slot: body.slot, title };
@@ -430,9 +431,10 @@ async function gatedAssignments(user, period) {
     const a = all[id]; if (a.live === false) continue;
     const chain = inChain(a);
     const hasSub = chain && firstFail !== null && user ? !!(await readJSON("sub:" + id + ":" + enc(user.email), null)) : false;
-    const open = a.ungated === true || firstFail === null || hasSub;
+    const held = a.hold === true, open = !held && (a.ungated === true || firstFail === null || hasSub);
     if (open) show(id);
-    else { const f = all[firstFail]; locked.push({ id, need: firstFail, unit: a.unit || "", part: slotPart(a), ord: orderKey(id, a), title: slotPart(a) === "assignment" ? "" : String(a.title || ""), name: itemName(id, a), needName: itemName(firstFail, f), needName2: slotPart(f) === "assignment" ? "" : itemName(firstFail, f), num: a.num || Number(id.slice(1)), needNum: f.num || Number(firstFail.slice(1)), needPass: passMinOf(f) }); }
+    else if (held && firstFail === null) locked.push({ id, held: true, unit: a.unit || "", part: slotPart(a), ord: orderKey(id, a), title: slotPart(a) === "assignment" ? "" : String(a.title || ""), name: itemName(id, a), num: a.num || Number(id.slice(1)) });
+    else { const f = all[firstFail]; locked.push({ id, need: firstFail, unit: a.unit || "", part: slotPart(a), ord: orderKey(id, a), title: slotPart(a) === "assignment" ? "" : String(a.title || ""), name: itemName(id, a), needName: itemName(firstFail, f), needName2: slotPart(f) === "assignment" ? "" : itemName(firstFail, f), num: a.num || Number(id.slice(1)), needNum: f.num || Number(firstFail.slice(1)), needPass: passMinOf(f), held }); }
     if (chain && firstFail === null && !(user && (await subPassed(id, user.email)))) firstFail = id;
   }
   return { ok: true, assignments: out, locked };
