@@ -7,24 +7,27 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="arena.css">
+<style>#aw{height:230px;margin-top:12px;position:relative;border:1px solid var(--line);border-radius:14px;background:radial-gradient(circle at 50% 50%,#0f1624,#090b0f 75%);overflow:hidden}#aw canvas{width:100%;height:100%;display:block}#aw.off{display:none}</style>
 </head>
 <body>
 <div class="wrap">
   <div class="brand"><i></i><span>Python <b>Arena</b></span><span class="sp"></span><span id="topR" class="mono"></span></div>
-  <div id="scr" style="margin-top:18px"></div>
+  <div id="aw"><canvas id="cv"></canvas></div>
+  <div id="scr" style="margin-top:14px"></div>
 </div>
 <script src="common.js"></script>
+<script src="fx.js"></script>
 <script>
 (function () {
   var $ = function (i) { return document.getElementById(i); }, esc = AR.esc;
-  var S = { code: "", pid: "", name: "", st: null, key: "", lock: null, order: [], err: "" };
+  var S = { code: "", pid: "", name: "", st: null, key: "", lock: null, order: [], err: "", fx: null, fxKey: "" };
   try { var sv = JSON.parse(localStorage.getItem("arena:v1") || "null"); if (sv && sv.code && sv.pid) { S.code = sv.code; S.pid = sv.pid; S.name = sv.name || ""; } } catch (e) {}
   function save() { try { localStorage.setItem("arena:v1", JSON.stringify({ code: S.code, pid: S.pid, name: S.name })); } catch (e) {} }
   function leave() { S.code = S.pid = ""; S.st = null; S.key = ""; try { localStorage.removeItem("arena:v1"); } catch (e) {} showJoin(); }
 
   /* ---------- join ---------- */
   function showJoin(msg) {
-    $("topR").textContent = "";
+    $("topR").textContent = ""; $("aw").classList.add("off");
     $("scr").innerHTML = '<div class="card pop"><h1 class="big" style="font-size:40px">Enter the arena</h1><p class="muted" style="margin:6px 0 16px">Get the match code from the big screen. Pick a callsign other players will see.</p>' +
       '<label class="muted mono" style="font-size:12px">MATCH CODE</label><input id="jc" maxlength="4" autocomplete="off" autocapitalize="characters" style="text-transform:uppercase;text-align:center;font-size:32px;margin-bottom:12px" placeholder="ABCD">' +
       '<label class="muted mono" style="font-size:12px">CALLSIGN</label><input id="jn" maxlength="16" autocomplete="off" value="' + esc(S.name) + '" placeholder="your name or handle">' +
@@ -58,10 +61,26 @@
     var me = st.me; if (!me) return "";
     $("topR").innerHTML = esc(me.name) + " &nbsp;|&nbsp; " + me.score.toLocaleString() + " pts";
   }
+  /* the arena strip: everyone's piece on the platform, yours outlined in white */
+  function arenaUpdate(st) {
+    var aw = $("aw"); aw.classList.remove("off");
+    if (!S.fx) S.fx = new ArenaFX($("cv"), { me: S.pid, labels: true, scores: false });
+    S.fx.me = S.pid; var me = st.me, bd = st.board, list;
+    function mk(b, i) { return { id: b.id, name: b.name, score: b.score, rank: b.rank || i + 1, streak: b.streak || 0 }; }
+    if (st.phase === "final" && st.final) { S.fx.setBoard(st.final.map(function (f) { return { id: f.id, name: f.name, score: f.score, rank: f.rank, streak: 0 }; }), "final"); return; }
+    if (st.phase === "reveal" && bd && st.r) {
+      var key = "rv:" + st.r.round; if (S.fxKey === key) return; S.fxKey = key;
+      S.fx.setBoard(bd.map(function (b, i) { return { id: b.id, name: b.name, score: b.ps, rank: b.pr || b.rank, streak: b.streak }; }), "play"); S.fx.playReveal(bd, st.reveal && st.reveal.duels); return;
+    }
+    S.fxKey = "";
+    list = bd ? bd.map(mk) : [];
+    if (me && !list.some(function (x) { return x.id === me.id; })) list.push({ id: me.id, name: me.name, score: me.score, rank: list.length + 1, streak: 0 });
+    S.fx.setBoard(list, st.phase === "lobby" ? "lobby" : "play");
+  }
   var started = false;
   function render() {
     var st = S.st, r = st.r, phase = st.phase;
-    topLine(st);
+    topLine(st); arenaUpdate(st);
     var go = r ? AR.serverNow() >= st.startedAt : true;
     var key = phase + ":" + (r ? r.round : "") + ":" + (phase === "question" ? (go ? "go" : "wait") : "") + ":" + (st.reveal ? "rv" : "") + (st.myFinal ? "f" : "");
     if (key === S.key) return;

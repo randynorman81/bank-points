@@ -124,6 +124,8 @@ async function state(body) {
     if (room.phase === "reveal") out.reveal = room.results[room.round];
   }
   if (room.phase === "final") out.final = room.final;
+  if (room.phase === "reveal") out.board = room.results[room.round].board;
+  else if (room.phase === "question" && room.round > 0 && room.results[room.round - 1]) out.board = room.results[room.round - 1].board;
   out.total = room.rounds.length;
   if (host) {
     out.players = players.map((p) => ({ id: p.id, name: p.name, score: p.score, streak: p.streak, rank: p.rank || 0, answered: room.round >= 0 && p.answers && p.answers[room.round] !== undefined }))
@@ -157,6 +159,7 @@ async function reveal(room) {
   const dist = q.m === "out" ? q.ch.map(() => 0) : [0, 0, 0];   // out: picks per displayed choice. Others: [correct, wrong, no answer]
   let fastest = null, correctN = 0, answeredN = 0;
   players.forEach((p) => {
+    p.ps = p.score;   // score before this round (the graphics start from here)
     const a = p.answers[room.round], ans = a ? a.a : null, ok = !!a && judge(q, r.perm, ans);
     const ms = a ? Math.max(0, Math.min(r.limit * 1000, a.t - room.startedAt)) : null;
     let pts = 0;
@@ -172,18 +175,19 @@ async function reveal(room) {
     for (let i = 0; i + 1 < before.length; i += 2) {
       const A = before[i], Bp = before[i + 1], ha = A.hist[room.round], hb = Bp.hist[room.round];
       let w = null; if (ha.ok && hb.ok) w = ha.ms <= hb.ms ? A : Bp; else if (ha.ok) w = A; else if (hb.ok) w = Bp;
-      if (!w) { duels.push({ a: A.name, b: Bp.name, winner: null, amt: 0 }); continue; }
+      if (!w) { duels.push({ a: A.name, b: Bp.name, aId: A.id, bId: Bp.id, winner: null, winnerId: null, amt: 0 }); continue; }
       const l = w === A ? Bp : A, amt = Math.min(DUEL_STAKE, l.score); w.score += amt; l.score -= amt;
       w.hist[room.round].duel = amt; l.hist[room.round].duel = -amt;
-      duels.push({ a: A.name, b: Bp.name, winner: w.name, amt });
+      duels.push({ a: A.name, b: Bp.name, aId: A.id, bId: Bp.id, winner: w.name, winnerId: w.id, amt });
     }
-    if (before.length % 2 === 1) duels.push({ a: before[before.length - 1].name, b: null, winner: null, amt: 0 });
+    if (before.length % 2 === 1) duels.push({ a: before[before.length - 1].name, b: null, aId: before[before.length - 1].id, bId: null, winner: null, winnerId: null, amt: 0 });
   }
   const after = players.slice().sort((a, b) => b.score - a.score || a.joined - b.joined);
   after.forEach((p, i) => { p.rank = i + 1; p.delta = p.prevRank ? p.prevRank - p.rank : 0; });
   await Promise.all(players.map((p) => store().setJSON("p:" + room.code + ":" + p.id, p)));
   room.results[room.round] = {
     correct: correctText(q), m: q.m, dist, fastest, answeredN, correctN, total: players.length, duels,
+    board: after.map((p) => ({ id: p.id, name: p.name, score: p.score, ps: p.ps, rank: p.rank, pr: p.prevRank, streak: p.streak, ok: p.hist[room.round].ok, none: p.hist[room.round].none, ms: p.hist[room.round].ms, pts: p.hist[room.round].pts, duel: p.hist[room.round].duel || 0 })),
     top: after.slice(0, 8).map((p) => ({ id: p.id, name: p.name, score: p.score, pts: p.hist[room.round].pts + (p.hist[room.round].duel || 0), rank: p.rank, delta: p.delta, streak: p.streak }))
   };
   room.phase = "reveal";

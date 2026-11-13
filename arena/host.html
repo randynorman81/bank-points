@@ -21,6 +21,14 @@ body{font-size:20px}
 .bar i{display:block;height:100%;border-radius:6px;background:var(--panel2);border:1px solid var(--line);min-width:3px}
 .bar.right i{background:rgba(61,220,151,.35);border-color:var(--good)}
 .hq{font-size:30px;line-height:1.2}
+.lay{display:grid;grid-template-columns:1fr;gap:16px}
+#aw{height:400px;position:relative;border:1px solid var(--line);border-radius:14px;background:radial-gradient(circle at 50% 50%,#0f1624,#090b0f 75%);overflow:hidden}
+#aw canvas{width:100%;height:100%;display:block}
+body.q .lay{grid-template-columns:1.2fr 1fr;align-items:start}
+body.q #aw{order:2;height:460px;position:sticky;top:10px}
+body.q #scr{order:1}
+body:not(.q) #aw{max-width:640px;width:100%;height:440px;margin:0 auto}
+@media(max-width:900px){body.q .lay{grid-template-columns:1fr}body.q #aw{order:0;height:300px;position:relative}}
 .codebox{font-size:20px}
 .choice{font-size:20px}
 .bugline{font-size:19px}
@@ -29,13 +37,16 @@ body{font-size:20px}
 <body>
 <div class="stage">
   <div class="brand"><i></i><span>Python <b>Arena</b> &nbsp;/&nbsp; host</span><span class="sp"></span><span id="topR" class="mono"></span></div>
-  <div id="scr" style="margin-top:18px"></div>
+  <div class="lay" style="margin-top:18px"><div id="aw"><canvas id="cv"></canvas></div><div id="scr"></div></div>
 </div>
 <script src="common.js"></script>
+<script src="fx.js"></script>
 <script>
 (function () {
   var $ = function (i) { return document.getElementById(i); }, esc = AR.esc;
-  var H = { pin: "", code: "", st: null, busy: false, key: "", revealing: false };
+  var H = { pin: "", code: "", st: null, busy: false, key: "", revealing: false, fxKey: "" };
+  var fx = new ArenaFX($("cv"), { labels: true, scores: true });
+  function fxList(a) { return a.map(function (p, i) { return { id: p.id, name: p.name, score: p.score, rank: p.rank || i + 1, streak: p.streak, answered: p.answered }; }); }
   try { var sv = JSON.parse(sessionStorage.getItem("arena:host") || "null"); if (sv) { H.pin = sv.pin; H.code = sv.code; } } catch (e) {}
   function save() { try { sessionStorage.setItem("arena:host", JSON.stringify({ pin: H.pin, code: H.code })); } catch (e) {} }
 
@@ -70,6 +81,11 @@ body{font-size:20px}
   function render() {
     var st = H.st, r = st.r; $("topR").textContent = st.players.length + " players";
     var key = st.phase + ":" + (r ? r.round : "") + ":" + (st.reveal ? "rv" : "");
+    document.body.className = st.phase === "question" ? "q" : "";
+    if (st.phase === "lobby") fx.setBoard(fxList(st.players), "lobby");
+    else if (st.phase === "question") { fx.setBoard(fxList(st.players), "play"); H.fxKey = ""; }
+    else if (st.phase === "reveal" && H.fxKey !== key) { H.fxKey = key; var bd = st.reveal.board; fx.setBoard(bd.map(function (b) { return { id: b.id, name: b.name, score: b.ps, rank: b.pr || b.rank, streak: b.streak }; }), "play"); fx.playReveal(bd, st.reveal.duels); }
+    else if (st.phase === "final" && H.fxKey !== key) { H.fxKey = key; fx.setBoard(st.final.map(function (f) { return { id: f.id, name: f.name, score: f.score, rank: f.rank, streak: 0 }; }), "final"); }
     if (st.phase === "lobby") return lobby(st);
     if (st.phase === "question") { if (key !== H.key) { H.key = key; question(st); } return live(st); }
     if (key !== H.key) { H.key = key; if (st.phase === "reveal") reveal(st); else final(st); }
