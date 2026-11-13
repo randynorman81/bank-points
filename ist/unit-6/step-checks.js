@@ -120,7 +120,7 @@
     Object.keys(L.steps).forEach(function (st) {
       var n = +(/Step (\d+)/.exec(st) || [0, 0])[1], L2 = L.steps[st];
       out[st] = { comment: null, bullets: L2.map(function (list) {
-        var o = list.map(function (ck) { var ok = false; try { ok = !!ck[1](c); } catch (e) { ok = false; } return { label: ck[0], ok: ok }; }); if (list.bonus) o.bonus = list.bonus; return o;
+        var o = list.map(function (ck) { var ok = false; try { ok = !!ck[1](c); } catch (e) { ok = false; } var r = { label: ck[0], ok: ok }; if (ck[2]) { try { r.detail = ck[2](c); } catch (e) {} } return r; }); if (list.bonus) o.bonus = list.bonus; return o;
       }) };
     });
     return out;

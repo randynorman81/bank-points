@@ -161,6 +161,10 @@ a.tipbtn{display:inline-block;text-decoration:none;padding:6px 14px;font-size:13
 #ansPane .sbx.done label span{text-decoration:line-through;opacity:.65}
 #ansPane .abadge{font:700 11px Manrope,sans-serif;border:1px solid #F87171;color:#F87171;border-radius:999px;padding:1px 9px;white-space:nowrap;margin-left:26px}
 #ansPane .abadge.ok{border-color:#34D399;color:#34D399}
+#ansPane .poolbtn{display:block;margin:6px 0 0 26px;font:700 12px Manrope,sans-serif;border:1px solid #F59E0B;color:#F59E0B;background:none;border-radius:8px;padding:4px 10px;cursor:pointer}
+#ansPane .poolbtn.ok{border-color:#34D399;color:#34D399}
+#paneAns #ansPane .poolbtn{color:#92400e;border-color:#b45309}#paneAns #ansPane .poolbtn.ok{color:#15803d;border-color:#15803d}
+.pooltally{list-style:none;padding:0;margin:8px 0}.pooltally li{padding:6px 10px;margin:4px 0;border-radius:6px;border:1px solid var(--rule)}.pooltally li.ok{border-color:#34D399;color:#34D399;font-weight:700}.pooltally li.no{opacity:.85}
 #ansPane .abadge.btn2{cursor:pointer;background:none}
 #ansPane .wrongbtn{font:700 11px Manrope,sans-serif;background:#000;color:#fff;border:1px solid #6b7280;border-radius:999px;padding:2px 11px;margin-left:8px;cursor:pointer;white-space:nowrap}#ansPane .wrongbtn:hover{background:#1f2937}#ansPane .wrongbtn.open{background:#fff;color:#000;border-color:#000}
 #ansPane .stepmiss b{display:block;margin-bottom:3px}#ansPane .stepmiss .allok{color:#34D399}#paneAns #ansPane .stepmiss .allok{color:#15803d}
@@ -1635,6 +1639,9 @@ function stepUpdate() {
     if (!done) missing.push({ step: box.getAttribute("data-sk"), n: counter[box.getAttribute("data-sk")], bi: bi, text: box.getAttribute("data-tx") || "", items: list.filter(function (x) { return !x.ok; }).map(function (x) { return x.label; }) });
     var ticked = box.querySelector("input").checked; box.classList.toggle("done", ticked); tot++; if (ticked) okn++;
     b.className = "abadge btn2" + (done ? " ok" : ""); b.textContent = done ? "✓ auto-check: " + (n === 1 ? "met" : "all " + n + " met") : "auto-check: " + m + " of " + n + " met";
+    var pd = list[0] && list[0].detail, pb = box.querySelector(".poolbtn");
+    if (pd && !pb) { pb = document.createElement("button"); pb.type = "button"; pb.className = "poolbtn"; pb.setAttribute("data-sk", box.getAttribute("data-sk")); box.insertBefore(pb, box.querySelector(".abadge").nextSibling); }
+    if (pd && pb) { var have = pd.items.filter(function (x) { return x.ok; }).length; pb.textContent = "📋 My count: " + have + " of " + pd.need + " needed (click to see which)"; pb.className = "poolbtn" + (have >= pd.need ? " ok" : ""); }
     var old = box.querySelector(".stepmiss"); if (old) old.remove();
     var wb = box.querySelector(".wrongbtn"); if (wb) wb.classList.toggle("open", !!stepOpen[id]);
     if (stepOpen[id]) { var d = document.createElement("div"); d.className = "stepmiss"; d.innerHTML = done ? '<div class="allok">&#10003; Nothing is wrong here. Every check for this box is met.</div>' : "<b>What is wrong with this box:</b>" + list.filter(function (x) { return !x.ok; }).map(function (x) { return "<div>• " + esc(x.label) + "</div>"; }).join(""); box.appendChild(d); }
@@ -1651,7 +1658,14 @@ $("ansPane").addEventListener("change", function (e) {
   S.ans["sx_" + box.getAttribute("data-sk") + ":" + box.getAttribute("data-bi")] = e.target.checked ? "1" : ""; ansSaveLocal(); stepUpdate(); touch(); $("status").textContent = "Typing…";
   clearTimeout(tAns); tAns = setTimeout(function () { saveNow(false); }, 800);
 });
-$("ansPane").addEventListener("click", function (e) { var b = e.target.closest && e.target.closest(".abadge, .wrongbtn"); if (!b) return; var id = b.getAttribute("data-sk") + ":" + b.getAttribute("data-bi"); stepOpen[id] = !stepOpen[id]; stepUpdate(); });
+$("ansPane").addEventListener("click", function (e) {
+  var pbt = e.target.closest && e.target.closest(".poolbtn");
+  if (pbt && stepLast) { var rs = stepLast[pbt.getAttribute("data-sk")], d = rs && rs.bullets[0] && rs.bullets[0][0] && rs.bullets[0][0].detail; if (d) {
+    var have = d.items.filter(function (x) { return x.ok; }).length, left = Math.max(0, d.need - have);
+    var html = '<p class="cnhint"><b>You have ' + have + ' of the ' + d.need + ' you need.</b> ' + (left ? "Add <b>" + left + " more</b> from the list below." : "You have enough. Nice work!") + "</p><ul class=\"pooltally\">" +
+      d.items.map(function (x) { return '<li class="' + (x.ok ? "ok" : "no") + '">' + (x.ok ? "✓ " : "○ ") + esc(x.label) + (x.ok ? " (found on your page)" : " (not on your page yet)") + "</li>"; }).join("") + "</ul>";
+    hlShow("My count: " + have + " of " + d.need, html, null); return; } }
+  var b = e.target.closest && e.target.closest(".abadge, .wrongbtn"); if (!b) return; var id = b.getAttribute("data-sk") + ":" + b.getAttribute("data-bi"); stepOpen[id] = !stepOpen[id]; stepUpdate(); });
 function ansInit() {
   var a = null; try { a = JSON.parse(lsGet("u7:ans:" + S.lesson) || "null"); } catch (e) {}
   S.ans = a && typeof a === "object" ? a : {};

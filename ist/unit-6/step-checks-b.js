@@ -718,7 +718,9 @@
       ]);
       st["Step " + n++] = CL.news[l].map(function (it) { return [K(it.label, function (c) { return spec(c, it.spec); })]; });
       if (pool.length) {
-        st["Step " + n++] = [[K("At least " + need + " of these " + pool.length + " earlier items are on your page", function (c) { return pool.filter(function (f) { return spec(c, f.spec); }).length >= need; })]];
+        var poolCk = K("At least " + need + " of these " + pool.length + " earlier items are on your page", function (c) { return pool.filter(function (f) { return spec(c, f.spec); }).length >= need; });
+        poolCk.push(function (c) { return { need: need, items: pool.map(function (f) { return { label: f.label, ok: !!spec(c, f.spec) }; }) }; });
+        st["Step " + n++] = [[poolCk]];
       }
       var fontLimit = !!CL.fontLimit[l];
       var limits = [
