@@ -729,7 +729,7 @@
       if (CL.noSizeLimit && CL.noSizeLimit[l]) limits.splice(2, 1);
       if (CL.noColorLimit && CL.noColorLimit[l]) limits.splice(0, 1);
       if (fontLimit) limits.push([K("The whole page uses 3 different fonts or fewer", function (c) { return distinctFonts(c) <= 3; })]);
-      limits.push([K("Bold is always strong and italics is always em: no b or i tags anywhere", function (c) { return c.all("b").length === 0 && c.all("i").length === 0; })]);
+      if (!(CL.noBoldItalicRule && CL.noBoldItalicRule[l])) limits.push([K("Bold is always strong and italics is always em: no b or i tags anywhere", function (c) { return c.all("b").length === 0 && c.all("i").length === 0; })]);
       st["Step " + n++] = limits;
       var bonus;
       if (pool.length) {

@@ -152,5 +152,6 @@
   /* how many of the pool they must use (the pool grows, this grows slowly) */
   CL.need = { "6.3": 3, "6.35": 4, "6.4": 5, "6.7": 6, "6.75": 6, "6.6": 7, "6.5": 8 };
   /* the fonts limit applies once fonts are taught (3.5 on) */
-  CL.fontLimit = { "6.35": 1, "6.4": 1, "6.7": 1, "6.75": 1, "6.6": 1, "6.5": 1 };
+  CL.noBoldItalicRule = { "6.35": 1 };   /* 3.5 drops the "never use b or i" limit, and the 3-fonts limit (so 3.5 is not in fontLimit) */
+  CL.fontLimit = { "6.4": 1, "6.7": 1, "6.75": 1, "6.6": 1, "6.5": 1 };
 })(typeof window !== "undefined" ? window : globalThis);

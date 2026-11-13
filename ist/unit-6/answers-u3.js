@@ -415,7 +415,7 @@
       if (CL.noSizeLimit && CL.noSizeLimit[l]) lim.splice(2, 1);
       if (CL.noColorLimit && CL.noColorLimit[l]) lim.splice(0, 1);
       if (CL.fontLimit[l]) lim.push("Use **no more than 3 different fonts** on the whole page");
-      lim.push("For bold use the **strong** tag and for italics use the **em** tag. **Never use the b tag or the i tag**");
+      if (!(CL.noBoldItalicRule && CL.noBoldItalicRule[l])) lim.push("For bold use the **strong** tag and for italics use the **em** tag. **Never use the b tag or the i tag**");
       list.push(S("Design limits (this is what makes it look real)", lim));
       if (pool.length) {
         var bn = Math.min(pool.length, need + 3);
