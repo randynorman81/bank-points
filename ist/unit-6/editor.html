@@ -1449,6 +1449,13 @@ function exOpen() {
 }
 function exClose() { $("mEx").classList.remove("show"); $("exImg").removeAttribute("src"); }
 $("exBtn").addEventListener("click", exOpen);
+/* a button inside the assignment that opens one example picture */
+document.addEventListener("click", function (e) {
+  var b = e.target.closest && e.target.closest(".exImgBtn"); if (!b) return;
+  var sel = $("exSel"); sel.style.display = "none"; sel.innerHTML = "";
+  $("exNote").textContent = "This is a finished example website. Yours will use your own theme, fonts, and colors, so it will look different.";
+  $("exImg").alt = b.getAttribute("data-exn"); $("exImg").src = b.getAttribute("data-exi"); $("mEx").classList.add("show");
+});
 $("exClose").addEventListener("click", exClose);
 $("exSel").addEventListener("change", function () { exShow(+this.value); });
 $("mEx").addEventListener("click", function (e) { if (e.target === this) exClose(); });
@@ -1515,6 +1522,7 @@ function ansRender() {
     else if (it.build && stepKey) { it.build.forEach(function (x) { h += (SCL.steps[stepKey][bIdx] && SCL.steps[stepKey][bIdx].length ? stepBox(bIdx, stepKey, x) : '<ul class="sb"><li>' + wtText(x) + "</li></ul>") + tipRow(x); bIdx++; }); }
     else if (it.build) h += '<ul class="sb">' + it.build.map(function (x) { return "<li>" + wtText(x) + "</li>"; }).join("") + "</ul>";
     else if (it.tip) h += '<div class="tiprow"><button type="button" class="tipbtn" data-tip="' + it.tip + '">&#128161; ' + esc(it.label || "More") + "</button></div>";
+    else if (it.exampleImg) h += '<div class="tiprow"><button type="button" class="tipbtn exImgBtn" data-exi="' + esc(it.exampleImg) + '" data-exn="' + esc(it.name || "Example") + '">&#128444; ' + esc(it.label || "See an example") + "</button></div>";
     else if (it.code) h += '<pre class="pat">' + esc(it.code) + "</pre>";
     else if (it.map) h += '<ol class="sb map">' + it.map.map(function (x) { return "<li>" + wtText(x) + "</li>"; }).join("") + "</ol>";
     else if (it.grp) h += '<div class="grp"><b>' + esc(it.grp) + '</b><div class="gg">' + it.fields.map(ansField).join("") + "</div></div>";
