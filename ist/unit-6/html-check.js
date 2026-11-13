@@ -829,5 +829,5 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
   }
   var CHARS = { emojis: emojisIn, symbols: symbolsIn, has: hasChar, startsWith: function (s) { return STARTCH_RE.test(String(s).trim()); }, distinct: distinctOf, words: realWords };
   var API = { chars: CHARS, context: context, TESTS: TESTS, REVIEW_MIN: REVIEW_MIN, quality: function (src) { return quality(analyze(String(src || ""))); }, analyze: analyze, check: check, openTags: openTags, previewDoc: previewDoc, VOID: VOID, NAMED: NAMED, LESSONS: LESSONS, ORDER: ORDER, TOTAL_POINTS: TOTAL_POINTS };
-  if (typeof module !== "undefined" && module.exports) module.exports = API; else root.HTMLCheck = API;
+  root.HTMLCheck = API; if (typeof module !== "undefined" && module.exports) module.exports = API;
 })(typeof window !== "undefined" ? window : globalThis);
