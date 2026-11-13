@@ -1448,7 +1448,14 @@ setInterval(cloudSave, 30000);
 document.addEventListener("visibilitychange", function () { if (document.hidden) cloudSave(); });
 
 /* ---------- quiz mode: fullscreen, and every time the student leaves the page is recorded for the teacher ---------- */
-var QZ = { on: false, goneAt: 0, kind: "", left: 0 };
+(function () {
+  var A0 = window.alert, C0 = window.confirm;
+  window.alert = function (m) { quizMute(2500); try { return A0.call(window, m); } finally { quizMute(2500); } };
+  window.confirm = function (m) { quizMute(2500); try { return C0.call(window, m); } finally { quizMute(2500); } };
+})();
+var QZ = { on: false, goneAt: 0, kind: "", left: 0, muteUntil: 0 };
+function quizMute(ms) { QZ.muteUntil = Math.max(QZ.muteUntil, Date.now() + ms); QZ.goneAt = 0; }   /* the editor itself is doing something (grading, a pop-up box): not leaving the quiz */
+function quizMuted() { return Date.now() < QZ.muteUntil; }
 function isQuizSlot() { var A = window.PY_ASSIGN && window.PY_ASSIGN[slot]; return !!A && A.quizFree !== true && /^Quiz\b/i.test(String(A.title || "")); }
 function quizReport(kind, ms) { if (!CRED) return; api({ action: "quizLeave", slot: slot, kind: kind, ms: ms }); }
 function quizOpenGate(title, msg, btn) {
@@ -1461,11 +1468,11 @@ function quizGoFull() {
   if (p && p.catch) p.catch(function () { /* fullscreen refused: the quiz still runs, leaving the page is still recorded */ });
 }
 function quizUpdateBadge() { var b = $("quizBadge"); if (!QZ.left) { b.style.display = "none"; return; } b.style.display = "block"; b.textContent = "You left the quiz " + QZ.left + " time" + (QZ.left === 1 ? "" : "s") + " (your teacher can see this)"; }
-function quizLeft(kind) { if (!QZ.on || QZ.goneAt) return; QZ.goneAt = Date.now(); QZ.kind = kind; }
+function quizLeft(kind) { if (!QZ.on || QZ.goneAt || quizMuted()) return; QZ.goneAt = Date.now(); QZ.kind = kind; }
 function quizBack() {
   if (!QZ.on || !QZ.goneAt) return;
   var ms = Date.now() - QZ.goneAt, kind = QZ.kind; QZ.goneAt = 0;
-  if (ms < 800) return;   /* a flicker (a pop-up, an alert), not leaving */
+  if (ms < 800 || quizMuted()) return;   /* a flicker (a pop-up, an alert), not leaving */
   QZ.left++; quizUpdateBadge(); quizReport(kind, ms);
   flash("You left the quiz for " + Math.round(ms / 1000) + " seconds. This was recorded for your teacher.");
 }
@@ -1481,6 +1488,7 @@ window.addEventListener("blur", function () { quizLeft("blur"); });
 window.addEventListener("focus", function () { quizBack(); });
 document.addEventListener("fullscreenchange", function () {
   if (!QZ.on) return;
+  if (quizMuted()) return;   /* the browser dropped fullscreen around one of our own pop-up boxes: not the student leaving */
   if (!document.fullscreenElement) { quizLeft("fullscreen"); quizOpenGate("You left fullscreen", "Leaving fullscreen is <b>recorded</b> for your teacher. Click to go back to the quiz.", "Back to the quiz"); }
   else quizBack();
 });
@@ -1522,9 +1530,9 @@ $("resetQuiz").addEventListener("click", function () {
   try { $("assBody").scrollTop = 0; } catch (e) {} flash("Quiz reset. All answers are cleared.");
 });
 $("mGo").addEventListener("click", function () {
-  var b = this; b.disabled = true;
+  var b = this; b.disabled = true; quizMute(6000);
   api({ action: "submit", slot: slot, mode: mode, code: ta.value, world: curWorld(), ticks: currentTicks(), period: $("period").value, output: out.textContent.slice(-3500), gradeOutput: hiddenOutput(ta.value, (window.PY_ASSIGN || {})[slot]), mc: getMc() }).then(function (j) {
-    b.disabled = false; $("mSub").classList.remove("show");
+    b.disabled = false; quizMute(2500); $("mSub").classList.remove("show");
     if (j && j.ok) { MY[slot] = "sub"; if (isQuizNow()) { document.body.classList.remove("mconly"); try { $("assBody").scrollTop = 0; } catch (eq) {} } lastCloud = ta.value; window.LAST_MC = j.mc ? { slot: slot, mc: j.mc } : null; loadAssignments(); buildSlots(); try { var mhh = document.querySelector(".mchint"); if (j.mc && mhh) mhh.innerHTML = "<b>Your multiple-choice score: " + j.mc.correct + " out of " + j.mc.total + " (" + j.mc.pct + "%)</b>" + (j.mc.wrong && j.mc.wrong.length ? " &middot; Questions to review: <b>" + j.mc.wrong.join(", ") + "</b>" : " &middot; <b>Every question right!</b>"); } catch (e3) {} statusEl.textContent = "Submitted " + new Date(j.submittedAt).toLocaleString() + (j.count > 1 ? " (#" + j.count + ")" : ""); alert(isQuizNow() ? "Submitted! ✓\n\nYour quiz scored 100% and is turned in for your grade.\n\nYou can pick your next assignment from the menu at the top." : "Submitted! ✓" + (j.mc ? "\n\nYour score: " + j.mc.correct + " out of " + j.mc.total + " (" + j.mc.pct + "%)." + (j.mc.wrong && j.mc.wrong.length ? "\n\nQuestions to review: " + j.mc.wrong.join(", ") + "." : (j.mc.total ? "\n\nYou got every question right!" : "")) + (j.mc.need !== null && j.mc.need !== undefined ? (j.mc.pct >= j.mc.need ? "\n\nGreat work! The next assignment is unlocked." : "\n\nYou need " + j.mc.need + "% to move on. Look back at the questions listed above, change your answers, and submit again. Every try is saved.") : "") : (getMc() ? "\n\nYour multiple-choice answers were turned in too. Your teacher will share that score later." : "")) + (j.unlock && j.unlock.need !== null && j.unlock.need !== undefined ? (j.unlock.passed ? "\n\nYou have " + j.unlock.need + " or higher, so the next one is open." : "\n\nThis counts as your grade, but the next walkthrough or project opens only after this one reaches " + j.unlock.need + ". Fix the missing parts and submit again.") : "")); }
     else if (j && !j.needLogin) alert((j && j.error) || "Could not submit. Try again.");
   }).catch(function () { b.disabled = false; alert("Could not reach the server. Check your internet and try again."); });
@@ -1577,17 +1585,19 @@ function quizShow(j) {
   if (j.perfect) { try { $("assBody").scrollTop = 0; } catch (e) {} }
 }
 document.addEventListener("click", function (e) { var c = e.target.closest && e.target.closest("#qres .qchip"); if (c) quizGo(+c.getAttribute("data-goq")); });
+$("gradeQuiz").addEventListener("pointerdown", function () { quizMute(6000); });
 $("gradeQuiz").addEventListener("click", function () {
+  quizMute(6000);
   if (!isQuizNow()) return;
   if (!CRED) { alert("Sign in with your school Google account (top right) to grade your quiz."); return; }
   if (!$("period").value) { alert("Choose your class period at the top first."); return; }
   var A = (window.PY_ASSIGN || {})[slot], b = this, sig = quizSig(); b.disabled = true; b.textContent = "Grading\u2026";
   api({ action: "gradeQuiz", slot: slot, period: $("period").value, mc: getMc(), code: ta.value, output: out.textContent.slice(-3500), gradeOutput: hiddenOutput(ta.value, A) }).then(function (j) {
-    b.disabled = false; b.textContent = "Grade my quiz";
+    b.disabled = false; b.textContent = "Grade my quiz"; quizMute(2500);
     if (!j || !j.ok) { if (j && !j.needLogin) alert((j && j.error) || "Could not grade. Try again."); return; }
     QG = { slot: slot, sig: sig, perfect: !!j.perfect, wrong: (j.mc && j.mc.wrong) || [] }; quizShow(j); quizLockSubmit();
     if (j.perfect) flash("100%! You can submit now.");
-  }).catch(function () { b.disabled = false; b.textContent = "Grade my quiz"; alert("Could not reach the server. Check your internet and try again."); });
+  }).catch(function () { b.disabled = false; b.textContent = "Grade my quiz"; quizMute(2500); alert("Could not reach the server. Check your internet and try again."); });
 });
 function loadAssignments() {
   var my = ++loadSeq;
