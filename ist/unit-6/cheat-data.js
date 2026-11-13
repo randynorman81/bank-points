@@ -49,7 +49,7 @@ T("<head>", "tag", ["head"], "skeleton info hidden",
   <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h1 style="font-family: 'Lobster', cursive;">Pizza Place</h1>
+  <h1 style="font-family: 'Lobster';">Pizza Place</h1>
 </body>`, [["<link", "loads a Google font"], ["<h1", "the body uses that font"]])]),
 
 T("<title>", "tag", ["title"], "browser tab name",
@@ -119,7 +119,7 @@ T("<span>", "tag", ["span"], "inline container few words style part",
   [["<span", "Opening tag"], ["style=", "The style for just these words"], ["</span>", "Closing tag"]],
   "Use span for a few words. Use div for a bigger box.",
   [E("Color just one word", `<p>My favorite color is <span style="color: tomato;">tomato</span>.</p>`, [["<span", "only this part changes"], ["color: tomato;", "the change"], ["</span>", "back to normal"]]),
-   E("A different font on two words", `<p>Come to the <span style="font-family: 'Lobster', cursive;">night market</span> tonight.</p>`, [["<span", "starts the special words"], ["'Lobster'", "a Google font"]])]),
+   E("A different font on two words", `<p>Come to the <span style="font-family: 'Lobster';">night market</span> tonight.</p>`, [["<span", "starts the special words"], ["'Lobster'", "a Google font"]])]),
 
 T("<div>", "tag", ["div", "division", "box", "container"], "box container group block section",
   "<div> is a box that groups other tags together. Anything inside it can be styled as one block, like a border around a whole card.",
@@ -132,7 +132,7 @@ T("<link>", "tag", ["link", "stylesheet", "favicon", "google fonts"], "google fo
   "<link> connects your page to something outside it. You use it to load a Google Font, to attach your style.css file, or to add the little icon in the browser tab (the favicon).",
   [["href", "Where the thing lives"], ["rel", "What kind of thing it is"]],
   "Goes in the <head>. It has NO closing tag.",
-  [E("Load a Google font, then use it", `<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet"><h1 style="font-family: 'Pacifico', cursive;">Beach Day</h1>`, [["href=", "the Google Fonts address"], ["rel=\"stylesheet\"", "this link is for styles"], ["'Pacifico'", "now you can use the font"]]),
+  [E("Load a Google font, then use it", `<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet"><h1 style="font-family: 'Pacifico';">Beach Day</h1>`, [["href=", "the Google Fonts address"], ["rel=\"stylesheet\"", "this link is for styles"], ["'Pacifico'", "now you can use the font"]]),
    E("Connect your own CSS file", `<link rel="stylesheet" href="style.css">`, [["rel=\"stylesheet\"", "it is a CSS file"], ["href=\"style.css\"", "the file name"]], false),
    E("Add a favicon (tab icon)", `<link rel="icon" href="logo.png">`, [["rel=\"icon\"", "this link is a tab icon"], ["logo.png", "the picture to use"]], false)]),
 
@@ -313,12 +313,12 @@ T("text-transform", "property", ["text transform", "letter case", "uppercase", "
    E("Capitalize each word", `<p style="text-transform: capitalize;">the lord of the rings</p>`, [["capitalize", "shows as The Lord Of The Rings"]])]),
 
 T("font-family", "property", ["font family", "font", "fonts", "google font"], "font typeface style google",
-  "font-family chooses the font (the style of the letters). List your first choice, then a backup in case it does not load.",
-  [["font-family:", "The property"], ["'Pacifico'", "Your first choice (quotes if it has spaces)"], ["cursive", "The backup family"]],
+  "font-family chooses the font (the style of the letters). Write the font's name in quotes after it.",
+  [["font-family:", "The property"], ["'Pacifico'", "The font's name, in quotes"]],
   "The font name uses single quotes because the style already uses double quotes. Load Google fonts with a link tag first.",
-  [E("A Google font with a backup", `<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-<h1 style="font-family: 'Pacifico', cursive;">Beach Day</h1>`, [["family=Pacifico", "loads the font"], ["'Pacifico'", "uses the font"], ["cursive", "backup if it fails"]]),
-   E("A built-in font", `<p style="font-family: Verdana, sans-serif;">Easy to read.</p>`, [["Verdana", "first choice"], ["sans-serif", "backup"]])]),
+  [E("A Google font", `<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<h1 style="font-family: 'Pacifico';">Beach Day</h1>`, [["family=Pacifico", "loads the font"], ["'Pacifico'", "uses the font"]]),
+   E("A built-in font", `<p style="font-family: Verdana;">Easy to read.</p>`, [["Verdana", "the font's name"]])]),
 
 T("border", "property", ["borders", "border-top", "border-bottom", "border-left", "border-right", "outline"], "border box line around frame",
   "border draws a line around an element. You give it three things in order: how thick, what style, and what color.",
@@ -492,15 +492,15 @@ T("none", "value", ["none", "no bullets"], "remove nothing list-style-type",
   <li style="display: inline;">Shop</li>
 </ul>`, [["none", "no dots"], ["display: inline;", "side by side"]])]),
 
-T("Font families: serif, sans-serif, monospace, cursive", "value", ["serif", "sans-serif", "sansserif", "monospace", "cursive", "fallback", "backup font"], "font backup family generic",
-  "These four are generic font families. They are your backup choice at the end of a font-family list, in case your first font does not load.",
+T("Font families: serif, sans-serif, monospace, cursive", "value", ["serif", "sans-serif", "sansserif", "monospace", "cursive", "family"], "font family generic style",
+  "These are the four main font families. Each has its own feel, and you can use one by itself as the font-family value.",
   [["serif", "Letters with little feet (like a book)"], ["sans-serif", "Clean, no feet"], ["monospace", "Every letter the same width (like code)"], ["cursive", "Handwriting style"]],
-  "Always end a font-family list with one of these.",
+  "Google fonts belong to these families too. Pick the family that matches the feel of your page.",
   [E("All four", `<p style="font-family: serif;">serif</p>
 <p style="font-family: sans-serif;">sans-serif</p>
 <p style="font-family: monospace;">monospace</p>
 <p style="font-family: cursive;">cursive</p>`, [["serif", "a book look"], ["monospace", "like code"], ["cursive", "handwriting"]]),
-   E("As a backup", `<h1 style="font-family: 'Pacifico', cursive;">Beach Day</h1>`, [["cursive", "used if Pacifico fails to load"]])]),
+   E("Handwriting for a title", `<h1 style="font-family: cursive;">Beach Day</h1>`, [["cursive", "a handwriting look"]])]),
 
 T("top", "value", ["top", "vertical align top"], "vertical-align line up top",
   "top is a value for vertical-align. It lines up things side by side so their tops match.",

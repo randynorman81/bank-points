@@ -62,7 +62,6 @@
     "6.35": [
       { label: "A Google Fonts link in the head", text: "**A Google Fonts link** in the head (at least **1**). Pick fonts that fit your theme", spec: ["count", "attr-gfont", 1] },
       { label: "font-family at least 3 times", text: "**font-family**: at least **3** uses", spec: ["count", "p-ff", 3] },
-      { label: "A fallback family at least 3 times", text: "A **fallback family** at the end of your font-family (serif, sans-serif, monospace, or cursive): at least **3**", spec: ["count", "v-fallback", 3] },
       { label: "At least 2 different fonts", text: "At least **2 different fonts** on the page", spec: ["custom", "fonts2"] }
     ],
     "6.4": [

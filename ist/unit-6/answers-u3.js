@@ -194,29 +194,28 @@
       "On the **body** tag, add a style: **background-color** (a named color)"
     ]),
     S("The heading 1", [
-      "Inside the body, add **one heading 1** with your page's title. **Right away**, style it: **font-family** (your headline font in quotes, then a comma and a **fallback family** like **cursive**), **color**, **font-size** in pixels (like 44px), **text-align** center, and **text-transform** uppercase. Use this same headline font on your other headings"
+      "Inside the body, add **one heading 1** with your page's title. **Right away**, style it: **font-family** (your headline font in quotes), **color**, **font-size** in pixels (like 44px), **text-align** center, and **text-transform** uppercase. Use this same headline font on your other headings"
     ]),
     S("The intro", [
-      "Right under the heading 1, add a **paragraph** that introduces your theme. Inside it, put a phrase in **bold** and add a **line break**. **Right away**, style it: **font-family** (an easy-to-read font in quotes, then a fallback family), **color**, and **font-size** in pixels. Use this same easy-to-read font on **every paragraph**",
+      "Right under the heading 1, add a **paragraph** that introduces your theme. Inside it, put a phrase in **bold** and add a **line break**. **Right away**, style it: **font-family** (an easy-to-read font in quotes), **color**, and **font-size** in pixels. Use this same easy-to-read font on **every paragraph**",
       "Under that paragraph (**outside** it), add a **horizontal line**"
     ]),
     S("Section 1", [
-      "Add a **heading 2**. **Right away**, style it: your headline **font-family** (with a fallback), **color**, and **text-transform** uppercase",
+      "Add a **heading 2**. **Right away**, style it: your headline **font-family**, **color**, and **text-transform** uppercase",
       "Right under it, add a **paragraph**. Inside it, put a phrase in **italics** and a **span** with its own style that uses your **third font** as an accent (a different **font-family** and a **color**). **Right away**, style the paragraph: your paragraph **font-family**, **color**, and **background-color**",
-      "Add your first **heading 3**. **Right away**, style it: your headline **font-family** (with a fallback), **color**, and **text-align** center",
+      "Add your first **heading 3**. **Right away**, style it: your headline **font-family**, **color**, and **text-align** center",
       "Right under it, add **2 paragraphs** about your theme. In the **first**, put an **italic** phrase. In the **second**, put a **bold** phrase and a **line break**. Style each right away with your paragraph **font-family** and a **color**",
       "Under the last paragraph (**outside** it), add a second **horizontal line**"
     ]),
     S("Section 2", [
-      "Add your second **heading 3**. **Right away**, style it: your headline **font-family** (with a fallback), **color**, and **background-color**",
+      "Add your second **heading 3**. **Right away**, style it: your headline **font-family**, **color**, and **background-color**",
       "Right under it, add **2 paragraphs**. In the **first**, also add a **line break**. Style each right away with your paragraph **font-family** and a **color**, and put a **span** with its own style (a different **font**, **color**, **font-size**, or **background-color** on a few words) in each"
     ]),
     S("Check your minimums", [
-      "Check your fonts: at least **6 paragraphs** in all, **3 different Google fonts** used in font-family styles, **every** font-family ending with a **fallback family**, and at least **6 tags** with a font-family",
+      "Check your fonts: at least **6 paragraphs** in all, **3 different Google fonts** used in font-family styles, and at least **6 tags** with a font-family",
       "Make sure it looks **designed**: at least **4 paragraphs** share the **same font**, and at least **2 headings** share the **same font**",
       "Check your extras: at least **2 bold**, **2 italic**, **3 line breaks**, and **3 spans** with their own styles in all",
-      "Check your styles: at least **3 different colors**, **2 different background-colors** (the body counts), and **2 different font sizes** in pixels",
-      "**BONUS (+5 points):** use fallback families from **4 different families** (serif, sans-serif, monospace, and cursive) and still make the page look good, not thrown together"
+      "Check your styles: at least **3 different colors**, **2 different background-colors** (the body counts), and **2 different font sizes** in pixels"
     ]),
     done()]));
 
@@ -244,7 +243,7 @@
     ]),
     S("Use what you already know", [
       "Go to **fonts.google.com**, pick **2 fonts** that fit your poster, and paste the **link** tag **inside the head**, under your title (one link can hold both fonts)",
-      "Use **font-family** on **at least 2 tags** (like your heading 1 and a paragraph), a **different** Google font on each. End **each** font-family with a **fallback family** (**serif**, **sans-serif**, **monospace**, **cursive**, or **fantasy**), after a comma: one fallback for each of the 2 fonts"
+      "Use **font-family** on **at least 2 tags** (like your heading 1 and a paragraph), a **different** Google font on each"
     ]),
     done()]));
 
@@ -314,8 +313,8 @@
       "On the **body** tag, add a style: **background-color** (a named color)"
     ]),
     S("The top of the page", [
-      "Pick your theme first (click the button above to see all 10 choices) and plan where your pictures will go. Then, inside the body, add **one heading 1** with your page's name. **Right away**, style it: **font-family** (your Google font in quotes, then a comma and a **fallback family**), **font-size** in pixels (like 44px), **text-align** center, **text-transform** uppercase, and a border on **one side only** (like border-bottom: 4px solid)",
-      "Right under it, add a **paragraph** that introduces your theme. Inside it, make a phrase **bold** and add a **line break**. **Right away**, style the paragraph with a **font-family** that is a **fallback family** (like sans-serif)",
+      "Pick your theme first (click the button above to see all 10 choices) and plan where your pictures will go. Then, inside the body, add **one heading 1** with your page's name. **Right away**, style it: **font-family** (your Google font in quotes), **font-size** in pixels (like 44px), **text-align** center, **text-transform** uppercase, and a border on **one side only** (like border-bottom: 4px solid)",
+      "Right under it, add a **paragraph** that introduces your theme. Inside it, make a phrase **bold** and add a **line break**. **Right away**, style the paragraph with a **font-family** (an easy-to-read font in quotes)",
       "Under the paragraph (**outside** it), add a **horizontal line**"
     ]),
     S("Pictures 1 and 2", [
@@ -346,7 +345,7 @@
       "On the **body** tag, add a style: **background-color** (a named color)"
     ]),
     S("The heading 1", [
-      "Choose a theme (click the button above to see all 6 choices). Inside the body, add **one heading 1** with your page's name, and **paste an emoji** into it. **Right away**, style it: **color**, **background-color**, **font-size** in pixels (like 46px), **text-align** center, **text-transform** uppercase, a **solid border** (thickness, style, color in that order), and your **Google font** in a **font-family** that ends with a **fallback family**"
+      "Choose a theme (click the button above to see all 6 choices). Inside the body, add **one heading 1** with your page's name, and **paste an emoji** into it. **Right away**, style it: **color**, **background-color**, **font-size** in pixels (like 46px), **text-align** center, **text-transform** uppercase, a **solid border** (thickness, style, color in that order), and your **Google font** in a **font-family**"
     ]),
     S("The intro", [
       "Right under it, add a **paragraph** that introduces your theme. Inside it, put one phrase in **italics**, make a phrase **bold**, add a **line break**, and add **2 spans**, each wrapped around a single pasted **symbol** (like a star or a heart) with its own **font-size** in pixels and its own **color**. **Right away**, style the paragraph: **text-align** center and **font-size** 20px",

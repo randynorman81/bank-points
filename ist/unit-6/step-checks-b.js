@@ -196,7 +196,6 @@
   function families(c) { var n = {}; ffList(c).forEach(function (v) { var l = ffLast(v); if (/^(serif|sans-serif|monospace|cursive|fantasy)$/.test(l)) n[l] = 1; }); return Object.keys(n); }
   function sharedFont(c, tags, need) { var cnt = {}; tags.forEach(function (t) { c.all(t).forEach(function (x) { var f = ffOf(c, x); if (f) cnt[f] = (cnt[f] || 0) + 1; }); }); return Object.keys(cnt).some(function (k) { return cnt[k] >= need; }); }
   function bgs(c) { var n = {}; allEls(c).forEach(function (x) { var v = h.vals(c, x, "background-color")[0]; if (v && named(v)) n[v] = 1; }); return Object.keys(n); }
-  var FAM4 = [["BONUS: your fonts come from 4 different families (serif, sans-serif, monospace, and cursive) and still look designed", function (c) { return families(c).length >= 4; }]]; FAM4.bonus = 5;
   SC.LESSONS["6.35"] = { inlineOnly: true, steps: {
     "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color or hex code)")]],
     "Step 2": [
@@ -210,11 +209,10 @@
     ],
     "Step 4": [
       [K("At least 3 different Google fonts are used in font-family styles", function (c) { var g = gNames(c), used = {}; ffList(c).forEach(function (v) { var f = ffFirst(v); if (g.indexOf(f) > -1) used[f] = 1; }); return Object.keys(used).length >= 3; })],
-      [K("Every font-family ends with a fallback family (serif, sans-serif, monospace, cursive, or fantasy)", function (c) { var l = ffList(c); return l.length >= 1 && l.every(function (v) { return v.indexOf(",") > -1 && /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v)); }); })],
+      [K("There is at least 1 font-family style", function (c) { return ffList(c).length >= 1; })],
       [K("At least 6 tags use a font-family", function (c) { return allEls(c).filter(function (x) { return h.vals(c, x, "font-family").length > 0; }).length >= 6; })],
       [K("It looks designed, not thrown together: at least 4 paragraphs share the same font, and at least 2 headings share the same font", function (c) { return sharedFont(c, ["p"], 4) && sharedFont(c, ["h1", "h2", "h3"], 2); })],
-      [K("At least 3 span tags, each with its own style (a different font, color, size, or background-color on a few words)", function (c) { return c.all("span").filter(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style) && txt(c, k).length > 0; }).length >= 3; })],
-      FAM4
+      [K("At least 3 span tags, each with its own style (a different font, color, size, or background-color on a few words)", function (c) { return c.all("span").filter(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style) && txt(c, k).length > 0; }).length >= 3; })]
     ],
     "Step 5": [
       [K("At least 3 different text and background colors are used on the page", function (c) { return distinctColors(c).length >= 3; }), K("At least 2 different background-colors are used (the body counts)", function (c) { return bgs(c).length >= 2; })],
@@ -263,7 +261,7 @@
   SC.LESSONS["6.4"].steps["Step 6"] = [
     [K("There is a link tag in the head that loads a Google font (https://fonts.googleapis.com)", function (c) { var g = gfLinks(c); return g.length >= 1 && g.every(function (l) { return !!c.ancestor(l, ["head"]); }); }), K("Your link brings in at least 2 different fonts", function (c) { return gNames(c).length >= 2; })],
     [K("At least 2 different Google fonts are used in font-family styles", function (c) { var g = gNames(c), used = {}; ffList(c).forEach(function (v) { var f = ffFirst(v); if (g.indexOf(f) > -1) used[f] = 1; }); return Object.keys(used).length >= 2; }),
-     K("At least 2 font-family styles, and every one ends with a fallback family (serif, sans-serif, monospace, cursive, or fantasy)", function (c) { var l = ffList(c); return l.length >= 2 && l.every(function (v) { return v.indexOf(",") > -1 && /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v)); }); })]
+     K("At least 2 font-family styles", function (c) { return ffList(c).length >= 2; })]
   ];
   lastStep("6.4", "Step 7", [[h.ALLGREEN], []]);
 
@@ -347,7 +345,7 @@
   /* =============== 6.7  (3.7) Images and Favicons: pick one of 10 themes (or your own) and make a page full of framed pictures =============== */
   function faviconEls(c) { return c.all("link").filter(function (l) { return /^(shortcut\s+)?icon$/i.test((l.attrs.rel || "").trim()) && /\S/.test(l.attrs.href || ""); }); }
   function allImgs(c) { return c.all("img"); }
-  function fontUsedOk(c) { var g = gNames(c), ok = false; ffList(c).forEach(function (v) { if (g.indexOf(ffFirst(v)) > -1 && v.indexOf(",") > -1 && /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v))) ok = true; }); return g.length >= 1 && ok; }
+  function fontUsedOk(c) { var g = gNames(c), ok = false; ffList(c).forEach(function (v) { if (g.indexOf(ffFirst(v)) > -1) ok = true; }); return g.length >= 1 && ok; }
   SC.LESSONS["6.7"] = { inlineOnly: true, steps: {
     "Step 1": [SK, TITLE, [bodyBg("The body has a background-color (a named color or hex code)")]],
     "Step 2": [[]],
@@ -367,7 +365,7 @@
       [K("Every picture has a width", function (c) { var im = allImgs(c); return im.length >= 1 && im.every(function (i) { return has(c, i, "width") || i.attrs.width !== undefined; }); })]
     ],
     "Step 6": [
-      [K("Your Google font is used in a font-family, and ends with a fallback family", function (c) { return fontUsedOk(c); })],
+      [K("Your Google font is used in a font-family", function (c) { return fontUsedOk(c); })],
       [K("There is at least 1 bold or italic word or phrase", function (c) { return c.all("strong").concat(c.all("em")).length >= 1; })],
       [K("There is at least 1 span with its own style", function (c) { return c.all("span").filter(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style) && txt(c, k).length > 0; }).length >= 1; })],
     ],
@@ -399,7 +397,7 @@
     "Step 4": [
       [exists("There is a heading 1", H1), K("It has an emoji pasted in", function (c) { return hasEmoji(c, H1(c)); }), P("It has a color", H1, "color", named), P("It has a background-color", H1, "background-color", named), P("Its font-size is in pixels", H1, "font-size", h.isPx),
        P("It is text-align center", H1, "text-align", center), P("It is text-transform uppercase", H1, "text-transform", upper), P("It has a solid border", H1, "border", h.bs("solid")),
-       K("Your Google font is in its font-family, ending with a fallback family", function (c) { var e = H1(c); if (!e) return false; var g = gNames(c); return h.vals(c, e, "font-family").some(function (v) { return g.indexOf(ffFirst(v)) > -1 && v.indexOf(",") > -1 && /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v)); }); })],
+       K("Your Google font is in its font-family", function (c) { var e = H1(c); if (!e) return false; var g = gNames(c); return h.vals(c, e, "font-family").some(function (v) { return g.indexOf(ffFirst(v)) > -1; }); })],
       [exists("A paragraph is under the heading 1", AFTER(H1, "p")), P("It is text-align center", AFTER(H1, "p"), "text-align", center), P("Its font-size is 20px", AFTER(H1, "p"), "font-size", h.px(20)), IN("One phrase is in italics", AFTER(H1, "p"), ITAL),
        K("At least 2 spans each wrap a symbol, with their own font-size in px and color", function (c) { var p = AFTER(H1, "p")(c); return !!p && within(p, ["span"]).filter(function (s) { return CH.symbols(chOf(c, s)).length > 0 && has(c, s, "font-size", h.isPx) && has(c, s, "color", named); }).length >= 2; })],
       [K("There are at least 3 heading 2s", function (c) { return c.count("h2") >= 3; }), K("Every heading 2 has an emoji or a symbol pasted in", function (c) { var a = c.all("h2"); return a.length >= 3 && a.every(function (x) { return hasAnyCh(c, x); }); }), K("Every heading 2 has a color", function (c) { var a = c.all("h2"); return a.length >= 3 && a.every(function (x) { return has(c, x, "color", named); }); }),
@@ -583,24 +581,24 @@
         old["Step 2"][1], old["Step 2"][2],
         h.TITLE, old["Step 1"][2]],
       "Step 2": [[exists("There is a heading 1", H1x), P("It has a color (a named color or hex code)", H1x, "color", named), P("Its font-size is in pixels", H1x, "font-size", h.isPx), P("It is text-align center", H1x, "text-align", center), P("It is text-transform uppercase", H1x, "text-transform", upper),
-        K("It has a font-family that ends with a fallback family", function (c) { var e = H1x(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return v.indexOf(",") > -1 && /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v)); }); })]],
+        K("It has a font-family", function (c) { var e = H1x(c); return !!e && h.vals(c, e, "font-family").length > 0; })]],
       "Step 3": [
-        [exists("A paragraph is right under the heading 1", introP), K("It uses a font-family that ends with a fallback family", function (c) { var e = introP(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return v.indexOf(",") > -1 && /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v)); }); }), P("It has a color (a named color or hex code)", introP, "color", named), P("Its font-size is in pixels", introP, "font-size", h.isPx), K("It has a bold phrase and a line break inside", function (c) { var e = introP(c); return !!e && within(e, ["strong"]).length >= 1 && within(e, ["br"]).length >= 1; })],
+        [exists("A paragraph is right under the heading 1", introP), K("It uses a font-family", function (c) { var e = introP(c); return !!e && h.vals(c, e, "font-family").length > 0; }), P("It has a color (a named color or hex code)", introP, "color", named), P("Its font-size is in pixels", introP, "font-size", h.isPx), K("It has a bold phrase and a line break inside", function (c) { var e = introP(c); return !!e && within(e, ["strong"]).length >= 1 && within(e, ["br"]).length >= 1; })],
         [hrAfter("There is a horizontal line right under that paragraph (outside it)", introP)]
       ],
       "Step 4": [
-        [exists("There is a heading 2", H2x), K("It has a font-family that ends with a fallback family", function (c) { var e = H2x(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return v.indexOf(",") > -1; }); }), P("It has a color (a named color or hex code)", H2x, "color", named), P("It is text-transform uppercase", H2x, "text-transform", upper)],
+        [exists("There is a heading 2", H2x), K("It has a font-family", function (c) { var e = H2x(c); return !!e && h.vals(c, e, "font-family").length > 0; }), P("It has a color (a named color or hex code)", H2x, "color", named), P("It is text-transform uppercase", H2x, "text-transform", upper)],
         [exists("A paragraph is right under the heading 2", AFTER(H2x, "p")), IN("A phrase in it is in italics", AFTER(H2x, "p"), ITAL), K("It has a span with its own style", function (c) { var p = AFTER(H2x, "p")(c); return !!p && within(p, ["span"]).some(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style); }); }), K("It has a font-family, a color and a background-color", function (c) { var p = AFTER(H2x, "p")(c); return !!p && h.vals(c, p, "font-family").length > 0 && has(c, p, "color", named) && has(c, p, "background-color", named); })],
-        [exists("There is a heading 3 (the first one)", H3a), K("It has a font-family that ends with a fallback family", function (c) { var e = H3a(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return v.indexOf(",") > -1; }); }), P("It has a color (a named color or hex code)", H3a, "color", named), P("It is text-align center", H3a, "text-align", center)],
+        [exists("There is a heading 3 (the first one)", H3a), K("It has a font-family", function (c) { var e = H3a(c); return !!e && h.vals(c, e, "font-family").length > 0; }), P("It has a color (a named color or hex code)", H3a, "color", named), P("It is text-align center", H3a, "text-align", center)],
         [twoPsUnder("There are 2 paragraphs right under the heading 3", H3a), K("Both have a font-family and a color", function (c) { var a = psAfter(c, H3a(c)).slice(0, 2); return a.length >= 2 && a.every(function (x) { return h.vals(c, x, "font-family").length > 0 && has(c, x, "color", named); }); }), K("The first has an italic phrase, and the second has a bold phrase with a line break", function (c) { var a = psAfter(c, H3a(c)); return a.length >= 2 && within(a[0], ["em"]).length >= 1 && within(a[1], ["strong"]).length >= 1 && within(a[1], ["br"]).length >= 1; })],
         [hrAfter("There is a second horizontal line (outside any paragraph)", function (c) { var e = H3a(c); var a = e ? psAfter(c, e) : []; return a.length ? a[a.length - 1] : null; })]
       ],
       "Step 5": [
-        [exists("There is a second heading 3", H3b), K("It has a font-family that ends with a fallback family", function (c) { var e = H3b(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return v.indexOf(",") > -1; }); }), P("It has a color (a named color or hex code)", H3b, "color", named), P("It has a background-color (a named color or hex code)", H3b, "background-color", named)],
+        [exists("There is a second heading 3", H3b), K("It has a font-family", function (c) { var e = H3b(c); return !!e && h.vals(c, e, "font-family").length > 0; }), P("It has a color (a named color or hex code)", H3b, "color", named), P("It has a background-color (a named color or hex code)", H3b, "background-color", named)],
         [twoPsUnder("There are 2 paragraphs right under the second heading 3", H3b), K("Both have a font-family and a color", function (c) { var a = psAfter(c, H3b(c)).slice(0, 2); return a.length >= 2 && a.every(function (x) { return h.vals(c, x, "font-family").length > 0 && has(c, x, "color", named); }); }), K("Each has a span with its own style (a different font, color, size, or background-color on a few words)", function (c) { var a = psAfter(c, H3b(c)).slice(0, 2); return a.length >= 2 && a.every(function (x) { return within(x, ["span"]).some(function (k) { return k.attrs.style !== undefined && /:/.test(k.attrs.style); }); }); })]
       ],
       "Step 6": [
-        [CNT("There are at least 6 paragraphs in all", "p", 6), K("At least 3 different Google fonts are used in font-family styles", function (c) { var g = gNames(c), used = {}; ffList(c).forEach(function (v) { var f = ffFirst(v); if (g.indexOf(f) > -1) used[f] = 1; }); return Object.keys(used).length >= 3; }), K("Every font-family ends with a fallback family (serif, sans-serif, monospace, cursive, or fantasy)", function (c) { var l = ffList(c); return l.length >= 1 && l.every(function (v) { return v.indexOf(",") > -1 && /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v)); }); }), K("At least 6 tags use a font-family", function (c) { return allEls(c).filter(function (x) { return h.vals(c, x, "font-family").length > 0; }).length >= 6; })],
+        [CNT("There are at least 6 paragraphs in all", "p", 6), K("At least 3 different Google fonts are used in font-family styles", function (c) { var g = gNames(c), used = {}; ffList(c).forEach(function (v) { var f = ffFirst(v); if (g.indexOf(f) > -1) used[f] = 1; }); return Object.keys(used).length >= 3; }), K("At least 6 tags use a font-family", function (c) { return allEls(c).filter(function (x) { return h.vals(c, x, "font-family").length > 0; }).length >= 6; })],
         old["Step 4"][3],
         [K("At least 2 italic words or phrases and at least 2 bold words or phrases", function (c) { return italN(c) >= 2 && boldN(c) >= 2; }), K("At least 3 line breaks", function (c) { return c.all("br").length >= 3; }), K("At least 3 span tags, each with its own style", function (c) { return spansN(c) >= 3; })],
         [K("At least 3 different text and background colors are used on the page", function (c) { return distinctColors(c).length >= 3; }), K("At least 2 different background-colors are used (the body counts)", function (c) { return bgs(c).length >= 2; }), K("At least 2 different font sizes in px", function (c) { return pxSizes(c) >= 2; })],
@@ -623,8 +621,8 @@
     SC.LESSONS["6.7"] = { inlineOnly: true, steps: {
       "Step 1": [old["Step 1"][0], old["Step 3"][0], old["Step 3"][1], h.TITLE, old["Step 1"][2]],
       "Step 2": [
-        [exists("There is a heading 1", H1x), K("It uses your Google font in a font-family that ends with a fallback family", function (c) { return fontUsedOk(c); }), P("Its font-size is in pixels", H1x, "font-size", h.isPx), P("It is text-align center", H1x, "text-align", center), P("It is text-transform uppercase", H1x, "text-transform", upper), K("It has a border on one side only (like border-bottom)", function (c) { var e = H1x(c); return !!e && ["border-top", "border-bottom", "border-left", "border-right"].some(function (p) { return h.vals(c, e, p).length > 0; }); })],
-        [exists("A paragraph is right under the heading 1", introP), K("It has a bold phrase and a line break inside", function (c) { var p = introP(c); return !!p && within(p, ["strong"]).length >= 1 && within(p, ["br"]).length >= 1; }), K("It has a font-family that is a fallback family (like sans-serif)", function (c) { var e = introP(c); return !!e && h.vals(c, e, "font-family").some(function (v) { return /^(serif|sans-serif|monospace|cursive|fantasy)$/.test(ffLast(v)); }); })],
+        [exists("There is a heading 1", H1x), K("It uses your Google font in a font-family", function (c) { return fontUsedOk(c); }), P("Its font-size is in pixels", H1x, "font-size", h.isPx), P("It is text-align center", H1x, "text-align", center), P("It is text-transform uppercase", H1x, "text-transform", upper), K("It has a border on one side only (like border-bottom)", function (c) { var e = H1x(c); return !!e && ["border-top", "border-bottom", "border-left", "border-right"].some(function (p) { return h.vals(c, e, p).length > 0; }); })],
+        [exists("A paragraph is right under the heading 1", introP), K("It has a bold phrase and a line break inside", function (c) { var p = introP(c); return !!p && within(p, ["strong"]).length >= 1 && within(p, ["br"]).length >= 1; }), K("It has a font-family", function (c) { var e = introP(c); return !!e && h.vals(c, e, "font-family").length > 0; })],
         [hrAfter("There is a horizontal line right under that paragraph (outside it)", introP)]
       ],
       "Step 3": [

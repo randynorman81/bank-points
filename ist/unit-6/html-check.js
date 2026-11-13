@@ -357,8 +357,6 @@
   function gfontNames(c) { var n = {}; gfontLinks(c).forEach(function (l) { var m, re = /family=([^&:;]+)/g; while ((m = re.exec(l.attrs.href || ""))) { var nm; try { nm = decodeURIComponent(m[1].replace(/\+/g, " ")); } catch (e) { nm = m[1]; } n[nm.trim().toLowerCase()] = 1; } }); return Object.keys(n); }
   function fontFamilyList(c) { var out = []; c.inline.forEach(function (d) { if (d.prop === "font-family") out.push(String(d.value).replace(/;$/, "").trim().toLowerCase()); }); return out; }
   function firstFont(v) { return String(v).split(",")[0].replace(/['"]/g, "").trim(); }
-  function lastFont(v) { var p = String(v).split(","); return p[p.length - 1].replace(/['"]/g, "").trim(); }
-  var GENERIC = /^(serif|sans-serif|monospace|cursive|fantasy)$/;
   /* emojis and symbols (3.8): characters pasted into the text. An emoji is drawn in color (or has the emoji selector after it); a symbol is a plain character like © ♥ ★ → ° */
   var EMOJI_SRC = "(?:\\p{Emoji_Presentation}|\\p{Extended_Pictographic}\uFE0F)(?:\u200D(?:\\p{Emoji_Presentation}|\\p{Extended_Pictographic}\uFE0F?))*";
   var SYMBOL_SRC = "[\u00A9\u00AE\u2122\u00B0\u00A7\u00B6\u2020\u2021\u2022\u00B1\u00D7\u00F7\u00A2\u00A3\u00A5\u20AC\u2190-\u21FF\u2200-\u22FF\u2300-\u23FF\u25A0-\u25FF\u2600-\u27BF\u2B00-\u2BFF]";
@@ -390,7 +388,6 @@
     "ch-symbol": function (c) { return symbolsIn(bodyText(c)).length; },
     "attr-favicon": function (c) { return faviconLinks(c).length; },
     "attr-gfont": function (c) { return gfontLinks(c).length; },
-    "v-fallback": function (c) { return valCount(c, ["font-family"], /(^|[\s,'"])(serif|sans-serif|monospace|cursive|fantasy)$/i); },
     "v-serif": function (c) { return valCount(c, ["font-family"], /(^|[\s,'"])serif$/i); },
     "v-sans": function (c) { return valCount(c, ["font-family"], /(^|[\s,'"])sans-serif$/i); },
     "v-mono": function (c) { return valCount(c, ["font-family"], /(^|[\s,'"])monospace$/i); },
@@ -526,8 +523,8 @@
       r("At least 6 paragraphs, and at least one heading 1, one heading 2, and two heading 3s", function (c) { return c.count("p") >= 6 && c.has("h1") && c.has("h2") && c.count("h3") >= 2; }),
       r("Every font link is a <link> tag in the <head> (rel=\"stylesheet\" and a https://fonts.googleapis.com address)", function (c) { var hd = c.all("head")[0], g = gfontLinks(c); return !!hd && g.length >= 1 && g.every(function (l) { return !!c.ancestor(l, ["head"]); }); }, "Copy the whole link tag from fonts.google.com and paste it inside your head."),
       r("The links bring in at least 3 different Google fonts", function (c) { return gfontNames(c).length >= 3; }, "Pick 3 or more fonts. One link can hold several: family=Pacifico&family=Lobster"),
-      r("At least 3 different Google fonts are used in font-family styles", function (c) { var g = gfontNames(c), used = {}; fontFamilyList(c).forEach(function (v) { var f = firstFont(v); if (g.indexOf(f) > -1) used[f] = 1; }); return Object.keys(used).length >= 3; }, "Use each font by name: font-family: 'Pacifico', cursive;"),
-      r("Every font-family ends with a fallback family (serif, sans-serif, monospace, cursive, or fantasy)", function (c) { var l = fontFamilyList(c); return l.length >= 1 && l.every(function (v) { return v.indexOf(",") > -1 && GENERIC.test(lastFont(v)); }); }, "End the list with a back-up group: font-family: 'Lobster', cursive;"),
+      r("At least 3 different Google fonts are used in font-family styles", function (c) { var g = gfontNames(c), used = {}; fontFamilyList(c).forEach(function (v) { var f = firstFont(v); if (g.indexOf(f) > -1) used[f] = 1; }); return Object.keys(used).length >= 3; }, "Use each font by name: font-family: 'Pacifico';"),
+      r("There is at least 1 font-family style", function (c) { return fontFamilyList(c).length >= 1; }, "Style a tag with a font: font-family: 'Lobster';"),
       r("It looks designed: at least 4 paragraphs share one font, and at least 2 headings share one font", function (c) { function shared(tags, need) { var cnt = {}; tags.forEach(function (t) { c.all(t).forEach(function (x) { var f = declOf(c, x, "font-family")[0]; if (f) cnt[f] = (cnt[f] || 0) + 1; }); }); return Object.keys(cnt).some(function (k) { return cnt[k] >= need; }); } return shared(["p"], 4) && shared(["h1", "h2", "h3"], 2); }, "Give headings one display font and paragraphs one easy-to-read font. Use other fonts as accents."),
       r("At least 6 tags use a font-family", function (c) { var n = 0; (function w(x) { x.children.forEach(function (e) { if (e.tag === "#text") return; if (declOf(c, e, "font-family").length) n++; w(e); }); })(c.tree); return n >= 6; }),
       r("At least 3 <span> tags, each with its own style attribute", function (c) { return c.all("span").filter(function (s) { return s.attrs.style !== undefined && /:/.test(s.attrs.style); }).length >= 3; }, "Change the font, color, size, or background of a few words."),
@@ -570,7 +567,7 @@
       r("Every image has a border (thickness, style, color) in its style attribute", function (c) { var im = c.all("img"); return im.length > 0 && im.every(function (i) { return hasDecl(c, i, "border", BORDER_SHORT); }); }, "style=\"border: 4px solid navy;\""),
       r("Every image has a width (so none of them is giant)", function (c) { var im = c.all("img"); return im.length > 0 && im.every(function (i) { return !!imgSize(i); }); }, "style=\"width: 300px;\""),
       r("Has a favicon: a <link rel=\"icon\"> with an href inside the <head>", function (c) { var f = faviconLinks(c); return f.length >= 1 && f.every(function (l) { return !!c.ancestor(l, ["head"]); }); }, "Put the favicon link tag in the head, under your title."),
-      r("Uses at least one Google font: a link to fonts.googleapis.com in the head AND that font in a font-family with a fallback", function (c) { var g = gfontNames(c), ok = false; fontFamilyList(c).forEach(function (v) { if (g.indexOf(firstFont(v)) > -1 && v.indexOf(",") > -1 && GENERIC.test(lastFont(v))) ok = true; }); return g.length >= 1 && ok; }, "Link the font in the head, then: font-family: 'Lobster', cursive;"),
+      r("Uses at least one Google font: a link to fonts.googleapis.com in the head AND that font in a font-family", function (c) { var g = gfontNames(c), ok = false; fontFamilyList(c).forEach(function (v) { if (g.indexOf(firstFont(v)) > -1) ok = true; }); return g.length >= 1 && ok; }, "Link the font in the head, then: font-family: 'Lobster';"),
       r("Has at least 1 heading, 1 paragraph, 1 <br> and 1 <hr> (outside a paragraph)", function (c) { return (c.has("h1") || c.has("h2") || c.has("h3") || c.has("h4")) && c.has("p") && c.has("br") && c.all("hr").some(function (x) { return !c.ancestor(x, ["p"]); }); }),
       r("Uses bold or italic at least once, and at least one <span> with a style", function (c) { return (c.has("strong") || c.has("em")) && c.all("span").some(function (s) { return s.attrs.style !== undefined && /:/.test(s.attrs.style); }); }),
       r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\""),
