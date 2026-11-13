@@ -6,6 +6,7 @@ import code from "../../netlify/functions/code.js";
 import announcements from "../../netlify/functions/announcements.js";
 import pycode from "../../netlify/functions/pycode.js";
 import arduinocode from "../../netlify/functions/arduinocode.js";
+import arena from "../../netlify/functions/arena.js";
 import latework from "../../netlify/functions/latework.js";
 import gdoc from "./gdoc.js";
 
@@ -16,6 +17,7 @@ export default {
     if (path === "/api/code") return code(req);
     if (path === "/api/pycode") return pycode(req);
     if (path === "/api/arduinocode") return arduinocode(req);
+    if (path === "/api/arena") return arena(req);
     if (path === "/api/latework") return latework(req);
     if (path === "/api/gdoc") return gdoc(req);
     if (path.startsWith("/api/")) return data(req);

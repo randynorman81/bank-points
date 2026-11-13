@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python Arena | Host</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="arena.css">
+<style>
+body{font-size:20px}
+.stage{max-width:1180px;margin:0 auto;padding:18px 24px 40px}
+.code{font:700 150px/1 "Rajdhani",sans-serif;letter-spacing:.18em;color:var(--accent);text-shadow:0 0 40px rgba(61,217,255,.35)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font:600 18px "Rajdhani",sans-serif;display:flex;gap:8px;align-items:center}
+.chip button{background:none;border:0;color:var(--mute);font-size:16px;padding:0}
+.chip.done{border-color:var(--good);color:var(--good)}
+.grid2{display:grid;grid-template-columns:1.25fr 1fr;gap:20px}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}.code{font-size:96px}}
+.bar{height:34px;display:flex;align-items:center;gap:10px;margin:6px 0}
+.bar i{display:block;height:100%;border-radius:6px;background:var(--panel2);border:1px solid var(--line);min-width:3px}
+.bar.right i{background:rgba(61,220,151,.35);border-color:var(--good)}
+.hq{font-size:30px;line-height:1.2}
+.codebox{font-size:20px}
+.choice{font-size:20px}
+.bugline{font-size:19px}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="brand"><i></i><span>Python <b>Arena</b> &nbsp;/&nbsp; host</span><span class="sp"></span><span id="topR" class="mono"></span></div>
+  <div id="scr" style="margin-top:18px"></div>
+</div>
+<script src="common.js"></script>
+<script>
+(function () {
+  var $ = function (i) { return document.getElementById(i); }, esc = AR.esc;
+  var H = { pin: "", code: "", st: null, busy: false, key: "", revealing: false };
+  try { var sv = JSON.parse(sessionStorage.getItem("arena:host") || "null"); if (sv) { H.pin = sv.pin; H.code = sv.code; } } catch (e) {}
+  function save() { try { sessionStorage.setItem("arena:host", JSON.stringify({ pin: H.pin, code: H.code })); } catch (e) {} }
+
+  function setup(msg) {
+    $("scr").innerHTML = '<div class="card" style="max-width:520px"><h1 class="big" style="font-size:40px">Host a match</h1><p class="muted">Students join at <b>schscomputerscience.com/arena</b> with the code you get here.</p>' +
+      '<label class="muted mono" style="font-size:12px">TEACHER PIN</label><input type="password" id="pin" value="' + esc(H.pin) + '" style="margin-bottom:12px">' +
+      '<label class="muted mono" style="font-size:12px">MATCH LENGTH</label><div class="row" id="sz" style="margin:6px 0 12px">' + [10, 15, 20].map(function (n) { return '<button class="btn ghost" data-n="' + n + '"' + (n === 15 ? ' style="border-color:var(--accent);color:var(--accent)"' : "") + ">" + n + " rounds</button>"; }).join("") + '</div>' +
+      '<div class="muted" style="font-size:16px;margin-bottom:10px">10 rounds is about 8 minutes, 15 is about 12, 20 is about 17. Rounds follow the order of the Python editor: names and types, joining, math, strings, tracing, booleans, if/elif/else, for loops.</div>' +
+      '<div id="m" style="color:var(--hot);min-height:22px">' + esc(msg || "") + "</div></div>";
+    var size = 15;
+    $("sz").querySelectorAll("button").forEach(function (b) { b.onclick = function () { size = +b.dataset.n; $("sz").querySelectorAll("button").forEach(function (x) { x.style.cssText = ""; }); b.style.cssText = "border-color:var(--accent);color:var(--accent)"; $("m").innerHTML = '<button class="btn" id="mk" style="margin-top:6px">Create ' + size + "-round match</button>"; bindMk(); }; });
+    function bindMk() { $("mk").onclick = function () { H.pin = $("pin").value.trim(); AR.api({ action: "create", pin: H.pin, size: size }).then(function (j) { if (j.error) { $("m").textContent = j.error; return; } H.code = j.code; save(); H.key = ""; poll(); }); }; }
+    $("m").innerHTML = '<button class="btn" id="mk" style="margin-top:6px">Create 15-round match</button>'; bindMk();
+  }
+
+  var pollT = null;
+  function poll() {
+    clearTimeout(pollT); if (!H.code) return;
+    AR.api({ action: "state", code: H.code, pin: H.pin }).then(function (j) {
+      if (j.error) { H.code = ""; save(); setup(j.error); return; }
+      H.st = j; render(); autoReveal(); pollT = setTimeout(poll, j.phase === "question" ? 1000 : 1800);
+    }).catch(function () { pollT = setTimeout(poll, 2500); });
+  }
+  function op(o, extra) { if (H.busy) { H.revealing = false; return; } H.busy = true; AR.api(Object.assign({ action: "host", pin: H.pin, code: H.code, op: o }, extra || {})).then(function (j) { H.busy = false; H.revealing = false; if (j.error) alert(j.error); poll(); }).catch(function () { H.busy = false; }); }
+  function autoReveal() {
+    var st = H.st; if (st.phase !== "question" || H.revealing) return;
+    var now = AR.serverNow(), n = st.players.length, ans = st.players.filter(function (p) { return p.answered; }).length;
+    if (now > st.deadline + 600 || (n > 0 && ans === n && now > st.startedAt + 1500)) { H.revealing = true; op("reveal"); }
+  }
+  document.addEventListener("keydown", function (e) { if (e.code === "Space" && H.st && H.st.phase === "reveal" && document.activeElement.tagName !== "INPUT") { e.preventDefault(); op("next"); } });
+
+  function render() {
+    var st = H.st, r = st.r; $("topR").textContent = st.players.length + " players";
+    var key = st.phase + ":" + (r ? r.round : "") + ":" + (st.reveal ? "rv" : "");
+    if (st.phase === "lobby") return lobby(st);
+    if (st.phase === "question") { if (key !== H.key) { H.key = key; question(st); } return live(st); }
+    if (key !== H.key) { H.key = key; if (st.phase === "reveal") reveal(st); else final(st); }
+  }
+  function chips(st, showDone) {
+    return '<div class="chips">' + st.players.map(function (p) { return '<span class="chip' + (showDone && p.answered ? " done" : "") + '" data-id="' + p.id + '">' + esc(p.name) + (showDone ? "" : ' <button title="Remove" data-k="' + p.id + '">&#10005;</button>') + "</span>"; }).join("") + "</div>";
+  }
+  function lobby(st) {
+    var sig = "lobby:" + st.players.map(function (p) { return p.id; }).join(",");
+    if (H.key === sig) return; H.key = sig;
+    $("scr").innerHTML = '<div style="text-align:center;margin-top:10px"><div class="muted mono" style="letter-spacing:.2em">JOIN AT SCHSCOMPUTERSCIENCE.COM/ARENA &nbsp;&middot;&nbsp; ENTER CODE</div><div class="code">' + esc(st.code) + '</div></div>' +
+      '<div class="row" style="margin-top:14px"><h2 style="font-size:26px">In the lobby <span class="muted">(' + st.players.length + ")</span></h2><span class=\"sp\"></span><button class=\"btn hot\" id=\"st\"" + (st.players.length ? "" : " disabled") + ">Start match</button><button class=\"btn ghost\" id=\"cl\">Cancel</button></div>" + chips(st, false);
+    $("st").onclick = function () { op("start"); }; $("cl").onclick = function () { if (confirm("Cancel this match and remove everyone?")) { op("close"); H.code = ""; save(); setup(); } };
+    $("scr").querySelectorAll("[data-k]").forEach(function (b) { b.onclick = function () { op("kick", { pid: b.dataset.k }); }; });
+  }
+
+  function qBody(r, big) {
+    var q = r.q, h = AR.codeBox(q.code, false);
+    if (q.m === "tf") h += '<div class="codebox" style="font-size:30px;text-align:center">' + AR.hl(q.expr) + "</div>";
+    if (q.m === "out") h += '<div class="choices" style="grid-template-columns:1fr 1fr">' + q.ch.map(function (c, i) { return '<div class="choice"><span class="l">' + "ABCD"[i] + "</span><span>" + esc(c) + "</span></div>"; }).join("") + "</div>";
+    if (q.m === "bug") h = AR.codeBox(q.lines.join("\n"), true);
+    if (q.m === "build") h += '<div class="muted mono" style="margin:8px 0 4px">Shuffled lines:</div><div class="codebox">' + q.lines.map(function (l) { return AR.hl(l); }).join("\n") + "</div>";
+    return h;
+  }
+  function tags(r) { return '<span class="tag">Round ' + (r.round + 1) + " / " + r.total + '</span> <span class="tag">' + esc(r.bandName) + '</span> <span class="tag mode">' + esc(AR.MODE[r.q.m]) + "</span> " + (r.duel ? '<span class="tag duel">Duel round: 1v2, 3v4... winner steals ' + 200 + '</span> ' : "") + (r.mult > 1 ? '<span class="tag ot">Overtime: double points</span>' : ""); }
+  function question(st) {
+    var r = st.r;
+    $("scr").innerHTML = '<div class="row">' + tags(r) + '<span class="sp"></span><span class="mono" id="ac" style="font-size:22px"></span></div><div class="timer" style="margin:14px 0;height:10px"><i id="tb"></i></div><h2 class="hq">' + esc(r.q.ask) + "</h2>" + qBody(r) +
+      '<div class="row" style="margin-top:14px"><span class="sp"></span><button class="btn ghost" id="rv">Reveal now</button></div><div id="roster"></div>';
+    $("rv").onclick = function () { H.revealing = true; op("reveal"); };
+    tick();
+  }
+  function live(st) {
+    var n = st.players.length, a = st.players.filter(function (p) { return p.answered; }).length;
+    if ($("ac")) $("ac").innerHTML = '<b style="color:var(--accent)">' + a + "</b> / " + n + " locked in";
+    if ($("roster")) $("roster").innerHTML = chips(st, true);
+  }
+  function tick() {
+    var st = H.st; if (!st || st.phase !== "question" || !$("tb")) return;
+    var left = st.deadline - AR.serverNow(), tot = st.r.limit * 1000;
+    if (left > tot) { $("tb").style.width = "100%"; $("tb").parentNode.classList.remove("low"); } else { var pct = Math.max(0, left / tot); $("tb").style.width = pct * 100 + "%"; $("tb").parentNode.classList.toggle("low", pct < .25); }
+    setTimeout(tick, 100);
+  }
+
+  function lb(top, big) {
+    return '<table class="lb" style="font-size:22px">' + top.map(function (p) { var d = p.delta > 0 ? '<span class="up">&#9650;' + p.delta + "</span>" : p.delta < 0 ? '<span class="dn">&#9660;' + -p.delta + "</span>" : "";
+      return "<tr><td class=\"rk\">" + p.rank + "</td><td>" + esc(p.name) + " " + d + '</td><td class="pt">' + (p.pts ? "+" + p.pts : "") + '</td><td class="sc">' + p.score.toLocaleString() + "</td></tr>"; }).join("") + "</table>";
+  }
+  function reveal(st) {
+    var r = st.r, rv = st.reveal, q = r.q, last = r.round + 1 >= r.total;
+    var ans = q.m === "out" ? "" : '<div class="codebox" style="font-size:26px"><span class="muted">answer:</span>  <b style="color:var(--good)">' + (q.m === "build" || q.m === "bug" ? "" : esc(rv.correct)) + "</b>" + (q.m === "build" ? AR.hl(rv.correct) : q.m === "bug" ? esc(rv.correct) : "") + "</div>";
+    var dist = "";
+    if (q.m === "out") { var mx = Math.max(1, Math.max.apply(null, rv.dist)); dist = q.ch.map(function (c, i) { return '<div class="bar ' + (c === rv.correct ? "right" : "") + '"><span class="mono" style="width:24px">' + "ABCD"[i] + '</span><i style="width:' + Math.round(rv.dist[i] / mx * 240 + 3) + 'px"></i><span class="mono">' + rv.dist[i] + '</span><span class="mono muted" style="margin-left:8px;font-size:15px">' + esc(c.replace(/\n/g, " / ")) + "</span></div>"; }).join(""); }
+    else dist = '<div class="bar right"><span class="mono" style="width:110px">Correct</span><i style="width:' + Math.round(rv.dist[0] / Math.max(1, rv.total) * 300 + 3) + 'px"></i><span class="mono">' + rv.dist[0] + '</span></div><div class="bar"><span class="mono" style="width:110px">Wrong</span><i style="width:' + Math.round(rv.dist[1] / Math.max(1, rv.total) * 300 + 3) + 'px"></i><span class="mono">' + rv.dist[1] + '</span></div><div class="bar"><span class="mono muted" style="width:110px">No answer</span><i style="width:' + Math.round(rv.dist[2] / Math.max(1, rv.total) * 300 + 3) + 'px"></i><span class="mono">' + rv.dist[2] + "</span></div>";
+    var feed = "";
+    if (rv.fastest) feed += '<div>&#9889; Fastest correct: <b>' + esc(rv.fastest.name) + "</b> in " + (rv.fastest.ms / 1000).toFixed(1) + "s</div>";
+    rv.duels.forEach(function (d) { feed += d.b == null ? '<div class="w">' + esc(d.a) + " has no opponent this duel</div>" : d.winner ? '<div class="w"><b>' + esc(d.winner) + "</b> beat " + esc(d.winner === d.a ? d.b : d.a) + " and took " + d.amt + "</div>" : "<div>" + esc(d.a) + " vs " + esc(d.b) + ": nobody scored</div>"; });
+    $("scr").innerHTML = '<div class="row">' + tags(r) + '<span class="sp"></span><span class="mono muted">' + rv.correctN + " of " + rv.total + ' correct</span></div><h2 class="hq" style="margin-top:12px">' + esc(q.ask) + "</h2>" + (q.m === "bug" ? AR.codeBox(q.lines.join("\n"), true) : AR.codeBox(q.code)) + (q.m === "tf" ? '<div class="codebox" style="font-size:26px;text-align:center">' + AR.hl(q.expr) + "</div>" : "") + ans +
+      '<div class="grid2" style="margin-top:14px"><div class="card">' + dist + '<div class="feed" style="margin-top:12px">' + feed + '</div></div><div class="card" style="padding:8px 14px"><h3 class="muted" style="font-size:15px;margin:4px 0">Scoreboard</h3>' + lb(rv.top) + "</div></div>" +
+      '<div class="row" style="margin-top:16px"><span class="sp"></span><span class="muted mono">press SPACE</span><button class="btn" id="nx">' + (last ? "Final standings" : "Next round") + "</button></div>";
+    $("nx").onclick = function () { op("next"); };
+  }
+  function final(st) {
+    var f = st.final || [], top = f.slice(0, 3), order = [top[1], top[0], top[2]], cls = ["p2", "p1", "p3"];
+    $("scr").innerHTML = '<div style="text-align:center"><div class="muted mono" style="letter-spacing:.2em">MATCH COMPLETE</div><h1 class="big" style="font-size:56px">Final standings</h1></div>' +
+      '<div class="pod" style="margin:20px 0">' + order.map(function (p, i) { return p ? '<div class="' + cls[i] + '" style="max-width:240px"><em style="font-size:44px">' + p.rank + '</em><b style="font-size:28px">' + esc(p.name) + "</b><span>" + p.score.toLocaleString() + " pts</span></div>" : ""; }).join("") + "</div>" +
+      '<div class="card" style="max-width:760px;margin:0 auto"><table class="lb" style="font-size:22px">' + f.slice(0, 15).map(function (p) { return '<tr><td class="rk">' + p.rank + "</td><td>" + esc(p.name) + '</td><td class="mono muted" style="font-size:15px">' + p.right + "/" + p.of + ' correct &middot; best streak ' + p.best + '</td><td class="sc">' + p.score.toLocaleString() + "</td></tr>"; }).join("") + "</table></div>" +
+      '<div class="row" style="justify-content:center;margin-top:20px"><button class="btn ghost" id="cl">Close match and start over</button></div>';
+    $("cl").onclick = function () { if (confirm("Close this match? Scores will be erased.")) { op("close"); H.code = ""; save(); setup(); } };
+  }
+
+  if (H.code && H.pin) poll(); else setup();
+})();
+</script>
+</body>
+</html>

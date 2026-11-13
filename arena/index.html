@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Python Arena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="arena.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><i></i><span>Python <b>Arena</b></span><span class="sp"></span><span id="topR" class="mono"></span></div>
+  <div id="scr" style="margin-top:18px"></div>
+</div>
+<script src="common.js"></script>
+<script>
+(function () {
+  var $ = function (i) { return document.getElementById(i); }, esc = AR.esc;
+  var S = { code: "", pid: "", name: "", st: null, key: "", lock: null, order: [], err: "" };
+  try { var sv = JSON.parse(localStorage.getItem("arena:v1") || "null"); if (sv && sv.code && sv.pid) { S.code = sv.code; S.pid = sv.pid; S.name = sv.name || ""; } } catch (e) {}
+  function save() { try { localStorage.setItem("arena:v1", JSON.stringify({ code: S.code, pid: S.pid, name: S.name })); } catch (e) {} }
+  function leave() { S.code = S.pid = ""; S.st = null; S.key = ""; try { localStorage.removeItem("arena:v1"); } catch (e) {} showJoin(); }
+
+  /* ---------- join ---------- */
+  function showJoin(msg) {
+    $("topR").textContent = "";
+    $("scr").innerHTML = '<div class="card pop"><h1 class="big" style="font-size:40px">Enter the arena</h1><p class="muted" style="margin:6px 0 16px">Get the match code from the big screen. Pick a callsign other players will see.</p>' +
+      '<label class="muted mono" style="font-size:12px">MATCH CODE</label><input id="jc" maxlength="4" autocomplete="off" autocapitalize="characters" style="text-transform:uppercase;text-align:center;font-size:32px;margin-bottom:12px" placeholder="ABCD">' +
+      '<label class="muted mono" style="font-size:12px">CALLSIGN</label><input id="jn" maxlength="16" autocomplete="off" value="' + esc(S.name) + '" placeholder="your name or handle">' +
+      '<div id="jm" style="color:var(--hot);min-height:22px;margin:8px 0">' + esc(msg || "") + '</div><button class="btn" id="jb" style="width:100%">Join match</button></div>';
+    var go = function () {
+      var c = $("jc").value.trim().toUpperCase(), n = $("jn").value.trim(); if (c.length !== 4) { $("jm").textContent = "The code has 4 letters."; return; }
+      $("jb").disabled = true;
+      AR.api({ action: "join", code: c, name: n }).then(function (j) {
+        if (j.error) { $("jb").disabled = false; $("jm").textContent = j.error; return; }
+        S.code = c; S.pid = j.pid; S.name = j.name; save(); S.key = ""; poll();
+      }).catch(function () { $("jb").disabled = false; $("jm").textContent = "No connection. Try again."; });
+    };
+    $("jb").onclick = go; $("jn").onkeydown = $("jc").onkeydown = function (e) { if (e.key === "Enter") go(); };
+    $("jc").focus();
+  }
+
+  /* ---------- polling ---------- */
+  var pollT = null;
+  function poll() {
+    clearTimeout(pollT); if (!S.code || !S.pid) return;
+    AR.api({ action: "state", code: S.code, pid: S.pid }).then(function (j) {
+      if (j.gone) { leave(); showJoin(j.error); return; }
+      if (j.error) throw new Error(j.error);
+      S.st = j; render(); pollT = setTimeout(poll, j.phase === "question" ? 900 : 1500);
+    }).catch(function () { pollT = setTimeout(poll, 2500); });
+  }
+
+  /* ---------- screens ---------- */
+  function heatBar(n) { var h = '<span class="heat">'; for (var i = 0; i < 5; i++) h += '<i class="' + (i < n ? "on" : "") + '"></i>'; return h + "</span>"; }
+  function topLine(st) {
+    var me = st.me; if (!me) return "";
+    $("topR").innerHTML = esc(me.name) + " &nbsp;|&nbsp; " + me.score.toLocaleString() + " pts";
+  }
+  var started = false;
+  function render() {
+    var st = S.st, r = st.r, phase = st.phase;
+    topLine(st);
+    var go = r ? AR.serverNow() >= st.startedAt : true;
+    var key = phase + ":" + (r ? r.round : "") + ":" + (phase === "question" ? (go ? "go" : "wait") : "") + ":" + (st.reveal ? "rv" : "") + (st.myFinal ? "f" : "");
+    if (key === S.key) return;
+    if (S.key.split(":")[1] !== key.split(":")[1]) { S.lock = null; S.order = []; }
+    S.key = key;
+    if (phase === "lobby") return lobby();
+    if (phase === "question") return go ? question() : getReady();
+    if (phase === "reveal") return reveal();
+    if (phase === "final") return final();
+  }
+  function lobby() {
+    $("scr").innerHTML = '<div class="card pop" style="text-align:center"><div class="muted mono" style="font-size:12px;letter-spacing:.15em">LOBBY &middot; MATCH ' + esc(S.code) + '</div><h1 class="big" style="margin:14px 0 6px">You are in</h1><div class="big" style="color:var(--accent);font-size:34px;word-break:break-word">' + esc(S.name) + '</div>' +
+      '<p class="muted" style="margin-top:18px">Waiting for the host to start. Keep this screen open. ' + '15 rounds of Python, fastest correct answer scores the most.</p></div>';
+  }
+  function getReady() {
+    var r = S.st.r, q = r.q;
+    $("scr").innerHTML = '<div class="card pop" style="text-align:center"><div class="row" style="justify-content:center">' + tagsHtml(r) + '</div><h1 class="big" style="margin:18px 0 4px;font-size:30px">' + esc(r.bandName) + '</h1><div class="big" id="cd" style="font-size:90px;color:var(--accent)">3</div><p class="muted">Get ready</p></div>';
+    var iv = setInterval(function () { var left = Math.ceil((S.st.startedAt - AR.serverNow()) / 1000); if (!$("cd")) { clearInterval(iv); return; } if (left <= 0) { clearInterval(iv); S.key = ""; render(); } else $("cd").textContent = left; }, 100);
+  }
+  function tagsHtml(r) {
+    return '<span class="tag">Round ' + (r.round + 1) + " / " + r.total + '</span><span class="tag mode">' + esc(AR.MODE[r.q.m]) + "</span>" + (r.duel ? '<span class="tag duel">Duel round</span>' : "") + (r.mult > 1 ? '<span class="tag ot">Overtime x2</span>' : "");
+  }
+
+  /* ---------- a live question ---------- */
+  function question() {
+    var r = S.st.r, q = r.q, me = S.st.me; if (me.answered && !S.lock) S.lock = { a: null };
+    var h = '<div class="pop"><div class="row">' + tagsHtml(r) + '<span class="sp"></span>' + heatBar(Math.min(me.streak, 5)) + '</div>' +
+      '<div class="timer" style="margin:12px 0"><i id="tb"></i></div><h2 style="font-size:24px;line-height:1.2">' + esc(q.ask) + '</h2>';
+    if (q.m === "tf") h += AR.codeBox(q.code) + '<div class="codebox" style="font-size:20px;text-align:center">' + AR.hl(q.expr) + "</div>";
+    else if (q.m === "bug") h += '<div style="margin-top:10px">' + q.lines.map(function (l, i) { return '<button class="bugline" data-i="' + i + '"><span class="ln">' + (i + 1) + "</span>" + AR.hl(l) + "</button>"; }).join("") + "</div>";
+    else if (q.m === "build") h += '<div id="slots" class="slots"></div><div id="tiles" style="display:grid;gap:6px"></div><button class="btn" id="lockb" style="width:100%;margin-top:12px" disabled>Lock in</button>';
+    else h += AR.codeBox(q.code);
+    if (q.m === "out") h += '<div class="choices">' + q.ch.map(function (c, i) { return '<button class="choice" data-i="' + i + '"><span class="l">' + "ABCD"[i] + "</span><span>" + esc(c) + "</span></button>"; }).join("") + "</div>";
+    if (q.m === "tf") h += '<div class="tf2"><button class="choice" data-v="True">True</button><button class="choice" data-v="False">False</button></div>';
+    if (q.m === "trace") h += '<div style="margin-top:12px"><input id="ti" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="type the value"><button class="btn" id="lockb" style="width:100%;margin-top:10px">Lock in</button></div>';
+    h += '<div id="lockmsg" class="muted mono" style="margin-top:12px;min-height:22px"></div></div>';
+    $("scr").innerHTML = h;
+    var sc = $("scr");
+    sc.querySelectorAll(".choice[data-i]").forEach(function (b) { b.onclick = function () { lock(+b.dataset.i, b); }; });
+    sc.querySelectorAll(".choice[data-v]").forEach(function (b) { b.onclick = function () { lock(b.dataset.v, b); }; });
+    sc.querySelectorAll(".bugline").forEach(function (b) { b.onclick = function () { lock(+b.dataset.i, b); }; });
+    if (q.m === "trace") { var go = function () { var v = $("ti").value.trim(); if (v) lock(v, $("ti")); }; $("lockb").onclick = go; $("ti").onkeydown = function (e) { if (e.key === "Enter") go(); }; $("ti").focus(); }
+    if (q.m === "build") buildUI(q);
+    if (S.lock) lockedUI();
+    tick();
+  }
+  function buildUI(q) {
+    var n = q.lines.length, slots = $("slots"), tiles = $("tiles");
+    function draw() {
+      slots.innerHTML = ""; tiles.innerHTML = "";
+      for (var s = 0; s < n; s++) { (function (s) { var id = S.order[s], d = document.createElement("div"); d.className = "slot" + (id !== undefined ? " filled" : ""); d.innerHTML = "<b>" + (s + 1) + "</b>" + (id !== undefined ? AR.hl(q.lines[id]) : ""); if (id !== undefined && !S.lock) d.onclick = function () { S.order.splice(s, 1); draw(); }; slots.appendChild(d); })(s); }
+      q.lines.forEach(function (l, i) { var b = document.createElement("button"); b.className = "tile" + (S.order.indexOf(i) > -1 ? " used" : ""); b.innerHTML = AR.hl(l); b.onclick = function () { if (S.lock || S.order.length >= n) return; S.order.push(i); draw(); }; tiles.appendChild(b); });
+      $("lockb").disabled = S.order.length !== n || !!S.lock;
+    }
+    $("lockb").onclick = function () { if (S.order.length === n) lock(S.order.slice(), $("lockb")); };
+    draw(); S.redraw = draw;
+  }
+  function lock(a, el) {
+    if (S.lock) return; S.lock = { a: a, ok: null }; lockedUI(el);
+    AR.api({ action: "answer", code: S.code, pid: S.pid, answer: a }).then(function (j) { if (j.error) { $("lockmsg") && ($("lockmsg").textContent = j.error); } });
+  }
+  function lockedUI(el) {
+    var sc = $("scr"); sc.querySelectorAll("button.choice,button.bugline,button.tile").forEach(function (b) { b.disabled = true; });
+    var a = S.lock.a;
+    sc.querySelectorAll(".choice[data-i],.bugline").forEach(function (b) { if (+b.dataset.i === a) b.classList.add("picked"); });
+    sc.querySelectorAll(".choice[data-v]").forEach(function (b) { if (b.dataset.v === a) b.classList.add("picked"); });
+    if ($("ti")) { $("ti").disabled = true; } if ($("lockb")) $("lockb").disabled = true; if (S.redraw && S.st.r.q.m === "build") S.redraw();
+    if ($("lockmsg")) $("lockmsg").innerHTML = '<span style="color:var(--accent)">LOCKED IN.</span> Waiting for the round to end...';
+  }
+  function tick() {
+    var st = S.st; if (!st || st.phase !== "question" || !$("tb")) return;
+    var r = st.r, left = st.deadline - AR.serverNow(), pct = Math.max(0, Math.min(1, left / (r.limit * 1000)));
+    $("tb").style.width = (pct * 100) + "%"; $("tb").parentNode.classList.toggle("low", pct < .25);
+    if (left <= 0 && !S.lock) { S.lock = { a: null }; document.querySelectorAll("#scr button, #scr input").forEach(function (b) { b.disabled = true; }); if ($("lockmsg")) $("lockmsg").innerHTML = '<span style="color:var(--hot)">TIME.</span> Waiting for results...'; }
+    if (left > -2000) setTimeout(tick, 100);
+  }
+
+  /* ---------- reveal ---------- */
+  function lbRows(top, meId) {
+    return top.map(function (p) { var d = p.delta > 0 ? '<span class="up">&#9650;' + p.delta + "</span>" : p.delta < 0 ? '<span class="dn">&#9660;' + -p.delta + "</span>" : "";
+      return '<tr class="' + (p.id === meId ? "me" : "") + '"><td class="rk">' + p.rank + "</td><td>" + esc(p.name) + " " + d + '</td><td class="pt">' + (p.pts ? "+" + p.pts : "") + '</td><td class="sc">' + p.score.toLocaleString() + "</td></tr>"; }).join("");
+  }
+  function reveal() {
+    var st = S.st, r = st.r, q = r.q, rv = st.reveal, me = st.me, mr = st.myRound || { ok: false, pts: 0, none: true };
+    if (!rv) { $("scr").innerHTML = '<div class="card">Loading results...</div>'; S.key = ""; return; }
+    var h = '<div class="pop"><div class="row">' + tagsHtml(r) + "</div>";
+    h += '<div class="banner ' + (mr.ok ? "ok" : "no") + '" style="margin-top:12px"><div class="big" style="font-size:38px;color:' + (mr.ok ? "var(--good)" : "var(--hot)") + '">' + (mr.ok ? "Correct" : mr.none ? "No answer" : "Wrong") + "</div>" +
+      '<div class="mono" style="font-size:22px;margin-top:4px">' + (mr.pts ? "+" + mr.pts.toLocaleString() : "+0") + " pts" + (mr.ms != null && mr.ok ? ' <span class="muted" style="font-size:14px">in ' + (mr.ms / 1000).toFixed(1) + "s</span>" : "") + "</div></div>";
+    var duel = rv.duels.filter(function (d) { return d.a === me.name || d.b === me.name; })[0];
+    if (duel) {
+      var msg = duel.b == null ? "You sat out this duel (odd player count)." : !duel.winner ? "Duel vs " + esc(duel.a === me.name ? duel.b : duel.a) + ": nobody got it. No points moved." :
+        duel.winner === me.name ? "<b style=\"color:var(--good)\">You won the duel</b> vs " + esc(duel.a === me.name ? duel.b : duel.a) + ": +" + duel.amt + " stolen." : "<b style=\"color:var(--hot)\">You lost the duel</b> to " + esc(duel.winner) + ": -" + duel.amt + ".";
+      h += '<div class="card" style="margin-top:10px;border-color:rgba(255,90,60,.4)"><span class="tag duel">Duel</span> <span style="margin-left:6px">' + msg + "</span></div>";
+    }
+    h += '<h3 style="margin:16px 0 6px;font-size:15px" class="muted">The answer</h3>';
+    if (q.m === "out") h += '<div class="choices" style="margin-top:0">' + q.ch.map(function (c, i) { var right = c === rv.correct, picked = S.lock && S.lock.a === i; return '<div class="choice ' + (right ? "right" : picked ? "wrong" : "") + '"><span class="l">' + "ABCD"[i] + "</span><span>" + esc(c) + "</span></div>"; }).join("") + "</div>";
+    else if (q.m === "bug") { var bi = parseInt(rv.correct.split(" ")[1], 10) - 1; h += q.lines.map(function (l, i) { return '<div class="bugline ' + (i === bi ? "right" : S.lock && S.lock.a === i ? "wrong" : "") + '"><span class="ln">' + (i + 1) + "</span>" + AR.hl(l) + "</div>"; }).join(""); }
+    else if (q.m === "build") h += '<div class="codebox">' + AR.hl(rv.correct) + "</div>";
+    else h += AR.codeBox(q.code) + '<div class="codebox" style="font-size:20px">' + (q.m === "tf" ? AR.hl(q.expr) + '  <span class="muted">is</span>  ' : "") + '<b style="color:var(--good)">' + esc(rv.correct) + "</b></div>";
+    var top = rv.top, inTop = top.some(function (p) { return p.id === me.id; });
+    h += '<h3 style="margin:16px 0 6px;font-size:15px" class="muted">Scoreboard</h3><div class="card" style="padding:6px 10px"><table class="lb">' + lbRows(top, me.id) +
+      (inTop ? "" : '<tr><td colspan="4" class="muted" style="text-align:center;padding:2px">...</td></tr><tr class="me"><td class="rk">' + me.rank + "</td><td>" + esc(me.name) + '</td><td class="pt">' + (mr.pts ? "+" + mr.pts : "") + '</td><td class="sc">' + me.score.toLocaleString() + "</td></tr>") + "</table></div>";
+    h += '<div class="stat" style="margin-top:8px"><span>Your rank</span><b>#' + me.rank + (me.delta ? (me.delta > 0 ? ' <span class="up">&#9650;' + me.delta + "</span>" : ' <span class="dn">&#9660;' + -me.delta + "</span>") : "") + '</b></div><div class="stat"><span>Heat streak</span><b>' + me.streak + " " + heatBar(Math.min(me.streak, 5)) + "</b></div>";
+    h += '<p class="muted mono" style="text-align:center;margin-top:14px">Next round starts when the host is ready.</p></div>';
+    $("scr").innerHTML = h;
+  }
+
+  /* ---------- final ---------- */
+  function final() {
+    var st = S.st, f = st.final || [], mf = st.myFinal, top = f.slice(0, 3);
+    var order = [top[1], top[0], top[2]], cls = ["p2", "p1", "p3"];
+    var h = '<div class="pop"><div class="muted mono" style="font-size:12px;letter-spacing:.15em;text-align:center">FINAL STANDINGS</div>';
+    if (mf) h += '<div style="text-align:center;margin:10px 0 4px"><div class="big" style="font-size:64px;color:' + (mf.rank <= 3 ? "var(--gold)" : "var(--accent)") + '">#' + mf.rank + '</div><div class="mono">' + mf.score.toLocaleString() + " pts</div></div>";
+    h += '<div class="pod">' + order.map(function (p, i) { return p ? '<div class="' + cls[i] + '"><em>' + p.rank + "</em><b>" + esc(p.name) + "</b><span>" + p.score.toLocaleString() + "</span></div>" : ""; }).join("") + "</div>";
+    if (mf) h += '<div class="card"><div class="stat"><span>Correct answers</span><b>' + mf.right + " of " + mf.of + '</b></div><div class="stat"><span>Longest heat streak</span><b>' + mf.best + "</b></div></div>";
+    h += '<div class="card" style="margin-top:10px;padding:6px 10px"><table class="lb">' + f.slice(0, 10).map(function (p) { return '<tr class="' + (st.me && p.id === st.me.id ? "me" : "") + '"><td class="rk">' + p.rank + "</td><td>" + esc(p.name) + '</td><td class="sc">' + p.score.toLocaleString() + "</td></tr>"; }).join("") + "</table></div>";
+    h += '<button class="btn ghost" id="lv" style="width:100%;margin-top:14px">Leave match</button></div>';
+    $("scr").innerHTML = h; $("lv").onclick = leave;
+  }
+
+  if (S.code && S.pid) poll(); else showJoin();
+})();
+</script>
+</body>
+</html>
