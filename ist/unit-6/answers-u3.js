@@ -403,7 +403,7 @@
         ].concat(B.colorTags ? ["Use a **text color** on at least " + B.colorTags + " tags and a **background-color** on at least " + B.bgTags + " tag (not counting the body)"] : [])),
         S((CL.newHead && CL.newHead[l]) || "New this lesson: use each one at least 3 times", CL.news[l].map(function (it) { return it.text; }))
       ];
-      if (l === "6.35") { var ti = -1; list.forEach(function (x, i) { if (x.id === "theme") ti = i; }); if (ti > -1) list.splice(ti + 1, 0, { exampleImg: "examples/6.35-midnight-moon-diner.png", label: "See an example website", name: "Example: Midnight Moon Diner" }); }
+      if (l === "6.35") { var ti = -1; list.forEach(function (x, i) { if (x.id === "theme") ti = i; }); if (ti > -1) list.splice(ti + 1, 0, { exampleImg: "examples/6.35-midnight-moon-diner.png", label: "See an example website", name: "Example: Midnight Moon Diner", note: "If you are having trouble creating your own website from scratch, you can **recreate my example website**. It opens in a new tab at full size, so you can use it as a guide." }); }
       if (pool.length) list.push(S("From earlier lessons: use at least " + need + " of these " + pool.length, [
         "Use **at least " + need + "** of these " + pool.length + " anywhere on your page (pick the ones that fit your theme):" + pool.map(function (f) { return BUL + "**" + f.label + "**"; }).join("")
       ]));
