@@ -82,7 +82,16 @@
 .sim label{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:7px 12px;cursor:pointer;font:600 13px "JetBrains Mono",monospace;margin:0 8px 8px 0}
 .swatch{display:inline-block;width:18px;height:18px;border-radius:4px;vertical-align:middle;border:1px solid #fff5}
 </style>
-<style>.fontout{background:#fff;color:#111;border-radius:8px;padding:18px 20px;min-height:96px}.fontout .big{font-size:38px;line-height:1.15;margin:0 0 6px}.fontout .small{font-size:16px;margin:0}.chaos span{display:inline-block;margin:0 6px 4px 0;font-size:22px}</style>
+<style>.fontout{background:#fff;color:#111;border-radius:8px;padding:18px 20px;min-height:96px}.fontout .big{font-size:38px;line-height:1.15;margin:0 0 6px}.fontout .small{font-size:16px;margin:0}.chaos span{display:inline-block;margin:0 6px 4px 0;font-size:22px}
+.callout.key{background:rgba(34,211,238,.10);border:2px solid #22D3EE;border-left-width:10px;color:#fff}
+.callout.key::before{content:"IMPORTANT";display:block;font:700 11px "JetBrains Mono",monospace;letter-spacing:.1em;color:#22D3EE;margin-bottom:8px}
+.callout.key span{color:#CFFAFE}
+.callout.key code{color:#67E8F9}
+.cardx p.fsample{font-size:28px;line-height:1.2;color:#fff;margin:2px 0 10px}
+.shot{position:relative;display:block;max-width:760px;margin:0 0 6px}
+.shot img{display:block;width:100%;height:auto;border-radius:10px;border:1px solid var(--rule)}
+.shot .ring{position:absolute;left:65.95%;top:32.4%;width:4.2%;aspect-ratio:1;transform:translate(-50%,-50%);border:3px solid #FB923C;border-radius:50%;box-shadow:0 0 0 5px rgba(251,146,60,.28);pointer-events:none}
+.shotcap{margin:0 0 12px;color:var(--ink-soft);font-size:14px}</style>
 </head>
 <body>
 <nav class="pillnav"><a href="index.html">&larr; Unit 3</a><a href="6-35-google-fonts.html">Back to 3.5</a><a href="google-fonts-notes.html" class="current">Notes</a></nav>
@@ -96,13 +105,14 @@
 
 <section class="part"><div class="wrap">
   <div class="part-head"><div class="part-tag">01</div><h2>Every Font Belongs to a Family</h2></div>
-  <p class="story">There are thousands of fonts, but they all fall into a few <b>families</b>. If a computer does not have the font you asked for, it falls back to the family and picks something similar. That back-up plan is called a <b>fallback</b>, and you will always write one. Click a family to see it.</p>
-  <div class="pickrow" id="fam"></div>
-  <div class="demo">
-    <div class="box"><h4>Code</h4><div class="codeblk" id="famCode" style="margin:0"></div></div>
-    <div class="box"><h4>What the browser shows</h4><div class="fontout" id="famOut"></div></div>
+  <p class="story">There are thousands of fonts, but they all fall into a few <b>families</b>. Here are the four big ones. Each family has its own feel, so knowing them helps you pick a font that fits your theme.</p>
+  <div class="cards">
+    <div class="cardx"><div class="num">Family 1</div><h4>Serif</h4><p class="fsample" style="font-family:Georgia,serif">Fonts have families</p><p>Little feet on the letters. Classic and formal, like a book or newspaper.</p></div>
+    <div class="cardx"><div class="num">Family 2</div><h4>Sans-serif</h4><p class="fsample" style="font-family:Verdana,sans-serif">Fonts have families</p><p>No feet (<i>sans</i> means without). Clean and modern. Most websites use this.</p></div>
+    <div class="cardx"><div class="num">Family 3</div><h4>Monospace</h4><p class="fsample" style="font-family:'Courier New',monospace">Fonts have families</p><p>Every letter takes the same width. It looks like typed code.</p></div>
+    <div class="cardx"><div class="num">Family 4</div><h4>Cursive</h4><p class="fsample" style="font-family:'Comic Sans MS',cursive">Fonts have families</p><p>Flowing, handwritten letters. Fun for titles, tiring for long text.</p></div>
   </div>
-  <div class="callout">The family is the back-up plan.<span>You pick a favorite font, then add a family after a comma. If your font cannot load, the family keeps your page looking close to what you planned.</span></div>
+  <div class="callout">Pick the feel first.<span>Ask yourself: is my page formal, modern, techy, or playful? Then choose a font that matches.</span></div>
 </div></section>
 
 <section class="part"><div class="wrap">
@@ -116,12 +126,26 @@
     <template><div class="shellbig sm"><span class="t">&lt;link</span> <span class="sh-a">rel</span><span class="sh-eq">=</span><span class="sh-q">"</span><span class="sh-val">preconnect</span><span class="sh-q">"</span> <span class="sh-a">href</span><span class="sh-eq">=</span><span class="sh-q">"</span><span class="sh-val">https://fonts.googleapis.com</span><span class="sh-q">"</span><span class="t">&gt;</span><br><span class="t">&lt;link</span> <span class="sh-a">rel</span><span class="sh-eq">=</span><span class="sh-q">"</span><span class="sh-val">preconnect</span><span class="sh-q">"</span> <span class="sh-a">href</span><span class="sh-eq">=</span><span class="sh-q">"</span><span class="sh-val">https://fonts.gstatic.com</span><span class="sh-q">"</span> <span class="sh-a">crossorigin</span><span class="t">&gt;</span><br><span class="t">&lt;link</span> <span class="sh-a">href</span><span class="sh-eq">=</span><span class="sh-q">"</span><span class="sh-slot">https://fonts.googleapis.com/css2?family=Pacifico&amp;display=swap</span><span class="sh-q">"</span> <span class="sh-a">rel</span><span class="sh-eq">=</span><span class="sh-q">"</span><span class="sh-val">stylesheet</span><span class="sh-q">"</span><span class="t">&gt;</span></div><b>Click the Copy code button.</b> It copies <b>all three</b> lines at once, so you do not have to select anything. The part after <code>family=</code> in the last line is the font's name.</template>
     <template><div class="shellbig sm"><span class="t">&lt;head&gt;</span><br>&nbsp;&nbsp;<span class="t">&lt;title&gt;</span>My Page<span class="t">&lt;/title&gt;</span><br>&nbsp;&nbsp;<span class="sh-a">&lt;link ... &gt;</span><br><span class="t">&lt;/head&gt;</span></div><b>Paste the code inside the head.</b> It always goes in the <b>head</b>, never the body. Now the font is loaded and ready to use.</template>
   </div>
-  <div class="hint-panel"><b>Want more than one font?</b> You can use one link per font, or put several fonts in one link by adding another <code>family=</code> after an ampersand: <code>?family=Pacifico&amp;family=Lobster&amp;display=swap</code>. Google's embed code builds this for you when you add more than one font.</div>
-  <div class="callout">Loading a font is not using it.<span>The link only downloads the font. To make text use it, you still have to write <code>font-family</code> in a style. That is the next section.</span></div>
+  <div class="callout key">Loading a font is not using it.<span>The link only downloads the font. To make text use it, you still have to write <code>font-family</code> in a style. You will do that in section 04, Use It: font-family.</span></div>
 </div></section>
 
 <section class="part"><div class="wrap">
-  <div class="part-head"><div class="part-tag">03</div><h2>Use It: font-family</h2></div>
+  <div class="part-head"><div class="part-tag">03</div><h2>Add a Second Google Font</h2></div>
+  <p class="story">Want a different font for your headings and your paragraphs? You add a second Google font by going through the <b>same steps</b> as before. There is just one thing to watch for.</p>
+  <div class="stepper">
+    <div class="stepnav"><button data-i="0" onclick="step(this)">1 Pick</button><button data-i="1" onclick="step(this)">2 Still there</button><button data-i="2" onclick="step(this)">3 Delete</button><button data-i="3" onclick="step(this)">4 Copy</button><button data-i="4" onclick="step(this)">5 Paste</button></div>
+    <div class="stepbody"></div>
+    <template><b>Pick your second font.</b> Go back to <b>fonts.google.com</b> and choose the next font the same way you chose the first one: type your sample text, browse by feeling, and click a font that fits.</template>
+    <template><div class="shot"><img src="gf-two-fonts.png" alt="Google Fonts showing 2 font families selected: Eater and Henny Penny, each with a trash can icon, and a Get embed code button on the right"></div><p class="shotcap">Your first font (here, Eater) is still in the list, and your new font (Henny Penny) is added below it.</p><b>Look at the list.</b> When you click to get your second font, Google shows <b>every font you have picked so far</b>. Your <b>first font is still there</b>.</template>
+    <template><div class="shot"><img src="gf-two-fonts.png" alt="Google Fonts showing 2 font families selected, with the trash can next to the first font circled"><span class="ring"></span></div><p class="shotcap">Click the trash can next to the first font.</p><b>Delete the first font.</b> The best (and easiest) choice is to <b>delete the first font</b> so that only your <b>newest</b> font is left in the list. Your first font keeps working on your page, because its lines are already in your head.</template>
+    <template><b>Get the embed code again.</b> With only your new font in the list, click <b>Get embed code</b> and copy the same <b>three lines</b> you copied before. Click the <b>Copy code</b> button, but now the lines are for your new font.</template>
+    <template><div class="shellbig sm"><span class="t">&lt;head&gt;</span><br>&nbsp;&nbsp;<span class="t">&lt;title&gt;</span>My Page<span class="t">&lt;/title&gt;</span><br>&nbsp;&nbsp;<span class="sh-ghost">first font: your first three lines</span><br>&nbsp;&nbsp;<span class="sh-slot">new font: your new three lines</span><br><span class="t">&lt;/head&gt;</span></div><b>Paste the new three lines in the head.</b> Paste them just like before, <b>below</b> your first three lines. Now both fonts are loaded and ready to use.</template>
+  </div>
+  <div class="hint-panel"><b>Why delete the first font?</b> If you leave both fonts in the list, Google mixes them into one longer link. That can work, but it is easier to keep one font at a time: get the three lines for the newest font, and paste them in. It is the same every time.</div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">04</div><h2>Use It: font-family</h2></div>
   <p class="lede">Inside a style attribute, write <code>font-family</code>, a colon, the font's name in <b>quotes</b>, a comma, and a <b>fallback family</b>. Pick a font below and see the code change.</p>
   <div class="pickrow" id="gf"></div>
   <div class="demo">
@@ -137,7 +161,7 @@
 </div></section>
 
 <section class="part"><div class="wrap">
-  <div class="part-head"><div class="part-tag">04</div><h2>Mix Fonts Like a Designer</h2></div>
+  <div class="part-head"><div class="part-tag">05</div><h2>Mix Fonts Like a Designer</h2></div>
   <p class="story">More fonts does not mean better design. Real designers stick to a few and give each one a job. Compare these two pages of text.</p>
   <div class="pickrow" id="mix"><button class="on" data-m="good">Designed: 2 fonts, each with a job</button><button data-m="bad">Chaos: a different font for every word</button></div>
   <div class="fontout" id="mixOut"></div>
@@ -153,7 +177,7 @@
 </div></section>
 
 <section class="part"><div class="wrap">
-  <div class="part-head"><div class="part-tag">05</div><h2>Common Mistakes</h2></div>
+  <div class="part-head"><div class="part-tag">06</div><h2>Common Mistakes</h2></div>
   <div class="wrongright">
     <div class="w"><h4>Wrong: link tag in the body</h4><div class="codeblk"><span class="t">&lt;body&gt;</span><br><span class="t">&lt;link</span> href="https://fonts.googleapis.com/..."<span class="t">&gt;</span></div></div>
     <div class="r"><h4>Right: inside the head</h4><div class="codeblk"><span class="t">&lt;head&gt;</span><br><span class="t">&lt;link</span> href="https://fonts.googleapis.com/..."<span class="t">&gt;</span><br><span class="t">&lt;/head&gt;</span></div></div>
@@ -176,7 +200,7 @@
 </div></section>
 
 <section class="part"><div class="wrap">
-  <div class="part-head"><div class="part-tag">06</div><h2>Vocab You Need</h2></div>
+  <div class="part-head"><div class="part-tag">07</div><h2>Vocab You Need</h2></div>
   <div class="tblwrap"><div class="tblscroll"><table class="cmp">
     <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
     <tbody>
@@ -195,17 +219,6 @@
 
 <script src="../unit-4/notes.js"></script>
 <script>
-(function(){
-  var F = { "serif": ["Georgia, serif", "Little feet on the letters. Classic and formal, like a book or newspaper."], "sans-serif": ["Verdana, sans-serif", "No feet (sans means without). Clean and modern. Most websites use this."], "monospace": ["'Courier New', monospace", "Every letter takes the same width. It looks like typed code."], "cursive": ["'Comic Sans MS', cursive", "Flowing, handwritten letters. Fun for titles, tiring for long text."] };
-  var row = document.getElementById("fam"), out = document.getElementById("famOut"), code = document.getElementById("famCode");
-  function pick(k) {
-    Array.prototype.forEach.call(row.children, function (b) { b.classList.toggle("on", b.textContent === k); });
-    out.innerHTML = '<p class="big" style="font-family:' + F[k][0].replace(/"/g, "'") + '">Fonts have families</p><p class="small" style="font-family:' + F[k][0] + '">' + F[k][1] + "</p>";
-    code.innerHTML = '<span class="t">&lt;p</span> <span class="at">style</span>=<span class="t">"</span><span class="pt">font-family</span>: <span class="vl">' + F[k][0] + '</span>;<span class="t">"</span><span class="t">&gt;</span>';
-  }
-  Object.keys(F).forEach(function (k) { var b = document.createElement("button"); b.textContent = k; b.onclick = function () { pick(k); }; row.appendChild(b); });
-  pick("serif");
-})();
 (function(){
   var G = [["Pacifico", "cursive"], ["Lobster", "cursive"], ["Special Elite", "monospace"], ["Bebas Neue", "sans-serif"], ["Press Start 2P", "monospace"], ["Playfair Display", "serif"]];
   var row = document.getElementById("gf"), out = document.getElementById("gfOut"), code = document.getElementById("gfCode");
