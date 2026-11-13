@@ -61,8 +61,8 @@
     ],
     "6.35": [
       { label: "A Google Fonts link in the head", text: "**A Google Fonts link** in the head (at least **1**). Pick fonts that fit your theme", spec: ["count", "attr-gfont", 1] },
-      { label: "font-family at least 3 times", text: "**font-family**: at least **3** uses", spec: ["count", "p-ff", 3] },
-      { label: "At least 2 different fonts", text: "At least **2 different fonts** on the page", spec: ["custom", "fonts2"] }
+      { label: "A background color on the body", text: "**A background color** on your website: put a **background-color** on the **body** tag", spec: ["custom", "bodyBg"] },
+      { label: "Two Google fonts that go together", text: "**Two different Google fonts** on your page, each used in a **font-family**. Pick two that **go together** and match the style (the vibe) of your theme", spec: ["custom", "gfonts2"] }
     ],
     "6.4": [
       { label: "border at least 3 times", text: "**border**: at least **3** uses (like 4px solid navy)", spec: ["count", "p-border", 3] },
@@ -146,7 +146,9 @@
   /* the three 3.3 assignments share one family list (3.3 itself), and each later lesson pools every family before it */
   CL.poolFor = function (lesson) {
     var before = { "6.3": ["6.20"], "6.35": ["6.20", "6.3"], "6.4": ["6.20", "6.3", "6.35"], "6.7": ["6.20", "6.3", "6.35", "6.4"], "6.75": ["6.20", "6.3", "6.35", "6.4", "6.7"], "6.6": ["6.20", "6.3", "6.35", "6.4", "6.7", "6.75"], "6.5": ["6.20", "6.3", "6.35", "6.4", "6.7", "6.75", "6.6"] }[lesson] || [];
-    var out = []; before.forEach(function (k) { out = out.concat(CL.fam[k]); }); return out;
+    var out = []; before.forEach(function (k) { out = out.concat(CL.fam[k]); });
+    if (lesson === "6.35") out = out.filter(function (f) { return !/^(heading 3|bold|italic)$/.test(f.label); });   /* 3.5: pick 4 of these 6 */
+    return out;
   };
   /* how many of the pool they must use (the pool grows, this grows slowly) */
   CL.need = { "6.3": 3, "6.35": 4, "6.4": 5, "6.7": 6, "6.75": 6, "6.6": 7, "6.5": 8 };

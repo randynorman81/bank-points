@@ -601,8 +601,7 @@
         [CNT("There are at least 6 paragraphs in all", "p", 6), K("At least 3 different Google fonts are used in font-family styles", function (c) { var g = gNames(c), used = {}; ffList(c).forEach(function (v) { var f = ffFirst(v); if (g.indexOf(f) > -1) used[f] = 1; }); return Object.keys(used).length >= 3; }), K("At least 6 tags use a font-family", function (c) { return allEls(c).filter(function (x) { return h.vals(c, x, "font-family").length > 0; }).length >= 6; })],
         old["Step 4"][3],
         [K("At least 2 italic words or phrases and at least 2 bold words or phrases", function (c) { return italN(c) >= 2 && boldN(c) >= 2; }), K("At least 3 line breaks", function (c) { return c.all("br").length >= 3; }), K("At least 3 span tags, each with its own style", function (c) { return spansN(c) >= 3; })],
-        [K("At least 3 different text and background colors are used on the page", function (c) { return distinctColors(c).length >= 3; }), K("At least 2 different background-colors are used (the body counts)", function (c) { return bgs(c).length >= 2; }), K("At least 2 different font sizes in px", function (c) { return pxSizes(c) >= 2; })],
-        FAM4
+        [K("At least 3 different text and background colors are used on the page", function (c) { return distinctColors(c).length >= 3; }), K("At least 2 different background-colors are used (the body counts)", function (c) { return bgs(c).length >= 2; }), K("At least 2 different font sizes in px", function (c) { return pxSizes(c) >= 2; })]
       ]
     } };
     lastStep("6.35", "Step 7", [[h.ALLGREEN], []]);
@@ -680,6 +679,12 @@
       spans3: function (c) { return styledSpans(c) >= 3; },
       spans1: function (c) { return styledSpans(c) >= 1; },
       fonts2: function (c) { return distinctFonts(c) >= 2; },
+      bodyBg: function (c) { var b = c.all("body")[0]; return !!b && has(c, b, "background-color", named); },
+      gfonts2: function (c) {
+        var g = {}; c.all("link").forEach(function (l) { var href = (l.attrs && l.attrs.href) || ""; if (!/^https:\/\/fonts\.googleapis\.com\/css2?\?/i.test(href)) return; var re = /family=([^&:;]+)/g, m; while ((m = re.exec(href))) { var nm; try { nm = decodeURIComponent(m[1].replace(/\+/g, " ")); } catch (e) { nm = m[1]; } g[nm.trim().toLowerCase()] = 1; } });
+        var used = {}; c.inline.forEach(function (d) { if (d.prop === "font-family") { var f = String(d.value).replace(/;$/, "").split(",")[0].replace(/['"]/g, "").trim().toLowerCase(); if (f && g[f]) used[f] = 1; } });
+        return Object.keys(used).length >= 2;
+      },
       bodyBoth: function (c) { var b = c.all("body")[0]; return !!b && bothStyled(c, b); },
       color8: function (c) { return withProp(c, "color", named).length >= 8; },
       bg8: function (c) { return withProp(c, "background-color", named).length >= 8; },
