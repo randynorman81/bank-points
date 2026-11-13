@@ -60,9 +60,8 @@
       { label: "Spans with their own style at least 3 times", text: "**Spans with their own style**: at least **3** (a span around a few words, with a color or another style)", spec: ["custom", "spans3"] }
     ],
     "6.35": [
-      { label: "A Google Fonts link in the head", text: "**A Google Fonts link** in the head (at least **1**). Pick fonts that fit your theme", spec: ["count", "attr-gfont", 1] },
-      { label: "A background color on the body", text: "**A background color** on your website: put a **background-color** on the **body** tag", spec: ["custom", "bodyBg"] },
-      { label: "Two Google fonts that go together", text: "**Two different Google fonts** on your page, each used in a **font-family**. Pick two that **go together** and match the style (the vibe) of your theme", spec: ["custom", "gfonts2"] }
+      { label: "Add two Google fonts to your page", text: "**Add two Google fonts** to your page", spec: ["custom", "gfonts2"] },
+      { label: "A background color on the body", text: "**A background color** on your website: put a **background-color** on the **body** tag", spec: ["custom", "bodyBg"] }
     ],
     "6.4": [
       { label: "border at least 3 times", text: "**border**: at least **3** uses (like 4px solid navy)", spec: ["count", "p-border", 3] },
