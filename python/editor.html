@@ -212,6 +212,13 @@ body.mconly #paneAss{border-right:0;max-height:none}
 body.mconly #assBody{max-width:900px;margin:0 auto;width:100%}
 body.mconly #resetQuiz,body.hasquiz #resetQuiz{display:inline-block!important}
 /* quizzes: "Grade my quiz" until 100%, then Submit */
+#qFinish{position:fixed;inset:0;z-index:400;display:none;place-items:center;background:rgba(2,6,15,.94);text-align:center;padding:24px}
+#qFinish.show{display:grid}
+.qfbox{max-width:600px}
+.qfbig{font:800 72px "JetBrains Mono",monospace;color:#34D399;line-height:1}
+#qFinish h2{margin:10px 0 6px;font-size:28px}
+#qFinish p{margin:0 0 26px;font-size:17px;color:var(--soft)}
+#qfGo{font-size:28px;padding:20px 54px;border-radius:16px;font-weight:800}
 #gradeQuiz{display:none;background:#2563EB;border-color:#2563EB;color:#fff;font-weight:800}body.isquiz #gradeQuiz{display:inline-block}
 #submit.locked{opacity:.45;cursor:not-allowed}
 /* a quiz shows ONE button: "Grade my quiz" until it grades at 100%, then "Submit" takes its place */
@@ -292,6 +299,7 @@ body.mconly #run,body.mconly #clear,body.mconly #reset,body.mconly #histBtn,body
     <pre id="out"></pre>
   </section>
 </main>
+<div id="qFinish" role="dialog" aria-modal="true" aria-label="Submit your quiz"><div class="qfbox"><div class="qfbig">100%!</div><h2>Your quiz is perfect</h2><p>Click the button to turn it in. You must submit before you can leave this quiz.</p><button class="btn go" id="qfGo">Submit my quiz</button></div></div>
 <div class="modal" id="mSub"><div class="box"><div id="mSubBody"></div><div class="row"><button class="btn" id="mCancel">Cancel</button><button class="btn go" id="mGo">Submit</button></div></div></div>
 <div class="modal" id="mHist"><div class="box" role="dialog" aria-label="Code history" style="max-width:640px;width:92vw;max-height:84vh;overflow:auto"><h3 style="margin:0 0 6px">Your saved versions</h3><p style="color:var(--soft);margin:0 0 10px">Lost some code? Pick an earlier version and click Restore. Your current code goes into Undo (Ctrl+Z), so you can come back.</p><div id="histBody"></div><div class="row"><button class="btn" id="histClose">Close</button></div></div></div>
 <div class="modal" id="mTip"><div class="box tipbox" role="dialog" aria-label="Help"><div class="tiphead"><h3 id="tipTitle"></h3><button class="btn" id="tipClose">Got it</button></div><div id="tipBody"></div></div></div>
@@ -1533,9 +1541,10 @@ $("mGo").addEventListener("click", function () {
   var b = this; b.disabled = true; quizMute(6000);
   api({ action: "submit", slot: slot, mode: mode, code: ta.value, world: curWorld(), ticks: currentTicks(), period: $("period").value, output: out.textContent.slice(-3500), gradeOutput: hiddenOutput(ta.value, (window.PY_ASSIGN || {})[slot]), mc: getMc() }).then(function (j) {
     b.disabled = false; quizMute(2500); $("mSub").classList.remove("show");
-    if (j && j.ok) { MY[slot] = "sub"; if (isQuizNow()) { document.body.classList.remove("mconly"); try { $("assBody").scrollTop = 0; } catch (eq) {} } lastCloud = ta.value; window.LAST_MC = j.mc ? { slot: slot, mc: j.mc } : null; loadAssignments(); buildSlots(); try { var mhh = document.querySelector(".mchint"); if (j.mc && mhh) mhh.innerHTML = "<b>Your multiple-choice score: " + j.mc.correct + " out of " + j.mc.total + " (" + j.mc.pct + "%)</b>" + (j.mc.wrong && j.mc.wrong.length ? " &middot; Questions to review: <b>" + j.mc.wrong.join(", ") + "</b>" : " &middot; <b>Every question right!</b>"); } catch (e3) {} statusEl.textContent = "Submitted " + new Date(j.submittedAt).toLocaleString() + (j.count > 1 ? " (#" + j.count + ")" : ""); alert(isQuizNow() ? "Submitted! ✓\n\nYour quiz scored 100% and is turned in for your grade.\n\nYou can pick your next assignment from the menu at the top." : "Submitted! ✓" + (j.mc ? "\n\nYour score: " + j.mc.correct + " out of " + j.mc.total + " (" + j.mc.pct + "%)." + (j.mc.wrong && j.mc.wrong.length ? "\n\nQuestions to review: " + j.mc.wrong.join(", ") + "." : (j.mc.total ? "\n\nYou got every question right!" : "")) + (j.mc.need !== null && j.mc.need !== undefined ? (j.mc.pct >= j.mc.need ? "\n\nGreat work! The next assignment is unlocked." : "\n\nYou need " + j.mc.need + "% to move on. Look back at the questions listed above, change your answers, and submit again. Every try is saved.") : "") : (getMc() ? "\n\nYour multiple-choice answers were turned in too. Your teacher will share that score later." : "")) + (j.unlock && j.unlock.need !== null && j.unlock.need !== undefined ? (j.unlock.passed ? "\n\nYou have " + j.unlock.need + " or higher, so the next one is open." : "\n\nThis counts as your grade, but the next walkthrough or project opens only after this one reaches " + j.unlock.need + ". Fix the missing parts and submit again.") : "")); }
+    if (!(j && j.ok)) qfReset();
+    if (j && j.ok) { MY[slot] = "sub"; qFinishHide(); if (isQuizNow()) { document.body.classList.remove("mconly"); try { $("assBody").scrollTop = 0; } catch (eq) {} } lastCloud = ta.value; window.LAST_MC = j.mc ? { slot: slot, mc: j.mc } : null; loadAssignments(); buildSlots(); try { var mhh = document.querySelector(".mchint"); if (j.mc && mhh) mhh.innerHTML = "<b>Your multiple-choice score: " + j.mc.correct + " out of " + j.mc.total + " (" + j.mc.pct + "%)</b>" + (j.mc.wrong && j.mc.wrong.length ? " &middot; Questions to review: <b>" + j.mc.wrong.join(", ") + "</b>" : " &middot; <b>Every question right!</b>"); } catch (e3) {} statusEl.textContent = "Submitted " + new Date(j.submittedAt).toLocaleString() + (j.count > 1 ? " (#" + j.count + ")" : ""); alert(isQuizNow() ? "Submitted! ✓\n\nYour quiz scored 100% and is turned in for your grade.\n\nYou can pick your next assignment from the menu at the top." : "Submitted! ✓" + (j.mc ? "\n\nYour score: " + j.mc.correct + " out of " + j.mc.total + " (" + j.mc.pct + "%)." + (j.mc.wrong && j.mc.wrong.length ? "\n\nQuestions to review: " + j.mc.wrong.join(", ") + "." : (j.mc.total ? "\n\nYou got every question right!" : "")) + (j.mc.need !== null && j.mc.need !== undefined ? (j.mc.pct >= j.mc.need ? "\n\nGreat work! The next assignment is unlocked." : "\n\nYou need " + j.mc.need + "% to move on. Look back at the questions listed above, change your answers, and submit again. Every try is saved.") : "") : (getMc() ? "\n\nYour multiple-choice answers were turned in too. Your teacher will share that score later." : "")) + (j.unlock && j.unlock.need !== null && j.unlock.need !== undefined ? (j.unlock.passed ? "\n\nYou have " + j.unlock.need + " or higher, so the next one is open." : "\n\nThis counts as your grade, but the next walkthrough or project opens only after this one reaches " + j.unlock.need + ". Fix the missing parts and submit again.") : "")); }
     else if (j && !j.needLogin) alert((j && j.error) || "Could not submit. Try again.");
-  }).catch(function () { b.disabled = false; alert("Could not reach the server. Check your internet and try again."); });
+  }).catch(function () { b.disabled = false; qfReset(); alert("Could not reach the server. Check your internet and try again."); });
 });
 initGoogle();
 /* published assignment instructions come from the backend (so unpublished ones are never on the public site) */
@@ -1549,6 +1558,13 @@ var loadSeq = 0;
 /* ===================== QUIZZES: Grade my quiz -> fix what you missed -> grade again -> 100% -> Submit ===================== */
 var QG = { slot: null, sig: null, perfect: false, wrong: [] };
 function isQuizNow() { var A = (window.PY_ASSIGN || {})[slot]; return !!A && slot !== "free" && slot !== "example" && slotPart(A) === "quiz"; }
+/* a student who grades 100% must click the big Submit button before leaving: the quiz is then saved on the server and never shows as a draft */
+var QF = { active: false };
+function qFinishShow() { QF.active = true; qfReset(); $("qFinish").classList.add("show"); try { $("qfGo").focus(); } catch (e) {} }
+function qFinishHide() { QF.active = false; $("qFinish").classList.remove("show"); }
+function qfReset() { $("qfGo").disabled = false; $("qfGo").textContent = "Submit my quiz"; }
+$("qfGo").addEventListener("click", function () { this.disabled = true; this.textContent = "Submitting\u2026"; quizMute(8000); $("mGo").click(); });
+window.addEventListener("beforeunload", function (e) { if (QF.active) { e.preventDefault(); e.returnValue = ""; } });
 function quizSig() { var A = (window.PY_ASSIGN || {})[slot] || {}; return mcSig() + "|" + (A.mcOnly ? "" : ta.value); }
 function quizSubmitLocked() { return isQuizNow() && !isTeacherNow() && !(QG.slot === slot && QG.perfect && QG.sig === quizSig()); }
 function quizLockSubmit() {
@@ -1596,7 +1612,7 @@ $("gradeQuiz").addEventListener("click", function () {
     b.disabled = false; b.textContent = "Grade my quiz"; quizMute(2500);
     if (!j || !j.ok) { if (j && !j.needLogin) alert((j && j.error) || "Could not grade. Try again."); return; }
     QG = { slot: slot, sig: sig, perfect: !!j.perfect, wrong: (j.mc && j.mc.wrong) || [] }; quizShow(j); quizLockSubmit();
-    if (j.perfect) flash("100%! You can submit now.");
+    if (j.perfect) { flash("100%! You can submit now."); if (!isTeacherNow() && MY[slot] !== "sub") qFinishShow(); }
   }).catch(function () { b.disabled = false; b.textContent = "Grade my quiz"; quizMute(2500); alert("Could not reach the server. Check your internet and try again."); });
 });
 function loadAssignments() {
