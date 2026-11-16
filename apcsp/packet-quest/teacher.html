@@ -73,7 +73,7 @@ td{padding:6px 8px;border-bottom:1px solid #1b2337;vertical-align:middle}
   <main>
     <h2>Mission control</h2>
     <div class="card">
-      <div class="note" style="margin-bottom:8px">Missions are listed in CodeHS course order: ⌨ coding worlds (students write real Python) and AP review gates. Open <b>one mission per two-week A/B cycle</b> for <b>both</b> periods (or two at once to catch up). Each class plays it on its Friday, so 1A and 2B always stay on the same mission. Students can keep working on an open mission at home. Close a mission to stop new answers (finished work is kept).</div>
+      <div class="note" style="margin-bottom:8px">Missions are listed in course order: ⌨ coding worlds (students write real Python) and AP review gates. Open <b>one mission per two-week A/B cycle</b> for <b>both</b> periods (or two at once to catch up). Each class plays it on its Friday, so 1A and 2B always stay on the same mission. Students can keep working on an open mission at home. Close a mission to stop new answers (finished work is kept).</div>
       <div class="scroll" style="max-height:none"><table id="mc"></table></div>
     </div>
 
@@ -105,8 +105,8 @@ function api(b) { b.pin = pin; return fetch(API, { method: "POST", headers: { "C
 var PC = window.PQCODE, MBYID = {}; PQ.MISSIONS.forEach(function (m) { MBYID[m.id] = m; });
 PC.WORLDS.forEach(function (w) { w.region = "CODE"; w.nodes = w.levels; w.code = true; MBYID[w.id] = w; });
 MBYID.m12 = { id: "m12", region: "BOSS", title: PQ.BOSS.title + " (final boss)", covers: PQ.BOSS.covers, nodes: PQ.BOSS.pool };
-/* missions in the Friday path order (CodeHS course order) */
-var MIS = PC.PATH.map(function (p) { var m = MBYID[p.id]; m.unitLabel = p.unit; return m; });
+/* missions in the Friday path order (course order) */
+var MIS = PC.PATH.map(function (p) { var m = MBYID[p.id]; m.unitLabel = p.label; return m; });
 var NODE = {}; MIS.forEach(function (m) { m.nodes.forEach(function (n, i) { NODE[n.id] = { n: n, m: m, i: i, bi: n.bi || (m.code ? "AAP" : m.region), code: !!m.code }; }); });
 var THEME_COL = { keep: "#F59E0B", plains: "#4ADE80", desert: "#FBBF24", cave: "#A78BFA", lava: "#F97316" };
 var BI = ["CRD", "DAT", "AAP", "CSN", "IOC"];
@@ -156,7 +156,7 @@ document.querySelectorAll("#tabs button").forEach(function (b) { b.onclick = fun
 
 /* ---------------- mission control ---------------- */
 function renderMC() {
-  var periods = DATA.periods, h = "<tr><th>#</th><th>Mission</th><th>Type · unit</th><th>Covers</th><th>Size</th>" + periods.map(function (p) { return "<th>Period " + p + "</th>"; }).join("") + "</tr>";
+  var periods = DATA.periods, h = "<tr><th>#</th><th>Mission</th><th>Type · concept</th><th>Covers</th><th>Size</th>" + periods.map(function (p) { return "<th>Period " + p + "</th>"; }).join("") + "</tr>";
   MIS.forEach(function (m) {
     var regName = m.region === "BOSS" ? "Boss: all 5 Big Ideas" : m.code ? "⌨ Coding · " + m.unitLabel : "AP review · BI " + PQ.BIG_IDEAS[m.region].n + " · " + m.unitLabel;
     h += "<tr><td><b>" + (MIS.indexOf(m) + 1) + '</b></td><td><span class="dot" style="background:' + regionColor(m.region, m) + '"></span><b>' + esc(m.title) + "</b></td><td>" + esc(regName) + '</td><td class="note">' + esc(m.covers) + "</td><td>" + m.nodes.length + (m.code ? " levels" : "") + "</td>";
@@ -190,7 +190,7 @@ function vCoding() {
     h += '<tr><td><span class="name" data-e="' + esc(s.email) + '">' + esc(s.name) + "</span></td><td>" + esc(s.period || "") + "</td>" + cells + "<td>" + (runs.length ? (runs.reduce(function (a, b) { return a + b; }, 0) / runs.length).toFixed(1) : "–") + "</td></tr>";
   });
   h += "</table></div>";
-  h += '<div class="scroll"><table><tr><th>Level</th><th>CodeHS</th><th>Passed</th><th>Avg runs to pass</th><th>Still working</th><th>Common failure reasons</th></tr>';
+  h += '<div class="scroll"><table><tr><th>Level</th><th>Concept</th><th>Passed</th><th>Avg runs to pass</th><th>Still working</th><th>Common failure reasons</th></tr>';
   worlds.forEach(function (w) { w.nodes.forEach(function (l, i) {
     var passed = 0, runs = 0, stuck = 0, why = {};
     ss.forEach(function (s) { var r = s.n[l.id]; if (!r) return; if (r.d) { passed++; runs += r.a; } else stuck++; (r.w || []).forEach(function (x) { why[x] = (why[x] || 0) + 1; }); });
