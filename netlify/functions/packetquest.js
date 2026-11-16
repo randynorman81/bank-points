@@ -4,6 +4,7 @@ import { getStore } from "@netlify/blobs";
 //   - Students sign in with their school Google account (same setup as the Python editor).
 //   - The teacher opens missions (m1..m12) per class period. A closed mission can't be played by students.
 //   - Every answer a student gives is recorded: attempts, first-try right or wrong, the wrong picks, and when it was finished.
+//     Coding levels (c1-01 ...) record one attempt per Run, and keep the student's passing code (c).
 //     The teacher dashboard (apcsp/packet-quest/teacher.html, ADMIN_PIN) turns that into completion grades and mastery by topic.
 // Keys in the "packet-quest" store:
 //   cfg          { open: { m1: ["1A","2B"], ... }, opened: {...ever opened...} }   written only by the teacher
@@ -14,8 +15,8 @@ const GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.goo
 const SCHOOL_EMAIL_DOMAIN = "socialcircleschools.org";
 const TEACHER_EMAILS = ["randy.norman@socialcircleschools.org"];
 const PERIODS = ["1A", "2B"];   /* the AP CSP class periods (same as the Python editor) */
-const MISSIONS = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12"];
-const NODE_RE = /^m(1[0-2]|[1-9])-\d{2}$/;
+const MISSIONS = ["c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12"];   /* c = coding worlds, m = AP review missions */
+const NODE_RE = /^(m(1[0-2]|[1-9])|c[1-9])-\d{2}$/;
 
 const store = () => getStore({ name: "packet-quest", consistency: "strong" });
 const enc = (s) => encodeURIComponent(s);
@@ -91,14 +92,16 @@ async function answer(body, user) {
   const { period } = await periodFor(user, doc);
   if (!isTeacher(user) && openFor(cfg, period, false).indexOf(mission) < 0) return { error: "That mission isn't open for your class right now.", closed: true };
   const right = body.ok === true, pick = String(body.pick == null ? "" : body.pick).slice(0, 80);
+  const code = /^c/.test(node) && typeof body.code === "string" ? body.code.slice(0, 6000) : "";
   const { out } = await updatePlayer(user, (d) => {
     if (period && !d.period) d.period = period;
     const rec = d.n[node] || { a: 0 };
-    if (rec.d) { rec.r = (rec.r || 0) + 1; d.n[node] = rec; return rec; }   /* already finished: a replay, first-try data is kept */
+    if (rec.d) { rec.r = (rec.r || 0) + 1; if (right && code) rec.c = code; d.n[node] = rec; return rec; }   /* already finished: a replay, first-try data is kept */
     rec.a = (rec.a || 0) + 1;
     if (rec.a === 1) { rec.f = right; rec.t0 = now(); }
     if (!right && pick) { rec.w = (rec.w || []).concat(pick).slice(-6); }
     if (right) rec.d = now();
+    if (right && code) rec.c = code;   /* coding levels: the student's passing code, for the teacher */
     d.n[node] = rec;
     return rec;
   });
