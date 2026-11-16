@@ -4,9 +4,12 @@ import json, subprocess, sys, os
 sys.path.insert(0, "apcsp/packet-quest")
 import sim
 levels = json.loads(subprocess.check_output(["node", "-e", "const W=require('./apcsp/packet-quest/levels.js').WORLDS;console.log(JSON.stringify(W.flatMap(w=>w.levels)))"]))
+print(sum(1 for L in levels if L.get("ty") != "frq"), "coding levels,", sum(1 for L in levels if L.get("ty") == "frq"), "written responses")
 sol = json.load(open("scripts/packet-quest-solutions.json"))
 bad = 0
 for L in levels:
+    if L.get("ty") == "frq":
+        continue
     s = sol.get(L["id"])
     if not s:
         print("NO SOLUTION", L["id"]); bad += 1; continue
@@ -24,4 +27,4 @@ for L in levels:
     r = json.loads(sim.run_request(json.dumps({"code": L.get("starter", ""), "level": L})))
     if r["passed"]:
         bad += 1; print("STARTER PASSES", L["id"])
-print(len(levels), "levels checked,", bad, "problems")
+print("checked:", bad, "problems")

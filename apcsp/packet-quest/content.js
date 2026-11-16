@@ -282,7 +282,10 @@
           x: "The Internet Protocol (IP) gives devices addresses, and routers use the destination address on each packet to forward it toward the right place." },
         { id: "m5-11", t: "4.1", ty: "mcq", ti: "Dynamic Routing", p: "Internet routing is usually DYNAMIC. What does this mean?",
           ch: ["The path data takes isn't fixed in advance; it's decided as the data travels, based on what's available", "Data always takes the shortest physical path", "Every packet must be approved by a person", "Routes never change once a network is built"], a: 0,
-          x: "Routers choose the next hop for each packet while it's traveling. If a path is busy or broken, packets can go another way. That makes the system both scalable and fault tolerant." }
+          x: "Routers choose the next hop for each packet while it's traveling. If a path is busy or broken, packets can go another way. That makes the system both scalable and fault tolerant." },
+        { id: "m5-12", t: "4.1", ty: "multi", ti: "Protocol Pair", p: "Which TWO statements about Internet protocols are true?",
+          ch: ["They are open standards, so devices from any manufacturer can use them", "TCP makes sure the packets arrive and are put back in the correct order", "They are owned by one company that controls all Internet traffic", "UDP guarantees that every packet arrives"], a: [0, 1],
+          x: "The Internet's protocols are open and nonproprietary. TCP provides reliable, ordered delivery. UDP is faster but doesn't guarantee delivery." }
       ]
     },
     /* ========================= M6 ========================= */
@@ -321,7 +324,10 @@
           x: "Viruses are one kind of malware. Keeping software updated, and not running unknown files or clicking unknown links, helps protect against them." },
         { id: "m6-11", t: "5.6", ty: "mcq", ti: "Certificates", p: "When you visit a secure (HTTPS) website, what do certificate authorities do?",
           ch: ["They issue digital certificates that verify who owns the encryption keys used in secure communications", "They make the website load faster", "They store your passwords", "They block every advertisement"], a: 0,
-          x: "Certificate authorities vouch that a public key really belongs to the website, so you can trust that you're talking to the real site and not an impostor." }
+          x: "Certificate authorities vouch that a public key really belongs to the website, so you can trust that you're talking to the real site and not an impostor." },
+        { id: "m6-12", t: "5.6", ty: "multi", ti: "Phish Finder", p: "Which TWO are good ways to protect yourself from phishing?",
+          ch: ["Check the sender's address, and hover over links to see where they really go before clicking", "Go to a website by typing its address yourself instead of clicking a link in an email", "Reply to the email with your password to prove who you are", "Click the link quickly, before the offer expires"], a: [0, 1],
+          x: "Phishing relies on fake senders and look-alike links, plus a sense of urgency. Checking where a link really goes, and going to sites directly, defeats the trick." }
       ]
     },
     /* ========================= M7 ========================= */
@@ -518,6 +524,119 @@
           ch: ["The step data from the phone's sensor", "The chart on the screen", "The app's icon", "The weekly progress message"], a: 0,
           x: "Program inputs are data sent to a program, from a user, a sensor, a file, or another program. The chart and messages it displays are outputs." }
       ]
+    },
+    /* ========================= M13 ========================= */
+    {
+      id: "m13", region: "AAP", ch: 4, title: "Procedure Patrol",
+      covers: "AP pseudocode procedures, parameters, return values, lists and traversals, libraries, simulations, efficiency, scope",
+      story: "The Patrol guards the gate between Functions and Lists. Read AP pseudocode procedures the way the exam writes them.",
+      nodes: [
+        { id: "m13-01", t: "3.12", ty: "mcq", ti: "Copy That", lang: "ap",
+          code: "PROCEDURE addBonus(score, bonus)\n{\n   score ← score + bonus\n   RETURN (score)\n}\ntotal ← 10\nresult ← addBonus(total, 5)\nDISPLAY(total)\nDISPLAY(result)", p: "What is displayed?",
+          ch: ["10 15", "15 15", "10 10", "15 10"], a: 0,
+          x: "The parameter score gets a COPY of total's value. Changing score inside the procedure doesn't change total, so total is still 10 and result is 15." },
+        { id: "m13-02", t: "3.13", ty: "mcq", ti: "Bigger Is Better", p: "Which procedure correctly RETURNS the larger of its two parameters?", code_choices: true,
+          ch: ["PROCEDURE bigger(a, b)\n{\n   IF (a > b)\n   {\n      RETURN (a)\n   }\n   RETURN (b)\n}", "PROCEDURE bigger(a, b)\n{\n   IF (a > b)\n   {\n      RETURN (b)\n   }\n   RETURN (a)\n}", "PROCEDURE bigger(a, b)\n{\n   IF (a > b)\n   {\n      DISPLAY(a)\n   }\n   ELSE\n   {\n      DISPLAY(b)\n   }\n}", "PROCEDURE bigger(a, b)\n{\n   RETURN (a)\n   RETURN (b)\n}"], a: 0,
+          x: "RETURN ends the procedure and hands back a value. The first choice returns a when it's bigger, and otherwise returns b. The DISPLAY version shows the answer but doesn't return it, and the last one always returns a." },
+        { id: "m13-03", t: "3.10", ty: "input", ti: "Counting Pass", lang: "ap",
+          code: "nums ← [3, 7, 2, 9]\ncount ← 0\nFOR EACH n IN nums\n{\n   IF (n > 4)\n   {\n      count ← count + 1\n   }\n}\nDISPLAY(count)", p: "What is displayed?", acc: ["2"],
+          x: "The traversal checks every element. Only 7 and 9 are greater than 4, so count is 2." },
+        { id: "m13-04", t: "3.10", ty: "mcq", ti: "Last in Line", lang: "ap",
+          code: "nums ← [5, 10, 15]\nDISPLAY(nums[LENGTH(nums)])", p: "What is displayed?",
+          ch: ["15", "10", "5", "An error, because the index is out of bounds"], a: 0,
+          x: "AP lists are indexed from 1, so the last index equals LENGTH(nums), which is 3. nums[3] is 15. (In Python, the last index would be len - 1.)" },
+        { id: "m13-05", t: "3.10", ty: "mcq", ti: "Index Zero", lang: "ap",
+          code: "nums ← [5, 10, 15]\nDISPLAY(nums[0])", p: "What happens?",
+          ch: ["An error: AP pseudocode lists start at index 1, so index 0 doesn't exist", "5 is displayed", "0 is displayed", "15 is displayed"], a: 0,
+          x: "On the AP exam, list indexes run from 1 to LENGTH(list). Accessing index 0 (or anything bigger than the length) causes an error." },
+        { id: "m13-06", t: "3.9", ty: "mcq", ti: "Missing Minimum", lang: "ap",
+          code: "PROCEDURE findMin(list)\n{\n   min ← list[1]\n   FOR EACH item IN list\n   {\n      <MISSING CODE>\n   }\n   RETURN (min)\n}", p: "Which code can replace <MISSING CODE> so the procedure returns the smallest value in list?", code_choices: true,
+          ch: ["IF (item < min)\n{\n   min ← item\n}", "IF (item > min)\n{\n   min ← item\n}", "min ← item", "IF (item < min)\n{\n   item ← min\n}"], a: 0,
+          x: "Whenever an item is smaller than the smallest seen so far, it becomes the new min. Choice D changes item, not min, so min never updates." },
+        { id: "m13-07", t: "3.10", ty: "mcq", ti: "Double Duty", lang: "ap",
+          code: "PROCEDURE doubleAll(list)\n{\n   result ← []\n   FOR EACH item IN list\n   {\n      APPEND(result, item * 2)\n   }\n   RETURN (result)\n}\nDISPLAY(doubleAll([1, 4, 5]))", p: "What is displayed?",
+          ch: ["[2, 8, 10]", "[1, 4, 5]", "[2]", "20"], a: 0,
+          x: "The procedure builds a NEW list, appending each item times 2: [2, 8, 10]. The original list doesn't change." },
+        { id: "m13-08", t: "3.11", ty: "mcq", ti: "Halving Hunt", p: "A sorted list has 1,000 items. About how many items does binary search have to check in the worst case?",
+          ch: ["About 10", "About 500", "1,000", "About 100"], a: 0,
+          x: "Each check cuts the remaining list in half: 1000 → 500 → 250 → ... → 1 takes about 10 steps, since 2¹⁰ = 1024. Linear search might need all 1,000." },
+        { id: "m13-09", t: "3.17", ty: "mcq", ti: "Loop in a Loop", p: "Algorithm A loops over a list once (about n steps). Algorithm B has a loop inside a loop over the same list (about n² steps). Which statement is true?",
+          ch: ["Both run in reasonable time, but B takes about 10,000 steps for a 100-item list", "B runs in unreasonable time because it has two loops", "A takes about 100² steps for a 100-item list", "B is always faster than A"], a: 0,
+          x: "Polynomial efficiency (n, n², n³) counts as reasonable time. B grows faster (100² = 10,000), but it's still reasonable. Exponential growth, like 2ⁿ, is what's unreasonable." },
+        { id: "m13-10", t: "3.14", ty: "multi", ti: "Library Card", p: "Which TWO are benefits of using procedures from a software library?",
+          ch: ["It saves time, because the code is already written and tested", "You can use its procedures by knowing what they do, without knowing how they work inside", "It guarantees your program will have no errors", "It lets a program run without a computer"], a: [0, 1],
+          x: "Libraries provide reusable, tested procedures, and their APIs let you use them as abstractions. They don't make your own code error-free." },
+        { id: "m13-11", t: "3.16", ty: "multi", ti: "Coin Sim", p: "A program simulates flipping a coin by using RANDOM(1, 2), where 1 means heads. Which TWO statements are true?",
+          ch: ["Over many flips, about half of the results will be heads", "Running the program twice can give different results", "Every run gives exactly the same results", "RANDOM(1, 2) can return 3"], a: [0, 1],
+          x: "RANDOM(1, 2) returns 1 or 2 with equal chance. Over many trials the results even out, but any single run can be different." },
+        { id: "m13-12", t: "3.15", ty: "mcq", ti: "Random Count", lang: "ap",
+          code: "count ← 0\nREPEAT 10 TIMES\n{\n   IF (RANDOM(1, 5) = 1)\n   {\n      count ← count + 1\n   }\n}\nDISPLAY(count)", p: "Which describes the possible values displayed?",
+          ch: ["Any integer from 0 to 10", "Exactly 2", "Any integer from 1 to 5", "Any integer from 1 to 10"], a: 0,
+          x: "Each of the 10 passes has a 1-in-5 chance to add 1. It's most likely to be around 2, but anything from 0 (never) to 10 (every time) is possible." },
+        { id: "m13-13", t: "3.13", ty: "mcq", ti: "Lost Return", lang: "py",
+          code: "def add_gem(total):\n    total = total + 1\n    return total\n\ngems = 5\nadd_gem(gems)\nprint(gems)", p: "What does this Python code print?",
+          ch: ["5", "6", "An error", "None"], a: 0,
+          x: "add_gem returns 6, but nothing stores it! gems is still 5. To update gems, write gems = add_gem(gems). The total inside the function is a local variable." },
+        { id: "m13-14", t: "3.17", ty: "mcq", ti: "Shortcut", p: "A delivery app must find the shortest route through 50 stops. Checking every possible route would take years. What should the programmers do?",
+          ch: ["Use a heuristic that quickly finds a good route, even if it isn't guaranteed to be the very best", "Check every route anyway, because computers are fast", "Give up, because the problem is undecidable", "Pick a random route every time"], a: 0,
+          x: "When an exact solution takes unreasonable time, a heuristic gives a good-enough answer fast. This problem is solvable, just slow, so it isn't undecidable." },
+        { id: "m13-15", t: "3.2", ty: "multi", ti: "List Logic", p: "A program stores 30 quiz scores in a list instead of 30 separate variables. Which TWO are advantages?",
+          ch: ["The same code works no matter how many scores there are", "A loop can process every score", "Scores in a list can never be changed", "Lists remove the need for any variables"], a: [0, 1],
+          x: "This is data abstraction: one name for a whole collection, processed with loops, so the code doesn't depend on the number of items." }
+      ]
+    },
+    /* ========================= M14 ========================= */
+    {
+      id: "m14", region: "IOC", ch: 3, title: "The Innovation Files",
+      covers: "Reading-passage questions about computing innovations (like the 5 passage questions on the AP exam): data, privacy, bias, crowdsourcing, impacts",
+      story: "The Citadel's archive holds files on three computing innovations. Read each file carefully. Every answer is backed up by the passage.",
+      nodes: [
+        { id: "m14-01", t: "5.4", passage: "trailcam", ty: "mcq", ti: "File 1: Helpers", p: "TrailCam Tracker's use of volunteers around the world to label photos is an example of:",
+          ch: ["Crowdsourcing (citizen science)", "Lossy compression", "A rogue access point", "Parallel computing"], a: 0,
+          x: "Getting many people online to help with a task, like labeling photos, is crowdsourcing. When it helps science, it's called citizen science." },
+        { id: "m14-02", t: "2.3", bi: "DAT", passage: "trailcam", ty: "mcq", ti: "File 1: Data About Data", p: "Which of the following is METADATA for a TrailCam photo?",
+          ch: ["The GPS location of the camera that took it", "The colors of the animal's fur", "The animal's species", "The trees in the background"], a: 0,
+          x: "Metadata is data about the photo (date, time, location), not what the image shows." },
+        { id: "m14-03", t: "5.3", passage: "trailcam", ty: "mcq", ti: "File 1: Night Shift", p: "Suppose the machine learning model was trained mostly on photos taken during the day. What is a likely problem?",
+          ch: ["It may identify animals in night photos less accurately, because the training data was biased", "It will identify night photos perfectly, because computers aren't biased", "It will delete all night photos", "It will take more photos at night"], a: 0,
+          x: "A model learns from its training data. If night photos are rare in that data, it will do worse on them. That's computing bias." },
+        { id: "m14-04", t: "5.6", passage: "trailcam", ty: "multi", ti: "File 1: Privacy", p: "Which TWO are privacy concerns raised by TrailCam Tracker?",
+          ch: ["Photos of hikers can be seen by volunteers before they are deleted", "Location data stored with a photo could show where a person was at a certain time", "Volunteers sometimes label an animal incorrectly", "The servers store a large number of animal photos"], a: [0, 1],
+          x: "Privacy concerns involve information about PEOPLE: their images and where they were. Mislabeled animals and storage size are accuracy and storage issues, not privacy issues." },
+        { id: "m14-05", t: "5.1", passage: "trailcam", ty: "mcq", ti: "File 1: Good News", p: "Which is a BENEFICIAL effect of TrailCam Tracker described in the passage?",
+          ch: ["Researchers can map where species live without staying in the forest all the time", "Hikers' photos are shared with volunteers", "Volunteers have to buy expensive cameras", "Animals learn to avoid the cameras"], a: 0,
+          x: "The passage says researchers use the results to map where species live and how populations change: a benefit to science." },
+        { id: "m14-06", t: "4.1", bi: "CSN", passage: "smartstop", ty: "mcq", ti: "File 2: In Transit", p: "Each bus's location is sent to the server in packets. Which statement is true?",
+          ch: ["The packets can take different routes and are reassembled when they arrive", "All packets must travel along the same wire", "Packets always arrive in the order they were sent", "Packets can't carry location data"], a: 0,
+          x: "Data on the Internet is split into packets that may take different paths and arrive out of order. The receiving computer puts them back together." },
+        { id: "m14-07", t: "2.3", bi: "DAT", passage: "smartstop", ty: "mcq", ti: "File 2: Insights", p: "Which question could the city MOST likely answer using the ridership data it collects?",
+          ch: ["Which stops are busiest at different times of day", "Why each rider chose to take the bus", "How riders feel about the bus drivers", "What riders ate for breakfast"], a: 0,
+          x: "Location and time data can reveal patterns like busy stops and busy times. It can't tell you people's reasons or feelings." },
+        { id: "m14-08", t: "5.2", passage: "smartstop", ty: "mcq", ti: "File 2: Fair Access", p: "How do the screens at the bus stops help reduce the effects of the digital divide?",
+          ch: ["Riders who don't have smartphones can still see arrival times", "They make the phone app run faster", "They collect more location data from riders", "They replace the GPS receivers on the buses"], a: 0,
+          x: "The digital divide is unequal access to technology. The stop screens give everyone the information, with or without a phone." },
+        { id: "m14-09", t: "5.6", passage: "smartstop", ty: "mcq", ti: "File 2: Hidden in Plain Sight", p: "The published ridership data has names and phone numbers removed. Why could it STILL be a privacy risk?",
+          ch: ["Trip patterns, like the same stops every morning and evening, could be combined with other data to identify a person", "Removing names makes the data inaccurate", "Bus locations are personally identifiable information", "Publishing data online always deletes it"], a: 0,
+          x: "Data that seems anonymous can sometimes be combined with other information to figure out who someone is, like where they live and work." },
+        { id: "m14-10", t: "4.2", bi: "CSN", passage: "smartstop", ty: "mcq", ti: "File 2: Backup Plan", p: "If one cell tower fails, a bus's data still reaches the server through another tower. This is an example of:",
+          ch: ["Fault tolerance, made possible by redundancy", "Lossy compression", "Phishing", "An undecidable problem"], a: 0,
+          x: "Having more than one path (redundancy) lets the system keep working when a part fails. That's fault tolerance." },
+        { id: "m14-11", t: "1.2", bi: "CRD", passage: "homehelper", ty: "mcq", ti: "File 3: Inputs", p: "Which of the following is an INPUT to HomeHelper's software?",
+          ch: ["The user's spoken request", "The answer the speaker says out loud", "The light turning on", "The product delivered to the house"], a: 0,
+          x: "Inputs are data that go into a program, like the recording of a voice request. The spoken answer and the actions it causes are outputs." },
+        { id: "m14-12", t: "5.6", passage: "homehelper", ty: "mcq", ti: "File 3: Listening In", p: "HomeHelper sometimes mistakes TV dialogue for its wake word. What is the MOST significant concern this creates?",
+          ch: ["It may record and send private conversations to the company's servers without the user meaning it to", "The TV's volume will get louder", "The speaker will use more electricity", "The speech software will run faster"], a: 0,
+          x: "False wake-ups mean recordings of private moments could be stored on the company's servers (for 30 days, per the passage). That's a privacy risk." },
+        { id: "m14-13", t: "5.1", passage: "homehelper", ty: "mcq", ti: "File 3: Surprise Orders", p: "Which is the best example of an UNINTENDED harmful effect of HomeHelper?",
+          ch: ["A child orders toys by talking to the speaker without a parent knowing", "A user sets a timer while cooking", "A user turns off the lights from bed", "The company improves its speech software"], a: 0,
+          x: "Ordering products was designed for the owner, but anyone in the room can talk to the speaker. That's a harmful effect nobody intended." },
+        { id: "m14-14", t: "5.6", passage: "homehelper", ty: "mcq", ti: "File 3: Lock It Down", p: "Which change would BEST protect the owner's saved payment information from unwanted purchases?",
+          ch: ["Require a spoken PIN or a confirmation on the owner's phone before buying (multifactor authentication)", "Store the recordings for 60 days instead of 30", "Make the wake word shorter", "Let any voice make purchases"], a: 0,
+          x: "Requiring a second factor, like a PIN or a phone confirmation, means a voice alone can't spend money." },
+        { id: "m14-15", t: "5.3", passage: "homehelper", ty: "mcq", ti: "File 3: Accents", p: "The speech software understands some accents much less accurately than others. What is the MOST likely cause?",
+          ch: ["The recordings used to build the software included few speakers with those accents", "Computers can't process sound", "Those users speak too quietly", "The wake word is too long"], a: 0,
+          x: "Software trained on unrepresentative data works worse for groups that were left out. Collecting more diverse data is one way to reduce this bias." }
+      ]
     }
   ];
 
@@ -550,9 +669,16 @@
     ]
   };
 
+
+  /* reading passages for the Innovation Files (like the AP exam's computing innovation passage questions) */
+  var PASSAGES = {
+    trailcam: { title: "Computing Innovation: TrailCam Tracker", text: "TrailCam Tracker is an app that helps scientists study wild animals. Volunteers mount motion-activated cameras in forests. When a camera detects movement, it takes a photo and uploads it to the app's servers, along with the date, the time, and the camera's GPS location.\n\nVolunteers anywhere in the world can log in and label which animal appears in each photo. A machine learning model is trained on the labeled photos, and it then identifies animals in new photos automatically. Researchers use the results to map where species live and how their populations change over time.\n\nPhotos that accidentally show people are supposed to be deleted. However, some volunteers have reported seeing photos of hikers before the photos were removed." },
+    smartstop: { title: "Computing Innovation: SmartStop Bus Network", text: "A city installed SmartStop screens at its bus stops. Every bus has a GPS receiver that sends the bus's location to a central server every 10 seconds over a cellular network. The server predicts when each bus will arrive and sends those times to the stop screens and to a free phone app.\n\nRiders can choose to share their own phone's location with the app so the city can see how people travel. Each month, the city publishes a summary of the ridership data online, with names and phone numbers removed.\n\nRiders without smartphones can still see arrival times on the screens at every stop." },
+    homehelper: { title: "Computing Innovation: HomeHelper Voice Assistant", text: "HomeHelper is a smart speaker that responds to voice commands. It listens for its wake word, \"Hey Helper,\" and then records the user's request. The recording is sent to the company's servers, where software converts the speech to text, works out what the user wants, and sends back an answer.\n\nRecordings are stored for 30 days to help improve the speech software. HomeHelper can control lights, set timers, and order products online using the owner's saved payment information.\n\nSome users have reported that the speaker sometimes mistakes dialogue from TV shows for its wake word." }
+  };
   var ORDER_NOTE = "Suggested order (one mission per two-week A/B cycle): m1 → m12. Open each mission for both periods so every class plays the same mission on its Friday.";
 
-  var api = { TOPICS: TOPICS, BIG_IDEAS: BIG_IDEAS, REGIONS: REGIONS, GRAPHS: GRAPHS, MISSIONS: MISSIONS, BOSS: BOSS, PERIODS: ["1A", "2B"], ORDER_NOTE: ORDER_NOTE };
+  var api = { TOPICS: TOPICS, BIG_IDEAS: BIG_IDEAS, REGIONS: REGIONS, GRAPHS: GRAPHS, MISSIONS: MISSIONS, BOSS: BOSS, PASSAGES: PASSAGES, PERIODS: ["1A", "2B"], ORDER_NOTE: ORDER_NOTE };
   if (typeof window !== "undefined") window.PQ = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
 })();

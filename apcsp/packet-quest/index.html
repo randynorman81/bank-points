@@ -10,6 +10,7 @@
 <style>
 :root{--bg:#070B16;--panel:#0E1426;--card:#141C33;--rule:#24304F;--ink:#E8EEFB;--soft:#97A3C2;--acc:#FB923C;--ok:#34D399;--bad:#F87171;--glow:#60A5FA}
 *{box-sizing:border-box}
+html{background:#070B16}
 html,body{margin:0;min-height:100%}
 body{background:radial-gradient(1200px 600px at 50% -10%,#14204A 0%,var(--bg) 60%) fixed;color:var(--ink);font:15px/1.55 "Manrope",system-ui,sans-serif}
 button,input,select,textarea{font:inherit}
@@ -154,6 +155,18 @@ pre.code{background:#050812;border:1px solid #1E2848;border-radius:10px;padding:
 .stat b{display:block;font-size:24px}
 .stat small{color:var(--soft)}
 .periods{display:flex;gap:10px;justify-content:center;margin:14px 0}
+.passage{background:#0F1630;border:1px solid #2C3A66;border-radius:12px;padding:10px 14px;margin:6px 0 12px;font-size:14.5px}
+.passage summary{cursor:pointer;font-weight:800;color:#C4B5FD}
+.passage p{margin:8px 0 0;color:#D6DEF5}
+.frq textarea{width:100%;min-height:200px;background:#050812;color:var(--ink);border:1px solid var(--rule);border-radius:10px;padding:12px;font:15px/1.5 Manrope,sans-serif;resize:vertical}
+.frq pre{background:#050812;border:1px solid #1E2848;border-radius:10px;padding:10px 12px;font:12.5px/1.45 "JetBrains Mono",monospace;max-height:260px;overflow:auto;color:#DDE6FF}
+.ck{display:flex;gap:8px;align-items:flex-start;font-size:14px;margin:4px 0;color:#C9D6F2}
+.exnav{display:flex;flex-wrap:wrap;gap:4px;margin-top:14px}
+.exnav button{width:30px;height:28px;border-radius:6px;border:1px solid var(--rule);background:#0A0F1E;color:var(--soft);font:700 11px "JetBrains Mono",monospace;cursor:pointer}
+.exnav button.ans{background:#1E3A8A;color:#DBEAFE;border-color:#3B82F6}
+.exnav button.flag{box-shadow:inset 0 -3px 0 #FBBF24}
+.exnav button.cur{outline:2px solid var(--acc)}
+.timer{font:800 18px "JetBrains Mono",monospace;color:#FDE68A}
 .periods .btn{font-size:20px;padding:12px 26px}
 /* ===== coder (CodeCombat-style level screen) ===== */
 #coder{position:fixed;inset:0;z-index:60;background:#060912;display:grid;grid-template-rows:auto minmax(0,1fr)}
@@ -228,8 +241,8 @@ pre.code{background:#050812;border:1px solid #1E2848;border-radius:10px;padding:
       <div class="sp"></div>
       <button class="btn sm" id="howBtn">How to play</button>
     </div>
-    <div id="pathBox"><svg id="pathSvg" viewBox="0 0 1200 560" aria-label="Mission map"></svg></div>
-    <div class="legend center">Click a glowing mission to play. Sealed missions open on future Fridays. ⌨ = coding world · ? = AP review gate · ☠ = final boss</div>
+    <div id="pathBox"><svg id="pathSvg" viewBox="0 0 1200 910" aria-label="Mission map"></svg></div>
+    <div class="legend center">Click a glowing mission to play. Sealed missions open on future Fridays. ⌨ = coding world · ? = AP review gate · 📝 = practice AP exam · ☠ = final boss</div>
   </div>
 </div>
 
@@ -265,8 +278,8 @@ pre.code{background:#050812;border:1px solid #1E2848;border-radius:10px;padding:
 <div id="ov" class="ov hidden"><div class="panel" id="ovPanel"></div></div>
 <div id="toast" class="toast hidden"></div>
 
-<script src="content.js?v=2"></script>
-<script src="levels.js?v=2"></script>
+<script src="content.js?v=3"></script>
+<script src="levels.js?v=3"></script>
 <script src="robot.js?v=2"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
@@ -295,14 +308,14 @@ PQ.BOSS.pool.forEach(function (n) { NBY[n.id] = { node: n, mission: { id: "m12",
 PC.WORLDS.forEach(function (w) { CW[w.id] = w; w.nodes = w.levels; w.levels.forEach(function (l, i) { LBY[l.id] = { level: l, world: w, i: i }; NBY[l.id] = { node: l, mission: w, code: true }; }); });
 var REGION_ORDER = ["CRD", "DAT", "AAP", "CSN", "IOC"];
 function regionMissions(rg) { return PQ.MISSIONS.filter(function (m) { return m.region === rg; }); }
-function pathItem(id) { return CW[id] || MBY[id] || (id === "m12" ? { id: "m12", title: PQ.BOSS.title, boss: true, nodes: [] } : null); }
+function pathItem(id) { return CW[id] || MBY[id] || (id === "m12" ? { id: "m12", title: PQ.BOSS.title, boss: true, nodes: [] } : id === "x1" ? { id: "x1", title: "Practice AP Exam", exam: true, nodes: [] } : null); }
 
 /* ======================= state ======================= */
 var CRED = null, ME = null;
 function prog() { return ME.progress.n; }
 function nodeDone(id) { var r = prog()[id]; return !!(r && r.d); }
 function missionCount(m) { var d = 0; m.nodes.forEach(function (n) { if (nodeDone(n.id)) d++; }); return d; }
-function missionDone(m) { if (m.boss || m.id === "m12") return (ME.progress.boss || {}).wins > 0; return m.nodes.length > 0 && missionCount(m) === m.nodes.length; }
+function missionDone(m) { if (m.exam) return (ME.progress.exams || []).length > 0; if (m.boss || m.id === "m12") return (ME.progress.boss || {}).wins > 0; return m.nodes.length > 0 && missionCount(m) === m.nodes.length; }
 function isOpen(mid) { return ME.teacher || ME.open.indexOf(mid) > -1; }
 function regionKey(rg) { var ms = regionMissions(rg); return ms.length && ms.every(missionDone); }
 /* bonus integrity for the final boss: +1 for every 3 missions finished (max +5) */
@@ -321,10 +334,10 @@ function setStars(id, n) { var s = getStars(); if ((s[id] || 0) < n) { s[id] = n
 /* ======================= API ======================= */
 var mock = null;
 function mockApi(body) {
-  if (!mock) { try { mock = JSON.parse(lsGet("pq:mock2") || "null"); } catch (e) {} if (!mock) mock = { open: { c1: ["1A"], c2: ["1A"], c3: ["1A"], c4: ["1A"], c5: ["1A"], m1: ["1A"], m3: ["1A"], m12: ["1A"] }, p: { n: {}, boss: { tries: 0, wins: 0, bestHits: 0 }, period: "" } }; }
+  if (!mock) { try { mock = JSON.parse(lsGet("pq:mock2") || "null"); } catch (e) {} if (!mock) mock = { open: { c1: ["1A"], c2: ["1A"], c3: ["1A"], c4: ["1A"], c5: ["1A"], m1: ["1A"], m3: ["1A"], m12: ["1A"], x1: ["1A"] }, p: { n: {}, boss: { tries: 0, wins: 0, bestHits: 0 }, period: "" } }; }
   var teacher = /[?&]mock=teacher/.test(location.search), d = mock.p, out;
   var openList = teacher ? PC.PATH.map(function (p) { return p.id; }) : Object.keys(mock.open).filter(function (k) { return mock.open[k].indexOf(d.period) > -1; });
-  if (body.action === "me") out = { ok: true, name: teacher ? "Mr. Norman" : "Test Student", email: "test@socialcircleschools.org", teacher: teacher, period: d.period, periods: PQ.PERIODS, open: openList, progress: { n: d.n, boss: d.boss } };
+  if (body.action === "me") out = { ok: true, name: teacher ? "Mr. Norman" : "Test Student", email: "test@socialcircleschools.org", teacher: teacher, period: d.period, periods: PQ.PERIODS, open: openList, progress: { n: d.n, boss: d.boss, exams: d.exams || [] } };
   else if (body.action === "setPeriod") { d.period = body.period; out = { ok: true, period: d.period }; }
   else if (body.action === "answer") {
     if (!teacher && openList.indexOf(body.node.split("-")[0]) < 0) out = { error: "closed", closed: true };
@@ -395,7 +408,7 @@ function onCredential(resp) {
 function afterSignIn() {
   api({ action: "me" }).then(function (j) {
     if (!j || !j.ok) { $("signMsg").textContent = (j && j.error) || "Couldn't load your progress. Refresh to try again."; return; }
-    ME = j; ME.progress = ME.progress || { n: {}, boss: {} }; ME.progress.n = ME.progress.n || {}; ME.progress.boss = ME.progress.boss || {};
+    ME = j; ME.progress = ME.progress || { n: {}, boss: {} }; ME.progress.n = ME.progress.n || {}; ME.progress.boss = ME.progress.boss || {}; ME.progress.exams = ME.progress.exams || [];
     try { queue = JSON.parse(lsGet(qKey()) || "[]") || []; } catch (e) { queue = []; }
     queue.forEach(function (q) { var r = prog()[q.node] || { a: 0 }; if (!r.d) { r.a = (r.a || 0) + 1; if (r.a === 1) r.f = q.ok; if (q.ok) { r.d = new Date().toISOString(); if (q.code) r.c = q.code; } } prog()[q.node] = r; });
     $("signin").classList.add("hidden"); $("world").classList.remove("hidden");
@@ -441,7 +454,7 @@ function showIntro() {
     "<p>The Corruptor has scrambled the network. Your path to the AP Server runs through the same units as our class:</p><ul>" +
     "<li><b>⌨ Coding worlds</b>: write real Python to move your hero, fight bugs, crack door passwords, and solve puzzles. Karel's Keep uses Karel's commands. The Python worlds use <code>hero.move_right()</code>, <code>print()</code>, <code>input()</code>, loops, and if statements.</li>" +
     "<li><b>? AP review gates</b>: AP-exam-style questions. <b>First-try answers earn the most XP</b>, so think before you click.</li>" +
-    "<li><b>☠ The Corruptor</b>: the final boss, a mixed AP exam review. Every 3 missions you finish give you +1 integrity for the fight.</li></ul>" +
+    "<li><b>📝 Practice AP Exam</b>: 70 questions in 120 minutes, scored like the real thing.</li><li><b>☠ The Corruptor</b>: the final boss, a mixed AP exam review. Every 3 missions you finish give you +1 integrity for the fight.</li></ul>" +
     "<p><b>Coding tips:</b> press <b>▶ Run</b> (or Ctrl+Enter) to watch your code play out. Many levels change every run, so your code has to work in general, not just once. Earn ★★★ by passing in 3 runs or fewer without hints.</p>" +
     "<p class=\"legend\">Your teacher opens one mission at a time on Fridays. Everything you do is saved to your account.</p>" +
     '<div class="center"><button class="btn pri" id="go">Let\'s go ▶</button></div></div>');
@@ -450,30 +463,35 @@ function showIntro() {
 }
 $("howBtn").onclick = showIntro;
 
+function passageHtml(key) {
+  var P = key && PQ.PASSAGES[key]; if (!P) return "";
+  return '<details open class="passage"><summary>📄 ' + esc(P.title) + "</summary><div>" + esc(P.text).replace(/\n\n/g, "</p><p>").replace(/^/, "<p>") + "</p></div></details>";
+}
 /* ======================= PATH MAP ======================= */
-var THEME_COL = { keep: "#F59E0B", plains: "#4ADE80", desert: "#FBBF24", cave: "#A78BFA", lava: "#F97316" };
-function itemColor(it) { if (it.boss) return "#FB7185"; if (CW[it.id]) return THEME_COL[it.theme] || "#60A5FA"; return PQ.REGIONS[it.region].color; }
+var THEME_COL = { keep: "#F59E0B", plains: "#4ADE80", desert: "#FBBF24", cave: "#A78BFA", lava: "#F97316", forest: "#10B981", library: "#EAB308", crypt: "#2DD4BF", crystal: "#F0ABFC", workshop: "#38BDF8" };
+function itemColor(it) { if (it.boss) return "#FB7185"; if (it.exam) return "#38BDF8"; if (CW[it.id]) return THEME_COL[it.theme] || "#60A5FA"; return PQ.REGIONS[it.region].color; }
 function renderPath() {
   var svg = $("pathSvg"); if (!svg || !ME) return;
   var P = PC.PATH, per = 6, pts = [];
   P.forEach(function (p, i) { var row = Math.floor(i / per), col = i % per; if (row % 2) col = per - 1 - col; pts.push({ x: 110 + col * 196, y: 100 + row * 175 }); });
+  var H = 100 + (Math.ceil(P.length / per) - 1) * 175 + 110; svg.setAttribute("viewBox", "0 0 1200 " + H);
   var cur = -1; P.forEach(function (p, i) { var it = pathItem(p.id); if (cur < 0 && isOpen(p.id) && !missionDone(it)) cur = i; });
   if (cur < 0) { P.forEach(function (p, i) { if (missionDone(pathItem(p.id))) cur = i; }); if (cur < 0) cur = 0; }
-  var h = '<defs><radialGradient id="bgG" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#101A3A"/><stop offset="1" stop-color="#04060E"/></radialGradient><filter id="glow"><feGaussianBlur stdDeviation="6"/></filter></defs><rect width="1200" height="560" fill="url(#bgG)"/>';
+  var h = '<defs><radialGradient id="bgG" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#101A3A"/><stop offset="1" stop-color="#04060E"/></radialGradient><filter id="glow"><feGaussianBlur stdDeviation="6"/></filter></defs><rect width="1200" height="' + H + '" fill="url(#bgG)"/>';
   var seed = 7; function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
-  for (var s = 0; s < 90; s++) h += '<circle cx="' + (rnd() * 1200).toFixed(0) + '" cy="' + (rnd() * 560).toFixed(0) + '" r="' + (rnd() * 1.6 + .3).toFixed(1) + '" fill="#93C5FD" opacity="' + (rnd() * .5 + .1).toFixed(2) + '"/>';
+  for (var s = 0; s < 140; s++) h += '<circle cx="' + (rnd() * 1200).toFixed(0) + '" cy="' + (rnd() * H).toFixed(0) + '" r="' + (rnd() * 1.6 + .3).toFixed(1) + '" fill="#93C5FD" opacity="' + (rnd() * .5 + .1).toFixed(2) + '"/>';
   /* road */
   var d = "M" + pts[0].x + " " + pts[0].y;
   for (var i = 1; i < pts.length; i++) { var a = pts[i - 1], b = pts[i]; if (a.y === b.y) d += " L" + b.x + " " + b.y; else { var dx = (Math.floor((i - 1) / per) % 2) ? -1 : 1; d += " C" + (a.x + 110 * dx) + " " + a.y + " " + (b.x + 110 * dx) + " " + b.y + " " + b.x + " " + b.y; } }
   h += '<path d="' + d + '" fill="none" stroke="#18213D" stroke-width="22" stroke-linecap="round"/><path d="' + d + '" fill="none" stroke="#2B3B6E" stroke-width="3" stroke-dasharray="2 12" stroke-linecap="round"/>';
   P.forEach(function (p, i) {
     var it = pathItem(p.id), pt = pts[i], col = itemColor(it), done = missionDone(it), op = isOpen(p.id), started = it.nodes && it.nodes.some(function (n) { return prog()[n.id]; });
-    var sealed = !op && !done && !started, icon = it.boss ? "☠" : CW[p.id] ? "⌨" : "?";
-    var cnt = it.boss ? "" : missionCount(it) + "/" + it.nodes.length;
+    var sealed = !op && !done && !started, icon = it.boss ? "☠" : it.exam ? "📝" : CW[p.id] ? "⌨" : "?";
+    var cnt = it.boss || it.exam ? "" : missionCount(it) + "/" + it.nodes.length;
     h += '<g class="pnode' + (sealed ? " sealed" : "") + '" data-id="' + p.id + '" opacity="' + (sealed ? .45 : 1) + '">';
     if (op && !done) h += '<circle class="pulse" cx="' + pt.x + '" cy="' + pt.y + '" r="50" fill="' + col + '" opacity=".5" filter="url(#glow)"/>';
     h += '<circle cx="' + pt.x + '" cy="' + pt.y + '" r="38" fill="#0B1122"/><circle class="pring" cx="' + pt.x + '" cy="' + pt.y + '" r="38" fill="none" stroke="' + (done ? "#FCD34D" : sealed ? "#475569" : col) + '" stroke-width="4"/>';
-    if (!sealed && !it.boss && it.nodes.length) { var frac = missionCount(it) / it.nodes.length, R = 44, C = 2 * Math.PI * R; h += '<circle cx="' + pt.x + '" cy="' + pt.y + '" r="' + R + '" fill="none" stroke="' + col + '" stroke-width="3" stroke-dasharray="' + (C * frac).toFixed(1) + " " + C.toFixed(1) + '" transform="rotate(-90 ' + pt.x + " " + pt.y + ')" opacity=".9"/>'; }
+    if (!sealed && !it.boss && !it.exam && it.nodes.length) { var frac = missionCount(it) / it.nodes.length, R = 44, C = 2 * Math.PI * R; h += '<circle cx="' + pt.x + '" cy="' + pt.y + '" r="' + R + '" fill="none" stroke="' + col + '" stroke-width="3" stroke-dasharray="' + (C * frac).toFixed(1) + " " + C.toFixed(1) + '" transform="rotate(-90 ' + pt.x + " " + pt.y + ')" opacity=".9"/>'; }
     h += '<text x="' + pt.x + '" y="' + (pt.y + 10) + '" text-anchor="middle" font-size="28" fill="' + (sealed ? "#64748B" : "#fff") + '" font-family="Manrope">' + (sealed ? "🔒" : icon) + "</text>";
     if (done) h += '<circle cx="' + (pt.x + 28) + '" cy="' + (pt.y - 28) + '" r="11" fill="#FCD34D"/><text x="' + (pt.x + 28) + '" y="' + (pt.y - 23) + '" text-anchor="middle" font-size="14" font-weight="800" fill="#1a1200">✓</text>';
     h += '<text x="' + pt.x + '" y="' + (pt.y + 58) + '" text-anchor="middle" font-size="11" fill="#97A3C2" font-family="JetBrains Mono" font-weight="700">' + esc(p.label.toUpperCase()) + (cnt ? " · " + cnt : "") + "</text>";
@@ -488,6 +506,7 @@ function openPathItem(id) {
   var it = pathItem(id), started = it.nodes && it.nodes.some(function (n) { return prog()[n.id]; });
   if (!isOpen(id) && !missionDone(it) && !started) { toast("🔒 Sealed. Your teacher opens this mission on a future Friday."); return; }
   if (id === "m12") { bossIntro(); return; }
+  if (id === "x1") { examIntro(); return; }
   if (CW[id]) { openWorld(id); return; }
   missionCard(id);
 }
@@ -524,7 +543,7 @@ function renderNode() {
   var m = M.mission, n = m.nodes[M.idx], R = PQ.REGIONS[m.region], rec = prog()[n.id], already = !!(rec && rec.d);
   STATE = { node: n, wrong: 0, solved: false, practice: already };
   var h = '<div class="phead"><button class="btn sm" id="back">◀ Map</button><div style="flex:1;min-width:200px"><div class="tag" style="color:' + R.color + '">' + esc(R.name) + " · " + esc(m.title) + '</div><div class="pips" style="margin-top:6px">' + pipsHtml() + "</div></div></div>";
-  h += '<div class="pbody" id="qbody"><div class="qtitle"><h3>' + esc(n.ti) + '</h3><span class="tag">CED ' + n.t + " · " + esc(PQ.TOPICS[n.t]) + "</span>" + (already ? '<span class="tag" style="color:#6EE7B7">Practice replay</span>' : "") + '</div><div class="prompt">' + esc(n.p) + "</div>";
+  h += '<div class="pbody" id="qbody"><div class="qtitle"><h3>' + esc(n.ti) + '</h3><span class="tag">CED ' + n.t + " · " + esc(PQ.TOPICS[n.t]) + "</span>" + (already ? '<span class="tag" style="color:#6EE7B7">Practice replay</span>' : "") + "</div>" + passageHtml(n.passage) + '<div class="prompt">' + esc(n.p) + "</div>";
   if (n.code) h += '<div class="codelabel">' + (n.lang === "py" ? "Python" : "AP pseudocode") + '</div><pre class="code">' + esc(n.code) + "</pre>";
   h += '<div id="area"></div><div class="fb" id="fb"></div><div id="after"></div></div>';
   openOv(h, true);
@@ -793,18 +812,18 @@ function openWorld(wid) {
   if (!op) h += '<p class="tag" style="color:#FCA5A5">This world is closed right now. You can look, but new runs won\'t be saved.</p>';
   h += '<div class="lvgrid">' + w.levels.map(function (l, i) {
     var un = levelUnlocked(w, i), dn = nodeDone(l.id), s = st[l.id] || (dn ? 1 : 0);
-    return '<button class="lv' + (dn ? " done" : "") + '" data-l="' + l.id + '"' + (un ? "" : " disabled") + '><span class="stars">' + (dn ? "★".repeat(s) + '<span style="color:#3A4466">' + "★".repeat(3 - s) + "</span>" : un ? "" : "🔒") + '</span><div class="n">LEVEL ' + (i + 1) + " · " + esc(l.unit) + "</div><h4>" + esc(l.title) + '</h4><div class="legend" style="margin:0">' + esc(l.task.slice(0, 74)) + (l.task.length > 74 ? "…" : "") + "</div></button>";
+    return '<button class="lv' + (dn ? " done" : "") + '" data-l="' + l.id + '"' + (un ? "" : " disabled") + '><span class="stars">' + (dn ? "★".repeat(s) + '<span style="color:#3A4466">' + "★".repeat(3 - s) + "</span>" : un ? "" : "🔒") + '</span><div class="n">' + (l.ty === "frq" ? "✍ WRITTEN" : "LEVEL " + (i + 1)) + " · " + esc(l.unit) + "</div><h4>" + esc(l.title) + '</h4><div class="legend" style="margin:0">' + esc((l.task || l.prompt).slice(0, 74)) + ((l.task || l.prompt).length > 74 ? "…" : "") + "</div></button>";
   }).join("") + "</div></div>";
   openOv(h);
   $("cx").onclick = closeOv;
-  $("ovPanel").querySelectorAll(".lv[data-l]").forEach(function (b) { b.onclick = function () { openLevel(b.getAttribute("data-l")); }; });
+  $("ovPanel").querySelectorAll(".lv[data-l]").forEach(function (b) { b.onclick = function () { var id = b.getAttribute("data-l"); if (LBY[id].level.ty === "frq") openFrq(id); else openLevel(id); }; });
 }
 
 /* ---------- Python worker ---------- */
 var WK = null, wkReady = false, wkWait = [], wkSeq = 0, wkCb = {}, wkTimer = null;
 function worker() {
   if (WK) return WK;
-  WK = new Worker("worker.js?v=2", { name: "2" });
+  WK = new Worker("worker.js?v=3", { name: "3" });
   WK.onmessage = function (e) {
     var m = e.data;
     if (m.type === "ready") { wkReady = true; var q = wkWait; wkWait = []; q.forEach(function (f) { f(); }); }
@@ -838,6 +857,8 @@ function openLevel(lid) {
   (lv.require || []).forEach(function (k) { req.push(REQ_TEXT[k] || k); });
   if (lv.maxLines) req.push("at most " + lv.maxLines + " lines of code");
   if (lv.nolit) req.push("no typed numbers in your move commands");
+  if (lv.forbid) req.push("no " + lv.forbid.map(function (f) { return f + "()"; }).join(", "));
+  if (lv.create) req.push("meet all the Create task program requirements");
   $("cTask").innerHTML = "<p><b>" + esc(lv.task) + "</b></p>" + (req.length ? '<p class="req">Your code must: ' + esc(req.join(" · ")) + "</p>" : "") + (lv.seeds && lv.seeds.length > 1 ? '<p class="req">🎲 This level changes every run. Your code is tested on ' + lv.seeds.length + " versions.</p>" : "") +
     '<details' + (L.i < 2 || !nodeDone(lid) ? " open" : "") + '><summary style="cursor:pointer;color:#93C5FD;font-weight:700">Guide</summary>' + md(lv.guide) + "</details><div id=\"hintBox\"></div>";
   var saved = lsGet(codeKey(lid)), server = prog()[lid] && prog()[lid].c;
@@ -848,7 +869,7 @@ function openLevel(lid) {
   previewLevel();
   setTimeout(function () { $("code").focus(); }, 50);
 }
-var REQ_TEXT = { def: "define a function (def)", for: "use a for loop", while: "use a while loop", if: "use if", else: "use else", elif: "use elif", range: "use range()", input: "use input()", print: "use print()", int: "use int()", str: "use str()", mod: "use %", floordiv: "use //", slice: "use slicing [a:b]", index: "use indexing [i]", find: "use .find()", len: "use len()", and: "use and", or: "use or", andor: "use and / or", not: "use not", compare: "use a comparison", break: "use break", whiletrue: "use while True", randint: "use random.randint()", var: "use a variable", update: "update a variable", comment: "include a # comment", concat: "join strings with +" };
+var REQ_TEXT = { param: "define a function with a parameter", return: "return a value", try: "use try / except", list: "make a list", append: "use .append()", remove: "use .remove()", forin: "loop through a list or string", in: "use the in keyword", upper: "use .upper() or .lower()", strip: "use .strip()", rand: "use random numbers", def3: "define 3+ functions", mul: "use *", def: "define a function (def)", for: "use a for loop", while: "use a while loop", if: "use if", else: "use else", elif: "use elif", range: "use range()", input: "use input()", print: "use print()", int: "use int()", str: "use str()", mod: "use %", floordiv: "use //", slice: "use slicing [a:b]", index: "use indexing [i]", find: "use .find()", len: "use len()", and: "use and", or: "use or", andor: "use and / or", not: "use not", compare: "use a comparison", break: "use break", whiletrue: "use while True", randint: "use random.randint()", var: "use a variable", update: "update a variable", comment: "include a # comment", concat: "join strings with +" };
 function setGoals(results) {
   var gs = CL.level.goals || [];
   $("cGoals").innerHTML = gs.map(function (g, i) { var r = results && results[i]; return '<span class="goal' + (r ? (r.ok ? " ok" : " no") : "") + '">' + (r ? (r.ok ? "✓ " : "✗ ") : "◦ ") + esc(g.label) + "</span>"; }).join("");
@@ -926,6 +947,7 @@ function finishRun(res, run, code) {
   if (run.error) { edError(run.error.line); consoleLine((run.error.line ? "Line " + run.error.line + ": " : "") + friendly(run.error), "er"); }
   if (run.ended) consoleLine(run.ended, "er");
   if (st.missing.length) probs.push("This level requires you to " + st.missing.join(", ") + ".");
+  if (st.forbidden && st.forbidden.length) probs.push("Don't use " + st.forbidden.map(function (f) { return f + "()"; }).join(", ") + " here. Write the loop yourself!");
   if (st.over) probs.push("Your code is " + st.lines + " lines. This level allows at most " + CL.level.maxLines + ". Can a loop or variable shorten it?");
   if (st.literal) probs.push("Don't type numbers into the move commands here. Use your variable (or len()) instead.");
   var canSave = isOpen(CL.world.id) || ME.teacher;
@@ -939,7 +961,7 @@ function finishRun(res, run, code) {
     showResult(true, '<div class="rstars">' + [1, 2, 3].map(function (k) { return '<span class="' + (k <= stars ? "on" : "") + '">★</span>'; }).join("") + '</div><div class="px" style="font-size:24px;color:#4ADE80;margin:6px 0">Level complete!</div><p>' + xp + (canSave ? "" : " · <span style=\"color:#FCA5A5\">world is closed, so this wasn't saved</span>") + '</p><p class="legend">★ pass · ★ in 3 runs or fewer · ★ no hints</p>' +
       '<div class="row" style="justify-content:center;margin-top:10px"><button class="btn" id="rStay">Stay here</button><button class="btn pri" id="rNext">' + (last ? "World complete! ▶" : "Next level ▶") + "</button></div>", true);
     $("rStay").onclick = function () { $("result").classList.add("hidden"); };
-    $("rNext").onclick = function () { if (last) { closeLevel(); toast("🏆 " + CL_worldDone()); } else openLevel(CL.world.levels[CL.i + 1].id); };
+    $("rNext").onclick = function () { if (last) { closeLevel(); toast("🏆 " + CL_worldDone()); } else { var nx = CL.world.levels[CL.i + 1]; if (nx.ty === "frq") { var w0 = CL.world; stopPlay(); $("coder").classList.add("hidden"); document.body.style.overflow = ""; CL = null; R.st = null; openFrq(nx.id); } else openLevel(nx.id); } };
     refreshHud();
     return;
   }
@@ -949,7 +971,7 @@ function finishRun(res, run, code) {
   run.goals.forEach(function (g) { if (!g.ok) why.push("Goal not met: " + g.label); });
   probs.forEach(function (p) { why.push(p); });
   if (!run.error && !run.ended && run.goals.every(function (g) { return g.ok; }) && !probs.length && !run.ok) why.push("Goals met here, but another version of this level failed.");
-  var pick = run.error ? run.error.type : run.ended ? "defeated/ended" : probs.length && run.goals.every(function (g) { return g.ok; }) ? "requirement: " + (st.missing[0] || (st.over ? "too many lines" : "typed numbers")) : "goal: " + ((run.goals.filter(function (g) { return !g.ok; })[0] || {}).label || "");
+  var pick = run.error ? run.error.type : run.ended ? "defeated/ended" : probs.length && run.goals.every(function (g) { return g.ok; }) ? "requirement: " + (st.missing[0] || (st.over ? "too many lines" : st.forbidden && st.forbidden.length ? "used " + st.forbidden[0] + "()" : "typed numbers")) : "goal: " + ((run.goals.filter(function (g) { return !g.ok; })[0] || {}).label || "");
   if (canSave) record(CL.level.id, false, pick);
   showResult(false, "<b>Not yet!</b>" + why.map(function (w) { return '<p style="margin:6px 0">' + esc(w) + "</p>"; }).join("") + '<p class="legend">Fix your code and press ▶ Run again.' + (CL.runs >= 3 && CL.hints < (CL.level.hints || []).length ? " Stuck? Try 💡 Hint." : "") + "</p>");
 }
@@ -1069,7 +1091,12 @@ var THEMES = {
   plains: { f1: "#3F7D3A", f2: "#3A7535", sp: "#5DAE52", w1: "#3F2F22", w2: "#7C5E48", line: "#2F5E2B" },
   desert: { f1: "#C8A86B", f2: "#C09F62", sp: "#DEC58F", w1: "#6E5030", w2: "#A9865A", line: "#B08F55" },
   cave: { f1: "#3A3F63", f2: "#353A5C", sp: "#4B5180", w1: "#11132B", w2: "#4B4F80", line: "#2E3352" },
-  lava: { f1: "#4A3030", f2: "#432A2A", sp: "#6B3A3A", w1: "#180A0A", w2: "#9A2A1A", line: "#3A2222" }
+  lava: { f1: "#4A3030", f2: "#432A2A", sp: "#6B3A3A", w1: "#180A0A", w2: "#9A2A1A", line: "#3A2222" },
+  forest: { f1: "#2F5D3A", f2: "#2A5534", sp: "#3E7A4B", w1: "#132A18", w2: "#3F6B2F", line: "#244A2C" },
+  library: { f1: "#6B4F33", f2: "#62482E", sp: "#80613F", w1: "#2A1A0E", w2: "#8B5E34", line: "#56402A" },
+  crypt: { f1: "#26444A", f2: "#223D42", sp: "#335A61", w1: "#0B1A1D", w2: "#2F5F66", line: "#1E373C" },
+  crystal: { f1: "#4A3A5E", f2: "#433455", sp: "#6A5288", w1: "#1D1529", w2: "#8A5CB8", line: "#3B2E4D" },
+  workshop: { f1: "#3C4B5E", f2: "#364456", sp: "#4E6178", w1: "#141B26", w2: "#4B6584", line: "#2F3B4A" }
 };
 var R = {
   st: null, level: null, world: null, fx: [], shake: 0, t: 0,
@@ -1240,7 +1267,7 @@ function drawBubble(o, t, isSign) {
 
 /* ---------- playback ---------- */
 var P = { playing: false, queue: [], timer: null, speed: 1, mult: 1, done: null };
-var DUR = { paint: 160, move: 210, bump: 260, turn: 150, gem: 40, hurt: 240, die: 700, strike: 200, attack: 300, udie: 300, umove: 170, say: 700, print: 450, input: 600, door: 420, ball: 220, whiff: 260, float: 260 };
+var DUR = { test: 220, paint: 160, move: 210, bump: 260, turn: 150, gem: 40, hurt: 240, die: 700, strike: 200, attack: 300, udie: 300, umove: 170, say: 700, print: 450, input: 600, door: 420, ball: 220, whiff: 260, float: 260 };
 function play(run, done) {
   R.load(run.start); P.queue = run.frames.slice(); P.done = done; P.playing = true;
   P.mult = run.frames.length > 140 ? run.frames.length / 140 : 1;
@@ -1276,6 +1303,7 @@ function applyFrame(f, now, d) {
     case "udie": var du = unitById(f.u); if (du) { du.alive = false; du.fade = now; fx({ k: "spark", x: du.x, y: du.y, col: du.type === "bug" ? "#4ADE80" : du.type === "ghost" ? "#E2E8F0" : du.type === "bot" ? "#22D3EE" : "#C084FC", parts: sparks(), d: 500 }); if (f.kind === "leave") fx({ k: "float", x: du.x, y: du.y, text: "👋 bye!", col: "#67E8F9" }); if (f.kind === "vanish") fx({ k: "float", x: du.x, y: du.y, text: "eek!", col: "#E2E8F0" }); } break;
     case "umove": var mu = unitById(f.u); if (mu) { mu.anim = d ? { fx: mu.px, fy: mu.py, tx: f.x, ty: f.y, t0: now, d: d * .95 } : null; mu.x = f.x; mu.y = f.y; if (!d) { mu.px = f.x; mu.py = f.y; } } break;
     case "say": h.bubble = { text: f.text, t0: now, d: Math.max(900, d * 2) }; break;
+    case "test": consoleLine(f.text, f.ok ? "ok" : "er"); break;
     case "print": h.bubble = { text: f.text, t0: now, d: Math.max(800, d * 2), mono: true }; consoleLine(f.text); break;
     case "input": var sg = st.signs[f.i] || st.signs[st.signs.length - 1]; if (sg) { sg.lit = now + Math.max(400, d); sg.bubble = { text: f.value, t0: now, d: Math.max(900, d * 1.6) }; } consoleLine((f.prompt || "") + f.value, "in"); break;
     case "door": var dr = st.doors[f.i]; if (dr) { dr.open = true; dr.t = now; fx({ k: "float", x: dr.x, y: dr.y, text: "unlocked!", col: "#FDE047" }); } break;
@@ -1286,6 +1314,134 @@ function applyFrame(f, now, d) {
   }
 }
 function sparks() { var a = []; for (var i = 0; i < 8; i++) { var an = i / 8 * Math.PI * 2; a.push([Math.cos(an), Math.sin(an)]); } return a; }
+
+/* ======================= WRITTEN RESPONSES (Create task practice) ======================= */
+function frqKey(id) { return "pq:frq:" + ME.email + ":" + id; }
+function wordCount(t) { return (String(t).trim().match(/\S+/g) || []).length; }
+function openFrq(lid) {
+  var L = LBY[lid], lv = L.level, w = L.world;
+  var codeRec = prog()["c10-01"], myCode = (codeRec && codeRec.c) || lsGet(codeKey("c10-01")) || "";
+  var saved = lsGet(frqKey(lid)), server = prog()[lid] && prog()[lid].c, text = saved != null ? saved : server || "";
+  var h = '<button class="btn sm x" id="cx">✕</button><div class="phead"><span style="font-size:26px">✍</span><div><div class="tag">' + esc(w.title) + " · " + esc(lv.unit) + '</div><h2>' + esc(lv.title) + '</h2></div></div><div class="pbody frq">';
+  h += '<p style="font-size:16px"><b>' + esc(lv.prompt) + "</b></p>";
+  h += '<details' + (myCode ? " open" : "") + '><summary style="cursor:pointer;color:#93C5FD;font-weight:700">Your program (like your Personalized Project Reference)</summary>' + (myCode ? "<pre>" + esc(myCode) + "</pre>" : '<p class="legend">Finish "Build Your Program" first, then your code shows up here.</p>') + "</details>";
+  h += '<div style="margin:10px 0 6px;font-weight:800">Check your answer before you save:</div>' + lv.checklist.map(function (c, i) { return '<label class="ck"><input type="checkbox" data-c="' + i + '"> ' + esc(c) + "</label>"; }).join("");
+  h += '<textarea id="frqText" placeholder="Write your response here, in complete sentences, about YOUR code.">' + esc(text) + '</textarea><div class="row" style="margin-top:8px"><span class="legend" id="frqWc" style="margin:0"></span><div class="sp"></div><button class="btn pri" id="frqSave">Save response</button></div><div class="fb" id="frqFb"></div>';
+  h += '<p class="legend">On exam day you answer prompts like this in writing, using your Personalized Project Reference (screenshots of your list and procedure). Your teacher can read your saved responses.</p></div>';
+  openOv(h);
+  var ta = $("frqText"), min = lv.minWords || 40;
+  function upd() { var n = wordCount(ta.value); $("frqWc").textContent = n + " words" + (n < min ? " (at least " + min + " to save)" : ""); $("frqSave").disabled = n < min; lsSet(frqKey(lid), ta.value); }
+  ta.addEventListener("input", upd); upd();
+  $("cx").onclick = function () { closeOv(); openWorld(w.id); };
+  $("frqSave").onclick = function () {
+    if (!(isOpen(w.id) || ME.teacher)) { $("frqFb").className = "fb bad"; $("frqFb").textContent = "This world is closed right now, so your response can't be saved."; return; }
+    record(lid, true, "", ta.value.slice(0, 6000));
+    $("frqFb").className = "fb ok"; $("frqFb").textContent = "✓ Saved! Your teacher can read it.";
+    var nx = w.levels[L.i + 1];
+    $("frqSave").outerHTML = nx ? '<button class="btn pri" id="frqNext">Next: ' + esc(nx.title) + " ▶</button>" : '<button class="btn pri" id="frqNext">Back to the Lab</button>';
+    $("frqNext").onclick = function () { if (nx) openFrq(nx.id); else { closeOv(); openWorld(w.id); } };
+    refreshHud();
+  };
+}
+
+/* ======================= PRACTICE AP EXAM ======================= */
+var EXAM_MIN = 120, EXAM_PLAN = { CRD: 8, DAT: 13, AAP: 23, CSN: 9, IOC: 17 };
+function examKey() { return "pq:exam:" + ME.email; }
+function examPool() {
+  var pool = [];
+  PQ.MISSIONS.forEach(function (m) { m.nodes.forEach(function (n) { if (/^(mcq|multi|netMcq)$/.test(n.ty)) pool.push({ n: n, bi: n.bi || m.region }); }); });
+  PQ.BOSS.pool.forEach(function (n) { pool.push({ n: n, bi: n.bi }); });
+  return pool;
+}
+function buildExam() {
+  var pool = examPool(), byId = {}, chosen = {}, ids = [];
+  pool.forEach(function (p) { byId[p.n.id] = p; });
+  var keys = Object.keys(PQ.PASSAGES), pk = keys[Math.floor(Math.random() * keys.length)];
+  var block = pool.filter(function (p) { return p.n.passage === pk; }).map(function (p) { return p.n.id; });
+  block.forEach(function (id) { chosen[id] = 1; });
+  var count = { CRD: 0, DAT: 0, AAP: 0, CSN: 0, IOC: 0 };
+  block.forEach(function (id) { count[byId[id].bi]++; });
+  var rest = [];
+  shuffle(pool.filter(function (p) { return p.n.ty === "multi" && !p.n.passage; })).slice(0, 8).forEach(function (p) { chosen[p.n.id] = 1; count[p.bi]++; rest.push(p.n.id); });
+  var singles = shuffle(pool.filter(function (p) { return p.n.ty !== "multi" && !p.n.passage; }));
+  Object.keys(EXAM_PLAN).forEach(function (b) { singles.forEach(function (p) { if (p.bi === b && count[b] < EXAM_PLAN[b] && !chosen[p.n.id]) { chosen[p.n.id] = 1; count[b]++; rest.push(p.n.id); } }); });
+  singles.forEach(function (p) { if (rest.length + block.length < 70 && !chosen[p.n.id]) { chosen[p.n.id] = 1; rest.push(p.n.id); } });
+  rest = shuffle(rest); var at = Math.floor(Math.random() * (rest.length + 1));
+  ids = rest.slice(0, at).concat(block, rest.slice(at));
+  var perms = {}; ids.forEach(function (id) { perms[id] = shuffle(byId[id].n.ch.map(function (_, i) { return i; })); });
+  return { ids: ids, perms: perms, ans: {}, flags: {}, start: Date.now(), i: 0 };
+}
+var EX = null, exTimer = null;
+function examNode(id) { var p = examPool().filter(function (q) { return q.n.id === id; })[0]; return p; }
+function examIntro() {
+  var saved = null; try { saved = JSON.parse(lsGet(examKey()) || "null"); } catch (e) {}
+  var past = ME.progress.exams || [], op = isOpen("x1");
+  var h = '<button class="btn sm x" id="cx">✕</button><div class="pbody center"><div class="big">📝</div><div class="px" style="font-size:26px;color:#38BDF8">Practice AP Exam</div>' +
+    '<p style="max-width:600px;margin:8px auto">70 multiple-choice questions in 120 minutes, mixed across all 5 Big Ideas and weighted like the real exam. It includes a reading-passage set and "select TWO" questions. You won\'t see answers until you submit. Your score goes to your teacher.</p>';
+  if (past.length) h += '<p class="legend">Your past attempts: ' + past.slice(-5).map(function (e) { return "<b>" + Math.round(e.score / e.total * 100) + "%</b>"; }).join(" · ") + "</p>";
+  if (!op) h += '<p class="tag" style="color:#FCA5A5">The practice exam isn\'t open for your class yet.</p>';
+  else if (saved && saved.ids) h += '<div class="row" style="justify-content:center"><button class="btn pri" id="resume">Resume exam (' + Object.keys(saved.ans).length + "/70 answered)</button><button class=\"btn\" id=\"fresh\">Start over</button></div>";
+  else h += '<button class="btn pri" id="fresh">Start the exam ▶</button>';
+  h += "</div>";
+  openOv(h);
+  $("cx").onclick = closeOv;
+  if ($("resume")) $("resume").onclick = function () { EX = saved; examQ(); };
+  if ($("fresh")) $("fresh").onclick = function () { if (saved && saved.ids && !confirm("Start a brand-new exam? Your unfinished one will be thrown away.")) return; EX = buildExam(); saveEx(); examQ(); };
+}
+function saveEx() { lsSet(examKey(), JSON.stringify(EX)); }
+function exLeft() { return Math.max(0, EX.start + EXAM_MIN * 60000 - Date.now()); }
+function fmtT(ms) { var s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); return h + ":" + (m < 10 ? "0" : "") + m + ":" + (s % 60 < 10 ? "0" : "") + (s % 60); }
+function examQ() {
+  clearInterval(exTimer);
+  if (exLeft() <= 0) { examSubmit(true); return; }
+  var id = EX.ids[EX.i], P = examNode(id), n = P.n, perm = EX.perms[id], a = EX.ans[id], multi = n.ty === "multi";
+  var h = '<div class="phead"><button class="btn sm" id="exClose">Save & exit</button><div style="flex:1"><b>Question ' + (EX.i + 1) + " of " + EX.ids.length + '</b> <span class="tag">' + esc(PQ.BIG_IDEAS[P.bi].name) + '</span></div><span class="timer" id="exT">' + fmtT(exLeft()) + '</span><button class="btn sm" id="exFlag">' + (EX.flags[id] ? "★ Flagged" : "☆ Flag") + '</button><button class="btn sm pri" id="exSub">Submit exam</button></div><div class="pbody">';
+  h += passageHtml(n.passage) + '<div class="prompt">' + esc(n.p) + (multi ? " <b>(Select TWO answers.)</b>" : "") + "</div>";
+  if (n.code) h += '<div class="codelabel">' + (n.lang === "py" ? "Python" : "AP pseudocode") + '</div><pre class="code">' + esc(n.code) + "</pre>";
+  if (n.ty === "netMcq") h += '<div id="netbox"></div>';
+  h += '<div class="choices">' + perm.map(function (oi, k) { var sel = multi ? (a || []).indexOf(oi) > -1 : a === oi; return '<button class="choice' + (sel ? " sel" : "") + '" data-o="' + oi + '"><span class="L">' + "ABCD"[k] + "</span>" + (n.code_choices ? "<pre>" + esc(n.ch[oi]) + "</pre>" : "<span>" + esc(n.ch[oi]) + "</span>") + "</button>"; }).join("") + "</div>";
+  h += '<div class="row" style="margin-top:12px"><button class="btn" id="exPrev"' + (EX.i ? "" : " disabled") + '>◀ Previous</button><div class="sp"></div><button class="btn" id="exNext">' + (EX.i < EX.ids.length - 1 ? "Next ▶" : "Review") + "</button></div>";
+  h += '<div class="exnav">' + EX.ids.map(function (q, k) { var an = EX.ans[q] != null && (!Array.isArray(EX.ans[q]) || EX.ans[q].length === 2); return '<button data-k="' + k + '" class="' + (an ? "ans " : "") + (EX.flags[q] ? "flag " : "") + (k === EX.i ? "cur" : "") + '">' + (k + 1) + "</button>"; }).join("") + "</div></div>";
+  openOv(h, true);
+  if (n.ty === "netMcq") drawNet(n, $("netbox"), null);
+  $("ovPanel").querySelectorAll(".choice").forEach(function (b) {
+    b.onclick = function () {
+      var oi = +b.getAttribute("data-o");
+      if (multi) { var cur = (EX.ans[id] || []).slice(), k = cur.indexOf(oi); if (k > -1) cur.splice(k, 1); else { cur.push(oi); if (cur.length > 2) cur.shift(); } EX.ans[id] = cur; }
+      else EX.ans[id] = oi;
+      saveEx(); examQ();
+    };
+  });
+  $("exPrev").onclick = function () { EX.i--; saveEx(); examQ(); };
+  $("exNext").onclick = function () { if (EX.i < EX.ids.length - 1) { EX.i++; saveEx(); examQ(); } else examReview(); };
+  $("exFlag").onclick = function () { EX.flags[id] = !EX.flags[id]; saveEx(); examQ(); };
+  $("exSub").onclick = examReview;
+  $("exClose").onclick = function () { clearInterval(exTimer); saveEx(); closeOv(); toast("Exam saved. The clock keeps running."); };
+  $("ovPanel").querySelectorAll(".exnav button").forEach(function (b) { b.onclick = function () { EX.i = +b.getAttribute("data-k"); saveEx(); examQ(); }; });
+  exTimer = setInterval(function () { var t = $("exT"); if (!t) { clearInterval(exTimer); return; } var l = exLeft(); t.textContent = fmtT(l); if (l <= 0) { clearInterval(exTimer); examSubmit(true); } }, 1000);
+}
+function examReview() {
+  var un = EX.ids.filter(function (q) { var a = EX.ans[q]; return a == null || (Array.isArray(a) && a.length < 2); }).length, fl = EX.ids.filter(function (q) { return EX.flags[q]; }).length;
+  openOv('<div class="pbody center"><div class="px" style="font-size:22px">Ready to submit?</div><p>' + (70 - un) + " of " + EX.ids.length + " answered" + (un ? ' · <b style="color:#FCA5A5">' + un + " unanswered</b>" : "") + (fl ? " · " + fl + " flagged" : "") + '</p><p class="legend">Time left: ' + fmtT(exLeft()) + '. There\'s no penalty for guessing on the AP exam, so answer everything!</p><div class="row" style="justify-content:center"><button class="btn" id="back">◀ Keep working</button><button class="btn pri" id="go">Submit exam</button></div></div>', true);
+  $("back").onclick = examQ; $("go").onclick = function () { examSubmit(false); };
+}
+function correctEx(n, a) { if (n.ty === "multi") return Array.isArray(a) && a.length === 2 && n.a.every(function (x) { return a.indexOf(x) > -1; }); return a === n.a; }
+function examSubmit(timeUp) {
+  clearInterval(exTimer);
+  var by = { CRD: [0, 0], DAT: [0, 0], AAP: [0, 0], CSN: [0, 0], IOC: [0, 0] }, score = 0, wrong = [];
+  EX.ids.forEach(function (id) { var P = examNode(id), ok = correctEx(P.n, EX.ans[id]); by[P.bi][1]++; if (ok) { by[P.bi][0]++; score++; } else wrong.push(id); });
+  var mins = Math.round((Date.now() - EX.start) / 60000), res = { score: score, total: EX.ids.length, byBI: by, mins: Math.min(mins, EXAM_MIN), wrong: wrong, at: new Date().toISOString() };
+  var done = EX; EX = null; try { localStorage.removeItem(examKey()); } catch (e) {}
+  ME.progress.exams = (ME.progress.exams || []).concat(res);
+  api({ action: "exam", score: res.score, total: res.total, byBI: by, mins: res.mins, wrong: wrong }).then(function (j) { if (!j || !j.ok) toast("Couldn't save your exam score: " + ((j && j.error) || "network error")); });
+  var pct = Math.round(score / res.total * 100);
+  var h = '<button class="btn sm x" id="cx">✕</button><div class="pbody"><div class="center"><div class="big">' + (pct >= 70 ? "🏆" : pct >= 50 ? "📈" : "📚") + '</div><div class="px" style="font-size:26px">' + score + " / " + res.total + " (" + pct + "%)</div>" + (timeUp ? '<p class="tag" style="color:#FCD34D">Time ran out, so your exam was submitted automatically.</p>' : "") + "<p class=\"legend\">Finished in " + res.mins + " minutes.</p></div>";
+  h += '<div class="stats">' + Object.keys(by).map(function (b) { var B = PQ.BIG_IDEAS[b], v = by[b]; return '<div class="stat" style="border-top:3px solid ' + PQ.REGIONS[b].color + '"><b>' + (v[1] ? Math.round(v[0] / v[1] * 100) : 0) + "%</b><small>" + esc(B.name) + "<br>" + v[0] + "/" + v[1] + " · " + B.weight + " of exam</small></div>"; }).join("") + "</div>";
+  h += "<h3>Review your mistakes</h3>" + (wrong.length ? wrong.map(function (id) { var P = examNode(id), n = P.n, a = done.ans[id], yours = a == null ? "(no answer)" : (Array.isArray(a) ? a : [a]).map(function (x) { return n.ch[x]; }).join(" + "), right = (Array.isArray(n.a) ? n.a : [n.a]).map(function (x) { return n.ch[x]; }).join(" + ");
+    return '<details style="background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:8px 12px;margin-bottom:6px"><summary style="cursor:pointer"><b>' + esc(n.ti) + '</b> <span class="legend">' + esc(n.p.slice(0, 90)) + (n.p.length > 90 ? "…" : "") + "</span></summary>" + passageHtml(n.passage) + (n.code ? '<pre class="code">' + esc(n.code) + "</pre>" : "") + '<p style="color:#FCA5A5;margin:6px 0">Your answer: ' + esc(yours) + '</p><p style="color:#6EE7B7;margin:6px 0">Correct: ' + esc(right) + '</p><div class="explain"><b>Why:</b> ' + esc(n.x) + "</div></details>"; }).join("") : "<p>Perfect score! 🎉</p>");
+  h += "</div>";
+  openOv(h); $("cx").onclick = closeOv; refreshHud();
+}
 
 initGoogle();
 })();

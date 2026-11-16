@@ -15,8 +15,8 @@ const GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.goo
 const SCHOOL_EMAIL_DOMAIN = "socialcircleschools.org";
 const TEACHER_EMAILS = ["randy.norman@socialcircleschools.org"];
 const PERIODS = ["1A", "2B"];   /* the AP CSP class periods (same as the Python editor) */
-const MISSIONS = ["c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12"];   /* c = coding worlds, m = AP review missions */
-const NODE_RE = /^(m(1[0-2]|[1-9])|c[1-9])-\d{2}$/;
+const MISSIONS = ["c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "c11", "c12", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "x1"];   /* c = coding worlds, m = AP review missions, x1 = practice exam */
+const NODE_RE = /^(m(1[0-5]|[1-9])|c(1[0-2]|[1-9]))-\d{2}$/;
 
 const store = () => getStore({ name: "packet-quest", consistency: "strong" });
 const enc = (s) => encodeURIComponent(s);
@@ -73,7 +73,7 @@ function openFor(cfg, period, teacher) {
 async function me(user) {
   const [{ doc }, cfg] = await Promise.all([readPlayer(user), getCfg()]);
   const { period, fromRoster } = await periodFor(user, doc);
-  return { ok: true, name: user.name, email: user.email, teacher: isTeacher(user), period, fromRoster, periods: PERIODS, open: openFor(cfg, period, isTeacher(user)), progress: { n: doc.n || {}, boss: doc.boss || {} } };
+  return { ok: true, name: user.name, email: user.email, teacher: isTeacher(user), period, fromRoster, periods: PERIODS, open: openFor(cfg, period, isTeacher(user)), progress: { n: doc.n || {}, boss: doc.boss || {}, exams: doc.exams || [] } };
 }
 async function setPeriod(body, user) {
   const p = cleanPeriod(body.period);
@@ -120,6 +120,21 @@ async function boss(body, user) {
     d.boss = b; return b;
   });
   return { ok: true, boss: out };
+}
+
+/* practice AP exam: one summary per attempt (score, by Big Idea, which questions were missed) */
+async function exam(body, user) {
+  const cfg = await getCfg();
+  const { doc } = await readPlayer(user);
+  const { period } = await periodFor(user, doc);
+  if (!isTeacher(user) && openFor(cfg, period, false).indexOf("x1") < 0) return { error: "The practice exam isn't open for your class.", closed: true };
+  const total = Math.max(1, Math.min(100, Number(body.total) || 0)), score = Math.max(0, Math.min(total, Number(body.score) || 0));
+  const byBI = {};
+  ["CRD", "DAT", "AAP", "CSN", "IOC"].forEach((b) => { const v = body.byBI && body.byBI[b]; byBI[b] = Array.isArray(v) ? [Math.max(0, Number(v[0]) || 0), Math.max(0, Number(v[1]) || 0)] : [0, 0]; });
+  const wrong = (Array.isArray(body.wrong) ? body.wrong : []).filter((x) => NODE_RE.test(String(x))).slice(0, 100);
+  const rec = { at: now(), score, total, byBI, mins: Math.max(0, Math.min(600, Number(body.mins) || 0)), wrong };
+  await updatePlayer(user, (d) => { d.exams = (d.exams || []).concat(rec).slice(-10); });
+  return { ok: true, exam: rec };
 }
 
 /* ---------------- teacher actions ---------------- */
@@ -175,6 +190,7 @@ export default async (req) => {
     if (action === "setPeriod") return ok(await setPeriod(body, user));
     if (action === "answer") return ok(await answer(body, user));
     if (action === "boss") return ok(await boss(body, user));
+    if (action === "exam") return ok(await exam(body, user));
     return ok({ error: "Unknown action" });
   } catch (err) {
     return new Response(JSON.stringify({ error: "Server error: " + err.message }), { status: 500, headers: JSON_HEADERS });

@@ -312,5 +312,276 @@
 "guess = input()\nwhile guess.lower() != \"rocket\":\n    print(\"Sorry, try again.\")\n    guess = input()\nprint(\"Access granted!\")\nhero.move_right(6)",
 "while True:\n    guess = input()\n    print(\"Sorry, try again.\")\n    if guess == \"rocket\":\n        break\nprint(\"Access granted!\")\nhero.move_right(6)"
 ]
+},
+"c6-01": {
+"ok": [
+"def climb():\n    hero.move_right(2)\n    hero.move_up(2)\n\nclimb()\nclimb()\nclimb()"
+],
+"bad": [
+"hero.move_right(2)\nhero.move_up(2)\nhero.move_right(2)\nhero.move_up(2)\nhero.move_right(2)\nhero.move_up(2)"
+]
+},
+"c6-02": {
+"ok": [
+"def step(size):\n    hero.move_right(size)\n    hero.move_up(size)\n\nstep(1)\nstep(2)\nstep(3)"
+],
+"bad": [
+"def step(size):\n    hero.move_right(1)\n    hero.move_up(1)\n\nstep(1)\nstep(2)\nstep(3)",
+"def step():\n    pass\nhero.move_right(1)\nhero.move_up(1)"
+]
+},
+"c6-03": {
+"ok": [
+"def square(n):\n    return n * n"
+],
+"bad": [
+"def square(n):\n    print(n * n)",
+"def square(n):\n    return n * 2"
+]
+},
+"c6-04": {
+"ok": [
+"def is_even(n):\n    return n % 2 == 0",
+"def is_even(n):\n    if n % 2 == 0:\n        return True\n    else:\n        return False"
+],
+"bad": [
+"def is_even(n):\n    if n % 2 == 0:\n        return \"True\"\n    return \"False\"",
+"def is_even(n):\n    return n % 2 == 1"
+]
+},
+"c6-05": {
+"ok": [
+"def minimum(a, b):\n    if a < b:\n        return a\n    return b"
+],
+"bad": [
+"def minimum(a, b):\n    return min(a, b)",
+"def minimum(a, b):\n    if a > b:\n        return a\n    return b"
+]
+},
+"c6-06": {
+"ok": [
+"def make_username(first, last):\n    return first[0] + last"
+],
+"bad": [
+"def make_username(first, last):\n    return first + last",
+"def make_username(first, last):\n    print(first[0] + last)"
+]
+},
+"c6-07": {
+"ok": [
+"def defeat(enemy):\n    while enemy.health > 0:\n        hero.attack(enemy)\n\nfor i in range(3):\n    defeat(hero.find_nearest_enemy())"
+],
+"bad": [
+"def defeat(enemy):\n    hero.attack(enemy)\n    hero.attack(enemy)\n\nfor i in range(3):\n    defeat(hero.find_nearest_enemy())"
+]
+},
+"c6-08": {
+"ok": [
+"while True:\n    try:\n        n = int(input(\"Number: \"))\n        break\n    except ValueError:\n        print(\"Not a whole number!\")\nprint(n * 2)\nhero.move_right(6)"
+],
+"bad": [
+"n = int(input())\nprint(n * 2)\nhero.move_right(6)"
+]
+},
+"c7-01": {
+"ok": [
+"hero.move_right(moves[0])\nhero.move_up(moves[1])\nhero.move_right(moves[2])"
+],
+"bad": [
+"hero.move_right(moves[1])\nhero.move_up(moves[2])\nhero.move_right(moves[0])",
+"hero.move_right(2)\nhero.move_up(3)\nhero.move_right(4)"
+]
+},
+"c7-02": {
+"ok": [
+"name = input()\nguests.append(name)\nguests.remove(\"Glitch\")\nprint(guests)\nhero.move_right(6)"
+],
+"bad": [
+"name = input()\nguests.append(name)\nprint(guests)\nhero.move_right(6)"
+]
+},
+"c7-03": {
+"ok": [
+"for enemy in hero.find_enemies():\n    while enemy.health > 0:\n        hero.attack(enemy)"
+],
+"bad": [
+"for enemy in hero.find_enemies():\n    hero.attack(enemy)"
+]
+},
+"c7-04": {
+"ok": [
+"for gem in hero.find_gems():\n    hero.move_to(gem[0], gem[1])"
+],
+"bad": [
+"gems = hero.find_gems()\nhero.move_to(gems[0][0], gems[0][1])"
+]
+},
+"c7-05": {
+"ok": [
+"total = 0\nfor coins in treasure:\n    total = total + coins\nprint(total)\nhero.move_right(6)"
+],
+"bad": [
+"print(sum(treasure))\nhero.move_right(6)",
+"total = 0\nfor coins in treasure:\n    total = coins\nprint(total)\nhero.move_right(6)"
+]
+},
+"c7-06": {
+"ok": [
+"biggest = powers[0]\nfor p in powers:\n    if p > biggest:\n        biggest = p\nprint(biggest)\nhero.move_right(6)"
+],
+"bad": [
+"biggest = 0\nfor p in powers:\n    if p > biggest:\n        biggest = p\nprint(biggest)\nhero.move_right(6)",
+"print(max(powers))\nhero.move_right(6)"
+]
+},
+"c7-07": {
+"ok": [
+"strong = []\nfor h in healths:\n    if h > 20:\n        strong.append(h)\nprint(strong)\nhero.move_right(6)"
+],
+"bad": [
+"strong = []\nfor h in healths:\n    if h >= 20:\n        strong.append(h)\nprint(strong)\nhero.move_right(6)"
+]
+},
+"c7-08": {
+"ok": [
+"title = input()\nspot = -1\nfor i in range(len(books)):\n    if books[i] == title:\n        spot = i\nprint(spot)\nhero.move_right(6)"
+],
+"bad": [
+"title = input()\nprint(books.index(title))\nhero.move_right(6)",
+"title = input()\nspot = -1\nfor i in range(len(books)):\n    if books[i] == title:\n        spot = i + 1\nprint(spot)\nhero.move_right(6)"
+]
+},
+"c7-09": {
+"ok": [
+"import random\nmakes = 0\nfor i in range(100):\n    if random.randint(1, 10) <= 7:\n        makes = makes + 1\nprint(makes)"
+],
+"bad": [
+"makes = 70\nprint(makes)",
+"import random\nfor i in range(100):\n    print(random.randint(1, 10))"
+]
+},
+"c7-10": {
+"ok": [
+"shopping = []\nwhile True:\n    cmd = input(\"Command: \")\n    if cmd == \"done\":\n        break\n    if cmd[:3] == \"add\":\n        shopping.append(cmd[4:])\n    elif cmd[:6] == \"remove\":\n        shopping.remove(cmd[7:])\n    elif cmd == \"show\":\n        print(shopping)"
+],
+"bad": [
+"shopping = []\nwhile True:\n    cmd = input()\n    if cmd == \"done\":\n        break\n    if cmd[:3] == \"add\":\n        shopping.append(cmd[4:])\n    elif cmd == \"show\":\n        print(shopping)\n    else:\n        shopping.remove(cmd)"
+]
+},
+"c9-01": {
+"ok": [
+"n = int(input())\nbits = \"\"\nfor i in range(8):\n    bits = str(n % 2) + bits\n    n = n // 2\nprint(bits)\nhero.move_right(6)"
+],
+"bad": [
+"n = int(input())\nprint(bin(n))\nhero.move_right(6)",
+"n = int(input())\nbits = \"\"\nwhile n > 0:\n    bits = str(n % 2) + bits\n    n = n // 2\nprint(bits)\nhero.move_right(6)"
+]
+},
+"c9-02": {
+"ok": [
+"bits = input()\ntotal = 0\nfor bit in bits:\n    total = total * 2 + int(bit)\nprint(total)\nhero.move_right(6)"
+],
+"bad": [
+"bits = input()\ntotal = 0\nfor bit in bits:\n    total = total + int(bit)\nprint(total)\nhero.move_right(6)"
+]
+},
+"c9-03": {
+"ok": [
+"value = int(input())\nadd = int(input())\nprint((value + add) % 16)\nhero.move_right(6)"
+],
+"bad": [
+"value = int(input())\nadd = int(input())\nprint(value + add)\nhero.move_right(6)"
+]
+},
+"c9-04": {
+"ok": [
+"s = input()\nresult = \"\"\ncount = 1\nfor i in range(1, len(s)):\n    if s[i] == s[i - 1]:\n        count += 1\n    else:\n        result += str(count) + s[i - 1]\n        count = 1\nresult += str(count) + s[-1]\nprint(result)\nhero.move_right(6)"
+],
+"bad": [
+"s = input()\nresult = \"\"\ncount = 1\nfor i in range(1, len(s)):\n    if s[i] == s[i - 1]:\n        count += 1\n    else:\n        result += str(count) + s[i - 1]\n        count = 1\nprint(result)\nhero.move_right(6)"
+]
+},
+"c9-05": {
+"ok": [
+"msg = input()\nshift = int(input())\nalphabet = \"ABCDEFGHIJKLMNOPQRSTUVWXYZ\"\nsecret = \"\"\nfor ch in msg:\n    if ch == \" \":\n        secret += \" \"\n    else:\n        secret += alphabet[(alphabet.find(ch) + shift) % 26]\nprint(secret)\nhero.move_right(6)"
+],
+"bad": [
+"msg = input()\nshift = int(input())\nalphabet = \"ABCDEFGHIJKLMNOPQRSTUVWXYZ\"\nsecret = \"\"\nfor ch in msg:\n    if ch == \" \":\n        secret += \" \"\n    else:\n        secret += alphabet[min(25, alphabet.find(ch) + shift)]\nprint(secret)\nhero.move_right(6)"
+]
+},
+"c9-06": {
+"ok": [
+"secret = input()\nalphabet = \"ABCDEFGHIJKLMNOPQRSTUVWXYZ\"\nfor shift in range(26):\n    attempt = \"\"\n    for ch in secret:\n        if ch == \" \":\n            attempt += \" \"\n        else:\n            attempt += alphabet[(alphabet.find(ch) - shift) % 26]\n    if \"PACKET\" in attempt:\n        print(attempt)\nhero.move_right(6)"
+],
+"bad": [
+"secret = input()\nprint(secret)\nhero.move_right(6)"
+]
+},
+"c9-07": {
+"ok": [
+"for guess in range(10000):\n    if check_code(guess):\n        print(guess)\n        break\nhero.move_right(6)"
+],
+"bad": [
+"for guess in range(1000):\n    if check_code(guess):\n        print(guess)\n        break\nhero.move_right(6)"
+]
+},
+"c8-01": {
+"ok": [
+"text = input()\nif \"key\" in text:\n    print(\"found\")\nelse:\n    print(\"missing\")"
+],
+"bad": [
+"text = input()\nif \"key\" in text.lower():\n    print(\"found\")\nelse:\n    print(\"missing\")"
+]
+},
+"c8-02": {
+"ok": [
+"words = input()\nprint(words.upper() + \"!\")\nhero.move_right(6)"
+],
+"bad": [
+"words = input()\nprint(words + \"!\")\nhero.move_right(6)"
+]
+},
+"c8-03": {
+"ok": [
+"word = input()\nprint(\"[\" + word.strip() + \"]\")\nhero.move_right(6)"
+],
+"bad": [
+"word = input()\nprint(\"[\" + word + \"]\")\nhero.move_right(6)"
+]
+},
+"c8-04": {
+"ok": [
+"text = input()\ncount = 0\nfor ch in text:\n    if ch in \"aeiou\":\n        count += 1\nprint(count)\nhero.move_right(6)"
+],
+"bad": [
+"text = input()\ncount = 0\nfor ch in text:\n    if ch in \"aeiou\":\n        count = 1\nprint(count)\nhero.move_right(6)"
+]
+},
+"c8-05": {
+"ok": [
+"word = input()\nnew = \"\"\nfor ch in word:\n    if ch == \"a\":\n        new = new + \"@\"\n    else:\n        new = new + ch\nprint(new)\nhero.move_right(6)"
+],
+"bad": [
+"word = input()\nprint(word.replace(\"a\", \"@\"))\nhero.move_right(6)"
+]
+},
+"c8-06": {
+"ok": [
+"word = input()\nprint(word[::-1])\nhero.move_right(6)",
+"word = input()\nback = \"\"\nfor ch in word:\n    back = ch + back\nprint(back)\nhero.move_right(6)"
+],
+"bad": [
+"word = input()\nprint(word)\nhero.move_right(6)"
+]
+},
+"c10-01": {
+"ok": [
+"# Counts quiz scores above a cutoff\nscores = [88, 92, 75, 64]\n\ndef count_above(limit):\n    count = 0\n    for s in scores:\n        if s > limit:\n            count = count + 1\n    return count\n\nprint(count_above(80))\nprint(count_above(70))"
+],
+"bad": [
+"scores = [88, 92]\nprint(scores)",
+"def f(x):\n    for i in range(3):\n        print(x)\nf(2)",
+"scores = [1, 2]\ndef f(x):\n    for s in scores:\n        if s > 1:\n            print(s)\nf(1)"
+]
 }
 }

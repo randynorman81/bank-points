@@ -137,6 +137,32 @@ class Hero(object):
     def find_nearest_unit(self):
         return self._w.nearest(lambda u: True)
 
+    def find_enemies(self):
+        """A list of every enemy still standing, nearest first."""
+        return self._w.sorted_units(lambda u: u.type in HOSTILE)
+
+    def find_units(self):
+        """A list of every unit still standing (any type), nearest first."""
+        return self._w.sorted_units(lambda u: True)
+
+    def find_gems(self):
+        """A list of [x, y] positions of the gems that are left, nearest first."""
+        w = self._w
+        return [list(p) for p in sorted(w.gems, key=lambda p: (abs(p[0] - w.hx) + abs(p[1] - w.hy), p[1], p[0]))]
+
+    def move_to(self, x, y):
+        """Walk to square (x, y): first left/right, then up/down."""
+        for v, nm in ((x, "x"), (y, "y")):
+            if isinstance(v, bool) or not isinstance(v, int):
+                raise TypeError("move_to() needs whole numbers, like hero.move_to(3, 2). %s was %r." % (nm, v))
+        w = self._w
+        while w.hx != x:
+            if not w.step("east" if x > w.hx else "west"):
+                return
+        while w.hy != y:
+            if not w.step("south" if y > w.hy else "north"):
+                return
+
     def distance_to(self, target):
         if not isinstance(target, Unit):
             raise TypeError("distance_to() needs a unit, like hero.distance_to(enemy).")
@@ -184,12 +210,14 @@ class World(object):
             self.hx, self.hy = L["start"]
         self.hdir = L.get("dir", "east")
         self.hp = L.get("hp", 100)
-        self.doors = [{"x": d["x"], "y": d["y"], "pw": str(d.get("pw", "")), "open": False} for d in L.get("doors", [])]
+        self.doors = [{"x": d["x"], "y": d["y"], "pw": str(d.get("pw", "")), "open": False, "exact": bool(d.get("exact"))} for d in L.get("doors", [])]
         self.signs = [dict(s) for s in L.get("signs", [])]
         self.units = [Unit(self, d, i) for i, d in enumerate(L.get("units", []))]
         self.inputs = [str(v) for v in L.get("inputs", [])]
         self.input_i = 0
         self.frames, self.printed, self.said = [], [], []
+        self.tests = []
+        self.code_guesses = 0
         self.actions = 0
         self.gem_count = 0
         self.karel = L.get("api") in ("karel", "superkarel", "ultrakarel")
@@ -228,6 +256,10 @@ class World(object):
             if not d["open"] and d["x"] == x and d["y"] == y:
                 return True
         return self.unit_at(x, y) is not None
+
+    def sorted_units(self, test):
+        us = [u for u in self.units if u.alive and test(u)]
+        return sorted(us, key=lambda u: (abs(u.x - self.hx) + abs(u.y - self.hy), u.id))
 
     def nearest(self, test):
         best, bd = None, None
@@ -368,7 +400,7 @@ class World(object):
     def listen(self, text):
         t = text.strip()
         for i, d in enumerate(self.doors):
-            if not d["open"] and d["pw"] != "" and _same(t, d["pw"]):
+            if not d["open"] and d["pw"] != "" and (t == d["pw"] if d["exact"] else _same(t, d["pw"])):
                 d["open"] = True
                 self.ev("door", i=i)
         low = t.lower().strip("!. ")
@@ -489,6 +521,8 @@ class World(object):
                 ok = want == self.paint
             elif t == "print_check":
                 ok = _print_check(g, self.printed)
+            elif t == "func":
+                ok = bool(self.tests) and all(x["ok"] for x in self.tests if x["name"] == g["name"])
             out.append({"label": g.get("label", t), "ok": bool(ok)})
         return out
 
@@ -503,6 +537,8 @@ def _same(got, exp):
 def _print_check(g, printed):
     # e.g. {"type":"print_check","count":5,"int_range":[1,6]}
     lines = [p.strip() for p in printed]
+    if "count_min" in g and len(lines) < g["count_min"]:
+        return False
     if "count" in g and len(lines) != g["count"]:
         return False
     if "int_range" in g:
@@ -528,11 +564,37 @@ REQ_LABEL = {
     "update": "update a variable (like steps = steps + 1 or steps += 1)", "comment": "write at least one # comment",
     "concat": "join strings with +", "andor": "combine comparisons with and / or",
     "def3": "define at least 3 functions", "mul": "use * (like word * 3)",
+    "param": "define a function with a parameter", "return": "return a value from a function", "try": "use try / except",
+    "list": "make a list", "append": "use .append()", "remove": "use .remove() or .pop()", "forin": "loop through a list (for item in my_list)",
+    "in": "use the in keyword", "rand": "use random numbers (random.randint or random.random)", "upper": "use .upper() or .lower()", "strip": "use .strip()",
 }
 
 
-def static_check(code, reqs, max_lines, nolit):
-    res = {"missing": [], "lines": 0, "over": False, "literal": False}
+def create_check(tree, nodes):
+    """The Create performance task program requirements, checked on the student's own code."""
+    miss = []
+    funcs = [n for n in nodes if isinstance(n, ast.FunctionDef)]
+    good = None
+    for f in funcs:
+        params = [a.arg for a in f.args.args]
+        used = any(isinstance(m, ast.Name) and m.id in params for b in f.body for m in ast.walk(b))
+        inner = [m for b in f.body for m in ast.walk(b)]
+        if params and used and any(isinstance(m, (ast.For, ast.While)) for m in inner) and any(isinstance(m, ast.If) for m in inner):
+            good = f
+            break
+    if not good:
+        miss.append("define a procedure with a parameter that its code uses, containing a loop AND an if (sequencing, selection, iteration)")
+    elif not any(isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == good.name for n in nodes):
+        miss.append("call your procedure " + good.name + "()")
+    if not (any(isinstance(n, (ast.List, ast.ListComp)) for n in nodes)):
+        miss.append("store data in a list")
+    if not any(isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id in ("input", "print") for n in nodes):
+        miss.append("have input or output (input() or print())")
+    return miss
+
+
+def static_check(code, reqs, max_lines, nolit, forbid=None, create=False):
+    res = {"missing": [], "lines": 0, "over": False, "literal": False, "forbidden": []}
     lines = [l for l in code.split("\n") if l.strip() and not l.strip().startswith("#")]
     res["lines"] = len(lines)
     if max_lines and len(lines) > max_lines:
@@ -582,6 +644,28 @@ def static_check(code, reqs, max_lines, nolit):
             return any(isinstance(n, ast.BoolOp) and isinstance(n.op, ast.Or) for n in nodes)
         if k == "not":
             return any(isinstance(n, ast.UnaryOp) and isinstance(n.op, ast.Not) for n in nodes) or any(isinstance(n, ast.Compare) and any(isinstance(o, (ast.NotEq, ast.NotIn)) for o in n.ops) for n in nodes)
+        if k == "param":
+            return any(isinstance(n, ast.FunctionDef) and n.args.args for n in nodes)
+        if k == "return":
+            return any(isinstance(n, ast.Return) and n.value is not None for n in nodes)
+        if k == "try":
+            return any(isinstance(n, ast.Try) for n in nodes)
+        if k == "list":
+            return any(isinstance(n, (ast.List, ast.ListComp)) for n in nodes) or calls("list")
+        if k == "append":
+            return calls("append") or calls("insert")
+        if k == "remove":
+            return calls("remove") or calls("pop")
+        if k == "forin":
+            return any(isinstance(n, ast.For) and not (isinstance(n.iter, ast.Call) and isinstance(n.iter.func, ast.Name) and n.iter.func.id == "range") for n in nodes)
+        if k == "rand":
+            return calls("randint") or calls("random") or calls("choice")
+        if k == "in":
+            return any(isinstance(n, ast.Compare) and any(isinstance(o, (ast.In, ast.NotIn)) for o in n.ops) for n in nodes)
+        if k == "upper":
+            return calls("upper") or calls("lower")
+        if k == "strip":
+            return calls("strip")
         if k == "def3":
             return sum(1 for n in nodes if isinstance(n, ast.FunctionDef)) >= 3
         if k == "mul":
@@ -615,6 +699,12 @@ def static_check(code, reqs, max_lines, nolit):
     for k in reqs or []:
         if not has(k):
             res["missing"].append(REQ_LABEL.get(k, k))
+    res["forbidden"] = []
+    for name in forbid or []:
+        if calls(name):
+            res["forbidden"].append(name)
+    if create:
+        res["missing"].extend(create_check(tree, nodes))
     if nolit:
         for n in nodes:
             if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr in nolit:
@@ -626,6 +716,17 @@ def static_check(code, reqs, max_lines, nolit):
 # ---------------- running ----------------
 def _globals(W):
     g = {"__name__": "__main__", "print": W.do_print, "input": W.do_input}
+    for k, v in (W.L.get("globals") or {}).items():
+        g[k] = copy.deepcopy(v)
+    if W.L.get("passcode") is not None:
+        secret = str(W.L["passcode"])
+
+        def check_code(guess):
+            W.code_guesses += 1
+            if W.code_guesses > 20000:
+                raise TooLong("More than 20,000 guesses. Is your loop stopping when it finds the code?")
+            return str(guess).zfill(len(secret)) == secret
+        g["check_code"] = check_code
     api = W.L.get("api", "hero")
     if api == "hero":
         g["hero"] = Hero(W)
@@ -658,6 +759,49 @@ def _line_of(tb):
     return line
 
 
+def _fmt(v):
+    return repr(v)
+
+
+def run_tests(W, g):
+    """Unit tests for levels that ask students to write a function (like CodeHS's test cases)."""
+    for goal in W.L.get("goals", []):
+        if goal["type"] != "func":
+            continue
+        name = goal["name"]
+        f = g.get(name)
+        if not callable(f):
+            W.tests.append({"name": name, "ok": False, "text": "No function named %s() was found. Check the name and spelling." % name})
+            W.ev("test", ok=False, text="✗ no function named %s()" % name)
+            continue
+        for case in goal["cases"]:
+            args = copy.deepcopy(case["args"])
+            call = "%s(%s)" % (name, ", ".join(_fmt(a) for a in args))
+            before = len(W.printed)
+            try:
+                got = f(*args)
+            except (LevelEnd, TooLong):
+                raise
+            except Exception as e:
+                W.tests.append({"name": name, "ok": False})
+                W.ev("test", ok=False, text="✗ %s caused %s: %s" % (call, type(e).__name__, e))
+                continue
+            if "out" in case:
+                outl = [p.strip() for p in W.printed[before:]]
+                ok = outl == [str(x) for x in case["out"]]
+                W.tests.append({"name": name, "ok": ok})
+                W.ev("test", ok=ok, text=("✓ " if ok else "✗ ") + "%s printed %s%s" % (call, outl, "" if ok else " (expected %s)" % case["out"]))
+            else:
+                exp = case["ret"]
+                ok = got == exp or (isinstance(got, (int, float)) and isinstance(exp, (int, float)) and not isinstance(got, bool) and abs(got - exp) < 1e-6)
+                if got is None and exp is not None:
+                    note = " (did you forget return?)"
+                else:
+                    note = "" if ok else " (expected %s)" % _fmt(exp)
+                W.tests.append({"name": name, "ok": ok})
+                W.ev("test", ok=ok, text=("✓ " if ok else "✗ ") + "%s returned %s%s" % (call, _fmt(got), note))
+
+
 def run_one(compiled, L, seed):
     W = World(L, seed)
     g = _globals(W)
@@ -676,6 +820,7 @@ def run_one(compiled, L, seed):
     sys.settrace(tracer)
     try:
         exec(compiled, g)
+        run_tests(W, g)
     except LevelEnd as e:
         ended = str(e)
     except TooLong as e:
@@ -696,13 +841,13 @@ def run_request(req_json):
     req = json.loads(req_json)
     code, L = req["code"], req["level"]
     seeds = L.get("seeds") or [0]
-    st = static_check(code, L.get("require", []), L.get("maxLines"), L.get("nolit"))
+    st = static_check(code, L.get("require", []), L.get("maxLines"), L.get("nolit"), L.get("forbid"), L.get("create"))
     try:
         compiled = compile(code, "<hero>", "exec")
     except SyntaxError as e:
         return json.dumps({"syntax": {"msg": e.msg, "line": e.lineno, "text": (e.text or "").rstrip()}, "static": st, "runs": [], "passed": False})
     runs = [run_one(compiled, L, s) for s in seeds]
-    passed = all(r["ok"] for r in runs) and not st["missing"] and not st["over"] and not st["literal"]
+    passed = all(r["ok"] for r in runs) and not st["missing"] and not st["over"] and not st["literal"] and not st["forbidden"]
     return json.dumps({"static": st, "runs": runs, "passed": passed})
 
 
