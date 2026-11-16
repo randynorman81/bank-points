@@ -3,7 +3,8 @@
 # as a list of events that the browser then animates. Nothing here is shown to students.
 #
 # Two kinds of levels:
-#   api "karel" / "superkarel"   CodeHS Karel commands: move(), turn_left(), put_ball(), front_is_clear() ...
+#   api "karel" / "superkarel" / "ultrakarel"   CodeHS Karel commands: move(), turn_left(), put_ball(), front_is_clear() ...
+#                                               (Ultra Karel adds paint(Color.red) and color_is(Color.red))
 #   api "hero"                   hero.move_right(3), hero.attack(enemy), hero.find_nearest_enemy(), print(), input() ...
 import sys, json, random, ast, copy
 
@@ -15,6 +16,12 @@ HOSTILE = {"bug": (10, 5), "virus": (30, 10), "brute": (50, 20)}   # type: (heal
 FRIENDLY = {"bot"}
 SPOOKY = {"ghost"}
 HERO_POWER = 10
+COLORS = ["red", "orange", "yellow", "green", "blue", "purple", "black", "white", "gray", "pink"]
+
+
+class Color(object):
+    """Ultra Karel colors, like CodeHS: Color.red, Color.blue ..."""
+    red, orange, yellow, green, blue, purple, black, white, gray, pink = COLORS
 
 DIRS = {"north": (0, -1), "east": (1, 0), "south": (0, 1), "west": (-1, 0)}
 ORDER = ["north", "east", "south", "west"]
@@ -185,7 +192,8 @@ class World(object):
         self.frames, self.printed, self.said = [], [], []
         self.actions = 0
         self.gem_count = 0
-        self.karel = L.get("api") in ("karel", "superkarel")
+        self.karel = L.get("api") in ("karel", "superkarel", "ultrakarel")
+        self.paint = {}
         self.start = self.snapshot()
 
     # ---------- bookkeeping ----------
@@ -420,6 +428,14 @@ class World(object):
         self.balls[p] = self.balls.get(p, 0) + 1
         self.ev("ball", x=p[0], y=p[1], n=self.balls[p])
 
+    def k_paint(self, color):
+        self.act()
+        c = str(color)
+        if c not in COLORS:
+            raise ValueError("paint() needs a color like Color.red, not %r." % (color,))
+        self.paint[(self.hx, self.hy)] = c
+        self.ev("paint", x=self.hx, y=self.hy, color=c)
+
     def k_take(self):
         self.act()
         p = (self.hx, self.hy)
@@ -465,6 +481,12 @@ class World(object):
                 if g.get("last"):
                     got = got[-len(exp):] if exp else []
                 ok = len(got) == len(exp) and all(_same(a, b) for a, b in zip(got, exp))
+            elif t == "paint":
+                want = {}
+                for k, v in self.L.get("paint_goal", {}).items():
+                    x, y = [int(a) for a in k.split(",")]
+                    want[(x, y)] = v
+                ok = want == self.paint
             elif t == "print_check":
                 ok = _print_check(g, self.printed)
             out.append({"label": g.get("label", t), "ok": bool(ok)})
@@ -505,6 +527,7 @@ REQ_LABEL = {
     "whiletrue": "use a while True loop", "randint": "use random.randint()", "var": "store a value in a variable",
     "update": "update a variable (like steps = steps + 1 or steps += 1)", "comment": "write at least one # comment",
     "concat": "join strings with +", "andor": "combine comparisons with and / or",
+    "def3": "define at least 3 functions", "mul": "use * (like word * 3)",
 }
 
 
@@ -559,6 +582,10 @@ def static_check(code, reqs, max_lines, nolit):
             return any(isinstance(n, ast.BoolOp) and isinstance(n.op, ast.Or) for n in nodes)
         if k == "not":
             return any(isinstance(n, ast.UnaryOp) and isinstance(n.op, ast.Not) for n in nodes) or any(isinstance(n, ast.Compare) and any(isinstance(o, (ast.NotEq, ast.NotIn)) for o in n.ops) for n in nodes)
+        if k == "def3":
+            return sum(1 for n in nodes if isinstance(n, ast.FunctionDef)) >= 3
+        if k == "mul":
+            return any(isinstance(n, ast.BinOp) and isinstance(n.op, ast.Mult) for n in nodes)
         if k == "andor":
             return any(isinstance(n, ast.BoolOp) for n in nodes)
         if k == "compare":
@@ -612,9 +639,13 @@ def _globals(W):
             "facing_north": lambda: W.hdir == "north", "facing_east": lambda: W.hdir == "east",
             "facing_south": lambda: W.hdir == "south", "facing_west": lambda: W.hdir == "west",
         })
-        if api == "superkarel":
+        if api in ("superkarel", "ultrakarel"):
             g["turn_right"] = lambda: W.k_turn(1)
             g["turn_around"] = lambda: W.k_turn(2)
+        if api == "ultrakarel":
+            g["paint"] = W.k_paint
+            g["color_is"] = lambda c: W.paint.get((W.hx, W.hy)) == str(c)
+            g["Color"] = Color
     return g
 
 

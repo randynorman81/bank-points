@@ -975,6 +975,7 @@ function friendly(e) {
   }
   if (t === "NameError" && (mm = /name '(\w+)' is not defined/.exec(m))) {
     var nm = mm[1];
+    if (nm === "paint" || nm === "Color" || nm === "color_is") return nm + " only works in Ultra Karel levels.";
     if (nm === "turn_right" || nm === "turn_around") return "Karel doesn't know " + nm + "() in this level. Define it yourself with def " + nm + "():";
     if (/^(move_right|move_left|move_up|move_down|attack|say|find_nearest_enemy|find_nearest_unit|is_path_clear)$/.test(nm)) return nm + " belongs to the hero. Write hero." + nm + "(...)";
     if (nm === "hero") return "This is a Karel level: use Karel's commands like move() and turn_left(), not hero.";
@@ -1008,7 +1009,7 @@ function consoleLine(t, cls) { var c = $("console"), d = document.createElement(
 /* ---------- code editor (textarea + highlighted copy behind it) ---------- */
 var KW = /\b(def|if|elif|else|for|while|in|range|return|and|or|not|True|False|None|break|continue|import|from|pass|is)\b/;
 var BI = /\b(print|input|int|str|float|len|abs|round|min|max|random)\b/;
-var KC = /\b(move|turn_left|turn_right|turn_around|put_ball|take_ball|front_is_clear|front_is_blocked|left_is_clear|left_is_blocked|right_is_clear|right_is_blocked|balls_present|no_balls_present|facing_north|facing_east|facing_south|facing_west)\b/;
+var KC = /\b(paint|color_is|Color|move|turn_left|turn_right|turn_around|put_ball|take_ball|front_is_clear|front_is_blocked|left_is_clear|left_is_blocked|right_is_clear|right_is_blocked|balls_present|no_balls_present|facing_north|facing_east|facing_south|facing_west)\b/;
 var errLine = null;
 function hlLine(s) {
   var out = "", i = 0;
@@ -1062,6 +1063,7 @@ function edError(line) { errLine = line || null; edUpdate(); }
 
 /* ======================= RENDERER ======================= */
 var GC = $("gcv"), G = GC.getContext("2d"), TS = 48;
+var PAINT = { red: "#EF4444", orange: "#F97316", yellow: "#FACC15", green: "#22C55E", blue: "#3B82F6", purple: "#A855F7", black: "#111827", white: "#F9FAFB", gray: "#9CA3AF", pink: "#F472B6" };
 var THEMES = {
   keep: { f1: "#5B6274", f2: "#545B6C", sp: "#6B7385", w1: "#1E2433", w2: "#6B7280", line: "#4A5062" },
   plains: { f1: "#3F7D3A", f2: "#3A7535", sp: "#5DAE52", w1: "#3F2F22", w2: "#7C5E48", line: "#2F5E2B" },
@@ -1074,6 +1076,7 @@ var R = {
   load: function (start) {
     var lv = this.level, st = { w: start.w, h: start.h, walls: {}, gems: {}, spikes: {}, markers: {}, balls: {}, exit: null, karel: lv.api !== "hero",
       hero: { x: start.hero.x, y: start.hero.y, px: start.hero.x, py: start.hero.y, dir: start.hero.dir, hp: start.hero.hp, max: start.hero.hp, anim: null, swing: 0, dead: false, bubble: null, flash: 0 },
+      paint: {}, paintGoal: lv.paint_goal || {},
       units: start.units.map(function (u) { return { id: u.id, type: u.type, x: u.x, y: u.y, px: u.x, py: u.y, hp: u.hp, max: u.hp, alive: true, alpha: 1, anim: null, lunge: 0, fade: null, bubble: null }; }),
       doors: start.doors.map(function (d) { return { x: d.x, y: d.y, open: false, t: 0 }; }),
       signs: start.signs.map(function (s) { return { x: s.x, y: s.y, text: s.text, lit: 0, bubble: null }; }) };
@@ -1090,6 +1093,8 @@ var R = {
     var sx = 0, sy = 0; if (this.shake > now) { sx = (Math.random() - .5) * 8; sy = (Math.random() - .5) * 8; }
     G.translate(sx, sy);
     for (var y = 0; y < st.h; y++) for (var x = 0; x < st.w; x++) { if (st.walls[x + "," + y]) drawWall(x, y, th); else drawFloor(x, y, th); }
+    Object.keys(st.paint).forEach(function (k) { var a = k.split(","); G.fillStyle = PAINT[st.paint[k]] || st.paint[k]; G.globalAlpha = .85; G.fillRect(+a[0] * TS + 2, +a[1] * TS + 2, TS - 4, TS - 4); G.globalAlpha = 1; });
+    Object.keys(st.paintGoal).forEach(function (k) { if (st.paint[k] === st.paintGoal[k]) return; var a = k.split(","); G.save(); G.setLineDash([5, 4]); G.strokeStyle = PAINT[st.paintGoal[k]] || "#fff"; G.lineWidth = 2.5; G.strokeRect(+a[0] * TS + 7, +a[1] * TS + 7, TS - 14, TS - 14); G.restore(); });
     Object.keys(st.markers).forEach(function (k) { var a = k.split(","); drawMarker(+a[0], +a[1], st.markers[k]); });
     Object.keys(st.spikes).forEach(function (k) { var a = k.split(","); drawSpikes(+a[0], +a[1]); });
     if (st.exit) drawExit(st.exit[0], st.exit[1], now);
@@ -1235,7 +1240,7 @@ function drawBubble(o, t, isSign) {
 
 /* ---------- playback ---------- */
 var P = { playing: false, queue: [], timer: null, speed: 1, mult: 1, done: null };
-var DUR = { move: 210, bump: 260, turn: 150, gem: 40, hurt: 240, die: 700, strike: 200, attack: 300, udie: 300, umove: 170, say: 700, print: 450, input: 600, door: 420, ball: 220, whiff: 260, float: 260 };
+var DUR = { paint: 160, move: 210, bump: 260, turn: 150, gem: 40, hurt: 240, die: 700, strike: 200, attack: 300, udie: 300, umove: 170, say: 700, print: 450, input: 600, door: 420, ball: 220, whiff: 260, float: 260 };
 function play(run, done) {
   R.load(run.start); P.queue = run.frames.slice(); P.done = done; P.playing = true;
   P.mult = run.frames.length > 140 ? run.frames.length / 140 : 1;
@@ -1274,6 +1279,7 @@ function applyFrame(f, now, d) {
     case "print": h.bubble = { text: f.text, t0: now, d: Math.max(800, d * 2), mono: true }; consoleLine(f.text); break;
     case "input": var sg = st.signs[f.i] || st.signs[st.signs.length - 1]; if (sg) { sg.lit = now + Math.max(400, d); sg.bubble = { text: f.value, t0: now, d: Math.max(900, d * 1.6) }; } consoleLine((f.prompt || "") + f.value, "in"); break;
     case "door": var dr = st.doors[f.i]; if (dr) { dr.open = true; dr.t = now; fx({ k: "float", x: dr.x, y: dr.y, text: "unlocked!", col: "#FDE047" }); } break;
+    case "paint": st.paint[f.x + "," + f.y] = f.color; fx({ k: "spark", x: f.x, y: f.y, col: PAINT[f.color] || "#fff", parts: sparks(), d: 300 }); break;
     case "ball": st.balls[f.x + "," + f.y] = f.n; fx({ k: "spark", x: f.x, y: f.y, col: "#FACC15", parts: sparks(), d: 350 }); break;
     case "whiff": fx({ k: "float", x: h.x, y: h.y, text: "miss", col: "#CBD5E1" }); break;
     case "float": fx({ k: "float", x: f.x, y: f.y, text: f.text, col: "#E2E8F0" }); break;
