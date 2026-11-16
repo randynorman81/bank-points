@@ -1,0 +1,558 @@
+/* PACKET QUEST: all game content (AP CSP, aligned to the College Board CED topics).
+   Every question is original. Each node is tagged with its CED topic (t) so the teacher dashboard can show mastery by topic and Big Idea.
+   Node types:
+     mcq      ch: choices, a: index of the right one
+     multi    ch: choices, a: [two right indexes]   ("Select TWO", like the AP exam)
+     input    acc: accepted answers (compared ignoring case and spaces)
+     bits     target: decimal number to build with 8 bits
+     order    items: the steps IN THE RIGHT ORDER (shown shuffled)
+     debug    lines: code lines, a: [index(es) of the line(s) to click]
+     robotBuild / robotPick   grid rows ('#' blocked, '.' open, 'G' goal), start {r,c,d} (d: 0 up, 1 right, 2 down, 3 left)
+     netPath / netMcq         graph id, failed devices, src, dst
+   Mission ids m1..m12 are what the teacher opens and closes. Node ids are mission id + "-" + 2 digits and must never be renamed once students have played. */
+(function () {
+  var F = { op: "F" }, L = { op: "L" }, R = { op: "R" };
+  function rep(n, body) { return { op: "REP", n: n, body: body }; }
+  function until(body) { return { op: "UNTIL", body: body }; }
+  function ifc(dir, then, els) { return { op: "IF", dir: dir, then: then, els: els || null }; }
+
+  var TOPICS = {
+    "1.1": "Collaboration", "1.2": "Program Function and Purpose", "1.3": "Program Design and Development", "1.4": "Identifying and Correcting Errors",
+    "2.1": "Binary Numbers", "2.2": "Data Compression", "2.3": "Extracting Information from Data", "2.4": "Using Programs with Data",
+    "3.1": "Variables and Assignments", "3.2": "Data Abstraction", "3.3": "Mathematical Expressions", "3.4": "Strings", "3.5": "Boolean Expressions",
+    "3.6": "Conditionals", "3.7": "Nested Conditionals", "3.8": "Iteration", "3.9": "Developing Algorithms", "3.10": "Lists", "3.11": "Binary Search",
+    "3.12": "Calling Procedures", "3.13": "Developing Procedures", "3.14": "Libraries", "3.15": "Random Values", "3.16": "Simulations",
+    "3.17": "Algorithmic Efficiency", "3.18": "Undecidable Problems",
+    "4.1": "The Internet", "4.2": "Fault Tolerance", "4.3": "Parallel and Distributed Computing",
+    "5.1": "Beneficial and Harmful Effects", "5.2": "Digital Divide", "5.3": "Computing Bias", "5.4": "Crowdsourcing", "5.5": "Legal and Ethical Concerns", "5.6": "Safe Computing"
+  };
+
+  var BIG_IDEAS = {
+    CRD: { n: 1, name: "Creative Development", weight: "10–13%" },
+    DAT: { n: 2, name: "Data", weight: "17–22%" },
+    AAP: { n: 3, name: "Algorithms and Programming", weight: "30–35%" },
+    CSN: { n: 4, name: "Computer Systems and Networks", weight: "11–15%" },
+    IOC: { n: 5, name: "Impact of Computing", weight: "21–26%" }
+  };
+
+  var REGIONS = {
+    CRD: { name: "The Dev Forge", color: "#F59E0B", icon: "⚒", blurb: "Where programs are planned, built, tested, and fixed." },
+    DAT: { name: "The Bit Mines", color: "#22D3EE", icon: "◆", blurb: "Deep tunnels of 1s and 0s, compressed files, and buried data." },
+    AAP: { name: "Logic Labyrinth", color: "#A78BFA", icon: "⌘", blurb: "A maze of variables, loops, lists, and procedures. The biggest region on the exam." },
+    CSN: { name: "Router Wastes", color: "#34D399", icon: "⌁", blurb: "Broken routers, lost packets, and the protocols that hold the Internet together." },
+    IOC: { name: "The Citadel", color: "#F472B6", icon: "⛨", blurb: "Encryption, security, and the effects of computing on people." }
+  };
+
+  /* network maps used by netPath / netMcq: x and y are 0..100 */
+  var GRAPHS = {
+    g1: {
+      nodes: { L: { x: 6, y: 50, label: "Laptop" }, A: { x: 30, y: 22 }, B: { x: 30, y: 78 }, C: { x: 54, y: 10 }, D: { x: 54, y: 48 }, E: { x: 54, y: 88 }, F: { x: 76, y: 50 }, S: { x: 95, y: 50, label: "Server" } },
+      edges: [["L", "A"], ["L", "B"], ["A", "C"], ["A", "D"], ["B", "D"], ["B", "E"], ["C", "F"], ["D", "F"], ["E", "F"], ["F", "S"]]
+    },
+    g2: {
+      nodes: { P: { x: 6, y: 50 }, Q: { x: 32, y: 18 }, R: { x: 32, y: 78 }, S: { x: 62, y: 32 }, T: { x: 52, y: 92 }, U: { x: 78, y: 84 }, V: { x: 95, y: 50 } },
+      edges: [["P", "Q"], ["P", "R"], ["Q", "S"], ["R", "S"], ["R", "T"], ["S", "V"], ["T", "U"], ["U", "V"]]
+    }
+  };
+
+  var MISSIONS = [
+    /* ========================= M1 ========================= */
+    {
+      id: "m1", region: "AAP", ch: 1, title: "The Variable Gate",
+      covers: "Variables, math expressions, strings, Booleans, if / else",
+      story: "The Corruptor has scrambled the Logic Labyrinth's front gate. Each lock is a small program: trace it correctly and the gate opens.",
+      nodes: [
+        { id: "m1-01", t: "3.1", ty: "mcq", ti: "Swap Trap", lang: "ap",
+          code: "a ← 4\nb ← 7\na ← b\nb ← a\nDISPLAY(a)\nDISPLAY(b)", p: "What is displayed when this code runs?",
+          ch: ["7 7", "7 4", "4 7", "4 4"], a: 0,
+          x: "a ← b makes a equal 7. Then b ← a copies that 7 back into b. The original 4 was overwritten, so both are 7. A real swap needs a temporary variable: temp ← a, a ← b, b ← temp." },
+        { id: "m1-02", t: "3.3", ty: "input", ti: "MOD Squad", lang: "ap",
+          code: "x ← 17 MOD 5\ny ← x * 3\nDISPLAY(y)", p: "What is displayed?", acc: ["6"],
+          x: "17 MOD 5 is the remainder when 17 is divided by 5: 17 = 3 × 5 + 2, so x is 2. Then y is 2 × 3 = 6." },
+        { id: "m1-03", t: "3.3", ty: "input", ti: "Order of Operations", lang: "ap",
+          code: "x ← 2 + 3 * 4 MOD 5\nDISPLAY(x)", p: "In AP pseudocode, MOD has the same precedence as * and /. What is displayed?", acc: ["4"],
+          x: "* and MOD go before +, working left to right: 3 * 4 is 12, then 12 MOD 5 is 2. Finally 2 + 2 = 4." },
+        { id: "m1-04", t: "3.4", ty: "mcq", ti: "Python Slice", lang: "py",
+          code: 'word = "PACKET"\nprint(word[1:4] + str(len(word) // 4))', p: "What does this Python code print?",
+          ch: ["ACK1", "PAC1", "ACKE1", "ACK1.5"], a: 0,
+          x: "Python indexes start at 0, and a slice stops BEFORE the end index, so word[1:4] is indexes 1, 2, 3: \"ACK\". len(word) is 6, and 6 // 4 is 1 (floor division). str(1) makes it text so it can be joined: \"ACK1\". (AP pseudocode lists start at 1, but Python starts at 0!)" },
+        { id: "m1-05", t: "3.4", ty: "mcq", ti: "Initials", lang: "py",
+          code: 'first = "Ada"\nlast = "Lovelace"\nprint(first[0] + last[0] + str(len(last)))', p: "What does this Python code print?",
+          ch: ["AL8", "AL7", "A L 8", "AdaLovelace8"], a: 0,
+          x: "first[0] is \"A\" and last[0] is \"L\". \"Lovelace\" has 8 characters. Joining (concatenating) the strings gives \"AL8\"." },
+        { id: "m1-06", t: "3.5", ty: "mcq", ti: "Boolean Gate", lang: "ap",
+          code: "x ← 5\ny ← 12", p: "Which expression evaluates to true?",
+          ch: ["(x > 3) OR (y < 10)", "(x > 3) AND (y < 10)", "NOT (x < y)", "(x = 5) AND (y = 5)"], a: 0,
+          x: "x > 3 is true and y < 10 is false. OR needs only one true side, so the first expression is true. AND needs both sides true. x < y is true, so NOT (x < y) is false." },
+        { id: "m1-07", t: "3.5", ty: "mcq", ti: "Flip the Logic",
+          p: "Which expression always has the same value as NOT (a AND b)?",
+          ch: ["(NOT a) OR (NOT b)", "(NOT a) AND (NOT b)", "a OR b", "NOT a AND b"], a: 0,
+          x: "a AND b is false whenever at least one of them is false, so NOT (a AND b) is true when a is false OR b is false. Try all four true/false combinations to check." },
+        { id: "m1-08", t: "3.7", ty: "mcq", ti: "Nested Weather", lang: "ap",
+          code: 'temp ← 72\nIF (temp > 80)\n{\n   DISPLAY("hot")\n}\nELSE\n{\n   IF (temp > 60)\n   {\n      DISPLAY("nice")\n   }\n   ELSE\n   {\n      DISPLAY("cold")\n   }\n}',
+          p: "What is displayed?", ch: ["nice", "hot", "cold", "hot nice"], a: 0,
+          x: "72 > 80 is false, so the ELSE block runs. Inside it, 72 > 60 is true, so \"nice\" is displayed. Only one branch of an IF/ELSE ever runs." },
+        { id: "m1-09", t: "3.6", ty: "input", ti: "Grade Machine", lang: "py",
+          code: 'score = 85\nif score >= 90:\n    grade = "A"\nelif score >= 80:\n    grade = "B"\nelif score >= 70:\n    grade = "C"\nelse:\n    grade = "F"\nprint(grade)',
+          p: "What does this Python code print?", acc: ["B"],
+          x: "Python checks each condition from the top and runs only the FIRST one that is true. 85 >= 90 is false, 85 >= 80 is true, so grade is \"B\" and the rest is skipped." },
+        { id: "m1-10", t: "3.6", ty: "mcq", ti: "Free Shipping",
+          p: "A store gives free shipping when an order total is $50 or more. Which condition should replace <MISSING CONDITION> in: IF (<MISSING CONDITION>) { DISPLAY(\"Free shipping!\") }",
+          ch: ["total ≥ 50", "total > 50", "total ≤ 50", "total = 50"], a: 0,
+          x: "\"$50 or more\" includes exactly 50, so you need ≥. total > 50 would wrongly leave out a $50 order. Test the boundary value (50) whenever you write a condition." },
+        { id: "m1-11", t: "3.7", ty: "multi", ti: "Range Check",
+          p: "Which TWO code segments display \"yes\" ONLY when num is between 1 and 10, inclusive?",
+          ch: ["IF ((num ≥ 1) AND (num ≤ 10))\n{\n   DISPLAY(\"yes\")\n}", "IF (num ≥ 1)\n{\n   IF (num ≤ 10)\n   {\n      DISPLAY(\"yes\")\n   }\n}", "IF ((num ≥ 1) OR (num ≤ 10))\n{\n   DISPLAY(\"yes\")\n}", "IF (NOT (num < 1))\n{\n   DISPLAY(\"yes\")\n}"], a: [0, 1], code_choices: true,
+          x: "Both conditions must be true. AND does that in one line, and a nested IF does the same thing: the inner check only runs when the outer one is true. OR is true for EVERY number, and NOT (num < 1) never checks the upper limit." }
+      ]
+    },
+    /* ========================= M2 ========================= */
+    {
+      id: "m2", region: "DAT", ch: 1, title: "The Binary Seam",
+      covers: "Binary numbers, bits, overflow and roundoff, analog vs. digital",
+      story: "The Bit Mines' doors only open for packets that speak binary. Flip the right bits to dig deeper.",
+      nodes: [
+        { id: "m2-01", t: "2.1", ty: "bits", ti: "Bit Gate I", target: 13, p: "Flip the bits to make the decimal number 13.",
+          x: "13 = 8 + 4 + 1, so the bits are 00001101. Each place is a power of 2: 128, 64, 32, 16, 8, 4, 2, 1." },
+        { id: "m2-02", t: "2.1", ty: "bits", ti: "Bit Gate II", target: 200, p: "Flip the bits to make the decimal number 200.",
+          x: "200 = 128 + 64 + 8, so the bits are 11001000. Start with the biggest place value that fits, subtract it, and repeat." },
+        { id: "m2-03", t: "2.1", ty: "input", ti: "Bit Reader", p: "What is the decimal value of the binary number 01101001?", acc: ["105"],
+          x: "The 1s are in the 64, 32, 8, and 1 places: 64 + 32 + 8 + 1 = 105." },
+        { id: "m2-04", t: "2.1", ty: "mcq", ti: "How Many Values?", p: "How many different values can be represented using 6 bits?",
+          ch: ["64", "6", "12", "32"], a: 0, x: "Each extra bit doubles the number of values: 2⁶ = 64 values (0 through 63)." },
+        { id: "m2-05", t: "2.1", ty: "mcq", ti: "Bits Needed", p: "A game must give each of its 300 players a different binary ID number. What is the MINIMUM number of bits each ID needs?",
+          ch: ["9", "8", "10", "300"], a: 0, x: "8 bits make only 2⁸ = 256 different values, which isn't enough. 9 bits make 2⁹ = 512, which is enough." },
+        { id: "m2-06", t: "2.1", ty: "mcq", ti: "Max Out", p: "What is the LARGEST decimal value that 8 bits can represent (counting from 0)?",
+          ch: ["255", "256", "128", "8"], a: 0, x: "11111111 = 128+64+32+16+8+4+2+1 = 255. There are 256 values in all, but since they start at 0, the largest is 255." },
+        { id: "m2-07", t: "2.1", ty: "mcq", ti: "Overflow!", p: "A program stores whole numbers using only 4 bits. A variable holds 15 (binary 1111), and the program adds 1. What is the most likely result?",
+          ch: ["An overflow error, because 16 needs more than 4 bits", "A roundoff error, because 16 is not a whole number", "The value correctly becomes 16", "A syntax error"], a: 0,
+          x: "With a fixed number of bits, a value that's too big to fit causes an overflow error. 16 is 10000 in binary, which takes 5 bits." },
+        { id: "m2-08", t: "2.1", ty: "mcq", ti: "Roundoff", p: "A program displays the result of 0.1 + 0.2 as 0.30000000000000004. What is the best explanation?",
+          ch: ["Roundoff error: some real numbers can only be approximated with a limited number of bits", "Overflow error: the number is too big for the computer", "A logic error in the programmer's + operator", "The computer's clock is running slowly"], a: 0,
+          x: "Computers store real numbers in a fixed number of bits, so values like 0.1 can only be approximated. The tiny leftover is a roundoff error." },
+        { id: "m2-09", t: "2.1", ty: "mcq", ti: "Biggest Value", p: "Which of the following has the GREATEST value?",
+          ch: ["Binary 1100", "Decimal 11", "Binary 1011", "Decimal 10"], a: 0, x: "Binary 1100 = 8 + 4 = 12 and binary 1011 = 8 + 2 + 1 = 11, so binary 1100 (12) is the greatest." },
+        { id: "m2-10", t: "2.1", ty: "mcq", ti: "Same Bits, New Meaning", p: "The same byte, 01000001, can be read as the number 65 or as the letter \"A\". Why?",
+          ch: ["The same bits can represent different things depending on how a program interprets them", "Binary can't represent letters, so this is an error", "The computer randomly picks a meaning", "Letters use more bits than numbers, so it must be a number"], a: 0,
+          x: "Bits are an abstraction. Their meaning (number, letter, color, sound) depends on context, meaning how the program interprets them." },
+        { id: "m2-11", t: "2.1", ty: "mcq", ti: "Analog to Digital", p: "To store a song digitally, a computer measures the sound wave at regular time intervals. What is this called?",
+          ch: ["Sampling: analog data is approximated by taking measurements at intervals", "Overflow", "Encryption", "Lossless compression"], a: 0,
+          x: "Analog data (like sound) changes smoothly. Digital data approximates it with samples. More samples give a closer approximation and a bigger file." }
+      ]
+    },
+    /* ========================= M3 ========================= */
+    {
+      id: "m3", region: "CRD", ch: 1, title: "The Debug Anvil",
+      covers: "Development process, error types, testing, debugging",
+      story: "The Dev Forge's anvil is cracked: every program here has a bug. Find each one and fix the forge.",
+      nodes: [
+        { id: "m3-01", t: "1.3", ty: "order", ti: "Boot Sequence", p: "A team is building an app to help students track homework. Put one cycle of an iterative development process in a logical order.",
+          items: ["Investigate and reflect: survey students about what they need", "Design: sketch the screens and plan how the app will work", "Prototype: build a simple working version", "Test: have users try it and record the problems"],
+          x: "Development is iterative: after testing, the team reflects on the feedback and repeats the cycle to refine the app. Investigating, designing, prototyping, and testing are the phases the CED describes." },
+        { id: "m3-02", t: "1.4", ty: "mcq", ti: "Error Type", p: "A program should display the total cost of 3 items at $4 each. It runs without crashing but displays 7. What kind of error is this?",
+          ch: ["Logic error", "Syntax error", "Run-time error", "Overflow error"], a: 0,
+          x: "The program runs but gives a wrong result, so the mistake is in the logic (it probably used + instead of *). A syntax error stops the program from running at all. A run-time error happens while the program runs, and the program usually stops." },
+        { id: "m3-03", t: "1.4", ty: "debug", ti: "Bug Hunt: findMax", lang: "ap",
+          p: "This procedure should return the largest value in a list. It works for [3, 9, 4] but returns the wrong answer for [-5, -2, -8]. Click the line that causes the bug.",
+          lines: ["PROCEDURE findMax(numList)", "{", "   max ← 0", "   FOR EACH num IN numList", "   {", "      IF (num > max)", "      {", "         max ← num", "      }", "   }", "   RETURN (max)", "}"], a: [2],
+          x: "Starting max at 0 means a negative number is never greater than max, so the procedure returns 0 for an all-negative list. The fix is max ← numList[1] (the first element). Testing unusual inputs, like negatives, is how bugs like this get caught." },
+        { id: "m3-04", t: "1.4", ty: "debug", ti: "Bug Hunt: Python Input", lang: "py",
+          p: "When the user types 90, this Python program crashes with a TypeError. Click a line you could change to fix it.",
+          lines: ['score = input("Enter score: ")', "bonus = 5", "total = score + bonus", 'print("Total:", total)'], a: [0, 2],
+          x: "input() always returns a string, and Python can't add a string to an integer. Fix line 1 with int(input(...)) or line 3 with int(score) + bonus. This is a run-time error: the syntax is fine, but the program fails while it runs." },
+        { id: "m3-05", t: "1.4", ty: "debug", ti: "Bug Hunt: Off by One", lang: "py",
+          p: "This program should print the sum of the numbers 1 through 10 (which is 55), but it prints 45. Click the line with the bug.",
+          lines: ["total = 0", "for i in range(1, 10):", "    total = total + i", "print(total)"], a: [1],
+          x: "range(1, 10) stops BEFORE 10, so 10 is never added. Use range(1, 11). \"Off by one\" errors are some of the most common logic errors." },
+        { id: "m3-06", t: "1.4", ty: "mcq", ti: "Test Inputs", p: "A procedure isEven(n) should return true for even integers and false otherwise. Which set of test inputs would BEST check that it works?",
+          ch: ["-3, 0, 7, 12", "2, 4, 6, 8", "1, 3, 5, 7", "10, 20, 30, 40"], a: 0,
+          x: "Good testing uses a variety of inputs, including edge cases: negatives, zero, odd numbers, and even numbers. The other sets each test only one kind of value, so a bug could slip through." },
+        { id: "m3-07", t: "1.4", ty: "mcq", ti: "Which Error?", p: "A program runs fine until a user enters 0 for the number of people. Then it stops with a \"division by zero\" message. What kind of error is this?",
+          ch: ["Run-time error", "Syntax error", "Logic error that never shows a message", "Overflow error"], a: 0,
+          x: "A run-time error happens during execution, often only for certain inputs. The fix is to check the input first: IF (people = 0) ..." },
+        { id: "m3-08", t: "1.4", ty: "mcq", ti: "Syntax Spotter", p: "Which Python line contains a SYNTAX error?",
+          ch: ['print("Hello"', "x = 5 + 3", 'name = "Sam"', "total = total * 2"], a: 0, code_choices: true,
+          x: "print(\"Hello\" is missing its closing parenthesis, which breaks the rules of the language. The program won't run at all until it's fixed." },
+        { id: "m3-09", t: "1.2", ty: "mcq", ti: "Event Horizon", p: "A game runs the procedure jump() whenever the player presses the space bar. Which best describes this program?",
+          ch: ["It's event-driven: code runs when an event, like a key press, happens", "It's purely sequential: every line runs once from top to bottom", "The space bar is the program's output", "The program can't accept user input"], a: 0,
+          x: "In event-driven programming, statements run when an event triggers them, such as a click or a key press. The key press is an input. The character jumping on screen is an output." },
+        { id: "m3-10", t: "1.3", ty: "mcq", ti: "Purpose First", p: "Before writing any code, a developer interviews users and writes a list of what the program must do. What is this list called?",
+          ch: ["The program's specification (requirements)", "The program's output", "The program's syntax", "The program's efficiency"], a: 0,
+          x: "A program's specification defines its requirements, meaning what it must do. Surveys, interviews, and observing users help determine those requirements." }
+      ]
+    },
+    /* ========================= M4 ========================= */
+    {
+      id: "m4", region: "AAP", ch: 2, title: "Loops & Lists",
+      covers: "Iteration, lists, data abstraction, robot grid problems",
+      story: "Deep in the Labyrinth, a rescue robot is trapped behind looping corridors. Master loops and lists to guide it out.",
+      nodes: [
+        { id: "m4-01", t: "3.8", ty: "mcq", ti: "Double Up", lang: "ap",
+          code: "n ← 1\ncount ← 0\nREPEAT UNTIL (n > 20)\n{\n   n ← n * 2\n   count ← count + 1\n}\nDISPLAY(count)", p: "What is displayed?",
+          ch: ["5", "4", "6", "20"], a: 0, x: "n goes 1 → 2 → 4 → 8 → 16 → 32. That's 5 times through the loop. After the 5th pass, n is 32, which is greater than 20, so the loop stops." },
+        { id: "m4-02", t: "3.8", ty: "input", ti: "Repeat Power", lang: "ap",
+          code: "x ← 3\nREPEAT 3 TIMES\n{\n   x ← x + x\n}\nDISPLAY(x)", p: "What is displayed?", acc: ["24"],
+          x: "Each pass doubles x: 3 → 6 → 12 → 24." },
+        { id: "m4-03", t: "3.10", ty: "mcq", ti: "List Surgery", lang: "ap",
+          code: "nums ← [10, 20, 30, 40]\nAPPEND(nums, 50)\nREMOVE(nums, 2)\nINSERT(nums, 1, 5)\nDISPLAY(nums[3])", p: "AP pseudocode lists start at index 1. What is displayed?",
+          ch: ["30", "20", "40", "10"], a: 0,
+          x: "APPEND gives [10, 20, 30, 40, 50]. REMOVE(nums, 2) removes the item at index 2 (the 20): [10, 30, 40, 50]. INSERT(nums, 1, 5) puts 5 at index 1: [5, 10, 30, 40, 50]. nums[3] is 30." },
+        { id: "m4-04", t: "3.10", ty: "mcq", ti: "Average It", lang: "ap",
+          code: "nums ← [4, 9, 2]\ntotal ← 0\nFOR EACH n IN nums\n{\n   total ← total + n\n}\nDISPLAY(total / LENGTH(nums))", p: "What is displayed?",
+          ch: ["5", "15", "3", "4"], a: 0, x: "FOR EACH visits every element: total = 4 + 9 + 2 = 15. LENGTH(nums) is 3, and 15 / 3 = 5. This is a traversal of the whole list." },
+        { id: "m4-05", t: "3.8", ty: "robotBuild", ti: "Robot Run I",
+          grid: ["...#G", ".#.#.", ".#...", ".###.", "....."], start: { r: 4, c: 0, d: 1 },
+          p: "Program the robot (the triangle) to stop on the gray goal square. Click commands to build your program, then press Run.",
+          x: "One solution is to move forward 4 times, turn left, and move forward 4 more. With loops it's REPEAT 4 TIMES { MOVE_FORWARD() }, ROTATE_LEFT(), REPEAT 4 TIMES { MOVE_FORWARD() }." },
+        { id: "m4-06", t: "3.9", ty: "robotPick", ti: "Robot Choice I",
+          grid: [".....", ".###.", ".###G", ".####", ".####"], start: { r: 4, c: 0, d: 0 },
+          p: "Which code segment moves the robot to the gray square? If the robot tries to move off the grid or into a black square, it stays put and the program ends.",
+          options: [
+            [rep(4, [F]), R, rep(4, [F]), R, F],
+            [until([ifc("forward", [F], [R])])],
+            [until([F, R])],
+            [until([ifc("forward", [F], [L])])]
+          ], a: 1,
+          x: "Choice B moves forward whenever it can and turns right when it's blocked. That follows the hallway up, across, and down to the goal. Choice A stops one square short. Choice C turns right and runs into a wall on its very first pass. Choice D turns left into walls forever (an infinite loop)." },
+        { id: "m4-07", t: "3.10", ty: "input", ti: "Odd Ones Out", lang: "ap",
+          code: "list ← [3, 8, 2, 7]\ntotal ← 0\nFOR EACH item IN list\n{\n   IF (item MOD 2 = 1)\n   {\n      total ← total + item\n   }\n}\nDISPLAY(total)", p: "What is displayed?", acc: ["10"],
+          x: "item MOD 2 = 1 is true only for odd numbers. The odd items are 3 and 7, and 3 + 7 = 10." },
+        { id: "m4-08", t: "3.8", ty: "robotBuild", ti: "Robot Run II", maxBlocks: 11,
+          grid: ["...##", ".#.##", ".#.##", ".#.##", ".#..G"], start: { r: 4, c: 0, d: 0 },
+          p: "Get the robot to the goal using AT MOST 11 blocks. A REPEAT counts as 1 block, plus the blocks inside it.",
+          x: "REPEAT 4 TIMES { MOVE_FORWARD() }, ROTATE_RIGHT(), REPEAT 2 TIMES { MOVE_FORWARD() }, ROTATE_RIGHT(), REPEAT 4 TIMES { MOVE_FORWARD() }, ROTATE_LEFT(), REPEAT 2 TIMES { MOVE_FORWARD() } is 11 blocks. Loops shrink long programs and make them easier to read." },
+        { id: "m4-09", t: "3.9", ty: "robotPick", ti: "Robot Choice II",
+          grid: ["####G", "###..", "##..#", "#..##", "..###"], start: { r: 4, c: 0, d: 1 },
+          p: "Which code segment moves the robot up the staircase to the gray square?",
+          options: [
+            [rep(3, [F, L, F, R])],
+            [rep(4, [F, R, F, L])],
+            [rep(4, [F, L, F, R])],
+            [rep(4, [L, F, R, F])]
+          ], a: 2,
+          x: "Each pass of C moves one step right and then one step up. Four passes reach the top. A stops one step short. B turns the wrong way and runs off the grid. D starts by trying to move up into a black square." },
+        { id: "m4-10", t: "3.2", ty: "mcq", ti: "Why Lists?", p: "A program stores 30 quiz scores in one list called scores instead of in 30 separate variables. What is the main benefit?",
+          ch: ["It manages complexity: one name holds all the data, and a loop can process every element", "Lists use no memory", "A list makes the program run without any loops", "Lists can only hold numbers, so errors are impossible"], a: 0,
+          x: "This is data abstraction. A list gives a group of values one name, so the code works no matter how many scores there are, and FOR EACH can process them all." },
+        { id: "m4-11", t: "3.8", ty: "input", ti: "Python Range", lang: "py",
+          code: "total = 0\nfor n in range(3, 8, 2):\n    total += n\nprint(total)", p: "What does this Python code print?", acc: ["15"],
+          x: "range(3, 8, 2) starts at 3, steps by 2, and stops before 8: 3, 5, 7. Their sum is 3 + 5 + 7 = 15." },
+        { id: "m4-12", t: "3.8", ty: "mcq", ti: "Never-Ending Story", lang: "ap",
+          code: "x ← 10\nREPEAT UNTIL (x = 0)\n{\n   x ← x - 3\n}\nDISPLAY(x)", p: "What happens when this code runs?",
+          ch: ["It never stops: x goes 10, 7, 4, 1, -2, ... and never equals exactly 0", "It displays 0", "It displays 1", "It displays -2"], a: 0,
+          x: "The loop stops only when x is EXACTLY 0, and x skips right past it. This is an infinite loop. A safer condition is REPEAT UNTIL (x ≤ 0)." }
+      ]
+    },
+    /* ========================= M5 ========================= */
+    {
+      id: "m5", region: "CSN", ch: 1, title: "Lost Packets",
+      covers: "How the Internet works, packets, protocols, fault tolerance",
+      story: "Routers across the Wastes have burned out. Find working routes, or the student project you're carrying never arrives.",
+      nodes: [
+        { id: "m5-01", t: "4.2", ty: "netPath", ti: "Reroute I", graph: "g1", failed: ["C", "D"], src: "L", dst: "S",
+          p: "Routers C and D have failed (red). Click a path of working devices from the Laptop to the Server.",
+          x: "L → B → E → F → S still works. Because the network has redundant paths, data can still get through when some devices fail. That's called fault tolerance." },
+        { id: "m5-02", t: "4.2", ty: "mcq", ti: "Fault Tolerance", p: "Why is the Internet considered fault tolerant?",
+          ch: ["It has redundant paths, so data can be rerouted if a device or connection fails", "Its devices never fail", "All data passes through one central computer that fixes errors", "It uses only wired connections"], a: 0,
+          x: "Redundancy, meaning extra paths between devices, lets the Internet keep working when parts of it fail. It costs more, but it makes the system more reliable." },
+        { id: "m5-03", t: "4.2", ty: "netMcq", ti: "Breaking Point", graph: "g2", failed: [],
+          p: "What is the MINIMUM number of devices (not counting P and V) that would have to fail before P could no longer communicate with V?",
+          ch: ["2", "1", "3", "4"], a: 0,
+          x: "No single failure disconnects them: every device has a way around it. But if Q and R BOTH fail, P has no working connections left. So the answer is 2." },
+        { id: "m5-04", t: "4.2", ty: "netPath", ti: "Reroute II", graph: "g2", failed: ["Q", "S"], src: "P", dst: "V",
+          p: "Devices Q and S are down. Click a path from P to V.",
+          x: "P → R → T → U → V avoids both failed devices. The longer path still delivers the data." },
+        { id: "m5-05", t: "4.1", ty: "mcq", ti: "Packet Facts", p: "A video file is sent across the Internet in packets. Which statement is true?",
+          ch: ["Packets can take different routes and arrive out of order; they're reassembled at the destination", "All packets must take the same route", "Packets always arrive in the order they were sent", "If one route fails, the whole file has to be sent again on a single wire"], a: 0,
+          x: "Data is split into packets, and each one carries addressing information. Routers choose paths as the packets travel (dynamic routing), and the receiving device puts them back in order." },
+        { id: "m5-06", t: "4.1", ty: "mcq", ti: "Open Protocols", p: "Why does the Internet use open protocols such as IP, TCP, and HTTP?",
+          ch: ["So devices from different manufacturers can communicate using shared, publicly available rules", "So only one company can build Internet devices", "So data can travel without any rules", "To keep new devices from joining the network"], a: 0,
+          x: "A protocol is an agreed-on set of rules. Because the Internet's protocols are open and nonproprietary, anyone can build devices that join it. That's a big reason it has grown so large." },
+        { id: "m5-07", t: "4.1", ty: "mcq", ti: "Web vs. Internet", p: "Which statement correctly describes the World Wide Web?",
+          ch: ["It is a system of linked pages, programs, and files that uses the Internet (through HTTP) to share information", "It is exactly the same thing as the Internet", "The Internet runs on top of the World Wide Web", "It is the physical cables that connect computers"], a: 0,
+          x: "The Internet is the network of networks: the hardware plus protocols like IP and TCP. The Web is one service that runs on the Internet, using HTTP." },
+        { id: "m5-08", t: "4.1", ty: "mcq", ti: "Bandwidth", p: "What does bandwidth measure?",
+          ch: ["The maximum amount of data that can be sent in a fixed amount of time, usually in bits per second", "The physical distance between two routers", "The number of devices on a network", "How secure a connection is"], a: 0,
+          x: "Bandwidth is the maximum data transfer rate, measured in bits per second. More bandwidth means more data can move per second." },
+        { id: "m5-09", t: "4.1", ty: "mcq", ti: "TCP vs. UDP", p: "Compared with TCP, the UDP protocol:",
+          ch: ["Sends packets without checking that they arrived, which is faster but less reliable", "Guarantees that every packet arrives, in order", "Is used only for email", "Can't send data across the Internet"], a: 0,
+          x: "TCP makes sure all packets arrive and are put back in order. UDP skips those checks, which is faster and fine for things like live video, where a lost packet barely matters." },
+        { id: "m5-10", t: "4.1", ty: "mcq", ti: "Addresses", p: "What is the main purpose of an IP address?",
+          ch: ["To give each device on the Internet a unique address so data can be routed to it", "To encrypt data", "To store a website's pictures", "To measure how fast a network is"], a: 0,
+          x: "The Internet Protocol (IP) gives devices addresses, and routers use the destination address on each packet to forward it toward the right place." },
+        { id: "m5-11", t: "4.1", ty: "mcq", ti: "Dynamic Routing", p: "Internet routing is usually DYNAMIC. What does this mean?",
+          ch: ["The path data takes isn't fixed in advance; it's decided as the data travels, based on what's available", "Data always takes the shortest physical path", "Every packet must be approved by a person", "Routes never change once a network is built"], a: 0,
+          x: "Routers choose the next hop for each packet while it's traveling. If a path is busy or broken, packets can go another way. That makes the system both scalable and fault tolerant." }
+      ]
+    },
+    /* ========================= M6 ========================= */
+    {
+      id: "m6", region: "IOC", ch: 1, title: "Locks & Keys",
+      covers: "Safe computing: encryption, authentication, phishing, malware, PII",
+      story: "The Citadel's vault is under attack. Crack the ciphers, spot the scams, and seal the gates.",
+      nodes: [
+        { id: "m6-01", t: "5.6", ty: "input", ti: "Cipher Lock", p: "A Caesar cipher shifts each letter forward 3 places (A→D, B→E, C→F ...). Decrypt this message: SDFNHW", acc: ["PACKET"],
+          x: "Shift each letter back 3: S→P, D→A, F→C, N→K, H→E, W→T. A Caesar cipher is symmetric encryption, where the same key (shift 3) both encrypts and decrypts. It's also very easy to crack." },
+        { id: "m6-02", t: "5.6", ty: "input", ti: "Cipher Forge", p: "Using a Caesar cipher that shifts each letter forward 1 place (A→B, B→C ...), encrypt the word CODE.", acc: ["DPEF"],
+          x: "C→D, O→P, D→E, E→F gives DPEF. To read it, the receiver needs the same secret key (shift 1)." },
+        { id: "m6-03", t: "5.6", ty: "mcq", ti: "Public Key", p: "Jordan wants to send Ana a secret message using public key encryption. Which key should Jordan use to encrypt it?",
+          ch: ["Ana's public key", "Ana's private key", "Jordan's private key", "No key is needed"], a: 0,
+          x: "Anyone can encrypt a message with Ana's PUBLIC key, but only Ana's PRIVATE key can decrypt it. A private key is never shared." },
+        { id: "m6-04", t: "5.6", ty: "mcq", ti: "Symmetric or Not?", p: "Which statement describes SYMMETRIC encryption?",
+          ch: ["The same key is used to encrypt and to decrypt", "One key encrypts and a different, paired key decrypts", "No key is used at all", "Only the sender ever knows the key"], a: 0,
+          x: "Symmetric encryption uses one shared secret key. Public key (asymmetric) encryption uses a key pair: the public key encrypts and the private key decrypts." },
+        { id: "m6-05", t: "5.6", ty: "mcq", ti: "Phishing", p: "Which is MOST likely a phishing attempt?",
+          ch: ["An email that looks like it's from your school, warning that your account will close unless you click a link and enter your password", "A homework reminder from an app you installed", "A website that uses HTTPS", "A friend texting you a screenshot from a game"], a: 0,
+          x: "Phishing tricks people into giving away personal information, often with fake urgency and a link to a look-alike login page. Real organizations don't ask for your password by email." },
+        { id: "m6-06", t: "5.6", ty: "mcq", ti: "Two Factors", p: "Which is an example of multifactor authentication?",
+          ch: ["Entering a password, then a code that's sent to your phone", "Entering a longer password", "Answering two security questions", "Using the same password on two websites"], a: 0,
+          x: "Multifactor authentication requires at least two DIFFERENT kinds of evidence: something you know (a password), something you have (a phone), or something you are (a fingerprint). Two security questions are both \"something you know.\"" },
+        { id: "m6-07", t: "5.6", ty: "mcq", ti: "Keylogger", p: "Software that secretly records every key a user types, in order to steal passwords, is called a:",
+          ch: ["Keylogger", "Firewall", "Open protocol", "Heuristic"], a: 0,
+          x: "A keylogger is a type of malware. It's one reason to use multifactor authentication: a stolen password alone isn't enough to get in." },
+        { id: "m6-08", t: "5.6", ty: "mcq", ti: "Rogue Hotspot", p: "At a coffee shop, an attacker secretly sets up a free Wi-Fi network named \"Coffee_Free.\" What's the risk of joining it?",
+          ch: ["The attacker can intercept data sent over the network (a rogue access point)", "The Wi-Fi will cause an overflow error", "There is no risk, because free Wi-Fi is always safe", "It will damage the device's battery"], a: 0,
+          x: "A rogue access point is a wireless access point that gives an attacker unauthorized access to network traffic. Data sent without encryption can be read." },
+        { id: "m6-09", t: "5.6", ty: "mcq", ti: "PII", p: "Which is an example of personally identifiable information (PII)?",
+          ch: ["A person's home address", "The weather in their city", "The average age of a school's students", "The title of a popular movie"], a: 0,
+          x: "PII is information that can identify a specific person, such as a name, address, phone number, or Social Security number. Once it's shared online, it can be hard to delete." },
+        { id: "m6-10", t: "5.6", ty: "mcq", ti: "Computer Virus", p: "Which best describes a computer virus?",
+          ch: ["A malicious program that can copy itself and gain access to a computer in an unauthorized way", "Any program with a syntax error", "A program that speeds up a computer", "A protocol for sending email"], a: 0,
+          x: "Viruses are one kind of malware. Keeping software updated, and not running unknown files or clicking unknown links, helps protect against them." },
+        { id: "m6-11", t: "5.6", ty: "mcq", ti: "Certificates", p: "When you visit a secure (HTTPS) website, what do certificate authorities do?",
+          ch: ["They issue digital certificates that verify who owns the encryption keys used in secure communications", "They make the website load faster", "They store your passwords", "They block every advertisement"], a: 0,
+          x: "Certificate authorities vouch that a public key really belongs to the website, so you can trust that you're talking to the real site and not an impostor." }
+      ]
+    },
+    /* ========================= M7 ========================= */
+    {
+      id: "m7", region: "DAT", ch: 2, title: "The Data Vault",
+      covers: "Compression, metadata, data analysis, bias in data, correlation",
+      story: "Under the Bit Mines lies a vault of giant data sets. Compress them, clean them, and learn what they can (and can't) tell you.",
+      nodes: [
+        { id: "m7-01", t: "2.2", ty: "mcq", ti: "Lossless or Lossy?", p: "In which situation MUST lossless compression be used?",
+          ch: ["Compressing a program file that has to be restored exactly so it still runs", "Streaming a video where a small loss of quality is fine", "Posting a photo to social media", "Sending a song over a slow connection, where small size matters most"], a: 0,
+          x: "Lossless compression lets the original be rebuilt EXACTLY. Lossy compression throws some data away for a much smaller file, and that loss can't be undone. Use lossy only when \"close enough\" is acceptable." },
+        { id: "m7-02", t: "2.2", ty: "input", ti: "Run-Length I", p: "Run-length encoding replaces runs of a repeated character with a count and the character. For example, AAAB becomes 3A1B. Encode: AAABBBBCC", acc: ["3A4B2C"],
+          x: "3 A's, 4 B's, and 2 C's give 3A4B2C. Run-length encoding is lossless because the original can be rebuilt exactly." },
+        { id: "m7-03", t: "2.2", ty: "input", ti: "Run-Length II", p: "Decode this run-length encoding: 4W2B3W", acc: ["WWWWBBWWW"],
+          x: "4 W's, 2 B's, then 3 W's give WWWWBBWWW. Run-length encoding works best when data has long runs, like the white space in an image." },
+        { id: "m7-04", t: "2.2", ty: "mcq", ti: "Size vs. Quality", p: "Which statement about lossy compression is true?",
+          ch: ["It usually makes files smaller than lossless compression does, but the original can't be perfectly restored", "It always keeps every bit of the original", "It makes files bigger", "It can only be used on text"], a: 0,
+          x: "There's a trade-off: lossy compression gives a smaller size but loses some quality, while lossless gives a perfect restoration and a bigger file." },
+        { id: "m7-05", t: "2.3", ty: "mcq", ti: "Metadata", p: "A phone photo file contains the image plus other information. Which is an example of METADATA for the photo?",
+          ch: ["The date, time, and location where the photo was taken", "The color of each pixel in the image", "The brightness of each pixel", "The shapes that appear in the picture"], a: 0,
+          x: "Metadata is data about data. It helps find and organize files. Changing the metadata doesn't change the image itself." },
+        { id: "m7-06", t: "2.3", ty: "multi", ti: "Ask the Data",
+          p: "A school dataset has one row per student, with three columns: grade level (9–12), average hours of sleep per night, and number of clubs joined. Which TWO questions can be answered using ONLY this dataset?",
+          ch: ["What is the average hours of sleep for 9th graders?", "Do students in more clubs sleep fewer hours, on average?", "WHY do some students join more clubs?", "Does sleeping more CAUSE higher grades?"], a: [0, 1],
+          x: "The data has grade level, sleep, and clubs, so it can show averages and patterns among those columns. It has no grades and no reasons, and a pattern (correlation) alone never proves that one thing causes another." },
+        { id: "m7-07", t: "2.3", ty: "mcq", ti: "Biased Sample", p: "To find out how much homework students at a school get, a club surveys only students in AP classes. What is the MAIN problem?",
+          ch: ["The data may not represent all students, so the conclusions could be biased", "The dataset is too small to store on a computer", "Surveys can't collect numbers", "The survey will cause an overflow error"], a: 0,
+          x: "How data is collected matters. If the sample leaves out groups, the results can be biased no matter how much data there is." },
+        { id: "m7-08", t: "2.3", ty: "mcq", ti: "Clean Up", p: "In a survey, students typed their grade as \"9\", \"nine\", \"9th\", and \" 9 \". Before analyzing the data, what should be done?",
+          ch: ["Clean the data so the entries are uniform (for example, change them all to 9)", "Delete the whole dataset", "Compress it with lossy compression", "Encrypt it"], a: 0,
+          x: "Data cleaning makes data uniform and removes or fixes incomplete or invalid entries, without changing what the data means." },
+        { id: "m7-09", t: "2.3", ty: "mcq", ti: "Correlation Trap", p: "A dataset shows that cities with more ice cream sales also have more sunburns. Which conclusion is BEST supported?",
+          ch: ["The two are correlated, but this alone doesn't show that one causes the other", "Ice cream causes sunburns", "Sunburns cause people to buy ice cream", "The data must be wrong"], a: 0,
+          x: "Correlation doesn't prove causation. A third factor, hot sunny weather, probably increases both. More investigation is needed before claiming cause and effect." },
+        { id: "m7-10", t: "2.4", ty: "mcq", ti: "Filter Then Compute", p: "A spreadsheet lists every student's grade level and quiz score. Which process finds the average quiz score of 10th graders?",
+          ch: ["Filter the rows to keep only grade 10, then compute the average of their quiz scores", "Sort the rows by name, then take the first quiz score", "Compute the average of all quiz scores, then divide by 10", "Delete every quiz score that is below average"], a: 0,
+          x: "Programs process data by filtering, then transforming or combining it, then computing a result or making a visualization. Filtering first limits the data to the group the question asks about." },
+        { id: "m7-11", t: "2.3", ty: "mcq", ti: "Big Data", p: "A data set is so large that one computer would take weeks to process it. What is a reasonable approach?",
+          ch: ["Use parallel or distributed systems so many processors work on parts of the data at once", "Switch to lossy compression and delete half the data", "Process it by hand", "Use a single computer with a slower processor"], a: 0,
+          x: "Large data sets often need more processing power than one computer has. Scaling up with parallel or distributed computing lets the work be split up." }
+      ]
+    },
+    /* ========================= M8 ========================= */
+    {
+      id: "m8", region: "AAP", ch: 3, title: "The Algorithm Engine",
+      covers: "Procedures, libraries, random values, simulations, search, efficiency, undecidable problems",
+      story: "At the heart of the Labyrinth sits the Algorithm Engine. Power it up with procedures, randomness, and efficient searching.",
+      nodes: [
+        { id: "m8-01", t: "3.12", ty: "input", ti: "Procedure Call", lang: "ap",
+          code: "PROCEDURE mystery(a, b)\n{\n   IF (a > b)\n   {\n      RETURN (a - b)\n   }\n   ELSE\n   {\n      RETURN (b - a)\n   }\n}\nDISPLAY(mystery(3, 10) + mystery(8, 2))", p: "What is displayed?", acc: ["13"],
+          x: "mystery(3, 10): 3 > 10 is false, so it returns 10 − 3 = 7. mystery(8, 2): 8 > 2 is true, so it returns 8 − 2 = 6. 7 + 6 = 13. (The procedure finds the distance between two numbers.)" },
+        { id: "m8-02", t: "3.12", ty: "input", ti: "Double Double", lang: "ap",
+          code: "PROCEDURE double(n)\n{\n   RETURN (n * 2)\n}\nx ← double(double(3))\nDISPLAY(x)", p: "What is displayed?", acc: ["12"],
+          x: "The inner call runs first: double(3) returns 6. Then double(6) returns 12." },
+        { id: "m8-03", t: "3.13", ty: "mcq", ti: "Why Procedures?", p: "Which is the BEST reason to put repeated code into a procedure with parameters?",
+          ch: ["It reduces duplicated code and makes the program easier to read, change, and reuse (procedural abstraction)", "Programs with procedures can't contain errors", "Procedures make a program use more variables", "Parameters let a program skip testing"], a: 0,
+          x: "Procedural abstraction manages complexity: you can call a procedure knowing WHAT it does without thinking about HOW it does it, and fixing it in one place fixes it everywhere it's called." },
+        { id: "m8-04", t: "3.14", ty: "mcq", ti: "Libraries & APIs", p: "What does an API (application program interface) provide for a software library?",
+          ch: ["Specifications for how the library's procedures behave and how to use them", "The full source code of every program that uses the library", "A list of every bug ever found in the library", "A way to run programs without a computer"], a: 0,
+          x: "A library is a collection of procedures you can use in your program. Its API documents how to call each one: its name, parameters, and what it returns. That saves you from writing code that already exists." },
+        { id: "m8-05", t: "3.15", ty: "mcq", ti: "Random Range", lang: "ap",
+          code: "x ← RANDOM(1, 3) + RANDOM(1, 3)", p: "Which describes ALL the possible values of x?",
+          ch: ["Every integer from 2 to 6", "Every integer from 1 to 6", "Every integer from 2 to 3", "Every integer from 1 to 3"], a: 0,
+          x: "RANDOM(1, 3) gives 1, 2, or 3, including both ends. The smallest possible sum is 1 + 1 = 2 and the largest is 3 + 3 = 6." },
+        { id: "m8-06", t: "3.15", ty: "mcq", ti: "Lucky Draw", lang: "ap",
+          code: 'IF (RANDOM(1, 4) = 1)\n{\n   DISPLAY("win")\n}', p: "About what percent of the time will this code display \"win\"?",
+          ch: ["25%", "50%", "100%", "1%"], a: 0,
+          x: "RANDOM(1, 4) is equally likely to be 1, 2, 3, or 4. Only 1 wins, so the chance is 1 out of 4, or 25%." },
+        { id: "m8-07", t: "3.16", ty: "mcq", ti: "Simulation", p: "Scientists use a computer simulation to study how a wildfire might spread. Which choice gives a real BENEFIT and a real LIMITATION?",
+          ch: ["Benefit: it can test dangerous scenarios safely. Limitation: simplifying assumptions can make the results less accurate", "Benefit: the results are always exactly right. Limitation: simulations can't use random numbers", "Benefit: no data is needed. Limitation: simulations are illegal", "Benefit: it replaces every real-world experiment. Limitation: none"], a: 0,
+          x: "Simulations are abstractions of real systems. They're cheaper, faster, and safer than real experiments, but they leave out details, which can introduce bias or error." },
+        { id: "m8-08", t: "3.11", ty: "mcq", ti: "Search Party", p: "A list of 1,000,000 names is sorted alphabetically. Which statement is true?",
+          ch: ["Binary search will usually check far fewer names than linear search", "Linear search can't be used on a sorted list", "Binary search works on any list, sorted or not", "Both searches always check every name"], a: 0,
+          x: "Binary search cuts the remaining list in half with every check, so about 20 checks cover a million names. Linear (sequential) search may have to check all of them." },
+        { id: "m8-09", t: "3.11", ty: "mcq", ti: "Binary Search Rules", p: "Binary search can be used on which of these lists?",
+          ch: ["[2, 5, 9, 14, 20, 31]", "[14, 2, 31, 5, 20, 9]", "[31, 2, 20, 5, 14, 9]", "Any of these lists"], a: 0,
+          x: "Binary search ONLY works on sorted data, because it relies on knowing which half the target must be in. Linear search works on any list." },
+        { id: "m8-10", t: "3.17", ty: "mcq", ti: "Too Slow?", p: "An algorithm's number of steps doubles every time one item is added to its input (it grows like 2ⁿ). Which statement is true?",
+          ch: ["It runs in unreasonable time for large inputs, so a heuristic that finds an approximate solution may be used instead", "It runs in reasonable time because it always finishes", "It's an undecidable problem", "Doubling the steps makes it the most efficient algorithm possible"], a: 0,
+          x: "Algorithms with polynomial efficiency (n, n², n³) run in reasonable time. Exponential ones (2ⁿ) become impossible for large inputs. A heuristic gives a good-enough answer fast when the exact answer would take too long." },
+        { id: "m8-11", t: "3.18", ty: "mcq", ti: "Undecidable", p: "Which statement about an undecidable problem is true?",
+          ch: ["No algorithm can be built that always gives a correct yes-or-no answer for EVERY input", "It can be solved, but only by very fast computers", "It's any problem that takes more than an hour to solve", "It's a problem whose answer is always no"], a: 0,
+          x: "For an undecidable problem, some cases may still be solvable, but no single algorithm works for all of them. It isn't about speed: a faster computer doesn't help." },
+        { id: "m8-12", t: "3.9", ty: "mcq", ti: "Two Paths, One Goal", p: "Algorithm A finds the largest number in a list by checking each number once. Algorithm B sorts the list first and then takes the last number. Which statement is true?",
+          ch: ["Both algorithms can be correct; different algorithms can solve the same problem, but they may differ in efficiency", "Only one of them can be correct, because each problem has exactly one algorithm", "B is always faster because sorting is free", "Neither works on a list of numbers"], a: 0,
+          x: "Many algorithms can solve the same problem. Comparing them for correctness and efficiency is a big part of developing algorithms. Here, A does less work." }
+      ]
+    },
+    /* ========================= M9 ========================= */
+    {
+      id: "m9", region: "CSN", ch: 2, title: "The Parallel Core",
+      covers: "Sequential, parallel, and distributed computing; speedup; scalability; redundancy",
+      story: "The Wastes' great processing core is jammed. Split the work across processors to bring it back online.",
+      nodes: [
+        { id: "m9-01", t: "4.3", ty: "input", ti: "Parallel Power I", p: "Three independent processes take 40, 30, and 50 seconds. On one processor (sequentially) they take 120 seconds in all. With TWO processors, where each process runs entirely on one processor, what is the MINIMUM number of seconds needed to finish all three?", acc: ["70"],
+          x: "Put the 50-second process on one processor and the 40 + 30 on the other. The longer side takes 70 seconds, and no other split finishes sooner. A parallel solution takes as long as its slowest processor." },
+        { id: "m9-02", t: "4.3", ty: "mcq", ti: "Speedup", p: "From the last problem: 120 seconds sequentially, 70 seconds in parallel. What is the speedup?",
+          ch: ["About 1.71 (120 ÷ 70)", "50 (120 − 70)", "About 0.58 (70 ÷ 120)", "2, because there are two processors"], a: 0,
+          x: "Speedup = sequential time ÷ parallel time = 120 ÷ 70 ≈ 1.71. It's less than 2 because the work couldn't be split perfectly evenly." },
+        { id: "m9-03", t: "4.3", ty: "input", ti: "Parallel Power II", p: "Four independent processes take 10, 20, 30, and 40 seconds. With TWO processors (each process runs entirely on one processor), what is the MINIMUM number of seconds needed to finish all four?", acc: ["50"],
+          x: "10 + 40 = 50 on one processor and 20 + 30 = 50 on the other is a perfect split. Sequentially it would take 100 seconds, so the speedup is 100 ÷ 50 = 2." },
+        { id: "m9-04", t: "4.3", ty: "mcq", ti: "Diminishing Returns", p: "Why can't adding more and more processors keep making a program faster forever?",
+          ch: ["Some steps must run sequentially, and the longest single task still has to finish, so there's a limit to the speedup", "Extra processors always slow a program down", "Programs can only run on one processor", "Parallel computing gives the same speed as sequential computing"], a: 0,
+          x: "A parallel solution's time is limited by its sequential parts and by the longest task. After a point, extra processors sit idle and don't help." },
+        { id: "m9-05", t: "4.3", ty: "mcq", ti: "Distributed", p: "Which best describes a benefit of distributed computing?",
+          ch: ["It uses many devices to solve problems that would take too much time or storage for one computer", "It keeps all the data on a single device", "It removes the need for a network", "It makes every program run sequentially"], a: 0,
+          x: "Distributed computing spreads a problem across multiple networked devices, which makes possible problems that are too big for one machine." },
+        { id: "m9-06", t: "4.3", ty: "mcq", ti: "Sequential vs. Parallel", p: "In SEQUENTIAL computing, how do the operations run?",
+          ch: ["In order, one at a time", "All at the same time on many processors", "On many networked computers at once", "In random order"], a: 0,
+          x: "Sequential computing runs one operation at a time. Parallel computing breaks a program into smaller operations, some of which run at the same time." },
+        { id: "m9-07", t: "4.1", ty: "mcq", ti: "Scale Up", p: "A website gets 10 times more visitors, so the company adds more servers and the site keeps working well. This shows the system's:",
+          ch: ["Scalability", "Redundancy failure", "Bandwidth limit", "Undecidability"], a: 0,
+          x: "Scalability is a system's ability to change in size and scale to meet new demands. The Internet was designed to be scalable." },
+        { id: "m9-08", t: "4.2", ty: "netPath", ti: "Reroute III", graph: "g2", failed: ["Q", "T"], src: "P", dst: "V",
+          p: "Devices Q and T are down. Click a path from P to V.", x: "P → R → S → V works. Redundant connections give the network more than one way around each failure." },
+        { id: "m9-09", t: "4.2", ty: "mcq", ti: "Redundancy Trade-off", p: "A school adds extra network cables and routers so that its network keeps working if one fails. What is the trade-off?",
+          ch: ["The network becomes more reliable, but it costs more to build and maintain", "The network becomes less reliable", "The network can no longer connect to the Internet", "There is no trade-off; redundancy is free"], a: 0,
+          x: "Redundancy means extra components that aren't needed when everything works. They improve fault tolerance, but they cost money." }
+      ]
+    },
+    /* ========================= M10 ========================= */
+    {
+      id: "m10", region: "IOC", ch: 2, title: "Impact Hall",
+      covers: "Beneficial and harmful effects, digital divide, bias, crowdsourcing, legal and ethical issues",
+      story: "The Citadel's great hall shows how computing changes the world, for better and for worse. Judge each case wisely.",
+      nodes: [
+        { id: "m10-01", t: "5.1", ty: "mcq", ti: "Double-Edged", p: "A social media app helps people stay connected, but it also spreads false information quickly. Which statement BEST describes this?",
+          ch: ["A single computing innovation can have both beneficial and harmful effects", "The app is completely harmful", "The app is completely beneficial", "Computing innovations have no effects on society"], a: 0,
+          x: "Most innovations are used in ways their creators didn't fully plan. Something built for one purpose can be both helpful and harmful." },
+        { id: "m10-02", t: "5.1", ty: "mcq", ti: "Side Effects", p: "A navigation app sends drivers onto quiet neighborhood streets to avoid highway traffic, which makes those streets crowded and less safe. This is BEST described as:",
+          ch: ["An unintended harmful effect of a computing innovation", "A syntax error in the app", "An example of lossless compression", "Proof that navigation apps are always harmful"], a: 0,
+          x: "Innovations can have effects their designers never intended. Developers should think about how people outside their target audience are affected." },
+        { id: "m10-03", t: "5.2", ty: "multi", ti: "Digital Divide", p: "Which TWO are examples of the digital divide?",
+          ch: ["Students in a rural area lack high-speed Internet for online homework", "Some families can't afford a computer at home", "A student prefers using a tablet over a laptop", "A gamer chooses to play offline"], a: [0, 1],
+          x: "The digital divide is unequal access to computing devices and the Internet, based on things like income, location, and geography. A personal preference isn't part of it." },
+        { id: "m10-04", t: "5.3", ty: "mcq", ti: "Biased Algorithm", p: "A facial recognition system was trained mostly on photos of people with lighter skin. What is a likely result?",
+          ch: ["It may be less accurate for people with darker skin, because bias in the training data carries into the results", "It will be equally accurate for everyone, because computers can't be biased", "It will only work on photos taken outdoors", "It will refuse to recognize anyone"], a: 0,
+          x: "Computing bias often comes from the data an algorithm learns from. Testing with diverse data and diverse teams helps reduce it." },
+        { id: "m10-05", t: "5.3", ty: "mcq", ti: "Hiring Bot", p: "A company trains a hiring algorithm on records of its past hires, who were mostly men. What is a likely problem?",
+          ch: ["The algorithm may unfairly rank qualified women lower, repeating the bias in the past data", "The algorithm will hire only women", "The algorithm will be faster but otherwise identical to a human", "There's no problem, because the data is real"], a: 0,
+          x: "\"Real\" data can still carry human bias. Programmers should look for bias in the data they collect and in how their algorithms use it." },
+        { id: "m10-06", t: "5.4", ty: "mcq", ti: "Crowdsourcing", p: "Thousands of volunteers use an app to report the birds they see, and scientists use the data to track migration. This is an example of:",
+          ch: ["Citizen science, a kind of crowdsourcing", "Phishing", "Lossy compression", "A rogue access point"], a: 0,
+          x: "Crowdsourcing gets ideas, data, or funding from many people over the Internet. In citizen science, the public helps collect scientific data." },
+        { id: "m10-07", t: "5.5", ty: "mcq", ti: "Creative Commons", p: "A photographer posts a photo with a Creative Commons license. What does the license do?",
+          ch: ["It lets the creator choose how others may use, share, or build on the work", "It puts the photo in the public domain with no conditions", "It stops anyone from viewing the photo", "It lets anyone copy the photo and claim it as their own"], a: 0,
+          x: "Creative Commons licenses let creators keep their rights while allowing certain uses, such as \"share with credit\" or \"noncommercial only.\" Using someone's work without permission or credit can be illegal or unethical." },
+        { id: "m10-08", t: "5.5", ty: "mcq", ti: "Open Source", p: "What is open source software?",
+          ch: ["Software whose code is made freely available, so others can study, use, and often modify it", "Any software that costs money", "Software that has no bugs", "Software that can only be used offline"], a: 0,
+          x: "Open source and open access make programs and research freely available, which can speed up innovation and learning." },
+        { id: "m10-09", t: "5.1", ty: "mcq", ti: "Targeted Ads", p: "A website tracks which pages you visit and uses that information to show you personalized ads. What is a concern?",
+          ch: ["Personal data can be collected and used to build a profile of you without you fully realizing it", "Tracking makes the website load more slowly, which is the only concern", "Ads can't use any data", "Personalized ads are illegal everywhere"], a: 0,
+          x: "Information about your online activity can be collected, shared, and used in ways you didn't expect. That creates privacy concerns even when it also makes services more convenient." },
+        { id: "m10-10", t: "5.5", ty: "mcq", ti: "Who Owns It?", p: "A student copies paragraphs from a website into a report and doesn't say where they came from. What is the main problem?",
+          ch: ["It uses someone else's intellectual property without credit, which is plagiarism", "It uses too much bandwidth", "It's a syntax error", "There's no problem, because the information is online"], a: 0,
+          x: "Material created by someone else belongs to them. Digital work is easy to copy, but you still need to give credit and follow the license." }
+      ]
+    },
+    /* ========================= M11 ========================= */
+    {
+      id: "m11", region: "CRD", ch: 2, title: "The Create Workshop",
+      covers: "Collaboration, program documentation, giving credit, Create performance task readiness",
+      story: "The Dev Forge's workshop is where packets build their own programs. Get your Create task ready for the final run.",
+      nodes: [
+        { id: "m11-01", t: "1.1", ty: "mcq", ti: "Many Minds", p: "A programmer working alone asks classmates from different backgrounds to try her app before she finishes it. Which is the MOST likely benefit?",
+          ch: ["Diverse perspectives can reveal problems and needs she didn't think of, including possible bias", "The program will be guaranteed to have no errors", "The program will run faster on all devices", "She won't need to test the program herself"], a: 0,
+          x: "Collaboration and user feedback bring in different perspectives, which helps a program meet the needs of more people and avoid bias." },
+        { id: "m11-02", t: "1.1", ty: "mcq", ti: "Pair Programming", p: "In pair programming, what are the two roles?",
+          ch: ["A driver who types the code and a navigator who reviews each line and thinks ahead", "One person codes while the other plays games", "Both type on the same keyboard at the same time", "One person writes the code and the other deletes it"], a: 0,
+          x: "Pair programming is one way to collaborate. The navigator catches mistakes and plans while the driver writes, and partners switch roles often." },
+        { id: "m11-03", t: "1.3", ty: "mcq", ti: "Comment Code", p: "Which statement about program documentation, such as comments, is true?",
+          ch: ["Comments explain what the code does and help people understand and maintain it, but they don't affect how the program runs", "Comments make a program run faster", "Comments are only needed when there's a syntax error", "Once a program works, its comments should be deleted"], a: 0,
+          x: "Documentation helps you and others understand code, especially when developing it with other people. It's written during development, not just at the end." },
+        { id: "m11-04", t: "1.3", ty: "mcq", ti: "Give Credit", p: "A student puts a sorting procedure written by someone else, from an open-source library, into his program. What should he do?",
+          ch: ["Acknowledge the original author and source in his program documentation", "Rename the procedure so it looks like his own work", "Nothing, because code found online can always be used without credit", "Change every line so no credit is needed"], a: 0,
+          x: "Programmers should credit code written by others and follow its license. Giving credit is part of responsible, collaborative development." },
+        { id: "m11-05", t: "1.3", ty: "mcq", ti: "Create Task: Procedure", p: "For the AP Create performance task, the student-developed procedure must include:",
+          ch: ["At least one parameter that affects what it does, and an algorithm with sequencing, selection, and iteration", "Only a DISPLAY statement", "At least 500 lines of code", "A loop, but no IF statements"], a: 0,
+          x: "Your Create task needs a procedure with a parameter that matters, plus an algorithm inside it that uses sequencing, selection (IF), and iteration (a loop). It also needs a list that manages complexity in your program." },
+        { id: "m11-06", t: "1.3", ty: "mcq", ti: "Create Task: Exam Day", p: "On exam day, what do you use to answer the written-response questions about your own Create task program?",
+          ch: ["Your Personalized Project Reference, with screenshots of your procedure and list code", "Nothing; you answer from memory", "Your full program, opened in an editor", "A printed copy of your video"], a: 0,
+          x: "You'll get your Personalized Project Reference (PPR) to look at while you answer. Make sure you understand every line of your own procedure and list code before then." },
+        { id: "m11-07", t: "1.3", ty: "mcq", ti: "Incremental Building", p: "A student builds a game by first making the character move, testing it, then adding scoring, testing again, and so on. This is an example of:",
+          ch: ["An incremental development process: build and test small pieces, adding one at a time", "A waterfall where nothing is tested until the end", "A syntax error", "Undecidable development"], a: 0,
+          x: "Incremental development breaks a problem into small pieces and makes sure each one works before adding the next. It makes bugs much easier to find." },
+        { id: "m11-08", t: "1.4", ty: "debug", ti: "Bug Hunt: Countdown", lang: "py",
+          p: "This program should print 3, 2, 1, then \"Liftoff!\". Instead it prints nothing but \"Liftoff!\". Click the line with the bug.",
+          lines: ["count = 3", "while count < 0:", "    print(count)", "    count = count - 1", 'print("Liftoff!")'], a: [1],
+          x: "3 < 0 is false, so the loop body never runs. The condition should be count > 0. The program runs without crashing, so this is a logic error." },
+        { id: "m11-09", t: "1.4", ty: "mcq", ti: "Debug Tools", p: "Which is a good way to find a logic error?",
+          ch: ["Use test cases, hand-trace the code, and add temporary print/DISPLAY statements to check values", "Delete the program and start over", "Run the program once and hope", "Add more comments"], a: 0,
+          x: "Test cases, hand tracing, visualizations, and debuggers or extra output statements are the standard ways to find and fix errors." },
+        { id: "m11-10", t: "1.2", ty: "mcq", ti: "Inputs & Outputs", p: "A fitness app reads steps from a phone's sensor and shows a chart of weekly progress. Which is an INPUT to the program?",
+          ch: ["The step data from the phone's sensor", "The chart on the screen", "The app's icon", "The weekly progress message"], a: 0,
+          x: "Program inputs are data sent to a program, from a user, a sensor, a file, or another program. The chart and messages it displays are outputs." }
+      ]
+    }
+  ];
+
+  /* ========================= M12: the boss ========================= */
+  var BOSS = {
+    id: "m12", title: "The Corruptor", hp: 15, integrity: 4,
+    covers: "Mixed AP exam review across all 5 Big Ideas",
+    story: "You've recovered every Key Fragment. The Server Core is open, and the Corruptor is waiting. Each correct answer is a hit. Each wrong answer costs you integrity.",
+    pool: [
+      { id: "m12-01", t: "2.1", bi: "DAT", ty: "mcq", ti: "Byte Strike", p: "What is the decimal value of binary 10101010?", ch: ["170", "85", "160", "255"], a: 0, x: "128 + 32 + 8 + 2 = 170." },
+      { id: "m12-02", t: "3.8", bi: "AAP", ty: "mcq", ti: "Loop Lash", lang: "ap", code: "count ← 0\nREPEAT 4 TIMES\n{\n   count ← count + 3\n}\nDISPLAY(count)", p: "What is displayed?", ch: ["12", "3", "7", "16"], a: 0, x: "count goes up by 3, four times: 3, 6, 9, 12." },
+      { id: "m12-03", t: "3.10", bi: "AAP", ty: "mcq", ti: "List Lance", lang: "ap", code: "words ← [\"red\", \"blue\", \"green\"]\nDISPLAY(LENGTH(words))\nDISPLAY(words[2])", p: "What is displayed?", ch: ["3 blue", "3 green", "2 blue", "3 red"], a: 0, x: "There are 3 elements, and index 2 (AP lists start at 1) is \"blue\"." },
+      { id: "m12-04", t: "4.1", bi: "CSN", ty: "mcq", ti: "Protocol Pulse", p: "Which protocol is used to request and send web pages?", ch: ["HTTP", "UDP", "Binary", "RLE"], a: 0, x: "HTTP (HyperText Transfer Protocol) is how the World Wide Web sends pages over the Internet." },
+      { id: "m12-05", t: "5.1", bi: "IOC", ty: "mcq", ti: "Cookie Crumble", p: "A website stores cookies that track a user's browsing across many sites. What is the main concern?", ch: ["The user's activity can be collected into a profile without the user fully realizing it", "Cookies make the computer overheat", "Cookies are a kind of lossless compression", "Cookies always contain viruses"], a: 0, x: "Tracking can build a detailed profile of your behavior. That's a privacy concern." },
+      { id: "m12-06", t: "1.3", bi: "CRD", ty: "mcq", ti: "Feedback Loop", p: "A developer collects user feedback after each version and adjusts features based on it. This is an example of:", ch: ["An iterative development process", "A syntax error", "Lossy compression", "An undecidable problem"], a: 0, x: "Iterative development repeats the cycle of testing, reflecting, and refining." },
+      { id: "m12-07", t: "2.1", bi: "DAT", ty: "mcq", ti: "Three-Bit Blast", p: "How many different values can 3 bits represent?", ch: ["8", "3", "6", "9"], a: 0, x: "2³ = 8 values: 000 through 111." },
+      { id: "m12-08", t: "3.5", bi: "AAP", ty: "mcq", ti: "Logic Lock", p: "Which expression is true ONLY when num is between 10 and 20, inclusive?", ch: ["(num ≥ 10) AND (num ≤ 20)", "(num ≥ 10) OR (num ≤ 20)", "(num > 10) AND (num < 20)", "NOT (num = 15)"], a: 0, x: "\"Inclusive\" means 10 and 20 count, so use ≥ and ≤, joined with AND." },
+      { id: "m12-09", t: "3.13", bi: "AAP", ty: "mcq", ti: "Abstraction Arc", p: "Which is the best example of procedural abstraction?", ch: ["Calling drawCircle(x, y, radius) without needing to know how it draws each pixel", "Writing the same 20 lines of code in five places", "Using only global variables", "Deleting all of the comments"], a: 0, x: "Procedural abstraction lets you use a procedure by knowing what it does, not how it does it." },
+      { id: "m12-10", t: "4.3", bi: "CSN", ty: "mcq", ti: "Parallel Pierce", p: "Tasks taking 20, 30, and 40 seconds run on two processors, with each task entirely on one processor. The best parallel time is 50 seconds. What is the speedup?", ch: ["1.8", "40", "2", "0.56"], a: 0, x: "Sequential time is 90 seconds. Speedup = 90 ÷ 50 = 1.8." },
+      { id: "m12-11", t: "5.4", bi: "IOC", ty: "mcq", ti: "Crowd Crash", p: "Which is an example of crowdfunding?", ch: ["Thousands of people each give a small amount online to fund a new product", "One bank lends a company money", "A company keeps its code secret", "A student reads a library book"], a: 0, x: "Crowdfunding is crowdsourcing for money: many people online each contribute a little." },
+      { id: "m12-12", t: "3.3", bi: "AAP", ty: "mcq", ti: "Floor Fist", lang: "py", code: "x = 7\ny = 2\nprint(x // y, x % y)", p: "What does this Python code print?", ch: ["3 1", "3.5 1", "3 0", "1 3"], a: 0, x: "7 // 2 is 3 (floor division) and 7 % 2 is 1 (the remainder, like MOD)." },
+      { id: "m12-13", t: "3.2", bi: "AAP", ty: "mcq", ti: "Data Shield", p: "Why might a program store a class's names in one list instead of in separate variables?", ch: ["It manages complexity: the code works for any number of names and can use a loop", "Lists can't be changed", "Separate variables use less code", "Lists make the program event-driven"], a: 0, x: "Data abstraction gives a collection one name, so the program doesn't depend on how many items there are." },
+      { id: "m12-14", t: "5.3", bi: "IOC", ty: "mcq", ti: "Bias Burst", p: "A loan-approval algorithm was trained on decades of past decisions that treated some neighborhoods unfairly. What is the risk?", ch: ["The algorithm may repeat that unfairness, because bias in the data carries into the results", "There is no risk, because computers can't be biased", "The algorithm will approve everyone", "The algorithm will run in unreasonable time"], a: 0, x: "Algorithms learn patterns from data, including unfair ones. That's computing bias." },
+      { id: "m12-15", t: "5.6", bi: "IOC", ty: "mcq", ti: "Key Breaker", p: "In public key encryption, which key must be kept secret?", ch: ["The private key", "The public key", "Both keys must be posted online", "Neither; no keys are used"], a: 0, x: "The public key can be shared with anyone. The private key decrypts, so only its owner should have it." },
+      { id: "m12-16", t: "3.11", bi: "AAP", ty: "mcq", ti: "Halving Hammer", p: "A sorted list has 128 items. Binary search cuts the remaining items in half each step. After how many halvings is only 1 item left to check?", ch: ["7", "64", "128", "14"], a: 0, x: "128 → 64 → 32 → 16 → 8 → 4 → 2 → 1 is 7 halvings, because 2⁷ = 128. Linear search might check all 128." },
+      { id: "m12-17", t: "2.2", bi: "DAT", ty: "mcq", ti: "Squeeze Play", p: "Which kind of compression should be used for a bank's transaction records?", ch: ["Lossless, because every digit must be restored exactly", "Lossy, because smaller is always better", "No data can be compressed", "Lossy, because numbers don't matter"], a: 0, x: "Financial records must be exact, so only lossless compression is acceptable." },
+      { id: "m12-18", t: "4.2", bi: "CSN", ty: "mcq", ti: "Redundancy Rush", p: "Which change makes a network MORE fault tolerant?", ch: ["Adding extra connections so there's more than one path between devices", "Removing backup routers to save money", "Sending all data through a single router", "Using shorter passwords"], a: 0, x: "Redundant paths let data be rerouted when something fails." },
+      { id: "m12-19", t: "3.6", bi: "AAP", ty: "mcq", ti: "Branch Blade", lang: "ap", code: "x ← 9\nIF (x MOD 3 = 0)\n{\n   x ← x / 3\n}\nELSE\n{\n   x ← x + 1\n}\nDISPLAY(x)", p: "What is displayed?", ch: ["3", "10", "9", "0"], a: 0, x: "9 MOD 3 is 0, so the IF branch runs: 9 / 3 = 3." },
+      { id: "m12-20", t: "1.4", bi: "CRD", ty: "mcq", ti: "Glitch Grip", p: "A program runs and finishes, but its average is always slightly too high. What kind of error is this most likely to be?", ch: ["A logic error", "A syntax error", "A run-time error", "A compression error"], a: 0, x: "It runs without crashing but gives a wrong result, which is a logic error." }
+    ]
+  };
+
+  var ORDER_NOTE = "Suggested order (one mission per two-week A/B cycle): m1 → m12. Open each mission for both periods so every class plays the same mission on its Friday.";
+
+  var api = { TOPICS: TOPICS, BIG_IDEAS: BIG_IDEAS, REGIONS: REGIONS, GRAPHS: GRAPHS, MISSIONS: MISSIONS, BOSS: BOSS, PERIODS: ["1A", "2B"], ORDER_NOTE: ORDER_NOTE };
+  if (typeof window !== "undefined") window.PQ = api;
+  if (typeof module !== "undefined" && module.exports) module.exports = api;
+})();

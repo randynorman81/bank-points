@@ -8,6 +8,7 @@ import pycode from "../../netlify/functions/pycode.js";
 import arduinocode from "../../netlify/functions/arduinocode.js";
 import arena from "../../netlify/functions/arena.js";
 import latework from "../../netlify/functions/latework.js";
+import packetquest from "../../netlify/functions/packetquest.js";
 import gdoc from "./gdoc.js";
 
 export default {
@@ -19,6 +20,7 @@ export default {
     if (path === "/api/arduinocode") return arduinocode(req);
     if (path === "/api/arena") return arena(req);
     if (path === "/api/latework") return latework(req);
+    if (path === "/api/packetquest") return packetquest(req);
     if (path === "/api/gdoc") return gdoc(req);
     if (path.startsWith("/api/")) return data(req);
     if (path === "/sat") return env.ASSETS.fetch(new Request(new URL("/sat-english/", req.url), req));

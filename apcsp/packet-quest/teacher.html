@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Packet Quest | Teacher Dashboard</title>
+<link rel="icon" href="../../assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=JetBrains+Mono:wght@400;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0B0E14;--panel:#121722;--card:#171D2B;--rule:#26304A;--ink:#E8ECF3;--soft:#93A0B8;--acc:#FB923C;--ok:#34D399;--bad:#F87171}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "Manrope",system-ui,sans-serif}
+button,input,select{font:inherit}
+a{color:#FDBA74}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:5}
+.logo{font-family:"Silkscreen",monospace;font-size:18px}.logo span{color:var(--acc)}
+.sp{flex:1}
+.btn{background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:7px;padding:6px 12px;cursor:pointer;font-weight:700}
+.btn:hover{border-color:var(--acc)}.btn.pri{background:var(--acc);color:#140a00;border-color:var(--acc)}.btn.sm{padding:3px 9px;font-size:12px}
+.btn.on{background:#0F2E24;border-color:#34D399;color:#6EE7B7}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+.seg button{background:var(--card);color:var(--soft);border:0;border-right:1px solid var(--rule);padding:6px 12px;cursor:pointer;font-weight:700}
+.seg button:last-child{border-right:0}.seg button.act{background:var(--acc);color:#140a00}
+main{padding:16px;max-width:1400px;margin:0 auto}
+h2{margin:22px 0 8px;font-size:18px}
+.note{color:var(--soft);font-size:13px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:14px;margin-bottom:14px}
+table{border-collapse:collapse;width:100%}
+th{text-align:left;font:700 11px "JetBrains Mono",monospace;color:var(--soft);text-transform:uppercase;letter-spacing:.04em;padding:7px 8px;border-bottom:1px solid var(--rule);white-space:nowrap;background:var(--panel);position:sticky;top:0}
+td{padding:6px 8px;border-bottom:1px solid #1b2337;vertical-align:middle}
+.scroll{overflow:auto;max-height:70vh;border:1px solid var(--rule);border-radius:10px}
+.cell{display:inline-block;min-width:44px;text-align:center;border-radius:6px;padding:2px 6px;font:700 12px "JetBrains Mono",monospace}
+.name{cursor:pointer;font-weight:700}.name:hover{color:var(--acc)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.barw{background:#0A0F1E;border:1px solid #1E2848;border-radius:6px;height:14px;width:220px;overflow:hidden;display:inline-block;vertical-align:middle}
+.barw i{display:block;height:100%}
+.grid5{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.bi{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:12px}
+.bi b{font-size:26px;display:block}
+#login{max-width:340px;margin:14vh auto;background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:24px}
+#login input{width:100%;margin:8px 0 12px;background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:8px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
+.tabs button{background:var(--card);border:1px solid var(--rule);color:var(--soft);border-radius:8px;padding:7px 14px;cursor:pointer;font-weight:800}
+.tabs button.act{color:#140a00;background:var(--acc);border-color:var(--acc)}
+.ov{position:fixed;inset:0;background:#000b;display:flex;justify-content:center;align-items:flex-start;padding:4vh 12px;overflow:auto;z-index:20}
+.ovp{background:var(--panel);border:1px solid var(--rule);border-radius:14px;max-width:980px;width:100%;padding:18px;position:relative}
+.wrong{color:#FCA5A5;font-size:12px}
+.hidden{display:none!important}
+.pill{display:inline-block;border-radius:100px;padding:1px 8px;font-size:11px;font-weight:800}
+</style>
+</head>
+<body>
+<div id="login">
+  <div style="font-family:Silkscreen,monospace;font-size:20px;margin-bottom:6px">PACKET<span style="color:#FB923C">QUEST</span></div>
+  <div class="note">Teacher dashboard. Enter the teacher PIN (the same one as the bank and the Python grader).</div>
+  <input id="pin" type="password" placeholder="PIN" autocomplete="off">
+  <button class="btn pri" id="go">Open dashboard</button>
+  <div id="lerr" style="color:#F87171;margin-top:8px"></div>
+</div>
+
+<div id="app" class="hidden">
+  <div class="top">
+    <div class="logo">PACKET<span>QUEST</span> · Teacher</div>
+    <div class="seg" id="pseg"></div>
+    <div class="sp"></div>
+    <span class="note" id="stamp"></span>
+    <button class="btn" id="refresh">↻ Refresh</button>
+    <button class="btn" id="csv">⬇ Grades CSV</button>
+    <a class="btn" href="index.html" target="_blank" style="text-decoration:none">Play (preview)</a>
+  </div>
+  <main>
+    <h2>Mission control</h2>
+    <div class="card">
+      <div class="note" style="margin-bottom:8px">Open <b>one mission per two-week A/B cycle</b> for <b>both</b> periods. Each class plays it on its Friday, so 1A and 2B always stay on the same mission. Students can keep working on an open mission at home. Close a mission to stop new answers (finished work is kept).</div>
+      <div class="scroll" style="max-height:none"><table id="mc"></table></div>
+    </div>
+
+    <div class="tabs" id="tabs">
+      <button data-t="overview" class="act">Overview</button>
+      <button data-t="completion">Completion (grades)</button>
+      <button data-t="mastery">Mastery by Big Idea</button>
+      <button data-t="topics">CED topics</button>
+      <button data-t="questions">Most-missed questions</button>
+    </div>
+    <div id="view"></div>
+  </main>
+</div>
+<div id="ov" class="ov hidden"><div class="ovp" id="ovp"></div></div>
+
+<script src="content.js"></script>
+<script>
+(function () {
+"use strict";
+var PQ = window.PQ, API = "/api/packetquest", $ = function (id) { return document.getElementById(id); };
+var pin = "", DATA = null, PERIOD = "ALL", TAB = "overview";
+try { pin = sessionStorage.getItem("pqpin") || sessionStorage.getItem("pypin") || ""; } catch (e) {}
+function esc(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+function api(b) { b.pin = pin; return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }).then(function (r) { return r.json(); }); }
+
+/* content lookups */
+var MIS = PQ.MISSIONS.concat([{ id: "m12", region: "BOSS", title: PQ.BOSS.title + " (final boss)", covers: PQ.BOSS.covers, nodes: PQ.BOSS.pool }]);
+var NODE = {}; MIS.forEach(function (m) { m.nodes.forEach(function (n, i) { NODE[n.id] = { n: n, m: m, i: i, bi: n.bi || m.region }; }); });
+var BI = ["CRD", "DAT", "AAP", "CSN", "IOC"];
+function regionColor(r) { return r === "BOSS" ? "#FB7185" : PQ.REGIONS[r].color; }
+
+/* color scale for percentages */
+function heat(p) { if (p == null) return "background:#1A2033;color:#5B6785"; var h = p >= 85 ? "#065F46" : p >= 70 ? "#166534" : p >= 55 ? "#854D0E" : p >= 40 ? "#9A3412" : "#7F1D1D"; return "background:" + h + ";color:#fff"; }
+function pctCell(p, sub) { return '<span class="cell" style="' + heat(p) + '" title="' + esc(sub || "") + '">' + (p == null ? "–" : p + "%") + "</span>"; }
+
+/* students to show: roster for the period plus anyone who has played */
+function students() {
+  var by = {};
+  DATA.roster.forEach(function (s) { if (s.email) by[s.email] = { email: s.email, name: s.name, period: s.period, n: {}, boss: {}, played: false }; });
+  DATA.players.forEach(function (p) { var s = by[p.email] || (by[p.email] = { email: p.email, name: p.rosterName || p.name, period: p.period }); s.n = p.n || {}; s.boss = p.boss || {}; s.played = true; s.updated = p.updated; if (!s.period) s.period = p.period; });
+  return Object.values(by).filter(function (s) { return PERIOD === "ALL" || s.period === PERIOD; }).sort(function (a, b) { return (a.period || "").localeCompare(b.period || "") || lastName(a.name).localeCompare(lastName(b.name)); });
+}
+function lastName(n) { var p = String(n || "").trim().split(/\s+/); return p[p.length - 1] + " " + p[0]; }
+function mDone(s, m) { return m.nodes.filter(function (n) { var r = s.n[n.id]; return r && r.d; }).length; }
+function mPct(s, m) { if (m.id === "m12") return s.boss && s.boss.wins ? 100 : 0; return Math.round(mDone(s, m) / m.nodes.length * 100); }
+/* a mission counts toward a student's grade once it has been opened for their period (or they have played it) */
+function counts(s, m) { var per = ((DATA.cfg.opened || {})[m.id] || []).concat(DATA.cfg.open[m.id] || []); return per.indexOf(s.period) > -1 || m.nodes.some(function (n) { return s.n[n.id]; }); }
+function openSomewhere(mid) { return Array.isArray(DATA.cfg.open[mid]) && DATA.cfg.open[mid].length > 0; }
+function everOpened(mid) { return openSomewhere(mid) || DATA.players.some(function (p) { return Object.keys(p.n || {}).some(function (k) { return k.indexOf(mid + "-") === 0; }); }); }
+/* first-try accuracy over a set of node ids */
+function firstTry(s, filter) { var a = 0, f = 0; Object.keys(s.n).forEach(function (id) { if (!NODE[id] || !filter(NODE[id])) return; var r = s.n[id]; if (r.a) { a++; if (r.f) f++; } }); return a ? { p: Math.round(f / a * 100), a: a, f: f } : null; }
+
+/* ---------------- login ---------------- */
+function openApp() {
+  api({ action: "adminAll" }).then(function (j) {
+    if (!j || j.error) { $("lerr").textContent = (j && j.error) || "Couldn't load"; try { sessionStorage.removeItem("pqpin"); } catch (e) {} return; }
+    try { sessionStorage.setItem("pqpin", pin); } catch (e) {}
+    DATA = j; $("login").classList.add("hidden"); $("app").classList.remove("hidden");
+    $("stamp").textContent = "Updated " + new Date().toLocaleTimeString();
+    renderSeg(); renderMC(); renderView();
+  }).catch(function () { $("lerr").textContent = "Network error"; });
+}
+$("go").onclick = function () { pin = $("pin").value; openApp(); };
+$("pin").onkeydown = function (e) { if (e.key === "Enter") $("go").click(); };
+$("refresh").onclick = openApp;
+if (pin) openApp();
+
+function renderSeg() {
+  $("pseg").innerHTML = ["ALL"].concat(DATA.periods).map(function (p) { return '<button data-p="' + p + '" class="' + (p === PERIOD ? "act" : "") + '">' + (p === "ALL" ? "All periods" : "Period " + p) + "</button>"; }).join("");
+  $("pseg").querySelectorAll("button").forEach(function (b) { b.onclick = function () { PERIOD = b.getAttribute("data-p"); renderSeg(); renderMC(); renderView(); }; });
+}
+document.querySelectorAll("#tabs button").forEach(function (b) { b.onclick = function () { TAB = b.getAttribute("data-t"); document.querySelectorAll("#tabs button").forEach(function (x) { x.classList.toggle("act", x === b); }); renderView(); }; });
+
+/* ---------------- mission control ---------------- */
+function renderMC() {
+  var periods = DATA.periods, h = "<tr><th>#</th><th>Mission</th><th>Big Idea</th><th>Covers</th><th>Nodes</th>" + periods.map(function (p) { return "<th>Period " + p + "</th>"; }).join("") + "</tr>";
+  MIS.forEach(function (m) {
+    var regName = m.region === "BOSS" ? "All 5 (boss)" : PQ.BIG_IDEAS[m.region].n + " · " + PQ.REGIONS[m.region].name;
+    h += "<tr><td><b>" + m.id.slice(1) + '</b></td><td><span class="dot" style="background:' + regionColor(m.region) + '"></span><b>' + esc(m.title) + "</b></td><td>" + esc(regName) + '</td><td class="note">' + esc(m.covers) + "</td><td>" + m.nodes.length + "</td>";
+    periods.forEach(function (p) {
+      var on = (DATA.cfg.open[m.id] || []).indexOf(p) > -1, roster = DATA.roster.filter(function (s) { return s.period === p; }), ss = students0(p);
+      var done = ss.filter(function (s) { return mPct(s, m) === 100; }).length;
+      h += '<td><button class="btn sm ' + (on ? "on" : "") + '" data-m="' + m.id + '" data-p="' + p + '">' + (on ? "● Open" : "○ Closed") + '</button> <span class="note">' + done + "/" + Math.max(roster.length, ss.length) + " done</span></td>";
+    });
+    h += "</tr>";
+  });
+  $("mc").innerHTML = h;
+  $("mc").querySelectorAll("button[data-m]").forEach(function (b) {
+    b.onclick = function () {
+      var m = b.getAttribute("data-m"), p = b.getAttribute("data-p"), on = !b.classList.contains("on");
+      b.disabled = true;
+      api({ action: "adminSetOpen", mission: m, period: p, open: on }).then(function (j) { if (j && j.ok) { DATA.cfg = j.cfg; renderMC(); } else { alert((j && j.error) || "Failed"); b.disabled = false; } });
+    };
+  });
+}
+function students0(p) { var keep = PERIOD; PERIOD = p; var s = students(); PERIOD = keep; return s; }
+
+/* ---------------- views ---------------- */
+function renderView() { ({ overview: vOverview, completion: vCompletion, mastery: vMastery, topics: vTopics, questions: vQuestions })[TAB](); }
+
+function classStats() {
+  var ss = students(), per = {};
+  BI.forEach(function (b) { per[b] = { a: 0, f: 0 }; });
+  ss.forEach(function (s) { Object.keys(s.n).forEach(function (id) { var N = NODE[id], r = s.n[id]; if (!N || !r.a) return; per[N.bi].a++; if (r.f) per[N.bi].f++; }); });
+  return { ss: ss, per: per };
+}
+function vOverview() {
+  var st = classStats(), ss = st.ss, played = ss.filter(function (s) { return s.played; }).length;
+  var opened = MIS.filter(function (m) { return everOpened(m.id); });
+  var h = '<div class="grid5">' + BI.map(function (b) {
+    var x = st.per[b], p = x.a ? Math.round(x.f / x.a * 100) : null, B = PQ.BIG_IDEAS[b];
+    return '<div class="bi" style="border-top:3px solid ' + PQ.REGIONS[b].color + '"><div class="note">Big Idea ' + B.n + " · " + B.weight + " of exam</div><div style=\"font-weight:800\">" + esc(B.name) + "</div><b>" + (p == null ? "–" : p + "%") + '</b><div class="note">first-try accuracy · ' + x.a + " answers</div></div>";
+  }).join("") + "</div>";
+  h += '<div class="card" style="margin-top:14px"><b>' + played + "</b> of " + ss.length + " students have played. ";
+  if (opened.length) {
+    h += "Average completion of the missions opened so far: " + opened.map(function (m) { var cs = ss.filter(function (s) { return counts(s, m); }), v = cs.length ? Math.round(cs.reduce(function (a, s) { return a + mPct(s, m); }, 0) / cs.length) : 0; return "<b>M" + m.id.slice(1) + "</b> " + v + "%"; }).join(" · ");
+  } else h += "No missions have been opened yet. Open Mission 1 above to start.";
+  h += "</div>";
+  var weak = topicRows().filter(function (t) { return t.a >= 5; }).slice(0, 5);
+  if (weak.length) h += '<div class="card"><b>Reteach first:</b> the weakest CED topics so far (with 5 or more answers):<ul>' + weak.map(function (t) { return "<li>" + t.t + " " + esc(PQ.TOPICS[t.t]) + ": <b>" + t.p + "%</b> first try (" + t.a + " answers)</li>"; }).join("") + "</ul></div>";
+  var needHelp = ss.filter(function (s) { var f = firstTry(s, function () { return true; }); return f && f.a >= 8 && f.p < 55; });
+  if (needHelp.length) h += '<div class="card"><b>Students under 55% first-try accuracy</b> (8 or more answers): ' + needHelp.map(function (s) { return '<span class="name" data-e="' + esc(s.email) + '">' + esc(s.name) + "</span>"; }).join(", ") + "</div>";
+  $("view").innerHTML = h; bindNames();
+}
+function vCompletion() {
+  var ss = students(), ms = MIS.filter(function (m) { return everOpened(m.id); });
+  if (!ms.length) { $("view").innerHTML = '<div class="card note">No missions opened yet.</div>'; return; }
+  var h = '<div class="note" style="margin-bottom:8px">Completion grade = percent of the mission\'s nodes cleared (the boss counts when it\'s defeated). A mission shows "–" for a period it hasn\'t been opened for yet and isn\'t counted in that student\'s average. This is what the CSV exports. Click a name for details.</div><div class="scroll"><table><tr><th>Student</th><th>Per.</th>' + ms.map(function (m) { return '<th title="' + esc(m.title) + '">M' + m.id.slice(1) + "</th>"; }).join("") + "<th>Avg</th><th>XP</th><th>Last played</th></tr>";
+  ss.forEach(function (s) {
+    var vals = ms.map(function (m) { return counts(s, m) ? mPct(s, m) : null; }), got = vals.filter(function (v) { return v !== null; }), avg = got.length ? Math.round(got.reduce(function (a, b) { return a + b; }, 0) / got.length) : null;
+    h += '<tr><td><span class="name" data-e="' + esc(s.email) + '">' + esc(s.name) + "</span></td><td>" + esc(s.period || "") + "</td>" + vals.map(function (v, i) { return "<td>" + pctCell(v, v === null ? "not opened for this period yet" : ms[i].title) + "</td>"; }).join("") + "<td>" + pctCell(avg) + "</td><td>" + xpOf(s) + '</td><td class="note">' + (s.updated ? new Date(s.updated).toLocaleDateString() : "never") + "</td></tr>";
+  });
+  $("view").innerHTML = h + "</table></div>"; bindNames();
+}
+function xpOf(s) { var x = 0; Object.keys(s.n).forEach(function (id) { var r = s.n[id]; if (r.d && !/^m12-/.test(id)) x += r.f ? 100 : 50; }); if (s.boss && s.boss.wins) x += 1000; return x + ((s.boss && s.boss.bestHits) || 0) * 20; }
+function vMastery() {
+  var ss = students();
+  var h = '<div class="note" style="margin-bottom:8px">First-try accuracy by Big Idea: the share of questions a student got right on the FIRST attempt. Hover a cell to see the counts. This shows what they actually understand, unlike completion.</div><div class="scroll"><table><tr><th>Student</th><th>Per.</th>' + BI.map(function (b) { return '<th><span class="dot" style="background:' + PQ.REGIONS[b].color + '"></span>BI ' + PQ.BIG_IDEAS[b].n + " " + esc(PQ.BIG_IDEAS[b].name.split(" ")[0]) + "</th>"; }).join("") + "<th>Overall</th></tr>";
+  ss.forEach(function (s) {
+    h += '<tr><td><span class="name" data-e="' + esc(s.email) + '">' + esc(s.name) + "</span></td><td>" + esc(s.period || "") + "</td>" + BI.map(function (b) { var f = firstTry(s, function (N) { return N.bi === b; }); return "<td>" + pctCell(f && f.p, f ? f.f + " of " + f.a + " right on the first try" : "no answers yet") + "</td>"; }).join("");
+    var o = firstTry(s, function () { return true; }); h += "<td>" + pctCell(o && o.p, o ? o.f + " of " + o.a : "") + "</td></tr>";
+  });
+  $("view").innerHTML = h + "</table></div>"; bindNames();
+}
+function topicRows() {
+  var ss = students(), T = {};
+  ss.forEach(function (s) { Object.keys(s.n).forEach(function (id) { var N = NODE[id], r = s.n[id]; if (!N || !r.a) return; var t = N.n.t; T[t] = T[t] || { t: t, a: 0, f: 0, bi: N.bi }; T[t].a++; if (r.f) T[t].f++; }); });
+  return Object.values(T).map(function (x) { x.p = Math.round(x.f / x.a * 100); return x; }).sort(function (a, b) { return a.p - b.p; });
+}
+function vTopics() {
+  var rows = topicRows();
+  if (!rows.length) { $("view").innerHTML = '<div class="card note">No answers yet.</div>'; return; }
+  var h = '<div class="note" style="margin-bottom:8px">Class first-try accuracy for each AP CSP CED topic, weakest first. These match the topic numbers in the College Board Course and Exam Description.</div><div class="scroll"><table><tr><th>Topic</th><th>Big Idea</th><th>First-try accuracy</th><th>Answers</th></tr>';
+  rows.forEach(function (x) { var c = x.p >= 70 ? "#34D399" : x.p >= 50 ? "#FBBF24" : "#F87171"; h += "<tr><td><b>" + x.t + "</b> " + esc(PQ.TOPICS[x.t]) + '</td><td><span class="dot" style="background:' + PQ.REGIONS[x.bi].color + '"></span>' + esc(PQ.BIG_IDEAS[x.bi].name) + '</td><td><span class="barw"><i style="width:' + x.p + "%;background:" + c + '"></i></span> <b>' + x.p + "%</b></td><td>" + x.a + "</td></tr>"; });
+  $("view").innerHTML = h + "</table></div>";
+}
+function vQuestions() {
+  var ss = students(), Q = {};
+  ss.forEach(function (s) { Object.keys(s.n).forEach(function (id) { var r = s.n[id]; if (!NODE[id] || !r.a) return; var q = Q[id] = Q[id] || { id: id, a: 0, f: 0, tries: 0, wrong: {} }; q.a++; if (r.f) q.f++; q.tries += r.a; (r.w || []).forEach(function (w) { q.wrong[w] = (q.wrong[w] || 0) + 1; }); }); });
+  var rows = Object.values(Q).map(function (q) { q.p = Math.round(q.f / q.a * 100); return q; }).sort(function (a, b) { return a.p - b.p || b.a - a.a; });
+  if (!rows.length) { $("view").innerHTML = '<div class="card note">No answers yet.</div>'; return; }
+  var h = '<div class="note" style="margin-bottom:8px">Every question students have answered, the most-missed first. "Common wrong answers" shows what they picked or typed, which is great for finding misconceptions to reteach.</div><div class="scroll"><table><tr><th>Question</th><th>Mission</th><th>Topic</th><th>First try</th><th>Avg tries</th><th>Common wrong answers</th></tr>';
+  rows.forEach(function (q) {
+    var N = NODE[q.id], w = Object.keys(q.wrong).sort(function (a, b) { return q.wrong[b] - q.wrong[a]; }).slice(0, 3);
+    h += '<tr><td><b>' + esc(N.n.ti) + '</b><div class="note">' + esc(N.n.p.slice(0, 110)) + (N.n.p.length > 110 ? "…" : "") + "</div></td><td>M" + N.m.id.slice(1) + "</td><td>" + N.n.t + "</td><td>" + pctCell(q.p, q.f + " of " + q.a) + "</td><td>" + (q.tries / q.a).toFixed(1) + '</td><td class="wrong">' + w.map(function (x) { return esc(x) + " (" + q.wrong[x] + ")"; }).join("<br>") + "</td></tr>";
+  });
+  $("view").innerHTML = h + "</table></div>";
+}
+
+/* ---------------- one student ---------------- */
+function bindNames() { document.querySelectorAll(".name[data-e]").forEach(function (el) { el.onclick = function () { showStudent(el.getAttribute("data-e")); }; }); }
+function showStudent(email) {
+  var keep = PERIOD; PERIOD = "ALL"; var s = students().find(function (x) { return x.email === email; }); PERIOD = keep;
+  if (!s) return;
+  var h = '<button class="btn sm" style="position:absolute;right:14px;top:14px" id="cx">✕</button><h2 style="margin-top:0">' + esc(s.name) + ' <span class="note">' + esc(s.email) + " · " + esc(s.period || "no period") + "</span></h2>";
+  h += '<div class="grid5" style="margin-bottom:12px">' + BI.map(function (b) { var f = firstTry(s, function (N) { return N.bi === b; }); return '<div class="bi" style="border-top:3px solid ' + PQ.REGIONS[b].color + '"><div class="note">' + esc(PQ.BIG_IDEAS[b].name) + "</div><b>" + (f ? f.p + "%" : "–") + '</b><div class="note">' + (f ? f.f + " of " + f.a + " first try" : "no answers") + "</div></div>"; }).join("") + "</div>";
+  if (s.boss && s.boss.tries) h += '<div class="card">Boss: ' + (s.boss.wins ? "<b style=\"color:#FCD34D\">defeated " + s.boss.wins + "×</b>" : "not defeated yet") + " · " + s.boss.tries + " tries · best " + (s.boss.bestHits || 0) + " hits</div>";
+  MIS.forEach(function (m) {
+    var any = m.nodes.some(function (n) { return s.n[n.id]; }); if (!any) return;
+    h += "<h3 style=\"margin:14px 0 6px\">M" + m.id.slice(1) + " · " + esc(m.title) + ' <span class="note">' + mPct(s, m) + "% complete</span></h3><table><tr><th>Node</th><th>Topic</th><th>Status</th><th>Tries</th><th>Wrong answers</th></tr>";
+    m.nodes.forEach(function (n) {
+      var r = s.n[n.id]; if (!r) { if (m.id !== "m12") h += '<tr><td>' + esc(n.ti) + '</td><td>' + n.t + '</td><td class="note">not reached</td><td></td><td></td></tr>'; return; }
+      var st = r.d ? (r.f ? '<span class="pill" style="background:#065F46">✓ first try</span>' : '<span class="pill" style="background:#854D0E">✓ after retries</span>') : '<span class="pill" style="background:#7F1D1D">in progress</span>';
+      h += "<tr><td>" + esc(n.ti) + "</td><td>" + n.t + "</td><td>" + st + "</td><td>" + r.a + (r.r ? ' <span class="note">(+' + r.r + " replays)</span>" : "") + '</td><td class="wrong">' + (r.w || []).map(esc).join("<br>") + "</td></tr>";
+    });
+    h += "</table>";
+  });
+  if (s.played) h += '<div style="margin-top:16px"><button class="btn sm" id="reset" style="border-color:#7F1D1D;color:#FCA5A5">Reset this student\'s progress</button></div>';
+  $("ovp").innerHTML = h; $("ov").classList.remove("hidden");
+  $("cx").onclick = function () { $("ov").classList.add("hidden"); };
+  if ($("reset")) $("reset").onclick = function () { if (!confirm("Erase ALL Packet Quest progress for " + s.name + "? This can't be undone.")) return; api({ action: "adminReset", email: s.email }).then(function (j) { if (j && j.ok) { $("ov").classList.add("hidden"); openApp(); } else alert((j && j.error) || "Failed"); }); };
+}
+$("ov").addEventListener("mousedown", function (e) { if (e.target === $("ov")) $("ov").classList.add("hidden"); });
+
+/* ---------------- CSV ---------------- */
+$("csv").onclick = function () {
+  var ss = students(), ms = MIS.filter(function (m) { return everOpened(m.id); });
+  var rows = [["Name", "Email", "Period"].concat(ms.map(function (m) { return "M" + m.id.slice(1) + " " + m.title + " (completion %)"; })).concat(["Average completion %"]).concat(BI.map(function (b) { return "BI" + PQ.BIG_IDEAS[b].n + " first-try %"; })).concat(["Overall first-try %", "XP"])];
+  ss.forEach(function (s) {
+    var vals = ms.map(function (m) { return counts(s, m) ? mPct(s, m) : ""; }), got = vals.filter(function (v) { return v !== ""; }), avg = got.length ? Math.round(got.reduce(function (a, b) { return a + b; }, 0) / got.length) : "";
+    var o = firstTry(s, function () { return true; });
+    rows.push([s.name, s.email, s.period || ""].concat(vals).concat([avg]).concat(BI.map(function (b) { var f = firstTry(s, function (N) { return N.bi === b; }); return f ? f.p : ""; })).concat([o ? o.p : "", xpOf(s)]));
+  });
+  var csv = rows.map(function (r) { return r.map(function (v) { v = String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(","); }).join("\n");
+  var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "packet-quest-" + (PERIOD === "ALL" ? "all" : PERIOD) + "-" + new Date().toISOString().slice(0, 10) + ".csv"; document.body.appendChild(a); a.click(); a.remove();
+};
+})();
+</script>
+</body>
+</html>

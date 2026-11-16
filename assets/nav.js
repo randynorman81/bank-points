@@ -131,7 +131,8 @@ const TOOLS = [
 // Tools for teachers (not students). Shows up in a "Teacher Tools" dropdown
 // on every page. To add one: add one object here.
 const TEACHER_TOOLS = [
-  { id: "webp-converter", name: "WebP Converter", url: NAV_ROOT + "tools/webp-converter/index.html", description: "Convert WebP images to PNG right in your browser." }
+  { id: "webp-converter", name: "WebP Converter", url: NAV_ROOT + "tools/webp-converter/index.html", description: "Convert WebP images to PNG right in your browser." },
+  { id: "packet-quest-teacher", name: "Packet Quest Dashboard", url: NAV_ROOT + "apcsp/packet-quest/teacher.html", description: "Open Packet Quest missions for each AP CSP period and see completion grades and mastery by Big Idea and CED topic." }
 ];
 
 // Site search: a client-side index of everything a search box on this site

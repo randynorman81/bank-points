@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Packet Quest | AP CSP</title>
+<link rel="icon" href="../../assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=JetBrains+Mono:wght@400;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070B16;--panel:#0E1426;--card:#141C33;--rule:#24304F;--ink:#E8EEFB;--soft:#97A3C2;--acc:#FB923C;--ok:#34D399;--bad:#F87171;--glow:#60A5FA}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:radial-gradient(1200px 600px at 50% -10%,#14204A 0%,var(--bg) 60%) fixed;color:var(--ink);font:15px/1.55 "Manrope",system-ui,sans-serif}
+button,input{font:inherit}
+.px{font-family:"Silkscreen",monospace;letter-spacing:.02em}
+a{color:#93C5FD}
+.wrap{max-width:1000px;margin:0 auto;padding:12px 14px 40px}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 0 12px}
+.logo{font-family:"Silkscreen",monospace;font-size:22px;line-height:1;color:#fff;text-shadow:0 0 12px #3B82F6}
+.logo span{color:var(--acc)}
+.sp{flex:1}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:4px 11px;font-size:13px;color:var(--soft)}
+.chip b{color:var(--ink)}
+.btn{background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:9px;padding:8px 14px;cursor:pointer;font-weight:700;transition:.15s}
+.btn:hover{border-color:var(--glow)}
+.btn.pri{background:linear-gradient(180deg,#FDBA74,#FB923C);color:#1a0d00;border-color:#FB923C}
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.sm{padding:5px 10px;font-size:13px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.hidden{display:none!important}
+/* sign in */
+#signin{max-width:560px;margin:7vh auto 0;text-align:center;background:var(--panel);border:1px solid var(--rule);border-radius:18px;padding:30px 26px;box-shadow:0 20px 60px #0008}
+#signin h1{font-family:"Silkscreen",monospace;font-size:38px;margin:0 0 4px;color:#fff;text-shadow:0 0 18px #3B82F6}
+#signin h1 span{color:var(--acc)}
+#signin p{color:var(--soft)}
+#gbtn{display:flex;justify-content:center;margin:18px 0 6px;min-height:44px}
+/* world */
+#mapBox{max-width:max(420px,calc((100vh - 210px) * 640 / 416));margin:0 auto;position:relative;border:1px solid var(--rule);border-radius:14px;overflow:hidden;background:#050812;box-shadow:0 10px 40px #0007}
+#map{display:block;width:100%;height:auto;cursor:pointer;image-rendering:auto}
+.hud{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px auto;max-width:max(420px,calc((100vh - 210px) * 640 / 416))}
+.keys{display:flex;gap:5px}
+.key{width:26px;height:26px;border-radius:7px;border:1px dashed #3A4870;display:grid;place-items:center;font-size:13px;color:#3A4870}
+.key.on{border-style:solid;color:#0b1020;font-weight:800}
+.dpad{display:none;gap:6px;justify-content:center;margin-top:10px}
+.dpad .btn{width:52px;height:44px;font-size:18px}
+@media (pointer:coarse){.dpad{display:flex}}
+.legend{color:var(--soft);font-size:13px;margin-top:8px}
+#world>.legend{text-align:center}
+.banner{background:#2A1F05;border:1px solid #7C5A10;color:#FCD34D;border-radius:10px;padding:8px 12px;font-size:13px;margin-bottom:10px}
+.save{font-size:12px;color:var(--soft)}
+.save.bad{color:var(--bad)}
+/* overlays */
+.ov{position:fixed;inset:0;background:#02040Acc;backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;padding:4vh 12px;z-index:50;overflow:auto}
+.panel{width:100%;max-width:880px;background:var(--panel);border:1px solid var(--rule);border-radius:16px;box-shadow:0 30px 80px #000a;position:relative}
+.phead{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.phead h2{margin:0;font-size:20px}
+.pbody{padding:18px}
+.x{position:absolute;right:12px;top:10px}
+.tag{display:inline-block;font:700 11px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:#1B2440;color:var(--soft)}
+.chap{display:flex;gap:14px;align-items:center;border:1px solid var(--rule);background:var(--card);border-radius:12px;padding:14px;margin-bottom:10px}
+.chap h3{margin:0 0 2px;font-size:17px}
+.chap .meta{color:var(--soft);font-size:13px}
+.bar{height:8px;background:#0A0F1E;border-radius:10px;overflow:hidden;margin-top:8px;border:1px solid #1E2848}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#34D399,#22D3EE)}
+.sealed{opacity:.6}
+/* mission */
+.pips{display:flex;gap:4px;flex-wrap:wrap}
+.pip{width:22px;height:22px;border-radius:6px;border:1px solid var(--rule);background:#0A0F1E;font:700 10px "JetBrains Mono",monospace;color:var(--soft);display:grid;place-items:center;cursor:pointer}
+.pip.done{background:#0F2E24;border-color:#1F6B52;color:#6EE7B7}
+.pip.first{background:#34D399;color:#05261a;border-color:#34D399}
+.pip.cur{outline:2px solid var(--acc);outline-offset:1px}
+.pip.lock{cursor:not-allowed;opacity:.5}
+.qtitle{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.qtitle h3{margin:0;font-size:20px}
+.prompt{font-size:16px;margin:8px 0 12px}
+pre.code{background:#050812;border:1px solid #1E2848;border-radius:10px;padding:12px 14px;font:14px/1.5 "JetBrains Mono",monospace;overflow:auto;margin:8px 0 14px;color:#DDE6FF;white-space:pre}
+.codelabel{font:700 11px "JetBrains Mono",monospace;color:var(--soft);text-transform:uppercase;letter-spacing:.06em}
+.choices{display:grid;gap:9px}
+.choice{display:flex;gap:12px;align-items:flex-start;text-align:left;background:var(--card);border:1px solid var(--rule);border-radius:11px;padding:11px 13px;cursor:pointer;color:var(--ink);width:100%}
+.choice:hover:not(:disabled){border-color:var(--glow);background:#18213C}
+.choice .L{flex:none;width:26px;height:26px;border-radius:7px;background:#1F2A4A;display:grid;place-items:center;font:700 13px "JetBrains Mono",monospace}
+.choice pre{margin:0;font:13px/1.45 "JetBrains Mono",monospace;white-space:pre-wrap}
+.choice.wrong{border-color:#7F1D1D;background:#2A0E12;opacity:.7}
+.choice.right{border-color:#34D399;background:#0F2E24}
+.choice.sel{border-color:var(--acc);background:#2A1A0B}
+.choice:disabled{cursor:default}
+.fb{margin-top:12px;min-height:22px;font-weight:700}
+.fb.bad{color:var(--bad)}
+.fb.ok{color:var(--ok)}
+.explain{margin-top:12px;background:#0B2A20;border:1px solid #1F6B52;border-radius:12px;padding:12px 14px}
+.explain.peek{background:#13203D;border-color:#2C4A86}
+.explain b{color:#6EE7B7}
+.explain.peek b{color:#93C5FD}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.inp{background:#050812;color:var(--ink);border:1px solid var(--rule);border-radius:9px;padding:10px 12px;font:16px "JetBrains Mono",monospace;min-width:220px}
+.inp:focus{outline:none;border-color:var(--glow)}
+.shake{animation:shake .35s}
+@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+/* bits */
+.bits{display:flex;gap:7px;flex-wrap:wrap;margin:6px 0}
+.bit{width:62px;text-align:center}
+.bit small{display:block;color:var(--soft);font:600 12px "JetBrains Mono",monospace;margin-bottom:4px}
+.bit button{width:62px;height:62px;border-radius:12px;border:1px solid var(--rule);background:#050812;color:#4B5B85;font:700 28px "JetBrains Mono",monospace;cursor:pointer}
+.bit button.on{background:#0E3A4A;color:#67E8F9;border-color:#22D3EE;box-shadow:0 0 14px #22D3EE55}
+/* order */
+.ordwrap{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:700px){.ordwrap{grid-template-columns:1fr}}
+.ordcol h4{margin:0 0 6px;font-size:12px;color:var(--soft);text-transform:uppercase;letter-spacing:.06em}
+.ordit{display:block;width:100%;text-align:left;margin-bottom:7px;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:9px 11px;color:var(--ink);cursor:pointer}
+.ordit:hover{border-color:var(--glow)}
+.ordit.used{opacity:.3;cursor:default}
+.ordit .n{display:inline-block;width:22px;font-weight:800;color:var(--acc)}
+/* debug */
+.dbg{background:#050812;border:1px solid #1E2848;border-radius:10px;overflow:hidden;font:14px/1.5 "JetBrains Mono",monospace}
+.dbg button{display:flex;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid #0F1730;color:#DDE6FF;padding:3px 10px;cursor:pointer;white-space:pre;font:inherit}
+.dbg button:hover{background:#17213E}
+.dbg .ln{width:30px;color:#4B5B85;flex:none}
+.dbg button.wrong{background:#2A0E12}
+.dbg button.right{background:#0F2E24}
+/* robot */
+.rgrid{display:grid;gap:3px;background:#1E2848;padding:3px;border-radius:10px;width:max-content;max-width:100%}
+.rcell{width:52px;height:52px;background:#E5E7EB;border-radius:4px;position:relative;display:grid;place-items:center}
+.rcell.blk{background:#0B0B0F}
+.rcell.goal{background:#9CA3AF}
+.rcell.bump{background:#F87171}
+.rcell svg{width:40px;height:40px;transition:transform .2s}
+.robotwrap{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
+.palette{display:flex;flex-direction:column;gap:7px;min-width:230px}
+.palette .btn{text-align:left;font-family:"JetBrains Mono",monospace;font-size:13px}
+.prog{background:#050812;border:1px solid #1E2848;border-radius:10px;padding:10px 12px;font:13px/1.5 "JetBrains Mono",monospace;min-height:120px;white-space:pre;max-height:300px;overflow:auto;color:#DDE6FF;min-width:240px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:9px;flex:1;min-width:260px}
+.opt{text-align:left;background:var(--card);border:1px solid var(--rule);border-radius:11px;padding:9px 11px;cursor:pointer;color:var(--ink)}
+.opt:hover:not(:disabled){border-color:var(--glow)}
+.opt pre{margin:4px 0 0;font:12px/1.45 "JetBrains Mono",monospace;white-space:pre}
+.opt.wrong{border-color:#7F1D1D;background:#2A0E12;opacity:.75}
+.opt.right{border-color:#34D399;background:#0F2E24}
+/* network */
+.net{width:100%;max-width:640px;background:#050812;border:1px solid #1E2848;border-radius:12px}
+.net .nd{cursor:pointer}
+/* boss */
+#bossArt{display:flex;justify-content:center;margin:4px 0 8px}
+.hpbar{height:16px;background:#1A0A10;border:1px solid #5B1626;border-radius:10px;overflow:hidden}
+.hpbar i{display:block;height:100%;background:linear-gradient(90deg,#F43F5E,#FB7185);transition:width .4s}
+.hearts{font-size:20px;letter-spacing:2px}
+.hit{animation:hit .4s}
+@keyframes hit{0%{transform:scale(1)}30%{transform:scale(.9) rotate(-4deg);filter:brightness(2)}100%{transform:scale(1)}}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111A33;border:1px solid var(--rule);padding:10px 16px;border-radius:12px;z-index:90;box-shadow:0 10px 30px #000a;font-weight:700}
+.big{font-size:44px;text-align:center;margin:8px 0}
+.center{text-align:center}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:14px 0}
+.stat{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:12px;text-align:center}
+.stat b{display:block;font-size:24px}
+.stat small{color:var(--soft)}
+.periods{display:flex;gap:10px;justify-content:center;margin:14px 0}
+.periods .btn{font-size:20px;padding:12px 26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="logo">PACKET<span>QUEST</span></div>
+    <span class="chip">AP CSP review</span>
+    <div class="sp"></div>
+    <span id="saveInd" class="save"></span>
+    <span id="who" class="chip hidden"></span>
+    <button id="signOut" class="btn sm hidden">Sign out</button>
+  </div>
+
+  <div id="signin">
+    <h1>PACKET<span>QUEST</span></h1>
+    <p>You are <b>PKT-0</b>, a data packet carrying a student's final project to the AP Server. The <b>Corruptor</b> has scrambled the network. Recover a Key Fragment from each of the 5 Big Ideas, then break into the Server Core.</p>
+    <div id="gbtn"></div>
+    <p style="font-size:13px">Sign in with your <b>@socialcircleschools.org</b> account so your progress is saved.</p>
+    <p id="signMsg" class="fb bad"></p>
+  </div>
+
+  <div id="world" class="hidden">
+    <div id="teachBanner" class="banner hidden">Teacher preview: every mission is unlocked for you. Your answers are saved like a student's. Open missions for classes on the <a href="teacher.html">teacher dashboard</a>.</div>
+    <div class="hud">
+      <span class="chip">Rank <b id="rank">Bit</b></span>
+      <span class="chip">XP <b id="xp">0</b></span>
+      <span class="chip">Missions <b id="mdone">0/11</b></span>
+      <span class="chip">Key Fragments <span class="keys" id="keys"></span></span>
+      <div class="sp"></div>
+      <button class="btn sm" id="howBtn">How to play</button>
+    </div>
+    <div id="mapBox"><canvas id="map" width="640" height="416" aria-label="Game map. Use arrow keys or click a region."></canvas></div>
+    <div class="dpad"><button class="btn" data-d="L">◀</button><button class="btn" data-d="U">▲</button><button class="btn" data-d="D">▼</button><button class="btn" data-d="R">▶</button></div>
+    <div class="legend">Move with <b>arrow keys</b> or <b>WASD</b> and step into a region, or just <b>click</b> one. Each region holds missions your teacher opens on Fridays.</div>
+  </div>
+</div>
+
+<div id="ov" class="ov hidden"><div class="panel" id="ovPanel"></div></div>
+<div id="toast" class="toast hidden"></div>
+
+<script src="content.js"></script>
+<script src="robot.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+(function () {
+"use strict";
+var PQ = window.PQ, RB = window.PQRobot;
+var API = "/api/packetquest", GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
+var MOCK = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && /[?&]mock/.test(location.search);
+var $ = function (id) { return document.getElementById(id); };
+function esc(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function shuffle(a) { var r = a.slice(); for (var i = r.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = r[i]; r[i] = r[j]; r[j] = t; } return r; }
+function toast(msg, ms) { var t = $("toast"); t.textContent = msg; t.classList.remove("hidden"); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.add("hidden"); }, ms || 2200); }
+
+/* ======================= content lookups ======================= */
+var MBY = {}, NBY = {};
+PQ.MISSIONS.forEach(function (m) { MBY[m.id] = m; m.nodes.forEach(function (n) { NBY[n.id] = { node: n, mission: m }; }); });
+PQ.BOSS.pool.forEach(function (n) { NBY[n.id] = { node: n, mission: { id: "m12", region: n.bi } }; });
+var REGION_ORDER = ["CRD", "DAT", "AAP", "CSN", "IOC"];
+function regionMissions(rg) { return PQ.MISSIONS.filter(function (m) { return m.region === rg; }); }
+
+/* ======================= state ======================= */
+var CRED = null, ME = null;   /* ME: { name, email, teacher, period, open[], progress: { n: {}, boss: {} } } */
+function prog() { return ME.progress.n; }
+function nodeDone(id) { var r = prog()[id]; return !!(r && r.d); }
+function missionCount(m) { var d = 0; m.nodes.forEach(function (n) { if (nodeDone(n.id)) d++; }); return d; }
+function missionDone(m) { return missionCount(m) === m.nodes.length; }
+function isOpen(mid) { return ME.teacher || ME.open.indexOf(mid) > -1; }
+function regionKey(rg) { var ms = regionMissions(rg); return ms.length && ms.every(missionDone); }
+function keysCount() { return REGION_ORDER.filter(regionKey).length; }
+function xpTotal() {
+  var x = 0; Object.keys(prog()).forEach(function (id) { var r = prog()[id]; if (r && r.d && !/^m12-/.test(id)) x += r.f ? 100 : 50; });
+  var b = ME.progress.boss || {}; if (b.wins) x += 1000; x += (b.bestHits || 0) * 20;
+  return x;
+}
+var RANKS = [[0, "Bit"], [500, "Nibble"], [1500, "Byte"], [3000, "Packet"], [5000, "Router"], [7500, "Server"], [10000, "Supercomputer"]];
+function rankOf(x) { var r = RANKS[0][1]; RANKS.forEach(function (k) { if (x >= k[0]) r = k[1]; }); return r; }
+
+/* ======================= API ======================= */
+var mock = null;
+function mockApi(body) {
+  if (!mock) { try { mock = JSON.parse(lsGet("pq:mock") || "null"); } catch (e) {} if (!mock) mock = { open: { m1: ["1A"], m2: ["1A"], m3: ["1A"], m4: ["1A"], m12: ["1A"] }, p: { n: {}, boss: { tries: 0, wins: 0, bestHits: 0 }, period: "" } }; }
+  var teacher = /[?&]mock=teacher/.test(location.search), d = mock.p, out;
+  var openList = teacher ? PQ.MISSIONS.map(function (m) { return m.id; }).concat("m12") : Object.keys(mock.open).filter(function (k) { return mock.open[k].indexOf(d.period) > -1; });
+  if (body.action === "me") out = { ok: true, name: teacher ? "Mr. Norman" : "Test Student", email: "test@socialcircleschools.org", teacher: teacher, period: d.period, periods: PQ.PERIODS, open: openList, progress: { n: d.n, boss: d.boss } };
+  else if (body.action === "setPeriod") { d.period = body.period; out = { ok: true, period: d.period }; }
+  else if (body.action === "answer") {
+    if (!teacher && openList.indexOf(body.node.split("-")[0]) < 0) out = { error: "closed", closed: true };
+    else { var r = d.n[body.node] || { a: 0 }; if (r.d) r.r = (r.r || 0) + 1; else { r.a++; if (r.a === 1) r.f = body.ok; if (!body.ok && body.pick) r.w = (r.w || []).concat(body.pick).slice(-6); if (body.ok) r.d = new Date().toISOString(); } d.n[body.node] = r; out = { ok: true, rec: r }; }
+  } else if (body.action === "boss") { d.boss.tries++; if (body.won) { d.boss.wins++; } d.boss.bestHits = Math.max(d.boss.bestHits, body.hits || 0); out = { ok: true, boss: d.boss }; }
+  else out = { error: "Unknown action" };
+  lsSet("pq:mock", JSON.stringify(mock));
+  return new Promise(function (res) { setTimeout(function () { res(JSON.parse(JSON.stringify(out))); }, 120); });
+}
+function api(body) {
+  if (MOCK) return mockApi(body);
+  body.credential = CRED;
+  return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(function (r) { return r.json(); }).then(function (j) {
+    if (j && j.needLogin) { CRED = null; try { google.accounts.id.prompt(); } catch (e) {} showSaving("Sign-in expired. Sign in again to keep saving.", true); }
+    return j;
+  });
+}
+
+/* answers are sent one at a time, in order; if the network drops they wait (also across a page reload) and are retried */
+var queue = [], sending = false;
+function qKey() { return "pq:queue:" + (ME ? ME.email : ""); }
+function saveQueue() { lsSet(qKey(), JSON.stringify(queue)); }
+function showSaving(msg, bad) { var s = $("saveInd"); s.textContent = msg; s.className = "save" + (bad ? " bad" : ""); }
+function record(nodeId, ok, pick) {
+  /* update locally right away (same rules as the server) */
+  var r = prog()[nodeId] || { a: 0 };
+  if (r.d) r.r = (r.r || 0) + 1;
+  else { r.a = (r.a || 0) + 1; if (r.a === 1) r.f = ok; if (!ok && pick != null && pick !== "") r.w = (r.w || []).concat(String(pick).slice(0, 80)).slice(-6); if (ok) r.d = new Date().toISOString(); }
+  prog()[nodeId] = r;
+  queue.push({ action: "answer", node: nodeId, ok: ok, pick: pick == null ? "" : String(pick).slice(0, 80) }); saveQueue(); pump();
+  return r;
+}
+function pump() {
+  if (sending || !queue.length) { if (!queue.length) showSaving("✓ Saved"); return; }
+  if (!CRED && !MOCK) { showSaving("Not signed in: progress will save after you sign in", true); return; }
+  sending = true; showSaving("Saving…");
+  var item = queue[0];
+  api(Object.assign({}, item)).then(function (j) {
+    sending = false;
+    if (j && (j.ok || j.closed || (j.error && !j.needLogin && !/Busy|Server error/.test(j.error)))) {
+      queue.shift(); saveQueue();
+      if (j.closed) toast("That mission was just closed by your teacher.");
+      pump();
+    } else { showSaving("Not saved yet: retrying…", true); setTimeout(pump, 4000); }
+  }).catch(function () { sending = false; showSaving("Offline: answers will save when you reconnect", true); setTimeout(pump, 5000); });
+}
+
+/* ======================= sign in ======================= */
+function decodeJwt(t) { try { var p = t.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"); return JSON.parse(decodeURIComponent(escape(atob(p)))); } catch (e) { return {}; } }
+function credLeft(t) { var p = decodeJwt(t); return (p.exp || 0) - Math.floor(Date.now() / 1000); }
+function initGoogle() {
+  if (MOCK) { CRED = "mock"; afterSignIn(); return; }
+  if (!window.google || !google.accounts || !google.accounts.id) { setTimeout(initGoogle, 300); return; }
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onCredential, hd: "socialcircleschools.org", auto_select: true });
+  var kept = lsGet("pq:cred") || lsGet("py:cred") || "";
+  if (kept && credLeft(kept) > 120) setTimeout(function () { onCredential({ credential: kept }); }, 0);
+  google.accounts.id.renderButton($("gbtn"), { theme: "filled_blue", size: "large", text: "signin_with", shape: "rectangular" });
+  if (!kept) google.accounts.id.prompt();
+  setInterval(function () { if (CRED && credLeft(CRED) < 600) { try { google.accounts.id.prompt(); } catch (e) {} } }, 60000);
+}
+function onCredential(resp) {
+  var p = decodeJwt(resp.credential);
+  if ((p.hd || "").toLowerCase() !== "socialcircleschools.org") { $("signMsg").textContent = "Please sign in with your school account (@socialcircleschools.org)."; return; }
+  var first = !CRED; CRED = resp.credential; lsSet("pq:cred", resp.credential);
+  if (first) afterSignIn(); else pump();
+}
+function afterSignIn() {
+  api({ action: "me" }).then(function (j) {
+    if (!j || !j.ok) { $("signMsg").textContent = (j && j.error) || "Couldn't load your progress. Refresh to try again."; return; }
+    ME = j; ME.progress = ME.progress || { n: {}, boss: {} }; ME.progress.n = ME.progress.n || {}; ME.progress.boss = ME.progress.boss || {};
+    try { queue = JSON.parse(lsGet(qKey()) || "[]") || []; } catch (e) { queue = []; }
+    queue.forEach(function (q) { var r = prog()[q.node] || { a: 0 }; if (!r.d) { r.a = (r.a || 0) + 1; if (r.a === 1) r.f = q.ok; if (q.ok) r.d = new Date().toISOString(); } prog()[q.node] = r; });
+    $("signin").classList.add("hidden"); $("world").classList.remove("hidden");
+    $("who").textContent = ME.name + (ME.period ? " · " + ME.period : ""); $("who").classList.remove("hidden"); $("signOut").classList.remove("hidden");
+    $("teachBanner").classList.toggle("hidden", !ME.teacher);
+    refreshHud(); startMap(); pump();
+    if (!ME.period && !ME.teacher) askPeriod();
+    else if (!lsGet("pq:intro:" + ME.email)) showIntro();
+  });
+}
+function askPeriod() {
+  openOv('<div class="pbody center"><div class="px" style="font-size:22px">Which class are you in?</div><p class="legend">Pick your AP CSP class period.</p><div class="periods">' +
+    ME.periods.map(function (p) { return '<button class="btn" data-p="' + p + '">' + p + "</button>"; }).join("") + "</div></div>", true);
+  $("ovPanel").querySelectorAll("[data-p]").forEach(function (b) {
+    b.onclick = function () { api({ action: "setPeriod", period: b.getAttribute("data-p") }).then(function (j) { if (j && j.ok) { ME.period = j.period; $("who").textContent = ME.name + " · " + ME.period; return api({ action: "me" }); } }).then(function (j) { if (j && j.ok) { ME.open = j.open; } closeOv(); refreshHud(); if (!lsGet("pq:intro:" + ME.email)) showIntro(); }); };
+  });
+}
+$("signOut").onclick = function () {
+  if (queue.length) { toast("Still saving: try again in a moment."); pump(); return; }
+  try { google.accounts.id.disableAutoSelect(); } catch (e) {}
+  try { localStorage.removeItem("pq:cred"); } catch (e) {}
+  location.reload();
+};
+
+/* ======================= HUD ======================= */
+function refreshHud() {
+  var x = xpTotal(); $("xp").textContent = x; $("rank").textContent = rankOf(x);
+  var done = PQ.MISSIONS.filter(missionDone).length; $("mdone").textContent = done + "/" + PQ.MISSIONS.length;
+  $("keys").innerHTML = REGION_ORDER.map(function (rg) { var on = regionKey(rg), c = PQ.REGIONS[rg].color; return '<span class="key' + (on ? " on" : "") + '" title="' + esc(PQ.REGIONS[rg].name) + '" style="' + (on ? "background:" + c + ";border-color:" + c : "") + '">' + PQ.BIG_IDEAS[rg].n + "</span>"; }).join("");
+}
+
+/* ======================= overlay helpers ======================= */
+var ovLocked = false;
+function openOv(html, locked) { $("ovPanel").innerHTML = html; $("ov").classList.remove("hidden"); ovLocked = !!locked; $("ov").scrollTop = 0; }
+function closeOv() { $("ov").classList.add("hidden"); $("ovPanel").innerHTML = ""; ovLocked = false; stopAnim(); refreshHud(); }
+$("ov").addEventListener("mousedown", function (e) { if (e.target === $("ov") && !ovLocked) closeOv(); });
+function isOvOpen() { return !$("ov").classList.contains("hidden"); }
+
+function showIntro() {
+  openOv('<button class="btn sm x" id="cx">✕</button><div class="pbody"><div class="px" style="font-size:24px;margin-bottom:8px">Welcome, PKT-0</div>' +
+    "<p>The Corruptor has scrambled the network between you and the AP Server. Five regions each guard a <b>Key Fragment</b>, one for each AP CSP Big Idea:</p><ul>" +
+    REGION_ORDER.map(function (rg) { var R = PQ.REGIONS[rg], B = PQ.BIG_IDEAS[rg]; return '<li><b style="color:' + R.color + '">' + esc(R.name) + "</b>: Big Idea " + B.n + ", " + esc(B.name) + ' <span class="legend">(' + B.weight + " of the exam)</span></li>"; }).join("") +
+    "</ul><p><b>How it works</b></p><ul><li>Your teacher opens one <b>mission</b> at a time on Fridays. Sealed missions open later.</li><li>Clear each node in order. <b>First-try answers earn 100 XP</b>, later tries earn 50. Your teacher sees how you're doing, so think before you click!</li><li>Finish every mission in a region to earn its Key Fragment. Each fragment gives you +1 integrity against the Corruptor.</li><li>The <b>Server Core</b> in the middle holds the final boss.</li></ul>" +
+    '<div class="center"><button class="btn pri" id="go">Let\'s go ▶</button></div></div>');
+  var done = function () { lsSet("pq:intro:" + ME.email, "1"); closeOv(); };
+  $("go").onclick = done; $("cx").onclick = done;
+}
+$("howBtn").onclick = showIntro;
+
+/* ======================= MAP ======================= */
+var cv = $("map"), ctx = cv.getContext("2d"), TW = 32, COLS = 20, ROWS = 13;
+var PORTALS = [
+  { id: "CRD", x: 3, y: 3 }, { id: "AAP", x: 10, y: 2 }, { id: "DAT", x: 16, y: 3 },
+  { id: "CSN", x: 4, y: 9 }, { id: "IOC", x: 15, y: 9 }, { id: "CORE", x: 10, y: 6 }
+];
+var WALLS = {};
+(function () { for (var x = 0; x < COLS; x++) { WALLS[x + ",0"] = 1; WALLS[x + "," + (ROWS - 1)] = 1; } for (var y = 0; y < ROWS; y++) { WALLS["0," + y] = 1; WALLS[(COLS - 1) + "," + y] = 1; }
+  [[7, 5], [7, 6], [7, 7], [13, 5], [13, 6], [13, 7], [3, 6], [16, 6]].forEach(function (p) { WALLS[p[0] + "," + p[1]] = 2; }); })();
+var player = { x: 10, y: 10, dx: 10, dy: 10 }, onTile = null, mapStarted = false, lastMove = 0, raf = 0;
+function portalAt(x, y) { for (var i = 0; i < PORTALS.length; i++) if (PORTALS[i].x === x && PORTALS[i].y === y) return PORTALS[i]; return null; }
+function startMap() {
+  if (mapStarted) return; mapStarted = true;
+  var dpr = Math.min(2, window.devicePixelRatio || 1); cv.width = 640 * dpr; cv.height = 416 * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  try { var s = JSON.parse(lsGet("pq:pos") || "null"); if (s && !WALLS[s.x + "," + s.y] && !portalAt(s.x, s.y)) { player.x = player.dx = s.x; player.y = player.dy = s.y; } } catch (e) {}
+  (function loop(t) { draw(t || 0); raf = requestAnimationFrame(loop); })();
+}
+function tryMove(dx, dy) {
+  if (isOvOpen()) return;
+  var t = Date.now(); if (t - lastMove < 110) return; lastMove = t;
+  var nx = player.x + dx, ny = player.y + dy;
+  if (WALLS[nx + "," + ny]) return;
+  player.x = nx; player.y = ny; lsSet("pq:pos", JSON.stringify({ x: nx, y: ny }));
+  var p = portalAt(nx, ny);
+  if (p && onTile !== p.id) { onTile = p.id; setTimeout(function () { enterPortal(p.id); }, 160); }
+  else if (!p) onTile = null;
+}
+document.addEventListener("keydown", function (e) {
+  if (!ME || $("world").classList.contains("hidden")) return;
+  if (isOvOpen()) { if (e.key === "Escape" && !ovLocked) closeOv(); return; }
+  var k = e.key, m = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1], a: [-1, 0], d: [1, 0], w: [0, -1], s: [0, 1], A: [-1, 0], D: [1, 0], W: [0, -1], S: [0, 1] }[k];
+  if (m) { e.preventDefault(); tryMove(m[0], m[1]); }
+  if ((k === "Enter" || k === " ") && onTile) { e.preventDefault(); enterPortal(onTile); }
+});
+document.querySelectorAll(".dpad [data-d]").forEach(function (b) { b.onclick = function () { var d = b.getAttribute("data-d"); tryMove(d === "L" ? -1 : d === "R" ? 1 : 0, d === "U" ? -1 : d === "D" ? 1 : 0); }; });
+cv.addEventListener("click", function (e) {
+  var r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * 640, y = (e.clientY - r.top) / r.height * 416;
+  for (var i = 0; i < PORTALS.length; i++) { var p = PORTALS[i], cx = p.x * TW + 16, cy = p.y * TW + 16; if (Math.hypot(x - cx, y - cy) < 40) { enterPortal(p.id); return; } }
+});
+function draw(t) {
+  ctx.clearRect(0, 0, 640, 416);
+  var g = ctx.createRadialGradient(320, 200, 30, 320, 200, 420); g.addColorStop(0, "#0E1838"); g.addColorStop(1, "#04060E"); ctx.fillStyle = g; ctx.fillRect(0, 0, 640, 416);
+  ctx.strokeStyle = "rgba(96,165,250,0.07)"; ctx.lineWidth = 1;
+  for (var x = 0; x <= COLS; x++) { ctx.beginPath(); ctx.moveTo(x * TW + .5, 0); ctx.lineTo(x * TW + .5, 416); ctx.stroke(); }
+  for (var y = 0; y <= ROWS; y++) { ctx.beginPath(); ctx.moveTo(0, y * TW + .5); ctx.lineTo(640, y * TW + .5); ctx.stroke(); }
+  /* circuit traces from the core to each region, with packets flowing along them */
+  var core = PORTALS[5];
+  PORTALS.slice(0, 5).forEach(function (p, i) {
+    var c = PQ.REGIONS[p.id].color, x1 = core.x * TW + 16, y1 = core.y * TW + 16, x2 = p.x * TW + 16, y2 = p.y * TW + 16, mx = x2, my = y1;
+    ctx.strokeStyle = c + "44"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(mx, my); ctx.lineTo(x2, y2); ctx.stroke();
+    var L1 = Math.abs(mx - x1), L2 = Math.abs(y2 - my), L = L1 + L2, f = ((t / 2600 + i * 0.21) % 1) * L, px, py;
+    if (f < L1) { px = x1 + Math.sign(mx - x1) * f; py = y1; } else { px = mx; py = my + Math.sign(y2 - my) * (f - L1); }
+    ctx.fillStyle = c; ctx.shadowColor = c; ctx.shadowBlur = 10; ctx.fillRect(px - 3, py - 3, 6, 6); ctx.shadowBlur = 0;
+  });
+  /* walls and server racks */
+  Object.keys(WALLS).forEach(function (k) {
+    var a = k.split(","), wx = +a[0] * TW, wy = +a[1] * TW;
+    if (WALLS[k] === 1) { ctx.fillStyle = "#0A1022"; ctx.fillRect(wx, wy, TW, TW); ctx.strokeStyle = "#1A2550"; ctx.strokeRect(wx + .5, wy + .5, TW - 1, TW - 1); }
+    else { ctx.fillStyle = "#111A33"; ctx.fillRect(wx + 3, wy + 1, TW - 6, TW - 2); ctx.strokeStyle = "#2B3B6E"; ctx.strokeRect(wx + 3.5, wy + 1.5, TW - 7, TW - 3);
+      for (var j = 0; j < 3; j++) { var on = Math.sin(t / 300 + +a[0] * 3 + +a[1] * 7 + j * 2) > 0; ctx.fillStyle = on ? "#34D399" : "#14532D"; ctx.fillRect(wx + 8, wy + 6 + j * 8, 4, 3); ctx.fillStyle = on ? "#1E2D57" : "#2B3B6E"; ctx.fillRect(wx + 15, wy + 6 + j * 8, 10, 3); } }
+  });
+  /* portals */
+  PORTALS.forEach(function (p) {
+    var cx = p.x * TW + 16, cy = p.y * TW + 16, pulse = 1 + Math.sin(t / 400 + p.x) * 0.06;
+    if (p.id === "CORE") {
+      var open = isOpen("m12"), won = (ME.progress.boss || {}).wins > 0, col = won ? "#FCD34D" : open ? "#F43F5E" : "#475569";
+      ctx.save(); ctx.translate(cx, cy); ctx.rotate(t / 3000); ctx.shadowColor = col; ctx.shadowBlur = 22; ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.beginPath();
+      for (var h = 0; h < 6; h++) { var an = h * Math.PI / 3, rr = 30 * pulse; ctx[h ? "lineTo" : "moveTo"](Math.cos(an) * rr, Math.sin(an) * rr); } ctx.closePath(); ctx.stroke(); ctx.restore();
+      ctx.shadowBlur = 0; ctx.fillStyle = col; ctx.font = "700 18px Silkscreen, monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(won ? "★" : open ? "⚠" : "🔒", cx, cy + 1);
+      label(cx, cy + 46, "SERVER CORE", won ? "Corruptor defeated" : open ? "Boss is open" : "Sealed", col);
+      return;
+    }
+    var R = PQ.REGIONS[p.id], ms = regionMissions(p.id), done = ms.filter(missionDone).length, anyOpen = ms.some(function (m) { return isOpen(m.id) && !missionDone(m); }), key = regionKey(p.id);
+    ctx.shadowColor = R.color; ctx.shadowBlur = anyOpen ? 26 : 10;
+    ctx.strokeStyle = R.color; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(cx, cy, 25 * pulse, 0, Math.PI * 2); ctx.stroke();
+    ctx.globalAlpha = .18; ctx.fillStyle = R.color; ctx.beginPath(); ctx.arc(cx, cy, 25, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+    if (anyOpen) { ctx.strokeStyle = R.color + "88"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, 31 + (t / 30 % 14), 0, Math.PI * 2); ctx.stroke(); }
+    ctx.shadowBlur = 0; ctx.fillStyle = "#fff"; ctx.font = "700 20px Manrope, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(key ? "✓" : String(PQ.BIG_IDEAS[p.id].n), cx, cy + 1);
+    label(cx, cy + 42, R.name.toUpperCase(), done + "/" + ms.length + " missions" + (anyOpen ? " · OPEN" : ""), R.color);
+  });
+  /* the player: a glowing data packet */
+  player.dx += (player.x - player.dx) * 0.35; player.dy += (player.y - player.dy) * 0.35;
+  var ppx = player.dx * TW + 16, ppy = player.dy * TW + 16, bob = Math.sin(t / 220) * 2;
+  ctx.save(); ctx.translate(ppx, ppy + bob); ctx.rotate(Math.PI / 4); ctx.shadowColor = "#FB923C"; ctx.shadowBlur = 18; ctx.fillStyle = "#FB923C"; ctx.fillRect(-9, -9, 18, 18); ctx.fillStyle = "#FFF7ED"; ctx.fillRect(-4, -4, 8, 8); ctx.restore(); ctx.shadowBlur = 0;
+  ctx.fillStyle = "#FDBA74"; ctx.font = "700 9px Silkscreen, monospace"; ctx.textAlign = "center"; ctx.fillText("PKT-0", ppx, ppy - 18 + bob);
+}
+function label(x, y, a, b, col) {
+  ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "700 10px Silkscreen, monospace";
+  var w = Math.max(ctx.measureText(a).width, 60) + 14; ctx.font = "600 10px Manrope, sans-serif"; w = Math.max(w, ctx.measureText(b).width + 14);
+  ctx.fillStyle = "rgba(5,8,18,0.82)"; ctx.fillRect(x - w / 2, y - 12, w, 26); ctx.strokeStyle = col + "66"; ctx.strokeRect(x - w / 2 + .5, y - 11.5, w - 1, 25);
+  ctx.fillStyle = col; ctx.font = "700 10px Silkscreen, monospace"; ctx.fillText(a, x, y - 4); ctx.fillStyle = "#B8C3DE"; ctx.font = "600 10px Manrope, sans-serif"; ctx.fillText(b, x, y + 8);
+}
+
+/* ======================= REGION PANEL ======================= */
+function enterPortal(id) {
+  if (isOvOpen()) return;
+  if (id === "CORE") { bossIntro(); return; }
+  var R = PQ.REGIONS[id], B = PQ.BIG_IDEAS[id], ms = regionMissions(id);
+  var h = '<button class="btn sm x" id="cx">✕</button><div class="phead" style="border-bottom-color:' + R.color + '55"><span style="font-size:28px;color:' + R.color + '">' + R.icon + '</span><div><h2 style="color:' + R.color + '">' + esc(R.name) + '</h2><div class="legend" style="margin:0">Big Idea ' + B.n + ": " + esc(B.name) + " · " + B.weight + " of the AP exam</div></div></div><div class=\"pbody\"><p>" + esc(R.blurb) + "</p>";
+  ms.forEach(function (m) {
+    var c = missionCount(m), tot = m.nodes.length, op = isOpen(m.id), dn = c === tot;
+    h += '<div class="chap' + (op || c ? "" : " sealed") + '"><div style="flex:1"><div class="tag">Mission ' + m.id.slice(1) + " · Chapter " + m.ch + '</div><h3>' + esc(m.title) + (dn ? " ✓" : "") + '</h3><div class="meta">' + esc(m.covers) + '</div><div class="bar"><i style="width:' + Math.round(c / tot * 100) + '%"></i></div><div class="meta" style="margin-top:4px">' + c + " / " + tot + " nodes cleared</div></div>" +
+      (op ? '<button class="btn ' + (dn ? "" : "pri") + '" data-m="' + m.id + '">' + (dn ? "Replay" : c ? "Continue ▶" : "Start ▶") + "</button>" : c ? '<span class="tag">Closed</span>' : '<span class="tag">🔒 Sealed</span>') + "</div>";
+  });
+  h += '<p class="legend">Sealed missions open on future Fridays. Replaying a finished mission is good practice, and it doesn\'t change your first-try score.</p></div>';
+  openOv(h);
+  $("cx").onclick = closeOv;
+  $("ovPanel").querySelectorAll("[data-m]").forEach(function (b) { b.onclick = function () { startMission(b.getAttribute("data-m")); }; });
+}
+
+/* ======================= MISSION ======================= */
+var M = null;   /* { mission, idx, replay } */
+function startMission(mid) {
+  var m = MBY[mid], first = 0;
+  while (first < m.nodes.length && nodeDone(m.nodes[first].id)) first++;
+  M = { mission: m, idx: first >= m.nodes.length ? 0 : first, replay: first >= m.nodes.length, practice: {} };
+  if (first === 0 && !missionCount(m)) storyCard(); else renderNode();
+}
+function storyCard() {
+  var m = M.mission, R = PQ.REGIONS[m.region];
+  openOv('<div class="pbody center"><div class="tag" style="color:' + R.color + '">' + esc(R.name) + " · Mission " + m.id.slice(1) + '</div><div class="px" style="font-size:28px;margin:10px 0;color:' + R.color + '">' + esc(m.title) + '</div><p style="max-width:560px;margin:0 auto 10px">' + esc(m.story) + '</p><p class="legend">' + m.nodes.length + " nodes · " + esc(m.covers) + '</p><button class="btn pri" id="go">Begin ▶</button></div>', true);
+  $("go").onclick = renderNode;
+}
+function canPlay(i) { return i === 0 || nodeDone(M.mission.nodes[i - 1].id) || nodeDone(M.mission.nodes[i].id); }
+function pipsHtml() {
+  return M.mission.nodes.map(function (n, i) {
+    var r = prog()[n.id], c = "pip" + (r && r.d ? (r.f ? " first" : " done") : "") + (i === M.idx ? " cur" : "") + (canPlay(i) ? "" : " lock");
+    return '<button class="' + c + '" data-i="' + i + '" title="' + esc(n.ti) + '">' + (i + 1) + "</button>";
+  }).join("");
+}
+var STATE = null;   /* per-node attempt state */
+function renderNode() {
+  stopAnim();
+  var m = M.mission, n = m.nodes[M.idx], R = PQ.REGIONS[m.region], rec = prog()[n.id], already = !!(rec && rec.d);
+  STATE = { node: n, wrong: 0, solved: false, practice: already };
+  var h = '<div class="phead"><button class="btn sm" id="back">◀ Map</button><div style="flex:1;min-width:200px"><div class="tag" style="color:' + R.color + '">' + esc(R.name) + " · " + esc(m.title) + '</div><div class="pips" style="margin-top:6px">' + pipsHtml() + "</div></div></div>";
+  h += '<div class="pbody" id="qbody"><div class="qtitle"><h3>' + esc(n.ti) + '</h3><span class="tag">CED ' + n.t + " · " + esc(PQ.TOPICS[n.t]) + "</span>" + (already ? '<span class="tag" style="color:#6EE7B7">Practice replay</span>' : "") + '</div><div class="prompt">' + esc(n.p) + "</div>";
+  if (n.code) h += '<div class="codelabel">' + (n.lang === "py" ? "Python" : "AP pseudocode") + '</div><pre class="code">' + esc(n.code) + "</pre>";
+  h += '<div id="area"></div><div class="fb" id="fb"></div><div id="after"></div></div>';
+  openOv(h, true);
+  $("back").onclick = function () { closeOv(); };
+  $("ovPanel").querySelectorAll(".pip").forEach(function (b) { b.onclick = function () { var i = +b.getAttribute("data-i"); if (canPlay(i)) { M.idx = i; renderNode(); } }; });
+  RENDER[n.ty](n, $("area"));
+}
+/* called by every challenge type */
+function judge(ok, pick, msg) {
+  if (STATE.solved) return;
+  var n = STATE.node;
+  if (!STATE.practice) record(n.id, ok, pick);
+  if (ok) {
+    STATE.solved = true;
+    var first = STATE.wrong === 0;
+    $("fb").className = "fb ok"; $("fb").textContent = STATE.practice ? "Correct!" : first ? "Correct on the first try! +100 XP" : "Correct! +50 XP";
+    var last = M.idx === M.mission.nodes.length - 1;
+    $("after").innerHTML = '<div class="explain"><b>Why:</b> ' + esc(n.x) + '</div><div class="row" style="margin-top:12px;justify-content:flex-end"><button class="btn pri" id="next">' + (last ? "Finish mission ▶" : "Next node ▶") + "</button></div>";
+    $("next").onclick = function () { if (last) missionEnd(); else { M.idx++; renderNode(); } };
+    $("next").focus();
+    $("ovPanel").querySelectorAll(".pip").forEach(function (b, i) { if (i === M.idx) b.className = "pip cur " + (prog()[n.id] && prog()[n.id].f ? "first" : "done"); });
+    refreshHud();
+  } else {
+    STATE.wrong++;
+    $("fb").className = "fb bad"; $("fb").textContent = msg || "Not quite. Try again.";
+    var area = $("qbody"); area.classList.remove("shake"); void area.offsetWidth; area.classList.add("shake");
+    if (STATE.wrong >= 3 && !$("peek")) {
+      $("after").innerHTML = '<div class="row" style="margin-top:10px"><button class="btn sm" id="peek">Stuck? Show the explanation</button></div>';
+      $("peek").onclick = function () { $("after").innerHTML = '<div class="explain peek"><b>Explanation:</b> ' + esc(n.x) + "</div><p class=\"legend\">Read it, then answer the question to clear the node.</p>"; };
+    }
+  }
+}
+function missionEnd() {
+  var m = M.mission, tot = m.nodes.length, firsts = m.nodes.filter(function (n) { var r = prog()[n.id]; return r && r.f; }).length, R = PQ.REGIONS[m.region], key = regionKey(m.region);
+  openOv('<div class="pbody center"><div class="big">' + (key ? "🔑" : "✅") + '</div><div class="px" style="font-size:26px;color:' + R.color + '">Mission complete!</div><p>' + esc(m.title) + '</p><div class="stats"><div class="stat"><b>' + firsts + "/" + tot + '</b><small>right on the first try</small></div><div class="stat"><b>' + Math.round(firsts / tot * 100) + '%</b><small>first-try accuracy</small></div><div class="stat"><b>' + xpTotal() + '</b><small>total XP · ' + rankOf(xpTotal()) + "</small></div></div>" +
+    (key ? '<p><b style="color:' + R.color + '">Key Fragment ' + PQ.BIG_IDEAS[m.region].n + " recovered!</b> That's +1 integrity for the final battle.</p>" : "") +
+    (firsts < tot ? '<p class="legend">Missed some on the first try? Replay this mission any time it\'s open to practice.</p>' : "") +
+    '<button class="btn pri" id="go">Back to the map</button></div>', true);
+  $("go").onclick = closeOv;
+}
+
+/* ---------- challenge renderers ---------- */
+var RENDER = {};
+function letters(i) { return "ABCDEFGH"[i]; }
+RENDER.mcq = function (n, el) {
+  var order = shuffle(n.ch.map(function (_, i) { return i; }));
+  el.innerHTML = '<div class="choices">' + order.map(function (oi, k) { return '<button class="choice" data-o="' + oi + '"><span class="L">' + letters(k) + "</span>" + (n.code_choices ? "<pre>" + esc(n.ch[oi]) + "</pre>" : "<span>" + esc(n.ch[oi]) + "</span>") + "</button>"; }).join("") + "</div>";
+  el.querySelectorAll(".choice").forEach(function (b) {
+    b.onclick = function () {
+      if (STATE.solved) return;
+      var oi = +b.getAttribute("data-o");
+      if (oi === n.a) { b.classList.add("right"); el.querySelectorAll(".choice").forEach(function (x) { x.disabled = true; }); judge(true); }
+      else { b.classList.add("wrong"); b.disabled = true; judge(false, n.ch[oi]); }
+    };
+  });
+};
+RENDER.netMcq = function (n, el) { el.innerHTML = '<div id="netbox"></div><div id="mcqbox" style="margin-top:12px"></div>'; drawNet(n, $("netbox"), null); RENDER.mcq(n, $("mcqbox")); };
+RENDER.multi = function (n, el) {
+  var order = shuffle(n.ch.map(function (_, i) { return i; })), sel = [];
+  el.innerHTML = '<p class="legend" style="margin-top:0"><b>Select TWO answers.</b></p><div class="choices">' + order.map(function (oi, k) { return '<button class="choice" data-o="' + oi + '"><span class="L">' + letters(k) + "</span>" + (n.code_choices ? "<pre>" + esc(n.ch[oi]) + "</pre>" : "<span>" + esc(n.ch[oi]) + "</span>") + "</button>"; }).join("") + '</div><div class="row" style="margin-top:12px"><button class="btn pri" id="chk" disabled>Check (0/2)</button></div>';
+  function upd() { el.querySelectorAll(".choice").forEach(function (b) { b.classList.toggle("sel", sel.indexOf(+b.getAttribute("data-o")) > -1); }); $("chk").disabled = sel.length !== 2; $("chk").textContent = "Check (" + sel.length + "/2)"; }
+  el.querySelectorAll(".choice").forEach(function (b) { b.onclick = function () { if (STATE.solved) return; var oi = +b.getAttribute("data-o"), k = sel.indexOf(oi); if (k > -1) sel.splice(k, 1); else if (sel.length < 2) sel.push(oi); upd(); }; });
+  $("chk").onclick = function () {
+    var ok = sel.length === 2 && n.a.every(function (a) { return sel.indexOf(a) > -1; });
+    if (ok) { el.querySelectorAll(".choice").forEach(function (b) { b.disabled = true; if (n.a.indexOf(+b.getAttribute("data-o")) > -1) b.classList.add("right"); }); $("chk").disabled = true; judge(true); }
+    else { var nRight = sel.filter(function (s) { return n.a.indexOf(s) > -1; }).length; judge(false, sel.map(function (s) { return n.ch[s].slice(0, 36); }).join(" + "), nRight === 1 ? "One of those is right, but the other isn't. Try again." : "Neither of those is right. Try again."); sel = []; upd(); }
+  };
+};
+function norm(s) { return String(s || "").toUpperCase().replace(/\s+/g, "").replace(/^["']+|["']+$/g, ""); }
+RENDER.input = function (n, el) {
+  el.innerHTML = '<div class="row"><input class="inp" id="ans" autocomplete="off" spellcheck="false" placeholder="Type your answer"><button class="btn pri" id="chk">Check</button></div>';
+  var go = function () { if (STATE.solved) return; var v = $("ans").value; if (!v.trim()) { $("ans").focus(); return; } var ok = n.acc.some(function (a) { return norm(a) === norm(v); }); judge(ok, v.trim()); if (!ok) $("ans").select(); else $("ans").disabled = true; };
+  $("chk").onclick = go; $("ans").onkeydown = function (e) { if (e.key === "Enter") go(); }; setTimeout(function () { $("ans").focus(); }, 50);
+};
+RENDER.bits = function (n, el) {
+  var vals = [128, 64, 32, 16, 8, 4, 2, 1], on = [0, 0, 0, 0, 0, 0, 0, 0];
+  el.innerHTML = '<div class="bits">' + vals.map(function (v, i) { return '<div class="bit"><small>' + v + '</small><button data-i="' + i + '">0</button></div>'; }).join("") + '</div><div class="row" style="margin-top:10px"><button class="btn pri" id="chk">Check</button><span class="legend" style="margin:0">Target: <b style="color:#67E8F9">' + n.target + "</b></span></div>";
+  el.querySelectorAll(".bit button").forEach(function (b) { b.onclick = function () { if (STATE.solved) return; var i = +b.getAttribute("data-i"); on[i] = 1 - on[i]; b.textContent = on[i]; b.classList.toggle("on", !!on[i]); }; });
+  $("chk").onclick = function () { if (STATE.solved) return; var v = 0; on.forEach(function (b, i) { if (b) v += vals[i]; }); judge(v === n.target, on.join(""), "Your bits " + on.join("") + " make " + v + ", not " + n.target + ". Try again."); };
+};
+RENDER.order = function (n, el) {
+  var shown = shuffle(n.items.map(function (_, i) { return i; })), picked = [];
+  function draw() {
+    el.innerHTML = '<div class="ordwrap"><div class="ordcol"><h4>Steps (click in order)</h4>' + shown.map(function (i) { return '<button class="ordit' + (picked.indexOf(i) > -1 ? " used" : "") + '" data-i="' + i + '">' + esc(n.items[i]) + "</button>"; }).join("") +
+      '</div><div class="ordcol"><h4>Your order</h4>' + (picked.length ? picked.map(function (i, k) { return '<div class="ordit" style="cursor:default"><span class="n">' + (k + 1) + ".</span>" + esc(n.items[i]) + "</div>"; }).join("") : '<p class="legend">Click the steps on the left.</p>') +
+      '</div></div><div class="row" style="margin-top:10px"><button class="btn" id="rst">Reset</button><button class="btn pri" id="chk"' + (picked.length === n.items.length ? "" : " disabled") + ">Check</button></div>";
+    el.querySelectorAll(".ordcol:first-child .ordit").forEach(function (b) { b.onclick = function () { if (STATE.solved) return; var i = +b.getAttribute("data-i"); if (picked.indexOf(i) < 0) { picked.push(i); draw(); } }; });
+    $("rst").onclick = function () { if (STATE.solved) return; picked = []; draw(); };
+    $("chk").onclick = function () { if (STATE.solved) return; var ok = picked.every(function (v, k) { return v === k; }); var firstBad = picked.findIndex(function (v, k) { return v !== k; }); judge(ok, picked.map(function (v) { return v + 1; }).join("-"), ok ? "" : "Step " + (firstBad + 1) + " is out of place. Try again."); if (!ok) { picked = []; setTimeout(draw, 900); } else { $("rst").disabled = true; $("chk").disabled = true; } };
+  }
+  draw();
+};
+RENDER.debug = function (n, el) {
+  el.innerHTML = '<div class="codelabel">' + (n.lang === "py" ? "Python" : "AP pseudocode") + ' (click the buggy line)</div><div class="dbg">' + n.lines.map(function (l, i) { return '<button data-i="' + i + '"><span class="ln">' + (i + 1) + "</span>" + esc(l || " ") + "</button>"; }).join("") + "</div>";
+  el.querySelectorAll(".dbg button").forEach(function (b) {
+    b.onclick = function () { if (STATE.solved) return; var i = +b.getAttribute("data-i"), ok = n.a.indexOf(i) > -1; b.classList.add(ok ? "right" : "wrong"); judge(ok, "line " + (i + 1), "Line " + (i + 1) + " isn't the problem. Try again."); };
+  });
+};
+
+/* ---------- robot ---------- */
+var animT = null;
+function stopAnim() { if (animT) { clearTimeout(animT); animT = null; } }
+var ROBOT_SVG = '<svg viewBox="0 0 40 40"><polygon points="20,4 35,34 5,34" fill="#111827" stroke="#FB923C" stroke-width="2.5"/></svg>';
+function gridHtml(n, pos, bump) {
+  return '<div class="rgrid" style="grid-template-columns:repeat(' + n.grid[0].length + ',52px)">' + n.grid.map(function (row, r) {
+    return row.split("").map(function (ch, c) {
+      var cls = "rcell" + (ch === "#" ? " blk" : "") + (ch === "G" ? " goal" : "") + (bump && bump.r === r && bump.c === c ? " bump" : "");
+      var inner = pos && pos.r === r && pos.c === c ? '<div style="transform:rotate(' + pos.d * 90 + 'deg);display:grid">' + ROBOT_SVG + "</div>" : "";
+      return '<div class="' + cls + '">' + inner + "</div>";
+    }).join("");
+  }).join("") + "</div>";
+}
+function animate(n, box, res, done) {
+  var i = 0; stopAnim();
+  (function step() {
+    var f = res.frames[i]; var bump = f.ev === "bump" && f.br >= 0 && f.br < n.grid.length && f.bc >= 0 && f.bc < n.grid[0].length ? { r: f.br, c: f.bc } : null;
+    box.innerHTML = gridHtml(n, f, bump);
+    i++; if (i < res.frames.length) animT = setTimeout(step, 260); else { animT = null; done(); }
+  })();
+}
+var OUTCOME = { goal: "The robot reached the goal!", blocked: "The robot tried to move into a black square or off the grid, so it stayed put and the program ended.", notgoal: "The program finished, but the robot isn't on the goal.", loop: "The program never stops: that's an infinite loop!" };
+RENDER.robotBuild = function (n, el) {
+  var code = [], stack = [code];
+  el.innerHTML = '<div class="robotwrap"><div id="rbox">' + gridHtml(n, n.start) + '</div><div class="palette"><button class="btn" data-c="F">MOVE_FORWARD()</button><button class="btn" data-c="L">ROTATE_LEFT()</button><button class="btn" data-c="R">ROTATE_RIGHT()</button><div class="row"><button class="btn" id="rep" style="flex:1;text-align:left;font-family:JetBrains Mono,monospace;font-size:13px">REPEAT n TIMES {</button><select id="repn" class="inp" style="min-width:0;width:64px;padding:6px">' + [2, 3, 4, 5, 6, 7, 8].map(function (k) { return "<option>" + k + "</option>"; }).join("") + '</select></div><button class="btn" id="close" disabled>} end REPEAT</button><div class="row"><button class="btn sm" id="undo">Undo</button><button class="btn sm" id="clr">Clear</button></div><button class="btn pri" id="run">▶ Run</button></div><div><div class="codelabel">Your program <span id="cnt"></span></div><div class="prog" id="prog"></div></div></div>';
+  function count() { return RB.countBlocks(code); }
+  function show() {
+    var txt = RB.toText(code); if (stack.length > 1) txt += "\n   ▌ (adding inside the REPEAT)";
+    $("prog").textContent = txt || "(empty: click the commands)";
+    $("cnt").textContent = "· " + count() + (n.maxBlocks ? " / " + n.maxBlocks : "") + " blocks"; $("cnt").style.color = n.maxBlocks && count() > n.maxBlocks ? "#F87171" : "";
+    $("close").disabled = stack.length < 2; $("rep").disabled = stack.length > 1;
+  }
+  el.querySelectorAll("[data-c]").forEach(function (b) { b.onclick = function () { if (STATE.solved) return; stack[stack.length - 1].push({ op: b.getAttribute("data-c") }); show(); }; });
+  $("rep").onclick = function () { if (STATE.solved) return; var r = { op: "REP", n: +$("repn").value, body: [] }; stack[stack.length - 1].push(r); stack.push(r.body); show(); };
+  $("close").onclick = function () { if (stack.length > 1) { var body = stack.pop(); if (!body.length) stack[stack.length - 1].pop(); } show(); };
+  $("undo").onclick = function () { if (STATE.solved) return; var cur = stack[stack.length - 1]; if (cur.length) cur.pop(); else if (stack.length > 1) { stack.pop(); stack[stack.length - 1].pop(); } show(); };
+  $("clr").onclick = function () { if (STATE.solved) return; code.length = 0; stack = [code]; show(); $("rbox").innerHTML = gridHtml(n, n.start); };
+  $("run").onclick = function () {
+    if (STATE.solved || animT) return;
+    while (stack.length > 1) { var b = stack.pop(); if (!b.length) stack[stack.length - 1].pop(); } show();
+    if (!code.length) { $("fb").className = "fb bad"; $("fb").textContent = "Add some commands first."; return; }
+    var res = RB.run(code, n.grid, n.start), over = n.maxBlocks && count() > n.maxBlocks;
+    $("fb").className = "fb"; $("fb").textContent = "Running…"; $("run").disabled = true;
+    animate(n, $("rbox"), res, function () {
+      $("run").disabled = false;
+      var ok = res.outcome === "goal" && !over;
+      judge(ok, res.outcome + " · " + count() + " blocks", res.outcome === "goal" && over ? "The robot made it, but you used " + count() + " blocks. The limit is " + n.maxBlocks + ". Use REPEAT to shorten it." : OUTCOME[res.outcome] + " Edit your program and run it again.");
+    });
+  };
+  show();
+};
+RENDER.robotPick = function (n, el) {
+  var order = n.options.map(function (_, i) { return i; });   /* kept in the written order: the explanations name the choices by letter */
+  el.innerHTML = '<div class="robotwrap"><div id="rbox">' + gridHtml(n, n.start) + '</div><div class="opts">' + order.map(function (oi, k) { return '<button class="opt" data-o="' + oi + '"><b>(' + letters(k) + ")</b><pre>" + esc(RB.toText(n.options[oi])) + "</pre></button>"; }).join("") + "</div></div>";
+  el.querySelectorAll(".opt").forEach(function (b) {
+    b.onclick = function () {
+      if (STATE.solved || animT) return;
+      var oi = +b.getAttribute("data-o"), res = RB.run(n.options[oi], n.grid, n.start);
+      el.querySelectorAll(".opt").forEach(function (x) { x.disabled = true; });
+      $("fb").className = "fb"; $("fb").textContent = "Running choice " + letters(order.indexOf(oi)) + "…";
+      animate(n, $("rbox"), res, function () {
+        var ok = oi === n.a;
+        el.querySelectorAll(".opt").forEach(function (x) { if (!x.classList.contains("wrong")) x.disabled = false; });
+        b.classList.add(ok ? "right" : "wrong"); if (!ok) b.disabled = true; else el.querySelectorAll(".opt").forEach(function (x) { x.disabled = true; });
+        judge(ok, "option " + (oi + 1) + " (" + res.outcome + ")", OUTCOME[res.outcome] + " Pick another choice.");
+        if (!ok) setTimeout(function () { if (!animT) $("rbox").innerHTML = gridHtml(n, n.start); }, 1400);
+      });
+    };
+  });
+};
+
+/* ---------- network ---------- */
+function drawNet(n, box, path, flash) {
+  var G0 = PQ.GRAPHS[n.graph], failed = n.failed || [], on = {}, G = { edges: G0.edges, nodes: {} };
+  Object.keys(G0.nodes).forEach(function (k) { var v = G0.nodes[k]; G.nodes[k] = { x: v.x, y: v.y * 0.55, label: v.label }; });   /* flatter, so it fits a Chromebook screen */
+  (path || []).forEach(function (p, i) { if (i) { on[path[i - 1] + p] = on[p + path[i - 1]] = 1; } });
+  var s = '<svg class="net" viewBox="-8 -6 116 66">';
+  G.edges.forEach(function (e) { var a = G.nodes[e[0]], b = G.nodes[e[1]], hot = on[e[0] + e[1]]; s += '<line x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '" stroke="' + (hot ? "#FB923C" : "#2B3B6E") + '" stroke-width="' + (hot ? 2.2 : 1.2) + '"/>'; });
+  Object.keys(G.nodes).forEach(function (k) {
+    var v = G.nodes[k], bad = failed.indexOf(k) > -1, inP = path && path.indexOf(k) > -1, end = k === n.src || k === n.dst, fl = flash === k;
+    var fill = bad ? "#3B0A12" : inP ? "#FB923C" : end ? "#0E3A4A" : "#141C33", stroke = bad ? "#F87171" : fl ? "#FCD34D" : inP ? "#FDBA74" : end ? "#22D3EE" : "#4B5B85";
+    s += '<g class="nd" data-k="' + k + '"><circle cx="' + v.x + '" cy="' + v.y + '" r="' + (end ? 6.5 : 5.5) + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1.2"/>';
+    if (bad) s += '<path d="M' + (v.x - 3) + " " + (v.y - 3) + "l6 6M" + (v.x + 3) + " " + (v.y - 3) + 'l-6 6" stroke="#F87171" stroke-width="1.3"/>';
+    else s += '<text x="' + v.x + '" y="' + (v.y + 1.6) + '" font-size="4.6" text-anchor="middle" fill="' + (inP ? "#1a0d00" : "#E8EEFB") + '" font-family="JetBrains Mono" font-weight="700">' + k + "</text>";
+    if (v.label) s += '<text x="' + v.x + '" y="' + (v.y + 12) + '" font-size="4" text-anchor="middle" fill="#97A3C2" font-family="Manrope">' + v.label + "</text>";
+    s += "</g>";
+  });
+  box.innerHTML = s + "</svg>";
+}
+RENDER.netPath = function (n, el) {
+  var G = PQ.GRAPHS[n.graph], path = [n.src], bad = false;
+  el.innerHTML = '<div id="netbox"></div><div class="row" style="margin-top:8px"><span class="legend" style="margin:0">Path: <b id="ptxt"></b></span><div class="sp"></div><button class="btn sm" id="undo">Undo</button><button class="btn sm" id="rst">Reset</button></div>';
+  function adj(a, b) { return G.edges.some(function (e) { return (e[0] === a && e[1] === b) || (e[0] === b && e[1] === a); }); }
+  function draw(fl) { drawNet(n, $("netbox"), path, fl); $("ptxt").textContent = path.join(" → "); $("netbox").querySelectorAll(".nd").forEach(function (g) { g.onclick = function () { click(g.getAttribute("data-k")); }; }); }
+  function click(k) {
+    if (STATE.solved) return;
+    var last = path[path.length - 1];
+    if (path.indexOf(k) > -1) return;
+    if ((n.failed || []).indexOf(k) > -1) { flashMsg("Router " + k + " is down. Data can't go through it."); return; }
+    if (!adj(last, k)) { flashMsg(k + " isn't directly connected to " + last + "."); draw(k); return; }
+    path.push(k); draw();
+    if (k === n.dst) { judge(true, path.join("-")); $("undo").disabled = $("rst").disabled = true; }
+  }
+  function flashMsg(m) { if (!bad) { bad = true; record0(m); } $("fb").className = "fb bad"; $("fb").textContent = m; }
+  function record0(m) { STATE.wrong++; if (!STATE.practice) record(n.id, false, path.join("-") + " ✗"); }
+  $("undo").onclick = function () { if (path.length > 1 && !STATE.solved) { path.pop(); draw(); } };
+  $("rst").onclick = function () { if (!STATE.solved) { path = [n.src]; draw(); } };
+  draw();
+};
+
+/* ======================= BOSS ======================= */
+function bossIntro() {
+  var open = isOpen("m12"), B = PQ.BOSS, keys = keysCount(), integ = B.integrity + keys, b = ME.progress.boss || {};
+  if (!open) { openOv('<button class="btn sm x" id="cx">✕</button><div class="pbody center"><div class="big">🔒</div><div class="px" style="font-size:22px">The Server Core is sealed</div><p>The final battle opens near the end of the year. Until then, collect Key Fragments: each one gives you +1 integrity against the Corruptor.</p><p class="legend">You have ' + keys + " of 5 Key Fragments.</p></div>"); $("cx").onclick = closeOv; return; }
+  openOv('<button class="btn sm x" id="cx">✕</button><div class="pbody center"><div id="bossArt">' + bossSvg() + '</div><div class="px" style="font-size:28px;color:#FB7185">' + esc(B.title) + '</div><p style="max-width:560px;margin:6px auto">' + esc(B.story) + '</p><div class="stats"><div class="stat"><b>' + B.hp + '</b><small>hits to win</small></div><div class="stat"><b>' + integ + '</b><small>your integrity (' + B.integrity + " + " + keys + ' keys)</small></div><div class="stat"><b>' + (b.wins || 0) + '</b><small>times defeated</small></div></div><p class="legend">Questions come from all 5 Big Ideas, just like the AP exam.</p><button class="btn pri" id="go">⚔ Fight</button></div>', true);
+  $("cx").onclick = closeOv; $("go").onclick = bossFight;
+}
+function bossSvg(hurt) {
+  return '<svg width="150" height="120" viewBox="0 0 150 120" class="' + (hurt ? "hit" : "") + '"><defs><radialGradient id="bg1"><stop offset="0" stop-color="#FB7185"/><stop offset="1" stop-color="#7F1D1D"/></radialGradient></defs>' +
+    '<g opacity=".7">' + [0, 1, 2, 3, 4, 5, 6, 7].map(function (i) { var a = i * Math.PI / 4; return '<line x1="75" y1="60" x2="' + (75 + Math.cos(a) * 58) + '" y2="' + (60 + Math.sin(a) * 50) + '" stroke="#F43F5E" stroke-width="2" stroke-dasharray="3 4"/>'; }).join("") + "</g>" +
+    '<polygon points="75,12 118,36 118,84 75,108 32,84 32,36" fill="url(#bg1)" stroke="#FDA4AF" stroke-width="2"/><rect x="50" y="48" width="16" height="10" fill="#FEF08A"/><rect x="84" y="48" width="16" height="10" fill="#FEF08A"/><path d="M52 80 l8 -6 l8 6 l8 -6 l8 6 l8 -6 l8 6" stroke="#FEF08A" stroke-width="3" fill="none"/>' +
+    '<text x="75" y="34" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#FECDD3">01001110</text></svg>';
+}
+var BF = null;
+function bossFight() {
+  var B = PQ.BOSS; BF = { hp: B.hp, integ: B.integrity + keysCount(), max: B.integrity + keysCount(), queue: shuffle(B.pool), hits: 0, seen: {} };
+  bossQ();
+}
+function bossQ() {
+  var B = PQ.BOSS, n = BF.queue.shift(); BF.cur = n; BF.queue.push(n);
+  STATE = { node: n, wrong: 0, solved: false, practice: false, boss: true };
+  var h = '<div class="phead"><button class="btn sm" id="flee">Retreat</button><div style="flex:1;min-width:220px"><div class="row" style="justify-content:space-between"><b style="color:#FB7185">Corruptor</b><span class="legend" style="margin:0">' + BF.hp + " / " + B.hp + '</span></div><div class="hpbar"><i style="width:' + (BF.hp / B.hp * 100) + '%"></i></div></div><div><div class="legend" style="margin:0">Your integrity</div><div class="hearts">' + "💙".repeat(BF.integ) + "🖤".repeat(Math.max(0, BF.max - BF.integ)) + "</div></div></div>";
+  h += '<div class="pbody" id="qbody"><div id="bossArt">' + bossSvg(BF.justHit) + '</div><div class="qtitle"><h3>' + esc(n.ti) + '</h3><span class="tag">' + esc(PQ.BIG_IDEAS[n.bi].name) + " · CED " + n.t + '</span></div><div class="prompt">' + esc(n.p) + "</div>" + (n.code ? '<div class="codelabel">' + (n.lang === "py" ? "Python" : "AP pseudocode") + '</div><pre class="code">' + esc(n.code) + "</pre>" : "") + '<div id="area"></div><div class="fb" id="fb"></div><div id="after"></div></div>';
+  BF.justHit = false;
+  openOv(h, true);
+  $("flee").onclick = function () { api({ action: "boss", hits: BF.hits, won: false }).then(function (j) { if (j && j.ok) ME.progress.boss = j.boss; }); closeOv(); };
+  var order = shuffle(n.ch.map(function (_, i) { return i; })), el = $("area");
+  el.innerHTML = '<div class="choices">' + order.map(function (oi, k) { return '<button class="choice" data-o="' + oi + '"><span class="L">' + letters(k) + "</span><span>" + esc(n.ch[oi]) + "</span></button>"; }).join("") + "</div>";
+  el.querySelectorAll(".choice").forEach(function (b) {
+    b.onclick = function () {
+      if (STATE.solved) return; STATE.solved = true;
+      var oi = +b.getAttribute("data-o"), ok = oi === n.a;
+      el.querySelectorAll(".choice").forEach(function (x) { x.disabled = true; if (+x.getAttribute("data-o") === n.a) x.classList.add("right"); });
+      record(n.id, ok, ok ? "" : n.ch[oi]);
+      if (ok) { BF.hp--; BF.hits++; BF.justHit = true; BF.queue.pop(); $("fb").className = "fb ok"; $("fb").textContent = "Direct hit!"; }
+      else { b.classList.add("wrong"); BF.integ--; $("fb").className = "fb bad"; $("fb").textContent = "The Corruptor strikes back! −1 integrity"; }
+      $("after").innerHTML = '<div class="explain' + (ok ? "" : " peek") + '"><b>' + (ok ? "Why:" : "Answer:") + "</b> " + esc(n.x) + '</div><div class="row" style="margin-top:12px;justify-content:flex-end"><button class="btn pri" id="next">Continue ▶</button></div>';
+      $("next").onclick = function () { if (BF.hp <= 0) bossEnd(true); else if (BF.integ <= 0) bossEnd(false); else bossQ(); };
+      $("next").focus();
+    };
+  });
+}
+function bossEnd(won) {
+  api({ action: "boss", hits: BF.hits, won: won }).then(function (j) { if (j && j.ok) { ME.progress.boss = j.boss; refreshHud(); } });
+  if (won) { ME.progress.boss.wins = (ME.progress.boss.wins || 0) + 1; }
+  ME.progress.boss.bestHits = Math.max(ME.progress.boss.bestHits || 0, BF.hits);
+  openOv('<div class="pbody center"><div class="big">' + (won ? "🏆" : "💥") + '</div><div class="px" style="font-size:28px;color:' + (won ? "#FCD34D" : "#FB7185") + '">' + (won ? "Corruptor defeated!" : "Packet corrupted…") + "</div><p>" + (won ? "You delivered the project to the AP Server. You're ready for exam day, so keep reviewing!" : "You landed " + BF.hits + " of " + PQ.BOSS.hp + " hits. Read the explanations, then try again. Every Key Fragment you collect adds integrity.") + '</p><div class="row" style="justify-content:center"><button class="btn" id="map2">Back to the map</button><button class="btn pri" id="again">' + (won ? "Fight again" : "Retry ⚔") + "</button></div></div>", true);
+  $("map2").onclick = closeOv; $("again").onclick = bossFight; refreshHud();
+}
+
+initGoogle();
+})();
+</script>
+</body>
+</html>
