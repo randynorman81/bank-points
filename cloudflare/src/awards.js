@@ -42,7 +42,8 @@ export async function runAwards(nowMs) {
     for (const k of keys) { const v = await code.get(k, { type: "json" }); if (v && v.email) subs[String(v.email).toLowerCase()] = v; }
     for (const s of inPeriod) {
       const sub = subs[String(s.email).toLowerCase()], sc = scoreOf(sub);
-      if (sub && sc !== null && sc >= min && Date.parse(sub.submittedAt) <= by) winners.push(s);
+      const when = Date.parse(rule.firstTurnIn ? (sub && (sub.firstSubmittedAt || sub.submittedAt)) : (sub && sub.submittedAt));
+      if (sub && (min <= 0 || (sc !== null && sc >= min)) && when <= by) winners.push(s);
     }
     const stamp = new Date(now).toISOString();
     await update("transactions", [], (tx) => {
