@@ -1,4 +1,5 @@
 import { getStore } from "@netlify/blobs";
+import { withPySettings } from "../../teacher-settings/python-editor.js";
 
 // Python editor backend (python/editor.html).
 //   - Students sign in with their school Google account (same setup as the HTML editor).
@@ -79,7 +80,7 @@ async function mine(body, user) {
     out.submission = await readJSON("sub:" + body.slot + ":" + enc(user.email), null);
     if (out.submission && out.submission.attempts) { out.submission = Object.assign({}, out.submission); delete out.submission.attempts; }
     out.draft = await readJSON("draft:" + body.slot + ":" + enc(user.email), null);
-    if (out.submission && out.submission.mcScore) { const asg = await readJSON("assign:" + body.slot, null); if (!isTeacherUser(user) && !(asg && (asg.mcReleased || (asg.passMin !== undefined && asg.passMin !== null)))) { out.submission = Object.assign({}, out.submission); delete out.submission.mcScore; } }
+    if (out.submission && out.submission.mcScore) { const asg = withPySettings(body.slot, await readJSON("assign:" + body.slot, null)); if (!isTeacherUser(user) && !(asg && (asg.mcReleased || (asg.passMin !== undefined && asg.passMin !== null)))) { out.submission = Object.assign({}, out.submission); delete out.submission.mcScore; } }
   }
   return out;
 }
@@ -98,7 +99,7 @@ async function logActivity(slot, email, code, period, submitted) {
   try {
     const key = "act:" + slot + ":" + enc(email), log = await readJSON(key, []), h = hashOf(code), last = log[log.length - 1];
     if (!submitted && last && last.h === h) return;
-    let pct = null; const rec = variantFor(await readJSON("assign:" + slot, null), period);
+    let pct = null; const rec = variantFor(withPySettings(slot, await readJSON("assign:" + slot, null)), period);
     if (rec && Array.isArray(rec.checks) && rec.checks.length && code.length <= 15000) pct = scoreCode(rec.checks, code).pct;
     log.push({ t: now(), lines: code.split("\n").length, pct, h, sub: submitted ? 1 : 0 });
     await store().setJSON(key, log.slice(-300));
@@ -107,7 +108,7 @@ async function logActivity(slot, email, code, period, submitted) {
 /* Quiz mode: the editor reports every time a student leaves the quiz page (another tab or window, minimizing, or leaving fullscreen). Only for assignments whose title starts with "Quiz". */
 async function quizLeave(body, user) {
   if (!goodSlot(body.slot) || body.slot === "free") return { error: "Unknown assignment" };
-  const rec = await readJSON("assign:" + body.slot, null);
+  const rec = withPySettings(body.slot, await readJSON("assign:" + body.slot, null));
   if (!rec || rec.quizFree === true || !/^Quiz\b/i.test(String(rec.title || ""))) return { ok: true };
   const key = "leave:" + body.slot + ":" + enc(user.email), log = await readJSON(key, []);
   const kind = ["hidden", "blur", "fullscreen", "start"].indexOf(body.kind) > -1 ? body.kind : "hidden";
@@ -142,7 +143,7 @@ async function adminRecent(body) {
   return { ok: true, hours, rows: out };
 }
 /* a closed (not live) assignment can not be saved to or submitted by a student, however well they did on the others; only the teacher account can */
-async function closedToStudent(slot, user) { if (slot === "free" || isTeacherUser(user)) return false; const a = await readJSON("assign:" + slot, null); return !!a && a.live === false; }
+async function closedToStudent(slot, user) { if (slot === "free" || isTeacherUser(user)) return false; const a = withPySettings(slot, await readJSON("assign:" + slot, null)); return !!a && a.live === false; }
 /* multiple-choice section of a quiz: the student's picks are saved with the draft and the submission; the answer key never leaves the server, and the score is hidden from the student until the teacher releases it */
 const cleanMcPicks = (a) => (Array.isArray(a) ? a.slice(0, 30).map((x) => { const n = Number(x); return Number.isInteger(n) && n >= -1 && n <= 7 ? n : -1; }) : null);
 function mcScoreOf(key, picks) {
@@ -199,7 +200,7 @@ function passMinOf(a) { if (!a) return null; if (a.passMin !== undefined && a.pa
 async function subPassed(slot, email) {
   const sub = await readJSON("sub:" + slot + ":" + enc(email), null); if (!sub) return false;
   /* passMin: this assignment needs that percent (for example 90) before the next one opens. A score the teacher types in by hand (90 or more) also unlocks it. */
-  const asgP = await readJSON("assign:" + slot, null), pm = passMinOf(asgP);
+  const asgP = withPySettings(slot, await readJSON("assign:" + slot, null)), pm = passMinOf(asgP);
   if (pm !== null && !isNaN(pm)) {
     const tt = sub.teacher; if (tt && !tt.auto && tt.score !== null && tt.score !== undefined && tt.score !== "" && !isNaN(Number(tt.score)) && Number(tt.score) >= pm) return true;
     const ms = Array.isArray(asgP.mcKey) && asgP.mcKey.length ? mcScoreOf(asgP.mcKey, sub.mc) : null;
@@ -208,13 +209,13 @@ async function subPassed(slot, email) {
     return false;
   }
   const t = sub.teacher; if (t && t.score !== null && t.score !== undefined && t.score !== "" && !isNaN(Number(t.score))) return Number(t.score) >= PASS;
-  const rec = variantFor(await readJSON("assign:" + slot, null), sub.period);
+  const rec = variantFor(withPySettings(slot, await readJSON("assign:" + slot, null)), sub.period);
   if (!rec || !Array.isArray(rec.checks) || !rec.checks.length) return true;
   const r = scoreCode(rec.checks, sub.code || "", sub.gradeOutput != null ? sub.gradeOutput : sub.output); return r.pct === null || r.pct >= PASS;
 }
 async function autoGradeFor(slot, code, current, period, output) {
   if (current && current.score !== null && current.score !== undefined && !current.auto) return null;
-  const as = variantFor(await readJSON("assign:" + slot, null), period);
+  const as = variantFor(withPySettings(slot, await readJSON("assign:" + slot, null)), period);
   if (!as || !Array.isArray(as.checks) || !as.checks.length) return null;
   const r = scoreCode(as.checks, code, output);
   if (r.pct === null) return null;
@@ -236,7 +237,7 @@ function quizResult(asg, period, picks, code, gradeOutput) {
 async function gradeQuiz(body, user) {
   if (!goodSlot(body.slot) || body.slot === "free") return { error: "Unknown assignment" };
   if (await closedToStudent(body.slot, user)) return { error: "That quiz is not open yet." };
-  const asg = await readJSON("assign:" + body.slot, null);
+  const asg = withPySettings(body.slot, await readJSON("assign:" + body.slot, null));
   if (!asg || slotPart(asg) !== "quiz") return { error: "That is not a quiz." };
   const period = cleanPeriod(body.period);
   if (asg.live !== false && !isTeacherUser(user)) { const open = await gatedAssignments(user, period); if (!open.assignments[body.slot]) return { error: "That quiz is not open for you yet." }; }
@@ -252,12 +253,12 @@ async function submit(body, user) {
   if (await closedToStudent(body.slot, user)) return { error: "That assignment is not open yet." };
   const code = String(body.code == null ? "" : body.code);
   /* a multiple-choice-only assignment (mcOnly) has no code to write: answering at least one question is enough */
-  const picks0 = cleanMcPicks(body.mc), asg0 = await readJSON("assign:" + body.slot, null);
+  const picks0 = cleanMcPicks(body.mc), asg0 = withPySettings(body.slot, await readJSON("assign:" + body.slot, null));
   const mcOnlyOk = !!(asg0 && asg0.mcOnly && Array.isArray(picks0) && picks0.some((x) => x >= 0));
   if (!code.trim() && !mcOnlyOk) return { error: "Your code is empty. Write something first!" };
   if (code.length > MAX_CODE) return { error: "That file is too big to submit." };
   const period = cleanPeriod(body.period);
-  const asg = await readJSON("assign:" + body.slot, null);
+  const asg = withPySettings(body.slot, await readJSON("assign:" + body.slot, null));
   if (asg && slotPart(asg) === "quiz" && !isTeacherUser(user)) {
     const qr = quizResult(asg, period, cleanMcPicks(body.mc), code, body.gradeOutput != null ? body.gradeOutput : body.output);
     if (!qr.perfect) return { error: "Your quiz grades at " + qr.pct + "%. You need 100% to submit. Click \"Grade my quiz\", fix the questions it lists, and grade again until you get 100%.", pct: qr.pct, need: 100, quiz: true };
@@ -443,7 +444,7 @@ async function gatedAssignments(user, period) {
 }
 async function publicAssignments(all) {
   const out = {};
-  for (const k of await listPrefix("assign:")) { const v = await store().get(k, { type: "json" }); if (v && (all || v.live !== false)) { if (!all) { delete v.checks; delete v.mcKey; } out[k.slice(7)] = v; } }
+  for (const k of await listPrefix("assign:")) { const v = withPySettings(k.slice(7), await store().get(k, { type: "json" })); if (v && (all || v.live !== false)) { if (!all) { delete v.checks; delete v.mcKey; } out[k.slice(7)] = v; } }
   return { ok: true, assignments: out };
 }
 
@@ -589,7 +590,7 @@ async function liveScore(body) {
   if (!goodSlot(body.slot) || body.slot === "free") return { ok: true, pct: null };
   const code = String(body.code == null ? "" : body.code);
   if (code.length > 15000) return { ok: true, pct: null, tooLong: true };
-  const rec = variantFor(await readJSON("assign:" + body.slot, null), cleanPeriod(body.period));
+  const rec = variantFor(withPySettings(body.slot, await readJSON("assign:" + body.slot, null)), cleanPeriod(body.period));
   if (!rec || !Array.isArray(rec.checks) || !rec.checks.length) return { ok: true, pct: null };
   if (rec.live === false && !isAdmin(body) && !(body.credential && isTeacherUser(await verifyGoogleToken(body.credential)))) return { ok: true, pct: null };
   const r = scoreCode(rec.checks, code, String(body.output == null ? "" : body.output).slice(-8000));

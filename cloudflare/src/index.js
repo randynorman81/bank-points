@@ -10,6 +10,7 @@ import arena from "../../netlify/functions/arena.js";
 import latework from "../../netlify/functions/latework.js";
 import packetquest from "../../netlify/functions/packetquest.js";
 import gdoc from "./gdoc.js";
+import { runAwards } from "./awards.js";
 
 export default {
   async fetch(req) {
@@ -25,5 +26,9 @@ export default {
     if (path.startsWith("/api/")) return data(req);
     if (path === "/sat") return env.ASSETS.fetch(new Request(new URL("/sat-english/", req.url), req));
     return env.ASSETS.fetch(req);
+  },
+  /* cron trigger (wrangler.toml): runs the bank-point award rules in teacher-settings/awards.js */
+  async scheduled(event, envArg, ctx) {
+    ctx.waitUntil(runAwards(event.scheduledTime).catch((e) => console.log("awards failed", e && e.message)));
   }
 };
