@@ -433,8 +433,8 @@ async function gatedAssignments(user, period) {
     const hasSub = chain && firstFail !== null && user ? !!(await readJSON("sub:" + id + ":" + enc(user.email), null)) : false;
     const held = a.hold === true, open = !held && (a.ungated === true || firstFail === null || hasSub);
     if (open) show(id);
-    else if (held && firstFail === null) locked.push({ id, held: true, unit: a.unit || "", part: slotPart(a), ord: orderKey(id, a), title: slotPart(a) === "assignment" ? "" : String(a.title || ""), name: itemName(id, a), num: a.num || Number(id.slice(1)) });
-    else { const f = all[firstFail]; locked.push({ id, need: firstFail, unit: a.unit || "", part: slotPart(a), ord: orderKey(id, a), title: slotPart(a) === "assignment" ? "" : String(a.title || ""), name: itemName(id, a), needName: itemName(firstFail, f), needName2: slotPart(f) === "assignment" ? "" : itemName(firstFail, f), num: a.num || Number(id.slice(1)), needNum: f.num || Number(firstFail.slice(1)), needPass: passMinOf(f), held }); }
+    else if (held && firstFail === null) locked.push({ id, held: true, unit: a.unit || "", part: slotPart(a), ord: orderKey(id, a), title: slotPart(a) === "assignment" ? "" : String(a.title || ""), concept: String(a.title || ""), name: itemName(id, a), num: a.num || Number(id.slice(1)) });
+    else { const f = all[firstFail]; locked.push({ id, need: firstFail, unit: a.unit || "", part: slotPart(a), ord: orderKey(id, a), title: slotPart(a) === "assignment" ? "" : String(a.title || ""), concept: String(a.title || ""), name: itemName(id, a), needName: itemName(firstFail, f), needName2: slotPart(f) === "assignment" ? "" : itemName(firstFail, f), num: a.num || Number(id.slice(1)), needNum: f.num || Number(firstFail.slice(1)), needPass: passMinOf(f), held }); }
     if (chain && firstFail === null && !(user && (await subPassed(id, user.email)))) firstFail = id;
   }
   return { ok: true, assignments: out, locked };

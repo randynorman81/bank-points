@@ -317,6 +317,7 @@ var ta = $("code"), out = $("out"), gut = $("gut"), runBtn = $("run"), statusEl 
 var mode = "python";
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+var URLSLOT = (location.search.match(/[?&]a=(a\d+)/) || [])[1] || null;
 var slot = "free", API = "/api/pycode", GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
 function codeKey() { return "py:code:" + mode + (slot === "free" ? "" : ":" + slot); }
 function starter() { if (slot === "example" && mode !== "karel") return EXAMPLE_CODE; return mode === "karel" ? STARTER_KAREL : ""; }
@@ -1623,6 +1624,7 @@ function loadAssignments() {
     Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
     addExample(); window.PY_LOCKED = TEACHER ? [] : (j.locked || []);
     var want = lsGet("py:slot") || "free";
+    if (URLSLOT && window.PY_ASSIGN[URLSLOT]) { slot = URLSLOT; lsSet("py:slot", slot); URLSLOT = null; }
     if (!TEACHER) { if (slot !== "free" && !window.PY_ASSIGN[slot]) slot = "free"; else if (slot === "free" && want !== "free" && window.PY_ASSIGN[want]) slot = want; }
     buildSlots(); renderAssignment(); if (typeof afterSlotChange === "function") afterSlotChange();
   }).catch(function () {});
