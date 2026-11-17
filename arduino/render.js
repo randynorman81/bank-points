@@ -157,9 +157,9 @@
     return s + legDots(part);
   }
   function diodeSVG(part) {
-    var s = '<path d="M0,0 L48,0" stroke="#cbd5e1" stroke-width="2.2"/>';
-    s += '<rect x="12" y="-6" width="24" height="12" rx="4" fill="#111827" stroke="#374151" stroke-width="1.5"/><rect x="30" y="-6" width="5" height="12" fill="#e5e7eb"/>';
-    s += '<text x="22" y="3" font-size="6" fill="#9ca3af" text-anchor="middle">1N</text><text x="0" y="-5" font-size="7" font-weight="800" fill="#fb7185" text-anchor="middle">+</text><text x="48" y="-5" font-size="8" font-weight="800" fill="#60a5fa" text-anchor="middle">&#8722;</text>';
+    var s = '<path d="M0,0 L36,0" stroke="#cbd5e1" stroke-width="2.2"/>';
+    s += '<rect x="7" y="-6" width="22" height="12" rx="4" fill="#111827" stroke="#374151" stroke-width="1.5"/><rect x="23" y="-6" width="5" height="12" fill="#e5e7eb"/>';
+    s += '<text x="15" y="3" font-size="6" fill="#9ca3af" text-anchor="middle">1N</text><text x="0" y="-5" font-size="7" font-weight="800" fill="#fb7185" text-anchor="middle">+</text><text x="36" y="-5" font-size="8" font-weight="800" fill="#60a5fa" text-anchor="middle">&#8722;</text>';
     return s + legDots(part);
   }
   var SEG = { 0: "abcdef", 1: "bc", 2: "abdeg", 3: "abcdg", 4: "bcfg", 5: "acdfg", 6: "acdefg", 7: "abc", 8: "abcdefg", 9: "abcdfg", "-": "g", A: "abcefg", B: "cdefg", C: "adef", D: "bcdeg", E: "adefg", F: "aefg" };

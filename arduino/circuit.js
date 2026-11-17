@@ -60,7 +60,7 @@
     pot: { label: "Potentiometer", box: [-14, -52, 52, 58], terms: function () { return [{ id: "1", x: 0, y: 0, name: "outer leg" }, { id: "W", x: P, y: 0, name: "wiper (middle)" }, { id: "2", x: 2 * P, y: 0, name: "outer leg" }]; } },
     npn: { label: "NPN transistor", box: [-14, -46, 52, 52], terms: function () { return [{ id: "C", x: 0, y: 0, name: "collector" }, { id: "B", x: P, y: 0, name: "base" }, { id: "E", x: 2 * P, y: 0, name: "emitter" }]; } },
     motor: { label: "DC motor", box: [-14, -56, 64, 62], terms: function () { return [{ id: "1", x: 0, y: 0, name: "motor wire" }, { id: "2", x: 3 * P, y: 0, name: "motor wire" }]; } },
-    diode: { label: "Diode", box: [-8, -14, 4 * P + 16, 24], terms: function () { return [{ id: "A", x: 0, y: 0, name: "anode (+)" }, { id: "K", x: 4 * P, y: 0, name: "cathode (-, the stripe)" }]; } },
+    diode: { label: "Diode", box: [-8, -14, 3 * P + 16, 24], terms: function () { return [{ id: "A", x: 0, y: 0, name: "anode (+)" }, { id: "K", x: 3 * P, y: 0, name: "cathode (-, the stripe)" }]; } },
     seg7: { label: "4-digit 7-segment display", box: [-16, -74, 4 * P + 32, 80], terms: function () { return [{ id: "+", x: 0, y: 0, name: "+ (5V)" }, { id: "-", x: P, y: 0, name: "- (GND)" }, { id: "D", x: 2 * P, y: 0, name: "D (data, SDA)" }, { id: "C", x: 3 * P, y: 0, name: "C (clock, SCL)" }]; } }
   };
   function rot(x, y, r) { switch (((r % 4) + 4) % 4) { case 1: return [-y, x]; case 2: return [-x, -y]; case 3: return [y, -x]; default: return [x, y]; } }
