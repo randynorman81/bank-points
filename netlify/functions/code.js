@@ -130,7 +130,7 @@ async function myLessons(user) {
     const [s, d] = await Promise.all([store().getMetadata("sub:" + l + ":" + e), store().getMetadata("draft:" + l + ":" + e)]);
     return { l, s: !!s, any: !!(s || d) };
   }));
-  return { ok: true, lessons: has.filter((x) => x.any).map((x) => x.l), submitted: has.filter((x) => x.s).map((x) => x.l) };
+  return { ok: true, lessons: has.filter((x) => x.any).map((x) => x.l), submitted: has.filter((x) => x.s).map((x) => x.l), live: globalThis.U7_LIVE || [], prereq: globalThis.U7_PREREQ || {} };   /* the editor uses these, so a Chromebook with an old cached live.js still sees what is open */
 }
 
 async function saveDraft(body, user) {
