@@ -330,6 +330,10 @@ var mode = "python";
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 var URLSLOT = (location.search.match(/[?&]a=(a\d+)/) || [])[1] || null;
+/* the assignment you are on is kept in two places, so a refresh always comes back to it: the browser's storage and the address (#a19) */
+function slotFromAddress() { var m = /^#(free|example|a\d+)$/.exec(location.hash || ""); return m ? m[1] : ""; }
+function rememberSlot(id) { lsSet("py:slot", id); try { history.replaceState(null, "", location.pathname + location.search + (id && id !== "free" ? "#" + id : "")); } catch (e) {} }
+function wantedSlot() { return slotFromAddress() || lsGet("py:slot") || "free"; }
 var slot = "free", API = "/api/pycode", GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
 function codeKey() { return "py:code:" + mode + (slot === "free" ? "" : ":" + slot); }
 function starter() { if (slot === "example" && mode !== "karel") return EXAMPLE_CODE; return mode === "karel" ? STARTER_KAREL : ""; }
@@ -1389,7 +1393,7 @@ function signOut() {
     try { if (window.google && google.accounts && google.accounts.id) google.accounts.id.disableAutoSelect(); } catch (e) {}
     try { localStorage.removeItem("py:cred"); } catch (e) {}
     try { Object.keys(localStorage).filter(function (k) { return /^py:(code|prog|slot|period)/.test(k); }).forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
-    CRED = null; location.reload();
+    CRED = null; try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {} location.reload();
   });
 }
 function api(body) {
@@ -1564,8 +1568,9 @@ document.addEventListener("fullscreenchange", function () {
   else quizBack();
 });
 $("slot").addEventListener("change", function () {
+  var chosen = $("slot").value; if (chosen) rememberSlot(chosen);
   lsSet(codeKey(), ta.value); cloudSave().then(function () {
-    slot = $("slot").value; lsSet("py:slot", slot); renderAssignment(); lastCloud = ""; $("cloud").className = "cloud"; showTeacher(null); statusEl.textContent = py ? "Ready" : statusEl.textContent;
+    slot = $("slot").value; rememberSlot(slot); renderAssignment(); lastCloud = ""; $("cloud").className = "cloud"; showTeacher(null); statusEl.textContent = py ? "Ready" : statusEl.textContent;
     var v = savedCode(); ta.value = v !== null ? v : starter(); gutter(); afterSlotChange(); quizSetup();
   });
 });
@@ -1685,9 +1690,11 @@ function loadAssignments() {
     if (TEACHER) window.PY_ASSIGN = window.PY_ASSIGN || {}; else window.PY_ASSIGN = {};
     Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
     addExample(); window.PY_LOCKED = TEACHER ? [] : (j.locked || []);
-    var want = lsGet("py:slot") || "free";
-    if (URLSLOT && window.PY_ASSIGN[URLSLOT]) { slot = URLSLOT; lsSet("py:slot", slot); URLSLOT = null; }
-    if (!TEACHER) { if (slot !== "free" && !window.PY_ASSIGN[slot]) slot = "free"; else if (slot === "free" && want !== "free" && window.PY_ASSIGN[want]) slot = want; }
+    if (URLSLOT && window.PY_ASSIGN[URLSLOT]) { slot = URLSLOT; URLSLOT = null; try { history.replaceState(null, "", location.pathname + location.search.replace(/([?&])a=a\d+&?/, "$1").replace(/[?&]$/, "")); } catch (e) {} rememberSlot(slot); }
+    var want = wantedSlot();
+    /* the first list can arrive before sign-in finishes, and a teacher's list has more in it than a student's: only fall back to the sandbox when the remembered one is not in THIS list, and never forget it */
+    if (want === "free" || want === "example" || window.PY_ASSIGN[want]) slot = want;
+    else if (slot !== "free" && slot !== "example" && !window.PY_ASSIGN[slot]) slot = "free";
     buildSlots(); renderAssignment(); if (typeof afterSlotChange === "function") afterSlotChange();
   }).catch(function () {});
 }
@@ -1746,7 +1753,7 @@ function setMode(m) {
   loadCode(); renderKey(); if (m === "karel") draw(world);
 }
 $("mode").addEventListener("change", function () { setMode(this.value); });
-slot = (lsGet("py:slot") || "free"); if (!/^(free|example|a\d+)$/.test(slot)) slot = "free"; if (lsGet("py:period")) $("period").value = lsGet("py:period"); buildSlots(); renderAssignment(); if (typeof loadAssignments === "function") loadAssignments();
+slot = wantedSlot(); if (!/^(free|example|a\d+)$/.test(slot)) slot = "free"; if (lsGet("py:period")) $("period").value = lsGet("py:period"); buildSlots(); renderAssignment(); if (typeof loadAssignments === "function") loadAssignments();
 setMode(lsGet("py:mode") === "karel" ? "karel" : "python"); setMode.ready = true;
 </script>
 </body></html>
