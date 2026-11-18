@@ -35,7 +35,7 @@
     root.innerHTML = '<div class="asg"><div class="ic">💻</div><div class="tx"><div class="lb">Your assignment · ' + esc(item.unitShort) + '</div><h3>' + esc(name) + '</h3><p>Do this walkthrough in the Python Editor. Sign in with your school Google account so it saves and counts.</p>' +
       '<div class="steps"><span class="st"><b>1</b>Read the notes on this page</span><span class="st"><b>2</b>Open the walkthrough</span><span class="st"><b>3</b>Score 90% or higher to unlock the next one</span></div>' +
       (item.held ? '<span class="held">🔒 Mr. Norman hasn\'t opened this one yet. It unlocks in class.</span>' : "") +
-      '</div><a class="go" href="' + EDITOR + "?a=" + encodeURIComponent(item.id) + '">Open in the Python Editor ▶</a></div>';
+      '</div><a class="go" href="' + EDITOR + "?a=" + encodeURIComponent(item.id) + '" target="_blank" rel="noopener">Open in the Python Editor ▶</a></div>';
   }
   /* draw right away from the page's own data-slot, then fill in names from the editor */
   roots.forEach(function (r) { var s = r.getAttribute("data-slot"); panel(r, s ? { id: s, num: r.getAttribute("data-num") || "", title: r.getAttribute("data-concept"), unitShort: "Unit " + (r.getAttribute("data-unit") || "4"), held: false } : null); });
