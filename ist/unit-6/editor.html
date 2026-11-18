@@ -67,6 +67,9 @@ main[data-view="code"] #split,main[data-view="prev"] .split{display:none}
 .tools *{white-space:nowrap}
 .tools label{display:flex;align-items:center;gap:5px;cursor:pointer;color:var(--soft)}
 .edwrap{flex:1;min-height:0;display:flex;background:#080B11;position:relative}
+.gate{display:none;position:absolute;inset:0;z-index:30;background:rgba(8,11,17,.94);flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px}
+.gate h3{margin:0;font-size:20px}.gate p{margin:0;max-width:340px;color:var(--soft);font-size:14px}
+body.needlogin .gate{display:flex}
 .gut{flex:0 0 46px;overflow:hidden;background:#0D1220;border-right:1px solid var(--rule);color:#4E5B78;font:13px/21px "JetBrains Mono",monospace;text-align:right;padding:10px 6px 10px 0;user-select:none}
 .gut div{padding-right:4px}
 .gut .err{color:#fff;background:#7f1d1d;border-radius:3px}
@@ -356,7 +359,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
     <div class="spop" id="propPop" role="dialog" aria-label="CSS properties you will use"></div>
     <div class="spop" id="valPop" role="dialog" aria-label="Common values"></div>
     <div class="spop" id="attrPop" role="dialog" aria-label="Attributes you will use"></div>
-    <div class="edwrap"><div class="gut" id="gut"></div><div id="hl" aria-hidden="true"></div><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="soft" aria-label="Code editor"></textarea><div id="mirror" aria-hidden="true"></div></div>
+    <div class="edwrap"><div class="gut" id="gut"></div><div id="hl" aria-hidden="true"></div><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="soft" aria-label="Code editor"></textarea><div id="mirror" aria-hidden="true"></div><div class="gate" id="gate" role="dialog" aria-label="Sign in to start"><h3>Sign in to start coding</h3><p>Sign in with your school Google account first. Your work then saves to your account on its own, so you never have to worry about losing it.</p><div id="gateBtn"></div><p>Use your @socialcircleschools.org account.</p></div></div>
     <button class="stripbtn" data-restore="both" aria-label="Show the code panel">▸ Code</button>
   </section>
   <div class="split" id="split" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize. Double-click to reset."></div>
@@ -530,6 +533,19 @@ function buildLessonList() {
 
 /* ---------- editor ---------- */
 var ta = $("code");
+/* the editor stays locked until the student signs in with Google, so their work always saves to their account (the practice sandbox and the teacher preview stay open) */
+function needLogin() { return !SANDBOX && !isTeacher() && !S.cred; }
+function renderGateButton() { var g = $("gateBtn"); if (!g) return; g.innerHTML = ""; if (window.google && google.accounts && google.accounts.id) google.accounts.id.renderButton(g, { theme: "filled_blue", size: "large", text: "signin_with", shape: "rectangular" }); }
+function applyLoginGate() { var on = needLogin(); document.body.classList.toggle("needlogin", on); ta.readOnly = on; if (on) renderGateButton(); }
+["keydown", "beforeinput", "paste", "cut", "drop"].forEach(function (ev) {
+  ta.addEventListener(ev, function (e) {
+    if (!needLogin()) return;
+    e.stopImmediatePropagation();   /* none of the editor's own handlers (auto-close, Tab, Enter, undo) may change the code either */
+    var k = e.key || "";
+    if (ev === "keydown" && (/^(Arrow|Home|End|Page|Tab)/.test(k) || ((e.ctrlKey || e.metaKey) && /^[ac]$/i.test(k)))) return;   /* moving around and copying stay allowed */
+    e.preventDefault();
+  }, true);
+});
 function getHtml() { return S.file === "html" ? ta.value : S.buf.html; }
 function getCss() { return S.file === "css" ? ta.value : S.buf.css; }
 function setCaret(pos) { ta.focus(); ta.setSelectionRange(pos, pos); }
@@ -727,7 +743,7 @@ ta.addEventListener("beforeinput", function (e) { if (e.inputType !== "historyUn
 ta.addEventListener("paste", function () { undoSync(true); }, true);
 /* the Back button: the same one-step undo as Ctrl + Z, so students can see it instead of remembering the shortcut */
 $("btnBack").addEventListener("mousedown", function (e) { e.preventDefault(); });
-$("btnBack").addEventListener("click", function () { undoGo(false); ta.focus(); });
+$("btnBack").addEventListener("click", function () { if (needLogin()) return; undoGo(false); ta.focus(); });
 ta.addEventListener("copy", function () { clip = ta.value.slice(ta.selectionStart, ta.selectionEnd); });
 ta.addEventListener("cut", function () { clip = ta.value.slice(ta.selectionStart, ta.selectionEnd); });
 ta.addEventListener("paste", function (e) { var t = ""; try { t = (e.clipboardData || window.clipboardData).getData("text"); } catch (er) {} logPaste(t); touch(); });
@@ -1103,6 +1119,7 @@ function initGoogle() {
 function showSignInButton() {
   var g = $("gbtn"); g.innerHTML = "";
   if (window.google && google.accounts && google.accounts.id) google.accounts.id.renderButton(g, { theme: "filled_blue", size: "medium", text: "signin_with", shape: "rectangular" });
+  if (needLogin()) renderGateButton();
 }
 /* an assignment with step checks stays closed to students until it is listed in live.js; only the teacher account (signed in) can open a closed one */
 function lessonClosed(l) {
@@ -1117,7 +1134,7 @@ function onCredential(resp) {
   var p = decodeJwt(resp.credential);
   if ((p.hd || "").toLowerCase() !== "socialcircleschools.org") { banner("Please sign in with your school account (@socialcircleschools.org).", "err"); return; }
   S.cred = resp.credential; S.name = p.name || ""; S.email = (p.email || "").toLowerCase(); if (TEACHER_EMAILS.indexOf(S.email) > -1) document.body.classList.add("teacher");
-  $("who").textContent = "Signed in: " + (S.name || S.email); $("gbtn").innerHTML = ""; $("note").className = "note";
+  $("who").textContent = "Signed in: " + (S.name || S.email); $("gbtn").innerHTML = ""; $("note").className = "note"; applyLoginGate();
   $("banner").className = "banner";
   afterLessonChange(true); applyClosed(); buildLessonList();
   api({ action: "myLessons" }).then(function (j) { if (j && j.ok) { if (j.live) window.U7_LIVE = j.live; if (j.prereq) window.U7_PREREQ = j.prereq; (j.lessons || []).forEach(function (l) { MY_LESSONS[l] = 1; }); (j.submitted || []).forEach(function (l) { MY_SUB[l] = 1; }); buildLessonList(); applyClosed(); } });
@@ -1125,7 +1142,7 @@ function onCredential(resp) {
 function api(body) {
   body.credential = S.cred;
   return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(function (r) { return r.json(); }).then(function (j) {
-    if (j && j.needLogin) { S.cred = null; $("who").textContent = ""; showSignInButton(); $("note").className = "note show"; $("note").innerHTML = "Your sign-in timed out. <b>Sign in again</b> (your code is safe)."; }
+    if (j && j.needLogin) { S.cred = null; $("who").textContent = ""; showSignInButton(); applyLoginGate(); $("note").className = "note show"; $("note").innerHTML = "Your sign-in timed out. <b>Sign in again</b> (your code is safe)."; }
     return j;
   });
 }
@@ -1710,7 +1727,7 @@ function ansSubmitNote() {
 }
 
 /* ---------- start ---------- */
-updateGuideLink(); loadLocal(); cursorInfo(); initGoogle();
+updateGuideLink(); loadLocal(); cursorInfo(); initGoogle(); applyLoginGate();
 </script>
 </body>
 </html>
