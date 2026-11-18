@@ -786,6 +786,7 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
   var CSS_LINK = /<link\b[^>]*\bhref\s*=\s*["']?style\.css["']?[^>]*>/i;
   function check(lesson, src, css) {
     src = String(src || ""); css = String(css || "");
+    src = src.replace(/(<link\b[^<>]*?)(\s*)(?=<)/gi, function (m, a, b) { return a + ">" + b; });   /* same repair as in context(): an unclosed link tag still loads */
     var linked = CSS_LINK.test(src);
     var merged = (linked && css.trim()) ? src.replace(CSS_LINK, function () { return "<style>" + css.replace(/<\/style/gi, "<\\/style") + "</style>"; }) : src;
     var c = analyze(merged), rules = rulesFor(lesson), results = [];
@@ -822,6 +823,8 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
   // The same merged page the checker sees (style.css folded in when index.html links it). Used by the step-by-step auto-check (step-checks.js).
   function context(src, css) {
     src = String(src || ""); css = String(css || "");
+    /* a <link ...> typed without its closing > (the next tag starts right after it) still loads in a real browser, so the checks treat it as closed */
+    src = src.replace(/(<link\b[^<>]*?)(\s*)(?=<)/gi, function (m, a, b) { return a + ">" + b; });
     var linked = CSS_LINK.test(src);
     var merged = (linked && css.trim()) ? src.replace(CSS_LINK, function () { return "<style>" + css.replace(/<\/style/gi, "<\\/style") + "</style>"; }) : src;
     var c = analyze(merged); c.cssLinked = linked; c.cssFile = css; c.rawSrc = src;
