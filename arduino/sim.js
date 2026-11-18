@@ -233,7 +233,7 @@
   Sim.virtual = async function (project, code, opts) {
     opts = opts || {};
     var out = { ok: false, errors: [], samples: [], serial: "" }, sim = new Sim({ virtual: true, getProject: function () { return project; } });
-    sim.limit = opts.until || 5000; sim.samples = (opts.samples || []).slice().sort(function (a, b) { return a - b; }); sim.nextSample = 0; sim.out = out; sim.deadline = Date.now() + (opts.maxMs || 1500);
+    sim.limit = opts.until || 5000; sim.samples = (opts.samples || []).slice().sort(function (a, b) { return a - b; }); sim.nextSample = 0; sim.out = out; sim.deadline = Date.now() + Math.max(opts.maxMs || 0, 6000);   /* generous: slow Chromebooks must not fail a check just because the test ran slowly */
     sim.events = (opts.events || []).map(function (e) { return { t: e.t, fn: function (s) { if (e.press !== undefined) s.press(e.press, e.down !== false); if (e.pot !== undefined) s.setPot(e.pot, e.pos); if (e.serial) s.sendSerial(e.serial); } }; }).sort(function (a, b) { return a.t - b.t; });
     var c = root.ArduinoCompiler.compile(code);
     if (!c.ok) { out.errors = c.errors; return out; }

@@ -683,7 +683,7 @@
       if (s.code) h += '<pre class="codebox' + (s.copy ? " copyok" : "") + '">' + esc(s.code) + "</pre>";
       s.items.forEach(function (it, ii) {
         var k = si + "." + ii, info = it.kind === "note";
-        h += '<div class="item' + (info ? " info" : "") + '" data-si="' + si + '" data-ii="' + ii + '"><span class="box">' + (info ? "i" : "&#10003;") + '</span><div class="txt">' + inlineBubbles(it.t) + widgetHTML(it, k) + (it.help && it.help.length ? '<span class="helprow">' + pillsHTML(it.help) + "</span>" : "") + "</div>" + (info ? "" : '<span class="badge">checking</span>') + "</div>";
+        h += '<div class="item' + (info ? " info" : "") + '" data-si="' + si + '" data-ii="' + ii + '"><span class="box">' + (info ? "i" : "&#10003;") + '</span><div class="txt">' + inlineBubbles(it.t) + (RUNSTEP_RE.test(it.t || "") ? ' <span class="autonote">This box checks itself from your code and circuit. Running it is just so you can watch.</span>' : "") + widgetHTML(it, k) + (it.help && it.help.length ? '<span class="helprow">' + pillsHTML(it.help) + "</span>" : "") + "</div>" + (info ? "" : '<span class="badge">checking</span>') + "</div>";
       });
     });
     body.innerHTML = h;
@@ -710,6 +710,9 @@
     if (CRED) api({ action: "mine", slot: from }).then(function (j) { var r = j && (j.draft || j.submission); if (r) apply(r.project, r.code); else toast("Nothing saved yet in that assignment."); });
     else toast("Nothing saved on this computer for that assignment. Sign in to load it from your account.");
   }
+  /* "Run it" steps and code steps stay checked once they pass: a later part replaces the code, and nothing should depend on pressing Start */
+  var STICKY_RE = /^(Run it|Click <b>Start Simulation|<b>Inside |<b>Above|<b>Very first|Turn your computer)/;
+  var RUNSTEP_RE = /^(Run it|Click <b>Start Simulation)/;
   function scheduleEval(now) { if (!ASSIGN[slot]) return; clearTimeout(evalT); evalT = setTimeout(evaluate, now ? 50 : 900); }
   async function evaluate() {
     var A = ASSIGN[slot]; if (!A) return; var seq = ++evalSeq, ctx = makeCtx(), passed = 0, total = 0, results = [];
@@ -720,7 +723,7 @@
         if (it.kind === "ask") { var w = wordCount(ANS[k]); var mn = it.min === 0 ? 1 : (it.min || 15); ok = w >= mn && (!it.test || !!it.test(ANS[k] || "", ctx)); label = it.min === 0 ? null : w + " / " + mn + " words"; }
         else if (it.kind === "match") { var a = ANS[k] || [], good = it.rows.filter(function (r, i) { return a[i] === r[1]; }).length; ok = good === it.rows.length; label = good + " / " + it.rows.length + " right"; }
         else if (it.kind === "cloze") { var a3 = ANS[k] || [], g3 = it.answers.filter(function (x, i) { return a3[i] === x; }).length; ok = g3 === it.answers.length; label = g3 + " / " + it.answers.length + " right"; }
-        else { ok = !!(await it.check(ctx)); if (it.sticky) { if (ok) { if (!ANS["ok." + k]) { ANS["ok." + k] = "1"; saveAns(); } } else if (ANS["ok." + k]) ok = true; } }
+        else { ok = !!(await it.check(ctx)); if (it.sticky || STICKY_RE.test(it.t)) { if (ok) { if (!ANS["ok." + k]) { ANS["ok." + k] = "1"; saveAns(); } } else if (ANS["ok." + k]) ok = true; } }
       } catch (e) { ok = false; }
       if (seq !== evalSeq) return; total++; if (ok) passed++; results.push([si, ii, ok, label]);
     }
