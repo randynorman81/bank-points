@@ -169,6 +169,13 @@ kbd{font:600 11px "JetBrains Mono",monospace;background:var(--card);border:1px s
 /* Karel world */
 #karel{display:none;flex-direction:column;border-bottom:1px solid var(--rule);background:var(--pop)}
 body.karel #karel{display:flex}
+#game{display:none;flex-direction:column;border-bottom:1px solid var(--rule);background:var(--pop)}
+body.gameon #game{display:flex}
+#game .ghead{display:flex;align-items:center;gap:8px;padding:6px 10px}#game .ghead h2{margin:0;flex:1}
+#gwrap{padding:10px;display:flex;justify-content:center;background:#000}
+#canvas{max-width:100%;height:auto;outline:none;image-rendering:pixelated;background:#111}
+#canvas:focus{box-shadow:0 0 0 3px #22d3ee}
+#game .gmsg{padding:6px 10px;font-size:12.5px;color:var(--soft)}
 .ktools{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--rule);font-size:12px;color:var(--soft)}
 .ktools label{display:flex;align-items:center;gap:5px}
 .ktools input[type=range]{width:90px;accent-color:var(--acc)}
@@ -294,6 +301,11 @@ body.mconly #run,body.mconly #clear,body.mconly #reset,body.mconly #histBtn,body
       </div>
       <div id="wrap"><canvas id="world" width="420" height="420" aria-label="Karel's world"></canvas></div>
       <div class="kmsg" id="kmsg">Karel starts at the bottom left, facing east.</div>
+    </div>
+    <div id="game">
+      <div class="ghead"><h2>Game screen</h2><button class="btn sm" id="gameStop" title="Stop the game">&#9632; Stop game</button></div>
+      <div id="gwrap"><canvas id="canvas" width="400" height="300" tabindex="0" aria-label="Game screen"></canvas></div>
+      <div class="gmsg" id="gmsg">Click the game screen, then use your keyboard to play.</div>
     </div>
     <h2>Output</h2>
     <pre id="out"></pre>
@@ -955,8 +967,58 @@ function pseudoInfo(notes) {
   if (notes.cmp) t += "\n• The exam writes ≠ for not equal (Python: !=), ≤ for less than or equal (<=), and ≥ for greater than or equal (>=).";
   return t + "\n\nTo run those lines yourself, translate them to Python, or put a # in front of them so they become notes.";
 }
+/* ---------- pygame: a program that imports pygame runs as a game on the Game screen ---------- */
+var PG_RE = /^\s*(import\s+pygame|from\s+pygame\b)/m, pgLoaded = false;
+function usesPygame(code) { return mode !== "karel" && PG_RE.test(code); }
+var PG_SETUP = [
+  "import asyncio, js, os",
+  "os.environ['SDL_EMSCRIPTEN_KEYBOARD_ELEMENT'] = '#canvas'",
+  "class GameStopped(Exception):",
+  "    pass",
+  "if not hasattr(asyncio, '_pq_real_sleep'):",
+  "    asyncio._pq_real_sleep = asyncio.sleep",
+  "    async def _pq_sleep(delay=0, *a, **k):",
+  "        if getattr(js.window, 'pgStop', False):",
+  "            raise GameStopped('Game stopped')",
+  "        return await asyncio._pq_real_sleep(delay, *a, **k)",
+  "    asyncio.sleep = _pq_sleep"
+].join("\n");
+function gameLoopProblem(code) {
+  var c = code.replace(/#[^\n]*/g, "");
+  if (/\bwhile\b/.test(c) && !/await\s+asyncio\.sleep\s*\(/.test(c))
+    return "Your game loop needs one extra line so the browser can draw each frame.\n\nAdd this as the LAST line inside your while loop (indented with the loop):\n\n    await asyncio.sleep(1/60)\n\nand put   import asyncio   at the top of your program.\n\n💡 Without it, the loop never lets the browser update the screen, and the page would freeze.";
+  return null;
+}
+async function runGame() {
+  var code = ta.value, prob = gameLoopProblem(code);
+  if (prob) { print(prob + "\n\n", "err"); return; }
+  running = true; runBtn.disabled = true; statusEl.textContent = "Running game…"; window.pgStop = false;
+  document.body.classList.add("gameon");
+  var err = null, ns = null;
+  try {
+    if (!pgLoaded) { print("Loading pygame (the first time takes a few seconds)…\n", "sys"); await py.loadPackage("pygame-ce"); py.canvas.setCanvas2D($("canvas")); py.runPython(PG_SETUP); pgLoaded = true; }
+    try { py.runPython("import pygame\npygame.quit()"); } catch (e0) {}
+    print("▶ Running your game…\n", "sys"); $("canvas").focus();
+    ns = py.runPython("{'__name__': '__main__'}");
+    await py.runPythonAsync(code, { globals: ns });
+  } catch (e) {
+    var m = String(e.message || e);
+    if (/GameStopped: Game stopped/.test(m)) { print("■ Game stopped\n\n", "sys"); err = ""; }
+    else if (/SystemExit/.test(m)) err = null;
+    else if (/'await' outside (async )?function/.test(m)) err = "await asyncio.sleep(...) only works in your main game loop, not inside a def function. Move your while loop out of the function (or call the function from the loop), so the await line sits inside the while loop at the top level.";
+    else err = friendlyError(m);
+  }
+  if (ns && ns.destroy) ns.destroy();
+  try { py.runPython("import pygame\npygame.quit()"); } catch (e1) {}   /* lets go of the keyboard so typing in the code box works again */
+  if (err) print(err + "\n\n", "err"); else if (err === null) print("✓ Game over\n\n", "ok");
+  running = false; runBtn.disabled = false; statusEl.textContent = "Ready"; window.pgStop = false;
+  try { updateScore(); } catch (e2) {}
+}
+$("gameStop").onclick = function () { window.pgStop = true; };
 function run() {
   if (!py || running) return;
+  if (usesPygame(ta.value)) { runGame(); return; }
+  document.body.classList.remove("gameon");
   running = true; runBtn.disabled = true; statusEl.textContent = "Running…"; stopPlayback();
   print("▶ Running…\n", "sys");
   var karelMode = mode === "karel";
@@ -1163,7 +1225,7 @@ var GRADER_PY = [
   '    return [buf.getvalue(), err]'
 ].join("\n"), graderReady = false;
 function hiddenOutput(code, A) {
-  if (!A || !Array.isArray(A.autoRun) || !A.autoRun.length || !py || mode === "karel") return null;
+  if (!A || !Array.isArray(A.autoRun) || !A.autoRun.length || !py || mode === "karel" || usesPygame(code)) return null;
   try {
     if (!graderReady) { py.runPython(GRADER_PY); graderReady = true; }
     var text = "";
