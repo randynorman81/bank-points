@@ -727,6 +727,10 @@
       } catch (e) { ok = false; }
       if (seq !== evalSeq) return; total++; if (ok) passed++; results.push([si, ii, ok, label]);
     }
+    /* moved on: once a LATER part's loop() code passes, earlier parts' code and "Run it" steps count as done (that later part replaced their code) */
+    var laterCode = -1; results.forEach(function (r) { var it2 = A.steps[r[0]].items[r[1]]; if (r[2] && /^<b>Inside loop\(\)/.test(it2.t || "")) laterCode = Math.max(laterCode, r[0]); });
+    results.forEach(function (r) { var it2 = A.steps[r[0]].items[r[1]]; if (!r[2] && r[0] < laterCode && STICKY_RE.test(it2.t || "") && !/^(<b>Above|<b>Very first)/.test(it2.t || "")) { r[2] = true; passed++; } });
+    if (seq !== evalSeq) return;
     results.forEach(function (r) { var el = $("assBody").querySelector('[data-si="' + r[0] + '"][data-ii="' + r[1] + '"]'); if (!el) return; el.className = "item" + (r[2] ? " done" : ""); el.querySelector(".badge").textContent = r[3] ? (r[2] ? "done: " : "") + r[3] : (r[2] ? "auto-check: met" : "auto-check: not yet"); });
     var pct = total ? Math.floor(100 * passed / total) : 0; autoState = { pct: pct, passed: passed, total: total };
     $("assCount").innerHTML = "<b>" + passed + "</b> of " + total + " steps done"; $("assScore").innerHTML = "Auto score: <b>" + pct + " / 100</b>";
