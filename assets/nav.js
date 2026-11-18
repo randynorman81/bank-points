@@ -482,3 +482,12 @@ window.renderToolsGrid = renderToolsGrid;
 window.COURSES = COURSES;
 window.TOOLS = TOOLS;
 window.TEACHER_TOOLS = TEACHER_TOOLS;
+
+/* IST unit pages (/ist/unit-N/): every lesson, assignment, and tool card opens in a new tab, so students keep the unit page open */
+(function () {
+  if (!/^\/ist\/unit-\d+\/?(index(\.html)?)?$/.test(location.pathname)) return;
+  function openCardsInNewTab() { document.querySelectorAll("a.unit-card").forEach(function (a) { a.target = "_blank"; a.rel = "noopener"; }); }
+  openCardsInNewTab();
+  window.addEventListener("load", openCardsInNewTab);
+})();
+
