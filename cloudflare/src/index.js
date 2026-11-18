@@ -25,7 +25,12 @@ export default {
     if (path === "/api/gdoc") return gdoc(req);
     if (path.startsWith("/api/")) return data(req);
     if (path === "/sat") return env.ASSETS.fetch(new Request(new URL("/sat-english/", req.url), req));
-    return env.ASSETS.fetch(req);
+    const res = await env.ASSETS.fetch(req);
+    /* pages always revalidate, so students never get a stale page after a change (their versioned scripts then load fresh too) */
+    if ((res.headers.get("content-type") || "").indexOf("text/html") > -1) {
+      const out = new Response(res.body, res); out.headers.set("Cache-Control", "no-cache"); return out;
+    }
+    return res;
   },
   /* cron trigger (wrangler.toml): runs the bank-point award rules in teacher-settings/awards.js */
   async scheduled(event, envArg, ctx) {
