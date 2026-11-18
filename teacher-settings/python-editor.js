@@ -17,8 +17,23 @@ export const PY_SETTINGS = {
   a22: { hold: true, passMin: 90 },                 // Walkthrough 7: For Loops in Python
   a23: { hold: true, passMin: 90 }                  // Walkthrough 8: General For Loops
 };
+/* WORDING CHANGES to a walkthrough, kept in the code (no PIN). Each one gets a copy of the walkthrough and changes it. */
+const STEP5_ODD = "Now test an odd number **without changing your code above**. Below your last line, type `number = 7`, then type the same four `print` lines again under it (you can copy and paste your own lines). Add a **comment below** your last print line (on its own line, directly under it) with what the four answers were for 7. [[How do I test 7?|oddtest]]";
+export const PY_PATCHES = {
+  a18: function (rec) {   /* Walkthrough 3, Comparison Operators: Step 5 adds the odd-number test below, instead of editing earlier lines */
+    (rec.blocks || []).forEach(function (b) { if (b.make) b.make = b.make.map(function (t) { return /^Now test an odd number/.test(t) ? STEP5_ODD : t; }); });
+    if (rec.tips) rec.tips.oddtest = { title: "How do I test 7?", sections: [
+      { p: "Leave your code for 12 alone. Add the test for 7 **underneath** it:" },
+      { ex: ["number = 7", "print(number % 2 == 0)", "print(number % 2 == 1)", "print(number % 3 == 0)", "print(number % 5 == 0)", "# for 7 the answers were False, True, False, False"] },
+      { p: "Because `number = 7` comes later, the new prints use 7 while the first four still use 12. Run it and read the last four answers." }
+    ] };
+    return rec;
+  }
+};
 export function withPySettings(slot, rec) {
+  if (!rec) return rec;
   const s = PY_SETTINGS[slot];
-  if (!rec || !s) return rec;
-  return Object.assign({}, rec, s);
+  let out = s ? Object.assign({}, rec, s) : rec;
+  if (PY_PATCHES[slot]) out = PY_PATCHES[slot](JSON.parse(JSON.stringify(out)));
+  return out;
 }
