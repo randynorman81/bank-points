@@ -468,7 +468,7 @@ function logPaste(t) {
   if (!internal) {
     ACT.ext += t.length;
     if (ACT.events.length < 25) ACT.events.push({ t: Date.now(), n: t.length, w: wordsOf(t), ext: true, file: S.file, kind: "paste", txt: t.slice(0, 3000) });
-    if (!warned && t.length >= 25) { warned = true; toast("Heads up: pasting from outside the editor is recorded and takes 50% off the assignment."); }
+    if (!warned && t.length >= 25) { warned = true; }
   }
   saveAct(); updateHonesty();
 }
@@ -659,6 +659,14 @@ var TEACHER = /[?&](teacher|all=1)/.test(location.search);
 function pasteFree() { return SANDBOX || isTeacher() || (window.HTMLCheck && HTMLCheck.ORDER.indexOf(S.lesson) >= HTMLCheck.ORDER.indexOf("6.35")); }
 function isTeacher() { return TEACHER || (!!S.email && TEACHER_EMAILS.indexOf(S.email) > -1); }
 var blockMsg = "You can only paste code you copied from your own page. Type everything else yourself.";
+/* PASTING FROM OUTSIDE: plain text is fine (a paragraph copied from a website). Anything that looks like HTML tags, attributes, or CSS properties is not: students type those themselves.
+   The only markup that may be pasted is the Google Fonts link code (3.5 and later). Code copied from the student's own page is always fine. */
+var codeMsg = "That looks like code (tags, attributes, or styles). You can paste plain text from a website, but type the tags and styles yourself.";
+var CSSPROPS = "color|background|font|border|margin|padding|width|height|text|display|position|float|line|letter|list|opacity|top|left|right|bottom|align|justify|flex|grid|box|overflow|cursor|transform|transition|vertical|white|word|outline|visibility|content|z-index|max|min|gap|filter|animation";
+var RE_TAG = /<\s*\/?\s*[A-Za-z!]/, RE_ATTR = /\b(style|class|id|href|src|alt|rel|type|name|content|charset|lang|target|width|height|onclick|crossorigin)\s*=\s*["']/i, RE_DECL = new RegExp("(^|[\\s;{])(" + CSSPROPS + ")[a-z-]*\\s*:\\s*[^;\\n]{1,80};", "i"), RE_GF = /<link\b[^<>]*fonts\.(googleapis|gstatic)\.com[^<>]*>?/gi;
+function markupIn(t) { t = String(t || ""); return RE_TAG.test(t) || RE_ATTR.test(t) || RE_DECL.test(t); }
+function googleFontsOnly(t) { t = String(t || ""); var rest = t.replace(RE_GF, ""); return rest !== t && !markupIn(rest); }
+function pasteOK(t) { return SANDBOX || isTeacher() || ownText(t) || !markupIn(t) || (pasteFree() && googleFontsOnly(t)); }
 /* NO PASTING BETWEEN ASSIGNMENTS: students may look at their older assignments, and copy and paste inside the SAME assignment,
    but code that came from a different assignment cannot be pasted into this one (students only; the sandbox and the teacher are free). */
 var crossMsg = "You can't paste code from a different assignment. Build this one fresh (you can still copy and paste inside this assignment).";
@@ -699,15 +707,14 @@ function ownText(t) {
     if (e.target !== ta) return;
     var t = ""; try { t = (e.clipboardData || window.clipboardData).getData("text"); } catch (er) {}
     if (crossLesson(t)) { e.preventDefault(); e.stopPropagation(); toast(crossMsg); return; }
-    if (pasteFree()) return;
-    if (!ownText(t)) { e.preventDefault(); e.stopPropagation(); toast(blockMsg); }
+    if (!pasteOK(t)) { e.preventDefault(); e.stopPropagation(); toast(codeMsg); }
   }, true);
   document.addEventListener("drop", function (e) {
     var t = ""; try { t = e.dataTransfer.getData("text"); } catch (er) {}
     if (e.target === ta && crossLesson(t)) { e.preventDefault(); e.stopPropagation(); toast(crossMsg); return; }
+    if (e.target === ta) { if (!pasteOK(t)) { e.preventDefault(); e.stopPropagation(); toast(codeMsg); } return; }
     if (pasteFree()) return;
-    if (e.target === ta && ownText(t)) return;
-    e.preventDefault(); e.stopPropagation(); if (e.target === ta) toast(blockMsg);
+    e.preventDefault(); e.stopPropagation();
   }, true);
   document.addEventListener("dragover", function (e) { if (!pasteFree() && e.target !== ta) { e.preventDefault(); } }, true);
 }
