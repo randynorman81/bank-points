@@ -125,7 +125,14 @@ const normId=s=>String(s??'').replace(/\D/g,'').replace(/^0+(?=\d)/,'');
 const rosterById=()=>{const m=new Map();for(const s of DB.roster)m.set(normId(s.id),s);return m};
 
 /* ------------------------- rubric math -------------------------- */
-function pts(a,i,j){const c=a.criteria[i];const v=(c.points&&c.points[j]!=null&&c.points[j]!=='')?+c.points[j]:+a.levels[j].points;return isFinite(v)?v:0}
+/* Scoring style "fpz" = Full / Partial / No credit: each criterion has its own full points, and either allows partial credit (default: half) or not.
+   A row that does not allow partial credit has no bubble in the Partial column (and the scanner ignores that spot). */
+const isFpz=a=>a.style==='fpz';
+function hasLevel(a,i,j){return !(isFpz(a)&&j===1&&a.criteria[i].partial===false)}
+function critLabel(a,i){const nm=a.criteria[i].name||('Criterion '+(i+1));return isFpz(a)?nm+' ('+rowMax(a,i)+' pts)':nm}
+function pts(a,i,j){const c=a.criteria[i];
+  if(isFpz(a)){const f=+c.full||0;if(j===0)return f;if(j===1)return(c.partialPts!=null&&c.partialPts!=='')?+c.partialPts:f/2;return 0}
+  const v=(c.points&&c.points[j]!=null&&c.points[j]!=='')?+c.points[j]:+a.levels[j].points;return isFinite(v)?v:0}
 function rowMax(a,i){let m=0;for(let j=0;j<a.levels.length;j++)m=Math.max(m,pts(a,i,j));return m}
 function maxTotal(a){let t=0;for(let i=0;i<a.criteria.length;i++)t+=rowMax(a,i);return t}
 function scoreOf(a,r){let t=0;r.choices.forEach((j,i)=>{if(j>=0&&i<a.criteria.length)t+=pts(a,i,j)});return t}
@@ -188,6 +195,7 @@ function drawSheet(d,a,opt){
   // code bar
   codeBits(a.code).forEach((b,i)=>{if(b){const x=G.CODE.x0+i*G.CODE.dx,s=G.CODE.s;d.rect(x-s/2,G.CODE.y-s/2,s,s,{fill:0})}});
   d.text('Sheet code #'+a.code+' - do not mark this bar',5.1,1.24,{size:7,color:0.45});
+  if(a.note)wrap(d,a.note,6.5,false,6.3,2).forEach((ln,k)=>d.text(ln,1.05,1.38+k*0.09,{size:6.5,color:0.35}));
   // name / date
   d.text('Name',1.05,1.68,{size:9,bold:true});d.line(1.5,1.7,4.0,1.7,{stroke:0.2,lw:0.6});
   if(st&&st.name)d.text(wrap(d,st.name,11,false,2.4,1)[0],1.58,1.64,{size:11});
@@ -216,9 +224,11 @@ function drawSheet(d,a,opt){
   for(let i=0;i<a.criteria.length;i++){
     const[,y]=rubPos(i,0);
     d.line(1.0,y+0.21,7.95,y+0.21,{stroke:0.82,lw:0.5});
-    const L=wrap(d,a.criteria[i].name||('Criterion '+(i+1)),9,true,3.25,2);
+    const L=wrap(d,critLabel(a,i),9,true,3.25,2);
     if(L.length===1)d.text(L[0],1.05,y+0.035,{size:9,bold:true});else{d.text(L[0],1.05,y-0.035,{size:9,bold:true});d.text(L[1],1.05,y+0.105,{size:9,bold:true})}
-    for(let j=0;j<a.levels.length;j++){const[x]=rubPos(i,j);d.circle(x,y,G.RUB.r,{stroke:0.3,lw:0.9});d.text(String(pts(a,i,j)),x,y+0.035,{size:7.5,color:0.6,align:'center'})}
+    for(let j=0;j<a.levels.length;j++){const[x]=rubPos(i,j);
+      if(!hasLevel(a,i,j)){d.text('no partial',x,y+0.03,{size:6.5,color:0.6,align:'center'});continue}
+      d.circle(x,y,G.RUB.r,{stroke:0.3,lw:0.9});d.text(String(pts(a,i,j)),x,y+0.035,{size:7.5,color:0.6,align:'center'})}
   }
   d.rect(1.05,9.68,6.35,0.42,{stroke:0.6,lw:0.6});
   d.text('Comments (optional - not scanned)',1.12,9.8,{size:7,color:0.5});
@@ -368,7 +378,7 @@ function classify(adj){
 }
 /** Read every bubble for assignment a */
 function readSheet(L,a){
-  const rows=a.criteria.map((_,i)=>a.levels.map((_,j)=>bubbleFill(L,...rubPos(i,j),G.RUB.r)));
+  const rows=a.criteria.map((_,i)=>a.levels.map((_,j)=>hasLevel(a,i,j)?bubbleFill(L,...rubPos(i,j),G.RUB.r):0));
   const idc=[];for(let c=0;c<a.idDigits;c++){const col=[];for(let d=0;d<10;d++)col.push(bubbleFill(L,...idPos(c,d),G.ID.r));idc.push(col)}
   const per=a.usePeriod?[1,2,3,4,5,6,7,8].map(p=>bubbleFill(L,...perPos(p),G.PER.r)):null;
   const all=rows.flat().concat(idc.flat(),per||[]).filter(v=>v===v).sort((x,y)=>x-y);
@@ -510,12 +520,30 @@ function builderHTML(){
   const lv=a.levels.map((l,j)=>`<div class="row" style="margin-bottom:6px"><span class="mut small" style="width:52px">Col ${j+1}</span>
     <input value="${esc(l.label)}" placeholder="Label" data-bind="level" data-j="${j}" data-k="label" maxlength="24" style="flex:1;min-width:120px">
     <input type="number" step="0.5" value="${esc(l.points)}" data-bind="level" data-j="${j}" data-k="points" style="width:80px" title="Points"><span class="small mut">pts</span></div>`).join('');
-  const cr=a.criteria.map((c,i)=>`<div class="crit"><div class="num">${i+1}</div><div>
+  const crC=a.criteria.map((c,i)=>`<div class="crit"><div class="num">${i+1}</div><div>
     <input value="${esc(c.name)}" placeholder="Criterion name (e.g. Code is commented)" data-bind="crit" data-i="${i}" maxlength="80" style="width:100%">
     <details ${c.points?'open':''}><summary class="small mut" style="cursor:pointer;margin-top:4px">Custom points for this row (weighting)</summary>
     <div class="ptsrow">${a.levels.map((l,j)=>`<label class="f">${esc(l.label||'Col '+(j+1))}<input type="number" step="0.5" placeholder="${esc(l.points)}" value="${c.points&&c.points[j]!=null?esc(c.points[j]):''}" data-bind="cpts" data-i="${i}" data-j="${j}"></label>`).join('')}</div></details></div>
     <div class="row" style="gap:4px"><button class="b sm" data-act="cup" data-i="${i}" ${lk||i===0?'disabled':''} title="Move up">↑</button><button class="b sm" data-act="cdown" data-i="${i}" ${lk||i===a.criteria.length-1?'disabled':''} title="Move down">↓</button>
     <button class="b sm d" data-act="cdel" data-i="${i}" ${lk||a.criteria.length<=1?'disabled':''} title="Remove">✕</button></div></div>`).join('');
+  /* Full / partial / no credit style: each row has its own full points and may or may not allow partial credit */
+  const crF=a.criteria.map((c,i)=>`<div class="crit"><div class="num">${i+1}</div><div>
+    <input value="${esc(c.name)}" placeholder="Criterion name (e.g. Wire stripping)" data-bind="crit" data-i="${i}" maxlength="80" style="width:100%">
+    <div class="ptsrow" style="align-items:flex-end">
+    <label class="f">Full credit pts<input type="number" step="0.5" min="0" value="${c.full!=null?esc(c.full):''}" data-bind="cfull" data-i="${i}"></label>
+    <label class="f" style="flex-direction:row;align-items:center;gap:6px;padding-bottom:9px"><input type="checkbox" ${c.partial!==false?'checked':''} data-bind="cpartial" data-i="${i}" style="width:auto"> Allows partial credit</label>
+    <label class="f">Partial pts<input type="number" step="0.5" min="0" placeholder="${esc((+c.full||0)/2)}" value="${c.partialPts!=null&&c.partialPts!==''?esc(c.partialPts):''}" data-bind="cpartpts" data-i="${i}" ${c.partial===false?'disabled':''}></label></div>
+    ${c.partial===false?'<div class="tiny mut" style="margin-top:4px">No partial credit: this row shows only the Full and No credit bubbles.</div>':''}</div>
+    <div class="row" style="gap:4px"><button class="b sm" data-act="cup" data-i="${i}" ${lk||i===0?'disabled':''} title="Move up">↑</button><button class="b sm" data-act="cdown" data-i="${i}" ${lk||i===a.criteria.length-1?'disabled':''} title="Move down">↓</button>
+    <button class="b sm d" data-act="cdel" data-i="${i}" ${lk||a.criteria.length<=1?'disabled':''} title="Remove">✕</button></div></div>`).join('');
+  const cr=isFpz(a)?crF:crC;
+  const styleCard=`<div class="card"><h2>Scoring style</h2><label class="f">How is each criterion scored?<select data-bind="style" ${lk?'disabled':''}>
+    <option value="custom" ${!isFpz(a)?'selected':''}>Score levels: same columns for every row (custom points per row if you want)</option>
+    <option value="fpz" ${isFpz(a)?'selected':''}>Full / partial / no credit: each row can allow partial credit or not</option></select></label>
+    <p class="tiny mut" style="margin:8px 0 0">With full / partial / no credit you type the points for each row once. Partial credit defaults to half, and you can change it. A row that does not allow partial credit prints only the Full and No credit bubbles.</p></div>`;
+  const levelsCard=isFpz(a)?`<div class="card"><h2>Column names</h2><div class="row">${a.levels.map((l,j)=>`<label class="f" style="flex:1;min-width:110px">${['Full','Partial','None'][j]}<input value="${esc(l.label)}" data-bind="level" data-j="${j}" data-k="label" maxlength="24"></label>`).join('')}</div></div>`
+    :`<div class="card"><h2>Score levels (columns, left → right)</h2>
+    <div class="row" style="margin-bottom:8px"><span class="small mut">Number of levels</span><select data-bind="nlevels" ${lk?'disabled':''}>${[2,3,4,5].map(n=>`<option ${n===a.levels.length?'selected':''}>${n}</option>`).join('')}</select></div>${lv}</div>`;
   return`<h1>${getA(a.id)?'Edit rubric':'New rubric'}</h1>
   ${lk?`<div class="banner warn">This rubric already has scored sheets, so its <b>layout is locked</b> (number of rows, columns, ID digits, period). You can still rename things and change points. Totals update automatically. To change the layout, use <b>Duplicate</b> on the Rubrics page.</div>`:''}
   <div class="grid2"><div>
@@ -526,9 +554,9 @@ function builderHTML(){
     <div class="row" style="margin-top:10px;align-items:stretch">
     <label class="f">Student ID digits<select data-bind="idDigits" ${lk?'disabled':''}>${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option ${n===a.idDigits?'selected':''}>${n}</option>`).join('')}</select></label>
     <label class="f">Class period bubbles<select data-bind="usePeriod" ${lk?'disabled':''}><option value="1" ${a.usePeriod?'selected':''}>Yes (1–8)</option><option value="0" ${!a.usePeriod?'selected':''}>No</option></select></label></div>
+    <label class="f" style="margin-top:10px">Grading note (printed small under the title, optional)<input value="${esc(a.note||'')}" data-bind="note" maxlength="220" placeholder="e.g. Safety-critical skills are graded correct or incorrect."></label>
     <p class="tiny mut" style="margin:8px 0 0">Tip: use the same ID numbers that are in your Roster (school ID or roster number). Pick enough digits for the longest ID. Shorter IDs get leading zeros.</p></div>
-  <div class="card"><h2>Score levels (columns, left → right)</h2>
-    <div class="row" style="margin-bottom:8px"><span class="small mut">Number of levels</span><select data-bind="nlevels" ${lk?'disabled':''}>${[2,3,4,5].map(n=>`<option ${n===a.levels.length?'selected':''}>${n}</option>`).join('')}</select></div>${lv}</div>
+  ${styleCard}${levelsCard}
   <div class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Criteria (rows)</h2><span class="small mut">${a.criteria.length} / ${G.RUB.maxRows}</span></div>${cr}
     <button class="b sm" style="margin-top:10px" data-act="cadd" ${lk||a.criteria.length>=G.RUB.maxRows?'disabled':''}>+ Add criterion</button></div>
   <div class="row"><button class="b p" data-act="bsave">Save rubric</button><button class="b" data-act="bcancel">Cancel</button><span id="bmsg" class="small" style="color:var(--bad)"></span></div>
@@ -539,7 +567,14 @@ function drawBuilderPreview(){const cv=$('#bprev');if(!cv)return;drawSheetPrevie
 function drawSheetPreview(cv,a,st){const ppi=80;cv.width=G.W*ppi;cv.height=G.H*ppi;const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);drawSheet(canvasDrawer(ctx,ppi),a,{student:st})}
 function onBind(el){
   const a=builder;if(!a)return;const k=el.dataset.bind;
-  if(k==='name'||k==='course'||k==='teacher')a[k]=el.value;
+  if(k==='name'||k==='course'||k==='teacher'||k==='note')a[k]=el.value;
+  else if(k==='style'){
+    if(el.value==='fpz'){a.style='fpz';a.levels=[{label:'Full credit',points:0},{label:'Partial credit',points:0},{label:'No credit',points:0}];a.criteria=a.criteria.map(c=>({name:c.name,full:c.full!=null?c.full:10,partial:true}))}
+    else{delete a.style;a.levels=[{label:'Exemplary',points:4},{label:'Proficient',points:3},{label:'Developing',points:2},{label:'Beginning',points:1}];a.criteria=a.criteria.map(c=>({name:c.name}))}
+    render();return}
+  else if(k==='cfull'){const c=a.criteria[+el.dataset.i];c.full=el.value===''?null:+el.value;const ph=el.closest('.ptsrow').querySelector('[data-bind=cpartpts]');if(ph)ph.placeholder=r1((+c.full||0)/2)}
+  else if(k==='cpartial'){a.criteria[+el.dataset.i].partial=el.checked;render();return}
+  else if(k==='cpartpts'){const c=a.criteria[+el.dataset.i];if(el.value==='')delete c.partialPts;else c.partialPts=+el.value}
   else if(k==='idDigits')a.idDigits=+el.value;
   else if(k==='usePeriod')a.usePeriod=el.value==='1';
   else if(k==='nlevels'){const n=+el.value;while(a.levels.length<n)a.levels.push({label:'Level '+(a.levels.length+1),points:Math.max(0,(+a.levels[a.levels.length-1].points||1)-1)});a.levels.length=n;a.criteria.forEach(c=>{if(c.points)c.points.length=n});render();return}
@@ -553,6 +588,7 @@ function saveBuilder(){
   if(!a.name.trim()){msg.textContent='Give the rubric a name.';return}
   if(a.criteria.some(c=>!c.name.trim())){msg.textContent='Every criterion needs a name (or remove empty rows).';return}
   if(a.levels.some(l=>!String(l.label).trim())){msg.textContent='Every level needs a label.';return}
+  if(isFpz(a)&&a.criteria.some(c=>!(+c.full>0))){msg.textContent='Every criterion needs full credit points (more than 0).';return}
   if(a.code<1){msg.textContent='Too many rubrics on this device (max 1023). Delete some old ones.';return}
   DB.settings.teacher=a.teacher;
   const i=DB.assignments.findIndex(x=>x.id===a.id);const copy=JSON.parse(JSON.stringify(a));
@@ -707,7 +743,7 @@ function reviewHTML(){
   const{a,q}=RV;const title=RV.mode==='scan'?'Check this sheet':RV.mode==='edit'?'Edit score':'Enter a score by hand';
   const warns=q?(q.warnings||[]).map(w=>`<div class="banner warn small">${esc(WARN_TEXT[w])}</div>`).join(''):'';
   const rows=a.criteria.map((c,i)=>`<div class="rrow" id="rr${i}"><div class="row" style="justify-content:space-between"><b class="small">${i+1}. ${esc(c.name)}</b><span id="rb${i}"></span></div>
-    <select data-rv="row" data-i="${i}"><option value="">- choose -</option>${a.levels.map((l,j)=>`<option value="${j}">${esc(l.label)} (${pts(a,i,j)} pts)</option>`).join('')}<option value="-1">Not scored (0 pts)</option></select></div>`).join('');
+    <select data-rv="row" data-i="${i}"><option value="">- choose -</option>${a.levels.map((l,j)=>hasLevel(a,i,j)?`<option value="${j}">${esc(l.label)} (${pts(a,i,j)} pts)</option>`:'').join('')}<option value="-1">Not scored (0 pts)</option></select></div>`).join('');
   return`<div class="row" style="justify-content:space-between;margin-bottom:10px"><h2 style="margin:0">${title}</h2><button class="b sm" data-act="rvclose">Close</button></div>
   <div class="${q&&q.img?'rv':''}">${q&&q.img?`<div><canvas id="rvc"></canvas><div class="tiny mut" style="margin-top:4px">Tip: tap any bubble on the picture to choose it. <span style="color:#16794a">■</span> read as filled · <span style="color:#d97706">■</span> needs your decision</div></div>`:''}
   <div>${warns}<div class="rrow ${RV.idFlag?'flag':''}" id="rrid"><div class="row" style="justify-content:space-between"><b class="small">Student ID</b><span id="rbid"></span></div>
@@ -754,7 +790,7 @@ function drawReview(){
   const ring=(x,y,r,color,w)=>{ctx.beginPath();ctx.arc(x*ppi,y*ppi,r*ppi,0,7);ctx.strokeStyle=color;ctx.lineWidth=w;ctx.stroke()};
   a.criteria.forEach((_,i)=>{const fl=RV.flags[i]!=='ok'&&RV.flags[i]!=='manual'&&!RV.confirmed[i];const[,y]=rubPos(i,0);
     if(fl){ctx.fillStyle='rgba(245,158,11,.18)';ctx.fillRect(0.95*ppi,(y-0.2)*ppi,7.1*ppi,0.4*ppi)}
-    a.levels.forEach((_,j)=>{const[x]=rubPos(i,j);if(RV.choices[i]===j)ring(x,y,G.RUB.r+0.035,RV.confirmed[i]?'#16794a':'#d97706',3)})});
+    a.levels.forEach((_,j)=>{const[x]=rubPos(i,j);if(RV.choices[i]===j&&hasLevel(a,i,j))ring(x,y,G.RUB.r+0.035,RV.confirmed[i]?'#16794a':'#d97706',3)})});
   const ids=RV.id.padStart(a.idDigits,' ');
   for(let c=0;c<a.idDigits;c++){const d=+ids[c];if(ids[c]>='0'&&ids[c]<='9'){const[x,y]=idPos(c,d);ring(x,y,G.ID.r+0.03,'#16794a',2.5)}
     if(RV.q&&RV.q.read&&RV.q.read.id.digits[c].status!=='ok'&&!RV.idConfirmed){const[x]=idPos(c,0);ctx.fillStyle='rgba(245,158,11,.2)';ctx.fillRect((x-0.12)*ppi,(G.ID.y0-0.14)*ppi,0.24*ppi,2.22*ppi)}}
@@ -762,7 +798,7 @@ function drawReview(){
 }
 function reviewClick(ev){
   const cv=$('#rvc');if(!cv||!RV)return;const rc=cv.getBoundingClientRect();const x=(ev.clientX-rc.left)/rc.width*G.W,y=(ev.clientY-rc.top)/rc.height*G.H;const a=RV.a;
-  for(let i=0;i<a.criteria.length;i++)for(let j=0;j<a.levels.length;j++){const[bx,by]=rubPos(i,j);if(Math.hypot(bx-x,by-y)<G.RUB.r*1.6){RV.choices[i]=j;RV.confirmed[i]=true;updateReview();return}}
+  for(let i=0;i<a.criteria.length;i++)for(let j=0;j<a.levels.length;j++){if(!hasLevel(a,i,j))continue;const[bx,by]=rubPos(i,j);if(Math.hypot(bx-x,by-y)<G.RUB.r*1.6){RV.choices[i]=j;RV.confirmed[i]=true;updateReview();return}}
   for(let c=0;c<a.idDigits;c++)for(let d=0;d<10;d++){const[bx,by]=idPos(c,d);if(Math.hypot(bx-x,by-y)<G.ID.r*1.3){const arr=RV.id.padEnd(a.idDigits,'?').split('');arr[c]=String(d);RV.id=arr.join('').replace(/\?+$/,'');RV.idConfirmed=true;updateReview();return}}
   if(a.usePeriod)for(let p=1;p<=8;p++){const[bx,by]=perPos(p);if(Math.hypot(bx-x,by-y)<G.PER.r*1.3){RV.period=p;const s=$('#rvper');if(s)s.value=p;updateReview();return}}
 }
@@ -961,7 +997,7 @@ document.addEventListener('click',async e=>{
     case'del':{const s=getA(t.dataset.id);const n=Object.keys(s.results||{}).length;if(await ask(`Delete <b>${esc(s.name)}</b>${n?` and its <b>${n} saved score(s)</b>`:''}? This can't be undone.`,'Delete',true)){DB.assignments=DB.assignments.filter(x=>x!==s);saveDB();render()}break}
     case'exportAll':exportAllXLSX();break;
     case'tab':V.tab=t.dataset.v;render();break;
-    case'cadd':builder.criteria.push({name:''});render();break;
+    case'cadd':builder.criteria.push(isFpz(builder)?{name:'',full:10,partial:true}:{name:''});render();break;
     case'cdel':builder.criteria.splice(+t.dataset.i,1);render();break;
     case'cup':case'cdown':{if(locked(builder))break;const i=+t.dataset.i,j=act==='cup'?i-1:i+1;const c=builder.criteria;[c[i],c[j]]=[c[j],c[i]];render();break}
     case'bsave':saveBuilder();break;
