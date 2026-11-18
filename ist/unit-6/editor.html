@@ -216,6 +216,9 @@ a.tipbtn{display:inline-block;text-decoration:none;padding:6px 14px;font-size:13
 .scrim.show{display:block}
 #btnChecks b{color:var(--acc)}
 #btnChecks .dot{color:var(--bad);margin-left:4px;display:none}
+/* removed from the editor (2026-11-18): Help button, word count, "still missing" button, Concepts tab. The Checks button now only opens My images (uploads live there), so the checklist, score, problems and tags sections stay hidden. */
+#btnHelp,#wcount,#missBtn,#missPanel,#cnBtn{display:none!important}
+#btnChecks b,#btnChecks .dot,#side #secScore,#side .sec:has(#rulesNew),#side .sec:has(#probs),#side .sec:has(#tags){display:none!important}
 #btnChecks.hasErr .dot{display:inline}
 .sec{border-bottom:1px solid var(--rule);padding:12px}
 .sec h3{margin:0 0 8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);font-family:"JetBrains Mono",monospace}
@@ -320,7 +323,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
   <button type="button" class="missbtn" id="missBtn" style="display:none" aria-expanded="false"></button>
   <span class="wc" id="wcount" title="Real words you have written on your page. Tags, code, and nonsense words are not counted.">0 words</span>
   <button class="btn" id="btnHelp" title="Help for every part of the assignment">&#128161; Help</button>
-  <button class="btn" id="btnChecks" title="Open your checklist, problems, and images">✓ Checks <b id="chkScore">0/50</b><span class="dot">●</span></button>
+  <button class="btn" id="btnChecks" title="Upload pictures and add them to your page">&#128444; Images <b id="chkScore">0/50</b><span class="dot">●</span></button>
   <button class="btn" id="btnCopy" title="Copy the file you are editing">Copy code</button>
   <button class="btn" id="btnReset" title="Teacher only: clear all the code, checkboxes, and answers on this page, including your saved copy">Reset page</button>
   <button class="btn pri" id="btnSubmit">Submit</button>
@@ -361,8 +364,8 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
     <button class="stripbtn" data-restore="both" aria-label="Show the website panel">▸ Website</button>
   </section>
   <div class="scrim" id="scrim"></div>
-  <aside class="side" id="side" aria-label="Checks and images">
-    <div class="dh"><span>Checks, problems &amp; images</span><button class="btn sm" id="btnCloseSide" aria-label="Close">✕ Close</button></div>
+  <aside class="side" id="side" aria-label="My images">
+    <div class="dh"><span>My images</span><button class="btn sm" id="btnCloseSide" aria-label="Close">✕ Close</button></div>
     <div class="sec" id="secScore">
       <h3 id="lname">Lesson</h3>
       <div class="score"><b id="scoreNum">0</b><span>/ <span id="scoreTot">50</span> points (auto check)</span></div>
