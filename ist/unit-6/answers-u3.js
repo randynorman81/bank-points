@@ -389,7 +389,7 @@
       var list = [
         { h: "What you are building" },
         { p: (CL.intro && CL.intro[l]) || "A page about a theme you pick. Build the skeleton, then the checklist tells you what your page needs **somewhere**. Styles go inside a **style attribute**, with a **semicolon** between properties. Use named colors (or hex codes if you know them)." },
-        { id: "theme", t: "pick", q: "Pick your theme (check ONE box)", opts: CL.themes[l] },
+        { id: "theme", t: "pick", q: "Pick your theme (check ONE box)", opts: CL.themes[l], ex: (CL.exampleSite || {})[l] },
         S("Skeleton", [
           "**DOCTYPE** added at the very top of the page",
           "**html** tags added (the head tags and body tags go inside the html tags)",

@@ -141,6 +141,8 @@
   CL.newHead = { "6.2": "New this lesson (the number tells you how many)" };
   CL.intro = { "6.2": "**The Ugliest Website Ever.** Pick a theme and make the most **eye-burning** page you can using **text colors** and **background colors**. Ugly on purpose is the goal, but every word must still be there. Build the skeleton, then the checklist tells you what your page needs **somewhere**. Styles go inside a **style attribute**, with a **semicolon** between properties. Use named colors (or hex codes if you know them)." };
   CL.bonusText = { "6.2": "**BONUS (+5 points):** a sneak peek at the **span** tag (we cover it fully in 3.4). A span wraps just a few words inside a paragraph or heading and can have its own style attribute. Wrap **at least 3 whole words**, each in its own span with a **color**, OR make **one rainbow word** by giving **each letter** of a word its own span and its own **color**. Your teacher may also add extra credit for good design" };
+  /* a finished example website students can open in a new tab and recreate (shown under the theme choices) */
+  CL.exampleSite = { "6.4": { url: "examples/6.4-ticket.html", label: "Open the finished example website (A concert ticket) in a new tab" } };
   CL.famOrder = ["6.20", "6.3", "6.35", "6.4", "6.7", "6.75", "6.6"];
   /* the three 3.3 assignments share one family list (3.3 itself), and each later lesson pools every family before it */
   CL.poolFor = function (lesson) {
