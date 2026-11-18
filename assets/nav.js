@@ -131,7 +131,7 @@ const TOOLS = [
 // Tools for teachers (not students). Shows up in a "Teacher Tools" dropdown
 // on every page. To add one: add one object here.
 const TEACHER_TOOLS = [
-  { id: "rubric-grader", name: "Rubric Grader", url: NAV_ROOT + "tools/rubric/index.html", description: "Turn any rubric into a standard PDF template, then upload graded rubrics to get class data." },
+  { id: "rubric-scanner", name: "Rubric Scanner", url: NAV_ROOT + "tools/rubric-scanner/index.html", description: "Print bubble-sheet rubrics, grade by hand, then photograph or scan the stack to get scores and class analytics. Everything stays in your browser." },
   { id: "webp-converter", name: "WebP Converter", url: NAV_ROOT + "tools/webp-converter/index.html", description: "Convert WebP images to PNG right in your browser." },
   { id: "packet-quest-teacher", name: "Packet Quest Dashboard", url: NAV_ROOT + "apcsp/packet-quest/teacher.html", description: "Open Packet Quest missions for each AP CSP period and see completion grades and mastery by Big Idea and CED topic." }
 ];

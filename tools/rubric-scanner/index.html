@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rubric Scanner</title>
+<style>
+:root{--bg:#f4f6f9;--card:#fff;--ink:#1c2333;--mut:#5d6677;--line:#e1e5eb;--acc:#2456c6;--acc2:#e8eefc;--ok:#167a4b;--okbg:#e5f5ec;--warn:#a15c00;--warnbg:#fff3df;--bad:#bf2f28;--badbg:#fde9e7}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+header{background:#14213d;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;position:sticky;top:0;z-index:5}
+header .brand{font-weight:700;font-size:17px;letter-spacing:.2px;display:flex;align-items:center;gap:8px;cursor:pointer}
+header .dot{width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 4px #14213d,0 0 0 2px #fff}
+header nav{display:flex;gap:4px;flex-wrap:wrap}
+header nav button{background:transparent;color:#cdd6ea;border:0;padding:6px 10px;border-radius:6px;font:inherit;cursor:pointer}
+header nav button.on,header nav button:hover{background:#25355c;color:#fff}
+main{max-width:1180px;margin:0 auto;padding:18px 14px 80px}
+h1{font-size:22px;margin:4px 0 14px}h2{font-size:17px;margin:0 0 10px}h3{font-size:15px;margin:14px 0 6px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}}
+.mut{color:var(--mut)}.small{font-size:13px}.tiny{font-size:12px}
+button.b,label.b{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 13px;border-radius:7px;font:inherit;font-weight:600;cursor:pointer;white-space:nowrap}
+button.b:hover,label.b:hover{border-color:#b9c2d0}
+button.p,label.p{background:var(--acc);border-color:var(--acc);color:#fff}
+button.p:hover,label.p:hover{background:#1c47a8}
+button.d{color:var(--bad)}button.sm{padding:5px 9px;font-size:13px}
+button:disabled{opacity:.45;cursor:not-allowed}
+input,select,textarea{font:inherit;border:1px solid #c9d0db;border-radius:6px;padding:7px 9px;background:#fff;color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:2px solid #9db7ef;border-color:var(--acc)}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:var(--mut)}
+label.f input,label.f select{font-weight:400;color:var(--ink)}
+table{border-collapse:collapse;width:100%}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;font-size:14px;vertical-align:middle}
+th{background:#f7f8fb;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--mut);position:sticky;top:0}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.tw{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:8px}
+.pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700}
+.ok{background:var(--okbg);color:var(--ok)}.warn{background:var(--warnbg);color:var(--warn)}.bad{background:var(--badbg);color:var(--bad)}.info{background:var(--acc2);color:var(--acc)}
+.banner{padding:10px 14px;border-radius:8px;margin-bottom:12px;font-size:14px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
+.tabs button{border:0;background:none;padding:9px 14px;font:inherit;font-weight:600;color:var(--mut);cursor:pointer;border-bottom:3px solid transparent}
+.tabs button.on{color:var(--acc);border-color:var(--acc)}
+.alist{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.acard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.acard h3{margin:0;font-size:16px}
+.drop{border:2px dashed #b8c3d6;border-radius:12px;padding:26px;text-align:center;background:#fbfcfe}
+.drop.over{background:var(--acc2);border-color:var(--acc)}
+.q{display:flex;gap:12px;align-items:center;padding:8px;border-bottom:1px solid var(--line)}
+.q img{width:52px;height:67px;object-fit:cover;border:1px solid var(--line);border-radius:4px;background:#eee}
+.q .grow{flex:1;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+.kpi .v{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}.kpi .l{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.4px}
+#modal{position:fixed;inset:0;background:rgba(15,22,38,.55);display:none;align-items:flex-start;justify-content:center;z-index:20;overflow:auto;padding:16px}
+#modal.on{display:flex}
+.mbox{background:#fff;border-radius:12px;max-width:1100px;width:100%;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.mbox.sm{max-width:480px;margin-top:10vh}
+.rv{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,1fr);gap:16px}
+@media(max-width:860px){.rv{grid-template-columns:1fr}}
+.rv canvas{width:100%;border:1px solid var(--line);border-radius:6px;cursor:crosshair;background:#eee}
+.rrow{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:6px}
+.rrow.flag{border-color:#f0b35a;background:#fffaf1}.rrow.done{border-color:#a8d9bd;background:#f6fcf8}
+.rrow select{width:100%;margin-top:4px}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#1c2333;color:#fff;padding:10px 16px;border-radius:8px;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:30;max-width:90vw}
+#toast.on{opacity:1}#toast.err{background:var(--bad)}
+.crit{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:start;padding:8px 0;border-bottom:1px solid var(--line)}
+.crit .num{font-weight:700;color:var(--mut);padding-top:8px}
+.ptsrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.ptsrow input{width:64px}
+.preview{width:100%;max-width:420px;border:1px solid var(--line);border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.steps{counter-reset:s;list-style:none;padding:0;margin:0}
+.steps li{counter-increment:s;position:relative;padding:4px 0 10px 36px}
+.steps li:before{content:counter(s);position:absolute;left:0;top:2px;width:24px;height:24px;border-radius:50%;background:var(--acc);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+svg text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand" data-act="nav" data-v="home"><span class="dot"></span>Rubric Scanner</div>
+  <nav id="nav">
+    <button data-act="nav" data-v="home">Rubrics</button>
+    <button data-act="nav" data-v="roster">Roster</button>
+    <button data-act="nav" data-v="help">Help &amp; Backup</button>
+  </nav>
+</header>
+<main id="app"></main>
+<div id="modal"></div>
+<div id="toast"></div>
+<script>
+'use strict';
+/* =====================================================================
+   Rubric Scanner — free, offline-friendly bubble-sheet rubric grader.
+   Photos are processed entirely in this browser. Nothing is uploaded.
+   ===================================================================== */
+const CDN={
+  pdflib:'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js',
+  xlsx:'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+  pdfjs:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+  pdfjsWorker:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
+};
+const _loaded={};
+function loadScript(u){
+  if(!_loaded[u]) _loaded[u]=new Promise((res,rej)=>{const s=document.createElement('script');s.src=u;s.onload=res;
+    s.onerror=()=>{delete _loaded[u];rej(new Error('Could not load a helper library. Check your internet connection and try again.'))};document.head.appendChild(s)});
+  return _loaded[u];
+}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const r1=v=>Math.round(v*10)/10;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function toast(msg,err){const t=$('#toast');t.textContent=msg;t.className='on'+(err?' err':'');clearTimeout(toast._t);toast._t=setTimeout(()=>t.className='',err?5000:2600)}
+
+/* ---------------------------- storage ---------------------------- */
+const KEY='rubricScanner.v1';
+let DB={version:1,assignments:[],roster:[],settings:{cutoff:70,autoSave:true},lastBackup:null,lastChange:null};
+let storageOK=true;
+function loadDB(){try{const s=localStorage.getItem(KEY);if(s){const d=JSON.parse(s);if(d&&Array.isArray(d.assignments))DB=Object.assign(DB,d);DB.settings=Object.assign({cutoff:70,autoSave:true},DB.settings||{})}}catch(e){storageOK=false}}
+function saveDB(){DB.lastChange=Date.now();try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){storageOK=false;toast('Could not save on this device. Export a backup from Help & Backup!',true)}}
+const getA=id=>DB.assignments.find(a=>a.id===id);
+const getAByCode=c=>DB.assignments.find(a=>a.code===c);
+const normId=s=>String(s??'').replace(/\D/g,'').replace(/^0+(?=\d)/,'');
+const rosterById=()=>{const m=new Map();for(const s of DB.roster)m.set(normId(s.id),s);return m};
+
+/* ------------------------- rubric math -------------------------- */
+function pts(a,i,j){const c=a.criteria[i];const v=(c.points&&c.points[j]!=null&&c.points[j]!=='')?+c.points[j]:+a.levels[j].points;return isFinite(v)?v:0}
+function rowMax(a,i){let m=0;for(let j=0;j<a.levels.length;j++)m=Math.max(m,pts(a,i,j));return m}
+function maxTotal(a){let t=0;for(let i=0;i<a.criteria.length;i++)t+=rowMax(a,i);return t}
+function scoreOf(a,r){let t=0;r.choices.forEach((j,i)=>{if(j>=0&&i<a.criteria.length)t+=pts(a,i,j)});return t}
+function pctOf(a,r){const m=maxTotal(a);return m?scoreOf(a,r)/m*100:0}
+function newCode(){const used=new Set(DB.assignments.map(a=>a.code));const free=[];for(let c=1;c<1024;c++)if(!used.has(c))free.push(c);return free.length?free[Math.floor(Math.random()*free.length)]:-1}
+
+/* ===================== SHEET GEOMETRY (inches) ===================== */
+const G={W:8.5,H:11,MK:0.42,SPLIT:5.0,
+  M:{TL:[0.55,0.55],TR:[7.95,0.55],BR:[7.95,10.45],BL:[0.55,10.45],ML:[0.55,5.0],MR:[7.95,5.0]},
+  CODE:{y:1.2,x0:1.1,dx:0.25,s:0.17,n:16},
+  ID:{x0:0.95,dx:0.27,y0:2.6,dy:0.215,r:0.085,boxY:2.2},
+  PER:{x:3.85,y0:2.6,dy:0.215,r:0.085,n:8},
+  RUB:{y0:5.55,dy:0.42,r:0.13,x0:4.55,dx:0.8,maxRows:10,maxLevels:5}};
+const idPos=(c,d)=>[G.ID.x0+c*G.ID.dx,G.ID.y0+d*G.ID.dy];
+const perPos=p=>[G.PER.x,G.PER.y0+(p-1)*G.PER.dy];
+const rubPos=(i,j)=>[G.RUB.x0+j*G.RUB.dx,G.RUB.y0+i*G.RUB.dy];
+function codeBits(code){const b=[1,1,0];for(let k=9;k>=0;k--)b.push((code>>k)&1);const cs=(code*5+3)&7;b.push((cs>>2)&1,(cs>>1)&1,cs&1);return b}
+function bitsToCode(b){if(b[0]!==1||b[1]!==1||b[2]!==0)return -1;let c=0;for(let k=3;k<13;k++)c=c*2+b[k];const cs=b[13]*4+b[14]*2+b[15];if(c<1||((c*5+3)&7)!==cs)return -1;return c}
+
+/* --------------------------- drawers ---------------------------- */
+function canvasDrawer(ctx,ppi){
+  const col=v=>typeof v==='number'?`rgb(${Math.round(v*255)},${Math.round(v*255)},${Math.round(v*255)})`:v;
+  const font=(s,b)=>`${b?'bold ':''}${s*ppi/72}px Helvetica, Arial, sans-serif`;
+  return{
+    rect(x,y,w,h,o){if(o.fill!=null){ctx.fillStyle=col(o.fill);ctx.fillRect(x*ppi,y*ppi,w*ppi,h*ppi)}if(o.stroke!=null){ctx.strokeStyle=col(o.stroke);ctx.lineWidth=(o.lw||1)*ppi/72;ctx.strokeRect(x*ppi,y*ppi,w*ppi,h*ppi)}},
+    circle(cx,cy,r,o){ctx.beginPath();ctx.arc(cx*ppi,cy*ppi,r*ppi,0,Math.PI*2);if(o.fill!=null){ctx.fillStyle=col(o.fill);ctx.fill()}if(o.stroke!=null){ctx.strokeStyle=col(o.stroke);ctx.lineWidth=(o.lw||1)*ppi/72;ctx.stroke()}},
+    line(x1,y1,x2,y2,o){ctx.beginPath();ctx.moveTo(x1*ppi,y1*ppi);ctx.lineTo(x2*ppi,y2*ppi);ctx.strokeStyle=col(o.stroke??0);ctx.lineWidth=(o.lw||1)*ppi/72;ctx.lineCap='round';ctx.stroke()},
+    text(s,x,y,o){ctx.font=font(o.size,o.bold);ctx.fillStyle=col(o.color??0);ctx.textAlign=o.align||'left';ctx.textBaseline='alphabetic';ctx.fillText(s,x*ppi,y*ppi)},
+    measure(s,size,bold){ctx.font=font(size,bold);return ctx.measureText(s).width/ppi}
+  };
+}
+function winAnsi(s){return String(s??'').replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,'-').replace(/…/g,'...').replace(/[^\x20-\x7E\xA0-\xFF•]/g,'?')}
+function pdfDrawer(page,fonts){
+  const {rgb}=PDFLib;const c=v=>typeof v==='number'?rgb(v,v,v):rgb(v[0],v[1],v[2]);const Y=y=>(11-y)*72;
+  return{
+    rect(x,y,w,h,o){page.drawRectangle({x:x*72,y:Y(y+h),width:w*72,height:h*72,color:o.fill!=null?c(o.fill):undefined,borderColor:o.stroke!=null?c(o.stroke):undefined,borderWidth:o.stroke!=null?(o.lw||1):0})},
+    circle(cx,cy,r,o){page.drawCircle({x:cx*72,y:Y(cy),size:r*72,color:o.fill!=null?c(o.fill):undefined,borderColor:o.stroke!=null?c(o.stroke):undefined,borderWidth:o.stroke!=null?(o.lw||1):0})},
+    line(x1,y1,x2,y2,o){page.drawLine({start:{x:x1*72,y:Y(y1)},end:{x:x2*72,y:Y(y2)},thickness:o.lw||1,color:c(o.stroke??0),lineCap:1})},
+    text(s,x,y,o){const f=o.bold?fonts.b:fonts.r;s=winAnsi(s);const w=f.widthOfTextAtSize(s,o.size);let xx=x*72;if(o.align==='center')xx-=w/2;else if(o.align==='right')xx-=w;page.drawText(s,{x:xx,y:Y(y),size:o.size,font:f,color:c(o.color??0)})},
+    measure(s,size,bold){return(bold?fonts.b:fonts.r).widthOfTextAtSize(winAnsi(s),size)/72}
+  };
+}
+function wrap(d,text,size,bold,width,maxLines){
+  const words=String(text||'').split(/\s+/).filter(Boolean);const lines=[];let cur='';
+  for(const w of words){const t=cur?cur+' '+w:w;if(d.measure(t,size,bold)<=width||!cur)cur=t;else{lines.push(cur);cur=w}}
+  if(cur)lines.push(cur);
+  if(maxLines&&lines.length>maxLines){const keep=lines.slice(0,maxLines);let last=keep[maxLines-1];while(last.length>1&&d.measure(last+'...',size,bold)>width)last=last.slice(0,-1);keep[maxLines-1]=last+'...';return keep}
+  return lines;
+}
+
+/* ------------------------- the sheet itself ------------------------- */
+function drawSheet(d,a,opt){
+  opt=opt||{};const st=opt.student||null;
+  for(const k of['TL','TR','BR','BL','ML','MR']){const[x,y]=G.M[k];d.rect(x-G.MK/2,y-G.MK/2,G.MK,G.MK,{fill:0})}
+  // header
+  d.text('RUBRIC SCORE SHEET',1.05,0.5,{size:8,bold:true,color:0.4});
+  d.text(wrap(d,a.name||'Untitled rubric',15,true,4.4,1)[0],1.05,0.82,{size:15,bold:true});
+  if(a.teacher)d.text(wrap(d,a.teacher,9,false,2.4,1)[0],7.45,0.5,{size:9,align:'right',color:0.35});
+  if(a.course)d.text(wrap(d,a.course,10,true,2.4,1)[0],7.45,0.82,{size:10,bold:true,align:'right'});
+  // code bar
+  codeBits(a.code).forEach((b,i)=>{if(b){const x=G.CODE.x0+i*G.CODE.dx,s=G.CODE.s;d.rect(x-s/2,G.CODE.y-s/2,s,s,{fill:0})}});
+  d.text('Sheet code #'+a.code+' - do not mark this bar',5.1,1.24,{size:7,color:0.45});
+  // name / date
+  d.text('Name',1.05,1.68,{size:9,bold:true});d.line(1.5,1.7,4.0,1.7,{stroke:0.2,lw:0.6});
+  if(st&&st.name)d.text(wrap(d,st.name,11,false,2.4,1)[0],1.58,1.64,{size:11});
+  // student ID
+  const nd=a.idDigits;
+  d.text('STUDENT ID',G.ID.x0-0.1,1.98,{size:8,bold:true});
+  const idStr=st?String(st.id).padStart(nd,'0'):'';
+  for(let c=0;c<nd;c++){
+    const[x]=idPos(c,0);d.rect(x-0.11,G.ID.boxY-0.11,0.22,0.22,{stroke:0.35,lw:0.7});
+    if(st)d.text(idStr[c],x,G.ID.boxY+0.05,{size:10,bold:true,align:'center'});
+    for(let dg=0;dg<10;dg++){const[bx,by]=idPos(c,dg);
+      if(st&&+idStr[c]===dg)d.circle(bx,by,G.ID.r,{fill:0});
+      else{d.circle(bx,by,G.ID.r,{stroke:0.35,lw:0.8});d.text(String(dg),bx,by+0.026,{size:6.5,color:0.6,align:'center'})}}
+  }
+  if(a.usePeriod){
+    d.text('PERIOD',G.PER.x-0.22,1.98,{size:8,bold:true});
+    for(let p=1;p<=8;p++){const[x,y]=perPos(p);
+      if(st&&+st.period===p)d.circle(x,y,G.PER.r,{fill:0});
+      else{d.circle(x,y,G.PER.r,{stroke:0.35,lw:0.8});d.text(String(p),x,y+0.026,{size:6.5,color:0.6,align:'center'})}}
+  }
+  drawInstructions(d,a);
+  // rubric grid
+  d.text('CRITERIA',1.05,5.3,{size:8,bold:true});
+  for(let j=0;j<a.levels.length;j++){const[x]=rubPos(0,j);const L=wrap(d,a.levels[j].label||('Level '+(j+1)),7,true,0.76,2);
+    L.forEach((ln,k)=>d.text(ln,x,5.3-(L.length-1-k)*0.1,{size:7,bold:true,align:'center'}))}
+  for(let i=0;i<a.criteria.length;i++){
+    const[,y]=rubPos(i,0);
+    d.line(1.0,y+0.21,7.95,y+0.21,{stroke:0.82,lw:0.5});
+    const L=wrap(d,a.criteria[i].name||('Criterion '+(i+1)),9,true,3.25,2);
+    if(L.length===1)d.text(L[0],1.05,y+0.035,{size:9,bold:true});else{d.text(L[0],1.05,y-0.035,{size:9,bold:true});d.text(L[1],1.05,y+0.105,{size:9,bold:true})}
+    for(let j=0;j<a.levels.length;j++){const[x]=rubPos(i,j);d.circle(x,y,G.RUB.r,{stroke:0.3,lw:0.9});d.text(String(pts(a,i,j)),x,y+0.035,{size:7.5,color:0.6,align:'center'})}
+  }
+  d.rect(1.05,9.68,6.35,0.42,{stroke:0.6,lw:0.6});
+  d.text('Comments (optional - not scanned)',1.12,9.8,{size:7,color:0.5});
+  d.text('Keep all 6 black squares in the photo.  Fill bubbles completely.  Max score: '+maxTotal(a)+' pts',4.25,10.5,{size:7,align:'center',color:0.45});
+}
+function drawInstructions(d,a){
+  const x0=4.25,y0=1.85,w=3.65,h=2.9;d.rect(x0,y0,w,h,{stroke:0.45,lw:0.8});
+  d.text('HOW TO SCORE - read before grading',x0+0.14,y0+0.24,{size:9,bold:true});
+  const items=['1. Use a dark pencil or pen. FILL exactly one bubble completely in every rubric row.',
+    '2. Do NOT use check marks, X marks, circles, underlines, or highlighter. Only filled bubbles count.',
+    '3. Changed your mind? Erase completely. If two bubbles look dark, the app stops and asks which one counts.',
+    '4. Fill one bubble in EVERY Student ID column. Write the digits in the boxes too.'+(a.usePeriod?' Fill the class period.':''),
+    '5. Never write on the black squares or the code bar.',
+    '6. Photo: page flat, good light, all 6 black squares in the picture.'];
+  let y=y0+0.46;const size=7.6,lh=0.128;
+  for(const it of items){for(const ln of wrap(d,it,size,false,w-0.3)){d.text(ln,x0+0.15,y,{size});y+=lh}y+=0.035}
+  // examples
+  const ey=y0+h-0.36,xs=[x0+0.45,x0+1.3,x0+2.15,x0+3.0],r=0.085;
+  d.circle(xs[0],ey,r,{fill:0});
+  d.circle(xs[1],ey,r,{stroke:0.35,lw:0.8});d.line(xs[1]-0.06,ey,xs[1]-0.015,ey+0.06,{stroke:0,lw:1.4});d.line(xs[1]-0.015,ey+0.06,xs[1]+0.09,ey-0.09,{stroke:0,lw:1.4});
+  d.circle(xs[2],ey,r,{stroke:0.35,lw:0.8});d.line(xs[2]-0.07,ey-0.07,xs[2]+0.07,ey+0.07,{stroke:0,lw:1.4});d.line(xs[2]-0.07,ey+0.07,xs[2]+0.07,ey-0.07,{stroke:0,lw:1.4});
+  d.circle(xs[3],ey,r,{stroke:0.35,lw:0.8});d.circle(xs[3],ey,0.13,{stroke:0,lw:1.2});
+  d.text('YES',xs[0],ey+0.24,{size:7,bold:true,align:'center'});
+  for(let k=1;k<4;k++)d.text('NO',xs[k],ey+0.24,{size:7,bold:true,align:'center',color:0.35});
+}
+
+/* ======================= SCANNER (pure JS, offline) ======================= */
+function prepWork(src){
+  const maxD=2000,sw=src.width,sh=src.height,sc=Math.min(1,maxD/Math.max(sw,sh));
+  const w=Math.max(1,Math.round(sw*sc)),h=Math.max(1,Math.round(sh*sc));
+  const cv=document.createElement('canvas');cv.width=w;cv.height=h;
+  const ctx=cv.getContext('2d',{willReadFrequently:true});ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.drawImage(src,0,0,w,h);
+  const rgba=ctx.getImageData(0,0,w,h).data;const gray=new Uint8Array(w*h);
+  for(let i=0,p=0;i<w*h;i++,p+=4)gray[i]=(rgba[p]*77+rgba[p+1]*150+rgba[p+2]*29)>>8;
+  return{w,h,gray,rgba};
+}
+function gAt(W,u,v){if(!(u>=0&&v>=0&&u<W.w-1&&v<W.h-1))return NaN;const x=u|0,y=v|0,fx=u-x,fy=v-y,i=y*W.w+x,g=W.gray;
+  return(g[i]*(1-fx)+g[i+1]*fx)*(1-fy)+(g[i+W.w]*(1-fx)+g[i+W.w+1]*fx)*fy}
+function findBlobs(W){
+  const{w,h,gray}=W,w1=w+1,I=new Float64Array(w1*(h+1));
+  for(let y=0;y<h;y++){let row=0;for(let x=0;x<w;x++){row+=gray[y*w+x];I[(y+1)*w1+x+1]=I[y*w1+x+1]+row}}
+  const half=Math.max(15,Math.round(Math.max(w,h)/14));const dark=new Uint8Array(w*h);
+  for(let y=0;y<h;y++){const y0=Math.max(0,y-half),y1=Math.min(h,y+half+1);
+    for(let x=0;x<w;x++){const x0=Math.max(0,x-half),x1=Math.min(w,x+half+1);
+      const m=(I[y1*w1+x1]-I[y0*w1+x1]-I[y1*w1+x0]+I[y0*w1+x0])/((y1-y0)*(x1-x0));const g=gray[y*w+x];
+      if(g<m*0.7&&g<175)dark[y*w+x]=1}}
+  const lab=new Uint8Array(w*h),stack=new Int32Array(w*h),blobs=[];
+  for(let i=0;i<w*h;i++){if(!dark[i]||lab[i])continue;let sp=0;stack[sp++]=i;lab[i]=1;
+    let area=0,sx=0,sy=0,minx=w,maxx=0,miny=h,maxy=0;
+    while(sp){const p=stack[--sp],x=p%w,y=(p-x)/w;area++;sx+=x;sy+=y;
+      if(x<minx)minx=x;if(x>maxx)maxx=x;if(y<miny)miny=y;if(y>maxy)maxy=y;
+      if(x>0&&dark[p-1]&&!lab[p-1]){lab[p-1]=1;stack[sp++]=p-1}
+      if(x<w-1&&dark[p+1]&&!lab[p+1]){lab[p+1]=1;stack[sp++]=p+1}
+      if(y>0&&dark[p-w]&&!lab[p-w]){lab[p-w]=1;stack[sp++]=p-w}
+      if(y<h-1&&dark[p+w]&&!lab[p+w]){lab[p+w]=1;stack[sp++]=p+w}}
+    if(area<30||minx===0||miny===0||maxx===w-1||maxy===h-1)continue;
+    const bw=maxx-minx+1,bh=maxy-miny+1,asp=bw/bh,fill=area/(bw*bh);
+    if(asp<0.4||asp>2.5||fill<0.45)continue;
+    blobs.push({x:sx/area+0.5,y:sy/area+0.5,area,bw,bh,fill});
+  }
+  return blobs;
+}
+function homog(src,dst){
+  const A=[],b=[];
+  for(let k=0;k<4;k++){const[x,y]=src[k],[u,v]=dst[k];A.push([x,y,1,0,0,0,-u*x,-u*y]);b.push(u);A.push([0,0,0,x,y,1,-v*x,-v*y]);b.push(v)}
+  for(let c=0;c<8;c++){let p=c;for(let r=c+1;r<8;r++)if(Math.abs(A[r][c])>Math.abs(A[p][c]))p=r;
+    [A[c],A[p]]=[A[p],A[c]];[b[c],b[p]]=[b[p],b[c]];const piv=A[c][c];if(Math.abs(piv)<1e-12)return null;
+    for(let r=0;r<8;r++){if(r===c)continue;const f=A[r][c]/piv;if(!f)continue;for(let k=c;k<8;k++)A[r][k]-=f*A[c][k];b[r]-=f*b[c]}}
+  return b.map((v,i)=>v/A[i][i]);
+}
+function hApply(H,x,y){const w=H[6]*x+H[7]*y+1;return[(H[0]*x+H[1]*y+H[2])/w,(H[3]*x+H[4]*y+H[5])/w]}
+const Hfor=(L,y)=>y<G.SPLIT?L.Htop:L.Hbot;
+const DISK=[];for(let i=-3;i<=3;i++)for(let j=-3;j<=3;j++)if(i*i+j*j<=9)DISK.push([i/3,j/3]);
+function diskMean(L,x,y,r){const H=Hfor(L,y);let s=0,n=0;for(const[a,b]of DISK){const[u,v]=hApply(H,x+a*r,y+b*r);const g=gAt(L.W,u,v);if(g===g){s+=g;n++}}return n>DISK.length/2?s/n:NaN}
+function ringWhite(L,x,y,R){const H=Hfor(L,y),vals=[];for(let k=0;k<16;k++){const t=k*Math.PI/8;const[u,v]=hApply(H,x+R*Math.cos(t),y+R*Math.sin(t));const g=gAt(L.W,u,v);if(g===g)vals.push(g)}
+  if(vals.length<8)return NaN;vals.sort((a,b)=>a-b);return vals[Math.floor(vals.length*0.75)]}
+function bubbleFill(L,x,y,r){const m=diskMean(L,x,y,r*0.62),w=ringWhite(L,x,y,r*1.45);if(!(m===m&&w===w))return NaN;
+  const den=Math.max(30,w-L.black);return Math.max(-0.3,Math.min(1.3,(w-m)/den))}
+function refsFor(L){
+  const blk=[];for(const k of['TL','TR','BR','BL']){const v=diskMean(L,G.M[k][0],G.M[k][1],0.12);if(!(v===v))return false;blk.push(v)}
+  L.black=blk.reduce((s,v)=>s+v,0)/4;
+  const wp=[[1.5,4.85],[6.0,4.93],[4.25,10.27],[6.0,1.0],[2.6,1.42]].map(([x,y])=>diskMean(L,x,y,0.05)).filter(v=>v===v).sort((a,b)=>a-b);
+  L.white=wp.length?wp[wp.length>>1]:255;return true;
+}
+function readCode(L){
+  const bits=[];let weak=0;
+  for(let i=0;i<G.CODE.n;i++){const x=G.CODE.x0+i*G.CODE.dx,y=G.CODE.y;const m=diskMean(L,x,y,0.055);
+    const w1=diskMean(L,x,y-0.21,0.03),w2=diskMean(L,x,y+0.21,0.03);if(!(m===m&&w1===w1&&w2===w2))return -1;
+    const w=Math.max(w1,w2);const f=(w-m)/Math.max(30,w-L.black);if(f>0.3&&f<0.7)weak++;bits.push(f>0.5?1:0)}
+  if(weak>3)return -1;return bitsToCode(bits);
+}
+const TPL4=[G.M.TL,G.M.TR,G.M.BR,G.M.BL];
+const dist=(p,q)=>Math.hypot(p.x-q.x,p.y-q.y);
+function orderQuad(ps){let tl=ps[0],br=ps[0],tr=ps[0],bl=ps[0];
+  for(const p of ps){if(p.x+p.y<tl.x+tl.y)tl=p;if(p.x+p.y>br.x+br.y)br=p;if(p.x-p.y>tr.x-tr.y)tr=p;if(p.x-p.y<bl.x-bl.y)bl=p}
+  return new Set([tl,tr,br,bl]).size===4?[tl,tr,br,bl]:null}
+function quadScore(q){
+  let sgn=0;for(let i=0;i<4;i++){const a=q[i],b=q[(i+1)%4],c=q[(i+2)%4];const cr=(b.x-a.x)*(c.y-b.y)-(b.y-a.y)*(c.x-b.x);const s=Math.sign(cr);if(!s||(sgn&&s!==sgn))return -1;sgn=s}
+  let A=0;for(let i=0;i<4;i++){const a=q[i],b=q[(i+1)%4];A+=a.x*b.y-b.x*a.y}A=Math.abs(A)/2;
+  const ar=q.map(p=>p.area),amin=Math.min(...ar),amax=Math.max(...ar);if(amin/amax<0.3)return -1;
+  for(const a of ar){const f=a/A;if(f<0.0006||f>0.01)return -1}
+  const top=dist(q[0],q[1]),bot=dist(q[3],q[2]),lef=dist(q[0],q[3]),rig=dist(q[1],q[2]);
+  if(top/bot<0.5||top/bot>2||lef/rig<0.5||lef/rig>2)return -1;const asp=(top+bot)/(lef+rig);if(asp<0.4||asp>2.6)return -1;
+  return A*Math.sqrt(amin/amax);
+}
+/** Locate the sheet in a photo. Returns {ok, code, Htop, Hbot, ...} or {ok:false, error} */
+function locateSheet(W,isKnown){
+  const blobs=findBlobs(W);
+  if(blobs.length<4)return{ok:false,error:'nomarkers'};
+  const cand=blobs.slice().sort((a,b)=>b.area-a.area).slice(0,16);const combos=[];
+  for(let a=0;a<cand.length;a++)for(let b=a+1;b<cand.length;b++)for(let c=b+1;c<cand.length;c++)for(let d=c+1;d<cand.length;d++){
+    const q=orderQuad([cand[a],cand[b],cand[c],cand[d]]);if(!q)continue;const s=quadScore(q);if(s>0)combos.push({q,s})}
+  if(!combos.length)return{ok:false,error:'nomarkers'};
+  combos.sort((a,b)=>b.s-a.s);let fallback=null;
+  for(const cb of combos.slice(0,10))for(let k=0;k<4;k++){
+    const img=[0,1,2,3].map(i=>cb.q[(i+k)%4]);const H=homog(TPL4,img.map(p=>[p.x,p.y]));if(!H)continue;
+    const L={W,Htop:H,Hbot:H};if(!refsFor(L))continue;const code=readCode(L);if(code<0)continue;
+    const res=finishLocate(L,img,blobs,code);
+    if(isKnown(code))return res;if(!fallback)fallback=res;
+  }
+  if(fallback)return fallback;
+  return{ok:false,error:'nocode'};
+}
+function finishLocate(L,img,blobs,code){
+  const H=L.Htop;const ppi=(dist(img[0],img[1])+dist(img[3],img[2]))/2/(G.M.TR[0]-G.M.TL[0]);
+  const aMean=img.reduce((s,p)=>s+p.area,0)/4;
+  const near=t=>{const[u,v]=hApply(H,t[0],t[1]);let best=null,bd=0.35*ppi;
+    for(const b of blobs){const dd=Math.hypot(b.x-u,b.y-v);if(dd<bd&&b.area>aMean*0.35&&b.area<aMean*2.8){bd=dd;best=b}}return best};
+  const ml=near(G.M.ML),mr=near(G.M.MR);const warnings=[];
+  if(ml&&mr){const Ht=homog([G.M.TL,G.M.TR,G.M.MR,G.M.ML],[img[0],img[1],mr,ml].map(p=>[p.x,p.y]));
+    const Hb=homog([G.M.ML,G.M.MR,G.M.BR,G.M.BL],[ml,mr,img[2],img[3]].map(p=>[p.x,p.y]));
+    if(Ht&&Hb){L.Htop=Ht;L.Hbot=Hb}}
+  else warnings.push('nomid');
+  refsFor(L);
+  if(ppi<45)warnings.push('lowres');
+  if(L.white-L.black<55)warnings.push('contrast');
+  return{ok:true,code,W:L.W,Htop:L.Htop,Hbot:L.Hbot,black:L.black,white:L.white,ppi,warnings};
+}
+function classify(adj){
+  let i1=-1,i2=-1;for(let i=0;i<adj.length;i++){if(i1<0||adj[i]>adj[i1]){i2=i1;i1=i}else if(i2<0||adj[i]>adj[i2])i2=i}
+  const f1=adj[i1],f2=i2>=0?adj[i2]:-1;
+  if(!(f1===f1))return{sel:-1,status:'unclear'};
+  if(f1<0.15)return{sel:-1,status:'blank'};
+  if(f2>=0.3)return{sel:i1,status:'multiple'};
+  if(f1>=0.3&&f1-f2>=0.18)return{sel:i1,status:'ok'};
+  return{sel:i1,status:'unclear'};
+}
+/** Read every bubble for assignment a */
+function readSheet(L,a){
+  const rows=a.criteria.map((_,i)=>a.levels.map((_,j)=>bubbleFill(L,...rubPos(i,j),G.RUB.r)));
+  const idc=[];for(let c=0;c<a.idDigits;c++){const col=[];for(let d=0;d<10;d++)col.push(bubbleFill(L,...idPos(c,d),G.ID.r));idc.push(col)}
+  const per=a.usePeriod?[1,2,3,4,5,6,7,8].map(p=>bubbleFill(L,...perPos(p),G.PER.r)):null;
+  const all=rows.flat().concat(idc.flat(),per||[]).filter(v=>v===v).sort((x,y)=>x-y);
+  const base=all.length?all[Math.floor(all.length*0.3)]:0;
+  const adjust=arr=>arr.map(v=>v===v?v-base:NaN);
+  const rr=rows.map(r=>{const adj=adjust(r);return Object.assign(classify(adj),{adj})});
+  const dig=idc.map(c=>classify(adjust(c)));
+  const pp=per?classify(adjust(per)):null;
+  const idValue=dig.map(d=>d.status==='ok'?String(d.sel):'?').join('');
+  return{rows:rr,id:{digits:dig,value:idValue,ok:dig.every(d=>d.status==='ok')},
+    period:pp?{sel:pp.sel+1,status:pp.status}:null,base};
+}
+function renderRectified(L,ppi){
+  const cw=Math.round(G.W*ppi),ch=Math.round(G.H*ppi);const cv=document.createElement('canvas');cv.width=cw;cv.height=ch;
+  const ctx=cv.getContext('2d');const out=ctx.createImageData(cw,ch);const o=out.data,{w,h,rgba}=L.W;
+  for(let py=0;py<ch;py++){const ty=(py+0.5)/ppi,H=ty<G.SPLIT?L.Htop:L.Hbot;
+    for(let px=0;px<cw;px++){const[u,v]=hApply(H,(px+0.5)/ppi,ty);const q=(py*cw+px)*4;
+      if(u>=0&&v>=0&&u<w&&v<h){const s=((v|0)*w+(u|0))*4;o[q]=rgba[s];o[q+1]=rgba[s+1];o[q+2]=rgba[s+2]}else{o[q]=o[q+1]=o[q+2]=200}o[q+3]=255}}
+  ctx.putImageData(out,0,0);return cv;
+}
+
+/* ----------------------- file → image sources ----------------------- */
+async function fileToSources(file){
+  const isPdf=file.type==='application/pdf'||/\.pdf$/i.test(file.name);
+  if(isPdf){
+    await loadScript(CDN.pdfjsWorker);await loadScript(CDN.pdfjs);
+    const pdf=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;const out=[];
+    for(let p=1;p<=pdf.numPages;p++){const page=await pdf.getPage(p);const v0=page.getViewport({scale:1});
+      const scale=Math.min(3,2000/Math.max(v0.width,v0.height));const vp=page.getViewport({scale});
+      const cv=document.createElement('canvas');cv.width=Math.round(vp.width);cv.height=Math.round(vp.height);
+      const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+      await page.render({canvasContext:ctx,viewport:vp}).promise;out.push({src:cv,label:file.name+(pdf.numPages>1?' - page '+p:'')})}
+    return out;
+  }
+  if(/\.(heic|heif)$/i.test(file.name)||/hei[cf]/i.test(file.type)){
+    try{const b=await createImageBitmap(file);return[{src:b,label:file.name}]}catch(e){throw new Error('HEIC photos can\'t be opened in this browser. On iPhone: Settings > Camera > Formats > "Most Compatible", or upload a JPG/PNG.')}
+  }
+  try{const b=await createImageBitmap(file,{imageOrientation:'from-image'});return[{src:b,label:file.name}]}
+  catch(e){
+    const url=URL.createObjectURL(file);
+    try{const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url});return[{src:img,label:file.name}]}
+    catch(e2){throw new Error('This file isn\'t a photo or PDF this browser can open.')}
+    finally{setTimeout(()=>URL.revokeObjectURL(url),5000)}
+  }
+}
+const ERR_TEXT={
+  nomarkers:'Couldn\'t find the 6 black corner squares. Retake the photo with the whole page visible, flat, and well lit.',
+  nocode:'Found the page but couldn\'t read the code bar. Make sure the code bar isn\'t covered or written on, then retake.',
+  unknown:'This sheet belongs to a rubric that isn\'t on this device.'
+};
+const WARN_TEXT={nomid:'Middle squares not found - page may be bent or cut off. Double-check every row.',lowres:'Photo is low resolution - hold the camera closer next time.',contrast:'Photo is dark or washed out - double-check every row.'};
+
+/* ============================ downloads ============================ */
+let _dl;
+function getDownloads(){
+  if(_dl!==undefined)return Promise.resolve(_dl);
+  if(!(window.claude&&typeof window.claude.use==='function')){_dl=null;return Promise.resolve(null)}
+  return Promise.race([window.claude.use('downloads').catch(()=>null),sleep(4000).then(()=>null)]).then(v=>(_dl=v||null));
+}
+async function saveFile(name,data,mime){
+  const blob=data instanceof Blob?data:new Blob([data],{type:mime||'application/octet-stream'});
+  const dl=await getDownloads();
+  if(dl){try{await dl.save({filename:name,data:blob});toast('Saved '+name);return true}
+    catch(e){if(e&&e.code==='declined')return false;if(e&&e.code==='rate_limited'){toast('Another download is waiting - try again in a moment.',true);return false}}}
+  try{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);return true}
+  catch(e){toast('Downloads are blocked here. Open the app in a normal browser tab.',true);return false}
+}
+const fileSafe=s=>String(s||'rubric').replace(/[^\w\- ]+/g,'').trim().replace(/\s+/g,'_').slice(0,60)||'rubric';
+
+/* ============================ PDF sheets ============================ */
+async function buildSheetsPdf(a,students,copies){
+  await loadScript(CDN.pdflib);
+  const{PDFDocument,StandardFonts}=PDFLib;const doc=await PDFDocument.create();
+  const fonts={r:await doc.embedFont(StandardFonts.Helvetica),b:await doc.embedFont(StandardFonts.HelveticaBold)};
+  doc.setTitle('Rubric sheets - '+(a.name||''));
+  const list=students&&students.length?students:Array.from({length:copies||1},()=>null);
+  for(const st of list){const page=doc.addPage([612,792]);drawSheet(pdfDrawer(page,fonts),a,{student:st})}
+  return doc.save();
+}
+
+/* ============================ STATE / UI ============================ */
+let V={name:'home',aid:null,tab:'print'};
+let builder=null;            // draft rubric being edited
+let QUEUE=[];                // scan queue (in memory only)
+let qBusy=false;
+
+function go(name,extra){V=Object.assign({name},extra||{});render();window.scrollTo(0,0)}
+function render(){
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===V.name||(V.name!=='roster'&&V.name!=='help'&&b.dataset.v==='home')));
+  const app=$('#app');
+  if(V.name==='home')app.innerHTML=homeHTML();
+  else if(V.name==='build')app.innerHTML=builderHTML();
+  else if(V.name==='assign'){const a=getA(V.aid);if(!a){go('home');return}app.innerHTML=assignHTML(a)}
+  else if(V.name==='roster')app.innerHTML=rosterHTML();
+  else if(V.name==='help')app.innerHTML=helpHTML();
+  afterRender();
+}
+function afterRender(){
+  if(V.name==='build')drawBuilderPreview();
+  if(V.name==='assign'&&V.tab==='print')drawPrintPreview();
+  if(V.name==='assign'&&V.tab==='scan')bindDrop();
+}
+function storageBanner(){
+  if(!storageOK)return`<div class="banner bad">This browser isn't letting the app save data. Your work lasts only until you close this page. Use <b>Help &amp; Backup → Export backup</b> before leaving.</div>`;
+  const hasData=DB.assignments.some(a=>Object.keys(a.results||{}).length);
+  const stale=hasData&&(!DB.lastBackup||DB.lastChange-DB.lastBackup>3*86400000);
+  return stale?`<div class="banner warn">Grades are saved only in this browser on this device. <a href="#" data-act="nav" data-v="help">Export a backup</a> now and then so nothing is lost.</div>`:'';
+}
+
+/* ------------------------------ HOME ------------------------------ */
+function homeHTML(){
+  const cards=DB.assignments.slice().sort((a,b)=>(b.created||0)-(a.created||0)).map(a=>{
+    const res=Object.values(a.results||{});const avg=res.length?r1(res.reduce((s,r)=>s+pctOf(a,r),0)/res.length):null;
+    return`<div class="acard"><div class="row" style="justify-content:space-between"><h3>${esc(a.name||'Untitled')}</h3><span class="pill info">#${a.code}</span></div>
+      <div class="small mut">${esc(a.course||'')}${a.course&&a.teacher?' · ':''}${esc(a.teacher||'')}</div>
+      <div class="small">${a.criteria.length} criteria · ${maxTotal(a)} pts max · <b>${res.length}</b> scored${avg!=null?` · avg <b>${avg}%</b>`:''}</div>
+      <div class="row"><button class="b p sm" data-act="open" data-id="${a.id}">Open</button>
+      <button class="b sm" data-act="edit" data-id="${a.id}">Edit rubric</button>
+      <button class="b sm" data-act="dup" data-id="${a.id}">Duplicate</button>
+      <button class="b sm d" data-act="del" data-id="${a.id}">Delete</button></div></div>`}).join('');
+  return`${storageBanner()}<div class="row" style="justify-content:space-between;margin-bottom:8px"><h1>Your rubrics</h1>
+    <div class="row"><label class="b sm">Import rubric<input type="file" accept=".json,application/json" class="hide" data-chg="importRubric"></label>
+    ${DB.assignments.length?'<button class="b sm" data-act="exportAll">Export all grades (Excel)</button>':''}
+    ${DB.assignments.length?'<button class="b p" data-act="new">+ New rubric</button>':''}</div></div>
+    ${DB.assignments.length?`<div class="alist">${cards}</div>`:`<div class="card"><h2>Welcome! Here's how it works</h2>
+    <ol class="steps"><li><b>Build a rubric</b>: criteria, score levels, and points.</li><li><b>Print bubble sheets</b>: blank, or with each student's ID already filled in from your roster.</li>
+    <li><b>Grade by hand</b>: fill one bubble per row.</li><li><b>Take photos or scan</b> the stack and upload them. The app reads every bubble <b>on this device</b>. Nothing is uploaded, and it's free.</li>
+    <li><b>Review only what's flagged</b>, then see class analytics and download an Excel gradebook.</li></ol>
+    <button class="b p" data-act="new">+ Create your first rubric</button></div>`}`;
+}
+
+/* ----------------------------- BUILDER ----------------------------- */
+function blankRubric(){return{id:'a'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),code:newCode(),name:'',course:'',teacher:DB.settings.teacher||'',
+  levels:[{label:'Exemplary',points:4},{label:'Proficient',points:3},{label:'Developing',points:2},{label:'Beginning',points:1}],
+  criteria:[{name:''},{name:''},{name:''}],idDigits:6,usePeriod:true,results:{},created:Date.now()}}
+function locked(a){return Object.keys((getA(a.id)||{}).results||{}).length>0}
+function builderHTML(){
+  const a=builder,lk=locked(a);
+  const lv=a.levels.map((l,j)=>`<div class="row" style="margin-bottom:6px"><span class="mut small" style="width:52px">Col ${j+1}</span>
+    <input value="${esc(l.label)}" placeholder="Label" data-bind="level" data-j="${j}" data-k="label" maxlength="24" style="flex:1;min-width:120px">
+    <input type="number" step="0.5" value="${esc(l.points)}" data-bind="level" data-j="${j}" data-k="points" style="width:80px" title="Points"><span class="small mut">pts</span></div>`).join('');
+  const cr=a.criteria.map((c,i)=>`<div class="crit"><div class="num">${i+1}</div><div>
+    <input value="${esc(c.name)}" placeholder="Criterion name (e.g. Code is commented)" data-bind="crit" data-i="${i}" maxlength="80" style="width:100%">
+    <details ${c.points?'open':''}><summary class="small mut" style="cursor:pointer;margin-top:4px">Custom points for this row (weighting)</summary>
+    <div class="ptsrow">${a.levels.map((l,j)=>`<label class="f">${esc(l.label||'Col '+(j+1))}<input type="number" step="0.5" placeholder="${esc(l.points)}" value="${c.points&&c.points[j]!=null?esc(c.points[j]):''}" data-bind="cpts" data-i="${i}" data-j="${j}"></label>`).join('')}</div></details></div>
+    <div class="row" style="gap:4px"><button class="b sm" data-act="cup" data-i="${i}" ${lk||i===0?'disabled':''} title="Move up">↑</button><button class="b sm" data-act="cdown" data-i="${i}" ${lk||i===a.criteria.length-1?'disabled':''} title="Move down">↓</button>
+    <button class="b sm d" data-act="cdel" data-i="${i}" ${lk||a.criteria.length<=1?'disabled':''} title="Remove">✕</button></div></div>`).join('');
+  return`<h1>${getA(a.id)?'Edit rubric':'New rubric'}</h1>
+  ${lk?`<div class="banner warn">This rubric already has scored sheets, so its <b>layout is locked</b> (number of rows, columns, ID digits, period). You can still rename things and change points. Totals update automatically. To change the layout, use <b>Duplicate</b> on the Rubrics page.</div>`:''}
+  <div class="grid2"><div>
+  <div class="card"><h2>Basics</h2><div class="row" style="align-items:stretch">
+    <label class="f" style="flex:2;min-width:220px">Assignment / rubric name<input value="${esc(a.name)}" data-bind="name" maxlength="60" placeholder="e.g. Unit 3 Python Project"></label>
+    <label class="f" style="flex:1;min-width:140px">Course<input value="${esc(a.course)}" data-bind="course" maxlength="40" placeholder="e.g. IST"></label>
+    <label class="f" style="flex:1;min-width:140px">Teacher<input value="${esc(a.teacher)}" data-bind="teacher" maxlength="40"></label></div>
+    <div class="row" style="margin-top:10px;align-items:stretch">
+    <label class="f">Student ID digits<select data-bind="idDigits" ${lk?'disabled':''}>${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option ${n===a.idDigits?'selected':''}>${n}</option>`).join('')}</select></label>
+    <label class="f">Class period bubbles<select data-bind="usePeriod" ${lk?'disabled':''}><option value="1" ${a.usePeriod?'selected':''}>Yes (1–8)</option><option value="0" ${!a.usePeriod?'selected':''}>No</option></select></label></div>
+    <p class="tiny mut" style="margin:8px 0 0">Tip: use the same ID numbers that are in your Roster (school ID or roster number). Pick enough digits for the longest ID. Shorter IDs get leading zeros.</p></div>
+  <div class="card"><h2>Score levels (columns, left → right)</h2>
+    <div class="row" style="margin-bottom:8px"><span class="small mut">Number of levels</span><select data-bind="nlevels" ${lk?'disabled':''}>${[2,3,4,5].map(n=>`<option ${n===a.levels.length?'selected':''}>${n}</option>`).join('')}</select></div>${lv}</div>
+  <div class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Criteria (rows)</h2><span class="small mut">${a.criteria.length} / ${G.RUB.maxRows}</span></div>${cr}
+    <button class="b sm" style="margin-top:10px" data-act="cadd" ${lk||a.criteria.length>=G.RUB.maxRows?'disabled':''}>+ Add criterion</button></div>
+  <div class="row"><button class="b p" data-act="bsave">Save rubric</button><button class="b" data-act="bcancel">Cancel</button><span id="bmsg" class="small" style="color:var(--bad)"></span></div>
+  </div><div><div class="card" style="position:sticky;top:70px"><h2>Sheet preview</h2><canvas id="bprev" class="preview"></canvas>
+  <p class="small mut">Max score: <b>${maxTotal(a)}</b> pts · Sheet code #${a.code}</p></div></div></div>`;
+}
+function drawBuilderPreview(){const cv=$('#bprev');if(!cv)return;drawSheetPreview(cv,builder,null)}
+function drawSheetPreview(cv,a,st){const ppi=80;cv.width=G.W*ppi;cv.height=G.H*ppi;const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);drawSheet(canvasDrawer(ctx,ppi),a,{student:st})}
+function onBind(el){
+  const a=builder;if(!a)return;const k=el.dataset.bind;
+  if(k==='name'||k==='course'||k==='teacher')a[k]=el.value;
+  else if(k==='idDigits')a.idDigits=+el.value;
+  else if(k==='usePeriod')a.usePeriod=el.value==='1';
+  else if(k==='nlevels'){const n=+el.value;while(a.levels.length<n)a.levels.push({label:'Level '+(a.levels.length+1),points:Math.max(0,(+a.levels[a.levels.length-1].points||1)-1)});a.levels.length=n;a.criteria.forEach(c=>{if(c.points)c.points.length=n});render();return}
+  else if(k==='level'){const j=+el.dataset.j;a.levels[j][el.dataset.k]=el.dataset.k==='points'?(el.value===''?0:+el.value):el.value}
+  else if(k==='crit')a.criteria[+el.dataset.i].name=el.value;
+  else if(k==='cpts'){const c=a.criteria[+el.dataset.i];c.points=c.points||[];c.points[+el.dataset.j]=el.value===''?null:+el.value;if(c.points.every(v=>v==null))delete c.points}
+  drawBuilderPreview();const m=document.querySelector('#bprev+p b');if(m)m.textContent=maxTotal(a);
+}
+function saveBuilder(){
+  const a=builder,msg=$('#bmsg');
+  if(!a.name.trim()){msg.textContent='Give the rubric a name.';return}
+  if(a.criteria.some(c=>!c.name.trim())){msg.textContent='Every criterion needs a name (or remove empty rows).';return}
+  if(a.levels.some(l=>!String(l.label).trim())){msg.textContent='Every level needs a label.';return}
+  if(a.code<1){msg.textContent='Too many rubrics on this device (max 1023). Delete some old ones.';return}
+  DB.settings.teacher=a.teacher;
+  const i=DB.assignments.findIndex(x=>x.id===a.id);const copy=JSON.parse(JSON.stringify(a));
+  if(i>=0){copy.results=DB.assignments[i].results;DB.assignments[i]=copy}else DB.assignments.push(copy);
+  saveDB();builder=null;toast('Rubric saved');go('assign',{aid:a.id,tab:'print'});
+}
+
+/* ---------------------------- ASSIGNMENT ---------------------------- */
+function assignHTML(a){
+  const n=Object.keys(a.results||{}).length;
+  const tabs=[['print','1. Print sheets'],['scan','2. Scan graded sheets'],['grades',`3. Gradebook (${n})`],['stats','4. Class analytics']];
+  let body='';if(V.tab==='print')body=printHTML(a);else if(V.tab==='scan')body=scanHTML(a);else if(V.tab==='grades')body=gradesHTML(a);else body=statsHTML(a);
+  return`${storageBanner()}<div class="row" style="justify-content:space-between"><div><div class="small mut"><a href="#" data-act="nav" data-v="home">← All rubrics</a></div>
+  <h1 style="margin-bottom:2px">${esc(a.name)}</h1><div class="small mut">${esc(a.course||'')} · ${a.criteria.length} criteria · ${maxTotal(a)} pts · code #${a.code}</div></div>
+  <div class="row"><button class="b sm" data-act="edit" data-id="${a.id}">Edit rubric</button><button class="b sm" data-act="shareRubric">Share rubric file</button></div></div>
+  <div class="tabs" style="margin-top:12px">${tabs.map(([k,l])=>`<button class="${V.tab===k?'on':''}" data-act="tab" data-v="${k}">${l}</button>`).join('')}</div>${body}`;
+}
+function rosterFor(a,period){return DB.roster.filter(s=>!period||String(s.period)===String(period))}
+function printHTML(a){
+  const periods=[...new Set(DB.roster.map(s=>s.period).filter(Boolean))].sort((x,y)=>x-y);
+  const tooLong=DB.roster.filter(s=>normId(s.id).length>a.idDigits);
+  return`<div class="grid2"><div>
+  <div class="card"><h2>Personalized sheets (recommended)</h2>
+  <p class="small">One page per student with their <b>name and ID already filled in</b>, so there's no ID bubbling and no ID mistakes.</p>
+  ${DB.roster.length?`<div class="row"><label class="f">Which students<select id="pper"><option value="">All roster students (${DB.roster.length})</option>${periods.map(p=>`<option value="${p}">Period ${p} (${rosterFor(a,p).length})</option>`).join('')}</select></label>
+  <button class="b p" data-act="pdfRoster" style="align-self:flex-end">Download PDF</button></div>
+  ${tooLong.length?`<div class="banner bad small" style="margin-top:8px">${tooLong.length} roster ID(s) are longer than this rubric's ${a.idDigits}-digit ID (e.g. ${esc(tooLong[0].id)}). Edit the rubric's ID digits before printing.</div>`:''}`
+  :`<div class="banner info small">Add your students on the <a href="#" data-act="nav" data-v="roster">Roster</a> page to print personalized sheets.</div>`}</div>
+  <div class="card"><h2>Blank sheets</h2><p class="small">The grader bubbles the student ID${a.usePeriod?' and period':''} by hand.</p>
+  <div class="row"><label class="f">Copies<input type="number" id="pcopies" value="30" min="1" max="200" style="width:90px"></label><button class="b" data-act="pdfBlank" style="align-self:flex-end">Download PDF</button></div></div>
+  <div class="card"><h2>Printing checklist</h2><ul class="small" style="margin:0;padding-left:18px">
+  <li>Print on <b>US Letter</b>, one-sided. "Fit to page" is fine. The scanner adjusts for size.</li><li>Black-and-white is fine. Don't use draft or toner-saver mode, because the black squares must print solid.</li>
+  <li>Print a fresh set for each rubric. Each rubric's sheets have a unique code bar (#${a.code}), so sheets can never be filed under the wrong assignment.</li></ul></div>
+  </div><div class="card"><h2>Preview</h2><canvas id="pprev" class="preview"></canvas></div></div>`;
+}
+function drawPrintPreview(){const cv=$('#pprev');if(!cv)return;const a=getA(V.aid);const st=DB.roster[0]?{id:normId(DB.roster[0].id),name:DB.roster[0].name,period:DB.roster[0].period}:null;drawSheetPreview(cv,a,null)}
+async function doPdf(kind){
+  const a=getA(V.aid);let students=null,copies=1,label;
+  if(kind==='roster'){const p=$('#pper').value;const list=rosterFor(a,p);
+    const bad=list.filter(s=>normId(s.id).length>a.idDigits);if(bad.length){toast('Some IDs are too long for this rubric. Edit the rubric\'s ID digits.',true);return}
+    students=list.slice().sort((x,y)=>(x.period||0)-(y.period||0)||String(x.name).localeCompare(String(y.name))).map(s=>({id:normId(s.id),name:s.name,period:a.usePeriod?s.period:null}));
+    if(!students.length){toast('No students to print.',true);return}label=p?'P'+p:'roster'}
+  else{copies=Math.max(1,Math.min(200,+$('#pcopies').value||1));label='blank'}
+  toast('Building PDF…');
+  try{const bytes=await buildSheetsPdf(a,students,copies);await saveFile(`${fileSafe(a.name)}_sheets_${label}.pdf`,new Blob([bytes],{type:'application/pdf'}))}
+  catch(e){toast(e.message||'Could not build the PDF.',true)}
+}
+
+/* ------------------------------ SCAN ------------------------------ */
+function scanHTML(a){
+  const counts={saved:0,review:0,error:0,proc:0};QUEUE.forEach(q=>{if(q.status==='saved')counts.saved++;else if(q.status==='review')counts.review++;else if(q.status==='error')counts.error++;else if(q.status!=='discarded')counts.proc++});
+  return`<div class="card"><div class="drop" id="drop"><div style="font-size:17px;font-weight:700;margin-bottom:6px">Upload photos or scans of graded sheets</div>
+  <div class="small mut" style="margin-bottom:12px">Select many at once: JPG, PNG, or a multi-page PDF from the copier. On a phone you can take photos directly.</div>
+  <label class="b p">Choose photos / PDF<input type="file" accept="image/*,application/pdf,.pdf,.heic" multiple class="hide" data-chg="scanFiles"></label>
+  <div class="tiny mut" style="margin-top:10px">🔒 Photos are read on this device and never uploaded.</div></div>
+  <div class="row" style="margin-top:10px;justify-content:space-between"><label class="small row" style="gap:6px"><input type="checkbox" data-chg="autoSave" ${DB.settings.autoSave?'checked':''}> Auto-save sheets that read perfectly (flagged sheets always wait for you)</label>
+  <button class="b sm" data-act="manual">+ Enter a score by hand</button></div></div>
+  ${QUEUE.length?`<div class="card"><div class="row" style="justify-content:space-between;margin-bottom:6px"><h2 style="margin:0">This session</h2>
+  <div class="row small"><span class="pill ok">${counts.saved} saved</span><span class="pill warn">${counts.review} need review</span>${counts.error?`<span class="pill bad">${counts.error} unreadable</span>`:''}${counts.proc?`<span class="pill info">${counts.proc} reading…</span>`:''}
+  ${counts.review?'<button class="b p sm" data-act="reviewNext">Review flagged →</button>':''}<button class="b sm" data-act="qclear">Clear list</button></div></div>
+  ${QUEUE.filter(q=>q.status!=='discarded').map(qItemHTML).join('')}</div>`:''}`;
+}
+function qItemHTML(q){
+  const st={proc:'<span class="pill info">Reading…</span>',saved:'<span class="pill ok">Saved ✓</span>',review:'<span class="pill warn">Needs review</span>',error:'<span class="pill bad">Couldn\'t read</span>'}[q.status]||'';
+  const a=q.aid&&getA(q.aid);
+  return`<div class="q">${q.thumb?`<img src="${q.thumb}" alt="">`:'<img alt="">'}<div class="grow"><div class="small"><b>${esc(q.label)}</b></div>
+  <div class="small">${st} ${q.sid?`ID <b>${esc(q.sid)}</b>${q.sname?' · '+esc(q.sname):''}`:''} ${q.score!=null?` · ${q.score}`:''}</div>
+  ${q.msg?`<div class="tiny mut">${esc(q.msg)}</div>`:''}${a&&a.id!==V.aid?`<div class="tiny" style="color:var(--acc)">Filed under: ${esc(a.name)}</div>`:''}</div>
+  <div class="row" style="gap:4px">${q.status==='review'?`<button class="b p sm" data-act="review" data-q="${q.id}">Review</button>`:''}
+  ${q.status==='saved'&&q.read?`<button class="b sm" data-act="review" data-q="${q.id}">View</button>`:''}
+  ${q.status!=='proc'&&q.status!=='saved'?`<button class="b sm" data-act="qdiscard" data-q="${q.id}">Remove</button>`:''}</div></div>`;
+}
+function bindDrop(){const d=$('#drop');if(!d)return;
+  d.ondragover=e=>{e.preventDefault();d.classList.add('over')};d.ondragleave=()=>d.classList.remove('over');
+  d.ondrop=e=>{e.preventDefault();d.classList.remove('over');if(e.dataTransfer.files.length)scanFiles([...e.dataTransfer.files])}}
+let qSeq=0;
+function refreshScan(){if(V.name==='assign'&&V.tab==='scan'){const y=window.scrollY;render();window.scrollTo(0,y)}}
+async function scanFiles(files){
+  for(const f of files)QUEUE.push({id:++qSeq,file:f,label:f.name,status:'proc'});
+  refreshScan();if(qBusy)return;qBusy=true;
+  try{while(true){const q=QUEUE.find(x=>x.status==='proc'&&x.file);if(!q)break;await processItem(q);refreshScan();await sleep(10)}}
+  finally{qBusy=false}
+  const nr=QUEUE.filter(q=>q.status==='review').length;if(nr)toast(nr+' sheet(s) need a quick review');
+}
+async function processItem(q){
+  const file=q.file;delete q.file;let srcs;
+  try{srcs=await fileToSources(file)}catch(e){q.status='error';q.msg=e.message;return}
+  if(srcs.length>1){const idx=QUEUE.indexOf(q);const extra=srcs.slice(1).map(s=>({id:++qSeq,label:s.label,status:'proc',_src:s.src}));QUEUE.splice(idx+1,0,...extra);q.label=srcs[0].label;
+    await scanOne(q,srcs[0].src);for(const e of extra){refreshScan();await sleep(10);await scanOne(e,e._src);delete e._src}}
+  else await scanOne(q,srcs[0].src);
+}
+async function scanOne(q,src){
+  try{
+    const W=prepWork(src);if(src.close)try{src.close()}catch(e){}
+    const L=locateSheet(W,c=>!!getAByCode(c));
+    if(!L.ok){q.status='error';q.msg=ERR_TEXT[L.error];q.thumb=thumbOf(W);return}
+    const a=getAByCode(L.code);if(!a){q.status='error';q.msg=ERR_TEXT.unknown+' (Sheet code #'+L.code+'.) Import that rubric first.';return}
+    q.aid=a.id;const read=readSheet(L,a);const rect=renderRectified(L,110);
+    q.img=rect.toDataURL('image/jpeg',0.82);q.thumb=q.img;q.read=read;q.warnings=L.warnings;
+    q.sid=read.id.ok?read.id.value:null;
+    decideItem(q,a);
+  }catch(e){console.error(e);q.status='error';q.msg='Something went wrong reading this image. Try retaking it.'}
+}
+function thumbOf(W){const c=document.createElement('canvas');const s=80/Math.max(W.w,W.h);c.width=W.w*s;c.height=W.h*s;const t=document.createElement('canvas');t.width=W.w;t.height=W.h;
+  const id=new ImageData(new Uint8ClampedArray(W.rgba),W.w,W.h);t.getContext('2d').putImageData(id,0,0);c.getContext('2d').drawImage(t,0,0,c.width,c.height);return c.toDataURL('image/jpeg',0.7)}
+function issuesFor(q,a){
+  const r=q.read,iss=[];
+  r.rows.forEach((x,i)=>{if(x.status!=='ok')iss.push({type:'row',i,status:x.status})});
+  if(!r.id.ok)iss.push({type:'id'});
+  if(a.usePeriod&&r.period&&r.period.status!=='ok'){const st=r.id.ok?rosterById().get(normId(r.id.value)):null;if(!(r.period.status==='blank'&&st&&st.period))iss.push({type:'period'})}
+  return iss;
+}
+function decideItem(q,a){
+  const r=q.read;const iss=issuesFor(q,a);const roster=rosterById();const notes=[];
+  if(iss.length)notes.push(iss.length+' item(s) to check');
+  (q.warnings||[]).forEach(w=>notes.push(WARN_TEXT[w]));
+  let blocked=iss.length>0||(q.warnings||[]).some(w=>w==='nomid'||w==='contrast');
+  if(r.id.ok){
+    const sid=r.id.value;const st=roster.get(normId(sid));q.sname=st?st.name:'';
+    if(DB.roster.length&&!st){notes.push('ID not on roster');blocked=true}
+    if(a.results[sid]){notes.push('This student already has a score');blocked=true}
+    if(QUEUE.some(o=>o!==q&&o.aid===a.id&&o.status==='review'&&o.sid===sid)){notes.push('Same ID appears twice in this batch');blocked=true}
+  }
+  const choices=r.rows.map(x=>x.status==='ok'?x.sel:-1);
+  q.score=`${scoreOf(a,{choices})}/${maxTotal(a)}`+(iss.some(x=>x.type==='row')?' (incomplete)':'');
+  q.msg=notes.join(' · ');
+  if(!blocked&&DB.settings.autoSave){
+    const per=a.usePeriod&&r.period&&r.period.status==='ok'?r.period.sel:(roster.get(normId(r.id.value))||{}).period||null;
+    a.results[r.id.value]={sid:r.id.value,period:per?+per:null,choices,at:Date.now(),src:'scan'};saveDB();q.status='saved';q.msg='Read perfectly'+(notes.length?' · '+notes.join(' · '):'')}
+  else q.status='review';
+}
+
+/* ----------------------------- REVIEW ----------------------------- */
+let RV=null;
+function openReview(q,opts){
+  opts=opts||{};const a=getA(opts.aid||q?.aid||V.aid);if(!a)return;
+  const read=q?.read;const ex=opts.existing;
+  RV={q,a,img:null,mode:q?'scan':(ex?'edit':'manual'),
+    choices:ex?ex.choices.slice():read?read.rows.map(x=>x.status==='ok'?x.sel:null):a.criteria.map(()=>null),
+    confirmed:ex?a.criteria.map(()=>true):read?read.rows.map(x=>x.status==='ok'):a.criteria.map(()=>false),
+    flags:read?read.rows.map(x=>x.status):a.criteria.map(()=>'manual'),
+    id:ex?ex.sid:read?read.id.value:'',idFlag:read?!read.id.ok:false,idConfirmed:ex?true:read?read.id.ok:false,
+    period:ex?(ex.period||''):read&&read.period&&read.period.status==='ok'?read.period.sel:'',
+    perFlag:read&&a.usePeriod&&read.period?read.period.status!=='ok':false,origId:ex?ex.sid:null,ack:{}};
+  if(RV.mode==='scan'&&q.status==='saved'){RV.confirmed=RV.confirmed.map(()=>true);RV.idConfirmed=true;const ex2=a.results[read.id.value];if(ex2){RV.choices=ex2.choices.slice();RV.period=ex2.period||'';RV.origId=ex2.sid}}
+  if(RV.choices.some(v=>v===null))RV.choices=RV.choices.map((v,i)=>v===null?(RV.confirmed[i]?-1:null):v);
+  showModal(reviewHTML(),'lg');
+  if(q&&q.img){const im=new Image();im.onload=()=>{RV.img=im;drawReview()};im.src=q.img}
+  updateReview();
+}
+function reviewHTML(){
+  const{a,q}=RV;const title=RV.mode==='scan'?'Check this sheet':RV.mode==='edit'?'Edit score':'Enter a score by hand';
+  const warns=q?(q.warnings||[]).map(w=>`<div class="banner warn small">${esc(WARN_TEXT[w])}</div>`).join(''):'';
+  const rows=a.criteria.map((c,i)=>`<div class="rrow" id="rr${i}"><div class="row" style="justify-content:space-between"><b class="small">${i+1}. ${esc(c.name)}</b><span id="rb${i}"></span></div>
+    <select data-rv="row" data-i="${i}"><option value="">- choose -</option>${a.levels.map((l,j)=>`<option value="${j}">${esc(l.label)} (${pts(a,i,j)} pts)</option>`).join('')}<option value="-1">Not scored (0 pts)</option></select></div>`).join('');
+  return`<div class="row" style="justify-content:space-between;margin-bottom:10px"><h2 style="margin:0">${title}</h2><button class="b sm" data-act="rvclose">Close</button></div>
+  <div class="${q&&q.img?'rv':''}">${q&&q.img?`<div><canvas id="rvc"></canvas><div class="tiny mut" style="margin-top:4px">Tip: tap any bubble on the picture to choose it. <span style="color:#16794a">■</span> read as filled · <span style="color:#d97706">■</span> needs your decision</div></div>`:''}
+  <div>${warns}<div class="rrow ${RV.idFlag?'flag':''}" id="rrid"><div class="row" style="justify-content:space-between"><b class="small">Student ID</b><span id="rbid"></span></div>
+  <div class="row" style="margin-top:4px"><input id="rvid" inputmode="numeric" maxlength="${a.idDigits}" value="${esc(RV.id)}" data-rv="id" style="width:140px;font-size:17px;letter-spacing:2px">
+  ${a.usePeriod?`<select data-rv="per" id="rvper"><option value="">Period…</option>${[1,2,3,4,5,6,7,8].map(p=>`<option ${String(RV.period)===String(p)?'selected':''} value="${p}">Period ${p}</option>`).join('')}</select>`:''}</div>
+  <div class="small" id="rvname" style="margin-top:4px"></div></div>
+  ${rows}<div class="row" style="justify-content:space-between;margin-top:10px"><div style="font-size:18px">Total: <b id="rvtot"></b></div>
+  <div class="row">${RV.mode==='scan'&&q.status!=='saved'?'<button class="b sm d" data-act="rvdiscard">Discard sheet</button>':''}${RV.mode==='edit'?'<button class="b sm d" data-act="rvdelete">Delete score</button>':''}
+  <button class="b p" id="rvsave" data-act="rvsave">Save score</button></div></div><div id="rvmsg" class="small" style="margin-top:6px"></div></div></div>`;
+}
+const STATUS_TXT={blank:'No mark found',multiple:'Two or more marks',unclear:'Unclear mark',manual:''};
+function updateReview(){
+  const{a}=RV;
+  a.criteria.forEach((_,i)=>{const sel=document.querySelector(`[data-rv=row][data-i="${i}"]`);const v=RV.choices[i];
+    sel.value=v===null||v===undefined?'':String(v);const el=$('#rr'+i);const fl=RV.flags[i]!=='ok'&&RV.flags[i]!=='manual'&&RV.mode==='scan';
+    el.className='rrow'+(fl&&!RV.confirmed[i]?' flag':(fl&&RV.confirmed[i]?' done':''));
+    $('#rb'+i).innerHTML=fl?(RV.confirmed[i]?'<span class="pill ok">Checked</span>':`<span class="pill warn">${STATUS_TXT[RV.flags[i]]}: choose one</span>`):''});
+  const idEl=$('#rvid');if(document.activeElement!==idEl)idEl.value=RV.id;
+  const roster=rosterById();const st=RV.id&&/^\d+$/.test(RV.id)?roster.get(normId(RV.id)):null;
+  let nameHtml='';if(st)nameHtml=`<span class="pill ok">${esc(st.name)}${st.period?' · P'+esc(st.period):''}</span>`;
+  else if(DB.roster.length&&/^\d+$/.test(RV.id))nameHtml=`<span class="pill warn">Not on roster</span> <label class="tiny"><input type="checkbox" data-rv="ackRoster" ${RV.ack.roster?'checked':''}> Save anyway</label>`;
+  const dupe=/^\d+$/.test(RV.id)&&a.results[RV.id]&&RV.id!==RV.origId;
+  if(dupe)nameHtml+=` <div style="margin-top:4px"><span class="pill bad">Already scored (${r1(pctOf(a,a.results[RV.id]))}%)</span> <label class="tiny"><input type="checkbox" data-rv="ackDupe" ${RV.ack.dupe?'checked':''}> Replace the old score</label></div>`;
+  $('#rvname').innerHTML=nameHtml;
+  $('#rrid').className='rrow'+(RV.idFlag&&!RV.idConfirmed?' flag':'');
+  $('#rbid').innerHTML=RV.idFlag?(RV.idConfirmed?'<span class="pill ok">Checked</span>':'<span class="pill warn">Some digits unreadable: type the ID</span>'):'';
+  const ch={choices:RV.choices.map(v=>v==null?-1:v)};$('#rvtot').textContent=`${scoreOf(a,ch)} / ${maxTotal(a)}  (${r1(pctOf(a,ch))}%)`;
+  const probs=validateRV(st,dupe);$('#rvsave').disabled=probs.length>0;
+  $('#rvmsg').innerHTML=probs.length?`<span style="color:var(--warn)">To save: ${probs.map(esc).join(' · ')}</span>`:'<span style="color:var(--ok)">Ready to save.</span>';
+  drawReview();
+}
+function validateRV(st,dupe){
+  const{a}=RV,p=[];
+  const open=a.criteria.filter((_,i)=>RV.choices[i]==null||!RV.confirmed[i]).length;if(open)p.push(`choose a level for ${open} row(s)`);
+  if(!new RegExp(`^\\d{1,${a.idDigits}}$`).test(RV.id))p.push(`enter a student ID (up to ${a.idDigits} digits)`);
+  if(a.usePeriod&&!RV.period&&!(st&&st.period))p.push('pick the period');
+  if(DB.roster.length&&/^\d+$/.test(RV.id)&&!st&&!RV.ack.roster)p.push('ID not on roster: check "Save anyway"');
+  if(dupe&&!RV.ack.dupe)p.push('ID already scored: check "Replace"');
+  return p;
+}
+function drawReview(){
+  const cv=$('#rvc');if(!cv||!RV.img)return;const im=RV.img,{a}=RV;const ppi=im.width/G.W;
+  cv.width=im.width;cv.height=im.height;const ctx=cv.getContext('2d');ctx.drawImage(im,0,0);
+  const ring=(x,y,r,color,w)=>{ctx.beginPath();ctx.arc(x*ppi,y*ppi,r*ppi,0,7);ctx.strokeStyle=color;ctx.lineWidth=w;ctx.stroke()};
+  a.criteria.forEach((_,i)=>{const fl=RV.flags[i]!=='ok'&&RV.flags[i]!=='manual'&&!RV.confirmed[i];const[,y]=rubPos(i,0);
+    if(fl){ctx.fillStyle='rgba(245,158,11,.18)';ctx.fillRect(0.95*ppi,(y-0.2)*ppi,7.1*ppi,0.4*ppi)}
+    a.levels.forEach((_,j)=>{const[x]=rubPos(i,j);if(RV.choices[i]===j)ring(x,y,G.RUB.r+0.035,RV.confirmed[i]?'#16794a':'#d97706',3)})});
+  const ids=RV.id.padStart(a.idDigits,' ');
+  for(let c=0;c<a.idDigits;c++){const d=+ids[c];if(ids[c]>='0'&&ids[c]<='9'){const[x,y]=idPos(c,d);ring(x,y,G.ID.r+0.03,'#16794a',2.5)}
+    if(RV.q&&RV.q.read&&RV.q.read.id.digits[c].status!=='ok'&&!RV.idConfirmed){const[x]=idPos(c,0);ctx.fillStyle='rgba(245,158,11,.2)';ctx.fillRect((x-0.12)*ppi,(G.ID.y0-0.14)*ppi,0.24*ppi,2.22*ppi)}}
+  if(a.usePeriod&&RV.period){const[x,y]=perPos(+RV.period);ring(x,y,G.PER.r+0.03,'#16794a',2.5)}
+}
+function reviewClick(ev){
+  const cv=$('#rvc');if(!cv||!RV)return;const rc=cv.getBoundingClientRect();const x=(ev.clientX-rc.left)/rc.width*G.W,y=(ev.clientY-rc.top)/rc.height*G.H;const a=RV.a;
+  for(let i=0;i<a.criteria.length;i++)for(let j=0;j<a.levels.length;j++){const[bx,by]=rubPos(i,j);if(Math.hypot(bx-x,by-y)<G.RUB.r*1.6){RV.choices[i]=j;RV.confirmed[i]=true;updateReview();return}}
+  for(let c=0;c<a.idDigits;c++)for(let d=0;d<10;d++){const[bx,by]=idPos(c,d);if(Math.hypot(bx-x,by-y)<G.ID.r*1.3){const arr=RV.id.padEnd(a.idDigits,'?').split('');arr[c]=String(d);RV.id=arr.join('').replace(/\?+$/,'');RV.idConfirmed=true;updateReview();return}}
+  if(a.usePeriod)for(let p=1;p<=8;p++){const[bx,by]=perPos(p);if(Math.hypot(bx-x,by-y)<G.PER.r*1.3){RV.period=p;const s=$('#rvper');if(s)s.value=p;updateReview();return}}
+}
+function saveReview(){
+  const{a,q}=RV;const roster=rosterById();const st=roster.get(normId(RV.id));
+  if(validateRV(st,a.results[RV.id]&&RV.id!==RV.origId).length)return;
+  const sid=RV.id.padStart(a.idDigits,'0');
+  if(RV.origId&&RV.origId!==sid)delete a.results[RV.origId];
+  const per=a.usePeriod?(+RV.period||+(st&&st.period)||null):(+(st&&st.period)||null);
+  a.results[sid]={sid,period:per,choices:RV.choices.map(v=>v==null?-1:v),at:Date.now(),src:RV.mode==='scan'?(q.status==='saved'?'edited':'scan-reviewed'):RV.mode==='edit'?'edited':'manual'};
+  saveDB();
+  if(q){q.status='saved';q.sid=sid;q.sname=st?st.name:'';q.score=`${scoreOf(a,a.results[sid])}/${maxTotal(a)}`;q.msg='Reviewed & saved'}
+  closeModal();toast('Saved score for '+sid);
+  if(q&&V.name==='assign'&&V.tab==='scan'){const next=QUEUE.find(x=>x.status==='review');refreshScan();if(next){setTimeout(()=>openReview(next),150)}}else render();
+}
+
+/* ---------------------------- GRADEBOOK ---------------------------- */
+let gbSort={k:'id',dir:1};
+function resultsList(a){const roster=rosterById();return Object.values(a.results||{}).map(r=>{const st=roster.get(normId(r.sid));
+  return{r,sid:r.sid,name:st?st.name:'',period:r.period||(st&&st.period)||'',score:scoreOf(a,r),pct:pctOf(a,r)}})}
+function gradesHTML(a){
+  const list=resultsList(a);const k=gbSort.k,d=gbSort.dir;
+  list.sort((x,y)=>{const vx=k==='id'?x.sid:k==='name'?x.name:k==='period'?+x.period||0:x.pct,vy=k==='id'?y.sid:k==='name'?y.name:k==='period'?+y.period||0:y.pct;return(vx>vy?1:vx<vy?-1:0)*d});
+  const scored=new Set(Object.keys(a.results).map(normId));
+  const missing=DB.roster.filter(s=>!scored.has(normId(s.id)));
+  const th=(key,l,cls)=>`<th class="${cls||''}" style="cursor:pointer" data-act="gsort" data-v="${key}">${l}${gbSort.k===key?(gbSort.dir>0?' ▲':' ▼'):''}</th>`;
+  return`<div class="row" style="justify-content:space-between;margin-bottom:10px"><div class="small mut">${list.length} scored${DB.roster.length?` · ${missing.length} on roster not yet scored`:''}</div>
+  <div class="row"><button class="b sm" data-act="manual">+ Enter by hand</button><button class="b sm" data-act="csv" ${list.length?'':'disabled'}>Download CSV</button><button class="b p sm" data-act="xlsx" ${list.length?'':'disabled'}>Download Excel</button></div></div>
+  ${list.length?`<div class="tw"><table><thead><tr>${th('id','Student ID')}${th('name','Name')}${th('period','Per','n')}${a.criteria.map((c,i)=>`<th class="n" title="${esc(c.name)}">${i+1}. ${esc(c.name.slice(0,14))}${c.name.length>14?'…':''}</th>`).join('')}${th('pct','Total','n')}<th class="n">%</th><th></th></tr></thead><tbody>
+  ${list.map(x=>`<tr><td>${esc(x.sid)}</td><td>${esc(x.name)||'<span class="mut">-</span>'}</td><td class="n">${esc(x.period)}</td>
+  ${a.criteria.map((_,i)=>{const j=x.r.choices[i];return`<td class="n">${j>=0?pts(a,i,j):'<span class="mut">0</span>'}</td>`}).join('')}
+  <td class="n"><b>${x.score}</b>/${maxTotal(a)}</td><td class="n">${r1(x.pct)}%</td><td><button class="b sm" data-act="gedit" data-sid="${esc(x.sid)}">Edit</button></td></tr>`).join('')}</tbody></table></div>`
+  :`<div class="card mut">No scores yet. Go to <a href="#" data-act="tab" data-v="scan">Scan graded sheets</a>.</div>`}
+  ${missing.length&&list.length?`<div class="card" style="margin-top:14px"><h2>Not scored yet (${missing.length})</h2><div class="small">${missing.sort((x,y)=>(x.period||0)-(y.period||0)).map(s=>`${esc(s.name)} <span class="mut">(${esc(s.id)}${s.period?', P'+esc(s.period):''})</span>`).join(' · ')}</div></div>`:''}`;
+}
+
+/* ---------------------------- ANALYTICS ---------------------------- */
+let statPer='';
+function stats(arr){if(!arr.length)return null;const s=arr.slice().sort((a,b)=>a-b),n=s.length,mean=s.reduce((x,y)=>x+y,0)/n;
+  const med=n%2?s[n>>1]:(s[n/2-1]+s[n/2])/2;const sd=Math.sqrt(s.reduce((x,y)=>x+(y-mean)**2,0)/n);return{n,mean,med,sd,min:s[0],max:s[n-1]}}
+const LVCOL=['#1e3a8a','#2f62d0','#6c9cf0','#a9c4f7','#d6e3fb'];
+function statsHTML(a){
+  let list=resultsList(a);const periods=[...new Set(list.map(x=>x.period).filter(Boolean))].sort((x,y)=>x-y);
+  if(statPer)list=list.filter(x=>String(x.period)===String(statPer));
+  const cut=DB.settings.cutoff;
+  const head=`<div class="row" style="justify-content:space-between;margin-bottom:10px"><div class="row"><label class="f">Show<select data-chg="statPer"><option value="">All periods</option>${periods.map(p=>`<option ${String(statPer)===String(p)?'selected':''} value="${p}">Period ${p}</option>`).join('')}</select></label>
+  <label class="f">Flag below (%)<input type="number" min="0" max="100" value="${cut}" data-chg="cutoff" style="width:80px"></label></div><button class="b p sm" data-act="xlsx" ${list.length?'':'disabled'}>Download Excel with analytics</button></div>`;
+  if(!list.length)return head+'<div class="card mut">No scores yet.</div>';
+  const S=stats(list.map(x=>x.pct));const M=maxTotal(a);
+  const kpi=(v,l)=>`<div class="kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`;
+  const crit=a.criteria.map((c,i)=>{const mx=rowMax(a,i);const vals=list.map(x=>{const j=x.r.choices[i];return j>=0?pts(a,i,j):0});
+    const avg=vals.reduce((s,v)=>s+v,0)/vals.length;const counts=a.levels.map((_,j)=>list.filter(x=>x.r.choices[i]===j).length);const none=list.filter(x=>!(x.r.choices[i]>=0)).length;
+    return{i,name:c.name,avg,mx,pct:mx?avg/mx*100:0,counts,none}});
+  const weakest=crit.slice().sort((x,y)=>x.pct-y.pct);
+  const below=list.filter(x=>x.pct<cut).sort((x,y)=>x.pct-y.pct);
+  // per-criterion bars
+  const bw=560,rowH=30;const bars=`<svg viewBox="0 0 ${bw+260} ${crit.length*rowH+10}" width="100%" role="img" aria-label="Average percent by criterion">${weakest.map((c,k)=>{const y=k*rowH+4,w=c.pct/100*bw;const col=c.pct<cut?'#d97706':'#2f62d0';
+    return`<text x="250" y="${y+17}" text-anchor="end" font-size="13" fill="#1c2333">${esc(c.name.length>34?c.name.slice(0,33)+'…':c.name)}</text><rect x="260" y="${y+3}" width="${bw}" height="18" rx="3" fill="#eef1f6"/><rect x="260" y="${y+3}" width="${Math.max(2,w)}" height="18" rx="3" fill="${col}"/><text x="${266+Math.max(2,w)}" y="${y+17}" font-size="12" font-weight="700" fill="#1c2333">${r1(c.pct)}%</text>`}).join('')}</svg>`;
+  // stacked distribution
+  const nL=a.levels.length;const dist=`<div class="row small" style="margin-bottom:6px">${a.levels.map((l,j)=>`<span><span style="display:inline-block;width:11px;height:11px;border-radius:2px;background:${LVCOL[Math.round(j*(LVCOL.length-1)/Math.max(1,nL-1))]}"></span> ${esc(l.label)}</span>`).join(' ')} <span><span style="display:inline-block;width:11px;height:11px;border-radius:2px;background:#cfd5de"></span> Not scored</span></div>
+  <svg viewBox="0 0 ${bw+260} ${crit.length*rowH+10}" width="100%" role="img" aria-label="Level distribution by criterion">${crit.map((c,k)=>{const y=k*rowH+4;let x=260;const n=list.length;
+    const segs=c.counts.map((ct,j)=>{const w=ct/n*bw;const s=w>0?`<rect x="${x}" y="${y+3}" width="${w}" height="18" fill="${LVCOL[Math.round(j*(LVCOL.length-1)/Math.max(1,nL-1))]}"><title>${esc(a.levels[j].label)}: ${ct}</title></rect>${w>22?`<text x="${x+w/2}" y="${y+16}" text-anchor="middle" font-size="11" fill="${j<nL/2?'#fff':'#1c2333'}">${ct}</text>`:''}`:'';x+=w;return s}).join('');
+    const nw=c.none/n*bw;return`<text x="250" y="${y+17}" text-anchor="end" font-size="13">${esc(c.name.length>34?c.name.slice(0,33)+'…':c.name)}</text>${segs}${nw>0?`<rect x="${x}" y="${y+3}" width="${nw}" height="18" fill="#cfd5de"/>`:''}`}).join('')}</svg>`;
+  // histogram
+  const bins=Array(10).fill(0);list.forEach(x=>bins[Math.min(9,Math.floor(x.pct/10))]++);const hm=Math.max(...bins,1);const hw=760,hh=140;
+  const hist=`<svg viewBox="0 0 ${hw} ${hh+30}" width="100%" role="img" aria-label="Score distribution">${bins.map((b,k)=>{const w=hw/10-8,x=k*hw/10+4,h=b/hm*(hh-18);return`<rect x="${x}" y="${hh-h}" width="${w}" height="${h}" rx="3" fill="${(k+1)*10<=cut?'#d97706':'#2f62d0'}"/>${b?`<text x="${x+w/2}" y="${hh-h-4}" text-anchor="middle" font-size="12" font-weight="700">${b}</text>`:''}<text x="${x+w/2}" y="${hh+16}" text-anchor="middle" font-size="11" fill="#5d6677">${k*10}${k===9?'–100':'s'}</text>`}).join('')}</svg>`;
+  // by period
+  const all=resultsList(a);const pers=[...new Set(all.map(x=>x.period).filter(Boolean))].sort((x,y)=>x-y);
+  const byPer=pers.length>1?`<div class="card"><h2>By class period</h2><div class="tw"><table><thead><tr><th>Period</th><th class="n">Students</th><th class="n">Average</th><th class="n">Median</th><th class="n">Low</th><th class="n">High</th><th>Weakest criterion</th></tr></thead><tbody>${pers.map(p=>{const L=all.filter(x=>String(x.period)===String(p));const s=stats(L.map(x=>x.pct));
+    const wk=a.criteria.map((c,i)=>({c,v:L.reduce((t,x)=>t+(x.r.choices[i]>=0?pts(a,i,x.r.choices[i]):0),0)/L.length/(rowMax(a,i)||1)})).sort((x,y)=>x.v-y.v)[0];
+    return`<tr><td>Period ${esc(p)}</td><td class="n">${s.n}</td><td class="n"><b>${r1(s.mean)}%</b></td><td class="n">${r1(s.med)}%</td><td class="n">${r1(s.min)}%</td><td class="n">${r1(s.max)}%</td><td class="small">${esc(wk.c.name)} (${r1(wk.v*100)}%)</td></tr>`}).join('')}</tbody></table></div></div>`:'';
+  // trend across rubrics in same course
+  const same=DB.assignments.filter(x=>(x.course||'')===(a.course||'')&&Object.keys(x.results||{}).length).sort((x,y)=>(x.created||0)-(y.created||0));
+  const trend=same.length>1?`<div class="card"><h2>Trend across ${esc(a.course||'this course')} rubrics</h2><div class="tw"><table><thead><tr><th>Rubric</th><th class="n">Scored</th><th class="n">Class average</th><th style="width:45%"></th></tr></thead><tbody>${same.map(x=>{const L=resultsList(x).filter(y=>!statPer||String(y.period)===String(statPer));const s=stats(L.map(y=>y.pct));
+    return`<tr><td>${x.id===a.id?'<b>':''}${esc(x.name)}${x.id===a.id?'</b>':''}</td><td class="n">${s?s.n:0}</td><td class="n">${s?r1(s.mean)+'%':'-'}</td><td>${s?`<div style="height:12px;border-radius:3px;background:#2f62d0;width:${s.mean}%"></div>`:''}</td></tr>`}).join('')}</tbody></table></div></div>`:'';
+  return head+`<div class="kpis">${kpi(S.n,'Students')}${kpi(r1(S.mean)+'%','Class average')}${kpi(r1(S.med)+'%','Median')}${kpi(r1(S.max)+'%','Highest')}${kpi(r1(S.min)+'%','Lowest')}${kpi(r1(S.sd),'Spread (std dev)')}${kpi(below.length,'Below '+cut+'%')}</div>
+  <div class="card"><h2>What to reteach</h2><p class="small">Lowest-scoring criteria: <b>${weakest.slice(0,2).map(c=>esc(c.name)+' ('+r1(c.pct)+'%)').join('</b> and <b>')}</b>. Bars in orange are below your ${cut}% line.</p>${bars}</div>
+  <div class="card"><h2>How students scored on each criterion</h2>${dist}</div>
+  <div class="card"><h2>Score distribution</h2>${hist}<p class="small mut" style="margin:4px 0 0">Total score as % of ${M} pts. Max possible.</p></div>
+  ${byPer}<div class="card"><h2>Students below ${cut}% (${below.length})</h2>${below.length?`<div class="tw"><table><thead><tr><th>ID</th><th>Name</th><th>Per</th><th class="n">%</th><th>Lowest criteria</th></tr></thead><tbody>${below.map(x=>{
+    const low=a.criteria.map((c,i)=>({c,v:(x.r.choices[i]>=0?pts(a,i,x.r.choices[i]):0)/(rowMax(a,i)||1)})).sort((p,q)=>p.v-q.v).slice(0,2).map(o=>esc(o.c.name)).join(', ');
+    return`<tr><td>${esc(x.sid)}</td><td>${esc(x.name)}</td><td>${esc(x.period)}</td><td class="n"><b>${r1(x.pct)}%</b></td><td class="small">${low}</td></tr>`}).join('')}</tbody></table></div>`:'<p class="small mut">Nobody. 🎉</p>'}</div>${trend}`;
+}
+
+/* ------------------------------ EXPORTS ------------------------------ */
+function gradeRows(a){const list=resultsList(a).sort((x,y)=>(+x.period||0)-(+y.period||0)||String(x.name||x.sid).localeCompare(String(y.name||y.sid)));
+  const head=['Student ID','Name','Period',...a.criteria.map((c,i)=>`${c.name} (/${rowMax(a,i)})`),'Total','Max','Percent','Entered','Date'];
+  const rows=list.map(x=>[x.sid,x.name,x.period?+x.period:'',...a.criteria.map((_,i)=>{const j=x.r.choices[i];return j>=0?pts(a,i,j):0}),x.score,maxTotal(a),r1(x.pct),({scan:'Scanned','scan-reviewed':'Scanned + reviewed',edited:'Edited',manual:'Typed in'})[x.r.src]||'',new Date(x.r.at).toLocaleString()]);
+  return[head,...rows]}
+function csvOf(aoa){return aoa.map(r=>r.map(v=>{const s=String(v??'');return/[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}).join(',')).join('\r\n')}
+async function exportCSV(a){await saveFile(`${fileSafe(a.name)}_grades.csv`,'﻿'+csvOf(gradeRows(a)),'text/csv')}
+function analyticsSheets(a){
+  const list=resultsList(a);const S=stats(list.map(x=>x.pct))||{n:0,mean:0,med:0,sd:0,min:0,max:0};
+  const summary=[['Rubric',a.name],['Course',a.course||''],['Teacher',a.teacher||''],['Max points',maxTotal(a)],[],['Students scored',S.n],['Class average %',r1(S.mean)],['Median %',r1(S.med)],['Highest %',r1(S.max)],['Lowest %',r1(S.min)],['Std. deviation',r1(S.sd)],['Below '+DB.settings.cutoff+'%',list.filter(x=>x.pct<DB.settings.cutoff).length]];
+  const crit=[['Criterion','Max pts','Average pts','Average %',...a.levels.map(l=>'# '+l.label),'# Not scored']];
+  a.criteria.forEach((c,i)=>{const vals=list.map(x=>x.r.choices[i]>=0?pts(a,i,x.r.choices[i]):0);const avg=vals.length?vals.reduce((s,v)=>s+v,0)/vals.length:0;
+    crit.push([c.name,rowMax(a,i),r1(avg),rowMax(a,i)?r1(avg/rowMax(a,i)*100):0,...a.levels.map((_,j)=>list.filter(x=>x.r.choices[i]===j).length),list.filter(x=>!(x.r.choices[i]>=0)).length])});
+  const pers=[...new Set(list.map(x=>x.period).filter(Boolean))].sort((x,y)=>x-y);
+  const per=[['Period','Students','Average %','Median %','Low %','High %']];pers.forEach(p=>{const s=stats(list.filter(x=>String(x.period)===String(p)).map(x=>x.pct));per.push([+p,s.n,r1(s.mean),r1(s.med),r1(s.min),r1(s.max)])});
+  const bins=[['Score range','Students']];for(let k=0;k<10;k++)bins.push([`${k*10}-${k===9?100:k*10+9}%`,list.filter(x=>Math.min(9,Math.floor(x.pct/10))===k).length]);
+  return{summary,crit,per,bins};
+}
+function addSheet(wb,aoa,name,widths){const ws=XLSX.utils.aoa_to_sheet(aoa);if(widths)ws['!cols']=widths.map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,ws,name.replace(/[\\/?*[\]:]/g,'').slice(0,31)||'Sheet')}
+async function exportXLSX(a){
+  try{await loadScript(CDN.xlsx)}catch(e){toast(e.message,true);return}
+  const wb=XLSX.utils.book_new();const g=gradeRows(a);const an=analyticsSheets(a);
+  addSheet(wb,g,'Grades',[12,24,7,...a.criteria.map(()=>16),7,6,8,13,20]);addSheet(wb,an.summary,'Summary',[22,30]);addSheet(wb,an.crit,'By Criterion',[34,8,11,10,...a.levels.map(()=>13),12]);
+  if(an.per.length>2)addSheet(wb,an.per,'By Period',[10,10,11,10,9,9]);addSheet(wb,an.bins,'Distribution',[14,10]);
+  const out=XLSX.write(wb,{type:'array',bookType:'xlsx'});
+  await saveFile(`${fileSafe(a.name)}_grades.xlsx`,new Blob([out],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+}
+async function exportAllXLSX(){
+  try{await loadScript(CDN.xlsx)}catch(e){toast(e.message,true);return}
+  const wb=XLSX.utils.book_new();const As=DB.assignments.filter(a=>Object.keys(a.results||{}).length).sort((x,y)=>(x.created||0)-(y.created||0));
+  if(!As.length){toast('No scores to export yet.',true);return}
+  const roster=rosterById();const ids=new Set();As.forEach(a=>Object.keys(a.results).forEach(k=>ids.add(k)));
+  const head=['Student ID','Name','Period',...As.map(a=>`${a.name} %`),'Average %'];
+  const rows=[...ids].map(id=>{const st=roster.get(normId(id));const vals=As.map(a=>a.results[id]?r1(pctOf(a,a.results[id])):'');const nums=vals.filter(v=>v!=='');
+    const per=As.map(a=>a.results[id]&&a.results[id].period).find(Boolean)||(st&&st.period)||'';
+    return[id,st?st.name:'',per,...vals,nums.length?r1(nums.reduce((s,v)=>s+v,0)/nums.length):'']}).sort((x,y)=>(+x[2]||0)-(+y[2]||0)||String(x[1]||x[0]).localeCompare(String(y[1]||y[0])));
+  addSheet(wb,[head,...rows],'All Rubrics',[12,24,7,...As.map(()=>16),10]);
+  As.forEach((a,k)=>addSheet(wb,gradeRows(a),`${k+1} ${a.name}`));
+  const out=XLSX.write(wb,{type:'array',bookType:'xlsx'});
+  await saveFile(`all_rubric_grades_${new Date().toISOString().slice(0,10)}.xlsx`,new Blob([out],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+}
+
+/* ------------------------------ ROSTER ------------------------------ */
+function parseRoster(text){
+  const out=[],errs=[];const lines=String(text).split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  lines.forEach((ln,k)=>{const f=ln.split(/\t|,|;/).map(s=>s.trim().replace(/^"|"$/g,''));
+    const idIdx=f.findIndex(s=>/^\d{1,10}$/.test(s)&&!/^[1-8]$/.test(s));const idIdx2=idIdx>=0?idIdx:f.findIndex(s=>/^\d{1,10}$/.test(s));
+    if(idIdx2<0){if(k>0||!/id|name|student/i.test(ln))errs.push(ln);return}
+    const rest=f.filter((_,i)=>i!==idIdx2);const pi=rest.findIndex(s=>/^[1-8]$/.test(s));const period=pi>=0?+rest[pi]:null;
+    const name=rest.filter((s,i)=>i!==pi&&s&&!/^\d+$/.test(s)).join(' ').trim();
+    out.push({id:normId(f[idIdx2]),name:name||'(no name)',period})});
+  return{out,errs};
+}
+function rosterHTML(){
+  const R=DB.roster.slice().sort((x,y)=>(x.period||0)-(y.period||0)||String(x.name).localeCompare(String(y.name)));
+  return`<h1>Roster</h1><div class="grid2"><div class="card"><h2>Add students</h2>
+  <p class="small">Paste one student per line as <b>ID, Name, Period</b> (copy straight from a spreadsheet; tabs or commas both work). Period is optional (1–8).</p>
+  <textarea id="rtext" rows="9" style="width:100%" placeholder="104523, Jordan Smith, 2&#10;104588, Ava Lopez, 2&#10;104601, Liam Chen, 4"></textarea>
+  <div class="row" style="margin-top:8px"><button class="b p" data-act="radd">Add / update</button><label class="b">Upload CSV<input type="file" accept=".csv,.txt,text/csv" class="hide" data-chg="rosterFile"></label>
+  ${R.length?'<button class="b d" data-act="rclear">Clear roster</button>':''}</div><div id="rmsg" class="small" style="margin-top:6px"></div>
+  <p class="tiny mut">Students with the same ID are updated, not duplicated. The roster is stored only in this browser.</p></div>
+  <div class="card"><h2>${R.length} students</h2>${R.length?`<div class="tw" style="max-height:60vh"><table><thead><tr><th>ID</th><th>Name</th><th>Per</th><th></th></tr></thead><tbody>${R.map(s=>`<tr><td>${esc(s.id)}</td><td>${esc(s.name)}</td><td>${esc(s.period||'')}</td><td><button class="b sm d" data-act="rdel" data-sid="${esc(s.id)}">✕</button></td></tr>`).join('')}</tbody></table></div>`:'<p class="small mut">No students yet.</p>'}</div></div>`;
+}
+function addRoster(text){
+  const{out,errs}=parseRoster(text);const m=new Map(DB.roster.map(s=>[normId(s.id),s]));out.forEach(s=>m.set(s.id,s));DB.roster=[...m.values()];saveDB();render();
+  const msg=$('#rmsg');if(msg)msg.innerHTML=`<span style="color:var(--ok)">Added/updated ${out.length} student(s).</span>${errs.length?`<br><span style="color:var(--bad)">Skipped ${errs.length} line(s) with no numeric ID: ${esc(errs.slice(0,3).join(' | '))}${errs.length>3?'…':''}</span>`:''}`;
+}
+
+/* ------------------------------- HELP ------------------------------- */
+function helpHTML(){
+  return`<h1>Help &amp; Backup</h1><div class="grid2"><div>
+  <div class="card"><h2>Backup &amp; restore</h2><p class="small">Everything (rubrics, roster, grades) is saved <b>only in this browser on this device</b>. Clearing browser data or switching computers will lose it unless you have a backup.</p>
+  <div class="row"><button class="b p" data-act="backup">Export backup</button><label class="b">Restore from backup<input type="file" accept=".json,application/json" class="hide" data-chg="restore"></label></div>
+  <p class="tiny mut">Last backup: ${DB.lastBackup?new Date(DB.lastBackup).toLocaleString():'never'}. Restoring <b>replaces</b> everything in this browser.</p></div>
+  <div class="card"><h2>Getting great scans</h2><ul class="small" style="padding-left:18px;margin:0">
+  <li>Lay the sheet <b>flat</b> on a darker table. Shoot from straight above with all <b>6 black squares</b> visible.</li>
+  <li>Use even light and avoid your phone's shadow. No flash glare.</li><li>Or scan the whole stack on the copier to one PDF. That's the fastest and most reliable method.</li>
+  <li>iPhone photos: if uploads fail, set Settings → Camera → Formats → <b>Most Compatible</b>.</li></ul></div>
+  <div class="card"><h2>Sharing with other teachers</h2><p class="small">Open a rubric and click <b>Share rubric file</b>. Another teacher uses <b>Import rubric</b> on the Rubrics page. Sheets printed from either copy scan correctly on both, because they share the same code bar. Each teacher keeps their own grades on their own device.</p></div>
+  </div><div>
+  <div class="card"><h2>How it keeps grading accurate</h2><ul class="small" style="padding-left:18px;margin:0">
+  <li><b>Code bar</b>: every sheet is tied to its rubric, so a sheet can't be graded with the wrong rubric.</li>
+  <li><b>6 alignment squares</b> correct for tilt, angle, distance, and a bent page.</li>
+  <li>Every bubble is compared with the paper right around it, so shadows and dim light don't fool it.</li>
+  <li><b>Nothing is guessed.</b> A row with no mark, two marks, or a faint or odd mark (check, X, circle, highlighter) is <b>flagged</b> and waits for you.</li>
+  <li>Unreadable ID digits, IDs not on your roster, and students already scored are all flagged before saving.</li>
+  <li>The picture is shown with what the app read circled, so you can check any sheet in seconds.</li></ul></div>
+  <div class="card"><h2>Privacy &amp; cost</h2><p class="small">Free, with no accounts and no AI. Photos are processed inside your browser and never uploaded. Helper libraries (PDF and Excel) load from public CDNs.</p></div></div></div>`;
+}
+async function doBackup(){DB.lastBackup=Date.now();saveDB();await saveFile(`rubric_scanner_backup_${new Date().toISOString().slice(0,10)}.json`,JSON.stringify(DB),'application/json');render()}
+async function readJSONFile(f){try{return JSON.parse(await f.text())}catch(e){toast('That file isn\'t a valid backup/rubric file.',true);return null}}
+
+/* ------------------------------ MODALS ------------------------------ */
+function showModal(html,size){const m=$('#modal');m.innerHTML=`<div class="mbox ${size==='sm'?'sm':''}">${html}</div>`;m.classList.add('on');document.body.style.overflow='hidden'}
+function closeModal(){const m=$('#modal');m.classList.remove('on');m.innerHTML='';document.body.style.overflow='';RV=null}
+function ask(msg,ok,danger){return new Promise(res=>{showModal(`<div style="font-size:15px;margin-bottom:16px">${msg}</div><div class="row" style="justify-content:flex-end"><button class="b" id="mno">Cancel</button><button class="b ${danger?'d':'p'}" id="myes">${esc(ok||'OK')}</button></div>`,'sm');
+  $('#mno').onclick=()=>{closeModal();res(false)};$('#myes').onclick=()=>{closeModal();res(true)}})}
+
+/* ------------------------------ EVENTS ------------------------------ */
+document.addEventListener('click',async e=>{
+  if(e.target.id==='rvc'){reviewClick(e);return}
+  if(e.target.id==='modal'&&!RV){closeModal();return}
+  const t=e.target.closest('[data-act]');if(!t)return;const act=t.dataset.act;
+  if(t.tagName==='A')e.preventDefault();
+  const a=V.aid?getA(V.aid):null;
+  switch(act){
+    case'nav':closeModal();go(t.dataset.v);break;
+    case'new':builder=blankRubric();go('build');break;
+    case'edit':builder=JSON.parse(JSON.stringify(getA(t.dataset.id)));go('build');break;
+    case'open':go('assign',{aid:t.dataset.id,tab:Object.keys(getA(t.dataset.id).results||{}).length?'grades':'print'});break;
+    case'dup':{const s=getA(t.dataset.id);const c=JSON.parse(JSON.stringify(s));c.id='a'+Date.now().toString(36);c.code=newCode();c.name=s.name+' (copy)';c.results={};c.created=Date.now();DB.assignments.push(c);saveDB();toast('Duplicated. It has its own new code, so print new sheets for it.');render();break}
+    case'del':{const s=getA(t.dataset.id);const n=Object.keys(s.results||{}).length;if(await ask(`Delete <b>${esc(s.name)}</b>${n?` and its <b>${n} saved score(s)</b>`:''}? This can't be undone.`,'Delete',true)){DB.assignments=DB.assignments.filter(x=>x!==s);saveDB();render()}break}
+    case'exportAll':exportAllXLSX();break;
+    case'tab':V.tab=t.dataset.v;render();break;
+    case'cadd':builder.criteria.push({name:''});render();break;
+    case'cdel':builder.criteria.splice(+t.dataset.i,1);render();break;
+    case'cup':case'cdown':{if(locked(builder))break;const i=+t.dataset.i,j=act==='cup'?i-1:i+1;const c=builder.criteria;[c[i],c[j]]=[c[j],c[i]];render();break}
+    case'bsave':saveBuilder();break;
+    case'bcancel':{const id=builder.id;builder=null;getA(id)?go('assign',{aid:id,tab:'print'}):go('home');break}
+    case'pdfRoster':doPdf('roster');break;
+    case'pdfBlank':doPdf('blank');break;
+    case'shareRubric':{const c=JSON.parse(JSON.stringify(a));delete c.results;await saveFile(`${fileSafe(a.name)}_rubric.json`,JSON.stringify({rubricScannerRubric:1,rubric:c}),'application/json');break}
+    case'manual':openReview(null,{aid:V.aid});break;
+    case'review':{const q=QUEUE.find(x=>x.id===+t.dataset.q);if(q)openReview(q);break}
+    case'reviewNext':{const q=QUEUE.find(x=>x.status==='review');if(q)openReview(q);break}
+    case'qdiscard':{const q=QUEUE.find(x=>x.id===+t.dataset.q);if(q){q.status='discarded';q.img=null;q.thumb=null}refreshScan();break}
+    case'qclear':if(!QUEUE.some(q=>q.status==='review')||await ask('Some sheets still need review. Clear the list anyway? (Their scores are NOT saved.)','Clear',true)){QUEUE=QUEUE.filter(q=>q.status==='proc');refreshScan()}break;
+    case'rvclose':closeModal();break;
+    case'rvsave':saveReview();break;
+    case'rvdiscard':{const q=RV.q;closeModal();if(await ask('Discard this sheet without saving a score?','Discard',true)){q.status='discarded';refreshScan()}else openReview(q);break}
+    case'rvdelete':{const sid=RV.origId,aa=RV.a;closeModal();if(await ask(`Delete the score for <b>${esc(sid)}</b>?`,'Delete',true)){delete aa.results[sid];saveDB();render()}break}
+    case'gsort':gbSort={k:t.dataset.v,dir:gbSort.k===t.dataset.v?-gbSort.dir:(t.dataset.v==='pct'?-1:1)};render();break;
+    case'gedit':openReview(null,{aid:V.aid,existing:a.results[t.dataset.sid]});break;
+    case'csv':exportCSV(a);break;
+    case'xlsx':exportXLSX(a);break;
+    case'radd':addRoster($('#rtext').value);break;
+    case'rclear':if(await ask('Remove all students from the roster? (Saved grades are kept.)','Clear',true)){DB.roster=[];saveDB();render()}break;
+    case'rdel':DB.roster=DB.roster.filter(s=>normId(s.id)!==normId(t.dataset.sid));saveDB();render();break;
+    case'backup':doBackup();break;
+  }
+});
+document.addEventListener('input',e=>{const el=e.target;
+  if(el.dataset.bind){onBind(el);return}
+  if(el.dataset.rv==='id'&&RV){RV.id=el.value.replace(/\D/g,'').slice(0,RV.a.idDigits);if(el.value!==RV.id)el.value=RV.id;RV.idConfirmed=true;RV.ack={};updateReview()}
+});
+document.addEventListener('change',async e=>{const el=e.target;
+  if(el.dataset.bind){onBind(el);return}
+  if(el.dataset.rv&&RV){const k=el.dataset.rv;
+    if(k==='row'){const i=+el.dataset.i;RV.choices[i]=el.value===''?null:+el.value;RV.confirmed[i]=el.value!=='';}
+    else if(k==='per')RV.period=el.value;else if(k==='ackRoster')RV.ack.roster=el.checked;else if(k==='ackDupe')RV.ack.dupe=el.checked;
+    updateReview();return}
+  const k=el.dataset.chg;if(!k)return;
+  if(k==='scanFiles'){const f=[...el.files];el.value='';if(f.length)scanFiles(f)}
+  else if(k==='autoSave'){DB.settings.autoSave=el.checked;saveDB()}
+  else if(k==='statPer'){statPer=el.value;render()}
+  else if(k==='cutoff'){DB.settings.cutoff=Math.max(0,Math.min(100,+el.value||0));saveDB();render()}
+  else if(k==='rosterFile'){const f=el.files[0];el.value='';if(f)addRoster(await f.text())}
+  else if(k==='restore'){const f=el.files[0];el.value='';if(!f)return;const d=await readJSONFile(f);if(!d)return;
+    if(!Array.isArray(d.assignments)){toast('That isn\'t a Rubric Scanner backup.',true);return}
+    if(await ask(`Replace everything in this browser with the backup (${d.assignments.length} rubric(s), ${(d.roster||[]).length} students)?`,'Replace',true)){DB=Object.assign({version:1,assignments:[],roster:[],settings:{cutoff:70,autoSave:true}},d);saveDB();toast('Backup restored');go('home')}}
+  else if(k==='importRubric'){const f=el.files[0];el.value='';if(!f)return;const d=await readJSONFile(f);if(!d)return;const r=d.rubric||d;
+    if(!r||!Array.isArray(r.criteria)||!Array.isArray(r.levels)||!r.code){toast('That isn\'t a Rubric Scanner rubric file.',true);return}
+    const ex=getAByCode(r.code);r.results={};r.created=Date.now();r.id='a'+Date.now().toString(36);
+    if(ex){if(!await ask(`You already have a rubric with code #${r.code} (<b>${esc(ex.name)}</b>). Replace its rubric? Its saved scores are kept only if the layout matches.`,'Replace',true))return;
+      const same=ex.criteria.length===r.criteria.length&&ex.levels.length===r.levels.length&&ex.idDigits===r.idDigits&&!!ex.usePeriod===!!r.usePeriod;
+      r.id=ex.id;r.results=same?ex.results:{};DB.assignments[DB.assignments.indexOf(ex)]=r}
+    else DB.assignments.push(r);saveDB();toast('Rubric imported');render()}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#modal').classList.contains('on')&&!RV)closeModal()});
+window.addEventListener('beforeunload',e=>{if(QUEUE.some(q=>q.status==='review'||q.status==='proc')){e.preventDefault();e.returnValue=''}});
+
+loadDB();render();
+// test hooks
+window.__RS={G,drawSheet,canvasDrawer,prepWork,locateSheet,readSheet,renderRectified,codeBits,bitsToCode,blankRubric,DB:()=>DB,scanFiles,QUEUE:()=>QUEUE,maxTotal,scoreOf,buildSheetsPdf};
+</script>
+</body>
+</html>
