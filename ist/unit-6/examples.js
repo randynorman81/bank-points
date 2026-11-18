@@ -1,6 +1,14 @@
 /* "See an example" pictures for the Web Editor: screenshots of COMPLETED exemplars (no code is shipped to students).
    Every exemplar passes the real assignment checker. The generator is kept outside this repo (Desktop/ist-example-source). */
 window.U7_EXAMPLES = {
+ "6.4": {
+  "variants": [
+   {
+    "name": "A concert ticket",
+    "img": "examples/6.4-0.png"
+   }
+  ]
+ },
  "6.1": {
   "variants": [
    {
