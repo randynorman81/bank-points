@@ -381,7 +381,7 @@ details summary{cursor:pointer;color:var(--soft);font-size:13px;margin:6px 0}
     <div class="sec"><h3>Honesty check</h3><div id="honestTxt" style="font-size:13px;color:var(--soft)">You can copy and paste code that is already in your own page. Anything from outside it (another website, the notes, a document, a classmate, or AI) is blocked, so type your own code and write your own words.</div><div id="honest" style="margin-top:8px;font-size:13px"></div></div>
     <div class="sec"><h3>Tags you used</h3><div class="chips" id="tags"></div></div>
     <div class="sec"><h3>My images</h3>
-      <div style="font-size:12px;color:var(--soft);margin-bottom:8px">Upload a picture, then click <b>Insert</b> to add it to your code. Sign in first.</div>
+      <div style="font-size:12px;color:var(--soft);margin-bottom:8px">Upload a picture, then click <b>Copy URL</b>. Type your own <b>img</b> tag and paste the URL as its <b>src</b>. Sign in first.</div>
       <input type="file" id="file" accept="image/png,image/jpeg,image/gif,image/webp">
       <div id="imgs"></div>
     </div>
@@ -1219,7 +1219,7 @@ function renderImages(list) {
   var h = "";
   list.forEach(function (im) {
     var url = location.origin + API + "?img=" + im.id;
-    h += '<div class="imgrow"><img src="' + esc(url) + '" alt=""><div class="nm" title="' + esc(im.name) + '">' + esc(im.name) + '</div><button class="btn sm" data-ins="' + esc(im.id) + '">Insert</button><button class="btn sm" data-cp="' + esc(im.id) + '">URL</button><button class="btn sm" data-del="' + esc(im.id) + '">✕</button></div>';
+    h += '<div class="imgrow"><img src="' + esc(url) + '" alt=""><div class="nm" title="' + esc(im.name) + '">' + esc(im.name) + '</div><button class="btn sm" data-cp="' + esc(im.id) + '">Copy URL</button><button class="btn sm" data-del="' + esc(im.id) + '">✕</button></div>';
   });
   $("imgs").innerHTML = h;
 }
@@ -1230,7 +1230,7 @@ $("imgs").addEventListener("click", function (e) {
     if (S.file !== "html") { S.buf.css = ta.value; S.file = "html"; ta.value = S.buf.html; markTabs(); }
     noteAuto(140 + url.length); ta.focus(); if (H.ORDER.indexOf(S.lesson) < H.ORDER.indexOf("6.6")) { ta.setRangeText('<img src="' + url + '" alt="describe your image here" style="width: 300px; border: 4px solid black;">', ta.selectionStart, ta.selectionEnd, "end"); onEdit(); toast("Inserted a picture. Write a real alt description and pick your own border."); }
     else { ta.setRangeText('<a href="https://www.example.com" target="_blank"><img src="' + url + '" alt="describe your image here" style="width: 300px;"></a>', ta.selectionStart, ta.selectionEnd, "end"); onEdit(); toast("Inserted a clickable image. Change the link address and write a real alt description."); }
-  } else if (b.hasAttribute("data-cp")) { try { navigator.clipboard.writeText(url); toast("URL copied"); } catch (er) {} }
+  } else if (b.hasAttribute("data-cp")) { clip = url; lsSet("u7:clip", url); lsSet("u7:cliplesson", S.lesson); try { navigator.clipboard.writeText(url); toast("URL copied. Paste it as the src of your own img tag."); } catch (er) {} }
   else if (confirm("Delete this image?")) api({ action: "deleteImage", id: id }).then(function (j) { if (j && j.ok) { S.cloud.images = S.cloud.images.filter(function (i) { return i.id !== id; }); renderImages(S.cloud.images); } else if (j && j.error) toast(j.error); });
 });
 function shrink(file) {
