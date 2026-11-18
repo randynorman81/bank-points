@@ -1416,7 +1416,9 @@ function ansBadge() {
 function hasLeft() { return !!(ansSchema() || wtSchema()); }
 /* "See an example": a picture of a finished page (never the code), with a dropdown when an assignment has several themes */
 function exData() { return (window.U7_EXAMPLES || {})[S.lesson] || null; }
-function exUpdate() { var b = $("exBtn"); if (b) b.style.display = exData() && ansSchema() ? "" : "none"; cnUpdate(); }
+/* the top "See an example" tab is only for lessons that have no example link inside the assignment itself (a lesson with a theme example button below its theme options shows that instead) */
+function exInline() { return (ansSchema() || []).some(function (it) { return it && (it.ex || it.exampleImg); }); }
+function exUpdate() { var b = $("exBtn"); if (b) b.style.display = exData() && ansSchema() && !exInline() ? "" : "none"; cnUpdate(); }
 /* "Concepts": what this assignment teaches (new) and everything from earlier lessons to use again (review) */
 function cnData() {
   var C = window.U7_CONCEPTS; if (!C) return null;
