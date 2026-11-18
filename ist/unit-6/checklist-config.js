@@ -148,10 +148,13 @@
   CL.poolFor = function (lesson) {
     var before = { "6.3": ["6.20"], "6.35": ["6.20", "6.3"], "6.4": ["6.20", "6.3", "6.35"], "6.7": ["6.20", "6.3", "6.35", "6.4"], "6.75": ["6.20", "6.3", "6.35", "6.4", "6.7"], "6.6": ["6.20", "6.3", "6.35", "6.4", "6.7", "6.75"], "6.5": ["6.20", "6.3", "6.35", "6.4", "6.7", "6.75", "6.6"] }[lesson] || [];
     var out = []; before.forEach(function (k) { out = out.concat(CL.fam[k]); });
+    if (CL.gfReq[lesson]) out = out.filter(function (f) { return !/^(Google Fonts link|font-family)$/.test(f.label); });   /* required in The basics now, so not an extra choice */
     if (lesson === "6.35") out = out.filter(function (f) { return !/^(heading 3|bold|italic)$/.test(f.label); });   /* 3.5: pick 4 of these 6 */
     return out;
   };
   /* how many of the pool they must use (the pool grows, this grows slowly) */
+  /* every assignment after 3.5 REQUIRES Google fonts (linked in the head and used with font-family): how many different ones */
+  CL.gfReq = { "6.4": 2, "6.7": 1, "6.75": 1, "6.6": 1, "6.5": 1 };
   CL.need = { "6.3": 3, "6.35": 4, "6.4": 5, "6.7": 6, "6.75": 6, "6.6": 7, "6.5": 8 };
   /* the fonts limit applies once fonts are taught (3.5 on) */
   CL.noBoldItalicRule = { "6.35": 1 };   /* 3.5 drops the "never use b or i" limit, and the 3-fonts limit (so 3.5 is not in fontLimit) */

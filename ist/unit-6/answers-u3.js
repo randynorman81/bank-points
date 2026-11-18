@@ -400,7 +400,8 @@
           "Use **exactly " + B.h1 + " heading 1** (the name of your page)",
           "Use **at least " + B.h2 + " heading 2s** (the titles of your sections)",
           "Use **at least " + B.p + " paragraphs** (a few real sentences each)"
-        ].concat(B.colorTags ? ["Use a **text color** on at least " + B.colorTags + " tags and a **background-color** on at least " + B.bgTags + " tag (not counting the body)"] : [])),
+        ].concat(!CL.gfReq[l] ? [] : [CL.gfReq[l] > 1 ? "Use **" + CL.gfReq[l] + " different Google fonts**: put the **link** in the head and use **each one** with **font-family** (for example, one for headings and one for paragraphs)" : "Use **at least 1 Google font**: put its **link** in the head and use it with **font-family**"])
+          .concat(B.colorTags ? ["Use a **text color** on at least " + B.colorTags + " tags and a **background-color** on at least " + B.bgTags + " tag (not counting the body)"] : [])),
         S((CL.newHead && CL.newHead[l]) || "New this lesson: use each one at least 3 times", CL.news[l].map(function (it) { return it.text; }))
       ];
       if (l === "6.35") { var ti = -1; list.forEach(function (x, i) { if (x.id === "theme") ti = i; }); if (ti > -1) list.splice(ti + 1, 0, { exampleImg: "examples/6.35-midnight-moon-diner.png", label: "See an example website", name: "Example: Midnight Moon Diner", note: "If you are having trouble creating your own website from scratch, you can **recreate my example website**. It opens in a new tab at full size, so you can use it as a guide." }); }

@@ -685,6 +685,11 @@
         var used = {}; c.inline.forEach(function (d) { if (d.prop === "font-family") { var f = String(d.value).replace(/;$/, "").split(",")[0].replace(/['"]/g, "").trim().toLowerCase(); if (f && g[f]) used[f] = 1; } });
         return Object.keys(used).length >= 2;
       },
+      gfontsN: function (c, n) {
+        var g = {}; c.all("link").forEach(function (l) { var href = (l.attrs && l.attrs.href) || ""; if (!/^https:\/\/fonts\.googleapis\.com\/css2?\?/i.test(href)) return; var re = /family=([^&:;]+)/g, m; while ((m = re.exec(href))) { var nm; try { nm = decodeURIComponent(m[1].replace(/\+/g, " ")); } catch (e) { nm = m[1]; } g[nm.trim().toLowerCase()] = 1; } });
+        var used = {}; c.inline.forEach(function (d) { if (d.prop === "font-family") { var f = String(d.value).replace(/;$/, "").split(",")[0].replace(/['"]/g, "").trim().toLowerCase(); if (f && g[f]) used[f] = 1; } });
+        return Object.keys(used).length >= n;
+      },
       bodyBoth: function (c) { var b = c.all("body")[0]; return !!b && bothStyled(c, b); },
       color8: function (c) { return withProp(c, "color", named).length >= 8; },
       bg8: function (c) { return withProp(c, "background-color", named).length >= 8; },
@@ -699,7 +704,7 @@
         case "distinct": return s[1].filter(function (k) { return (TE[k] ? TE[k](c) : 0) > 0; }).length >= s[2];
         case "any": return s[1].some(function (x) { return spec(c, x); });
         case "all": return s[1].every(function (x) { return spec(c, x); });
-        case "custom": return !!CUSTOM[s[1]](c);
+        case "custom": return !!CUSTOM[s[1]](c, s[2]);
       }
       return false;
     }
@@ -712,7 +717,9 @@
         [K("Exactly " + B.h1 + " heading 1", function (c) { return c.count("h1") === B.h1; })],
         [CNT("At least " + B.h2 + " heading 2s", "h2", B.h2)],
         [CNT("At least " + B.p + " paragraphs", "p", B.p)]
-      ].concat(!B.colorTags ? [] : [
+      ].concat(!CL.gfReq[l] ? [] : [
+        [K(CL.gfReq[l] > 1 ? "At least " + CL.gfReq[l] + " different Google fonts: linked in the head and each used with font-family" : "At least 1 Google font: linked in the head and used with font-family", function (c) { return spec(c, ["custom", "gfontsN", CL.gfReq[l]]); })]
+      ]).concat(!B.colorTags ? [] : [
         [K("Text color used on at least " + B.colorTags + " tags (not counting the body)", function (c) { return withProp(c, "color", named).length >= B.colorTags; }),
          K("Background-color used on at least " + B.bgTags + " tag (not counting the body)", function (c) { return withProp(c, "background-color", named).length >= B.bgTags; })]
       ]);
