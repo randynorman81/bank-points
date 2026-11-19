@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Return Values with Decisions and Loops | Python Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#A3E635; --acc-tint:rgba(163,230,53,.14); --acc-ink:#D9F99D;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#1A2E05;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:18ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .err{color:var(--bad-ink);font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.ok{border-top-color:var(--acc)}
+.box.bad{border-top-color:var(--bad)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F1FAD9}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.bad{background:var(--bad-tint)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="unit-5/index.html">&larr; Unit 5</a>
+  <a href="functions-parameters.html">Functions and Parameters</a>
+  <a href="multiple-parameters.html">Multiple Parameters</a>
+  <a href="return-values.html">Return Values</a>
+  <a href="return-decisions-loops.html" class="current">Return Values with Decisions and Loops</a>
+  <a href="libraries-apis.html">Libraries and APIs</a>
+  <a href="procedures-create-task.html">Procedures and the Create Task</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">PYTHON NOTES &nbsp;/&nbsp; SUBJECT: FUNCTIONS THAT THINK AND REPEAT</div>
+    <h1>Return Values with Decisions and Loops</h1>
+    <p class="deck">Inside a function you can use everything you already know: if statements, loops, and variables. The function does the thinking and returns the answer.</p>
+  </div>
+</header>
+<div class="wrap"><div class="assign-root" data-unit="5" data-slot="a32" data-concept="Return Values with Decisions and Loops"></div></div>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>Definition</h2></div>
+    <p class="lede">A function body can contain <b>selection</b> (<code>if</code>, <code>else</code>), <b>iteration</b> (loops), and <b>sequencing</b> (steps in order). The function uses its parameters in those instructions and then <b>returns</b> a result: a number, some text, or <code>True</code> or <code>False</code>.</p>
+    <div class="code">def bigger(a, b):
+    if a &gt; b:
+        return a          <span class="cm"># leaves right here when a is bigger</span>
+    else:
+        return b
+
+print(bigger(8, 3))    <span class="cm"># 8</span>
+print(bigger(2, 9))    <span class="cm"># 9</span></div>
+    <h3 style="margin-top:6px;">Three patterns to know</h3>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Pattern</th><th>What it does</th><th>Example</th></tr>
+        <tr><td><b>Return True or False</b></td><td>answers a yes-or-no question</td><td><code>return n % 2 == 0</code></td></tr>
+        <tr><td><b>Return one of two values</b></td><td>an <code>if</code> decides which value comes back</td><td><code>return a` or `return b</code></td></tr>
+        <tr><td><b>Loop, then return</b></td><td>a loop builds an answer, <code>return</code> sends it back after the loop</td><td><code>total = 0 ... return total</code></td></tr>
+      </table>
+    </div></div>
+    <div class="code">def is_even(n):
+    return n % 2 == 0      <span class="cm"># the comparison itself is True or False</span>
+
+if is_even(7):             <span class="cm"># use the answer to decide</span>
+    print("even")
+else:
+    print("odd")          <span class="cm"># prints odd</span></div>
+    <div class="hint-panel"><b>Because return ends the function immediately,</b> a return inside an <code>if</code> is a common way to stop early. The rest of the function never runs once a return has happened.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Examples</h2></div>
+    <p class="lede">Each function takes data in, makes a decision or repeats a step, and hands back an answer.</p>
+    <div class="cards">
+      <div class="cardx">
+        <div class="num">yes or no</div>
+        <h4>Is it even?</h4>
+        <code class="line">def is_even(n):
+    return n % 2 == 0
+
+print(is_even(8))    <span class="cm"># True</span>
+print(is_even(7))    <span class="cm"># False</span></code>
+        <p>A comparison is already <code>True</code> or <code>False</code>, so you can return it directly.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">pick one</div>
+        <h4>The smaller of two</h4>
+        <code class="line">def smaller(a, b):
+    if a &lt; b:
+        return a
+    return b
+
+print(smaller(4, 9))    <span class="cm"># 4</span></code>
+        <p>If the <code>if</code> returns, the function ends. Otherwise the last line runs.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">loop then return</div>
+        <h4>Add 1 up to n</h4>
+        <code class="line">def sum_to(n):
+    total = 0
+    for i in range(1, n + 1):
+        total = total + i
+    return total
+
+print(sum_to(4))    <span class="cm"># 10</span></code>
+        <p>The loop builds <code>total</code>. The <code>return</code> is <b>after</b> the loop, not inside it.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">average</div>
+        <h4>Average of three</h4>
+        <code class="line">def average(a, b, c):
+    return (a + b + c) / 3
+
+print(average(70, 80, 90))    <span class="cm"># 80.0</span></code>
+        <p>Brackets make the addition happen before the division.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">use the answer</div>
+        <h4>Call it in an if</h4>
+        <code class="line">def passed(score):
+    return score &gt;= 60
+
+if passed(75):
+    print("You passed")</code>
+        <p>A function that returns True or False can be used directly as the condition.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Common Problems / Errors</h2></div>
+    <div class="warn"><b>Where the return goes matters.</b> A return <b>inside</b> a loop ends the whole function the first time it runs.</div>
+    <div class="two">
+      <div class="box bad">
+        <h3>Return inside the loop</h3>
+        <div class="code" style="margin:0;">def sum_to(n):
+    total = 0
+    for i in range(1, n + 1):
+        total = total + i
+        return total    <span class="cm"># ends after the first pass!</span>
+
+print(sum_to(4))    <span class="cm"># 1</span></div>
+        <p style="margin-top:10px;">The return is indented under the loop, so it runs on the very first pass.</p>
+      </div>
+      <div class="box ok">
+        <h3>Return after the loop</h3>
+        <div class="code" style="margin:0;">def sum_to(n):
+    total = 0
+    for i in range(1, n + 1):
+        total = total + i
+    return total    <span class="cm"># not indented under the loop</span>
+
+print(sum_to(4))    <span class="cm"># 10</span></div>
+        <p style="margin-top:10px;">The loop finishes first, then the answer is returned once.</p>
+      </div>
+    </div>
+    <div class="two">
+      <div class="box bad">
+        <h3>Returning in only some cases</h3>
+        <div class="code" style="margin:0;">def label(n):
+    if n &gt; 0:
+        return "positive"
+
+print(label(-5))    <span class="cm"># None: no return ran</span></div>
+        <p style="margin-top:10px;">If no <code>return</code> runs, the function gives back <code>None</code>. Make sure every path returns something.</p>
+      </div>
+      <div class="box">
+        <h3>True and False are not text</h3>
+        <p style="margin-top:10px;"><code>return True</code> sends back the Boolean value. <code>return "True"</code> sends back the word. Comparing with <code>==</code> already gives a Boolean, so <code>return n &gt; 5</code> is enough.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Python Code vs. Pseudocode</h2></div>
+    <p class="lede">Exam questions often put an IF, a loop, or both inside a procedure and ask what a call returns.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Concept</th><th>AP CSP Pseudocode</th><th>Python</th></tr>
+        <tr><td>Decide, then return</td><td><code>PROCEDURE bigger(a, b)<br>{<br>   IF (a &gt; b)<br>   {<br>      RETURN(a)<br>   }<br>   ELSE<br>   {<br>      RETURN(b)<br>   }<br>}</code></td><td><code>def bigger(a, b):<br>    if a &gt; b:<br>        return a<br>    else:<br>        return b</code></td></tr>
+        <tr><td>Loop, then return</td><td><code>PROCEDURE sumTo(n)<br>{<br>   total ← 0<br>   i ← 1<br>   REPEAT n TIMES<br>   {<br>      total ← total + i<br>      i ← i + 1<br>   }<br>   RETURN(total)<br>}</code></td><td><code>def sum_to(n):<br>    total = 0<br>    i = 1<br>    for turn in range(n):<br>        total = total + i<br>        i = i + 1<br>    return total</code></td></tr>
+      </table>
+    </div></div>
+    <div class="warn"><b>Trace with values.</b> Pick the argument, write down the variables, and step through the IF and loop. Stop the moment a RETURN runs, because that is the answer.</div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>A function can decide and repeat inside, then return the answer so the rest of the program can use it.</h2>
+    <p>Next: using procedures other people wrote: libraries and APIs.</p>
+    <div class="assign-root" data-unit="5" data-slot="a32" data-concept="Return Values with Decisions and Loops" style="margin-bottom:10px"></div>
+    <a class="back" href="libraries-apis.html">Libraries and APIs &rarr;</a>
+    <a class="back" href="return-values.html">&larr; Return Values</a>
+    <a class="back" href="unit-5/index.html">&larr; Unit 5</a>
+    <p class="sig">Python Notes &nbsp;/&nbsp; Return Values with Decisions and Loops &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+<script src="lesson-assignment.js?v=2"></script>
+</body>
+</html>

@@ -146,7 +146,7 @@ function fmt(t) { return t ? new Date(t).toLocaleString() : ""; }
 var ASSIGN = {};
 function loadAssignments() { return api({ action: "adminAssignments" }).then(function (j) { if (j && j.ok) { ASSIGN = j.assignments || {}; rebuildSlots(); if (typeof showUnlock === "function") showUnlock(); } }); }
 function rebuildSlots() {
-  var sl = $("slot"); if (!sl || !sl.options.length) return; var cur = sl.value, ids = ["free"]; for (var i = 1; i <= 30; i++) if (ASSIGN["a" + i] || counts["a" + i] || "a" + i === cur) ids.push("a" + i);
+  var sl = $("slot"); if (!sl || !sl.options.length) return; var cur = sl.value, ids = ["free"]; for (var i = 1; i <= 40; i++) if (ASSIGN["a" + i] || counts["a" + i] || "a" + i === cur) ids.push("a" + i);
   sl.innerHTML = ids.map(function (id) { return '<option value="' + id + '">' + esc(slotLabel(id)) + " (" + (counts[id] || 0) + ")</option>"; }).join(""); sl.value = cur;
 }
 function splitCode(code) {
@@ -207,7 +207,7 @@ function openApp() {
     try { sessionStorage.setItem("pypin", pin); } catch (e) {}
     counts = j.counts || {};
     $("login").style.display = "none"; $("top").style.display = "flex"; $("app").className = "show";
-    var h = "", ids = ["free"]; for (var i = 1; i <= 30; i++) ids.push("a" + i);
+    var h = "", ids = ["free"]; for (var i = 1; i <= 40; i++) ids.push("a" + i);
     ids.forEach(function (id) { h += '<option value="' + id + '">' + slotLabel(id) + " (" + (counts[id] || 0) + ")</option>"; });
     $("slot").innerHTML = h;
     var first = ids.filter(function (id) { return id !== "free" && counts[id]; })[0] || "free"; $("slot").value = first;

@@ -65,7 +65,7 @@ const COURSES = [
       { n: 2, title: "Practice PT: Pair-Programming Paint!", migrated: true, path: "apcsp/unit-2/index.html" },
       { n: 3, title: "Programming with Python", migrated: true, path: "apcsp/unit-3/index.html", badge: "PYTHON COMPILER" },
       { n: 4, title: "Python Control Structures", migrated: true, path: "apcsp/unit-4/index.html", badge: "PYTHON COMPILER" },
-      { n: 5, title: "Functions and Parameters", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 5, title: "Functions and Parameters", migrated: true, path: "apcsp/unit-5/index.html", badge: "PYTHON COMPILER" },
       { n: 6, title: "Practice PT: Tell a Story", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
       { n: 7, title: "Basic Data Structures", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
       { n: 8, title: "Digital Information", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },

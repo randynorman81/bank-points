@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Libraries and APIs | Python Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#A3E635; --acc-tint:rgba(163,230,53,.14); --acc-ink:#D9F99D;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#1A2E05;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:18ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .err{color:var(--bad-ink);font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.ok{border-top-color:var(--acc)}
+.box.bad{border-top-color:var(--bad)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F1FAD9}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.bad{background:var(--bad-tint)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="unit-5/index.html">&larr; Unit 5</a>
+  <a href="functions-parameters.html">Functions and Parameters</a>
+  <a href="multiple-parameters.html">Multiple Parameters</a>
+  <a href="return-values.html">Return Values</a>
+  <a href="return-decisions-loops.html">Return Values with Decisions and Loops</a>
+  <a href="libraries-apis.html" class="current">Libraries and APIs</a>
+  <a href="procedures-create-task.html">Procedures and the Create Task</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">PYTHON NOTES &nbsp;/&nbsp; SUBJECT: USING PROCEDURES SOMEONE ELSE WROTE</div>
+    <h1>Libraries and APIs</h1>
+    <p class="deck">A library is a collection of ready-made procedures. An API is the set of instructions for how to use them. You do not need to know how they work inside, only how to call them.</p>
+  </div>
+</header>
+<div class="wrap"><div class="assign-root" data-unit="5" data-slot="a33" data-concept="Libraries and APIs"></div></div>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>Definition</h2></div>
+    <p class="lede">A <b>library</b> is a collection of procedures that other programmers wrote so you can reuse them. An <b>API</b> (application program interface) is the <b>specification</b> of those procedures: their names, the parameters they take, and what they return. The <b>documentation</b> for the API is how you find out how to use it.</p>
+    <div class="code">import math                  <span class="cm"># load a library</span>
+
+print(math.sqrt(16))         <span class="cm"># 4.0   the library does the work</span>
+print(abs(-7))               <span class="cm"># 7     abs is built into Python</span>
+print(max(3, 9, 5))          <span class="cm"># 9</span></div>
+    <h3 style="margin-top:6px;">What documentation tells you</h3>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Documentation part</th><th>What it tells you</th><th>Example</th></tr>
+        <tr><td><b>Name</b></td><td>what to call</td><td><code>sqrt</code></td></tr>
+        <tr><td><b>Parameters</b></td><td>what to pass in, and in what order</td><td>one number</td></tr>
+        <tr><td><b>Returns</b></td><td>what comes back</td><td>the square root, as a decimal</td></tr>
+        <tr><td><b>What it does</b></td><td>the behavior, in plain words</td><td>finds the number that multiplied by itself gives the input</td></tr>
+      </table>
+    </div></div>
+    <p>You call a library procedure exactly like one you wrote yourself: use the name and give the arguments. You <b>cannot see the instructions inside</b>, and you do not need to.</p>
+    <div class="hint-panel"><b>Why libraries matter on the exam:</b> they make big programs <b>easier to build</b> because you reuse tested code instead of rewriting it. The <b>documentation is necessary</b> to know what a procedure does and how to call it correctly.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Examples</h2></div>
+    <p class="lede">Each of these is a procedure someone else already wrote. You only need the name, the arguments, and what it returns.</p>
+    <div class="cards">
+      <div class="cardx">
+        <div class="num">random library</div>
+        <h4>A random number</h4>
+        <code class="line">import random
+
+roll = random.randint(1, 6)    <span class="cm"># a whole number from 1 to 6</span>
+print(roll)</code>
+        <p>Same idea as the exam's <code>RANDOM(1, 6)</code>. The library picks the number. You only call it.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">math library</div>
+        <h4>Square root</h4>
+        <code class="line">import math
+
+print(math.sqrt(25))    <span class="cm"># 5.0</span>
+print(math.sqrt(2))     <span class="cm"># 1.4142135623730951</span></code>
+        <p><code>sqrt</code> takes one number and returns a decimal. You never wrote the instructions inside it.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">built-in</div>
+        <h4>Python's own procedures</h4>
+        <code class="line">print(len("robot"))      <span class="cm"># 5</span>
+print(round(3.67))       <span class="cm"># 4</span>
+print(min(4, 2, 8))      <span class="cm"># 2</span></code>
+        <p><code>len</code>, <code>round</code>, <code>min</code>, and <code>max</code> are part of Python itself, ready to call without an import.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">calling it right</div>
+        <h4>Use the documentation</h4>
+        <code class="line"><span class="cm"># Documentation:</span>
+<span class="cm">#   clamp(value, low, high)  returns value, but no smaller</span>
+<span class="cm">#   than low and no bigger than high</span>
+
+<span class="cm"># clamp(15, 0, 10)  -&gt; 10</span>
+<span class="cm"># clamp(-3, 0, 10)  -&gt; 0</span>
+<span class="cm"># clamp(7, 0, 10)   -&gt; 7</span></code>
+        <p>The documentation says the order is value, low, high. Reading it first tells you what to pass and what comes back.</p>
+      </div>
+      <div class="cardx">
+        <div class="num">combine them</div>
+        <h4>Procedures working together</h4>
+        <code class="line">import random
+
+sides = 6
+roll = random.randint(1, sides)
+print("Rolled", roll, "out of", sides)</code>
+        <p>A real program uses library procedures and your own together.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Common Problems / Errors</h2></div>
+    <div class="warn"><b>Read before you call.</b> Most mistakes with a library come from not checking the order of the parameters or what the procedure returns.</div>
+    <div class="two">
+      <div class="box bad">
+        <h3>Forgetting the import</h3>
+        <div class="code" style="margin:0;">print(math.sqrt(9))
+<span class="cm"># NameError: name 'math' is not defined</span></div>
+        <p style="margin-top:10px;">Add <code>import math</code> at the top before you use anything from that library.</p>
+      </div>
+      <div class="box bad">
+        <h3>Arguments in the wrong order</h3>
+        <div class="code" style="margin:0;"><span class="cm"># documentation: draw(x, y, size)</span>
+draw(50, 10, 20)    <span class="cm"># x=50, y=10, size=20 ... is that what you meant?</span></div>
+        <p style="margin-top:10px;">The documentation sets the order. Swapping arguments gives a different result.</p>
+      </div>
+    </div>
+    <div class="two">
+      <div class="box">
+        <h3>You do not need the inside</h3>
+        <p style="margin-top:10px;">Do not try to work out how <code>random.randint</code> picks its number. For the exam you only need to know <b>what it does</b>: its parameters and its result.</p>
+      </div>
+      <div class="box">
+        <h3>A library can be new to you</h3>
+        <p style="margin-top:10px;">On the exam you may see documentation for a procedure you have never heard of. Treat it like any other: read the parameters and what it returns, then use it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Python Code vs. Pseudocode</h2></div>
+    <p class="lede">The exam has no import. It describes a library procedure in words or as a procedure heading and asks you to use it correctly.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Concept</th><th>AP CSP Pseudocode</th><th>Python</th></tr>
+        <tr><td>Random whole number</td><td><code>RANDOM(a, b)</code></td><td><code>random.randint(a, b)</code></td></tr>
+        <tr><td>Call a library procedure</td><td><code>result ← getArea(width, height)</code></td><td><code>result = get_area(width, height)</code></td></tr>
+        <tr><td>Use documentation</td><td>the question lists what the procedure takes and returns</td><td>the library's documentation page</td></tr>
+      </table>
+    </div></div>
+    <div class="warn"><b>What the exam asks:</b> which call uses the API correctly, what a call returns, and why using a library is helpful. Documentation matters because without it you cannot tell what the procedure does or how to call it.</div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>A library is code you reuse. An API and its documentation tell you how to call it.</h2>
+    <p>Next: putting procedures together the way the Create Performance Task expects.</p>
+    <div class="assign-root" data-unit="5" data-slot="a33" data-concept="Libraries and APIs" style="margin-bottom:10px"></div>
+    <a class="back" href="procedures-create-task.html">Procedures and the Create Task &rarr;</a>
+    <a class="back" href="return-decisions-loops.html">&larr; Return Values with Decisions and Loops</a>
+    <a class="back" href="unit-5/index.html">&larr; Unit 5</a>
+    <p class="sig">Python Notes &nbsp;/&nbsp; Libraries and APIs &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+<script src="lesson-assignment.js?v=2"></script>
+</body>
+</html>

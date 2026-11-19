@@ -17,7 +17,14 @@ export const PY_SETTINGS = {
   a22: { hold: true, passMin: 90 },                 // Walkthrough 7: For Loops in Python
   a23: { hold: true, passMin: 90 },                 // Walkthrough 8: General For Loops
   a26: { live: true, hold: true, passMin: 90 },     // Walkthrough 9: While Loops (published, still locked for students)
-  a28: { live: true, hold: true, passMin: 90 }      // Walkthrough 10: Random Numbers (published, still locked for students)
+  a28: { live: true, hold: true, passMin: 90 },     // Walkthrough 10: Random Numbers (published, still locked for students)
+  /* Unit 5: Functions and Parameters (all published, all locked until you open them; Walkthrough 1 starts its own chain) */
+  a29: { live: true, hold: true, fresh: true, passMin: 90 },   // Unit 5 Walkthrough 1: Functions and Parameters
+  a30: { live: true, hold: true, passMin: 90 },                // Walkthrough 2: Multiple Parameters
+  a31: { live: true, hold: true, passMin: 90 },                // Walkthrough 3: Return Values
+  a32: { live: true, hold: true, passMin: 90 },                // Walkthrough 4: Return Values with Decisions and Loops
+  a33: { live: true, hold: true, passMin: 90 },                // Walkthrough 5: Libraries and APIs
+  a34: { live: true, hold: true, passMin: 90 }                 // Walkthrough 6: Procedures and the Create Task
 };
 /* WORDING CHANGES to a walkthrough, kept in the code (no PIN). Each one gets a copy of the walkthrough and changes it. */
 const STEP5_ODD = "Now test an odd number **without changing your code above**. Below your last line, type `number = 7`, then type the same four `print` lines again under it (you can copy and paste your own lines). Add an **end-of-line comment** at the end of your last print line with what the four answers were for 7. If that line already has a comment, add to it. [[How do I test 7?|oddtest]]";

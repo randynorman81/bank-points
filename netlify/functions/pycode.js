@@ -13,7 +13,7 @@ const SCHOOL_EMAIL_DOMAIN = "socialcircleschools.org";
 /* the teacher account sees every assignment open (published or not), with no 80-point gate */
 const TEACHER_EMAILS = ["randy.norman@socialcircleschools.org"];
 function isTeacherUser(user) { return !!user && TEACHER_EMAILS.indexOf(user.email) > -1; }
-const SLOTS = ["free"].concat(Array.from({ length: 30 }, (_, i) => "a" + (i + 1)));
+const SLOTS = ["free"].concat(Array.from({ length: 40 }, (_, i) => "a" + (i + 1)));
 const MAX_CODE = 60000;
 const MAX_WORLD = 20000;
 
