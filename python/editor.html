@@ -372,7 +372,8 @@ ta.addEventListener("keydown", function (e) {
   else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run(); }
   else if (e.key === "Enter") {
     var v = ta.value, p = ta.selectionStart, ls = v.lastIndexOf("\n", p - 1) + 1, line = v.slice(ls, p), ind = (line.match(/^[ ]*/) || [""])[0];
-    if (/:\s*$/.test(line)) ind += "    ";
+    if (ind && isTeacherNow()) ind = "";   /* teacher only: Enter on an indented line starts the new line at the left edge, not keeping the indent */
+    else if (/:\s*$/.test(line)) ind += "    ";
     e.preventDefault(); ta.value = v.slice(0, p) + "\n" + ind + v.slice(ta.selectionEnd); ta.selectionStart = ta.selectionEnd = p + 1 + ind.length; gutter(); ta.dispatchEvent(new Event("input")); keepCaretVisible();
   }
 });
