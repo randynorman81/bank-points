@@ -225,8 +225,38 @@ add_key_down_handler(on_key)
 <section class="part">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">03</div><h2>Python Code vs. Pseudocode</h2></div>
-    <p class="lede">Same answer as Mouse Events: this doesn't exist in the official pseudocode at all.</p>
-    <div class="hint-panel">The multiple-choice exam's pseudocode has no concept of a live keyboard. Responding to "the user just pressed this specific key, right now" is a graphics-library-specific skill &mdash; real code for your <b>Create Performance Task</b>, not something that shows up as pseudocode on the exam.</div>
+    <p class="lede">The exam has no key-press commands, but it <b>does</b> test the idea behind them: events and the procedures that respond to them.</p>
+    <div class="hint-panel"><b>What the exam tests:</b> an <b>event</b> is an action (a key press, a mouse click, a tap, a program starting) that <b>supplies input</b> to a program. The code that responds is a <b>procedure with a parameter</b>. The exam won't write <code>add_key_down_handler</code> or <code>event.key</code>, but it will show you a procedure like the one below and ask what it does for a given input.</div>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Concept</th><th>AP CSP Pseudocode</th><th>Python</th></tr>
+        <tr><td>The handler (a procedure with a parameter)</td><td><code>PROCEDURE handle(key)</code></td><td><code>def handle(event):</code></td></tr>
+        <tr><td>Check which key it was</td><td><code>IF (key = "a")</code></td><td><code>if event.key == "a":</code></td></tr>
+        <tr><td>Show something</td><td><code>DISPLAY("left")</code></td><td><code>print("left")</code></td></tr>
+        <tr><td>Change a variable</td><td><code>score &larr; score + 10</code></td><td><code>score = score + 10</code></td></tr>
+        <tr><td>Each event is one call</td><td><code>handle("a")</code></td><td><code>handle(Event("a"))</code></td></tr>
+      </table>
+    </div></div>
+    <div class="code">score &larr; 0
+PROCEDURE handle(key)
+{
+   IF (key = "space")
+   {
+      score &larr; score + 10
+   }
+   ELSE
+   {
+      IF (key = "x")
+      {
+         score &larr; score - 5
+      }
+   }
+}
+handle("space")
+handle("x")
+handle("space")
+DISPLAY(score)</div>
+    <div class="hint-panel"><b>Trace it:</b> each call is one event, and the value passed in is the input it supplies. The three events change <code>score</code> to 10, then 5, then 15, so it displays <b>15</b>. Notice the exam has no <code>elif</code>: a second check goes <b>inside</b> the <code>ELSE</code>. The Python <code>elif</code> chain from the last page does the same job. The Key Events walkthrough has you trace procedures like this one.</div>
   </div>
 </section>
 
