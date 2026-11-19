@@ -80,6 +80,8 @@ body.noass #paneAss,body.noass #split0{display:none}
 #assBody h3{margin:16px 0 8px;font-size:16px;color:var(--hi)}#assBody h3:first-child{margin-top:2px}
 #assBody p{margin:0 0 10px}
 #assBody code,#assBody .cd{background:var(--chip);border:1px solid var(--rule);border-radius:4px;padding:0 5px;font:12.5px "JetBrains Mono",monospace;color:var(--acc2)}
+.pcopyrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-4px 0 12px}.pcopyrow small{color:var(--ink2);font-size:12px}
+.pcopy{padding:6px 14px;border-radius:8px;border:1px solid #22d3ee;background:#0e7490;color:#fff;font:700 13px Manrope,sans-serif;cursor:pointer}.pcopy:hover{filter:brightness(1.12)}
 #assBody pre{background:var(--deep);border:1px solid var(--rule);border-radius:8px;padding:8px 12px;margin:0 0 10px;font:12.5px/1.6 "JetBrains Mono",monospace;white-space:pre-wrap;user-select:none}
 #assBody .cb{border-radius:8px;padding:8px 12px;margin:0 0 10px}
 #assBody .cb.build{background:rgba(52,211,153,.08);border-left:4px solid var(--ok)}
@@ -1107,7 +1109,7 @@ function renderAssignment() {
   A.blocks.forEach(function (b, bi) {
     if (b.h) { sec++; h += "<h3>" + inl(b.h) + "</h3>"; if (secTips[sec] && secTips[sec].length) { var isStep = /^(Step|Trace) /.test(b.h); stepHelp[sec] = { title: isStep ? String(b.h).replace(/:.*$/, "") : "the house rules", ids: secTips[sec] }; h += '<div class="helprow"><button type="button" class="helpstep" data-help="' + sec + '">\uD83D\uDCA1 ' + (isStep ? "Help for this step" : "Help with the house rules") + ' <small>(' + secTips[sec].length + " topics)</small></button></div>"; } }
     else if (b.p) h += "<p>" + inl(b.p) + "</p>";
-    else if (b.code) h += "<pre>" + highlight(b.code) + "</pre>";
+    else if (b.code) { h += "<pre>" + highlight(b.code) + "</pre>"; if (isPseudo(b.code)) h += '<div class="pcopyrow"><button type="button" class="pcopy" data-pc="' + bi + '">📋 Copy pseudocode</button><small>Pastes into your code box as comment lines</small></div>'; }
     else if (b.tips) { if (sec === 0 && introTips.length && !stepHelp[0]) { stepHelp[0] = { title: "Getting started", ids: introTips }; h += '<div class="helprow"><button type="button" class="helpstep" data-help="0">\uD83D\uDCA1 Help for getting started <small>(' + introTips.length + " topics)</small></button></div>"; } }
     else {
       var kind = b.make ? "make" : b.where ? "where" : "build", items = b.make || b.where || b.build || [];
@@ -1119,6 +1121,16 @@ function renderAssignment() {
   body.innerHTML = h; updateProg(); updateScore(); mcBind(A);
 }
 function updateProg() { /* the "steps checked off" counter and bar were removed on purpose */ }
+/* AP exam pseudocode blocks get a Copy pseudocode button: it copies the block as # comment lines (no indent, no lone braces, arrows as <-) so a student can paste it into the code box instead of typing the arrows and braces. Pseudocode only; Python code samples stay uncopyable. */
+function isPseudo(src) { return /←|^\s*(PROCEDURE |REPEAT |FOR EACH |DISPLAY\(|INPUT\()/m.test(String(src || "")); }
+function pseudoAsComments(src) { return String(src).split("\n").map(function (l) { return l.replace(/^\s+|\s+$/g, ""); }).filter(function (l) { return l && l !== "{" && l !== "}"; }).map(function (l) { return "# " + l.replace(/←/g, "<-"); }).join("\n"); }
+$("assBody").addEventListener("click", function (e) {
+  var btn = e.target.closest ? e.target.closest("button.pcopy") : null; if (!btn) return;
+  var A = (window.PY_ASSIGN || {})[slot], b = A && A.blocks && A.blocks[+btn.getAttribute("data-pc")]; if (!b || !isPseudo(b.code)) return;
+  var text = pseudoAsComments(b.code), done = function () { ownClip = text.replace(/\r\n?/g, "\n"); btn.textContent = "✅ Copied! Click in your code box and paste (Ctrl + V)"; setTimeout(function () { btn.textContent = "📋 Copy pseudocode"; }, 2500); };
+  var fallback = function () { var t = document.createElement("textarea"); t.value = text; t.style.position = "fixed"; t.style.opacity = "0"; document.body.appendChild(t); t.select(); window.__pcopy = true; try { document.execCommand("copy"); } catch (x) {} window.__pcopy = false; document.body.removeChild(t); done(); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+});
 $("assBody").addEventListener("change", function (e) {
   var c = e.target; if (!c.getAttribute || !c.getAttribute("data-id")) return;
   var done = {}; try { done = JSON.parse(lsGet("py:prog:" + slot) || "{}"); } catch (x) {}
@@ -1706,7 +1718,7 @@ loadAssignments();
   var norm = function (s) { return String(s || "").replace(/\r\n?/g, "\n"); };
   ["copy", "cut"].forEach(function (ev) {
     document.addEventListener(ev, function (e) {
-      if (isTeacherNow()) return;
+      if (isTeacherNow() || window.__pcopy) return;
       var gs = window.getSelection ? window.getSelection() : null, gn = gs && gs.rangeCount ? gs.anchorNode : null;
       if (gn && (($("assBody") && $("assBody").contains(gn)) || ($("tipBody") && $("tipBody").contains(gn)))) { e.preventDefault(); e.stopPropagation(); flash(blockMsg); return; }
       if (e.target === ta && ta.selectionStart !== ta.selectionEnd) { ownClip = norm(ta.value.slice(ta.selectionStart, ta.selectionEnd)); return; }
