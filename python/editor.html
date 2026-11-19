@@ -321,6 +321,7 @@ body.mconly #run,body.mconly #clear,body.mconly #reset,body.mconly #histBtn,body
 <script src="assignments.js"></script>
 <script src="codewords.js"></script>
 <script src="randomlib-cheat.js"></script>
+<script src="functions-cheat.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <script>
@@ -584,6 +585,7 @@ var GROUPS = [
   ["Operators:", ["o-assign", "o-eq", "o-ne", "o-cmp", "o-pow", "o-short"]],
   ["Classes and events:", ["c-class", "c-object", "c-keyev"]],
   ["Functions and names:", ["var", "def", "func", "builtin", "karel"]],
+  ["Functions and parameters:", ["f-def", "f-param", "f-return", "f-lib"]],
   ["Random library:", ["r-lib", "r-randint", "r-random", "r-choice", "r-randrange", "r-seed", "r-ideas"]],
   ["String key:", ["str", "s-idx", "s-slice", "s-find", "s-meth"]],
   ["Math key:", ["int", "float", "m-div", "m-floor", "m-mod", "m-three", "m-other"]]
@@ -594,7 +596,8 @@ var CS_WORDS = { "k-if": "if elif else decision condition choose branch", "k-for
   "o-assign": "= assign assignment store set variable equals sign", "o-eq": "== equal equals compare same", "o-ne": "!= not equal different compare", "o-cmp": "< > <= >= greater less than compare bigger smaller", "o-pow": "** power exponent square cube", "o-short": "+= -= *= /= short form increment add to",
   "c-class": "class blueprint init self attribute method oop", "c-object": "object instance oop dot", "c-keyev": "key event keyboard handler add_key_down_handler arrow press",
   "str": "string text words quotes", "int": "integer whole number", "float": "decimal number", "bool": "boolean true false", "none": "none nothing null", "list": "list array brackets", "dict": "dictionary dict set curly braces key value", "var": "variable name", "def": "def function define return", "func": "function your own call", "builtin": "builtin print input len range" };
-CS_WORDS["r-lib"] = "random library import module dice roll coin chance surprise shuffle pick choose RANDOM(a, b) ap exam"; CS_WORDS["r-randint"] = "random randint integer whole number dice die roll coin flip between range inclusive RANDOM(a, b) ap exam"; CS_WORDS["r-random"] = "random random() uniform decimal float percent chance probability"; CS_WORDS["r-choice"] = "random choice sample shuffle pick list deck cards playlist winners"; CS_WORDS["r-randrange"] = "random randrange range step even odd multiple"; CS_WORDS["r-seed"] = "random seed repeat same testing debug"; CS_WORDS["r-ideas"] = "random patterns dice coin chance percent simulation guess number password roll until count ap exam which values could be displayed";
+CS_WORDS["f-def"] = "function functions procedure def define call defining calling body reuse AP exam PROCEDURE"; CS_WORDS["f-param"] = "parameter parameters argument arguments function procedure input pass position order"; CS_WORDS["f-return"] = "return returns value print vs return function procedure RETURN answer back none nested"; CS_WORDS["f-lib"] = "import library libraries api documentation math sqrt abs round pow min max module procedure";
+CS_WORDS["r-lib"] ="random library import module dice roll coin chance surprise shuffle pick choose RANDOM(a, b) ap exam"; CS_WORDS["r-randint"] = "random randint integer whole number dice die roll coin flip between range inclusive RANDOM(a, b) ap exam"; CS_WORDS["r-random"] = "random random() uniform decimal float percent chance probability"; CS_WORDS["r-choice"] = "random choice sample shuffle pick list deck cards playlist winners"; CS_WORDS["r-randrange"] = "random randrange range step even odd multiple"; CS_WORDS["r-seed"] = "random seed repeat same testing debug"; CS_WORDS["r-ideas"] = "random patterns dice coin chance percent simulation guess number password roll until count ap exam which values could be displayed";
 function findConcept(id) { return KEYS.filter(function (x) { return x.id === id; })[0] || MATH.concat(STRINGS, CODEWORDS).filter(function (x) { return x.id === id; })[0]; }
 function csMatch(k, q, deep) {
   var main = [k.name, k.sample, k.title || "", CS_WORDS[k.id] || ""].join(" ").toLowerCase(), long = String(k.what || k.intro || "").toLowerCase();
