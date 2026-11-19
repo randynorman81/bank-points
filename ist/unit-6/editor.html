@@ -666,13 +666,23 @@ var codeMsg = "That looks like code (tags, attributes, or styles). You can paste
 var CSSPROPS = "color|background|font|border|margin|padding|width|height|text|display|position|float|line|letter|list|opacity|top|left|right|bottom|align|justify|flex|grid|box|overflow|cursor|transform|transition|vertical|white|word|outline|visibility|content|z-index|max|min|gap|filter|animation";
 var RE_TAG = /<\s*\/?\s*[A-Za-z!]/, RE_ATTR = /\b(style|class|id|href|src|alt|rel|type|name|content|charset|lang|target|width|height|onclick|crossorigin)\s*=\s*["']/i, RE_DECL = new RegExp("(^|[\\s;{])(" + CSSPROPS + ")[a-z-]*\\s*:\\s*[^;\\n]{1,80};", "i"), RE_GF = /<link\b[^<>]*fonts\.(googleapis|gstatic)\.com[^<>]*>?/gi;
 function markupIn(t) { t = String(t || ""); return RE_TAG.test(t) || RE_ATTR.test(t) || RE_DECL.test(t); }
-function googleFontsOnly(t) { t = String(t || ""); var rest = t.replace(RE_GF, ""); return rest !== t && !markupIn(rest); }
+/* Google Fonts embed code comes in a few shapes: the three <link> lines, or the @import version inside <style> tags, sometimes with an HTML comment or odd spacing. All of those are fine to paste in 3.5 and later. Nothing else rides along. */
+var RE_GF_IMPORT = /@import\s+url\(\s*['"]?[^)'"]*fonts\.googleapis\.com[^)]*\)\s*;?/gi;
+function googleFontsOnly(t) {
+  t = String(t || "").split(String.fromCharCode(160)).join(" ");
+  var hadImport = /@import\s+url\(/i.test(t), rest = t.replace(RE_GF, "").replace(RE_GF_IMPORT, "");
+  if (rest === t) return false;                                   /* no Google Fonts code in it at all */
+  rest = rest.replace(/<!--[\s\S]*?-->/g, "");                     /* a comment above the links */
+  if (hadImport) rest = rest.replace(/<\/?\s*style\b[^<>]*>/gi, ""); /* the <style> tags around an @import */
+  return !markupIn(rest);
+}
 function pasteOK(t) { return SANDBOX || isTeacher() || ownText(t) || !markupIn(t) || (pasteFree() && googleFontsOnly(t)); }
 /* NO PASTING BETWEEN ASSIGNMENTS: students may look at their older assignments, and copy and paste inside the SAME assignment,
    but code that came from a different assignment cannot be pasted into this one (students only; the sandbox and the teacher are free). */
 var crossMsg = "You can't paste code from a different assignment. Build this one fresh (you can still copy and paste inside this assignment).";
 function crossLesson(t) {
   if (SANDBOX || isTeacher()) return false;
+  if (pasteFree() && googleFontsOnly(t)) return false;   /* Google Fonts links are allowed everywhere from 3.5 on, even if they were used in another assignment */
   var CR = String.fromCharCode(13), LF = String.fromCharCode(10);
   function norm(x) { return String(x || "").split(CR).join(""); }
   t = norm(t); if (!t.trim()) return false;
