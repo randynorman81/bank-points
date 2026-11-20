@@ -171,6 +171,15 @@ body.noass #paneAss,body.noass #split0{display:none}
 #csDetail .tip2{margin:8px 0 0;color:var(--soft);font-size:12.5px}
 .pane{position:relative}
 #out{flex:1;min-height:80px;margin:0;padding:12px 14px;overflow:auto;background:var(--deep);font:13.5px/1.6 "JetBrains Mono",monospace;white-space:pre-wrap;word-break:break-word}
+#out .pimg{display:block;width:fit-content;margin:6px 0 8px;padding:6px;border:1px solid var(--rule);border-radius:8px;white-space:normal;max-width:100%;background:var(--card)}
+#out .pimg img{display:block;max-width:100%;height:auto;border-radius:4px;cursor:zoom-in;background:repeating-conic-gradient(#bbb 0 25%,#eee 0 50%) 50%/14px 14px}
+#out .pimg.full{display:block;overflow:auto}#out .pimg.full img{max-width:none;cursor:zoom-out}
+#out .pimg .cap{font:12px Manrope,sans-serif;color:var(--soft);margin-top:5px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+#out .pimg .cap a{color:var(--py-def);font-weight:700}
+#out .psaved{font:12.5px Manrope,sans-serif;color:var(--ok)}#out .psaved a{color:var(--py-def);font-weight:700}
+#pics{display:none;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 10px;background:var(--pop);border-top:1px solid var(--rule);font:12.5px Manrope,sans-serif;color:var(--soft)}
+body.picson #pics{display:flex}
+#pics .chip{display:inline-block;padding:1px 9px;border-radius:100px;border:1px solid var(--rule);background:var(--card);color:var(--ink);font:600 12px "JetBrains Mono",monospace}
 #out .err{color:var(--bad)}#out .sys{color:var(--soft)}#out .ok{color:var(--ok)}#out .in{color:var(--py-def)}
 .tip{padding:6px 12px;font-size:12px;color:var(--soft);background:var(--panel);border-top:1px solid var(--rule)}
 kbd{font:600 11px "JetBrains Mono",monospace;background:var(--card);border:1px solid var(--rule);border-radius:4px;padding:1px 5px}
@@ -315,6 +324,7 @@ body.mconly #run,body.mconly #clear,body.mconly #reset,body.mconly #histBtn,body
       <div id="gwrap"><canvas id="canvas" width="400" height="300" tabindex="0" aria-label="Game screen"></canvas></div>
       <div class="gmsg" id="gmsg">Click the game screen, then use your keyboard to play.</div>
     </div>
+    <div id="pics"><b>Pictures:</b><button class="btn sm" id="addPic" title="Pick a picture from this computer. It stays on this computer.">&#128247; Add a picture</button><input type="file" id="picFile" accept="image/*" multiple hidden><span id="picList">no pictures added yet</span></div>
     <h2>Output</h2>
     <pre id="out"></pre>
   </section>
@@ -335,6 +345,12 @@ body.mconly #run,body.mconly #clear,body.mconly #reset,body.mconly #histBtn,body
 <script src="appendix-b-2.js"></script>
 <script src="appendix-b-3.js"></script>
 <script src="appendix-b-4.js"></script>
+<script src="appendix-c-core.js"></script>
+<script src="appendix-c-1.js"></script>
+<script src="appendix-c-2.js"></script>
+<script src="appendix-c-3.js"></script>
+<script src="appendix-c-4.js"></script>
+<script src="appendix-c-5.js"></script>
 <script src="codewords.js"></script>
 <script src="randomlib-cheat.js"></script>
 <script src="functions-cheat.js"></script>
@@ -349,9 +365,9 @@ var ta = $("code"), out = $("out"), gut = $("gut"), runBtn = $("run"), statusEl 
 var mode = "python";
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-var URLSLOT = (location.search.match(/[?&]a=((?:a|pg|pb)\d+)/) || [])[1] || null;
+var URLSLOT = (location.search.match(/[?&]a=((?:a|pg|pb|pc)\d+)/) || [])[1] || null;
 /* the assignment you are on is kept in two places, so a refresh always comes back to it: the browser's storage and the address (#a19) */
-function slotFromAddress() { var m = /^#(free|example|a\d+|pg\d+|pb\d+)$/.exec(location.hash || ""); return m ? m[1] : ""; }
+function slotFromAddress() { var m = /^#(free|example|a\d+|pg\d+|pb\d+|pc\d+)$/.exec(location.hash || ""); return m ? m[1] : ""; }
 function rememberSlot(id) { lsSet("py:slot", id); try { history.replaceState(null, "", location.pathname + location.search + (id && id !== "free" ? "#" + id : "")); } catch (e) {} }
 function wantedSlot() { return slotFromAddress() || lsGet("py:slot") || "free"; }
 var slot = "free", API = "/api/pycode", GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
@@ -873,6 +889,13 @@ function errorKind(last) {
 /* plain-English help for the errors students hit most; `last` is the final error line */
 function explainError(last, full) {
   var m, t = function (s) { return s.replace(/NoneType/g, "None").replace(/'str'/g, "a string").replace(/'int'/g, "an integer").replace(/'float'/g, "a float").replace(/'list'/g, "a list"); };
+  if (/^FileNotFoundError:.*No such file or directory: '([^']*)'/.test(last)) { var fn = /No such file or directory: '([^']*)'/.exec(last)[1]; return "Python looked for a picture named " + fn + " and it is not here.\nFix: use the Add a picture button above the output, then type the name exactly as it appears in the blue box (capital letters and the ending like .jpg count). Or download one from the web with requests."; }
+  if (/UnidentifiedImageError/.test(last))
+    return "Pillow could not read that as a picture. The file may not be an image, or a web address gave back an error page instead of a photo.\nFix: print(response.status_code) first. It should be 200. Then try the address in a browser tab.";
+  if (/^ValueError: (unknown file extension|unknown url type)/.test(last) || /^KeyError: '(JPG|JPEG|PNG)'/.test(last))
+    return "Pillow chooses the file type from the ending of the name you save with.\nFix: save with a name that ends in .png, .jpg or .gif.";
+  if (/cannot write mode RGBA as JPEG/.test(last))
+    return "JPEG cannot keep see-through pixels (the A in RGBA).\nFix: use .png to save it, or convert first with img = img.convert(\"RGB\").";
   if (/^requests\.exceptions\.ConnectionError/.test(last))
     return "The program could not reach the website, so there was no answer to read.\nFix: check the web address for typos (it must start with https://), check your internet, and press Run again in a minute. If it keeps happening on a school network, the site may be blocked.";
   if (/^requests\.exceptions\.(MissingSchema|InvalidSchema|InvalidURL)/.test(last))
@@ -1004,8 +1027,77 @@ function pseudoInfo(notes) {
   if (notes.cmp) t += "\n• The exam writes ≠ for not equal (Python: !=), ≤ for less than or equal (<=), and ≥ for greater than or equal (>=).";
   return t + "\n\nTo run those lines yourself, translate them to Python, or put a # in front of them so they become notes.";
 }
+/* ---------- Pillow: a program that imports PIL shows its pictures right in the output (loaded the first time it is needed) ---------- */
+var PIL_RE = /^\s*(import\s+(?:[\w.]+\s*,\s*)*PIL\b|from\s+PIL\b)/m, pilLoaded = false, pilLoading = false, picNames = [];
+function usesPillow(code) { return mode !== "karel" && PIL_RE.test(code) && !PG_RE.test(code); }
+var PIL_SETUP = [
+  "import io, base64, js",
+  "from PIL import Image",
+  "_orig_save = Image.Image.save",
+  "def _show(self, title=None, command=None):",
+  "    im = self",
+  "    if im.mode not in ('1', 'L', 'LA', 'P', 'RGB', 'RGBA'):",
+  "        im = im.convert('RGBA' if 'A' in im.mode else 'RGB')",
+  "    buf = io.BytesIO()",
+  "    _orig_save(im, buf, format='PNG')",
+  "    js.pyShowImage(base64.b64encode(buf.getvalue()).decode(), 'image/png', self.width, self.height, self.mode, 'picture.png')",
+  "Image.Image.show = _show",
+  "def _save(self, fp, format=None, **params):",
+  "    _orig_save(self, fp, format, **params)",
+  "    if isinstance(fp, str):",
+  "        with open(fp, 'rb') as f:",
+  "            data = f.read()",
+  "        js.pyImageSaved(fp, base64.b64encode(data).decode(), len(data))",
+  "Image.Image.save = _save"
+].join("\n");
+function showPyImage(b64, mime, w, h, imMode, fname) {
+  var src = "data:" + mime + ";base64," + b64, box = document.createElement("div"), img = document.createElement("img"), cap = document.createElement("div"), dl = document.createElement("a");
+  box.className = "pimg"; img.src = src; img.alt = "A picture made by your program, " + w + " by " + h + " pixels";
+  if (w <= 160 && w > 0) { img.style.width = w * Math.max(1, Math.min(8, Math.floor(256 / w))) + "px"; img.style.imageRendering = "pixelated"; }
+  img.onclick = function () { box.classList.toggle("full"); };
+  cap.className = "cap"; cap.appendChild(document.createTextNode(w + " × " + h + " pixels, mode " + imMode));
+  dl.href = src; dl.download = fname || "picture.png"; dl.textContent = "Save"; cap.appendChild(dl);
+  box.appendChild(img); box.appendChild(cap); out.appendChild(box); out.scrollTop = out.scrollHeight;
+}
+window.pyShowImage = showPyImage;
+window.pyImageSaved = function (name, b64, size) {
+  var ext = (/\.(\w+)$/.exec(name) || [0, "png"])[1].toLowerCase(), mime = ext === "gif" ? "image/gif" : ext === "jpg" || ext === "jpeg" ? "image/jpeg" : ext === "webp" ? "image/webp" : "image/png", src = "data:" + mime + ";base64," + b64;
+  var line = document.createElement("div"), a = document.createElement("a"); line.className = "psaved";
+  line.appendChild(document.createTextNode("Saved " + name + " (" + (size < 1024 ? size + " bytes" : Math.round(size / 1024) + " KB") + ")  ")); a.href = src; a.download = name.replace(/^.*\//, ""); a.textContent = "Download it"; line.appendChild(a); out.appendChild(line);
+  if (ext === "gif") { var box = document.createElement("div"), img = document.createElement("img"); box.className = "pimg"; img.src = src; img.alt = "An animated picture made by your program"; img.onclick = function () { box.classList.toggle("full"); }; box.appendChild(img); out.appendChild(box); }
+  out.scrollTop = out.scrollHeight;
+};
+function loadPillow() {
+  if (pilLoaded) return Promise.resolve();
+  if (pilLoading) return pilLoading;
+  runBtn.disabled = true; statusEl.textContent = "Loading Pillow…"; print("Loading the Pillow picture library (the first time takes a few seconds)…\n", "sys");
+  pilLoading = py.loadPackage("pillow").then(function () { py.runPython(PIL_SETUP, { filename: "<editor-setup>" }); pilLoaded = true; picNames.forEach(function (n) { /* files added before Pillow loaded are already on disk */ }); }).catch(function () {
+    print("The Pillow library could not load. Check your internet connection and refresh the page.\n", "err"); throw 0;
+  }).then(function () { pilLoading = false; }, function (e) { pilLoading = false; runBtn.disabled = false; statusEl.textContent = "Ready"; throw e; });
+  return pilLoading;
+}
+/* the "Add a picture" button: copies a picture from the computer into Python's file space, so Image.open("name.jpg") finds it */
+function safePicName(n) { var base = String(n).replace(/^.*[\\\/]/, "").replace(/[^A-Za-z0-9._-]+/g, "_"); return base || "picture.png"; }
+function drawPicList() { $("picList").innerHTML = picNames.length ? picNames.map(function (n) { return '<span class="chip">' + escH(n) + "</span>"; }).join(" ") + " <small>(type the name exactly, like Image.open(\"" + escH(picNames[0]) + "\"))</small>" : "no pictures added yet"; }
+$("addPic").onclick = function () { $("picFile").click(); };
+$("picFile").onchange = function () {
+  var files = Array.prototype.slice.call(this.files || []); this.value = "";
+  files.forEach(function (f) {
+    if (f.size > 15 * 1024 * 1024) { alert(f.name + " is bigger than 15 MB. Pick a smaller picture, or make it smaller first."); return; }
+    var rd = new FileReader();
+    rd.onload = function () {
+      var name = safePicName(f.name);
+      function put() { try { py.FS.writeFile(name, new Uint8Array(rd.result)); if (picNames.indexOf(name) < 0) picNames.push(name); drawPicList(); print("Added picture " + name + " (" + Math.round(f.size / 1024) + " KB). Use it with Image.open(\"" + name + "\")\n", "sys"); } catch (e) { alert("That picture could not be added."); } }
+      if (py) put(); else alert("Python is still loading. Try again in a moment.");
+    };
+    rd.readAsArrayBuffer(f);
+  });
+};
+function updatePicBar() { document.body.classList.toggle("picson", mode !== "karel" && (PIL_RE.test(ta.value) || /^pc\d+$/.test(slot))); }
+ta.addEventListener("input", updatePicBar);
+
 /* ---------- requests: a program that imports requests can talk to web APIs (loaded the first time it is needed) ---------- */
-var REQ_RE = /^\s*(import\s+requests|from\s+requests\b)/m, reqLoaded = false, reqLoading = false;
+var REQ_RE = /^\s*(import\s+(?:[\w.]+\s*,\s*)*requests\b|from\s+requests\b)/m, reqLoaded = false, reqLoading = false;
 function usesRequests(code) { return mode !== "karel" && REQ_RE.test(code) && !PG_RE.test(code); }
 var REQ_SETUP = [
   "import time, requests, pyodide_http",
@@ -1030,7 +1122,7 @@ function loadRequests() {
   if (reqLoaded) return Promise.resolve();
   if (reqLoading) return reqLoading;
   runBtn.disabled = true; statusEl.textContent = "Loading requests…"; print("Loading the requests library (the first time takes a few seconds)…\n", "sys");
-  reqLoading = py.loadPackage(["requests", "pyodide-http"]).then(function () { py.runPython(REQ_SETUP); reqLoaded = true; }).catch(function () {
+  reqLoading = py.loadPackage(["requests", "pyodide-http"]).then(function () { py.runPython(REQ_SETUP, { filename: "<editor-setup>" }); reqLoaded = true; }).catch(function () {
     print("The requests library could not load. Check your internet connection and refresh the page.\n", "err"); throw 0;
   }).then(function () { reqLoading = false; }, function (e) { reqLoading = false; runBtn.disabled = false; statusEl.textContent = "Ready"; throw e; });
   return reqLoading;
@@ -1086,6 +1178,7 @@ $("gameStop").onclick = function () { window.pgStop = true; };
 function run() {
   if (!py || running) return;
   if (usesPygame(ta.value)) { runGame(); return; }
+  if (usesPillow(ta.value) && !pilLoaded) { loadPillow().then(function () { runBtn.disabled = false; statusEl.textContent = "Ready"; run(); }, function () {}); return; }
   if (usesRequests(ta.value) && !reqLoaded) { loadRequests().then(function () { runBtn.disabled = false; statusEl.textContent = "Ready"; run(); }, function () {}); return; }
   document.body.classList.remove("gameon");
   running = true; runBtn.disabled = true; statusEl.textContent = "Running…"; stopPlayback();
@@ -1159,6 +1252,7 @@ function codeMarked(src, mark) {
   return String(src).split("\n").map(function (l, i) { return '<span class="cl' + (set[i + 1] ? " newl" : "") + '">' + (highlight(l) || "&nbsp;") + "</span>"; }).join("");
 }
 function renderAssignment() {
+  try { updatePicBar(); } catch (e) {}
   ta.readOnly = slot === "example"; document.body.classList.toggle("isExample", slot === "example");
   var A = (window.PY_ASSIGN || {})[slot], body = $("assBody"), title = slotLabel(slot);
   document.body.classList.toggle("mconly", !!(A && A.mcOnly && A.mc && /\bquiz\b/i.test(A.title || "")) && MY[slot] !== "sub");   /* once the quiz is turned in (100%), the editor goes back to normal so they can move on */
@@ -1397,7 +1491,7 @@ function aNum(id, A) { return A && A.num ? A.num : id.slice(1); }
 var EXAMPLE_CODE = "    # Step 1: Make your first variable\n# shop_name = \"Sunrise Bakery\"   # name on the left, value on the right\n# print(shop_name)               # no quotes: prints the value stored inside\n# print(\"shop_name\")             # quotes: prints the words shop_name\n\n    # Step 3: Test the rules\n# loaves = 1\n# top_seller = 2\n# 2nd_tray = 3          # ILLEGAL: starts with a digit\n# apple-pie = 4         # ILLEGAL: has a dash (a symbol)\n# class = 5             # ILLEGAL: class is a Python keyword\n# Loaves = 6            # legal, but Loaves is a different name than loaves\n# total cakes = 7       # ILLEGAL: has a space\n# price$ = 8            # ILLEGAL: has a special character\n# _secret = 9\n# y2 = 10\n\n    # Step 4: Capital letters matter\n# tray_size = 8\n# print(Tray_size)      # NameError: Python sees a capital T as a different name\n# print(tray_size)      # fixed: the name matches exactly, so it prints 8\n\n    # Step 5: Good names make good code\n# a = \"Rosa\"\n# b = 24\n# c = 4.5\n# print(a)\n# print(b)\n# print(c)\n# owner_name = \"Rosa\"      # renamed so a stranger can tell what it holds\n# owner_age = 24\n# shop_rating = 4.5\n# print(owner_name)\n# print(owner_age)\n# print(shop_rating)\n\n    # Step 6: A variable can change\n# trays = 3\n# print(trays)                # prints 3\n# trays = trays - 1           # the right side is worked out first, then stored back in trays\n# print(trays)                # prints 2\n# trays = trays - 1\n# print(trays)                # prints 1\n\n    # Step 7: Your turn\n# About the shop\nfavorite_bread = \"sourdough\"   # text goes in quotes\nshop_age = 6                   # numbers do not\noven_count = 2\nrating = 5\nbest_cookie = \"oatmeal\"\n\nprint(favorite_bread)   # prints sourdough\nprint(shop_age)         # prints 6\nprint(oven_count)       # prints 2\nprint(rating)           # prints 5\nprint(best_cookie)      # prints oatmeal\n";
 var EXAMPLE_ASSIGN = { title: "Example", blocks: [{"h":"What this is"},{"p":"This is a **finished** assignment for you to read. It is the Variable Names assignment, written about a bakery instead of a player. You cannot change it or submit it. Press **Run** to see what it prints, then lay out your own work the same way."},{"h":"What to notice"},{"p":"**1. Every step starts with a heading comment, one tab over.** It has the word Step, the number, a colon, and the title: `# Step 3: Test the rules`."},{"p":"**2. A finished step is commented out** (select the lines and press ctrl + /) so the next step starts clean. Nothing is deleted. The last step stays active so it runs."},{"p":"**3. Notes go at the END of the same line**, after the code: `2nd_tray = 3   # ILLEGAL: starts with a digit`. A note on its own line is only used when a step tells you to put it above a line, or for a heading like `# About the shop`."},{"p":"**4. Names and values are typed exactly as the steps say.** The checker matches them, so a different name or number counts as missing. Spaces and blank lines do not matter."},{"p":"**5. Each step's work is kept.** Earlier steps are still in the file, just commented out, so your teacher can see all of your work."}], tips: {} };
 /* Appendix A (making games with pygame) lives in the code (appendix-a-*.js), so it is always open and needs no server record. It is practice: saved in this browser, nothing to submit. */
-function isApx(id) { return /^p[gb]\d+$/.test(id === undefined ? slot : id); }
+function isApx(id) { return /^p[gbc]\d+$/.test(id === undefined ? slot : id); }
 function addAppendix() { try { if (window.PYA) { var R = window.PYA.records(); window.PY_ASSIGN = window.PY_ASSIGN || {}; Object.keys(R).forEach(function (k) { window.PY_ASSIGN[k] = R[k]; }); } } catch (e) {} }
 function addExample() { window.PY_ASSIGN = window.PY_ASSIGN || {}; window.PY_ASSIGN.example = EXAMPLE_ASSIGN; addAppendix(); }
 addExample();
@@ -1428,7 +1522,7 @@ function slotOrd(id, A) {
 function buildSlots() {
   var top = "", groups = {}, order = [], rest = "";
   var put = function (unit, ord, html) { if (!groups[unit]) { groups[unit] = []; order.push(unit); } groups[unit].push({ ord: ord, html: html }); };
-  ["free", "example"].concat(Array.from({ length: 40 }, function (_, i) { return "a" + (i + 1); }), Array.from({ length: 60 }, function (_, i) { return "pg" + (i + 1); }), Array.from({ length: 60 }, function (_, i) { return "pb" + (i + 1); })).forEach(function (id) {
+  ["free", "example"].concat(Array.from({ length: 40 }, function (_, i) { return "a" + (i + 1); }), Array.from({ length: 60 }, function (_, i) { return "pg" + (i + 1); }), Array.from({ length: 60 }, function (_, i) { return "pb" + (i + 1); }), Array.from({ length: 60 }, function (_, i) { return "pc" + (i + 1); })).forEach(function (id) {
     if (id !== "free" && !(window.PY_ASSIGN && window.PY_ASSIGN[id])) return;
     var A = window.PY_ASSIGN && window.PY_ASSIGN[id], grouped = id !== "free" && id !== "example" && A && A.unit;
     var opt = '<option value="' + id + '">' + escA(slotLabel(id, grouped)) + (MY[id] === "sub" ? " ✓" : "") + "</option>";
@@ -1786,7 +1880,7 @@ function loadAssignments() {
     if (TEACHER) window.PY_ASSIGN = window.PY_ASSIGN || {}; else window.PY_ASSIGN = {};
     Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
     addExample(); window.PY_LOCKED = TEACHER ? [] : (j.locked || []);
-    if (URLSLOT && window.PY_ASSIGN[URLSLOT]) { slot = URLSLOT; URLSLOT = null; try { history.replaceState(null, "", location.pathname + location.search.replace(/([?&])a=(?:a|pg|pb)\d+&?/, "$1").replace(/[?&]$/, "")); } catch (e) {} rememberSlot(slot); }
+    if (URLSLOT && window.PY_ASSIGN[URLSLOT]) { slot = URLSLOT; URLSLOT = null; try { history.replaceState(null, "", location.pathname + location.search.replace(/([?&])a=(?:a|pg|pb|pc)\d+&?/, "$1").replace(/[?&]$/, "")); } catch (e) {} rememberSlot(slot); }
     var want = wantedSlot();
     /* the first list can arrive before sign-in finishes, and a teacher's list has more in it than a student's: only fall back to the sandbox when the remembered one is not in THIS list, and never forget it */
     if (want === "free" || want === "example" || window.PY_ASSIGN[want]) slot = want;
@@ -1849,7 +1943,7 @@ function setMode(m) {
   loadCode(); renderKey(); if (m === "karel") draw(world);
 }
 $("mode").addEventListener("change", function () { setMode(this.value); });
-slot = wantedSlot(); if (!/^(free|example|a\d+|pg\d+|pb\d+)$/.test(slot)) slot = "free"; if (lsGet("py:period")) $("period").value = lsGet("py:period"); buildSlots(); renderAssignment(); if (typeof loadAssignments === "function") loadAssignments();
+slot = wantedSlot(); if (!/^(free|example|a\d+|pg\d+|pb\d+|pc\d+)$/.test(slot)) slot = "free"; if (lsGet("py:period")) $("period").value = lsGet("py:period"); buildSlots(); renderAssignment(); if (typeof loadAssignments === "function") loadAssignments();
 setMode(lsGet("py:mode") === "karel" ? "karel" : "python"); setMode.ready = true;
 </script>
 </body></html>

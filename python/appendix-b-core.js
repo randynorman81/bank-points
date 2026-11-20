@@ -22,6 +22,7 @@
     var prev = start || "", i, s, c, k;
     for (i = 0; i < stages.length; i++) {
       s = stages[i];
+      if (s.code === undefined && !s.edit && !s.add) continue;   /* a step with nothing to type keeps the same program */
       if (s.code === undefined) {
         c = prev.replace(/\n+$/, "");
         if (s.edit) s.edit.forEach(function (e) { if (c.indexOf(e[0]) < 0) throw new Error("step " + (i + 1) + " (" + s.title + "): cannot find text to edit: " + e[0].slice(0, 50)); c = c.split(e[0]).join(e[1]); });
