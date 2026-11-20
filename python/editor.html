@@ -82,6 +82,9 @@ body.noass #paneAss,body.noass #split0{display:none}
 #assBody code,#assBody .cd{background:var(--chip);border:1px solid var(--rule);border-radius:4px;padding:0 5px;font:12.5px "JetBrains Mono",monospace;color:var(--acc2)}
 .pcopyrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-4px 0 12px}.pcopyrow small{color:var(--ink2);font-size:12px}
 .pcopy{padding:6px 14px;border-radius:8px;border:1px solid #22d3ee;background:#0e7490;color:#fff;font:700 13px Manrope,sans-serif;cursor:pointer}.pcopy:hover{filter:brightness(1.12)}
+#assBody pre .cl{display:block;white-space:pre-wrap}
+#assBody pre .newl{background:rgba(52,211,153,.18);box-shadow:-12px 0 0 rgba(52,211,153,.18),12px 0 0 rgba(52,211,153,.18);border-left:0;position:relative}
+#assBody pre .newl::before{content:"";position:absolute;left:-12px;top:0;bottom:0;width:3px;background:var(--ok)}
 #assBody pre{background:var(--deep);border:1px solid var(--rule);border-radius:8px;padding:8px 12px;margin:0 0 10px;font:12.5px/1.6 "JetBrains Mono",monospace;white-space:pre-wrap;user-select:none}
 #assBody .cb{border-radius:8px;padding:8px 12px;margin:0 0 10px}
 #assBody .cb.build{background:rgba(52,211,153,.08);border-left:4px solid var(--ok)}
@@ -322,6 +325,11 @@ body.mconly #run,body.mconly #clear,body.mconly #reset,body.mconly #histBtn,body
 <div class="modal" id="mTip"><div class="box tipbox" role="dialog" aria-label="Help"><div class="tiphead"><h3 id="tipTitle"></h3><button class="btn" id="tipClose">Got it</button></div><div id="tipBody"></div></div></div>
 <script src="themes.js"></script>
 <script src="assignments.js"></script>
+<script src="appendix-a-core.js"></script>
+<script src="appendix-a-1.js"></script>
+<script src="appendix-a-2.js"></script>
+<script src="appendix-a-3.js"></script>
+<script src="appendix-a-4.js"></script>
 <script src="codewords.js"></script>
 <script src="randomlib-cheat.js"></script>
 <script src="functions-cheat.js"></script>
@@ -336,9 +344,9 @@ var ta = $("code"), out = $("out"), gut = $("gut"), runBtn = $("run"), statusEl 
 var mode = "python";
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-var URLSLOT = (location.search.match(/[?&]a=(a\d+)/) || [])[1] || null;
+var URLSLOT = (location.search.match(/[?&]a=((?:a|pg)\d+)/) || [])[1] || null;
 /* the assignment you are on is kept in two places, so a refresh always comes back to it: the browser's storage and the address (#a19) */
-function slotFromAddress() { var m = /^#(free|example|a\d+)$/.exec(location.hash || ""); return m ? m[1] : ""; }
+function slotFromAddress() { var m = /^#(free|example|a\d+|pg\d+)$/.exec(location.hash || ""); return m ? m[1] : ""; }
 function rememberSlot(id) { lsSet("py:slot", id); try { history.replaceState(null, "", location.pathname + location.search + (id && id !== "free" ? "#" + id : "")); } catch (e) {} }
 function wantedSlot() { return slotFromAddress() || lsGet("py:slot") || "free"; }
 var slot = "free", API = "/api/pycode", GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
@@ -1100,13 +1108,18 @@ $("assBody").addEventListener("click", function (e) {
   var hb = e.target.closest && e.target.closest(".helpstep"); if (hb) { e.preventDefault(); e.stopPropagation(); openHelpList(+hb.getAttribute("data-help")); return; }
   var b = e.target.closest && e.target.closest(".tipbtn"); if (b) { e.preventDefault(); e.stopPropagation(); openedFrom = null; openTip(b.getAttribute("data-tip")); }
 });
+/* a code sample where some lines are new in this step: those lines get a green bar (each line is colored on its own) */
+function codeMarked(src, mark) {
+  var set = {}; mark.forEach(function (n) { set[n] = 1; });
+  return String(src).split("\n").map(function (l, i) { return '<span class="cl' + (set[i + 1] ? " newl" : "") + '">' + (highlight(l) || "&nbsp;") + "</span>"; }).join("");
+}
 function renderAssignment() {
   ta.readOnly = slot === "example"; document.body.classList.toggle("isExample", slot === "example");
   var A = (window.PY_ASSIGN || {})[slot], body = $("assBody"), title = slotLabel(slot);
   document.body.classList.toggle("mconly", !!(A && A.mcOnly && A.mc && /\bquiz\b/i.test(A.title || "")) && MY[slot] !== "sub");   /* once the quiz is turned in (100%), the editor goes back to normal so they can move on */
   document.body.classList.toggle("hasquiz", !!(A && A.mc && A.mc.length && /\bquiz\b/i.test(A.title || "")));   /* a quiz is just the questions */
   document.body.classList.toggle("isquiz", isQuizNow()); if (!QG || QG.slot !== slot) QG = { slot: slot, sig: null, perfect: false, wrong: [] };
-  var plain = (slot === "free" || slot === "example") ? title : "Assignment " + aNum(slot, A) + (A && A.title ? ": " + A.title : ""), full = (A && A.unit ? A.unit + " · " : "") + plain; $("assTitle").textContent = (unitShort(A) ? unitShort(A) + " · " : "") + ((slot === "free" || slot === "example") ? title : slotLabel(slot, false).replace(/^Unit \d+ · /, "") + (A ? " · " + slotPoints(A) + " pts" : "")); $("assTitle").title = full;
+  var plain = (slot === "free" || slot === "example") ? title : (A && A.apx ? "Walkthrough " : "Assignment ") + aNum(slot, A) + (A && A.title ? ": " + A.title : ""), full = (A && A.unit ? A.unit + " · " : "") + plain; $("assTitle").textContent = (unitShort(A) ? unitShort(A) + " · " : "") + ((slot === "free" || slot === "example") ? title : slotLabel(slot, false).replace(/^(?:Unit \d+|Appendix [A-Z]) · /, "") + (A && !A.apx ? " · " + slotPoints(A) + " pts" : "")); $("assTitle").title = full;
   if (!A) { body.innerHTML = '<p class="none">Your teacher has not posted instructions for this assignment yet.</p>'; return; }
   var done = {}; try { done = JSON.parse(lsGet("py:prog:" + slot) || "{}"); } catch (e) {}
   var h = "", n = 0, secTips = {}, sec = 0, seen = {}; stepHelp = {};
@@ -1119,7 +1132,7 @@ function renderAssignment() {
   A.blocks.forEach(function (b, bi) {
     if (b.h) { sec++; h += "<h3>" + inl(b.h) + "</h3>"; if (secTips[sec] && secTips[sec].length) { var isStep = /^(Step|Trace) /.test(b.h); stepHelp[sec] = { title: isStep ? String(b.h).replace(/:.*$/, "") : "the house rules", ids: secTips[sec] }; h += '<div class="helprow"><button type="button" class="helpstep" data-help="' + sec + '">\uD83D\uDCA1 ' + (isStep ? "Help for this step" : "Help with the house rules") + ' <small>(' + secTips[sec].length + " topics)</small></button></div>"; } }
     else if (b.p) h += "<p>" + inl(b.p) + "</p>";
-    else if (b.code) { h += "<pre>" + highlight(b.code) + "</pre>"; if (isPseudo(b.code)) h += '<div class="pcopyrow"><button type="button" class="pcopy" data-pc="' + bi + '">📋 Copy pseudocode</button><small>Pastes into your code box as comment lines</small></div>'; }
+    else if (b.code) { h += "<pre>" + (b.mark && b.mark.length ? codeMarked(b.code, b.mark) : highlight(b.code)) + "</pre>"; if (isPseudo(b.code)) h += '<div class="pcopyrow"><button type="button" class="pcopy" data-pc="' + bi + '">📋 Copy pseudocode</button><small>Pastes into your code box as comment lines</small></div>'; }
     else if (b.tips) { if (sec === 0 && introTips.length && !stepHelp[0]) { stepHelp[0] = { title: "Getting started", ids: introTips }; h += '<div class="helprow"><button type="button" class="helpstep" data-help="0">\uD83D\uDCA1 Help for getting started <small>(' + introTips.length + " topics)</small></button></div>"; } }
     else {
       var kind = b.make ? "make" : b.where ? "where" : "build", items = b.make || b.where || b.build || [];
@@ -1267,6 +1280,16 @@ function updateScore() {
   clearTimeout(scoreT);
   var A = (window.PY_ASSIGN || {})[slot], el = $("assScore");
   if (!A || slot === "free" || slot === "example") { el.innerHTML = ""; $("assMiss").className = ""; return; }
+  if (A.apx && window.PYA) {   /* Appendix A: checked right here in the browser */
+    scoreT = setTimeout(function () {
+      var r = window.PYA.localScore(A, ta.value), box = $("assMiss");
+      el.innerHTML = "Steps with every check met: <b>" + r.doneBoxes + " / " + r.totalBoxes + "</b> <small>auto-checked as you type</small>";
+      boxBadges(r.boxes);
+      if (!r.missing.length) { box.className = "show"; $("assMissSum").textContent = "Every check is met. Nice work!"; $("assMissList").innerHTML = ""; }
+      else { box.className = "show"; $("assMissSum").textContent = r.missing.length + " still missing (click)"; $("assMissList").innerHTML = r.missing.map(function (m) { return "<li>" + escA(m.label) + " <small>(you have " + m.have + ", need " + m.need + ")</small></li>"; }).join(""); }
+    }, 350);
+    return;
+  }
   if (CRED && credLeft(CRED) <= 60) { try { google.accounts.id.prompt(); } catch (e) {} }
   scoreT = setTimeout(function () {
     var hid = hiddenOutput(ta.value, A), seq = ++scoreSeq, body = { action: "score", slot: slot, code: ta.value, output: hid !== null ? hid : out.textContent.slice(-4000), period: $("period").value, credential: CRED || undefined }, tp = ""; try { tp = /[?&]teacher/.test(location.search) ? (sessionStorage.getItem("pypin") || "") : ""; } catch (e) {}
@@ -1328,7 +1351,10 @@ function unitShort(A) { return A && A.unit ? String(A.unit).split(":")[0] : ""; 
 function aNum(id, A) { return A && A.num ? A.num : id.slice(1); }
 var EXAMPLE_CODE = "    # Step 1: Make your first variable\n# shop_name = \"Sunrise Bakery\"   # name on the left, value on the right\n# print(shop_name)               # no quotes: prints the value stored inside\n# print(\"shop_name\")             # quotes: prints the words shop_name\n\n    # Step 3: Test the rules\n# loaves = 1\n# top_seller = 2\n# 2nd_tray = 3          # ILLEGAL: starts with a digit\n# apple-pie = 4         # ILLEGAL: has a dash (a symbol)\n# class = 5             # ILLEGAL: class is a Python keyword\n# Loaves = 6            # legal, but Loaves is a different name than loaves\n# total cakes = 7       # ILLEGAL: has a space\n# price$ = 8            # ILLEGAL: has a special character\n# _secret = 9\n# y2 = 10\n\n    # Step 4: Capital letters matter\n# tray_size = 8\n# print(Tray_size)      # NameError: Python sees a capital T as a different name\n# print(tray_size)      # fixed: the name matches exactly, so it prints 8\n\n    # Step 5: Good names make good code\n# a = \"Rosa\"\n# b = 24\n# c = 4.5\n# print(a)\n# print(b)\n# print(c)\n# owner_name = \"Rosa\"      # renamed so a stranger can tell what it holds\n# owner_age = 24\n# shop_rating = 4.5\n# print(owner_name)\n# print(owner_age)\n# print(shop_rating)\n\n    # Step 6: A variable can change\n# trays = 3\n# print(trays)                # prints 3\n# trays = trays - 1           # the right side is worked out first, then stored back in trays\n# print(trays)                # prints 2\n# trays = trays - 1\n# print(trays)                # prints 1\n\n    # Step 7: Your turn\n# About the shop\nfavorite_bread = \"sourdough\"   # text goes in quotes\nshop_age = 6                   # numbers do not\noven_count = 2\nrating = 5\nbest_cookie = \"oatmeal\"\n\nprint(favorite_bread)   # prints sourdough\nprint(shop_age)         # prints 6\nprint(oven_count)       # prints 2\nprint(rating)           # prints 5\nprint(best_cookie)      # prints oatmeal\n";
 var EXAMPLE_ASSIGN = { title: "Example", blocks: [{"h":"What this is"},{"p":"This is a **finished** assignment for you to read. It is the Variable Names assignment, written about a bakery instead of a player. You cannot change it or submit it. Press **Run** to see what it prints, then lay out your own work the same way."},{"h":"What to notice"},{"p":"**1. Every step starts with a heading comment, one tab over.** It has the word Step, the number, a colon, and the title: `# Step 3: Test the rules`."},{"p":"**2. A finished step is commented out** (select the lines and press ctrl + /) so the next step starts clean. Nothing is deleted. The last step stays active so it runs."},{"p":"**3. Notes go at the END of the same line**, after the code: `2nd_tray = 3   # ILLEGAL: starts with a digit`. A note on its own line is only used when a step tells you to put it above a line, or for a heading like `# About the shop`."},{"p":"**4. Names and values are typed exactly as the steps say.** The checker matches them, so a different name or number counts as missing. Spaces and blank lines do not matter."},{"p":"**5. Each step's work is kept.** Earlier steps are still in the file, just commented out, so your teacher can see all of your work."}], tips: {} };
-function addExample() { window.PY_ASSIGN = window.PY_ASSIGN || {}; window.PY_ASSIGN.example = EXAMPLE_ASSIGN; }
+/* Appendix A (making games with pygame) lives in the code (appendix-a-*.js), so it is always open and needs no server record. It is practice: saved in this browser, nothing to submit. */
+function isApx(id) { return /^pg\d+$/.test(id === undefined ? slot : id); }
+function addAppendix() { try { if (window.PYA) { var R = window.PYA.records(); window.PY_ASSIGN = window.PY_ASSIGN || {}; Object.keys(R).forEach(function (k) { window.PY_ASSIGN[k] = R[k]; }); } } catch (e) {} }
+function addExample() { window.PY_ASSIGN = window.PY_ASSIGN || {}; window.PY_ASSIGN.example = EXAMPLE_ASSIGN; addAppendix(); }
 addExample();
 /* What kind of item this is (same rule as slotPart in netlify/functions/pycode.js):
    "assignment" is shown as a WALKTHROUGH, "project" (title starts with Project), "quiz" (title starts with Quiz),
@@ -1357,7 +1383,7 @@ function slotOrd(id, A) {
 function buildSlots() {
   var top = "", groups = {}, order = [], rest = "";
   var put = function (unit, ord, html) { if (!groups[unit]) { groups[unit] = []; order.push(unit); } groups[unit].push({ ord: ord, html: html }); };
-  ["free", "example"].concat(Array.from({ length: 40 }, function (_, i) { return "a" + (i + 1); })).forEach(function (id) {
+  ["free", "example"].concat(Array.from({ length: 40 }, function (_, i) { return "a" + (i + 1); }), Array.from({ length: 60 }, function (_, i) { return "pg" + (i + 1); })).forEach(function (id) {
     if (id !== "free" && !(window.PY_ASSIGN && window.PY_ASSIGN[id])) return;
     var A = window.PY_ASSIGN && window.PY_ASSIGN[id], grouped = id !== "free" && id !== "example" && A && A.unit;
     var opt = '<option value="' + id + '">' + escA(slotLabel(id, grouped)) + (MY[id] === "sub" ? " ✓" : "") + "</option>";
@@ -1478,7 +1504,7 @@ function showTeacher(sub) {
   else { t.className = "teach"; t.innerHTML = ""; }
 }
 function afterSlotChange() {
-  if (!CRED || slot === "example") return;
+  if (!CRED || slot === "example" || isApx()) return;
   var sl = slot;
   api({ action: "mine", slot: sl }).then(function (j) {
     if (!j || j.error || sl !== slot) return;
@@ -1498,7 +1524,7 @@ function afterSlotChange() {
   });
 }
 function cloudSave() {
-  if (slot === "example" || !CRED || ((!ta.value.trim() || ta.value === STARTER_PY || ta.value === STARTER_KAREL) && !(mcOnlySlot() && hasMcPicks())) || (ta.value === lastCloud && mcSig() === lastMcSig)) return Promise.resolve();
+  if (slot === "example" || isApx() || !CRED || ((!ta.value.trim() || ta.value === STARTER_PY || ta.value === STARTER_KAREL) && !(mcOnlySlot() && hasMcPicks())) || (ta.value === lastCloud && mcSig() === lastMcSig)) return Promise.resolve();
   var code = ta.value;
   return api({ action: "saveDraft", slot: slot, mode: mode, code: code, world: curWorld(), ticks: currentTicks(), period: $("period").value, mc: getMc() }).then(function (j) {
     if (j && j.ok) { lastCloud = code; lastMcSig = mcSig(); saveFailed = false; savedAtTxt = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); if (!MY[slot]) { MY[slot] = "draft"; } }
@@ -1512,6 +1538,7 @@ function updateSaveInd() {
   var el = $("saveInd"); if (!el) return;
   var t, c = "saveind";
   if (slot === "example") t = "";
+  else if (isApx()) { t = "Practice walkthrough. Your code saves in this browser as you type."; c += " ok"; }
   else if (!CRED) { t = "Saved on this computer only. Sign in to save to your account."; c += " warn"; }
   else if (saveFailed) { t = "Not saved to your account! Check your internet or sign in again."; c += " bad"; }
   else if (!ta.value.trim() || ta.value === lastCloud) { t = "\u2601 Saved to your account" + (savedAtTxt && ta.value.trim() ? " " + savedAtTxt : ""); c += " ok"; }
@@ -1525,6 +1552,7 @@ function histRestore(code) {
 }
 $("histBtn").addEventListener("click", function () {
   var body = $("histBody"), m = $("mHist"); m.classList.add("show");
+  if (isApx()) { body.innerHTML = "<p>Appendix A is practice, so it keeps your work in this browser only. Use Ctrl + Z to undo.</p>"; return; }
   if (!CRED || slot === "example") { body.innerHTML = "<p>Sign in with your school Google account to see your saved versions.</p>"; return; }
   body.innerHTML = "<p>Loading...</p>";
   api({ action: "history", slot: slot }).then(function (j) {
@@ -1608,6 +1636,7 @@ $("submit").addEventListener("click", function () {
   if (quizSubmitLocked()) { alert("Click \"Grade my quiz\" first.\n\nYou can submit once your quiz grades at 100%. If it lists questions you missed, fix them and grade again."); return; }
   if (mcOnlySlot()) { if (!hasMcPicks()) { flash("Answer a question first"); return; } }
   else if (!ta.value.trim()) { flash("Write some code first"); return; }
+  if (isApx()) { alert("Appendix A walkthroughs are practice, so there is nothing to submit. Your code saves in this browser as you type. Show your teacher your finished game on screen."); return; }
   if (!CRED) { alert("Sign in with your school Google account (top right) to submit."); return; }
   if (slot === "example") { alert("This is an example to read. Pick an assignment in the Assignment box to submit your own work."); return; }
   if (slot === "free") { alert("Sandbox work is saved for you but not graded. Pick an assignment in the Assignment box to submit."); return; }
@@ -1712,7 +1741,7 @@ function loadAssignments() {
     if (TEACHER) window.PY_ASSIGN = window.PY_ASSIGN || {}; else window.PY_ASSIGN = {};
     Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
     addExample(); window.PY_LOCKED = TEACHER ? [] : (j.locked || []);
-    if (URLSLOT && window.PY_ASSIGN[URLSLOT]) { slot = URLSLOT; URLSLOT = null; try { history.replaceState(null, "", location.pathname + location.search.replace(/([?&])a=a\d+&?/, "$1").replace(/[?&]$/, "")); } catch (e) {} rememberSlot(slot); }
+    if (URLSLOT && window.PY_ASSIGN[URLSLOT]) { slot = URLSLOT; URLSLOT = null; try { history.replaceState(null, "", location.pathname + location.search.replace(/([?&])a=(?:a|pg)\d+&?/, "$1").replace(/[?&]$/, "")); } catch (e) {} rememberSlot(slot); }
     var want = wantedSlot();
     /* the first list can arrive before sign-in finishes, and a teacher's list has more in it than a student's: only fall back to the sandbox when the remembered one is not in THIS list, and never forget it */
     if (want === "free" || want === "example" || window.PY_ASSIGN[want]) slot = want;
@@ -1775,7 +1804,7 @@ function setMode(m) {
   loadCode(); renderKey(); if (m === "karel") draw(world);
 }
 $("mode").addEventListener("change", function () { setMode(this.value); });
-slot = wantedSlot(); if (!/^(free|example|a\d+)$/.test(slot)) slot = "free"; if (lsGet("py:period")) $("period").value = lsGet("py:period"); buildSlots(); renderAssignment(); if (typeof loadAssignments === "function") loadAssignments();
+slot = wantedSlot(); if (!/^(free|example|a\d+|pg\d+)$/.test(slot)) slot = "free"; if (lsGet("py:period")) $("period").value = lsGet("py:period"); buildSlots(); renderAssignment(); if (typeof loadAssignments === "function") loadAssignments();
 setMode(lsGet("py:mode") === "karel" ? "karel" : "python"); setMode.ready = true;
 </script>
 </body></html>
