@@ -28,8 +28,8 @@ export const PY_SETTINGS = {
   /* Unit 6: Practice Performance Task (all published, all locked until you open them; Walkthrough 1 starts its own chain) */
   a35: { live: true, hold: true, fresh: true, passMin: 90 },   // Unit 6 Walkthrough 1: Spot the Requirements
   a36: { live: true, hold: true, passMin: 90 },                // Practice PT 1: Quiz Master
-  a37: { live: true, hold: true, passMin: 90 },                // Practice PT 2: Story Generator
-  a38: { live: true, hold: true, passMin: 90 },                // Practice PT 3: Study Tracker
+  a37: { live: false, hold: true, passMin: 90 },                // Practice PT 2: Story Generator
+  a38: { live: false, hold: true, passMin: 90 },                // Practice PT 3: Study Tracker
   /* Unit 7: Basic Data Structures (all published, all locked until you open them; Walkthrough 1 starts its own chain) */
   a39: { live: true, hold: true, fresh: true, passMin: 90 },   // Unit 7 Walkthrough 1: Lists and Indexing
   a40: { live: true, hold: true, passMin: 90 },                // Walkthrough 2: Adding and Removing Items
