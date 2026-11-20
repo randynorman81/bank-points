@@ -330,6 +330,11 @@ body.mconly #run,body.mconly #clear,body.mconly #reset,body.mconly #histBtn,body
 <script src="appendix-a-2.js"></script>
 <script src="appendix-a-3.js"></script>
 <script src="appendix-a-4.js"></script>
+<script src="appendix-b-core.js"></script>
+<script src="appendix-b-1.js"></script>
+<script src="appendix-b-2.js"></script>
+<script src="appendix-b-3.js"></script>
+<script src="appendix-b-4.js"></script>
 <script src="codewords.js"></script>
 <script src="randomlib-cheat.js"></script>
 <script src="functions-cheat.js"></script>
@@ -344,9 +349,9 @@ var ta = $("code"), out = $("out"), gut = $("gut"), runBtn = $("run"), statusEl 
 var mode = "python";
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-var URLSLOT = (location.search.match(/[?&]a=((?:a|pg)\d+)/) || [])[1] || null;
+var URLSLOT = (location.search.match(/[?&]a=((?:a|pg|pb)\d+)/) || [])[1] || null;
 /* the assignment you are on is kept in two places, so a refresh always comes back to it: the browser's storage and the address (#a19) */
-function slotFromAddress() { var m = /^#(free|example|a\d+|pg\d+)$/.exec(location.hash || ""); return m ? m[1] : ""; }
+function slotFromAddress() { var m = /^#(free|example|a\d+|pg\d+|pb\d+)$/.exec(location.hash || ""); return m ? m[1] : ""; }
 function rememberSlot(id) { lsSet("py:slot", id); try { history.replaceState(null, "", location.pathname + location.search + (id && id !== "free" ? "#" + id : "")); } catch (e) {} }
 function wantedSlot() { return slotFromAddress() || lsGet("py:slot") || "free"; }
 var slot = "free", API = "/api/pycode", GOOGLE_CLIENT_ID = "735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
@@ -868,6 +873,14 @@ function errorKind(last) {
 /* plain-English help for the errors students hit most; `last` is the final error line */
 function explainError(last, full) {
   var m, t = function (s) { return s.replace(/NoneType/g, "None").replace(/'str'/g, "a string").replace(/'int'/g, "an integer").replace(/'float'/g, "a float").replace(/'list'/g, "a list"); };
+  if (/^requests\.exceptions\.ConnectionError/.test(last))
+    return "The program could not reach the website, so there was no answer to read.\nFix: check the web address for typos (it must start with https://), check your internet, and press Run again in a minute. If it keeps happening on a school network, the site may be blocked.";
+  if (/^requests\.exceptions\.(MissingSchema|InvalidSchema|InvalidURL)/.test(last))
+    return "That is not a web address Python understands. A URL must start with https:// and have no spaces.\nFix: check the url text. For example  \"https://api.open-meteo.com/v1/forecast\"";
+  if (/^requests\.exceptions\.(JSONDecodeError|InvalidJSONError)|^json\.decoder\.JSONDecodeError/.test(last))
+    return "You asked for JSON with .json(), but the answer was not JSON (it may be an error page, or empty).\nFix: print(response.status_code) and print(response.text) to see what the website really sent.";
+  if (/^requests\.exceptions\.HTTPError/.test(last))
+    return "raise_for_status() stopped the program because the website answered with an error code (like 404 not found or 429 too many requests).\nFix: read the number in the message, or catch this error with try / except requests.exceptions.HTTPError.";
   if ((m = /^TypeError: can only concatenate str \(not "(\w+)"\) to str/.exec(last)) || (m = /^TypeError: unsupported operand type\(s\) for \+: 'str' and '(\w+)'/.exec(last)))
     return "You can only join a string to another string with +. You tried to join a string and " + t("'" + m[1] + "'") + ".\nFix: turn the other value into text with str(), like  \"Score: \" + str(score),  or use a comma in print:  print(\"Score:\", score)";
   if ((m = /^TypeError: unsupported operand type\(s\) for \+: '(\w+)' and 'str'/.exec(last)))
@@ -991,6 +1004,37 @@ function pseudoInfo(notes) {
   if (notes.cmp) t += "\n• The exam writes ≠ for not equal (Python: !=), ≤ for less than or equal (<=), and ≥ for greater than or equal (>=).";
   return t + "\n\nTo run those lines yourself, translate them to Python, or put a # in front of them so they become notes.";
 }
+/* ---------- requests: a program that imports requests can talk to web APIs (loaded the first time it is needed) ---------- */
+var REQ_RE = /^\s*(import\s+requests|from\s+requests\b)/m, reqLoaded = false, reqLoading = false;
+function usesRequests(code) { return mode !== "karel" && REQ_RE.test(code) && !PG_RE.test(code); }
+var REQ_SETUP = [
+  "import time, requests, pyodide_http",
+  "from pyodide.ffi import JsException",
+  "pyodide_http.patch_all()",
+  "_real_send = requests.Session.send",
+  "_saved = {}",
+  "def _send(self, request, **kwargs):",
+  "    key = request.method + ' ' + request.url",
+  "    if request.method == 'GET' and key in _saved and time.time() - _saved[key][0] < 600:",
+  "        return _saved[key][1]",
+  "    try:",
+  "        response = _real_send(self, request, **kwargs)",
+  "    except JsException:",
+  "        raise requests.exceptions.ConnectionError('Could not reach ' + request.url + '. Check the web address and your internet connection. (Some websites also do not allow requests from a web page.)') from None",
+  "    if request.method == 'GET' and response.status_code == 200:",
+  "        _saved[key] = (time.time(), response)",
+  "    return response",
+  "requests.Session.send = _send"
+].join("\n");
+function loadRequests() {
+  if (reqLoaded) return Promise.resolve();
+  if (reqLoading) return reqLoading;
+  runBtn.disabled = true; statusEl.textContent = "Loading requests…"; print("Loading the requests library (the first time takes a few seconds)…\n", "sys");
+  reqLoading = py.loadPackage(["requests", "pyodide-http"]).then(function () { py.runPython(REQ_SETUP); reqLoaded = true; }).catch(function () {
+    print("The requests library could not load. Check your internet connection and refresh the page.\n", "err"); throw 0;
+  }).then(function () { reqLoading = false; }, function (e) { reqLoading = false; runBtn.disabled = false; statusEl.textContent = "Ready"; throw e; });
+  return reqLoading;
+}
 /* ---------- pygame: a program that imports pygame runs as a game on the Game screen ---------- */
 var PG_RE = /^\s*(import\s+pygame|from\s+pygame\b)/m, pgLoaded = false;
 function usesPygame(code) { return mode !== "karel" && PG_RE.test(code); }
@@ -1042,6 +1086,7 @@ $("gameStop").onclick = function () { window.pgStop = true; };
 function run() {
   if (!py || running) return;
   if (usesPygame(ta.value)) { runGame(); return; }
+  if (usesRequests(ta.value) && !reqLoaded) { loadRequests().then(function () { runBtn.disabled = false; statusEl.textContent = "Ready"; run(); }, function () {}); return; }
   document.body.classList.remove("gameon");
   running = true; runBtn.disabled = true; statusEl.textContent = "Running…"; stopPlayback();
   print("▶ Running…\n", "sys");
@@ -1352,7 +1397,7 @@ function aNum(id, A) { return A && A.num ? A.num : id.slice(1); }
 var EXAMPLE_CODE = "    # Step 1: Make your first variable\n# shop_name = \"Sunrise Bakery\"   # name on the left, value on the right\n# print(shop_name)               # no quotes: prints the value stored inside\n# print(\"shop_name\")             # quotes: prints the words shop_name\n\n    # Step 3: Test the rules\n# loaves = 1\n# top_seller = 2\n# 2nd_tray = 3          # ILLEGAL: starts with a digit\n# apple-pie = 4         # ILLEGAL: has a dash (a symbol)\n# class = 5             # ILLEGAL: class is a Python keyword\n# Loaves = 6            # legal, but Loaves is a different name than loaves\n# total cakes = 7       # ILLEGAL: has a space\n# price$ = 8            # ILLEGAL: has a special character\n# _secret = 9\n# y2 = 10\n\n    # Step 4: Capital letters matter\n# tray_size = 8\n# print(Tray_size)      # NameError: Python sees a capital T as a different name\n# print(tray_size)      # fixed: the name matches exactly, so it prints 8\n\n    # Step 5: Good names make good code\n# a = \"Rosa\"\n# b = 24\n# c = 4.5\n# print(a)\n# print(b)\n# print(c)\n# owner_name = \"Rosa\"      # renamed so a stranger can tell what it holds\n# owner_age = 24\n# shop_rating = 4.5\n# print(owner_name)\n# print(owner_age)\n# print(shop_rating)\n\n    # Step 6: A variable can change\n# trays = 3\n# print(trays)                # prints 3\n# trays = trays - 1           # the right side is worked out first, then stored back in trays\n# print(trays)                # prints 2\n# trays = trays - 1\n# print(trays)                # prints 1\n\n    # Step 7: Your turn\n# About the shop\nfavorite_bread = \"sourdough\"   # text goes in quotes\nshop_age = 6                   # numbers do not\noven_count = 2\nrating = 5\nbest_cookie = \"oatmeal\"\n\nprint(favorite_bread)   # prints sourdough\nprint(shop_age)         # prints 6\nprint(oven_count)       # prints 2\nprint(rating)           # prints 5\nprint(best_cookie)      # prints oatmeal\n";
 var EXAMPLE_ASSIGN = { title: "Example", blocks: [{"h":"What this is"},{"p":"This is a **finished** assignment for you to read. It is the Variable Names assignment, written about a bakery instead of a player. You cannot change it or submit it. Press **Run** to see what it prints, then lay out your own work the same way."},{"h":"What to notice"},{"p":"**1. Every step starts with a heading comment, one tab over.** It has the word Step, the number, a colon, and the title: `# Step 3: Test the rules`."},{"p":"**2. A finished step is commented out** (select the lines and press ctrl + /) so the next step starts clean. Nothing is deleted. The last step stays active so it runs."},{"p":"**3. Notes go at the END of the same line**, after the code: `2nd_tray = 3   # ILLEGAL: starts with a digit`. A note on its own line is only used when a step tells you to put it above a line, or for a heading like `# About the shop`."},{"p":"**4. Names and values are typed exactly as the steps say.** The checker matches them, so a different name or number counts as missing. Spaces and blank lines do not matter."},{"p":"**5. Each step's work is kept.** Earlier steps are still in the file, just commented out, so your teacher can see all of your work."}], tips: {} };
 /* Appendix A (making games with pygame) lives in the code (appendix-a-*.js), so it is always open and needs no server record. It is practice: saved in this browser, nothing to submit. */
-function isApx(id) { return /^pg\d+$/.test(id === undefined ? slot : id); }
+function isApx(id) { return /^p[gb]\d+$/.test(id === undefined ? slot : id); }
 function addAppendix() { try { if (window.PYA) { var R = window.PYA.records(); window.PY_ASSIGN = window.PY_ASSIGN || {}; Object.keys(R).forEach(function (k) { window.PY_ASSIGN[k] = R[k]; }); } } catch (e) {} }
 function addExample() { window.PY_ASSIGN = window.PY_ASSIGN || {}; window.PY_ASSIGN.example = EXAMPLE_ASSIGN; addAppendix(); }
 addExample();
@@ -1383,7 +1428,7 @@ function slotOrd(id, A) {
 function buildSlots() {
   var top = "", groups = {}, order = [], rest = "";
   var put = function (unit, ord, html) { if (!groups[unit]) { groups[unit] = []; order.push(unit); } groups[unit].push({ ord: ord, html: html }); };
-  ["free", "example"].concat(Array.from({ length: 40 }, function (_, i) { return "a" + (i + 1); }), Array.from({ length: 60 }, function (_, i) { return "pg" + (i + 1); })).forEach(function (id) {
+  ["free", "example"].concat(Array.from({ length: 40 }, function (_, i) { return "a" + (i + 1); }), Array.from({ length: 60 }, function (_, i) { return "pg" + (i + 1); }), Array.from({ length: 60 }, function (_, i) { return "pb" + (i + 1); })).forEach(function (id) {
     if (id !== "free" && !(window.PY_ASSIGN && window.PY_ASSIGN[id])) return;
     var A = window.PY_ASSIGN && window.PY_ASSIGN[id], grouped = id !== "free" && id !== "example" && A && A.unit;
     var opt = '<option value="' + id + '">' + escA(slotLabel(id, grouped)) + (MY[id] === "sub" ? " ✓" : "") + "</option>";
@@ -1552,7 +1597,7 @@ function histRestore(code) {
 }
 $("histBtn").addEventListener("click", function () {
   var body = $("histBody"), m = $("mHist"); m.classList.add("show");
-  if (isApx()) { body.innerHTML = "<p>Appendix A is practice, so it keeps your work in this browser only. Use Ctrl + Z to undo.</p>"; return; }
+  if (isApx()) { body.innerHTML = "<p>This appendix is practice, so it keeps your work in this browser only. Use Ctrl + Z to undo.</p>"; return; }
   if (!CRED || slot === "example") { body.innerHTML = "<p>Sign in with your school Google account to see your saved versions.</p>"; return; }
   body.innerHTML = "<p>Loading...</p>";
   api({ action: "history", slot: slot }).then(function (j) {
@@ -1636,7 +1681,7 @@ $("submit").addEventListener("click", function () {
   if (quizSubmitLocked()) { alert("Click \"Grade my quiz\" first.\n\nYou can submit once your quiz grades at 100%. If it lists questions you missed, fix them and grade again."); return; }
   if (mcOnlySlot()) { if (!hasMcPicks()) { flash("Answer a question first"); return; } }
   else if (!ta.value.trim()) { flash("Write some code first"); return; }
-  if (isApx()) { alert("Appendix A walkthroughs are practice, so there is nothing to submit. Your code saves in this browser as you type. Show your teacher your finished game on screen."); return; }
+  if (isApx()) { alert("The appendix walkthroughs are practice, so there is nothing to submit. Your code saves in this browser as you type. Show your teacher your finished program on screen."); return; }
   if (!CRED) { alert("Sign in with your school Google account (top right) to submit."); return; }
   if (slot === "example") { alert("This is an example to read. Pick an assignment in the Assignment box to submit your own work."); return; }
   if (slot === "free") { alert("Sandbox work is saved for you but not graded. Pick an assignment in the Assignment box to submit."); return; }
@@ -1741,7 +1786,7 @@ function loadAssignments() {
     if (TEACHER) window.PY_ASSIGN = window.PY_ASSIGN || {}; else window.PY_ASSIGN = {};
     Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
     addExample(); window.PY_LOCKED = TEACHER ? [] : (j.locked || []);
-    if (URLSLOT && window.PY_ASSIGN[URLSLOT]) { slot = URLSLOT; URLSLOT = null; try { history.replaceState(null, "", location.pathname + location.search.replace(/([?&])a=(?:a|pg)\d+&?/, "$1").replace(/[?&]$/, "")); } catch (e) {} rememberSlot(slot); }
+    if (URLSLOT && window.PY_ASSIGN[URLSLOT]) { slot = URLSLOT; URLSLOT = null; try { history.replaceState(null, "", location.pathname + location.search.replace(/([?&])a=(?:a|pg|pb)\d+&?/, "$1").replace(/[?&]$/, "")); } catch (e) {} rememberSlot(slot); }
     var want = wantedSlot();
     /* the first list can arrive before sign-in finishes, and a teacher's list has more in it than a student's: only fall back to the sandbox when the remembered one is not in THIS list, and never forget it */
     if (want === "free" || want === "example" || window.PY_ASSIGN[want]) slot = want;
@@ -1804,7 +1849,7 @@ function setMode(m) {
   loadCode(); renderKey(); if (m === "karel") draw(world);
 }
 $("mode").addEventListener("change", function () { setMode(this.value); });
-slot = wantedSlot(); if (!/^(free|example|a\d+|pg\d+)$/.test(slot)) slot = "free"; if (lsGet("py:period")) $("period").value = lsGet("py:period"); buildSlots(); renderAssignment(); if (typeof loadAssignments === "function") loadAssignments();
+slot = wantedSlot(); if (!/^(free|example|a\d+|pg\d+|pb\d+)$/.test(slot)) slot = "free"; if (lsGet("py:period")) $("period").value = lsGet("py:period"); buildSlots(); renderAssignment(); if (typeof loadAssignments === "function") loadAssignments();
 setMode(lsGet("py:mode") === "karel" ? "karel" : "python"); setMode.ready = true;
 </script>
 </body></html>

@@ -181,7 +181,7 @@
     var tips = {}; (function collect(list) { list.forEach(function (id) { if (TIPS[id]) tips[id] = TIPS[id]; }); })(blocks.reduce(function (all, b) { return b.tips ? all.concat(b.tips) : all; }, []));
     /* custom tips written for just this walkthrough */
     if (w.tips) Object.keys(w.tips).forEach(function (k) { tips[k] = w.tips[k]; });
-    return { title: w.title, unit: UNIT, num: w.num, part: "assignment", apx: true, live: true, blocks: blocks, tips: tips, checks: checks };
+    return { title: w.title, unit: w.unit || UNIT, num: w.num, part: "assignment", apx: true, live: true, blocks: blocks, tips: tips, checks: checks };
   }
 
   /* ------------------------------------------------------------------ live auto-check (the same idea the server uses for the other walkthroughs) ---- */
@@ -196,7 +196,7 @@
   function localScore(rec, code) {
     var text = stripComments(code), notes = String(code || "").replace(/\r/g, "").split("\n").filter(function (l) { return /^\s*#/.test(l); }).join("\n"), boxes = {}, missing = [], passed = 0;
     (rec.checks || []).forEach(function (c) {
-      var n = 0; try { if (c.fn) n = c.fn(text); else { var m = (c.where === "comments" ? notes : text).match(new RegExp(c.re, "gm")); n = m ? m.length : 0; } } catch (e) { n = 0; }
+      var n = 0; try { if (c.fn) n = c.fn(text); else { var m = (c.where === "comments" ? notes : c.where === "any" ? String(code || "") : text).match(new RegExp(c.re, "gm")); n = m ? m.length : 0; } } catch (e) { n = 0; }
       var b = boxes[c.box] || (boxes[c.box] = { m: 0, t: 0, f: 0 }); b.t++; b.f += Math.min(1, n / c.min);
       if (n >= c.min) { b.m++; passed++; } else missing.push({ label: c.label, box: c.box, have: Math.min(n, c.min - 1), need: c.min, pts: 1 });
     });
@@ -207,7 +207,7 @@
   var api = {
     userFnCalls: userFnCalls, UNIT: UNIT, TIPS: TIPS, WALK: WALK, diffMarks: diffMarks, localScore: localScore, stripComments: stripComments, build: build,
     add: function (w) { WALK.push(w); },
-    records: function () { var out = {}; WALK.slice().sort(function (a, b) { return a.num - b.num; }).forEach(function (w) { out["pg" + w.num] = build(w); }); return out; }
+    records: function () { var out = {}; WALK.slice().sort(function (a, b) { return a.num - b.num; }).forEach(function (w) { out[(w.prefix || "pg") + w.num] = build(w); }); return out; }
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api; else root.PYA = api;
 })(typeof window !== "undefined" ? window : globalThis);
