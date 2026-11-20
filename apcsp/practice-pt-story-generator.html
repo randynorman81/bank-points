@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Practice PT 2: Story Generator | Python Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#A3E635; --acc-tint:rgba(163,230,53,.14); --acc-ink:#D9F99D;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#1A2E05;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:18ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .err{color:var(--bad-ink);font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.ok{border-top-color:var(--acc)}
+.box.bad{border-top-color:var(--bad)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F1FAD9}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.bad{background:var(--bad-tint)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+</style>
+<style>
+.fig{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:16px 12px 12px;overflow-x:auto}
+.fig figcaption{margin:12px auto 0;max-width:70ch;text-align:center;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
+ul.chk{margin:6px 0 20px;padding-left:22px}ul.chk li{margin:6px 0}
+.resp{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--acc);border-radius:6px;padding:14px 18px;margin:8px 0 18px}
+.resp .rl{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:6px}
+.resp p{margin:0 0 .6em}
+.cards.one{grid-template-columns:1fr}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="unit-6/index.html">&larr; Unit 6</a>
+  <a href="create-task-rules.html">The Create Task: Rules and Scoring</a>
+  <a href="create-task-video-ppr.html">Video, Reference Sheet, Written Responses</a>
+  <a href="practice-pt-quiz-master.html">Practice PT 1: Quiz Master</a>
+  <a href="practice-pt-story-generator.html" class="current">Practice PT 2: Story Generator</a>
+  <a href="practice-pt-study-tracker.html">Practice PT 3: Study Tracker</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">PYTHON NOTES &nbsp;/&nbsp; SUBJECT: A COMPLETE PRACTICE CREATE TASK</div>
+    <h1>Practice PT 2: Story Generator</h1>
+    <p class="deck">A program that builds a short story from lists of places and actions, in a scary or happy mood. This page shows the <b>finished</b> program, a <b>video plan</b>, the <b>reference sheet</b>, and <b>sample written responses</b>.</p>
+  </div>
+</header>
+<div class="wrap"><div class="assign-root" data-unit="6" data-slot="a37" data-concept="Practice PT 2: Story Generator"></div></div>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>What We Are Building</h2></div>
+    <p class="lede">This project uses its lists in a new way: the <b>remainder operator</b> <code>%</code> lets the story be <b>longer than the lists</b>. That is great material for the <b>managing complexity</b> prompt.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Plan part</th><th>This program</th></tr>
+        <tr><td><b>Purpose</b></td><td>tell a short story about a hero in the mood the player picks</td></tr>
+        <tr><td><b>Input</b></td><td>the hero's name, a mood of scary or happy, and how many scenes to tell</td></tr>
+        <tr><td><b>Output</b></td><td>one line for every scene and a message with the number of scenes told</td></tr>
+        <tr><td><b>Functionality</b></td><td>loops through places and actions, and picks a scary or happy ending for each scene</td></tr>
+      </table>
+    </div></div>
+    <div class="hint-panel"><b>Why this is a strong project:</b> the loop is controlled by a <b>parameter</b> (<code>scenes</code>), the list index uses <code>%</code> so it can <b>never run out</b>, and <code>mood</code> changes the output. Every written prompt has something clear to point at.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>The Finished Program, Every Requirement Labeled</h2></div>
+    <p class="lede">This is the program you build in the walkthrough. Each colored underline is one requirement, and the arrow runs from its caption to the code.</p>
+    <figure class="fig"><svg class="diagram" viewBox="0 0 1180 1076" role="img" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-width:1180px;margin:0 auto"><defs><marker id="ah-C084FC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#C084FC"/></marker><marker id="ah-60A5FA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#60A5FA"/></marker><marker id="ah-FBBF24" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FBBF24"/></marker><marker id="ah-94A3B8" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#94A3B8"/></marker><marker id="ah-34D399" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#34D399"/></marker><marker id="ah-F472B6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F472B6"/></marker><marker id="ah-FB923C" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FB923C"/></marker><marker id="ah-EAEFF6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#EAEFF6"/></marker><marker id="ah-8B9AAE" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8B9AAE"/></marker></defs><style>.ttl{font:700 16px 'JetBrains Mono',monospace}.cap{font:500 14px Manrope,system-ui,sans-serif;fill:#D5DDE8}.note{font:700 15px Manrope,system-ui,sans-serif;fill:#FDBA74}</style><rect x="8" y="12" width="810" height="1064" rx="10" fill="#05070B" stroke="#232B38"/><text x="24" y="44" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#34D399" font-weight="700">places</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">=</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">[</tspan><tspan fill="#EAEFF6">"a dark forest"</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">"a quiet village"</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">"an old castle"</tspan><tspan fill="#EAEFF6">]</tspan></text><line x1="24" y1="52" x2="85.19999999999999" y2="52" stroke="#34D399" stroke-width="3" stroke-linecap="round"/><rect x="860" y="20" width="300" height="48" rx="9" fill="#151A24" stroke="#34D399" stroke-width="2"/><text x="1010" y="38" text-anchor="middle" class="ttl" fill="#34D399" style="font-size:15px">LIST (data stored)</text><text x="1010" y="59" text-anchor="middle" class="cap" style="font-size:13.5px">one list holds all the places</text><line x1="860" y1="52" x2="93.19999999999999" y2="52" stroke="#34D399" stroke-width="2.4" marker-end="url(#ah-34D399)"/><text x="24" y="98" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">actions</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">=</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">[</tspan><tspan fill="#EAEFF6">"found a map"</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">"met a stranger"</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">"heard a loud noise"</tspan><tspan fill="#EAEFF6">]</tspan></text><text x="24" y="152" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"></text><text x="24" y="206" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#C084FC">def</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#60A5FA" font-weight="700">tell_story</tspan><tspan fill="#60A5FA" font-weight="700">(</tspan><tspan fill="#60A5FA" font-weight="700">hero</tspan><tspan fill="#60A5FA" font-weight="700">,</tspan><tspan fill="#60A5FA" font-weight="700"> </tspan><tspan fill="#60A5FA" font-weight="700">mood</tspan><tspan fill="#60A5FA" font-weight="700">,</tspan><tspan fill="#60A5FA" font-weight="700"> </tspan><tspan fill="#60A5FA" font-weight="700">scenes</tspan><tspan fill="#60A5FA" font-weight="700">)</tspan><tspan fill="#EAEFF6">:</tspan></text><line x1="64.8" y1="214" x2="370.79999999999995" y2="214" stroke="#60A5FA" stroke-width="3" stroke-linecap="round"/><rect x="860" y="182" width="300" height="48" rx="9" fill="#151A24" stroke="#60A5FA" stroke-width="2"/><text x="1010" y="200" text-anchor="middle" class="ttl" fill="#60A5FA" style="font-size:15px">STUDENT-DEVELOPED PROCEDURE</text><text x="1010" y="221" text-anchor="middle" class="cap" style="font-size:13.5px">your own name + three parameters</text><line x1="860" y1="214" x2="378.79999999999995" y2="214" stroke="#60A5FA" stroke-width="2.4" marker-end="url(#ah-60A5FA)"/><text x="24" y="260" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">    </tspan><tspan fill="#C084FC" font-weight="700">for</tspan><tspan fill="#C084FC" font-weight="700"> </tspan><tspan fill="#C084FC" font-weight="700">i</tspan><tspan fill="#C084FC" font-weight="700"> </tspan><tspan fill="#C084FC" font-weight="700">in</tspan><tspan fill="#C084FC" font-weight="700"> </tspan><tspan fill="#C084FC" font-weight="700">range</tspan><tspan fill="#C084FC" font-weight="700">(</tspan><tspan fill="#C084FC" font-weight="700">scenes</tspan><tspan fill="#C084FC" font-weight="700">)</tspan><tspan fill="#C084FC" font-weight="700">:</tspan></text><line x1="64.8" y1="268" x2="299.4" y2="268" stroke="#C084FC" stroke-width="3" stroke-linecap="round"/><rect x="860" y="236" width="300" height="48" rx="9" fill="#151A24" stroke="#C084FC" stroke-width="2"/><text x="1010" y="254" text-anchor="middle" class="ttl" fill="#C084FC" style="font-size:15px">ITERATION</text><text x="1010" y="275" text-anchor="middle" class="cap" style="font-size:13.5px">repeats once for every scene</text><line x1="860" y1="268" x2="307.4" y2="268" stroke="#C084FC" stroke-width="2.4" marker-end="url(#ah-C084FC)"/><text x="24" y="314" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">        </tspan><tspan fill="#EAEFF6">place</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">=</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#2DD4BF" font-weight="700">places</tspan><tspan fill="#2DD4BF" font-weight="700">[</tspan><tspan fill="#2DD4BF" font-weight="700">i</tspan><tspan fill="#2DD4BF" font-weight="700"> </tspan><tspan fill="#2DD4BF" font-weight="700">%</tspan><tspan fill="#2DD4BF" font-weight="700"> </tspan><tspan fill="#2DD4BF" font-weight="700">len</tspan><tspan fill="#2DD4BF" font-weight="700">(</tspan><tspan fill="#2DD4BF" font-weight="700">places</tspan><tspan fill="#2DD4BF" font-weight="700">)</tspan><tspan fill="#2DD4BF" font-weight="700">]</tspan></text><line x1="187.2" y1="322" x2="421.79999999999995" y2="322" stroke="#2DD4BF" stroke-width="3" stroke-linecap="round"/><rect x="860" y="290" width="300" height="48" rx="9" fill="#151A24" stroke="#2DD4BF" stroke-width="2"/><text x="1010" y="308" text-anchor="middle" class="ttl" fill="#2DD4BF" style="font-size:15px">LIST BEING USED</text><text x="1010" y="329" text-anchor="middle" class="cap" style="font-size:13.5px">% wraps back to the start of the list</text><line x1="860" y1="322" x2="429.79999999999995" y2="322" stroke="#2DD4BF" stroke-width="2.4" marker-end="url(#ah-2DD4BF)"/><text x="24" y="368" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">        </tspan><tspan fill="#38BDF8" font-weight="700">action</tspan><tspan fill="#38BDF8" font-weight="700"> </tspan><tspan fill="#38BDF8" font-weight="700">=</tspan><tspan fill="#38BDF8" font-weight="700"> </tspan><tspan fill="#38BDF8" font-weight="700">actions</tspan><tspan fill="#EAEFF6">[</tspan><tspan fill="#EAEFF6">i</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">%</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">len</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">actions</tspan><tspan fill="#EAEFF6">)</tspan><tspan fill="#EAEFF6">]</tspan></text><line x1="105.6" y1="376" x2="268.79999999999995" y2="376" stroke="#38BDF8" stroke-width="3" stroke-linecap="round"/><rect x="860" y="344" width="300" height="48" rx="9" fill="#151A24" stroke="#38BDF8" stroke-width="2"/><text x="1010" y="362" text-anchor="middle" class="ttl" fill="#38BDF8" style="font-size:15px">SEQUENCING</text><text x="1010" y="383" text-anchor="middle" class="cap" style="font-size:13.5px">place, then action, then the if</text><line x1="860" y1="376" x2="276.79999999999995" y2="376" stroke="#38BDF8" stroke-width="2.4" marker-end="url(#ah-38BDF8)"/><text x="24" y="422" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">        </tspan><tspan fill="#C084FC">if</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#FB923C" font-weight="700">mood</tspan><tspan fill="#FB923C" font-weight="700"> </tspan><tspan fill="#FB923C" font-weight="700">=</tspan><tspan fill="#FB923C" font-weight="700">=</tspan><tspan fill="#FB923C" font-weight="700"> </tspan><tspan fill="#FB923C" font-weight="700">"scary"</tspan><tspan fill="#EAEFF6">:</tspan></text><line x1="136.2" y1="430" x2="289.2" y2="430" stroke="#FB923C" stroke-width="3" stroke-linecap="round"/><rect x="860" y="398" width="300" height="48" rx="9" fill="#151A24" stroke="#FB923C" stroke-width="2"/><text x="1010" y="416" text-anchor="middle" class="ttl" fill="#FB923C" style="font-size:15px">SELECTION</text><text x="1010" y="437" text-anchor="middle" class="cap" style="font-size:13.5px">decides: scary or happy ending</text><line x1="860" y1="430" x2="297.2" y2="430" stroke="#FB923C" stroke-width="2.4" marker-end="url(#ah-FB923C)"/><text x="24" y="476" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">            </tspan><tspan fill="#FBBF24" font-weight="700">print</tspan><tspan fill="#FBBF24" font-weight="700">(</tspan><tspan fill="#FBBF24" font-weight="700">hero</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">"was in"</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">place</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">"and"</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">action</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">"and felt afraid."</tspan><tspan fill="#EAEFF6">)</tspan></text><line x1="146.39999999999998" y1="484" x2="248.39999999999998" y2="484" stroke="#FBBF24" stroke-width="3" stroke-linecap="round"/><rect x="860" y="452" width="300" height="48" rx="9" fill="#151A24" stroke="#FBBF24" stroke-width="2"/><text x="1010" y="470" text-anchor="middle" class="ttl" fill="#FBBF24" style="font-size:15px">OUTPUT</text><text x="1010" y="491" text-anchor="middle" class="cap" style="font-size:13.5px">text shown to the user</text><line x1="860" y1="484" x2="256.4" y2="484" stroke="#FBBF24" stroke-width="2.4" marker-end="url(#ah-FBBF24)"/><text x="24" y="530" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">        </tspan><tspan fill="#C084FC">else</tspan><tspan fill="#EAEFF6">:</tspan></text><text x="24" y="584" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">            </tspan><tspan fill="#EAEFF6">print</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">hero</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">"was in"</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">place</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">"and"</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">action</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">"and felt happy."</tspan><tspan fill="#EAEFF6">)</tspan></text><text x="24" y="638" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">    </tspan><tspan fill="#EAEFF6">print</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">"The end of the story."</tspan><tspan fill="#EAEFF6">)</tspan></text><text x="24" y="692" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">    </tspan><tspan fill="#A3E635" font-weight="700">return</tspan><tspan fill="#A3E635" font-weight="700"> </tspan><tspan fill="#A3E635" font-weight="700">scenes</tspan></text><line x1="64.8" y1="700" x2="197.39999999999998" y2="700" stroke="#A3E635" stroke-width="3" stroke-linecap="round"/><rect x="860" y="668" width="300" height="48" rx="9" fill="#151A24" stroke="#A3E635" stroke-width="2"/><text x="1010" y="686" text-anchor="middle" class="ttl" fill="#A3E635" style="font-size:15px">RETURN</text><text x="1010" y="707" text-anchor="middle" class="cap" style="font-size:13.5px">gives the scene count to the caller</text><line x1="860" y1="700" x2="205.39999999999998" y2="700" stroke="#A3E635" stroke-width="2.4" marker-end="url(#ah-A3E635)"/><text x="24" y="746" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"></text><text x="24" y="800" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">hero</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">=</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#F472B6" font-weight="700">input</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">"Hero name? "</tspan><tspan fill="#EAEFF6">)</tspan></text><line x1="95.39999999999999" y1="808" x2="146.39999999999998" y2="808" stroke="#F472B6" stroke-width="3" stroke-linecap="round"/><rect x="860" y="776" width="300" height="48" rx="9" fill="#151A24" stroke="#F472B6" stroke-width="2"/><text x="1010" y="794" text-anchor="middle" class="ttl" fill="#F472B6" style="font-size:15px">INPUT</text><text x="1010" y="815" text-anchor="middle" class="cap" style="font-size:13.5px">the user types the hero's name</text><line x1="860" y1="808" x2="154.39999999999998" y2="808" stroke="#F472B6" stroke-width="2.4" marker-end="url(#ah-F472B6)"/><text x="24" y="854" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">mood</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">=</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">input</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">"scary or happy? "</tspan><tspan fill="#EAEFF6">)</tspan><tspan fill="#EAEFF6">.</tspan><tspan fill="#EAEFF6">lower</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">)</tspan></text><text x="24" y="908" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">count</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">=</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">int</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">input</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">"How many scenes? "</tspan><tspan fill="#EAEFF6">)</tspan><tspan fill="#EAEFF6">)</tspan></text><text x="24" y="962" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">total</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">=</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#E879F9" font-weight="700">tell_story</tspan><tspan fill="#E879F9" font-weight="700">(</tspan><tspan fill="#E879F9" font-weight="700">hero</tspan><tspan fill="#E879F9" font-weight="700">,</tspan><tspan fill="#E879F9" font-weight="700"> </tspan><tspan fill="#E879F9" font-weight="700">mood</tspan><tspan fill="#E879F9" font-weight="700">,</tspan><tspan fill="#E879F9" font-weight="700"> </tspan><tspan fill="#E879F9" font-weight="700">count</tspan><tspan fill="#E879F9" font-weight="700">)</tspan></text><line x1="105.6" y1="970" x2="401.4" y2="970" stroke="#E879F9" stroke-width="3" stroke-linecap="round"/><rect x="860" y="938" width="300" height="48" rx="9" fill="#151A24" stroke="#E879F9" stroke-width="2"/><text x="1010" y="956" text-anchor="middle" class="ttl" fill="#E879F9" style="font-size:15px">CALL</text><text x="1010" y="977" text-anchor="middle" class="cap" style="font-size:13.5px">3 arguments for 3 parameters</text><line x1="860" y1="970" x2="409.4" y2="970" stroke="#E879F9" stroke-width="2.4" marker-end="url(#ah-E879F9)"/><text x="24" y="1016" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">print</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">"The story had"</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">total</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">"scenes."</tspan><tspan fill="#EAEFF6">)</tspan></text></svg><figcaption>The Story Generator program with every requirement labeled. Each colored underline marks one requirement, and the arrow runs from its caption to the code.</figcaption></figure>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Requirement</th><th>Where it is</th></tr>
+        <tr><td><b>Input</b></td><td>three <code>input(...)</code> lines for the hero, the mood, and the number of scenes</td></tr>
+        <tr><td><b>List</b></td><td><code>places` and `actions</code></td></tr>
+        <tr><td><b>Student-developed procedure</b></td><td><code>tell_story(hero, mood, scenes)`, three parameters</code></td></tr>
+        <tr><td><b>Sequencing, selection, iteration</b></td><td>the assignments, the <code>if</code>, and the <code>for</code>, all inside <code>tell_story</code></td></tr>
+        <tr><td><b>Use of the list</b></td><td><code>places[i % len(places)]` and `actions[i % len(actions)]</code></td></tr>
+        <tr><td><b>Call</b></td><td><code>tell_story(hero, mood, count)`, three arguments</code></td></tr>
+        <tr><td><b>Output</b></td><td>the <code>print</code> lines</td></tr>
+      </table>
+    </div></div>
+    <div class="warn"><b>Watch out:</b> the list is <b>used</b> (read inside the loop), not just created. A list that is filled but never read does not earn the point.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>The Video Storyboard</h2></div>
+    <p class="lede">Sixty seconds is short. Plan what the viewer will see, then record it <b>once, slowly</b>.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Time</th><th>Shows</th><th>What the viewer sees</th><th>Caption to add</th></tr>
+        <tr><td>0:00 to 0:12</td><td>INPUT</td><td>type a made-up hero name, the mood scary, and 4</td><td>Typing the hero, the mood, and the number of scenes</td></tr>
+        <tr><td>0:12 to 0:40</td><td>FUNCTIONALITY</td><td>four scenes print, and the places and actions start over on scene 4</td><td>The lists start over</td></tr>
+        <tr><td>0:40 to 0:55</td><td>OUTPUT</td><td>The end of the story. and The story had 4 scenes.</td><td>The story total</td></tr>
+        <tr><td>0:55 to 1:00</td><td>END</td><td>the result stays on screen</td><td>(none needed)</td></tr>
+      </table>
+    </div></div>
+    <ul class="chk"><li><b>No voice.</b> Use the captions instead.</li><li><b>Made-up name</b> only: Ana or Ben, not your real name.</li><li>Under <b>60 seconds</b> and <b>30 MB</b>.</li><li>Play it back. Can you read the input, see the program work, and see the output?</li></ul>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>The Personalized Project Reference</h2></div>
+    <p class="lede">Four segments from your program, with <b>every comment removed</b>. This is exactly what each one looks like.</p>
+    <h3 style="margin:18px 0 6px;">Procedure (i): the procedure</h3>
+    <div class="code">def tell_story(hero, mood, scenes):
+    for i in range(scenes):
+        place = places[i % len(places)]
+        action = actions[i % len(actions)]
+        if mood == "scary":
+            print(hero, "was in", place, "and", action, "and felt afraid.")
+        else:
+            print(hero, "was in", place, "and", action, "and felt happy.")
+    print("The end of the story.")
+    return scenes</div>
+    <h3 style="margin:18px 0 6px;">Procedure (ii): the call</h3>
+    <div class="code">total = tell_story(hero, mood, count)</div>
+    <h3 style="margin:18px 0 6px;">List (i): where the data is stored</h3>
+    <div class="code">places = ["a dark forest", "a quiet village", "an old castle"]
+actions = ["found a map", "met a stranger", "heard a loud noise"]</div>
+    <h3 style="margin:18px 0 6px;">List (ii): where the list is used</h3>
+    <div class="code">        place = places[i % len(places)]
+        action = actions[i % len(actions)]</div>
+    <div class="warn"><b>No comments and no course content.</b> Check every segment for a <code>#</code> before you take the screenshots.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Sample Written Responses</h2></div>
+    <p class="lede">Both the <b>2026</b> and the <b>2025</b> wording of each prompt, answered about <b>this</b> program. Yours will be about <b>your</b> program, so use these as a model for the <b>shape</b> of a good answer, never to copy.</p>
+    <div class="resp"><div class="rl">Written Response 1 (2026): documentation</div><p>I would put a comment above <code>tell_story</code> saying it prints one scene for every number up to <code>scenes</code>, picks a place and an action from two lists, and ends each scene by the mood. Another programmer could read it to understand the loop without tracing the code.</p><p><b>Why it earns the point:</b> It describes a <b>real comment for a real segment</b> and says how <b>another programmer</b> would use it.</p></div>
+    <div class="resp"><div class="rl">Written Response 1 (2025): output</div><p>One output is the line <code>Ana was in a dark forest and found a map and felt afraid.</code> It shows the functionality because it uses the hero, a place and an action from the lists, and the mood the player chose.</p><p><b>Why it earns the point:</b> It names <b>one real output</b> and ties it to <b>what the program does</b>.</p></div>
+    <div class="resp"><div class="rl">Written Response 2(a) (2026): the loop</div><p>The loop stops when the variable <code>i</code> reaches the value of <code>scenes</code>, for example 4, because <code>range(scenes)</code> only produces 0, 1, 2, and 3.</p><p><b>Why it earns the point:</b> It names the <b>variable and a specific value</b>, and says <b>why</b> it stops.</p></div>
+    <div class="resp"><div class="rl">Written Response 2(a) (2025): the Boolean expression</div><p>The Boolean expression is <code>mood == "scary"</code>. It is true when <code>mood</code> holds the text scary, so the scene ends with felt afraid.</p><p><b>Why it earns the point:</b> It names the <b>expression</b>, a <b>specific value</b> that makes it true, and <b>why</b>.</p></div>
+    <div class="resp"><div class="rl">Written Response 2(b) (2026): a call that behaves incorrectly</div><p>If I call <code>tell_story("Ana", "Scary", 2)</code>, the procedure tells a happy story instead of a scary one, because "Scary" with a capital S is not equal to "scary" in the <code>if</code> statement.</p><p><b>Why it earns the point:</b> It gives <b>real arguments</b>, the <b>wrong behavior</b>, and <b>why</b>. The program still runs, so it is a logic error.</p></div>
+    <div class="resp"><div class="rl">Written Response 2(b) (2025): a change that causes an error</div><p>A programmer could change <code>==</code> to <code>!=</code> in the <code>if</code> statement. Then a scary mood would print the happy ending and a happy mood would print the scary one.</p><p><b>Why it earns the point:</b> It names a <b>specific change</b> and <b>what the procedure does after it</b>.</p></div>
+    <div class="resp"><div class="rl">Written Response 2(c) (2026): managing complexity</div><p>The <code>places</code> list manages complexity because one loop can use any number of places by wrapping around with <code>%</code>. Without the list I would need a separate variable and a separate <code>if</code> statement for every place.</p><p><b>Why it earns the point:</b> It says what the list <b>lets the program do</b> and <b>what the code would need without it</b>.</p></div>
+    <div class="resp"><div class="rl">Written Response 2(c) (2025): adding new items</div><p>If new places were added to the end of the <code>places</code> list, the code would not need to change, because <code>i % len(places)</code> uses the length of the list.</p><p><b>Why it earns the point:</b> It points to the <b>exact code</b> that makes <b>no change needed</b>.</p></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>A loop controlled by a parameter plus a list that wraps around is a strong combination.</h2>
+    <p>Next: the Study Tracker, where the list is built from the user's input.</p>
+    <div class="assign-root" data-unit="6" data-slot="a37" data-concept="Practice PT 2: Story Generator" style="margin-bottom:10px"></div>
+    <a class="back" href="practice-pt-study-tracker.html">Practice PT 3: Study Tracker &rarr;</a>
+    <a class="back" href="practice-pt-quiz-master.html">&larr; Practice PT 1: Quiz Master</a>
+    <a class="back" href="unit-6/index.html">&larr; Unit 6</a>
+    <p class="sig">Python Notes &nbsp;/&nbsp; Practice PT 2: Story Generator &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+<script src="lesson-assignment.js?v=2"></script>
+</body>
+</html>

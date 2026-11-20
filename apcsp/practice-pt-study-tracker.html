@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Practice PT 3: Study Tracker | Python Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#A3E635; --acc-tint:rgba(163,230,53,.14); --acc-ink:#D9F99D;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#1A2E05;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:18ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .err{color:var(--bad-ink);font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.ok{border-top-color:var(--acc)}
+.box.bad{border-top-color:var(--bad)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F1FAD9}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.bad{background:var(--bad-tint)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+</style>
+<style>
+.fig{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:16px 12px 12px;overflow-x:auto}
+.fig figcaption{margin:12px auto 0;max-width:70ch;text-align:center;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
+ul.chk{margin:6px 0 20px;padding-left:22px}ul.chk li{margin:6px 0}
+.resp{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--acc);border-radius:6px;padding:14px 18px;margin:8px 0 18px}
+.resp .rl{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:6px}
+.resp p{margin:0 0 .6em}
+.cards.one{grid-template-columns:1fr}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="unit-6/index.html">&larr; Unit 6</a>
+  <a href="create-task-rules.html">The Create Task: Rules and Scoring</a>
+  <a href="create-task-video-ppr.html">Video, Reference Sheet, Written Responses</a>
+  <a href="practice-pt-quiz-master.html">Practice PT 1: Quiz Master</a>
+  <a href="practice-pt-story-generator.html">Practice PT 2: Story Generator</a>
+  <a href="practice-pt-study-tracker.html" class="current">Practice PT 3: Study Tracker</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">PYTHON NOTES &nbsp;/&nbsp; SUBJECT: A COMPLETE PRACTICE CREATE TASK</div>
+    <h1>Practice PT 3: Study Tracker</h1>
+    <p class="deck">A program that collects five days of study time into a list, then reports the total, the best day, the average, and whether the goal was met. This page shows the <b>finished</b> program, a <b>video plan</b>, the <b>reference sheet</b>, and <b>sample written responses</b>.</p>
+  </div>
+</header>
+<div class="wrap"><div class="assign-root" data-unit="6" data-slot="a38" data-concept="Practice PT 3: Study Tracker"></div></div>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>What We Are Building</h2></div>
+    <p class="lede">This project builds its list <b>from the user's input</b> and then <b>passes the list into the procedure</b>. That is one of the most common and strongest patterns for a Create Task.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Plan part</th><th>This program</th></tr>
+        <tr><td><b>Purpose</b></td><td>track a week of study time and tell the student if they met their goal</td></tr>
+        <tr><td><b>Input</b></td><td>the minutes studied on each of five days</td></tr>
+        <tr><td><b>Output</b></td><td>the total, the best day, the average, and a goal met or not met message</td></tr>
+        <tr><td><b>Functionality</b></td><td>stores the minutes in a list, loops to find the total and best day, and checks the goal</td></tr>
+      </table>
+    </div></div>
+    <div class="hint-panel"><b>Why this is a strong project:</b> the list is filled by input, <b>passed as a parameter</b>, and read by a loop. The <code>goal</code> parameter changes the message. Two different <code>if</code> statements each change the result.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>The Finished Program, Every Requirement Labeled</h2></div>
+    <p class="lede">This is the program you build in the walkthrough. Each colored underline is one requirement, and the arrow runs from its caption to the code.</p>
+    <figure class="fig"><svg class="diagram" viewBox="0 0 1180 1292" role="img" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-width:1180px;margin:0 auto"><defs><marker id="ah-C084FC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#C084FC"/></marker><marker id="ah-60A5FA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#60A5FA"/></marker><marker id="ah-FBBF24" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FBBF24"/></marker><marker id="ah-94A3B8" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#94A3B8"/></marker><marker id="ah-34D399" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#34D399"/></marker><marker id="ah-F472B6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F472B6"/></marker><marker id="ah-FB923C" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FB923C"/></marker><marker id="ah-EAEFF6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#EAEFF6"/></marker><marker id="ah-8B9AAE" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8B9AAE"/></marker></defs><style>.ttl{font:700 16px 'JetBrains Mono',monospace}.cap{font:500 14px Manrope,system-ui,sans-serif;fill:#D5DDE8}.note{font:700 15px Manrope,system-ui,sans-serif;fill:#FDBA74}</style><rect x="8" y="12" width="810" height="1280" rx="10" fill="#05070B" stroke="#232B38"/><text x="24" y="44" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#34D399" font-weight="700">minutes</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">=</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">[</tspan><tspan fill="#EAEFF6">]</tspan></text><line x1="24" y1="52" x2="95.39999999999999" y2="52" stroke="#34D399" stroke-width="3" stroke-linecap="round"/><rect x="860" y="20" width="300" height="48" rx="9" fill="#151A24" stroke="#34D399" stroke-width="2"/><text x="1010" y="38" text-anchor="middle" class="ttl" fill="#34D399" style="font-size:15px">LIST (data stored)</text><text x="1010" y="59" text-anchor="middle" class="cap" style="font-size:13.5px">starts empty, filled by the loop</text><line x1="860" y1="52" x2="103.39999999999999" y2="52" stroke="#34D399" stroke-width="2.4" marker-end="url(#ah-34D399)"/><text x="24" y="98" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#C084FC">for</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">day</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#C084FC">in</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">range</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">1</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">6</tspan><tspan fill="#EAEFF6">)</tspan><tspan fill="#EAEFF6">:</tspan></text><text x="24" y="152" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">    </tspan><tspan fill="#EAEFF6">minutes</tspan><tspan fill="#EAEFF6">.</tspan><tspan fill="#EAEFF6">append</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">int</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#F472B6" font-weight="700">input</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">"Minutes studied on day "</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">+</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">str</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">day</tspan><tspan fill="#EAEFF6">)</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">+</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">"? "</tspan><tspan fill="#EAEFF6">)</tspan><tspan fill="#EAEFF6">)</tspan><tspan fill="#EAEFF6">)</tspan></text><line x1="258.6" y1="160" x2="309.59999999999997" y2="160" stroke="#F472B6" stroke-width="3" stroke-linecap="round"/><rect x="860" y="128" width="300" height="48" rx="9" fill="#151A24" stroke="#F472B6" stroke-width="2"/><text x="1010" y="146" text-anchor="middle" class="ttl" fill="#F472B6" style="font-size:15px">INPUT</text><text x="1010" y="167" text-anchor="middle" class="cap" style="font-size:13.5px">the user types minutes for each day</text><line x1="860" y1="160" x2="317.59999999999997" y2="160" stroke="#F472B6" stroke-width="2.4" marker-end="url(#ah-F472B6)"/><text x="24" y="206" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"></text><text x="24" y="260" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#C084FC">def</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#60A5FA" font-weight="700">weekly_report</tspan><tspan fill="#60A5FA" font-weight="700">(</tspan><tspan fill="#60A5FA" font-weight="700">daily</tspan><tspan fill="#60A5FA" font-weight="700">,</tspan><tspan fill="#60A5FA" font-weight="700"> </tspan><tspan fill="#60A5FA" font-weight="700">goal</tspan><tspan fill="#60A5FA" font-weight="700">)</tspan><tspan fill="#EAEFF6">:</tspan></text><line x1="64.8" y1="268" x2="330" y2="268" stroke="#60A5FA" stroke-width="3" stroke-linecap="round"/><rect x="860" y="236" width="300" height="48" rx="9" fill="#151A24" stroke="#60A5FA" stroke-width="2"/><text x="1010" y="254" text-anchor="middle" class="ttl" fill="#60A5FA" style="font-size:15px">STUDENT-DEVELOPED PROCEDURE</text><text x="1010" y="275" text-anchor="middle" class="cap" style="font-size:13.5px">your own name + two parameters</text><line x1="860" y1="268" x2="338" y2="268" stroke="#60A5FA" stroke-width="2.4" marker-end="url(#ah-60A5FA)"/><text x="24" y="314" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">    </tspan><tspan fill="#38BDF8" font-weight="700">total</tspan><tspan fill="#38BDF8" font-weight="700"> </tspan><tspan fill="#38BDF8" font-weight="700">=</tspan><tspan fill="#38BDF8" font-weight="700"> </tspan><tspan fill="#38BDF8" font-weight="700">0</tspan></text><line x1="64.8" y1="322" x2="156.6" y2="322" stroke="#38BDF8" stroke-width="3" stroke-linecap="round"/><rect x="860" y="290" width="300" height="48" rx="9" fill="#151A24" stroke="#38BDF8" stroke-width="2"/><text x="1010" y="308" text-anchor="middle" class="ttl" fill="#38BDF8" style="font-size:15px">SEQUENCING</text><text x="1010" y="329" text-anchor="middle" class="cap" style="font-size:13.5px">steps run in the order written</text><line x1="860" y1="322" x2="164.6" y2="322" stroke="#38BDF8" stroke-width="2.4" marker-end="url(#ah-38BDF8)"/><text x="24" y="368" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">    </tspan><tspan fill="#EAEFF6">best</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">=</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">daily</tspan><tspan fill="#EAEFF6">[</tspan><tspan fill="#EAEFF6">0</tspan><tspan fill="#EAEFF6">]</tspan></text><text x="24" y="422" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">    </tspan><tspan fill="#C084FC" font-weight="700">for</tspan><tspan fill="#C084FC" font-weight="700"> </tspan><tspan fill="#C084FC" font-weight="700">m</tspan><tspan fill="#C084FC" font-weight="700"> </tspan><tspan fill="#C084FC" font-weight="700">in</tspan><tspan fill="#C084FC" font-weight="700"> </tspan><tspan fill="#C084FC" font-weight="700">daily</tspan><tspan fill="#C084FC" font-weight="700">:</tspan></text><line x1="64.8" y1="430" x2="217.79999999999998" y2="430" stroke="#C084FC" stroke-width="3" stroke-linecap="round"/><rect x="860" y="398" width="300" height="48" rx="9" fill="#151A24" stroke="#C084FC" stroke-width="2"/><text x="1010" y="416" text-anchor="middle" class="ttl" fill="#C084FC" style="font-size:15px">ITERATION + LIST BEING USED</text><text x="1010" y="437" text-anchor="middle" class="cap" style="font-size:13.5px">goes through every item of the list</text><line x1="860" y1="430" x2="225.79999999999998" y2="430" stroke="#C084FC" stroke-width="2.4" marker-end="url(#ah-C084FC)"/><text x="24" y="476" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">        </tspan><tspan fill="#EAEFF6">total</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">=</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">total</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">+</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">m</tspan></text><text x="24" y="530" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">        </tspan><tspan fill="#C084FC">if</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#FB923C" font-weight="700">m</tspan><tspan fill="#FB923C" font-weight="700"> </tspan><tspan fill="#FB923C" font-weight="700">></tspan><tspan fill="#FB923C" font-weight="700"> </tspan><tspan fill="#FB923C" font-weight="700">best</tspan><tspan fill="#EAEFF6">:</tspan></text><line x1="136.2" y1="538" x2="217.79999999999998" y2="538" stroke="#FB923C" stroke-width="3" stroke-linecap="round"/><rect x="860" y="506" width="300" height="48" rx="9" fill="#151A24" stroke="#FB923C" stroke-width="2"/><text x="1010" y="524" text-anchor="middle" class="ttl" fill="#FB923C" style="font-size:15px">SELECTION</text><text x="1010" y="545" text-anchor="middle" class="cap" style="font-size:13.5px">keeps the biggest day</text><line x1="860" y1="538" x2="225.79999999999998" y2="538" stroke="#FB923C" stroke-width="2.4" marker-end="url(#ah-FB923C)"/><text x="24" y="584" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">            </tspan><tspan fill="#EAEFF6">best</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">=</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">m</tspan></text><text x="24" y="638" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">    </tspan><tspan fill="#EAEFF6">average</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">=</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">total</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">/</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">len</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">daily</tspan><tspan fill="#EAEFF6">)</tspan></text><text x="24" y="692" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">    </tspan><tspan fill="#FBBF24" font-weight="700">print</tspan><tspan fill="#FBBF24" font-weight="700">(</tspan><tspan fill="#FBBF24" font-weight="700">"Total minutes:"</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">total</tspan><tspan fill="#EAEFF6">)</tspan></text><line x1="64.8" y1="700" x2="187.2" y2="700" stroke="#FBBF24" stroke-width="3" stroke-linecap="round"/><rect x="860" y="668" width="300" height="48" rx="9" fill="#151A24" stroke="#FBBF24" stroke-width="2"/><text x="1010" y="686" text-anchor="middle" class="ttl" fill="#FBBF24" style="font-size:15px">OUTPUT</text><text x="1010" y="707" text-anchor="middle" class="cap" style="font-size:13.5px">text shown to the user</text><line x1="860" y1="700" x2="195.2" y2="700" stroke="#FBBF24" stroke-width="2.4" marker-end="url(#ah-FBBF24)"/><text x="24" y="746" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">    </tspan><tspan fill="#EAEFF6">print</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">"Best day:"</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">best</tspan><tspan fill="#EAEFF6">)</tspan></text><text x="24" y="800" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">    </tspan><tspan fill="#EAEFF6">print</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">"Average:"</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">average</tspan><tspan fill="#EAEFF6">)</tspan></text><text x="24" y="854" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">    </tspan><tspan fill="#C084FC">if</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#F87171" font-weight="700">total</tspan><tspan fill="#F87171" font-weight="700"> </tspan><tspan fill="#F87171" font-weight="700">></tspan><tspan fill="#F87171" font-weight="700">=</tspan><tspan fill="#F87171" font-weight="700"> </tspan><tspan fill="#F87171" font-weight="700">goal</tspan><tspan fill="#EAEFF6">:</tspan></text><line x1="95.39999999999999" y1="862" x2="228" y2="862" stroke="#F87171" stroke-width="3" stroke-linecap="round"/><rect x="860" y="830" width="300" height="48" rx="9" fill="#151A24" stroke="#F87171" stroke-width="2"/><text x="1010" y="848" text-anchor="middle" class="ttl" fill="#F87171" style="font-size:15px">PARAMETER AFFECTS RESULT</text><text x="1010" y="869" text-anchor="middle" class="cap" style="font-size:13.5px">goal changes the message</text><line x1="860" y1="862" x2="236" y2="862" stroke="#F87171" stroke-width="2.4" marker-end="url(#ah-F87171)"/><text x="24" y="908" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">        </tspan><tspan fill="#EAEFF6">print</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">"Goal met!"</tspan><tspan fill="#EAEFF6">)</tspan></text><text x="24" y="962" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">    </tspan><tspan fill="#C084FC">else</tspan><tspan fill="#EAEFF6">:</tspan></text><text x="24" y="1016" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">        </tspan><tspan fill="#EAEFF6">print</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">"Goal not met. Short by"</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">goal</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">-</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">total</tspan><tspan fill="#EAEFF6">)</tspan></text><text x="24" y="1070" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">    </tspan><tspan fill="#A3E635" font-weight="700">return</tspan><tspan fill="#A3E635" font-weight="700"> </tspan><tspan fill="#A3E635" font-weight="700">total</tspan></text><line x1="64.8" y1="1078" x2="187.2" y2="1078" stroke="#A3E635" stroke-width="3" stroke-linecap="round"/><rect x="860" y="1046" width="300" height="48" rx="9" fill="#151A24" stroke="#A3E635" stroke-width="2"/><text x="1010" y="1064" text-anchor="middle" class="ttl" fill="#A3E635" style="font-size:15px">RETURN</text><text x="1010" y="1085" text-anchor="middle" class="cap" style="font-size:13.5px">gives the total to the caller</text><line x1="860" y1="1078" x2="195.2" y2="1078" stroke="#A3E635" stroke-width="2.4" marker-end="url(#ah-A3E635)"/><text x="24" y="1124" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"></text><text x="24" y="1178" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">result</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">=</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#E879F9" font-weight="700">weekly_report</tspan><tspan fill="#E879F9" font-weight="700">(</tspan><tspan fill="#E879F9" font-weight="700">minutes</tspan><tspan fill="#E879F9" font-weight="700">,</tspan><tspan fill="#E879F9" font-weight="700"> </tspan><tspan fill="#E879F9" font-weight="700">1</tspan><tspan fill="#E879F9" font-weight="700">5</tspan><tspan fill="#E879F9" font-weight="700">0</tspan><tspan fill="#E879F9" font-weight="700">)</tspan></text><line x1="115.8" y1="1186" x2="391.2" y2="1186" stroke="#E879F9" stroke-width="3" stroke-linecap="round"/><rect x="860" y="1154" width="300" height="48" rx="9" fill="#151A24" stroke="#E879F9" stroke-width="2"/><text x="1010" y="1172" text-anchor="middle" class="ttl" fill="#E879F9" style="font-size:15px">CALL</text><text x="1010" y="1193" text-anchor="middle" class="cap" style="font-size:13.5px">2 arguments for 2 parameters</text><line x1="860" y1="1186" x2="399.2" y2="1186" stroke="#E879F9" stroke-width="2.4" marker-end="url(#ah-E879F9)"/><text x="24" y="1232" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">print</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">"You studied"</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">result</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">"minutes."</tspan><tspan fill="#EAEFF6">)</tspan></text></svg><figcaption>The Study Tracker program with every requirement labeled. Each colored underline marks one requirement, and the arrow runs from its caption to the code.</figcaption></figure>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Requirement</th><th>Where it is</th></tr>
+        <tr><td><b>Input</b></td><td><code>input(...)` inside the loop that fills the list</code></td></tr>
+        <tr><td><b>List</b></td><td><code>minutes`, created empty and filled with `append</code></td></tr>
+        <tr><td><b>Student-developed procedure</b></td><td><code>weekly_report(daily, goal)`, two parameters</code></td></tr>
+        <tr><td><b>Sequencing, selection, iteration</b></td><td><code>total = 0`, the two `if` statements, and the `for`, all inside `weekly_report</code></td></tr>
+        <tr><td><b>Use of the list</b></td><td><code>for m in daily:` reads every item</code></td></tr>
+        <tr><td><b>Call</b></td><td><code>weekly_report(minutes, 150)`, two arguments</code></td></tr>
+        <tr><td><b>Output</b></td><td>the <code>print</code> lines</td></tr>
+      </table>
+    </div></div>
+    <div class="warn"><b>Watch out:</b> <code>best = daily[0]</code> crashes on an <b>empty</b> list. This program always fills five days first, so it is safe, but keep it in mind when you design your own.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>The Video Storyboard</h2></div>
+    <p class="lede">Sixty seconds is short. Plan what the viewer will see, then record it <b>once, slowly</b>.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Time</th><th>Shows</th><th>What the viewer sees</th><th>Caption to add</th></tr>
+        <tr><td>0:00 to 0:25</td><td>INPUT</td><td>type five numbers, such as 30, 45, 20, 60, 25</td><td>Typing the minutes for each day</td></tr>
+        <tr><td>0:25 to 0:40</td><td>FUNCTIONALITY</td><td>the program adds them and finds the best day</td><td>(let the program run)</td></tr>
+        <tr><td>0:40 to 0:55</td><td>OUTPUT</td><td>the total, best day, average, and goal message</td><td>The report</td></tr>
+        <tr><td>0:55 to 1:00</td><td>END</td><td>the result stays on screen</td><td>(none needed)</td></tr>
+      </table>
+    </div></div>
+    <ul class="chk"><li><b>No voice.</b> Use the captions instead.</li><li><b>Made-up name</b> only: this program asks for no name, so nothing personal is typed.</li><li>Under <b>60 seconds</b> and <b>30 MB</b>.</li><li>Play it back. Can you read the input, see the program work, and see the output?</li></ul>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>The Personalized Project Reference</h2></div>
+    <p class="lede">Four segments from your program, with <b>every comment removed</b>. This is exactly what each one looks like.</p>
+    <h3 style="margin:18px 0 6px;">Procedure (i): the procedure</h3>
+    <div class="code">def weekly_report(daily, goal):
+    total = 0
+    best = daily[0]
+    for m in daily:
+        total = total + m
+        if m &gt; best:
+            best = m
+    average = total / len(daily)
+    print("Total minutes:", total)
+    print("Best day:", best)
+    print("Average:", average)
+    if total &gt;= goal:
+        print("Goal met!")
+    else:
+        print("Goal not met. Short by", goal - total)
+    return total</div>
+    <h3 style="margin:18px 0 6px;">Procedure (ii): the call</h3>
+    <div class="code">result = weekly_report(minutes, 150)</div>
+    <h3 style="margin:18px 0 6px;">List (i): where the data is stored</h3>
+    <div class="code">minutes = []
+for day in range(1, 6):
+    minutes.append(int(input("Minutes studied on day " + str(day) + "? ")))</div>
+    <h3 style="margin:18px 0 6px;">List (ii): where the list is used</h3>
+    <div class="code">    for m in daily:
+        total = total + m
+        if m &gt; best:
+            best = m</div>
+    <div class="warn"><b>No comments and no course content.</b> Check every segment for a <code>#</code> before you take the screenshots.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Sample Written Responses</h2></div>
+    <p class="lede">Both the <b>2026</b> and the <b>2025</b> wording of each prompt, answered about <b>this</b> program. Yours will be about <b>your</b> program, so use these as a model for the <b>shape</b> of a good answer, never to copy.</p>
+    <div class="resp"><div class="rl">Written Response 1 (2026): documentation</div><p>I would put a comment above <code>weekly_report</code> saying it goes through the list of daily minutes to find the total and the best day, then compares the total to the goal. Another programmer could read it to understand what the loop and the <code>if</code> statements are for.</p><p><b>Why it earns the point:</b> It describes a <b>real comment for a real segment</b> and says how <b>another programmer</b> would use it.</p></div>
+    <div class="resp"><div class="rl">Written Response 1 (2025): output</div><p>One output is the line <code>Best day: 60</code>. It shows the functionality because it reports the largest number in the list the user typed.</p><p><b>Why it earns the point:</b> It names <b>one real output</b> and ties it to <b>what the program does</b>.</p></div>
+    <div class="resp"><div class="rl">Written Response 2(a) (2026): the loop</div><p>The loop stops after the variable <code>m</code> has taken every value in the <code>daily</code> list, so after the fifth item, because a <code>for</code> loop over a list ends when it runs out of items.</p><p><b>Why it earns the point:</b> It names the <b>variable and the point where it stops</b>, and says <b>why</b>.</p></div>
+    <div class="resp"><div class="rl">Written Response 2(a) (2025): the Boolean expression</div><p>The Boolean expression is <code>m &gt; best</code>. It is true when <code>m</code> is 60 and <code>best</code> is 45, because 60 is greater than 45, so <code>best</code> is updated.</p><p><b>Why it earns the point:</b> It names the <b>expression</b>, a <b>specific value</b> that makes it true, and <b>why</b>.</p></div>
+    <div class="resp"><div class="rl">Written Response 2(b) (2026): a call that behaves incorrectly</div><p>If I call <code>weekly_report([0, 0, 0, 0, 0], 0)</code>, the procedure says Goal met! even though nothing was studied, because the total of 0 is greater than or equal to the goal of 0.</p><p><b>Why it earns the point:</b> It gives <b>real arguments</b>, the <b>wrong behavior</b>, and <b>why</b>. The program still runs, so it is a logic error.</p></div>
+    <div class="resp"><div class="rl">Written Response 2(b) (2025): a change that causes an error</div><p>A programmer could change <code>&gt;</code> to <code>&lt;</code> in the <code>if m &gt; best</code> line. Then <code>best</code> would hold the smallest day instead of the largest, and Best day would be wrong.</p><p><b>Why it earns the point:</b> It names a <b>specific change</b> and <b>what the procedure does after it</b>.</p></div>
+    <div class="resp"><div class="rl">Written Response 2(c) (2026): managing complexity</div><p>The <code>minutes</code> list manages complexity because one variable holds all five days and one loop can add them. Without the list I would need five separate variables and repeated code to add them and find the best.</p><p><b>Why it earns the point:</b> It says what the list <b>lets the program do</b> and <b>what the code would need without it</b>.</p></div>
+    <div class="resp"><div class="rl">Written Response 2(c) (2025): adding new items</div><p>If a sixth day were added to the end of the list, the procedure would not need to change, because <code>for m in daily</code> and <code>len(daily)</code> use however many items are in the list. Only the <code>range(1, 6)</code> in the input loop would change.</p><p><b>Why it earns the point:</b> It points to the <b>exact code</b> that needs <b>no change</b>, and honestly names the one line that does.</p></div>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>You now have three complete practice tasks. Make your own.</h2>
+    <p>Use the checklist from the rules page on your real Create Task.</p>
+    <div class="assign-root" data-unit="6" data-slot="a38" data-concept="Practice PT 3: Study Tracker" style="margin-bottom:10px"></div>
+    <a class="back" href="practice-pt-story-generator.html">&larr; Practice PT 2: Story Generator</a>
+    <a class="back" href="unit-6/index.html">&larr; Unit 6</a>
+    <p class="sig">Python Notes &nbsp;/&nbsp; Practice PT 3: Study Tracker &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+<script src="lesson-assignment.js?v=2"></script>
+</body>
+</html>

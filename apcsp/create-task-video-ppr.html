@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video, Reference Sheet, Written Responses | Python Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#A3E635; --acc-tint:rgba(163,230,53,.14); --acc-ink:#D9F99D;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#1A2E05;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:18ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .err{color:var(--bad-ink);font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.ok{border-top-color:var(--acc)}
+.box.bad{border-top-color:var(--bad)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F1FAD9}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.bad{background:var(--bad-tint)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+</style>
+<style>
+.fig{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:16px 12px 12px;overflow-x:auto}
+.fig figcaption{margin:12px auto 0;max-width:70ch;text-align:center;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
+ul.chk{margin:6px 0 20px;padding-left:22px}ul.chk li{margin:6px 0}
+.resp{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--acc);border-radius:6px;padding:14px 18px;margin:8px 0 18px}
+.resp .rl{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:6px}
+.resp p{margin:0 0 .6em}
+.cards.one{grid-template-columns:1fr}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="unit-6/index.html">&larr; Unit 6</a>
+  <a href="create-task-rules.html">The Create Task: Rules and Scoring</a>
+  <a href="create-task-video-ppr.html" class="current">Video, Reference Sheet, Written Responses</a>
+  <a href="practice-pt-quiz-master.html">Practice PT 1: Quiz Master</a>
+  <a href="practice-pt-story-generator.html">Practice PT 2: Story Generator</a>
+  <a href="practice-pt-study-tracker.html">Practice PT 3: Study Tracker</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">PYTHON NOTES &nbsp;/&nbsp; SUBJECT: THE THREE THINGS BESIDES THE CODE</div>
+    <h1>Video, Reference Sheet, Written Responses</h1>
+    <p class="deck">Your code is only part of the Create Task. This page is the how-to for the <b>video</b>, the <b>Personalized Project Reference</b>, and the <b>four written responses</b> you write on exam day.</p>
+  </div>
+</header>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>Making the Video</h2></div>
+    <p class="lede">The video proves your program <b>really runs</b>. It must show <b>input</b>, at least one piece of <b>functionality</b>, and <b>output</b>. Plan it before you record it.</p>
+    <figure class="fig"><svg class="diagram" viewBox="0 0 940 400" role="img" aria-label="A one-minute video timeline: input, functionality, output" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-width:940px;margin:0 auto"><defs><marker id="ah-C084FC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#C084FC"/></marker><marker id="ah-60A5FA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#60A5FA"/></marker><marker id="ah-FBBF24" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FBBF24"/></marker><marker id="ah-94A3B8" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#94A3B8"/></marker><marker id="ah-34D399" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#34D399"/></marker><marker id="ah-F472B6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F472B6"/></marker><marker id="ah-FB923C" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FB923C"/></marker><marker id="ah-EAEFF6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#EAEFF6"/></marker><marker id="ah-8B9AAE" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8B9AAE"/></marker></defs><style>.code{font:500 20px 'JetBrains Mono',monospace;white-space:pre}.ttl{font:700 18px 'JetBrains Mono',monospace}.cap{font:500 16px Manrope,system-ui,sans-serif;fill:#D5DDE8}.note{font:700 16px Manrope,system-ui,sans-serif;fill:#FDBA74}</style><text x="470" y="34" class="ttl" text-anchor="middle" fill="#F472B6">MAX 1 MINUTE  |  MAX 30 MB  |  .mp4  .webm  .wmv  .avi  .mov</text><rect x="60" y="64" width="820" height="46" rx="8" fill="#05070B" stroke="#232B38"/><rect x="60" y="64" width="164" height="46" rx="8" fill="#60A5FA" opacity="0.9"/><rect x="224" y="64" width="410" height="46" fill="#34D399" opacity="0.9"/><rect x="634" y="64" width="246" height="46" rx="8" fill="#FBBF24" opacity="0.9"/><text x="142" y="93" class="ttl" text-anchor="middle" style="fill:#06121F">INPUT</text><text x="429" y="93" class="ttl" text-anchor="middle" style="fill:#03150E">FUNCTIONALITY</text><text x="757" y="93" class="ttl" text-anchor="middle" style="fill:#1A1204">OUTPUT</text><text x="60" y="134" class="cap" >0:00</text><text x="224" y="134" class="cap" text-anchor="middle">0:12</text><text x="634" y="134" class="cap" text-anchor="middle">0:42</text><text x="880" y="134" class="cap" text-anchor="end">1:00</text><rect x="30" y="176" width="260" height="92" rx="9" fill="#151A24" stroke="#60A5FA" stroke-width="2"/><text x="160" y="197" text-anchor="middle" class="ttl" fill="#60A5FA">show the input</text><text x="160" y="217" text-anchor="middle" class="cap">type your name and your</text><text x="160" y="235" text-anchor="middle" class="cap">answers on the screen,</text><text x="160" y="253" text-anchor="middle" class="cap">so the viewer SEES it</text><line x1="142" y1="176" x2="142" y2="114" stroke="#60A5FA" stroke-width="2.4"  marker-end="url(#ah-60A5FA)"/><rect x="330" y="176" width="300" height="92" rx="9" fill="#151A24" stroke="#34D399" stroke-width="2"/><text x="480" y="197" text-anchor="middle" class="ttl" fill="#34D399">show it working</text><text x="480" y="217" text-anchor="middle" class="cap">answer right AND wrong,</text><text x="480" y="235" text-anchor="middle" class="cap">so the selection and the</text><text x="480" y="253" text-anchor="middle" class="cap">loop both visibly run</text><line x1="480" y1="176" x2="429" y2="114" stroke="#34D399" stroke-width="2.4"  marker-end="url(#ah-34D399)"/><rect x="670" y="176" width="250" height="92" rx="9" fill="#151A24" stroke="#FBBF24" stroke-width="2"/><text x="795" y="197" text-anchor="middle" class="ttl" fill="#FBBF24">show the output</text><text x="795" y="217" text-anchor="middle" class="cap">the score and the message</text><text x="795" y="235" text-anchor="middle" class="cap">your program prints at</text><text x="795" y="253" text-anchor="middle" class="cap">the end</text><line x1="795" y1="176" x2="757" y2="114" stroke="#FBBF24" stroke-width="2.4"  marker-end="url(#ah-FBBF24)"/><rect x="150" y="300" width="300" height="74" rx="9" fill="#151A24" stroke="#F472B6" stroke-width="2"/><text x="300" y="321" text-anchor="middle" class="ttl" fill="#F472B6">no voice narration</text><text x="300" y="341" text-anchor="middle" class="cap">a spoken voice-over loses the point</text><text x="300" y="359" text-anchor="middle" class="cap">use text captions instead</text><rect x="500" y="300" width="300" height="74" rx="9" fill="#151A24" stroke="#F472B6" stroke-width="2"/><text x="650" y="321" text-anchor="middle" class="ttl" fill="#F472B6">no personal information</text><text x="650" y="341" text-anchor="middle" class="cap">no name, face, or school</text><text x="650" y="359" text-anchor="middle" class="cap">(use a made-up name)</text></svg><figcaption>A one-minute plan. Each colored arrow points from a caption to the part of the video it describes. The times are only a guide: the rule is that all three things appear and the video is 60 seconds or less.</figcaption></figure>
+    <h3 style="margin:18px 0 6px;">The rules</h3>
+    <ul class="chk"><li><b>One minute or less</b> and <b>30 MB or less</b>.</li><li>File type: <b>.mp4, .webm, .wmv, .avi, or .mov</b>.</li><li>It must show the <b>program running</b>. A video of only code, screenshots, or a storyboard earns no credit.</li><li><b>No voice narration.</b> Use <b>text captions</b> (words typed on the screen) if you want to explain something.</li><li><b>Nothing that identifies you.</b> Use a made-up name when the program asks for one.</li><li>You make the video <b>alone</b>. No partner.</li></ul>
+    <h3 style="margin:18px 0 6px;">How to record it</h3>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Device</th><th>Way to record the screen</th></tr>
+        <tr><td>Chromebook</td><td>Press <b>Shift + Ctrl + Show windows</b> (or open Screen capture in the quick settings), choose <b>Screen record</b>.</td></tr>
+        <tr><td>Windows</td><td>Press <b>Windows + G</b> to open the Game Bar and record, or use the Snipping Tool's record option.</td></tr>
+        <tr><td>Mac</td><td>Press <b>Shift + Command + 5</b> and choose <b>Record selected portion</b>.</td></tr>
+      </table>
+    </div></div>
+    <p>Ask your teacher which tool your school allows. After recording, <b>check the length and file size</b>, and play it back to make sure the input, the functionality, and the output can all be seen clearly.</p>
+    <h3 style="margin:18px 0 6px;">What to show, step by step</h3>
+    <ul class="chk"><li>Start with the program ready to run and the output area visible.</li><li>Run it. <b>Type the input slowly</b> so a viewer can read it (for example the name, then each answer).</li><li>Make the program show <b>different results</b>: give one right answer and one wrong answer, so the viewer sees the selection and the loop working.</li><li>Let the <b>final output</b> stay on the screen for a couple of seconds.</li><li>Stop recording. Trim any extra time so the video is under 60 seconds.</li></ul>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Making the Personalized Project Reference</h2></div>
+    <p class="lede">The PPR is <b>four code segments</b> pasted from your program. On exam day, you can use it while you write your answers, so choose segments that make the prompts easy to answer.</p>
+    <figure class="fig"><svg class="diagram" viewBox="0 0 940 640" role="img" aria-label="The four PPR code segments and which written response uses each" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-width:940px;margin:0 auto"><defs><marker id="ah-C084FC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#C084FC"/></marker><marker id="ah-60A5FA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#60A5FA"/></marker><marker id="ah-FBBF24" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FBBF24"/></marker><marker id="ah-94A3B8" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#94A3B8"/></marker><marker id="ah-34D399" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#34D399"/></marker><marker id="ah-F472B6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F472B6"/></marker><marker id="ah-FB923C" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FB923C"/></marker><marker id="ah-EAEFF6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#EAEFF6"/></marker><marker id="ah-8B9AAE" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8B9AAE"/></marker></defs><style>.code{font:500 20px 'JetBrains Mono',monospace;white-space:pre}.ttl{font:700 18px 'JetBrains Mono',monospace}.cap{font:500 16px Manrope,system-ui,sans-serif;fill:#D5DDE8}.note{font:700 16px Manrope,system-ui,sans-serif;fill:#FDBA74}</style><text x="250" y="28" class="ttl" text-anchor="middle" fill="#FBBF24">YOUR PERSONALIZED PROJECT REFERENCE</text><rect x="30" y="44" width="440" height="92" rx="10" fill="#05070B" stroke="#60A5FA" stroke-width="2"/><text x="250" y="78" class="ttl" text-anchor="middle" fill="#60A5FA">PROCEDURE (i): the procedure</text><text x="250" y="104" class="cap" text-anchor="middle">parameter + sequencing, selection, iteration</text><rect x="30" y="152" width="440" height="92" rx="10" fill="#05070B" stroke="#F472B6" stroke-width="2"/><text x="250" y="186" class="ttl" text-anchor="middle" fill="#F472B6">PROCEDURE (ii): the call</text><text x="250" y="212" class="cap" text-anchor="middle">where your program calls the procedure</text><rect x="30" y="260" width="440" height="92" rx="10" fill="#05070B" stroke="#A3E635" stroke-width="2"/><text x="250" y="294" class="ttl" text-anchor="middle" fill="#A3E635">LIST (i): data stored in the list</text><text x="250" y="320" class="cap" text-anchor="middle">where the list is created and filled</text><rect x="30" y="368" width="440" height="92" rx="10" fill="#05070B" stroke="#38BDF8" stroke-width="2"/><text x="250" y="402" class="ttl" text-anchor="middle" fill="#38BDF8">LIST (ii): the list being used</text><text x="250" y="428" class="cap" text-anchor="middle">a loop or access that uses several items</text><rect x="30" y="476" width="440" height="68" rx="10" fill="#2A1010" stroke="#F87171" stroke-width="2"/><text x="250" y="504" class="ttl" text-anchor="middle" fill="#F87171">NO COMMENTS. NO COURSE CONTENT.</text><text x="250" y="528" class="cap" text-anchor="middle">Readable screenshots, 10 point text or larger.</text><rect x="600" y="44" width="320" height="66" rx="9" fill="#151A24" stroke="#C084FC" stroke-width="2"/><text x="760" y="65" text-anchor="middle" class="ttl" fill="#C084FC">2(a): the iteration</text><text x="760" y="85" text-anchor="middle" class="cap">what makes your loop stop,</text><text x="760" y="103" text-anchor="middle" class="cap">and why (uses the 1st loop)</text><line x1="600" y1="77" x2="472" y2="88" stroke="#C084FC" stroke-width="2.4"  marker-end="url(#ah-C084FC)"/><rect x="600" y="152" width="320" height="66" rx="9" fill="#151A24" stroke="#C084FC" stroke-width="2"/><text x="760" y="173" text-anchor="middle" class="ttl" fill="#C084FC">2(b): errors and testing</text><text x="760" y="193" text-anchor="middle" class="cap">a call that makes the procedure</text><text x="760" y="211" text-anchor="middle" class="cap">behave wrongly, and why</text><line x1="600" y1="185" x2="472" y2="98" stroke="#C084FC" stroke-width="2.4"  marker-end="url(#ah-C084FC)"/><line x1="600" y1="185" x2="472" y2="198" stroke="#C084FC" stroke-width="2.4"  marker-end="url(#ah-C084FC)"/><rect x="600" y="368" width="320" height="66" rx="9" fill="#151A24" stroke="#C084FC" stroke-width="2"/><text x="760" y="389" text-anchor="middle" class="ttl" fill="#C084FC">2(c): the list</text><text x="760" y="409" text-anchor="middle" class="cap">how the list manages complexity,</text><text x="760" y="427" text-anchor="middle" class="cap">and the code without it</text><line x1="600" y1="401" x2="472" y2="412" stroke="#C084FC" stroke-width="2.4"  marker-end="url(#ah-C084FC)"/><line x1="600" y1="401" x2="472" y2="306" stroke="#C084FC" stroke-width="2.4"  marker-end="url(#ah-C084FC)"/><rect x="600" y="260" width="320" height="66" rx="9" fill="#151A24" stroke="#F472B6" stroke-width="2"/><text x="760" y="281" text-anchor="middle" class="ttl" fill="#F472B6">Written Response 1</text><text x="760" y="301" text-anchor="middle" class="cap">one output your program shows</text><text x="760" y="319" text-anchor="middle" class="cap">and how it shows functionality</text><text x="760" y="350" class="cap" text-anchor="middle">(uses your video and program)</text><text x="470" y="600" class="note" text-anchor="middle">You choose what goes in each segment. Choose code that makes every prompt easy to answer.</text></svg><figcaption>The four segments are on the left. The purple boxes on the right are the exam prompts, and each arrow shows which segment that prompt is about. The red box is the rule that can cost you everything: <b>no comments</b>.</figcaption></figure>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Segment</th><th>What it must show</th></tr>
+        <tr><td><b>Procedure (i)</b></td><td>Your student-developed procedure. It has a name, <b>one or more parameters that affect what it does</b>, and an algorithm with <b>sequencing, selection, and iteration</b>.</td></tr>
+        <tr><td><b>Procedure (ii)</b></td><td>A place in your program where that procedure is <b>called</b>.</td></tr>
+        <tr><td><b>List (i)</b></td><td>Where the list is <b>created and filled</b>, so the data is stored in it.</td></tr>
+        <tr><td><b>List (ii)</b></td><td>Where the <b>same list is used</b>: new data made from list items, or several items accessed, such as a loop through the list.</td></tr>
+      </table>
+    </div></div>
+    <div class="warn"><b>Remove every comment</b> and any course content from the code <b>before</b> you take the screenshots. A comment or course content in your PPR means a <b>score of 0 on the whole Create task</b>, including your written responses. Screenshots must be sharp and the text at least <b>10 point</b>.</div>
+    <div class="hint-panel"><b>Choose with the prompts in mind.</b> The first loop in your Procedure (i) is the one 2(a) asks about. Your list segment (ii) is the one 2(c) asks about. Make sure each of those is code you can explain clearly in a couple of sentences.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>The Four Written Prompts</h2></div>
+    <p class="lede">On exam day you get <b>60 minutes</b> and your PPR. You answer <b>one question with one part</b> and <b>one question with three parts</b>. The topics stay the same every year, but the exact wording changes.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Prompt</th><th>The topic</th><th>2025 wording (short)</th><th>2026 wording (short)</th></tr>
+        <tr><td><b>WR 1</b></td><td>Program design, function, and purpose</td><td>Identify one output your program produces and how it shows part of its functionality.</td><td>Describe documentation that fits your program, and how another programmer could use it to understand a code segment.</td></tr>
+        <tr><td><b>WR 2(a)</b></td><td>Algorithm development</td><td>Identify the Boolean expression in your first selection statement, a specific value that makes it true, and why.</td><td>Identify the variables and values that make your first iteration statement stop, and why.</td></tr>
+        <tr><td><b>WR 2(b)</b></td><td>Errors and testing</td><td>Describe a change another programmer could make to your procedure that causes a logic error, and what then happens.</td><td>Give a call to your procedure with specific arguments that makes it behave incorrectly, describe it, and explain why.</td></tr>
+        <tr><td><b>WR 2(c)</b></td><td>Data and procedural abstraction</td><td>Explain how your list code would need to change if several new elements were added to the end of the list, or why it needs no change.</td><td>Explain how your list manages complexity, and how your list code would change without the list.</td></tr>
+      </table>
+    </div></div>
+    <div class="warn">These are short summaries, not the exact exam text. Because the wording changes, practice <b>all of the versions</b> on your own program. The Practice PTs in this unit give you sentence starters and sample answers for each one.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Writing Answers That Earn the Point</h2></div>
+    <p class="lede">Scorers judge your answer <b>only on what you write</b>, and only against <b>your own code</b>. These habits come straight from the College Board's reports on what worked and what did not.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Prompt</th><th>Do this</th><th>Not this</th></tr>
+        <tr><td><b>WR 1</b></td><td>Name <b>one real output</b> that the video shows, and explain <b>how it shows the program's purpose</b>.</td><td>Do not describe the whole program, or an output the program never shows.</td></tr>
+        <tr><td><b>WR 2(a)</b></td><td>Name the <b>actual variables and the specific values</b> that stop the loop, and say <b>why</b> those values stop it.</td><td>Do not give a general set of values. Do not name the whole <code>if</code> or <code>for</code> line when asked for the condition.</td></tr>
+        <tr><td><b>WR 2(b)</b></td><td>Give a <b>specific call</b> (real argument values), say what <b>wrong</b> thing happens, and say <b>why</b> it happens because of those values. Keep it a logic error: the program still runs, but gives a wrong result.</td><td>Do not describe a syntax error. A program that will not run shows no behavior to evaluate.</td></tr>
+        <tr><td><b>WR 2(c)</b></td><td>Say <b>what the list lets the program do</b> (for example, handle any number of items with one loop), and <b>what the code would need without it</b> (a separate variable and copy of the code for every item).</td><td>Do not say only that the list is 'easier'. Be specific about the code.</td></tr>
+      </table>
+    </div></div>
+    <h3 style="margin:18px 0 6px;">Sentence starters</h3>
+    <ul class="chk"><li><b>WR 1:</b> "One output of my program is ___. It shows an aspect of the program's functionality because ___." (or) "I would add a comment above ___ that says ___. Another programmer could use it to understand ___."</li><li><b>WR 2(a):</b> "The loop stops when the variable ___ reaches ___, because ___."</li><li><b>WR 2(b):</b> "If I call ___(___, ___), the procedure would ___ instead of ___, because the value ___ makes ___."</li><li><b>WR 2(c):</b> "The list ___ manages complexity because ___. Without the list, I would have to ___."</li></ul>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Final Checklist</h2></div>
+    <p class="lede">Before you submit <b>anything as final</b>, check every box. After you submit, <b>you cannot change it</b>.</p>
+    <ul class="chk"><li>The program has <b>input</b>, a <b>list with several items that is really used</b>, a <b>student-developed procedure with a parameter that matters</b>, <b>sequencing, selection, and iteration inside that procedure</b>, a <b>matching call</b>, and <b>output</b>.</li><li>The program code PDF has <b>comments</b> that explain it and credit any code or help that is not yours.</li><li>The video is <b>60 seconds or less</b>, <b>30 MB or less</b>, one of the allowed file types, shows <b>input, functionality, and output</b>, and has <b>no voice and no personal information</b>.</li><li>The PPR has all <b>four segments</b>, <b>no comments</b>, and is sharp with text of <b>10 point or larger</b>.</li><li>I made the <b>video and the PPR alone</b>.</li><li>I practiced <b>all versions</b> of the four written prompts on my own program.</li></ul>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>A good plan, a clean reference sheet, and practice are what turn the program into points.</h2>
+    <p>Next: build a complete practice task, step by step, with a video plan and sample written responses.</p>
+    <a class="back" href="practice-pt-quiz-master.html">Practice PT 1: Quiz Master &rarr;</a>
+    <a class="back" href="create-task-rules.html">&larr; The Create Task: Rules and Scoring</a>
+    <a class="back" href="unit-6/index.html">&larr; Unit 6</a>
+    <p class="sig">Python Notes &nbsp;/&nbsp; Video, Reference Sheet, Written Responses &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+</body>
+</html>

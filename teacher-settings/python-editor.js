@@ -24,7 +24,12 @@ export const PY_SETTINGS = {
   a31: { live: true, hold: true, passMin: 90 },                // Walkthrough 3: Return Values
   a32: { live: true, hold: true, passMin: 90 },                // Walkthrough 4: Return Values with Decisions and Loops
   a33: { live: true, hold: true, passMin: 90 },                // Walkthrough 5: Libraries and APIs
-  a34: { live: true, hold: true, passMin: 90 }                 // Walkthrough 6: Procedures and the Create Task
+  a34: { live: true, hold: true, passMin: 90 },                // Walkthrough 6: Procedures and the Create Task
+  /* Unit 6: Practice Performance Task (all published, all locked until you open them; Walkthrough 1 starts its own chain) */
+  a35: { live: true, hold: true, fresh: true, passMin: 90 },   // Unit 6 Walkthrough 1: Spot the Requirements
+  a36: { live: true, hold: true, passMin: 90 },                // Practice PT 1: Quiz Master
+  a37: { live: true, hold: true, passMin: 90 },                // Practice PT 2: Story Generator
+  a38: { live: true, hold: true, passMin: 90 }                 // Practice PT 3: Study Tracker
 };
 /* WORDING CHANGES to a walkthrough, kept in the code (no PIN). Each one gets a copy of the walkthrough and changes it. */
 const STEP5_ODD = "Now test an odd number **without changing your code above**. Below your last line, type `number = 7`, then type the same four `print` lines again under it (you can copy and paste your own lines). Add an **end-of-line comment** at the end of your last print line with what the four answers were for 7. If that line already has a comment, add to it. [[How do I test 7?|oddtest]]";

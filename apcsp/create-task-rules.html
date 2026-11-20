@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Create Task: Rules and Scoring | Python Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#A3E635; --acc-tint:rgba(163,230,53,.14); --acc-ink:#D9F99D;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#1A2E05;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:18ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .err{color:var(--bad-ink);font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.ok{border-top-color:var(--acc)}
+.box.bad{border-top-color:var(--bad)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F1FAD9}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.bad{background:var(--bad-tint)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+</style>
+<style>
+.fig{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:16px 12px 12px;overflow-x:auto}
+.fig figcaption{margin:12px auto 0;max-width:70ch;text-align:center;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
+ul.chk{margin:6px 0 20px;padding-left:22px}ul.chk li{margin:6px 0}
+.resp{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--acc);border-radius:6px;padding:14px 18px;margin:8px 0 18px}
+.resp .rl{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:6px}
+.resp p{margin:0 0 .6em}
+.cards.one{grid-template-columns:1fr}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="unit-6/index.html">&larr; Unit 6</a>
+  <a href="create-task-rules.html" class="current">The Create Task: Rules and Scoring</a>
+  <a href="create-task-video-ppr.html">Video, Reference Sheet, Written Responses</a>
+  <a href="practice-pt-quiz-master.html">Practice PT 1: Quiz Master</a>
+  <a href="practice-pt-story-generator.html">Practice PT 2: Story Generator</a>
+  <a href="practice-pt-study-tracker.html">Practice PT 3: Study Tracker</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">PYTHON NOTES &nbsp;/&nbsp; SUBJECT: WHAT YOU SUBMIT AND HOW IT IS SCORED</div>
+    <h1>The Create Task: Rules and Scoring</h1>
+    <p class="deck">The Create Performance Task is worth about <b>30 percent of your AP score</b>. It is also the part you control the most. This page is the rule book, taken from the College Board's own student handouts and scoring guidelines.</p>
+  </div>
+</header>
+<div class="wrap"><div class="assign-root" data-unit="6" data-slot="a35" data-concept="The Create Task: Rules and Scoring"></div></div>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>What You Submit</h2></div>
+    <p class="lede">You design and write <b>your own program</b>. You get <b>at least 9 hours of class time</b>. Then you turn in <b>three components</b> and, on exam day, answer <b>four written prompts</b> about your own project.</p>
+    <figure class="fig"><svg class="diagram" viewBox="0 0 940 600" role="img" aria-label="The three Create Task components and the six points they earn" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-width:940px;margin:0 auto"><defs><marker id="ah-C084FC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#C084FC"/></marker><marker id="ah-60A5FA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#60A5FA"/></marker><marker id="ah-FBBF24" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FBBF24"/></marker><marker id="ah-94A3B8" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#94A3B8"/></marker><marker id="ah-34D399" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#34D399"/></marker><marker id="ah-F472B6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F472B6"/></marker><marker id="ah-FB923C" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FB923C"/></marker><marker id="ah-EAEFF6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#EAEFF6"/></marker><marker id="ah-8B9AAE" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8B9AAE"/></marker></defs><style>.code{font:500 20px 'JetBrains Mono',monospace;white-space:pre}.ttl{font:700 18px 'JetBrains Mono',monospace}.cap{font:500 16px Manrope,system-ui,sans-serif;fill:#D5DDE8}.note{font:700 16px Manrope,system-ui,sans-serif;fill:#FDBA74}</style><rect x="20" y="20" width="330" height="120" rx="10" fill="#05070B" stroke="#60A5FA" stroke-width="2"/><text x="185" y="52" class="ttl" text-anchor="middle" fill="#60A5FA">1. PROGRAM CODE</text><text x="185" y="80" class="cap" text-anchor="middle">one PDF of your whole program</text><text x="185" y="102" class="cap" text-anchor="middle">comments ARE allowed here</text><text x="185" y="124" class="cap" text-anchor="middle">(and needed for any help you cite)</text><rect x="20" y="170" width="330" height="120" rx="10" fill="#05070B" stroke="#F472B6" stroke-width="2"/><text x="185" y="202" class="ttl" text-anchor="middle" fill="#F472B6">2. VIDEO</text><text x="185" y="230" class="cap" text-anchor="middle">your program running</text><text x="185" y="252" class="cap" text-anchor="middle">1 minute or less, 30 MB or less</text><text x="185" y="274" class="cap" text-anchor="middle">no voice narration</text><rect x="20" y="320" width="330" height="150" rx="10" fill="#05070B" stroke="#FBBF24" stroke-width="2"/><text x="185" y="352" class="ttl" text-anchor="middle" fill="#FBBF24">3. PERSONALIZED PROJECT</text><text x="185" y="372" class="ttl" text-anchor="middle" fill="#FBBF24">REFERENCE (PPR)</text><text x="185" y="402" class="cap" text-anchor="middle">4 code segments from your program</text><text x="185" y="424" class="cap" text-anchor="middle">NO comments, readable screenshots</text><text x="185" y="446" class="cap" text-anchor="middle">you may use it on exam day</text><rect x="580" y="20" width="340" height="62" rx="9" fill="#151A24" stroke="#A3E635" stroke-width="2"/><text x="750" y="41" text-anchor="middle" class="ttl" fill="#A3E635">ROW 1: VIDEO (1 point)</text><text x="750" y="61" text-anchor="middle" class="cap">shows input, functionality, output</text><rect x="580" y="96" width="340" height="76" rx="9" fill="#151A24" stroke="#A3E635" stroke-width="2"/><text x="750" y="117" text-anchor="middle" class="ttl" fill="#A3E635">ROW 2: PROGRAM REQUIREMENTS (1)</text><text x="750" y="137" text-anchor="middle" class="cap">procedure + call, list + use of it,</text><text x="750" y="155" text-anchor="middle" class="cap">selection, iteration</text><line x1="350" y1="230" x2="578" y2="52" stroke="#F472B6" stroke-width="2.4"  marker-end="url(#ah-F472B6)"/><line x1="350" y1="80" x2="578" y2="130" stroke="#60A5FA" stroke-width="2.4"  marker-end="url(#ah-60A5FA)"/><line x1="350" y1="395" x2="578" y2="160" stroke="#FBBF24" stroke-width="2.4" stroke-dasharray="6 5" marker-end="url(#ah-FBBF24)"/><rect x="560" y="196" width="380" height="392" rx="12" fill="#0B0F16" stroke="#C084FC" stroke-width="2" stroke-dasharray="7 5"/><text x="750" y="224" class="ttl" text-anchor="middle" fill="#C084FC">EXAM DAY: 60 minutes, 4 prompts</text><rect x="580" y="238" width="340" height="58" rx="9" fill="#151A24" stroke="#C084FC" stroke-width="2"/><text x="750" y="259" text-anchor="middle" class="ttl" fill="#C084FC">WRITTEN RESPONSE 1 (1 point)</text><text x="750" y="279" text-anchor="middle" class="cap">program design, function, purpose</text><rect x="580" y="306" width="340" height="58" rx="9" fill="#151A24" stroke="#C084FC" stroke-width="2"/><text x="750" y="327" text-anchor="middle" class="ttl" fill="#C084FC">WRITTEN RESPONSE 2(a) (1 point)</text><text x="750" y="347" text-anchor="middle" class="cap">algorithm development: your loop</text><rect x="580" y="374" width="340" height="58" rx="9" fill="#151A24" stroke="#C084FC" stroke-width="2"/><text x="750" y="395" text-anchor="middle" class="ttl" fill="#C084FC">WRITTEN RESPONSE 2(b) (1 point)</text><text x="750" y="415" text-anchor="middle" class="cap">errors and testing: your procedure</text><rect x="580" y="442" width="340" height="58" rx="9" fill="#151A24" stroke="#C084FC" stroke-width="2"/><text x="750" y="463" text-anchor="middle" class="ttl" fill="#C084FC">WRITTEN RESPONSE 2(c) (1 point)</text><text x="750" y="483" text-anchor="middle" class="cap">data and procedural abstraction: your list</text><line x1="350" y1="420" x2="558" y2="420" stroke="#FBBF24" stroke-width="2.4"  marker-end="url(#ah-FBBF24)"/><text x="454" y="448" class="note" text-anchor="middle" style="fill:#FBBF24">bring it to the exam</text><text x="750" y="560" class="note" text-anchor="middle">6 points in all, about 30% of your AP score</text></svg><figcaption>The left side is what you submit. The arrows show which component earns which point. The dashed purple box is exam day: you write four short answers about <b>your own program</b>, and you are allowed to use your Personalized Project Reference.</figcaption></figure>
+    <h3 style="margin:18px 0 6px;">The three components</h3>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Component</th><th>What it is</th><th>Key rules</th></tr>
+        <tr><td><b>Program code</b></td><td>one PDF with your entire program</td><td>Comments are allowed. Cite any code or help you did not write yourself.</td></tr>
+        <tr><td><b>Video</b></td><td>a screen recording of your program running</td><td>1 minute or less, 30 MB or less, no voice narration, nothing that identifies you. File types: .mp4, .webm, .wmv, .avi, .mov.</td></tr>
+        <tr><td><b>Personalized Project Reference (PPR)</b></td><td>four code segments pasted from your program</td><td>No comments, no course content, readable screenshots with text at least 10 point. You may use it on exam day.</td></tr>
+      </table>
+    </div></div>
+    <div class="warn"><b>Work alone on two parts.</b> You may work with a partner on the <b>program code only</b>. The <b>video</b> and the <b>PPR</b> must be made by you alone.</div>
+    <div class="hint-panel"><b>Dates for this school year:</b> AP Central lists the task deadline as <b>April 30, 2027 at 11:59 PM ET</b>, and the end-of-course exam as <b>Friday, May 14, 2027</b>. Always double check AP Central, and ask your teacher for the class calendar. Only components submitted <b>as final</b> are scored, and you cannot change them afterward. If you do not submit your PPR by the deadline, you will not have it on exam day.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>The Program Requirements Checklist</h2></div>
+    <p class="lede">Your program must have every item below, written by <b>you</b>. Calls to existing code or libraries are fine, but they do not count as student-developed.</p>
+    <figure class="fig"><svg class="diagram" viewBox="0 0 920 914" role="img" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-width:920px;margin:0 auto"><defs><marker id="ah-C084FC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#C084FC"/></marker><marker id="ah-60A5FA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#60A5FA"/></marker><marker id="ah-FBBF24" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FBBF24"/></marker><marker id="ah-94A3B8" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#94A3B8"/></marker><marker id="ah-34D399" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#34D399"/></marker><marker id="ah-F472B6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F472B6"/></marker><marker id="ah-FB923C" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FB923C"/></marker><marker id="ah-EAEFF6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#EAEFF6"/></marker><marker id="ah-8B9AAE" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8B9AAE"/></marker></defs><style>.ttl{font:700 16px 'JetBrains Mono',monospace}.cap{font:500 14px Manrope,system-ui,sans-serif;fill:#D5DDE8}.note{font:700 15px Manrope,system-ui,sans-serif;fill:#FDBA74}</style><rect x="8" y="12" width="510" height="902" rx="10" fill="#05070B" stroke="#232B38"/><text x="24" y="44" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#34D399" font-weight="700">questions</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">=</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">[</tspan><tspan fill="#EAEFF6">"5 + 3?"</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">"2 * 7?"</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">"9 - 4?"</tspan><tspan fill="#EAEFF6">]</tspan></text><line x1="24" y1="52" x2="115.8" y2="52" stroke="#34D399" stroke-width="3" stroke-linecap="round"/><rect x="560" y="20" width="340" height="48" rx="9" fill="#151A24" stroke="#34D399" stroke-width="2"/><text x="730" y="38" text-anchor="middle" class="ttl" fill="#34D399" style="font-size:15px">LIST (data stored)</text><text x="730" y="59" text-anchor="middle" class="cap" style="font-size:13.5px">one list holds all the questions</text><line x1="560" y1="52" x2="123.8" y2="52" stroke="#34D399" stroke-width="2.4" marker-end="url(#ah-34D399)"/><text x="24" y="98" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">answers</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">=</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">[</tspan><tspan fill="#EAEFF6">"8"</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">"14"</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">"5"</tspan><tspan fill="#EAEFF6">]</tspan></text><text x="24" y="152" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"></text><text x="24" y="206" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#C084FC">def</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#60A5FA" font-weight="700">run_quiz</tspan><tspan fill="#60A5FA" font-weight="700">(</tspan><tspan fill="#60A5FA" font-weight="700">name</tspan><tspan fill="#60A5FA" font-weight="700">,</tspan><tspan fill="#60A5FA" font-weight="700"> </tspan><tspan fill="#60A5FA" font-weight="700">passing</tspan><tspan fill="#60A5FA" font-weight="700">)</tspan><tspan fill="#EAEFF6">:</tspan></text><line x1="64.8" y1="214" x2="299.4" y2="214" stroke="#60A5FA" stroke-width="3" stroke-linecap="round"/><rect x="560" y="182" width="340" height="48" rx="9" fill="#151A24" stroke="#60A5FA" stroke-width="2"/><text x="730" y="200" text-anchor="middle" class="ttl" fill="#60A5FA" style="font-size:15px">STUDENT-DEVELOPED PROCEDURE</text><text x="730" y="221" text-anchor="middle" class="cap" style="font-size:13.5px">your own name + two parameters</text><line x1="560" y1="214" x2="307.4" y2="214" stroke="#60A5FA" stroke-width="2.4" marker-end="url(#ah-60A5FA)"/><text x="24" y="260" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">    </tspan><tspan fill="#38BDF8" font-weight="700">score</tspan><tspan fill="#38BDF8" font-weight="700"> </tspan><tspan fill="#38BDF8" font-weight="700">=</tspan><tspan fill="#38BDF8" font-weight="700"> </tspan><tspan fill="#38BDF8" font-weight="700">0</tspan></text><line x1="64.8" y1="268" x2="156.6" y2="268" stroke="#38BDF8" stroke-width="3" stroke-linecap="round"/><rect x="560" y="236" width="340" height="48" rx="9" fill="#151A24" stroke="#38BDF8" stroke-width="2"/><text x="730" y="254" text-anchor="middle" class="ttl" fill="#38BDF8" style="font-size:15px">SEQUENCING</text><text x="730" y="275" text-anchor="middle" class="cap" style="font-size:13.5px">steps run in the order written</text><line x1="560" y1="268" x2="164.6" y2="268" stroke="#38BDF8" stroke-width="2.4" marker-end="url(#ah-38BDF8)"/><text x="24" y="314" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">    </tspan><tspan fill="#C084FC" font-weight="700">for</tspan><tspan fill="#C084FC" font-weight="700"> </tspan><tspan fill="#C084FC" font-weight="700">i</tspan><tspan fill="#C084FC" font-weight="700"> </tspan><tspan fill="#C084FC" font-weight="700">in</tspan><tspan fill="#C084FC" font-weight="700"> </tspan><tspan fill="#C084FC" font-weight="700">range</tspan><tspan fill="#C084FC" font-weight="700">(</tspan><tspan fill="#C084FC" font-weight="700">len</tspan><tspan fill="#C084FC" font-weight="700">(</tspan><tspan fill="#C084FC" font-weight="700">questions</tspan><tspan fill="#C084FC" font-weight="700">)</tspan><tspan fill="#C084FC" font-weight="700">)</tspan><tspan fill="#C084FC" font-weight="700">:</tspan></text><line x1="64.8" y1="322" x2="381" y2="322" stroke="#C084FC" stroke-width="3" stroke-linecap="round"/><rect x="560" y="290" width="340" height="48" rx="9" fill="#151A24" stroke="#C084FC" stroke-width="2"/><text x="730" y="308" text-anchor="middle" class="ttl" fill="#C084FC" style="font-size:15px">ITERATION</text><text x="730" y="329" text-anchor="middle" class="cap" style="font-size:13.5px">repeats once for every question</text><line x1="560" y1="322" x2="389" y2="322" stroke="#C084FC" stroke-width="2.4" marker-end="url(#ah-C084FC)"/><text x="24" y="368" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">        </tspan><tspan fill="#EAEFF6">guess</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">=</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">input</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#2DD4BF" font-weight="700">questions</tspan><tspan fill="#2DD4BF" font-weight="700">[</tspan><tspan fill="#2DD4BF" font-weight="700">i</tspan><tspan fill="#2DD4BF" font-weight="700">]</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">+</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">" "</tspan><tspan fill="#EAEFF6">)</tspan></text><line x1="248.39999999999998" y1="376" x2="370.79999999999995" y2="376" stroke="#2DD4BF" stroke-width="3" stroke-linecap="round"/><rect x="560" y="344" width="340" height="48" rx="9" fill="#151A24" stroke="#2DD4BF" stroke-width="2"/><text x="730" y="362" text-anchor="middle" class="ttl" fill="#2DD4BF" style="font-size:15px">LIST BEING USED</text><text x="730" y="383" text-anchor="middle" class="cap" style="font-size:13.5px">reads each item (and takes input)</text><line x1="560" y1="376" x2="378.79999999999995" y2="376" stroke="#2DD4BF" stroke-width="2.4" marker-end="url(#ah-2DD4BF)"/><text x="24" y="422" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">        </tspan><tspan fill="#C084FC">if</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#FB923C" font-weight="700">guess</tspan><tspan fill="#FB923C" font-weight="700">.</tspan><tspan fill="#FB923C" font-weight="700">lower</tspan><tspan fill="#FB923C" font-weight="700">(</tspan><tspan fill="#FB923C" font-weight="700">)</tspan><tspan fill="#FB923C" font-weight="700"> </tspan><tspan fill="#FB923C" font-weight="700">=</tspan><tspan fill="#FB923C" font-weight="700">=</tspan><tspan fill="#FB923C" font-weight="700"> </tspan><tspan fill="#FB923C" font-weight="700">answers</tspan><tspan fill="#FB923C" font-weight="700">[</tspan><tspan fill="#FB923C" font-weight="700">i</tspan><tspan fill="#FB923C" font-weight="700">]</tspan><tspan fill="#EAEFF6">:</tspan></text><line x1="136.2" y1="430" x2="411.59999999999997" y2="430" stroke="#FB923C" stroke-width="3" stroke-linecap="round"/><rect x="560" y="398" width="340" height="48" rx="9" fill="#151A24" stroke="#FB923C" stroke-width="2"/><text x="730" y="416" text-anchor="middle" class="ttl" fill="#FB923C" style="font-size:15px">SELECTION</text><text x="730" y="437" text-anchor="middle" class="cap" style="font-size:13.5px">decides: right or wrong</text><line x1="560" y1="430" x2="419.59999999999997" y2="430" stroke="#FB923C" stroke-width="2.4" marker-end="url(#ah-FB923C)"/><text x="24" y="476" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">            </tspan><tspan fill="#EAEFF6">score</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">=</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">score</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">+</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">1</tspan></text><text x="24" y="530" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">    </tspan><tspan fill="#C084FC">if</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">score</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">></tspan><tspan fill="#EAEFF6">=</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">passing</tspan><tspan fill="#EAEFF6">:</tspan></text><text x="24" y="584" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">        </tspan><tspan fill="#FBBF24" font-weight="700">print</tspan><tspan fill="#FBBF24" font-weight="700">(</tspan><tspan fill="#FBBF24" font-weight="700">name</tspan><tspan fill="#FBBF24" font-weight="700">,</tspan><tspan fill="#FBBF24" font-weight="700"> </tspan><tspan fill="#FBBF24" font-weight="700">"passed with"</tspan><tspan fill="#FBBF24" font-weight="700">,</tspan><tspan fill="#FBBF24" font-weight="700"> </tspan><tspan fill="#FBBF24" font-weight="700">score</tspan><tspan fill="#FBBF24" font-weight="700">)</tspan></text><line x1="105.6" y1="592" x2="442.2" y2="592" stroke="#FBBF24" stroke-width="3" stroke-linecap="round"/><rect x="560" y="560" width="340" height="48" rx="9" fill="#151A24" stroke="#FBBF24" stroke-width="2"/><text x="730" y="578" text-anchor="middle" class="ttl" fill="#FBBF24" style="font-size:15px">OUTPUT</text><text x="730" y="599" text-anchor="middle" class="cap" style="font-size:13.5px">text shown to the user</text><line x1="560" y1="592" x2="450.2" y2="592" stroke="#FBBF24" stroke-width="2.4" marker-end="url(#ah-FBBF24)"/><text x="24" y="638" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">    </tspan><tspan fill="#C084FC">else</tspan><tspan fill="#EAEFF6">:</tspan></text><text x="24" y="692" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">        </tspan><tspan fill="#EAEFF6">print</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">name</tspan><tspan fill="#EAEFF6">,</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">"needs more practice"</tspan><tspan fill="#EAEFF6">)</tspan></text><text x="24" y="746" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"></text><text x="24" y="800" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#EAEFF6">player</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#EAEFF6">=</tspan><tspan fill="#EAEFF6"> </tspan><tspan fill="#F472B6" font-weight="700">input</tspan><tspan fill="#EAEFF6">(</tspan><tspan fill="#EAEFF6">"Your name? "</tspan><tspan fill="#EAEFF6">)</tspan></text><line x1="115.8" y1="808" x2="166.79999999999998" y2="808" stroke="#F472B6" stroke-width="3" stroke-linecap="round"/><rect x="560" y="776" width="340" height="48" rx="9" fill="#151A24" stroke="#F472B6" stroke-width="2"/><text x="730" y="794" text-anchor="middle" class="ttl" fill="#F472B6" style="font-size:15px">INPUT</text><text x="730" y="815" text-anchor="middle" class="cap" style="font-size:13.5px">the user types their name</text><line x1="560" y1="808" x2="174.79999999999998" y2="808" stroke="#F472B6" stroke-width="2.4" marker-end="url(#ah-F472B6)"/><text x="24" y="854" style="font:500 17px 'JetBrains Mono',monospace;white-space:pre"><tspan fill="#F87171" font-weight="700">run_quiz</tspan><tspan fill="#F87171" font-weight="700">(</tspan><tspan fill="#F87171" font-weight="700">player</tspan><tspan fill="#F87171" font-weight="700">,</tspan><tspan fill="#F87171" font-weight="700"> </tspan><tspan fill="#F87171" font-weight="700">2</tspan><tspan fill="#F87171" font-weight="700">)</tspan></text><line x1="24" y1="862" x2="217.79999999999998" y2="862" stroke="#F87171" stroke-width="3" stroke-linecap="round"/><rect x="560" y="830" width="340" height="48" rx="9" fill="#151A24" stroke="#F87171" stroke-width="2"/><text x="730" y="848" text-anchor="middle" class="ttl" fill="#F87171" style="font-size:15px">CALL</text><text x="730" y="869" text-anchor="middle" class="cap" style="font-size:13.5px">2 arguments for 2 parameters</text><line x1="560" y1="862" x2="225.79999999999998" y2="862" stroke="#F87171" stroke-width="2.4" marker-end="url(#ah-F87171)"/></svg><figcaption>A complete small program with every requirement labeled. Each colored underline is one requirement, and the arrow runs from its caption to the code. This is the program you will build in Practice PT 1.</figcaption></figure>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Requirement</th><th>What it means in plain words</th><th>In the program above</th></tr>
+        <tr><td><b>Input</b></td><td>the user (or a device, data stream, or file) gives the program data</td><td><code>input(...)` for the name and for each answer</code></td></tr>
+        <tr><td><b>List</b></td><td>an ordered collection that stores related data and makes the program easier to write or change</td><td><code>questions` and `answers</code></td></tr>
+        <tr><td><b>Student-developed procedure</b></td><td>a named group of instructions you wrote, with its name and <b>one or more parameters</b></td><td><code>run_quiz(name, passing)</code></td></tr>
+        <tr><td><b>Algorithm in the procedure</b></td><td><b>sequencing, selection, and iteration</b> all inside that procedure's body</td><td><code>score = 0` (sequence), the `if` (selection), the `for` (iteration)</code></td></tr>
+        <tr><td><b>A call</b></td><td>a line that runs your procedure</td><td><code>run_quiz(player, 2)</code></td></tr>
+        <tr><td><b>Output</b></td><td>something the program shows or plays, based on the input and the program's work</td><td>the <code>print</code> lines</td></tr>
+      </table>
+    </div></div>
+    <h3 style="margin:18px 0 6px;">The mistakes that lose the point</h3>
+    <ul class="chk"><li><b>A one-item list.</b> The list needs several items, and it must really help (a program that would be harder to write or change without it).</li><li><b>A list that is never used for anything.</b> The list must connect to what the program does, such as looping through it.</li><li><b>A call that does not match the procedure.</b> If the procedure has two parameters, the call needs two arguments.</li><li><b>Trivial selection or iteration.</b> An <code>if</code> or a loop that never changes the outcome does not count.</li><li><b>A parameter that does nothing.</b> At least one parameter must <b>affect what the procedure does</b>.</li><li><b>Using an event handler or a built-in as your procedure.</b> Built-in procedures and handlers are not student-developed.</li></ul>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>How the Six Points Are Scored</h2></div>
+    <p class="lede">Each row below is worth <b>one point</b>. You earn it only by meeting <b>every</b> part of that row. These descriptions follow the College Board's 2026 scoring guidelines.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Row</th><th>To earn the point</th><th>You lose it if</th></tr>
+        <tr><td><b>Video</b></td><td>The video shows the program running with <b>input</b>, at least one piece of <b>functionality</b>, and <b>output</b>.</td><td>It shows only code, screenshots, or a storyboard instead of the program running.</td></tr>
+        <tr><td><b>Program requirements</b></td><td>The code has a student-developed procedure, a call to it, a list, a use of the list, selection, and iteration.</td><td>The list has one element or is not really used, the call does not match, or selection or iteration is trivial.</td></tr>
+        <tr><td><b>Written Response 1</b></td><td>Describes documentation that suits the program and explains how <b>another programmer</b> could use it to understand a code segment.</td><td>The documentation is made up, wrong, or only explains things to the program's user.</td></tr>
+        <tr><td><b>Written Response 2(a)</b></td><td>Identifies the variables and values that make <b>your iteration stop</b>, and explains why they stop it.</td><td>The loop has no value that stops it, or your explanation does not match the code.</td></tr>
+        <tr><td><b>Written Response 2(b)</b></td><td>Gives a call with <b>specific argument values</b> that makes the procedure behave incorrectly, describes the behavior, and explains why.</td><td>The arguments are only described in general, or the parameter has no effect.</td></tr>
+        <tr><td><b>Written Response 2(c)</b></td><td>Explains how the list <b>manages complexity</b>, and what the list code would need to change without the list.</td><td>The list is not in the PPR or not used in the second list segment, or the explanation does not fit the program.</td></tr>
+      </table>
+    </div></div>
+    <div class="warn"><b>The written prompts change from year to year.</b> In 2025, for example, 2(a) asked about the Boolean expression in the first selection statement, and in 2026 it asked what stops the first loop. So do not memorize one answer. Build a program that gives you something good to say about <b>every</b> part of it.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Honesty, AI Help, and Citing Code</h2></div>
+    <p class="lede">Plagiarism earns a <b>0 on the entire Create task</b>, including your written responses on exam day.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>If your program uses...</th><th>Add a comment like this</th></tr>
+        <tr><td>code your teacher gave you</td><td><code># This code was provided as starter code by my teacher.</code></td></tr>
+        <tr><td>open-source code or an API</td><td><code># This code was made freely available by [source of code].</code></td></tr>
+        <tr><td>code written with an AI tool</td><td><code># This code was generated using [AI tool name].</code></td></tr>
+      </table>
+    </div></div>
+    <ul class="chk"><li>AI tools may be used as a <b>helper</b> to understand ideas, write code, and debug. But you must understand every line, because you will have to explain your own code on exam day.</li><li>Any code you build on must be <b>extended in a new way</b> by you.</li><li>Do not submit a practice task, a sample, or work someone else changed.</li><li>Your PPR must <b>not</b> contain comments or course content. Remove them before you take your screenshots.</li></ul>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Meet every requirement, and you give yourself an answer for every prompt.</h2>
+    <p>Next: how to make the video, the reference sheet, and the written responses.</p>
+    <div class="assign-root" data-unit="6" data-slot="a35" data-concept="The Create Task: Rules and Scoring" style="margin-bottom:10px"></div>
+    <a class="back" href="create-task-video-ppr.html">Video, Reference Sheet, Written Responses &rarr;</a>
+    <a class="back" href="unit-6/index.html">&larr; Unit 6</a>
+    <p class="sig">Python Notes &nbsp;/&nbsp; The Create Task: Rules and Scoring &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+<script src="lesson-assignment.js?v=2"></script>
+</body>
+</html>
