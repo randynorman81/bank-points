@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulations | Python Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#A3E635; --acc-tint:rgba(163,230,53,.14); --acc-ink:#D9F99D;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#1A2E05;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:18ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .err{color:var(--bad-ink);font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.ok{border-top-color:var(--acc)}
+.box.bad{border-top-color:var(--bad)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F1FAD9}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.bad{background:var(--bad-tint)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+</style>
+<style>
+.stp{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:14px 12px}.stp .frame{display:none}.stp .frame.on{display:block}.stp .ctl{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:10px}.stp button{font:700 14px Manrope,system-ui,sans-serif;padding:8px 16px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer}.stp button:hover{border-color:#A3E635}.stp .cnt{font:600 13px Manrope,system-ui,sans-serif;color:var(--ink-soft)}.stp .say{margin:10px auto 0;max-width:70ch;text-align:center;font-size:15px;line-height:1.5}
+.fig{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:16px 12px 12px;overflow-x:auto}
+.fig figcaption{margin:12px auto 0;max-width:70ch;text-align:center;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
+ul.chk{margin:6px 0 20px;padding-left:22px}ul.chk li{margin:6px 0}
+.resp{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--acc);border-radius:6px;padding:14px 18px;margin:8px 0 18px}
+.resp .rl{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:6px}
+.resp p{margin:0 0 .6em}
+.cards.one{grid-template-columns:1fr}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="unit-7/index.html">&larr; Unit 7</a>
+  <a href="lists-indexing.html">Lists and Indexing</a>
+  <a href="list-operations.html">Adding and Removing Items</a>
+  <a href="lists-for-loops.html">For Loops and Lists</a>
+  <a href="simulations.html" class="current">Simulations</a>
+  <a href="searching-efficiency.html">Searching and Efficiency</a>
+  <a href="data-abstraction.html">Data Abstraction and the Create Task</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">PYTHON NOTES &nbsp;/&nbsp; SUBJECT: MODELING THE REAL WORLD WITH RANDOM NUMBERS</div>
+    <h1>Simulations</h1>
+    <p class="deck">A <b>simulation</b> is a program that <b>imitates</b> something in the real world so you can study it without doing it for real. The AP exam asks you <b>why</b> simulations are useful, <b>what they leave out</b>, and how <b>random numbers</b> make them work.</p>
+  </div>
+</header>
+<div class="wrap"><div class="assign-root" data-unit="7" data-slot="a42" data-concept="Simulations"></div></div>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>What a Simulation Is</h2></div>
+    <p class="lede">A simulation uses a <b>model</b>: a <b>simplified</b> version of something real. The model keeps the parts that matter and <b>leaves out</b> the rest. This is <b>abstraction</b>.</p>
+    <figure class="fig"><svg class="diagram" viewBox="0 0 900 250" role="img" aria-label="A simulation: the real world is simplified into a model, which runs with random values to give results" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-width:900px;margin:0 auto"><defs><marker id="mEAEFF6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#EAEFF6"/></marker><marker id="m8B9AAE" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8B9AAE"/></marker><marker id="m60A5FA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#60A5FA"/></marker><marker id="m34D399" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#34D399"/></marker><marker id="mFBBF24" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FBBF24"/></marker><marker id="mF472B6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F472B6"/></marker><marker id="mC084FC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#C084FC"/></marker><marker id="mFB923C" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FB923C"/></marker><marker id="mF87171" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F87171"/></marker><marker id="m2DD4BF" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2DD4BF"/></marker><marker id="mA3E635" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#A3E635"/></marker></defs><style>.cd{font:600 20px 'JetBrains Mono',monospace}.ix{font:600 15px 'JetBrains Mono',monospace}.cp{font:500 15px Manrope,system-ui,sans-serif;fill:#D5DDE8}.tt{font:700 16px 'JetBrains Mono',monospace}</style><rect x="20" y="30" width="230" height="70" rx="9" fill="#151A24" stroke="#60A5FA" stroke-width="2"/><text x="135" y="52" class="tt" text-anchor="middle" fill="#60A5FA" style="font-size:14px">REAL WORLD</text><text x="135" y="72" class="cp" text-anchor="middle" style="font-size:13px">a free throw: wind, crowd, tired legs</text><rect x="335" y="30" width="230" height="70" rx="9" fill="#151A24" stroke="#C084FC" stroke-width="2"/><text x="450" y="52" class="tt" text-anchor="middle" fill="#C084FC" style="font-size:14px">MODEL (abstraction)</text><text x="450" y="72" class="cp" text-anchor="middle" style="font-size:13px">keep only: 70% chance to score</text><rect x="650" y="30" width="230" height="70" rx="9" fill="#151A24" stroke="#34D399" stroke-width="2"/><text x="765" y="52" class="tt" text-anchor="middle" fill="#34D399" style="font-size:14px">RESULTS</text><text x="765" y="72" class="cp" text-anchor="middle" style="font-size:13px">what happened in 100 shots</text><line x1="250" y1="65" x2="333" y2="65" stroke="#60A5FA" stroke-width="2.6"  marker-end="url(#m60A5FA)"/><line x1="565" y1="65" x2="648" y2="65" stroke="#C084FC" stroke-width="2.6"  marker-end="url(#mC084FC)"/><text x="292" y="50" class="cp" text-anchor="middle" fill="#60A5FA">simplify</text><text x="607" y="50" class="cp" text-anchor="middle" fill="#C084FC">run</text><rect x="335" y="150" width="230" height="70" rx="9" fill="#151A24" stroke="#FBBF24" stroke-width="2"/><text x="450" y="172" class="tt" text-anchor="middle" fill="#FBBF24" style="font-size:14px">RANDOM NUMBERS</text><text x="450" y="192" class="cp" text-anchor="middle" style="font-size:13px">so each run can be different</text><line x1="450" y1="148" x2="450" y2="102" stroke="#FBBF24" stroke-width="2.6"  marker-end="url(#mFBBF24)"/><text x="150" y="172" class="cp" text-anchor="middle" fill="#F87171" font-weight="700">details left OUT of the model</text><text x="150" y="194" class="cp" text-anchor="middle" fill="#F87171">can make the results biased</text><line x1="250" y1="160" x2="333" y2="105" stroke="#F87171" stroke-width="2.6" stroke-dasharray="6 5" marker-end="url(#mF87171)"/><text x="750" y="172" class="cp" text-anchor="middle" fill="#34D399" font-weight="700">faster, cheaper, and safer</text><text x="750" y="194" class="cp" text-anchor="middle" fill="#34D399">than testing the real thing</text><line x1="650" y1="160" x2="567" y2="105" stroke="#34D399" stroke-width="2.6" stroke-dasharray="6 5" marker-end="url(#m34D399)"/></svg><figcaption>A basketball free throw as a simulation. The <b>real world</b> is complicated, so the <b>model</b> keeps only one fact (a 70% chance to score). <b>Random numbers</b> make each run different. The red arrow is the cost of simplifying: <b>details left out</b> can make results <b>biased</b>.</figcaption></figure>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Real thing</th><th>Simulation of it</th><th>Why simulate</th></tr>
+        <tr><td>a hurricane's path</td><td>a weather model</td><td>you cannot test a real hurricane</td></tr>
+        <tr><td>a new bridge</td><td>a stress test on a computer</td><td>cheaper and safer than building it</td></tr>
+        <tr><td>a pandemic spreading</td><td>a population model</td><td>you can test ideas without harming anyone</td></tr>
+        <tr><td>rolling dice 1,000 times</td><td>a loop with random numbers</td><td>much faster than doing it by hand</td></tr>
+      </table>
+    </div></div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Random Numbers Drive It</h2></div>
+    <p class="lede">Real events are <b>uncertain</b>, so a simulation uses <b>random</b> values. Each time you run it, you can get <b>different results</b>.</p>
+    <div class="code">import random
+
+flips = []
+for i in range(5):
+    flips.append(random.choice(["heads", "tails"]))
+print(flips)          <span class="cm"># a different list every run</span></div>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Python (random library)</th><th>What it does</th><th>AP exam pseudocode</th></tr>
+        <tr><td><code>random.randint(1, 6)</code></td><td>a random whole number from 1 to 6, both included</td><td><code>RANDOM(1, 6)</code></td></tr>
+        <tr><td><code>random.choice(items)</code></td><td>a random item from a list</td><td>(use <code>items[RANDOM(1, LENGTH(items))]</code>)</td></tr>
+      </table>
+    </div></div>
+    <div class="stp" id="stp1"><p style="margin:0 0 8px;text-align:center;font-weight:700">One run of the coin-flip loop</p><div class="frame on"><svg class="diagram" viewBox="0 0 900 156" role="img" aria-label="list diagram" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-width:900px;margin:0 auto"><defs><marker id="mEAEFF6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#EAEFF6"/></marker><marker id="m8B9AAE" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8B9AAE"/></marker><marker id="m60A5FA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#60A5FA"/></marker><marker id="m34D399" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#34D399"/></marker><marker id="mFBBF24" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FBBF24"/></marker><marker id="mF472B6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F472B6"/></marker><marker id="mC084FC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#C084FC"/></marker><marker id="mFB923C" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FB923C"/></marker><marker id="mF87171" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F87171"/></marker><marker id="m2DD4BF" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2DD4BF"/></marker><marker id="mA3E635" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#A3E635"/></marker></defs><style>.cd{font:600 20px 'JetBrains Mono',monospace}.ix{font:600 15px 'JetBrains Mono',monospace}.cp{font:500 15px Manrope,system-ui,sans-serif;fill:#D5DDE8}.tt{font:700 16px 'JetBrains Mono',monospace}</style><text x="450" y="28" class="tt" text-anchor="middle" fill="#8B9AAE">before the loop</text><text x="444" y="94" class="tt" text-anchor="middle" text-anchor="end" fill="#8B9AAE">flips =</text></svg><p class="say">Start with an <b>empty list</b>. The loop will run 5 times.</p></div><div class="frame"><svg class="diagram" viewBox="0 0 900 156" role="img" aria-label="list diagram" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-width:900px;margin:0 auto"><defs><marker id="mEAEFF6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#EAEFF6"/></marker><marker id="m8B9AAE" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8B9AAE"/></marker><marker id="m60A5FA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#60A5FA"/></marker><marker id="m34D399" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#34D399"/></marker><marker id="mFBBF24" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FBBF24"/></marker><marker id="mF472B6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F472B6"/></marker><marker id="mC084FC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#C084FC"/></marker><marker id="mFB923C" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FB923C"/></marker><marker id="mF87171" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F87171"/></marker><marker id="m2DD4BF" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2DD4BF"/></marker><marker id="mA3E635" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#A3E635"/></marker></defs><style>.cd{font:600 20px 'JetBrains Mono',monospace}.ix{font:600 15px 'JetBrains Mono',monospace}.cp{font:500 15px Manrope,system-ui,sans-serif;fill:#D5DDE8}.tt{font:700 16px 'JetBrains Mono',monospace}</style><text x="450" y="28" class="tt" text-anchor="middle" fill="#8B9AAE">pass 1</text><text x="388" y="94" class="tt" text-anchor="middle" text-anchor="end" fill="#8B9AAE">flips =</text><rect x="421" y="58" width="106" height="56" rx="9" fill="#14202A" stroke="#34D399" stroke-width="3" /><text x="474" y="93" class="cd" text-anchor="middle" fill="#34D399" >heads</text></svg><p class="say"><b>Pass 1:</b> <code>random.choice</code> happened to pick <b>heads</b>, and <code>append</code> adds it.</p></div><div class="frame"><svg class="diagram" viewBox="0 0 900 156" role="img" aria-label="list diagram" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-width:900px;margin:0 auto"><defs><marker id="mEAEFF6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#EAEFF6"/></marker><marker id="m8B9AAE" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8B9AAE"/></marker><marker id="m60A5FA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#60A5FA"/></marker><marker id="m34D399" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#34D399"/></marker><marker id="mFBBF24" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FBBF24"/></marker><marker id="mF472B6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F472B6"/></marker><marker id="mC084FC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#C084FC"/></marker><marker id="mFB923C" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FB923C"/></marker><marker id="mF87171" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F87171"/></marker><marker id="m2DD4BF" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2DD4BF"/></marker><marker id="mA3E635" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#A3E635"/></marker></defs><style>.cd{font:600 20px 'JetBrains Mono',monospace}.ix{font:600 15px 'JetBrains Mono',monospace}.cp{font:500 15px Manrope,system-ui,sans-serif;fill:#D5DDE8}.tt{font:700 16px 'JetBrains Mono',monospace}</style><text x="450" y="28" class="tt" text-anchor="middle" fill="#8B9AAE">pass 3</text><text x="276" y="94" class="tt" text-anchor="middle" text-anchor="end" fill="#8B9AAE">flips =</text><rect x="309" y="58" width="106" height="56" rx="9" fill="#05070B" stroke="#2F3A4A" stroke-width="1.6" /><text x="362" y="93" class="cd" text-anchor="middle" fill="#EAEFF6" >heads</text><rect x="421" y="58" width="106" height="56" rx="9" fill="#14202A" stroke="#34D399" stroke-width="3" /><text x="474" y="93" class="cd" text-anchor="middle" fill="#34D399" >tails</text><rect x="533" y="58" width="106" height="56" rx="9" fill="#14202A" stroke="#34D399" stroke-width="3" /><text x="586" y="93" class="cd" text-anchor="middle" fill="#34D399" >tails</text></svg><p class="say"><b>Passes 2 and 3:</b> <b>tails</b>, <b>tails</b>. The results are <b>random</b>, so another run would give a different list.</p></div><div class="frame"><svg class="diagram" viewBox="0 0 900 156" role="img" aria-label="list diagram" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-width:900px;margin:0 auto"><defs><marker id="mEAEFF6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#EAEFF6"/></marker><marker id="m8B9AAE" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8B9AAE"/></marker><marker id="m60A5FA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#60A5FA"/></marker><marker id="m34D399" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#34D399"/></marker><marker id="mFBBF24" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FBBF24"/></marker><marker id="mF472B6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F472B6"/></marker><marker id="mC084FC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#C084FC"/></marker><marker id="mFB923C" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FB923C"/></marker><marker id="mF87171" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F87171"/></marker><marker id="m2DD4BF" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2DD4BF"/></marker><marker id="mA3E635" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#A3E635"/></marker></defs><style>.cd{font:600 20px 'JetBrains Mono',monospace}.ix{font:600 15px 'JetBrains Mono',monospace}.cp{font:500 15px Manrope,system-ui,sans-serif;fill:#D5DDE8}.tt{font:700 16px 'JetBrains Mono',monospace}</style><text x="450" y="28" class="tt" text-anchor="middle" fill="#8B9AAE">finished</text><text x="164" y="94" class="tt" text-anchor="middle" text-anchor="end" fill="#8B9AAE">flips =</text><rect x="197" y="58" width="106" height="56" rx="9" fill="#05070B" stroke="#2F3A4A" stroke-width="1.6" /><text x="250" y="93" class="cd" text-anchor="middle" fill="#EAEFF6" >heads</text><rect x="309" y="58" width="106" height="56" rx="9" fill="#05070B" stroke="#2F3A4A" stroke-width="1.6" /><text x="362" y="93" class="cd" text-anchor="middle" fill="#EAEFF6" >tails</text><rect x="421" y="58" width="106" height="56" rx="9" fill="#05070B" stroke="#2F3A4A" stroke-width="1.6" /><text x="474" y="93" class="cd" text-anchor="middle" fill="#EAEFF6" >tails</text><rect x="533" y="58" width="106" height="56" rx="9" fill="#14202A" stroke="#34D399" stroke-width="3" /><text x="586" y="93" class="cd" text-anchor="middle" fill="#34D399" >heads</text><rect x="645" y="58" width="106" height="56" rx="9" fill="#14202A" stroke="#34D399" stroke-width="3" /><text x="698" y="93" class="cd" text-anchor="middle" fill="#34D399" >tails</text></svg><p class="say"><b>After 5 passes:</b> the list holds the whole simulation's results. <b>3 tails, 2 heads</b> this time. Run it again and the counts change.</p></div><div class="ctl"><button type="button" data-d="-1">&larr; Back</button><span class="cnt"></span><button type="button" data-d="1">Next step &rarr;</button></div></div>
+    <script>(function(){var r=document.getElementById("stp1"),f=r.querySelectorAll(".frame"),c=r.querySelector(".cnt"),i=0;function s(){f.forEach(function(x,k){x.classList.toggle("on",k===i)});c.textContent="Step "+(i+1)+" of "+f.length}r.querySelectorAll("button").forEach(function(b){b.onclick=function(){i=Math.max(0,Math.min(f.length-1,i+Number(b.dataset.d)));s()}});s()})();</script>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Counting the Results</h2></div>
+    <p class="lede">A simulation is only useful when you <b>summarize</b> what happened. Use a <b>counter</b> (or a list of counters) in the loop.</p>
+    <div class="code">import random
+
+made = 0
+for shot in range(100):
+    if random.randint(1, 10) &lt;= 7:      <span class="cm"># 7 of 10 numbers means a 70% chance</span>
+        made = made + 1
+print("Made", made, "of 100")           <span class="cm"># usually near 70, but not always exactly 70</span></div>
+    <ul class="chk"><li>The <code>if</code> decides the <b>outcome of each trial</b>. Here, a number from 1 to 7 counts as a made shot.</li><li>The counter <code>made</code> is the <b>accumulation pattern</b> from the last page.</li><li>Run it <b>many times</b> to get a better picture. 100 trials give a closer answer than 10 trials.</li></ul>
+    <div class="hint-panel"><b>More trials means a more reliable answer.</b> A simulation of 10 free throws can easily look very different from the true 70%. A simulation of 10,000 will be close.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Advantages and Limits</h2></div>
+    <p class="lede">The exam asks both: <b>why use a simulation</b>, and <b>why it cannot be fully trusted</b>.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Advantage</th><th>Limit or risk</th></tr>
+        <tr><td><b>Safer:</b> test dangerous things without danger</td><td>The model <b>leaves out details</b>, so results may not match reality</td></tr>
+        <tr><td><b>Cheaper and faster:</b> no real materials or real time</td><td>The results depend on the <b>assumptions</b> the programmer chose, which can be <b>biased</b></td></tr>
+        <tr><td><b>Repeatable:</b> run it thousands of times</td><td>A simulation gives <b>evidence</b>, not <b>proof</b></td></tr>
+        <tr><td><b>Can test 'what if':</b> change one value and rerun</td><td>Random results <b>differ each run</b></td></tr>
+      </table>
+    </div></div>
+    <div class="warn"><b>Exam wording:</b> a simulation <b>abstracts</b> the real thing by removing details. It can be used to investigate a hypothesis, but it <b>may not be exactly like the real world</b>. A choice that includes 'guarantees the exact real result' is <b>wrong</b>.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>Practice Reading Exam Pseudocode</h2></div>
+    <p class="lede">A typical question gives a simulation and asks what <b>could</b> happen.</p>
+    <div class="code">heads ← 0
+REPEAT 4 TIMES
+{
+   IF (RANDOM(1, 2) = 1)
+   {
+      heads ← heads + 1
+   }
+}
+DISPLAY(heads)</div>
+    <ul class="chk"><li><code>RANDOM(1, 2)</code> is <b>1 or 2</b>, so each pass has a <b>50% chance</b> of adding to <code>heads</code>.</li><li>The loop runs <b>4</b> times, so <code>heads</code> can be <b>0, 1, 2, 3, or 4</b>.</li><li>A question will ask which values are <b>possible</b>. The answer is <b>all five</b>, even though 2 is the most likely.</li><li>It could <b>not</b> display 5, because the loop only runs 4 times.</li></ul>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>A simulation is a simplified model plus random numbers.</h2>
+    <p>Next: searching a list, and how to tell whether an algorithm is efficient.</p>
+    <div class="assign-root" data-unit="7" data-slot="a42" data-concept="Simulations" style="margin-bottom:10px"></div>
+    <a class="back" href="searching-efficiency.html">Searching and Efficiency &rarr;</a>
+    <a class="back" href="lists-for-loops.html">&larr; For Loops and Lists</a>
+    <a class="back" href="unit-7/index.html">&larr; Unit 7</a>
+    <p class="sig">Python Notes &nbsp;/&nbsp; Simulations &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+<script src="lesson-assignment.js?v=2"></script>
+</body>
+</html>

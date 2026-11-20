@@ -67,7 +67,7 @@ const COURSES = [
       { n: 4, title: "Python Control Structures", migrated: true, path: "apcsp/unit-4/index.html", badge: "PYTHON COMPILER" },
       { n: 5, title: "Functions and Parameters", migrated: true, path: "apcsp/unit-5/index.html", badge: "PYTHON COMPILER" },
       { n: 6, title: "Practice PT: Create Task", migrated: true, path: "apcsp/unit-6/index.html", badge: "PYTHON COMPILER" },
-      { n: 7, title: "Basic Data Structures", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 7, title: "Basic Data Structures", migrated: true, path: "apcsp/unit-7/index.html", badge: "PYTHON COMPILER" },
       { n: 8, title: "Digital Information", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
       { n: 9, title: "Practice PT: The Shopping List", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
       { n: 10, title: "The Internet", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
