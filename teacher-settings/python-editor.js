@@ -36,16 +36,16 @@ export const PY_SETTINGS = {
   a43: { live: true, hold: true, needBoth: true, passMin: 90 },                // Walkthrough 5: Searching and Efficiency
   a44: { live: true, hold: true, needBoth: true, passMin: 90 },                // Walkthrough 6: Data Abstraction and the Create Task
   /* Unit 8: Digital Information (10 gate walkthroughs, each with a graded assignment under it, and a quiz) */
-  a45: { live: true, hold: true, needBoth: true, fresh: true, passMin: 100 },   // Unit 8 Walkthrough 1: Intro to Digital Information (a gate: 100% opens the assignment under it)
-  a46: { live: true, hold: true, needBoth: true, passMin: 100 },   // Unit 8 Walkthrough 2: Number Systems (a gate: 100% opens the assignment under it)
-  a47: { live: true, hold: true, needBoth: true, passMin: 100 },   // Unit 8 Walkthrough 3: Encoding Text with Binary (a gate: 100% opens the assignment under it)
-  a48: { live: true, hold: true, needBoth: true, passMin: 100 },   // Unit 8 Walkthrough 4: Pixel Images (a gate: 100% opens the assignment under it)
-  a49: { live: true, hold: true, needBoth: true, passMin: 100 },   // Unit 8 Walkthrough 5: Hexadecimal (a gate: 100% opens the assignment under it)
-  a50: { live: true, hold: true, needBoth: true, passMin: 100 },   // Unit 8 Walkthrough 6: Pixel Colors (a gate: 100% opens the assignment under it)
-  a51: { live: true, hold: true, needBoth: true, passMin: 100 },   // Unit 8 Walkthrough 7: Image Manipulation (a gate: 100% opens the assignment under it)
-  a52: { live: true, hold: true, needBoth: true, passMin: 100 },   // Unit 8 Walkthrough 8: Data Compression (a gate: 100% opens the assignment under it)
-  a53: { live: true, hold: true, needBoth: true, passMin: 100 },   // Unit 8 Walkthrough 9: Lossy Compression (a gate: 100% opens the assignment under it)
-  a54: { live: true, hold: true, needBoth: true, passMin: 100 },   // Unit 8 Walkthrough 10: Cryptography (a gate: 100% opens the assignment under it)
+  a45: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", fresh: true, passMin: 100 },   // Unit 8 Walkthrough 1: Intro to Digital Information (a gate: 100% opens the assignment under it)
+  a46: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", passMin: 100 },   // Unit 8 Walkthrough 2: Number Systems (a gate: 100% opens the assignment under it)
+  a47: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", passMin: 100 },   // Unit 8 Walkthrough 3: Encoding Text with Binary (a gate: 100% opens the assignment under it)
+  a48: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", passMin: 100 },   // Unit 8 Walkthrough 4: Pixel Images (a gate: 100% opens the assignment under it)
+  a49: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", passMin: 100 },   // Unit 8 Walkthrough 5: Hexadecimal (a gate: 100% opens the assignment under it)
+  a50: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", passMin: 100 },   // Unit 8 Walkthrough 6: Pixel Colors (a gate: 100% opens the assignment under it)
+  a51: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", passMin: 100 },   // Unit 8 Walkthrough 7: Image Manipulation (a gate: 100% opens the assignment under it)
+  a52: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", passMin: 100 },   // Unit 8 Walkthrough 8: Data Compression (a gate: 100% opens the assignment under it)
+  a53: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", passMin: 100 },   // Unit 8 Walkthrough 9: Lossy Compression (a gate: 100% opens the assignment under it)
+  a54: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", passMin: 100 },   // Unit 8 Walkthrough 10: Cryptography (a gate: 100% opens the assignment under it)
   a55: { live: true, part: "project", seq: 1.5, passMin: 0 },   // Unit 8 Assignment 1: graded work under Walkthrough 1
   a56: { live: true, part: "project", seq: 2.5, passMin: 0 },   // Unit 8 Assignment 2: graded work under Walkthrough 2
   a57: { live: true, part: "project", seq: 3.5, passMin: 0 },   // Unit 8 Assignment 3: graded work under Walkthrough 3
