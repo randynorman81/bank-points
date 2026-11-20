@@ -127,13 +127,11 @@ add(rect)</div>
 <section class="part">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">01</div><h2>Examples</h2></div>
-    <p class="lede">A rectangle can tell you its own size and its own corner position.</p>
+    <p class="lede">A rectangle can tell you its own corner position. Its width and height aren't stored anywhere you can ask for later &mdash; keep them in your own variables from the start.</p>
 
     <div class="tblwrap"><div class="tblscroll">
       <table class="cmp">
         <tr><th>What you want</th><th>Code</th></tr>
-        <tr><td>The width</td><td><code>rect.get_width()</code></td></tr>
-        <tr><td>The height</td><td><code>rect.get_height()</code></td></tr>
         <tr><td>The corner's x position</td><td><code>rect.get_x()</code></td></tr>
         <tr><td>The corner's y position</td><td><code>rect.get_y()</code></td></tr>
         <tr><td>Move it (relative)</td><td><code>rect.move(dx, dy)</code></td></tr>
@@ -142,16 +140,18 @@ add(rect)</div>
 
     <h3 style="margin-top:8px;">Truly centering a rectangle</h3>
     <p>Unlike Circle, centering a Rectangle takes an extra step &mdash; because <code>set_position()</code> sets the <em>corner</em>, you have to shift it back by half the rectangle's own width and height first, or it'll be centered "too far down and right."</p>
-    <div class="code">rect = Rectangle(200, 50)
+    <div class="code">width = 200
+height = 50
+rect = Rectangle(width, height)
 
 <span class="cm"># naive version -- puts the CORNER at center, not the rectangle</span>
 rect.set_position(get_width() / 2, get_height() / 2)
 
-<span class="cm"># truly centered -- uses the rectangle's own width and height</span>
-x = get_width() / 2 - rect.get_width() / 2
-y = get_height() / 2 - rect.get_height() / 2
+<span class="cm"># truly centered -- uses the width/height you already know</span>
+x = get_width() / 2 - width / 2
+y = get_height() / 2 - height / 2
 rect.set_position(x, y)</div>
-    <div class="example"><b>This is exactly why get_width() and get_height() exist on a shape.</b> You need to know how big the rectangle actually is before you can correctly offset it away from a corner-based position.</div>
+    <div class="example"><b>Keep width and height in variables from the moment you create the rectangle.</b> You already typed those two numbers once to make it &mdash; save them so you can reuse them for math like this instead of trying to ask the rectangle for its own size back.</div>
   </div>
 </section>
 
@@ -162,12 +162,12 @@ rect.set_position(x, y)</div>
     <div class="warn"><b>Treating set_position() like Circle's:</b> Circle positions its center; Rectangle positions its <b>top-left corner</b>. Code copied from a Circle example and reused for a Rectangle will place it shifted down and to the right of where you meant.</div>
     <div class="two">
       <div class="box">
-        <h3>No set_width() / set_height()</h3>
-        <p>Rectangle has <code>get_width()</code>/<code>get_height()</code> to read its size, but no matching setters &mdash; you can't resize one after creating it. If you need a different size, make a new <code>Rectangle</code>.</p>
+        <h3>No way to resize, and no size getter</h3>
+        <p>There's no <code>set_width()</code>/<code>set_height()</code> to resize a Rectangle after creating it &mdash; make a new one instead. There's also no confirmed <code>get_width()</code>/<code>get_height()</code> to ask it back, which is exactly why you should save the width and height in your own variables the moment you create it.</p>
       </div>
       <div class="box">
         <h3>Running off the canvas</h3>
-        <p>Because it grows right and down from its corner, a rectangle placed near the bottom-right edge can easily extend past <code>get_width()</code>/<code>get_height()</code> without any warning.</p>
+        <p>Because it grows right and down from its corner, a rectangle placed near the bottom-right edge can easily extend past the edge of the canvas without any warning.</p>
       </div>
     </div>
   </div>
@@ -177,7 +177,7 @@ rect.set_position(x, y)</div>
 <section class="part">
   <div class="wrap">
     <div class="part-head"><div class="part-tag">03</div><h2>Python Code vs. Pseudocode</h2></div>
-    <p class="lede">Same answer as the Graphics hub: <code>Rectangle</code>, <code>get_width()</code>, and every method on this page are specific to CodeHS's graphics library. None of it is part of the official AP CSP pseudocode.</p>
+    <p class="lede">Same answer as the Graphics hub: <code>Rectangle</code>, <code>get_x()</code>, and every method on this page are specific to CodeHS's graphics library. None of it is part of the official AP CSP pseudocode.</p>
     <div class="hint-panel">The multiple-choice exam never asks you to draw anything &mdash; pseudocode there stays limited to variables, math, lists, conditionals, loops, and procedures. Everything on this page is real code you'll write for your <b>Create Performance Task</b>, not something you'll see written as pseudocode.</div>
   </div>
 </section>
