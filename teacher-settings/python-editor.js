@@ -56,7 +56,9 @@ export const PY_SETTINGS = {
   a62: { live: true, part: "project", seq: 8.5, passMin: 0 },   // Unit 8 Assignment 8: graded work under Walkthrough 8
   a63: { live: true, part: "project", seq: 9.5, passMin: 0 },   // Unit 8 Assignment 9: graded work under Walkthrough 9
   a64: { live: true, part: "project", seq: 10.5, passMin: 0 },   // Unit 8 Assignment 10: graded work under Walkthrough 10
-  a65: { live: true, hold: true, passMin: 90 }   // Unit 8 Quiz: Digital Information (opens when you open it)
+  a65: { live: true, hold: true, passMin: 90 },  // Unit 8 Quiz: Digital Information (opens when you open it)
+  /* Unit 9: Practice Performance Task (starts its own chain) */
+  a66: { live: true, hold: true, fresh: true, passMin: 90 }   // Unit 9 Practice PT 2: The Shopping List
 };
 /* WORDING CHANGES to a walkthrough, kept in the code (no PIN). Each one gets a copy of the walkthrough and changes it. */
 const STEP5_ODD = "Now test an odd number **without changing your code above**. Below your last line, type `number = 7`, then type the same four `print` lines again under it (you can copy and paste your own lines). Add an **end-of-line comment** at the end of your last print line with what the four answers were for 7. If that line already has a comment, add to it. [[How do I test 7?|oddtest]]";
