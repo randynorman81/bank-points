@@ -366,6 +366,14 @@ var ta = $("code"), out = $("out"), gut = $("gut"), runBtn = $("run"), statusEl 
 var mode = "python";
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+/* optional note to the teacher, sent with a submission (saved here so it is still there if they submit again) */
+function cmtBox(bodyId, key) {
+  var b = document.getElementById(bodyId); if (!b) return;
+  var d = document.createElement("div");
+  d.innerHTML = '<label for="subComment" style="display:block;margin-top:10px;font-weight:700">Comment for your teacher <span style="font-weight:400;opacity:.75">(optional)</span></label><textarea id="subComment" maxlength="1000" rows="3" placeholder="Anything your teacher should know, like what you got stuck on or what you changed." style="width:100%;box-sizing:border-box;margin-top:6px;padding:8px;min-height:64px;resize:vertical;font:inherit;color:inherit;background:transparent;border:1px solid rgba(128,128,128,.55);border-radius:6px"></textarea>';
+  b.appendChild(d); var t = document.getElementById("subComment"); t.value = lsGet(key) || "";
+}
+function cmtVal(key) { var t = document.getElementById("subComment"), v = t ? t.value.trim() : ""; lsSet(key, v); return v; }
 var URLSLOT = (location.search.match(/[?&]a=((?:a|pg|pb|pc)\d+)/) || [])[1] || null;
 /* the assignment you are on is kept in two places, so a refresh always comes back to it: the browser's storage and the address (#a19) */
 function slotFromAddress() { var m = /^#(free|example|a\d+|pg\d+|pb\d+|pc\d+)$/.exec(location.hash || ""); return m ? m[1] : ""; }
@@ -1791,6 +1799,7 @@ $("submit").addEventListener("click", function () {
   if (slot === "free") { alert("Sandbox work is saved for you but not graded. Pick an assignment in the Assignment box to submit."); return; }
   if (!$("period").value) { alert("Choose your class period at the top first."); $("period").focus(); return; }
   $("mSubBody").innerHTML = "<p>Submit <b>" + escA(slotLabel(slot)) + "</b> for period <b>" + escA($("period").value) + "</b>?</p><p>Your teacher will see your code and your last output. You can submit again later to replace it.</p>" + (running || !out.textContent.trim() ? "<p style=\"color:#FCD34D\">Tip: click Run first so your teacher can see your output.</p>" : "");
+  cmtBox("mSubBody", "py:cmt:" + slot);
   $("mSub").classList.add("show");
 });
 $("mCancel").addEventListener("click", function () { $("mSub").classList.remove("show"); });
@@ -1807,7 +1816,7 @@ $("resetQuiz").addEventListener("click", function () {
 });
 $("mGo").addEventListener("click", function () {
   var b = this; b.disabled = true; quizMute(6000);
-  api({ action: "submit", slot: slot, mode: mode, code: ta.value, world: curWorld(), ticks: currentTicks(), period: $("period").value, output: out.textContent.slice(-3500), gradeOutput: hiddenOutput(ta.value, (window.PY_ASSIGN || {})[slot]), mc: getMc() }).then(function (j) {
+  api({ action: "submit", slot: slot, comment: cmtVal("py:cmt:" + slot), mode: mode, code: ta.value, world: curWorld(), ticks: currentTicks(), period: $("period").value, output: out.textContent.slice(-3500), gradeOutput: hiddenOutput(ta.value, (window.PY_ASSIGN || {})[slot]), mc: getMc() }).then(function (j) {
     b.disabled = false; quizMute(2500); $("mSub").classList.remove("show");
     if (!(j && j.ok)) qfReset();
     if (j && j.ok) { MY[slot] = "sub"; qFinishHide(); if (isQuizNow()) { document.body.classList.remove("mconly"); try { $("assBody").scrollTop = 0; } catch (eq) {} } lastCloud = ta.value; window.LAST_MC = j.mc ? { slot: slot, mc: j.mc } : null; loadAssignments(); buildSlots(); try { var mhh = document.querySelector(".mchint"); if (j.mc && mhh) mhh.innerHTML = "<b>Your multiple-choice score: " + j.mc.correct + " out of " + j.mc.total + " (" + j.mc.pct + "%)</b>" + (j.mc.wrong && j.mc.wrong.length ? " &middot; Questions to review: <b>" + j.mc.wrong.join(", ") + "</b>" : " &middot; <b>Every question right!</b>"); } catch (e3) {} statusEl.textContent = "Submitted " + new Date(j.submittedAt).toLocaleString() + (j.count > 1 ? " (#" + j.count + ")" : ""); alert(j.unlock && j.unlock.both ? bothMsg(j) : isQuizNow() ? "Submitted! ✓\n\nYour quiz scored 100% and is turned in for your grade.\n\nYou can pick your next assignment from the menu at the top." : "Submitted! ✓" + (j.mc ? "\n\nYour score: " + j.mc.correct + " out of " + j.mc.total + " (" + j.mc.pct + "%)." + (j.mc.wrong && j.mc.wrong.length ? "\n\nQuestions to review: " + j.mc.wrong.join(", ") + "." : (j.mc.total ? "\n\nYou got every question right!" : "")) + (j.mc.need !== null && j.mc.need !== undefined ? (j.mc.pct >= j.mc.need ? "\n\nGreat work! The next assignment is unlocked." : "\n\nYou need " + j.mc.need + "% to move on. Look back at the questions listed above, change your answers, and submit again. Every try is saved.") : "") : (getMc() ? "\n\nYour multiple-choice answers were turned in too. Your teacher will share that score later." : "")) + (j.unlock && j.unlock.need !== null && j.unlock.need !== undefined ? (j.unlock.passed ? "\n\nYou have " + j.unlock.need + " or higher, so the next one is open." : "\n\nThis counts as your grade, but the next walkthrough or project opens only after this one reaches " + j.unlock.need + ". Fix the missing parts and submit again.") : "")); }

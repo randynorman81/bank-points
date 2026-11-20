@@ -37,6 +37,7 @@ h3{margin:0 0 4px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;c
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); }, API = "/api/arduinocode", C = ArduinoCircuit, R = ArduinoRender, rows = [], cur = null, sim = null, view = { x: 10, y: 10, z: 0.8 };
+  function cmtShow(s) { var c = s && s.studentComment; return c ? '<div style="margin:8px 0;padding:10px 12px;border-left:4px solid #FBBF24;background:rgba(251,191,36,.12);border-radius:6px"><b>Student comment:</b> <span style="white-space:pre-wrap">' + esc(c) + "</span></div>" : ""; }
   function esc(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
   var PIN = ""; try { PIN = sessionStorage.getItem("ardpin") || ""; } catch (e) {}
   function gate(msg) { $("gerr").textContent = msg || ""; $("gate").style.display = "block"; $("gpin").value = ""; $("gpin").focus(); }
@@ -74,7 +75,7 @@ h3{margin:0 0 4px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;c
     var s = (mode === "draft" ? r.draft : r.submission) || r.draft || r.submission;
     var proj = s.project, d = $("detail");
     d.innerHTML = '<div><b style="font-size:16px">' + esc(r.rosterName || r.name) + "</b> <span class=\"badge\">" + esc(r.period || "?") + "</span> " + (mode === "draft" && r.submission ? '<span class="badge mid">latest work in progress, saved ' + new Date(s.savedAt).toLocaleString() + "</span> <span class=\"badge ok\">submitted " + new Date(r.submission.submittedAt).toLocaleString() + "</span>" : r.submission ? '<span class="badge ok">submitted ' + new Date(s.submittedAt).toLocaleString() + "</span>" : '<span class="badge mid">draft only</span>') + (differ ? ' <button class="btn" id="tgl">' + (mode === "draft" ? "Show what they submitted" : "Show latest work in progress") + "</button>" : "") + (s.auto ? ' <span class="badge">auto score ' + s.auto.pct + " (" + s.auto.passed + "/" + s.auto.total + ")</span>" : "") + "</div>" +
-      DueDates.detail(dueStatus(r)) + '<div id="svgbox"><svg id="gs" xmlns="http://www.w3.org/2000/svg"></svg></div>' +
+      cmtShow(r.submission) + DueDates.detail(dueStatus(r)) + '<div id="svgbox"><svg id="gs" xmlns="http://www.w3.org/2000/svg"></svg></div>' +
       '<div><button class="btn go" id="runb">&#9654; Run this circuit with their code</button> <button class="btn" id="fit">Fit</button> <span id="rinfo" style="color:var(--soft);font-size:12px"></span></div>' +
       '<div class="grid"><div><h3>Their code</h3><pre id="gcode"></pre></div><div><h3>Serial output when they submitted / live run</h3><pre id="gout"></pre></div></div>' +
       '<div id="gans"></div><div><h3>Teacher score and comment</h3><input id="sc" placeholder="Score" style="width:90px" value="' + (s.teacher && s.teacher.score !== null && s.teacher.score !== undefined ? esc(s.teacher.score) : "") + '"> <button class="btn go" id="save">Save grade</button> <span id="saved" style="color:var(--ok);font-size:12px"></span><br><textarea id="cm" placeholder="Comment for the student (optional)">' + esc(s.teacher && s.teacher.comment || "") + "</textarea></div>";

@@ -146,6 +146,7 @@ async function saveDraft(body, user) {
   return { ok: true };
 }
 
+const cleanComment = (c) => String(c == null ? "" : c).replace(/\r/g, "").trim().slice(0, 1000);   /* the optional note a student sends with a submission */
 async function submit(body, user) {
   if (!goodLesson(body.lesson)) return { error: "Unknown lesson" };
   if (lessonClosedFor(body.lesson, user)) return { error: "This assignment is not open yet." };
@@ -161,7 +162,7 @@ async function submit(body, user) {
   const prev = await readJSON(key, null);
   if (body.lesson === "6.2" && prev && prev.auto && typeof prev.auto.pct === "number" && sc && sc.pct < prev.auto.pct) return { error: "Your new score is " + sc.pct + ", but the work you already submitted scored " + prev.auto.pct + ". A retake only replaces your old submission when it scores at least as high. Keep fixing this version, or just leave your old submission as it is.", pct: sc.pct };
   const rec = {
-    email: user.email, name: user.name, period: cleanPeriod(body.period), lesson: body.lesson, code, css, activity: cleanActivity(body.activity),
+    email: user.email, name: user.name, period: cleanPeriod(body.period), lesson: body.lesson, code, css, studentComment: cleanComment(body.comment), activity: cleanActivity(body.activity),
     answers: body.answers === undefined && prev && prev.answers ? prev.answers : cleanAnswers(body.answers),
     submittedAt: now(), firstSubmittedAt: (prev && (prev.firstSubmittedAt || prev.submittedAt)) || now(), count: (prev && prev.count ? prev.count : 0) + 1, auto: sc ? { pct: sc.pct, boxes: sc.boxes } : null,
     teacher: prev && prev.teacher ? prev.teacher : null

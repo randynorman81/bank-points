@@ -12,6 +12,14 @@
   /* ------------------------------------------------------------------ small helpers */
   function lsGet(k) { try { return localStorage.getItem("ard:" + k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem("ard:" + k, v); } catch (e) {} }
+  /* optional note to the teacher, sent with a submission (saved here so it is still there if they submit again) */
+  function cmtBox(bodyId, key) {
+    var b = document.getElementById(bodyId); if (!b) return;
+    var d = document.createElement("div");
+    d.innerHTML = '<label for="subComment" style="display:block;margin-top:10px;font-weight:700">Comment for your teacher <span style="font-weight:400;opacity:.75">(optional)</span></label><textarea id="subComment" maxlength="1000" rows="3" placeholder="Anything your teacher should know, like what you got stuck on or what you changed." style="width:100%;box-sizing:border-box;margin-top:6px;padding:8px;min-height:64px;resize:vertical;font:inherit;color:inherit;background:transparent;border:1px solid rgba(128,128,128,.55);border-radius:6px"></textarea>';
+    b.appendChild(d); var t = document.getElementById("subComment"); t.value = lsGet(key) || "";
+  }
+  function cmtVal(key) { var t = document.getElementById("subComment"), v = t ? t.value.trim() : ""; lsSet(key, v); return v; }
   function esc(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
   var toastT; function toast(msg) { var t = $("toast"); t.textContent = msg; t.className = "show"; clearTimeout(toastT); toastT = setTimeout(function () { t.className = ""; }, 2600); }
   function status(msg, bad) { var s = $("status"); s.textContent = msg; s.className = "status" + (bad ? " bad" : ""); s.title = msg; }
@@ -890,12 +898,13 @@
     if (!ASSIGN[slot]) { toast("Choose an assignment at the top to submit."); return; }
     if (!currentPeriod()) { toast("Choose your class period at the top first."); return; }
     $("mSubBody").innerHTML = "<h3 style=\"margin:0 0 8px\">Submit " + esc(ASSIGN[slot].title) + "?</h3><p>Your circuit and your code will be sent to your teacher. Your auto score right now is <b>" + (autoState.pct === null ? "?" : autoState.pct) + " / 100</b> (" + autoState.passed + " of " + autoState.total + " steps). You can submit again to replace it.</p><p>Period: <b>" + esc(currentPeriod()) + "</b></p>";
+    cmtBox("mSubBody", "cmt:" + slot);
     $("mSub").className = "modal show";
   };
   $("mCancel").onclick = function () { $("mSub").className = "modal"; };
   $("mGo").onclick = function () {
     var b = $("mGo"); b.disabled = true;
-    api({ action: "submit", slot: slot, project: project, code: ta.value, answers: ANS, auto: autoState, period: currentPeriod(), output: $("out").textContent.slice(-3000) }).then(function (j) {
+    api({ action: "submit", slot: slot, comment: cmtVal("cmt:" + slot), project: project, code: ta.value, answers: ANS, auto: autoState, period: currentPeriod(), output: $("out").textContent.slice(-3000) }).then(function (j) {
       b.disabled = false;
       if (j && j.ok) { $("mSub").className = "modal"; MY[slot] = "sub"; buildSlots(); toast("Submitted! (" + j.count + (j.count === 1 ? " time" : " times") + ")"); status("Submitted " + new Date(j.submittedAt).toLocaleString()); }
       else { toast((j && j.error) || "Could not submit. Try again."); }

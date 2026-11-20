@@ -477,6 +477,14 @@ function updateHonesty() { var el = $("honest"); if (!el) return; var ht = $("ho
 
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+/* optional note to the teacher, sent with a submission (saved here so it is still there if they submit again) */
+function cmtBox(bodyId, key) {
+  var b = document.getElementById(bodyId); if (!b) return;
+  var d = document.createElement("div");
+  d.innerHTML = '<label for="subComment" style="display:block;margin-top:10px;font-weight:700">Comment for your teacher <span style="font-weight:400;opacity:.75">(optional)</span></label><textarea id="subComment" maxlength="1000" rows="3" placeholder="Anything your teacher should know, like what you got stuck on or what you changed." style="width:100%;box-sizing:border-box;margin-top:6px;padding:8px;min-height:64px;resize:vertical;font:inherit;color:inherit;background:transparent;border:1px solid rgba(128,128,128,.55);border-radius:6px"></textarea>';
+  b.appendChild(d); var t = document.getElementById("subComment"); t.value = lsGet(key) || "";
+}
+function cmtVal(key) { var t = document.getElementById("subComment"), v = t ? t.value.trim() : ""; lsSet(key, v); return v; }
 function toast(t) { var x = $("toast"); x.textContent = t; x.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(function () { x.style.display = "none"; }, 2200); }
 function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 function fmtTime(iso) { try { return new Date(iso).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return iso; } }
@@ -1243,12 +1251,13 @@ $("btnSubmit").addEventListener("click", function () {
   var r = lastReport || H.check(S.lesson, S.buf.html, S.buf.css), bad = r.errors.length;
   $("mSubmitBody").innerHTML = "<p>Lesson <b>" + esc(dispLesson(S.lesson)) + "</b> for period <b>" + esc($("period").value) + "</b>.</p><p>Auto score: <b>" + (scg ? scg.pct + " / 100" : r.score + " / " + r.total) + "</b>" + (scg ? "" : " (" + r.passed + " of " + r.count + " checks)") + ".</p>" +
     (bad ? '<p style="color:#FCA5A5">You still have ' + bad + " problem" + (bad > 1 ? "s" : "") + " with your tags. You can still submit, or fix them first.</p>" : "") + ansSubmitNote() + "<p>You can submit again later to replace this one.</p>";
+  cmtBox("mSubmitBody", "web:cmt:" + S.lesson);
   $("mSubmit").classList.add("show");
 });
 $("mCancel").addEventListener("click", function () { $("mSubmit").classList.remove("show"); });
 $("mGo").addEventListener("click", function () {
   var btn = this; btn.disabled = true;
-  api({ action: "submit", lesson: S.lesson, code: S.buf.html, css: S.buf.css, answers: S.ans, period: $("period").value, activity: ACT }).then(function (j) {
+  api({ action: "submit", lesson: S.lesson, comment: cmtVal("web:cmt:" + S.lesson), code: S.buf.html, css: S.buf.css, answers: S.ans, period: $("period").value, activity: ACT }).then(function (j) {
     btn.disabled = false; $("mSubmit").classList.remove("show");
     if (j && j.ok) { MY_SUB[S.lesson] = 1; lastCloud = cloudKey(); banner("Submitted " + fmtTime(j.submittedAt) + ". (Submission #" + j.count + ") Auto score: " + (lastReport ? lastReport.score : "") + " / 50. Your teacher will review it.", "good"); $("status").textContent = "Submitted " + fmtTime(j.submittedAt); }
     else if (j && j.error && !j.needLogin) banner(j.error, "err");

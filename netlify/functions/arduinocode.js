@@ -95,6 +95,7 @@ async function saveDraft(body, user) {
   await store().setJSON("draft:" + body.slot + ":" + enc(user.email), { email: user.email, name: user.name, period: cleanPeriod(body.period), slot: body.slot, code: w.code, project: w.project, answers: cleanAnswers(body.answers), auto: cleanAuto(body.auto), savedAt: now() });
   return { ok: true };
 }
+const cleanComment = (c) => String(c == null ? "" : c).replace(/\r/g, "").trim().slice(0, 1000);   /* the optional note a student sends with a submission */
 async function submit(body, user) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
   if (closedToStudent(body.slot, user)) return { error: "That assignment is not open yet." };
@@ -102,7 +103,7 @@ async function submit(body, user) {
   if (!w.project.parts.some((p) => p.type !== "uno" && p.type !== "breadboard") && !w.code.trim()) return { error: "There is nothing to submit yet. Build a circuit and write some code first!" };
   const key = "sub:" + body.slot + ":" + enc(user.email), prev = await readJSON(key, null);
   const rec = {
-    email: user.email, name: user.name, period: cleanPeriod(body.period), slot: body.slot, code: w.code, project: w.project, answers: cleanAnswers(body.answers), auto: cleanAuto(body.auto),
+    email: user.email, name: user.name, period: cleanPeriod(body.period), slot: body.slot, code: w.code, studentComment: cleanComment(body.comment), project: w.project, answers: cleanAnswers(body.answers), auto: cleanAuto(body.auto),
     output: String(body.output || "").slice(0, 3000), submittedAt: now(), firstSubmittedAt: (prev && (prev.firstSubmittedAt || prev.submittedAt)) || now(), count: (prev && prev.count ? prev.count : 0) + 1, teacher: prev && prev.teacher ? prev.teacher : null
   };
   await store().setJSON(key, rec);

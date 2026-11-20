@@ -257,6 +257,7 @@ async function gradeQuiz(body, user) {
   await store().setJSON(key, list.slice(-60));
   return { ok: true, pct: r.pct, perfect: r.perfect, mc: r.mc, code: r.code, tries: list.length };
 }
+const cleanComment = (c) => String(c == null ? "" : c).replace(/\r/g, "").trim().slice(0, 1000);   /* the optional note a student sends with a submission */
 async function submit(body, user) {
   if (!goodSlot(body.slot)) return { error: "Unknown assignment" };
   if (await closedToStudent(body.slot, user)) return { error: "That assignment is not open yet." };
@@ -281,7 +282,7 @@ async function submit(body, user) {
   const key = "sub:" + body.slot + ":" + enc(user.email);
   const prev = await readJSON(key, null);
   const rec = {
-    email: user.email, name: user.name, period, slot: body.slot, mode: cleanMode(body.mode), code, world: cleanWorld(body.world), ticks: cleanTicks(body.ticks),
+    email: user.email, name: user.name, period, slot: body.slot, mode: cleanMode(body.mode), code, studentComment: cleanComment(body.comment), world: cleanWorld(body.world), ticks: cleanTicks(body.ticks),
     output: String(body.output || "").slice(0, 4000), gradeOutput: body.gradeOutput == null ? undefined : String(body.gradeOutput).slice(0, 8000),
     submittedAt: now(), firstSubmittedAt: (prev && (prev.firstSubmittedAt || prev.submittedAt)) || now(), count: (prev && prev.count ? prev.count : 0) + 1,
     teacher: prev && prev.teacher ? prev.teacher : null,
