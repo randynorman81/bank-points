@@ -196,6 +196,14 @@ function variantFor(rec, period) {
    An assignment can still set its own passMin to override it. Students can submit at any score; the score is the grade. */
 const UNLOCK = 90, UNLOCK_FROM_UNIT = 4;   /* the 90 rule starts with Unit 4; Unit 3 walkthroughs open the next one on any submitted score */
 function passMinOf(a) { if (!a) return null; if (a.passMin !== undefined && a.passMin !== null && a.passMin !== "") return Number(a.passMin); if (!inChain(a)) return null; const um = /Unit\s*(\d+)/i.exec(String(a.unit || "")); return um && Number(um[1]) >= UNLOCK_FROM_UNIT ? UNLOCK : null; }
+/* needBoth assignments: has the student (a) got every multiple-choice question right on some try and (b) reached passMin on the code they turned in */
+function bothParts(asgP, sub) {
+  const key = asgP.mcKey, ms = mcScoreOf(key, sub.mc), pm = passMinOf(asgP);
+  const mcOk = !!ms && (ms.correct === ms.total || (Array.isArray(sub.attempts) && sub.attempts.some((a) => a && a.total && a.correct === a.total)));
+  const rc = variantFor(asgP, sub.period); let codePct = null;
+  if (rc && Array.isArray(rc.checks) && rc.checks.length) { const r0 = scoreCode(rc.checks, sub.code || "", sub.gradeOutput != null ? sub.gradeOutput : sub.output); codePct = r0.pct; }
+  return { mcOk, codePct, codeOk: codePct !== null && codePct >= (pm === null || isNaN(pm) ? 0 : pm) };
+}
 /* did this student pass the assignment: the teacher's saved or automatic grade, or (if none) what the checks give now */
 async function subPassed(slot, email) {
   const sub = await readJSON("sub:" + slot + ":" + enc(email), null); if (!sub) return false;
@@ -204,6 +212,7 @@ async function subPassed(slot, email) {
   if (pm !== null && !isNaN(pm)) {
     const tt = sub.teacher; if (tt && !tt.auto && tt.score !== null && tt.score !== undefined && tt.score !== "" && !isNaN(Number(tt.score)) && Number(tt.score) >= pm) return true;
     const ms = Array.isArray(asgP.mcKey) && asgP.mcKey.length ? mcScoreOf(asgP.mcKey, sub.mc) : null;
+    if (ms && asgP.needBoth === true) { const bp = bothParts(asgP, sub); return bp.mcOk && bp.codeOk; }   /* needBoth: the code must reach passMin AND every multiple-choice question must be right (students retry freely) */
     if (ms) { const best = Math.max(Math.round(ms.correct / ms.total * 100), ...(Array.isArray(sub.attempts) ? sub.attempts.map((a) => a.pct || 0) : [0])); return best >= pm; }
     const rc = variantFor(asgP, sub.period); if (rc && Array.isArray(rc.checks) && rc.checks.length) { const r0 = scoreCode(rc.checks, sub.code || "", sub.gradeOutput != null ? sub.gradeOutput : sub.output); return r0.pct !== null && r0.pct >= pm; }
     return false;
@@ -287,7 +296,7 @@ async function submit(body, user) {
   try { const g = await autoGradeFor(body.slot, code, rec.teacher, period, rec.gradeOutput != null ? rec.gradeOutput : rec.output); if (g) rec.teacher = g; } catch (e) { console.error("autograde failed", e); }
   await store().setJSON(key, rec);
   await logActivity(body.slot, user.email, code, period, true);
-  const res = { ok: true, submittedAt: rec.submittedAt, count: rec.count }; if (asg && inChain(asg)) res.unlock = { need: passMinOf(asg), passed: await subPassed(body.slot, user.email) };
+  const res = { ok: true, submittedAt: rec.submittedAt, count: rec.count }; if (asg && inChain(asg)) { res.unlock = { need: passMinOf(asg), passed: await subPassed(body.slot, user.email) }; if (asg.needBoth === true && asg.mcKey && asg.mcKey.length) { const bp = bothParts(asg, Object.assign({}, rec, { attempts: rec.attempts })); res.unlock.both = true; res.unlock.mcOk = bp.mcOk; res.unlock.codePct = bp.codePct; res.unlock.codeOk = bp.codeOk; } }
   const pmv = asg && asg.passMin !== undefined && asg.passMin !== null ? Number(asg.passMin) : null;
   if (rec.mcScore && rec.mcScore.total && (pmv !== null || (asg && asg.mcReleased) || isTeacherUser(user))) res.mc = { correct: rec.mcScore.correct, total: rec.mcScore.total, pct: Math.round(rec.mcScore.correct / rec.mcScore.total * 100), need: pmv, wrong: (rec.mcScore.wrong || []).map((w) => w.q) };
   return res;

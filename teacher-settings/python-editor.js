@@ -29,12 +29,12 @@ export const PY_SETTINGS = {
   a35: { live: true, hold: true, fresh: true, passMin: 90 },   // Unit 6 Walkthrough 1: Spot the Requirements
   a36: { live: true, hold: true, passMin: 90 },                // Practice PT 1: Quiz Master
   /* Unit 7: Basic Data Structures (all published, all locked until you open them; Walkthrough 1 starts its own chain) */
-  a39: { live: true, hold: true, fresh: true, passMin: 90 },   // Unit 7 Walkthrough 1: Lists and Indexing
-  a40: { live: true, hold: true, passMin: 90 },                // Walkthrough 2: Adding and Removing Items
-  a41: { live: true, hold: true, passMin: 90 },                // Walkthrough 3: For Loops and Lists
-  a42: { live: true, hold: true, passMin: 90 },                // Walkthrough 4: Simulations
-  a43: { live: true, hold: true, passMin: 90 },                // Walkthrough 5: Searching and Efficiency
-  a44: { live: true, hold: true, passMin: 90 }                 // Walkthrough 6: Data Abstraction and the Create Task
+  a39: { live: true, hold: true, needBoth: true, fresh: true, passMin: 90 },   // Unit 7 Walkthrough 1: Lists and Indexing
+  a40: { live: true, hold: true, needBoth: true, passMin: 90 },                // Walkthrough 2: Adding and Removing Items
+  a41: { live: true, hold: true, needBoth: true, passMin: 90 },                // Walkthrough 3: For Loops and Lists
+  a42: { live: true, hold: true, needBoth: true, passMin: 90 },                // Walkthrough 4: Simulations
+  a43: { live: true, hold: true, needBoth: true, passMin: 90 },                // Walkthrough 5: Searching and Efficiency
+  a44: { live: true, hold: true, needBoth: true, passMin: 90 }                 // Walkthrough 6: Data Abstraction and the Create Task
 };
 /* WORDING CHANGES to a walkthrough, kept in the code (no PIN). Each one gets a copy of the walkthrough and changes it. */
 const STEP5_ODD = "Now test an odd number **without changing your code above**. Below your last line, type `number = 7`, then type the same four `print` lines again under it (you can copy and paste your own lines). Add an **end-of-line comment** at the end of your last print line with what the four answers were for 7. If that line already has a comment, add to it. [[How do I test 7?|oddtest]]";
