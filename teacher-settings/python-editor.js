@@ -34,7 +34,29 @@ export const PY_SETTINGS = {
   a41: { live: true, hold: true, needBoth: true, passMin: 90 },                // Walkthrough 3: For Loops and Lists
   a42: { live: true, hold: true, needBoth: true, passMin: 90 },                // Walkthrough 4: Simulations
   a43: { live: true, hold: true, needBoth: true, passMin: 90 },                // Walkthrough 5: Searching and Efficiency
-  a44: { live: true, hold: true, needBoth: true, passMin: 90 }                 // Walkthrough 6: Data Abstraction and the Create Task
+  a44: { live: true, hold: true, needBoth: true, passMin: 90 },                // Walkthrough 6: Data Abstraction and the Create Task
+  /* Unit 8: Digital Information (10 gate walkthroughs, each with a graded assignment under it, and a quiz) */
+  a45: { live: true, hold: true, needBoth: true, fresh: true, passMin: 100 },   // Unit 8 Walkthrough 1: Intro to Digital Information (a gate: 100% opens the assignment under it)
+  a46: { live: true, hold: true, needBoth: true, passMin: 100 },   // Unit 8 Walkthrough 2: Number Systems (a gate: 100% opens the assignment under it)
+  a47: { live: true, hold: true, needBoth: true, passMin: 100 },   // Unit 8 Walkthrough 3: Encoding Text with Binary (a gate: 100% opens the assignment under it)
+  a48: { live: true, hold: true, needBoth: true, passMin: 100 },   // Unit 8 Walkthrough 4: Pixel Images (a gate: 100% opens the assignment under it)
+  a49: { live: true, hold: true, needBoth: true, passMin: 100 },   // Unit 8 Walkthrough 5: Hexadecimal (a gate: 100% opens the assignment under it)
+  a50: { live: true, hold: true, needBoth: true, passMin: 100 },   // Unit 8 Walkthrough 6: Pixel Colors (a gate: 100% opens the assignment under it)
+  a51: { live: true, hold: true, needBoth: true, passMin: 100 },   // Unit 8 Walkthrough 7: Image Manipulation (a gate: 100% opens the assignment under it)
+  a52: { live: true, hold: true, needBoth: true, passMin: 100 },   // Unit 8 Walkthrough 8: Data Compression (a gate: 100% opens the assignment under it)
+  a53: { live: true, hold: true, needBoth: true, passMin: 100 },   // Unit 8 Walkthrough 9: Lossy Compression (a gate: 100% opens the assignment under it)
+  a54: { live: true, hold: true, needBoth: true, passMin: 100 },   // Unit 8 Walkthrough 10: Cryptography (a gate: 100% opens the assignment under it)
+  a55: { live: true, part: "project", seq: 1.5, passMin: 0 },   // Unit 8 Assignment 1: graded work under Walkthrough 1
+  a56: { live: true, part: "project", seq: 2.5, passMin: 0 },   // Unit 8 Assignment 2: graded work under Walkthrough 2
+  a57: { live: true, part: "project", seq: 3.5, passMin: 0 },   // Unit 8 Assignment 3: graded work under Walkthrough 3
+  a58: { live: true, part: "project", seq: 4.5, passMin: 0 },   // Unit 8 Assignment 4: graded work under Walkthrough 4
+  a59: { live: true, part: "project", seq: 5.5, passMin: 0 },   // Unit 8 Assignment 5: graded work under Walkthrough 5
+  a60: { live: true, part: "project", seq: 6.5, passMin: 0 },   // Unit 8 Assignment 6: graded work under Walkthrough 6
+  a61: { live: true, part: "project", seq: 7.5, passMin: 0 },   // Unit 8 Assignment 7: graded work under Walkthrough 7
+  a62: { live: true, part: "project", seq: 8.5, passMin: 0 },   // Unit 8 Assignment 8: graded work under Walkthrough 8
+  a63: { live: true, part: "project", seq: 9.5, passMin: 0 },   // Unit 8 Assignment 9: graded work under Walkthrough 9
+  a64: { live: true, part: "project", seq: 10.5, passMin: 0 },   // Unit 8 Assignment 10: graded work under Walkthrough 10
+  a65: { live: true, hold: true, passMin: 90 }   // Unit 8 Quiz: Digital Information (opens when you open it)
 };
 /* WORDING CHANGES to a walkthrough, kept in the code (no PIN). Each one gets a copy of the walkthrough and changes it. */
 const STEP5_ODD = "Now test an odd number **without changing your code above**. Below your last line, type `number = 7`, then type the same four `print` lines again under it (you can copy and paste your own lines). Add an **end-of-line comment** at the end of your last print line with what the four answers were for 7. If that line already has a comment, add to it. [[How do I test 7?|oddtest]]";

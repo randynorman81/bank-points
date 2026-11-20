@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pixel Images | Python Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#A3E635; --acc-tint:rgba(163,230,53,.14); --acc-ink:#D9F99D;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#1A2E05;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:18ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .err{color:var(--bad-ink);font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.ok{border-top-color:var(--acc)}
+.box.bad{border-top-color:var(--bad)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F1FAD9}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.bad{background:var(--bad-tint)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+</style>
+<style>
+.stp{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:14px 12px}.stp .frame{display:none}.stp .frame.on{display:block}.stp .ctl{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:10px}.stp button{font:700 14px Manrope,system-ui,sans-serif;padding:8px 16px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer}.stp button:hover{border-color:#A3E635}.stp .cnt{font:600 13px Manrope,system-ui,sans-serif;color:var(--ink-soft)}.stp .say{margin:10px auto 0;max-width:70ch;text-align:center;font-size:15px;line-height:1.5}
+.fig{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:16px 12px 12px;overflow-x:auto}
+.fig figcaption{margin:12px auto 0;max-width:70ch;text-align:center;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
+ul.chk{margin:6px 0 20px;padding-left:22px}ul.chk li{margin:6px 0}
+.resp{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--acc);border-radius:6px;padding:14px 18px;margin:8px 0 18px}
+.resp .rl{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:6px}
+.resp p{margin:0 0 .6em}
+.cards.one{grid-template-columns:1fr}
+
+.wg{margin:8px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:10px;padding:16px 16px 14px}
+.wg h4{margin:0 0 4px;font:700 13px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink)}
+.wg .wsub{margin:0 0 12px;font-size:14.5px;color:var(--ink-soft)}
+.wg .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.wg button,.wg input,.wg select{font:600 15px 'JetBrains Mono',monospace;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:8px 12px}
+.wg button{cursor:pointer}.wg button:hover{border-color:#A3E635}
+.wg input[type=text],.wg input[type=number]{min-width:0;width:12ch}
+.wg input[type=range]{padding:0;width:min(320px,100%);accent-color:#A3E635}
+.wg .bit{width:48px;height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:22px}
+.wg .bit small{font-size:11px;color:var(--ink-soft);font-weight:600}
+.wg .bit.on{background:#A3E635;color:#0B0E14;border-color:#A3E635}.wg .bit.on small{color:#2a3b00}
+.wg .out{font:600 16px 'JetBrains Mono',monospace;line-height:1.7;margin:6px 0 0;word-break:break-all}
+.wg .out b{color:#A3E635}.wg .out i{color:#FBBF24;font-style:normal}
+.wg table{border-collapse:collapse;margin:6px 0;font:600 14px 'JetBrains Mono',monospace}.wg td,.wg th{border:1px solid var(--rule);padding:5px 10px;text-align:center}.wg th{color:var(--ink-soft);font-weight:700}
+.wg .cell{width:34px;height:34px;border:1px solid #2B3647;display:inline-block;cursor:pointer;vertical-align:top}
+.wg .cell.on{background:#EAEFF6}
+.wg .sw{width:110px;height:70px;border-radius:8px;border:2px solid #2B3647;flex:none}
+.wg .px{width:62px;height:62px;border-radius:6px;border:2px solid #2B3647}
+.wg .note{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+.wg canvas{border:1px solid var(--rule);border-radius:6px;max-width:100%}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="unit-8/index.html">&larr; Unit 8</a>
+  <a href="digital-info-intro.html">Intro to Digital Information</a>
+  <a href="number-systems.html">Number Systems</a>
+  <a href="encoding-text.html">Encoding Text with Binary</a>
+  <a href="pixel-images.html" class="current">Pixel Images</a>
+  <a href="hexadecimal.html">Hexadecimal</a>
+  <a href="pixel-colors.html">Pixel Colors</a>
+  <a href="image-manipulation.html">Image Manipulation</a>
+  <a href="data-compression.html">Data Compression</a>
+  <a href="lossy-compression.html">Lossy Compression</a>
+  <a href="cryptography.html">Cryptography</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">PYTHON NOTES &nbsp;/&nbsp; SUBJECT: A PICTURE IS A GRID OF NUMBERS</div>
+    <h1>Pixel Images</h1>
+    <p class="deck">Zoom in far enough on any digital picture and you find a grid of tiny squares called <b>pixels</b>. Each pixel is just a number (or a few numbers), so a whole picture is just <b>data</b>.</p>
+  </div>
+</header>
+<div class="wrap"><div class="assign-root8" data-slot="a48" data-slot2="a58" data-concept="Pixel Images"></div></div>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>Pixels</h2></div>
+    <p class="lede">A <b>pixel</b> (picture element) is one tiny square of one color. An image is a <b>grid</b> of them, read <b>row by row</b>.</p>
+    <figure class="fig"><svg class="diagram" viewBox="0 0 590 430" role="img" aria-label="pixel grid" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-width:590px;margin:0 auto"><defs><marker id="mEAEFF6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#EAEFF6"/></marker><marker id="m8B9AAE" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8B9AAE"/></marker><marker id="m60A5FA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#60A5FA"/></marker><marker id="m34D399" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#34D399"/></marker><marker id="mFBBF24" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FBBF24"/></marker><marker id="mF472B6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F472B6"/></marker><marker id="mC084FC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#C084FC"/></marker><marker id="mFB923C" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FB923C"/></marker><marker id="mF87171" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F87171"/></marker><marker id="m2DD4BF" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2DD4BF"/></marker><marker id="mA3E635" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#A3E635"/></marker></defs><style>.cd{font:600 20px 'JetBrains Mono',monospace}.ix{font:600 15px 'JetBrains Mono',monospace}.cp{font:500 15px Manrope,system-ui,sans-serif;fill:#D5DDE8}.tt{font:700 16px 'JetBrains Mono',monospace}</style><text x="190" y="24" class="tt" text-anchor="middle" fill="#8B9AAE">an 8 x 8 black-and-white picture</text><rect x="30" y="40" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="70" y="40" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="110" y="40" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="150" y="40" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="190" y="40" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="230" y="40" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="270" y="40" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="310" y="40" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><text x="380" y="66" class="cd" text-anchor="middle" fill="#34D399" text-anchor="start">00000000</text><rect x="30" y="80" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="70" y="80" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="110" y="80" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="150" y="80" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="190" y="80" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="230" y="80" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="270" y="80" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="310" y="80" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><text x="380" y="106" class="cd" text-anchor="middle" fill="#34D399" text-anchor="start">00000000</text><rect x="30" y="120" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="70" y="120" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="110" y="120" width="40" height="40" fill="#EAEFF6" stroke="#334155" stroke-width="1.5"/><rect x="150" y="120" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="190" y="120" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="230" y="120" width="40" height="40" fill="#EAEFF6" stroke="#334155" stroke-width="1.5"/><rect x="270" y="120" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="310" y="120" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><text x="380" y="146" class="cd" text-anchor="middle" fill="#34D399" text-anchor="start">00100100</text><rect x="30" y="160" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="70" y="160" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="110" y="160" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="150" y="160" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="190" y="160" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="230" y="160" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="270" y="160" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="310" y="160" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><text x="380" y="186" class="cd" text-anchor="middle" fill="#34D399" text-anchor="start">00000000</text><rect x="30" y="200" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="70" y="200" width="40" height="40" fill="#EAEFF6" stroke="#334155" stroke-width="1.5"/><rect x="110" y="200" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="150" y="200" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="190" y="200" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="230" y="200" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="270" y="200" width="40" height="40" fill="#EAEFF6" stroke="#334155" stroke-width="1.5"/><rect x="310" y="200" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><text x="380" y="226" class="cd" text-anchor="middle" fill="#34D399" text-anchor="start">01000010</text><rect x="30" y="240" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="70" y="240" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="110" y="240" width="40" height="40" fill="#EAEFF6" stroke="#334155" stroke-width="1.5"/><rect x="150" y="240" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="190" y="240" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="230" y="240" width="40" height="40" fill="#EAEFF6" stroke="#334155" stroke-width="1.5"/><rect x="270" y="240" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="310" y="240" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><text x="380" y="266" class="cd" text-anchor="middle" fill="#34D399" text-anchor="start">00100100</text><rect x="30" y="280" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="70" y="280" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="110" y="280" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="150" y="280" width="40" height="40" fill="#EAEFF6" stroke="#334155" stroke-width="1.5"/><rect x="190" y="280" width="40" height="40" fill="#EAEFF6" stroke="#334155" stroke-width="1.5"/><rect x="230" y="280" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="270" y="280" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="310" y="280" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><text x="380" y="306" class="cd" text-anchor="middle" fill="#34D399" text-anchor="start">00011000</text><rect x="30" y="320" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="70" y="320" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="110" y="320" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="150" y="320" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="190" y="320" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="230" y="320" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="270" y="320" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><rect x="310" y="320" width="40" height="40" fill="#0B0E14" stroke="#334155" stroke-width="1.5"/><text x="380" y="346" class="cd" text-anchor="middle" fill="#34D399" text-anchor="start">00000000</text><line x1="358" y1="200" x2="376" y2="200" stroke="#34D399" stroke-width="2.6"  marker-end="url(#m34D399)"/><text x="295" y="414" class="cp" text-anchor="middle" style="font-size:14px">white = 1, black = 0. Each row of squares becomes one row of bits.</text></svg><figcaption>The same picture twice: as <b>squares</b> on the left, and as the <b>bits</b> that describe it on the right. The arrow shows that each row of squares turns into one row of bits.</figcaption></figure>
+    <div class="wg" id="wg5x678635"><h4>Try it: draw a 1-bit picture</h4><p class="wsub">Click squares to make them white (1). Watch the bits that describe your picture.</p><div class="grid"></div><div class="row"><button class="clr">Clear</button><button class="inv">Invert</button><button class="smile">Smiley</button></div><div class="out"></div></div>
+    <script>(function pixelgridWidget(root) {
+  var N = 8, g = root.querySelector(".grid"), out = root.querySelector(".out"), cells = [];
+  for (var y = 0; y < N; y++) { for (var x = 0; x < N; x++) { (function () { var c = document.createElement("span"); c.className = "cell"; c.onclick = function () { c.classList.toggle("on"); draw(); }; g.appendChild(c); cells.push(c); })(); } g.appendChild(document.createElement("br")); }
+  function draw() { var rows = []; for (var y = 0; y < N; y++) { var s = ""; for (var x = 0; x < N; x++) s += cells[y * N + x].classList.contains("on") ? "1" : "0"; rows.push(s); } out.innerHTML = "Row by row: <b>" + rows.join(" ") + "</b><br>" + N + " x " + N + " = <b>" + N * N + " pixels</b>, 1 bit each = <b>" + N * N + " bits</b> (" + (N * N / 8) + " bytes). White = 1, black = 0."; }
+  root.querySelector(".clr").onclick = function () { cells.forEach(function (c) { c.classList.remove("on"); }); draw(); };
+  root.querySelector(".inv").onclick = function () { cells.forEach(function (c) { c.classList.toggle("on"); }); draw(); };
+  var smile = [18, 21, 33, 38, 42, 45, 51, 52]; root.querySelector(".smile").onclick = function () { cells.forEach(function (c, i) { c.classList.toggle("on", false); }); smile.forEach(function (i) { cells[i].classList.add("on"); }); draw(); };
+  draw();
+})(document.getElementById("wg5x678635"));</script>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Resolution and Bits per Pixel</h2></div>
+    <p class="lede">Two numbers decide how much data a picture holds.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Idea</th><th>Meaning</th><th>More means</th></tr>
+        <tr><td><b>Resolution</b></td><td>width x height, the number of pixels</td><td>sharper picture, <b>more data</b></td></tr>
+        <tr><td><b>Bits per pixel</b></td><td>how many bits describe each pixel's color</td><td>more possible colors, <b>more data</b></td></tr>
+      </table>
+    </div></div>
+    <div class="callout">File size (before compression)<span><b>width x height x bits per pixel</b> = total bits. Divide by 8 to get bytes.</span></div>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Picture</th><th>Working</th><th>Size</th></tr>
+        <tr><td>8 x 8, black and white (1 bit)</td><td>8 x 8 x 1 = 64 bits</td><td><b>8 bytes</b></td></tr>
+        <tr><td>100 x 100, 256 shades of gray (8 bits)</td><td>100 x 100 x 8 = 80,000 bits</td><td><b>10,000 bytes</b></td></tr>
+        <tr><td>100 x 100, full color (24 bits)</td><td>100 x 100 x 24 = 240,000 bits</td><td><b>30,000 bytes</b></td></tr>
+      </table>
+    </div></div>
+    <div class="hint-panel">Bigger picture, more pixels, <b>more bits</b>. That is why a high-resolution photo takes more storage than a thumbnail.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>Python: a Picture in a List</h2></div>
+    <p class="lede">We can store a black-and-white picture as a <b>list of strings</b>, one string per row, and <b>draw it</b> with a loop.</p>
+    <div class="code">image = ["0110", "1001", "1001", "0110"]
+for row in image:
+    print(row.replace("0", ".").replace("1", "#"))
+<span class="cm"># .##.</span>
+<span class="cm"># #..#</span>
+<span class="cm"># #..#</span>
+<span class="cm"># .##.</span></div>
+    <p><code>replace</code> swaps every <code>0</code> for a <code>.</code> and every <code>1</code> for a <code>#</code>, so the bits turn into a picture you can see. The loop runs <b>once per row</b>.</p>
+    <div class="code">rows = len(image)           <span class="cm"># 4 rows</span>
+cols = len(image[0])        <span class="cm"># 4 columns</span>
+print(rows * cols, "bits")  <span class="cm"># 16 bits</span></div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Metadata: Data About Data</h2></div>
+    <p class="lede">A photo file holds more than pixels. It also holds <b>metadata</b>: facts that <b>describe</b> the picture.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>The data</th><th>The metadata</th></tr>
+        <tr><td>the pixels of a photo</td><td>date taken, camera model, <b>GPS location</b>, image size</td></tr>
+        <tr><td>the audio of a song</td><td>title, artist, length</td></tr>
+        <tr><td>the text of a message</td><td>who sent it, when, how long</td></tr>
+      </table>
+    </div></div>
+    <div class="warn">Metadata is <b>not</b> the picture itself. It can still reveal private things, like <b>where</b> a photo was taken. Metadata can be <b>changed or removed</b> without changing the pixels.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>On the AP Exam</h2></div>
+    <p class="lede">Picture questions are about <b>how data is represented</b> and what happens when it changes.</p>
+    <ul class="chk"><li>An image is a grid of <b>pixels</b>, and each pixel is stored as <b>bits</b>.</li><li>More pixels or more bits per pixel means <b>more data</b> and a <b>bigger file</b>.</li><li><b>Metadata</b> describes data (date, location, size) and helps you <b>find and organize</b> it.</li><li>Changing the data can <b>change what you see</b>, but changing metadata does not.</li></ul>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>A picture is a grid of numbers.</h2>
+    <p>Next: a quick detour into a number system that makes color codes short and easy to read, hexadecimal.</p>
+    <div class="assign-root8" data-slot="a48" data-slot2="a58" data-concept="Pixel Images" style="margin-bottom:10px"></div>
+    <a class="back" href="hexadecimal.html">Hexadecimal &rarr;</a>
+    <a class="back" href="encoding-text.html">&larr; Encoding Text with Binary</a>
+    <a class="back" href="unit-8/index.html">&larr; Unit 8</a>
+    <p class="sig">Python Notes &nbsp;/&nbsp; Pixel Images &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+<script src="lesson-assignment8.js?v=1"></script>
+</body>
+</html>

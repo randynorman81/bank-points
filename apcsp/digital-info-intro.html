@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intro to Digital Information | Python Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#A3E635; --acc-tint:rgba(163,230,53,.14); --acc-ink:#D9F99D;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#1A2E05;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:18ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .err{color:var(--bad-ink);font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.ok{border-top-color:var(--acc)}
+.box.bad{border-top-color:var(--bad)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F1FAD9}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.bad{background:var(--bad-tint)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+</style>
+<style>
+.stp{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:14px 12px}.stp .frame{display:none}.stp .frame.on{display:block}.stp .ctl{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:10px}.stp button{font:700 14px Manrope,system-ui,sans-serif;padding:8px 16px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer}.stp button:hover{border-color:#A3E635}.stp .cnt{font:600 13px Manrope,system-ui,sans-serif;color:var(--ink-soft)}.stp .say{margin:10px auto 0;max-width:70ch;text-align:center;font-size:15px;line-height:1.5}
+.fig{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:16px 12px 12px;overflow-x:auto}
+.fig figcaption{margin:12px auto 0;max-width:70ch;text-align:center;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
+ul.chk{margin:6px 0 20px;padding-left:22px}ul.chk li{margin:6px 0}
+.resp{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--acc);border-radius:6px;padding:14px 18px;margin:8px 0 18px}
+.resp .rl{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:6px}
+.resp p{margin:0 0 .6em}
+.cards.one{grid-template-columns:1fr}
+
+.wg{margin:8px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:10px;padding:16px 16px 14px}
+.wg h4{margin:0 0 4px;font:700 13px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink)}
+.wg .wsub{margin:0 0 12px;font-size:14.5px;color:var(--ink-soft)}
+.wg .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.wg button,.wg input,.wg select{font:600 15px 'JetBrains Mono',monospace;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:8px 12px}
+.wg button{cursor:pointer}.wg button:hover{border-color:#A3E635}
+.wg input[type=text],.wg input[type=number]{min-width:0;width:12ch}
+.wg input[type=range]{padding:0;width:min(320px,100%);accent-color:#A3E635}
+.wg .bit{width:48px;height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:22px}
+.wg .bit small{font-size:11px;color:var(--ink-soft);font-weight:600}
+.wg .bit.on{background:#A3E635;color:#0B0E14;border-color:#A3E635}.wg .bit.on small{color:#2a3b00}
+.wg .out{font:600 16px 'JetBrains Mono',monospace;line-height:1.7;margin:6px 0 0;word-break:break-all}
+.wg .out b{color:#A3E635}.wg .out i{color:#FBBF24;font-style:normal}
+.wg table{border-collapse:collapse;margin:6px 0;font:600 14px 'JetBrains Mono',monospace}.wg td,.wg th{border:1px solid var(--rule);padding:5px 10px;text-align:center}.wg th{color:var(--ink-soft);font-weight:700}
+.wg .cell{width:34px;height:34px;border:1px solid #2B3647;display:inline-block;cursor:pointer;vertical-align:top}
+.wg .cell.on{background:#EAEFF6}
+.wg .sw{width:110px;height:70px;border-radius:8px;border:2px solid #2B3647;flex:none}
+.wg .px{width:62px;height:62px;border-radius:6px;border:2px solid #2B3647}
+.wg .note{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+.wg canvas{border:1px solid var(--rule);border-radius:6px;max-width:100%}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="unit-8/index.html">&larr; Unit 8</a>
+  <a href="digital-info-intro.html" class="current">Intro to Digital Information</a>
+  <a href="number-systems.html">Number Systems</a>
+  <a href="encoding-text.html">Encoding Text with Binary</a>
+  <a href="pixel-images.html">Pixel Images</a>
+  <a href="hexadecimal.html">Hexadecimal</a>
+  <a href="pixel-colors.html">Pixel Colors</a>
+  <a href="image-manipulation.html">Image Manipulation</a>
+  <a href="data-compression.html">Data Compression</a>
+  <a href="lossy-compression.html">Lossy Compression</a>
+  <a href="cryptography.html">Cryptography</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">PYTHON NOTES &nbsp;/&nbsp; SUBJECT: HOW A COMPUTER STORES ANYTHING</div>
+    <h1>Intro to Digital Information</h1>
+    <p class="deck">Photos, songs, text messages, and games look nothing alike, but inside the computer they are all the same thing: <b>bits</b>, which are just 0s and 1s. This page shows how and why.</p>
+  </div>
+</header>
+<div class="wrap"><div class="assign-root8" data-slot="a45" data-slot2="a55" data-concept="Intro to Digital Information"></div></div>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">00</div><h2>Analog vs Digital</h2></div>
+    <p class="lede">The real world is <b>analog</b>: it changes smoothly with no gaps. A computer can only keep <b>digital</b> data: separate numbers it can count.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th></th><th>Analog</th><th>Digital</th></tr>
+        <tr><td><b>What it is</b></td><td>Smooth and continuous, any value in between</td><td>Separate steps, a limited set of values</td></tr>
+        <tr><td><b>Examples</b></td><td>A sound wave, a mercury thermometer, a sweeping clock hand</td><td>A digital clock, a song file, a photo file</td></tr>
+        <tr><td><b>Can a computer store it directly?</b></td><td>No</td><td>Yes</td></tr>
+      </table>
+    </div></div>
+    <figure class="fig"><svg class="diagram" viewBox="0 0 920 160" role="img" aria-label="analog to digital" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-width:920px;margin:0 auto"><defs><marker id="mEAEFF6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#EAEFF6"/></marker><marker id="m8B9AAE" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8B9AAE"/></marker><marker id="m60A5FA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#60A5FA"/></marker><marker id="m34D399" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#34D399"/></marker><marker id="mFBBF24" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FBBF24"/></marker><marker id="mF472B6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F472B6"/></marker><marker id="mC084FC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#C084FC"/></marker><marker id="mFB923C" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FB923C"/></marker><marker id="mF87171" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F87171"/></marker><marker id="m2DD4BF" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2DD4BF"/></marker><marker id="mA3E635" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#A3E635"/></marker></defs><style>.cd{font:600 20px 'JetBrains Mono',monospace}.ix{font:600 15px 'JetBrains Mono',monospace}.cp{font:500 15px Manrope,system-ui,sans-serif;fill:#D5DDE8}.tt{font:700 16px 'JetBrains Mono',monospace}</style><rect x="20" y="50" width="150" height="74" rx="10" fill="#151A24" stroke="#FB923C" stroke-width="2.4"/><text x="95" y="85" class="tt" text-anchor="middle" fill="#FB923C">Analog</text><text x="95" y="107" class="cp" text-anchor="middle" style="font-size:14px">sound wave</text><line x1="174" y1="87" x2="257.3333333333333" y2="87" stroke="#8B9AAE" stroke-width="2.6"  marker-end="url(#m8B9AAE)"/><text x="216.66666666666666" y="75" class="cp" text-anchor="middle" style="font-size:13px">measure</text><rect x="263.3333333333333" y="50" width="150" height="74" rx="10" fill="#151A24" stroke="#60A5FA" stroke-width="2.4"/><text x="338.3333333333333" y="85" class="tt" text-anchor="middle" fill="#60A5FA">Sample</text><text x="338.3333333333333" y="107" class="cp" text-anchor="middle" style="font-size:14px">measure it often</text><line x1="417.3333333333333" y1="87" x2="500.66666666666663" y2="87" stroke="#8B9AAE" stroke-width="2.6"  marker-end="url(#m8B9AAE)"/><text x="460" y="75" class="cp" text-anchor="middle" style="font-size:13px">write down</text><rect x="506.66666666666663" y="50" width="150" height="74" rx="10" fill="#151A24" stroke="#34D399" stroke-width="2.4"/><text x="581.6666666666666" y="85" class="tt" text-anchor="middle" fill="#34D399">Numbers</text><text x="581.6666666666666" y="107" class="cp" text-anchor="middle" style="font-size:14px">12, 15, 19, 14 ...</text><line x1="660.6666666666666" y1="87" x2="744" y2="87" stroke="#8B9AAE" stroke-width="2.6"  marker-end="url(#m8B9AAE)"/><text x="703.3333333333333" y="75" class="cp" text-anchor="middle" style="font-size:13px">store as</text><rect x="750" y="50" width="150" height="74" rx="10" fill="#151A24" stroke="#C084FC" stroke-width="2.4"/><text x="825" y="85" class="tt" text-anchor="middle" fill="#C084FC">Bits</text><text x="825" y="107" class="cp" text-anchor="middle" style="font-size:14px">0s and 1s</text></svg><figcaption>To store an analog thing, the computer <b>samples</b> it: it measures the value at regular moments, writes each measurement as a number, and stores the numbers as bits.</figcaption></figure>
+    <div class="hint-panel"><b>Sampling rate:</b> measuring <b>more often</b> gives a copy closer to the original, but it needs <b>more data</b>. Between two samples, the computer knows nothing, so a little of the original is always lost.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">01</div><h2>Bits and Bytes</h2></div>
+    <p class="lede">A <b>bit</b> is one <b>bin</b>ary dig<b>it</b>: a 0 or a 1. It is the smallest piece of data a computer has, because a tiny switch can only be <b>off (0)</b> or <b>on (1)</b>.</p>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Name</th><th>Size</th><th>Roughly enough for</th></tr>
+        <tr><td><b>bit</b></td><td>a single 0 or 1</td><td>yes or no</td></tr>
+        <tr><td><b>byte</b></td><td><b>8 bits</b></td><td>one text character</td></tr>
+        <tr><td><b>kilobyte (KB)</b></td><td>about 1,000 bytes</td><td>a short text message</td></tr>
+        <tr><td><b>megabyte (MB)</b></td><td>about 1,000 KB</td><td>one photo or a minute of music</td></tr>
+        <tr><td><b>gigabyte (GB)</b></td><td>about 1,000 MB</td><td>a movie</td></tr>
+        <tr><td><b>terabyte (TB)</b></td><td>about 1,000 GB</td><td>a big library of movies</td></tr>
+      </table>
+    </div></div>
+    <div class="wg" id="wg1x648136"><h4>Try it: flip the bits</h4><p class="wsub">Click a box to turn that bit on or off. Each place is worth double the one to its right.</p><div class="row bits"></div><div class="out"></div></div>
+    <script>(function bitsWidget(root) {
+  var vals = [128, 64, 32, 16, 8, 4, 2, 1], on = [0, 0, 0, 0, 0, 0, 0, 0], row = root.querySelector(".bits"), out = root.querySelector(".out");
+  vals.forEach(function (v, i) { var b = document.createElement("button"); b.className = "bit"; b.innerHTML = "0<small>" + v + "</small>"; b.onclick = function () { on[i] = on[i] ? 0 : 1; draw(); }; row.appendChild(b); });
+  function draw() {
+    var sum = 0, parts = [], kids = row.children;
+    on.forEach(function (x, i) { kids[i].className = "bit" + (x ? " on" : ""); kids[i].firstChild.nodeValue = x; if (x) { sum += vals[i]; parts.push(vals[i]); } });
+    out.innerHTML = "Bits: <b>" + on.join("") + "</b><br>Value: " + (parts.length ? parts.join(" + ") + " = " : "") + "<b>" + sum + "</b>";
+  }
+  draw();
+})(document.getElementById("wg1x648136"));</script>
+    <div class="hint-panel">Everything is bits. <b>What the bits mean</b> depends on how the program reads them: the same pattern can be a number, a letter, or part of a color.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">02</div><h2>How Many Patterns?</h2></div>
+    <p class="lede">With 1 bit you get <b>2</b> patterns. Every extra bit <b>doubles</b> the number of patterns. This one idea answers many exam questions.</p>
+    <div class="wg" id="wg2x763665"><h4>Try it: how many patterns?</h4><p class="wsub">Slide to choose how many bits you have.</p><div class="row"><input type="range" min="1" max="8" value="3"></div><div class="out"></div><div class="tbl"></div></div>
+    <script>(function patternsWidget(root) {
+  var r = root.querySelector("input"), out = root.querySelector(".out"), tb = root.querySelector(".tbl");
+  function go() {
+    var n = +r.value, c = Math.pow(2, n), h = "<b>" + n + "</b> bit" + (n > 1 ? "s" : "") + " can make <b>" + c + "</b> different patterns, counting from 0 up to <b>" + (c - 1) + "</b>.";
+    out.innerHTML = h; var rows = "";
+    if (n <= 4) { for (var i = 0; i < c; i++) { var s = i.toString(2); while (s.length < n) s = "0" + s; rows += "<tr><td>" + s + "</td><td>" + i + "</td></tr>"; } tb.innerHTML = "<table><tr><th>pattern</th><th>number</th></tr>" + rows + "</table>"; } else tb.innerHTML = "<div class='note'>Slide down to 4 bits or fewer to see every pattern listed.</div>";
+  }
+  r.oninput = go; go();
+})(document.getElementById("wg2x763665"));</script>
+    <div class="tblwrap"><div class="tblscroll">
+      <table class="cmp">
+        <tr><th>Bits</th><th>Patterns (2 to the power of bits)</th><th>Counts from 0 up to</th></tr>
+        <tr><td>1</td><td>2</td><td>1</td></tr>
+        <tr><td>2</td><td>4</td><td>3</td></tr>
+        <tr><td>3</td><td>8</td><td>7</td></tr>
+        <tr><td>4</td><td>16</td><td>15</td></tr>
+        <tr><td>8 (one byte)</td><td>256</td><td>255</td></tr>
+        <tr><td>16</td><td>65,536</td><td>65,535</td></tr>
+        <tr><td>24</td><td>16,777,216</td><td>16,777,215</td></tr>
+      </table>
+    </div></div>
+    <div class="code">print(2 ** 3)      <span class="cm"># 8 patterns with 3 bits</span>
+print(2 ** 8)      <span class="cm"># 256 patterns with 8 bits</span>
+print(2 ** 8 - 1)  <span class="cm"># 255, the biggest number 8 bits can hold</span></div>
+    <div class="callout">How many bits do I need?<span>Find the <b>smallest n</b> where <code>2 to the n</code> is <b>at least</b> the number of things. 26 letters? 2^4 = 16 is too small, 2^5 = 32 works, so <b>5 bits</b>. 5 colors? 2^2 = 4 is too small, 2^3 = 8 works, so <b>3 bits</b>.</span></div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">03</div><h2>Two Errors to Know</h2></div>
+    <p class="lede">Because a computer uses a <b>fixed number of bits</b>, two kinds of mistakes can sneak in.</p>
+    <div class="two">
+      <div class="box">
+        <h3>Overflow error</h3>
+        <p style="margin-top:10px;">A number is <b>too big</b> for the bits that were set aside. An 8-bit place can only hold up to <b>255</b>. Adding 1 to 255 has no room, so the result wraps around or breaks.</p>
+      </div>
+      <div class="box">
+        <h3>Round-off error</h3>
+        <p style="margin-top:10px;">Some numbers (like 0.1 or one third) <b>cannot be stored exactly</b> in a fixed number of bits, so the computer keeps a very close number instead.</p>
+      </div>
+    </div>
+    <div class="code">print(0.1 + 0.2)    <span class="cm"># 0.30000000000000004  (round-off error)</span></div>
+    <div class="warn"><b>Do not mix them up.</b> Overflow = the number is <b>too large</b> for the bits. Round-off = the number <b>cannot be written exactly</b>, so it is slightly off.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">04</div><h2>On the AP Exam</h2></div>
+    <p class="lede">Digital information shows up in the multiple-choice questions every year. These are the ideas to be ready for.</p>
+    <ul class="chk"><li>A <b>bit</b> is a 0 or 1, and a <b>byte</b> is <b>8 bits</b>.</li><li><b>n bits</b> can make <b>2 to the n</b> different patterns.</li><li>Computers store <b>analog</b> data by <b>sampling</b> it, so a little is always lost.</li><li>A higher sampling rate means a <b>closer copy</b> but <b>more data</b>.</li><li><b>Overflow</b> = too big for the bits. <b>Round-off</b> = cannot be stored exactly.</li><li>The <b>same bits</b> can mean different things, depending on how they are interpreted.</li></ul>
+  </div>
+</section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Everything is bits.</h2>
+    <p>Next you will learn to read and write numbers the way the computer does: in binary.</p>
+    <div class="assign-root8" data-slot="a45" data-slot2="a55" data-concept="Intro to Digital Information" style="margin-bottom:10px"></div>
+    <a class="back" href="number-systems.html">Number Systems &rarr;</a>
+    <a class="back" href="unit-8/index.html">&larr; Unit 8</a>
+    <p class="sig">Python Notes &nbsp;/&nbsp; Intro to Digital Information &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+<script src="lesson-assignment8.js?v=1"></script>
+</body>
+</html>
