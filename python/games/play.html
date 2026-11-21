@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mission Game | SCHS Computer Science</title>
+<link rel="icon" href="../../assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=JetBrains+Mono:wght@400;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070B16;--panel:#0E1426;--card:#141C33;--rule:#24304F;--ink:#E8EEFB;--soft:#97A3C2;--acc:#FB923C;--ok:#34D399;--bad:#F87171;--glow:#60A5FA;--gold:#FBBF24}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#070B16}
+body{background:radial-gradient(1200px 600px at 50% -10%,#14204A 0%,var(--bg) 60%) fixed;color:var(--ink);font:15px/1.5 "Manrope",system-ui,sans-serif;-webkit-user-select:none;user-select:none}
+button{font:inherit;color:inherit}
+.px{font-family:"Silkscreen",monospace;letter-spacing:.03em}
+.wrap{max-width:920px;margin:0 auto;padding:10px 12px 28px}
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:4px 0 8px}
+.logo{font-family:"Silkscreen",monospace;font-size:18px;color:#fff;text-shadow:0 0 12px #3B82F6;white-space:nowrap}
+.logo span{color:var(--acc)}
+.sp{flex:1}
+.pips{display:flex;gap:4px}
+.pip{width:15px;height:15px;border-radius:4px;background:#1c2542;border:1px solid #2b3a63}
+.pip.now{border-color:#fff;box-shadow:0 0 8px #fff8}
+.pip.good{background:var(--ok);border-color:#6ee7b7}.pip.miss{background:var(--bad);border-color:#fca5a5}
+.hearts{font-size:20px;letter-spacing:2px;filter:drop-shadow(0 0 6px #f43f5e88)}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:3px 11px;font-size:13px;color:var(--soft);white-space:nowrap}
+.chip b{color:var(--ink)}
+.iconbtn{background:var(--card);border:1px solid var(--rule);border-radius:9px;padding:5px 10px;cursor:pointer;font-weight:700;font-size:13px;color:var(--ink);text-decoration:none}
+.iconbtn:hover{border-color:var(--glow)}
+#stageWrap{position:relative;border-radius:14px;overflow:hidden;border:2px solid #2b3a63;background:#000;box-shadow:0 10px 40px #0008}
+canvas#stage{display:block;width:100%;height:auto;image-rendering:auto}
+#timerBar{height:10px;background:#101830;border-radius:6px;margin:8px 0 2px;overflow:hidden;border:1px solid #24304F}
+#timerFill{height:100%;width:100%;background:linear-gradient(90deg,#34D399,#FBBF24 60%,#F87171);transform-origin:left;transition:none}
+#timerFill.low{animation:blink .5s steps(2) infinite}
+@keyframes blink{50%{opacity:.45}}
+#prompt{margin:8px 0 2px;font-size:19px;font-weight:800;line-height:1.3;text-shadow:0 2px 8px #000a;white-space:pre-line}
+#code{display:none;margin:6px 0;padding:9px 13px;background:#0a1020;border:1px solid #2b3a63;border-radius:10px;font:600 17px/1.5 "JetBrains Mono",monospace;color:#a5f3fc;overflow-x:auto;white-space:pre}
+#book{display:none;margin:6px 0;padding:8px 12px;background:#0f172a;border:1px dashed #475569;border-radius:10px;font:13px/1.6 "JetBrains Mono",monospace;color:#cbd5e1}
+#controls{margin:10px 0}
+#why{min-height:44px;margin:6px 0;padding:9px 13px;border-radius:10px;font-size:14.5px;display:none;border:1px solid}
+#why.ok{display:block;background:#0b2a1f;border-color:#10b981;color:#d1fae5}
+#why.no{display:block;background:#33121a;border-color:#f43f5e;color:#ffe4e6}
+#why b{font-weight:800}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.btn{background:linear-gradient(180deg,#1c2749,#141C33);border:2px solid #2f4170;border-radius:12px;padding:11px 16px;cursor:pointer;font-weight:800;font-size:16px;color:var(--ink);text-align:left;transition:.12s;min-height:48px}
+.btn:hover:not(:disabled){border-color:var(--glow);transform:translateY(-1px)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn.pri{background:linear-gradient(180deg,#FDBA74,#FB923C);color:#1a0d00;border-color:#FB923C;text-align:center}
+.btn.go{background:linear-gradient(180deg,#4ADE80,#16A34A);color:#03230f;border-color:#22C55E;text-align:center;font-size:18px;padding:12px 26px}
+.btn.red{background:linear-gradient(180deg,#fb7185,#e11d48);color:#fff;border-color:#fda4af;text-align:center}
+.btn.right{border-color:#10b981;background:#0b2a1f}.btn.wrong{border-color:#f43f5e;background:#33121a}
+.choices{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+.choices.one{grid-template-columns:1fr}
+.choices .btn{display:flex;gap:10px;align-items:center}
+.key{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:7px;background:#0a1020;border:1px solid #3b4d80;font:700 13px "JetBrains Mono",monospace;color:var(--gold);flex:0 0 26px}
+.lanes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.lanes .btn{flex-direction:column;justify-content:center;text-align:center;min-height:78px;font-size:15px;border-radius:12px 12px 4px 4px}
+.lanes .btn .key{margin:0 auto 4px}
+/* switches */
+.bitrow{display:flex;gap:6px;justify-content:center;flex-wrap:nowrap}
+.sw{width:54px;text-align:center;cursor:pointer}
+.sw .pv{font:700 13px "JetBrains Mono",monospace;color:#94a3b8;margin-bottom:3px}
+.sw .lamp{width:46px;height:46px;margin:0 auto;border-radius:12px;background:#121a33;border:2px solid #334155;display:grid;place-items:center;font:800 22px "JetBrains Mono",monospace;color:#475569;transition:.12s}
+.sw.on .lamp{background:#fde047;border-color:#fff;color:#713f12;box-shadow:0 0 18px #facc15}
+.sw.on .pv{color:#fde047}
+.bitrows{display:grid;gap:8px}
+.bitrows .oct{display:flex;align-items:center;gap:8px;justify-content:center}
+.bitrows .sw{width:40px}.bitrows .sw .lamp{width:34px;height:34px;font-size:17px;border-radius:9px}.bitrows .sw .pv{font-size:10px}
+.sum{font:800 26px "JetBrains Mono",monospace;color:#fde047;min-width:64px;text-align:center}
+.sum.hit{color:#4ade80}
+.target{font:800 22px "JetBrains Mono",monospace;color:#f87171;min-width:48px}
+.ctl{display:flex;gap:12px;align-items:center;justify-content:center;margin-top:10px;flex-wrap:wrap}
+/* packets */
+.belt,.slots{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;min-height:74px;padding:8px;border-radius:12px}
+.belt{background:#111827;border:2px dashed #475569}
+.slots{background:#0c1a14;border:2px dashed #166534;margin-top:8px}
+.pkt{width:78px;border-radius:9px;border:2px solid #92400e;background:linear-gradient(180deg,#fde68a,#f59e0b);color:#451a03;text-align:center;cursor:pointer;padding:4px 2px 6px;font-weight:800;box-shadow:0 3px 0 #92400e}
+.pkt .h{font:800 11px "JetBrains Mono",monospace;background:#fff7ed99;border-radius:5px;margin:0 3px 3px}
+.pkt .d{font:800 18px "JetBrains Mono",monospace;letter-spacing:1px;min-height:24px}
+.pkt.used{opacity:.25;pointer-events:none}
+.slot{width:78px;min-height:64px;border:2px dashed #166534;border-radius:9px;display:grid;place-items:center;color:#14532d;font:800 12px "JetBrains Mono",monospace}
+.nums{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.numbtn{width:54px;height:54px;border-radius:12px;font:800 20px "JetBrains Mono",monospace;text-align:center;padding:0;display:grid;place-items:center}
+.numbtn.got{border-color:#10b981;background:#0b2a1f;color:#6ee7b7;cursor:default}
+.numbtn.sel{border-color:#f43f5e;background:#33121a;color:#fda4af}
+/* cast */
+.cast{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.cc{width:104px;text-align:center;cursor:pointer;background:#141C33;border:2px solid #2f4170;border-radius:12px;padding:4px 2px 6px}
+.cc:hover{border-color:var(--glow)}
+.cc canvas{width:96px;height:96px;display:block;margin:0 auto}
+.cc .nm{font:800 13px "JetBrains Mono",monospace}
+.cc .ix{font:700 11px "JetBrains Mono",monospace;color:#64748b}
+.cc.right{border-color:#10b981;background:#0b2a1f}.cc.wrong{border-color:#f43f5e;background:#33121a}
+.opseq{min-height:42px;padding:8px;background:#0a1020;border:1px dashed #3b4d80;border-radius:10px;font:600 13px/1.7 "JetBrains Mono",monospace;color:#a5f3fc;margin-top:8px}
+.palette{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.palette .btn{font:700 13px "JetBrains Mono",monospace;padding:9px 11px;min-height:42px}
+.listrow{display:flex;gap:6px;justify-content:center;align-items:center;flex-wrap:wrap;margin:6px 0}
+.mini{display:inline-flex;flex-direction:column;align-items:center;background:#141C33;border:1px solid #2f4170;border-radius:9px;padding:2px 4px}
+.mini canvas{width:46px;height:46px}.mini span{font:700 10px "JetBrains Mono",monospace}
+.lbl{font:700 12px "JetBrains Mono",monospace;color:#94a3b8;text-align:center;margin-top:4px}
+/* overlays */
+.ov{position:fixed;inset:0;background:#050810ee;display:grid;place-items:center;z-index:50;padding:14px}
+.ov.hidden{display:none}
+.card{max-width:560px;width:100%;background:linear-gradient(180deg,#16203f,#0E1426);border:2px solid #34457a;border-radius:18px;padding:22px 24px;text-align:center;box-shadow:0 20px 60px #000a}
+.card h1{margin:0 0 6px;font:700 26px "Silkscreen",monospace;color:#fff;text-shadow:0 0 14px #3B82F6;line-height:1.15}
+.card .sub{color:var(--soft);margin:0 0 12px}
+.card p{margin:8px 0;text-align:left;font-size:15px}
+.card .how{background:#0a1020;border:1px solid #2b3a63;border-radius:12px;padding:10px 14px;text-align:left;font-size:14px}
+.card .how div{margin:3px 0}
+.big{font:700 64px "Silkscreen",monospace;line-height:1;margin:6px 0}
+.big.good{color:var(--ok);text-shadow:0 0 24px #10b981}.big.mid{color:var(--gold);text-shadow:0 0 24px #f59e0b}.big.low{color:var(--bad);text-shadow:0 0 24px #ef4444}
+.msg{color:var(--soft);min-height:20px;margin:8px 0;font-size:14px}
+input.pin{padding:10px 14px;border-radius:10px;border:2px solid #34457a;background:#0a1020;color:#fff;font:700 18px "JetBrains Mono",monospace;width:160px;text-align:center}
+#teachNote{display:none;background:#1e1b4b;border:1px dashed #818cf8;color:#c7d2fe;border-radius:10px;padding:6px 12px;margin:6px 0;font-size:13px}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:60}
+@media (max-width:640px){.choices{grid-template-columns:1fr}.palette{grid-template-columns:1fr}#prompt{font-size:17px}.sw{width:38px}.sw .lamp{width:34px;height:34px}}
+@media (prefers-reduced-motion:reduce){#timerFill.low{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="logo">MISSION <span>GAME</span></div>
+    <div class="pips" id="pips" aria-label="Rounds"></div>
+    <div class="hearts" id="hearts" aria-label="Lives"></div>
+    <div class="sp"></div>
+    <span class="chip">Score <b id="score">0</b>/10</span>
+    <button class="iconbtn" id="mute" title="Sound on or off">Sound: on</button>
+    <a class="iconbtn" id="exit" href="../editor.html">Exit</a>
+  </div>
+  <div id="teachNote">Teacher preview: nothing is saved, and the answer to each round is shown below the question.</div>
+  <div id="stageWrap"><canvas id="stage" width="800" height="380" aria-label="The game"></canvas></div>
+  <div id="timerBar"><div id="timerFill"></div></div>
+  <div id="prompt"></div>
+  <div id="code"></div>
+  <div id="book"></div>
+  <div id="controls"></div>
+  <div id="why" role="status"></div>
+  <div id="teachSol" class="lbl" style="display:none;color:#a5b4fc"></div>
+</div>
+
+<div class="ov" id="signin"><div class="card">
+  <h1 id="siTitle">Mission Game</h1>
+  <p class="sub" id="siSub">Sign in with your school account to play.</p>
+  <div id="gbtn" style="display:flex;justify-content:center;margin:12px 0"></div>
+  <div id="pinbox" style="display:none"><p class="sub">Teacher preview. Enter your PIN.</p><input class="pin" id="pin" type="password" inputmode="numeric" autocomplete="off"> <button class="btn pri" id="pinGo">Go</button></div>
+  <div class="msg" id="signMsg"></div>
+</div></div>
+
+<div class="ov hidden" id="intro"><div class="card">
+  <h1 id="inTitle"></h1>
+  <p class="sub" id="inStory"></p>
+  <div class="how" id="inHow"></div>
+  <div class="msg" id="inBest"></div>
+  <div class="row"><button class="btn go" id="startBtn">START</button></div>
+</div></div>
+
+<div class="ov hidden" id="result"><div class="card">
+  <h1 id="rTitle"></h1>
+  <div class="big" id="rBig"></div>
+  <p class="sub" id="rMsg" style="text-align:center"></p>
+  <div class="msg" id="rBest"></div>
+  <div class="row" style="margin-top:10px"><button class="btn go" id="againBtn">PLAY AGAIN</button><a class="btn" id="backBtn" href="../editor.html" style="text-decoration:none;text-align:center">Back to the editor</a></div>
+</div></div>
+<canvas id="fx"></canvas>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="chars.js"></script>
+<script src="scenes.js"></script>
+<script src="engine.js"></script>
+</body>
+</html>

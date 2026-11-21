@@ -92,7 +92,7 @@ M.addWalkthrough("a109", {
 }, { unit: UNIT, num: 7, points: 50, seq: 7, passMin: 100 });
 
 /* ================================================================= MISSION ================ */
-M.addMission("a110", {
+M.legacyMission("a110", {
   num: 7, title: "Mission 7.1: Cartoon Creator Studio",
   intro: ["**YOU ARE THE STUDIO DIRECTOR.** Your cartoon studio needs a program that manages a **cast of characters**, reads a **script**, and turns every line into a **comic panel**, with a different face for every kind of sentence. Then it publishes a **comic strip and an animated GIF**.",
     "You will write **six functions** that all work with **lists**: add, find, remove, collect lines, choose a mood, and draw a panel. Then you will run the studio with a character **you** invent. Built-in tests give instant **PASS** or **FAIL** feedback.",

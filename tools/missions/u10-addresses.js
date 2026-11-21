@@ -109,7 +109,7 @@ M.addWalkthrough("a101", {
 
 /* ================================================================= MISSION ================ */
 const FN = (name) => new RegExp("^def\\s+" + name + "\\(\\s*\\w+\\s*\\)\\s*:", "m");
-M.addMission("a102", {
+M.legacyMission("a102", {
   num: 1, title: "Mission 10.3: The Network Club Bouncer",
   intro: ["**CLASSIFIED MISSION BRIEF.** The hottest spot on the Internet is **Network Club**, and its owner needs a bouncer. Guests do not show ID. They show an **IP address**, and only **valid** ones get in.",
     "You will write the bouncer's brain: **four functions** (checking, converting, classifying and counting addresses) and a **guest line** that decides who is admitted. Built-in tests give you **instant PASS or FAIL** feedback, like a real engineer.",

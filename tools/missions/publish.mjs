@@ -26,7 +26,7 @@ for (const r of recs) {
   const size = JSON.stringify(rec).length;
   console.log(`${r.slot}  ${rec.title}  (${rec.points} pts, ${size} chars, ${rec.checks.length} checks)`);
   if (dry) continue;
-  const up = await call({ action: "adminSetAssignment", slot: r.slot, title: rec.title, unit: rec.unit, num: rec.num, points: rec.points, blocks: rec.blocks, checks: rec.checks, tips: rec.tips, autoRun: rec.autoRun || [], live: false });
+  const up = await call({ action: "adminSetAssignment", slot: r.slot, title: rec.title, unit: rec.unit, num: rec.num, points: rec.points, blocks: rec.blocks, checks: rec.checks, tips: rec.tips, autoRun: rec.autoRun || [], game: rec.game, live: false });
   if (!up.ok) { console.log("   upload FAILED: " + JSON.stringify(up)); failed++; continue; }
   const set = { action: "adminSetLive", slot: r.slot, live: false, points: rec.points, seq: rec.seq };
   if (rec.part) set.part = rec.part;

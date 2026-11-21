@@ -172,6 +172,10 @@ body.noass #paneAss,body.noass #split0{display:none}
 #csDetail .tip2{margin:8px 0 0;color:var(--soft);font-size:12.5px}
 .pane{position:relative}
 #out{flex:1;min-height:80px;margin:0;padding:12px 14px;overflow:auto;background:var(--deep);font:13.5px/1.6 "JetBrains Mono",monospace;white-space:pre-wrap;word-break:break-word}
+.playbox{margin:12px 0;padding:14px;border-radius:14px;background:linear-gradient(180deg,#1e1b4b,#0f172a);border:2px solid #6366f1;text-align:center}
+.playbtn{display:inline-block;padding:14px 30px;border-radius:12px;background:linear-gradient(180deg,#4ADE80,#16A34A);color:#03230f!important;font:800 20px Manrope,sans-serif;text-decoration:none;border:2px solid #22C55E;box-shadow:0 6px 0 #166534}
+.playbtn:hover{filter:brightness(1.08)}
+.playbest{margin-top:10px;color:#c7d2fe;font-size:13.5px}
 #confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:9999}
 #confetti i{position:absolute;top:-16px;width:9px;height:14px;opacity:.95;animation:cfall 2.6s linear forwards}
 @keyframes cfall{to{transform:translateY(108vh) rotate(720deg)}}
@@ -1298,6 +1302,7 @@ function renderAssignment() {
   A.blocks.forEach(function (b, bi) {
     if (b.h) { sec++; h += "<h3>" + inl(b.h) + "</h3>"; if (secTips[sec] && secTips[sec].length) { var isStep = /^(Step|Trace) /.test(b.h); stepHelp[sec] = { title: isStep ? String(b.h).replace(/:.*$/, "") : (/^Stuck/.test(b.h) ? "this assignment" : "the house rules"), ids: secTips[sec] }; h += '<div class="helprow"><button type="button" class="helpstep" data-help="' + sec + '">\uD83D\uDCA1 ' + (isStep ? "Help for this step" : "Help with the house rules") + ' <small>(' + secTips[sec].length + " topics)</small></button></div>"; } }
     else if (b.p) h += "<p>" + inl(b.p) + "</p>";
+    else if (b.play) h += '<div class="playbox"><a class="playbtn" id="playBtn" href="games/play.html?slot=' + slot + '" target="_blank" rel="noopener">&#9654; PLAY THE GAME</a><div class="playbest" id="gameBest">' + escA(b.play === true ? "Opens in a new tab. Your best score saves by itself." : b.play) + "</div></div>";
     else if (b.code) { h += "<pre>" + (b.mark && b.mark.length ? codeMarked(b.code, b.mark) : highlight(b.code)) + "</pre>"; if (isPseudo(b.code)) h += '<div class="pcopyrow"><button type="button" class="pcopy" data-pc="' + bi + '">📋 Copy pseudocode</button><small>Pastes into your code box as comment lines</small></div>'; }
     else if (b.tips) { if (sec === 0 && introTips.length && !stepHelp[0]) { stepHelp[0] = { title: "Getting started", ids: introTips }; h += '<div class="helprow"><button type="button" class="helpstep" data-help="0">\uD83D\uDCA1 Help for getting started <small>(' + introTips.length + " topics)</small></button></div>"; } }
     else {
@@ -1307,7 +1312,7 @@ function renderAssignment() {
   });
   if (A.mc && A.mc.length) h += mcHtml(A);
   if (isQuizNow()) h = '<div id="qres" aria-live="polite"></div>' + h;
-  body.innerHTML = h; updateProg(); updateScore(); mcBind(A);
+  body.innerHTML = h; updateProg(); updateScore(); mcBind(A); if (A.game) loadGameBest();
 }
 function updateProg() { /* the "steps checked off" counter and bar were removed on purpose */ }
 /* AP exam pseudocode blocks get a Copy pseudocode button: it copies the block as # comment lines (no indent, no lone braces, arrows as <-) so a student can paste it into the code box instead of typing the arrows and braces. Pseudocode only; Python code samples stay uncopyable. */
@@ -1456,9 +1461,24 @@ function celebrate(head, sub) {
   document.body.appendChild(c); document.body.appendChild(b);
   setTimeout(function () { [c, b].forEach(function (o) { if (o.parentNode) o.parentNode.removeChild(o); }); }, 3600);
 }
+/* a Mission that is a game: the score comes from playing it (the server saves your best run) */
+function loadGameBest() {
+  var A = (window.PY_ASSIGN || {})[slot], box = $("gameBest"), sc = $("assScore"); if (!A || !A.game || !box) return;
+  var mine = slot, pin = ""; try { pin = /[?&]teacher/.test(location.search) ? (sessionStorage.getItem("pypin") || "") : ""; } catch (e) {}
+  if (!CRED && !pin) { box.textContent = "Sign in with Google (top of the page) so your score saves."; return; }
+  fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "gameState", slot: mine, credential: CRED, pin: pin || undefined, period: $("period").value }) }).then(function (r) { return r.json(); }).then(function (j) {
+    if (mine !== slot || !j) return;
+    if (j.error) { box.textContent = j.error; return; }
+    var txt = j.preview ? "Teacher view: you can play it, but nothing is saved." : (j.best !== null && j.best !== undefined ? "Your best score: " + j.best + " out of 100 (" + j.runs + " run" + (j.runs === 1 ? "" : "s") + "). " + (j.best >= 90 ? "That opens the next walkthrough." : "Get 90 or more to open the next walkthrough.") : "You have not played yet. Get 90 or more to open the next walkthrough.");
+    box.textContent = txt;
+    if (sc && !j.preview) sc.innerHTML = j.best !== null && j.best !== undefined ? "Game score: <b>" + j.best + " / 100</b> <small>= " + Math.round(j.best / 100 * slotPoints(A)) + " of " + slotPoints(A) + " points</small>" : "Play the game to earn your score";
+  }).catch(function () {});
+}
+window.addEventListener("message", function (e) { if (e.origin === location.origin && e.data && e.data.type === "mission-game" && e.data.slot === slot) { loadGameBest(); } });
 function updateScore() {
   clearTimeout(scoreT);
   var A = (window.PY_ASSIGN || {})[slot], el = $("assScore");
+  if (A && A.game) { return; }
   if (!A || slot === "free" || slot === "example") { el.innerHTML = ""; $("assMiss").className = ""; return; }
   if (A.apx && window.PYA) {   /* Appendix A: checked right here in the browser */
     scoreT = setTimeout(function () {

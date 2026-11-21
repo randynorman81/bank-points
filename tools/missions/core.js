@@ -39,6 +39,21 @@ function addWalkthrough(slot, w, o) {
   const rec = toRecord(w, o); rec.slot = slot;
   RECORDS.push({ slot, rec, w, refs: w.stages.map((s) => s.code), final: w.stages.final, kind: "walkthrough" }); return rec;
 }
+/* A Mission that is a GAME (python/games/play.html). No code to grade: the server judges every answer (netlify/functions/gamebank.js) and keeps the best run. */
+function addGame(slot, d, o) {
+  const blocks = [{ h: "Your mission" }];
+  (Array.isArray(d.story) ? d.story : [d.story]).forEach((p) => blocks.push({ p }));
+  blocks.push({ play: true });
+  blocks.push({ h: "How to play" }); d.how.forEach((p) => blocks.push({ p }));
+  blocks.push({ h: "Scoring" });
+  ["This mission is worth **100 points** and there is **no coding**. You play a 10-round game, and each right answer is worth 10 points.",
+    "**9 right = 90** turns it in and opens the next walkthrough. **10 right = 100** is full points. Three mistakes end the game early, and your score is the rounds you got right.",
+    "You can play as many times as you like. **Your best run counts.** The questions change every time, so reading the explanation after each round really helps."].forEach((p) => blocks.push({ p }));
+  blocks.push({ h: "What you are practicing" }); d.practice.forEach((p) => blocks.push({ p }));
+  const rec = { title: d.title, unit: o.unit, num: o.num, points: o.points, part: "mission", seq: o.seq, passMin: o.passMin, game: d.game, blocks, checks: [], tips: d.tips || {}, live: false };
+  RECORDS.push({ slot, rec, w: { stages: [] }, refs: [], final: "", kind: "game" }); return rec;
+}
+function legacyMission() { /* the earlier Python-coding missions are switched off; the games replace them */ }
 function add(slot, w, o) { const rec = toRecord(w, o); rec.slot = slot; RECORDS.push({ slot, rec, w }); return rec; }
 
-module.exports = { PYA, PYB, seq: PYB.seq, bring: PYB.bring, add, addMission, addWalkthrough, RECORDS, toRecord, TIPS: PYA.TIPS };
+module.exports = { PYA, PYB, seq: PYB.seq, bring: PYB.bring, add, addMission, addGame, legacyMission, addWalkthrough, RECORDS, toRecord, TIPS: PYA.TIPS };

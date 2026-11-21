@@ -1,5 +1,6 @@
 import { getStore } from "@netlify/blobs";
 import { withPySettings } from "../../teacher-settings/python-editor.js";
+import { GAMES, ROUNDS, STRIKES, hasGame, makeQuestion, checkAnswer } from "./gamebank.js";
 
 // Python editor backend (python/editor.html).
 //   - Students sign in with their school Google account (same setup as the HTML editor).
@@ -85,9 +86,11 @@ async function mine(body, user) {
   return out;
 }
 
+/* only the slots that really have an assignment saved (there are 300 possible ids, but about 100 are used), so a page load does not make hundreds of useless lookups */
+async function existingSlots() { const have = new Set((await listPrefix("assign:")).map((k) => k.slice(7))); return SLOTS.filter((l) => l === "free" || have.has(l)); }
 async function mySlots(user) {
   const e = enc(user.email);
-  const has = await Promise.all(SLOTS.map(async (l) => {
+  const has = await Promise.all((await existingSlots()).map(async (l) => {
     const [s, d] = await Promise.all([store().getMetadata("sub:" + l + ":" + e), store().getMetadata("draft:" + l + ":" + e)]);
     return { slot: l, submitted: !!s, saved: !!d };
   }));
@@ -336,7 +339,7 @@ async function adminList(body) {
 
 async function adminCounts() {
   const counts = {};
-  for (const l of SLOTS) counts[l] = (await listPrefix("sub:" + l + ":")).length;
+  for (const l of await existingSlots()) counts[l] = (await listPrefix("sub:" + l + ":")).length;
   return { ok: true, counts };
 }
 
@@ -394,7 +397,7 @@ async function adminSetAssignment(body) {
   const mcKey = Array.isArray(body.mcKey) ? body.mcKey.slice(0, 30).map((x) => Number(x) | 0) : null;
   const prevAsg = await readJSON("assign:" + body.slot, null);
   const points = Math.max(0, Math.min(1000, Number(body.points) || 0));
-  const text = JSON.stringify({ title, unit, num, points, mc, mcKey, mcReleased: !!(prevAsg && prevAsg.mcReleased), autoRun: cleanAutoRun(body.autoRun !== undefined ? body.autoRun : (prevAsg && prevAsg.autoRun)), passMin: prevAsg && prevAsg.passMin !== undefined && prevAsg.passMin !== null ? prevAsg.passMin : undefined, mcOnly: !!body.mcOnly, blocks: body.blocks, checks: cleanChecks(body.checks), tips: cleanTips(body.tips), variants, live: body.live !== false, publishedAt: now() });
+  const text = JSON.stringify({ title, unit, num, points, game: hasGame(body.game) ? body.game : undefined, mc, mcKey, mcReleased: !!(prevAsg && prevAsg.mcReleased), autoRun: cleanAutoRun(body.autoRun !== undefined ? body.autoRun : (prevAsg && prevAsg.autoRun)), passMin: prevAsg && prevAsg.passMin !== undefined && prevAsg.passMin !== null ? prevAsg.passMin : undefined, mcOnly: !!body.mcOnly, blocks: body.blocks, checks: cleanChecks(body.checks), tips: cleanTips(body.tips), variants, live: body.live !== false, publishedAt: now() });
   const keep = JSON.parse(text); ["ungated", "quizFree", "submitAny", "seq", "part", "hold", "fresh"].forEach((k) => { if (prevAsg && prevAsg[k] !== undefined && keep[k] === undefined) keep[k] = prevAsg[k]; });
   if (text.length > 400000) return { error: "That assignment is too big" };
   await store().setJSON("assign:" + body.slot, keep);
@@ -607,6 +610,64 @@ async function liveScore(body) {
   return { ok: true, need: rec.submitAny === true ? 0 : PASS, unlock: passMinOf(rec), pct: r.pct, passed: r.passed, total: r.total, missing: r.missing, boxes: r.boxes };
 }
 
+/* ---------------- Mission games (python/games/play.html) ----------------
+   A Mission can be a GAME instead of code: the record has game: "bomb" | "dns" | "storm" | "packets" | "cast".
+   The questions are made here from a random seed (netlify/functions/gamebank.js) and the answers are checked here, so the student's browser never has the answers.
+   A run is 10 rounds; 3 wrong answers end it. Score = right / 10 x 100. The best run is saved as the student's score on the mission, so passMin (90) opens the next walkthrough. */
+const GAME_RUN_MS = 3 * 3600 * 1000;
+const publicQ = (x, preview) => (preview ? Object.assign({}, x.q, { sol: { answer: x.a, why: x.why } }) : x.q);   /* only the teacher preview sees the solution */
+async function gameAccess(body, user) {
+  const slot = body.slot;
+  if (!goodSlot(slot) || slot === "free") return { error: "Unknown mission" };
+  const asg = withPySettings(slot, await readJSON("assign:" + slot, null));
+  if (!asg || !asg.game || !hasGame(asg.game)) return { error: "That mission is not a game." };
+  if (isAdmin(body) || isTeacherUser(user)) return { asg, preview: true };   /* the teacher can play any game; nothing is saved */
+  if (!user) return { error: "Please sign in with your school Google account.", needLogin: true };
+  if (await closedToStudent(slot, user)) return { error: "That mission is not open yet. Your teacher will open it when it is time." };
+  const open = await gatedAssignments(user, cleanPeriod(body.period));
+  if (!open.assignments[slot]) { const L = open.locked.find((x) => x.id === slot); return { error: L && L.needName ? "This mission is locked. Finish " + L.needName + " first." : "This mission is locked." }; }
+  return { asg, preview: false };
+}
+async function gameBest(slot, email) { const sub = await readJSON("sub:" + slot + ":" + enc(email), null); return sub && sub.game ? { best: sub.game.best, runs: sub.game.runs, last: sub.game.last } : { best: null, runs: 0, last: null }; }
+async function gameStart(body, user) {
+  const acc = await gameAccess(body, user); if (acc.error) return acc;
+  const seed = crypto.getRandomValues(new Uint32Array(1))[0] >>> 0, id = crypto.randomUUID().replace(/-/g, "");
+  const run = { id, slot: body.slot, email: user ? user.email : "preview", name: user ? user.name : "Teacher preview", period: cleanPeriod(body.period), game: acc.asg.game, seed, n: 0, correct: 0, strikes: 0, done: false, over: false, preview: acc.preview, startedAt: now() };
+  await store().setJSON("grun:" + id, run);
+  return Object.assign({ ok: true, runId: id, game: run.game, title: GAMES[run.game].title, rounds: ROUNDS, strikes: STRIKES, n: 0, preview: acc.preview, question: publicQ(makeQuestion(run.game, seed, 0), acc.preview) }, acc.preview ? {} : await gameBest(body.slot, user.email));
+}
+async function gameFinish(run) {
+  const pct = Math.round(run.correct / ROUNDS * 100);
+  if (run.preview) return { pct, best: null, saved: false };
+  const key = "sub:" + run.slot + ":" + enc(run.email), prev = await readJSON(key, null);
+  const g = Object.assign({ runs: 0, best: 0 }, prev && prev.game);
+  g.runs++; g.last = pct; g.best = Math.max(g.best, pct); g.lastAt = now();
+  const handGraded = prev && prev.teacher && !prev.teacher.game && prev.teacher.score !== null && prev.teacher.score !== undefined && prev.teacher.score !== "";   /* a score the teacher typed in by hand is never replaced */
+  const rec = Object.assign({}, prev || {}, {
+    email: run.email, name: run.name, period: run.period || (prev && prev.period) || "", slot: run.slot, mode: "python", code: (prev && prev.code) || "", output: "",
+    submittedAt: now(), firstSubmittedAt: (prev && (prev.firstSubmittedAt || prev.submittedAt)) || now(), count: (prev && prev.count ? prev.count : 0) + 1, game: g,
+    teacher: handGraded ? prev.teacher : { score: g.best, comment: "Mission game: best " + g.best + "% in " + g.runs + " run" + (g.runs > 1 ? "s" : ""), gradedAt: now(), game: true }
+  });
+  await store().setJSON(key, rec);
+  return { pct, best: g.best, runs: g.runs, saved: true };
+}
+async function gameAnswer(body, user) {
+  const runId = String(body.runId || "").replace(/[^a-f0-9]/g, "");
+  const run = runId ? await readJSON("grun:" + runId, null) : null;
+  if (!run) return { error: "That game was not found. Start a new one." };
+  if (run.preview ? !(isAdmin(body) || isTeacherUser(user)) : !user || user.email !== run.email) return { error: "That is not your game." };
+  if (run.done) return { error: "That game is already over." };
+  if (Number(body.n) !== run.n) return { error: "That answer is out of order.", n: run.n };
+  if (Date.now() - Date.parse(run.startedAt) > GAME_RUN_MS) return { error: "That game ran too long. Start a new one." };
+  const cur = makeQuestion(run.game, run.seed, run.n), right = checkAnswer(run.game, cur.a, body.answer);
+  if (right) run.correct++; else run.strikes++;
+  run.n++; run.over = run.strikes >= STRIKES; run.done = run.over || run.n >= ROUNDS;
+  await store().setJSON("grun:" + run.id, run);
+  const out = { ok: true, correct: right, why: cur.why, n: run.n, correctCount: run.correct, strikes: run.strikes, over: run.over, done: run.done };
+  if (run.done) out.final = await gameFinish(run); else out.next = publicQ(makeQuestion(run.game, run.seed, run.n), run.preview);
+  return out;
+}
+
 /* ---------------- request handler ---------------- */
 export default async (req) => {
   const ok = (obj) => new Response(JSON.stringify(obj), { status: 200, headers: JSON_HEADERS });
@@ -635,6 +696,14 @@ export default async (req) => {
 
     if (action === "assignments") return ok(await gatedAssignments(body.credential ? await verifyGoogleToken(body.credential) : null, cleanPeriod(body.period)));
     if (action === "score") return ok(await liveScore(body));
+    if (action === "gameStart" || action === "gameAnswer" || action === "gameState") {
+      const gu = body.credential ? await verifyGoogleToken(body.credential) : null;
+      if (!gu && !isAdmin(body)) return ok({ error: "Please sign in with your school Google account.", needLogin: true });
+      if (action === "gameStart") return ok(await gameStart(body, gu));
+      if (action === "gameAnswer") return ok(await gameAnswer(body, gu));
+      const acc = await gameAccess(body, gu); if (acc.error) return ok(acc);
+      return ok(Object.assign({ ok: true, game: acc.asg.game, title: acc.asg.title, preview: acc.preview }, gu && !acc.preview ? await gameBest(body.slot, gu.email) : {}));
+    }
     const user = await verifyGoogleToken(body.credential);
     if (!user) return ok({ error: "Please sign in with your school Google account.", needLogin: true });
     if (action === "mine") return ok(await mine(body, user));

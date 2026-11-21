@@ -43,6 +43,7 @@ async function hidden(code, autoRun) { return await b.ev(`hiddenOutput(${JSON.st
 for (const r of recs) {
   console.log(`\n${r.slot}  ${r.rec.title}   [${r.kind}, ${r.rec.points} pts, passMin ${r.rec.passMin}]`);
   lint(r);
+  if (r.kind === "game") { console.log("  game mission: no code to grade (the game logic is tested by gametest.mjs and gameflow.mjs)"); continue; }
   const stages = r.w.stages, rec = r.rec; let last = "", lastOut = "";
   for (let k = 0; k < stages.length; k++) {
     const code = r.refs[k] !== undefined ? r.refs[k] : last;

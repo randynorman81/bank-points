@@ -86,7 +86,7 @@ M.addWalkthrough("a103", {
 }, { unit: UNIT, num: 2, points: 50, seq: 5, passMin: 100 });
 
 /* ================================================================= MISSION ================ */
-M.addMission("a104", {
+M.legacyMission("a104", {
   num: 2, title: "Mission 10.5: DNS Detective",
   intro: ["**CLASSIFIED CASE FILE.** Websites are vanishing from browsers across the school. Chief Engineer Rivera needs a **DNS Detective** to build a working resolver and trace where every question goes.",
     "You will write **five functions**: two that take names apart, a **resolver** that looks names up in a real **DNS hierarchy**, a **tracer** that follows the path, and a **cache**. Then you will run a live **case file** where you look up domains. Built-in tests give instant **PASS** or **FAIL** feedback.",

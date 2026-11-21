@@ -87,7 +87,7 @@ M.addWalkthrough("a107", {
 }, { unit: UNIT, num: 4, points: 50, seq: 7, passMin: 100 });
 
 /* ================================================================= MISSION ================ */
-M.addMission("a108", {
+M.legacyMission("a108", {
   num: 4, title: "Mission 10.7: Packet Post Office",
   intro: ["**RUSH ORDER.** The Packet Post Office has opened, and your job is to run it. Customers hand you a message. You must **chop it into numbered packets**, send them through a **lossy network**, **find what got lost**, **resend it**, and **put everything back in order**, exactly like TCP does.",
     "You will write **four functions** and a customer counter that compares **reliable TCP-style delivery** with **fast UDP-style delivery**. Built-in tests give instant **PASS** or **FAIL** feedback.",

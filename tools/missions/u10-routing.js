@@ -87,7 +87,7 @@ M.addWalkthrough("a105", {
 }, { unit: UNIT, num: 3, points: 50, seq: 6, passMin: 100 });
 
 /* ================================================================= MISSION ================ */
-M.addMission("a106", {
+M.legacyMission("a106", {
   num: 3, title: "Mission 10.6: Storm Warning",
   intro: ["**EMERGENCY ALERT.** A giant storm is rolling over the school. Routers are about to go down one by one. As **Route Engineer** you must build the program that **finds the best route, reroutes around damage, and tells you when the school is cut off**.",
     "You will write **four functions** (build a graph, find a path, count hops, remove a router) and a live **storm simulator** that animates the packet's journey. Built-in tests give instant **PASS** or **FAIL** feedback.",
