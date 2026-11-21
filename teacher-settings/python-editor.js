@@ -58,7 +58,20 @@ export const PY_SETTINGS = {
   a64: { live: true, part: "project", seq: 10.5, passMin: 0 },   // Unit 8 Assignment 10: graded work under Walkthrough 10
   a65: { live: true, hold: true, passMin: 90 },  // Unit 8 Quiz: Digital Information (opens when you open it)
   /* Unit 9: Practice Performance Task (starts its own chain) */
-  a66: { live: true, hold: true, fresh: true, passMin: 90 }   // Unit 9 Practice PT 2: The Shopping List
+  a66: { live: true, hold: true, fresh: true, passMin: 90 },   // Unit 9 Practice PT 2: The Shopping List
+  /* WALKTHROUGH + MISSION pilot (a101 and up). Each pair: a Walkthrough worth 50 points that must reach 100 on the auto-checker to open its Mission (100 points).
+     A Mission at 90 opens the next Walkthrough. All hidden from students (live: false) until you change a line to live: true.
+     To open the whole Unit 10 pilot, change live: false to live: true on a101 to a108. fresh: true starts a new chain at the first item of a unit. */
+  a101: { live: false, fresh: true, passMin: 100 },   // Unit 10 Walkthrough 1: Internet Addresses (10.3)
+  a102: { live: false, passMin: 90 },                 // Mission 10.3: The Network Club Bouncer
+  a103: { live: false, passMin: 100 },                // Unit 10 Walkthrough 2: DNS (10.5)
+  a104: { live: false, passMin: 90 },                 // Mission 10.5: DNS Detective
+  a105: { live: false, passMin: 100 },                // Unit 10 Walkthrough 3: Routing (10.6)
+  a106: { live: false, passMin: 90 },                 // Mission 10.6: Storm Warning
+  a107: { live: false, passMin: 100 },                // Unit 10 Walkthrough 4: Packets and Protocols (10.7)
+  a108: { live: false, passMin: 90 },                 // Mission 10.7: Packet Post Office
+  a109: { live: false, passMin: 100 },                // Unit 7 Walkthrough 7 (after Walkthroughs 1 to 6): Lists, Meet the Cast
+  a110: { live: false, passMin: 90 }                  // Mission 7.1: Cartoon Creator Studio
 };
 /* WORDING CHANGES to a walkthrough, kept in the code (no PIN). Each one gets a copy of the walkthrough and changes it. */
 const STEP5_ODD = "Now test an odd number **without changing your code above**. Below your last line, type `number = 7`, then type the same four `print` lines again under it (you can copy and paste your own lines). Add an **end-of-line comment** at the end of your last print line with what the four answers were for 7. If that line already has a comment, add to it. [[How do I test 7?|oddtest]]";

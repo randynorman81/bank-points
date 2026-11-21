@@ -142,7 +142,7 @@
   /* ------------------------------------------------------------------ build one walkthrough record ---- */
   function build(w) {
     var blocks = [], checks = [], boxN = 0, prevLines = null, curStage = 0;
-    function box(items) { return items.map(function (it) { var text = typeof it === "string" ? it : it.t; if (typeof it !== "string" && it.c) it.c.forEach(function (c) { checks.push({ label: c[0], re: (c[1] instanceof RegExp ? c[1].source : (typeof c[1] === "function" ? "" : c[1])), fn: (typeof c[1] === "function" ? c[1] : null), min: c[2] || 1, box: boxN, pts: 1, stage: curStage, where: c[3] || "code" }); }); boxN++; return text; }); }
+    function box(items) { return items.map(function (it) { var text = typeof it === "string" ? it : it.t; if (typeof it !== "string" && it.c) it.c.forEach(function (c) { checks.push({ label: c[0], re: (c[1] instanceof RegExp ? c[1].source : (typeof c[1] === "function" ? "" : c[1])), flags: (c[1] instanceof RegExp ? c[1].flags.replace(/[gy]/g, "") : ""), fn: (typeof c[1] === "function" ? c[1] : null), min: c[2] || 1, box: boxN, pts: 1, stage: curStage, where: c[3] || "code" }); }); boxN++; return text; }); }
     blocks.push({ h: "What you will make" });
     (Array.isArray(w.intro) ? w.intro : [w.intro]).forEach(function (p) { blocks.push({ p: p }); });
     if (w.learn && w.learn.length) blocks.push({ p: "**You will learn:** " + w.learn.join(", ") + "." });
@@ -161,7 +161,7 @@
       var items = [];
       if (s.type) items.push({ t: s.type, c: s.chk || [] });
       (s.do || []).forEach(function (d) { items.push(d); });
-      if (s.run) items.push("Press **Run** (or **Ctrl + Enter**). " + s.run);
+      if (s.run) items.push(s.runChk ? { t: "Press **Run** (or **Ctrl + Enter**). " + s.run, c: s.runChk.map(function (c) { return [c[0], c[1], c[2] || 1, "output"]; }) } : "Press **Run** (or **Ctrl + Enter**). " + s.run);
       if (items.length) blocks.push({ make: box(items) });
     });
     var last = w.stages[w.stages.length - 1];

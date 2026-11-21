@@ -13,7 +13,7 @@ const SCHOOL_EMAIL_DOMAIN = "socialcircleschools.org";
 /* the teacher account sees every assignment open (published or not), with no 80-point gate */
 const TEACHER_EMAILS = ["randy.norman@socialcircleschools.org"];
 function isTeacherUser(user) { return !!user && TEACHER_EMAILS.indexOf(user.email) > -1; }
-const SLOTS = ["free"].concat(Array.from({ length: 70 }, (_, i) => "a" + (i + 1)));
+const SLOTS = ["free"].concat(Array.from({ length: 300 }, (_, i) => "a" + (i + 1)));   /* a1 to a40 are the first walkthroughs; a101 and up hold the Walkthrough + Mission pairs */
 const MAX_CODE = 60000;
 const MAX_WORLD = 20000;
 
@@ -353,7 +353,7 @@ async function adminSetLive(body) {
   if (body.passMin !== undefined) { if (body.passMin === null || body.passMin === "") delete rec.passMin; else { const pn = Number(body.passMin); if (pn >= 0 && pn <= 100) rec.passMin = pn; } }   /* passMin: percent needed before the next assignment opens */
   if (body.quizFree !== undefined) rec.quizFree = body.quizFree === true || body.quizFree === "true";   /* quizFree: a Quiz that does NOT run in fullscreen or record leaving the page */
   if (body.seq !== undefined) { if (body.seq === null || body.seq === "") delete rec.seq; else if (!isNaN(Number(body.seq))) rec.seq = Number(body.seq); }   /* seq: where it sits in the unit's timeline (8.5 = right after Walkthrough 8) */
-  if (body.part !== undefined) { if (["assignment", "project", "quiz", "test"].indexOf(body.part) > -1) rec.part = body.part; else delete rec.part; }
+  if (body.part !== undefined) { if (["assignment", "project", "mission", "quiz", "test"].indexOf(body.part) > -1) rec.part = body.part; else delete rec.part; }
   if (body.points !== undefined && !isNaN(Number(body.points))) rec.points = Math.max(0, Math.min(1000, Number(body.points)));
   await store().setJSON("assign:" + body.slot, rec);
   return { ok: true, slot: body.slot, live: rec.live, hold: rec.hold === true, ungated: rec.ungated === true, quizFree: rec.quizFree === true, submitAny: rec.submitAny === true, passMin: rec.passMin !== undefined ? rec.passMin : null, fresh: rec.fresh === true };
@@ -417,10 +417,10 @@ async function adminDeleteAssignment(body) {
 /* What kind of item this is. "assignment" is shown to students as a WALKTHROUGH (it walks them through a concept).
    "project" (title starts with Project), "quiz" (title starts with Quiz), "test" (Test or Exam in the title).
    An item can set part: "assignment" | "project" | "quiz" | "test" to override the title rule. */
-function slotPart(a) { if (!a) return "assignment"; if (a.part) return a.part; const t = String(a.title || ""); return /^Quiz\b/i.test(t) ? "quiz" : /^(Project|Performance Activity)\b/i.test(t) ? "project" : /\b(Test|Exam)\b/i.test(t) ? "test" : "assignment"; }
-const inChain = (a) => { const p = slotPart(a); return p === "assignment" || p === "project"; };   /* walkthroughs and projects need 90 to open the next one; quizzes and tests open only when the teacher opens them */
-const KIND_NAME = { assignment: "Walkthrough", project: "Project", quiz: "Quiz", test: "Test" };
-function itemName(id, a) { return slotPart(a) === "assignment" ? "Walkthrough " + (a.num || Number(id.slice(1))) : (String(a.title || "").match(/^(Quiz|Project|Test|Exam)\s*\d*/i) || [KIND_NAME[slotPart(a)] || "Item"])[0].trim(); }
+function slotPart(a) { if (!a) return "assignment"; if (a.part) return a.part; const t = String(a.title || ""); return /^Quiz\b/i.test(t) ? "quiz" : /^Mission\b/i.test(t) ? "mission" : /^(Project|Performance Activity)\b/i.test(t) ? "project" : /\b(Test|Exam)\b/i.test(t) ? "test" : "assignment"; }
+const inChain = (a) => { const p = slotPart(a); return p === "assignment" || p === "project" || p === "mission"; };   /* a Mission is the game assignment that follows a walkthrough: it opens when the walkthrough reaches its passMin (100) */   /* walkthroughs and projects need 90 to open the next one; quizzes and tests open only when the teacher opens them */
+const KIND_NAME = { assignment: "Walkthrough", project: "Project", mission: "Mission", quiz: "Quiz", test: "Test" };
+function itemName(id, a) { return slotPart(a) === "assignment" ? "Walkthrough " + (a.num || Number(id.slice(1))) : (String(a.title || "").match(/^(Quiz|Project|Mission|Test|Exam)\s*[\d.]*/i) || [KIND_NAME[slotPart(a)] || "Item"])[0].trim(); }
 /* Chronological order inside the dropdown and for unlocking: units in order (Unit 3 before Unit 4), then
    seq if the teacher set one, else a walkthrough's number, else a range in the title ("Quiz 1: 1-8" goes right after Walkthrough 8). */
 function orderKey(id, a) {
@@ -428,7 +428,7 @@ function orderKey(id, a) {
   if (a.seq !== undefined && a.seq !== null && a.seq !== "" && !isNaN(Number(a.seq))) return unit * 1000 + Number(a.seq);
   if (slotPart(a) === "assignment") return unit * 1000 + (Number(a.num) || Number(id.slice(1)));
   const r = /(\d+)\s*(?:-|to)\s*(\d+)/i.exec(t.replace(/^\D*\d+\s*:/, "")), own = /(\d+)/.exec(t);
-  const rank = { project: 0, quiz: 1, test: 2 }[slotPart(a)] || 0;   /* after the same walkthrough: projects (performance activities) always come before quizzes, then tests */
+  const rank = { project: 0, mission: 0, quiz: 1, test: 2 }[slotPart(a)] || 0;   /* after the same walkthrough: projects (performance activities) always come before quizzes, then tests */
   return unit * 1000 + (r ? Number(r[2]) + 0.5 : 900) + rank * 0.01 + (own ? Number(own[1]) / 1000 : 0);
 }
 async function gatedAssignments(user, period) {

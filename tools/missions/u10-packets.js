@@ -1,0 +1,170 @@
+/* UNIT 10: THE INTERNET. Pair 4: Packets and Protocols (CodeHS 10.7).
+   Walkthrough (50 points): notes + labs.  Mission (100 points): Packet Post Office.  */
+"use strict";
+const M = require("./core.js");
+const UNIT = "Unit 10: The Internet";
+const note = (label, groups) => new RegExp("^\\s*" + label + ":" + groups.map((g) => "(?=.*(?:" + g + "))").join("") + ".*\\S", "i");
+const FN = (name, args) => new RegExp("^def\\s+" + name + "\\(\\s*" + (args || "\\w+") + "\\s*\\)\\s*:", "m");
+
+/* ================================================================= WALKTHROUGH ================ */
+M.addWalkthrough("a107", {
+  num: 4, title: "Packets and Protocols (10.7)",
+  intro: ["**INCOMING TRANSMISSION from NetOps HQ:** When you send a photo to a friend, it does not travel as one giant block. It is **chopped into tiny pieces**, sent in different directions, and **put back together** on the other end. Today you train as a **Packet Handler**.",
+    "In about 25 minutes you will take **notes**, chop a message into **packets**, scramble and reassemble them, find **lost** packets, and learn why **protocols** keep the Internet working. Hit **100%** and **Mission 10.7: Packet Post Office** unlocks."],
+  learn: ["packets and packet switching", "headers and payloads", "out-of-order arrival and reassembly", "TCP and UDP", "protocols and open standards"],
+  firstTips: ["notes", "b_list"],
+  stages: [
+    { title: "Briefing 1: Why packets?",
+      say: ["The Internet breaks every message into small chunks called **packets**. Why? **1.** Many people can **share** the same cables, because their packets take turns. **2.** If one piece is **lost**, only that piece has to be **resent**, not the whole file. **3.** Packets can travel by **different routes** around problems.",
+        "Python can chop text into pieces with a **slice**: `message[0:4]` is the first 4 letters. A loop with `range(0, len(message), size)` jumps 4 letters at a time."],
+      help: ["notes", "b_list"],
+      add: `# NOTES: Packets and Protocols (10.7)\n# PACKET: a small chunk of a message so many people can share the network and only lost pieces need to be resent\n\nmessage = "HELLO WORLD"\nsize = 4\nchunks = []\nfor start in range(0, len(message), size):\n    chunks.append(message[start:start + size])\nprint(chunks)`,
+      type: "Type the note, then the lab that chops a message into chunks.",
+      chk: [["a # PACKET: note about small chunks", note("PACKET", ["chunk|piece|small|part|fragment|section", "message|data|file|information|resend|share|lost"]), 1, "comments"], ["a message and a chunk size", /^\s*message\s*=\s*["'][^"']+["'][\s\S]*^\s*size\s*=\s*\d+/m], ["looping with range(0, len(message), size)", /for\s+start\s+in\s+range\(\s*0\s*,\s*len\(\s*message\s*\)\s*,\s*size\s*\)\s*:/], ["slicing out each chunk", /message\[\s*start\s*:\s*start\s*\+\s*size\s*\]/]],
+      run: "The message is cut into 4-letter chunks.", runChk: [["the chunks list printed", /\[['"][^\]]+['"]\]/]] },
+    { title: "Briefing 2: Headers and payloads",
+      say: ["A packet is more than a piece of data. It is like an **envelope**: the **payload** is the piece of your message inside, and the **header** is the information written on the outside. A header carries the **source** and **destination** addresses, and a **sequence number** (\"packet 2 of 3\") so the receiver can put things back in order.",
+        "In Python a packet is a perfect job for a **dictionary**. Each packet has the same three keys: `seq`, `total` and `data`."],
+      help: ["b_dict", "packetanatomy"],
+      edit: [["message = \"HELLO WORLD\"", "import netlab\n\nmessage = \"HELLO WORLD\""]],
+      add: `\n# HEADER: the header is the information on the outside of a packet like the source and destination address and the sequence number while the payload is the data\npackets = []\nfor number in range(len(chunks)):\n    packet = {"seq": number + 1, "total": len(chunks), "data": chunks[number]}\n    packets.append(packet)\nprint(packets[0])\nnetlab.packet_picture(packets)`,
+      type: "Add `import netlab` above `message = ...`, then type the header note and the packet-building lab.",
+      chk: [["import netlab", /^\s*import\s+netlab\b/m], ["a # HEADER: note about the info on the outside of a packet", note("HEADER", ["address|source|destination|sequence|number|order|info|label|envelope", "payload|data|outside|front|top"]), 1, "comments"], ["a packet dictionary with seq, total and data", /\{\s*["']seq["']\s*:[^}]*["']total["']\s*:[^}]*["']data["']\s*:/], ["adding each packet to a list", /packets\.append\(\s*packet\s*\)/]],
+      run: "The first packet's header and payload, and a picture of all the packets.", runChk: [["the first packet printed as a dictionary", /\{'seq': 1, 'total': \d+, 'data': '[^']+'\}/]] },
+    { title: "Briefing 3: Packet switching and reassembly",
+      say: ["Packets from the same message can take **different routes** and arrive **out of order**. This is called **packet switching**. The receiver uses the **sequence numbers** to **reassemble** the message correctly.",
+        "Below, `netlab.deliver` sends your packets across a pretend network. Watch the **arrival order**: it is scrambled! Then **`sorted`** puts them back using the sequence number. (`key=get_seq` tells `sorted` what to compare.)"],
+      help: ["b_sort"],
+      add: `\n# PACKET SWITCHING: packets can take different routes and arrive out of order so the receiver puts them back together using the sequence numbers\ndef get_seq(packet):\n    return packet["seq"]\n\narrived = netlab.deliver(packets)\nordered = sorted(arrived, key=get_seq)\ntext = ""\nfor packet in ordered:\n    text = text + packet["data"]\nprint("Reassembled:", text)`,
+      type: "Type the `# PACKET SWITCHING:` note and the reassembly lab.",
+      chk: [["a # PACKET SWITCHING: note about different routes and out-of-order arrival", note("PACKET SWITCHING", ["route|path|way|different|independent|separately", "order|sequence|reassembl|together|number"]), 1, "comments"], ["a helper function get_seq", FN("get_seq")], ["delivering and sorting by sequence number", /netlab\.deliver\(\s*packets\s*\)[\s\S]*sorted\(\s*arrived\s*,\s*key\s*=\s*get_seq\s*\)/], ["joining the data of each ordered packet", /text\s*=\s*text\s*\+\s*packet\[\s*["']data["']\s*\]/]],
+      run: "The packets arrive scrambled but the message is rebuilt.", runChk: [["every packet arrived", /ARRIVED/, 3], ["the message was reassembled", /Reassembled: [A-Z ]+/]] },
+    { title: "Briefing 4: TCP, UDP and lost packets",
+      say: ["Sometimes a packet is **lost** (a congested router drops it). Different **protocols** handle that differently:",
+        "**TCP** (Transmission Control Protocol) is **reliable**. The receiver **acknowledges** what arrived, and the sender **resends** anything **missing**. The data arrives complete and in order, which is perfect for web pages, email and files.",
+        "**UDP** (User Datagram Protocol) is **fast but with no guarantee**. It does not resend lost packets. That is fine for a live video call or an online game, where an old frame is useless anyway.",
+        "Test it: send with a 50% chance of losing each packet, then work out which sequence numbers never showed up. (This is exactly how TCP knows what to resend.)"],
+      help: ["tcpudp"],
+      add: `\n# TCP: a reliable protocol where the receiver acknowledges the packets and the sender resends any missing ones so the data arrives complete and in order\n# UDP: a fast protocol with no guarantee because lost packets are not resent which is fine for video calls and games\narrived = netlab.deliver(packets, 0.5)\nhave = []\nfor packet in arrived:\n    have.append(packet["seq"])\nmissing = []\nfor number in range(1, len(packets) + 1):\n    if number not in have:\n        missing.append(number)\nprint("Missing packets:", missing)`,
+      type: "Type the `# TCP:` and `# UDP:` notes and the lost-packet lab.",
+      chk: [["a # TCP: note about reliable delivery and resending", note("TCP", ["reliab|guarantee|complete|ordered|acknowledg", "resend|retransmit|missing|again|lost|ack"]), 1, "comments"], ["a # UDP: note about fast delivery with no guarantee", note("UDP", ["fast|quick|speed|real.?time|low", "no guarantee|not resent|lost|without|doesn.?t|does not|video|game|unreliab"]), 1, "comments"], ["delivering with a loss chance of 0.5", /netlab\.deliver\(\s*packets\s*,\s*0\.5\s*\)/], ["building a list of the missing sequence numbers", /if\s+number\s+not\s+in\s+have\s*:\s*\n\s+missing\.append\(\s*number\s*\)/]],
+      run: "Some packets are LOST and the missing numbers are listed.", runChk: [["a Missing packets line printed", /Missing packets: \[/]] },
+    { title: "Briefing 5: Protocols and open standards",
+      say: ["A **protocol** is a set of **agreed rules** that lets different devices **communicate**. Your phone, a school server and a game console are made by different companies, but they all understand **IP** (addresses and routing), **TCP/UDP** (delivery), and **HTTP/HTTPS** (web pages), **SMTP** (email) and **DNS** (names).",
+        "Internet protocols are **open standards** published for anyone to use. That is why the Internet **scales** (grows without breaking): a new device only has to follow the rules."],
+      add: `\n# PROTOCOL: a set of agreed rules that lets different devices communicate with each other and open standards let the internet grow`,
+      type: "Type the `# PROTOCOL:` note at the bottom.",
+      chk: [["a # PROTOCOL: note about agreed rules for communicating", note("PROTOCOL", ["rule|standard|agree|format|language|convention", "device|computer|communicat|talk|exchange|network|internet"]), 1, "comments"]] },
+    { title: "Check-in: three quick answers",
+      say: ["Short answers in comments at the bottom, exactly like this:", "**1.** What does the sequence number in a header help the receiver do?  **2.** Which protocol resends lost packets, TCP or UDP?  **3.** Name one use where UDP is a better choice than TCP."],
+      add: `\n# ANSWER 1: put the packets back in the right order\n# ANSWER 2: TCP\n# ANSWER 3: a live video call or an online game`,
+      type: "Type the three `# ANSWER` lines.",
+      chk: [["answer 1 says put packets back in order", /^\s*ANSWER 1:.*(?:order|reassembl|together|sequence|rebuild|arrange|sort)/i, 1, "comments"], ["answer 2 is TCP", /^\s*ANSWER 2:.*\bTCP\b/i, 1, "comments"], ["answer 3 names a speed-sensitive use", /^\s*ANSWER 3:.*(?:video|game|gaming|call|stream|voice|live|real.?time)/i, 1, "comments"]] },
+    { title: "Boss round: send a new message",
+      say: ["Everything works for **any** message. Change `message = \"HELLO WORLD\"` to **`\"NETWORK ENGINEER\"`** and run again. More letters means more packets."],
+      edit: [["message = \"HELLO WORLD\"", "message = \"NETWORK ENGINEER\""]],
+      type: "Change the `message = ...` line to `\"NETWORK ENGINEER\"`.",
+      chk: [["message is NETWORK ENGINEER", /^\s*message\s*=\s*["']NETWORK ENGINEER["']/m]],
+      run: "The longer message is chopped, scrambled and rebuilt.", runChk: [["the long message was reassembled", /Reassembled: NETWORK ENGINEER/]] }
+  ],
+  finish: ["Run everything once more. No red errors.", "When every box is green and the checker says 100%, click **Submit** to unlock **Mission 10.7: Packet Post Office**."],
+  challenges: ["Change `size = 4` to `size = 2`. How many packets are there now?", "Run the lost-packet lab five times. Does the same packet always get lost?", "Make the loss chance `0.9`. How often does everything arrive?"],
+  tips: {
+    notes: { title: "How to write good notes here", sections: [
+      { p: "A note is a **comment**: a line that starts with `#`. Python ignores it, but the auto-checker reads it." },
+      { list: ["Start with the label in capital letters and a colon, like `# PACKET:`.", "Write the idea **in your own words** and keep the **bold key words** from the briefing.", "One line per note.", "Your notes become your AP study guide."] },
+      { good: "If a box stays unchecked, open **still missing** under the score to see which key idea your note left out." }
+    ] },
+    packetanatomy: { title: "Anatomy of a packet", sections: [
+      { ex: ["+-----------------------------------------+", "| HEADER:  from 10.0.0.5  to 142.250.80.46 |", "|          packet 2 of 3  (sequence number)|", "+-----------------------------------------+", "| PAYLOAD: \"O WO\"   (a piece of the data)   |", "+-----------------------------------------+"] },
+      { good: "In the lab, the packet dictionary keeps just the parts you need: `seq` (which one), `total` (how many) and `data` (the payload)." }
+    ] },
+    tcpudp: { title: "TCP versus UDP", sections: [
+      { rows: [["TCP", "reliable, ordered, resends lost packets", "web pages, email, downloads"], ["UDP", "fast, no guarantee, never resends", "video calls, live streams, online games"], ["IP", "addresses and routes every packet", "used by both of them"]] },
+      { good: "Rule of thumb: if every single piece **must** arrive, use TCP. If being **fast** matters more than being perfect, use UDP." }
+    ] }
+  }
+}, { unit: UNIT, num: 4, points: 50, seq: 7, passMin: 100 });
+
+/* ================================================================= MISSION ================ */
+M.addMission("a108", {
+  num: 4, title: "Mission 10.7: Packet Post Office",
+  intro: ["**RUSH ORDER.** The Packet Post Office has opened, and your job is to run it. Customers hand you a message. You must **chop it into numbered packets**, send them through a **lossy network**, **find what got lost**, **resend it**, and **put everything back in order**, exactly like TCP does.",
+    "You will write **four functions** and a customer counter that compares **reliable TCP-style delivery** with **fast UDP-style delivery**. Built-in tests give instant **PASS** or **FAIL** feedback.",
+    "**Scoring:** worth **100 points**. **90%** lets you turn it in for 90 points, or finish at **100%** for full points."],
+  learn: ["lists of dictionaries", "string slicing and loops", "sorting by a key", "retransmission loops"],
+  firstTips: ["m_howto", "b_debug"],
+  autoRun: [{ answers: [["message", "NETWORK ENGINEER"], ["loss", "0"]] }],
+  stages: [
+    { title: "Report for duty",
+      say: ["Bring in the toolkit, print the banner, and add the **test line** at the very bottom. All your work goes **above** it."],
+      help: ["m_howto"],
+      ref: `import netlab\n\nnetlab.banner("MISSION 10.7", "Packet Post Office")\n\nnetlab.run_mission("10.7", globals())`,
+      type: "Type the import, the banner and the `netlab.run_mission(...)` line at the bottom.",
+      chk: [["import netlab", /^\s*import\s+netlab\b/m], ["the mission banner", /netlab\.banner\(\s*["']MISSION 10\.7["']/], ["the mission test line", /netlab\.run_mission\(\s*["']10\.7["']\s*,\s*globals\(\s*\)\s*\)/]],
+      run: "Every function shows as MISSING. That is your to-do list.", runChk: [["the banner printed", /MISSION 10\.7/], ["the tests ran", /RUNNING THE MISSION TESTS/]] },
+    { title: "Task 1: Chop the message",
+      say: ["Write **`make_packets(message, size)`**. It cuts the message into pieces of `size` letters and returns a **list of packet dictionaries**. Each packet has three keys: **`seq`** (starting at **1**), **`total`** (how many packets in all) and **`data`** (the piece of the message).",
+        "For `make_packets(\"HELLO WORLD\", 4)` the answer is `[{\"seq\": 1, \"total\": 3, \"data\": \"HELL\"}, {\"seq\": 2, \"total\": 3, \"data\": \"O WO\"}, {\"seq\": 3, \"total\": 3, \"data\": \"RLD\"}]`. An empty message gives an empty list.",
+        "First collect the chunks, then you know the total, then build the packet dictionaries."],
+      help: ["hint_make", "b_list", "b_dict"],
+      refEdit: [["netlab.run_mission(\"10.7\", globals())", `def make_packets(message, size):\n    chunks = []\n    for start in range(0, len(message), size):\n        chunks.append(message[start:start + size])\n    packets = []\n    for number in range(len(chunks)):\n        packets.append({"seq": number + 1, "total": len(chunks), "data": chunks[number]})\n    return packets\n\nnetlab.run_mission("10.7", globals())`]],
+      type: "Write `make_packets(message, size)` above the last line.",
+      chk: [["a function named make_packets with two parameters", FN("make_packets", "\\w+\\s*,\\s*\\w+")], ["looping with range and a step", /range\(\s*0\s*,\s*len\([^)]*\)\s*,\s*\w+\s*\)/], ["slicing out a chunk", /\w+\[\s*\w+\s*:\s*\w+\s*\+\s*\w+\s*\]/], ["building packet dictionaries with seq, total and data", /["']seq["']\s*:[\s\S]*["']total["']\s*:[\s\S]*["']data["']\s*:/]],
+      run: "Aim for 4 PASS lines for make_packets.", runChk: [["all 4 make_packets tests pass", /PASS\s+make_packets/, 4]] },
+    { title: "Task 2: Put them back together",
+      say: ["Write **`reassemble(packets)`**. The packets may be **out of order**. Return the **whole message** as text, by joining the `data` of every packet **in order of `seq`**. An empty list gives an empty text `\"\"`.",
+        "Use `sorted(packets, key=...)` with a small helper function that returns a packet's `seq` (just like in the walkthrough), or write your own loop."],
+      help: ["hint_reassemble", "b_sort"],
+      refEdit: [["netlab.run_mission(\"10.7\", globals())", `def get_seq(packet):\n    return packet["seq"]\n\ndef reassemble(packets):\n    text = ""\n    for packet in sorted(packets, key=get_seq):\n        text = text + packet["data"]\n    return text\n\nnetlab.run_mission("10.7", globals())`]],
+      type: "Write `reassemble(packets)` above the last line.",
+      chk: [["a function named reassemble with one parameter", FN("reassemble")], ["putting the packets in order by seq", /sorted\(|\.sort\(/], ["adding each packet's data to the text", /["']data["']/], ["returning the text", /return\s+\w+/]],
+      run: "Aim for 3 PASS lines for reassemble.", runChk: [["all 3 reassemble tests pass", /PASS\s+reassemble/, 3]] },
+    { title: "Task 3: What got lost?",
+      say: ["Write **`find_missing(packets, total)`**. `packets` are the ones that **arrived** and `total` is how many were **supposed** to arrive. Return a **list of the sequence numbers that are missing**, smallest first.",
+        "Example: if packets 1 and 3 arrived out of 4, `find_missing(packets, 4)` is `[2, 4]`. If everything arrived it is `[]`. If nothing arrived at all it is every number from 1 to `total`.",
+        "Collect the `seq` of the arrived packets in a list, then check each number from 1 to `total`."],
+      help: ["hint_missing", "b_list"],
+      refEdit: [["netlab.run_mission(\"10.7\", globals())", `def find_missing(packets, total):\n    have = []\n    for packet in packets:\n        have.append(packet["seq"])\n    missing = []\n    for number in range(1, total + 1):\n        if number not in have:\n            missing.append(number)\n    return missing\n\nnetlab.run_mission("10.7", globals())`]],
+      type: "Write `find_missing(packets, total)` above the last line.",
+      chk: [["a function named find_missing with two parameters", FN("find_missing", "\\w+\\s*,\\s*\\w+")], ["looping from 1 to total", /range\(\s*1\s*,\s*\w+\s*\+\s*1\s*\)/], ["checking whether a number has arrived", /\bnot\s+in\b/], ["returning the list", /return\s+\w+/]],
+      run: "Aim for 4 PASS lines for find_missing.", runChk: [["all 4 find_missing tests pass", /PASS\s+find_missing/, 4]] },
+    { title: "Task 4: Reliable delivery (like TCP)",
+      say: ["Write **`send_reliably(message, size, loss)`**. It must **keep sending until every packet arrives**. Steps: make the packets; keep a list of everything `received` so far and a list `todo` of what still needs to be sent (at first, all of them). **Loop:** count an attempt, send `todo` with `netlab.deliver(todo, loss)`, add what arrived to `received`, work out what is `missing` with your `find_missing`, and set `todo` to **only the packets that are missing**. Stop when nothing is missing.",
+        "Return a **dictionary** with two keys: `\"text\"` (the reassembled message) and `\"attempts\"` (how many rounds it took). `loss` is a chance from 0 to 1, like `0.5`.",
+        "This is the heart of **TCP**: acknowledge, find what is missing, resend only that."],
+      help: ["hint_reliable", "b_menu"],
+      refEdit: [["netlab.run_mission(\"10.7\", globals())", `def send_reliably(message, size, loss):\n    packets = make_packets(message, size)\n    received = []\n    todo = packets\n    attempts = 0\n    while True:\n        attempts = attempts + 1\n        received = received + netlab.deliver(todo, loss)\n        missing = find_missing(received, len(packets))\n        if len(missing) == 0:\n            break\n        todo = []\n        for packet in packets:\n            if packet["seq"] in missing:\n                todo.append(packet)\n    return {"text": reassemble(received), "attempts": attempts}\n\nnetlab.run_mission("10.7", globals())`]],
+      type: "Write `send_reliably(message, size, loss)` above the last line.",
+      chk: [["a function named send_reliably with three parameters", FN("send_reliably", "\\w+\\s*,\\s*\\w+\\s*,\\s*\\w+")], ["sending packets with netlab.deliver", /netlab\.deliver\(\s*\w+\s*,\s*\w+\s*\)/], ["finding what is missing with find_missing", /find_missing\(/], ["a loop that repeats until nothing is missing", /\bwhile\b[\s\S]*\bbreak\b|\bwhile\s+len\(/], ["returning a dictionary with text and attempts", /return\s*\{[^}]*["']text["'][^}]*["']attempts["']/]],
+      run: "Aim for 2 PASS lines for send_reliably. (The packets are lost at random, so watch the LOST and ARRIVED lines.)", runChk: [["both send_reliably tests pass", /PASS\s+send_reliably/, 2]] },
+    { title: "Task 5: The customer counter",
+      say: ["Now run the post office. Ask the customer for their **message** (`Message to send: `) and the **packet loss** as a percent (`Packet loss percent (0 to 90): `). Turn the percent into a chance: `float(text) / 100`.",
+        "First send it the **reliable** way and print `TCP: ` plus the text and `Attempts: ` plus the number of attempts. Then send it the **UDP** way: make the packets (use size 3), send them **once** with `netlab.deliver(packets, loss)`, and print `UDP: ` plus whatever `reassemble` can build from just the packets that arrived. With real loss the UDP message comes out **damaged**!",
+        "Put this above the `netlab.run_mission` line. The grader will send `NETWORK ENGINEER` with `0` percent loss."],
+      help: ["hint_counter", "b_input"],
+      refEdit: [["netlab.run_mission(\"10.7\", globals())", `message = input("Message to send: ")\nloss = float(input("Packet loss percent (0 to 90): ")) / 100\nresult = send_reliably(message, 3, loss)\nprint("TCP: " + result["text"])\nprint("Attempts: " + str(result["attempts"]))\nonce = netlab.deliver(make_packets(message, 3), loss)\nprint("UDP: " + reassemble(once))\n\nnetlab.run_mission("10.7", globals())`]],
+      type: "Write the customer counter above the last line.",
+      chk: [["asking for the message and the loss percent", /input\([\s\S]*input\(/], ["turning the percent into a chance with / 100", /float\([\s\S]*\)\s*\/\s*100/], ["calling send_reliably", /=\s*send_reliably\(/], ["sending the UDP way with a single netlab.deliver", /netlab\.deliver\(\s*make_packets\(/], ["printing the TCP and UDP results", /print\(\s*["']TCP: ["'][\s\S]*print\(\s*["']UDP: ["']/]],
+      run: "Try 0 percent loss, then 50 percent. Compare TCP and UDP.", runChk: [["TCP delivered the whole message", /TCP: NETWORK ENGINEER/], ["the attempts were printed", /Attempts: 1/], ["UDP printed a message too", /UDP: NETWORK ENGINEER/]] },
+    { title: "Mail delivered?",
+      say: ["Run everything and read the **MISSION REPORT**. All **13 tests** should pass and you should see **\\*\\*\\* MISSION COMPLETE \\*\\*\\***. Because packets are lost at random, run it a few times to be sure your retry loop is solid."],
+      type: "Run the whole program a few times and fix anything that says FAIL.",
+      chk: [],
+      run: "Aim for MISSION COMPLETE.", runChk: [["all 13 tests passed", /Tests passed:\s*13 of 13/], ["MISSION COMPLETE", /MISSION COMPLETE/]] }
+  ],
+  challenges: ["Print how many packets were **lost** in total across all attempts.", "Add a `send_unreliably(message, size, loss)` function and use it in the counter.", "Make the counter run **three customers in a row**."],
+  tips: {
+    m_howto: { title: "How missions work", sections: [
+      { p: "A **mission** is a small program you build yourself. Built-in tests check your work and print **PASS** or **FAIL** for every case." },
+      { steps: ["Read the task. It names the function you must write and what it returns.", "Write the function **above** the last line (`netlab.run_mission(...)`).", "Press **Run** and read every FAIL: it shows what you returned and what was expected.", "Fix and run again until you see MISSION COMPLETE."] },
+      { good: "**90%** lets you turn it in and move on. **100%** is full points." },
+      { warn: "Function and parameter names must match the brief exactly, with the same capital letters and underscores." }
+    ] },
+    hint_make: { title: "Hint: make_packets", sections: [{ ex: ["def make_packets(message, size):", "    chunks = []", "    for start in range(0, len(message), size):", "        chunks.append(message[start:start + size])", "    packets = []", "    for number in range(len(chunks)):", "        # append {\"seq\": number + 1, \"total\": len(chunks), \"data\": chunks[number]}", "    return packets"] }] },
+    hint_reassemble: { title: "Hint: reassemble", sections: [{ ex: ["def get_seq(packet):", "    return packet[\"seq\"]", "", "def reassemble(packets):", "    text = \"\"", "    for packet in sorted(packets, key=get_seq):", "        # add packet[\"data\"] to text", "    return text"] }] },
+    hint_missing: { title: "Hint: find_missing", sections: [{ ex: ["def find_missing(packets, total):", "    have = []                       # the seq numbers that arrived", "    for packet in packets:", "        have.append(packet[\"seq\"])", "    missing = []", "    for number in range(1, total + 1):", "        # if number is not in have, add it to missing", "    return missing"] }] },
+    hint_reliable: { title: "Hint: send_reliably", sections: [{ ex: ["def send_reliably(message, size, loss):", "    packets = make_packets(message, size)", "    received = []", "    todo = packets", "    attempts = 0", "    while True:", "        attempts = attempts + 1", "        received = received + netlab.deliver(todo, loss)", "        missing = find_missing(received, len(packets))", "        # if nothing is missing: break", "        # otherwise todo = only the packets whose seq is in missing", "    return {\"text\": reassemble(received), \"attempts\": attempts}"] }, { warn: "`received + netlab.deliver(...)` joins two lists. `todo` must hold packet **dictionaries**, not just their numbers." }] },
+    hint_counter: { title: "Hint: the customer counter", sections: [{ ex: ["message = input(\"Message to send: \")", "loss = float(input(\"Packet loss percent (0 to 90): \")) / 100", "result = send_reliably(message, 3, loss)", "print(\"TCP: \" + result[\"text\"])", "# print Attempts: + str(result[\"attempts\"])", "once = netlab.deliver(make_packets(message, 3), loss)", "# print UDP: + reassemble(once)"] }] }
+  }
+}, { unit: UNIT, num: 4, points: 100, seq: 7.5, part: "mission", passMin: 90 });

@@ -172,6 +172,12 @@ body.noass #paneAss,body.noass #split0{display:none}
 #csDetail .tip2{margin:8px 0 0;color:var(--soft);font-size:12.5px}
 .pane{position:relative}
 #out{flex:1;min-height:80px;margin:0;padding:12px 14px;overflow:auto;background:var(--deep);font:13.5px/1.6 "JetBrains Mono",monospace;white-space:pre-wrap;word-break:break-word}
+#confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:9999}
+#confetti i{position:absolute;top:-16px;width:9px;height:14px;opacity:.95;animation:cfall 2.6s linear forwards}
+@keyframes cfall{to{transform:translateY(108vh) rotate(720deg)}}
+@media (prefers-reduced-motion:reduce){#confetti{display:none}}
+#cheer{position:fixed;left:50%;top:16%;transform:translateX(-50%);max-width:88vw;padding:16px 26px;border-radius:14px;background:#0f2a1e;border:2px solid #34d399;color:#d1fae5;font:800 20px/1.3 Manrope,sans-serif;z-index:10000;text-align:center;box-shadow:0 10px 40px #000a;pointer-events:none}
+#cheer small{display:block;margin-top:6px;font-weight:600;font-size:13px;color:#a7f3d0}
 #out .pimg{display:block;width:fit-content;margin:6px 0 8px;padding:6px;border:1px solid var(--rule);border-radius:8px;white-space:normal;max-width:100%;background:var(--card)}
 #out .pimg img{display:block;max-width:100%;height:auto;border-radius:4px;cursor:zoom-in;background:repeating-conic-gradient(#bbb 0 25%,#eee 0 50%) 50%/14px 14px}
 #out .pimg.full{display:block;overflow:auto}#out .pimg.full img{max-width:none;cursor:zoom-out}
@@ -1038,12 +1044,22 @@ function pseudoInfo(notes) {
 }
 /* ---------- Pillow: a program that imports PIL shows its pictures right in the output (loaded the first time it is needed) ---------- */
 var PIL_RE = /^\s*(import\s+(?:[\w.]+\s*,\s*)*PIL\b|from\s+PIL\b)/m, pilLoaded = false, pilLoading = false, picNames = [];
-function usesPillow(code) { return mode !== "karel" && PIL_RE.test(code) && !PG_RE.test(code); }
+/* the Mission libraries (python/lib/netlab.py, toonlab.py): "import netlab" loads Pillow, fetches the file, and makes it importable */
+var LIB_RE = /^\s*(?:import\s+(?:[\w.]+\s*,\s*)*(netlab|toonlab)\b|from\s+(netlab|toonlab)\b)/gm, libsLoaded = {};
+function libsReferenced(code) { var out = [], m; LIB_RE.lastIndex = 0; while ((m = LIB_RE.exec(code))) { var n = m[1] || m[2]; if (out.indexOf(n) < 0) out.push(n); } return out; }
+function loadLibs(names) {
+  return Promise.all(names.map(function (n) {
+    return fetch("lib/" + n + ".py?v=" + Date.now()).then(function (r) { if (!r.ok) throw new Error("missing"); return r.text(); }).then(function (txt) { py.FS.writeFile(n + ".py", txt); libsLoaded[n] = true; });
+  })).catch(function () { print("The " + names.join(" and ") + " library could not load. Check your internet connection and refresh the page.\n", "err"); throw 0; });
+}
+function usesPillow(code) { return mode !== "karel" && (PIL_RE.test(code) || libsReferenced(code).length > 0) && !PG_RE.test(code); }
 var PIL_SETUP = [
-  "import io, base64, js",
+  "import io, base64, js, builtins",
   "from PIL import Image",
   "_orig_save = Image.Image.save",
   "def _show(self, title=None, command=None):",
+  "    if getattr(builtins, 'PQ_QUIET', False):",
+  "        return",
   "    im = self",
   "    if im.mode not in ('1', 'L', 'LA', 'P', 'RGB', 'RGBA'):",
   "        im = im.convert('RGBA' if 'A' in im.mode else 'RGB')",
@@ -1053,7 +1069,7 @@ var PIL_SETUP = [
   "Image.Image.show = _show",
   "def _save(self, fp, format=None, **params):",
   "    _orig_save(self, fp, format, **params)",
-  "    if isinstance(fp, str):",
+  "    if isinstance(fp, str) and not getattr(builtins, 'PQ_QUIET', False):",
   "        with open(fp, 'rb') as f:",
   "            data = f.read()",
   "        js.pyImageSaved(fp, base64.b64encode(data).decode(), len(data))",
@@ -1188,6 +1204,8 @@ function run() {
   if (!py || running) return;
   if (usesPygame(ta.value)) { runGame(); return; }
   if (usesPillow(ta.value) && !pilLoaded) { loadPillow().then(function () { runBtn.disabled = false; statusEl.textContent = "Ready"; run(); }, function () {}); return; }
+  var needLibs = libsReferenced(ta.value).filter(function (n) { return !libsLoaded[n]; });
+  if (needLibs.length) { loadLibs(needLibs).then(function () { run(); }, function () {}); return; }
   if (usesRequests(ta.value) && !reqLoaded) { loadRequests().then(function () { runBtn.disabled = false; statusEl.textContent = "Ready"; run(); }, function () {}); return; }
   document.body.classList.remove("gameon");
   running = true; runBtn.disabled = true; statusEl.textContent = "Running…"; stopPlayback();
@@ -1413,7 +1431,9 @@ var GRADER_PY = [
 ].join("\n"), graderReady = false;
 function hiddenOutput(code, A) {
   if (!A || !Array.isArray(A.autoRun) || !A.autoRun.length || !py || mode === "karel" || usesPygame(code)) return null;
+  if ((usesPillow(code) && !pilLoaded) || (usesRequests(code) && !reqLoaded) || libsReferenced(code).some(function (n) { return !libsLoaded[n]; })) return null;   /* the libraries load on the first Run; until then the score uses the last visible output */
   try {
+    py.runPython("import builtins\nbuiltins.PQ_QUIET = True");   /* quiet mode: no pictures in the student's Output, and the Mission libraries skip their heavy drawing */
     if (!graderReady) { py.runPython(GRADER_PY); graderReady = true; }
     var text = "";
     A.autoRun.forEach(function (run, i) {
@@ -1421,8 +1441,20 @@ function hiddenOutput(code, A) {
       var r = JSON.parse(py.runPython("import json\n_g_r = _grader_run(_g_code, json.loads(_g_ans))\njson.dumps(_g_r)"));
       text += "[run " + (i + 1) + "]\n" + r[0] + (r[1] ? "[error] " + r[1] + "\n" : "");
     });
+    py.runPython("import builtins\nbuiltins.PQ_QUIET = False");
     return text;
-  } catch (e) { return ""; }
+  } catch (e) { try { py.runPython("import builtins\nbuiltins.PQ_QUIET = False"); } catch (e3) {} return ""; }
+}
+/* hitting 100 on a Walkthrough or Mission (slots a101 and up) gets a little celebration */
+var lastPct = {};
+function celebrate(head, sub) {
+  ["confetti", "cheer"].forEach(function (id) { var o = $(id); if (o) o.parentNode.removeChild(o); });
+  var c = document.createElement("div"), colors = ["#34d399", "#fbbf24", "#60a5fa", "#f472b6", "#a78bfa", "#fb923c"];
+  c.id = "confetti";
+  for (var i = 0; i < 70; i++) { var p = document.createElement("i"); p.style.left = Math.random() * 100 + "vw"; p.style.background = colors[i % colors.length]; p.style.animationDelay = Math.random() * 0.9 + "s"; p.style.animationDuration = 2 + Math.random() * 1.6 + "s"; c.appendChild(p); }
+  var b = document.createElement("div"); b.id = "cheer"; b.setAttribute("role", "status"); b.innerHTML = escA(head) + "<small>" + escA(sub) + "</small>";
+  document.body.appendChild(c); document.body.appendChild(b);
+  setTimeout(function () { [c, b].forEach(function (o) { if (o.parentNode) o.parentNode.removeChild(o); }); }, 3600);
 }
 function updateScore() {
   clearTimeout(scoreT);
@@ -1446,6 +1478,12 @@ function updateScore() {
       if (seq !== scoreSeq || !j || !j.ok) return;
       if (j.pct === null || j.pct === undefined) { boxBadges(null); el.innerHTML = j.tooLong ? "<small>Your code is too long to score here.</small>" : (CRED && credLeft(CRED) <= 0 ? "<small style='color:var(--warnl)'>Your Google sign-in timed out, so the auto-check is paused. Reload the page to sign back in (your code is saved).</small>" : ""); $("assMiss").className = ""; return; }
       var need = typeof j.need === "number" ? j.need : 80, ul = typeof j.unlock === "number" ? j.unlock : null; el.innerHTML = "Auto score: <b>" + j.pct + " / 100</b> <small style='color:" + (j.pct >= need && (ul === null || j.pct >= ul) ? "var(--okl)" : "var(--warnl)") + "'>" + (j.pct < need ? "(you need " + need + " to submit)" : ul !== null ? (j.pct >= ul ? "(you can submit, and " + ul + "+ opens the next one)" : "(you can submit, but you need " + ul + " to open the next one)") : "(you can submit)") + "</small>"; el.title = need ? "This is the score your work earns: the same checks grade it when you submit. You need " + need + " to submit and to open the next assignment." : "This is the score your work earns: the same checks grade it when you submit. You can submit whatever score you have.";
+      if (/^a\d+$/.test(slot) && Number(slot.slice(1)) >= 101) {
+        var w0 = slotPoints(A), kind0 = slotPart(A);
+        el.innerHTML += " <small style='color:var(--soft)'>= " + Math.round(j.pct / 100 * w0) + " of " + w0 + " points</small>";
+        if (j.pct >= 100 && lastPct[slot] !== undefined && lastPct[slot] < 100) celebrate(kind0 === "mission" ? "MISSION COMPLETE!" : "TRAINING COMPLETE!", kind0 === "mission" ? "Every check is met. Click Submit for full points." : "Click Submit to unlock your Mission.");
+        lastPct[slot] = j.pct;
+      }
       var miss = j.missing || [], box = $("assMiss");
       if (!miss.length) { box.className = "show"; $("assMissSum").textContent = "All the checks are met. Nice work!"; $("assMissList").innerHTML = ""; lastMiss = []; refreshWhere(); boxBadges(j.boxes); }
       else {
@@ -1507,8 +1545,8 @@ addExample();
 /* What kind of item this is (same rule as slotPart in netlify/functions/pycode.js):
    "assignment" is shown as a WALKTHROUGH, "project" (title starts with Project), "quiz" (title starts with Quiz),
    "test" (Test or Exam in the title). An item can set part to override the title rule. */
-function slotPart(A) { if (!A) return "assignment"; if (A.part) return A.part; var t = String(A.title || ""); return /^Quiz\b/i.test(t) ? "quiz" : /^(Project|Performance Activity)\b/i.test(t) ? "project" : /\b(Test|Exam)\b/i.test(t) ? "test" : "assignment"; }
-var KIND_PTS = { assignment: 100, project: 250, quiz: 100, test: 100 };
+function slotPart(A) { if (!A) return "assignment"; if (A.part) return A.part; var t = String(A.title || ""); return /^Quiz\b/i.test(t) ? "quiz" : /^Mission\b/i.test(t) ? "mission" : /^(Project|Performance Activity)\b/i.test(t) ? "project" : /\b(Test|Exam)\b/i.test(t) ? "test" : "assignment"; }
+var KIND_PTS = { assignment: 100, project: 250, mission: 100, quiz: 100, test: 100 };
 function slotPoints(A) { return A && Number(A.points) > 0 ? Number(A.points) : KIND_PTS[slotPart(A)] || 100; }
 var SUB_INDENT = "    ↳ ";   /* projects and quizzes sit indented under the walkthroughs they come after */
 function slotLabel(id, inGroup) {
@@ -1531,7 +1569,7 @@ function slotOrd(id, A) {
 function buildSlots() {
   var top = "", groups = {}, order = [], rest = "";
   var put = function (unit, ord, html) { if (!groups[unit]) { groups[unit] = []; order.push(unit); } groups[unit].push({ ord: ord, html: html }); };
-  ["free", "example"].concat(Array.from({ length: 70 }, function (_, i) { return "a" + (i + 1); }), Array.from({ length: 60 }, function (_, i) { return "pg" + (i + 1); }), Array.from({ length: 60 }, function (_, i) { return "pb" + (i + 1); }), Array.from({ length: 60 }, function (_, i) { return "pc" + (i + 1); })).forEach(function (id) {
+  ["free", "example"].concat(Array.from({ length: 300 }, function (_, i) { return "a" + (i + 1); }), Array.from({ length: 60 }, function (_, i) { return "pg" + (i + 1); }), Array.from({ length: 60 }, function (_, i) { return "pb" + (i + 1); }), Array.from({ length: 60 }, function (_, i) { return "pc" + (i + 1); })).forEach(function (id) {
     if (id !== "free" && !(window.PY_ASSIGN && window.PY_ASSIGN[id])) return;
     var A = window.PY_ASSIGN && window.PY_ASSIGN[id], grouped = id !== "free" && id !== "example" && A && A.unit;
     var opt = '<option value="' + id + '">' + escA(slotLabel(id, grouped)) + (MY[id] === "sub" ? " ✓" : "") + "</option>";
