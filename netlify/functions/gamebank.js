@@ -5,6 +5,7 @@
    Pure functions only (no storage), so tools/missions/gametest.mjs can test every game offline. */
 
 import { buildAdventures } from "./advbank.js";
+import { buildPyVaults } from "./pybank.js";
 
 const ROUNDS = 10, STRIKES = 3;
 
@@ -611,10 +612,14 @@ const GAMES = {
 
 LESSON_VAULTS.forEach((L) => { GAMES[L.id] = { id: L.id, title: "Vault " + L.lesson + ": " + L.title, make: lessonMake(L.plan, L.title), check: vaultCheck }; });
 
+/* the Python lesson vaults for Units 3 to 6 (netlify/functions/pybank.js): one 10-round game per lesson, u3l1 ... u6l3 */
+const PY_VAULTS = buildPyVaults({ R, int, pick, shuffle, uniq, mc, M3, G, PG });
+PY_VAULTS.forEach((L) => { GAMES[L.id] = { id: L.id, title: "Code Vault " + L.lesson + ": " + L.title, make: lessonMake(L.plan, L.title), check: vaultCheck }; });
+
 /* the two survival-horror adventures (netlify/functions/advbank.js): longer than a normal game, and played in "learn" or "challenge" mode */
 Object.assign(GAMES, buildAdventures({ R, int, pick, shuffle, uniq, mc, M3, G, PG, LESSON_VAULTS, vaultQ, dnsQ, assembleQ, missingQ, SCENES, typedIp, makeIp, vaultCheck, packetsCheck }));
 
-export { GAMES, LESSON_VAULTS, ROUNDS, STRIKES, NODES, EDGES };
+export { GAMES, LESSON_VAULTS, PY_VAULTS, ROUNDS, STRIKES, NODES, EDGES };
 /* rounds and lives for a game. Normal games: 10 rounds, 3 strikes. Adventures set their own, and learn mode gets more lives than challenge mode. */
 export const roundsOf = (game) => (GAMES[game] && GAMES[game].rounds) || ROUNDS;
 export const strikesOf = (game, mode) => { const s = GAMES[game] && GAMES[game].strikes; return s ? (mode === "learn" ? s.learn : s.challenge) : STRIKES; };

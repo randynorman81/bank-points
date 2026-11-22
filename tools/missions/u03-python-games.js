@@ -1,0 +1,17 @@
+/* THE CODE VAULT GAMES for Units 3 to 6 (the "game" part of every lesson: notes, walkthrough, assignment, GAME).
+   One 10-round game per lesson, made on the server by netlify/functions/pybank.js. Slots and points come from py-table.js. Hidden, not gating (passMin 0). */
+"use strict";
+const M = require("./core.js");
+const T = require("./py-table.js");
+const { ASG } = require("./u03-python-assign.js");
+T.rows.forEach((row) => {
+  const learn = (ASG[row.id] && ASG[row.id].learn) || [row.t], per = row.pts[1] / 10;
+  M.addGame(row.game, {
+    title: "Code Vault " + row.n + ": " + row.t, game: row.id,
+    story: ["**You are a master thief with one night to crack a vault whose ten locks are all about " + row.t + ".** This is the game for lesson " + row.n + ": the walkthrough taught you how it works and the assignment made you build it. Now the vault tests whether you can **read** the code and know exactly what it does.",
+      "Every lock is a short **Python program** or a question about it. Work out what happens, line by line, and pick the right answer before the alarm goes off."],
+    how: ["Each lock shows a short **Python program** (or a question). Read it slowly, one line at a time.", "**Trace the code in your head:** work out what each line does to the variables, then tap the answer. The explanation after each lock shows how it works.", "**3 mistakes** (or the clock hitting zero) set off the alarm and you are caught. Your score is the locks you cracked."],
+    scoring: ["This game is worth **" + row.pts[1] + " points** and there is **no coding**. You play a 10-round game, and each right answer is worth " + per + " points.", "You can play as many times as you like. **Your best run counts.** The questions change every time, so reading the explanation after each lock really helps."],
+    practice: learn.map((x) => x.charAt(0).toUpperCase() + x.slice(1))
+  }, { unit: row.UNIT, num: Math.floor(row.wt), points: row.pts[1], seq: row.wt + (row.wt % 1 ? 0.1 : 0.7), passMin: 0 });
+});

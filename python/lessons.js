@@ -10,46 +10,46 @@
    To add a lesson: add a line to that unit's list. To start a new unit: add a block to PY_LESSONS. */
 window.PY_LESSONS = [
   { n: 3, name: "Programming with Python", notes: "unit-3/index.html", lessons: [
-    { t: "Variable Names", w: "a1" },
-    { t: "Storing Strings, Ints, Floats, and Booleans", w: "a2" },
-    { t: "Getting Input From the User", w: "a3" },
-    { t: "Joining Strings, Ints, Floats, and Booleans", w: "a4" },
-    { t: "Indexing: Pulling One Character From a String", w: "a5" },
-    { t: "Slicing: Pulling a Piece Out of a String", w: "a6" },
-    { t: "Finding Text With .find()", w: "a7" },
-    { t: "Math With Numbers From the User", w: "a8" },
-    { t: "Division That Gives a Float ( / )", w: "a9" },
-    { t: "Floor Division That Rounds Down ( // )", w: "a10" },
-    { t: "Modulus: The Remainder ( % )", w: "a11" },
-    { t: "Order of Operations", w: "a12" },
-    { t: "Tracing Code by Hand", w: "a13" }
+    { t: "Variable Names", w: "a1", p: "a126", g: "a160" },
+    { t: "Storing Strings, Ints, Floats, and Booleans", w: "a2", p: "a127", g: "a161" },
+    { t: "Getting Input From the User", w: "a3", p: "a128", g: "a162" },
+    { t: "Joining Strings, Ints, Floats, and Booleans", w: "a4", p: "a129", g: "a163" },
+    { t: "Indexing: Pulling One Character From a String", w: "a5", p: "a130", g: "a164" },
+    { t: "Slicing: Pulling a Piece Out of a String", w: "a6", p: "a131", g: "a165" },
+    { t: "Finding Text With .find()", w: "a7", p: "a132", g: "a166" },
+    { t: "Math With Numbers From the User", w: "a8", p: "a133", g: "a167" },
+    { t: "Division That Gives a Float ( / )", w: "a9", p: "a134", g: "a168" },
+    { t: "Floor Division That Rounds Down ( // )", w: "a10", p: "a135", g: "a169" },
+    { t: "Modulus: The Remainder ( % )", w: "a11", p: "a136", g: "a170" },
+    { t: "Order of Operations", w: "a12", p: "a137", g: "a171" },
+    { t: "Tracing Code by Hand", w: "a13", p: "a138", g: "a172" }
   ] },
   { n: 4, name: "Python Control Structures", notes: "unit-4/index.html", lessons: [
-    { id: "4.1", t: "Booleans", notes: "booleans.html", w: "a16" },
-    { id: "4.2", t: "Logical Operators", notes: "logical-operators.html", w: "a17" },
-    { id: "4.3", t: "Comparison Operators", notes: "comparison-operators.html", w: "a18" },
-    { id: "4.4", t: "If Statements", notes: "if-statements.html", w: "a19" },
-    { id: "4.5", t: "If, Elif, and Else", notes: "if-elif-else.html", w: "a20" },
-    { id: "4.6", t: "Key Events", notes: "key-events.html", w: "a21" },
-    { id: "4.7", t: "For Loops", notes: "for-loops.html", w: "a22" },
-    { id: "4.8", t: "General For Loops", notes: "general-for-loops.html", w: "a23" },
-    { id: "4.9", t: "For Loop Practice", notes: "for-loop-practice.html" },
-    { id: "4.10", t: "While Loops", notes: "while-loops.html", w: "a26" },
-    { id: "", t: "Loop and a Half", notes: "loop-and-a-half.html", w: "a27" },
-    { id: "4.11", t: "Random Numbers", notes: "random-numbers.html", w: "a28" }
+    { id: "4.1", t: "Booleans", notes: "booleans.html", w: "a16", p: "a139", g: "a173" },
+    { id: "4.2", t: "Logical Operators", notes: "logical-operators.html", w: "a17", p: "a140", g: "a174" },
+    { id: "4.3", t: "Comparison Operators", notes: "comparison-operators.html", w: "a18", p: "a141", g: "a175" },
+    { id: "4.4", t: "If Statements", notes: "if-statements.html", w: "a19", p: "a142", g: "a176" },
+    { id: "4.5", t: "If, Elif, and Else", notes: "if-elif-else.html", w: "a20", p: "a143", g: "a177" },
+    { id: "4.6", t: "Key Events", notes: "key-events.html", w: "a21", p: "a144", g: "a178" },
+    { id: "4.7", t: "For Loops", notes: "for-loops.html", w: "a22", p: "a145", g: "a179" },
+    { id: "4.8", t: "General For Loops", notes: "general-for-loops.html", w: "a23", p: "a146", g: "a180" },
+    { id: "4.9", t: "For Loop Practice", notes: "for-loop-practice.html", p: "a147", g: "a181" },
+    { id: "4.10", t: "While Loops", notes: "while-loops.html", w: "a26", p: "a148", g: "a182" },
+    { id: "", t: "Loop and a Half", notes: "loop-and-a-half.html", w: "a27", p: "a149", g: "a183" },
+    { id: "4.11", t: "Random Numbers", notes: "random-numbers.html", w: "a28", p: "a150", g: "a184" }
   ] },
   { n: 5, name: "Functions and Parameters", notes: "unit-5/index.html", lessons: [
-    { id: "5.1", t: "Functions and Parameters", notes: "functions-parameters.html", w: "a29" },
-    { id: "5.2", t: "Multiple Parameters", notes: "multiple-parameters.html", w: "a30" },
-    { id: "5.3", t: "Return Values", notes: "return-values.html", w: "a31" },
-    { id: "5.4", t: "Return Values with Decisions and Loops", notes: "return-decisions-loops.html", w: "a32" },
-    { id: "5.5", t: "Libraries and APIs", notes: "libraries-apis.html", w: "a33" },
-    { id: "5.6", t: "Procedures and the Create Task", notes: "procedures-create-task.html", w: "a34" }
+    { id: "5.1", t: "Functions and Parameters", notes: "functions-parameters.html", w: "a29", p: "a151", g: "a185" },
+    { id: "5.2", t: "Multiple Parameters", notes: "multiple-parameters.html", w: "a30", p: "a152", g: "a186" },
+    { id: "5.3", t: "Return Values", notes: "return-values.html", w: "a31", p: "a153", g: "a187" },
+    { id: "5.4", t: "Return Values with Decisions and Loops", notes: "return-decisions-loops.html", w: "a32", p: "a154", g: "a188" },
+    { id: "5.5", t: "Libraries and APIs", notes: "libraries-apis.html", w: "a33", p: "a155", g: "a189" },
+    { id: "5.6", t: "Procedures and the Create Task", notes: "procedures-create-task.html", w: "a34", p: "a156", g: "a190" }
   ] },
   { n: 6, name: "Practice Performance Task", notes: "unit-6/index.html", lessons: [
-    { id: "6.1", t: "The Create Task: Rules and Scoring", notes: "create-task-rules.html", w: "a35" },
-    { id: "6.2", t: "Video, Reference Sheet, Written Responses", notes: "create-task-video-ppr.html" },
-    { id: "6.3", t: "Practice PT 1: Color Counter", notes: "practice-pt-color-counter.html", w: "a36" }
+    { id: "6.1", t: "The Create Task: Rules and Scoring", notes: "create-task-rules.html", w: "a35", p: "a157", g: "a191" },
+    { id: "6.2", t: "Video, Reference Sheet, Written Responses", notes: "create-task-video-ppr.html", p: "a158", g: "a192" },
+    { id: "6.3", t: "Practice PT 1: Color Counter", notes: "practice-pt-color-counter.html", w: "a36", p: "a159", g: "a193" }
   ] },
   { n: 7, name: "Basic Data Structures", notes: "unit-7/index.html", lessons: [
     { id: "7.1", t: "Lists and Indexing", notes: "lists-indexing.html", w: ["a39", "a109"], g: "a110" },

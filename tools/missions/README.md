@@ -32,3 +32,11 @@ Whole-unit point-and-click horror games (Unit 8 and Unit 10). Each room is one l
 - Art and engine: `python/games/adv-art.js` (every sprite, room and prop is drawn in code), `adv-engine.js`, content in `adv-castle.js` and `adv-signal.js`; the shared sign-in and question widgets are in `engine.js` and `play.html`.
 - Tests: `node tools/missions/gametest.mjs` (questions), `node tools/missions/advplay.mjs [shots] [slots] [modes] [scenarios]` (plays both games in a real browser), `node tools/missions/advserve.mjs` (dev server to play by hand at `play.html?slot=a122&teacher`, PIN 1234).
 - Unit 10 explanations from the teacher's own analogies (highway and lanes, vehicles, modem versus router, neighborhood and NAT) are in `u10-highway.js` (a124, a125) and in the Learn-mode pages of Dead Signal.
+
+## Every lesson in Units 3 to 6 = notes + walkthrough + ASSIGNMENT + GAME (a126 to a193)
+- `py-table.js` is the table: one row per lesson (34 lessons) with the slot ids. Assignments are a126 to a159 (100 points, Unit 6.1 and 6.2 are 50), games are a160 to a193 (50 points, Unit 6.1 and 6.2 are 100). The existing walkthroughs (a1 to a36) are untouched.
+- `u03-python-assign.js` writes the 34 graded assignments (2 or 3 small steps each, student writes the code from a description, hidden reference solutions). `node tools/missions/test.mjs a126,...` runs every step through the real editor and the real server scorer.
+- `u03-python-games.js` makes the 34 game records. The questions are in `netlify/functions/pybank.js`, `pybank3.js` (Unit 3) and `pybank4.js` (Units 4 to 6): generated from a seed, answers server-side only.
+- `node tools/missions/pycheck.mjs all 60` runs every generated code question in REAL Python and proves the answer key matches what the program prints (about 15,000 programs).
+- All are published hidden (`live: false`) and do not gate (`passMin 0`), but when live a student must submit the assignment and play the game (any score) before the next walkthrough opens, like the Unit 8 projects.
+- The editor's Lessons picker (`python/lessons.js`) shows each lesson as one box with its four parts.

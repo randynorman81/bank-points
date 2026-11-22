@@ -42,7 +42,7 @@ for (const game of Object.keys(GAMES)) {
     for (let i = 0; i < roundsOf(game); i++) {
       const x = makeQuestion(game, seed, i), y = makeQuestion(game, seed, i), q = x.q;
       rounds++; types.add(q.type); prompts.add(q.prompt);
-      if (/^(vault|castle|signal)/.test(game)) { const key = q.prompt + "|" + (q.code || ""); if (inRun.has(key)) say(`${game} seed ${seed} r${i}: the same question appears twice in one game (${q.prompt.slice(0, 50)})`); inRun.add(key); }
+      if (/^(vault|castle|signal|u\d+l)/.test(game)) { const key = q.prompt + "|" + (q.code || ""); if (inRun.has(key)) say(`${game} seed ${seed} r${i}: the same question appears twice in one game (${q.prompt.slice(0, 50)})`); inRun.add(key); }
       if (JSON.stringify(x) !== JSON.stringify(y)) say(`${game} seed ${seed} round ${i}: not repeatable`);
       if (!q.prompt || typeof q.t !== "number") say(`${game} round ${i}: missing prompt or time`);
       if (dash.test(JSON.stringify(q)) || dash.test(x.why || "")) say(`${game} round ${i}: dash character in text`);

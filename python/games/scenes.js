@@ -363,4 +363,5 @@
     setup: function (context, state) { ctx = context; G = state; Object.keys(this).forEach(function (k) { var s = window.Scenes[k]; if (s && s.init) s.init(); }); },
     NODES: NODES, EDGES: EDGES, linked: linked, npos: npos };
   for (var vn = 1; vn <= 10; vn++) window.Scenes["vault" + vn] = Vault;   /* the ten lesson vaults share the vault scene */
+  [[3, 13], [4, 12], [5, 6], [6, 3]].forEach(function (u) { for (var ln = 1; ln <= u[1]; ln++) window.Scenes["u" + u[0] + "l" + ln] = Vault; });   /* the Python lesson vaults (Units 3 to 6) share the vault scene */
 })();

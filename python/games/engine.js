@@ -86,6 +86,16 @@
       how: INFO.vault.how };
   });
   INFO.vault.noGate = true;
+  /* the Python lesson vaults for Units 3 to 6 (u3l1 ... u6l3): one game for every lesson */
+  var PYV = { u3l1: ["3.1", "Variable Names"], u3l2: ["3.2", "Strings, Ints, Floats and Booleans"], u3l3: ["3.3", "Getting Input From the User"], u3l4: ["3.4", "Joining Strings and Numbers"], u3l5: ["3.5", "Indexing a String"], u3l6: ["3.6", "Slicing a String"], u3l7: ["3.7", "Finding Text With .find()"], u3l8: ["3.8", "Math With Numbers From the User"], u3l9: ["3.9", "Division That Gives a Float"], u3l10: ["3.10", "Floor Division"], u3l11: ["3.11", "Modulus: The Remainder"], u3l12: ["3.12", "Order of Operations"], u3l13: ["3.13", "Tracing Code by Hand"],
+    u4l1: ["4.1", "Booleans"], u4l2: ["4.2", "Logical Operators"], u4l3: ["4.3", "Comparison Operators"], u4l4: ["4.4", "If Statements"], u4l5: ["4.5", "If, Elif and Else"], u4l6: ["4.6", "Key Events"], u4l7: ["4.7", "For Loops"], u4l8: ["4.8", "General For Loops"], u4l9: ["4.9", "For Loop Practice"], u4l10: ["4.10", "While Loops"], u4l11: ["4.10b", "Loop and a Half"], u4l12: ["4.11", "Random Numbers"],
+    u5l1: ["5.1", "Functions and Parameters"], u5l2: ["5.2", "Multiple Parameters"], u5l3: ["5.3", "Return Values"], u5l4: ["5.4", "Return Values with Decisions and Loops"], u5l5: ["5.5", "Libraries and APIs"], u5l6: ["5.6", "Procedures and the Create Task"],
+    u6l1: ["6.1", "The Create Task: Rules and Scoring"], u6l2: ["6.2", "Video, Reference Sheet, Written Responses"], u6l3: ["6.3", "Practice PT 1: Color Counter"] };
+  Object.keys(PYV).forEach(function (id) {
+    INFO[id] = { title: "CODE VAULT " + PYV[id][0] + ": " + PYV[id][1].toUpperCase(), noGate: true,
+      story: "You are a master thief with one night to crack a vault whose ten locks are all about <b>" + PYV[id][1] + "</b>. This is the game for lesson " + PYV[id][0] + ": the walkthrough taught you to write it, and the assignment made you build it. Now the vault tests whether you can read it and know exactly what it does. Crack every lock before the alarm brings the police!",
+      how: ["Each lock shows a short <b>Python program</b> or a question. Read it slowly, one line at a time.", "<b>Trace the code in your head</b>: work out what each line does to the variables, then tap the answer.", "<b>3 mistakes</b> (or the clock hitting zero) set off the alarm and you are caught."] };
+  });
   INFO.castle = { adventure: true, noGate: true, winTitle: "YOU ESCAPED!", title: "CASTLE BYTE: THE BINARY BARON",
     story: "Your little sister Mina has been taken to Castle Byte by the <b>Binary Baron</b>. He turned his whole castle into a computer, and every door is a lock about <b>digital information</b>: bits, binary, text, pixels, hexadecimal, colors, image filters, compression and secret codes. Explore ten rooms, crack twenty locks, and beat the Baron to save her.",
     how: ["<b>Click</b> to walk. Click objects to examine them, and click locks to try them.", "Each room has <b>two locks</b>. Solve the first to find a key, then the second to open the door.", "A wrong answer lets a monster hurt you. Lose all your lives and the castle keeps you."] };
