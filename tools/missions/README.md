@@ -25,3 +25,10 @@ ADMIN_PIN=xxxx node tools/missions/publish.mjs --verify=tools/missions/testkit/v
 
 ## Opening a pair for students
 Records are published with `live: false`. In `teacher-settings/python-editor.js` change the slot's line to `live: true` and push + deploy. No PIN needed.
+
+## The two survival-horror adventures (a122 Castle Byte, a123 Dead Signal)
+Whole-unit point-and-click horror games (Unit 8 and Unit 10). Each room is one lesson with two locks; a boss room mixes everything. The player picks **Learn mode** (glowing objects teach the lesson, a journal keeps the pages, more lives) or **Challenge mode** (no notes, hints removed from the questions, explanations only in the end review).
+- Questions and answers live on the server only: `netlify/functions/advbank.js` (built on the helpers in `gamebank.js`; `challengeQ` strips hints).
+- Art and engine: `python/games/adv-art.js` (every sprite, room and prop is drawn in code), `adv-engine.js`, content in `adv-castle.js` and `adv-signal.js`; the shared sign-in and question widgets are in `engine.js` and `play.html`.
+- Tests: `node tools/missions/gametest.mjs` (questions), `node tools/missions/advplay.mjs [shots] [slots] [modes] [scenarios]` (plays both games in a real browser), `node tools/missions/advserve.mjs` (dev server to play by hand at `play.html?slot=a122&teacher`, PIN 1234).
+- Unit 10 explanations from the teacher's own analogies (highway and lanes, vehicles, modem versus router, neighborhood and NAT) are in `u10-highway.js` (a124, a125) and in the Learn-mode pages of Dead Signal.

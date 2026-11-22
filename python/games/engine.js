@@ -11,7 +11,7 @@
   function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
   var G = { tleft: 30, tmax: 30, strikes: 0, correct: 0, n: 0 };
-  var S = { cred: "", pin: "", game: "", run: null, q: null, scene: null, busy: false, results: [], rounds: 10, maxStrikes: 3, tick: null, t0: 0, nextTimer: null, canNext: false, onNext: null, info: null, preview: false };
+  var S = { cred: "", pin: "", game: "", run: null, q: null, scene: null, busy: false, results: [], rounds: 10, maxStrikes: 3, tick: null, t0: 0, nextTimer: null, canNext: false, onNext: null, info: null, preview: false, log: [], mode: "", puzzleOpen: false };
 
   /* ---------------------------------------------------------------- sound ---- */
   var ac = null;
@@ -86,6 +86,12 @@
       how: INFO.vault.how };
   });
   INFO.vault.noGate = true;
+  INFO.castle = { adventure: true, noGate: true, winTitle: "YOU ESCAPED!", title: "CASTLE BYTE: THE BINARY BARON",
+    story: "Your little sister Mina has been taken to Castle Byte by the <b>Binary Baron</b>. He turned his whole castle into a computer, and every door is a lock about <b>digital information</b>: bits, binary, text, pixels, hexadecimal, colors, image filters, compression and secret codes. Explore ten rooms, crack twenty locks, and beat the Baron to save her.",
+    how: ["<b>Click</b> to walk. Click objects to examine them, and click locks to try them.", "Each room has <b>two locks</b>. Solve the first to find a key, then the second to open the door.", "A wrong answer lets a monster hurt you. Lose all your lives and the castle keeps you."] };
+  INFO.signal = { adventure: true, noGate: true, winTitle: "NET RESTORED!", title: "DEAD SIGNAL: RESTORE THE NET",
+    story: "The Internet has gone dead in Fogbridge, and something called <b>the Static</b> is eating every packet. Follow the connection from the highway, through eleven buildings, to the Core. Every lock is a lesson from <b>Unit 10: The Internet</b>: bandwidth, routers, IP addresses, DNS, routing, packets, security and more. Restore the net before the hospital loses power.",
+    how: ["<b>Click</b> to walk. Click objects to examine them, and click locks to try them.", "Each room has <b>two locks</b>. Solve the first to find a part, then the second to open the door.", "A wrong answer lets the Static hurt you. Lose all your lives and the connection is lost."] };
 
   /* ---------------------------------------------------------------- sign in ---- */
   function showMsg(id, m, bad) { $(id).textContent = m; $(id).style.color = bad ? "#fca5a5" : ""; }
@@ -125,12 +131,15 @@
       $("signin").classList.add("hidden"); $("teachNote").style.display = S.preview ? "block" : "none";
       $("inTitle").textContent = S.info.title; $("inStory").innerHTML = S.info.story;
       $("inHow").innerHTML = S.info.how.map(function (h) { return "<div>&#9654; " + h + "</div>"; }).join("") + "<div>&#9654; <b>10 rounds.</b> " + (S.info.noGate ? "9 right = 90. 10 right = 100." : "9 right = 90 and opens the next walkthrough. 10 right = 100.") + " You can play again, and the questions change.</div>";
-      $("inBest").textContent = S.preview ? "Teacher preview: nothing is saved." : (j.best !== null && j.best !== undefined ? "Your best so far: " + j.best + " out of 100 (" + j.runs + " run" + (j.runs === 1 ? "" : "s") + ")" : "You have not played this yet.");
+      $("inBest").textContent = S.preview ? "Teacher preview: nothing is saved." : (j.best !== null && j.best !== undefined ? "Your best so far: " + j.best + " out of 100 (" + j.runs + " run" + (j.runs === 1 ? "" : "s") + ")" + (S.info.adventure ? ". Learn mode best: " + (j.bestLearn === null || j.bestLearn === undefined ? "none" : j.bestLearn) + ". Challenge mode best: " + (j.bestChallenge === null || j.bestChallenge === undefined ? "none" : j.bestChallenge) + "." : "") : "You have not played this yet.");
+      if (S.info.adventure) { $("inHow").innerHTML = S.info.how.map(function (h) { return "<div>&#9654; " + h + "</div>"; }).join("") + "<div>&#9654; <b>Pick how to play:</b> Learn mode teaches you as you go. Challenge mode gives no help. Your score is the share of locks you get right, and you can play again with new questions.</div>"; $("startBtn").style.display = "none"; $("modeRow").style.display = "grid"; } else { $("startBtn").style.display = ""; $("modeRow").style.display = "none"; }
       $("intro").classList.remove("hidden"); document.title = S.info.title + " | SCHS Computer Science";
     }).catch(function () { showMsg("signMsg", "Could not reach the server. Check your internet and refresh.", true); });
   }
   $("startBtn").onclick = function () { $("intro").classList.add("hidden"); startRun(); };
-  $("againBtn").onclick = function () { $("result").classList.add("hidden"); startRun(); };
+  $("modeLearn").onclick = function () { $("intro").classList.add("hidden"); startRun("learn"); };
+  $("modeChallenge").onclick = function () { $("intro").classList.add("hidden"); startRun("challenge"); };
+  $("againBtn").onclick = function () { $("result").classList.add("hidden"); if (S.info && S.info.adventure) { if (window.Adv) window.Adv.stop(); $("advUI").classList.add("hidden"); $("rReview").style.display = "none"; $("intro").classList.remove("hidden"); } else startRun(); };
 
   /* ---------------------------------------------------------------- a run ---- */
   var canvas = $("stage"), cx2 = canvas.getContext("2d"), raf = 0, last = 0;
@@ -144,11 +153,12 @@
     for (var i = 0; i < S.rounds; i++) pips.appendChild(el("div", "pip" + (S.results[i] === true ? " good" : S.results[i] === false ? " miss" : i === G.n ? " now" : "")));
     var h = ""; for (var s = 0; s < S.maxStrikes; s++) h += s < G.strikes ? "&#128420;" : "&#10084;&#65039;"; $("hearts").innerHTML = h; $("score").textContent = G.correct;
   }
-  function startRun() {
+  function startRun(mode) {
     clearTimeout(S.nextTimer); stopTimer(); $("why").className = ""; $("why").innerHTML = ""; $("controls").innerHTML = "";
-    api({ action: "gameStart", slot: SLOT }).then(function (j) {
+    api({ action: "gameStart", slot: SLOT, mode: mode || "" }).then(function (j) {
       if (!j || j.error || !j.ok) { $("intro").classList.add("hidden"); $("signin").classList.remove("hidden"); showMsg("signMsg", (j && j.error) || "Could not start the game.", true); return; }
-      S.run = j.runId; S.rounds = j.rounds; S.maxStrikes = j.strikes; S.results = []; G.strikes = 0; G.correct = 0; G.n = 0; S.busy = false;
+      S.run = j.runId; S.rounds = j.rounds; S.maxStrikes = j.strikes; S.results = []; G.strikes = 0; G.correct = 0; G.n = 0; S.busy = false; S.log = []; S.mode = j.mode || "";
+      if (S.info && S.info.adventure && window.Adv && window.Adv.has(j.game)) { $("scoreMax").textContent = S.rounds; S.scene = window.Adv.sceneAdapter; drawHud(); window.Adv.start(window.PGE, j); return; }
       S.scene = window.Scenes[j.game]; window.Scenes.setup(cx2, G); drawHud();
       if (!raf) raf = requestAnimationFrame(loop);
       showQuestion(j.question);
@@ -175,7 +185,7 @@
     var book = $("book"); if (q.book) { book.style.display = "block"; book.innerHTML = "<b>PHONE BOOK</b><br>" + q.book.map(esc).join("<br>"); } else book.style.display = "none";
     var ts = $("teachSol"); if (q.sol) { ts.style.display = "block"; ts.textContent = "Teacher preview. " + solText(q); } else ts.style.display = "none";
     $("controls").innerHTML = ""; $("controls").className = "g-" + S.game; buildControls(q);
-    if (S.scene.begin) S.scene.begin(q); drawHud(); startTimer(q.t || 30);
+    if (S.scene.begin) S.scene.begin(q); drawHud(); if (!(S.info && S.info.adventure)) startTimer(q.t || 30);
   }
   function solText(q) {
     var a = q.sol.answer; if (a.idx !== undefined && q.choices) return "Answer: " + q.choices[a.idx] + ". " + q.sol.why;
@@ -208,6 +218,7 @@
     var ok = !!r.correct; S.results[G.n] = ok; G.n = r.n; G.correct = r.correctCount; G.strikes = r.strikes;
     if (S.scene.verdict) S.scene.verdict(ok, r);
     markChoices(ok, answer);
+    if (S.info && S.info.adventure) return advVerdict(r, answer, ok);
     $("why").className = ok ? "ok" : "no"; $("why").innerHTML = (ok ? "<b>Correct!</b> " : (answer && answer.timeout ? "<b>Time's up!</b> " : "<b>Not quite.</b> ")) + esc(r.why || "");
     drawHud();
     if (r.done) {
@@ -224,10 +235,27 @@
     btn.onclick = go; $("why").appendChild(btn); S.onNext = go;
     S.nextTimer = setTimeout(function () { S.canNext = true; go(); }, ok ? 2200 : 4800);
   }
+  /* adventures: the question window stays open until the player presses Continue, and in CHALLENGE mode the explanation is held back for the end */
+  function advVerdict(r, answer, ok) {
+    S.log.push({ topic: S.q && S.q.topic, prompt: S.q && S.q.prompt, code: S.q && S.q.code, ok: ok, why: r.why });
+    var open = S.mode === "learn" || S.preview;
+    $("why").className = ok ? "ok" : "no";
+    $("why").innerHTML = (ok ? "<b>Correct!</b> " : "<b>Not quite.</b> ") + (open ? esc(r.why || "") : (ok ? "" : "That was wrong. The explanation is in your review at the end."));
+    drawHud(); window.Adv.verdict(ok, r);
+    var btn = el("button", "btn pri", "Continue &#9654;"); btn.style.marginTop = "8px"; btn.style.width = "100%";
+    var go = function () { if (!S.canNext) return; S.canNext = false; S.onNext = null; window.Adv.afterContinue(); };
+    btn.onclick = go; $("why").appendChild(btn); S.canNext = true; S.onNext = go;
+  }
   function showResult(f, over) {
-    stopTimer(); var pct = f ? f.pct : G.correct * 10;
-    $("rTitle").textContent = over ? "GAME OVER" : "ALL ROUNDS DONE";
+    stopTimer(); var adv = S.info && S.info.adventure, pct = f ? f.pct : (adv ? Math.round(G.correct / S.rounds * 100) : G.correct * 10);
+    $("rTitle").textContent = over ? "GAME OVER" : (adv ? S.info.winTitle : "ALL ROUNDS DONE");
     $("rBig").textContent = pct; $("rBig").className = "big " + (pct >= 90 ? "good" : pct >= 60 ? "mid" : "low");
+    var rv = $("rReview"); rv.style.display = "none";
+    if (adv) {
+      var missed = S.log.filter(function (x) { return !x.ok; });
+      $("rMsg").textContent = (S.mode === "learn" ? "Learn mode" : "Challenge mode") + ": " + G.correct + " of " + S.rounds + " locks right." + (pct >= 90 ? " Outstanding work." : pct >= 70 ? " Solid. Read the review below and try again to beat it." : " Read the review below, then play again. The questions change every time.") + (S.mode === "learn" && pct >= 80 ? " Ready for Challenge mode?" : S.mode === "challenge" && pct < 70 ? " Learn mode will teach you what you missed." : "");
+      if (missed.length) { rv.style.display = "block"; rv.innerHTML = "<b>What to review (" + missed.length + ")</b>" + missed.map(function (x) { return '<div class="it"><b>Missed:</b> ' + esc(x.prompt || "") + (x.code ? '<br><code>' + esc(x.code) + "</code>" : "") + "<br>" + esc(x.why || "") + "</div>"; }).join(""); }
+    } else
     $("rMsg").textContent = pct >= 100 ? "PERFECT! Full points. You are a legend." : pct >= 90 ? "MISSION COMPLETE! " + (S.info && S.info.noGate ? "" : "That score opens the next walkthrough. ") + "Play again if you want a perfect 100." : "You need 90 or more to pass. Read the explanations, play again, and the questions will change.";
     $("rBest").textContent = S.preview ? "Teacher preview: nothing was saved." : (f && f.saved ? "Your best score is " + f.best + " out of 100 (" + f.runs + " run" + (f.runs === 1 ? "" : "s") + ")." : "");
     $("result").classList.remove("hidden"); if (pct >= 90 && window.FX) window.FX.confetti(90);
@@ -372,6 +400,7 @@
   document.addEventListener("keydown", function (e) {
     if (e.target && e.target.tagName === "INPUT") return;
     if ((e.key === " " || e.key === "Enter") && S.canNext && S.onNext) { e.preventDefault(); S.onNext(); return; }
+    if (S.info && S.info.adventure && !S.puzzleOpen) return;
     var n = parseInt(e.key, 10);
     if (n >= 1 && n <= 4 && S.q && S.q.type === "choice" && !S.busy) { var b = $("controls").querySelectorAll(".btn.pick")[n - 1]; if (b) b.click(); }
     if (S.game === "dns" && !S.busy && S.scene && S.scene.choose && (e.key === "ArrowLeft" || e.key === "ArrowRight")) { var d = e.key === "ArrowLeft" ? -1 : 1; S.scene.choose(Math.max(0, Math.min(2, S.scene.lane + d))); e.preventDefault(); }
@@ -379,5 +408,6 @@
 
   window.__pgSubmit = function (a) { submit(a); };   /* for the automated tests: the server still judges the answer */
   window.__pgState = function () { return { q: S.q, busy: S.busy, n: G.n, strikes: G.strikes, correct: G.correct, game: S.game, canNext: S.canNext }; };   /* read-only, for the automated tests */
+  window.PGE = { S: S, G: G, Snd: window.Snd, showQuestion: showQuestion, finishRun: function (f, over) { showResult(f, over); } };
   boot();
 })();

@@ -4,6 +4,8 @@
    A game is 10 rounds. Three wrong answers end it. The score is (right answers / 10) x 100, so 90 means one mistake is allowed.
    Pure functions only (no storage), so tools/missions/gametest.mjs can test every game offline. */
 
+import { buildAdventures } from "./advbank.js";
+
 const ROUNDS = 10, STRIKES = 3;
 
 /* ------------------------------------------------------------------ seeded random numbers ---- */
@@ -609,7 +611,22 @@ const GAMES = {
 
 LESSON_VAULTS.forEach((L) => { GAMES[L.id] = { id: L.id, title: "Vault " + L.lesson + ": " + L.title, make: lessonMake(L.plan, L.title), check: vaultCheck }; });
 
+/* the two survival-horror adventures (netlify/functions/advbank.js): longer than a normal game, and played in "learn" or "challenge" mode */
+Object.assign(GAMES, buildAdventures({ R, int, pick, shuffle, uniq, mc, M3, G, PG, LESSON_VAULTS, vaultQ, dnsQ, assembleQ, missingQ, SCENES, typedIp, makeIp, vaultCheck, packetsCheck }));
+
 export { GAMES, LESSON_VAULTS, ROUNDS, STRIKES, NODES, EDGES };
+/* rounds and lives for a game. Normal games: 10 rounds, 3 strikes. Adventures set their own, and learn mode gets more lives than challenge mode. */
+export const roundsOf = (game) => (GAMES[game] && GAMES[game].rounds) || ROUNDS;
+export const strikesOf = (game, mode) => { const s = GAMES[game] && GAMES[game].strikes; return s ? (mode === "learn" ? s.learn : s.challenge) : STRIKES; };
+/* CHALLENGE mode: the same question with its built-in help taken out (the "Hint:" sentences, the alphabet and hex cheat lines, and the lesson label) */
+export const challengeQ = (q) => {
+  const o = Object.assign({}, q);
+  o.prompt = String(o.prompt).replace(/\s*\(?Hint: A = [^.)]*?(?:and so on\.\)?|= 65\))/g, "").replace(/\s{2,}/g, " ").trim();
+  if (typeof o.code === "string" && /^(Alphabet:|Hex digits:)/.test(o.code)) delete o.code;
+  if (o.topic) o.topic = String(o.topic).split(":")[0];
+  return o;
+};
+export const isAdventure = (game) => !!(GAMES[game] && GAMES[game].adventure);
 export const hasGame = (id) => Object.prototype.hasOwnProperty.call(GAMES, id);
 /* the question for round i of a run: { q: public, a: secret, why } */
 export const makeQuestion = (game, seed, i) => GAMES[game].make(seed, i);

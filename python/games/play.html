@@ -130,6 +130,60 @@ input.pin{padding:10px 14px;border-radius:10px;border:2px solid #34457a;backgrou
 #fx{position:fixed;inset:0;pointer-events:none;z-index:60}
 @media (max-width:640px){.choices{grid-template-columns:1fr}.palette{grid-template-columns:1fr}#prompt{font-size:17px}.sw{width:38px}.sw .lamp{width:34px;height:34px}}
 @media (prefers-reduced-motion:reduce){#timerFill.low{animation:none}}
+
+/* adventure mode (Castle Byte, Dead Signal) */
+#stageWrap.adv{border-color:#3b2a52;box-shadow:0 14px 50px #000c,0 0 0 1px #000}
+#stageWrap.adv canvas#stage{image-rendering:pixelated;aspect-ratio:16/9}
+.advui{position:absolute;inset:0;pointer-events:none;font-family:"JetBrains Mono",monospace}
+.advui.hidden{display:none}
+.advui button{pointer-events:auto}
+#advCap{position:absolute;left:3%;right:3%;top:14%;padding:12px 16px;background:linear-gradient(180deg,#120d1ee6,#0a0712f2);border:2px solid #4b3a6e;border-radius:10px;color:#f1eaff;font:600 15px/1.5 "JetBrains Mono",monospace;display:none;box-shadow:0 6px 24px #000a;text-shadow:0 1px 0 #000}
+#advCap.show{display:block}
+#advCap.cut{left:8%;right:8%;top:auto;bottom:9%;font-size:17px;text-align:center;background:#000000b8;border-color:#6a4a9a}
+#advTitle{position:absolute;left:0;right:0;top:30%;text-align:center;opacity:0;transition:opacity .6s;color:#fff;text-shadow:0 0 16px #a78bfa,0 2px 0 #000}
+#advTitle.show{animation:ttl 4.2s ease forwards}
+@keyframes ttl{0%{opacity:0;transform:translateY(-8px)}12%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
+#advTitle b{display:block;font:700 15px "Silkscreen",monospace;letter-spacing:.2em;color:#fbbf24}
+#advTitle span{display:block;font:700 34px "Silkscreen",monospace;margin:2px 0}
+#advTitle i{display:block;font:600 14px "JetBrains Mono",monospace;color:#c7d2fe;font-style:normal}
+#advInv{position:absolute;left:10px;top:10px;display:flex;gap:4px;flex-wrap:wrap;max-width:38%}
+#advInv .inv{width:24px;height:24px;border-radius:50%;background:#1b1230e6;border:1px solid #6a4a9a;display:grid;place-items:center;font-size:13px}
+.pips.small .pip{width:10px;height:10px;border-radius:3px}.pips.small{gap:3px}
+.advbtns{position:absolute;right:8px;top:8px;display:flex;gap:6px}
+.advbtns .iconbtn{background:#1b1230e6;border-color:#6a4a9a}
+#advBoss{position:absolute;left:50%;transform:translateX(-50%);top:8px;display:none;text-align:center;color:#fecaca;font:700 12px "Silkscreen",monospace;letter-spacing:.12em}
+#advBoss .seg{display:inline-block;width:34px;height:10px;margin:3px 2px 0;border:1px solid #7f1d1d;background:#2a0a0a;border-radius:3px}
+#advBoss .seg.on{background:linear-gradient(180deg,#ef4444,#b91c1c);box-shadow:0 0 8px #ef4444}
+#puzzleOv{align-items:start;overflow:auto;padding-top:3vh}
+#puzzleOv.under{z-index:40}
+#puzzleOv .card{max-width:760px;text-align:left}
+#puzzleHead{font:700 12px "Silkscreen",monospace;color:#fbbf24;letter-spacing:.15em;margin-bottom:4px}
+#puzzleOv #prompt{margin-top:4px}
+#advModal{z-index:80}
+#advModal .card{max-width:640px;max-height:88vh;overflow:auto;text-align:left;position:relative}
+#advModal .card.wide{max-width:720px}
+#advModal h2{margin:0 0 6px;font:700 22px "Silkscreen",monospace;color:#fff}
+#advModal .kick{font:700 11px "JetBrains Mono",monospace;color:#fbbf24;letter-spacing:.12em}
+#advModal p{font-size:16px;line-height:1.6}
+#advModal .sub{color:var(--soft);margin-bottom:8px}
+#advModal pre.ex{background:#0a1020;border:1px solid #2b3a63;border-radius:10px;padding:10px 14px;font:600 14px/1.55 "JetBrains Mono",monospace;color:#a5f3fc;white-space:pre-wrap;margin:8px 0}
+#advModal .pgnav{display:flex;gap:10px;justify-content:space-between;margin-top:10px}
+#advModal .pgfoot{color:#8b95b5;font-size:12px;margin-top:8px}
+#advModalX{position:absolute;right:10px;top:8px;background:none;border:none;color:#aab;font-size:22px;cursor:pointer}
+.jroom{margin:8px 0;padding:8px 10px;background:#0a1020;border:1px solid #24304F;border-radius:10px}
+.jpg{display:block;width:100%;text-align:left;margin:4px 0;padding:7px 10px;background:#141C33;border:1px solid #2f4170;border-radius:8px;color:#e8eefb;cursor:pointer;font:600 14px "Manrope",sans-serif}
+.jpg:hover{border-color:var(--glow)}.jpg.none{color:#64748b;cursor:default}
+.mrow{display:flex;gap:10px;align-items:center;padding:7px 10px;margin:4px 0;border-radius:8px;background:#0a1020;color:#64748b;border:1px solid #1c2542}
+.mrow.done{color:#86efac}.mrow.here{color:#fde047;border-color:#fde047}.mrow i{margin-left:auto;font-style:normal;font-size:12px}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.mode{border:2px solid #34457a;border-radius:14px;background:linear-gradient(180deg,#16203f,#0E1426);padding:14px;text-align:left;cursor:pointer;color:var(--ink);font:inherit}
+.mode:hover{border-color:var(--glow);transform:translateY(-2px)}
+.mode b{display:block;font:700 17px "Silkscreen",monospace;margin-bottom:4px}
+.mode.l b{color:#86efac}.mode.c b{color:#fca5a5}
+.mode span{font-size:13.5px;color:var(--soft)}
+#rReview{display:none;text-align:left;margin-top:10px;max-height:34vh;overflow:auto;border:1px solid #2b3a63;border-radius:10px;padding:8px 12px;background:#0a1020;font-size:13.5px}
+#rReview .it{margin:8px 0;padding-bottom:8px;border-bottom:1px solid #1c2542}#rReview .it b{color:#fca5a5}
+@media (max-width:640px){.modes{grid-template-columns:1fr}#advCap{font-size:12px;padding:8px 10px}#advTitle span{font-size:22px}}
 </style>
 </head>
 <body>
@@ -139,12 +193,18 @@ input.pin{padding:10px 14px;border-radius:10px;border:2px solid #34457a;backgrou
     <div class="pips" id="pips" aria-label="Rounds"></div>
     <div class="hearts" id="hearts" aria-label="Lives"></div>
     <div class="sp"></div>
-    <span class="chip">Score <b id="score">0</b>/10</span>
+    <span class="chip">Score <b id="score">0</b>/<span id="scoreMax">10</span></span>
     <button class="iconbtn" id="mute" title="Sound on or off">Sound: on</button>
     <a class="iconbtn" id="exit" href="../editor.html">Exit</a>
   </div>
   <div id="teachNote">Teacher preview: nothing is saved, and the answer to each round is shown below the question.</div>
-  <div id="stageWrap"><canvas id="stage" width="800" height="380" aria-label="The game"></canvas></div>
+  <div id="stageWrap"><canvas id="stage" width="800" height="380" aria-label="The game"></canvas>
+    <div class="advui hidden" id="advUI">
+      <div id="advTitle"></div><div id="advInv"></div><div id="advBoss"></div>
+      <div class="advbtns"><button class="iconbtn" id="advJournal">Journal</button><button class="iconbtn" id="advMap">Map</button><button class="iconbtn" id="advSkip" style="display:none">Skip</button></div>
+      <div id="advCap"></div>
+    </div>
+  </div>
   <div id="timerBar"><div id="timerFill"></div></div>
   <div id="topic" class="topic"></div>
   <div id="prompt"></div>
@@ -169,6 +229,7 @@ input.pin{padding:10px 14px;border-radius:10px;border:2px solid #34457a;backgrou
   <div class="how" id="inHow"></div>
   <div class="msg" id="inBest"></div>
   <div class="row"><button class="btn go" id="startBtn">START</button></div>
+  <div class="modes" id="modeRow" style="display:none"><button class="mode l" id="modeLearn"><b>LEARN MODE</b><span>Teaches you as you play. Glowing objects explain each lesson, you get a journal of notes, and more lives. Best when you are learning the unit.</span></button><button class="mode c" id="modeChallenge"><b>CHALLENGE MODE</b><span>No notes. No hints. Fewer lives. See how well you really know the unit. The explanations come at the end.</span></button></div>
 </div></div>
 
 <div class="ov hidden" id="result"><div class="card">
@@ -176,13 +237,24 @@ input.pin{padding:10px 14px;border-radius:10px;border:2px solid #34457a;backgrou
   <div class="big" id="rBig"></div>
   <p class="sub" id="rMsg" style="text-align:center"></p>
   <div class="msg" id="rBest"></div>
+  <div id="rReview"></div>
   <div class="row" style="margin-top:10px"><button class="btn go" id="againBtn">PLAY AGAIN</button><a class="btn" id="backBtn" href="../editor.html" style="text-decoration:none;text-align:center">Back to the editor</a></div>
 </div></div>
+<div class="ov hidden" id="puzzleOv"><div class="card">
+  <div id="puzzleHead"></div>
+  <div id="puzzleBody"></div>
+  <div class="row" style="margin-top:8px"><button class="btn" id="advNotes" style="display:none">&#128214; Check my notes</button></div>
+</div></div>
+<div class="ov hidden" id="advModal"><div class="card"><button id="advModalX" aria-label="Close">&times;</button><div class="mbody"></div></div></div>
 <canvas id="fx"></canvas>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="chars.js"></script>
 <script src="scenes.js"></script>
+<script src="adv-art.js"></script>
+<script src="adv-castle.js"></script>
+<script src="adv-signal.js"></script>
 <script src="engine.js"></script>
+<script src="adv-engine.js"></script>
 </body>
 </html>

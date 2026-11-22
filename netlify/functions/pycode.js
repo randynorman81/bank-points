@@ -1,6 +1,6 @@
 import { getStore } from "@netlify/blobs";
 import { withPySettings } from "../../teacher-settings/python-editor.js";
-import { GAMES, ROUNDS, STRIKES, hasGame, makeQuestion, checkAnswer } from "./gamebank.js";
+import { GAMES, hasGame, makeQuestion, checkAnswer, roundsOf, strikesOf, isAdventure, challengeQ } from "./gamebank.js";
 
 // Python editor backend (python/editor.html).
 //   - Students sign in with their school Google account (same setup as the HTML editor).
@@ -615,7 +615,7 @@ async function liveScore(body) {
    The questions are made here from a random seed (netlify/functions/gamebank.js) and the answers are checked here, so the student's browser never has the answers.
    A run is 10 rounds; 3 wrong answers end it. Score = right / 10 x 100. The best run is saved as the student's score on the mission, so passMin (90) opens the next walkthrough. */
 const GAME_RUN_MS = 3 * 3600 * 1000;
-const publicQ = (x, preview) => (preview ? Object.assign({}, x.q, { sol: { answer: x.a, why: x.why } }) : x.q);   /* only the teacher preview sees the solution */
+const publicQ = (x, preview, mode) => { const q = mode === "challenge" ? challengeQ(x.q) : x.q; return preview ? Object.assign({}, q, { sol: { answer: x.a, why: x.why } }) : q; };   /* only the teacher preview sees the solution */
 async function gameAccess(body, user) {
   const slot = body.slot;
   if (!goodSlot(slot) || slot === "free") return { error: "Unknown mission" };
@@ -628,25 +628,27 @@ async function gameAccess(body, user) {
   if (!open.assignments[slot]) { const L = open.locked.find((x) => x.id === slot); return { error: L && L.needName ? "This mission is locked. Finish " + L.needName + " first." : "This mission is locked." }; }
   return { asg, preview: false };
 }
-async function gameBest(slot, email) { const sub = await readJSON("sub:" + slot + ":" + enc(email), null); return sub && sub.game ? { best: sub.game.best, runs: sub.game.runs, last: sub.game.last } : { best: null, runs: 0, last: null }; }
+async function gameBest(slot, email) { const sub = await readJSON("sub:" + slot + ":" + enc(email), null); return sub && sub.game ? { best: sub.game.best, runs: sub.game.runs, last: sub.game.last, bestLearn: sub.game.bestLearn === undefined ? null : sub.game.bestLearn, bestChallenge: sub.game.bestChallenge === undefined ? null : sub.game.bestChallenge } : { best: null, runs: 0, last: null, bestLearn: null, bestChallenge: null }; }
 async function gameStart(body, user) {
   const acc = await gameAccess(body, user); if (acc.error) return acc;
   const seed = crypto.getRandomValues(new Uint32Array(1))[0] >>> 0, id = crypto.randomUUID().replace(/-/g, "");
-  const run = { id, slot: body.slot, email: user ? user.email : "preview", name: user ? user.name : "Teacher preview", period: cleanPeriod(body.period), game: acc.asg.game, seed, n: 0, correct: 0, strikes: 0, done: false, over: false, preview: acc.preview, startedAt: now() };
+  const mode = isAdventure(acc.asg.game) ? (body.mode === "learn" ? "learn" : "challenge") : "";   /* adventures only: "learn" teaches as you play, "challenge" gives no help */
+  const run = { id, slot: body.slot, email: user ? user.email : "preview", name: user ? user.name : "Teacher preview", period: cleanPeriod(body.period), game: acc.asg.game, seed, mode, n: 0, correct: 0, strikes: 0, done: false, over: false, preview: acc.preview, startedAt: now() };
   await store().setJSON("grun:" + id, run);
-  return Object.assign({ ok: true, runId: id, game: run.game, title: GAMES[run.game].title, rounds: ROUNDS, strikes: STRIKES, n: 0, preview: acc.preview, question: publicQ(makeQuestion(run.game, seed, 0), acc.preview) }, acc.preview ? {} : await gameBest(body.slot, user.email));
+  return Object.assign({ ok: true, runId: id, game: run.game, title: GAMES[run.game].title, rounds: roundsOf(run.game), strikes: strikesOf(run.game, mode), mode, n: 0, preview: acc.preview, question: publicQ(makeQuestion(run.game, seed, 0), acc.preview, mode) }, acc.preview ? {} : await gameBest(body.slot, user.email));
 }
 async function gameFinish(run) {
-  const pct = Math.round(run.correct / ROUNDS * 100);
+  const pct = Math.round(run.correct / roundsOf(run.game) * 100);
   if (run.preview) return { pct, best: null, saved: false };
   const key = "sub:" + run.slot + ":" + enc(run.email), prev = await readJSON(key, null);
   const g = Object.assign({ runs: 0, best: 0 }, prev && prev.game);
   g.runs++; g.last = pct; g.best = Math.max(g.best, pct); g.lastAt = now();
+  if (run.mode) { const k = run.mode === "learn" ? "bestLearn" : "bestChallenge"; g[k] = Math.max(g[k] || 0, pct); g.lastMode = run.mode; }
   const handGraded = prev && prev.teacher && !prev.teacher.game && prev.teacher.score !== null && prev.teacher.score !== undefined && prev.teacher.score !== "";   /* a score the teacher typed in by hand is never replaced */
   const rec = Object.assign({}, prev || {}, {
     email: run.email, name: run.name, period: run.period || (prev && prev.period) || "", slot: run.slot, mode: "python", code: (prev && prev.code) || "", output: "",
     submittedAt: now(), firstSubmittedAt: (prev && (prev.firstSubmittedAt || prev.submittedAt)) || now(), count: (prev && prev.count ? prev.count : 0) + 1, game: g,
-    teacher: handGraded ? prev.teacher : { score: g.best, comment: "Mission game: best " + g.best + "% in " + g.runs + " run" + (g.runs > 1 ? "s" : ""), gradedAt: now(), game: true }
+    teacher: handGraded ? prev.teacher : { score: g.best, comment: "Mission game: best " + g.best + "% in " + g.runs + " run" + (g.runs > 1 ? "s" : "") + (g.bestLearn !== undefined || g.bestChallenge !== undefined ? " (learn mode best " + (g.bestLearn === undefined ? "none" : g.bestLearn + "%") + ", challenge mode best " + (g.bestChallenge === undefined ? "none" : g.bestChallenge + "%") + ")" : ""), gradedAt: now(), game: true }
   });
   await store().setJSON(key, rec);
   return { pct, best: g.best, runs: g.runs, saved: true };
@@ -661,10 +663,10 @@ async function gameAnswer(body, user) {
   if (Date.now() - Date.parse(run.startedAt) > GAME_RUN_MS) return { error: "That game ran too long. Start a new one." };
   const cur = makeQuestion(run.game, run.seed, run.n), right = checkAnswer(run.game, cur.a, body.answer);
   if (right) run.correct++; else run.strikes++;
-  run.n++; run.over = run.strikes >= STRIKES; run.done = run.over || run.n >= ROUNDS;
+  run.n++; run.over = run.strikes >= strikesOf(run.game, run.mode); run.done = run.over || run.n >= roundsOf(run.game);
   await store().setJSON("grun:" + run.id, run);
   const out = { ok: true, correct: right, why: cur.why, n: run.n, correctCount: run.correct, strikes: run.strikes, over: run.over, done: run.done };
-  if (run.done) out.final = await gameFinish(run); else out.next = publicQ(makeQuestion(run.game, run.seed, run.n), run.preview);
+  if (run.done) out.final = await gameFinish(run); else out.next = publicQ(makeQuestion(run.game, run.seed, run.n), run.preview, run.mode);
   return out;
 }
 

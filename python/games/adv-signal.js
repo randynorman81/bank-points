@@ -1,0 +1,208 @@
+/* DEAD SIGNAL: Restore the Net. Unit 10 (The Internet). The story, rooms and lesson pages for the network horror adventure.
+   LEARN mode: glowing objects teach each lesson. CHALLENGE mode: no notes and no hints. */
+(function () {
+  "use strict";
+  var FL = 108;
+  window.AdvContent = window.AdvContent || {};
+  var NIGHT = ["#1a2238", "#3a4663", "#2a2e3a", "#22262f", "#6ee7ff"], MET = ["#3a4252", "#2e3442", "#23262f", "#2e3240", "#6ee7ff"], CON = ["#3d4048", "#33363e", "#2c2f38", "#24262e", "#facc15"], TEAL = ["#2c4650", "#243a44", "#26333a", "#1e2a30", "#6ee7b7"], PURP = ["#3a3050", "#2c2440", "#2a2538", "#211d2e", "#c4b5fd"], BRK = ["#4a3a3a", "#3a2c2c", "#33292a", "#292021", "#fca5a5"];
+
+  window.AdvContent.signal = {
+    id: "signal", title: "DEAD SIGNAL", sub: "Restore the Net", world: "net", unit: "Unit 10: The Internet", monsters: ["static", "crawler", "ghost"],
+    hero: "tech",
+    intro: [
+      { scene: "town", text: "FOGBRIDGE. Three nights ago, the Internet went dead. Phones, screens, traffic lights, even the hospital's life support monitors. Everything that talks to the network has gone silent." },
+      { scene: "town", text: "Something is living in the wires. People call it THE STATIC. It eats packets. It follows the cables from the street, through the buildings, all the way to the Core." },
+      { scene: "dark", text: "You are the last field technician in town. Your job: follow the connection from the highway, through every building, to the Core, and bring the Internet back on before St. Bit's Hospital runs out of power." },
+      { scene: "dark", learn: "Look around each room. Things that glow can be examined, and they will TEACH you the lesson you need for the locks. Your journal keeps every page.", challenge: "No notes. No help. No hints. The network will not explain itself. What you already know is all you have." }
+    ],
+    win: [
+      { scene: "connected", text: "You slam the last lock shut. The Core screams, flickers, and goes white. Then, every light in Fogbridge comes back on at once." },
+      { scene: "connected", text: "Packets pour across the sky: messages, videos, video calls, all of it, flowing again. At St. Bit's Hospital, the monitors begin to beep. Everyone is safe." },
+      { scene: "connected", text: "The Static is gone. The Internet is back. YOU RESTORED THE NET." }
+    ],
+    lose: [{ scene: "dark", text: "The screens go dark one by one. The Static slips out of the wires and closes around you. Connection lost." }],
+    bossName: "THE STATIC", bossLines: ["\"I eat every packet you send.\"", "\"No... my signal...\"", "\"You cannot break my last lock!\"", "\"CONNECTION... RESTORED...\""],
+    rooms: [
+      { name: "The Highway", lesson: "10.1", short: "The Internet is a Highway", wall: "street", floor: "flag", pal: NIGHT, dark: 0.5, loot: "Fuse", sky: true,
+        arrive: "Fog hangs over the empty street. The traffic lights are dead. A cable runs down the utility pole and into the dark.",
+        lights: [{ x: 70, y: 50, r: 54 }, { x: 196, y: 30, r: 50 }],
+        props: [{ t: "pole", x: 28, hot: "clue0", label: "Utility pole" }, { t: "lamp", x: 70 }, { t: "sign", x: 104, y: 56, hot: "clue1", label: "Road sign" }, { t: "billboard", x: 152, y: 40, hot: "clue2", label: "Billboard" }, { t: "mailbox", x: 178, hot: "lockA", label: "Locked mailbox" }, { t: "steeldoor", x: 218, hot: "lockB", label: "Utility building door" }],
+        clues: [
+          { title: "The Internet Highway", flavor: "A utility pole. Every wire is dead. Something up there is breathing.",
+            text: "THE INTERNET IS LIKE A HIGHWAY. Think of the Internet as a huge system of highways connecting every city, school and home. It is not one computer, it is a NETWORK OF NETWORKS: your home network, your school network and companies' networks all connect and agree to follow the same rules (PROTOCOLS). No one owns all of it.",
+            ex: "Internet = network of networks\nHighways = the connections\nCars and trucks = your data" },
+          { title: "Lanes, Cars and Trucks", flavor: "A road sign. Somebody has spray painted \"TURN BACK\" over it. In red. Still wet.",
+            text: "On this highway, YOUR DEVICES ARE VEHICLES. A phone checking a text page is a MOTORCYCLE: it takes very little room. A game console is a BIG TRUCK, and a 4K movie stream is a SEMI-TRAILER. The size of a vehicle is how much BANDWIDTH it uses. The LANES of the highway are your BANDWIDTH: how much data can travel at the same time. If 4 lanes are open and two semis (4K movies) are rolling at once, they eat up your lanes, and everything else gets stuck in traffic.",
+            ex: "Motorcycle = phone, text page\nTruck = game console download\nSemi-trailer = 4K movie stream\nLanes = bandwidth" },
+          { title: "Buying Lanes", flavor: "A billboard. It once said \"Fast Internet!\" The word FAST has been scratched out. Underneath it says RUN.",
+            text: "HOW MUCH YOU PAY decides how many lanes you get. Picture your ISP (Internet Service Provider, like AT&T or Verizon) as owning a giant highway system with thousands upon thousands of lanes. Your plan only buys you a few of them: maybe a 1 gig plan is like 3 lanes, while a smaller plan is fewer. ALL of your devices share those same lanes. When the lanes are tied up, your Internet gets SLOW. (The lane numbers are just a picture. In real life, bandwidth is measured in Mbps and Gbps.) LATENCY is different: it is how long one trip takes.",
+            ex: "Bandwidth = lanes (Mbps or Gbps)\nLatency = how long one trip takes\nMore lanes = more traffic at once" }
+        ],
+        lockA: "The mailbox is locked with a traffic puzzle.", lockB: "The door to the utility building has a lock." },
+      { name: "The Router Basement", lesson: "10.2", short: "Internet Hardware", wall: "concrete", floor: "grate", pal: CON, dark: 0.6, loot: "Ethernet Cable",
+        arrive: "The stairs creak. In the basement, a line of lights on a wall blink in the dark: the box where the Internet comes into the building.",
+        lights: [{ x: 50, y: 80, r: 50 }, { x: 150, y: 60, r: 56 }],
+        props: [{ t: "modem", x: 36, hot: "clue0", label: "Modem" }, { t: "router", x: 82, hot: "clue1", label: "Router" }, { t: "monitor", x: 128, o: { bad: true }, hot: "clue2", label: "Traffic monitor" }, { t: "cables", x: 164 }, { t: "cabinet", x: 186, hot: "lockA", label: "Fuse cabinet" }, { t: "steeldoor", x: 222, hot: "lockB", label: "Stairwell door" }, { t: "fan", x: 120, y: 24 }],
+        clues: [
+          { title: "How the Internet Enters Your House", flavor: "A little gray box with blinking lights. One of the lights just blinked in a pattern that looked a lot like Morse code.",
+            text: "HOW THE INTERNET GETS TO YOUR HOUSE: your ISP (like AT&T or Verizon) sends a technician out to run a CABLE (often fiber optic, which sends data as pulses of light) from their network on the street into your house. It plugs into a box called the MODEM. The modem is the FRONT DOOR from your home to the ISP and the rest of the Internet. Without it, your house is not connected to the highway.",
+            ex: "ISP network on the street\n   -> cable or fiber to your house\n   -> MODEM (front door to the Internet)" },
+          { title: "Modem vs Router", flavor: "A router with its antennas bent in a way antennas should not bend. It keeps blinking at you.",
+            text: "A MODEM and a ROUTER are different. The modem connects you to the ISP: it is the on-ramp to the highway. The ROUTER sits behind the modem and runs YOUR network: it shares that one Internet connection among all your devices, over Wi-Fi or cables, and directs each device's data where it needs to go. Many home boxes combine both in one case, but the two jobs are different. Modem: gets the Internet in. Router: shares it with all your devices.",
+            ex: "Modem = on-ramp to the highway\nRouter = street system of your neighborhood\nDevices connect to the router" },
+          { title: "Sharing the Connection", flavor: "A monitor showing a graph that goes up and up. You decide not to look at what it is counting.",
+            text: "Every device in the house shares the SAME bandwidth. If someone streams a 4K movie, someone else downloads a big game and a third person is on a video call, the lanes fill up and everything slows down. A wired cable (Ethernet) is usually steadier and has lower latency than Wi-Fi, because walls and neighbors' signals do not get in the way. Bandwidth is measured in bits per second: Mbps (millions) and Gbps (billions, 1,000 Mbps). Remember: 1 byte is 8 bits, so a file in megabytes takes longer than you would think.",
+            ex: "1 Gbps = 1,000 Mbps\n1 byte = 8 bits\nTime = size in megabits / speed in Mbps\n200 MB = 1,600 megabits; at 100 Mbps = 16 seconds" }
+        ],
+        lockA: "The fuse cabinet has a lock with numbers on it.", lockB: "The stairwell door has a lock." },
+      { name: "The Address Office", lesson: "10.3", short: "IP Addresses", wall: "tile", floor: "tile", pal: TEAL, dark: 0.55, loot: "Address Card",
+        arrive: "An old office full of filing cabinets. Every drawer is labeled with a long string of numbers, like 192.168.1.20.",
+        lights: [{ x: 60, y: 60, r: 54 }, { x: 170, y: 60, r: 54 }],
+        props: [{ t: "cabinet", x: 30, hot: "clue0", label: "Address cabinet" }, { t: "desk", x: 74, hot: "clue1", label: "Mapping desk" }, { t: "monitor", x: 120, hot: "lockA", label: "Address terminal" }, { t: "phone", x: 150, y: 56 }, { t: "tv", x: 168, hot: "clue2", label: "Old TV" }, { t: "steeldoor", x: 216, hot: "lockB", label: "Office door" }],
+        clues: [
+          { title: "IPv4 and IPv6", flavor: "A filing cabinet full of numbers. One drawer slides open on its own. Inside, only a single word: \"Hi.\"",
+            text: "Every device needs an IP ADDRESS so data knows where to go. IPv4 addresses have 32 bits, written as four numbers from 0 to 255 separated by dots, like 192.168.1.20. 32 bits gives only about 4.3 BILLION addresses, which the world RAN OUT of. IPv6 fixes this with 128 bits, written as groups of hex digits separated by colons, like 2001:0db8:85a3:0000:0000:8a2e:0370:7334. That is enough addresses for every device ever made.",
+            ex: "IPv4: 32 bits, 4 numbers, dots   192.168.1.20\nIPv6: 128 bits, hex, colons   2001:db8::8a2e:370:7334" },
+          { title: "Your Neighborhood", flavor: "A map of the town with every house marked. Your house has a small red X next to it. You cannot find a reason for the X.",
+            text: "PRIVATE vs PUBLIC. Think of your router as a NEIGHBORHOOD. One road leads in from the Internet, and all your devices live inside as houses. Each device has a PRIVATE address (like 192.168.1.20) that only makes sense inside the neighborhood, so people driving past cannot see which house is which. The private ranges are 10.x.x.x, 172.16 to 172.31, and 192.168.x.x. Many homes reuse the same private numbers, like house numbers on different streets. But the moment you send something OUT to the Internet, like to Google, it LEAVES the neighborhood and crosses networks you do not control, so people along the way could see it unless it is encrypted (HTTPS).",
+            ex: "Private (inside): 192.168.1.20\nPublic (outside, the neighborhood's address)\nLoopback 127.0.0.1 = this same computer" },
+          { title: "NAT and DHCP", flavor: "An old TV that is showing only static. In the static, you swear you can see a shape. It waves.",
+            text: "NAT (Network Address Translation) is the neighborhood's gatehouse. Your ISP gives your home just ONE public address. When any device inside sends something out, the router swaps the private address for that one public address and remembers who asked, then it delivers the answer to the right house. So the Internet only sees the router, and a whole home can share a single public address. DHCP is the moving truck that hands each new device a free private address when it joins, so you never type one in yourself.",
+            ex: "Laptop 192.168.1.20 asks Google\nRouter NAT: shows 73.10.5.9 (public)\nGoogle answers 73.10.5.9, router passes it on to 192.168.1.20\nDHCP = router gives out private addresses automatically" }
+        ],
+        lockA: "The terminal wants an address problem solved.", lockB: "The office door has a lock for the next puzzle." },
+      { name: "The Browser Cafe", lesson: "10.4", short: "Viewing Websites", wall: "tile", floor: "tile", pal: PURP, dark: 0.55, loot: "Coffee Pass",
+        arrive: "A cafe where a dozen screens still show browser windows, each frozen on an error page. The coffee pot is still hot. That is not reassuring.",
+        lights: [{ x: 60, y: 60, r: 56 }, { x: 170, y: 60, r: 56 }],
+        props: [{ t: "tv", x: 34, hot: "clue0", label: "TV with a web address" }, { t: "monitor", x: 80, hot: "clue1", label: "Frozen browser" }, { t: "vending", x: 122, hot: "clue2", label: "Vending machine" }, { t: "desk", x: 160, hot: "lockA", label: "Cafe counter" }, { t: "steeldoor", x: 218, hot: "lockB", label: "Back door" }, { t: "fan", x: 100, y: 22 }],
+        clues: [
+          { title: "Anatomy of a URL", flavor: "A TV showing a website. The page loads, then unloads, then loads again. It is the same page every time. The word on it is \"behind\".",
+            text: "A URL is the address of a page. https://www.schs.edu/news/today.html has parts: the PROTOCOL (https), the DOMAIN NAME (www.schs.edu), and the PATH to the page (/news/today.html). The TOP-LEVEL DOMAIN is the last label of the domain: .edu. A domain is read from right to left: .edu is the biggest group, schs is the school, and www is a subdomain.",
+            ex: "https :// www.schs.edu / news/today.html\nprotocol    domain name      path\nTLD = .edu" },
+          { title: "Client and Server", flavor: "A browser window that will not close. In the tab title, in tiny letters, it says \"LOADING YOU\".",
+            text: "When you visit a website, your browser is the CLIENT and the computer that stores the site is the SERVER. The client sends an HTTP REQUEST (\"please give me this page\"), and the server sends back a RESPONSE with the page, written in HTML. A response code tells how it went: 200 means OK, and 404 means NOT FOUND (the server works, but that page does not exist).",
+            ex: "Browser (client) -> HTTP request -> Web server\nBrowser (client) <- HTML + code 200 <- Web server\n404 = page not found" },
+          { title: "The Padlock", flavor: "A vending machine. It takes your coins and gives you nothing, then it makes a sound like laughter. You take your coins back anyway.",
+            text: "HTTP sends pages as plain data that others could read on the way. HTTPS adds ENCRYPTION so people in between cannot read it. The padlock in your browser means the connection to the site is encrypted. But the padlock does not prove the site is HONEST: a scam site can use HTTPS too. The WEB (websites) is only one service that runs on the Internet. Email and video calls use the Internet too.",
+            ex: "HTTP = plain\nHTTPS = encrypted (the S is for secure)\nPadlock = private trip, not a promise the site is honest" }
+        ],
+        lockA: "The cafe counter's register has a lock.", lockB: "The back door has a puzzle on a keypad." },
+      { name: "The Phone Book Archive", lesson: "10.5", short: "DNS", wall: "stone", floor: "plank", pal: ["#4a3a2a", "#3a2e22", "#3a2e22", "#2e241a", "#fbbf24"], dark: 0.6, loot: "Index Tab",
+        arrive: "Towering shelves of giant books. Each spine reads the name of a website. The air smells like wet paper and something electric.",
+        lights: [{ x: 60, y: 60, r: 56 }, { x: 170, y: 60, r: 56 }],
+        props: [{ t: "rack", x: 30, hot: "clue0", label: "Rack of books" }, { t: "cabinet", x: 74, hot: "clue1", label: "Index cabinet" }, { t: "desk", x: 118, hot: "clue2", label: "Librarian's desk" }, { t: "monitor", x: 156, hot: "lockA", label: "Lookup terminal" }, { t: "steeldoor", x: 214, hot: "lockB", label: "Archive door" }],
+        clues: [
+          { title: "The Internet's Phone Book", flavor: "A book so big it takes two hands to open. Inside, every page says \"not found\" over and over. Then, at the end, \"found you\".",
+            text: "Computers use IP ADDRESSES but people remember NAMES. DNS (the Domain Name System) is the Internet's PHONE BOOK: you give it a name like google.com and it gives back the IP address. When you type a name, your device asks a DNS RESOLVER to look it up, then connects to the number it gets back.",
+            ex: "google.com  ->  DNS  ->  142.250.80.46\nNames for people, numbers for computers" },
+          { title: "The Lookup Chain", flavor: "A cabinet of tiny drawers. Each drawer is labeled with the name of a country. Only one is labeled \"Fogbridge\", and it is humming.",
+            text: "DNS is a HIERARCHY. A lookup starts at a ROOT server, which says which TLD server to ask (.com, .edu, .org). The TLD server says which server handles that particular domain, and that domain's own DNS server finally gives the IP address. Read a domain from right to left to follow the same path: .com, then google, then www.",
+            ex: "www.example.com\n1. root: ask the .com server\n2. .com server: ask example.com's server\n3. example.com's server: the IP address" },
+          { title: "Caches and Spoofs", flavor: "A desk with a half drunk cup of tea. The tea is warm. The librarian has been gone for a hundred years.",
+            text: "A resolver keeps a CACHE: it remembers recent answers so repeat lookups are instant. If a name does not exist at all, the answer is NXDOMAIN (non-existent domain). DNS can also be attacked: in DNS SPOOFING (cache poisoning), an attacker plants a FAKE answer so people are quietly sent to a look-alike website. If DNS is down but you know the IP address, you can still get there. DNS only translates names.",
+            ex: "Cached answer = fast\nNXDOMAIN = name does not exist\nSpoofing = fake entry in the phone book" }
+        ],
+        lockA: "The lookup terminal has a lock.", lockB: "The archive door has a lock of its own." },
+      { name: "The Junction Tunnels", lesson: "10.6", short: "Routing", wall: "concrete", floor: "grate", pal: CON, dark: 0.65, loot: "Route Map",
+        arrive: "A maze of tunnels, with cables running in every direction. Signs point to places that do not exist. Water drips in time with your footsteps.",
+        lights: [{ x: 50, y: 70, r: 50 }, { x: 160, y: 60, r: 56 }],
+        props: [{ t: "sign", x: 30, y: 56, hot: "clue0", label: "Junction sign" }, { t: "cables", x: 70, hot: "clue1", label: "Cable bundle" }, { t: "generator", x: 116, hot: "clue2", label: "Router cabinet" }, { t: "fan", x: 150, y: 26 }, { t: "cabinet", x: 176, hot: "lockA", label: "Switch cabinet" }, { t: "steeldoor", x: 220, hot: "lockB", label: "Tunnel door" }],
+        clues: [
+          { title: "Hops and Routers", flavor: "A road sign with six arrows, all pointing at the same tunnel. The tunnel looks dark and a little too eager.",
+            text: "Data on the Internet does not go straight from you to a website. It passes through a chain of ROUTERS. A router reads a packet's destination address and passes it to the next router that is closer. Each handoff from one router to the next is a HOP. A route with more hops is usually slower. The path a packet takes can be traced as a list of routers.",
+            ex: "Home > R1 > R4 > R7 > School = 4 hops\nEach router: look at the address, pass it on" },
+          { title: "Many Roads", flavor: "A thick bundle of cables, all knotted together. Something inside the bundle is breathing.",
+            text: "The Internet has many routes between two places. This is called REDUNDANCY, and it makes the network FAULT TOLERANT: if one router or cable fails, packets are rerouted another way, like taking a detour when a road is closed. This is why one broken cable almost never takes down the Internet.",
+            ex: "Path 1 blocked? Use Path 2.\nMany paths = redundancy = fault tolerance" },
+          { title: "Growing Without Breaking", flavor: "A router cabinet, warm to the touch. It hums a little song. You know the song. You wish you did not.",
+            text: "Each packet is routed ON ITS OWN, so packets from one message can take DIFFERENT paths and arrive in a different order. Routers do not need to know the whole Internet, only which way to send a packet next. That makes the Internet SCALABLE: it can keep working as millions more devices and networks join, without a complete redesign.",
+            ex: "Each packet picks its own route\nScalable = still works as it grows" }
+        ],
+        lockA: "The switch cabinet has a routing puzzle lock.", lockB: "The tunnel door has a lock." },
+      { name: "The Sorting Hall", lesson: "10.7", short: "Packets and Protocols", wall: "metal", floor: "grate", pal: MET, dark: 0.55, loot: "Postmark",
+        arrive: "Conveyor belts crawl across a giant hall, carrying thousands of small boxes. Every box is labeled, and the belts are all moving toward you.",
+        lights: [{ x: 70, y: 60, r: 56 }, { x: 170, y: 60, r: 56 }],
+        props: [{ t: "crate", x: 30, hot: "clue0", label: "Packet crate" }, { t: "crate", x: 62, o: { col: "#3a5a8a" }, hot: "clue1", label: "Blue crate" }, { t: "monitor", x: 106, hot: "clue2", label: "Protocol board" }, { t: "generator", x: 150 }, { t: "cabinet", x: 182, hot: "lockA", label: "Sorting cabinet" }, { t: "steeldoor", x: 220, hot: "lockB", label: "Hall door" }],
+        clues: [
+          { title: "What is a Packet?", flavor: "A little box labeled \"1 of 99\". There are 98 more of them around here, somewhere.",
+            text: "Big messages are cut into small PACKETS. Each packet has a HEADER (like the label on an envelope: source, destination and a SEQUENCE NUMBER) and a PAYLOAD (a piece of the actual data). Packets travel separately, possibly by different routes, and the receiver uses the sequence numbers to put them back in order. This is PACKET SWITCHING.",
+            ex: "[ header: from, to, #3 ][ payload: part of the data ]\nArrived out of order? Sort by sequence number." },
+          { title: "TCP, UDP and IP", flavor: "A blue crate. When you shake it, it shakes back.",
+            text: "PROTOCOLS are agreed rules. IP puts addresses on packets and gets them to the right place. TCP is RELIABLE: it checks that every packet arrived, and asks for any missing ones to be sent again, so it is used for web pages, email and downloads. UDP is FAST but does not check or resend, so it is used for live video, calls and games, where speed matters more than a few lost packets.",
+            ex: "TCP: every packet, in order, resend lost ones\nUDP: fast, no resend (live video, games)\nIP: addresses and routing" },
+          { title: "Open Standards", flavor: "A board of blinking diagrams. A voice says, very quietly, \"you are late\".",
+            text: "The Internet's protocols are OPEN STANDARDS: the rules are published for everyone, so any company can build a device that works with all the others. That is why a phone made in one country can load a website from a server made by another company. Standards are managed by groups like the IETF. Other protocols you know: HTTP for web pages, and DNS for names.",
+            ex: "Open standard = public rules anyone can use\nHTTP (web), DNS (names), TCP/IP (delivery)" }
+        ],
+        lockA: "The sorting cabinet has a packet puzzle on it.", lockB: "The hall door has a lock that wants a decision." },
+      { name: "The Server Farm", lesson: "10.8", short: "Sequential, Parallel and Distributed Computing", wall: "metal", floor: "grate", pal: MET, dark: 0.6, loot: "Power Cell",
+        arrive: "Rows and rows of server racks hum in the dark. Every light is blinking in time with something, and it does not sound like electricity.",
+        lights: [{ x: 70, y: 60, r: 56 }, { x: 170, y: 60, r: 56 }],
+        props: [{ t: "rack", x: 28, hot: "clue0", label: "Server rack" }, { t: "rack", x: 60, hot: "clue1", label: "Second rack" }, { t: "rack", x: 92, hot: "clue2", label: "Third rack" }, { t: "fan", x: 130, y: 26 }, { t: "generator", x: 160, hot: "lockA", label: "Power unit" }, { t: "steeldoor", x: 216, hot: "lockB", label: "Server room door" }],
+        clues: [
+          { title: "Sequential", flavor: "A rack of servers. A tiny hand-lettered tag says \"do not unplug\". Someone underlined it three times.",
+            text: "SEQUENTIAL computing does one step at a time, in order: each step waits for the one before. If three tasks take 20, 30 and 10 seconds, doing them one after another takes 20 + 30 + 10 = 60 seconds. It is simple, but slow for big problems.",
+            ex: "Tasks: 20 s, 30 s, 10 s\nSequential total = 20 + 30 + 10 = 60 s" },
+          { title: "Parallel and Speedup", flavor: "A second rack, humming along with the first. The hum has a pattern. Do not listen to the pattern.",
+            text: "PARALLEL computing splits a problem into pieces that run AT THE SAME TIME on several processors. If the three tasks above do not depend on each other, three processors can run them together, and the job is done when the LONGEST task finishes: 30 seconds. SPEEDUP is how many times faster that is: sequential time divided by parallel time, so 60 divided by 30 is a speedup of 2. Tasks that must happen in order cannot be run in parallel, which limits the speedup.",
+            ex: "Parallel time = longest task = 30 s\nSpeedup = 60 / 30 = 2\nSteps that must go in order cannot be sped up" },
+          { title: "Distributed", flavor: "A third rack. Its fan stops when you look at it. It starts again when you look away.",
+            text: "DISTRIBUTED computing spreads a job across MANY separate computers connected by a network, even computers in different cities or homes. Some science projects borrow spare time from thousands of volunteers' computers to analyze huge data sets. It can solve problems too big for one computer, and one computer failing does not stop the whole job.",
+            ex: "Parallel: many processors in one machine\nDistributed: many computers on a network" }
+        ],
+        lockA: "The power unit has a timing puzzle.", lockB: "The server room door has a lock." },
+      { name: "The Firewall Vault", lesson: "10.9", short: "Cybersecurity", wall: "metal", floor: "grate", pal: BRK, dark: 0.6, loot: "Security Badge",
+        arrive: "A wall of fire blocks the way, and behind it, a vault. Warning lights spin. Something is trying to get in. Something is also trying to get out.",
+        lights: [{ x: 110, y: 60, r: 70 }],
+        props: [{ t: "monitor", x: 32, o: { bad: true }, hot: "clue0", label: "Alert screen" }, { t: "cabinet", x: 74, hot: "clue1", label: "Security cabinet" }, { t: "vending", x: 112, hot: "clue2", label: "Key station" }, { t: "gate", x: 154 }, { t: "generator", x: 188, hot: "lockA", label: "Firewall generator" }, { t: "steeldoor", x: 222, hot: "lockB", label: "Vault door" }],
+        clues: [
+          { title: "Threats", flavor: "An alert screen full of red. The numbers beside it are increasing, and not from any attack you can name.",
+            text: "PHISHING tricks you into giving up passwords by pretending to be someone you trust (like a fake email saying your account is locked). MALWARE is software that harms a computer or steals data: viruses, ransomware and spyware. A DDoS attack uses many devices to flood a server with so much traffic that real users cannot get in, a traffic jam on purpose. SOCIAL ENGINEERING means tricking people, not machines.",
+            ex: "Phishing = fake message to steal info\nMalware = harmful software\nDDoS = flood a server with traffic" },
+          { title: "Defenses", flavor: "A security cabinet. Every lock has been picked, from the inside.",
+            text: "A strong password is long and random, and not used twice. MULTI-FACTOR AUTHENTICATION (MFA) proves who you are with TWO kinds of proof, like a password plus a code on your phone, so a stolen password alone is not enough. A FIREWALL blocks unwanted network traffic. Software updates fix security holes. Be careful with PII (personal information) such as your full name, address and birthday.",
+            ex: "Password + phone code = MFA\nFirewall = blocks bad traffic\nUpdates = fix holes" },
+          { title: "Encryption and Certificates", flavor: "A key station. Every key hook is empty. They were not empty when you arrived.",
+            text: "ENCRYPTION scrambles data so only the right key can read it. SYMMETRIC encryption uses ONE shared key to lock and unlock. PUBLIC KEY (asymmetric) encryption uses a PAIR: anyone can lock a message with your public key, but only your private key unlocks it, so strangers can share secrets safely. A CERTIFICATE issued by a trusted authority proves a website is really who it says. On public Wi-Fi, use HTTPS so snoopers only see scrambled data.",
+            ex: "Symmetric: 1 shared key\nPublic key: lock with the PUBLIC key, unlock with the PRIVATE key" }
+        ],
+        lockA: "The generator is protected by a security lock.", lockB: "The vault door has a final security lock." },
+      { name: "The Digital Divide Bridge", lesson: "10.10", short: "Impact of the Internet", wall: "street", floor: "flag", pal: NIGHT, dark: 0.5, loot: "Bridge Pass", sky: true,
+        arrive: "A long bridge over a dark river. On one side, the city's lights glow. On the other, the lights are out, and no screens shine at all.",
+        lights: [{ x: 70, y: 50, r: 54 }, { x: 180, y: 40, r: 50 }],
+        props: [{ t: "lamp", x: 24 }, { t: "sign", x: 64, y: 56, hot: "clue0", label: "Bridge sign" }, { t: "billboard", x: 112, y: 40, hot: "clue1", label: "Billboard" }, { t: "tv", x: 150, hot: "clue2", label: "Broken TV" }, { t: "mailbox", x: 180, hot: "lockA", label: "Locked box" }, { t: "steeldoor", x: 220, hot: "lockB", label: "Bridge gate" }],
+        clues: [
+          { title: "The Digital Divide", flavor: "A bridge sign. The bridge ahead has no lights. You wonder who lives on the dark side.",
+            text: "The DIGITAL DIVIDE is the gap between people who have good access to computers and the Internet and people who do not. Cost, location (like rural areas) and age can all play a part. It matters because school, jobs, banking and even healthcare increasingly happen online, so people on the wrong side of the divide can fall behind.",
+            ex: "Digital divide = unequal access to technology\nEffects: school, jobs, health, services" },
+          { title: "Crowds Doing Science", flavor: "A billboard that says \"JOIN US\" in big letters. It is not advertising anything you can identify.",
+            text: "CROWDSOURCING gets ideas, work or data from a large group of people online, like a map that thousands of people keep up to date. CITIZEN SCIENCE is crowdsourcing for research: volunteers count birds, sort images of galaxies or collect weather data. The Internet makes it possible for ordinary people to collaborate on big projects around the world.",
+            ex: "Crowdsourcing: many people contribute\nCitizen science: volunteers help real research" },
+          { title: "Good, Bad and Unexpected", flavor: "A TV showing a news program. The anchor's mouth does not move when she speaks. You turn it off. It stays on.",
+            text: "Computing innovations have BOTH helpful and harmful effects, and some are unexpected. A program trained on UNFAIR past data can learn the same unfairness: that is ALGORITHMIC BIAS. Everything you post leaves a DIGITAL FOOTPRINT that can last a long time, so share personal information carefully. Apps that collect data, like your location, can offer useful services but also raise privacy concerns.",
+            ex: "Algorithmic bias = a program repeats unfair patterns in its data\nDigital footprint = the trail you leave online" }
+        ],
+        lockA: "The box has a lock about people and technology.", lockB: "The bridge gate has a lock to open." },
+      { name: "The Copyright Courthouse", lesson: "10.11", short: "Creative Credit and Copyright", wall: "stone", floor: "flag", pal: PURP, dark: 0.55, loot: "Court Seal",
+        arrive: "A grand courthouse. The judge's chair is empty, but the gavel is still moving. It is slowly counting something.",
+        lights: [{ x: 120, y: 50, r: 76 }],
+        props: [{ t: "column", x: 20, y: FL + 4 }, { t: "scales", x: 56, hot: "clue0", label: "Scales of justice" }, { t: "desk", x: 100, hot: "clue1", label: "Judge's bench" }, { t: "scroll", x: 140, hot: "clue2", label: "Law scroll" }, { t: "chest", x: 168, hot: "lockA", label: "Evidence chest" }, { t: "column", x: 196, y: FL + 4 }, { t: "steeldoor", x: 224, hot: "lockB", label: "Courthouse door" }],
+        clues: [
+          { title: "Whose Work Is It?", flavor: "A pair of scales. They are not balanced. One side is full of something you would rather not look at.",
+            text: "When someone creates a song, photo, program or drawing, it is automatically protected by COPYRIGHT. Using someone else's work without permission can be copyright infringement. If you present someone else's work as your own, that is PLAGIARISM. Always give CREDIT to the creator, and check the license before you use an image, song or code that you did not make.",
+            ex: "Copyright = creators automatically own their work\nPlagiarism = passing off someone else's work as yours\nAlways credit the source" },
+          { title: "Licenses You Can Use", flavor: "The judge's bench. The nameplate has been scratched out. A new one is being engraved while you watch.",
+            text: "A CREATIVE COMMONS license lets creators say how others may use and share their work: for example, you may share it if you give credit. Work in the PUBLIC DOMAIN is no longer protected, so anyone can use it freely. OPEN SOURCE software shares its code so anyone can read, use and improve it. When you need an image for a school project, pick one that is public domain or Creative Commons and follow what the license asks for.",
+            ex: "Creative Commons = creator sets the rules\nPublic domain = free for anyone\nOpen source = shared code anyone can improve" },
+          { title: "Fair Use", flavor: "A scroll of laws. The scroll keeps unrolling. It does not stop.",
+            text: "FAIR USE allows limited use of copyrighted work without permission for things like criticism, news, teaching and commentary. Whether something is fair use depends on the purpose, how much is used and whether it hurts the owner's sales. It is not a free pass to copy a whole movie or song. When in doubt, ask permission or use something that is free to use.",
+            ex: "Fair use: limited, for purposes like teaching or news\nNot fair use: copying a whole movie for friends" }
+        ],
+        lockA: "The evidence chest has a lock about credit.", lockB: "The courthouse door has a lock to open." }
+    ],
+    boss: { name: "The Core", lesson: "10.12", short: "Everything in Unit 10", wall: "metal", floor: "grate", pal: ["#2a2e3a", "#222632", "#1e222c", "#2a2e3a", "#ff4a4a"], dark: 0.55,
+      arrive: "The Core. Every cable in Fogbridge ends here, in one huge dark machine with a single red eye. The Static is sitting inside it.",
+      lights: [{ x: 120, y: 50, r: 80 }],
+      props: [{ t: "rack", x: 20 }, { t: "rack", x: 52 }, { t: "rack", x: 188 }, { t: "rack", x: 220 }, { t: "cables", x: 120, y: FL + 22 }, { t: "core", x: 120, hot: "boss", label: "The Core" }] }
+  };
+})();

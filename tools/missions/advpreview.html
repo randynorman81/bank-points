@@ -1,0 +1,26 @@
+<!doctype html><meta charset="utf-8"><title>adv art preview</title>
+<body style="margin:0;background:#000"><canvas id="v" width="960" height="540" style="width:960px;image-rendering:pixelated"></canvas>
+<script src="../../python/games/adv-art.js"></script>
+<script>
+var A=window.AdvArt, q=new URLSearchParams(location.search), set=q.get("set")||"castle";
+var lc=document.createElement("canvas");lc.width=240;lc.height=135;var l=lc.getContext("2d");
+var lt=document.createElement("canvas");lt.width=240;lt.height=135;var L=lt.getContext("2d");
+var bg=document.createElement("canvas");bg.width=240;bg.height=135;var b=bg.getContext("2d");
+var V=document.getElementById("v").getContext("2d");
+var sets={
+ castle:{room:{name:"hall",wall:"stone",floor:"flag",pal:["#4a4560","#3a3550","#3b3550","#2e2a40","#c9a227"]},props:[["torch",20],["window",60],["armor",40],["painting",100],["shelf",150],["door",205],["table",120],["chest",180],["banner",84],["candelabra",30],["cobweb",8,14]]},
+ castle2:{room:{name:"lib",wall:"wood",floor:"plank",pal:["#5a3d28","#3a2a1c","#4a3220","#3a2818","#c9a227"]},props:[["stained",50],["mirror",100],["cauldron",150],["statue",190],["skeleton",30],["fireplace",120],["clock",215],["coffin",80],["skulls",170],["throne",70],["cage",140]]},
+ net:{room:{name:"street",wall:"street",floor:"flag",pal:["#1a2238","#3a4663","#2a2e3a","#22262f","#6ee7ff"]},props:[["pole",30],["lamp",70],["mailbox",100],["sign",130],["dish",170],["billboard",200,40],["modem",120],["router",150]]},
+ net2:{room:{name:"rack",wall:"metal",floor:"grate",pal:["#3a4252","#2e3442","#23262f","#2e3240","#6ee7ff"]},props:[["rack",30],["rack",62],["monitor",100],["cabinet",130],["generator",165],["fan",120,30],["steeldoor",205],["vending",85],["core",150],["cables",110],["tv",50]]}
+};
+var S=sets[set]; A.paintRoom(b,S.room);
+var t=0,fr=0;function loop(){t+=0.016;fr++;l.clearRect(0,0,240,135);l.drawImage(bg,0,0);
+ S.props.forEach(function(p){A.drawProp(l,{t:p[0],x:p[1],y:p[2]},t,{open:false,unlocked:true,glow:true,bad:true})});
+ A.hero(l,60,122,Math.floor(t*6)%3,1,{beam:true,pal:set.indexOf("net")===0?A.SKIN.tech:null});
+ A.girl(l,90,122,0,1,{t:t});A.ghost(l,130,118,t,-1);A.skel(l,160,122,Math.floor(t*4)%3,-1);A.baron(l,205,122,t);A.bat(l,100,30,t);
+ A.staticMon(l,30,122,t,1);A.crawler(l,60,128,t,1);
+ A.dust(l,t,30);if(set.indexOf("net")===0)A.fog(l,t,1);
+ A.lighting(L,[{x:60,y:100,r:60},{x:20,y:50,r:40,a:.8},{x:150,y:60,r:50,a:.6}],0.62);l.drawImage(lt,0,0);A.vignette(l);
+ V.imageSmoothingEnabled=false;V.drawImage(lc,0,0,960,540);requestAnimationFrame(loop)}
+loop();
+</script>

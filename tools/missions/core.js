@@ -46,9 +46,9 @@ function addGame(slot, d, o) {
   blocks.push({ play: true });
   blocks.push({ h: "How to play" }); d.how.forEach((p) => blocks.push({ p }));
   blocks.push({ h: "Scoring" });
-  ["This mission is worth **100 points** and there is **no coding**. You play a 10-round game, and each right answer is worth 10 points.",
+  (d.scoring || ["This mission is worth **100 points** and there is **no coding**. You play a 10-round game, and each right answer is worth 10 points.",
     "**9 right = 90** turns it in and opens the next walkthrough. **10 right = 100** is full points. Three mistakes end the game early, and your score is the rounds you got right.",
-    "You can play as many times as you like. **Your best run counts.** The questions change every time, so reading the explanation after each round really helps."].forEach((p) => blocks.push({ p }));
+    "You can play as many times as you like. **Your best run counts.** The questions change every time, so reading the explanation after each round really helps."]).forEach((p) => blocks.push({ p }));
   blocks.push({ h: "What you are practicing" }); d.practice.forEach((p) => blocks.push({ p }));
   const rec = { title: d.title, unit: o.unit, num: o.num, points: o.points, part: "mission", seq: o.seq, passMin: o.passMin, game: d.game, blocks, checks: [], tips: d.tips || {}, live: false };
   RECORDS.push({ slot, rec, w: { stages: [] }, refs: [], final: "", kind: "game" }); return rec;

@@ -76,5 +76,26 @@ ok(!mem.has("sub:a102:" + encodeURIComponent("preview")), "no submission record 
 console.log("\n9. the hidden mission stays hidden from students until opened");
 await call({ action: "adminSetLive", slot: "a102", live: false }, "admin"); const hid = await call({ action: "gameStart", slot: "a102" }, ADA); ok(hid.error && /not open/i.test(hid.error), "live: false closes the game for students");
 
+console.log("\n10. adventures: Learn and Challenge mode, longer games, hints removed in Challenge mode, the best of each mode is kept");
+const adv = core.RECORDS.find((r) => r.slot === "a122"), { roundsOf, strikesOf } = await import("../../netlify/functions/gamebank.js");
+{ const rec = adv.rec; await call({ action: "adminSetAssignment", slot: "a122", title: rec.title, unit: rec.unit, num: rec.num, points: rec.points, blocks: rec.blocks, checks: [], tips: rec.tips, game: rec.game, live: true }, "admin"); }
+const sl = await call({ action: "gameStart", slot: "a122", mode: "learn" }, ADA); ok(sl.ok && sl.mode === "learn" && sl.rounds === 24 && sl.strikes === 10, "Learn mode: 24 rounds and 10 lives");
+const sc = await call({ action: "gameStart", slot: "a122", mode: "challenge" }, ADA); ok(sc.ok && sc.mode === "challenge" && sc.rounds === 24 && sc.strikes === 6, "Challenge mode: 24 rounds and 6 lives");
+const sd = await call({ action: "gameStart", slot: "a122" }, ADA); ok(sd.ok && sd.mode === "challenge", "no mode given means Challenge mode");
+ok(!("sol" in sc.question) && sc.question.room === 0 && sc.question.step === 0, "the first question is for room 1 and has no solution in it");
+let hint = 0; for (let i = 0; i < 24; i++) { const x = makeQuestion("castle", 7000 + i, 4); const r = await call({ action: "gameStart", slot: "a122", mode: "challenge" }, ADA); if (/Hint:/.test(r.question.prompt) || /^Alphabet:/.test(r.question.code || "")) hint++; }
+ok(hint === 0, "Challenge mode questions carry no Hint: lines");
+const advRight = (x) => { const a = x.a; return "idx" in a ? { idx: a.idx } : "value" in a ? { value: a.value } : a.values ? { values: a.values } : a.rows ? { rows: a.rows } : a.rgb ? { rgb: a.rgb } : a.gone ? { missing: a.gone } : { order: Array.from({ length: a.total }, (_, k) => k + 1) }; };
+async function playAdv(mode, wrongFrom) {
+  const s = await call({ action: "gameStart", slot: "a122", mode }, ADA); const run = JSON.parse(mem.get("grun:" + s.runId)); let last = null;
+  for (let i = 0; i < 24; i++) { const x = makeQuestion(run.game, run.seed, i); last = await call({ action: "gameAnswer", runId: s.runId, n: i, answer: wrongFrom !== undefined && i >= wrongFrom && i < wrongFrom + 3 ? { timeout: true } : advRight(x) }, ADA); if (last.error) { say("adventure: " + last.error); return null; } if (last.done) break; }
+  return last;
+}
+const al = await playAdv("learn"); ok(al && al.final && al.final.pct === 100, "a perfect Learn run scores 100");
+const ac = await playAdv("challenge", 2); ok(ac && ac.final && ac.final.pct === Math.round(21 / 24 * 100) && !ac.over, "three wrong answers in Challenge mode do not end a 24 round game (6 lives): " + (ac && ac.final && ac.final.pct));
+const st2 = await call({ action: "gameState", slot: "a122" }, ADA); ok(st2.bestLearn === 100 && st2.bestChallenge === 88 && st2.best === 100, "the best of each mode is kept: learn " + st2.bestLearn + ", challenge " + st2.bestChallenge);
+const over = await (async () => { const s = await call({ action: "gameStart", slot: "a122", mode: "challenge" }, ADA); const run = JSON.parse(mem.get("grun:" + s.runId)); let last; for (let i = 0; i < 24; i++) { last = await call({ action: "gameAnswer", runId: s.runId, n: i, answer: { timeout: true } }, ADA); if (last.done) break; } return last; })();
+ok(over.over && over.n === 6, "six wrong answers end a Challenge run at round 6");
+
 console.log(bad ? `\n${bad} PROBLEMS` : "\nall game rules hold");
 process.exit(bad ? 1 : 0);

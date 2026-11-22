@@ -1,7 +1,7 @@
 /* GAME LOGIC TEST (offline). For many random seeds of every game: every round is well formed, the public question never contains the answer,
    every round is solvable, a perfect player scores 100, wrong answers are marked wrong, and the same seed always gives the same game.
    usage: node tools/missions/gametest.mjs */
-import { GAMES, ROUNDS, STRIKES, NODES, EDGES, makeQuestion, checkAnswer } from "../../netlify/functions/gamebank.js";
+import { GAMES, ROUNDS, STRIKES, NODES, EDGES, makeQuestion, checkAnswer, roundsOf } from "../../netlify/functions/gamebank.js";
 let bad = 0; const seen = {}; const say = (m) => { bad++; const k = m.replace(/seed \d+ /, "").replace(/\d+/g, "N"); seen[k] = (seen[k] || 0) + 1; if (seen[k] <= 2) console.log("  PROBLEM: " + m); };
 const linked = (a, b) => EDGES.some((e) => (e[0] === a && e[1] === b) || (e[0] === b && e[1] === a));
 const nbrs = (n) => EDGES.flatMap((e) => (e[0] === n ? [e[1]] : e[1] === n ? [e[0]] : []));
@@ -39,10 +39,10 @@ for (const game of Object.keys(GAMES)) {
   let rounds = 0, prompts = new Set(), types = new Set();
   for (let s = 1; s <= 400; s++) {
     const seed = (s * 2654435761) >>> 0; const inRun = new Set();
-    for (let i = 0; i < ROUNDS; i++) {
+    for (let i = 0; i < roundsOf(game); i++) {
       const x = makeQuestion(game, seed, i), y = makeQuestion(game, seed, i), q = x.q;
       rounds++; types.add(q.type); prompts.add(q.prompt);
-      if (/^vault/.test(game)) { const key = q.prompt + "|" + (q.code || ""); if (inRun.has(key)) say(`${game} seed ${seed} r${i}: the same question appears twice in one game (${q.prompt.slice(0, 50)})`); inRun.add(key); }
+      if (/^(vault|castle|signal)/.test(game)) { const key = q.prompt + "|" + (q.code || ""); if (inRun.has(key)) say(`${game} seed ${seed} r${i}: the same question appears twice in one game (${q.prompt.slice(0, 50)})`); inRun.add(key); }
       if (JSON.stringify(x) !== JSON.stringify(y)) say(`${game} seed ${seed} round ${i}: not repeatable`);
       if (!q.prompt || typeof q.t !== "number") say(`${game} round ${i}: missing prompt or time`);
       if (dash.test(JSON.stringify(q)) || dash.test(x.why || "")) say(`${game} round ${i}: dash character in text`);

@@ -69,3 +69,22 @@ VAULT_LESSONS.forEach((L, i) => {
     practice: L[2]
   }, { unit: U8, num: n, points: 100, seq: n + 0.7, passMin: 0 });
 });
+
+/* THE TWO SURVIVAL-HORROR ADVENTURES (python/games/adv-*.js). Each is a complete game for a whole unit, played in LEARN mode (it teaches as you play) or CHALLENGE mode (no help).
+   Hidden, and not gating (passMin 0). The score is the share of locks answered correctly. */
+const ADV_SCORING = ["This game is worth **100 points** and there is **no coding**. Your score is the share of locks you answer correctly, so a perfect run is 100.",
+  "You choose **Learn mode** (glowing objects teach the lessons, you get a journal of notes and extra lives) or **Challenge mode** (no notes, no hints, fewer lives). Both modes count, and your best run is kept.",
+  "You can play as many times as you like. The questions change every time, and the review screen at the end shows what you missed and why."];
+M.addGame("a122", {
+  title: "Castle Byte: The Binary Baron (Unit 8 adventure)", game: "castle", scoring: ADV_SCORING,
+  story: ["**Your little sister Mina has been taken to Castle Byte by the Binary Baron.** He has turned the whole castle into a computer, and every door is a lock about **digital information**.", "Explore ten haunted rooms, one for each lesson of Unit 8, crack the locks, survive the monsters and beat the Baron in the throne room. It is a point-and-click survival horror game with its own pixel art world."],
+  how: ["**Click** the floor to walk and click objects to examine them. Each room has two locks: solve the first to get a key, then the second to open the door.", "**Learn mode:** glowing objects are lessons. Read them and your journal keeps every page. **Challenge mode:** no notes and no hints.", "A wrong answer lets a monster hurt you. Lose all your lives and the castle keeps you."],
+  practice: ["Bits, bytes, analog versus digital, overflow and round-off", "Binary, decimal, place values and binary math", "ASCII, Unicode and encoding text", "Pixels, bitmaps and image sizes", "Hexadecimal and RGB colors", "Image filters", "Lossless and lossy compression, run-length encoding", "Caesar ciphers, keys and public-key encryption"]
+}, { unit: U8, num: 13, points: 100, seq: 10.8, passMin: 0 });
+
+M.addGame("a123", {
+  title: "Dead Signal: Restore the Net (Unit 10 adventure)", game: "signal", scoring: ADV_SCORING,
+  story: ["**The Internet has gone dead in the town of Fogbridge, and something called the Static is eating every packet.** You are the last field technician in town, and you have to follow the connection from the highway all the way to the Core.", "Explore eleven buildings, one for each lesson of Unit 10, crack the locks, survive the Static and restore the net. It is a point-and-click survival horror game with its own pixel art world."],
+  how: ["**Click** the floor to walk and click objects to examine them. Each room has two locks: solve the first to get a part, then the second to open the door.", "**Learn mode:** glowing objects are lessons, including the Internet as a highway, modems and routers, and your router as a neighborhood with private addresses and NAT. **Challenge mode:** no notes and no hints.", "A wrong answer lets the Static hurt you. Lose all your lives and the connection is lost."],
+  practice: ["The Internet as a network of networks, bandwidth and latency", "Modems, routers, ISPs and how the Internet reaches your house", "IPv4 versus IPv6, public versus private addresses, NAT and DHCP", "URLs, HTTP and HTTPS, clients and servers", "DNS", "Routing, hops and redundancy", "Packets, TCP, UDP and protocols", "Parallel and distributed computing", "Cybersecurity, encryption, the digital divide, copyright and licenses"]
+}, { unit: U10, num: 13, points: 100, seq: 20, passMin: 0 });
