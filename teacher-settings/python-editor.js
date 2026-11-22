@@ -63,8 +63,8 @@ export const PY_SETTINGS = {
   /* WALKTHROUGH + MISSION pilot (a101 and up). Each pair: a Walkthrough worth 50 points that must reach 100 on the auto-checker to open its Mission (100 points).
      A Mission at 90 opens the next Walkthrough. All hidden from students (live: false) until you change a line to live: true.
      To open the whole Unit 10 pilot, change live: false to live: true on a101 to a108. fresh: true starts a new chain at the first item of a unit. */
-  a124: { live: false, fresh: true, passMin: 100, num: 1 },   // Unit 10 Walkthrough 1: The Internet Is a Highway (10.1 and 10.2): lanes, vehicles, modem vs router
-  a125: { live: false, fresh: true, passMin: 100, num: 2 },   // Unit 10 Walkthrough 2: Your Router Is a Neighborhood: private IPs, NAT, DHCP, IPv6
+  a124: { live: true, fresh: true, passMin: 100, num: 1 },   // Unit 10 Walkthrough 1: The Internet Is a Highway (10.1 and 10.2): lanes, vehicles, modem vs router
+  a125: { live: true, fresh: true, passMin: 100, num: 2 },   // Unit 10 Walkthrough 2: Your Router Is a Neighborhood: private IPs, NAT, DHCP, IPv6
   a101: { live: false, fresh: true, passMin: 100, num: 3 },   // Unit 10 Walkthrough 1: Internet Addresses (10.3)
   a102: { live: false, passMin: 90 },                 // Mission 10.3: The Network Club Bouncer
   a103: { live: false, passMin: 100, num: 4 },                // Unit 10 Walkthrough 2: DNS (10.5)
@@ -87,8 +87,8 @@ export const PY_SETTINGS = {
   a119: { live: false, passMin: 0 },                  // Vault 8.8: Data Compression
   a120: { live: false, passMin: 0 },                  // Vault 8.9: Lossy Compression
   a121: { live: false, passMin: 0 },                  // Vault 8.10: Cryptography
-  a122: { live: false, fresh: true, passMin: 0 },                  // Castle Byte: the Unit 8 survival horror adventure (learn or challenge mode)
-  a123: { live: false, fresh: true, passMin: 0 },                  // Dead Signal: the Unit 10 survival horror adventure (learn or challenge mode)
+  a122: { live: true, fresh: true, passMin: 0 },                  // Castle Byte: the Unit 8 survival horror adventure (learn or challenge mode)
+  a123: { live: true, fresh: true, passMin: 0 },                  // Dead Signal: the Unit 10 survival horror adventure (learn or challenge mode)
 };
 /* WORDING CHANGES to a walkthrough, kept in the code (no PIN). Each one gets a copy of the walkthrough and changes it. */
 const STEP5_ODD = "Now test an odd number **without changing your code above**. Below your last line, type `number = 7`, then type the same four `print` lines again under it (you can copy and paste your own lines). Add an **end-of-line comment** at the end of your last print line with what the four answers were for 7. If that line already has a comment, add to it. [[How do I test 7?|oddtest]]";
