@@ -73,6 +73,8 @@
       how: ["<b>Click the routers</b> one after another to draw a path. Click the last router again to undo.", "Never click a router with lightning on it: it is <b>down</b>.", "Then press <b>SEND PACKET</b>. <b>3 lost packets</b> and the network goes dark."] },
     packets: { title: "PACKET POST OFFICE RUSH", story: "Mail is arriving out of order on the conveyor belt, and some packets are getting lost. Sort it, resend what is missing, and keep the post office running!",
       how: ["Click the packets in the order they belong. The <b>sequence number</b> in each header tells you.", "Some rounds ask what is <b>missing</b> or which <b>protocol</b> to use.", "<b>3 mistakes</b> and the mail piles up."] },
+    vault: { title: "VAULT BREAKER", story: "You are a master thief with one night to crack the most secure vault in the city. Its ten locks are all about <b>digital information</b>: binary, text, pixels, colors, compression and secret codes. Crack every lock before the alarm brings the police!",
+      how: ["Each lock is a different puzzle: <b>flip bit switches</b>, <b>paint pixels</b>, <b>mix colors</b> or pick the right answer.", "Read the <b>hints</b> on screen. Some puzzles need a little math with place values.", "<b>3 mistakes</b> (or the clock hitting zero) set off the alarm and you are caught."] },
     cast: { title: "CARTOON CAST DIRECTOR", story: "You are directing a cartoon, and the cast is stored in a Python <b>list</b>. Answer questions about the list to keep the show going. Every right answer adds a frame to your film!",
       how: ["Remember: the first item has <b>index 0</b>.", "Some rounds you edit the list with <b>operations</b> like append and remove.", "<b>3 mistakes</b> and the show is cancelled."] }
   };
@@ -159,6 +161,7 @@
   /* ---------------------------------------------------------------- a question ---- */
   function showQuestion(q) {
     S.q = q; S.busy = false; S.canNext = false; $("why").className = ""; $("why").innerHTML = "";
+    var tp = $("topic"); if (q.topic) { tp.style.display = "inline-block"; tp.textContent = q.topic; } else tp.style.display = "none";
     $("prompt").textContent = q.prompt;
     var code = $("code"); if (q.code) { code.style.display = "block"; code.textContent = q.code; } else code.style.display = "none";
     var book = $("book"); if (q.book) { book.style.display = "block"; book.innerHTML = "<b>PHONE BOOK</b><br>" + q.book.map(esc).join("<br>"); } else book.style.display = "none";
@@ -171,6 +174,8 @@
     if (a.idx !== undefined) return "Answer: item " + a.idx + ". " + q.sol.why;
     if (a.value !== undefined) return "Answer: " + a.value + ". " + q.sol.why;
     if (a.values) return "Answer: " + a.values.join(".") + ". " + q.sol.why;
+    if (a.rows) return "Black pixels, row by row: " + a.rows.join(" / ") + ". " + q.sol.why;
+    if (a.rgb) return "Answer: R " + a.rgb[0] + ", G " + a.rgb[1] + ", B " + a.rgb[2] + ". " + q.sol.why;
     if (q.type === "route") return (a.none ? "Answer: NO ROUTE. " : "Fewest hops possible: " + a.hops + ". ") + q.sol.why;
     if (q.type === "assemble") return "Answer: 1 to " + a.total + " in order. The message is " + a.msg + ".";
     if (q.type === "missing") return "Missing: " + a.gone.join(", ") + ". " + q.sol.why;
@@ -236,6 +241,8 @@
     if (q.type === "missing") return missingWidget(c, q);
     if (q.type === "pickindex") return pickWidget(c, q);
     if (q.type === "ops") return opsWidget(c, q);
+    if (q.type === "grid") return gridWidget(c, q);
+    if (q.type === "rgb") return rgbWidget(c, q);
   }
   function choiceWidget(c, q) {
     var lanes = S.game === "dns", box = el("div", lanes ? "lanes" : "choices" + (q.choices.some(function (x) { return String(x).length > 34; }) ? " one" : ""));
@@ -324,6 +331,33 @@
     q.palette.forEach(function (op) { var b = el("button", "btn", esc(opText(op))); b.onclick = function () { if (seq.length >= q.max) { window.Snd.bad(); return; } seq.push(op); window.Snd.tick(); draw(); }; pal.appendChild(b); });
     undo.onclick = function () { seq.pop(); draw(); }; run.onclick = function () { submit({ ops: seq.slice() }); };
     c.appendChild(tgt); c.appendChild(cur); c.appendChild(pal); c.appendChild(box); row.appendChild(undo); row.appendChild(run); c.appendChild(row); draw();
+  }
+
+  /* paint the black pixels of a small picture */
+  function gridWidget(c, q) {
+    var cells = [], state = [], box = el("div", "pgrid"), row = el("div", "ctl"), clear = el("button", "btn", "Clear"), go = el("button", "btn go", "SCAN THE PICTURE");
+    box.style.gridTemplateColumns = "repeat(" + q.w + ", 1fr)";
+    for (var i = 0; i < q.w * q.h; i++) (function (i) {
+      state[i] = 0; var b = el("button", "pcell"); b.setAttribute("aria-label", "pixel " + (i + 1) + " white");
+      b.onclick = function () { state[i] = state[i] ? 0 : 1; b.classList.toggle("on", !!state[i]); b.setAttribute("aria-label", "pixel " + (i + 1) + (state[i] ? " black" : " white")); window.Snd.tick(); };
+      cells.push(b); box.appendChild(b);
+    })(i);
+    clear.onclick = function () { state.forEach(function (_, i) { state[i] = 0; cells[i].classList.remove("on"); }); };
+    go.onclick = function () { var rows = []; for (var y = 0; y < q.h; y++) rows.push(state.slice(y * q.w, y * q.w + q.w).join("")); submit({ rows: rows }); };
+    c.appendChild(el("div", "lbl", "CLICK A SQUARE TO MAKE IT BLACK. " + q.w + " ACROSS, " + q.h + " DOWN.")); c.appendChild(box); row.appendChild(clear); row.appendChild(go); c.appendChild(row);
+  }
+  /* mix red, green and blue light */
+  function rgbWidget(c, q) {
+    var val = [q.levels[0], q.levels[0], q.levels[0]], names = ["RED", "GREEN", "BLUE"], cols = ["#ef4444", "#22c55e", "#3b82f6"], swatch = el("div", "swatch"), readout = el("div", "lbl", ""), rows = el("div", "rgbrows"), btns = [];
+    function paint() { swatch.style.background = "rgb(" + val.join(",") + ")"; readout.textContent = "R " + val[0] + "   G " + val[1] + "   B " + val[2]; btns.forEach(function (row, ch) { row.forEach(function (b, k) { b.classList.toggle("sel", q.levels[k] === val[ch]); }); }); }
+    names.forEach(function (nm, ch) {
+      var r = el("div", "rgbrow"), lab = el("div", "rgblab", nm); lab.style.color = cols[ch]; r.appendChild(lab); btns[ch] = [];
+      q.levels.forEach(function (lv, k) { var b = el("button", "btn lvl", String(lv)); b.onclick = function () { val[ch] = lv; window.Snd.tick(); paint(); }; btns[ch].push(b); r.appendChild(b); });
+      rows.appendChild(r);
+    });
+    var go = el("button", "btn go", "TRY THE LOCK"), ctl = el("div", "ctl"); go.onclick = function () { submit({ rgb: val.slice() }); };
+    var wrap = el("div", "rgbwrap"); wrap.appendChild(rows); var side = el("div", "rgbside"); side.appendChild(swatch); side.appendChild(readout); wrap.appendChild(side);
+    c.appendChild(wrap); ctl.appendChild(go); c.appendChild(ctl); paint();
   }
 
   /* ---------------------------------------------------------------- keyboard ---- */

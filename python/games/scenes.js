@@ -293,7 +293,73 @@
     }
   };
 
-  window.Scenes = { bomb: Bomb, dns: Cliff, storm: Storm, packets: Post, cast: Cast, W: W, H: H,
+  /* ============================================================ 6. VAULT BREAKER: digital information ===== */
+  var Vault = {
+    res: [], parts: [], flash: 0, flashC: "255,40,40", spin: 0, spinV: 0, open: 0, ended: "", topic: "", alarm: 0, shake: 0, siren: 0,
+    init: function () { this.res = []; this.parts = []; this.flash = 0; this.spin = 0; this.spinV = 0; this.open = 0; this.ended = ""; this.alarm = 0; this.shake = 0; this.siren = 0; },
+    begin: function (q) { this.topic = q.topic || ""; },
+    verdict: function (ok) {
+      this.res.push(ok);
+      if (ok) { this.spinV = 10; this.flash = 0.6; this.flashC = "60,255,120"; spawn(this.parts, 400, 200, 24, { colors: ["#4ade80", "#fde047", "#fff"], speed: 230, life: 0.9, g: 200 }); sound("good"); }
+      else { this.flash = 1; this.flashC = "255,40,40"; this.shake = 0.5; this.alarm = 1.4; sound("bad"); }
+    },
+    over: function () { this.ended = "over"; sound("boom"); },
+    win: function () { this.ended = "win"; if (window.FX) window.FX.confetti(140); sound("win"); },
+    frame: function (t, dt) {
+      var sh = this.shake > 0 ? (rnd() - 0.5) * this.shake * 18 : 0;
+      this.shake = Math.max(0, this.shake - dt * 1.5); this.flash = Math.max(0, this.flash - dt * 1.8); this.alarm = Math.max(0, this.alarm - dt);
+      this.spin += this.spinV * dt; this.spinV = Math.max(0, this.spinV - dt * 6);
+      if (this.ended === "win") this.open = Math.min(1, this.open + dt * 0.55);
+      if (this.ended === "over") this.siren += dt;
+      ctx.save(); ctx.translate(sh, 0);
+      var g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, "#0f172a"); g.addColorStop(1, "#1e293b"); ctx.fillStyle = g; ctx.fillRect(-20, 0, W + 40, H);
+      ctx.fillStyle = "#0b1220"; ctx.fillRect(-20, 340, W + 40, 60);
+      for (var tx = 0; tx < W; tx += 40) { ctx.fillStyle = "rgba(148,163,184,.07)"; ctx.fillRect(tx, 0, 2, 340); }
+      /* the steel wall and the gold behind the door */
+      var cx = 400, cy = 192, R = 138;
+      ctx.fillStyle = "#475569"; rr(220, 28, 360, 330, 14); ctx.fill(); ctx.strokeStyle = "#1e293b"; ctx.lineWidth = 5; ctx.stroke();
+      [[236, 44], [564, 44], [236, 342], [564, 342]].forEach(function (b) { ctx.fillStyle = "#94a3b8"; ctx.beginPath(); ctx.arc(b[0], b[1], 5, 0, TAU); ctx.fill(); });
+      ctx.fillStyle = "#1c1917"; ctx.beginPath(); ctx.arc(cx, cy, R + 4, 0, TAU); ctx.fill();
+      if (this.open > 0) {
+        var glow = ctx.createRadialGradient(cx, cy, 10, cx, cy, R); glow.addColorStop(0, "rgba(253,224,71,.9)"); glow.addColorStop(1, "rgba(120,53,15,.9)"); ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.fill();
+        for (var gb = 0; gb < 12; gb++) { var gx = cx - 95 + (gb % 4) * 50 + ((Math.floor(gb / 4)) % 2) * 16, gy = cy + 70 - Math.floor(gb / 4) * 28; ctx.fillStyle = "#fbbf24"; ctx.fillRect(gx, gy, 44, 22); ctx.fillStyle = "#fde68a"; ctx.fillRect(gx + 3, gy + 3, 38, 5); ctx.strokeStyle = "#92400e"; ctx.lineWidth = 2; ctx.strokeRect(gx, gy, 44, 22); }
+      }
+      /* the door (it swings open to the left on a win) */
+      var rx = R * (1 - this.open * 0.9), dx = cx - R + rx;
+      ctx.save(); ctx.translate(dx, cy); ctx.scale(rx / R, 1);
+      var dg = ctx.createRadialGradient(-30, -30, 20, 0, 0, R); dg.addColorStop(0, "#cbd5e1"); dg.addColorStop(1, "#64748b"); ctx.fillStyle = dg; ctx.beginPath(); ctx.arc(0, 0, R, 0, TAU); ctx.fill(); ctx.strokeStyle = "#1e293b"; ctx.lineWidth = 6; ctx.stroke();
+      ctx.strokeStyle = "#475569"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, R - 26, 0, TAU); ctx.stroke();
+      var locked = this.ended === "win" ? 10 : this.res.length;
+      for (var k = 0; k < 10; k++) {
+        var a = -Math.PI / 2 + k * TAU / 10, st = this.res[k], now = (k === this.res.length && !this.ended), col = st === true ? "#4ade80" : st === false ? "#f87171" : now ? (Math.sin(Date.now() / 150) > 0 ? "#fde047" : "#ca8a04") : "#94a3b8", len = st === true ? 6 : 16;
+        ctx.save(); ctx.rotate(a); ctx.fillStyle = col; rr(R - 26 - len + 14, -7, len + 12, 14, 4); ctx.fill(); ctx.strokeStyle = "#1e293b"; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+      }
+      /* the dial */
+      ctx.save(); ctx.rotate(this.spin); ctx.fillStyle = "#334155"; ctx.beginPath(); ctx.arc(0, 0, 50, 0, TAU); ctx.fill(); ctx.strokeStyle = "#0f172a"; ctx.lineWidth = 4; ctx.stroke();
+      ctx.strokeStyle = "#94a3b8"; ctx.lineWidth = 7; ctx.lineCap = "round"; for (var sp = 0; sp < 4; sp++) { ctx.rotate(Math.PI / 2); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -44); ctx.stroke(); }
+      ctx.restore();
+      ctx.fillStyle = "#0f172a"; ctx.beginPath(); ctx.arc(0, 0, 24, 0, TAU); ctx.fill();
+      ctx.restore();
+      txt(this.ended === "win" ? "OPEN" : String(Math.min(10, this.res.length + (this.ended ? 0 : 1))), this.open > 0.5 ? cx - R : dx, cy, 18, this.ended === "win" ? "#4ade80" : "#fde047");
+      /* the side panels: which lock and which topic, and the alarm lights */
+      txt("LOCK " + Math.min(10, this.res.length + 1) + " OF 10", 110, 70, 15, "#fde047");
+      txt(this.topic.toUpperCase(), 110, 98, 10, "#e2e8f0");
+      txt("ALARM", 690, 70, 13, "#94a3b8");
+      for (var s2 = 0; s2 < 3; s2++) { var on = s2 < G.strikes; ctx.fillStyle = on ? (Math.sin(Date.now() / 120) > 0 ? "#ef4444" : "#991b1b") : "#1f2937"; ctx.beginPath(); ctx.arc(640 + s2 * 50, 105, 15, 0, TAU); ctx.fill(); ctx.strokeStyle = "#475569"; ctx.lineWidth = 3; ctx.stroke(); }
+      /* laser beams across the room: one more for each strike */
+      for (var L = 0; L < G.strikes; L++) { var ly = 160 + L * 60 + Math.sin(Date.now() / 300 + L) * 6; ctx.strokeStyle = "rgba(239,68,68," + (0.5 + 0.4 * Math.sin(Date.now() / 90)) + ")"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, ly); ctx.lineTo(220, ly - 20); ctx.moveTo(580, ly - 20); ctx.lineTo(W, ly); ctx.stroke(); }
+      /* the spy at the bottom left */
+      ctx.fillStyle = "#111827"; ctx.beginPath(); ctx.arc(110, 292, 15, 0, TAU); ctx.fill(); ctx.fillRect(98, 304, 24, 38); ctx.fillStyle = "#f8fafc"; ctx.fillRect(100, 289, 8, 4); ctx.fillRect(112, 289, 8, 4); ctx.fillStyle = "#111827"; ctx.fillRect(98, 340, 9, 10); ctx.fillRect(113, 340, 9, 10);
+      if (this.alarm > 0) txt("ALARM!", 110, 200, 20, "#fca5a5");
+      stepParts(this.parts, dt); drawParts(this.parts);
+      if (this.flash > 0) { ctx.fillStyle = "rgba(" + this.flashC + "," + this.flash * 0.3 + ")"; ctx.fillRect(-20, 0, W + 40, H); }
+      if (this.ended === "over") { var blink = Math.sin(this.siren * 9) > 0; ctx.fillStyle = blink ? "rgba(239,68,68,.35)" : "rgba(59,130,246,.35)"; ctx.fillRect(-20, 0, W + 40, H); txt("CAUGHT!", 400, 190, 64, "#fff"); txt("The police are here.", 400, 245, 18, "#fecaca"); }
+      if (this.ended === "win") { txt("VAULT OPEN!", 400, 52, 34, "#fde68a"); }
+      ctx.restore();
+    }
+  };
+
+  window.Scenes = { bomb: Bomb, dns: Cliff, storm: Storm, packets: Post, cast: Cast, vault: Vault, W: W, H: H,
     setup: function (context, state) { ctx = context; G = state; Object.keys(this).forEach(function (k) { var s = window.Scenes[k]; if (s && s.init) s.init(); }); },
     NODES: NODES, EDGES: EDGES, linked: linked, npos: npos };
 })();

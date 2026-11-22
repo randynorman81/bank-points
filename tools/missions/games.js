@@ -1,7 +1,7 @@
 /* The five Mission GAMES (no coding). One per Walkthrough. The games themselves live in python/games/ and netlify/functions/gamebank.js. */
 "use strict";
 const M = require("./core.js");
-const U10 = "Unit 10: The Internet", U7 = "Unit 7: Basic Data Structures";
+const U10 = "Unit 10: The Internet", U7 = "Unit 7: Basic Data Structures", U8 = "Unit 8: Digital Information";
 
 M.addGame("a102", {
   title: "Mission 10.3: Defuse the House", game: "bomb",
@@ -37,3 +37,11 @@ M.addGame("a110", {
   how: ["**Remember:** the first item is at **index 0**, and `-1` is the last item.", "**Edit rounds:** tap operation cards in order, then **RUN THE EDITS**. The cast changes live so you can see it.", "**Three mistakes** and the show is cancelled."],
   practice: ["Indexes, negative indexes and len", "Slices", "append, insert, remove and pop", "Looping through a list and data abstraction"]
 }, { unit: U7, num: 7, points: 100, seq: 7.5, passMin: 90 });
+
+/* EXAMPLE of a Unit 8 game assignment (no coding). Hidden. The Python walkthroughs a45 to a54 and their assignments a55 to a64 are not touched. */
+M.addGame("a111", {
+  title: "Assignment 8 (example game): Vault Breaker", game: "vault",
+  story: ["**You are a master thief with one night to crack the most secure vault in the city.** Its ten locks are all about **digital information**, the same ideas that show up on the AP Computer Science Principles exam.", "Flip bit switches to build binary numbers, decode a guard's ASCII note, **paint a picture from raw bits**, mix colors with RGB and hex, run filters on pixels, shrink data with run-length compression, and finish with a **cryptography boss**. Beat the clock and keep the alarm quiet."],
+  how: ["**Bit switches:** each switch is a place value (128, 64, 32, 16, 8, 4, 2, 1). Lit means 1. Make the total match, then **CUT THE WIRE**.", "**Pixel painter:** the scanner sends a long string of bits. Cut it into rows, then click the squares that should be black.", "**Color mixer:** set red, green and blue. Some locks give you a hex code, so you have to convert it first.", "**Choice locks:** tap the right answer (or press 1, 2, 3 or 4). Read the explanation after every round, because it teaches the exact idea the exam asks about.", "**Three mistakes** (or an empty clock) set off the alarm and you are caught."],
+  practice: ["Binary, place values, bits needed for a number of values, overflow and round-off error", "ASCII, Unicode and how text is stored as bits", "Pixels, bitmaps and how an image is just a grid of bits", "Hexadecimal and RGB colors", "Image filters (invert, grayscale, brighten) as math on pixel values", "Lossless versus lossy compression and run-length encoding", "Caesar ciphers, symmetric versus public-key encryption"]
+}, { unit: U8, num: 12, points: 100, seq: 10.7, passMin: 90 });

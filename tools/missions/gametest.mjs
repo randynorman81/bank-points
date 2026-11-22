@@ -13,6 +13,8 @@ function solve(game, x) {
   if ("idx" in a) return { idx: a.idx };
   if ("value" in a) return { value: a.value };
   if (a.values) return { values: a.values };
+  if (a.rows) return { rows: a.rows };
+  if (a.rgb) return { rgb: a.rgb };
   if (x.q.type === "route") return a.none ? { none: true } : { path: bfsPath(a.src, a.dst, a.down) };
   if (x.q.type === "assemble") return { order: Array.from({ length: a.total }, (_, k) => k + 1) };
   if (x.q.type === "missing") return { missing: a.gone };
@@ -24,6 +26,8 @@ const wrongFor = (game, x) => {
   if ("idx" in a) return { idx: (a.idx + 1) % (q.choices ? q.choices.length : (q.cast || []).length || 2) };
   if ("value" in a) return { value: a.value + 1 };
   if (a.values) return { values: a.values.map((v) => v + 1) };
+  if (a.rows) return { rows: a.rows.map((r, k) => (k === 0 ? r.split("").map((c) => (c === "1" ? "0" : "1")).join("") : r)) };
+  if (a.rgb) return { rgb: a.rgb.map((v) => (v === 255 ? 0 : 255)) };
   if (q.type === "route") return a.none ? { path: ["Home", "R1"] } : { none: true };
   if (q.type === "assemble") return { order: Array.from({ length: a.total }, (_, k) => a.total - k) };
   if (q.type === "missing") return { missing: [] };
@@ -56,5 +60,5 @@ for (const game of Object.keys(GAMES)) {
 }
 /* a perfect run is 100, one mistake is 90, three mistakes end the game */
 console.log(`rules: ${ROUNDS} rounds, ${STRIKES} strikes end the game; 9 of 10 right = ${Math.round(9 / ROUNDS * 100)}%`);
-console.log(bad ? `\n${bad} PROBLEMS` : "\nall five games: every round is solvable, never leaks the answer, and marks right and wrong correctly");
+console.log(bad ? `\n${bad} PROBLEMS` : "\nall six games: every round is solvable, never leaks the answer, and marks right and wrong correctly");
 process.exit(bad ? 1 : 0);

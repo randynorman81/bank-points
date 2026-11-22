@@ -17,7 +17,8 @@ export const PY_SETTINGS = {
   a22: { hold: true, passMin: 90 },                 // Walkthrough 7: For Loops in Python
   a23: { hold: true, passMin: 90 },                 // Walkthrough 8: General For Loops
   a26: { live: true, hold: true, passMin: 90 },     // Walkthrough 9: While Loops (published, still locked for students)
-  a28: { live: true, hold: true, passMin: 90 },     // Walkthrough 10: Random Numbers (published, still locked for students)
+  a27: { live: true, hold: true, passMin: 90, num: 10 },   // Walkthrough 10: Loop and a Half (live, still locked for students until you open it)
+  a28: { live: true, hold: true, passMin: 90, num: 11 },   // Walkthrough 11: Random Numbers (renumbered from 10 so it comes after Loop and a Half; published, still locked for students)
   /* Unit 5: Functions and Parameters (all published, all locked until you open them; Walkthrough 1 starts its own chain) */
   a29: { live: true, hold: true, fresh: true, passMin: 90 },   // Unit 5 Walkthrough 1: Functions and Parameters
   a30: { live: true, hold: true, passMin: 90 },                // Walkthrough 2: Multiple Parameters
@@ -71,7 +72,8 @@ export const PY_SETTINGS = {
   a107: { live: false, passMin: 100 },                // Unit 10 Walkthrough 4: Packets and Protocols (10.7)
   a108: { live: false, passMin: 90 },                 // Mission 10.7: Packet Post Office
   a109: { live: false, passMin: 100 },                // Unit 7 Walkthrough 7 (after Walkthroughs 1 to 6): Lists, Meet the Cast
-  a110: { live: false, passMin: 90 }                  // Mission 7.1: Cartoon Creator Studio
+  a110: { live: false, passMin: 90 },                 // Mission 7.1: Cartoon Creator Studio
+  a111: { live: false, passMin: 90 }                  // Unit 8 EXAMPLE game assignment: Vault Breaker (hidden: only you can see and play it)
 };
 /* WORDING CHANGES to a walkthrough, kept in the code (no PIN). Each one gets a copy of the walkthrough and changes it. */
 const STEP5_ODD = "Now test an odd number **without changing your code above**. Below your last line, type `number = 7`, then type the same four `print` lines again under it (you can copy and paste your own lines). Add an **end-of-line comment** at the end of your last print line with what the four answers were for 7. If that line already has a comment, add to it. [[How do I test 7?|oddtest]]";

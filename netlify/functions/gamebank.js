@@ -270,12 +270,149 @@ function castCheck(a, ans) {
   return false;
 }
 
+
+/* ================================================================== 6. VAULT BREAKER: digital information (Unit 8) ==== */
+const ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const caesar = (s, k) => s.split("").map((c) => { const i = ALPHA.indexOf(c); return i < 0 ? c : ALPHA[(((i + k) % 26) + 26) % 26]; }).join("");
+const hex2 = (n) => n.toString(16).toUpperCase().padStart(2, "0");
+const rgbText = (p) => "(" + p.join(", ") + ")";
+const clamp255 = (n) => Math.max(0, Math.min(255, n));
+const WORD_GROUPS = [["CAT", "COT", "CUT", "CAB"], ["BAT", "BIT", "BUT", "BAG"], ["HAT", "HIT", "HOT", "HUT"], ["SIT", "SAT", "SET", "SIP"], ["MAP", "MAT", "MOP", "MUG"], ["PIG", "PEG", "PIT", "PAT"], ["DOG", "DIG", "DOT", "DUG"], ["RAT", "ROT", "RUT", "RAN"]];
+const PICTURES = [
+  { name: "plus", rows: ["00100", "00100", "11111", "00100", "00100"] },
+  { name: "X", rows: ["10001", "01010", "00100", "01010", "10001"] },
+  { name: "heart", rows: ["01010", "11111", "11111", "01110", "00100"] },
+  { name: "arrow", rows: ["00100", "01110", "10101", "00100", "00100"] },
+  { name: "smiley", rows: ["01010", "01010", "00000", "10001", "01110"] },
+  { name: "house", rows: ["00100", "01110", "11111", "11111", "11011"] },
+  { name: "L", rows: ["10000", "10000", "10000", "10000", "11111"] },
+  { name: "T", rows: ["11111", "00100", "00100", "00100", "00100"] },
+  { name: "diamond", rows: ["00100", "01110", "11111", "01110", "00100"] },
+  { name: "Z", rows: ["11111", "00010", "00100", "01000", "11111"] }
+];
+const NAMED = { red: [255, 0, 0], green: [0, 255, 0], blue: [0, 0, 255], yellow: [255, 255, 0], cyan: [0, 255, 255], magenta: [255, 0, 255], white: [255, 255, 255], black: [0, 0, 0], orange: [255, 128, 0], purple: [128, 0, 128], gray: [128, 128, 128] };
+const LOSSLESS = ["A ZIP file of your homework documents", "A medical X-ray where every tiny detail matters", "A text file. Every character must come back exactly", "The source code of a game you are building", "A spreadsheet of bank records", "A legal contract that must be identical after unzipping"];
+const LOSSY = ["A concert video streamed to thousands of phones on slow Wi-Fi", "A vacation photo saved as a small JPEG to post online", "An MP3 of a song for a phone with little storage", "A video call that has to keep up in real time", "A profile picture shrunk so a web page loads fast"];
+const VAULT_BIT_FACTS = [
+  { p: "ASCII and Unicode are both ways to...", right: "store text characters as binary numbers", wrong: ["compress photos", "send packets across the Internet", "encrypt passwords"], why: "A character set gives every letter, digit and symbol its own number, which is stored in binary." },
+  { p: "Why was Unicode created when ASCII already existed?", right: "ASCII does not have enough codes for every language and emoji", wrong: ["ASCII was too slow", "ASCII cannot store numbers", "Unicode uses fewer bits for everything"], why: "ASCII only has 128 codes. Unicode has room for characters from all the world's writing systems and emoji." },
+  { p: "A text file stores 'HELLO' using one byte per character. How many bits is that?", right: "40", wrong: ["5", "8", "10"], why: "5 characters x 8 bits per byte = 40 bits." },
+  { p: "What is a byte?", right: "a group of 8 bits", wrong: ["a group of 4 bits", "one single bit", "a group of 16 bits"], why: "A byte is 8 bits, enough for 256 different values (0 to 255)." }
+];
+const VAULT_HEX_FACTS = [
+  { p: "How many bits does ONE hexadecimal digit stand for?", right: "4", wrong: ["2", "8", "16"], why: "A hex digit has 16 possible values (0 to F), and 4 bits make exactly 16 values." },
+  { p: "What is the largest 2-digit hexadecimal number?", right: "FF", wrong: ["99", "F9", "100"], why: "FF is 15 x 16 + 15 = 255, the biggest value one byte can hold." },
+  { p: "Why do programmers like hexadecimal for colors and addresses?", right: "It is a short way to write long binary numbers", wrong: ["Computers cannot read decimal", "It is encrypted", "It uses less memory than binary"], why: "Each hex digit replaces 4 bits, so 8 bits become just 2 hex digits." },
+  { p: "In the hex color #FF0000, which color channel is turned all the way up?", right: "red", wrong: ["green", "blue", "none, it is black"], why: "Colors are written #RRGGBB. The first pair (FF = 255) is red, and the other two pairs are 00." }
+];
+const VAULT_COLOR_FACTS = [
+  { p: "A pixel stores red, green and blue as one byte each. How many bits is ONE pixel?", right: "24", wrong: ["8", "3", "256"], why: "3 channels x 8 bits = 24 bits per pixel." },
+  { p: "The color (0, 0, 0) is...", right: "black", wrong: ["white", "red", "transparent"], why: "With every channel at 0, no light is added, so the pixel is black." },
+  { p: "What does a pixel with R, G and B all at 255 look like?", right: "white", wrong: ["black", "gray", "yellow"], why: "All three lights at full brightness make white." },
+  { p: "A picture has more pixels packed into the same space. What happens to its resolution?", right: "It gets higher and shows more detail", wrong: ["It gets lower", "Nothing changes", "It turns black and white"], why: "More pixels means a higher resolution and a sharper picture." }
+];
+const VAULT_CRYPTO_FACTS = [
+  { p: "Using PUBLIC-KEY encryption, which key do you use to lock a message to Ana so only she can read it?", right: "Ana's public key", wrong: ["Ana's private key", "Your own private key", "No key. It is just hidden"], why: "Anyone can lock with the public key, but only Ana's private key can unlock it." },
+  { p: "What is the main weakness of a Caesar cipher?", right: "There are only 25 shifts, so it is easy to break by trying them all", wrong: ["It needs a quantum computer", "It cannot encrypt letters", "The message gets longer"], why: "Trying every shift is called brute force. With only 25 shifts it takes seconds." },
+  { p: "Why is public-key encryption so useful on the Internet?", right: "Strangers can share secrets without first sharing a secret key", wrong: ["It makes downloads faster", "It deletes viruses", "It compresses files"], why: "The public key can be shared openly, so two people who have never met can still communicate securely." },
+  { p: "In symmetric encryption, how many keys are used?", right: "One key that both sides share", wrong: ["Two different keys", "No keys", "A new key for every letter"], why: "Symmetric means the same secret key locks and unlocks. Public-key (asymmetric) uses a pair." }
+];
+const factRound = (r, pool, topic, t) => { const f = pick(r, pool); return mc(r, f.p, f.right, f.wrong, f.why, { topic }, t || 30); };
+const withTopic = (x, topic) => { x.q.topic = topic; return x; };
+
+function vaultQ(seed, i) {
+  const r = R(seed, i);
+  switch (i) {
+    case 0: { const target = int(r, 37, 250); return { q: { type: "bits", target, topic: "Binary numbers", prompt: "The keypad wants the code " + target + ". Flip the switches (each one is a place value in binary) until the total matches.", t: 50 }, a: { value: target }, why: target + " in binary is " + bits8(target) + ". Add up the place values that are lit." }; }
+    case 1: {
+      const k = int(r, 0, 3), T = "Bits and numbers";
+      if (k === 0) { const n = int(r, 3, 8), right = Math.pow(2, n); return mc(r, "A lock stores its code in " + n + " bits. How many different codes is that?", String(right), shuffle(r, uniq([n * 2, n * n, Math.pow(2, n - 1), right - 1, right * 2].filter((x) => x !== right))).slice(0, 3).map(String), n + " bits give 2 x 2 x ... (" + n + " times) = " + right + " different values.", { topic: T }, 35); }
+      if (k === 1) { const N = pick(r, [20, 40, 70, 100, 150, 200]), need = Math.ceil(Math.log2(N)); return mc(r, "The vault has " + N + " different guards and each guard needs their own binary code. What is the FEWEST bits that can do it?", String(need), uniq([need - 1, need + 1, need + 2, N].map(String)).slice(0, 3), "With " + need + " bits you get " + Math.pow(2, need) + " codes, enough for " + N + ". With " + (need - 1) + " bits you only get " + Math.pow(2, need - 1) + ".", { topic: T }, 40); }
+      if (k === 2) return mc(r, "A counter stores its number in 8 bits and shows 255. It tries to add 1 more. What is this problem called?", "Overflow", ["Round-off error", "Compression", "Encryption"], "8 bits can only hold up to 255. 256 does not fit, so the result is wrong. That is overflow.", { topic: T }, 30);
+      return mc(r, "A computer stores 1/3 as 0.3333333 and loses a tiny bit of the true value. What is this called?", "Round-off error", ["Overflow", "Lossy compression", "A syntax error"], "Some numbers cannot be stored exactly in a fixed number of bits, so they are rounded. That small mistake is a round-off error.", { topic: T }, 30);
+    }
+    case 2: {
+      const k = int(r, 0, 3), T = "Encoding text";
+      if (k === 3) return factRound(r, VAULT_BIT_FACTS, T, 30);
+      const g = pick(r, WORD_GROUPS), word = pick(r, g), codes = word.split("").map((c) => bits8(c.charCodeAt(0))).join(" ");
+      return mc(r, "The guard's note is written in ASCII binary. Hint: A = 01000001 = 65, B = 66, C = 67 and so on. What does it say?", word, g.filter((w) => w !== word), "Each group of 8 bits is one letter. " + word.split("").map((c) => bits8(c.charCodeAt(0)) + " = " + c.charCodeAt(0) + " = " + c).join(", ") + ".", { topic: T, code: codes, fixed: true }, 60);
+    }
+    case 3: {
+      const pic = pick(r, PICTURES), inv = r() < 0.4, flat = pic.rows.join("").split("").map((b) => (inv ? (b === "1" ? "0" : "1") : b)).join("");
+      return { q: { type: "grid", w: 5, h: 5, topic: "Pixel images", prompt: "The scanner sent " + flat.length + " bits for a picture that is 5 pixels wide and 5 tall. Rows are sent one after another. " + (inv ? "Here 1 = WHITE and 0 = BLACK." : "Here 1 = BLACK and 0 = WHITE.") + " Paint the black pixels.", code: flat, t: 90 }, a: { rows: pic.rows }, why: "Cut the " + flat.length + " bits into rows of 5. " + (inv ? "Black pixels are the 0s." : "Black pixels are the 1s.") + " The picture is a " + pic.name + "." };
+    }
+    case 4: {
+      const k = pick(r, [0, 0, 1, 1, 2]), T = "Hexadecimal";
+      if (k === 2) return factRound(r, VAULT_HEX_FACTS, T, 30);
+      const d1 = int(r, 1, 15), d2 = int(r, 0, 15), val = d1 * 16 + d2, hx = d1.toString(16).toUpperCase() + d2.toString(16).toUpperCase(), swap = d2 * 16 + d1, hint = "Hex digits: A=10  B=11  C=12  D=13  E=14  F=15";
+      if (k === 0) return mc(r, "The vault door shows the hex code " + hx + ". What is that in decimal?", String(val), uniq([swap, val + 16, val - 16, val + 1, d1 * 10 + d2].filter((x) => x !== val && x >= 0)).slice(0, 3).map(String), hx + " = " + d1 + " x 16 + " + d2 + " = " + val + ". The left digit is worth 16 each.", { topic: T, code: hint, fixed: true }, 45);
+      return mc(r, "The panel needs the decimal number " + val + " typed in hex. What is it?", hx, uniq([d2.toString(16).toUpperCase() + d1.toString(16).toUpperCase(), (val + 1).toString(16).toUpperCase().padStart(2, "0"), clamp255(val - 16).toString(16).toUpperCase().padStart(2, "0"), clamp255(val + 16).toString(16).toUpperCase().padStart(2, "0")].filter((x) => x !== hx)).slice(0, 3), val + " / 16 = " + d1 + " remainder " + d2 + ", so it is " + hx + ".", { topic: T, code: hint, fixed: true }, 50);
+    }
+    case 5: {
+      const k = pick(r, [0, 1, 1, 2, 3]), T = "Pixel colors";
+      if (k === 3) return factRound(r, VAULT_COLOR_FACTS, T, 30);
+      if (k === 0) {
+        const names = Object.keys(NAMED), nm = pick(r, names.filter((x) => x !== "gray"));
+        return { q: { type: "rgb", levels: [0, 128, 255], topic: T, prompt: "Mix the paint to make " + nm.toUpperCase() + ". Set the red, green and blue light.", t: 45 }, a: { rgb: NAMED[nm] }, why: nm + " is " + rgbText(NAMED[nm]) + ". Light mixes by adding: red + green = yellow, green + blue = cyan, red + blue = magenta, all three = white." };
+      }
+      if (k === 1) {
+        const lv = [0, 64, 128, 192, 255], rgb = [pick(r, lv), pick(r, lv), pick(r, lv)];
+        if (rgb.every((x) => x === rgb[0])) rgb[2] = pick(r, lv.filter((x) => x !== rgb[0]));
+        const hex = "#" + rgb.map(hex2).join("");
+        return { q: { type: "rgb", levels: lv, topic: T, prompt: "The color lock wants the hex color " + hex + ". Set red, green and blue to the right decimal values. (Hex pairs: 00 = 0, 40 = 64, 80 = 128, C0 = 192, FF = 255.)", code: hex, t: 60 }, a: { rgb }, why: hex + " is split into pairs: " + rgb.map((x) => hex2(x) + " = " + x).join(", ") + ". Red is first, then green, then blue." };
+      }
+      const nm = pick(r, ["red", "green", "blue", "yellow", "cyan", "magenta", "white", "black"]), right = "#" + NAMED[nm].map(hex2).join(""), others = Object.keys(NAMED).filter((x) => "#" + NAMED[x].map(hex2).join("") !== right && ["red", "green", "blue", "yellow", "cyan", "magenta", "white", "black"].indexOf(x) > -1).map((x) => "#" + NAMED[x].map(hex2).join(""));
+      return mc(r, "Which hex code makes the color " + nm.toUpperCase() + "?", right, shuffle(r, others).slice(0, 3), "Hex colors are #RRGGBB. " + nm + " is " + rgbText(NAMED[nm]) + ", which is " + right + ".", { topic: T }, 40);
+    }
+    case 6: {
+      const k = int(r, 0, 3), T = "Image filters", a = int(r, 20, 230), p = [a, int(r, 20, 230), int(r, 20, 230)];
+      if (k === 0) { const out = p.map((v) => 255 - v); return mc(r, "The INVERT filter turns every value v into 255 - v. What does the pixel " + rgbText(p) + " become?", rgbText(out), uniq([rgbText([out[0], p[1], out[2]]), rgbText([out[2], out[1], out[0]]), rgbText([255 - p[0], 255 - p[1], p[2]])].filter((x) => x !== rgbText(out))).slice(0, 3), "255 - " + p[0] + " = " + out[0] + ", 255 - " + p[1] + " = " + out[1] + ", 255 - " + p[2] + " = " + out[2] + ".", { topic: T }, 40); }
+      if (k === 1) { const q2 = [int(r, 30, 220), int(r, 30, 220)]; let c = int(r, 30, 220); c -= (q2[0] + q2[1] + c) % 3; if (c < 0) c += 3; const px = [q2[0], q2[1], c], avg = (px[0] + px[1] + px[2]) / 3; return mc(r, "The GRAYSCALE filter sets all three values to the average of the three. What does " + rgbText(px) + " become?", rgbText([avg, avg, avg]), uniq([rgbText([px[0], px[0], px[0]]), rgbText([Math.max.apply(null, px), Math.max.apply(null, px), Math.max.apply(null, px)]), rgbText([avg + 30, avg + 30, avg + 30]), rgbText([px[2], px[2], px[2]])].filter((x) => x !== rgbText([avg, avg, avg]))).slice(0, 3), "(" + px.join(" + ") + ") / 3 = " + avg + ", and gray has the same value in all three channels.", { topic: T }, 50); }
+      if (k === 2) { const ch = pick(r, [0, 1, 2]), name = ["RED", "GREEN", "BLUE"][ch], out = p.slice(); out[ch] = 0; const w1 = p.slice(); w1[ch] = 255; const w2 = p.map((v, j) => (j === ch ? v : 0)); return mc(r, "A filter sets the " + name + " value of every pixel to 0. What does " + rgbText(p) + " become?", rgbText(out), uniq([rgbText(w1), rgbText(w2), rgbText(p.map((v) => 0))].filter((x) => x !== rgbText(out))).slice(0, 3), "Only the " + name.toLowerCase() + " channel changes to 0. The other two stay as they were: " + rgbText(out) + ".", { topic: T }, 40); }
+      const amt = pick(r, [30, 40, 50]), hi = [int(r, 215, 245), int(r, 40, 180), int(r, 10, 100)], out = hi.map((v) => Math.min(255, v + amt)), raw = hi.map((v) => v + amt);
+      return mc(r, "A BRIGHTEN filter adds " + amt + " to every value, but a value can never go above 255. What does " + rgbText(hi) + " become?", rgbText(out), uniq([rgbText(raw), rgbText(hi), rgbText(hi.map((v) => Math.max(0, v - amt)))].filter((x) => x !== rgbText(out))).slice(0, 3), hi[0] + " + " + amt + " = " + raw[0] + ", but one byte tops out at 255, so it is capped at 255. The others are just added.", { topic: T }, 45);
+    }
+    case 7: {
+      const k = pick(r, [0, 0, 1, 1, 2]), T = "Run-length compression", L = ["A", "B", "C", "W", "X", "Z"];
+      const runs = () => { const out = []; let last = ""; for (let j = 0; j < 3; j++) { let c; do { c = pick(r, L); } while (c === last); last = c; out.push([int(r, 2, 5), c]); } return out; };
+      const rl = (rs) => rs.map((x) => x[0] + x[1]).join(""), ex = (rs) => rs.map((x) => x[1].repeat(x[0])).join("");
+      if (k === 0) { const rs = runs(); const alt = rs.map((x, j) => (j === 0 ? [x[0] + 1, x[1]] : x)), swapC = rs.map((x, j) => (j === 0 ? [x[0], rs[1][1]] : j === 1 ? [x[0], rs[0][1]] : x)); return mc(r, "Run-length encoding wrote this: " + rl(rs) + ". What was the ORIGINAL data?", ex(rs), uniq([ex(alt), ex(swapC), rs.map((x) => x[1]).join("")].filter((x) => x !== ex(rs))).slice(0, 3), "Read it as 'count then letter': " + rs.map((x) => x[0] + x[1] + " = " + x[1].repeat(x[0])).join(", ") + ".", { topic: T, fixed: true }, 45); }
+      if (k === 1) { const rs = runs(); return mc(r, "Run-length encode this data: " + ex(rs), rl(rs), uniq([rs.map((x) => x[1] + x[0]).join(""), rl(rs.map((x, j) => (j === 0 ? [x[0] + 1, x[1]] : x))), rl(rs.slice(0, 2)), rl([[rs[0][0] + rs[1][0], rs[0][1]], rs[2]])].filter((x) => x !== rl(rs))).slice(0, 3), "Count each run of the same letter: " + rs.map((x) => x[1].repeat(x[0]) + " = " + x[0] + x[1]).join(", ") + ".", { topic: T, fixed: true }, 45); }
+      const a1 = pick(r, L), b1 = pick(r, L.filter((x) => x !== a1)), good = a1.repeat(int(r, 7, 9)) + b1.repeat(int(r, 7, 9)), alt = (a1 + b1).repeat(8);
+      const abc = ALPHA.slice(0, 16);
+      return mc(r, "Which data would run-length encoding shrink the MOST?", good, [alt, abc], "Run-length encoding wins when the same value repeats in long runs. " + good + " is just two runs. The other strings change every character, so there is nothing to shorten.", { topic: T, fixed: true }, 35);
+    }
+    case 8: {
+      const k = int(r, 0, 3), T = "Lossless vs lossy";
+      if (k === 3) { const f = pick(r, [{ p: "What is TRUE about LOSSY compression?", right: "Some data is thrown away for good and cannot be restored", wrong: ["Every original bit can be rebuilt exactly", "It always makes a file bigger", "It only works on text"], why: "Lossy compression permanently removes details people are least likely to notice, so the original cannot be rebuilt." }, { p: "What is TRUE about LOSSLESS compression?", right: "The original data can be rebuilt perfectly", wrong: ["It throws away details nobody notices", "It makes files smaller than any lossy method", "It only works on photos"], why: "Lossless methods (like ZIP or run-length encoding) store the same information in fewer bits, so decompressing gives back the exact original." }]); return mc(r, f.p, f.right, f.wrong, f.why, { topic: T }, 30); }
+      const lossy = r() < 0.5, text = lossy ? pick(r, LOSSY) : pick(r, LOSSLESS);
+      return mc(r, "Which kind of compression is the BEST choice? " + text + ".", lossy ? "Lossy" : "Lossless", [lossy ? "Lossless" : "Lossy"], lossy ? "Lossy is best here: a smaller file and speed matter more than perfect detail, and people will not notice the missing data." : "Lossless is best here: every bit must come back exactly, so nothing can be thrown away.", { topic: T }, 30);
+    }
+    default: {
+      const k = pick(r, [0, 1, 2]), T = "Cryptography BOSS";
+      if (k === 2) return factRound(r, VAULT_CRYPTO_FACTS, T, 35);
+      const words = ["VAULT", "SECRET", "CODE", "AGENT", "LOCK", "CIPHER", "BINARY", "GOLD", "SAFE", "BITS"], word = pick(r, words), s = int(r, 2, 9), strip = "Plain:  " + ALPHA + "\nShift:  " + caesar(ALPHA, s);
+      if (k === 0) { const cipher = caesar(word, s); return mc(r, "BOSS! A Caesar cipher shifted every letter FORWARD by " + s + ". The intercepted message is " + cipher + ". What did it say?", word, uniq([caesar(cipher, s), caesar(word, 1), caesar(cipher, -(s + 1))].filter((x) => x !== word)).slice(0, 3), "To decrypt, shift every letter BACK by " + s + ": " + cipher + " becomes " + word + ".", { topic: T, code: "Alphabet: " + ALPHA }, 75); }
+      const cipher = caesar(word, s); return mc(r, "BOSS! Encrypt the password " + word + " with a Caesar cipher that shifts every letter FORWARD by " + s + ".", cipher, uniq([caesar(word, -s), caesar(word, s + 1), caesar(word, s - 1)].filter((x) => x !== cipher)).slice(0, 3), "Move each letter forward " + s + " places (wrapping Z back to A): " + word + " becomes " + cipher + ".", { topic: T, code: "Alphabet: " + ALPHA }, 75);
+    }
+  }
+}
+function vaultCheck(a, ans) {
+  if (!ans || ans.timeout) return false;
+  if ("idx" in a) return ans.idx === a.idx;
+  if ("value" in a) return Number(ans.value) === a.value;
+  if (a.rows) return Array.isArray(ans.rows) && ans.rows.length === a.rows.length && a.rows.every((row, k) => typeof ans.rows[k] === "string" && ans.rows[k] === row);
+  if (a.rgb) return Array.isArray(ans.rgb) && ans.rgb.length === 3 && a.rgb.every((v, k) => Number(ans.rgb[k]) === v);
+  return false;
+}
+
 /* ================================================================== the games ==================== */
 const GAMES = {
   bomb: { id: "bomb", title: "Defuse the House", make: bombQ, check: bombCheck },
   dns: { id: "dns", title: "DNS Cliff Road", make: dnsQ, check: choiceCheck },
   storm: { id: "storm", title: "Storm Dash", make: stormQ, check: (a, ans) => ("idx" in a ? choiceCheck(a, ans) : routeCheck(a, ans)) },
   packets: { id: "packets", title: "Packet Post Office Rush", make: packetsQ, check: packetsCheck },
+  vault: { id: "vault", title: "Vault Breaker", make: vaultQ, check: vaultCheck },
   cast: { id: "cast", title: "Cartoon Cast Director", make: castQ, check: (a, ans) => ("idx" in a && !a.target ? (ans && !ans.timeout && ans.idx === a.idx) : castCheck(a, ans)) }
 };
 

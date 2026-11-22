@@ -48,6 +48,8 @@ async function playRound(q, wrong) {
   else if (q.type === "missing") { const pick = wrong ? [] : a.gone; for (const n of pick) await ev(`document.querySelectorAll('#controls .numbtn')[${n - 1}].click()`); if (wrong) { const bad = Array.from({ length: q.total }, (_, k) => k + 1).find((n) => !a.gone.includes(n) && !q.shown.includes(n)) ; const notGone = Array.from({ length: q.total }, (_, k) => k + 1).filter((n) => a.gone.indexOf(n) < 0 && q.shown.indexOf(n) < 0); if (!notGone.length) { for (const n of a.gone.slice(0, 1)) await ev(`document.querySelectorAll('#controls .numbtn')[${n - 1}].click()`); if (a.gone.length === 1) { /* a single missing packet cannot be answered wrongly with the buttons; time out instead */ await ev(`document.querySelector('#controls .btn.go').click()`); return; } } } await ev(`document.querySelector('#controls .btn.go').click()`); }
   else if (q.type === "pickindex") { const idx = wrong ? (a.idx + 1) % q.cast.length : a.idx; await ev(`document.querySelectorAll('#controls .cc')[${idx}].click()`); }
   else if (q.type === "ops") { const seq = wrong ? ["pop"] : solveOps(q); if (!seq) { say("no solution for the ops puzzle"); return; } for (const op of seq) await ev(`(function(){ var b=document.querySelectorAll('#controls .palette .btn'); for (var i=0;i<b.length;i++) if (b[i].textContent===${JSON.stringify(opText(op))}) { b[i].click(); break; } })()`); await ev(`document.querySelector('#controls .btn.go').click()`); }
+  else if (q.type === "grid") { const rows = wrong ? a.rows.map((r, k) => (k === 0 ? r.split("").map((c) => (c === "1" ? "0" : "1")).join("") : r)) : a.rows; for (let y = 0; y < rows.length; y++) for (let x = 0; x < rows[y].length; x++) if (rows[y][x] === "1") await ev(`document.querySelectorAll('#controls .pcell')[${y * q.w + x}].click()`); await ev(`document.querySelector('#controls .btn.go').click()`); }
+  else if (q.type === "rgb") { const vals = wrong ? a.rgb.map((v) => (v === 255 ? 0 : 255)) : a.rgb; for (let ch = 0; ch < 3; ch++) { const k = q.levels.indexOf(vals[ch]); await ev(`document.querySelectorAll('#controls .rgbrow')[${ch}].querySelectorAll('.lvl')[${k}].click()`); } await ev(`document.querySelector('#controls .btn.go').click()`); }
   else say("unknown question type " + q.type);
 }
 
@@ -84,5 +86,5 @@ async function playGame(g, mode) {
 }
 for (const g of GAMES) { await playGame(g, "perfect"); await playGame(g, "bad"); }
 const errs = b.errs.slice(0, 5); if (errs.length) say("page errors: " + JSON.stringify(errs));
-console.log(bad ? `\n${bad} PROBLEMS` : "\nall five games play from start to finish: perfect runs score 100 and three mistakes end the game");
+console.log(bad ? `\n${bad} PROBLEMS` : "\nall six games play from start to finish: perfect runs score 100 and three mistakes end the game");
 b.close(); process.exit(bad ? 1 : 0);
