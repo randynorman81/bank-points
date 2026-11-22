@@ -8,156 +8,170 @@
    Unit 4 ids: a16 Booleans, a17 Logical Operators, a18 Comparison Operators, a19 If Statements,
                a20 If/Elif/Else, a21 Key Events, a22 For Loops, a23 General For Loops */
 export const PY_SETTINGS = {
-  a16: { hold: false, fresh: true, passMin: 90 },   // Unit 4 Walkthrough 1: Booleans (opened 11/17)
-  a17: { hold: false, passMin: 90 },                // Walkthrough 2: Logical Operators (opened 11/17)
-  a18: { hold: false, passMin: 90 },                // Walkthrough 3: Comparison Operators (opened 11/17)
-  a19: { hold: true, passMin: 90 },                 // Walkthrough 4: If Statements
-  a20: { hold: true, passMin: 90 },                 // Walkthrough 5: If, Elif, and Else
-  a21: { hold: true, passMin: 90 },                 // Walkthrough 6: Key Events
-  a22: { hold: true, passMin: 90 },                 // Walkthrough 7: For Loops in Python
-  a23: { hold: true, passMin: 90 },                 // Walkthrough 8: General For Loops
-  a26: { live: true, hold: true, passMin: 90 },     // Walkthrough 9: While Loops (published, still locked for students)
-  a27: { live: true, hold: true, passMin: 90, num: 10 },   // Walkthrough 10: Loop and a Half (live, still locked for students until you open it)
-  a28: { live: true, hold: true, passMin: 90, num: 11 },   // Walkthrough 11: Random Numbers (renumbered from 10 so it comes after Loop and a Half; published, still locked for students)
+  /* UNIT 3 walkthroughs: open, and not part of the unlock chain */
+  a1: { hold: false, ungated: true },
+  a2: { hold: false, ungated: true },
+  a3: { hold: false, ungated: true },
+  a4: { hold: false, ungated: true },
+  a5: { hold: false, ungated: true },
+  a6: { hold: false, ungated: true },
+  a7: { hold: false, ungated: true },
+  a8: { hold: false, ungated: true },
+  a9: { hold: false, ungated: true },
+  a10: { hold: false, ungated: true },
+  a11: { hold: false, ungated: true },
+  a12: { hold: false, ungated: true },
+  a13: { hold: false, ungated: true },
+  a16: { live: true, hold: false, fresh: true, passMin: 90, ungated: true },   // Unit 4 Walkthrough 1: Booleans (opened 11/17)
+  a17: { live: true, hold: false, passMin: 90, ungated: true },                // Walkthrough 2: Logical Operators (opened 11/17)
+  a18: { live: true, hold: false, passMin: 90, ungated: true },                // Walkthrough 3: Comparison Operators (opened 11/17)
+  a19: { live: true, hold: false, passMin: 90, ungated: true },                 // Walkthrough 4: If Statements
+  a20: { live: true, hold: false, passMin: 90, ungated: true },                 // Walkthrough 5: If, Elif, and Else
+  a21: { live: true, hold: false, passMin: 90, ungated: true },                 // Walkthrough 6: Key Events
+  a22: { live: true, hold: false, passMin: 90, ungated: true },                 // Walkthrough 7: For Loops in Python
+  a23: { live: true, hold: false, passMin: 90, ungated: true },                 // Walkthrough 8: General For Loops
+  a26: { live: true, hold: false, passMin: 90, ungated: true },     // Walkthrough 9: While Loops (published, still locked for students)
+  a27: { live: true, hold: false, passMin: 90, num: 10, ungated: true },   // Walkthrough 10: Loop and a Half (live, still locked for students until you open it)
+  a28: { live: true, hold: false, passMin: 90, num: 11, ungated: true },   // Walkthrough 11: Random Numbers (renumbered from 10 so it comes after Loop and a Half; published, still locked for students)
   /* Unit 5: Functions and Parameters (all published, all locked until you open them; Walkthrough 1 starts its own chain) */
-  a29: { live: true, hold: true, fresh: true, passMin: 90 },   // Unit 5 Walkthrough 1: Functions and Parameters
-  a30: { live: true, hold: true, passMin: 90 },                // Walkthrough 2: Multiple Parameters
-  a31: { live: true, hold: true, passMin: 90 },                // Walkthrough 3: Return Values
-  a32: { live: true, hold: true, passMin: 90 },                // Walkthrough 4: Return Values with Decisions and Loops
-  a33: { live: true, hold: true, passMin: 90 },                // Walkthrough 5: Libraries and APIs
-  a34: { live: true, hold: true, passMin: 90 },                // Walkthrough 6: Procedures and the Create Task
+  a29: { live: true, hold: false, fresh: true, passMin: 90, ungated: true },   // Unit 5 Walkthrough 1: Functions and Parameters
+  a30: { live: true, hold: false, passMin: 90, ungated: true },                // Walkthrough 2: Multiple Parameters
+  a31: { live: true, hold: false, passMin: 90, ungated: true },                // Walkthrough 3: Return Values
+  a32: { live: true, hold: false, passMin: 90, ungated: true },                // Walkthrough 4: Return Values with Decisions and Loops
+  a33: { live: true, hold: false, passMin: 90, ungated: true },                // Walkthrough 5: Libraries and APIs
+  a34: { live: true, hold: false, passMin: 90, ungated: true },                // Walkthrough 6: Procedures and the Create Task
   /* Unit 6: Practice Performance Task (all published, all locked until you open them; Walkthrough 1 starts its own chain) */
-  a35: { live: true, hold: true, fresh: true, passMin: 90 },   // Unit 6 Walkthrough 1: Spot the Requirements
-  a36: { live: true, hold: true, passMin: 90 },                // Practice PT 1: Quiz Master
+  a35: { live: true, hold: false, fresh: true, passMin: 90, ungated: true },   // Unit 6 Walkthrough 1: Spot the Requirements
+  a36: { live: true, hold: false, passMin: 90, ungated: true },                // Practice PT 1: Quiz Master
   /* Unit 7: Basic Data Structures (all published, all locked until you open them; Walkthrough 1 starts its own chain) */
-  a39: { live: true, hold: true, needBoth: true, fresh: true, passMin: 90 },   // Unit 7 Walkthrough 1: Lists and Indexing
-  a40: { live: true, hold: true, needBoth: true, passMin: 90 },                // Walkthrough 2: Adding and Removing Items
-  a41: { live: true, hold: true, needBoth: true, passMin: 90 },                // Walkthrough 3: For Loops and Lists
-  a42: { live: true, hold: true, needBoth: true, passMin: 90 },                // Walkthrough 4: Simulations
-  a43: { live: true, hold: true, needBoth: true, passMin: 90 },                // Walkthrough 5: Searching and Efficiency
-  a44: { live: true, hold: true, needBoth: true, passMin: 90 },                // Walkthrough 6: Data Abstraction and the Create Task
+  a39: { live: true, hold: false, needBoth: true, fresh: true, passMin: 90, ungated: true },   // Unit 7 Walkthrough 1: Lists and Indexing
+  a40: { live: true, hold: false, needBoth: true, passMin: 90, ungated: true },                // Walkthrough 2: Adding and Removing Items
+  a41: { live: true, hold: false, needBoth: true, passMin: 90, ungated: true },                // Walkthrough 3: For Loops and Lists
+  a42: { live: true, hold: false, needBoth: true, passMin: 90, ungated: true },                // Walkthrough 4: Simulations
+  a43: { live: true, hold: false, needBoth: true, passMin: 90, ungated: true },                // Walkthrough 5: Searching and Efficiency
+  a44: { live: true, hold: false, needBoth: true, passMin: 90, ungated: true },                // Walkthrough 6: Data Abstraction and the Create Task
   /* Unit 8: Digital Information (10 gate walkthroughs, each with a graded assignment under it, and a quiz) */
-  a45: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", fresh: true, passMin: 100 },   // Unit 8 Walkthrough 1: Intro to Digital Information (a gate: 100% opens the assignment under it)
-  a46: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", passMin: 100 },   // Unit 8 Walkthrough 2: Number Systems (a gate: 100% opens the assignment under it)
-  a47: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", passMin: 100 },   // Unit 8 Walkthrough 3: Encoding Text with Binary (a gate: 100% opens the assignment under it)
-  a48: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", passMin: 100 },   // Unit 8 Walkthrough 4: Pixel Images (a gate: 100% opens the assignment under it)
-  a49: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", passMin: 100 },   // Unit 8 Walkthrough 5: Hexadecimal (a gate: 100% opens the assignment under it)
-  a50: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", passMin: 100 },   // Unit 8 Walkthrough 6: Pixel Colors (a gate: 100% opens the assignment under it)
-  a51: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", passMin: 100 },   // Unit 8 Walkthrough 7: Image Manipulation (a gate: 100% opens the assignment under it)
-  a52: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", passMin: 100 },   // Unit 8 Walkthrough 8: Data Compression (a gate: 100% opens the assignment under it)
-  a53: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", passMin: 100 },   // Unit 8 Walkthrough 9: Lossy Compression (a gate: 100% opens the assignment under it)
-  a54: { live: true, hold: true, needBoth: true, nextLabel: "the assignment under it", passMin: 100 },   // Unit 8 Walkthrough 10: Cryptography (a gate: 100% opens the assignment under it)
-  a55: { live: true, part: "project", seq: 1.5, passMin: 0 },   // Unit 8 Assignment 1: graded work under Walkthrough 1
-  a56: { live: true, part: "project", seq: 2.5, passMin: 0 },   // Unit 8 Assignment 2: graded work under Walkthrough 2
-  a57: { live: true, part: "project", seq: 3.5, passMin: 0 },   // Unit 8 Assignment 3: graded work under Walkthrough 3
-  a58: { live: true, part: "project", seq: 4.5, passMin: 0 },   // Unit 8 Assignment 4: graded work under Walkthrough 4
-  a59: { live: true, part: "project", seq: 5.5, passMin: 0 },   // Unit 8 Assignment 5: graded work under Walkthrough 5
-  a60: { live: true, part: "project", seq: 6.5, passMin: 0 },   // Unit 8 Assignment 6: graded work under Walkthrough 6
-  a61: { live: true, part: "project", seq: 7.5, passMin: 0 },   // Unit 8 Assignment 7: graded work under Walkthrough 7
-  a62: { live: true, part: "project", seq: 8.5, passMin: 0 },   // Unit 8 Assignment 8: graded work under Walkthrough 8
-  a63: { live: true, part: "project", seq: 9.5, passMin: 0 },   // Unit 8 Assignment 9: graded work under Walkthrough 9
-  a64: { live: true, part: "project", seq: 10.5, passMin: 0 },   // Unit 8 Assignment 10: graded work under Walkthrough 10
+  a45: { live: true, hold: false, needBoth: true, nextLabel: "the assignment under it", fresh: true, passMin: 100, ungated: true },   // Unit 8 Walkthrough 1: Intro to Digital Information (a gate: 100% opens the assignment under it)
+  a46: { live: true, hold: false, needBoth: true, nextLabel: "the assignment under it", passMin: 100, ungated: true },   // Unit 8 Walkthrough 2: Number Systems (a gate: 100% opens the assignment under it)
+  a47: { live: true, hold: false, needBoth: true, nextLabel: "the assignment under it", passMin: 100, ungated: true },   // Unit 8 Walkthrough 3: Encoding Text with Binary (a gate: 100% opens the assignment under it)
+  a48: { live: true, hold: false, needBoth: true, nextLabel: "the assignment under it", passMin: 100, ungated: true },   // Unit 8 Walkthrough 4: Pixel Images (a gate: 100% opens the assignment under it)
+  a49: { live: true, hold: false, needBoth: true, nextLabel: "the assignment under it", passMin: 100, ungated: true },   // Unit 8 Walkthrough 5: Hexadecimal (a gate: 100% opens the assignment under it)
+  a50: { live: true, hold: false, needBoth: true, nextLabel: "the assignment under it", passMin: 100, ungated: true },   // Unit 8 Walkthrough 6: Pixel Colors (a gate: 100% opens the assignment under it)
+  a51: { live: true, hold: false, needBoth: true, nextLabel: "the assignment under it", passMin: 100, ungated: true },   // Unit 8 Walkthrough 7: Image Manipulation (a gate: 100% opens the assignment under it)
+  a52: { live: true, hold: false, needBoth: true, nextLabel: "the assignment under it", passMin: 100, ungated: true },   // Unit 8 Walkthrough 8: Data Compression (a gate: 100% opens the assignment under it)
+  a53: { live: true, hold: false, needBoth: true, nextLabel: "the assignment under it", passMin: 100, ungated: true },   // Unit 8 Walkthrough 9: Lossy Compression (a gate: 100% opens the assignment under it)
+  a54: { live: true, hold: false, needBoth: true, nextLabel: "the assignment under it", passMin: 100, ungated: true },   // Unit 8 Walkthrough 10: Cryptography (a gate: 100% opens the assignment under it)
+  a55: { live: true, part: "project", seq: 1.5, passMin: 0, ungated: true },   // Unit 8 Assignment 1: graded work under Walkthrough 1
+  a56: { live: true, part: "project", seq: 2.5, passMin: 0, ungated: true },   // Unit 8 Assignment 2: graded work under Walkthrough 2
+  a57: { live: true, part: "project", seq: 3.5, passMin: 0, ungated: true },   // Unit 8 Assignment 3: graded work under Walkthrough 3
+  a58: { live: true, part: "project", seq: 4.5, passMin: 0, ungated: true },   // Unit 8 Assignment 4: graded work under Walkthrough 4
+  a59: { live: true, part: "project", seq: 5.5, passMin: 0, ungated: true },   // Unit 8 Assignment 5: graded work under Walkthrough 5
+  a60: { live: true, part: "project", seq: 6.5, passMin: 0, ungated: true },   // Unit 8 Assignment 6: graded work under Walkthrough 6
+  a61: { live: true, part: "project", seq: 7.5, passMin: 0, ungated: true },   // Unit 8 Assignment 7: graded work under Walkthrough 7
+  a62: { live: true, part: "project", seq: 8.5, passMin: 0, ungated: true },   // Unit 8 Assignment 8: graded work under Walkthrough 8
+  a63: { live: true, part: "project", seq: 9.5, passMin: 0, ungated: true },   // Unit 8 Assignment 9: graded work under Walkthrough 9
+  a64: { live: true, part: "project", seq: 10.5, passMin: 0, ungated: true },   // Unit 8 Assignment 10: graded work under Walkthrough 10
   a65: { live: true, hold: true, passMin: 90 },  // Unit 8 Quiz: Digital Information (opens when you open it)
   /* Unit 9: Practice Performance Task (starts its own chain) */
-  a66: { live: true, hold: true, fresh: true, passMin: 90 },   // Unit 9 Practice PT 2: The Shopping List
+  a66: { live: true, hold: false, fresh: true, passMin: 90, ungated: true },   // Unit 9 Practice PT 2: The Shopping List
   /* WALKTHROUGH + MISSION pilot (a101 and up). Each pair: a Walkthrough worth 50 points that must reach 100 on the auto-checker to open its Mission (100 points).
      A Mission at 90 opens the next Walkthrough. All hidden from students (live: false) until you change a line to live: true.
      To open the whole Unit 10 pilot, change live: false to live: true on a101 to a108. fresh: true starts a new chain at the first item of a unit. */
-  a124: { live: true, fresh: true, passMin: 100, num: 1 },   // Unit 10 Walkthrough 1: The Internet Is a Highway (10.1 and 10.2): lanes, vehicles, modem vs router
-  a125: { live: true, fresh: true, passMin: 100, num: 2 },   // Unit 10 Walkthrough 2: Your Router Is a Neighborhood: private IPs, NAT, DHCP, IPv6
-  a101: { live: false, fresh: true, passMin: 100, num: 3 },   // Unit 10 Walkthrough 1: Internet Addresses (10.3)
-  a102: { live: false, passMin: 90 },                 // Mission 10.3: The Network Club Bouncer
-  a103: { live: false, passMin: 100, num: 4 },                // Unit 10 Walkthrough 2: DNS (10.5)
-  a104: { live: false, passMin: 90 },                 // Mission 10.5: DNS Detective
-  a105: { live: false, passMin: 100, num: 5 },                // Unit 10 Walkthrough 3: Routing (10.6)
-  a106: { live: false, passMin: 90 },                 // Mission 10.6: Storm Warning
-  a107: { live: false, passMin: 100, num: 6 },                // Unit 10 Walkthrough 4: Packets and Protocols (10.7)
-  a108: { live: false, passMin: 90 },                 // Mission 10.7: Packet Post Office
-  a109: { live: false, passMin: 100 },                // Unit 7 Walkthrough 7 (after Walkthroughs 1 to 6): Lists, Meet the Cast
-  a110: { live: false, passMin: 90 },                 // Mission 7.1: Cartoon Creator Studio
-  a111: { live: false, passMin: 0 },                  // Unit 8 FINAL vault: a 10-round review of all lessons (hidden: only you can see and play it)
+  a124: { live: true, fresh: true, passMin: 100, num: 1, ungated: true },   // Unit 10 Walkthrough 1: The Internet Is a Highway (10.1 and 10.2): lanes, vehicles, modem vs router
+  a125: { live: true, fresh: true, passMin: 100, num: 2, ungated: true },   // Unit 10 Walkthrough 2: Your Router Is a Neighborhood: private IPs, NAT, DHCP, IPv6
+  a101: { live: true, fresh: true, passMin: 100, num: 3, ungated: true },   // Unit 10 Walkthrough 1: Internet Addresses (10.3)
+  a102: { live: true, passMin: 90, ungated: true },                 // Mission 10.3: The Network Club Bouncer
+  a103: { live: true, passMin: 100, num: 4, ungated: true },                // Unit 10 Walkthrough 2: DNS (10.5)
+  a104: { live: true, passMin: 90, ungated: true },                 // Mission 10.5: DNS Detective
+  a105: { live: true, passMin: 100, num: 5, ungated: true },                // Unit 10 Walkthrough 3: Routing (10.6)
+  a106: { live: true, passMin: 90, ungated: true },                 // Mission 10.6: Storm Warning
+  a107: { live: true, passMin: 100, num: 6, ungated: true },                // Unit 10 Walkthrough 4: Packets and Protocols (10.7)
+  a108: { live: true, passMin: 90, ungated: true },                 // Mission 10.7: Packet Post Office
+  a109: { live: true, passMin: 100, ungated: true },                // Unit 7 Walkthrough 7 (after Walkthroughs 1 to 6): Lists, Meet the Cast
+  a110: { live: true, passMin: 90, ungated: true },                 // Mission 7.1: Cartoon Creator Studio
+  a111: { live: true, passMin: 0, ungated: true },                  // Unit 8 FINAL vault: a 10-round review of all lessons (hidden: only you can see and play it)
   /* Unit 8 lesson vaults: a game that is the SECOND assessment for each lesson (after the walkthrough and its Python assignment). Hidden for now. */
-  a112: { live: false, passMin: 0 },                  // Vault 8.1: Intro to Digital Information
-  a113: { live: false, passMin: 0 },                  // Vault 8.2: Number Systems
-  a114: { live: false, passMin: 0 },                  // Vault 8.3: Encoding Text with Binary
-  a115: { live: false, passMin: 0 },                  // Vault 8.4: Pixel Images
-  a116: { live: false, passMin: 0 },                  // Vault 8.5: Hexadecimal
-  a117: { live: false, passMin: 0 },                  // Vault 8.6: Pixel Colors
-  a118: { live: false, passMin: 0 },                  // Vault 8.7: Image Manipulation
-  a119: { live: false, passMin: 0 },                  // Vault 8.8: Data Compression
-  a120: { live: false, passMin: 0 },                  // Vault 8.9: Lossy Compression
-  a121: { live: false, passMin: 0 },                  // Vault 8.10: Cryptography
-  a122: { live: true, fresh: true, passMin: 0 },                  // Castle Byte: the Unit 8 survival horror adventure (learn or challenge mode)
-  a123: { live: true, fresh: true, passMin: 0 },                  // Dead Signal: the Unit 10 survival horror adventure (learn or challenge mode)
+  a112: { live: true, passMin: 0, ungated: true },                  // Vault 8.1: Intro to Digital Information
+  a113: { live: true, passMin: 0, ungated: true },                  // Vault 8.2: Number Systems
+  a114: { live: true, passMin: 0, ungated: true },                  // Vault 8.3: Encoding Text with Binary
+  a115: { live: true, passMin: 0, ungated: true },                  // Vault 8.4: Pixel Images
+  a116: { live: true, passMin: 0, ungated: true },                  // Vault 8.5: Hexadecimal
+  a117: { live: true, passMin: 0, ungated: true },                  // Vault 8.6: Pixel Colors
+  a118: { live: true, passMin: 0, ungated: true },                  // Vault 8.7: Image Manipulation
+  a119: { live: true, passMin: 0, ungated: true },                  // Vault 8.8: Data Compression
+  a120: { live: true, passMin: 0, ungated: true },                  // Vault 8.9: Lossy Compression
+  a121: { live: true, passMin: 0, ungated: true },                  // Vault 8.10: Cryptography
+  a122: { live: true, fresh: true, passMin: 0, ungated: true },                  // Castle Byte: the Unit 8 survival horror adventure (learn or challenge mode)
+  a123: { live: true, fresh: true, passMin: 0, ungated: true },                  // Dead Signal: the Unit 10 survival horror adventure (learn or challenge mode)
   /* UNITS 3 TO 6, the third and fourth part of every lesson: a graded ASSIGNMENT (a126 to a159) and a Code Vault GAME (a160 to a193). All hidden until you change a line to live: true. Not gating (passMin 0). */
-  a126: { live: true, fresh: false, passMin: 0 },
-  a127: { live: true, fresh: false, passMin: 0 },
-  a128: { live: true, fresh: false, passMin: 0 },
-  a129: { live: true, fresh: false, passMin: 0 },
-  a130: { live: true, fresh: false, passMin: 0 },
-  a131: { live: true, fresh: false, passMin: 0 },
-  a132: { live: true, fresh: false, passMin: 0 },
-  a133: { live: true, fresh: false, passMin: 0 },
-  a134: { live: true, fresh: false, passMin: 0 },
-  a135: { live: true, fresh: false, passMin: 0 },
-  a136: { live: true, fresh: false, passMin: 0 },
-  a137: { live: true, fresh: false, passMin: 0 },
-  a138: { live: true, fresh: false, passMin: 0 },
-  a139: { live: false, fresh: false, passMin: 0 },
-  a140: { live: false, fresh: false, passMin: 0 },
-  a141: { live: false, fresh: false, passMin: 0 },
-  a142: { live: false, fresh: false, passMin: 0 },
-  a143: { live: false, fresh: false, passMin: 0 },
-  a144: { live: false, fresh: false, passMin: 0 },
-  a145: { live: false, fresh: false, passMin: 0 },
-  a146: { live: false, fresh: false, passMin: 0 },
-  a147: { live: false, fresh: false, passMin: 0 },
-  a148: { live: false, fresh: false, passMin: 0 },
-  a149: { live: false, fresh: false, passMin: 0 },
-  a150: { live: false, fresh: false, passMin: 0 },
-  a151: { live: false, fresh: false, passMin: 0 },
-  a152: { live: false, fresh: false, passMin: 0 },
-  a153: { live: false, fresh: false, passMin: 0 },
-  a154: { live: false, fresh: false, passMin: 0 },
-  a155: { live: false, fresh: false, passMin: 0 },
-  a156: { live: false, fresh: false, passMin: 0 },
-  a157: { live: false, fresh: false, passMin: 0 },
-  a158: { live: false, fresh: false, passMin: 0 },
-  a159: { live: false, fresh: false, passMin: 0 },
-  a160: { live: true, fresh: false, passMin: 0 },
-  a161: { live: true, fresh: false, passMin: 0 },
-  a162: { live: true, fresh: false, passMin: 0 },
-  a163: { live: true, fresh: false, passMin: 0 },
-  a164: { live: true, fresh: false, passMin: 0 },
-  a165: { live: true, fresh: false, passMin: 0 },
-  a166: { live: true, fresh: false, passMin: 0 },
-  a167: { live: true, fresh: false, passMin: 0 },
-  a168: { live: true, fresh: false, passMin: 0 },
-  a169: { live: true, fresh: false, passMin: 0 },
-  a170: { live: true, fresh: false, passMin: 0 },
-  a171: { live: true, fresh: false, passMin: 0 },
-  a172: { live: true, fresh: false, passMin: 0 },
-  a173: { live: false, fresh: false, passMin: 0 },
-  a174: { live: false, fresh: false, passMin: 0 },
-  a175: { live: false, fresh: false, passMin: 0 },
-  a176: { live: false, fresh: false, passMin: 0 },
-  a177: { live: false, fresh: false, passMin: 0 },
-  a178: { live: false, fresh: false, passMin: 0 },
-  a179: { live: false, fresh: false, passMin: 0 },
-  a180: { live: false, fresh: false, passMin: 0 },
-  a181: { live: false, fresh: false, passMin: 0 },
-  a182: { live: false, fresh: false, passMin: 0 },
-  a183: { live: false, fresh: false, passMin: 0 },
-  a184: { live: false, fresh: false, passMin: 0 },
-  a185: { live: false, fresh: false, passMin: 0 },
-  a186: { live: false, fresh: false, passMin: 0 },
-  a187: { live: false, fresh: false, passMin: 0 },
-  a188: { live: false, fresh: false, passMin: 0 },
-  a189: { live: false, fresh: false, passMin: 0 },
-  a190: { live: false, fresh: false, passMin: 0 },
-  a191: { live: false, fresh: false, passMin: 0 },
-  a192: { live: false, fresh: false, passMin: 0 },
-  a193: { live: false, fresh: false, passMin: 0 },
+  a126: { live: true, fresh: false, passMin: 0, ungated: true },
+  a127: { live: true, fresh: false, passMin: 0, ungated: true },
+  a128: { live: true, fresh: false, passMin: 0, ungated: true },
+  a129: { live: true, fresh: false, passMin: 0, ungated: true },
+  a130: { live: true, fresh: false, passMin: 0, ungated: true },
+  a131: { live: true, fresh: false, passMin: 0, ungated: true },
+  a132: { live: true, fresh: false, passMin: 0, ungated: true },
+  a133: { live: true, fresh: false, passMin: 0, ungated: true },
+  a134: { live: true, fresh: false, passMin: 0, ungated: true },
+  a135: { live: true, fresh: false, passMin: 0, ungated: true },
+  a136: { live: true, fresh: false, passMin: 0, ungated: true },
+  a137: { live: true, fresh: false, passMin: 0, ungated: true },
+  a138: { live: true, fresh: false, passMin: 0, ungated: true },
+  a139: { live: true, fresh: false, passMin: 0, ungated: true },
+  a140: { live: true, fresh: false, passMin: 0, ungated: true },
+  a141: { live: true, fresh: false, passMin: 0, ungated: true },
+  a142: { live: true, fresh: false, passMin: 0, ungated: true },
+  a143: { live: true, fresh: false, passMin: 0, ungated: true },
+  a144: { live: true, fresh: false, passMin: 0, ungated: true },
+  a145: { live: true, fresh: false, passMin: 0, ungated: true },
+  a146: { live: true, fresh: false, passMin: 0, ungated: true },
+  a147: { live: true, fresh: false, passMin: 0, ungated: true },
+  a148: { live: true, fresh: false, passMin: 0, ungated: true },
+  a149: { live: true, fresh: false, passMin: 0, ungated: true },
+  a150: { live: true, fresh: false, passMin: 0, ungated: true },
+  a151: { live: true, fresh: false, passMin: 0, ungated: true },
+  a152: { live: true, fresh: false, passMin: 0, ungated: true },
+  a153: { live: true, fresh: false, passMin: 0, ungated: true },
+  a154: { live: true, fresh: false, passMin: 0, ungated: true },
+  a155: { live: true, fresh: false, passMin: 0, ungated: true },
+  a156: { live: true, fresh: false, passMin: 0, ungated: true },
+  a157: { live: true, fresh: false, passMin: 0, ungated: true },
+  a158: { live: true, fresh: false, passMin: 0, ungated: true },
+  a159: { live: true, fresh: false, passMin: 0, ungated: true },
+  a160: { live: true, fresh: false, passMin: 0, ungated: true },
+  a161: { live: true, fresh: false, passMin: 0, ungated: true },
+  a162: { live: true, fresh: false, passMin: 0, ungated: true },
+  a163: { live: true, fresh: false, passMin: 0, ungated: true },
+  a164: { live: true, fresh: false, passMin: 0, ungated: true },
+  a165: { live: true, fresh: false, passMin: 0, ungated: true },
+  a166: { live: true, fresh: false, passMin: 0, ungated: true },
+  a167: { live: true, fresh: false, passMin: 0, ungated: true },
+  a168: { live: true, fresh: false, passMin: 0, ungated: true },
+  a169: { live: true, fresh: false, passMin: 0, ungated: true },
+  a170: { live: true, fresh: false, passMin: 0, ungated: true },
+  a171: { live: true, fresh: false, passMin: 0, ungated: true },
+  a172: { live: true, fresh: false, passMin: 0, ungated: true },
+  a173: { live: true, fresh: false, passMin: 0, ungated: true },
+  a174: { live: true, fresh: false, passMin: 0, ungated: true },
+  a175: { live: true, fresh: false, passMin: 0, ungated: true },
+  a176: { live: true, fresh: false, passMin: 0, ungated: true },
+  a177: { live: true, fresh: false, passMin: 0, ungated: true },
+  a178: { live: true, fresh: false, passMin: 0, ungated: true },
+  a179: { live: true, fresh: false, passMin: 0, ungated: true },
+  a180: { live: true, fresh: false, passMin: 0, ungated: true },
+  a181: { live: true, fresh: false, passMin: 0, ungated: true },
+  a182: { live: true, fresh: false, passMin: 0, ungated: true },
+  a183: { live: true, fresh: false, passMin: 0, ungated: true },
+  a184: { live: true, fresh: false, passMin: 0, ungated: true },
+  a185: { live: true, fresh: false, passMin: 0, ungated: true },
+  a186: { live: true, fresh: false, passMin: 0, ungated: true },
+  a187: { live: true, fresh: false, passMin: 0, ungated: true },
+  a188: { live: true, fresh: false, passMin: 0, ungated: true },
+  a189: { live: true, fresh: false, passMin: 0, ungated: true },
+  a190: { live: true, fresh: false, passMin: 0, ungated: true },
+  a191: { live: true, fresh: false, passMin: 0, ungated: true },
+  a192: { live: true, fresh: false, passMin: 0, ungated: true },
+  a193: { live: true, fresh: false, passMin: 0, ungated: true },
 };
 /* WORDING CHANGES to a walkthrough, kept in the code (no PIN). Each one gets a copy of the walkthrough and changes it. */
 const STEP5_ODD = "Now test an odd number **without changing your code above**. Below your last line, type `number = 7`, then type the same four `print` lines again under it (you can copy and paste your own lines). Add an **end-of-line comment** at the end of your last print line with what the four answers were for 7. If that line already has a comment, add to it. [[How do I test 7?|oddtest]]";
