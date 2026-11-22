@@ -224,6 +224,51 @@ body.gameon #game{display:flex}
 .modal{position:fixed;inset:0;background:#000a;display:none;place-items:center;z-index:50}.modal.show{display:grid}
 .modal .box{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;max-width:420px}
 .modal .box p{margin:0 0 10px}.modal .row{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+/* the Lessons picker (replaces the long Assignment dropdown) */
+#slot{display:none!important}
+.top #lessonBtn{max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-color:var(--acc)}
+#mLessons{z-index:260;background:#000c}
+#mLessons .lpbox{width:min(1120px,96vw);height:min(760px,92vh);max-width:none;padding:0;display:flex;flex-direction:column;overflow:hidden;background:var(--panel)}
+.lphead{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--rule);background:var(--pop)}
+.lphead h3{margin:0;font:800 17px Manrope,sans-serif;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lphead .btn{font-size:13px;padding:6px 14px}
+#lpBody{flex:1;min-height:0;overflow:auto;padding:18px}
+.lpunits{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.lpunit{display:flex;flex-direction:column;gap:6px;text-align:left;background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:16px 18px;cursor:pointer;color:var(--ink);font:inherit;min-height:132px;transition:transform .12s,border-color .12s}
+.lpunit:hover,.lpunit:focus{border-color:var(--acc);transform:translateY(-2px);outline:0}
+.lpunit.here{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+.lpunit .un{font:800 34px/1 "JetBrains Mono",monospace;color:var(--acc)}
+.lpunit .nm{font:800 15px/1.25 Manrope,sans-serif}
+.lpunit .pr{margin-top:auto;font-size:12px;color:var(--soft)}
+.lpbar{height:6px;border-radius:6px;background:var(--deep);overflow:hidden}.lpbar i{display:block;height:100%;background:var(--ok)}
+.lptop{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px}
+.lptop h4{margin:0;font:800 20px Manrope,sans-serif;flex:1;min-width:200px}
+.lptop a,.lptop button{font:700 13px Manrope,sans-serif}
+.lpgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.lpcard{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:12px 12px 10px;display:flex;flex-direction:column;gap:6px}
+.lpcard.here{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+.lpcard.alldone{border-color:var(--ok)}
+.lpch{display:flex;gap:8px;align-items:baseline;padding:0 4px 4px}
+.lpch .ln{font:800 12px "JetBrains Mono",monospace;color:var(--acc);white-space:nowrap}
+.lpch .lt{font:800 14.5px/1.25 Manrope,sans-serif;flex:1}
+.lpch .ld{font-size:15px;color:var(--ok)}
+.lprow{display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:8px 10px;border-radius:9px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);font:inherit;text-decoration:none;min-height:42px}
+button.lprow.open,a.lprow.open{cursor:pointer}
+button.lprow.open:hover,button.lprow.open:focus,a.lprow.open:hover,a.lprow.open:focus{border-color:var(--acc);background:var(--acct);outline:0}
+.lprow .ic{font-size:17px;flex:none;width:22px;text-align:center}
+.lprow .tx{flex:1;min-width:0;line-height:1.25}
+.lprow .tx b{display:block;font:800 11px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}
+.lprow .tx span{display:block;font-size:12.5px;overflow-wrap:anywhere}
+.lprow .tx em{display:block;font-style:normal;font-size:11px;color:var(--soft);margin-top:2px}
+.lprow .st{flex:none;font:700 11px Manrope,sans-serif;color:var(--soft);text-align:right;max-width:104px}
+.lprow.done{border-color:var(--ok)}.lprow.done .st{color:var(--ok)}
+.lprow.prog .st{color:var(--warnl,#FCD34D)}
+.lprow.cur{border-color:var(--acc);background:var(--acct)}.lprow.cur .st{color:var(--acc)}
+.lprow.locked,.lprow.soon{opacity:.55;cursor:not-allowed}
+.lpsec{margin:22px 0 10px;font:800 13px "JetBrains Mono",monospace;letter-spacing:.07em;text-transform:uppercase;color:var(--soft)}
+.lpextra{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:8px}
+.lpnone{color:var(--soft);padding:30px 6px}
+@media(max-width:560px){#lpBody{padding:12px}.lpunits,.lpgrid,.lpextra{grid-template-columns:1fr}}
 @media (max-width:820px){main{grid-template-columns:1fr;grid-template-rows:auto 1.1fr 1.3fr}body.noass main{grid-template-rows:1.1fr 1.3fr}#paneAss{max-height:34vh}#split0,#split1{display:none}.pane{border-right:0;border-bottom:1px solid var(--rule)}}
 .topbanner{display:flex;align-items:flex-start;gap:18px;padding:3px 12px;background:var(--bnr);border-bottom:1px solid var(--bnrrule);color:var(--bnrink)}
 #cs .csc,#csDetail,#csDetail pre,#csDetail code,#csDetail td{font-variant-ligatures:none!important;font-feature-settings:"liga" 0,"calt" 0!important}   /* != <= >= == must look exactly as typed, not as one joined symbol */
@@ -282,6 +327,7 @@ body.mconly #run,body.mconly #clear,body.mconly #reset,body.mconly #histBtn,body
   <button class="btn" id="themeBtn" title="Change the editor colors">&#127912; Theme</button>
   <button class="btn" id="csBtn" title="Look up any Python concept">&#128214; Cheat sheet</button>
   <button class="btn" id="histBtn" title="Get back an earlier version of your code">History</button>
+  <button class="btn" id="lessonBtn" title="Pick a unit and lesson: notes, walkthrough, assignment and game">&#128218; Lessons</button>
   <select id="slot" aria-label="Assignment"></select>
   <button class="btn on" id="assBtn" title="Show or hide the assignment instructions">Instructions</button>
   <span class="status" id="status">Loading Python&hellip;</span>
@@ -341,11 +387,13 @@ body.mconly #run,body.mconly #clear,body.mconly #reset,body.mconly #histBtn,body
   </section>
 </main>
 <div id="qFinish" role="dialog" aria-modal="true" aria-label="Submit your quiz"><div class="qfbox"><div class="qfbig">100%!</div><h2>Your quiz is perfect</h2><p>Click the button to turn it in. You must submit before you can leave this quiz.</p><button class="btn go" id="qfGo">Submit my quiz</button></div></div>
+<div class="modal" id="mLessons"><div class="box lpbox" role="dialog" aria-modal="true" aria-label="Choose a lesson"><div class="lphead"><h3 id="lpTitle">Choose your lesson</h3><button class="btn" id="lpClose">Close &#10005;</button></div><div id="lpBody"></div></div></div>
 <div class="modal" id="mSub"><div class="box"><div id="mSubBody"></div><div class="row"><button class="btn" id="mCancel">Cancel</button><button class="btn go" id="mGo">Submit</button></div></div></div>
 <div class="modal" id="mHist"><div class="box" role="dialog" aria-label="Code history" style="max-width:640px;width:92vw;max-height:84vh;overflow:auto"><h3 style="margin:0 0 6px">Your saved versions</h3><p style="color:var(--soft);margin:0 0 10px">Lost some code? Pick an earlier version and click Restore. Your current code goes into Undo (Ctrl+Z), so you can come back.</p><div id="histBody"></div><div class="row"><button class="btn" id="histClose">Close</button></div></div></div>
 <div class="modal" id="mTip"><div class="box tipbox" role="dialog" aria-label="Help"><div class="tiphead"><h3 id="tipTitle"></h3><button class="btn" id="tipClose">Got it</button></div><div id="tipBody"></div></div></div>
 <script src="themes.js"></script>
 <script src="assignments.js"></script>
+<script src="lessons.js"></script>
 <script src="appendix-a-core.js"></script>
 <script src="appendix-a-1.js"></script>
 <script src="appendix-a-2.js"></script>
@@ -1605,8 +1653,107 @@ function buildSlots() {
     groups[u].sort(function (a, b) { return a.ord - b.ord; });
     h += '<optgroup label="' + escA(u) + '">' + groups[u].map(function (x) { return x.html; }).join("") + "</optgroup>";
   });
-  $("slot").innerHTML = h + rest; $("slot").value = slot; if (typeof quizSetup === "function") quizSetup();
+  $("slot").innerHTML = h + rest; $("slot").value = slot; if (typeof quizSetup === "function") quizSetup(); lpRefresh();
 }
+/* =====================================================================================
+   LESSONS PICKER: the big pop-up (units, then one box per lesson with notes, walkthrough, assignment and game).
+   The lesson map is in lessons.js. It picks the same slots the old dropdown did: it sets the hidden #slot box and fires its change event.
+   ===================================================================================== */
+var LP = { open: false, unit: null };
+function lpLocked(id) { var L = window.PY_LOCKED || []; for (var i = 0; i < L.length; i++) if (L[i].id === id) return L[i]; return null; }
+function lpState(id) {   /* what this student sees for one slot: open, locked (with the reason), or nothing yet */
+  var A = window.PY_ASSIGN && window.PY_ASSIGN[id]; if (id && A && id !== "example") return { id: id, st: "open", A: A, title: A.title || "", ord: slotOrd(id, A) };
+  var L = id ? lpLocked(id) : null; if (L) return { id: id, st: "locked", L: L, title: L.title || L.concept || "", ord: typeof L.ord === "number" ? L.ord : 0 };
+  return null;
+}
+function lpIds(v) { return !v ? [] : (v instanceof Array ? v : [v]); }
+function lpUnitInfo(u) {   /* one unit: its lessons plus everything else of that unit that the editor knows about */
+  var claimed = {}, lessons = (u.lessons || []).map(function (l, i) {
+    var parts = { w: lpIds(l.w), p: lpIds(l.p), g: lpIds(l.g) };
+    ["w", "p", "g"].forEach(function (k) { parts[k].forEach(function (id) { claimed[id] = 1; }); });
+    return { id: l.id === undefined ? u.n + "." + (i + 1) : l.id, t: l.t, notes: l.notes || u.notes || "", unitNotes: !l.notes, parts: parts };
+  });
+  return { u: u, lessons: lessons, claimed: claimed };
+}
+function lpAllUnits() {
+  var units = (window.PY_LESSONS || []).map(function (u) { var i = lpUnitInfo(u); i.key = "u" + u.n; i.name = "Unit " + u.n + ": " + u.name; i.badge = String(u.n); return i; }), byKey = {}, byNum = {};
+  units.forEach(function (i) { byKey[i.key] = i; byNum[i.u.n] = i; });
+  var seen = {}, ids = Object.keys(window.PY_ASSIGN || {}).concat((window.PY_LOCKED || []).map(function (l) { return l.id; }));
+  ids.forEach(function (id) {
+    if (seen[id] || id === "example" || id === "free") return; seen[id] = 1;
+    var s = lpState(id); if (!s) return; var un = (s.A && s.A.unit) || (s.L && s.L.unit) || "", n = unitNum(un), tgt = n < 99 ? byNum[n] : null;
+    if (!tgt) { tgt = byKey[un || "other"]; if (!tgt) { var ab = /^Appendix\s+(\w)/i.exec(un); tgt = byKey[un || "other"] = { key: un || "other", name: un || "Other", badge: ab ? ab[1].toUpperCase() : "&middot;&middot;&middot;", u: { n: 99, name: un, lessons: [] }, lessons: [], claimed: {} }; units.push(tgt); } }
+    if (!tgt.claimed[id]) { (tgt.extra = tgt.extra || []).push(s); }
+  });
+  units.forEach(function (i) { (i.extra || []).sort(function (a, b) { return a.ord - b.ord; }); });
+  return units.filter(function (i) { return i.lessons.length || (i.extra && i.extra.length); }).sort(function (a, b) { return a.u.n - b.u.n || (a.name < b.name ? -1 : 1); });
+}
+function lpUnitOf(id) { var A = window.PY_ASSIGN && window.PY_ASSIGN[id], un = A && A.unit; if (!un) return null; var all = lpAllUnits(); for (var i = 0; i < all.length; i++) if (all[i].name.indexOf(un) === 0 || all[i].key === un || (unitNum(un) < 99 && all[i].u.n === unitNum(un))) return all[i].key; return null; }
+function lpReason(L) { return L.held ? "Your teacher will open this" : "Unlocks when you " + (L.needPass ? "score " + L.needPass + "% on " : "submit ") + (L.needName || "Walkthrough " + L.needNum); }
+function lpRow(kind, s, label, stText) {
+  var ic = { notes: "&#128214;", w: "&#128187;", p: "&#128221;", g: "&#127918;", q: "&#128203;" }[kind] || "&#128196;";
+  if (!s) return '<div class="lprow soon" aria-disabled="true"><span class="ic">' + ic + '</span><span class="tx"><b>' + label + '</b><span>Coming soon</span></span></div>';
+  var nm = escA(s.title || label), draft = s.A && s.A.live === false ? " [DRAFT]" : "";
+  if (s.st === "locked") return '<div class="lprow locked" aria-disabled="true"><span class="ic">&#128274;</span><span class="tx"><b>' + label + '</b><span>' + nm + '</span><em>' + escA(lpReason(s.L)) + '</em></span></div>';
+  var cls = "open", st = slotPoints(s.A) + " pts";
+  if (MY[s.id] === "sub") { cls += " done"; st = "&#10003; Done &middot; " + slotPoints(s.A) + " pts"; } else if (MY[s.id] === "draft") { cls += " prog"; st = "In progress"; }
+  if (s.id === slot) { cls += " cur"; st = "You are here"; } else if (stText && MY[s.id] !== "sub" && MY[s.id] !== "draft") st = stText;
+  return '<button type="button" class="lprow ' + cls + '" data-open="' + s.id + '"><span class="ic">' + ic + '</span><span class="tx"><b>' + label + '</b><span>' + nm + escA(draft) + '</span></span><span class="st">' + st + '</span></button>';
+}
+function lpProgress(info) {
+  var tot = 0, done = 0, count = function (s) { if (s) { tot++; if (MY[s.id] === "sub") done++; } };
+  info.lessons.forEach(function (l) { ["w", "p", "g"].forEach(function (k) { l.parts[k].forEach(function (id) { count(lpState(id)); }); }); });
+  (info.extra || []).forEach(count);
+  return { tot: tot, done: done };
+}
+function lpRenderUnits() {
+  var all = lpAllUnits(), here = lpUnitOf(slot), h = '<div class="lpunits">';
+  all.forEach(function (i) {
+    var p = lpProgress(i), pct = p.tot ? Math.round(p.done / p.tot * 100) : 0;
+    h += '<button type="button" class="lpunit' + (i.key === here ? " here" : "") + '" data-unit="' + escA(i.key) + '"><span class="un">' + i.badge + '</span><span class="nm">' + escA(i.u.n < 99 ? i.name.replace(/^Unit \d+:\s*/, "") : i.name.replace(/^Appendix \w:\s*/, "")) + '</span><span class="lpbar"><i style="width:' + pct + '%"></i></span><span class="pr">' + p.done + ' of ' + p.tot + ' done' + (i.key === here ? " &middot; you are here" : "") + '</span></button>';
+  });
+  var pr = [lpRow("w", { id: "free", st: "open", A: { points: 0 }, title: "Sandbox (practice, nothing is graded)" }, "Practice", "free play"), lpRow("w", { id: "example", st: "open", A: { points: 0 }, title: "Example: what finished work looks like" }, "Example", "read only")];
+  h += '</div><div class="lpsec">Practice</div><div class="lpextra">' + pr.join("") + '</div>';
+  $("lpTitle").textContent = "Choose your lesson"; $("lpBody").innerHTML = all.length ? h : '<p class="lpnone">Sign in with your school Google account to see your lessons.</p><div class="lpsec">Practice</div><div class="lpextra">' + pr.join("") + '</div>';
+}
+function lpRenderUnit(key) {
+  var all = lpAllUnits(), info = null; all.forEach(function (i) { if (i.key === key) info = i; });
+  if (!info) { LP.unit = null; return lpRenderUnits(); }
+  var h = '<div class="lptop"><button type="button" class="btn" data-back="1">&larr; All units</button><h4>' + escA(info.name) + '</h4>' + (info.u.notes ? '<a class="btn" href="../apcsp/' + escA(info.u.notes) + '" target="_blank" rel="noopener">&#128214; Unit notes</a>' : "") + '</div><div class="lpgrid">';
+  info.lessons.forEach(function (l) {
+    var rows = "", have = 0, done = 0, declared = l.parts.w.length + l.parts.p.length + l.parts.g.length;
+    var add = function (k, label) { var sts = l.parts[k].map(lpState).filter(function (x) { return x; }); if (!sts.length) { rows += lpRow(k, null, label); return; } sts.forEach(function (s) { have++; if (MY[s.id] === "sub") done++; rows += lpRow(k, s, label); }); };
+    var notesRow = l.notes ? '<a class="lprow open" href="../apcsp/' + escA(l.notes) + '" target="_blank" rel="noopener"><span class="ic">&#128214;</span><span class="tx"><b>Lesson notes</b><span>' + (l.unitNotes ? "Unit notes page" : "Read this first") + '</span></span><span class="st">new tab</span></a>' : lpRow("notes", null, "Lesson notes");
+    add("w", "Walkthrough"); add("p", "Assignment"); add("g", "Game");
+    var cur = false; ["w", "p", "g"].forEach(function (k) { l.parts[k].forEach(function (id) { if (id === slot) cur = true; }); });
+    h += '<div class="lpcard' + (cur ? " here" : "") + (declared && done === declared ? " alldone" : "") + '"><div class="lpch"><span class="ln">' + escA(l.id) + '</span><span class="lt">' + escA(l.t) + '</span>' + (declared && done === declared ? '<span class="ld" title="Every part done">&#10003;</span>' : "") + '</div>' + notesRow + rows + '</div>';
+  });
+  h += "</div>";
+  if (info.extra && info.extra.length) {
+    h += '<div class="lpsec">' + (info.lessons.length ? "Quizzes and unit games" : "Everything in this unit") + '</div><div class="lpextra">' + info.extra.map(function (s) {
+      var A = s.A, part = A ? slotPart(A) : (s.L && s.L.part) || "assignment", kind = (A && A.game) ? "g" : part === "quiz" || part === "test" ? "q" : part === "project" ? "p" : "w";
+      return lpRow(kind, s, (A && A.game) ? "Game" : part === "quiz" ? "Quiz" : part === "test" ? "Test" : part === "project" ? "Assignment" : "Walkthrough");
+    }).join("") + '</div>';
+  }
+  $("lpTitle").textContent = info.name; $("lpBody").innerHTML = h;
+}
+function lpRender() { if (LP.unit) lpRenderUnit(LP.unit); else lpRenderUnits(); }
+function lpOpen() { LP.unit = lpUnitOf(slot); LP.open = true; $("mLessons").classList.add("show"); lpRender(); $("lpBody").scrollTop = 0; setTimeout(function () { try { $("lpClose").focus(); } catch (e) {} }, 0); }
+function lpClose() { LP.open = false; $("mLessons").classList.remove("show"); }
+function lpBtn() { var b = $("lessonBtn"); if (!b) return; var t = slot === "free" || slot === "example" || !(window.PY_ASSIGN && window.PY_ASSIGN[slot]) ? slotLabel(slot) : slotLabel(slot, false); b.innerHTML = "&#128218; " + escA(t); b.title = "Pick a unit and lesson: notes, walkthrough, assignment and game"; }
+function lpRefresh() { lpBtn(); if (LP.open) lpRender(); }
+$("lessonBtn").addEventListener("click", lpOpen);
+$("lpClose").addEventListener("click", lpClose);
+$("mLessons").addEventListener("click", function (e) {
+  if (e.target === $("mLessons")) { lpClose(); return; }
+  var t = e.target; while (t && t !== this && !(t.getAttribute && (t.getAttribute("data-open") || t.getAttribute("data-unit") || t.getAttribute("data-back")))) t = t.parentNode;
+  if (!t || t === this || !t.getAttribute) return;
+  if (t.getAttribute("data-back")) { LP.unit = null; lpRender(); $("lpBody").scrollTop = 0; return; }
+  if (t.getAttribute("data-unit")) { LP.unit = t.getAttribute("data-unit"); lpRender(); $("lpBody").scrollTop = 0; return; }
+  var id = t.getAttribute("data-open"); lpClose();
+  if (id !== slot) { $("slot").value = id; $("slot").dispatchEvent(new Event("change")); }
+});
+document.addEventListener("keydown", function (e) { if (e.key === "Escape" && LP.open) { e.preventDefault(); if (LP.unit && e.shiftKey) { LP.unit = null; lpRender(); } else lpClose(); } });
 function escA(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function decodeJwt(t) { try { var p = t.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"); return JSON.parse(decodeURIComponent(escape(atob(p)))); } catch (e) { return {}; } }
 function initGoogle() {
@@ -1836,7 +1983,7 @@ document.addEventListener("fullscreenchange", function () {
 $("slot").addEventListener("change", function () {
   var chosen = $("slot").value; if (chosen) rememberSlot(chosen);
   lsSet(codeKey(), ta.value); cloudSave().then(function () {
-    slot = $("slot").value; rememberSlot(slot); renderAssignment(); lastCloud = ""; $("cloud").className = "cloud"; showTeacher(null); statusEl.textContent = py ? "Ready" : statusEl.textContent;
+    slot = $("slot").value; rememberSlot(slot); lpBtn(); renderAssignment(); lastCloud = ""; $("cloud").className = "cloud"; showTeacher(null); statusEl.textContent = py ? "Ready" : statusEl.textContent;
     var v = savedCode(); ta.value = v !== null ? v : starter(); gutter(); afterSlotChange(); quizSetup();
   });
 });
