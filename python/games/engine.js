@@ -79,6 +79,14 @@
       how: ["Remember: the first item has <b>index 0</b>.", "Some rounds you edit the list with <b>operations</b> like append and remove.", "<b>3 mistakes</b> and the show is cancelled."] }
   };
 
+  var VAULT_BLURBS = { 1: ["Intro to Digital Information", "bits, bytes, how many values bits can hold, analog versus digital, overflow and round-off"], 2: ["Number Systems", "binary and decimal, place values, binary counting and adding"], 3: ["Encoding Text with Binary", "ASCII, Unicode and how letters become bits"], 4: ["Pixel Images", "bitmaps, rows of bits, resolution and image file sizes"], 5: ["Hexadecimal", "hex digits, hex and decimal, hex and binary"], 6: ["Pixel Colors", "RGB color mixing, hex colors and how many colors a pixel can show"], 7: ["Image Manipulation", "filters as math on pixel values: invert, grayscale, brighten, darken and more"], 8: ["Data Compression", "lossless compression, run-length encoding and compression ratios"], 9: ["Lossy Compression", "lossy versus lossless, what is thrown away, and when each is the right choice"], 10: ["Cryptography", "Caesar ciphers, keys, breaking a cipher and public-key encryption"] };
+  Object.keys(VAULT_BLURBS).forEach(function (n) {
+    INFO["vault" + n] = { title: "VAULT 8." + n + ": " + VAULT_BLURBS[n][0].toUpperCase(), noGate: true,
+      story: "You are a master thief with one night to crack a vault whose ten locks are all about <b>" + VAULT_BLURBS[n][1] + "</b>. This is the second check for lesson 8." + n + ". Crack every lock before the alarm brings the police!",
+      how: INFO.vault.how };
+  });
+  INFO.vault.noGate = true;
+
   /* ---------------------------------------------------------------- sign in ---- */
   function showMsg(id, m, bad) { $(id).textContent = m; $(id).style.color = bad ? "#fca5a5" : ""; }
   function boot() {
@@ -116,7 +124,7 @@
       S.game = j.game; S.preview = !!j.preview; S.info = INFO[j.game] || { title: j.title || "MISSION", story: "", how: [] };
       $("signin").classList.add("hidden"); $("teachNote").style.display = S.preview ? "block" : "none";
       $("inTitle").textContent = S.info.title; $("inStory").innerHTML = S.info.story;
-      $("inHow").innerHTML = S.info.how.map(function (h) { return "<div>&#9654; " + h + "</div>"; }).join("") + "<div>&#9654; <b>10 rounds.</b> 9 right = 90 and opens the next walkthrough. 10 right = 100. You can play again, and the questions change.</div>";
+      $("inHow").innerHTML = S.info.how.map(function (h) { return "<div>&#9654; " + h + "</div>"; }).join("") + "<div>&#9654; <b>10 rounds.</b> " + (S.info.noGate ? "9 right = 90. 10 right = 100." : "9 right = 90 and opens the next walkthrough. 10 right = 100.") + " You can play again, and the questions change.</div>";
       $("inBest").textContent = S.preview ? "Teacher preview: nothing is saved." : (j.best !== null && j.best !== undefined ? "Your best so far: " + j.best + " out of 100 (" + j.runs + " run" + (j.runs === 1 ? "" : "s") + ")" : "You have not played this yet.");
       $("intro").classList.remove("hidden"); document.title = S.info.title + " | SCHS Computer Science";
     }).catch(function () { showMsg("signMsg", "Could not reach the server. Check your internet and refresh.", true); });
@@ -220,7 +228,7 @@
     stopTimer(); var pct = f ? f.pct : G.correct * 10;
     $("rTitle").textContent = over ? "GAME OVER" : "ALL ROUNDS DONE";
     $("rBig").textContent = pct; $("rBig").className = "big " + (pct >= 90 ? "good" : pct >= 60 ? "mid" : "low");
-    $("rMsg").textContent = pct >= 100 ? "PERFECT! Full points. You are a legend." : pct >= 90 ? "MISSION COMPLETE! That score opens the next walkthrough. Play again if you want a perfect 100." : "You need 90 or more to move on. Read the explanations, play again, and the questions will change.";
+    $("rMsg").textContent = pct >= 100 ? "PERFECT! Full points. You are a legend." : pct >= 90 ? "MISSION COMPLETE! " + (S.info && S.info.noGate ? "" : "That score opens the next walkthrough. ") + "Play again if you want a perfect 100." : "You need 90 or more to pass. Read the explanations, play again, and the questions will change.";
     $("rBest").textContent = S.preview ? "Teacher preview: nothing was saved." : (f && f.saved ? "Your best score is " + f.best + " out of 100 (" + f.runs + " run" + (f.runs === 1 ? "" : "s") + ")." : "");
     $("result").classList.remove("hidden"); if (pct >= 90 && window.FX) window.FX.confetti(90);
     try { if (window.opener) window.opener.postMessage({ type: "mission-game", slot: SLOT, pct: pct }, location.origin); } catch (e) {}

@@ -362,4 +362,5 @@
   window.Scenes = { bomb: Bomb, dns: Cliff, storm: Storm, packets: Post, cast: Cast, vault: Vault, W: W, H: H,
     setup: function (context, state) { ctx = context; G = state; Object.keys(this).forEach(function (k) { var s = window.Scenes[k]; if (s && s.init) s.init(); }); },
     NODES: NODES, EDGES: EDGES, linked: linked, npos: npos };
+  for (var vn = 1; vn <= 10; vn++) window.Scenes["vault" + vn] = Vault;   /* the ten lesson vaults share the vault scene */
 })();

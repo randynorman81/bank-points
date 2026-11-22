@@ -12,7 +12,8 @@ const SHOTS = process.argv[2] || "/tmp/gameshots"; fs.mkdirSync(SHOTS, { recursi
 const PORT = 8130, BASE = "http://localhost:" + PORT;
 await start(PORT);
 async function call(body) { const r = await fetch(BASE + "/api/pycode", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(Object.assign({ pin: "1234" }, body)) }); return r.json(); }
-const GAMES = core.RECORDS.filter((r) => r.kind === "game");
+const ONLY = process.argv[3] ? process.argv[3].split(",") : null;
+const GAMES = core.RECORDS.filter((r) => r.kind === "game" && (!ONLY || ONLY.includes(r.slot)));
 for (const g of GAMES) { const rec = g.rec; const up = await call({ action: "adminSetAssignment", slot: g.slot, title: rec.title, unit: rec.unit, num: rec.num, points: rec.points, blocks: rec.blocks, checks: [], tips: rec.tips, game: rec.game, live: false }); if (!up.ok) throw new Error("seed failed " + JSON.stringify(up)); await call({ action: "adminSetLive", slot: g.slot, live: false, part: "mission", passMin: 90, seq: rec.seq, points: 100 }); }
 let bad = 0; const say = (m) => { bad++; console.log("  PROBLEM: " + m); };
 const b = await launch(9800, 1100, 1000);
@@ -86,5 +87,5 @@ async function playGame(g, mode) {
 }
 for (const g of GAMES) { await playGame(g, "perfect"); await playGame(g, "bad"); }
 const errs = b.errs.slice(0, 5); if (errs.length) say("page errors: " + JSON.stringify(errs));
-console.log(bad ? `\n${bad} PROBLEMS` : "\nall six games play from start to finish: perfect runs score 100 and three mistakes end the game");
+console.log(bad ? `\n${bad} PROBLEMS` : "\nevery game plays from start to finish: perfect runs score 100 and three mistakes end the game");
 b.close(); process.exit(bad ? 1 : 0);

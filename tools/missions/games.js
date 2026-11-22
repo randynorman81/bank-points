@@ -40,8 +40,32 @@ M.addGame("a110", {
 
 /* EXAMPLE of a Unit 8 game assignment (no coding). Hidden. The Python walkthroughs a45 to a54 and their assignments a55 to a64 are not touched. */
 M.addGame("a111", {
-  title: "Assignment 8 (example game): Vault Breaker", game: "vault",
+  title: "Vault 8: Final Unit Review (all lessons)", game: "vault",
   story: ["**You are a master thief with one night to crack the most secure vault in the city.** Its ten locks are all about **digital information**, the same ideas that show up on the AP Computer Science Principles exam.", "Flip bit switches to build binary numbers, decode a guard's ASCII note, **paint a picture from raw bits**, mix colors with RGB and hex, run filters on pixels, shrink data with run-length compression, and finish with a **cryptography boss**. Beat the clock and keep the alarm quiet."],
   how: ["**Bit switches:** each switch is a place value (128, 64, 32, 16, 8, 4, 2, 1). Lit means 1. Make the total match, then **CUT THE WIRE**.", "**Pixel painter:** the scanner sends a long string of bits. Cut it into rows, then click the squares that should be black.", "**Color mixer:** set red, green and blue. Some locks give you a hex code, so you have to convert it first.", "**Choice locks:** tap the right answer (or press 1, 2, 3 or 4). Read the explanation after every round, because it teaches the exact idea the exam asks about.", "**Three mistakes** (or an empty clock) set off the alarm and you are caught."],
   practice: ["Binary, place values, bits needed for a number of values, overflow and round-off error", "ASCII, Unicode and how text is stored as bits", "Pixels, bitmaps and how an image is just a grid of bits", "Hexadecimal and RGB colors", "Image filters (invert, grayscale, brighten) as math on pixel values", "Lossless versus lossy compression and run-length encoding", "Caesar ciphers, symmetric versus public-key encryption"]
-}, { unit: U8, num: 12, points: 100, seq: 10.7, passMin: 90 });
+}, { unit: U8, num: 12, points: 100, seq: 10.7, passMin: 0 });
+
+/* THE LESSON VAULTS: a second assessment for each Unit 8 lesson, after its walkthrough (a45 to a54) and its Python assignment (a55 to a64).
+   a112 to a121 = lessons 8.1 to 8.10. Not gating (passMin 0), like the Python assignments. */
+const VAULT_LESSONS = [
+  ["Intro to Digital Information", "bits and bytes, how many values n bits can hold, how many bits a list of things needs, analog versus digital, overflow and round-off error", ["Bits, bytes and binary numbers", "How many values n bits can make, and how many bits you need", "Analog versus digital data and sampling", "Overflow and round-off error", "Abstraction"]],
+  ["Number Systems", "binary and decimal, place values, binary counting and binary addition", ["Converting binary to decimal and decimal to binary", "Place values", "Counting and adding in binary", "The biggest number n bits can hold"]],
+  ["Encoding Text with Binary", "ASCII, Unicode and how letters become bits", ["ASCII codes and decoding a binary message", "How many bits a piece of text takes", "Uppercase versus lowercase codes", "ASCII versus Unicode"]],
+  ["Pixel Images", "bitmaps, rows of bits, resolution and image file sizes", ["Reading a bitmap from a string of bits (and painting it)", "Turning a picture back into bits", "File size of black-and-white and color images", "Bits per pixel and resolution"]],
+  ["Hexadecimal", "hex digits, hex and decimal, hex and binary", ["Hex digits A to F", "Converting hex to decimal and decimal to hex", "Converting between hex and binary (4 bits per hex digit)", "Counting and comparing in hex"]],
+  ["Pixel Colors", "RGB light mixing, hex colors and how many colors a pixel can show", ["Mixing red, green and blue light", "Reading #RRGGBB hex colors", "Gray means equal red, green and blue", "24-bit color and how many colors it can make"]],
+  ["Image Manipulation", "filters as math on pixel values: invert, grayscale, brighten, darken, black and white, mirror and swapping channels", ["Filters are math on red, green and blue numbers", "Why values stop at 0 and 255", "Combining two filters in order"]],
+  ["Data Compression", "lossless compression and run-length encoding", ["Run-length encoding and decoding", "When run-length encoding helps and when it makes data longer", "Compression ratios", "Lossless compression in general"]],
+  ["Lossy Compression", "lossy versus lossless, what gets thrown away and when each is the right choice", ["Lossy versus lossless", "Choosing the right compression for a situation", "Why lossy cannot be undone", "Reducing pixels and color depth"]],
+  ["Cryptography", "Caesar ciphers, keys, breaking a cipher and public-key encryption", ["Encrypting and decrypting with a Caesar cipher", "Plaintext, ciphertext and keys", "Breaking a cipher by brute force and frequency analysis", "Symmetric versus public-key encryption"]]
+];
+VAULT_LESSONS.forEach((L, i) => {
+  const n = i + 1;
+  M.addGame("a" + (112 + i), {
+    title: "Vault 8." + n + ": " + L[0], game: "vault" + n,
+    story: ["**You are a master thief with one night to crack a vault whose ten locks are all about " + L[1] + ".** This is the second check for lesson 8." + n + ": the walkthrough taught you how to do it in Python, and now the vault tests whether you understand the idea itself.", "Beat the clock and keep the alarm quiet. Every lock is a puzzle: flip bit switches, paint pixels, mix colors, or pick the right answer."],
+    how: ["**Bit switches:** each switch is a place value (128, 64, 32, 16, 8, 4, 2, 1). Lit means 1. Make the total match, then **CUT THE WIRE**.", "**Pixel painter and color mixer:** some locks ask you to paint pixels from bits or to set red, green and blue.", "**Choice locks:** tap the right answer (or press 1, 2, 3 or 4). Read the explanation after every round. It teaches the exact idea the AP exam asks about.", "**Three mistakes** (or an empty clock) set off the alarm and you are caught."],
+    practice: L[2]
+  }, { unit: U8, num: n, points: 100, seq: n + 0.7, passMin: 0 });
+});

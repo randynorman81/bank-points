@@ -38,10 +38,11 @@ const dash = /[—–]/;
 for (const game of Object.keys(GAMES)) {
   let rounds = 0, prompts = new Set(), types = new Set();
   for (let s = 1; s <= 400; s++) {
-    const seed = (s * 2654435761) >>> 0;
+    const seed = (s * 2654435761) >>> 0; const inRun = new Set();
     for (let i = 0; i < ROUNDS; i++) {
       const x = makeQuestion(game, seed, i), y = makeQuestion(game, seed, i), q = x.q;
       rounds++; types.add(q.type); prompts.add(q.prompt);
+      if (/^vault/.test(game)) { const key = q.prompt + "|" + (q.code || ""); if (inRun.has(key)) say(`${game} seed ${seed} r${i}: the same question appears twice in one game (${q.prompt.slice(0, 50)})`); inRun.add(key); }
       if (JSON.stringify(x) !== JSON.stringify(y)) say(`${game} seed ${seed} round ${i}: not repeatable`);
       if (!q.prompt || typeof q.t !== "number") say(`${game} round ${i}: missing prompt or time`);
       if (dash.test(JSON.stringify(q)) || dash.test(x.why || "")) say(`${game} round ${i}: dash character in text`);
@@ -60,5 +61,5 @@ for (const game of Object.keys(GAMES)) {
 }
 /* a perfect run is 100, one mistake is 90, three mistakes end the game */
 console.log(`rules: ${ROUNDS} rounds, ${STRIKES} strikes end the game; 9 of 10 right = ${Math.round(9 / ROUNDS * 100)}%`);
-console.log(bad ? `\n${bad} PROBLEMS` : "\nall six games: every round is solvable, never leaks the answer, and marks right and wrong correctly");
+console.log(bad ? `\n${bad} PROBLEMS` : "\nall the games: every round is solvable, never leaks the answer, and marks right and wrong correctly");
 process.exit(bad ? 1 : 0);

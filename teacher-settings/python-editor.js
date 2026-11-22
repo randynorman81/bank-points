@@ -73,7 +73,18 @@ export const PY_SETTINGS = {
   a108: { live: false, passMin: 90 },                 // Mission 10.7: Packet Post Office
   a109: { live: false, passMin: 100 },                // Unit 7 Walkthrough 7 (after Walkthroughs 1 to 6): Lists, Meet the Cast
   a110: { live: false, passMin: 90 },                 // Mission 7.1: Cartoon Creator Studio
-  a111: { live: false, passMin: 90 }                  // Unit 8 EXAMPLE game assignment: Vault Breaker (hidden: only you can see and play it)
+  a111: { live: false, passMin: 0 },                  // Unit 8 FINAL vault: a 10-round review of all lessons (hidden: only you can see and play it)
+  /* Unit 8 lesson vaults: a game that is the SECOND assessment for each lesson (after the walkthrough and its Python assignment). Hidden for now. */
+  a112: { live: false, passMin: 0 },                  // Vault 8.1: Intro to Digital Information
+  a113: { live: false, passMin: 0 },                  // Vault 8.2: Number Systems
+  a114: { live: false, passMin: 0 },                  // Vault 8.3: Encoding Text with Binary
+  a115: { live: false, passMin: 0 },                  // Vault 8.4: Pixel Images
+  a116: { live: false, passMin: 0 },                  // Vault 8.5: Hexadecimal
+  a117: { live: false, passMin: 0 },                  // Vault 8.6: Pixel Colors
+  a118: { live: false, passMin: 0 },                  // Vault 8.7: Image Manipulation
+  a119: { live: false, passMin: 0 },                  // Vault 8.8: Data Compression
+  a120: { live: false, passMin: 0 },                  // Vault 8.9: Lossy Compression
+  a121: { live: false, passMin: 0 }                   // Vault 8.10: Cryptography
 };
 /* WORDING CHANGES to a walkthrough, kept in the code (no PIN). Each one gets a copy of the walkthrough and changes it. */
 const STEP5_ODD = "Now test an odd number **without changing your code above**. Below your last line, type `number = 7`, then type the same four `print` lines again under it (you can copy and paste your own lines). Add an **end-of-line comment** at the end of your last print line with what the four answers were for 7. If that line already has a comment, add to it. [[How do I test 7?|oddtest]]";
