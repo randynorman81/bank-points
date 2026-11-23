@@ -51,7 +51,7 @@ function addGame(slot, d, o) {
     "**9 right = 90** turns it in and opens the next walkthrough. **10 right = 100** is full points. Three mistakes end the game early, and your score is the rounds you got right.",
     "You can play as many times as you like. **Your best run counts.** The questions change every time, so reading the explanation after each round really helps."]).forEach((p) => blocks.push({ p }));
   blocks.push({ h: "What you are practicing" }); d.practice.forEach((p) => blocks.push({ p }));
-  const rec = { title: d.title, unit: o.unit, num: o.num, points: o.points, part: "mission", seq: o.seq, passMin: o.passMin, game: d.game, blocks, checks: [], tips: d.tips || {}, live: false };
+  const rec = { title: d.title, unit: o.unit, num: o.num, points: o.points, part: "mission", seq: o.seq, passMin: o.passMin, optional: o.optional === true ? true : undefined, game: d.game, blocks, checks: [], tips: d.tips || {}, live: false };
   RECORDS.push({ slot, rec, w: { stages: [] }, refs: [], final: "", kind: "game" }); return rec;
 }
 function legacyMission() { /* the earlier Python-coding missions are switched off; the games replace them */ }

@@ -138,7 +138,7 @@ function slotLabel(id) {
   var A = (typeof ASSIGN !== "undefined" && ASSIGN[id]) || null, u = A && A.unit ? String(A.unit).split(":")[0] + " · " : "";
   if (!A) return "Slot " + id.slice(1) + " (empty)";
   var name = slotPart(A) === "assignment" ? "Walkthrough " + (A.num ? A.num : id.slice(1)) + (A.title ? ": " + A.title : "") : A.title;
-  return u + name + " · " + slotWorth(id) + " pts" + (A.live === false ? " [closed]" : "");
+  return u + name + " · " + slotWorth(id) + (A.optional ? " bonus pts" : " pts") + (A.live === false ? " [closed]" : "");
 }
 function fmt(t) { return t ? new Date(t).toLocaleString() : ""; }
 

@@ -16,6 +16,7 @@ for (const r of recs) {
   const set = { action: "adminSetLive", slot: r.slot, live: false, points: rec.points, seq: rec.seq };
   if (rec.part) set.part = rec.part;
   if (rec.passMin !== undefined) set.passMin = rec.passMin;
+  if (rec.optional === true) set.optional = true;
   const lv = await call(set); if (!lv.ok) { console.error(r.slot, "settings failed", JSON.stringify(lv)); process.exit(1); }
 }
 const all = (await call({ action: "adminAssignments" })).assignments || {};

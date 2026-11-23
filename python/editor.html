@@ -1613,9 +1613,9 @@ function loadGameBest() {
   fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "gameState", slot: mine, credential: CRED, pin: pin || undefined, period: $("period").value }) }).then(function (r) { return r.json(); }).then(function (j) {
     if (mine !== slot || !j) return;
     if (j.error) { box.textContent = j.error; return; }
-    var txt = j.preview ? "Teacher view: you can play it, but nothing is saved." : (j.best !== null && j.best !== undefined ? "Your best score: " + j.best + " out of 100 (" + j.runs + " run" + (j.runs === 1 ? "" : "s") + "). " + (j.best >= 90 ? "That opens the next walkthrough." : "Get 90 or more to open the next walkthrough.") : "You have not played yet. Get 90 or more to open the next walkthrough.");
+    var txt = j.preview ? "Teacher view: you can play it, but nothing is saved." : (j.best !== null && j.best !== undefined ? "Your best score: " + j.best + " out of 100 (" + j.runs + " run" + (j.runs === 1 ? "" : "s") + "). " + (A && A.optional ? "This game is an optional bonus, so it never holds up the next lesson." : (j.best >= 90 ? "That opens the next walkthrough." : "Get 90 or more to open the next walkthrough.")) : (A && A.optional ? "You have not played yet. This game is an optional bonus: play it if you want extra points." : "You have not played yet. Get 90 or more to open the next walkthrough."));
     box.textContent = txt;
-    if (sc && !j.preview) sc.innerHTML = j.best !== null && j.best !== undefined ? "Game score: <b>" + j.best + " / 100</b> <small>= " + Math.round(j.best / 100 * slotPoints(A)) + " of " + slotPoints(A) + " points</small>" : "Play the game to earn your score";
+    if (sc && !j.preview) sc.innerHTML = j.best !== null && j.best !== undefined ? "Game score: <b>" + j.best + " / 100</b> <small>= " + Math.round(j.best / 100 * slotPoints(A)) + " of " + slotPoints(A) + (A && A.optional ? " bonus points" : " points") + "</small>" : (A && A.optional ? "Optional bonus: play to earn up to " + slotPoints(A) + " extra points" : "Play the game to earn your score");
   }).catch(function () {});
 }
 window.addEventListener("message", function (e) { if (e.origin === location.origin && e.data && e.data.type === "mission-game" && e.data.slot === slot) { loadGameBest(); } });
@@ -1834,10 +1834,10 @@ function lpRenderUnit(key) {
   if (!info) { LP.unit = null; return lpRenderUnits(); }
   var h = '<div class="lptop"><button type="button" class="btn" data-back="1">&larr; All units</button><h4>' + escA(info.name) + '</h4>' + (info.u.notes ? '<a class="btn" href="../apcsp/' + escA(info.u.notes) + '" target="_blank" rel="noopener">&#128214; Unit notes</a>' : "") + '</div><div class="lpgrid">';
   info.lessons.forEach(function (l) {
-    var rows = "", have = 0, done = 0, declared = l.parts.w.length + l.parts.p.length + l.parts.g.length;
-    var add = function (k, label) { var sts = l.parts[k].map(lpState).filter(function (x) { return x; }); if (!sts.length) { rows += lpRow(k, null, label); return; } sts.forEach(function (s) { have++; if (MY[s.id] === "sub") done++; rows += lpRow(k, s, label); }); };
+    var rows = "", have = 0, done = 0, declared = l.parts.w.length + l.parts.p.length;   /* the game is an optional bonus: it does not count toward "every part done" */
+    var add = function (k, label) { var sts = l.parts[k].map(lpState).filter(function (x) { return x; }); if (!sts.length) { rows += lpRow(k, null, label); return; } sts.forEach(function (s) { if (k !== "g") { have++; if (MY[s.id] === "sub") done++; } rows += lpRow(k, s, label); }); };
     var notesRow = l.notes ? '<a class="lprow open" href="../apcsp/' + escA(l.notes) + '" target="_blank" rel="noopener"><span class="ic">&#128214;</span><span class="tx"><b>Lesson notes</b><span>' + (l.unitNotes ? "Unit notes page" : "Read this first") + '</span></span><span class="st">new tab</span></a>' : lpRow("notes", null, "Lesson notes");
-    add("w", "Walkthrough"); add("p", "Assignment"); add("g", "Game");
+    add("w", "Walkthrough"); add("p", "Assignment"); add("g", "Bonus game");
     var cur = false; ["w", "p", "g"].forEach(function (k) { l.parts[k].forEach(function (id) { if (id === slot) cur = true; }); });
     h += '<div class="lpcard' + (cur ? " here" : "") + (declared && done === declared ? " alldone" : "") + '"><div class="lpch"><span class="ln">' + escA(l.id) + '</span><span class="lt">' + escA(l.t) + '</span>' + (declared && done === declared ? '<span class="ld" title="Every part done">&#10003;</span>' : "") + '</div>' + notesRow + rows + '</div>';
   });
