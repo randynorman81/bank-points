@@ -327,7 +327,7 @@ body.mconly #run,body.mconly #clear,body.mconly #reset,body.mconly #histBtn,body
   <button class="btn" id="themeBtn" title="Change the editor colors">&#127912; Theme</button>
   <button class="btn" id="csBtn" title="Look up any Python concept">&#128214; Cheat sheet</button>
   <button class="btn" id="histBtn" title="Get back an earlier version of your code">History</button>
-  <button class="btn" id="lessonBtn" title="Pick a unit and lesson: notes, walkthrough, assignment and game">&#128218; Lessons</button>
+  <button class="btn" id="lessonBtn" title="Pick a unit and lesson: notes, walkthrough, assignment and game">&#128218; CURRICULUM</button>
   <select id="slot" aria-label="Assignment"></select>
   <button class="btn on" id="assBtn" title="Show or hide the assignment instructions">Instructions</button>
   <span class="status" id="status">Loading Python&hellip;</span>
@@ -393,6 +393,7 @@ body.mconly #run,body.mconly #clear,body.mconly #reset,body.mconly #histBtn,body
 <div class="modal" id="mTip"><div class="box tipbox" role="dialog" aria-label="Help"><div class="tiphead"><h3 id="tipTitle"></h3><button class="btn" id="tipClose">Got it</button></div><div id="tipBody"></div></div></div>
 <script src="themes.js"></script>
 <script src="assignments.js"></script>
+<script src="games/arcade-info.js"></script>
 <script src="lessons.js"></script>
 <script src="appendix-a-core.js"></script>
 <script src="appendix-a-1.js"></script>
@@ -1607,6 +1608,22 @@ var EXAMPLE_CODE = "    # Step 1: Make your first variable\n# shop_name = \"Sunr
 var EXAMPLE_ASSIGN = { title: "Example", blocks: [{"h":"What this is"},{"p":"This is a **finished** assignment for you to read. It is the Variable Names assignment, written about a bakery instead of a player. You cannot change it or submit it. Press **Run** to see what it prints, then lay out your own work the same way."},{"h":"What to notice"},{"p":"**1. Every step starts with a heading comment, one tab over.** It has the word Step, the number, a colon, and the title: `# Step 3: Test the rules`."},{"p":"**2. A finished step is commented out** (select the lines and press ctrl + /) so the next step starts clean. Nothing is deleted. The last step stays active so it runs."},{"p":"**3. Notes go at the END of the same line**, after the code: `2nd_tray = 3   # ILLEGAL: starts with a digit`. A note on its own line is only used when a step tells you to put it above a line, or for a heading like `# About the shop`."},{"p":"**4. Names and values are typed exactly as the steps say.** The checker matches them, so a different name or number counts as missing. Spaces and blank lines do not matter."},{"p":"**5. Each step's work is kept.** Earlier steps are still in the file, just commented out, so your teacher can see all of your work."}], tips: {} };
 /* Appendix A (making games with pygame) lives in the code (appendix-a-*.js), so it is always open and needs no server record. It is practice: saved in this browser, nothing to submit. */
 function isApx(id) { return /^p[gbc]\d+$/.test(id === undefined ? slot : id); }
+/* The lesson games (slots a160 to a193) are arcade games. Saved records may still carry the old "Code Vault" text, so show the arcade title, story and controls from arcade-info.js. */
+function arcFix(map) {
+  try {
+    var AI = window.ArcadeInfo; if (!AI) return; var keys = Object.keys(AI);
+    Object.keys(map).forEach(function (k) {
+      var m = /^a(\d+)$/.exec(k), r = map[k]; if (!m || !r) return; var i = +m[1] - 160; if (i < 0 || i >= keys.length) return;
+      var a = AI[keys[i]], bl = r.blocks || [], sc = -1; if (!a || !/^Code Vault/.test(String(r.title || "")) ) return;
+      for (var j = 0; j < bl.length; j++) if (bl[j].h === "Scoring") { sc = j; break; } if (sc < 0) return;
+      var n = (/^Code Vault (\S+?):/.exec(r.title) || [])[1] || "";
+      r.title = "Game " + n + ": " + a.name;
+      var head = [{ h: "Your mission" }, { p: "**" + a.story + "**" }, { p: "Every round is a short **Python question** (often a program to read). The four answers are in the game, and you answer by **playing**." }, { play: true }, { h: "How to play" }, { p: a.how }, { p: "**Controls:** " + a.help }, { p: "**3 mistakes** (or the clock hitting zero) end the game. Your score is the rounds you got right." }];
+      var tail = bl.slice(sc).map(function (b) { return b.p ? Object.assign({}, b, { p: String(b.p).replace(/\blocks?\b/g, "round") }) : b; });
+      r.blocks = head.concat(tail);
+    });
+  } catch (e) {}
+}
 function addAppendix() { try { if (window.PYA) { var R = window.PYA.records(); window.PY_ASSIGN = window.PY_ASSIGN || {}; Object.keys(R).forEach(function (k) { window.PY_ASSIGN[k] = R[k]; }); } } catch (e) {} }
 function addExample() { window.PY_ASSIGN = window.PY_ASSIGN || {}; window.PY_ASSIGN.example = EXAMPLE_ASSIGN; addAppendix(); }
 addExample();
@@ -1724,7 +1741,7 @@ function lpRenderUnit(key) {
     var rows = "", have = 0, done = 0, declared = l.parts.w.length + l.parts.p.length + l.parts.g.length;
     var add = function (k, label) { var sts = l.parts[k].map(lpState).filter(function (x) { return x; }); if (!sts.length) { rows += lpRow(k, null, label); return; } sts.forEach(function (s) { have++; if (MY[s.id] === "sub") done++; rows += lpRow(k, s, label); }); };
     var notesRow = l.notes ? '<a class="lprow open" href="../apcsp/' + escA(l.notes) + '" target="_blank" rel="noopener"><span class="ic">&#128214;</span><span class="tx"><b>Lesson notes</b><span>' + (l.unitNotes ? "Unit notes page" : "Read this first") + '</span></span><span class="st">new tab</span></a>' : lpRow("notes", null, "Lesson notes");
-    add("w", "Curriculum"); add("p", "Assignment"); add("g", "Game");
+    add("w", "Walkthrough"); add("p", "Assignment"); add("g", "Game");
     var cur = false; ["w", "p", "g"].forEach(function (k) { l.parts[k].forEach(function (id) { if (id === slot) cur = true; }); });
     h += '<div class="lpcard' + (cur ? " here" : "") + (declared && done === declared ? " alldone" : "") + '"><div class="lpch"><span class="ln">' + escA(l.id) + '</span><span class="lt">' + escA(l.t) + '</span>' + (declared && done === declared ? '<span class="ld" title="Every part done">&#10003;</span>' : "") + '</div>' + notesRow + rows + '</div>';
   });
@@ -1732,7 +1749,7 @@ function lpRenderUnit(key) {
   if (info.extra && info.extra.length) {
     h += '<div class="lpsec">' + (info.lessons.length ? "Quizzes and unit games" : "Everything in this unit") + '</div><div class="lpextra">' + info.extra.map(function (s) {
       var A = s.A, part = A ? slotPart(A) : (s.L && s.L.part) || "assignment", kind = (A && A.game) ? "g" : part === "quiz" || part === "test" ? "q" : part === "project" ? "p" : "w";
-      return lpRow(kind, s, (A && A.game) ? "Game" : part === "quiz" ? "Quiz" : part === "test" ? "Test" : part === "project" ? "Assignment" : "Curriculum");
+      return lpRow(kind, s, (A && A.game) ? "Game" : part === "quiz" ? "Quiz" : part === "test" ? "Test" : part === "project" ? "Assignment" : "Walkthrough");
     }).join("") + '</div>';
   }
   $("lpTitle").textContent = info.name; $("lpBody").innerHTML = h;
@@ -1740,7 +1757,7 @@ function lpRenderUnit(key) {
 function lpRender() { if (LP.unit) lpRenderUnit(LP.unit); else lpRenderUnits(); }
 function lpOpen() { LP.unit = lpUnitOf(slot); LP.open = true; $("mLessons").classList.add("show"); lpRender(); $("lpBody").scrollTop = 0; setTimeout(function () { try { $("lpClose").focus(); } catch (e) {} }, 0); }
 function lpClose() { LP.open = false; $("mLessons").classList.remove("show"); }
-function lpBtn() { var b = $("lessonBtn"); if (!b) return; var t = slot === "free" || slot === "example" || !(window.PY_ASSIGN && window.PY_ASSIGN[slot]) ? slotLabel(slot) : slotLabel(slot, false); b.innerHTML = "&#128218; " + escA(t); b.title = "Pick a unit and lesson: notes, walkthrough, assignment and game"; }
+function lpBtn() { var b = $("lessonBtn"); if (!b) return; var t = slot === "free" || slot === "example" || !(window.PY_ASSIGN && window.PY_ASSIGN[slot]) ? slotLabel(slot) : slotLabel(slot, false); b.innerHTML = "&#128218; CURRICULUM"; b.title = "Open the curriculum: pick a unit and lesson (notes, walkthrough, assignment and game). Now on: " + t; }
 function lpRefresh() { lpBtn(); if (LP.open) lpRender(); }
 $("lessonBtn").addEventListener("click", lpOpen);
 $("lpClose").addEventListener("click", lpClose);
@@ -2103,7 +2120,7 @@ function loadAssignments() {
   return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "assignments", credential: CRED, period: $("period").value }) }).then(function (r) { return r.json(); }).then(function (j) {
     if (!j || !j.ok || my !== loadSeq) return;
     if (TEACHER) window.PY_ASSIGN = window.PY_ASSIGN || {}; else window.PY_ASSIGN = {};
-    Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
+    arcFix(j.assignments || {}); Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
     addExample(); window.PY_LOCKED = TEACHER ? [] : (j.locked || []);
     if (URLSLOT && window.PY_ASSIGN[URLSLOT]) { slot = URLSLOT; URLSLOT = null; try { history.replaceState(null, "", location.pathname + location.search.replace(/([?&])a=(?:a|pg|pb|pc)\d+&?/, "$1").replace(/[?&]$/, "")); } catch (e) {} rememberSlot(slot); }
     var want = wantedSlot();
@@ -2151,7 +2168,7 @@ if (/[?&]teacher/.test(location.search)) {
     return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "adminAssignments", pin: pin }) }).then(function (r) { return r.json(); }).then(function (j) {
       if (!j || !j.ok) { $("tmsg").textContent = (j && j.error) || "Could not load drafts"; try { sessionStorage.removeItem("pypin"); } catch (e) {} return; }
       try { sessionStorage.setItem("pypin", pin); } catch (e) {}
-      window.PY_ASSIGN = window.PY_ASSIGN || {}; Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
+      window.PY_ASSIGN = window.PY_ASSIGN || {}; arcFix(j.assignments || {}); Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
       buildSlots(); renderAssignment(); $("tmsg").textContent = "Drafts loaded: " + Object.keys(j.assignments || {}).length + ". Pick one in the Assignment box.";
     });
   };
