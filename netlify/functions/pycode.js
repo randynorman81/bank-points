@@ -1,5 +1,6 @@
 import { getStore } from "@netlify/blobs";
-import { withPySettings } from "../../teacher-settings/python-editor.js";
+import { withPySettings, repoSlots, OPEN_EVERYTHING } from "../../teacher-settings/python-editor.js";
+const guestOk = (body) => OPEN_EVERYTHING === true && !!body && body.guest === true;   /* a guest plays games as a preview: nothing is saved */
 import { GAMES, hasGame, makeQuestion, checkAnswer, roundsOf, strikesOf, isAdventure, challengeQ } from "./gamebank.js";
 
 // Python editor backend (python/editor.html).
@@ -87,7 +88,7 @@ async function mine(body, user) {
 }
 
 /* only the slots that really have an assignment saved (there are 300 possible ids, but about 100 are used), so a page load does not make hundreds of useless lookups */
-async function existingSlots() { const have = new Set((await listPrefix("assign:")).map((k) => k.slice(7))); return SLOTS.filter((l) => l === "free" || have.has(l)); }
+async function existingSlots() { const have = new Set((await listPrefix("assign:")).map((k) => k.slice(7))); repoSlots().forEach((x) => have.add(x)); return SLOTS.filter((l) => l === "free" || have.has(l)); }
 async function mySlots(user) {
   const e = enc(user.email);
   const has = await Promise.all((await existingSlots()).map(async (l) => {
@@ -458,7 +459,8 @@ async function gatedAssignments(user, period) {
 }
 async function publicAssignments(all) {
   const out = {};
-  for (const k of await listPrefix("assign:")) { const v = withPySettings(k.slice(7), await store().get(k, { type: "json" })); if (v && (all || v.live !== false)) { if (!all) { delete v.checks; delete v.mcKey; } out[k.slice(7)] = v; } }
+  const slots = new Set((await listPrefix("assign:")).map((k) => k.slice(7))); repoSlots().forEach((x) => slots.add(x));
+  for (const slot of slots) { const v = withPySettings(slot, await store().get("assign:" + slot, { type: "json" })); if (v && (all || v.live !== false)) { if (!all) { delete v.checks; delete v.mcKey; } out[slot] = v; } }
   return { ok: true, assignments: out };
 }
 
@@ -633,6 +635,7 @@ async function gameAccess(body, user) {
   const asg = withPySettings(slot, await readJSON("assign:" + slot, null));
   if (!asg || !asg.game || !hasGame(asg.game)) return { error: "That mission is not a game." };
   if (isAdmin(body) || isTeacherUser(user)) return { asg, preview: true };   /* the teacher can play any game; nothing is saved */
+  if (!user && guestOk(body)) return { asg, preview: true, guest: true };   /* a guest can play any game; nothing is saved */
   if (!user) return { error: "Please sign in with your school Google account.", needLogin: true };
   if (await closedToStudent(slot, user)) return { error: "That mission is not open yet. Your teacher will open it when it is time." };
   const open = await gatedAssignments(user, cleanPeriod(body.period));
@@ -644,9 +647,9 @@ async function gameStart(body, user) {
   const acc = await gameAccess(body, user); if (acc.error) return acc;
   const seed = crypto.getRandomValues(new Uint32Array(1))[0] >>> 0, id = crypto.randomUUID().replace(/-/g, "");
   const mode = isAdventure(acc.asg.game) ? (body.mode === "learn" ? "learn" : "challenge") : "";   /* adventures only: "learn" teaches as you play, "challenge" gives no help */
-  const run = { id, slot: body.slot, email: user ? user.email : "preview", name: user ? user.name : "Teacher preview", period: cleanPeriod(body.period), game: acc.asg.game, seed, mode, n: 0, correct: 0, strikes: 0, done: false, over: false, preview: acc.preview, startedAt: now() };
+  const run = { id, slot: body.slot, email: user ? user.email : "preview", name: user ? user.name : (acc.guest ? "Guest" : "Teacher preview"), period: cleanPeriod(body.period), game: acc.asg.game, seed, mode, n: 0, correct: 0, strikes: 0, done: false, over: false, preview: acc.preview, guest: !!acc.guest, startedAt: now() };
   await store().setJSON("grun:" + id, run);
-  return Object.assign({ ok: true, runId: id, game: run.game, title: GAMES[run.game].title, rounds: roundsOf(run.game), strikes: strikesOf(run.game, mode), mode, n: 0, preview: acc.preview, question: publicQ(makeQuestion(run.game, seed, 0), acc.preview, mode) }, acc.preview ? {} : await gameBest(body.slot, user.email));
+  return Object.assign({ ok: true, runId: id, game: run.game, title: GAMES[run.game].title, rounds: roundsOf(run.game), strikes: strikesOf(run.game, mode), mode, n: 0, preview: acc.preview, guest: !!acc.guest, question: publicQ(makeQuestion(run.game, seed, 0), acc.preview && !acc.guest, mode) }, acc.preview ? {} : await gameBest(body.slot, user.email));
 }
 async function gameFinish(run) {
   const pct = Math.round(run.correct / roundsOf(run.game) * 100);
@@ -668,7 +671,7 @@ async function gameAnswer(body, user) {
   const runId = String(body.runId || "").replace(/[^a-f0-9]/g, "");
   const run = runId ? await readJSON("grun:" + runId, null) : null;
   if (!run) return { error: "That game was not found. Start a new one." };
-  if (run.preview ? !(isAdmin(body) || isTeacherUser(user)) : !user || user.email !== run.email) return { error: "That is not your game." };
+  if (run.preview ? !(isAdmin(body) || isTeacherUser(user) || guestOk(body)) : !user || user.email !== run.email) return { error: "That is not your game." };
   if (run.done) return { error: "That game is already over." };
   if (Number(body.n) !== run.n) return { error: "That answer is out of order.", n: run.n };
   if (Date.now() - Date.parse(run.startedAt) > GAME_RUN_MS) return { error: "That game ran too long. Start a new one." };
@@ -677,7 +680,7 @@ async function gameAnswer(body, user) {
   run.n++; run.over = run.strikes >= strikesOf(run.game, run.mode); run.done = run.over || run.n >= roundsOf(run.game);
   await store().setJSON("grun:" + run.id, run);
   const out = { ok: true, correct: right, why: cur.why, n: run.n, correctCount: run.correct, strikes: run.strikes, over: run.over, done: run.done };
-  if (run.done) out.final = await gameFinish(run); else out.next = publicQ(makeQuestion(run.game, run.seed, run.n), run.preview, run.mode);
+  if (run.done) out.final = await gameFinish(run); else out.next = publicQ(makeQuestion(run.game, run.seed, run.n), run.preview && !run.guest, run.mode);
   return out;
 }
 
@@ -711,11 +714,11 @@ export default async (req) => {
     if (action === "score") return ok(await liveScore(body));
     if (action === "gameStart" || action === "gameAnswer" || action === "gameState") {
       const gu = body.credential ? await verifyGoogleToken(body.credential) : null;
-      if (!gu && !isAdmin(body)) return ok({ error: "Please sign in with your school Google account.", needLogin: true });
+      if (!gu && !isAdmin(body) && !guestOk(body)) return ok({ error: "Please sign in with your school Google account.", needLogin: true });
       if (action === "gameStart") return ok(await gameStart(body, gu));
       if (action === "gameAnswer") return ok(await gameAnswer(body, gu));
       const acc = await gameAccess(body, gu); if (acc.error) return ok(acc);
-      return ok(Object.assign({ ok: true, game: acc.asg.game, title: acc.asg.title, preview: acc.preview }, gu && !acc.preview ? await gameBest(body.slot, gu.email) : {}));
+      return ok(Object.assign({ ok: true, game: acc.asg.game, title: acc.asg.title, preview: acc.preview, guest: !!acc.guest }, gu && !acc.preview ? await gameBest(body.slot, gu.email) : {}));
     }
     const user = await verifyGoogleToken(body.credential);
     if (!user) return ok({ error: "Please sign in with your school Google account.", needLogin: true });

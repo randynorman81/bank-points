@@ -9,7 +9,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 const mem = new Map();
 let src = fs.readFileSync(path.join(ROOT, "netlify/functions/pycode.js"), "utf8");
 src = src.replace(/^import \{ getStore \} from "@netlify\/blobs";\n/m, "const getStore = () => globalThis.__STORE;\n")
-  .replace(/^import \{ withPySettings \} from "[^"]+";\n/m, "const withPySettings = (slot, rec) => rec;   /* the dev server ignores teacher-settings so tests control what is open */\n")
+  .replace(/^import \{ withPySettings, repoSlots, OPEN_EVERYTHING \} from "[^"]+";\n/m, "const withPySettings = (slot, rec) => rec;   /* the dev server ignores teacher-settings so tests control what is open */\nconst repoSlots = () => [];\nconst OPEN_EVERYTHING = process.env.OPEN_ALL === \"1\";   /* OPEN_ALL=1 turns on guest play for testing */\n")
   .replace('from "./gamebank.js"', 'from "' + pathToFileURL(path.join(ROOT, "netlify/functions/gamebank.js")).href + '"')
   .replace(/async function verifyGoogleToken\(credential\) \{/, 'async function verifyGoogleToken(credential) { if (typeof credential === "string" && credential.startsWith("test:")) { const email = credential.slice(5).toLowerCase(); return { email, name: email.split("@")[0] }; }\n  return verifyGoogleTokenReal(credential); }\nasync function verifyGoogleTokenReal(credential) {')
   .replace('const isAdmin = (body) => body && body.pin === (process.env.ADMIN_PIN || "1234");', 'const isAdmin = (body) => body && body.pin === "1234";');

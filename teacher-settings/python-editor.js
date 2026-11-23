@@ -7,6 +7,12 @@
    Leave a walkthrough out to use what the grading page saved.
    Unit 4 ids: a16 Booleans, a17 Logical Operators, a18 Comparison Operators, a19 If Statements,
                a20 If/Elif/Else, a21 Key Events, a22 For Loops, a23 General For Loops */
+import { PY_RECORDS } from "./python-records.js";
+/* THE MASTER SWITCH. While this is true EVERYTHING is open to everyone: every walkthrough, assignment, game and quiz is live, nothing is held, nothing is in an unlock chain,
+   and games can be played as a guest with no sign-in (nothing is saved for a guest). When the curriculum is finished, set it to false and the per-slot lines below take over again. */
+export const OPEN_EVERYTHING = true;
+/* The assignment and game records for a101 to a193 live in python-records.js (generated from tools/missions by `node tools/missions/bundle.mjs`), so they go live with a deploy and need no PIN. */
+export const repoSlots = () => Object.keys(PY_RECORDS);
 export const PY_SETTINGS = {
   /* UNIT 3 walkthroughs: open, and not part of the unlock chain */
   a1: { hold: false, ungated: true },
@@ -187,9 +193,11 @@ export const PY_PATCHES = {
   }
 };
 export function withPySettings(slot, rec) {
+  if (PY_RECORDS[slot]) rec = Object.assign({}, rec || {}, PY_RECORDS[slot]);   /* the repo copy wins for the slots it has */
   if (!rec) return rec;
   const s = PY_SETTINGS[slot];
   let out = s ? Object.assign({}, rec, s) : rec;
+  if (OPEN_EVERYTHING) out = Object.assign({}, out, { live: true, hold: false, ungated: true });
   if (PY_PATCHES[slot]) out = PY_PATCHES[slot](JSON.parse(JSON.stringify(out)));
   return out;
 }

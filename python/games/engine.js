@@ -57,7 +57,7 @@
 
   /* ---------------------------------------------------------------- talking to the server ---- */
   function api(body) {
-    body.credential = S.cred; if (S.pin) body.pin = S.pin; body.period = lsGet("py:period") || "";
+    body.credential = S.cred; if (S.pin) body.pin = S.pin; if (S.guest) body.guest = true; body.period = lsGet("py:period") || "";
     return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(function (r) { return r.json(); });
   }
   function decodeJwt(t) { try { var p = t.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"); return JSON.parse(decodeURIComponent(escape(atob(p)))); } catch (e) { return {}; } }
@@ -116,6 +116,10 @@
       if (saved) { S.pin = saved; afterAuth(); }
       return;
     }
+    $("guestBtn").style.display = "";
+    $("guestBtn").onclick = function () { try { localStorage.setItem("py:guest", "1"); } catch (e) {} S.guest = true; afterAuth(); };
+    var wantGuest = ""; try { wantGuest = localStorage.getItem("py:guest") || ""; } catch (e) {}
+    if (wantGuest === "1" && !(lsGet("py:cred") || lsGet("pq:cred"))) { S.guest = true; afterAuth(); return; }   /* no sign-in needed: this browser chose guest play before */
     initGoogle();
   }
   function initGoogle() {
@@ -139,10 +143,10 @@
       if (j.error) { showMsg("signMsg", j.error, true); if (TEACHER) { try { sessionStorage.removeItem("pypin"); } catch (e) {} S.pin = ""; } return; }
       S.game = j.game; S.preview = !!j.preview; S.info = INFO[j.game] || { title: j.title || "MISSION", story: "", how: [] };
       if (window.ArcadeInfo && window.ArcadeInfo[j.game]) { var AI = window.ArcadeInfo[j.game]; S.info = Object.assign({}, S.info, { title: AI.title, story: AI.story, noGate: true, how: [AI.how, "<b>Controls:</b> " + AI.help, "<b>3 mistakes</b> (or the clock hitting zero) end the game."] }); }
-      $("signin").classList.add("hidden"); $("teachNote").style.display = S.preview ? "block" : "none";
+      $("signin").classList.add("hidden"); $("teachNote").style.display = S.preview ? "block" : "none"; if (S.guest) $("teachNote").textContent = "Guest play: nothing is saved. Sign in with your school account to save your score.";
       $("inTitle").textContent = S.info.title; $("inStory").innerHTML = S.info.story;
       $("inHow").innerHTML = S.info.how.map(function (h) { return "<div>&#9654; " + h + "</div>"; }).join("") + "<div>&#9654; <b>10 rounds.</b> " + (S.info.noGate ? "9 right = 90. 10 right = 100." : "9 right = 90 and opens the next walkthrough. 10 right = 100.") + " You can play again, and the questions change.</div>";
-      $("inBest").textContent = S.preview ? "Teacher preview: nothing is saved." : (j.best !== null && j.best !== undefined ? "Your best so far: " + j.best + " out of 100 (" + j.runs + " run" + (j.runs === 1 ? "" : "s") + ")" + (S.info.adventure ? ". Learn mode best: " + (j.bestLearn === null || j.bestLearn === undefined ? "none" : j.bestLearn) + ". Challenge mode best: " + (j.bestChallenge === null || j.bestChallenge === undefined ? "none" : j.bestChallenge) + "." : "") : "You have not played this yet.");
+      $("inBest").textContent = S.preview ? (S.guest ? "Guest play: nothing is saved." : "Teacher preview: nothing is saved.") : (j.best !== null && j.best !== undefined ? "Your best so far: " + j.best + " out of 100 (" + j.runs + " run" + (j.runs === 1 ? "" : "s") + ")" + (S.info.adventure ? ". Learn mode best: " + (j.bestLearn === null || j.bestLearn === undefined ? "none" : j.bestLearn) + ". Challenge mode best: " + (j.bestChallenge === null || j.bestChallenge === undefined ? "none" : j.bestChallenge) + "." : "") : "You have not played this yet.");
       if (S.info.adventure) { $("inHow").innerHTML = S.info.how.map(function (h) { return "<div>&#9654; " + h + "</div>"; }).join("") + "<div>&#9654; <b>Pick how to play:</b> Learn mode teaches you as you go. Challenge mode gives no help. Your score is the share of locks you get right, and you can play again with new questions.</div>"; $("startBtn").style.display = "none"; $("modeRow").style.display = "grid"; } else { $("startBtn").style.display = ""; $("modeRow").style.display = "none"; }
       $("intro").classList.remove("hidden"); document.title = S.info.title + " | SCHS Computer Science";
     }).catch(function () { showMsg("signMsg", "Could not reach the server. Check your internet and refresh.", true); });
@@ -274,7 +278,7 @@
       if (missed.length) { rv.style.display = "block"; rv.innerHTML = "<b>What to review (" + missed.length + ")</b>" + missed.map(function (x) { return '<div class="it"><b>Missed:</b> ' + esc(x.prompt || "") + (x.code ? '<br><code>' + esc(x.code) + "</code>" : "") + "<br>" + esc(x.why || "") + "</div>"; }).join(""); }
     } else
     $("rMsg").textContent = pct >= 100 ? "PERFECT! Full points. You are a legend." : pct >= 90 ? "MISSION COMPLETE! " + (S.info && S.info.noGate ? "" : "That score opens the next walkthrough. ") + "Play again if you want a perfect 100." : "You need 90 or more to pass. Read the explanations, play again, and the questions will change.";
-    $("rBest").textContent = S.preview ? "Teacher preview: nothing was saved." : (f && f.saved ? "Your best score is " + f.best + " out of 100 (" + f.runs + " run" + (f.runs === 1 ? "" : "s") + ")." : "");
+    $("rBest").textContent = S.preview ? (S.guest ? "Guest play: nothing was saved." : "Teacher preview: nothing was saved.") : (f && f.saved ? "Your best score is " + f.best + " out of 100 (" + f.runs + " run" + (f.runs === 1 ? "" : "s") + ")." : "");
     $("result").classList.remove("hidden"); if (pct >= 90 && window.FX) window.FX.confetti(90);
     try { if (window.opener) window.opener.postMessage({ type: "mission-game", slot: SLOT, pct: pct }, location.origin); } catch (e) {}
   }
