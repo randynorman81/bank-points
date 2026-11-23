@@ -92,5 +92,18 @@
       allDone: "You did the stretch tasks too. The designers will be using your loop in the race demo.",
       changes: "Fix those and send it back, and I'll run it again." } };
 
-  g.PY_WORK = W;
+  /* A compact builder for the rest of the assignments (workplace2.js, workplace3.js, workplace4.js). Fields:
+     match, core (regular steps), points, brand [name, accent, headBg, headInk, font, spacing], team, boss [name, title], ticket, file, subject,
+     hi / job / filesNote (the three email paragraphs), docs [[name, text], ...], open, rv [[ok, todo], ...] (one per step, regular first, then the two stretch steps), approve, done, sign */
+  g.PYW_MK = function (o) {
+    var first = o.boss[0].split(" ")[0];
+    return { match: o.match, core: o.core, points: o.points || 100,
+      brand: { name: o.brand[0], color: o.brand[1], head: o.brand[2], ink: o.brand[3], team: o.team, font: o.brand[4], spacing: o.brand[5] || "0" },
+      boss: { name: o.boss[0], title: o.boss[1], initials: o.boss[0].split(" ").map(function (w) { return w.charAt(0); }).join("") },
+      ticket: o.ticket, file: o.file,
+      email: { subject: o.subject, paras: [o.hi, o.job, o.filesNote, "Work through the steps below in order. When you have a version that runs, click **Send to " + first + "** and I'll look it over and reply.", "If you finish early and want to take on more, there are two stretch tasks at the bottom. They're optional, but I notice the people who go the extra mile."], sign: o.sign || "Thanks, " + first },
+      files: o.docs.map(function (d) { return { name: d[0], text: d[1] }; }),
+      review: { open: o.open, stages: o.rv.map(function (r) { return { ok: r[0], todo: r[1] }; }), approve: o.approve, moreStretch: "There are two stretch tasks at the bottom if you want to take them on.", allDone: o.done, changes: "Fix those and send it back, and I'll take another look." } };
+  };
+  g.PY_WORK = Object.assign(g.PY_WORK || {}, W);
 })(window);

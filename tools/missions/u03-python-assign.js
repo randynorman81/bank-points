@@ -10,6 +10,9 @@ const { ASG } = require("./asg-kit.js");
 require("./asg-u3.js");
 require("./asg-u4.js");
 require("./asg-u5.js");
+require("./asg-x3.js");
+require("./asg-x4.js");
+require("./asg-x5.js");
 
 /* ---- build every record (hidden, not gating) ---- */
 T.rows.forEach((row) => {
