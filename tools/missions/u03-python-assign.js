@@ -7,12 +7,15 @@
 const M = require("./core.js");
 const T = require("./py-table.js");
 const { ASG } = require("./asg-kit.js");
-require("./asg-u3.js");
-require("./asg-u4.js");
-require("./asg-u5.js");
-require("./asg-x3.js");
-require("./asg-x4.js");
-require("./asg-x5.js");
+require("./asg-u3a.js");
+require("./asg-u3b.js");
+require("./asg-u3c.js");
+require("./asg-u4a.js");
+require("./asg-u4b.js");
+require("./asg-u4c.js");
+require("./asg-u5a.js");
+require("./asg-u5b.js");
+require("./asg-u6.js");
 
 /* ---- build every record (hidden, not gating) ---- */
 T.rows.forEach((row) => {

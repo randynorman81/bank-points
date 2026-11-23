@@ -9,6 +9,14 @@ const X = (title, say, type, ref, chk, run, rc, refCode) => {
   const s = S("Stretch: " + title, say, type, ref, chk, run, rc, refCode), tag = (c) => ["Bonus (+1): " + c[0]].concat(c.slice(1));
   s.chk = (s.chk || []).map(tag); s.runChk = s.runChk ? s.runChk.map(tag) : undefined; return s;
 };
-const ASG = {};
+/* Helpers for the "one real file" assignments */
+const esc = (t) => String(t).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const L = (label) => new RegExp("^\\s*print\\(\\s*[\"']" + esc(label) + "[\"']\\s*\\)", "m");           /* print("LABEL") on its own line */
+const PV = (expr) => new RegExp("^\\s*print\\(\\s*" + expr + "\\s*\\)", "m");                       /* print(expr) on its own line (expr is a regex source) */
+const OUT = (text) => new RegExp("^" + esc(text) + "$", "m");                                                /* an output line that is exactly this text */
+const PURPOSE = ["a PURPOSE comment of five or more words", note("PURPOSE", 5), 1, "comments"];
+const splice = (prog, marker, add) => { const i = prog.indexOf(marker); if (i < 0) throw new Error("marker not found: " + marker); return prog.slice(0, i) + add + prog.slice(i); };   /* put `add` in front of the marker line (a feature added above the closing block) */
+const ASG = {}, WORK = {};   /* WORK[id] = the workplace skin for that assignment (boss, email, files, review lines); mkwork.js turns it into python/workplace.js */
+const WK = (id, o) => { WORK[id] = o; };
 const def = (id, name, intro, learn, stages, auto) => { ASG[id] = { name, intro, learn, stages, auto }; };
-module.exports = { V, FN, note, S, X, ASG, def };
+module.exports = { V, FN, note, S, X, ASG, WORK, WK, def, esc, L, PV, OUT, PURPOSE, splice };
