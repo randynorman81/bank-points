@@ -138,6 +138,7 @@
       if (!j || j.needLogin) { S.cred = ""; showMsg("signMsg", "Please sign in again.", true); return; }
       if (j.error) { showMsg("signMsg", j.error, true); if (TEACHER) { try { sessionStorage.removeItem("pypin"); } catch (e) {} S.pin = ""; } return; }
       S.game = j.game; S.preview = !!j.preview; S.info = INFO[j.game] || { title: j.title || "MISSION", story: "", how: [] };
+      if (window.ArcadeInfo && window.ArcadeInfo[j.game]) { var AI = window.ArcadeInfo[j.game]; S.info = Object.assign({}, S.info, { title: AI.title, story: AI.story, noGate: true, how: [AI.how, "<b>Controls:</b> " + AI.help, "<b>3 mistakes</b> (or the clock hitting zero) end the game."] }); }
       $("signin").classList.add("hidden"); $("teachNote").style.display = S.preview ? "block" : "none";
       $("inTitle").textContent = S.info.title; $("inStory").innerHTML = S.info.story;
       $("inHow").innerHTML = S.info.how.map(function (h) { return "<div>&#9654; " + h + "</div>"; }).join("") + "<div>&#9654; <b>10 rounds.</b> " + (S.info.noGate ? "9 right = 90. 10 right = 100." : "9 right = 90 and opens the next walkthrough. 10 right = 100.") + " You can play again, and the questions change.</div>";
@@ -195,7 +196,10 @@
     var book = $("book"); if (q.book) { book.style.display = "block"; book.innerHTML = "<b>PHONE BOOK</b><br>" + q.book.map(esc).join("<br>"); } else book.style.display = "none";
     var ts = $("teachSol"); if (q.sol) { ts.style.display = "block"; ts.textContent = "Teacher preview. " + solText(q); } else ts.style.display = "none";
     $("controls").innerHTML = ""; $("controls").className = "g-" + S.game; buildControls(q);
-    if (S.scene.begin) S.scene.begin(q); drawHud(); if (!(S.info && S.info.adventure)) startTimer(q.t || 30);
+    var arc = !!(S.scene && S.scene.arcade), ah = $("arcHelp");   /* arcade games: the answer is made IN the game, so the answer buttons are hidden */
+    if (!ah) { ah = el("div", "", ""); ah.id = "arcHelp"; ah.style.cssText = "margin:6px 0;padding:7px 12px;border:1px dashed #3b4a78;border-radius:10px;color:#c7d2fe;font:700 13px Manrope,sans-serif;display:none"; $("controls").parentNode.insertBefore(ah, $("controls")); }
+    $("controls").style.display = arc ? "none" : ""; ah.style.display = arc ? "block" : "none"; if (arc) ah.innerHTML = "&#127918; <b>Controls:</b> " + (S.scene.help || "");
+    if (S.scene.begin) S.scene.begin(q); drawHud(); if (!(S.info && S.info.adventure)) startTimer((q.t || 30) + (S.scene && S.scene.arcade ? 30 : 0));
   }
   function solText(q) {
     var a = q.sol.answer; if (a.idx !== undefined && q.choices) return "Answer: " + q.choices[a.idx] + ". " + q.sol.why;
@@ -412,12 +416,12 @@
     if ((e.key === " " || e.key === "Enter") && S.canNext && S.onNext) { e.preventDefault(); S.onNext(); return; }
     if (S.info && S.info.adventure && !S.puzzleOpen) return;
     var n = parseInt(e.key, 10);
-    if (n >= 1 && n <= 4 && S.q && S.q.type === "choice" && !S.busy) { var b = $("controls").querySelectorAll(".btn.pick")[n - 1]; if (b) b.click(); }
+    if (n >= 1 && n <= 4 && S.q && S.q.type === "choice" && !S.busy && !(S.scene && S.scene.arcade)) { var b = $("controls").querySelectorAll(".btn.pick")[n - 1]; if (b) b.click(); }
     if (S.game === "dns" && !S.busy && S.scene && S.scene.choose && (e.key === "ArrowLeft" || e.key === "ArrowRight")) { var d = e.key === "ArrowLeft" ? -1 : 1; S.scene.choose(Math.max(0, Math.min(2, S.scene.lane + d))); e.preventDefault(); }
   });
 
   window.__pgSubmit = function (a) { submit(a); };   /* for the automated tests: the server still judges the answer */
   window.__pgState = function () { return { q: S.q, busy: S.busy, n: G.n, strikes: G.strikes, correct: G.correct, game: S.game, canNext: S.canNext }; };   /* read-only, for the automated tests */
-  window.PGE = { S: S, G: G, Snd: window.Snd, showQuestion: showQuestion, finishRun: function (f, over) { showResult(f, over); } };
+  window.PGE = { S: S, G: G, Snd: window.Snd, submit: function (a) { submit(a); }, showQuestion: showQuestion, finishRun: function (f, over) { showResult(f, over); } };
   boot();
 })();

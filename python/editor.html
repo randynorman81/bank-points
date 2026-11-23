@@ -1724,7 +1724,7 @@ function lpRenderUnit(key) {
     var rows = "", have = 0, done = 0, declared = l.parts.w.length + l.parts.p.length + l.parts.g.length;
     var add = function (k, label) { var sts = l.parts[k].map(lpState).filter(function (x) { return x; }); if (!sts.length) { rows += lpRow(k, null, label); return; } sts.forEach(function (s) { have++; if (MY[s.id] === "sub") done++; rows += lpRow(k, s, label); }); };
     var notesRow = l.notes ? '<a class="lprow open" href="../apcsp/' + escA(l.notes) + '" target="_blank" rel="noopener"><span class="ic">&#128214;</span><span class="tx"><b>Lesson notes</b><span>' + (l.unitNotes ? "Unit notes page" : "Read this first") + '</span></span><span class="st">new tab</span></a>' : lpRow("notes", null, "Lesson notes");
-    add("w", "Walkthrough"); add("p", "Assignment"); add("g", "Game");
+    add("w", "Curriculum"); add("p", "Assignment"); add("g", "Game");
     var cur = false; ["w", "p", "g"].forEach(function (k) { l.parts[k].forEach(function (id) { if (id === slot) cur = true; }); });
     h += '<div class="lpcard' + (cur ? " here" : "") + (declared && done === declared ? " alldone" : "") + '"><div class="lpch"><span class="ln">' + escA(l.id) + '</span><span class="lt">' + escA(l.t) + '</span>' + (declared && done === declared ? '<span class="ld" title="Every part done">&#10003;</span>' : "") + '</div>' + notesRow + rows + '</div>';
   });
@@ -1732,7 +1732,7 @@ function lpRenderUnit(key) {
   if (info.extra && info.extra.length) {
     h += '<div class="lpsec">' + (info.lessons.length ? "Quizzes and unit games" : "Everything in this unit") + '</div><div class="lpextra">' + info.extra.map(function (s) {
       var A = s.A, part = A ? slotPart(A) : (s.L && s.L.part) || "assignment", kind = (A && A.game) ? "g" : part === "quiz" || part === "test" ? "q" : part === "project" ? "p" : "w";
-      return lpRow(kind, s, (A && A.game) ? "Game" : part === "quiz" ? "Quiz" : part === "test" ? "Test" : part === "project" ? "Assignment" : "Walkthrough");
+      return lpRow(kind, s, (A && A.game) ? "Game" : part === "quiz" ? "Quiz" : part === "test" ? "Test" : part === "project" ? "Assignment" : "Curriculum");
     }).join("") + '</div>';
   }
   $("lpTitle").textContent = info.name; $("lpBody").innerHTML = h;
