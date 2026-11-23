@@ -199,6 +199,9 @@
     var arc = !!(S.scene && S.scene.arcade), ah = $("arcHelp");   /* arcade games: the answer is made IN the game, so the answer buttons are hidden */
     if (!ah) { ah = el("div", "", ""); ah.id = "arcHelp"; ah.style.cssText = "margin:6px 0;padding:7px 12px;border:1px dashed #3b4a78;border-radius:10px;color:#c7d2fe;font:700 13px Manrope,sans-serif;display:none"; $("controls").parentNode.insertBefore(ah, $("controls")); }
     $("controls").style.display = arc ? "none" : ""; ah.style.display = arc ? "block" : "none"; if (arc) ah.innerHTML = "&#127918; <b>Controls:</b> " + (S.scene.help || "");
+    var aa = $("arcAns"); if (!aa) { aa = el("div", "", ""); aa.id = "arcAns"; aa.style.cssText = "margin:6px 0;padding:8px 12px;border:1px solid #334155;border-radius:10px;background:#0f172a;color:#e2e8f0;font:600 13px 'JetBrains Mono',monospace;display:none;line-height:1.6"; ah.parentNode.insertBefore(aa, ah.nextSibling); }
+    var longA = arc && q.choices && q.choices.some(function (c) { return String(c).length > 22; });   /* long answers do not fit on the little things in the game, so the full answers are listed here */
+    aa.style.display = longA ? "block" : "none"; if (longA) aa.innerHTML = "<b style='color:#94a3b8'>THE ANSWERS</b><br>" + q.choices.map(function (c, i) { return "<b style='color:" + ["#38bdf8", "#f472b6", "#a3e635", "#fbbf24"][i] + "'>" + "ABCD".charAt(i) + "</b> &nbsp;" + esc(String(c)); }).join("<br>");
     if (S.scene.begin) S.scene.begin(q); drawHud(); if (!(S.info && S.info.adventure)) startTimer((q.t || 30) + (S.scene && S.scene.arcade ? 30 : 0));
   }
   function solText(q) {

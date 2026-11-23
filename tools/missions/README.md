@@ -40,3 +40,9 @@ Whole-unit point-and-click horror games (Unit 8 and Unit 10). Each room is one l
 - `node tools/missions/pycheck.mjs all 60` runs every generated code question in REAL Python and proves the answer key matches what the program prints (about 15,000 programs).
 - All are published hidden (`live: false`) and do not gate (`passMin 0`), but when live a student must submit the assignment and play the game (any score) before the next walkthrough opens, like the Unit 8 projects.
 - The editor's Lessons picker (`python/lessons.js`) shows each lesson as one box with its four parts.
+
+## The arcade games (all 34 lesson games)
+- Every lesson game is a real little arcade game: the four answers are IN the game and the student answers by playing. The server still judges (`PGE.submit`), the questions are unchanged. Names, stories and controls live in `python/games/arcade-info.js` (also used by `u03-python-games.js`).
+- Code: `python/games/arcade.js` (the `ArcadeKit` toolkit + games 3.1 to 3.7), `arcade2.js` (3.8 to 3.13), `arcade3.js` (4.1 to 4.6), `arcade4.js` (4.7 to 4.11), `arcade5.js` (5.1 to 6.3). Each game is `K.make(id, { build, step, draw, key/down/move/up })` and calls `K.commit(this, answerIndex)`.
+- Long answers do not fit on the little things in a game, so `engine.js` lists the full answers under the game (`#arcAns`) when any answer is over 22 characters.
+- `node tools/missions/arcplay.mjs <shots-folder> a160,a161,...` plays every game in headless Chrome with a bot (`window.__arc.auto(i)` makes a game play itself toward answer i using its own controls and physics) and checks that every round can be won and a perfect run scores 100. Each game's bot lives in its `step()` under `this.bot !== null`.

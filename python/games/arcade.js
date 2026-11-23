@@ -17,6 +17,7 @@
   function label(text, cx, cy, maxW, maxH, color, maxSize) {
     var size = maxSize || 15, lines;
     for (; size >= 8; size--) { lines = wrap(text, maxW, size); if (lines.length * size * 1.25 <= maxH && lines.every(function (l) { return ctx.measureText(l).width <= maxW; })) break; }
+    if (!(lines.length * size * 1.25 <= maxH && lines.every(function (l) { return ctx.measureText(l).width <= maxW; }))) { size = 9; lines = wrap(text, maxW, size); var ml = Math.max(1, Math.floor(maxH / (size * 1.25))); if (lines.length > ml) { lines = lines.slice(0, ml); var ll = lines[ml - 1]; while (ll.length > 1 && ctx.measureText(ll + "\u2026").width > maxW) ll = ll.slice(0, -1); lines[ml - 1] = ll + "\u2026"; } }   /* too long even at the smallest size: cut it with "..." (the full answer is listed under the game) */
     ctx.font = "700 " + size + 'px "JetBrains Mono",monospace'; ctx.fillStyle = color || "#fff"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
     var y0 = cy - (lines.length - 1) * size * 0.625; lines.forEach(function (l, i) { ctx.fillText(l, cx, y0 + i * size * 1.25); });
   }

@@ -34,7 +34,7 @@ for (const slot of SLOTS) {
     if (!ok) { say("round " + (round + 1) + ": the game never got an answer within " + (q.t + 30) + "s (answer " + idx + ")"); await b.shot(`${SHOTS}/${slot}-stuck.png`); break; }
     await waitFor(`window.__pgState().n > ${n0}`, 8000); const after = await ev("window.__pgState()");
     console.log(`  round ${String(round + 1).padStart(2)}: answer ${idx} reached in ${took}s, strikes ${after.strikes}, correct ${after.correct}`);
-    if (after.correct !== round + 1) { say("round " + (round + 1) + ": the answer was not marked right (correct " + after.correct + ")"); break; }
+    if (after.correct !== round + 1) { say("round " + (round + 1) + ": the answer was not marked right (correct " + after.correct + ") " + JSON.stringify(await ev("window.__dbg||null"))); break; }
     if (round < 9) { await waitFor(`window.__pgState().canNext`, 4000); await ev(`window.__pgState().canNext && document.querySelector('#why .btn') && document.querySelector('#why .btn').click()`); await sleep(200); }
   }
   const fin = await waitFor(`!document.getElementById('result').classList.contains('hidden')`, 20000);
