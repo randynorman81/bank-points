@@ -66,6 +66,7 @@ for (const r of recs) {
   VERIFY.push({ slot: r.slot, code: last, output: lastOut, expected: fin.pct });
   console.log(`  FINAL program: ${last.length} characters, auto-checker ${fin.pct}%` + (fin.pct === 100 ? "" : "  <-- must be 100; missing: " + fin.missing.map((m) => m.label).join(" | ")));
   if (fin.pct !== 100) bad++;
+  if (fin.bonus) { console.log(`  STRETCH: the finished program earns +${fin.bonus.earned} of +${fin.bonus.max} bonus points`); if (fin.bonus.earned !== fin.bonus.max) say("the reference program does not earn every stretch point: " + fin.bonus.missing.map((m) => m.label).join(" | ")); const noStretch = scoreCode(rec.checks, "print(1)\n", "1"); if (noStretch.bonus && noStretch.bonus.earned > 0) say("an unrelated program earns stretch points"); }
   /* a second run in the same session must score the same (test data must not leak between runs) */
   const again = rec.autoRun && rec.autoRun.length ? await hidden(last, rec.autoRun) : await runVisible(last, stages[stages.length - 1].inp || []);
   const fin2 = scoreCode(rec.checks, last, again);

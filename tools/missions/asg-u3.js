@@ -1,7 +1,7 @@
 /* UNIT 3 ASSIGNMENTS (3.1 to 3.13). Every one is a real company with a real kind of problem. No code is shown: the student reads the job and writes the program.
    Each stage has a hidden reference solution (ref) that tests/test.mjs proves scores 100. Authoring helpers are in asg-kit.js. */
 "use strict";
-const { V, FN, note, S, def } = require("./asg-kit.js");
+const { V, FN, note, S, X, ASG, def } = require("./asg-kit.js");
 const PR = (s) => new RegExp("print\\(.*" + s);   /* a print line that mentions something */
 
 /* ---------------------------------------------------------------- 3.1 */
@@ -312,5 +312,26 @@ def("u3l13", "Roblox Robux Tracker", ["**You are a developer on Roblox.** A game
     "Write it and the comment.", `price = 10\ncost = price * 2\nprice = 15\nprint("Cost is still:", cost)\n# TRACE: cost was calculated once when price was 10 so changing price later does not recalculate it`,
     [["price starts at 10", V("price", "10\\s*$")], ["cost is price times 2", /^\s*cost\s*=\s*(price\s*\*\s*2|2\s*\*\s*price)/m], ["price changed to 15", V("price", "15\\s*$")], ["a TRACE comment of eight or more words", note("TRACE", 8), 1, "comments"]],
     "Run it.", [["Cost is still: 20", /Cost is still: 20/]])]);
+
+/* ---------------------------------------------------------------- stretch (extra credit) steps for the pilot workplace assignments */
+ASG.u3l1.stages.push(
+  X("More about the track", ["Priya asks, if you have time: the card should also show the album and the year. Make **`album_name`** (`After Hours`, text) and **`release_year`** (`2020`, a whole number), and print `Album:` and `Year:` followed by each."],
+    "Add the two variables and the two prints.", `album_name = "After Hours"\nrelease_year = 2020\nprint("Album:", album_name)\nprint("Year:", release_year)`,
+    [["album_name holds text", V("album_name", "[\"']")], ["release_year is a whole number", V("release_year", "\\d+\\s*$")], ["printing album_name", /print\(\s*["']Album:["']\s*,\s*album_name\s*\)/], ["printing release_year", /print\(\s*["']Year:["']\s*,\s*release_year\s*\)/]],
+    "Run it.", [["Album: After Hours", /Album: After Hours/], ["Year: 2020", /Year: 2020/]]),
+  X("Wrapped counter", ["Wrapped needs the count after **three more** listeners press play. Update the **same** `play_count` variable three more times, then print `After 3 more:` followed by the count. Add a comment that starts with `# WRAPPED:` and says in at least eight words why you reused the variable instead of making new ones."],
+    "Add the three updates, the print and the comment.", `play_count = play_count + 1\nplay_count = play_count + 1\nplay_count = play_count + 1\nprint("After 3 more:", play_count)\n# WRAPPED: reusing one variable keeps a single true count instead of many copies that could disagree`,
+    [["play_count updated three more times", /^\s*play_count\s*(=\s*play_count\s*\+\s*1|\+=\s*1)/m, 4], ["printing the After 3 more line", /print\(\s*["']After 3 more:["']/], ["a WRAPPED comment of eight or more words", note("WRAPPED", 8), 1, "comments"]],
+    "Run it.", [["After 3 more: 4000004", /After 3 more: 4000004/]]));
+
+ASG.u3l2.stages.push(
+  X("Storage check", ["Marcus adds: the Storage page needs the same kinds of facts. Make **`storage_gb`** (`128`, a whole number) and **`free_gb`** (`31.5`, a decimal). Make **`storage_low`** by comparing `free_gb` with `10` (let Python decide True or False) and print `Storage low:` followed by it."],
+    "Add the variables, the comparison and the print.", `storage_gb = 128\nfree_gb = 31.5\nstorage_low = free_gb < 10\nprint("Storage low:", storage_low)`,
+    [["storage_gb is a whole number", V("storage_gb", "\\d+\\s*$")], ["free_gb is a decimal", V("free_gb", "\\d+\\.\\d+")], ["storage_low compares free_gb with 10", /^\s*storage_low\s*=\s*(free_gb\s*<\s*10|10\s*>\s*free_gb)/m], ["printing storage_low", /print\(\s*["']Storage low:["']\s*,\s*storage_low\s*\)/]],
+    "Run it.", [["Storage low: False", /Storage low: False/]]),
+  X("Repair estimate", ["Print one summary line that starts with `Repair for:` followed by the model name, the zip code and the repair cost, separated by commas. Then print `Estimate type:` followed by the **type** of `repair_cost` times `parts_needed`. Add a comment that starts with `# TYPES:` and says in at least eight words why that type comes out."],
+    "Write the two prints and the comment.", `print("Repair for:", model_name, zip_code, repair_cost)\nprint("Estimate type:", type(repair_cost * parts_needed))\n# TYPES: a decimal times a whole number always gives a decimal so the result is a float`,
+    [["printing the summary with three variables", /print\(\s*["']Repair for:["']\s*,\s*model_name\s*,\s*zip_code\s*,\s*repair_cost\s*\)/], ["the type of repair_cost times parts_needed", /type\(\s*repair_cost\s*\*\s*parts_needed\s*\)/], ["a TYPES comment of eight or more words", note("TYPES", 8), 1, "comments"]],
+    "Run it.", [["Repair for: iPhone 15 30326 79.0", /Repair for: iPhone 15 30326 79\.0/], ["Estimate type: float", /Estimate type: <class 'float'>/]]));
 
 module.exports = {};

@@ -1,6 +1,6 @@
 /* UNIT 4 ASSIGNMENTS (4.1 to 4.11): Booleans, logic, comparisons, if/elif/else, key events, loops, random. Real companies, real jobs, no code shown. */
 "use strict";
-const { V, FN, note, S, def } = require("./asg-kit.js");
+const { V, FN, note, S, X, ASG, def } = require("./asg-kit.js");
 const PR = (s) => new RegExp("print\\(.*" + s);
 const FOR = (hdr) => new RegExp("^\\s*for\\s+\\w+\\s+in\\s+" + hdr + "\\s*:", "m");
 
@@ -297,5 +297,16 @@ def("u4l12", "Mario Kart Item Box", ["**You are a gameplay programmer at Nintend
     "Write the loop.", `rolls = 0\nroll = 0\nwhile roll != 6:\n    roll = random.randint(1, 6)\n    rolls = rolls + 1\nprint("Rolled a 6 after", rolls, "rolls")`,
     [["rolls starts at 0", V("rolls", "0\\s*$")], ["a while loop while roll is not 6", /^\s*while\s+roll\s*!=\s*6\s*:/m], ["a new roll inside the loop", /^\s+roll\s*=\s*random\.randint\(\s*1\s*,\s*6\s*\)/m], ["counting the rolls", /^\s+rolls\s*(=\s*rolls\s*\+\s*1|\+=\s*1)/m]],
     "Run it a few times.", [["Rolled a 6 after some rolls", /Rolled a 6 after \d+ rolls/]])]);
+
+/* ---------------------------------------------------------------- stretch (extra credit) steps for the pilot workplace assignment */
+ASG.u4l12.stages.push(
+  X("Three laps", ["Hana asks, if you have time: simulate a three-lap race. With **one for loop** over the laps `1` through `3`, pick a random item from `items` each lap and print `Lap` followed by the lap number and a colon, then the item (like `Lap 1: banana`)."],
+    "Write the loop.", `for lap in range(1, 4):\n    print("Lap " + str(lap) + ":", random.choice(items))`,
+    [["a for loop over laps 1 to 3", FOR("range\\(\\s*1\\s*,\\s*4\\s*\\)")], ["picking from items inside the loop", /^\s+print\(.*random\.choice\(\s*items\s*\)/m], ["a print that starts with Lap", /print\(\s*["']Lap\s*["']/]],
+    "Run it.", [["a Lap 1 line", /Lap 1: (banana|mushroom|star)/], ["a Lap 3 line", /Lap 3: (banana|mushroom|star)/]]),
+  X("Blue shell odds", ["A blue shell only hits the leader on **1 out of 10**. Roll **`shell_roll`** as a random whole number from `1` to `10`. If it is `1` print `Blue shell!`, otherwise print `Safe`."],
+    "Write the roll and the choice.", `shell_roll = random.randint(1, 10)\nif shell_roll == 1:\n    print("Blue shell!")\nelse:\n    print("Safe")`,
+    [["shell_roll from randint 1 to 10", /^\s*shell_roll\s*=\s*random\.randint\(\s*1\s*,\s*10\s*\)/m], ["an if on shell_roll equal to 1", /^\s*if\s+shell_roll\s*==\s*1\s*:/m], ["printing Blue shell!", /print\(\s*["']Blue shell!["']\s*\)/], ["printing Safe in the else", /^\s+print\(\s*["']Safe["']\s*\)/m]],
+    "Run it a few times.", [["Blue shell or Safe", /(Blue shell!|Safe)/]]));
 
 module.exports = {};

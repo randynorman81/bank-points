@@ -18,7 +18,8 @@ function toRecord(w, o) {
   if (o.part) rec.part = o.part;
   if (o.passMin !== undefined) rec.passMin = o.passMin;
   if (w.autoRun) rec.autoRun = w.autoRun;
-  rec.checks = rec.checks.map((c) => ({ label: c.label, re: c.re, flags: (c.flags || "").replace(/m/g, "") + "m", min: c.min || 1, pts: 1, where: c.where, box: c.box }));
+  /* a check whose label starts "Bonus (+N): " is STRETCH work: it is worth N extra points beyond the 100 (see scoreCode in pycode.js) */
+  rec.checks = rec.checks.map((c) => { const bm = /^Bonus \(\+(\d+)\):\s*/.exec(c.label || ""); return { label: bm ? c.label.slice(bm[0].length) : c.label, re: c.re, flags: (c.flags || "").replace(/m/g, "") + "m", min: c.min || 1, pts: bm ? Number(bm[1]) : 1, where: c.where, box: c.box, bonus: bm ? true : undefined }; });
   if (rec.checks.some((c) => !c.re)) throw new Error(w.title + ": a check has no pattern (functions are not allowed in server checks)");
   return rec;
 }

@@ -224,6 +224,35 @@ body.gameon #game{display:flex}
 .modal{position:fixed;inset:0;background:#000a;display:none;place-items:center;z-index:50}.modal.show{display:grid}
 .modal .box{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;max-width:420px}
 .modal .box p{margin:0 0 10px}.modal .row{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+/* the workplace skin: an assignment that looks like a job at a real company (python/workplace.js) */
+.wp{margin:0 0 14px;border:1px solid var(--rule);border-radius:12px;overflow:hidden;background:var(--panel)}
+.wphead{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--wph);color:var(--wpi)}
+.wpmark{line-height:1}.wpteam{font:600 11.5px system-ui,sans-serif;opacity:.85;margin-left:auto;text-align:right}
+.wpbar{height:4px;background:var(--wpc)}
+.wpmail{padding:12px 14px 6px}
+.wpsubj{font:700 15px/1.3 system-ui,sans-serif;color:var(--hi);margin:0 0 8px}
+.wpfrom{display:flex;gap:10px;align-items:center;margin:0 0 10px}
+.wpav{width:34px;height:34px;border-radius:50%;background:var(--wpc);color:#fff;display:grid;place-items:center;font:700 13px system-ui,sans-serif;flex:none;text-shadow:0 1px 2px #0006}
+.wpfrom small{color:var(--soft)}
+.wpbody p{margin:0 0 9px}.wpsign{margin:2px 0 10px;color:var(--soft)}
+.wpticket{font-size:12.5px;color:var(--soft);border-top:1px dashed var(--rule);padding:8px 0 0}
+.wpfiles{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}
+.wpf{background:var(--chip);border:1px solid var(--rule);border-radius:6px;padding:3px 9px;font:12.5px "JetBrains Mono",monospace;color:var(--acc2);cursor:pointer}
+.wpf:hover{border-color:var(--wpc)}
+.wpmine{font:12.5px "JetBrains Mono",monospace;color:var(--soft);padding:3px 4px}
+.wpsend{display:block;width:calc(100% - 28px);margin:6px 14px 12px;padding:9px 12px;border:0;border-radius:8px;background:var(--wpc);color:#fff;font:700 14px system-ui,sans-serif;cursor:pointer;text-shadow:0 1px 2px #0005}
+.wpsend:hover{filter:brightness(1.08)}
+.wpnote{font-size:11px;color:var(--soft);padding:0 14px 10px;line-height:1.4}
+.wpstretch{margin:18px 0 8px;padding:10px 12px;border-radius:10px;border:1px dashed var(--wpc,#888);background:rgba(251,191,36,.08);font-size:13.5px}
+#mWork .box{max-width:600px;width:94vw;max-height:88vh;overflow:auto;padding:0}
+#mWork .wpmodhead{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--wph);color:var(--wpi);position:sticky;top:0}
+#mWork .wpmodhead b{font-size:14px}#mWork .wpmodhead button{margin-left:auto}
+#mWork .wpmodbody{padding:14px 16px}
+#mWork pre{background:var(--deep);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;font:12.5px/1.6 "JetBrains Mono",monospace;white-space:pre-wrap;margin:0}
+#mWork .wpstat{display:inline-block;padding:2px 10px;border-radius:99px;font:700 12px system-ui,sans-serif;margin:0 0 10px}
+#mWork .wpstat.ok{background:rgba(52,211,153,.18);color:var(--okl,#34d399)}#mWork .wpstat.no{background:rgba(251,191,36,.18);color:var(--warnl,#fbbf24)}
+#mWork .wpline{display:flex;gap:8px;margin:0 0 9px}#mWork .wpline i{font-style:normal;flex:none;width:18px}
+#mWork .wpmiss{color:var(--soft);font-size:12.5px;margin:2px 0 0 26px}
 /* the Lessons picker (replaces the long Assignment dropdown) */
 #slot{display:none!important}
 .top #lessonBtn{max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-color:var(--acc)}
@@ -394,6 +423,7 @@ body.mconly #run,body.mconly #clear,body.mconly #reset,body.mconly #histBtn,body
 <script src="themes.js"></script>
 <script src="assignments.js"></script>
 <script src="games/arcade-info.js"></script>
+<script src="workplace.js"></script>
 <script src="lessons.js"></script>
 <script src="appendix-a-core.js"></script>
 <script src="appendix-a-1.js"></script>
@@ -1331,6 +1361,65 @@ function codeMarked(src, mark) {
   var set = {}; mark.forEach(function (n) { set[n] = 1; });
   return String(src).split("\n").map(function (l, i) { return '<span class="cl' + (set[i + 1] ? " newl" : "") + '">' + (highlight(l) || "&nbsp;") + "</span>"; }).join("");
 }
+/* ---- the workplace skin (python/workplace.js) ---- */
+function workFor(sl, A) { var W = window.PY_WORK && window.PY_WORK[sl]; return W && A && String(A.title || "").indexOf(W.match) >= 0 ? W : null; }
+function workHtml(W) {
+  var b = W.brand, bs = W.boss, em = W.email, first = bs.name.split(" ")[0];
+  return '<div class="wp" style="--wpc:' + b.color + ";--wph:" + b.head + ";--wpi:" + b.ink + '">'
+    + '<div class="wphead"><span class="wpmark" style="font:' + b.font + ";letter-spacing:" + b.spacing + '">' + escA(b.name) + '</span><span class="wpteam">' + escA(b.team) + " &middot; " + escA(W.ticket) + "</span></div><div class=\"wpbar\"></div>"
+    + '<div class="wpmail"><div class="wpsubj">' + escA(em.subject) + '</div><div class="wpfrom"><span class="wpav">' + escA(bs.initials) + "</span><div><b>" + escA(bs.name) + "</b> <small>" + escA(bs.title) + "</small><br><small>to: you &middot; today</small></div></div>"
+    + '<div class="wpbody">' + em.paras.map(function (t) { return "<p>" + inl(t) + "</p>"; }).join("") + '</div><div class="wpsign">' + escA(em.sign) + "</div>"
+    + '<div class="wpticket">Ticket <b>' + escA(W.ticket) + "</b> &middot; worth <b>100 points</b> &middot; stretch tasks add up to <b>+10 bonus points</b></div>"
+    + '<div class="wpfiles">&#128193; Files: ' + W.files.map(function (f, i) { return '<button type="button" class="wpf" data-wf="' + i + '">' + escA(f.name) + "</button>"; }).join("") + '<span class="wpmine">' + escA(W.file) + " (yours, in the editor)</span></div></div>"
+    + '<button type="button" class="wpsend" id="wpSend">&#9993; Send to ' + escA(first) + " for review</button>"
+    + '<div class="wpnote">Classroom simulation: ' + escA(b.name) + " did not write or endorse this assignment. The people and messages are made up, and the company name is only shown in its colors.</div></div>";
+}
+function workModal(W, title, html) {
+  var m = $("mWork"); if (!m) { m = document.createElement("div"); m.className = "modal"; m.id = "mWork"; m.innerHTML = '<div class="box" role="dialog" aria-modal="true"><div class="wpmodhead"><b id="wpModT"></b><button type="button" class="btn" id="wpModX">Close</button></div><div class="wpmodbody" id="wpModB"></div></div>'; document.body.appendChild(m); m.addEventListener("click", function (e) { if (e.target === m || (e.target.id === "wpModX")) m.classList.remove("show"); }); }
+  m.querySelector(".wpmodhead").style.cssText = "--wph:" + W.brand.head + ";--wpi:" + W.brand.ink; m.querySelector(".wpmodhead").style.background = W.brand.head; m.querySelector(".wpmodhead").style.color = W.brand.ink;
+  $("wpModT").textContent = title; $("wpModB").innerHTML = html; m.classList.add("show");
+}
+function workReview(W, j) {
+  var R = W.review, bx = j.boxes || {}, miss = j.missing || [], core = W.core, total = R.stages.length, lines = [], coreDone = true;
+  function st(i) { var any = false, ok = true, seen = false; [bx[2 * i], bx[2 * i + 1]].forEach(function (t) { if (t) { any = true; if (t.f < t.t - 1e-9) ok = false; if (t.f >= t.t * 0.5) seen = true; } }); return { done: any && ok, started: seen }; }
+  function missingFor(i) { return miss.filter(function (m) { var b0 = Array.isArray(m.box) ? m.box[0] : m.box; return b0 === 2 * i || b0 === 2 * i + 1; }).slice(0, 3).map(function (m) { return m.label; }); }
+  var stretchStarted = false, stretchDone = 0;
+  for (var i = 0; i < total; i++) {
+    var s = st(i), line = R.stages[i];
+    if (i < core) {
+      if (s.done) lines.push('<div class="wpline"><i>&#10003;</i><span>' + escA(line.ok) + "</span></div>");
+      else { coreDone = false; var ml = missingFor(i); lines.push('<div class="wpline"><i>&#9888;</i><span>' + escA(line.todo) + (ml.length ? '<div class="wpmiss">I could not find: ' + ml.map(escA).join("; ") + "</div>" : "") + "</span></div>"); }
+    } else if (s.done) { stretchStarted = true; stretchDone++; lines.push('<div class="wpline"><i>&#9733;</i><span>' + escA(line.ok) + "</span></div>"); }
+    else if (s.started) { stretchStarted = true; var m2 = missingFor(i); lines.push('<div class="wpline"><i>&#9734;</i><span>' + escA(line.todo) + (m2.length ? '<div class="wpmiss">I could not find: ' + m2.map(escA).join("; ") + "</div>" : "") + "</span></div>"); }
+  }
+  var approved = coreDone && j.pct >= 100, extra = j.bonus && approved ? j.bonus.earned : 0, closing;
+  if (!approved) closing = R.changes;
+  else if (j.bonus && extra >= j.bonus.max) closing = R.approve + " " + R.allDone;
+  else if (stretchStarted) closing = R.approve;
+  else closing = R.approve + " " + R.moreStretch;
+  var score = '<p style="color:var(--soft);font-size:12.5px;margin:10px 0 0">Auto score: <b>' + j.pct + " / 100</b>" + (j.bonus ? " &middot; stretch bonus: <b>+" + extra + "</b> of +" + j.bonus.max + (approved ? "" : " (counts once you reach 100)") : "") + "</p>";
+  return '<div class="wpmail"><div class="wpsubj">Re: ' + escA(W.email.subject) + '</div><div class="wpfrom"><span class="wpav" style="background:' + W.brand.color + '">' + escA(W.boss.initials) + "</span><div><b>" + escA(W.boss.name) + "</b> <small>" + escA(W.boss.title) + "</small><br><small>to: you &middot; just now</small></div></div>"
+    + '<span class="wpstat ' + (approved ? "ok" : "no") + '">' + (approved ? "&#10003; Approved" : "Changes requested") + "</span>"
+    + "<p>" + escA(R.open) + "</p>" + lines.join("") + "<p>" + escA(closing) + "</p><p style=\"color:var(--soft)\">" + escA(W.email.sign.replace(/^Thanks, /, "")) + "</p>" + score + "</div>";
+}
+function workSend(W) {
+  var A = (window.PY_ASSIGN || {})[slot]; if (!A) return;
+  workModal(W, "Review from " + W.boss.name, '<p style="color:var(--soft)">' + escA(W.boss.name.split(" ")[0]) + " is reading your code...</p>");
+  var hid = hiddenOutput(ta.value, A), body = { action: "score", slot: slot, code: ta.value, output: hid !== null ? hid : out.textContent.slice(-4000), period: $("period").value, credential: CRED || undefined }, tp = "";
+  try { tp = /[?&]teacher/.test(location.search) ? (sessionStorage.getItem("pypin") || "") : ""; } catch (e) {}
+  if (tp) body.pin = tp;
+  fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(function (r) { return r.json(); }).then(function (j) {
+    if (!j || !j.ok || j.pct === null || j.pct === undefined) { $("wpModB").innerHTML = '<p style="color:var(--soft)">' + escA(W.boss.name.split(" ")[0]) + " could not open your code right now. Check that you are signed in, then try again.</p>"; return; }
+    $("wpModB").innerHTML = workReview(W, j);
+  }).catch(function () { $("wpModB").innerHTML = '<p style="color:var(--soft)">Could not reach the server. Try again in a moment.</p>'; });
+}
+document.addEventListener("click", function (e) {
+  var t = e.target; if (!t || !t.closest) return;
+  var f = t.closest("[data-wf]"), sn = t.closest("#wpSend"); if (!f && !sn) return;
+  var A = (window.PY_ASSIGN || {})[slot], W = workFor(slot, A); if (!W) return;
+  if (sn) { workSend(W); return; }
+  var file = W.files[Number(f.getAttribute("data-wf"))]; if (file) workModal(W, file.name, "<pre>" + escA(file.text) + "</pre>");
+});
 function renderAssignment() {
   try { updatePicBar(); } catch (e) {}
   ta.readOnly = slot === "example"; document.body.classList.toggle("isExample", slot === "example");
@@ -1341,7 +1430,8 @@ function renderAssignment() {
   var plain = (slot === "free" || slot === "example") ? title : (A && A.apx ? "Walkthrough " : "Assignment ") + aNum(slot, A) + (A && A.title ? ": " + A.title : ""), full = (A && A.unit ? A.unit + " · " : "") + plain; $("assTitle").textContent = (unitShort(A) ? unitShort(A) + " · " : "") + ((slot === "free" || slot === "example") ? title : slotLabel(slot, false).replace(/^(?:Unit \d+|Appendix [A-Z]) · /, "") + (A && !A.apx ? " · " + slotPoints(A) + " pts" : "")); $("assTitle").title = full;
   if (!A) { body.innerHTML = '<p class="none">Your teacher has not posted instructions for this assignment yet.</p>'; return; }
   var done = {}; try { done = JSON.parse(lsGet("py:prog:" + slot) || "{}"); } catch (e) {}
-  var h = "", n = 0, secTips = {}, sec = 0, seen = {}; stepHelp = {};
+  var W = workFor(slot, A), h = W ? workHtml(W) : "", n = 0, secTips = {}, sec = 0, seen = {}, firstStep = 0, stretchShown = false; stepHelp = {};
+  if (W) { for (var fi = 0; fi < A.blocks.length; fi++) if (A.blocks[fi].h && /^Step 1\b/.test(A.blocks[fi].h)) { firstStep = fi; break; } }
   A.blocks.forEach(function (b) {
     if (b.h) { sec++; seen[sec] = {}; }
     else if (b.tips) b.tips.forEach(function (id) { if (A.tips && A.tips[id] && !seen[sec || 0]) seen[sec || 0] = {}; if (A.tips && A.tips[id] && !(seen[sec || 0][id])) { seen[sec || 0][id] = 1; (secTips[sec] = secTips[sec] || []).push(id); } });
@@ -1349,6 +1439,8 @@ function renderAssignment() {
   sec = 0;
   var introTips = secTips[0] || [];
   A.blocks.forEach(function (b, bi) {
+    if (W && bi < firstStep) { if (b.h) sec++; return; }   /* the email replaces the intro */
+    if (b.h && W && !stretchShown && /^Step \d+: Stretch/.test(b.h)) { stretchShown = true; h += '<div class="wpstretch" style="--wpc:' + W.brand.color + '">&#9733; <b>Stretch tasks (optional).</b> Do these only if you have time. Each check you meet earns <b>+1 bonus point</b> on top of your 100 (up to +10), once your regular steps are at 100.</div>'; }
     if (b.h) { sec++; h += "<h3>" + inl(b.h) + "</h3>"; if (secTips[sec] && secTips[sec].length) { var isStep = /^(Step|Trace) /.test(b.h); stepHelp[sec] = { title: isStep ? String(b.h).replace(/:.*$/, "") : (/^Stuck/.test(b.h) ? "this assignment" : "the house rules"), ids: secTips[sec] }; h += '<div class="helprow"><button type="button" class="helpstep" data-help="' + sec + '">\uD83D\uDCA1 ' + (isStep ? "Help for this step" : "Help with the house rules") + ' <small>(' + secTips[sec].length + " topics)</small></button></div>"; } }
     else if (b.p) h += "<p>" + inl(b.p) + "</p>";
     else if (b.play) h += '<div class="playbox"><a class="playbtn" id="playBtn" href="games/play.html?slot=' + slot + '" target="_blank" rel="noopener">&#9654; PLAY THE GAME</a><div class="playbest" id="gameBest">' + escA(b.play === true ? "Opens in a new tab. Your best score saves by itself." : b.play) + "</div></div>";
@@ -1552,6 +1644,7 @@ function updateScore() {
         el.innerHTML += " <small style='color:var(--soft)'>= " + Math.round(j.pct / 100 * w0) + " of " + w0 + " points</small>";
         if (j.pct >= 100 && lastPct[slot] !== undefined && lastPct[slot] < 100) celebrate(kind0 === "mission" ? "MISSION COMPLETE!" : "TRAINING COMPLETE!", kind0 === "mission" ? "Every check is met. Click Submit for full points." : "Click Submit to unlock your Mission.");
         lastPct[slot] = j.pct;
+        if (j.bonus && j.bonus.max) el.innerHTML += " <small style='color:var(--okl)'>Stretch bonus: <b>+" + (j.pct >= 100 ? j.bonus.earned : 0) + "</b> of +" + j.bonus.max + (j.pct >= 100 ? "" : " (counts once the regular steps reach 100)") + "</small>";
       }
       var miss = j.missing || [], box = $("assMiss");
       if (!miss.length) { box.className = "show"; $("assMissSum").textContent = "All the checks are met. Nice work!"; $("assMissList").innerHTML = ""; lastMiss = []; refreshWhere(); boxBadges(j.boxes); }

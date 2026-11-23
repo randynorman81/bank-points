@@ -52,7 +52,7 @@ const cleanBox = (b) => { const l = (Array.isArray(b) ? b : [b]).map(Number).fil
 const cleanChecks = (c) => (Array.isArray(c) ? c : []).slice(0, 300).map((x) => ({
   label: String((x && x.label) || "").slice(0, 140), re: String((x && x.re) || "").slice(0, 1200), flags: /^[gimsu]{0,4}$/.test(String((x && x.flags) || "")) ? String(x.flags || "") : "",
   min: Math.max(1, Math.min(200, Number(x && x.min) || 1)), pts: Math.max(1, Math.min(50, Number(x && x.pts) || 1)), where: ["code", "comments", "raw", "notes", "output"].indexOf(x && x.where) > -1 ? x.where : "code",
-  box: cleanBox(x && x.box), unc: x && x.unc === true ? true : undefined
+  box: cleanBox(x && x.box), unc: x && x.unc === true ? true : undefined, bonus: x && x.bonus === true ? true : undefined
 })).filter((x) => x.label && x.re);
 /* autoRun: [{ answers: [[prompt pattern, answer], ...] }]. At most 3 runs. The editor answers the program's input() questions from this list, so the grade does not depend on the numbers a student typed. */
 const cleanAutoRun = (r) => (Array.isArray(r) ? r : []).slice(0, 3).map((run) => ({ answers: (run && Array.isArray(run.answers) ? run.answers : []).slice(0, 10).map((a) => [String((a && a[0]) || "").slice(0, 80), String((a && a[1]) == null ? "" : a[1]).slice(0, 60)]) })).filter((run) => run.answers.length);
@@ -231,7 +231,8 @@ async function autoGradeFor(slot, code, current, period, output) {
   if (!as || !Array.isArray(as.checks) || !as.checks.length) return null;
   const r = scoreCode(as.checks, code, output);
   if (r.pct === null) return null;
-  return { score: r.pct, comment: current && current.comment ? current.comment : "", gradedAt: now(), auto: true, detail: { done: r.doneBoxes, total: r.totalBoxes, notDone: r.notDone.slice(0, 80) } };
+  const extra = r.pct >= 100 && r.bonus ? r.bonus.earned : 0;   /* stretch points only count once the regular work is complete */
+  return { score: r.pct + extra, bonus: extra || undefined, comment: current && current.comment ? current.comment : "", gradedAt: now(), auto: true, detail: { done: r.doneBoxes, total: r.totalBoxes, notDone: r.notDone.slice(0, 80) } };
 }
 /* ---------------- quizzes: grade as many times as needed, submit only at 100% ----------------
    A quiz (title starts with "Quiz") is graded with the "Grade my quiz" button (action gradeQuiz). That shows the
@@ -556,7 +557,17 @@ function placementCount(c, flags, text) {
 }
 /* Grade = how many of the steps (instruction checkboxes) were completed. Every checkbox that has checks counts the same; a checkbox's credit is the average of its checks' credit. */
 function tidySpaces(code) { return String(code || "").replace(/\r/g, "").replace(/\([ \t]+/g, "(").replace(/[ \t]+\)/g, ")"); }
+/* Stretch (extra credit) checks have bonus: true. They never change the percent (that is only the regular checks); they add up to a bonus of points that counts once the regular work is 100%. */
 function scoreCode(checks, code, output) {
+  const list = Array.isArray(checks) ? checks : [], bonus = list.filter((c) => c && c.bonus);
+  if (!bonus.length) return scoreCore(list, code, output);
+  const r = scoreCore(list.filter((c) => !(c && c.bonus)), code, output), b = scoreCore(bonus.map((c) => Object.assign({}, c, { bonus: undefined })), code, output);
+  const max = bonus.reduce((t, c) => t + (c.pts || 1), 0), lost = b.missing.reduce((t, m) => t + (m.pts || 1), 0);
+  r.boxes = Object.assign({}, b.boxes, r.boxes);   /* the stretch steps show their progress badges too */
+  r.bonus = { earned: Math.max(0, max - lost), max, missing: b.missing };
+  return r;
+}
+function scoreCore(checks, code, output) {
   code = tidySpaces(code);
   /* unc: this assignment lets students comment out finished work, so a commented-out line of code still counts. Checks about code are scored on a copy with the comment marks stripped; checks about comments (their pattern has a #, or where is comments/notes) see the text as typed */
   const sp0 = splitCode(code), text0 = String(code || "");
@@ -607,7 +618,7 @@ async function liveScore(body) {
   if (!rec || !Array.isArray(rec.checks) || !rec.checks.length) return { ok: true, pct: null };
   if (rec.live === false && !isAdmin(body) && !(body.credential && isTeacherUser(await verifyGoogleToken(body.credential)))) return { ok: true, pct: null };
   const r = scoreCode(rec.checks, code, String(body.output == null ? "" : body.output).slice(-8000));
-  return { ok: true, need: rec.submitAny === true ? 0 : PASS, unlock: passMinOf(rec), pct: r.pct, passed: r.passed, total: r.total, missing: r.missing, boxes: r.boxes };
+  return { ok: true, need: rec.submitAny === true ? 0 : PASS, unlock: passMinOf(rec), pct: r.pct, passed: r.passed, total: r.total, missing: r.missing, boxes: r.boxes, bonus: r.bonus };
 }
 
 /* ---------------- Mission games (python/games/play.html) ----------------
