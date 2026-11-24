@@ -10,11 +10,13 @@
 import { PY_RECORDS } from "./python-records.js";
 import { fixA5, fixA7, fixA13, fixA33, headingAtEdge, TAB_SLOTS } from "./python-fixes.js";
 import { UNIT8 } from "./python-unit8.js";
+import { CONCEPTS } from "./python-concepts.js";
+const REPO = Object.assign({}, PY_RECORDS, CONCEPTS);   /* every record the repo carries: a101 to a193 (python-records.js) and the Unit 10.8, 11 and 16 walkthroughs a194 to a201 (python-concepts.js) */
 /* THE MASTER SWITCH. While this is true EVERYTHING is open to everyone: every walkthrough, assignment, game and quiz is live, nothing is held, nothing is in an unlock chain,
    and games can be played as a guest with no sign-in (nothing is saved for a guest). When the curriculum is finished, set it to false and the per-slot lines below take over again. */
 export const OPEN_EVERYTHING = true;
 /* The assignment and game records for a101 to a193 live in python-records.js (generated from tools/missions by `node tools/missions/bundle.mjs`), so they go live with a deploy and need no PIN. */
-export const repoSlots = () => Object.keys(PY_RECORDS);
+export const repoSlots = () => Object.keys(REPO);
 export const PY_SETTINGS = {
   /* UNIT 3 walkthroughs: open, and not part of the unlock chain */
   a1: { hold: false, ungated: true },
@@ -180,6 +182,15 @@ export const PY_SETTINGS = {
   a191: { live: true, fresh: false, passMin: 0, ungated: true },
   a192: { live: true, fresh: false, passMin: 0, ungated: true },
   a193: { live: true, fresh: false, passMin: 0, ungated: true },
+  /* Unit 10.8, Unit 11 and Unit 16 walkthroughs (AP Big Idea 4 and 5): each is a stand-alone lesson, 100% on the code and on the questions, not part of an unlock chain */
+  a194: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 10.8 Parallel and Distributed Computing
+  a195: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 11.1 Beneficial and Harmful Effects
+  a196: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 11.2 The Digital Divide
+  a197: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 11.3 Crowdsourcing and Citizen Science
+  a198: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 16.1 Computing Bias
+  a199: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 16.2 Copyright, Creative Commons, and Open Source
+  a200: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 16.3 Privacy and Personal Data
+  a201: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 16.4 Safe Computing
 };
 /* WORDING CHANGES to a walkthrough, kept in the code (no PIN). Each one gets a copy of the walkthrough and changes it. */
 const STEP5_ODD = "Now test an odd number **without changing your code above**. Below your last line, type `number = 7`, then type the same four `print` lines again under it (you can copy and paste your own lines). Add an **end-of-line comment** at the end of your last print line with what the four answers were for 7. If that line already has a comment, add to it. [[How do I test 7?|oddtest]]";
@@ -195,7 +206,7 @@ export const PY_PATCHES = {
   }
 };
 export function withPySettings(slot, rec) {
-  if (PY_RECORDS[slot]) rec = Object.assign({}, rec || {}, PY_RECORDS[slot]);   /* the repo copy wins for the slots it has */
+  if (REPO[slot]) rec = Object.assign({}, rec || {}, REPO[slot]);   /* the repo copy wins for the slots it has */
   if (!rec) return rec;
   const s = PY_SETTINGS[slot];
   let out = s ? Object.assign({}, rec, s) : rec;

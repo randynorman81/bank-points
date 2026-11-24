@@ -144,7 +144,15 @@ function buildLesson(L) {
   blocks.push({ h: "Before you submit" });
   blocks.push({ tips: ["kn1", "kn2", "kn3"] });
   blocks.push({ p: "You can submit again later to replace your work. Your teacher sees your code and your last output." });
-  return { slot: L.slot, title: L.title, blocks: blocks, tips: tips, checks: checks, steps: steps };
+  /* optional multiple-choice questions (lesson-level "mc:" block): Q: question, K: a code line (optional), C: a wrong choice, C*: the right choice */
+  const mc = [], mcKey = []; let cur = null;
+  (L.mc || []).forEach((l) => {
+    let m;
+    if ((m = /^Q: ?(.*)$/.exec(l))) { cur = { q: m[1], code: "", choices: [] }; mc.push(cur); mcKey.push(-1); }
+    else if (cur && (m = /^K: ?(.*)$/.exec(l))) cur.code += (cur.code ? "\n" : "") + m[1];
+    else if (cur && (m = /^C(\*?): ?(.*)$/.exec(l))) { cur.choices.push(m[2]); if (m[1] === "*") mcKey[mcKey.length - 1] = cur.choices.length - 1; }
+  });
+  return { slot: L.slot, title: L.title, unit: L.unit, num: L.num ? Number(L.num) : undefined, blocks: blocks, tips: tips, checks: checks, steps: steps, mc: mc, mcKey: mcKey };
 }
 
 /* the reference program a student would end with (heading comments, code, own lines, end-of-line comments) */

@@ -1,0 +1,1909 @@
+## WALKTHROUGHS FOR THE NEW NOTES PAGES (a194 to a201): Unit 10.8, Unit 11 and Unit 16 (AP Big Idea 5). Same format as u8-walk.txt.
+## Each step is a small Python model of an idea from the notes. The student explains the idea in an end-of-line comment (the checker looks for the key words), then adds one more line.
+
+=== a194 | Parallel and Distributed Computing | parallel-distributed
+unit: Unit 10: The Internet
+num: 8
+learn: sequential time, parallel time, speedup, tasks that must wait for each other, and sharing tasks between two processors
+ap: Sequential computing runs one step at a time and parallel computing runs parts at the same time. Speedup is the sequential time divided by the parallel time. The parallel time is set by the longest chain of tasks that depend on each other. Distributed computing uses many computers.
+mc:
+Q: A job takes 120 seconds sequentially and 40 seconds when run in parallel. What is the speedup?
+C: 0.33
+C*: 3
+C: 80
+C: 160
+Q: Task A takes 30 seconds, task B takes 30 seconds, and the two are independent. Task C takes 20 seconds and needs the results of both A and B. How long does the job take with two processors?
+C: 30 seconds
+C*: 50 seconds
+C: 80 seconds
+C: 20 seconds
+Q: Which of these is most likely to limit how much a program can be sped up with parallel computing?
+C: Many tasks that do not depend on each other
+C*: Many tasks that each need the result of the task before them
+C: A fast Internet connection
+C: A program with comments
+Q: Which is an example of distributed computing?
+C: One laptop running two apps
+C*: Thousands of volunteers' computers each analyzing a part of one large data set over the Internet
+C: A processor that runs its clock faster
+C: A for loop that repeats ten times
+Q: Compared with running every task one after another, running independent tasks in parallel on several processors will usually
+C: increase the total work to do
+C*: reduce the total time, although the longest single task still limits how fast it can go
+C: make the tasks depend on each other
+C: remove the need for a network
+.
+
+--- Add up the sequential time
+notes: Sequential and Parallel
+say: A normal program runs **sequentially**: one task after another. So the total time is the **sum** of every task's time. This loop adds up three tasks that take 40, 30, and 60 seconds.
+tip: Why is sequential time the sum?
+tipbody:
+p If the tasks run one after another, you must wait for each one to finish, so the times add.
+ex 40 + 30 + 60 = 130 seconds
+.
+code:
+tasks = [40, 30, 60]
+total = 0
+for t in tasks:
+    total = total + t
+print(total)
+.
+eol: print(total) | why sequential time is the sum of all the tasks | sum|add|one after|each|total | sequential time is the sum because the tasks run one after another
+out:
+130
+.
+ownsay: count the tasks
+ownlines:
+print(len(tasks), "tasks")
+.
+ownout:
+3 tasks
+.
+
+--- The longest task sets the parallel time
+notes: Sequential and Parallel
+say: In **parallel computing** the three tasks run **at the same time**, each on its own processor. The job is finished when the **slowest** task finishes, so the parallel time is the **longest** task.
+tip: Why is the longest task the limit?
+tipbody:
+p All three start together. The 40 and the 30 finish early, but the job is not done until the 60-second task finishes.
+good More processors cannot make one 60-second task shorter.
+.
+code:
+tasks = [40, 30, 60]
+print(max(tasks))
+.
+eol: print(max(tasks)) | why the longest task sets the parallel time | longest|slowest|last|biggest|max|finish | the job is not done until the longest task finishes
+out:
+60
+.
+ownsay: show how many seconds parallel saves over 130
+ownlines:
+print(130 - max(tasks))
+.
+ownout:
+70
+.
+
+--- Speedup
+notes: Speedup
+say: **Speedup** tells you how many times faster the parallel version is: the **sequential time divided by the parallel time**. Here that is 130 divided by 60. `round(x, 2)` keeps two decimal places.
+tip: What does a speedup of 2.17 mean?
+tipbody:
+p It means the parallel version runs about 2.17 times as fast. A speedup of 1 means no improvement at all.
+ex speedup = sequential time / parallel time
+.
+code:
+sequential = 130
+parallel = 60
+print(round(sequential / parallel, 2))
+.
+eol: print(round(sequential / parallel, 2)) | what a speedup of 2.17 tells you | times|faster|quicker|2\.17|speed | the parallel version runs about 2.17 times faster
+out:
+2.17
+.
+ownsay: work out the speedup of 100 seconds down to 40 seconds
+ownlines:
+print(round(100 / 40, 2))
+.
+ownout:
+2.5
+.
+
+--- A speedup function
+notes: Speedup
+say: You will calculate speedup many times, so put it in a **function**. It takes the two times and **returns** the sequential time divided by the parallel time.
+tip: How does the function work?
+tipbody:
+steps `sequential` and `parallel` are the two parameters. ;; The function divides one by the other. ;; `return` sends the answer back to the line that called it.
+.
+code:
+def speedup(sequential, parallel):
+    return sequential / parallel
+print(speedup(100, 40))
+print(speedup(120, 40))
+.
+eol: return sequential / parallel | what the function returns | speedup|divide|faster|ratio | the function returns the speedup, sequential divided by parallel
+out:
+2.5
+3.0
+.
+ownsay: calculate a job that went from 90 seconds to 30 seconds
+ownlines:
+print(speedup(90, 30))
+.
+ownout:
+3.0
+.
+
+--- Tasks that must wait
+notes: What Limits Parallel Computing?
+say: Splitting work does not always help. Tasks A and B are independent, so they can run together. But task C needs the **results of both**, so it must **wait**. The parallel time is the longer of A and B, **plus** C.
+tip: Why can't C start earlier?
+tipbody:
+p C uses the answers from A and B. Without them it has nothing to work on, so it must start after both finish.
+ex sequential: 30 + 30 + 20 = 80   parallel: max(30, 30) + 20 = 50
+.
+code:
+a = 30
+b = 30
+c = 20
+sequential = a + b + c
+parallel = max(a, b) + c
+print(sequential, parallel)
+print(round(sequential / parallel, 2))
+.
+eol: parallel = max(a, b) + c | why task C cannot run at the same time as A and B | needs|wait|depends|after|result|answer | C needs the results of A and B, so it must wait until they finish
+out:
+80 50
+1.6
+.
+ownsay: change C to 40 seconds and see the new parallel time
+ownlines:
+c = 40
+print(max(a, b) + c)
+.
+ownout:
+70
+.
+
+--- Share the tasks between two processors
+notes: Speedup
+say: Real parallel programs must decide which processor gets which task. This loop gives each task to whichever of two processors is **less busy**. It keeps a running total of time for each one.
+tip: How does the loop choose?
+tipbody:
+steps `cpu1` and `cpu2` hold how many seconds of work each processor has so far. ;; For each task, the loop checks which one has less work. ;; It adds the task's time to that processor. ;; At the end, the busier processor sets the parallel time.
+.
+code:
+tasks = [40, 30, 60, 50, 20]
+cpu1 = 0
+cpu2 = 0
+for t in tasks:
+    if cpu1 <= cpu2:
+        cpu1 = cpu1 + t
+    else:
+        cpu2 = cpu2 + t
+print(cpu1, cpu2)
+print(max(cpu1, cpu2))
+.
+eol: if cpu1 <= cpu2: | which processor gets the next task | less|free|smaller|idle|busy|first|fewer | the next task goes to the processor that has less work so far
+out:
+110 90
+110
+.
+ownsay: find the speedup against the 200 seconds of sequential work
+ownlines:
+print(round(200 / max(cpu1, cpu2), 2))
+.
+ownout:
+1.82
+.
+
+--- BUILD Put it together: a speedup report
+say: Four equal tasks of 20 seconds each can be shared by four processors. Build a report that shows the sequential time, the parallel time, and the speedup.
+tip: What does the finished program do?
+tipbody:
+p It adds the four task times for the sequential time, divides by 4 because the work is split evenly, and then divides the two times to get the speedup.
+.
+plan:
+tasks = [20, 20, 20, 20]
+total = 0
+for t in tasks:
+    total = total + t
+parallel = total / 4
+print("Sequential:", total)
+print("Parallel on 4 processors:", parallel)
+print("Speedup:", total / parallel)
+.
+item:
+@item Store the four tasks.
+tasks = [20, 20, 20, 20]
+@item Add them up for the sequential time.
+total = 0
+for t in tasks:
+    total = total + t
+@item Four processors share the work evenly, so each does a quarter of it.
+parallel = total / 4
+@eol parallel = total / 4 | why the parallel time is a quarter of the total | four|4|share|split|evenly|equal | the work is split evenly across four processors
+@item Show the report.
+print("Sequential:", total)
+print("Parallel on 4 processors:", parallel)
+print("Speedup:", total / parallel)
+.
+out:
+Sequential: 80
+Parallel on 4 processors: 20.0
+Speedup: 4.0
+.
+
+=== a195 | Beneficial and Harmful Effects | beneficial-harmful
+unit: Unit 11: Project: The Effects of the Internet
+num: 1
+learn: listing effects of an innovation, sorting them into beneficial and harmful, intended and unintended effects, who is affected, and counting unplanned effects
+ap: Computing innovations can have both beneficial and harmful effects, sometimes at the same time. Effects can be intended or unintended, and unintended does not always mean harmful. An effect can help one group and harm another, and developers cannot predict every effect.
+mc:
+Q: A social media app was designed to help friends stay in touch. It also changed how people get news and made false rumors spread faster. Which statement is most accurate?
+C: Only the intended effects matter
+C*: The app has both beneficial and harmful effects, and some effects were not intended
+C: The app has only harmful effects
+C: The app has no effects beyond its design
+Q: A grocery store adds self-checkout kiosks. Which is a harmful effect for one group?
+C: Customers check out faster
+C: The store saves money on staff
+C*: Some cashiers have fewer hours
+C: Lines are shorter
+Q: A video site was built to share cooking videos. People now also use it to learn to repair appliances. This is best described as
+C: an intended harmful effect
+C: a bug in the site
+C*: an unintended beneficial effect
+C: a legal problem
+Q: Why can developers not always predict every effect of an innovation?
+C: Because computers cannot calculate effects
+C*: Because millions of people may use it in ways its creators never imagined
+C: Because effects only appear after the software is deleted
+C: Because intended effects do not exist
+Q: Which of these is best described as an unintended effect of a computing innovation?
+C: A navigation app gives driving directions, as designed
+C*: A fitness app's public map reveals the location of a private place
+C: A calculator adds two numbers
+C: A website loads a page
+.
+
+--- A list of effects
+notes: Every Innovation Has Two Sides
+say: Every innovation has **effects**. We can keep them in a **list** and look at them one at a time. `len` counts them, and `effects[1]` is the second one because counting starts at 0.
+tip: What goes in the list?
+tipbody:
+p Each item is one thing that happens because the innovation exists, good or bad. Here the innovation is a social media app.
+.
+code:
+effects = ["connect with friends", "spread of false rumors", "easy shopping", "loss of local shops"]
+print(len(effects))
+print(effects[1])
+.
+eol: print(effects[1]) | whether this effect is beneficial or harmful | harm|bad|negative|rumor|hurt | this effect is harmful because false rumors spread
+out:
+4
+spread of false rumors
+.
+ownsay: print the first effect
+ownlines:
+print(effects[0])
+.
+ownout:
+connect with friends
+.
+
+--- Sort the effects
+notes: Every Innovation Has Two Sides
+say: Now sort them. The list `good` holds the beneficial ones. For each effect, the loop checks whether it is **in** `good`. If it is, it is beneficial. If not, it is harmful.
+tip: How does the sorting work?
+tipbody:
+p `e in good` is True when the effect is one of the items in the `good` list. Everything else goes in the `else` branch.
+.
+code:
+effects = ["connect with friends", "spread of false rumors", "easy shopping", "loss of local shops"]
+good = ["connect with friends", "easy shopping"]
+for e in effects:
+    if e in good:
+        print(e, "- beneficial")
+    else:
+        print(e, "- harmful")
+.
+eol: if e in good: | what the list good holds | benefit|good|help|positive | the good list holds the beneficial effects
+out:
+connect with friends - beneficial
+spread of false rumors - harmful
+easy shopping - beneficial
+loss of local shops - harmful
+.
+ownsay: count how many are beneficial
+ownlines:
+print(len(good), "beneficial of", len(effects))
+.
+ownout:
+2 beneficial of 4
+.
+
+--- Both sides at once
+notes: Every Innovation Has Two Sides
+say: The same innovation can help **and** harm at the same time. GPS has benefits and harms, so it needs **two** lists.
+tip: Why two lists for one innovation?
+tipbody:
+p One innovation, two sets of effects. If you only wrote one list, you would be telling only half the story.
+.
+code:
+helps = ["directions", "find a lost phone", "emergency help"]
+harms = ["tracking", "stalking"]
+print("GPS helps in", len(helps), "ways")
+print("GPS can harm in", len(harms), "ways")
+.
+eol: harms = ["tracking", "stalking"] | why a helpful innovation also needs a harms list | both|also|same time|two sides|side|harm | one innovation can help and harm at the same time
+out:
+GPS helps in 3 ways
+GPS can harm in 2 ways
+.
+ownsay: print the last benefit
+ownlines:
+print(helps[2])
+.
+ownout:
+emergency help
+.
+
+--- Intended or unintended?
+notes: Intended and Unintended Effects
+say: An effect is **intended** when the creators planned it and **unintended** when nobody did. This function reports which one an effect is. `planned` is True or False.
+tip: What does planned mean?
+tipbody:
+p `planned` is True when the creators meant for the effect to happen. Directions were planned for GPS. Tracking was not.
+good Unintended does not always mean harmful. Some surprises are helpful.
+.
+code:
+def describe(effect, planned):
+    if planned:
+        return "intended"
+    return "unintended"
+print(describe("directions", True))
+print(describe("tracking", False))
+.
+eol: if planned: | what planned means | intend|plan|meant|creator|designer | planned means the creators meant for the effect to happen
+out:
+intended
+unintended
+.
+ownsay: label a surprise effect
+ownlines:
+print(describe("changed how news spreads", False))
+.
+ownout:
+unintended
+.
+
+--- It depends who you ask
+notes: It Depends Who You Ask
+say: The same innovation can **help one group and harm another**. Self-checkout helps shoppers and store owners, but it harms cashiers. A good answer on the exam names the group.
+tip: Why name the group?
+tipbody:
+p "It is harmful" is a weak answer. "It harms cashiers who lose hours" says who and why.
+.
+code:
+innovation = "self-checkout"
+benefits = "shoppers and store owners"
+harms = "cashiers who lose hours"
+print(innovation)
+print("Helps:", benefits)
+print("Harms:", harms)
+.
+eol: print("Harms:", harms) | which group is harmed and why | cashier|job|worker|hours|lose|income | cashiers are harmed because they lose hours and income
+out:
+self-checkout
+Helps: shoppers and store owners
+Harms: cashiers who lose hours
+.
+ownsay: try a different innovation
+ownlines:
+innovation = "streaming"
+print(innovation, "has both kinds of effects")
+.
+ownout:
+streaming has both kinds of effects
+.
+
+--- Count the unplanned effects
+notes: Intended and Unintended Effects
+say: Developers **cannot predict every effect**. Compare what was planned with what actually happened, and count the effects nobody planned. `not in` is True when the effect is **not** in the planned list.
+tip: How does the loop count the surprises?
+tipbody:
+steps Start the counter `unplanned` at 0. ;; For each actual effect, check whether it was planned. ;; If it was **not in** the planned list, add 1.
+.
+code:
+planned = ["directions"]
+actual = ["directions", "tracking", "traffic reports"]
+unplanned = 0
+for e in actual:
+    if e not in planned:
+        unplanned = unplanned + 1
+print(unplanned)
+.
+eol: if e not in planned: | what the loop is counting | unplanned|unintended|not planned|nobody planned|surprise|unexpected | it counts the effects nobody planned
+out:
+2
+.
+ownsay: show how many effects were planned
+ownlines:
+print(len(actual) - unplanned, "planned")
+.
+ownout:
+1 planned
+.
+
+--- BUILD Put it together: an effects report
+say: Build a report for one innovation. It sorts four effects into beneficial and harmful and counts each kind.
+tip: What does the finished program do?
+tipbody:
+p It loops over the effects, adds 1 to `beneficial` if the effect is in the `good` list and 1 to `harmful` otherwise, and prints both totals.
+.
+plan:
+effects = ["stay in touch", "spread of rumors", "easy news", "less privacy"]
+good = ["stay in touch", "easy news"]
+beneficial = 0
+harmful = 0
+for e in effects:
+    if e in good:
+        beneficial = beneficial + 1
+    else:
+        harmful = harmful + 1
+print("Beneficial:", beneficial)
+print("Harmful:", harmful)
+.
+item:
+@item Store the effects and which of them are good.
+effects = ["stay in touch", "spread of rumors", "easy news", "less privacy"]
+good = ["stay in touch", "easy news"]
+@item Start both counters at zero, then sort each effect.
+beneficial = 0
+harmful = 0
+for e in effects:
+    if e in good:
+        beneficial = beneficial + 1
+    else:
+        harmful = harmful + 1
+@item Show both totals.
+print("Beneficial:", beneficial)
+print("Harmful:", harmful)
+@eol print("Harmful:", harmful) | why the one innovation shows both beneficial and harmful effects | both|also|same|two sides|side|mix | one innovation can have both kinds of effects at once
+.
+out:
+Beneficial: 2
+Harmful: 2
+.
+
+=== a196 | The Digital Divide | digital-divide
+unit: Unit 11: Project: The Effects of the Internet
+num: 2
+learn: counting homes without access, percentages, comparing two areas, download time at different speeds, the homework gap, and what closing the gap could reach
+ap: The digital divide is the gap in access to computing devices and the Internet across socioeconomic, geographic, and demographic groups. It affects education, jobs, health care, and civic life. Access means connection quality, skills, and accessible design, not just a device.
+mc:
+Q: Which best describes the digital divide?
+C: The difference between fast and slow computers
+C*: The gap in access to computing devices and the Internet between different groups of people
+C: The split between hardware and software
+C: The difference between public and private IP addresses
+Q: A student has no Internet at home and cannot finish online homework. What is the most likely effect?
+C*: The student may fall behind classmates who have access
+C: The school gets more bandwidth
+C: The student's device encrypts more data
+C: Nothing changes
+Q: Which would best reduce the geographic part of the digital divide?
+C: Adding more advertisements to websites
+C*: Building high-speed Internet service in rural areas
+C: Making websites use larger images
+C: Creating a new video game
+Q: A website works only with a mouse and has no text for its images. Which group is most likely left out?
+C: Everyone equally
+C*: People who use a screen reader
+C: People with the fastest Internet
+C: Only people in large cities
+Q: Which factor is part of the digital divide besides owning a device?
+C: The color of the device
+C*: The quality of the connection and the skills to use it
+C: The brand of the router
+C: The number of apps installed
+.
+
+--- Count homes without access
+notes: What Is the Digital Divide?
+say: The **digital divide** is a gap in who has access. This list records whether each of five homes has Internet. The loop counts the homes that answered "no".
+tip: What does the count show?
+tipbody:
+p A number of homes without access is the first measure of the divide. A bigger count means a bigger gap.
+.
+code:
+homes = ["yes", "yes", "no", "yes", "no"]
+without = 0
+for h in homes:
+    if h == "no":
+        without = without + 1
+print(without)
+.
+eol: print(without) | what this count shows about access | gap|without|no access|divide|unequal|lack|missing | it shows how many homes lack access, which is part of the digital divide
+out:
+2
+.
+ownsay: count the homes that are online
+ownlines:
+print(len(homes) - without, "homes online")
+.
+ownout:
+3 homes online
+.
+
+--- Turn the count into a percent
+notes: What Is the Digital Divide?
+say: A count is hard to compare, so we turn it into a **percent**: the part divided by the whole, times 100.
+tip: How do I make a percent?
+tipbody:
+ex without / total * 100
+p 2 homes without access out of 5 is 2 / 5 * 100 = 40.
+.
+code:
+without = 2
+total = 5
+print(without / total * 100, "%")
+.
+eol: print(without / total * 100, "%") | what percent of the homes lack access | 40|percent|%|lack|without|forty | 40 percent of the homes lack access
+out:
+40.0 %
+.
+ownsay: show the percent that are online
+ownlines:
+print(100 - without / total * 100, "% online")
+.
+ownout:
+60.0 % online
+.
+
+--- Compare two areas
+notes: What Is the Digital Divide?
+say: The gap is often **geographic**. This function finds the percent of homes online in an area, so you can compare a city with a rural area.
+tip: How does percent_online work?
+tipbody:
+steps It counts the homes that said "yes". ;; It divides by the number of homes. ;; It multiplies by 100 and returns the percent.
+.
+code:
+def percent_online(homes):
+    online = 0
+    for h in homes:
+        if h == "yes":
+            online = online + 1
+    return online / len(homes) * 100
+print(percent_online(["yes", "yes", "yes", "no"]))
+print(percent_online(["yes", "no", "no", "no"]))
+.
+eol: print(percent_online(["yes", "no", "no", "no"])) | what the 25 means for that area | 25|quarter|fewer|lower|gap|divide|rural|most homes | only a quarter of the homes are online, so that area is on the wrong side of the divide
+out:
+75.0
+25.0
+.
+ownsay: try an area with nobody online
+ownlines:
+print(percent_online(["no", "no"]))
+.
+ownout:
+0.0
+.
+
+--- How long does a task take?
+notes: What Does It Cost People?
+say: Connection speed changes what students can do. A 50 MB video is 50 x 8 = 400 megabits. The loop divides that by three different speeds, in Mbps.
+tip: How do I get the seconds?
+tipbody:
+p Time in seconds = megabits divided by Mbps. A bigger speed gives a smaller time.
+ex 400 megabits / 1 Mbps = 400 seconds
+.
+code:
+file_mb = 50
+megabits = file_mb * 8
+for speed in [100, 10, 1]:
+    print(speed, "Mbps:", megabits / speed, "seconds")
+.
+eol: print(speed, "Mbps:", megabits / speed, "seconds") | what the slowest line means for a student | 400|minutes|slow|hours|homework|give up|wait|long | at 1 Mbps it takes 400 seconds, so a student may give up or miss the deadline
+out:
+100 Mbps: 4.0 seconds
+10 Mbps: 40.0 seconds
+1 Mbps: 400.0 seconds
+.
+ownsay: show the slowest time in minutes
+ownlines:
+print(round(megabits / 1 / 60, 1), "minutes")
+.
+ownout:
+6.7 minutes
+.
+
+--- The homework gap
+notes: What Does It Cost People?
+say: When a task takes longer than the time a student has, they **cannot finish it**. This function returns True when the time needed fits in the time available.
+tip: What does False mean for the student?
+tipbody:
+p False means the task does not fit. In real life that is the **homework gap**: a student who cannot finish online work at home falls behind.
+.
+code:
+def can_finish(minutes_needed, minutes_available):
+    return minutes_needed <= minutes_available
+print(can_finish(1, 30))
+print(can_finish(40, 30))
+.
+eol: print(can_finish(40, 30)) | what False means for the student | cannot|can't|not|fall behind|miss|unable|behind | False means the student cannot finish, so they fall behind
+out:
+True
+False
+.
+ownsay: check a task that exactly fits
+ownlines:
+print(can_finish(30, 30))
+.
+ownout:
+True
+.
+
+--- Ways to close the gap
+notes: How Can the Gap Be Reduced?
+say: Public Wi-Fi hotspots help homes that have no plan. If each hotspot reaches 20 homes, you can count how many homes a plan would reach.
+tip: What would this reach?
+tipbody:
+p It is a rough estimate, but it shows how adding access in a community directly reaches more homes.
+.
+code:
+wifi_hotspots = 3
+homes_per_hotspot = 20
+print(wifi_hotspots * homes_per_hotspot, "homes reached")
+.
+eol: print(wifi_hotspots * homes_per_hotspot, "homes reached") | how this helps close the digital divide | access|reach|connect|more homes|gap|online|help | more hotspots give more homes access, which helps close the gap
+out:
+60 homes reached
+.
+ownsay: try five hotspots
+ownlines:
+wifi_hotspots = 5
+print(wifi_hotspots * homes_per_hotspot, "homes reached")
+.
+ownout:
+100 homes reached
+.
+
+--- BUILD Put it together: a gap report
+say: Build a report that compares a city and a rural area and shows how big the gap is.
+tip: What does the finished program do?
+tipbody:
+p It finds the percent online in each area, then subtracts to show the gap in percentage points.
+.
+plan:
+def percent_online(homes):
+    online = 0
+    for h in homes:
+        if h == "yes":
+            online = online + 1
+    return online / len(homes) * 100
+city = ["yes", "yes", "yes", "yes", "no"]
+rural = ["yes", "no", "no", "no", "no"]
+print("City:", percent_online(city))
+print("Rural:", percent_online(rural))
+print("Gap:", percent_online(city) - percent_online(rural))
+.
+item:
+@item Write the function that finds the percent of homes online.
+def percent_online(homes):
+    online = 0
+    for h in homes:
+        if h == "yes":
+            online = online + 1
+    return online / len(homes) * 100
+@item Store the two areas.
+city = ["yes", "yes", "yes", "yes", "no"]
+rural = ["yes", "no", "no", "no", "no"]
+@item Show each area, then the gap between them.
+print("City:", percent_online(city))
+print("Rural:", percent_online(rural))
+print("Gap:", percent_online(city) - percent_online(rural))
+@eol print("Gap:", percent_online(city) - percent_online(rural)) | what the gap number means | gap|divide|difference|60|unequal|fewer | the gap is the difference in access between the two areas, 60 points
+.
+out:
+City: 80.0
+Rural: 20.0
+Gap: 60.0
+.
+
+=== a197 | Crowdsourcing and Citizen Science | crowdsourcing
+unit: Unit 11: Project: The Effects of the Internet
+num: 3
+learn: the average of many guesses, one guess against a crowd, a crowd with a shared bias, counting citizen-science reports, filtering out bad edits, and adding up crowdfunding
+ap: Crowdsourcing gets input from a large group of people, usually online, and citizen science is one kind. Benefits are scale, variety, speed, and low cost. Concerns are quality, bias, manipulation, fairness, and privacy. Crowds are wisest when contributions are independent.
+mc:
+Q: Which is an example of crowdsourcing?
+C: A company's engineers write all of the code for an app
+C*: Volunteers use an app to report bird sightings so scientists can map where birds live
+C: A computer encrypts a message
+C: One student writes a program alone
+Q: Volunteers label photos of galaxies for a research team. This is best described as
+C*: citizen science
+C: packet switching
+C: lossy compression
+C: a DDoS attack
+Q: Which is a concern about crowdsourced information?
+C: It always comes from experts
+C*: Some contributions may be wrong, biased, or manipulated
+C: It can never be shared online
+C: It is too cheap to collect
+Q: Why does the average of many independent guesses tend to be close to the true value?
+C: Because computers calculate it exactly
+C*: Because errors in different directions tend to cancel each other out
+C: Because everyone copies the same answer
+C: Because the first guess is always right
+Q: A crowd is given a misleading hint, and everyone adjusts their answer toward it. What happens to the average?
+C: It becomes exactly right
+C*: The errors point the same way, so they do not cancel and the average stays off
+C: It becomes random
+C: It no longer needs the crowd
+.
+
+--- The average of many guesses
+notes: Why Crowds Can Be Wise
+say: Each person's guess is off in a different direction. The loop adds up five guesses and divides by how many there are to get the **average**. An average smooths out the individual errors.
+tip: How is the average found?
+tipbody:
+steps Start `total` at 0. ;; Add every guess to it. ;; Divide by `len(guesses)`, the number of guesses.
+.
+code:
+guesses = [450, 600, 520, 380, 550]
+total = 0
+for g in guesses:
+    total = total + g
+print(total / len(guesses))
+.
+eol: print(total / len(guesses)) | why the average of many guesses is useful | cancel|crowd|many|close|accurate|errors|better | the high and low errors cancel out, so the average of the crowd is close to the truth
+out:
+500.0
+.
+ownsay: count how many people guessed
+ownlines:
+print(len(guesses), "people guessed")
+.
+ownout:
+5 people guessed
+.
+
+--- One guess against the crowd
+notes: Why Crowds Can Be Wise
+say: The true number of jelly beans is 500. `abs` gives the distance from the truth, ignoring the sign. Compare the **first guess** with the **crowd average**.
+tip: What does abs do?
+tipbody:
+p `abs(450 - 500)` is 50. It does not matter whether the guess was too high or too low. Only the size of the mistake counts.
+.
+code:
+guesses = [450, 600, 520, 380, 550]
+truth = 500
+total = 0
+for g in guesses:
+    total = total + g
+average = total / len(guesses)
+print(abs(guesses[0] - truth))
+print(abs(average - truth))
+.
+eol: print(abs(average - truth)) | which is closer to the truth, one guess or the crowd average | average|crowd|closer|many|better | the crowd average is closer to the truth than a single guess
+out:
+50
+0.0
+.
+ownsay: check the second guess
+ownlines:
+print(abs(guesses[1] - truth))
+.
+ownout:
+100
+.
+
+--- A crowd with a shared bias
+notes: Why Crowds Can Be Wise
+say: A crowd is only wise when the guesses are **independent**. Imagine everyone saw the same misleading sign that said "about 300". Now every guess is pushed the same way, so the errors do **not** cancel.
+tip: Why doesn't the average fix it?
+tipbody:
+p The mistakes all point **low**. When the errors all lean one way, averaging them leaves the same lean.
+good Independent contributions and a diverse crowd are what make crowdsourcing work.
+.
+code:
+biased = [300, 310, 290, 305, 295]
+total = 0
+for g in biased:
+    total = total + g
+print(total / len(biased))
+.
+eol: print(total / len(biased)) | why this crowd missed the true value of 500 | same|bias|biased|everyone|copied|sign|independent|hint|lean | everyone was pushed the same way, so the errors did not cancel out
+out:
+300.0
+.
+ownsay: show how far off the biased average is
+ownlines:
+print(abs(total / len(biased) - 500))
+.
+ownout:
+200.0
+.
+
+--- Citizen science: count the reports
+notes: Citizen Science
+say: In **citizen science**, ordinary people send reports to scientists. Each volunteer contributes one small piece of data. This loop counts how many of the reports were robins.
+tip: What is each report?
+tipbody:
+p Each item in the list is one volunteer's **sighting**. Thousands of small reports add up to data a single scientist could never collect.
+.
+code:
+sightings = ["robin", "cardinal", "robin", "blue jay", "robin"]
+robins = 0
+for s in sightings:
+    if s == "robin":
+        robins = robins + 1
+print(robins)
+.
+eol: if s == "robin": | what each volunteer contributes | data|sighting|observation|report|record | each volunteer contributes one sighting, a small piece of data
+out:
+3
+.
+ownsay: count all the reports
+ownlines:
+print(len(sightings), "reports")
+.
+ownout:
+5 reports
+.
+
+--- Quality control
+notes: Benefits and Concerns
+say: Crowdsourcing has a **quality** problem: anyone can add a wrong or spammy edit. This loop keeps only the edits that do **not** contain the word SPAM.
+tip: How does the filter work?
+tipbody:
+p `"SPAM" not in e` is True when the edit has no SPAM in it. Those edits are added to the `kept` list with `append`.
+.
+code:
+edits = ["fixed a typo", "added source", "HAHA SPAM", "added date"]
+kept = []
+for e in edits:
+    if "SPAM" not in e:
+        kept.append(e)
+print(len(kept), "of", len(edits), "edits kept")
+.
+eol: if "SPAM" not in e: | why crowdsourced sites need to check contributions | quality|wrong|vandal|spam|trust|accurate|fake|anyone | anyone can add bad edits, so the site must check quality
+out:
+3 of 4 edits kept
+.
+ownsay: show the first edit that was kept
+ownlines:
+print(kept[0])
+.
+ownout:
+fixed a typo
+.
+
+--- Crowdfunding
+notes: What Is Crowdsourcing?
+say: **Crowdfunding** gets small amounts of money from many people. Five small gifts add up to a big goal. The loop adds the pledges and the last line checks whether the goal was reached.
+tip: Why do many small gifts work?
+tipbody:
+p No one person has to give much. Each pledge is small, but together they can pay for something big.
+.
+code:
+pledges = [5, 10, 25, 10, 50]
+goal = 100
+total = 0
+for p in pledges:
+    total = total + p
+print("Raised", total, "of", goal)
+print(total >= goal)
+.
+eol: total = total + p | why many small gifts can reach a big goal | many|small|add|together|crowd|combine|each | many small pledges add up to a big total
+out:
+Raised 100 of 100
+True
+.
+ownsay: raise the goal to 150
+ownlines:
+goal = 150
+print(total >= goal)
+.
+ownout:
+False
+.
+
+--- BUILD Put it together: a crowd estimate
+say: Build a program that averages a crowd's guesses and reports how far off the crowd was.
+tip: What does the finished program do?
+tipbody:
+p It adds up the guesses, divides by the number of guesses, and prints the average and its distance from the truth of 500.
+.
+plan:
+guesses = [480, 520, 530, 470, 540, 490]
+truth = 500
+total = 0
+for g in guesses:
+    total = total + g
+average = total / len(guesses)
+print("Crowd average:", average)
+print("Off by:", abs(average - truth))
+.
+item:
+@item Store the guesses and the true value.
+guesses = [480, 520, 530, 470, 540, 490]
+truth = 500
+@item Add up all the guesses.
+total = 0
+for g in guesses:
+    total = total + g
+@item Divide by how many guesses there are.
+average = total / len(guesses)
+@eol average = total / len(guesses) | why the crowd average is a good estimate | cancel|many|crowd|independent|close|errors|better | the errors in different directions cancel out
+@item Show the average and how far off it is.
+print("Crowd average:", average)
+print("Off by:", abs(average - truth))
+.
+out:
+Crowd average: 505.0
+Off by: 5.0
+.
+
+=== a198 | Computing Bias | computing-bias
+unit: Unit 16: Project: The Impact of Computing
+num: 1
+learn: unbalanced training data, accuracy for each group, how an overall number can hide a gap, testing every group, proxies such as zip code, and a model that copies past bias
+ap: Bias in computing means systematically unfair results for some people. It can come from data, design choices, and team makeup, and it is often unintentional. Computing innovations can reflect and even increase existing human bias. Diverse data and testing every group help reduce it.
+mc:
+Q: A hiring program trained on a company's past hires keeps preferring candidates who resemble previous employees. What is the most likely cause?
+C: The computer chose to be unfair
+C*: The training data reflected past human bias
+C: The program ran too slowly
+C: The resumes were too long
+Q: A face-recognition program works well for most people but often fails for a small group. Which action would best address this?
+C: Use fewer training photos
+C*: Add many more training photos of the group it fails on and test the program on each group
+C: Hide the failures
+C: Make the program run faster
+Q: A program is 92% accurate overall. Why could that number be misleading?
+C: Accuracy is never useful
+C*: It could hide much worse accuracy for a smaller group
+C: 92 is too low to matter
+C: It means the program is slow
+Q: Which is an example of bias that the programmers did not intend?
+C: A programmer writes a rule to reject one group
+C*: A model trained on data that left out a group performs poorly for that group
+C: A program crashes on startup
+C: A user picks a weak password
+Q: A loan program uses zip code as an input. Why could that be unfair?
+C: Zip codes are always secret
+C*: A zip code can act as a stand-in for race or income, so the program may treat groups differently
+C: Zip codes make the program run slowly
+C: Zip codes are too short
+.
+
+--- Count the training data
+notes: Where Does Bias Come From?
+say: A program learns from examples. If most of the examples come from one group, the program learns that group best. The loop counts how many examples come from Group A and how many from Group B.
+tip: Why does the mix matter?
+tipbody:
+p A program can only learn from what it is shown. With four examples of A and only one of B, it has very little to learn about B.
+.
+code:
+training = ["A", "A", "A", "A", "B"]
+a = 0
+b = 0
+for x in training:
+    if x == "A":
+        a = a + 1
+    else:
+        b = b + 1
+print(a, b)
+.
+eol: print(a, b) | what is unbalanced about this training data | most|more|few|little|unbalanced|imbalance|represent|lopsided | most of the data is from group A and very little from group B
+out:
+4 1
+.
+ownsay: show Group A's share of the data
+ownlines:
+print(a / len(training) * 100, "% Group A")
+.
+ownout:
+80.0 % Group A
+.
+
+--- Accuracy for each group
+notes: Where Does Bias Come From?
+say: When data is unbalanced, the program works better for the big group. Here is a pretend result: 95 percent accurate for Group A and 70 percent for Group B. The difference is the **gap**.
+tip: What is the gap?
+tipbody:
+p The gap is how much worse the program does for one group. A fair system would have a gap close to zero.
+.
+code:
+acc_a = 95
+acc_b = 70
+print(acc_a - acc_b, "point gap")
+.
+eol: print(acc_a - acc_b, "point gap") | why this gap is unfair | group|unfair|worse|gap|bias|fewer|different|less | the program works worse for group B, so the results are unfair
+out:
+25 point gap
+.
+ownsay: print group B's accuracy
+ownlines:
+print(acc_b, "% for group B")
+.
+ownout:
+70 % for group B
+.
+
+--- A good overall number can hide the gap
+notes: What Can Be Done?
+say: Suppose four of every five people tested are in Group A. The **overall** accuracy is a weighted average, and it looks great even though Group B is treated badly.
+tip: Why does the average look good?
+tipbody:
+p Group A counts four times as much as Group B in the average, so its high score pulls the overall number up.
+good Always test accuracy for **each group**, not just overall.
+.
+code:
+acc_a = 95
+acc_b = 70
+overall = (acc_a * 4 + acc_b * 1) / 5
+print(overall)
+.
+eol: print(overall) | what is misleading about this overall number | hide|misleading|majority|average|bias|looks|good|gap | the overall number looks good but hides the poor results for group B
+out:
+90.0
+.
+ownsay: see how far each group is from the overall number
+ownlines:
+print(acc_a - overall, acc_b - overall)
+.
+ownout:
+5.0 -20.0
+.
+
+--- Test every group
+notes: What Can Be Done?
+say: To find bias you must **test each group separately**. This function turns a list of right and wrong answers into an accuracy percent, and we run it once per group.
+tip: How does accuracy work?
+tipbody:
+steps Count how many results were "right". ;; Divide by the number of results. ;; Multiply by 100 to get a percent.
+.
+code:
+def accuracy(results):
+    right = 0
+    for r in results:
+        if r == "right":
+            right = right + 1
+    return right / len(results) * 100
+print(accuracy(["right", "right", "right", "wrong"]))
+print(accuracy(["right", "wrong", "wrong", "wrong"]))
+.
+eol: print(accuracy(["right", "wrong", "wrong", "wrong"])) | which group the program fails and what that shows | second|group|fails|worse|25|poor|bias|unfair | the second group gets only 25 percent, so the program fails that group
+out:
+75.0
+25.0
+.
+ownsay: test a group with a perfect result
+ownlines:
+print(accuracy(["right"]))
+.
+ownout:
+100.0
+.
+
+--- Proxies: when a stand-in causes bias
+notes: Where Does Bias Come From?
+say: A rule does not have to mention race or income to be unfair. This loan rule refuses one zip code. If that neighborhood is mostly one group, the zip code acts as a **proxy** for that group.
+tip: What is a proxy?
+tipbody:
+p A proxy is a stand-in. The zip code is not race or income, but it can be tied so closely to them that the rule treats groups differently anyway.
+.
+code:
+def approve(zip_code):
+    if zip_code == "30000":
+        return False
+    return True
+print(approve("30000"))
+print(approve("30601"))
+.
+eol: if zip_code == "30000": | why using a zip code can be unfair | proxy|race|income|neighborhood|stand in|group|unfair|bias | the zip code can stand in for race or income, so the rule can be unfair to a group
+out:
+False
+True
+.
+ownsay: check whether the two zip codes get the same answer
+ownlines:
+print(approve("30000") == approve("30601"))
+.
+ownout:
+False
+.
+
+--- Learning from the past
+notes: Where Does Bias Come From?
+say: A program trained on **past decisions** copies the pattern in them. This tiny model looks at past hires and prefers whichever group was hired most. It has no idea the past may have been unfair.
+tip: Why does the model copy the past?
+tipbody:
+p The model's only information is the history it is given. If the history was biased, the model learns the bias as if it were a rule.
+.
+code:
+past_hires = ["M", "M", "M", "F"]
+m = 0
+f = 0
+for p in past_hires:
+    if p == "M":
+        m = m + 1
+    else:
+        f = f + 1
+if m > f:
+    print("The model prefers M")
+else:
+    print("The model prefers F")
+.
+eol: if m > f: | why the model copies the past | past|history|data|learn|copy|trained|pattern|before | the model learned from past hires, so it copies the past pattern
+out:
+The model prefers M
+.
+ownsay: show the counts it learned
+ownlines:
+print(m, f)
+.
+ownout:
+3 1
+.
+
+--- BUILD Put it together: a fairness check
+say: Build a check that tests two groups separately and warns when the gap is too big.
+tip: What does the finished program do?
+tipbody:
+p It finds the accuracy for each group and compares them. A gap over 10 points prints a warning.
+.
+plan:
+def accuracy(results):
+    right = 0
+    for r in results:
+        if r == "right":
+            right = right + 1
+    return right / len(results) * 100
+group_a = ["right", "right", "right", "right"]
+group_b = ["right", "wrong", "wrong", "right"]
+print("Group A:", accuracy(group_a))
+print("Group B:", accuracy(group_b))
+if accuracy(group_a) - accuracy(group_b) > 10:
+    print("Unfair gap: retrain with better data")
+.
+item:
+@item Write the accuracy function.
+def accuracy(results):
+    right = 0
+    for r in results:
+        if r == "right":
+            right = right + 1
+    return right / len(results) * 100
+@item Store each group's results.
+group_a = ["right", "right", "right", "right"]
+group_b = ["right", "wrong", "wrong", "right"]
+@item Show each group's accuracy.
+print("Group A:", accuracy(group_a))
+print("Group B:", accuracy(group_b))
+@item Warn when the gap is bigger than 10 points.
+if accuracy(group_a) - accuracy(group_b) > 10:
+    print("Unfair gap: retrain with better data")
+@eol if accuracy(group_a) - accuracy(group_b) > 10: | why a big gap between groups matters | unfair|bias|group|equal|fair|worse|different | a big gap means the program treats the groups unfairly
+.
+out:
+Group A: 100.0
+Group B: 50.0
+Unfair gap: retrain with better data
+.
+
+=== a199 | Copyright, Creative Commons, and Open Source | copyright-open-source
+unit: Unit 16: Project: The Impact of Computing
+num: 2
+learn: Creative Commons license names, what NC and ND allow, building a credit line, crediting copied code, open source, and checking whether a use is allowed
+ap: Copyright gives creators rights over their work automatically. Creative Commons licenses let creators allow certain uses in advance: BY means credit, NC means no commercial use, ND means no changes, and SA means share alike. Open-source software has public source code. Plagiarism is presenting someone else's work as yours.
+mc:
+Q: A student copies a photo from a website into a presentation with no permission and no credit. What is the main problem?
+C: Photos cannot be used in presentations
+C*: It may violate the photographer's copyright, and not giving credit is also an ethics problem
+C: The photo is too large
+C: The photographer owns the student's computer
+Q: A song has a CC BY-NC license. Which use is allowed?
+C: A company uses it in a paid commercial
+C*: A student uses it in a free school video and credits the musician
+C: Someone sells it as their own song
+C: Anyone may use it with no credit
+Q: What does it mean for software to be open source?
+C: It has no bugs
+C*: Its source code is published so people can read it and, under the license, change it
+C: It only runs online
+C: It can never be copied
+Q: Which statement about copyright is true?
+C: It protects a work only after the work is registered
+C*: It applies automatically when a work is created
+C: Anything on the Internet is in the public domain
+C: Giving credit means you never need permission
+Q: A programmer uses 10 lines of code from a tutorial in the Create Task program. What should they do?
+C: Nothing, because it is on the Internet
+C*: Add a comment that credits where the code came from
+C: Delete the comments
+C: Rename the variables so it looks original
+.
+
+--- Creative Commons license names
+notes: Creative Commons
+say: A **Creative Commons** license is a short name that tells everyone what they may do with a work. We can keep the names in a list. `licenses[0]` is the first one, because counting starts at 0.
+tip: What does BY mean?
+tipbody:
+rows BY | credit the creator | every CC license (except CC0) has it
+rows NC | non-commercial | no using it to make money
+rows ND | no derivatives | share it unchanged only
+rows SA | share alike | remixes use the same license
+.
+code:
+licenses = ["CC BY", "CC BY-NC", "CC BY-ND", "CC0"]
+print(len(licenses))
+print(licenses[0])
+.
+eol: print(licenses[0]) | what the BY in CC BY means | credit|attribution|author|creator|give | BY means you must give credit to the creator
+out:
+4
+CC BY
+.
+ownsay: print the last license
+ownlines:
+print(licenses[3])
+.
+ownout:
+CC0
+.
+
+--- NC: no commercial use
+notes: Creative Commons
+say: `"NC" in license` is True when the license name contains the letters NC. A function can use that to answer one question: **can I sell this?**
+tip: What does NC stand for?
+tipbody:
+p **NC** stands for **non-commercial**. A work with NC can be used freely, but not to make money.
+.
+code:
+def can_sell(license):
+    if "NC" in license:
+        return False
+    return True
+print(can_sell("CC BY"))
+print(can_sell("CC BY-NC"))
+.
+eol: if "NC" in license: | what NC stands for | non.?commercial|money|sell|commercial|business|profit | NC means non-commercial, so you cannot use it to make money
+out:
+True
+False
+.
+ownsay: check the license with no restrictions
+ownlines:
+print(can_sell("CC0"))
+.
+ownout:
+True
+.
+
+--- ND: no changes
+notes: Creative Commons
+say: In the same way, a license with **ND** (no derivatives) lets people share the work but not change it. Another function answers **can I remix this?**
+tip: What does ND stand for?
+tipbody:
+p **ND** means **no derivatives**: you may share the work exactly as it is, but you may not edit it or build something new from it.
+.
+code:
+def can_remix(license):
+    if "ND" in license:
+        return False
+    return True
+print(can_remix("CC BY-ND"))
+print(can_remix("CC BY"))
+.
+eol: print(can_remix("CC BY-ND")) | what ND means | no.?deriv|change|remix|modif|edit|unchanged | ND means no derivatives, so you cannot change or remix the work
+out:
+False
+True
+.
+ownsay: check a non-commercial license
+ownlines:
+print(can_remix("CC BY-NC"))
+.
+ownout:
+True
+.
+
+--- Give credit
+notes: Computing Makes Copying Easy
+say: Every Creative Commons license (except CC0) **requires credit**. A function can build the credit line for you: the title, the author, and the license.
+tip: Why a credit line?
+tipbody:
+p Giving credit respects the creator and is usually **required** by the license. It is also how you avoid plagiarism.
+ex Sunset by Mia Lopez (CC BY)
+.
+code:
+def credit(title, author, license):
+    return title + " by " + author + " (" + license + ")"
+print(credit("Sunset", "Mia Lopez", "CC BY"))
+.
+eol: return title + " by " + author + " (" + license + ")" | why you add a credit line | credit|attribution|author|required|give|respect|license|plagiar | the license requires credit, and it respects the creator
+out:
+Sunset by Mia Lopez (CC BY)
+.
+ownsay: credit a different work
+ownlines:
+print(credit("Beat", "Dev", "CC BY-SA"))
+.
+ownout:
+Beat by Dev (CC BY-SA)
+.
+
+--- Credit copied code
+notes: Computing Makes Copying Easy
+say: **Plagiarism** is presenting someone else's work as yours. In a program, code you did not write needs a **credit comment**. This program measures how much of the code was copied and reminds you to credit it.
+tip: What must I do with copied code?
+tipbody:
+p Say where it came from in a comment: the tutorial, the teacher, or an AI tool. If it is all yours, no credit is needed.
+.
+code:
+my_code_lines = 10
+copied_lines = 4
+print(copied_lines / my_code_lines * 100, "% copied")
+.
+eol: print(copied_lines / my_code_lines * 100, "% copied") | what you must do with the copied code | credit|cite|comment|acknowledge|say|source | you must credit the copied code in a comment
+out:
+40.0 % copied
+.
+ownsay: remind yourself to give credit when any code was copied
+ownlines:
+if copied_lines > 0:
+    print("Add a credit comment")
+.
+ownout:
+Add a credit comment
+.
+
+--- Open source
+notes: Open Source and Open Access
+say: **Open-source** software publishes its **source code** so anyone can read it. **Proprietary** software keeps it secret. This function says whether you can read the code.
+tip: What is source code?
+tipbody:
+p Source code is the instructions a programmer wrote. Open source means those instructions are public, under a license with rules.
+rows Open source | code is public | Linux, Firefox, Python
+rows Proprietary | code is secret | most phone apps
+.
+code:
+def can_read_code(kind):
+    if kind == "open source":
+        return True
+    return False
+print(can_read_code("open source"))
+print(can_read_code("proprietary"))
+.
+eol: if kind == "open source": | what open source means | public|source code|anyone|read|visible|free|share | open source means the source code is public and anyone can read it
+out:
+True
+False
+.
+ownsay: check a closed program
+ownlines:
+print(can_read_code("closed"))
+.
+ownout:
+False
+.
+
+--- BUILD Put it together: a license checker
+say: Build a function that decides whether a use is allowed. A commercial use is not allowed when the license says NC.
+tip: What does the finished program do?
+tipbody:
+p `ok_to_use` takes the license and whether the use is commercial. If the use is commercial and the license has NC, it returns False.
+.
+plan:
+def ok_to_use(license, commercial):
+    if commercial and "NC" in license:
+        return False
+    return True
+print(ok_to_use("CC BY", True))
+print(ok_to_use("CC BY-NC", True))
+print(ok_to_use("CC BY-NC", False))
+.
+item:
+@item Write the function.
+def ok_to_use(license, commercial):
+    if commercial and "NC" in license:
+        return False
+    return True
+@eol if commercial and "NC" in license: | why NC blocks a commercial use | money|sell|business|commercial|non|profit | NC means non-commercial, so it blocks using the work to make money
+@item Try a commercial use of an open license, then of an NC license.
+print(ok_to_use("CC BY", True))
+print(ok_to_use("CC BY-NC", True))
+@item Try a non-commercial use of an NC license.
+print(ok_to_use("CC BY-NC", False))
+.
+out:
+True
+False
+True
+.
+
+=== a200 | Privacy and Personal Data | privacy-pii
+unit: Unit 16: Project: The Impact of Computing
+num: 3
+learn: what counts as PII, collecting less, combining facts, anonymous data that can still be re-identified, metadata, unnecessary permissions, and a privacy risk score
+ap: PII is information that can identify, contact, or locate a specific person, alone or when combined. Cookies, location, search history, and metadata are common ways data is collected. Small facts can be combined to identify someone, and anonymous data can sometimes be re-identified.
+mc:
+Q: Which is most clearly PII?
+C: A person's favorite song
+C*: A person's name together with their home address
+C: The number of visitors to a website
+C: The name of a country
+Q: A photo posted online carries hidden GPS location data in its metadata. What is the main privacy risk?
+C: The photo loads more slowly
+C*: People can learn where the photo was taken, which might be the person's home
+C: The photo is deleted
+C: The photo's colors change
+Q: A company sells a data set with names removed but with birth dates, zip codes, and genders. Why might this still be a privacy problem?
+C: Names are never removed
+C*: Combining those details with another data set may make it possible to identify people
+C: Zip codes are encrypted
+C: The data set is too large
+Q: Which action best reduces how much personal data an app can collect?
+C: Accept every permission
+C*: Turn off location and contacts permissions the app does not need
+C: Use the same password everywhere
+C: Post more often
+Q: Targeted advertising uses data about you to choose ads. Which is a privacy concern about it?
+C: The ads are always too large
+C*: Companies keep detailed profiles of people and may sell them
+C: Ads cannot be seen on phones
+C: Ads never use data
+.
+
+--- What counts as PII?
+notes: What Is Personal Data?
+say: **PII** (personally identifiable information) is information that can **identify** a specific person. Name, address, and birthday are PII. We can keep PII kinds in a list and test whether something is **in** it.
+tip: What makes something PII?
+tipbody:
+rows name, address, phone | PII | points to one person
+rows birthday, face photo | PII | can identify a person
+rows favorite color | not PII alone | many people share it
+.
+code:
+pii = ["name", "address", "birthday"]
+field = "birthday"
+print(field in pii)
+print("favorite color" in pii)
+.
+eol: print(field in pii) | what PII is | identify|person|specific|individual|locate|contact | PII is information that can identify a specific person
+out:
+True
+False
+.
+ownsay: count the kinds of PII in the list
+ownlines:
+print(len(pii), "kinds of PII")
+.
+ownout:
+3 kinds of PII
+.
+
+--- Collect less
+notes: Why Privacy Matters
+say: A website should only ask for what it needs. This loop counts how many fields in a sign-up form are PII. Every extra PII field is more data that could leak or be sold.
+tip: Why collect less?
+tipbody:
+p Data you never collect cannot be stolen. Asking for less is one of the best protections.
+.
+code:
+pii = ["name", "address", "birthday"]
+form = ["name", "favorite color", "address", "grade"]
+count = 0
+for f in form:
+    if f in pii:
+        count = count + 1
+print(count)
+.
+eol: if f in pii: | why a form should collect less personal data | less|risk|leak|need|minimum|privacy|stolen|sold | less data collected means less that can leak or be sold
+out:
+2
+.
+ownsay: count the fields that are not PII
+ownlines:
+print(len(form) - count, "fields are not PII")
+.
+ownout:
+2 fields are not PII
+.
+
+--- Small facts add up
+notes: Small Pieces Add Up
+say: One fact may be harmless. But **combined**, facts can point to one person. Every fact added makes the person easier to identify. The program adds facts and warns when there are enough to identify someone.
+tip: Why do more facts make it easier?
+tipbody:
+p Each fact rules out more people. A school alone fits hundreds of students. Add a birth year, a pet name, and a street, and only one person is left.
+.
+code:
+known = ["school", "birth year"]
+known.append("pet name")
+known.append("street")
+print(len(known), "facts known")
+if len(known) >= 4:
+    print("This person is easy to identify")
+.
+eol: known.append("street") | why more facts make identifying someone easier | combine|together|add up|more|narrow|identify|each|fewer | each new fact narrows down who it could be, so facts combine to identify a person
+out:
+4 facts known
+This person is easy to identify
+.
+ownsay: show the third fact
+ownlines:
+print(known[2])
+.
+ownout:
+pet name
+.
+
+--- Anonymous data can be re-identified
+notes: Small Pieces Add Up
+say: A company removes the **name** from a record and calls the data "anonymous". The slice `record[5:]` drops the first five characters, which are the name and comma. But the age and zip code are still there.
+tip: Why isn't it really anonymous?
+tipbody:
+p The age and zip code can be matched with another data set, such as a voter list, to find out who it belongs to. This is called **re-identification**.
+.
+code:
+record = "Sam, 16, 30601"
+anonymous = record[5:]
+print(anonymous)
+.
+eol: print(anonymous) | why removing the name does not guarantee privacy | re.?identif|combine|match|zip|age|still|link|other data | the age and zip code can be matched with other data to re-identify the person
+out:
+16, 30601
+.
+ownsay: measure the anonymous record
+ownlines:
+print(len(anonymous))
+.
+ownout:
+9
+.
+
+--- Metadata
+notes: What Gets Collected, and How
+say: **Metadata** is data **about** data. A photo's pixels are the picture, but its metadata can say when and where it was taken. Removing the metadata keeps the picture and hides the details.
+tip: What is in photo metadata?
+tipbody:
+p Date, time, camera model, and often **GPS location**. People can use it to learn where you live.
+.
+code:
+photo = "pool_party.jpg"
+metadata = "taken 2026-07-04, GPS 33.8, -83.7"
+print(photo)
+print(metadata)
+metadata = ""
+print(metadata == "")
+.
+eol: metadata = "" | what removing the metadata protects | location|gps|where|privacy|date|hides|private | removing it hides the date and the GPS location of the photo
+out:
+pool_party.jpg
+taken 2026-07-04, GPS 33.8, -83.7
+True
+.
+ownsay: show the picture's file name length
+ownlines:
+print(len(photo))
+.
+ownout:
+14
+.
+
+--- Unnecessary permissions
+notes: How to Protect Your Privacy
+say: An app asks for permissions. A flashlight app has no reason to ask for your contacts. This loop counts the permissions that the app **does not need**, which you can deny.
+tip: What should I deny?
+tipbody:
+p If an app does not need a permission to do its job, deny it. The less an app can see, the less it can collect.
+.
+code:
+needs = ["camera"]
+requested = ["camera", "contacts", "location"]
+extra = 0
+for p in requested:
+    if p not in needs:
+        extra = extra + 1
+print(extra, "unnecessary permissions")
+.
+eol: if p not in needs: | what an unnecessary permission is and why to deny it | need|extra|deny|collect|data|more than|unneeded|not required | it asks for more access than the app needs, so deny it to limit what it collects
+out:
+2 unnecessary permissions
+.
+ownsay: print the second permission requested
+ownlines:
+print(requested[1])
+.
+ownout:
+contacts
+.
+
+--- BUILD Put it together: a privacy score
+say: Build a program that counts how many risky facts someone shared and prints a risk level.
+tip: What does the finished program do?
+tipbody:
+p It checks every shared item against the risky list, adds 1 for each match, and prints a warning when there are three or more.
+.
+plan:
+shared = ["birthday", "pet name", "favorite team", "home address"]
+risky = ["birthday", "pet name", "home address"]
+risk = 0
+for item in shared:
+    if item in risky:
+        risk = risk + 1
+print("Risky items shared:", risk)
+if risk >= 3:
+    print("High privacy risk")
+else:
+    print("Lower privacy risk")
+.
+item:
+@item Store what was shared and which items are risky.
+shared = ["birthday", "pet name", "favorite team", "home address"]
+risky = ["birthday", "pet name", "home address"]
+@item Count the risky items.
+risk = 0
+for item in shared:
+    if item in risky:
+        risk = risk + 1
+@item Show the count.
+print("Risky items shared:", risk)
+@item Print a risk level.
+if risk >= 3:
+    print("High privacy risk")
+else:
+    print("Lower privacy risk")
+@eol if risk >= 3: | why three risky facts make the risk high | combine|together|several|many|identify|risky|add up|more | several risky facts together make a person much easier to identify
+.
+out:
+Risky items shared: 3
+High privacy risk
+.
+
+=== a201 | Safe Computing | safe-computing
+unit: Unit 16: Project: The Impact of Computing
+num: 4
+learn: how password length multiplies guesses, a password strength check, multifactor authentication, spotting phishing, naming malware, and why a flood of requests crashes a site
+ap: Authentication proves who you are, and multifactor authentication uses two or more kinds of proof. Phishing tricks people into giving up private information. Malware includes viruses, worms, ransomware, spyware, and keyloggers. A rogue access point is a fake Wi-Fi network, and a DDoS attack uses many devices to overwhelm a site.
+mc:
+Q: A website requires both a password and a code sent to your phone. This is called
+C: phishing
+C*: multifactor authentication
+C: a rogue access point
+C: lossy compression
+Q: A message says your account will close today unless you click a link and enter your password. The link goes to a look-alike site. This is
+C*: phishing
+C: a DDoS attack
+C: encryption
+C: a cache
+Q: Which type of malware secretly records everything a user types?
+C: ransomware
+C*: keylogger
+C: worm
+C: firewall
+Q: A hacker creates a Wi-Fi network named "Free Airport WiFi" so travelers will connect and the hacker can see their traffic. This is a
+C*: rogue access point
+C: citizen science project
+C: packet switch
+C: digital divide
+Q: Thousands of infected devices all send requests to one website until it crashes. This is called
+C*: a distributed denial of service (DDoS) attack
+C: a phishing email
+C: open-source software
+C: metadata
+.
+
+--- Longer passwords multiply the guesses
+notes: Authentication: Proving It Is You
+say: A password can be guessed by trying every combination. With 26 possible letters in each place, the number of combinations is **26 to the power of the length**. Each extra character **multiplies** the work, so **length** matters most.
+tip: How does length change the guesses?
+tipbody:
+p `26 ** 8` is 26 multiplied by itself 8 times. Four more characters is not four times harder, it is 26 x 26 x 26 x 26 = 456,976 times harder.
+.
+code:
+length = 8
+symbols = 26
+print(symbols ** length)
+.
+eol: print(symbols ** length) | how the length changes the number of guesses | more|longer|multipl|harder|bigger|exponent|grow|each | a longer password has far more combinations, so it is much harder to guess
+out:
+208827064576
+.
+ownsay: try a 12-character password
+ownlines:
+length = 12
+print(symbols ** length)
+.
+ownout:
+95428956661682176
+.
+
+--- A strength check
+notes: Authentication: Proving It Is You
+say: A simple strength check: a long password is stronger than a short one. This function returns True when the password has **12 or more** characters.
+tip: Why is length the test?
+tipbody:
+p More characters mean more combinations. A long phrase of random words is both strong and easier to remember than a short, complicated one.
+.
+code:
+def strong(password):
+    return len(password) >= 12
+print(strong("Tiger7"))
+print(strong("correct horse battery"))
+.
+eol: return len(password) >= 12 | why length matters for a password | guess|combination|harder|longer|more|attack | a longer password has more combinations, so it is harder to guess
+out:
+False
+True
+.
+ownsay: test a password of exactly 12 characters
+ownlines:
+print(strong("1234567890ab"))
+.
+ownout:
+True
+.
+
+--- Multifactor authentication
+notes: Authentication: Proving It Is You
+say: **Multifactor authentication** needs **two or more kinds of proof**, such as a password (something you know) and a code on your phone (something you have). A stolen password alone is not enough.
+tip: Why is a second factor safer?
+tipbody:
+rows Something you know | a password or PIN | can be stolen or guessed
+rows Something you have | your phone or a key | a thief needs your device
+rows Something you are | a fingerprint or face | hard to copy
+.
+code:
+password_ok = True
+code_ok = False
+if password_ok and code_ok:
+    print("Logged in")
+else:
+    print("Blocked: both factors are required")
+.
+eol: if password_ok and code_ok: | what multifactor authentication requires | two|both|factor|more than one|second|proof | both kinds of proof are required, not just the password
+out:
+Blocked: both factors are required
+.
+ownsay: let the phone code pass
+ownlines:
+code_ok = True
+if password_ok and code_ok:
+    print("Logged in")
+.
+ownout:
+Logged in
+.
+
+--- Spot a phishing message
+notes: Phishing
+say: **Phishing** is a fake message that tricks you into giving up private information. This function counts two **red flags**, the word urgent and a request for a password. Two flags make it look phishy.
+tip: What are the red flags?
+tipbody:
+rows urgency | "your account closes today" | rushes you into not thinking
+rows asks for a password | "enter your password" | real companies do not ask by email
+rows odd links or attachments | look-alike addresses | lead to fake sites or malware
+.
+code:
+def looks_phishy(message):
+    flags = 0
+    if "urgent" in message:
+        flags = flags + 1
+    if "password" in message:
+        flags = flags + 1
+    return flags >= 2
+print(looks_phishy("urgent: send your password"))
+print(looks_phishy("lunch at noon?"))
+.
+eol: if "password" in message: | why asking for a password is a red flag | never|real compan|steal|ask|phishing|trick|fake|email | real companies never ask for your password by email, so it is a trick to steal it
+out:
+True
+False
+.
+ownsay: test a message that is only urgent
+ownlines:
+print(looks_phishy("urgent meeting"))
+.
+ownout:
+False
+.
+
+--- Name the malware
+notes: Malware
+say: **Malware** is any program built to harm you. Different kinds do different harm: a **keylogger** records what you type and **ransomware** locks your files for money. This function names the kind from what it does.
+tip: What does each kind do?
+tipbody:
+rows Keylogger | records every key you type | steals passwords and card numbers
+rows Ransomware | locks files and demands money | defense: back up your files
+rows Worm | spreads by itself across a network | defense: updates
+.
+code:
+def malware_type(behavior):
+    if behavior == "records keystrokes":
+        return "keylogger"
+    if behavior == "locks files for money":
+        return "ransomware"
+    return "other"
+print(malware_type("records keystrokes"))
+print(malware_type("locks files for money"))
+.
+eol: return "keylogger" | what a keylogger steals | password|keystroke|typed|card|keys|login|private | a keylogger steals passwords and card numbers by recording what you type
+out:
+keylogger
+ransomware
+.
+ownsay: name a program that spreads on its own
+ownlines:
+print(malware_type("spreads by itself"))
+.
+ownout:
+other
+.
+
+--- A flood of requests
+notes: Attacks on Networks
+say: In a **DDoS** attack, thousands of infected devices (a **botnet**) all send requests to one site at the same time. The server can only answer so many at once, so real visitors get no answer. Compare the attack traffic with normal traffic.
+tip: Why does the site crash?
+tipbody:
+p A server has limited capacity. Far more requests than it can handle make it slow or fail for everyone.
+.
+code:
+normal = 100
+attack = 1000000
+print(attack // normal, "times the normal traffic")
+.
+eol: print(attack // normal, "times the normal traffic") | why a site crashes under this much traffic | overwhelm|too many|requests|capacity|crash|flood|limit | the flood of requests overwhelms the server's capacity
+out:
+10000 times the normal traffic
+.
+ownsay: check that the attack is more than 100 times normal
+ownlines:
+print(attack > normal * 100)
+.
+ownout:
+True
+.
+
+--- BUILD Put it together: a login check
+say: Build a login check that only calls an account strong when it has a long password **and** a second factor.
+tip: What does the finished program do?
+tipbody:
+p The function needs both conditions. A long password alone is not enough, and a second factor alone with a weak password is not enough either.
+.
+plan:
+def safe_login(password, has_code):
+    if len(password) >= 12 and has_code:
+        return "Strong: long password and a second factor"
+    return "Weak: add length or a second factor"
+print(safe_login("correct horse battery", True))
+print(safe_login("Tiger7", True))
+print(safe_login("correct horse battery", False))
+.
+item:
+@item Write the function.
+def safe_login(password, has_code):
+    if len(password) >= 12 and has_code:
+        return "Strong: long password and a second factor"
+    return "Weak: add length or a second factor"
+@eol if len(password) >= 12 and has_code: | why the account needs both a long password and a second factor | both|two|layers|stolen|password alone|more than one|extra|each | each layer protects when the other fails, so a stolen password alone is not enough
+@item Test a long password with a code, a short password with a code, and a long password without a code.
+print(safe_login("correct horse battery", True))
+print(safe_login("Tiger7", True))
+print(safe_login("correct horse battery", False))
+.
+out:
+Strong: long password and a second factor
+Weak: add length or a second factor
+Weak: add length or a second factor
+.

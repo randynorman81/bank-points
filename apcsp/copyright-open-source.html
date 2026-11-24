@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Copyright, Creative Commons, and Open Source | AP CSP Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#A3E635; --acc-tint:rgba(163,230,53,.14); --acc-ink:#D9F99D;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#1A2E05;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:18ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .err{color:var(--bad-ink);font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.ok{border-top-color:var(--acc)}
+.box.bad{border-top-color:var(--bad)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F1FAD9}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.bad{background:var(--bad-tint)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+.stp{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:14px 12px}.stp .frame{display:none}.stp .frame.on{display:block}.stp .ctl{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:10px}.stp button{font:700 14px Manrope,system-ui,sans-serif;padding:8px 16px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer}.stp button:hover{border-color:#A3E635}.stp .cnt{font:600 13px Manrope,system-ui,sans-serif;color:var(--ink-soft)}.stp .say{margin:10px auto 0;max-width:70ch;text-align:center;font-size:15px;line-height:1.5}
+.fig{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:16px 12px 12px;overflow-x:auto}
+.fig figcaption{margin:12px auto 0;max-width:70ch;text-align:center;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
+ul.chk{margin:6px 0 20px;padding-left:22px}ul.chk li{margin:6px 0}
+.resp{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--acc);border-radius:6px;padding:14px 18px;margin:8px 0 18px}
+.resp .rl{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:6px}
+.resp p{margin:0 0 .6em}
+.cards.one{grid-template-columns:1fr}
+
+.wg{margin:8px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:10px;padding:16px 16px 14px}
+.wg h4{margin:0 0 4px;font:700 13px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink)}
+.wg .wsub{margin:0 0 12px;font-size:14.5px;color:var(--ink-soft)}
+.wg .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.wg button,.wg input,.wg select{font:600 15px 'JetBrains Mono',monospace;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:8px 12px}
+.wg button{cursor:pointer}.wg button:hover{border-color:#A3E635}
+.wg input[type=text],.wg input[type=number]{min-width:0;width:12ch}
+.wg input[type=range]{padding:0;width:min(320px,100%);accent-color:#A3E635}
+.wg .bit{width:48px;height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:22px}
+.wg .bit small{font-size:11px;color:var(--ink-soft);font-weight:600}
+.wg .bit.on{background:#A3E635;color:#0B0E14;border-color:#A3E635}.wg .bit.on small{color:#2a3b00}
+.wg .out{font:600 16px 'JetBrains Mono',monospace;line-height:1.7;margin:6px 0 0;word-break:break-all}
+.wg .out b{color:#A3E635}.wg .out i{color:#FBBF24;font-style:normal}
+.wg table{border-collapse:collapse;margin:6px 0;font:600 14px 'JetBrains Mono',monospace}.wg td,.wg th{border:1px solid var(--rule);padding:5px 10px;text-align:center}.wg th{color:var(--ink-soft);font-weight:700}
+.wg .cell{width:34px;height:34px;border:1px solid #2B3647;display:inline-block;cursor:pointer;vertical-align:top}
+.wg .cell.on{background:#EAEFF6}
+.wg .sw{width:110px;height:70px;border-radius:8px;border:2px solid #2B3647;flex:none}
+.wg .px{width:62px;height:62px;border-radius:6px;border:2px solid #2B3647}
+.wg .note{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+.wg canvas{border:1px solid var(--rule);border-radius:6px;max-width:100%}
+
+.qz{margin:10px 0 30px;background:#0B0F16;border:1px solid var(--rule);border-radius:10px;padding:18px 18px 8px}
+.qz>h4{margin:0 0 4px;font:700 13px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink)}
+.qz>.qsub{margin:0 0 14px;font-size:14.5px;color:var(--ink-soft)}
+.qz .q{border-top:1px solid var(--rule);padding:14px 0 12px}
+.qz .qs{margin:0 0 10px;font-weight:600;color:#fff}
+.qz .qs code{font-weight:500}
+.qz .opts{display:grid;gap:8px}
+.qz .opts button{text-align:left;font:500 15px Manrope,system-ui,sans-serif;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:10px 14px;cursor:pointer;line-height:1.45}
+.qz .opts button:hover:not(:disabled){border-color:#A3E635}
+.qz .opts button.right{border-color:#34D399;background:rgba(52,211,153,.16)}
+.qz .opts button.wrong{border-color:var(--bad);background:var(--bad-tint)}
+.qz .why{margin:10px 0 0;padding:10px 14px;border-left:4px solid var(--acc);background:var(--acc-tint);border-radius:0 6px 6px 0;font-size:14.5px;color:#F1FAD9;display:none}
+.qz .why.on{display:block}
+.qz .score{margin:6px 0 10px;font:700 14px 'JetBrains Mono',monospace;color:var(--acc-ink)}
+.asgw{background:linear-gradient(120deg,var(--acc-tint),var(--card) 65%);border:2px solid var(--acc);border-radius:10px;padding:20px 24px;margin:26px 0 6px}
+.asgw .lb{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--acc-ink)}
+.asgw h3{font-family:'Fraunces',Georgia,serif;font-size:24px;font-weight:600;color:#fff;margin:4px 0 12px}
+.asgw .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.asgw .card{background:rgba(0,0,0,.25);border:1px solid var(--rule);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.asgw .card b{color:#fff;font-size:16px}.asgw .card p{margin:0;font-size:14.5px;color:#C4CDD8}
+.asgw .card .n{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--acc)}
+.asgw a.go{display:inline-block;align-self:flex-start;background:var(--acc);color:#0B0E14;font-weight:800;font-size:15px;text-decoration:none;border-radius:8px;padding:10px 16px}
+.asgw a.go:hover{filter:brightness(1.1)}
+.wg .bar{height:22px;border-radius:6px;background:#1B2330;border:1px solid var(--rule);overflow:hidden;margin:6px 0}
+.wg .bar>i{display:block;height:100%;background:#A3E635;transition:width .2s}
+.wg .bar>i.hot{background:#F87171}
+.wg label{font-size:14.5px;color:var(--ink)}
+.wg .chip{display:inline-block;border:1px solid var(--rule);border-radius:100px;padding:4px 12px;margin:3px 4px 3px 0;font:600 13px 'JetBrains Mono',monospace;background:var(--card)}
+.wg .chip.on{background:#A3E635;color:#0B0E14;border-color:#A3E635}
+.wg .chip.bad{background:var(--bad-tint);color:var(--bad-ink);border-color:var(--bad)}
+.wg .seg{display:inline-block;padding:6px 10px;margin:2px;border-radius:6px;font:600 15px 'JetBrains Mono',monospace;border:1px solid var(--rule);background:var(--card)}
+.wg .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.mono{font-family:'JetBrains Mono',monospace}
+
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="unit-16/index.html">&larr; Unit 16</a><a href="computing-bias.html">16.1 Bias</a><a href="copyright-open-source.html" class="current">16.2 Copyright</a><a href="privacy-pii.html">16.3 Privacy</a><a href="safe-computing.html">16.4 Safe Computing</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">AP CSP NOTES &nbsp;/&nbsp; SUBJECT: WHO OWNS A CREATION, AND WHAT YOU MAY DO WITH IT</div>
+    <h1>Copyright, Creative Commons, and Open Source</h1>
+    <p class="deck">Copying a file takes a second, but it can be against the law, and almost always raises questions of fairness. Learn what <b>copyright</b> protects, how <b>Creative Commons</b> and <b>open source</b> let creators share on purpose, and what <b>plagiarism</b> is.</p>
+  </div>
+</header>
+<div class="wrap"><div class="asgw"><div class="lb">Your work &middot; Unit 16</div><h3>Copyright, Creative Commons, and Open Source (16.2)</h3><div class="two"><div class="card"><span class="n">STEP 1 &middot; THE DOOR</span><b>Walkthrough</b><p>Walk through these notes in the Python Editor. Type the notes as comments and run the small programs. Get <b>every box and every question right (100%)</b>.</p><a class="go" href="../python/editor.html?a=a199">Open the walkthrough</a></div></div></div></div>
+
+<section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">00</div><h2>Who Owns a Creation?</h2></div><p class="lede"><b>Intellectual property</b> is something a person creates with their mind: a song, a photo, a story, a program. Creators have legal rights over it. <b>Copyright</b> is the legal protection that gives the creator the right to say who may <b>copy, share, and change</b> the work. It applies <b>automatically</b> the moment the work is created.</p><div class="tblwrap"><div class="tblscroll"><table class="cmp"><tr><th>Word</th><th>Meaning</th></tr><tr><td><b>Copyright</b></td><td>legal ownership of a creative work. Others need <b>permission</b> to copy or share it.</td></tr><tr><td><b>License</b></td><td>the permission the owner gives. It states what others may do.</td></tr><tr><td><b>Fair use</b></td><td>limited use without permission for things like criticism, news, teaching, or research. It depends on how much, and why.</td></tr><tr><td><b>Plagiarism</b></td><td>presenting someone else's work as your own. It is an <b>ethics</b> rule, even when no law is broken.</td></tr><tr><td><b>Piracy</b></td><td>copying or sharing protected work (movies, music, software) without permission.</td></tr><tr><td><b>Public domain</b></td><td>works with no copyright left. Anyone may use them.</td></tr></table></div></div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">01</div><h2>Computing Makes Copying Easy</h2></div><p class="lede">A digital copy is perfect, free, and takes a second. That makes it very easy to break copyright by accident, and very hard for creators to stop it.</p><div class="two"><div class="box ok"><h3>Legal and ethical</h3><p>Something can be <b>legal but unethical</b> (copying an idea so closely that it takes credit) or <b>ethical but illegal</b> (sharing a file to help a friend). The exam asks you to think about <b>both</b>.</p></div><div class="box ok"><h3>Citing your sources</h3><p>Give credit when you use someone else's work: images, code, and ideas. In the Create Task you must <b>credit any code you did not write</b> in a comment.</p></div></div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">02</div><h2>Creative Commons</h2></div><p class="lede">Creators who <b>want</b> people to share their work can give permission in advance with a <b>Creative Commons (CC)</b> license. It is still copyrighted, but it tells everyone <b>exactly what they may do</b>.</p><div class="tblwrap"><div class="tblscroll"><table class="cmp"><tr><th>License</th><th>Credit?</th><th>Remix?</th><th>Commercial use?</th><th>Meaning</th></tr><tr><td><b>CC BY</b></td><td>yes</td><td>yes</td><td>yes</td><td>do anything if you credit the creator</td></tr><tr><td><b>CC BY-SA</b></td><td>yes</td><td>yes</td><td>yes</td><td>remixes must use the same license</td></tr><tr><td><b>CC BY-NC</b></td><td>yes</td><td>yes</td><td>no</td><td>no commercial use</td></tr><tr><td><b>CC BY-ND</b></td><td>yes</td><td>no</td><td>yes</td><td>share it unchanged only</td></tr><tr><td><b>CC BY-NC-ND</b></td><td>yes</td><td>no</td><td>no</td><td>the most restrictive: share it, unchanged, for free</td></tr><tr><td><b>CC0</b></td><td>no</td><td>yes</td><td>yes</td><td>creator gives up all rights (public domain)</td></tr></table></div></div><div class="wg" id="wgcc"><h4>Try it: pick a Creative Commons license</h4><p class="wsub">You made a photo, a song, or a program. Decide what other people may do with it and see which license fits.</p><div class="row"><label><input type="checkbox" class="cr" checked> People must <b>credit</b> me</label></div><div class="row"><label><input type="checkbox" class="mod" checked> People may <b>change</b> my work (remix it)</label></div><div class="row"><label><input type="checkbox" class="com" checked> People may use it to <b>make money</b></label></div><div class="row"><label><input type="checkbox" class="sa"> Remixes must use the <b>same license</b> (share alike)</label></div><div class="out"></div></div><script>(function(root){
+var q=function(c){return root.querySelector("."+c)},out=root.querySelector(".out");
+function upd(){var cr=q("cr").checked,mod=q("mod").checked,com=q("com").checked,sa=q("sa").checked;q("sa").disabled=!mod;if(!mod)q("sa").checked=false;sa=q("sa").checked;
+ var name,txt;
+ if(!cr&&mod&&com&&!sa){name="CC0";txt="You give up all rights. The work goes to the <b>public domain</b>. Credit is not required."}
+ else{var s="CC BY";if(!com)s+="-NC";if(!mod)s+="-ND";if(mod&&sa)s+="-SA";name=s;txt="Every Creative Commons license (except CC0) <b>requires credit</b>."+(!cr?" <i>You unchecked credit, so use CC0 only if you also allow every other use.</i>":"")+(" People may "+(mod?"remix it":"share it unchanged")+", "+(com?"including for money":"for non-commercial uses only")+(mod&&sa?", and must share remixes under the same license":"")+".");}
+ out.innerHTML='Your license: <b style="font-size:20px;color:#A3E635">'+name+'</b><br>'+txt;}
+root.addEventListener("change",upd);upd();
+})(document.getElementById("wgcc"));</script></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">03</div><h2>Open Source and Open Access</h2></div><p class="lede"><b>Open-source</b> software has its <b>source code</b> published so anyone can read it, use it, change it, and share it, under a license. <b>Open access</b> means research and content is free to read.</p><div class="tblwrap"><div class="tblscroll"><table class="cmp"><tr><th></th><th>Proprietary software</th><th>Open-source software</th></tr><tr><td><b>Source code</b></td><td>kept secret by the company</td><td>published for anyone to read</td></tr><tr><td><b>Who can change it</b></td><td>only the company</td><td>anyone (under the license)</td></tr><tr><td><b>Examples</b></td><td>Microsoft Office, most phone apps</td><td>Linux, Firefox, Python</td></tr><tr><td><b>Pros</b></td><td>company support, a single plan</td><td>free to use, many eyes find bugs, anyone can improve it</td></tr><tr><td><b>Cons</b></td><td>cost; you cannot fix it yourself</td><td>may have less support; the license still has rules</td></tr></table></div></div><div class="warn"><b>Open source is not "no rules".</b> Each project has a license. Some (like the GPL) require your changes to be shared under the same license. Others (like MIT) only require you to credit the original author.</div><div class="qz" id="qz16b"><h4>Check yourself</h4><p class="qsub">Answer each one. You see why right away, so read the explanation even when you are right.</p><div class="q" data-a="1"><p class="qs">A student copies a photo from a website into a presentation without credit or permission. What is the <b>main problem</b>?</p><div class="opts"><button>Photos cannot be used in presentations</button><button>It may violate the photographer's copyright, and not crediting is also an ethics problem</button><button>The photo is too large</button><button>The photographer owns the student's computer</button></div><div class="why">Copyright protects the photo automatically. Using it without permission or credit is a legal and ethical problem.</div></div><div class="q" data-a="1"><p class="qs">A musician publishes a song with a <b>CC BY-NC</b> license. Which use is allowed?</p><div class="opts"><button>A company uses it in a paid commercial</button><button>A student uses it in a free school video and credits the musician</button><button>Someone sells the song as their own</button><button>Anyone may use it with no credit</button></div><div class="why">BY-NC requires <b>credit</b> and allows <b>non-commercial</b> use only.</div></div><div class="q" data-a="1"><p class="qs">What does it mean for software to be <b>open source</b>?</p><div class="opts"><button>It is free of bugs</button><button>Its source code is published so anyone can read and (under the license) change it</button><button>It only runs on the Internet</button><button>It cannot be copied</button></div><div class="why">The <b>source code</b> is available. A license still sets rules for use.</div></div><div class="q" data-a="1"><p class="qs">Which is the <b>best</b> example of fair use?</p><div class="opts"><button>Copying a whole new movie and posting it</button><button>Quoting a short passage from a book in a school report, with a citation</button><button>Selling copies of someone else's app</button><button>Claiming a classmate's program as your own</button></div><div class="why">Fair use is limited: a small amount, for something like criticism or education.</div></div><div class="q" data-a="1"><p class="qs">Which statement about copyright is true?</p><div class="opts"><button>Copyright protects a work only after it is registered</button><button>Copyright applies automatically when a work is created</button><button>Anything on the Internet is in the public domain</button><button>Giving credit means you never need permission</button></div><div class="why">Creators get copyright <b>automatically</b>. Being online does not make a work free to use.</div></div><div class="score"></div></div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">AP</div><h2>On the AP Exam</h2></div><p class="lede">These are the ideas the exam asks about. Be ready to explain each one in your own words.</p><ul class="chk"><li><b>Copyright</b> gives creators rights over their work automatically. Using it without permission can be illegal and unethical.</li><li><b>Creative Commons</b> licenses let creators allow certain uses in advance. Know BY (credit), NC (no commercial), ND (no changes), and SA (share alike).</li><li><b>Open-source</b> software has public source code. <b>Open access</b> content is free to read. Both still have licenses.</li><li><b>Plagiarism</b> is presenting someone else's work as yours. Always <b>credit</b> the code, images, and ideas you did not create.</li><li>Digital copying is easy, so <b>legal</b> and <b>ethical</b> questions come up constantly.</li></ul></div></section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Make it, credit it, and read the license.</h2>
+    <p>Next: the most personal thing computers collect is information about you.</p>
+    <div style="margin-bottom:10px"></div>
+    <a class="back" href="privacy-pii.html">Privacy and Personal Data (16.3) &rarr;</a><a class="back" href="computing-bias.html">&larr; Computing Bias (16.1)</a><a class="back" href="unit-16/index.html">&larr; Unit 16</a>
+    <p class="sig">AP CSP Notes &nbsp;/&nbsp; Copyright, Creative Commons, and Open Source &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  document.querySelectorAll(".stp").forEach(function(r){
+    var f=r.querySelectorAll(".frame"),c=r.querySelector(".cnt"),i=0;
+    function s(){f.forEach(function(x,k){x.classList.toggle("on",k===i)});c.textContent="Step "+(i+1)+" of "+f.length}
+    r.querySelectorAll("button").forEach(function(b){b.onclick=function(){i=Math.max(0,Math.min(f.length-1,i+Number(b.dataset.d)));s()}});s();
+  });
+  document.querySelectorAll(".qz").forEach(function(z){
+    var qs=z.querySelectorAll(".q"),got=0,done=0,sc=z.querySelector(".score");
+    qs.forEach(function(q){
+      var a=Number(q.dataset.a),bs=q.querySelectorAll("button"),why=q.querySelector(".why");
+      bs.forEach(function(b,i){b.onclick=function(){
+        if(q.dataset.done)return;q.dataset.done=1;done++;
+        bs.forEach(function(x,k){x.disabled=true;if(k===a)x.classList.add("right")});
+        if(i===a)got++;else b.classList.add("wrong");
+        why.classList.add("on");
+        sc.textContent=got+" of "+qs.length+" right"+(done<qs.length?" so far":(got===qs.length?" - perfect!":""));
+      }});
+    });
+  });
+})();
+</script>
+</body>
+</html>

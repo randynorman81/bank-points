@@ -74,11 +74,24 @@ window.PY_LESSONS = [
   { n: 9, name: "Practice Performance Task", notes: "unit-9/index.html", lessons: [
     { id: "9.1", t: "Practice PT 2: The Shopping List", notes: "practice-pt-shopping-list.html", w: "a66" }
   ] },
-  { n: 10, name: "The Internet", lessons: [
-    { id: "10.1", t: "The Internet Is a Highway (10.1 and 10.2)", w: "a124" },
-    { id: "10.3", t: "Internet Addresses and Your Router", w: ["a125", "a101"], g: "a102" },
-    { id: "10.5", t: "DNS: The Internet's Phone Book", w: "a103", g: "a104" },
-    { id: "10.6", t: "Routing: How Packets Find Their Way", w: "a105", g: "a106" },
-    { id: "10.7", t: "Packets and Protocols", w: "a107", g: "a108" }
+  { n: 10, name: "The Internet", notes: "unit-10/index.html", lessons: [
+    { id: "10.1", t: "The Internet Is a Highway (10.1 and 10.2)", notes: "internet-highway.html", w: "a124" },
+    { id: "10.3", t: "Internet Addresses", notes: "internet-addresses.html", w: "a101", g: "a102" },
+    { id: "10.4", t: "Your Router Is a Neighborhood (NAT and DHCP)", notes: "router-neighborhood.html", w: "a125" },
+    { id: "10.5", t: "DNS: The Internet's Phone Book", notes: "dns.html", w: "a103", g: "a104" },
+    { id: "10.6", t: "Routing and Fault Tolerance", notes: "routing.html", w: "a105", g: "a106" },
+    { id: "10.7", t: "Packets and Protocols", notes: "packets-protocols.html", w: "a107", g: "a108" },
+    { id: "10.8", t: "Parallel and Distributed Computing", notes: "parallel-distributed.html", w: "a194" }
+  ] },
+  { n: 11, name: "Project: The Effects of the Internet", notes: "unit-11/index.html", lessons: [
+    { id: "11.1", t: "Beneficial and Harmful Effects", notes: "beneficial-harmful.html", w: "a195" },
+    { id: "11.2", t: "The Digital Divide", notes: "digital-divide.html", w: "a196" },
+    { id: "11.3", t: "Crowdsourcing and Citizen Science", notes: "crowdsourcing.html", w: "a197" }
+  ] },
+  { n: 16, name: "Project: The Impact of Computing", notes: "unit-16/index.html", lessons: [
+    { id: "16.1", t: "Computing Bias", notes: "computing-bias.html", w: "a198" },
+    { id: "16.2", t: "Copyright, Creative Commons, and Open Source", notes: "copyright-open-source.html", w: "a199" },
+    { id: "16.3", t: "Privacy and Personal Data", notes: "privacy-pii.html", w: "a200" },
+    { id: "16.4", t: "Safe Computing: Passwords, Phishing, and Malware", notes: "safe-computing.html", w: "a201" }
   ] }
 ];
