@@ -80,7 +80,7 @@ sup { font-size: .7em; line-height: 0; }
 .sec.exam .lede { font-size: 9.2pt; color: #4B5563; }
 
 /* tables */
-.tblwrap { margin: .06in 0 .14in; break-inside: auto; }
+.tblwrap { margin: .06in 0 .14in; break-inside: avoid; }
 table.cmp { width: 100%; border-collapse: collapse; font-size: 8.9pt; line-height: 1.4; }
 table.cmp th { background: __ACCENT_DK__; color: #fff; font: 800 6.8pt Manrope; letter-spacing: .11em; text-transform: uppercase; text-align: left; padding: 5.5pt 8pt; }
 table.cmp th:first-child { border-top-left-radius: 4pt; } table.cmp th:last-child { border-top-right-radius: 4pt; }
@@ -206,7 +206,7 @@ code, pre, .code, .qc, .cardx code.line, .trace, .trace * { font-variant-ligatur
 .glance .w { font-size: 8.6pt; line-height: 1.38; color: #374151; } .glance .w b { color: __ACCENT_DK__; }
 .sec.t-example > h3 { border-left-color: #2563EB; } .sec.t-example > h3 .tag { background: #DBEAFE; color: #1D4ED8; }
 .sec.t-trace > h3 { border-left-color: #0F766E; } .sec.t-trace > h3 .tag { background: #CCFBF1; color: #0F766E; }
-.sec.t-watch { break-inside: auto; border: 1pt solid #FECACA; border-radius: 6pt; background: #FFFBFB; padding: 9pt 12pt 6pt; margin-top: .2in; }
+.sec.t-watch { break-inside: avoid; border: 1pt solid #FECACA; border-radius: 6pt; background: #FFFBFB; padding: 9pt 12pt 6pt; margin-top: .2in; }
 .sec.t-watch > h3 { border-left-color: #DC2626; color: #991B1B; } .sec.t-watch > h3 .tag { background: #DC2626; color: #fff; }
 table.cmp.watch th { background: #B91C1C; } table.cmp.watch td:first-child { font-weight: 500; } table.cmp.watch td:first-child code { color: #991B1B; }
 table.cmp.watch td:last-child code { color: #065F46; }
@@ -218,3 +218,29 @@ table.cmp.watch td:last-child code { color: #065F46; }
 .lgt.e { background: #2563EB; } .lgt.t { background: #0F766E; } .lgt.w { background: #DC2626; } .lgt.x { background: #7C3AED; } .lgt.a { background: #475569; }
 
 .keep { break-inside: avoid; }
+
+/* ===== nothing splits across pages: every block stays whole ===== */
+p, ul, ol, li, dl, blockquote { break-inside: avoid; }
+table.cmp, .trace, .tcode, .glance, .legend, .lgrow, .how .c, .objectives li, .toc li, .keychap { break-inside: avoid; }
+.practice > .pq, .ans .a, .gloss .g { break-inside: avoid; }
+h2, h3, h4, .frames-title, .keychap { break-after: avoid; }
+.sec { orphans: 3; widows: 3; }
+
+.cover .num.sm { font-size: 118pt; top: 1.7in; letter-spacing: -.02em; }
+
+.trace.stack { display: block; }
+.trace.stack .tcode { margin-bottom: 7pt; }
+.trace.stack td { font-size: 8.2pt; }
+
+.trace td.dit { color: #94A3B8; font: 500 7.2pt Manrope; letter-spacing: .02em; }
+
+.trace.dense td { padding: 1.6pt 5pt; font-size: 7.8pt; line-height: 1.25; }
+.trace.dense th { padding: 3pt 5pt; }
+.trace.dense .tcode { font-size: 7.8pt; line-height: 1.5; padding: 4pt 0; }
+figure.fig:has(.trace.dense) { padding: 5pt 7pt 4pt; margin: .06in 0 .1in; }
+.trace.dense td { padding: 1.2pt 5pt; }
+.trace.dense th { padding: 2.5pt 5pt; }
+.trace.dense .tcode { padding: 3pt 0; line-height: 1.42; }
+.trace.xdense td { padding: 1pt 4pt; font-size: 7.1pt; line-height: 1.2; }
+.trace.xdense .tcode { font-size: 7.2pt; line-height: 1.38; }
+.trace.xdense th { font-size: 6pt; padding: 2pt 4pt; }

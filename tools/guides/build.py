@@ -53,10 +53,49 @@ def build(n):
         after = pg.get_text()
         assert "ZZC" not in after and re.sub(r"\s+", "", after) == re.sub(r"\s+", "", before), "redaction changed page %d text" % (pg.number + 1)
     name = "AP-CSP-Unit-%02d-%s-Study-Guide.pdf" % (unit.n, re.sub(r"[^A-Za-z0-9]+", "-", unit.title).strip("-"))
-    final = os.path.join(OUT, name); d.save(final, garbage=4, deflate=True); d.close()
+    final = os.path.join(OUT, name); d.save(final, garbage=4, deflate=True, deflate_images=True, deflate_fonts=True, use_objstms=1, clean=True); d.close()
     print("Unit %d: %d pages -> %s (%.1f MB)" % (unit.n, total, final, os.path.getsize(final) / 1e6)); return final
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" and False:
     units = [int(x) for x in sys.argv[1:]] or sorted(int(f[1:3]) for f in os.listdir(os.path.join(HERE, "units")) if re.match(r"u\d\d\.py$", f))
     for u in units: build(u)
+
+
+def build_lesson(n, cid):
+    """One lesson as its own PDF: cover, the lesson, and its glossary and answer key."""
+    mod = importlib.import_module("units.u%02d" % n); unit = mod.UNIT
+    html, titles, extras = gl.build_html(unit, only=cid)
+    tag = "L%02d_%s" % (n, cid.replace(".", "_"))
+    h = os.path.join(WORK, tag + ".html"); p = os.path.join(WORK, tag + ".pdf")
+    open(h, "w", encoding="utf-8").write(html); chrome(h, p)
+    ids = [c for c, _ in titles] + extras
+    pages, total = find_pages(p, ids)
+    d = fitz.open(p)
+    title = re.sub("<[^>]+>", "", titles[0][1])
+    d.set_metadata({"title": "AP Computer Science Principles Study Guide: Lesson %s, %s" % (cid, title), "author": "Social Circle High School Computer Science",
+                    "subject": "Unit %d: %s" % (unit.n, unit.title), "keywords": "AP CSP, study guide, Lesson %s, %s" % (cid, title), "creator": "Social Circle High School Computer Science", "producer": "Social Circle High School Computer Science"})
+    toc = [[1, "Cover", 1], [1, "Lesson %s  %s" % (cid, title), pages[cid]]]
+    for k, lab in (("gloss", "Glossary"), ("key", "Answer Key")):
+        if k in pages: toc.append([1, lab, pages[k]])
+    d.set_toc(toc)
+    for pg in d:
+        for m in re.finditer(r"ZZC[\w.]+?ZZ", pg.get_text()):
+            for r in pg.search_for(m.group(0)): pg.add_redact_annot(r)
+        pg.apply_redactions(images=fitz.PDF_REDACT_IMAGE_NONE)
+    num = cid.split(".")
+    name = "AP-CSP-Lesson-%02d-%02d-%s.pdf" % (int(num[0]), int(num[1]) if num[1].isdigit() else 0, re.sub(r"[^A-Za-z0-9]+", "-", title).strip("-")[:60])
+    os.makedirs(os.path.join(OUT, "lessons"), exist_ok=True)
+    final = os.path.join(OUT, "lessons", name); d.save(final, garbage=4, deflate=True, deflate_images=True, deflate_fonts=True, use_objstms=1, clean=True); d.close()
+    return final, len(fitz.open(final))
+
+if __name__ == "__main__":
+    args = sys.argv[1:]
+    if args and args[0] == "lessons":
+        for u in [int(x) for x in args[1:]]:
+            unit = importlib.import_module("units.u%02d" % u).UNIT
+            for ch in unit.chapters:
+                f, n = build_lesson(u, ch["id"]); print("Lesson %s: %d pages -> %s" % (ch["id"], n, os.path.basename(f)))
+    else:
+        units = [int(x) for x in args] or sorted(int(f[1:3]) for f in os.listdir(os.path.join(HERE, "units")) if re.match(r"u\d\d\.py$", f))
+        for u in units: build(u)

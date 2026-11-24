@@ -210,10 +210,16 @@ def trace(title, code, vars_, rows, caption=None, output=None):
     prev = {}; body = ""
     for ln, vals in rows:
         cur = dict(prev); cur.update(vals)
-        cells = "".join('<td class="%s">%s</td>' % ("chg" if (v in vals and vals[v] != prev.get(v)) else "", esc(cur.get(v, "-"))) for v in vars_)
+        def cell(v):
+            chg = v in vals and vals[v] != prev.get(v); val = str(cur.get(v, "-"))
+            if not chg and len(val) > 13 and prev.get(v) == cur.get(v): return '<td class="dit" title="same as above">&#8593; same</td>'
+            return '<td class="%s">%s</td>' % ("chg" if chg else "", esc(val))
+        cells = "".join(cell(v) for v in vars_)
         body += '<tr><td class="ln2">%s</td>%s</tr>' % ("start" if ln == 0 else ln, cells); prev = cur
     if output: body += '<tr><td class="ln2">OUT</td><td class="out" colspan="%d">%s</td></tr>' % (len(vars_), esc(output))
-    html_ = '<div class="trace"><div class="tcode">%s</div><table>%s%s</table></div>' % (left, head, body)
+    longest = max([len(str(v)) for _, vals in rows for v in vals.values()] + [0])
+    stack = longest > 13 or len(vars_) > 4 or len(rows) > 15
+    html_ = '<div class="trace%s"><div class="tcode">%s</div><table>%s%s</table></div>' % ((" stack" if stack else "") + (" dense" if len(rows) > 14 or len(lines) > 12 else "") + (" xdense" if len(rows) > 20 else ""), left, head, body)
     cap = ('<figcaption>%s%s</figcaption>' % (FIGMARK, caption)) if caption else ""
     t = '<div style="font:700 9.4pt Manrope;color:#1F2937;margin:0 0 5pt 2pt">%s</div>' % esc(title)
     return '<figure class="fig">%s%s%s</figure>' % (t, html_, cap)
@@ -689,14 +695,15 @@ class Unit:
         self.front_extra = front_extra
 
 
-def build_html(unit, toc_pages=None):
+def build_html(unit, toc_pages=None, only=None):
     """Assemble the whole guide. toc_pages = {chapter_id or 'gloss'/'key'/'cheat': page number} (filled in on the second pass)."""
     toc_pages = toc_pages or {}
     ctx = Ctx(unit); chapters = []; titles = []
-    for ch in unit.chapters:
+    chs = [c for c in unit.chapters if only is None or c["id"] == only]
+    for ch in chs:
         h, t = chapter_html(ch, ctx, unit.accent); chapters.append(h); titles.append((ch["id"], t))
     seen = {}; 
-    for t, d in list(unit.glossary) + list(ctx.words):
+    for t, d in (list(ctx.words) if only else list(unit.glossary) + list(ctx.words)):
         k = re.sub(r"[`*]", "", t).lower()
         if k not in seen: seen[k] = (re.sub(r"[`*]", "", t), d)
     glossary = list(seen.values())
@@ -707,11 +714,17 @@ def build_html(unit, toc_pages=None):
              '<div class="foot"><img src="%s"><div class="school">Social Circle High School</div><div class="dept">Computer Science  ·  Mr. Norman</div>'
              '<div class="series">%s</div><div class="redbar"></div></div></section>'
              % (cover_art(unit.art, unit.lt, unit.seed), unit.n, unit.title, unit.tagline, logo, unit.bigidea.upper().replace(":", "<br>")))
+    if only:
+        ch0 = chs[0]; lt = titles[0][1]
+        cover = (cover.replace('<div class="num">%d</div>' % unit.n, '<div class="num sm">%s</div>' % esc(only))
+                      .replace('<div class="title">%s</div>' % unit.title, '<div class="title">%s</div>' % lt)
+                      .replace('<div class="tag">%s</div>' % unit.tagline, '<div class="tag">%s</div>' % (md(ch0["goal"])[3:-4] if ch0.get("goal") else unit.tagline))
+                      .replace('STUDY GUIDE</div>', 'STUDY GUIDE  ·  UNIT %d</div>' % unit.n))
     copy = ('<section class="copy"><div class="mark"><img src="%s"><div><h2>Social Circle High School Computer Science</h2><div>AP® Computer Science Principles Study Guide Series</div></div></div>'
-            '<p><b>Unit %d: %s</b></p><p>© 2026 Social Circle High School Computer Science. All rights reserved. No part of this guide may be reproduced, shared, or posted online without written permission.</p>'
+            '<p><b>%s</b></p><p>© 2026 Social Circle High School Computer Science. All rights reserved. No part of this guide may be reproduced, shared, or posted online without written permission.</p>'
             '<p>AP® and Advanced Placement® are registered trademarks of the College Board, which was not involved in the production of, and does not endorse, this product. '
             'Python® is a trademark of the Python Software Foundation. All other names are the property of their owners. The company names used in examples are fictional or used only to illustrate ideas.</p>'
-            '<p>Interactive notes, walkthroughs, and games that go with this guide are at <b>%s/apcsp</b>.</p></section>' % (logo, unit.n, unit.title, SITE))
+            '<p>Interactive notes, walkthroughs, and games that go with this guide are at <b>%s/apcsp</b>.</p></section>' % (logo, ("Lesson %s: %s (Unit %d: %s)" % (only, titles[0][1], unit.n, unit.title)) if only else ("Unit %d: %s" % (unit.n, unit.title)), SITE))
     how = ('<div class="legend"><p class="lg-intro">Every lesson in this book is laid out the same way, in the same order, so you always know where to look.</p>'
            '<div class="lgrow"><span class="lgt a">AT A GLANCE</span><div><b>The box under the lesson title.</b> The goal of the lesson, the words you need, and where the matching walkthrough, assignment, and game are on the site.</div></div>'
            '<div class="lgrow"><span class="lgt l">LEARN</span><div><b>The ideas, in plain words.</b> Every new word is explained before it is used.</div></div>'
@@ -725,19 +738,20 @@ def build_html(unit, toc_pages=None):
     for cid, t in titles:
         toc_rows += '<li><span class="n">%s</span><span class="t">%s</span><span class="p">%s</span></li>' % (esc(cid), t, toc_pages.get(cid, "00"))
     extras = []
-    if unit.cheat: extras.append(("cheat", "Quick Reference"))
+    if unit.cheat and not only: extras.append(("cheat", "Quick Reference"))
     if glossary: extras.append(("gloss", "Glossary"))
     if ctx.key: extras.append(("key", "Answer Key"))
     for k, t in extras:
         toc_rows += '<li class="sub"><span class="n">&#9656;</span><span class="t">%s</span><span class="p">%s</span></li>' % (t, toc_pages.get(k, "00"))
     front = ('<section class="front"><h2>What You Will Learn</h2>%s%s<h2 style="margin-top:.3in">How to Use This Guide</h2>%s</section>' % (unit.front_extra, objectives, how))
     toc = '<section class="front"><h2>Contents</h2><ul class="toc">%s</ul></section>' % toc_rows
+    if only: front = toc = ""
     tail = ""
-    if unit.cheat:
+    if unit.cheat and not only:
         tail += '<section class="chapter cheat"><span class="mk" style="font-size:1pt;color:#fff;position:absolute">ZZCcheatZZ</span><div class="chead"><div class="badge"><small>UNIT</small><b>%d</b></div><h2>Quick Reference</h2><p class="kick">The whole unit on one or two pages. Tear it out and keep it beside you while you code.</p></div>%s</section>' % (unit.n, "".join(unit.cheat))
     if glossary:
         g = "".join('<div class="g"><b>%s</b>%s</div>' % (esc(t), d) for t, d in sorted(glossary, key=lambda x: x[0].lower()))
-        tail += '<section class="chapter"><span class="mk" style="font-size:1pt;color:#fff;position:absolute">ZZCglossZZ</span><div class="chead"><div class="badge"><small>UNIT</small><b>%d</b></div><h2>Glossary</h2><p class="kick">The vocabulary of this unit, in plain words.</p></div><div class="gloss">%s</div></section>' % (unit.n, g)
+        tail += '<section class="chapter"><span class="mk" style="font-size:1pt;color:#fff;position:absolute">ZZCglossZZ</span><div class="chead"><div class="badge"><small>UNIT</small><b>%d</b></div><h2>Glossary</h2><p class="kick">The vocabulary of this %s, in plain words.</p></div><div class="gloss">%s</div></section>' % (unit.n, "lesson" if only else "unit", g)
     if ctx.key:
         k = ""
         for cid, items in ctx.key:
