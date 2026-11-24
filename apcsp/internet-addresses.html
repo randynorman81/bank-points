@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Internet Addresses | AP CSP Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#A3E635; --acc-tint:rgba(163,230,53,.14); --acc-ink:#D9F99D;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#1A2E05;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:18ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .err{color:var(--bad-ink);font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.ok{border-top-color:var(--acc)}
+.box.bad{border-top-color:var(--bad)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F1FAD9}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.bad{background:var(--bad-tint)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+.stp{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:14px 12px}.stp .frame{display:none}.stp .frame.on{display:block}.stp .ctl{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:10px}.stp button{font:700 14px Manrope,system-ui,sans-serif;padding:8px 16px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer}.stp button:hover{border-color:#A3E635}.stp .cnt{font:600 13px Manrope,system-ui,sans-serif;color:var(--ink-soft)}.stp .say{margin:10px auto 0;max-width:70ch;text-align:center;font-size:15px;line-height:1.5}
+.fig{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:16px 12px 12px;overflow-x:auto}
+.fig figcaption{margin:12px auto 0;max-width:70ch;text-align:center;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
+ul.chk{margin:6px 0 20px;padding-left:22px}ul.chk li{margin:6px 0}
+.resp{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--acc);border-radius:6px;padding:14px 18px;margin:8px 0 18px}
+.resp .rl{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:6px}
+.resp p{margin:0 0 .6em}
+.cards.one{grid-template-columns:1fr}
+
+.wg{margin:8px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:10px;padding:16px 16px 14px}
+.wg h4{margin:0 0 4px;font:700 13px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink)}
+.wg .wsub{margin:0 0 12px;font-size:14.5px;color:var(--ink-soft)}
+.wg .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.wg button,.wg input,.wg select{font:600 15px 'JetBrains Mono',monospace;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:8px 12px}
+.wg button{cursor:pointer}.wg button:hover{border-color:#A3E635}
+.wg input[type=text],.wg input[type=number]{min-width:0;width:12ch}
+.wg input[type=range]{padding:0;width:min(320px,100%);accent-color:#A3E635}
+.wg .bit{width:48px;height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:22px}
+.wg .bit small{font-size:11px;color:var(--ink-soft);font-weight:600}
+.wg .bit.on{background:#A3E635;color:#0B0E14;border-color:#A3E635}.wg .bit.on small{color:#2a3b00}
+.wg .out{font:600 16px 'JetBrains Mono',monospace;line-height:1.7;margin:6px 0 0;word-break:break-all}
+.wg .out b{color:#A3E635}.wg .out i{color:#FBBF24;font-style:normal}
+.wg table{border-collapse:collapse;margin:6px 0;font:600 14px 'JetBrains Mono',monospace}.wg td,.wg th{border:1px solid var(--rule);padding:5px 10px;text-align:center}.wg th{color:var(--ink-soft);font-weight:700}
+.wg .cell{width:34px;height:34px;border:1px solid #2B3647;display:inline-block;cursor:pointer;vertical-align:top}
+.wg .cell.on{background:#EAEFF6}
+.wg .sw{width:110px;height:70px;border-radius:8px;border:2px solid #2B3647;flex:none}
+.wg .px{width:62px;height:62px;border-radius:6px;border:2px solid #2B3647}
+.wg .note{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+.wg canvas{border:1px solid var(--rule);border-radius:6px;max-width:100%}
+
+.qz{margin:10px 0 30px;background:#0B0F16;border:1px solid var(--rule);border-radius:10px;padding:18px 18px 8px}
+.qz>h4{margin:0 0 4px;font:700 13px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink)}
+.qz>.qsub{margin:0 0 14px;font-size:14.5px;color:var(--ink-soft)}
+.qz .q{border-top:1px solid var(--rule);padding:14px 0 12px}
+.qz .qs{margin:0 0 10px;font-weight:600;color:#fff}
+.qz .qs code{font-weight:500}
+.qz .opts{display:grid;gap:8px}
+.qz .opts button{text-align:left;font:500 15px Manrope,system-ui,sans-serif;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:10px 14px;cursor:pointer;line-height:1.45}
+.qz .opts button:hover:not(:disabled){border-color:#A3E635}
+.qz .opts button.right{border-color:#34D399;background:rgba(52,211,153,.16)}
+.qz .opts button.wrong{border-color:var(--bad);background:var(--bad-tint)}
+.qz .why{margin:10px 0 0;padding:10px 14px;border-left:4px solid var(--acc);background:var(--acc-tint);border-radius:0 6px 6px 0;font-size:14.5px;color:#F1FAD9;display:none}
+.qz .why.on{display:block}
+.qz .score{margin:6px 0 10px;font:700 14px 'JetBrains Mono',monospace;color:var(--acc-ink)}
+.asgw{background:linear-gradient(120deg,var(--acc-tint),var(--card) 65%);border:2px solid var(--acc);border-radius:10px;padding:20px 24px;margin:26px 0 6px}
+.asgw .lb{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--acc-ink)}
+.asgw h3{font-family:'Fraunces',Georgia,serif;font-size:24px;font-weight:600;color:#fff;margin:4px 0 12px}
+.asgw .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.asgw .card{background:rgba(0,0,0,.25);border:1px solid var(--rule);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.asgw .card b{color:#fff;font-size:16px}.asgw .card p{margin:0;font-size:14.5px;color:#C4CDD8}
+.asgw .card .n{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--acc)}
+.asgw a.go{display:inline-block;align-self:flex-start;background:var(--acc);color:#0B0E14;font-weight:800;font-size:15px;text-decoration:none;border-radius:8px;padding:10px 16px}
+.asgw a.go:hover{filter:brightness(1.1)}
+.wg .bar{height:22px;border-radius:6px;background:#1B2330;border:1px solid var(--rule);overflow:hidden;margin:6px 0}
+.wg .bar>i{display:block;height:100%;background:#A3E635;transition:width .2s}
+.wg .bar>i.hot{background:#F87171}
+.wg label{font-size:14.5px;color:var(--ink)}
+.wg .chip{display:inline-block;border:1px solid var(--rule);border-radius:100px;padding:4px 12px;margin:3px 4px 3px 0;font:600 13px 'JetBrains Mono',monospace;background:var(--card)}
+.wg .chip.on{background:#A3E635;color:#0B0E14;border-color:#A3E635}
+.wg .chip.bad{background:var(--bad-tint);color:var(--bad-ink);border-color:var(--bad)}
+.wg .seg{display:inline-block;padding:6px 10px;margin:2px;border-radius:6px;font:600 15px 'JetBrains Mono',monospace;border:1px solid var(--rule);background:var(--card)}
+.wg .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.mono{font-family:'JetBrains Mono',monospace}
+
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="unit-10/index.html">&larr; Unit 10</a><a href="internet-highway.html">10.1 The Highway</a><a href="internet-addresses.html" class="current">10.3 Addresses</a><a href="router-neighborhood.html">10.4 Router and NAT</a><a href="dns.html">10.5 DNS</a><a href="routing.html">10.6 Routing</a><a href="packets-protocols.html">10.7 Packets</a><a href="parallel-distributed.html">10.8 Parallel</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">AP CSP NOTES &nbsp;/&nbsp; SUBJECT: EVERY DEVICE NEEDS AN ADDRESS</div>
+    <h1>Internet Addresses</h1>
+    <p class="deck">Every device on the Internet needs an <b>address</b>, or no data could ever find it. Learn what an IP address is, why there are two kinds (IPv4 and IPv6), and how to read one in binary.</p>
+  </div>
+</header>
+<div class="wrap"><div class="asgw"><div class="lb">Your work &middot; Unit 10</div><h3>Internet Addresses (10.3)</h3><div class="two"><div class="card"><span class="n">STEP 1 &middot; THE DOOR</span><b>Walkthrough</b><p>Walk through these notes in the Python Editor. Type the notes as comments and run the small programs. Get <b>every box and every question right (100%)</b>.</p><a class="go" href="../python/editor.html?a=a101">Open the walkthrough</a></div><div class="card"><span class="n">BONUS</span><b>Game</b><p>Play for extra practice. It never blocks the next lesson.</p><a class="go" href="../python/editor.html?a=a102">Play the game</a></div></div></div></div>
+
+<section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">00</div><h2>What Is an IP Address?</h2></div><p class="lede">An <b>IP address</b> (Internet Protocol address) is a <b>unique number</b> that <b>identifies one device</b> on a network. It works like the address on a house: the post office needs it to know where to deliver. Phones, laptops, game consoles, and the school server each have one.</p><p>Every chunk of data you send carries <b>two addresses</b>: the <b>source</b> (who sent it) and the <b>destination</b> (where it is going). Routers read the destination to decide where to send it next.</p><div class="example"><b>Example:</b> <code>192.168.1.10</code> is an IPv4 address. <code>2001:0db8:85a3::8a2e:0370:7334</code> is an IPv6 address.</div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">01</div><h2>IPv4: Four Numbers, 32 Bits</h2></div><p class="lede">An <b>IPv4</b> address has <b>four numbers</b> called <b>octets</b>, each from <b>0 to 255</b>. Each octet is <b>8 bits</b> (one byte), so the whole address is 4 &times; 8 = <b>32 bits</b>.</p><div class="wg" id="wgip"><h4>Try it: the address inspector</h4><p class="wsub">Type an IPv4 address. It checks that it is valid, shows the 32 bits, and says whether it is private, public, or loopback.</p><div class="row"><input type="text" value="192.168.1.10" style="width:20ch" maxlength="15" spellcheck="false"></div><div class="out"></div><div class="bits"></div></div><script>(function(root){
+var inp=root.querySelector("input"),out=root.querySelector(".out"),bits=root.querySelector(".bits");
+function bin8(n){var s=n.toString(2);while(s.length<8)s="0"+s;return s}
+function kind(p){var a=p[0],b=p[1];if(a===127)return ["loopback","this computer itself (localhost). Data sent here never leaves the machine.","teal"];
+ if(a===10||(a===172&&b>=16&&b<=31)||(a===192&&b===168))return ["private","only works inside a home or school network. Thousands of networks reuse these numbers.","blue"];
+ if(a===169&&b===254)return ["link-local","a self-assigned address a device uses when no DHCP server answered.","orange"];
+ return ["public","unique on the whole Internet. Your ISP gives your router one.","green"];}
+function upd(){var t=inp.value.trim(),p=t.split(".");bits.innerHTML="";
+ var ok=p.length===4&&p.every(function(x){return /^\d{1,3}$/.test(x)&&Number(x)<=255});
+ if(!ok){var why=p.length!==4?"An IPv4 address has exactly <b>four</b> numbers separated by dots.":"Each number must be a whole number from <b>0 to 255</b> (one byte).";out.innerHTML='<i>Not a valid IPv4 address.</i> '+why;return}
+ p=p.map(Number);var k=kind(p);
+ out.innerHTML='<b>'+t+'</b> is a valid IPv4 address and it is <b style="color:'+({teal:"#34D399",blue:"#60A5FA",orange:"#FB923C",green:"#A3E635"})[k[2]]+'">'+k[0]+'</b>: '+k[1];
+ bits.innerHTML=p.map(function(n){var b=bin8(n);return '<div style="display:inline-block;margin:6px 10px 0 0"><div class="mono" style="font-size:12px;color:#8B9AAE;text-align:center">'+n+'</div>'+b.split("").map(function(c){return '<span class="cell'+(c==="1"?" on":"")+'" style="width:20px;height:26px;cursor:default;margin-right:1px"></span>'}).join("")+'<div class="mono" style="text-align:center;font-size:13px">'+b+'</div></div>'}).join("")+'<div class="note">4 numbers &times; 8 bits = <b>32 bits</b>. A lit square is a 1.</div>';}
+inp.addEventListener("input",upd);upd();
+})(document.getElementById("wgip"));</script><div class="hint-panel">Why 0 to 255? One byte is 8 bits, and 8 bits make 2<sup>8</sup> = 256 patterns, which count from 0 up to 255. This is the same idea as the Unit 8 notes.</div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">02</div><h2>Running Out of Addresses: IPv6</h2></div><p class="lede">With 32 bits there are 2<sup>32</sup> = <b>4,294,967,296</b> IPv4 addresses. That sounds like a lot, but there are <b>more devices than that</b>, so the world <b>ran out</b>.</p><div class="tblwrap"><div class="tblscroll"><table class="cmp"><tr><th></th><th>IPv4</th><th>IPv6</th></tr><tr><td><b>Bits</b></td><td>32</td><td>128</td></tr><tr><td><b>Looks like</b></td><td>four numbers with dots: <code>192.168.1.20</code></td><td>eight groups of hex with colons: <code>2001:db8::1</code></td></tr><tr><td><b>How many</b></td><td>about 4.3 billion (2<sup>32</sup>)</td><td>about 340 undecillion (2<sup>128</sup>)</td></tr><tr><td><b>Why it exists</b></td><td>the original</td><td>created because IPv4 <b>ran out</b></td></tr></table></div></div><div class="example"><b>The exam idea:</b> a longer address means <b>many more</b> possible addresses. Every extra bit <b>doubles</b> the count, so IPv6 is not four times bigger, it is <b>vastly</b> bigger.</div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">03</div><h2>Binary by Hand</h2></div><p class="lede">How does <code>192</code> become <code>11000000</code>? Each bit is worth a power of 2, from left to right: <b>128, 64, 32, 16, 8, 4, 2, 1</b>. A 1 means add that place value.</p><div class="tblwrap"><div class="tblscroll"><table class="cmp"><tr><th>128</th><th>64</th><th>32</th><th>16</th><th>8</th><th>4</th><th>2</th><th>1</th><th>Total</th></tr><tr><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>128 + 64 = <b>192</b></td></tr><tr><td>1</td><td>0</td><td>1</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>128 + 32 + 8 = <b>168</b></td></tr></table></div></div><p>Try the inspector above with <code>192.168.1.10</code>. The first octet is <code>11000000</code> and the second is <code>10101000</code>.</p></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">04</div><h2>Public, Private, and Loopback</h2></div><p class="lede">Not every address works the same way.</p><div class="tblwrap"><div class="tblscroll"><table class="cmp"><tr><th>Kind</th><th>Which numbers</th><th>What it means</th></tr><tr><td><b>Private</b></td><td><code>10.x.x.x</code>, <code>172.16.x.x</code> to <code>172.31.x.x</code>, <code>192.168.x.x</code></td><td>Used <b>inside</b> a home or school. Not reachable from the Internet. Thousands of networks reuse the same ones.</td></tr><tr><td><b>Public</b></td><td>everything else, like <code>142.250.80.46</code></td><td><b>Unique across the whole Internet.</b> Your ISP gives your router one.</td></tr><tr><td><b>Loopback</b></td><td><code>127.0.0.1</code></td><td>Always means <b>this computer</b> (also called <code>localhost</code>). Data never leaves your machine.</td></tr></table></div></div><div class="warn">Private addresses are not <i>secret</i>. They are just not <b>routable</b> from the Internet. The next lesson shows how a router lets private devices share one public address.</div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">05</div><h2>Who Hands Out Addresses?</h2></div><p class="lede">Addresses are given out in <b>layers</b>. A global group (<b>IANA</b>) hands big blocks to regional registries, which hand them to <b>ISPs</b>. Your ISP gives your router a public address.</p><figure class="fig"><svg class="diagram" viewBox="0 0 720 130" role="img" aria-label="who hands out addresses" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-width:720px;margin:0 auto"><defs><marker id="mEAEFF6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#EAEFF6"/></marker><marker id="m8B9AAE" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8B9AAE"/></marker><marker id="m60A5FA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#60A5FA"/></marker><marker id="m34D399" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#34D399"/></marker><marker id="mFBBF24" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FBBF24"/></marker><marker id="mF472B6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F472B6"/></marker><marker id="mC084FC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#C084FC"/></marker><marker id="mFB923C" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#FB923C"/></marker><marker id="mF87171" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F87171"/></marker><marker id="m2DD4BF" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2DD4BF"/></marker><marker id="mA3E635" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#A3E635"/></marker></defs><style>.cd{font:600 20px 'JetBrains Mono',monospace}.ix{font:600 15px 'JetBrains Mono',monospace}.cp{font:500 15px Manrope,system-ui,sans-serif;fill:#D5DDE8}.tt{font:700 16px 'JetBrains Mono',monospace}</style><rect x="5" y="30" width="120" height="66" rx="10" fill="#151A24" stroke="#C084FC" stroke-width="2.4"/><text x="65.0" y="59.0" class="tt" text-anchor="middle" fill="#C084FC">IANA</text><text x="65.0" y="81.0" class="cp" text-anchor="middle" style="font-size:13.5px">global pool</text><line x1="127" y1="63" x2="160" y2="63" stroke="#8B9AAE" stroke-width="2.6"  marker-end="url(#m8B9AAE)"/><rect x="162" y="30" width="120" height="66" rx="10" fill="#151A24" stroke="#60A5FA" stroke-width="2.4"/><text x="222.0" y="59.0" class="tt" text-anchor="middle" fill="#60A5FA">Registries</text><text x="222.0" y="81.0" class="cp" text-anchor="middle" style="font-size:13.5px">regional</text><line x1="284" y1="63" x2="317" y2="63" stroke="#8B9AAE" stroke-width="2.6"  marker-end="url(#m8B9AAE)"/><rect x="319" y="30" width="120" height="66" rx="10" fill="#151A24" stroke="#FB923C" stroke-width="2.4"/><text x="379.0" y="59.0" class="tt" text-anchor="middle" fill="#FB923C">ISP</text><text x="379.0" y="81.0" class="cp" text-anchor="middle" style="font-size:13.5px">gets a block</text><line x1="441" y1="63" x2="474" y2="63" stroke="#8B9AAE" stroke-width="2.6"  marker-end="url(#m8B9AAE)"/><rect x="476" y="30" width="112" height="66" rx="10" fill="#151A24" stroke="#FBBF24" stroke-width="2.4"/><text x="532.0" y="59.0" class="tt" text-anchor="middle" fill="#FBBF24">Router</text><text x="532.0" y="81.0" class="cp" text-anchor="middle" style="font-size:13.5px">1 public</text><line x1="590" y1="63" x2="618" y2="63" stroke="#8B9AAE" stroke-width="2.6"  marker-end="url(#m8B9AAE)"/><rect x="620" y="30" width="96" height="66" rx="10" fill="#151A24" stroke="#34D399" stroke-width="2.4"/><text x="668.0" y="59.0" class="tt" text-anchor="middle" fill="#34D399">Devices</text><text x="668.0" y="81.0" class="cp" text-anchor="middle" style="font-size:13.5px">private</text></svg><figcaption>Inside your home, the router runs <b>DHCP</b>, which gives each device a temporary private address. That is why your phone's address can change.</figcaption></figure><div class="qz" id="qz2"><h4>Check yourself</h4><p class="qsub">Answer each one. You see why right away, so read the explanation even when you are right.</p><div class="q" data-a="2"><p class="qs">How many bits are in an IPv4 address?</p><div class="opts"><button>8</button><button>16</button><button>32</button><button>128</button></div><div class="why">Four octets &times; 8 bits = <b>32 bits</b>. IPv6 has 128 bits.</div></div><div class="q" data-a="1"><p class="qs">Which of these is a <b>private</b> IPv4 address?</p><div class="opts"><button>8.8.8.8</button><button>192.168.1.20</button><button>142.250.80.46</button><button>93.184.216.34</button></div><div class="why"><code>192.168.x.x</code> is one of the three private ranges. The others are public.</div></div><div class="q" data-a="1"><p class="qs">Which could <b>not</b> be an IPv4 address?</p><div class="opts"><button>172.16.0.1</button><button>10.0.0.256</button><button>192.0.2.1</button><button>255.255.255.255</button></div><div class="why">Each octet is one byte, so the biggest is 255. <code>256</code> does not fit in 8 bits.</div></div><div class="q" data-a="1"><p class="qs">Why was IPv6 created?</p><div class="opts"><button>IPv4 was too slow</button><button>IPv4 ran out of addresses</button><button>IPv4 could not be encrypted</button><button>IPv4 only worked in the United States</button></div><div class="why">32 bits give only about 4.3 billion addresses. IPv6 uses <b>128 bits</b>.</div></div><div class="q" data-a="2"><p class="qs">What does the address <code>127.0.0.1</code> mean?</p><div class="opts"><button>The router</button><button>The ISP</button><button>This computer itself</button><button>A public website</button></div><div class="why"><b>Loopback</b> means "this device". Data sent there never leaves your machine.</div></div><div class="score"></div></div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">AP</div><h2>On the AP Exam</h2></div><p class="lede">These are the ideas the exam asks about. Be ready to explain each one in your own words.</p><ul class="chk"><li>An <b>IP address</b> is a unique number that identifies a device. Data carries a <b>source</b> and a <b>destination</b> address.</li><li><b>IPv4</b> is 32 bits (four octets). <b>IPv6</b> is 128 bits. IPv6 exists because IPv4 <b>ran out</b>.</li><li>n bits can make <b>2<sup>n</sup></b> different addresses.</li><li><b>Private</b> addresses work only inside a network. <b>Public</b> addresses are unique on the Internet.</li><li>ISPs get blocks of addresses and give your router a public one.</li></ul></div></section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>An address is a number, and a number is just bits.</h2>
+    <p>Next: how a home router lets many private devices share one public address.</p>
+    <div style="margin-bottom:10px"></div>
+    <a class="back" href="router-neighborhood.html">Your Router Is a Neighborhood (10.4) &rarr;</a><a class="back" href="internet-highway.html">&larr; The Internet Is a Highway (10.1 and 10.2)</a><a class="back" href="unit-10/index.html">&larr; Unit 10</a>
+    <p class="sig">AP CSP Notes &nbsp;/&nbsp; Internet Addresses &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  document.querySelectorAll(".stp").forEach(function(r){
+    var f=r.querySelectorAll(".frame"),c=r.querySelector(".cnt"),i=0;
+    function s(){f.forEach(function(x,k){x.classList.toggle("on",k===i)});c.textContent="Step "+(i+1)+" of "+f.length}
+    r.querySelectorAll("button").forEach(function(b){b.onclick=function(){i=Math.max(0,Math.min(f.length-1,i+Number(b.dataset.d)));s()}});s();
+  });
+  document.querySelectorAll(".qz").forEach(function(z){
+    var qs=z.querySelectorAll(".q"),got=0,done=0,sc=z.querySelector(".score");
+    qs.forEach(function(q){
+      var a=Number(q.dataset.a),bs=q.querySelectorAll("button"),why=q.querySelector(".why");
+      bs.forEach(function(b,i){b.onclick=function(){
+        if(q.dataset.done)return;q.dataset.done=1;done++;
+        bs.forEach(function(x,k){x.disabled=true;if(k===a)x.classList.add("right")});
+        if(i===a)got++;else b.classList.add("wrong");
+        why.classList.add("on");
+        sc.textContent=got+" of "+qs.length+" right"+(done<qs.length?" so far":(got===qs.length?" - perfect!":""));
+      }});
+    });
+  });
+})();
+</script>
+</body>
+</html>
