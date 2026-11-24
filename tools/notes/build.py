@@ -1,9 +1,9 @@
-"""Write the notes pages. usage: python3 tools/notes/build.py [unit10|bigidea5|data12|algos7]"""
+"""Write the notes pages. usage: python3 tools/notes/build.py [unit10|bigidea5|data12|algos7|creative19|strings14|projects|review18]"""
 import os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from lib import *
-import unit10, bigidea5, data12, algos7
-mods = [("unit10", unit10), ("bigidea5", bigidea5), ("data12", data12), ("algos7", algos7)]
+import unit10, bigidea5, data12, algos7, creative19, strings14, projects, review18
+mods = [("unit10", unit10), ("bigidea5", bigidea5), ("data12", data12), ("algos7", algos7), ("creative19", creative19), ("strings14", strings14), ("projects", projects), ("review18", review18)]
 only = sys.argv[1] if len(sys.argv) > 1 else None
 for name, m in mods:
     if only and only != name:

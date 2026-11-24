@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Present a Data-Driven Insight: Project Guide | AP CSP Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#A3E635; --acc-tint:rgba(163,230,53,.14); --acc-ink:#D9F99D;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#1A2E05;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:18ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .err{color:var(--bad-ink);font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.ok{border-top-color:var(--acc)}
+.box.bad{border-top-color:var(--bad)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F1FAD9}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.bad{background:var(--bad-tint)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+.stp{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:14px 12px}.stp .frame{display:none}.stp .frame.on{display:block}.stp .ctl{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:10px}.stp button{font:700 14px Manrope,system-ui,sans-serif;padding:8px 16px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer}.stp button:hover{border-color:#A3E635}.stp .cnt{font:600 13px Manrope,system-ui,sans-serif;color:var(--ink-soft)}.stp .say{margin:10px auto 0;max-width:70ch;text-align:center;font-size:15px;line-height:1.5}
+.fig{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:16px 12px 12px;overflow-x:auto}
+.fig figcaption{margin:12px auto 0;max-width:70ch;text-align:center;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
+ul.chk{margin:6px 0 20px;padding-left:22px}ul.chk li{margin:6px 0}
+.resp{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--acc);border-radius:6px;padding:14px 18px;margin:8px 0 18px}
+.resp .rl{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:6px}
+.resp p{margin:0 0 .6em}
+.cards.one{grid-template-columns:1fr}
+
+.wg{margin:8px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:10px;padding:16px 16px 14px}
+.wg h4{margin:0 0 4px;font:700 13px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink)}
+.wg .wsub{margin:0 0 12px;font-size:14.5px;color:var(--ink-soft)}
+.wg .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.wg button,.wg input,.wg select{font:600 15px 'JetBrains Mono',monospace;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:8px 12px}
+.wg button{cursor:pointer}.wg button:hover{border-color:#A3E635}
+.wg input[type=text],.wg input[type=number]{min-width:0;width:12ch}
+.wg input[type=range]{padding:0;width:min(320px,100%);accent-color:#A3E635}
+.wg .bit{width:48px;height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:22px}
+.wg .bit small{font-size:11px;color:var(--ink-soft);font-weight:600}
+.wg .bit.on{background:#A3E635;color:#0B0E14;border-color:#A3E635}.wg .bit.on small{color:#2a3b00}
+.wg .out{font:600 16px 'JetBrains Mono',monospace;line-height:1.7;margin:6px 0 0;word-break:break-all}
+.wg .out b{color:#A3E635}.wg .out i{color:#FBBF24;font-style:normal}
+.wg table{border-collapse:collapse;margin:6px 0;font:600 14px 'JetBrains Mono',monospace}.wg td,.wg th{border:1px solid var(--rule);padding:5px 10px;text-align:center}.wg th{color:var(--ink-soft);font-weight:700}
+.wg .cell{width:34px;height:34px;border:1px solid #2B3647;display:inline-block;cursor:pointer;vertical-align:top}
+.wg .cell.on{background:#EAEFF6}
+.wg .sw{width:110px;height:70px;border-radius:8px;border:2px solid #2B3647;flex:none}
+.wg .px{width:62px;height:62px;border-radius:6px;border:2px solid #2B3647}
+.wg .note{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+.wg canvas{border:1px solid var(--rule);border-radius:6px;max-width:100%}
+
+.qz{margin:10px 0 30px;background:#0B0F16;border:1px solid var(--rule);border-radius:10px;padding:18px 18px 8px}
+.qz>h4{margin:0 0 4px;font:700 13px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink)}
+.qz>.qsub{margin:0 0 14px;font-size:14.5px;color:var(--ink-soft)}
+.qz .q{border-top:1px solid var(--rule);padding:14px 0 12px}
+.qz .qs{margin:0 0 10px;font-weight:600;color:#fff}
+.qz .qs code{font-weight:500}
+.qz .qc{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:10px 14px;margin:8px 0 4px;font:500 14px/1.65 'JetBrains Mono',monospace;white-space:pre;overflow-x:auto;color:#D8E1EC;font-weight:500}
+.qz .opts{display:grid;gap:8px}
+.qz .opts button{text-align:left;font:500 15px Manrope,system-ui,sans-serif;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:10px 14px;cursor:pointer;line-height:1.45}
+.qz .opts button:hover:not(:disabled){border-color:#A3E635}
+.qz .opts button.right{border-color:#34D399;background:rgba(52,211,153,.16)}
+.qz .opts button.wrong{border-color:var(--bad);background:var(--bad-tint)}
+.qz .why{margin:10px 0 0;padding:10px 14px;border-left:4px solid var(--acc);background:var(--acc-tint);border-radius:0 6px 6px 0;font-size:14.5px;color:#F1FAD9;display:none}
+.qz .why.on{display:block}
+.qz .score{margin:6px 0 10px;font:700 14px 'JetBrains Mono',monospace;color:var(--acc-ink)}
+.asgw{background:linear-gradient(120deg,var(--acc-tint),var(--card) 65%);border:2px solid var(--acc);border-radius:10px;padding:20px 24px;margin:26px 0 6px}
+.asgw .lb{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--acc-ink)}
+.asgw h3{font-family:'Fraunces',Georgia,serif;font-size:24px;font-weight:600;color:#fff;margin:4px 0 12px}
+.asgw .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.asgw .card{background:rgba(0,0,0,.25);border:1px solid var(--rule);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.asgw .card b{color:#fff;font-size:16px}.asgw .card p{margin:0;font-size:14.5px;color:#C4CDD8}
+.asgw .card .n{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--acc)}
+.asgw a.go{display:inline-block;align-self:flex-start;background:var(--acc);color:#0B0E14;font-weight:800;font-size:15px;text-decoration:none;border-radius:8px;padding:10px 16px}
+.asgw a.go:hover{filter:brightness(1.1)}
+.wg .bar{height:22px;border-radius:6px;background:#1B2330;border:1px solid var(--rule);overflow:hidden;margin:6px 0}
+.wg .bar>i{display:block;height:100%;background:#A3E635;transition:width .2s}
+.wg .bar>i.hot{background:#F87171}
+.wg label{font-size:14.5px;color:var(--ink)}
+.wg .chip{display:inline-block;border:1px solid var(--rule);border-radius:100px;padding:4px 12px;margin:3px 4px 3px 0;font:600 13px 'JetBrains Mono',monospace;background:var(--card)}
+.wg .chip.on{background:#A3E635;color:#0B0E14;border-color:#A3E635}
+.wg .chip.bad{background:var(--bad-tint);color:var(--bad-ink);border-color:var(--bad)}
+.wg .seg{display:inline-block;padding:6px 10px;margin:2px;border-radius:6px;font:600 15px 'JetBrains Mono',monospace;border:1px solid var(--rule);background:var(--card)}
+.wg .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.mono{font-family:'JetBrains Mono',monospace}
+
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="unit-13/index.html">&larr; Unit 13</a><a href="data-insight-project.html" class="current">13.1 Data Insight Project</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">AP CSP NOTES &nbsp;/&nbsp; SUBJECT: FROM A QUESTION TO A CLAIM YOU CAN DEFEND</div>
+    <h1>Present a Data-Driven Insight: Project Guide</h1>
+    <p class="deck">This project pulls the Data unit together. Pick a question, find and clean real data, analyze it with Python, draw an honest chart, and <b>present one insight</b> you can back up with a number.</p>
+  </div>
+</header>
+<div class="wrap"><div class="asgw"><div class="lb">Your work &middot; Unit 13</div><h3>Present a Data-Driven Insight: Project Guide (13.1)</h3><div class="two"><div class="card"><span class="n">STEP 1 &middot; THE DOOR</span><b>Walkthrough</b><p>Walk through these notes in the Python Editor. Type the notes as comments and run the small programs. Get <b>every box and every question right (100%)</b>.</p><a class="go" href="../python/editor.html?a=a217">Open the walkthrough</a></div></div></div></div>
+
+<section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">00</div><h2>What Is a Data-Driven Insight?</h2></div><p class="lede">An <b>insight</b> is something you learned from data that was not obvious before, stated clearly and backed up by <b>evidence</b>. "Students who slept 8 or more hours averaged 17 points higher on the test" is an insight. "Sleep is important" is just an opinion.</p><div class="tblwrap"><div class="tblscroll"><table class="cmp"><tr><th>Part</th><th>What it is</th><th>Example</th></tr><tr><td><b>Question</b></td><td>what you wanted to find out</td><td>Do students who sleep more score higher?</td></tr><tr><td><b>Data</b></td><td>where the evidence came from</td><td>a survey of 120 students, with sleep and test scores</td></tr><tr><td><b>Finding</b></td><td>what the numbers show</td><td>the 8-hour group averaged 89.6, the others 73.0</td></tr><tr><td><b>Visual</b></td><td>a chart that shows the finding at a glance</td><td>a bar chart of the two averages</td></tr><tr><td><b>Limit</b></td><td>what the data cannot tell you</td><td>it shows a link, not that sleep causes higher scores</td></tr></table></div></div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">01</div><h2>The Seven Steps</h2></div><p class="lede">Follow the same process every time. Each step uses something from the Data unit.</p><div class="tblwrap"><div class="tblscroll"><table class="cmp"><tr><th>Step</th><th>What you do</th><th>Notes to review</th></tr><tr><td><b>1. Ask</b></td><td>choose one clear question that data can answer</td><td>Extracting Information (12.1)</td></tr><tr><td><b>2. Find data</b></td><td>pick a credible source with enough rows</td><td>Big Data and Metadata (12.2)</td></tr><tr><td><b>3. Clean</b></td><td>fix missing, duplicate, and impossible values; keep the original</td><td>Cleaning Data (12.3)</td></tr><tr><td><b>4. Analyze</b></td><td>filter, summarize, and compare with loops in Python</td><td>Filtering and Transforming (12.4)</td></tr><tr><td><b>5. Visualize</b></td><td>choose the right chart, start bars at zero, label everything</td><td>Visualizing Data (12.5)</td></tr><tr><td><b>6. Tell the story</b></td><td>state the insight, the evidence, and the limits</td><td>Bias and Sampling (12.6)</td></tr><tr><td><b>7. Cite</b></td><td>credit the data source and any code you borrowed</td><td>Copyright and Open Source (16.2)</td></tr></table></div></div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">02</div><h2>Choosing a Data Set</h2></div><p class="lede">A good data set makes the project easy. A bad one makes it impossible.</p><div class="two"><div class="box ok"><h3>Look for</h3><p>A <b>credible source</b> (a government agency, a university, a respected organization). <b>Enough rows</b> to see a pattern (dozens at least). <b>Clear columns</b> with units. A date or version. Permission or an open license to use it.</p></div><div class="box bad"><h3>Avoid</h3><p>Data with <b>names or other PII</b> about real people. Unknown sources. Tiny samples. Data that <b>cannot answer your question</b>. Data collected in a way that is obviously biased.</p></div></div><div class="tblwrap"><div class="tblscroll"><table class="cmp"><tr><th>Kind</th><th>Examples</th></tr><tr><td>Government and science</td><td>weather and climate data, census and public health numbers</td></tr><tr><td>Sports and games</td><td>season statistics, scores, player records</td></tr><tr><td>School and community</td><td>a survey you collect yourself, with consent and no names</td></tr><tr><td>Technology</td><td>app usage numbers, public data about the Internet</td></tr></table></div></div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">03</div><h2>Write the Insight</h2></div><p class="lede">Before you build any slides, write the insight as <b>one or two sentences</b> and check it.</p><div class="wg" id="wginsight"><h4>Try it: is it a strong insight statement?</h4><p class="wsub">An insight is a claim the data supports. Fill in the three parts and see what a reviewer would say.</p><div class="row"><label style="width:100%">The question you asked <input type="text" class="q" value="Do students who sleep more score higher on tests?" style="width:100%"></label></div><div class="row"><label style="width:100%">What the data shows (use a number) <input type="text" class="f" value="Students who slept 8 or more hours averaged 89.6, about 17 points higher than the others." style="width:100%"></label></div><div class="row"><label style="width:100%">A limit of the data <input type="text" class="l" value="This is only 10 students, and sleep may not be the cause." style="width:100%"></label></div><div class="out"></div></div><script>(function(root){
+var q=root.querySelector(".q"),f=root.querySelector(".f"),l=root.querySelector(".l"),out=root.querySelector(".out");
+function ok(b,t){return'<div style="margin:5px 0;color:'+(b?"#A3E635":"#FBBF24")+'">'+(b?"&#10003; ":"&#9873; ")+t+'</div>'}
+function upd(){var fq=q.value.trim(),ff=f.value.trim(),fl=l.value.trim();
+ var hasNum=/\d/.test(ff),compare=/(more|less|higher|lower|than|increase|decrease|rose|fell|compared|average|averaged|percent|%)/i.test(ff),causal=/(cause|causes|caused|because of|leads to|makes)/i.test(ff),lim=/(only|small|sample|may not|might|not prove|correlat|limit|but|however|bias|missing|unknown)/i.test(fl);
+ out.innerHTML=ok(/\?\s*$/.test(fq),"The question ends with a question mark and can be answered with data.")+ok(hasNum,"The finding includes a <b>specific number</b>.")+ok(compare,"The finding <b>compares</b> two things or describes a change.")+ok(!causal,"It does not claim <b>causation</b> from a correlation.")+ok(lim&&fl.length>15,"It states a <b>limit</b> of the data (small sample, possible bias, or correlation).")+
+ '<div class="note">'+((/\?\s*$/.test(fq)&&hasNum&&compare&&!causal&&lim)?"<b>Strong.</b> A reviewer could check every part against your chart.":"Fix the flagged items. A good insight is specific, supported by a number, honest about its limits, and does not overclaim.")+'</div>'}
+root.addEventListener("input",upd);upd();
+})(document.getElementById("wginsight"));</script><div class="warn"><b>Correlation is not causation.</b> If your data only shows two things move together, say <i>"are linked"</i> or <i>"go together"</i>, not <i>"causes"</i>.</div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">04</div><h2>The Presentation</h2></div><p class="lede">Keep it short. Every slide earns its place.</p><div class="tblwrap"><div class="tblscroll"><table class="cmp"><tr><th>Slide</th><th>What it says</th></tr><tr><td><b>1. The question</b></td><td>what you asked and why it matters</td></tr><tr><td><b>2. The data</b></td><td>where it came from, how many rows, and how you cleaned it</td></tr><tr><td><b>3. The method</b></td><td>what you calculated (a short Python snippet or a plain-words description)</td></tr><tr><td><b>4. The chart</b></td><td>one honest chart with a title, labels, and units</td></tr><tr><td><b>5. The insight</b></td><td>your one-sentence finding, with the number</td></tr><tr><td><b>6. Limits and next steps</b></td><td>what the data cannot show, and what you would do next</td></tr><tr><td><b>Sources</b></td><td>credit for the data and any code you borrowed</td></tr></table></div></div><div class="qz" id="qz13a"><h4>Check yourself</h4><p class="qsub">Answer each one. You see why right away, so read the explanation even when you are right.</p><div class="q" data-a="1"><div class="qs">Which is the best example of a <b>data-driven insight</b>?</div><div class="opts"><button>Sleep is important for students.</button><button>In a survey of 120 students, those who slept 8 or more hours averaged 17 points higher on the test than those who slept less.</button><button>Everyone should get more sleep.</button><button>I like to sleep.</button></div><div class="why">It is specific, uses numbers, compares two groups, and comes from data.</div></div><div class="q" data-a="1"><div class="qs">A student finds that students who play more video games have higher test scores and writes, "Video games make students smarter." What is the main problem?</div><div class="opts"><button>Video games are never useful</button><button>The data shows a link, but the claim says it is the cause</button><button>The chart should be a pie chart</button><button>The sample is too large</button></div><div class="why">That is a causation claim made from a correlation.</div></div><div class="q" data-a="1"><div class="qs">Which data set is the <b>best</b> choice for the project?</div><div class="opts"><button>A list of 12 classmates' favorite colors</button><button>A government data set of 5,000 weather readings with dates and units</button><button>A spreadsheet with no source</button><button>A file with students' names and home addresses</button></div><div class="why">A credible source, enough rows, and clear columns. Personal information should be avoided.</div></div><div class="q" data-a="0"><div class="qs">Which step should come <b>before</b> making the chart?</div><div class="opts"><button>Cleaning the data</button><button>Writing the sources slide</button><button>Picking the font</button><button>Printing the data</button></div><div class="why">Charts of dirty data give wrong pictures.</div></div><div class="score"></div></div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">AP</div><h2>On the AP Exam</h2></div><p class="lede">These are the ideas the exam asks about. Be ready to explain each one in your own words.</p><ul class="chk"><li>An <b>insight</b> is a specific, evidence-backed finding that answers a question.</li><li>The process: <b>ask, find data, clean, analyze, visualize, tell the story, cite</b>.</li><li>State the <b>limits</b> of the data and do not claim <b>causation</b> from a correlation.</li><li>Choose <b>credible, sufficient, non-personal</b> data, and credit your sources.</li></ul></div></section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>One question, one number, one honest chart.</h2>
+    <p>The walkthrough builds a small version of the whole analysis in Python.</p>
+    <div style="margin-bottom:10px"></div>
+    <a class="back" href="unit-13/index.html">&larr; Unit 13</a>
+    <p class="sig">AP CSP Notes &nbsp;/&nbsp; Present a Data-Driven Insight: Project Guide &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  document.querySelectorAll(".stp").forEach(function(r){
+    var f=r.querySelectorAll(".frame"),c=r.querySelector(".cnt"),i=0;
+    function s(){f.forEach(function(x,k){x.classList.toggle("on",k===i)});c.textContent="Step "+(i+1)+" of "+f.length}
+    r.querySelectorAll("button").forEach(function(b){b.onclick=function(){i=Math.max(0,Math.min(f.length-1,i+Number(b.dataset.d)));s()}});s();
+  });
+  document.querySelectorAll(".qz").forEach(function(z){
+    var qs=z.querySelectorAll(".q"),got=0,done=0,sc=z.querySelector(".score");
+    function finish(q,ok){q.dataset.done=1;done++;if(ok)got++;q.querySelector(".why").classList.add("on");
+      sc.textContent=got+" of "+qs.length+" right"+(done<qs.length?" so far":(got===qs.length?" - perfect!":""));}
+    qs.forEach(function(q){
+      var bs=q.querySelectorAll(".opts button"),why=q.querySelector(".why");
+      if(q.classList.contains("multi")){
+        var want=q.dataset.a.split(",").map(Number),pick=[];
+        bs.forEach(function(b,i){b.onclick=function(){if(q.dataset.done)return;var k=pick.indexOf(i);if(k>-1){pick.splice(k,1);b.style.borderColor=""}else{pick.push(i);b.style.borderColor="#A3E635"}}});
+        q.querySelector(".chk2").onclick=function(){if(q.dataset.done||pick.length!==want.length)return;
+          bs.forEach(function(x,k){x.disabled=true;x.style.borderColor="";if(want.indexOf(k)>-1)x.classList.add("right");else if(pick.indexOf(k)>-1)x.classList.add("wrong")});
+          finish(q,pick.slice().sort().join()===want.slice().sort().join())};
+        return;
+      }
+      var a=Number(q.dataset.a);
+      bs.forEach(function(b,i){b.onclick=function(){
+        if(q.dataset.done)return;
+        bs.forEach(function(x,k){x.disabled=true;if(k===a)x.classList.add("right")});
+        if(i!==a)b.classList.add("wrong");
+        finish(q,i===a);
+      }});
+    });
+  });
+})();
+</script>
+</body>
+</html>

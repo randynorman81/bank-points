@@ -15,6 +15,7 @@ EXTRA_CSS = """
 .qz .q{border-top:1px solid var(--rule);padding:14px 0 12px}
 .qz .qs{margin:0 0 10px;font-weight:600;color:#fff}
 .qz .qs code{font-weight:500}
+.qz .qc{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:10px 14px;margin:8px 0 4px;font:500 14px/1.65 'JetBrains Mono',monospace;white-space:pre;overflow-x:auto;color:#D8E1EC;font-weight:500}
 .qz .opts{display:grid;gap:8px}
 .qz .opts button{text-align:left;font:500 15px Manrope,system-ui,sans-serif;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:10px 14px;cursor:pointer;line-height:1.45}
 .qz .opts button:hover:not(:disabled){border-color:#A3E635}
@@ -53,14 +54,24 @@ SHARED_JS = r"""
   });
   document.querySelectorAll(".qz").forEach(function(z){
     var qs=z.querySelectorAll(".q"),got=0,done=0,sc=z.querySelector(".score");
+    function finish(q,ok){q.dataset.done=1;done++;if(ok)got++;q.querySelector(".why").classList.add("on");
+      sc.textContent=got+" of "+qs.length+" right"+(done<qs.length?" so far":(got===qs.length?" - perfect!":""));}
     qs.forEach(function(q){
-      var a=Number(q.dataset.a),bs=q.querySelectorAll("button"),why=q.querySelector(".why");
+      var bs=q.querySelectorAll(".opts button"),why=q.querySelector(".why");
+      if(q.classList.contains("multi")){
+        var want=q.dataset.a.split(",").map(Number),pick=[];
+        bs.forEach(function(b,i){b.onclick=function(){if(q.dataset.done)return;var k=pick.indexOf(i);if(k>-1){pick.splice(k,1);b.style.borderColor=""}else{pick.push(i);b.style.borderColor="#A3E635"}}});
+        q.querySelector(".chk2").onclick=function(){if(q.dataset.done||pick.length!==want.length)return;
+          bs.forEach(function(x,k){x.disabled=true;x.style.borderColor="";if(want.indexOf(k)>-1)x.classList.add("right");else if(pick.indexOf(k)>-1)x.classList.add("wrong")});
+          finish(q,pick.slice().sort().join()===want.slice().sort().join())};
+        return;
+      }
+      var a=Number(q.dataset.a);
       bs.forEach(function(b,i){b.onclick=function(){
-        if(q.dataset.done)return;q.dataset.done=1;done++;
+        if(q.dataset.done)return;
         bs.forEach(function(x,k){x.disabled=true;if(k===a)x.classList.add("right")});
-        if(i===a)got++;else b.classList.add("wrong");
-        why.classList.add("on");
-        sc.textContent=got+" of "+qs.length+" right"+(done<qs.length?" so far":(got===qs.length?" - perfect!":""));
+        if(i!==a)b.classList.add("wrong");
+        finish(q,i===a);
       }});
     });
   });
@@ -165,8 +176,12 @@ def quiz(qid, questions, title="Check yourself", sub="Answer each one. You see w
     """questions = [(stem, [choices], correct_index, why)]"""
     out = '<div class="qz" id="%s"><h4>%s</h4><p class="qsub">%s</p>' % (qid, title, sub)
     for stem, choices, a, why in questions:
-        out += '<div class="q" data-a="%d"><p class="qs">%s</p><div class="opts">%s</div><div class="why">%s</div></div>' % (
-            a, stem, "".join("<button>%s</button>" % c for c in choices), why)
+        multi = isinstance(a, (list, tuple))
+        out += '<div class="q%s" data-a="%s"><div class="qs">%s%s</div><div class="opts">%s</div>%s<div class="why">%s</div></div>' % (
+            " multi" if multi else "", ",".join(str(x) for x in a) if multi else a, stem,
+            ' <span class="chip" style="font-size:12px">select TWO</span>' if multi else "",
+            "".join("<button>%s</button>" % c for c in choices),
+            '<div class="row" style="margin:8px 0 0"><button class="chk2" style="font:700 14px Manrope,sans-serif;padding:8px 14px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer">Check my two answers</button></div>' if multi else "", why)
     return out + '<div class="score"></div></div>'
 
 
@@ -321,3 +336,20 @@ if (lessonGrid) {
 </body>
 </html>
 """ % dict(ut=unit_title, n=unit_no, name=unit_title.split(": ", 1)[-1], intro=intro, extra=extra, utj=json.dumps(unit_title), ul=ul)
+
+
+class Unit:
+    """One CodeHS unit: its folder, label, pages, titles and (optional) walkthrough slots."""
+    def __init__(self, dir, label, n, pages, titles, slots=None):
+        self.dir, self.label, self.n, self.pages, self.titles, self.slots = dir, label, n, pages, titles, slots or {}
+
+    def mk(self, f, slug, title, subject, deck, parts, fh, fp):
+        names = [p[0] for p in self.pages]
+        i = names.index(f)
+        prev = (names[i - 1], self.titles[names[i - 1]]) if i > 0 else None
+        nxt = (names[i + 1], self.titles[names[i + 1]]) if i < len(names) - 1 else None
+        return page(slug, title, subject, deck, self.dir, self.label, self.pages, "".join(parts), fh, fp, prev, nxt, walk=self.slots.get(f), concept=self.titles[f])
+
+    def index(self, intro, sub="&#128214; Notes &nbsp;+&nbsp; &#128187; Walkthrough &nbsp;+&nbsp; check-yourself questions"):
+        lessons = [(self.titles[f], f, sub if f in self.slots else "&#128214; Notes and practice questions") for f, _ in self.pages]
+        return unit_index(self.label, self.n, intro, lessons)

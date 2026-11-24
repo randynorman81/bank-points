@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Collaboration, Purpose, and Function | AP CSP Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#A3E635; --acc-tint:rgba(163,230,53,.14); --acc-ink:#D9F99D;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#1A2E05;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:18ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .err{color:var(--bad-ink);font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.ok{border-top-color:var(--acc)}
+.box.bad{border-top-color:var(--bad)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F1FAD9}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.bad{background:var(--bad-tint)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+.stp{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:14px 12px}.stp .frame{display:none}.stp .frame.on{display:block}.stp .ctl{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:10px}.stp button{font:700 14px Manrope,system-ui,sans-serif;padding:8px 16px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer}.stp button:hover{border-color:#A3E635}.stp .cnt{font:600 13px Manrope,system-ui,sans-serif;color:var(--ink-soft)}.stp .say{margin:10px auto 0;max-width:70ch;text-align:center;font-size:15px;line-height:1.5}
+.fig{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:16px 12px 12px;overflow-x:auto}
+.fig figcaption{margin:12px auto 0;max-width:70ch;text-align:center;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
+ul.chk{margin:6px 0 20px;padding-left:22px}ul.chk li{margin:6px 0}
+.resp{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--acc);border-radius:6px;padding:14px 18px;margin:8px 0 18px}
+.resp .rl{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:6px}
+.resp p{margin:0 0 .6em}
+.cards.one{grid-template-columns:1fr}
+
+.wg{margin:8px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:10px;padding:16px 16px 14px}
+.wg h4{margin:0 0 4px;font:700 13px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink)}
+.wg .wsub{margin:0 0 12px;font-size:14.5px;color:var(--ink-soft)}
+.wg .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.wg button,.wg input,.wg select{font:600 15px 'JetBrains Mono',monospace;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:8px 12px}
+.wg button{cursor:pointer}.wg button:hover{border-color:#A3E635}
+.wg input[type=text],.wg input[type=number]{min-width:0;width:12ch}
+.wg input[type=range]{padding:0;width:min(320px,100%);accent-color:#A3E635}
+.wg .bit{width:48px;height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:22px}
+.wg .bit small{font-size:11px;color:var(--ink-soft);font-weight:600}
+.wg .bit.on{background:#A3E635;color:#0B0E14;border-color:#A3E635}.wg .bit.on small{color:#2a3b00}
+.wg .out{font:600 16px 'JetBrains Mono',monospace;line-height:1.7;margin:6px 0 0;word-break:break-all}
+.wg .out b{color:#A3E635}.wg .out i{color:#FBBF24;font-style:normal}
+.wg table{border-collapse:collapse;margin:6px 0;font:600 14px 'JetBrains Mono',monospace}.wg td,.wg th{border:1px solid var(--rule);padding:5px 10px;text-align:center}.wg th{color:var(--ink-soft);font-weight:700}
+.wg .cell{width:34px;height:34px;border:1px solid #2B3647;display:inline-block;cursor:pointer;vertical-align:top}
+.wg .cell.on{background:#EAEFF6}
+.wg .sw{width:110px;height:70px;border-radius:8px;border:2px solid #2B3647;flex:none}
+.wg .px{width:62px;height:62px;border-radius:6px;border:2px solid #2B3647}
+.wg .note{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+.wg canvas{border:1px solid var(--rule);border-radius:6px;max-width:100%}
+
+.qz{margin:10px 0 30px;background:#0B0F16;border:1px solid var(--rule);border-radius:10px;padding:18px 18px 8px}
+.qz>h4{margin:0 0 4px;font:700 13px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink)}
+.qz>.qsub{margin:0 0 14px;font-size:14.5px;color:var(--ink-soft)}
+.qz .q{border-top:1px solid var(--rule);padding:14px 0 12px}
+.qz .qs{margin:0 0 10px;font-weight:600;color:#fff}
+.qz .qs code{font-weight:500}
+.qz .qc{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:10px 14px;margin:8px 0 4px;font:500 14px/1.65 'JetBrains Mono',monospace;white-space:pre;overflow-x:auto;color:#D8E1EC;font-weight:500}
+.qz .opts{display:grid;gap:8px}
+.qz .opts button{text-align:left;font:500 15px Manrope,system-ui,sans-serif;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:10px 14px;cursor:pointer;line-height:1.45}
+.qz .opts button:hover:not(:disabled){border-color:#A3E635}
+.qz .opts button.right{border-color:#34D399;background:rgba(52,211,153,.16)}
+.qz .opts button.wrong{border-color:var(--bad);background:var(--bad-tint)}
+.qz .why{margin:10px 0 0;padding:10px 14px;border-left:4px solid var(--acc);background:var(--acc-tint);border-radius:0 6px 6px 0;font-size:14.5px;color:#F1FAD9;display:none}
+.qz .why.on{display:block}
+.qz .score{margin:6px 0 10px;font:700 14px 'JetBrains Mono',monospace;color:var(--acc-ink)}
+.asgw{background:linear-gradient(120deg,var(--acc-tint),var(--card) 65%);border:2px solid var(--acc);border-radius:10px;padding:20px 24px;margin:26px 0 6px}
+.asgw .lb{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--acc-ink)}
+.asgw h3{font-family:'Fraunces',Georgia,serif;font-size:24px;font-weight:600;color:#fff;margin:4px 0 12px}
+.asgw .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.asgw .card{background:rgba(0,0,0,.25);border:1px solid var(--rule);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.asgw .card b{color:#fff;font-size:16px}.asgw .card p{margin:0;font-size:14.5px;color:#C4CDD8}
+.asgw .card .n{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--acc)}
+.asgw a.go{display:inline-block;align-self:flex-start;background:var(--acc);color:#0B0E14;font-weight:800;font-size:15px;text-decoration:none;border-radius:8px;padding:10px 16px}
+.asgw a.go:hover{filter:brightness(1.1)}
+.wg .bar{height:22px;border-radius:6px;background:#1B2330;border:1px solid var(--rule);overflow:hidden;margin:6px 0}
+.wg .bar>i{display:block;height:100%;background:#A3E635;transition:width .2s}
+.wg .bar>i.hot{background:#F87171}
+.wg label{font-size:14.5px;color:var(--ink)}
+.wg .chip{display:inline-block;border:1px solid var(--rule);border-radius:100px;padding:4px 12px;margin:3px 4px 3px 0;font:600 13px 'JetBrains Mono',monospace;background:var(--card)}
+.wg .chip.on{background:#A3E635;color:#0B0E14;border-color:#A3E635}
+.wg .chip.bad{background:var(--bad-tint);color:var(--bad-ink);border-color:var(--bad)}
+.wg .seg{display:inline-block;padding:6px 10px;margin:2px;border-radius:6px;font:600 15px 'JetBrains Mono',monospace;border:1px solid var(--rule);background:var(--card)}
+.wg .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.mono{font-family:'JetBrains Mono',monospace}
+
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="unit-19/index.html">&larr; Unit 19</a><a href="collaboration-purpose.html" class="current">19.1 Collaboration and Purpose</a><a href="development-process.html">19.2 Development Process</a><a href="errors-debugging.html">19.3 Errors and Debugging</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">AP CSP NOTES &nbsp;/&nbsp; SUBJECT: WORKING TOGETHER, KNOWING WHY</div>
+    <h1>Collaboration, Purpose, and Function</h1>
+    <p class="deck">Programs start as someone's idea, and most are built by teams. Learn how <b>collaboration</b> makes programs better, the difference between a program's <b>purpose</b> and its <b>function</b>, and why <b>documentation</b> matters.</p>
+  </div>
+</header>
+<div class="wrap"><div class="asgw"><div class="lb">Your work &middot; Unit 19</div><h3>Collaboration, Purpose, and Function (19.1)</h3><div class="two"><div class="card"><span class="n">STEP 1 &middot; THE DOOR</span><b>Walkthrough</b><p>Walk through these notes in the Python Editor. Type the notes as comments and run the small programs. Get <b>every box and every question right (100%)</b>.</p><a class="go" href="../python/editor.html?a=a211">Open the walkthrough</a></div></div></div></div>
+
+<section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">00</div><h2>Why Collaborate?</h2></div><p class="lede"><b>Collaboration</b> means working with other people toward a shared goal. Most real software is built by teams, and even a single student's project improves when others test it and give feedback.</p><div class="cards"><div class="cardx"><div class="num">1</div><h4>Different viewpoints</h4><p>People with different backgrounds notice different problems and think of different solutions.</p></div><div class="cardx"><div class="num">2</div><h4>Fewer blind spots</h4><p>A team that represents many kinds of users is less likely to build something that works for only one kind.</p></div><div class="cardx"><div class="num">3</div><h4>Better quality</h4><p>Someone else reading your code catches mistakes you can no longer see.</p></div><div class="cardx"><div class="num">4</div><h4>Shared workload</h4><p>Big projects can be split into parts that people build at the same time.</p></div></div><div class="hint-panel">This connects to <b>bias</b>: a diverse team is more likely to notice when a program fails for a group of users.</div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">01</div><h2>Ways to Collaborate</h2></div><p class="lede">Collaboration works best with a clear structure.</p><div class="tblwrap"><div class="tblscroll"><table class="cmp"><tr><th>Practice</th><th>How it works</th><th>Why it helps</th></tr><tr><td><b>Pair programming</b></td><td>Two people share one computer. The <b>driver</b> types and the <b>navigator</b> reads, thinks ahead, and spots mistakes. They <b>swap roles</b> often.</td><td>two sets of eyes, fewer errors, both people learn</td></tr><tr><td><b>Code review</b></td><td>a teammate reads your code before it is added to the project</td><td>catches bugs and keeps the style consistent</td></tr><tr><td><b>User testing</b></td><td>real users try the program and say what confuses them</td><td>finds problems the developers cannot see</td></tr><tr><td><b>Shared documents</b></td><td>a requirements list, comments, and a project plan everyone can read</td><td>everyone agrees on what is being built</td></tr></table></div></div><div class="warn"><b>On the Create Task</b> you may build the <b>program code</b> with a partner, but the <b>video, reference sheet, and written responses</b> must be your own work.</div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">02</div><h2>Purpose and Function</h2></div><p class="lede">Every program has a <b>purpose</b> and a <b>function</b>. They sound alike, but the exam treats them as different ideas.</p><div class="tblwrap"><div class="tblscroll"><table class="cmp"><tr><th></th><th>Purpose</th><th>Function</th></tr><tr><td><b>It answers</b></td><td><b>Why</b> does this program exist?</td><td><b>What</b> does this program do?</td></tr><tr><td><b>It describes</b></td><td>the problem it solves or the interest it serves</td><td>how the program behaves: the input it takes and the output it gives</td></tr><tr><td><b>Example</b></td><td>help students prepare for a test</td><td>shows a question, checks the answer, and reports a score</td></tr></table></div></div><div class="wg" id="wgspec"><h4>Try it: write the spec for a program</h4><p class="wsub">Pick a program idea. See its purpose, what goes in, what comes out, and what makes it run.</p><div class="row"><select></select></div><div class="out"></div></div><script>(function(root){
+var D={"Tip calculator":["Help diners work out a fair tip quickly","the bill amount, the tip percent (typed by the user)","the tip amount and the total","the user presses the Calculate button (an event)"],
+"Quiz app":["Help students practice for a test","the student's answer to each question (typed or tapped)","right or wrong, and a final score","each tap on an answer (an event), then the next question"],
+"Step tracker":["Help someone meet a daily activity goal","a step count from the phone's sensor, and a goal the user sets","a progress bar and a message when the goal is reached","the sensor reports new steps (an event); a timer resets each day"],
+"Bus arrival board":["Help riders decide when to leave home","live GPS positions from the buses and the rider's chosen stop","minutes until the next bus","a new GPS message arrives (an event)"]};
+var sel=root.querySelector("select"),out=root.querySelector(".out");sel.innerHTML=Object.keys(D).map(function(k){return"<option>"+k+"</option>"}).join("");
+function upd(){var d=D[sel.value];out.innerHTML='<table style="text-align:left"><tr><th>Purpose</th><td style="text-align:left">'+d[0]+'</td></tr><tr><th>Input</th><td style="text-align:left">'+d[1]+'</td></tr><tr><th>Output</th><td style="text-align:left">'+d[2]+'</td></tr><tr><th>What starts it</th><td style="text-align:left">'+d[3]+'</td></tr></table><div class="note"><b>Purpose</b> is <i>why</i> the program exists. <b>Function</b> is <i>what</i> it does with its input to make its output.</div>'}
+sel.addEventListener("change",upd);upd();
+})(document.getElementById("wgspec"));</script><p>A program can have <b>many inputs and outputs</b>. Input can be text, a click, a key press, a sound, a sensor reading, or a file. Output can be text, a picture, a sound, or a movement.</p></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">03</div><h2>Events</h2></div><p class="lede">Some programs run in a fixed order from start to finish. Many apps are <b>event-driven</b>: parts of the program run <b>when something happens</b>, like a tap, a key press, or a message arriving.</p><div class="tblwrap"><div class="tblscroll"><table class="cmp"><tr><th></th><th>Sequential program</th><th>Event-driven program</th></tr><tr><td><b>What runs next?</b></td><td>the next line, in order</td><td>whichever code handles the event that just happened</td></tr><tr><td><b>Example</b></td><td>a program that asks three questions and prints a result</td><td>a phone game that reacts to every tap</td></tr><tr><td><b>Order of events</b></td><td>decided by the program</td><td>decided by the <b>user</b> (or the world)</td></tr></table></div></div><p>The Karel and key-event lessons earlier in the course were event-driven: code ran <b>when a key was pressed</b>.</p></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">04</div><h2>Documenting Your Program</h2></div><p class="lede"><b>Documentation</b> is writing down what a program is for and how it works. In code it is mostly <b>comments</b>.</p><ul class="chk"><li><b>Purpose</b>: a comment at the top saying why the program exists.</li><li><b>Procedures</b>: what each one takes in (<b>parameters</b>) and gives back (<b>return</b>).</li><li><b>Tricky parts</b>: why you wrote a line a certain way.</li><li><b>Credits</b>: say where borrowed code came from.</li></ul><p>Good comments help <b>other people</b> and <b>future you</b> understand the program, and they make collaboration possible.</p><div class="qz" id="qz19a"><h4>Check yourself</h4><p class="qsub">Answer each one. You see why right away, so read the explanation even when you are right.</p><div class="q" data-a="1"><div class="qs">Which best describes the <b>purpose</b> of a program?</div><div class="opts"><button>The exact lines of code it uses</button><button>The problem it solves or the need it meets</button><button>How fast it runs</button><button>The programming language it is written in</button></div><div class="why">Purpose is <b>why</b> the program exists. What it does with input and output is its function.</div></div><div class="q" data-a="1"><div class="qs">A team of developers with very different backgrounds builds an app. Which is the most likely benefit?</div><div class="opts"><button>The app will have no errors</button><button>They are more likely to notice problems that affect different kinds of users</button><button>The app will be written faster in every case</button><button>They will not need to test it</button></div><div class="why">Diverse perspectives reveal blind spots.</div></div><div class="q" data-a="1"><div class="qs">In pair programming, what does the <b>navigator</b> do?</div><div class="opts"><button>Types all of the code</button><button>Reviews the code as it is written and thinks ahead while the driver types</button><button>Writes the video</button><button>Runs the program only at the end</button></div><div class="why">The navigator reads, thinks ahead, and spots mistakes. The two partners swap roles.</div></div><div class="q" data-a="1"><div class="qs">A game does nothing until the player presses a key, and then it moves the character. This is an example of</div><div class="opts"><button>a sequential program with no input</button><button>event-driven programming</button><button>lossy compression</button><button>a heuristic</button></div><div class="why">The code runs <b>in response to an event</b>.</div></div><div class="q" data-a="1"><div class="qs">Which is an <b>input</b> to a weather app?</div><div class="opts"><button>The temperature shown on the screen</button><button>The location the user types in</button><button>The app's purpose</button><button>The comment at the top of the code</button></div><div class="why">Input is data that goes <b>into</b> the program. The temperature shown is an output.</div></div><div class="score"></div></div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">AP</div><h2>On the AP Exam</h2></div><p class="lede">These are the ideas the exam asks about. Be ready to explain each one in your own words.</p><ul class="chk"><li><b>Collaboration</b> brings diverse perspectives and finds mistakes, producing better programs. Know <b>pair programming</b> (driver and navigator).</li><li><b>Purpose</b> is the problem a program solves. <b>Function</b> is what it does with input to make output.</li><li>Programs can have <b>many inputs and outputs</b>, and many are <b>event-driven</b>.</li><li><b>Documentation</b> (comments) explains purpose and function so others can use and improve the code.</li></ul></div></section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Know why you are building it, and build it with others.</h2>
+    <p>Next: how a program actually gets built, step by step.</p>
+    <div style="margin-bottom:10px"></div>
+    <a class="back" href="development-process.html">The Development Process (19.2) &rarr;</a><a class="back" href="unit-19/index.html">&larr; Unit 19</a>
+    <p class="sig">AP CSP Notes &nbsp;/&nbsp; Collaboration, Purpose, and Function &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  document.querySelectorAll(".stp").forEach(function(r){
+    var f=r.querySelectorAll(".frame"),c=r.querySelector(".cnt"),i=0;
+    function s(){f.forEach(function(x,k){x.classList.toggle("on",k===i)});c.textContent="Step "+(i+1)+" of "+f.length}
+    r.querySelectorAll("button").forEach(function(b){b.onclick=function(){i=Math.max(0,Math.min(f.length-1,i+Number(b.dataset.d)));s()}});s();
+  });
+  document.querySelectorAll(".qz").forEach(function(z){
+    var qs=z.querySelectorAll(".q"),got=0,done=0,sc=z.querySelector(".score");
+    function finish(q,ok){q.dataset.done=1;done++;if(ok)got++;q.querySelector(".why").classList.add("on");
+      sc.textContent=got+" of "+qs.length+" right"+(done<qs.length?" so far":(got===qs.length?" - perfect!":""));}
+    qs.forEach(function(q){
+      var bs=q.querySelectorAll(".opts button"),why=q.querySelector(".why");
+      if(q.classList.contains("multi")){
+        var want=q.dataset.a.split(",").map(Number),pick=[];
+        bs.forEach(function(b,i){b.onclick=function(){if(q.dataset.done)return;var k=pick.indexOf(i);if(k>-1){pick.splice(k,1);b.style.borderColor=""}else{pick.push(i);b.style.borderColor="#A3E635"}}});
+        q.querySelector(".chk2").onclick=function(){if(q.dataset.done||pick.length!==want.length)return;
+          bs.forEach(function(x,k){x.disabled=true;x.style.borderColor="";if(want.indexOf(k)>-1)x.classList.add("right");else if(pick.indexOf(k)>-1)x.classList.add("wrong")});
+          finish(q,pick.slice().sort().join()===want.slice().sort().join())};
+        return;
+      }
+      var a=Number(q.dataset.a);
+      bs.forEach(function(b,i){b.onclick=function(){
+        if(q.dataset.done)return;
+        bs.forEach(function(x,k){x.disabled=true;if(k===a)x.classList.add("right")});
+        if(i!==a)b.classList.add("wrong");
+        finish(q,i===a);
+      }});
+    });
+  });
+})();
+</script>
+</body>
+</html>

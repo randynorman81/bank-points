@@ -64,7 +64,16 @@ a45 to a54 were 2 steps and 4 boxes each. They are now 7 to 9 steps and 29 to 33
 - **Unit 12 Data** (6 notes pages, `apcsp/unit-12/`): extracting information (patterns, trends, correlation vs causation, outliers), big data / metadata / scale, cleaning data, filtering / transforming / combining, visualizing (chart choice and misleading charts), bias and sampling. Walkthroughs a202 to a207.
 - **Big Idea 3 gaps** (3 new Unit 7 lessons): 7.7 developing algorithms and equivalent algorithms (with the AP pseudocode table), 7.8 efficiency, reasonable and unreasonable time, decision vs optimization problems, and heuristics, 7.9 undecidable problems and the halting problem. Walkthroughs a208 to a210. The six older Unit 7 pages and the Unit 7 overview now link to them.
 - Sources: `tools/notes/data12.py`, `tools/notes/algos7.py` (run `python3 tools/notes/build.py`; it also patches the older Unit 7 pages' nav, safe to repeat) and `tools/missions/concepts-walk.txt`.
-- Still thin from the original audit: Big Idea 1 error types by name (syntax, logic, runtime, overflow) are only mentioned in a line or two. Units 13, 14, 15 (Data project, Strings, Personal Data Tracker) and 17 to 21 are still taught in CodeHS only and have no notes here.
+- Still open: Units 20 (Final) and 21 (Pretest) are assessments, not lessons, so they have no notes.
+
+### Fixed (2026-11-24): Creative Development and the CodeHS-only units
+
+- **Unit 19 Creative Development** (Big Idea 1, 3 pages): collaboration, purpose and function, and events; the development process (incremental vs iterative, requirements, design tools, testing); the four error types and debugging (a "what kind of error?" quiz and a loop tracer). Walkthroughs a211 to a213.
+- **Unit 14 Strings** (3 pages): string methods, looping through strings, split / join / formatting. Walkthroughs a214 to a216.
+- **Unit 13** Data-driven insight project guide (a217), **Unit 15** Practice PT 3 Personal Data Tracker (same layout as the other practice-task notes: plan, labeled program, storyboard, reference segments, sample written responses; a218), **Unit 17** Create Task work plan and final checklist.
+- **Unit 18 AP Exam Review** (6 pages): exam format and strategies (with a pace calculator and pseudocode tracing), then a review of each Big Idea: summary of terms plus 10 to 12 practice questions in the exam's style (single-select, select-two, and pseudocode tracing). Every answer was worked out by hand.
+- Quizzes now support "select two" questions and code blocks inside questions (`tools/notes/lib.py`).
+- Sources: `tools/notes/creative19.py`, `strings14.py`, `projects.py`, `review18.py`, `tools/missions/concepts-walk.txt` (a211 to a218; the verifier can feed typed input for programs that call `input()`).
 
 ## 4. AP CSP exam coverage (Big Ideas 1 to 5)
 

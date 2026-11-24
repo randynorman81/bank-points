@@ -154,7 +154,7 @@ function buildLesson(L) {
     else if (cur && (m = /^K: ?(.*)$/.exec(l))) cur.code += (cur.code ? "\n" : "") + m[1];
     else if (cur && (m = /^C(\*?): ?(.*)$/.exec(l))) { cur.choices.push(m[2]); if (m[1] === "*") mcKey[mcKey.length - 1] = cur.choices.length - 1; }
   });
-  return { slot: L.slot, title: L.title, unit: L.unit, num: L.num ? Number(L.num) : undefined, blocks: blocks, tips: tips, checks: checks, steps: steps, mc: mc, mcKey: mcKey };
+  return { slot: L.slot, title: L.title, stdin: L.stdin, unit: L.unit, num: L.num ? Number(L.num) : undefined, blocks: blocks, tips: tips, checks: checks, steps: steps, mc: mc, mcKey: mcKey };
 }
 
 /* the reference program a student would end with (heading comments, code, own lines, end-of-line comments) */

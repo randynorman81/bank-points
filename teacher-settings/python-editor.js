@@ -200,6 +200,14 @@ export const PY_SETTINGS = {
   a208: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 7.7 Developing Algorithms and Equivalent Algorithms
   a209: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 7.8 Efficiency, Reasonable Time, and Heuristics
   a210: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 7.9 Undecidable Problems
+  a211: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 19.1 Collaboration, Purpose, and Function
+  a212: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 19.2 The Development Process
+  a213: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 19.3 Errors and Debugging
+  a214: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 14.1 String Methods
+  a215: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 14.2 Looping Through Strings
+  a216: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 14.3 Splitting, Joining, and Formatting Text
+  a217: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 13.1 Data-Driven Insight project
+  a218: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 15.1 Practice PT 3: Personal Data Tracker
 };
 /* WORDING CHANGES to a walkthrough, kept in the code (no PIN). Each one gets a copy of the walkthrough and changes it. */
 const STEP5_ODD = "Now test an odd number **without changing your code above**. Below your last line, type `number = 7`, then type the same four `print` lines again under it (you can copy and paste your own lines). Add an **end-of-line comment** at the end of your last print line with what the four answers were for 7. If that line already has a comment, add to it. [[How do I test 7?|oddtest]]";

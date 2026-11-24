@@ -18,11 +18,11 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const { buildAll, referenceProgram } = require("./u8-walk.js");
 const { scoreCode } = await import("./testkit/serverscore.mjs");
 const FILES = [{ name: "u8", file: path.join(here, "u8-walk.txt") }, { name: "concepts", file: path.join(here, "concepts-walk.txt") }];
-let problems = 0;
+let problems = 0, STDIN = "";
 const bad = (m) => { problems++; console.log("   PROBLEM: " + m); };
 
 function py(code) {
-  const r = spawnSync("python3", ["-I", "-c", code], { encoding: "utf8", env: Object.assign({}, process.env, { PYTHONIOENCODING: "utf-8" }), timeout: 20000 });
+  const r = spawnSync("python3", ["-I", "-c", code], { encoding: "utf8", input: STDIN, env: Object.assign({}, process.env, { PYTHONIOENCODING: "utf-8" }), timeout: 20000 });
   if (r.status !== 0) return { err: (r.stderr || "").trim().split("\n").pop() || "failed", lines: [] };
   const o = r.stdout.replace(/\n$/, ""); return { lines: o === "" ? [] : o.split("\n") };
 }
@@ -31,6 +31,7 @@ const same = (a, b) => a.length === b.length && a.every((x, i) => x === b[i]);
 function verify(all) {
 for (const slot of Object.keys(all)) {
   const rec = all[slot];
+  STDIN = rec.stdin ? String(rec.stdin).split("|").join("\n") + "\n" : "";
   console.log(`${slot}  ${rec.title}: ${rec.steps.length} steps, ${rec.checks.length} checks, ${Math.max.apply(null, rec.checks.map((c) => c.box)) + 1} boxes`);
   /* 1. real Python */
   const codeOf = (n) => rec.steps[n - 1].code.join("\n");

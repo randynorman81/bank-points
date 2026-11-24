@@ -99,10 +99,37 @@ window.PY_LESSONS = [
     { id: "12.5", t: "Visualizing Data", notes: "visualizing-data.html", w: "a206" },
     { id: "12.6", t: "Bias, Sampling, and Trust in Data", notes: "data-bias-sampling.html", w: "a207" }
   ] },
+  { n: 13, name: "Project: Present a Data-Driven Insight", notes: "unit-13/index.html", lessons: [
+    { id: "13.1", t: "Present a Data-Driven Insight: Project Guide", notes: "data-insight-project.html", w: "a217" }
+  ] },
+  { n: 14, name: "Strings", notes: "unit-14/index.html", lessons: [
+    { id: "14.1", t: "String Methods", notes: "string-methods.html", w: "a214" },
+    { id: "14.2", t: "Looping Through Strings", notes: "string-traversal.html", w: "a215" },
+    { id: "14.3", t: "Splitting, Joining, and Formatting Text", notes: "split-join-format.html", w: "a216" }
+  ] },
+  { n: 15, name: "Practice PT: Personal Data Tracker", notes: "unit-15/index.html", lessons: [
+    { id: "15.1", t: "Practice PT 3: Personal Data Tracker", notes: "practice-pt-data-tracker.html", w: "a218" }
+  ] },
   { n: 16, name: "Project: The Impact of Computing", notes: "unit-16/index.html", lessons: [
     { id: "16.1", t: "Computing Bias", notes: "computing-bias.html", w: "a198" },
     { id: "16.2", t: "Copyright, Creative Commons, and Open Source", notes: "copyright-open-source.html", w: "a199" },
     { id: "16.3", t: "Privacy and Personal Data", notes: "privacy-pii.html", w: "a200" },
     { id: "16.4", t: "Safe Computing: Passwords, Phishing, and Malware", notes: "safe-computing.html", w: "a201" }
+  ] },
+  { n: 17, name: "Create Performance Task", notes: "unit-17/index.html", lessons: [
+    { id: "17.1", t: "Create Task Work Plan and Final Checklist", notes: "create-task-work-plan.html" }
+  ] },
+  { n: 18, name: "AP Exam Review", notes: "unit-18/index.html", lessons: [
+    { id: "18.1", t: "Exam Format and Strategies", notes: "exam-strategies.html" },
+    { id: "18.2", t: "Review: Big Idea 1, Creative Development", notes: "review-big-idea-1.html" },
+    { id: "18.3", t: "Review: Big Idea 2, Data", notes: "review-big-idea-2.html" },
+    { id: "18.4", t: "Review: Big Idea 3, Algorithms and Programming", notes: "review-big-idea-3.html" },
+    { id: "18.5", t: "Review: Big Idea 4, Computer Systems and Networks", notes: "review-big-idea-4.html" },
+    { id: "18.6", t: "Review: Big Idea 5, Impact of Computing", notes: "review-big-idea-5.html" }
+  ] },
+  { n: 19, name: "Creative Development", notes: "unit-19/index.html", lessons: [
+    { id: "19.1", t: "Collaboration, Purpose, and Function", notes: "collaboration-purpose.html", w: "a211" },
+    { id: "19.2", t: "The Development Process", notes: "development-process.html", w: "a212" },
+    { id: "19.3", t: "Errors and Debugging", notes: "errors-debugging.html", w: "a213" }
   ] }
 ];
