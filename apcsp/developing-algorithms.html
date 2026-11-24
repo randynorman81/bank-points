@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Developing Algorithms and Equivalent Algorithms | AP CSP Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#A3E635; --acc-tint:rgba(163,230,53,.14); --acc-ink:#D9F99D;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#1A2E05;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:18ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .err{color:var(--bad-ink);font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.ok{border-top-color:var(--acc)}
+.box.bad{border-top-color:var(--bad)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F1FAD9}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.bad{background:var(--bad-tint)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+.stp{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:14px 12px}.stp .frame{display:none}.stp .frame.on{display:block}.stp .ctl{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:10px}.stp button{font:700 14px Manrope,system-ui,sans-serif;padding:8px 16px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer}.stp button:hover{border-color:#A3E635}.stp .cnt{font:600 13px Manrope,system-ui,sans-serif;color:var(--ink-soft)}.stp .say{margin:10px auto 0;max-width:70ch;text-align:center;font-size:15px;line-height:1.5}
+.fig{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:16px 12px 12px;overflow-x:auto}
+.fig figcaption{margin:12px auto 0;max-width:70ch;text-align:center;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
+ul.chk{margin:6px 0 20px;padding-left:22px}ul.chk li{margin:6px 0}
+.resp{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--acc);border-radius:6px;padding:14px 18px;margin:8px 0 18px}
+.resp .rl{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:6px}
+.resp p{margin:0 0 .6em}
+.cards.one{grid-template-columns:1fr}
+
+.wg{margin:8px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:10px;padding:16px 16px 14px}
+.wg h4{margin:0 0 4px;font:700 13px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink)}
+.wg .wsub{margin:0 0 12px;font-size:14.5px;color:var(--ink-soft)}
+.wg .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.wg button,.wg input,.wg select{font:600 15px 'JetBrains Mono',monospace;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:8px 12px}
+.wg button{cursor:pointer}.wg button:hover{border-color:#A3E635}
+.wg input[type=text],.wg input[type=number]{min-width:0;width:12ch}
+.wg input[type=range]{padding:0;width:min(320px,100%);accent-color:#A3E635}
+.wg .bit{width:48px;height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:22px}
+.wg .bit small{font-size:11px;color:var(--ink-soft);font-weight:600}
+.wg .bit.on{background:#A3E635;color:#0B0E14;border-color:#A3E635}.wg .bit.on small{color:#2a3b00}
+.wg .out{font:600 16px 'JetBrains Mono',monospace;line-height:1.7;margin:6px 0 0;word-break:break-all}
+.wg .out b{color:#A3E635}.wg .out i{color:#FBBF24;font-style:normal}
+.wg table{border-collapse:collapse;margin:6px 0;font:600 14px 'JetBrains Mono',monospace}.wg td,.wg th{border:1px solid var(--rule);padding:5px 10px;text-align:center}.wg th{color:var(--ink-soft);font-weight:700}
+.wg .cell{width:34px;height:34px;border:1px solid #2B3647;display:inline-block;cursor:pointer;vertical-align:top}
+.wg .cell.on{background:#EAEFF6}
+.wg .sw{width:110px;height:70px;border-radius:8px;border:2px solid #2B3647;flex:none}
+.wg .px{width:62px;height:62px;border-radius:6px;border:2px solid #2B3647}
+.wg .note{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+.wg canvas{border:1px solid var(--rule);border-radius:6px;max-width:100%}
+
+.qz{margin:10px 0 30px;background:#0B0F16;border:1px solid var(--rule);border-radius:10px;padding:18px 18px 8px}
+.qz>h4{margin:0 0 4px;font:700 13px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink)}
+.qz>.qsub{margin:0 0 14px;font-size:14.5px;color:var(--ink-soft)}
+.qz .q{border-top:1px solid var(--rule);padding:14px 0 12px}
+.qz .qs{margin:0 0 10px;font-weight:600;color:#fff}
+.qz .qs code{font-weight:500}
+.qz .opts{display:grid;gap:8px}
+.qz .opts button{text-align:left;font:500 15px Manrope,system-ui,sans-serif;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:10px 14px;cursor:pointer;line-height:1.45}
+.qz .opts button:hover:not(:disabled){border-color:#A3E635}
+.qz .opts button.right{border-color:#34D399;background:rgba(52,211,153,.16)}
+.qz .opts button.wrong{border-color:var(--bad);background:var(--bad-tint)}
+.qz .why{margin:10px 0 0;padding:10px 14px;border-left:4px solid var(--acc);background:var(--acc-tint);border-radius:0 6px 6px 0;font-size:14.5px;color:#F1FAD9;display:none}
+.qz .why.on{display:block}
+.qz .score{margin:6px 0 10px;font:700 14px 'JetBrains Mono',monospace;color:var(--acc-ink)}
+.asgw{background:linear-gradient(120deg,var(--acc-tint),var(--card) 65%);border:2px solid var(--acc);border-radius:10px;padding:20px 24px;margin:26px 0 6px}
+.asgw .lb{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--acc-ink)}
+.asgw h3{font-family:'Fraunces',Georgia,serif;font-size:24px;font-weight:600;color:#fff;margin:4px 0 12px}
+.asgw .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.asgw .card{background:rgba(0,0,0,.25);border:1px solid var(--rule);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.asgw .card b{color:#fff;font-size:16px}.asgw .card p{margin:0;font-size:14.5px;color:#C4CDD8}
+.asgw .card .n{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--acc)}
+.asgw a.go{display:inline-block;align-self:flex-start;background:var(--acc);color:#0B0E14;font-weight:800;font-size:15px;text-decoration:none;border-radius:8px;padding:10px 16px}
+.asgw a.go:hover{filter:brightness(1.1)}
+.wg .bar{height:22px;border-radius:6px;background:#1B2330;border:1px solid var(--rule);overflow:hidden;margin:6px 0}
+.wg .bar>i{display:block;height:100%;background:#A3E635;transition:width .2s}
+.wg .bar>i.hot{background:#F87171}
+.wg label{font-size:14.5px;color:var(--ink)}
+.wg .chip{display:inline-block;border:1px solid var(--rule);border-radius:100px;padding:4px 12px;margin:3px 4px 3px 0;font:600 13px 'JetBrains Mono',monospace;background:var(--card)}
+.wg .chip.on{background:#A3E635;color:#0B0E14;border-color:#A3E635}
+.wg .chip.bad{background:var(--bad-tint);color:var(--bad-ink);border-color:var(--bad)}
+.wg .seg{display:inline-block;padding:6px 10px;margin:2px;border-radius:6px;font:600 15px 'JetBrains Mono',monospace;border:1px solid var(--rule);background:var(--card)}
+.wg .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.mono{font-family:'JetBrains Mono',monospace}
+
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="unit-7/index.html">&larr; Unit 7</a><a href="lists-indexing.html">Lists and Indexing</a><a href="list-operations.html">Adding and Removing Items</a><a href="lists-for-loops.html">For Loops and Lists</a><a href="simulations.html">Simulations</a><a href="searching-efficiency.html">Searching and Efficiency</a><a href="data-abstraction.html">Data Abstraction and the Create Task</a><a href="developing-algorithms.html" class="current">Developing Algorithms</a><a href="algorithm-efficiency.html">Efficiency and Heuristics</a><a href="undecidable-problems.html">Undecidable Problems</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">AP CSP NOTES &nbsp;/&nbsp; SUBJECT: PLAN IT, TEST IT, COMPARE IT</div>
+    <h1>Developing Algorithms and Equivalent Algorithms</h1>
+    <p class="deck">There is more than one way to solve most problems. Learn how an algorithm is developed, what makes two algorithms <b>equivalent</b>, why programs that look alike can disagree, and how the exam writes it all in pseudocode.</p>
+  </div>
+</header>
+<div class="wrap"><div class="asgw"><div class="lb">Your work &middot; Unit 7</div><h3>Developing Algorithms and Equivalent Algorithms (7.7)</h3><div class="two"><div class="card"><span class="n">STEP 1 &middot; THE DOOR</span><b>Walkthrough</b><p>Walk through these notes in the Python Editor. Type the notes as comments and run the small programs. Get <b>every box and every question right (100%)</b>.</p><a class="go" href="../python/editor.html?a=a208">Open the walkthrough</a></div></div></div></div>
+
+<section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">00</div><h2>What Is an Algorithm?</h2></div><p class="lede">An <b>algorithm</b> is a finite set of instructions that accomplishes a task. Every algorithm is built from just <b>three building blocks</b>.</p><div class="cards"><div class="cardx"><div class="num">1</div><h4>Sequencing</h4><p>Steps run <b>in order</b>, one after another.</p></div><div class="cardx"><div class="num">2</div><h4>Selection</h4><p>A <b>condition</b> decides which steps run (<code>if</code>, <code>else</code>).</p></div><div class="cardx"><div class="num">3</div><h4>Iteration</h4><p>Steps <b>repeat</b> (<code>for</code>, <code>while</code>).</p></div></div><div class="example"><b>Algorithm for finding the largest number:</b> (1) call the first number the largest so far. (2) for each other number, if it is bigger, make it the largest so far. (3) when you run out of numbers, the largest so far is the answer.</div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">01</div><h2>Developing an Algorithm</h2></div><p class="lede">Good programmers do not start typing. They follow a process.</p><div class="tblwrap"><div class="tblscroll"><table class="cmp"><tr><th>Step</th><th>What you do</th><th>Example: average of a list</th></tr><tr><td><b>1. Understand</b></td><td>say what goes in and what must come out</td><td>in: a list of numbers. out: one number</td></tr><tr><td><b>2. Plan</b></td><td>write the steps in words or pseudocode</td><td>add them all up, divide by how many</td></tr><tr><td><b>3. Write</b></td><td>turn the plan into code</td><td>a loop with a total, then a division</td></tr><tr><td><b>4. Test</b></td><td>try normal, edge, and unusual inputs</td><td>a list of one number? an empty list? negatives?</td></tr></table></div></div><p>You can also <b>build on algorithms that already exist</b>. You can <b>combine</b> two (find the largest, then use it to scale every value) or <b>modify</b> one (change "largest" to "smallest" by flipping a comparison). Knowing standard algorithms like searching and finding a maximum saves time.</p></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">02</div><h2>Equivalent Algorithms</h2></div><p class="lede"><b>Equivalent algorithms</b> solve the same problem and give the <b>same results for every input</b>, even though their steps are different. One may be faster, shorter, or easier to read.</p><div class="wg" id="wgsame"><h4>Try it: do these three programs give the same answer?</h4><p class="wsub">All three claim to find the <b>largest</b> number in a list. Type a list and compare them.</p><div class="row"><input type="text" class="l" value="4, 9, 2, 7" style="width:26ch" spellcheck="false"> <button class="neg">Try negatives</button> <button class="pos">Try positives</button></div><div class="out"></div></div><script>(function(root){
+var inp=root.querySelector(".l"),out=root.querySelector(".out");
+function A(l){var m=l[0];for(var i=1;i<l.length;i++)if(l[i]>m)m=l[i];return m}
+function B(l){return l.slice().sort(function(a,b){return a-b})[l.length-1]}
+function C(l){var m=0;l.forEach(function(x){if(x>m)m=x});return m}
+function upd(){var l=inp.value.split(/[ ,]+/).filter(Boolean).map(Number).filter(function(x){return !isNaN(x)});if(!l.length){out.innerHTML="<i>Type some numbers.</i>";return}
+ var a=A(l),b=B(l),c=C(l);
+ out.innerHTML='<table><tr><th>Program</th><th>How it works</th><th>Answer</th></tr><tr><td>A</td><td>start with the first item, keep any bigger one</td><td><b>'+a+'</b></td></tr><tr><td>B</td><td>sort the list, take the last item</td><td><b>'+b+'</b></td></tr><tr><td>C</td><td>start with 0, keep any bigger one</td><td><b style="color:'+(c===a?"#A3E635":"#F87171")+'">'+c+'</b></td></tr></table>'+
+ (a===b&&b===c?'<div class="note">All three agree on this list. A and B are <b>equivalent algorithms</b>: different steps, the same results every time.</div>':'<div class="note"><b>C gives a different answer.</b> It looks almost the same as A, but starting at <b>0</b> is wrong when every number is negative. Algorithms that look alike can give different results, so <b>test unusual inputs</b>.</div>')}
+inp.addEventListener("input",upd);root.querySelector(".neg").onclick=function(){inp.value="-5, -2, -9";upd()};root.querySelector(".pos").onclick=function(){inp.value="4, 9, 2, 7";upd()};upd();
+})(document.getElementById("wgsame"));</script><div class="wg" id="wgsum"><h4>Try it: two ways to add 1 + 2 + ... + n</h4><p class="wsub">Both give the same total. Count how many steps each one takes.</p><div class="row"><label>n = <input type="range" min="1" max="1000" value="100"> <b class="mono nv">100</b></label></div><div class="out"></div></div><script>(function(root){
+var rg=root.querySelector("input"),nv=root.querySelector(".nv"),out=root.querySelector(".out");
+function upd(){var n=Number(rg.value);nv.textContent=n;var t=n*(n+1)/2;
+ out.innerHTML='<table><tr><th>Algorithm</th><th>Steps</th><th>Result</th></tr><tr><td>Loop: add 1, then 2, then 3 ... to n</td><td><b>'+n+'</b> additions</td><td>'+t+'</td></tr><tr><td>Formula: n &times; (n + 1) &divide; 2</td><td><b>3</b> operations</td><td>'+t+'</td></tr></table><div class="note">Same answer, very different effort. The loop does <b>more work as n grows</b>. The formula does the same 3 operations whether n is 10 or 10 million.</div>'}
+rg.addEventListener("input",upd);upd();
+})(document.getElementById("wgsum"));</script><div class="tblwrap"><div class="tblscroll"><table class="cmp"><tr><th></th><th>Same idea, different code</th><th>Different algorithms, same result</th><th>Look-alike, different result</th></tr><tr><td><b>Example</b></td><td>a <code>for</code> loop and a <code>while</code> loop that count to 10</td><td>loop for 1 + ... + n and the formula n(n + 1) &divide; 2</td><td>program C above: starts at 0 instead of the first item</td></tr><tr><td><b>Same results?</b></td><td>yes</td><td>yes (equivalent algorithms)</td><td><b>no</b>, on some inputs</td></tr></table></div></div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">03</div><h2>Testing With the Right Inputs</h2></div><p class="lede">Running a program once and seeing the right answer proves very little. Good <b>test cases</b> include:</p><ul class="chk"><li>a <b>normal</b> input</li><li>the <b>smallest</b> input (an empty list, one item, zero)</li><li>the <b>largest</b> input</li><li><b>ties</b> and <b>duplicates</b></li><li><b>negative</b> or unexpected values</li><li>values <b>right at a boundary</b>, like exactly 18 for an age check</li></ul><p><b>Tracing</b> the code by hand (writing down every variable after every line) finds mistakes the same way and is a skill the exam tests every year.</p></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">04</div><h2>The Exam's Pseudocode</h2></div><p class="lede">The AP exam does not use Python. It uses its own <b>reference-sheet pseudocode</b>. Every idea you have practiced has a matching form. <b>Warning: pseudocode lists start at index 1, Python lists start at 0.</b></p><div class="tblwrap"><div class="tblscroll"><table class="cmp"><tr><th>Idea</th><th>AP pseudocode</th><th>Python</th></tr><tr><td>assign</td><td><code>a &larr; 5</code></td><td><code>a = 5</code></td></tr><tr><td>display</td><td><code>DISPLAY(a)</code></td><td><code>print(a)</code></td></tr><tr><td>remainder</td><td><code>a MOD b</code></td><td><code>a % b</code></td></tr><tr><td>decision</td><td><code>IF (a &gt; 3) { ... } ELSE { ... }</code></td><td><code>if a &gt; 3: ... else: ...</code></td></tr><tr><td>repeat n times</td><td><code>REPEAT n TIMES { ... }</code></td><td><code>for i in range(n): ...</code></td></tr><tr><td>repeat while</td><td><code>REPEAT UNTIL (cond) { ... }</code></td><td><code>while not cond: ...</code></td></tr><tr><td>each item</td><td><code>FOR EACH item IN list { ... }</code></td><td><code>for item in list: ...</code></td></tr><tr><td>list length</td><td><code>LENGTH(list)</code></td><td><code>len(list)</code></td></tr><tr><td>first item</td><td><code>list[1]</code></td><td><code>list[0]</code></td></tr><tr><td>add to a list</td><td><code>APPEND(list, value)</code></td><td><code>list.append(value)</code></td></tr><tr><td>procedure</td><td><code>PROCEDURE f(x) { RETURN(x * 2) }</code></td><td><code>def f(x): return x * 2</code></td></tr><tr><td>random</td><td><code>RANDOM(1, 6)</code></td><td><code>random.randint(1, 6)</code></td></tr></table></div></div><div class="qz" id="qz7a"><h4>Check yourself</h4><p class="qsub">Answer each one. You see why right away, so read the explanation even when you are right.</p><div class="q" data-a="1"><p class="qs">Which are the three building blocks of every algorithm?</p><div class="opts"><button>Input, output, and storage</button><button>Sequencing, selection, and iteration</button><button>Variables, lists, and functions</button><button>Compile, run, and debug</button></div><div class="why">Steps in order, decisions, and repetition can build any algorithm.</div></div><div class="q" data-a="1"><p class="qs">Two algorithms are <b>equivalent</b> if they…</p><div class="opts"><button>use exactly the same code</button><button>give the same result for every input, even if the steps differ</button><button>run in the same amount of time</button><button>were written by the same person</button></div><div class="why">Equivalent algorithms agree on every input. They can still differ in speed.</div></div><div class="q" data-a="2"><p class="qs">A program finds the largest number but starts its "largest so far" at 0. For which list does it give a wrong answer?</p><div class="opts"><button>4, 9, 2</button><button>10, 20, 30</button><button>-5, -2, -9</button><button>0, 1, 2</button></div><div class="why">When all numbers are negative, the start value of 0 is never beaten, so 0 is returned.</div></div><div class="q" data-a="1"><p class="qs">In AP pseudocode, what is the index of the first item in a list?</p><div class="opts"><button>0</button><button>1</button><button>-1</button><button>It depends on the list</button></div><div class="why">AP pseudocode lists start at <b>1</b>. Python lists start at 0.</div></div><div class="q" data-a="0"><p class="qs">A developer writes a new program by taking an existing sorting algorithm and changing the comparison so it sorts from largest to smallest. This is…</p><div class="opts"><button>Developing an algorithm by modifying an existing one</button><button>Compressing data</button><button>Encrypting data</button><button>Parallel computing</button></div><div class="why">Building on and <b>modifying</b> existing algorithms is a normal way to develop new ones.</div></div><div class="score"></div></div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">AP</div><h2>On the AP Exam</h2></div><p class="lede">These are the ideas the exam asks about. Be ready to explain each one in your own words.</p><ul class="chk"><li>Every algorithm is built from <b>sequencing, selection, and iteration</b>.</li><li><b>Equivalent algorithms</b> give the same result for every input but may differ in how many steps they take.</li><li>Algorithms that <b>look similar</b> can give <b>different results</b>. Test edge cases.</li><li>New algorithms can be made by <b>combining</b> or <b>modifying</b> existing ones.</li><li>Know the exam <b>pseudocode</b>: <code>&larr;</code>, <code>DISPLAY</code>, <code>IF</code>, <code>REPEAT</code>, <code>FOR EACH</code>, <code>PROCEDURE</code>, and that lists start at <b>1</b>.</li></ul></div></section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Same answer, different road.</h2>
+    <p>Next: when two algorithms give the same answer, how do you decide which is better? Efficiency.</p>
+    <div style="margin-bottom:10px"></div>
+    <a class="back" href="algorithm-efficiency.html">Efficiency, Reasonable Time, and Heuristics (7.8) &rarr;</a><a class="back" href="data-abstraction.html">&larr; Data Abstraction and the Create Task (7.6)</a><a class="back" href="unit-7/index.html">&larr; Unit 7</a>
+    <p class="sig">AP CSP Notes &nbsp;/&nbsp; Developing Algorithms and Equivalent Algorithms &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  document.querySelectorAll(".stp").forEach(function(r){
+    var f=r.querySelectorAll(".frame"),c=r.querySelector(".cnt"),i=0;
+    function s(){f.forEach(function(x,k){x.classList.toggle("on",k===i)});c.textContent="Step "+(i+1)+" of "+f.length}
+    r.querySelectorAll("button").forEach(function(b){b.onclick=function(){i=Math.max(0,Math.min(f.length-1,i+Number(b.dataset.d)));s()}});s();
+  });
+  document.querySelectorAll(".qz").forEach(function(z){
+    var qs=z.querySelectorAll(".q"),got=0,done=0,sc=z.querySelector(".score");
+    qs.forEach(function(q){
+      var a=Number(q.dataset.a),bs=q.querySelectorAll("button"),why=q.querySelector(".why");
+      bs.forEach(function(b,i){b.onclick=function(){
+        if(q.dataset.done)return;q.dataset.done=1;done++;
+        bs.forEach(function(x,k){x.disabled=true;if(k===a)x.classList.add("right")});
+        if(i===a)got++;else b.classList.add("wrong");
+        why.classList.add("on");
+        sc.textContent=got+" of "+qs.length+" right"+(done<qs.length?" so far":(got===qs.length?" - perfect!":""));
+      }});
+    });
+  });
+})();
+</script>
+</body>
+</html>

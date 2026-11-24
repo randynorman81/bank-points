@@ -72,7 +72,7 @@ const COURSES = [
       { n: 9, title: "Practice PT: The Shopping List", migrated: true, path: "apcsp/unit-9/index.html", badge: "PYTHON COMPILER" },
       { n: 10, title: "The Internet", migrated: true, path: "apcsp/unit-10/index.html", badge: "PYTHON COMPILER" },
       { n: 11, title: "Project: The Effects of the Internet", migrated: true, path: "apcsp/unit-11/index.html", badge: "PYTHON COMPILER" },
-      { n: 12, title: "Data", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
+      { n: 12, title: "Data", migrated: true, path: "apcsp/unit-12/index.html", badge: "PYTHON COMPILER" },
       { n: 13, title: "Project: Present a Data-Driven Insight", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
       { n: 14, title: "Strings", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },
       { n: 15, title: "Practice PT: Personal Data Tracker", migrated: false, googleSite: "https://codehs.com", badge: "CodeHS" },

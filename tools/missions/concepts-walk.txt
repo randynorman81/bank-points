@@ -1907,3 +1907,2174 @@ Strong: long password and a second factor
 Weak: add length or a second factor
 Weak: add length or a second factor
 .
+
+=== a202 | Extracting Information from Data | extracting-information
+unit: Unit 12: Data
+num: 1
+learn: turning data into information, finding the hottest month, spotting a trend, checking whether two lists move together, why that is not causation, and how an outlier changes an average
+ap: Information is extracted from data by finding patterns, trends, and relationships, and programs can do this with far more data than a person could. Correlation does not imply causation, because a hidden factor can drive both. An outlier can change an average.
+mc:
+Q: What is the difference between data and information?
+C: There is none
+C*: Data is raw values and information is what you learn from them
+C: Information is stored in binary and data is not
+C: Data is always numbers and information is always words
+Q: A study finds that towns with more ice cream shops also have more swimming accidents. Which conclusion is best supported?
+C: Ice cream causes swimming accidents
+C*: The two are correlated, and a third factor such as hot weather could explain both
+C: Swimming accidents cause ice cream sales
+C: The two are unrelated
+Q: Which describes a trend?
+C: The highest score in a class
+C*: Monthly sales that rise a little every year for ten years
+C: A typing mistake in a data set
+C: The title of a spreadsheet
+Q: A data set of salaries contains one billionaire. Which value best describes a typical salary?
+C: The mean, because it uses every value
+C*: The median, because the extreme value does not pull it
+C: The largest value
+C: The total
+Q: Which is an example of a program extracting information from data?
+C: Saving a list of daily temperatures to a file
+C*: Calculating each month's average temperature from daily readings and reporting the hottest month
+C: Encrypting the temperature readings
+C: Compressing the temperature file
+.
+
+--- Turn data into information
+notes: Data Is Not the Same as Information
+say: A list of numbers is **data**. The **average** is **information**: one number that tells you something about all of them. This loop adds up twelve monthly temperatures and divides by how many there are. `round(x, 1)` keeps one decimal place.
+tip: What does the average tell you?
+tipbody:
+p The list has 12 numbers. The average is one number that sums them up, so you can understand the whole year at a glance.
+.
+code:
+temps = [35, 38, 48, 58, 68, 78, 85, 83, 74, 60, 47, 38]
+total = 0
+for t in temps:
+    total = total + t
+print(round(total / len(temps), 1))
+.
+eol: print(round(total / len(temps), 1)) | what the average tells you | typical|average|year|middle|overall|whole|summar | it tells you the typical temperature over the whole year
+out:
+59.3
+.
+ownsay: count the months
+ownlines:
+print(len(temps), "months")
+.
+ownout:
+12 months
+.
+
+--- Find the hottest month
+notes: Patterns and Trends
+say: Programs find patterns by comparing values. This loop remembers the biggest temperature seen so far and **which month** it was. `range(len(temps))` gives each position 0 to 11, so `month + 1` is the month number.
+tip: How does the loop remember the biggest?
+tipbody:
+steps Start with the first temperature as the biggest so far. ;; Look at every position `i`. ;; If `temps[i]` is bigger, remember it and remember `i`. ;; At the end `hottest` and `month` hold the answer.
+.
+code:
+temps = [35, 38, 48, 58, 68, 78, 85, 83, 74, 60, 47, 38]
+hottest = temps[0]
+month = 0
+for i in range(len(temps)):
+    if temps[i] > hottest:
+        hottest = temps[i]
+        month = i
+print(month + 1, hottest)
+.
+eol: if temps[i] > hottest: | what is being compared | bigger|larger|hottest|highest|so far|max|greater | each temperature is compared with the biggest one seen so far
+out:
+7 85
+.
+ownsay: check against Python's own max
+ownlines:
+print(temps[month] == max(temps))
+.
+ownout:
+True
+.
+
+--- Spot a trend
+notes: Patterns and Trends
+say: A **trend** is a pattern over time. Compare the last value with the first. A positive change means the numbers are **rising**.
+tip: What does the change show?
+tipbody:
+p `sales[len(sales) - 1]` is the last item. Subtracting the first item gives the total change over the whole period.
+.
+code:
+sales = [10, 12, 15, 18, 22, 25]
+change = sales[len(sales) - 1] - sales[0]
+print(change)
+if change > 0:
+    print("Rising trend")
+else:
+    print("Not rising")
+.
+eol: if change > 0: | what a positive change shows about the trend | rising|growing|increas|up|trend|grew|higher | a positive change means the numbers are rising, an upward trend
+out:
+15
+Rising trend
+.
+ownsay: show the change as a percent of where it started
+ownlines:
+print(change / sales[0] * 100, "% growth")
+.
+ownout:
+150.0 % growth
+.
+
+--- Do two lists move together?
+notes: Correlation Is Not Causation
+say: Two things are **correlated** when they change together. This loop looks at each step and checks whether the temperature and the ice cream sales **both rose** or **both fell**. When two changes have the same sign, their product is positive.
+tip: Why does a positive product mean they moved together?
+tipbody:
+p Up times up is positive. Down times down is also positive. Up times down is negative. So a positive product means both moved the same way.
+.
+code:
+temp = [35, 48, 68, 85, 74, 47]
+ice = [120, 190, 310, 430, 350, 170]
+together = 0
+for i in range(1, len(temp)):
+    if (temp[i] - temp[i - 1]) * (ice[i] - ice[i - 1]) > 0:
+        together = together + 1
+print(together, "of", len(temp) - 1, "changes moved together")
+.
+eol: if (temp[i] - temp[i - 1]) * (ice[i] - ice[i - 1]) > 0: | why a positive product means both lists moved the same way | both|same direction|together|positive|rose|fell|same way | a positive product means both rose or both fell, so they moved together
+out:
+5 of 5 changes moved together
+.
+ownsay: check whether every change moved together
+ownlines:
+print(together == len(temp) - 1)
+.
+ownout:
+True
+.
+
+--- Correlation is not causation
+notes: Correlation Is Not Causation
+say: The two lists moved together every time. Does ice cream cause temperature to rise, or the other way around? **Neither.** A hidden factor, **hot weather**, drives sunburns and ice cream sales at once. This is called a **confounding variable**.
+tip: What is a confounding variable?
+tipbody:
+p It is a third factor that causes both of the things you measured, so they move together without either causing the other.
+good Correlation can be measured. Causation needs more evidence.
+.
+code:
+moved_together = True
+hidden_cause = "hot weather"
+if moved_together:
+    print("Ice cream sales and sunburns move together")
+    print("Hidden cause:", hidden_cause)
+.
+eol: hidden_cause = "hot weather" | why moving together does not mean one causes the other | cause|third|confound|both|hidden|correlation|another|factor | a hidden third factor can cause both, so moving together is not causation
+out:
+Ice cream sales and sunburns move together
+Hidden cause: hot weather
+.
+ownsay: check the hidden cause
+ownlines:
+print(hidden_cause == "hot weather")
+.
+ownout:
+True
+.
+
+--- An outlier changes the average
+notes: Outliers and Averages
+say: One extreme value can pull an average a long way. The **median** is the middle value after sorting, so it resists outliers. **New idea:** `sorted(values)` returns a sorted copy, and `// 2` finds the middle position.
+tip: Why is the median steadier?
+tipbody:
+p The mean uses every value, so the 500 drags it up. The median only cares about the middle value, which is 12.
+rows mean | 109.2 | pulled up by the 500
+rows median | 12 | the middle value
+.
+code:
+values = [10, 12, 11, 13, 500]
+total = 0
+for v in values:
+    total = total + v
+print(total / len(values))
+print(sorted(values)[len(values) // 2])
+.
+eol: print(sorted(values)[len(values) // 2]) | why the median describes this data better than the mean | outlier|extreme|500|pull|middle|typical|resist | the 500 is an outlier that pulls the mean up, but the median stays in the middle
+out:
+109.2
+12
+.
+ownsay: show how far apart the largest and smallest are
+ownlines:
+print(max(values) - min(values))
+.
+ownout:
+490
+.
+
+--- BUILD Put it together: a weather report
+say: Build a short report that finds the average temperature, the hottest month, and whether summer is warmer than winter.
+tip: What does the finished program do?
+tipbody:
+p It adds up the temperatures for the average, uses `max` for the hottest, and compares month 7 (July) with month 1 (January) to show a seasonal pattern.
+.
+plan:
+temps = [35, 38, 48, 58, 68, 78, 85, 83, 74, 60, 47, 38]
+total = 0
+for t in temps:
+    total = total + t
+print("Average:", round(total / len(temps), 1))
+print("Hottest:", max(temps))
+if temps[6] > temps[0]:
+    print("Summer is warmer than winter")
+.
+item:
+@item Store the twelve temperatures.
+temps = [35, 38, 48, 58, 68, 78, 85, 83, 74, 60, 47, 38]
+@item Add them up.
+total = 0
+for t in temps:
+    total = total + t
+@item Show the average and the hottest month's temperature.
+print("Average:", round(total / len(temps), 1))
+print("Hottest:", max(temps))
+@item Compare July (position 6) with January (position 0).
+if temps[6] > temps[0]:
+    print("Summer is warmer than winter")
+@eol if temps[6] > temps[0]: | what comparing July with January shows | seasonal|summer|winter|pattern|cycle|season|warmer | it shows a seasonal pattern: summer is warmer than winter
+.
+out:
+Average: 59.3
+Hottest: 85
+Summer is warmer than winter
+.
+
+=== a203 | Big Data, Metadata, and Scale | big-data-metadata
+unit: Unit 12: Data
+num: 2
+learn: how fast data adds up, splitting it across machines, speedup, adding servers as users grow, searching by metadata, and combining two data sets
+ap: Big data is too large or complex for one computer and is processed with parallel and distributed computing. Scalability means a system keeps working as the data or number of users grows. Metadata is data about data. Combining data sets can reveal new information.
+mc:
+Q: Which best describes big data?
+C: Any file larger than 1 megabyte
+C*: Data so large or complex that one ordinary computer cannot process it in a reasonable time
+C: Data stored only in the cloud
+C: Data that has been compressed
+Q: Why is a very large data set often split across many computers and processed in parallel?
+C: To make the data less accurate
+C*: So each computer handles a slice and the total time shrinks
+C: Because computers cannot open large files
+C: To avoid using metadata
+Q: A photo file records the date, GPS location, and camera model. This information is
+C: the pixel data
+C*: metadata
+C: an outlier
+C: a heuristic
+Q: A company joins its sales records to a weather data set. What is the most likely goal?
+C: To compress the sales records
+C*: To find a pattern, such as how weather affects what customers buy
+C: To encrypt the weather data
+C: To delete duplicate rows
+Q: A website works for 100 users but crashes at 100,000 users. What is the best description of the problem?
+C*: It does not scale
+C: It uses too much metadata
+C: It is not encrypted
+C: It has too few outliers
+.
+
+--- How fast data adds up
+notes: What Is Big Data?
+say: Every tap on an app is a tiny record, but millions of users add up fast. This program multiplies users by events by bytes to find how many bytes arrive per day, then divides to show **terabytes** (a trillion bytes).
+tip: Why is that a lot?
+tipbody:
+p One laptop drive holds about 1 TB. This app creates 3 TB **every day**, more than three laptop drives, forever.
+.
+code:
+users = 50000000
+events = 300
+bytes_each = 200
+per_day = users * events * bytes_each
+print(per_day // 1000000000000, "TB per day")
+.
+eol: print(per_day // 1000000000000, "TB per day") | why this much data is hard for one computer | too big|too much|one computer|storage|fit|huge|volume|large | it is too much data to store or process on a single computer
+out:
+3 TB per day
+.
+ownsay: show a whole year
+ownlines:
+print(per_day * 365 // 1000000000000, "TB per year")
+.
+ownout:
+1095 TB per year
+.
+
+--- Split the data across machines
+notes: Scale: Why One Computer Is Not Enough
+say: When the data is too big for one machine, it is **split** across many. If four machines each take an equal slice, each one only has a quarter of the data to hold and to read.
+tip: Why does splitting help?
+tipbody:
+p Each machine works on its own slice **at the same time**. That is parallel computing, with a big **speedup**.
+.
+code:
+per_day = 3000000000000
+machines = 4
+print(per_day // machines // 1000000000, "GB each")
+.
+eol: print(per_day // machines // 1000000000, "GB each") | why splitting the data across machines helps | parallel|same time|share|split|faster|each|many|slice | each machine handles a slice at the same time, so the work is shared
+out:
+750 GB each
+.
+ownsay: spread it over ten machines
+ownlines:
+machines = 10
+print(per_day // machines // 1000000000, "GB each")
+.
+ownout:
+300 GB each
+.
+
+--- Speedup from many machines
+notes: Scale: Why One Computer Is Not Enough
+say: One machine needs 120 minutes to scan the data. Four machines working at the same time each scan a quarter. **Speedup** is the sequential time divided by the parallel time.
+tip: What does a speedup of 4 mean?
+tipbody:
+p It means the job finished four times as fast. Doubling the machines roughly halves the time, **if** the work splits evenly.
+.
+code:
+sequential_time = 120
+machines = 4
+parallel_time = sequential_time / machines
+print(parallel_time)
+print(sequential_time / parallel_time)
+.
+eol: print(sequential_time / parallel_time) | what a speedup of 4 shows | four|4|times|faster|speedup|quicker | the job runs four times faster with four machines
+out:
+30.0
+4.0
+.
+ownsay: see ten machines
+ownlines:
+print(120 / 10)
+.
+ownout:
+12.0
+.
+
+--- Scalable systems add servers
+notes: Scale: Why One Computer Is Not Enough
+say: A **scalable** system keeps working as the number of users grows. One way is to add servers as users arrive. This function says how many servers are needed if each one handles 100,000 users.
+tip: How does the function work?
+tipbody:
+p `users // 100000` is how many full servers you need. The `+ 1` covers the leftover users.
+.
+code:
+def servers_needed(users):
+    return users // 100000 + 1
+print(servers_needed(50000))
+print(servers_needed(1000000))
+.
+eol: return users // 100000 + 1 | why a scalable system adds servers as users grow | grow|more|add|scale|handle|increase|demand|capacity | more users need more servers, so the system can keep handling the load
+out:
+1
+11
+.
+ownsay: plan for ten million users
+ownlines:
+print(servers_needed(10000000))
+.
+ownout:
+101
+.
+
+--- Search by metadata
+notes: Metadata: Data About Data
+say: **Metadata** is data **about** data. Here each photo has a short label with its place and year. Searching the labels finds the photos **without looking at any pixels**.
+tip: Why use metadata?
+tipbody:
+p Metadata is tiny compared with the photo itself, so searching it is fast.
+.
+code:
+photos = ["Atlanta 2025", "Savannah 2026", "Atlanta 2026"]
+count = 0
+for p in photos:
+    if "Atlanta" in p:
+        count = count + 1
+print(count)
+.
+eol: if "Atlanta" in p: | why searching metadata is faster than looking at the pictures | metadata|small|data about|label|without|pixels|faster|search | the label is small data about the photo, so no pixels need to be searched
+out:
+2
+.
+ownsay: count the photos from elsewhere
+ownlines:
+print(len(photos) - count, "elsewhere")
+.
+ownout:
+1 elsewhere
+.
+
+--- Combine two data sets
+notes: More Insight From Combining Data
+say: Two lists mean more **together**. `sales` has each day's sales and `rain` says whether it rained. Position 0 in both lists is the same day. Combining them shows how weather affects sales.
+tip: How do the two lists line up?
+tipbody:
+p `sales[i]` and `rain[i]` describe the same day. The loop uses one position `i` to read both.
+.
+code:
+sales = [100, 40, 90]
+rain = [False, True, False]
+rainy_total = 0
+for i in range(len(sales)):
+    if rain[i]:
+        rainy_total = rainy_total + sales[i]
+print(rainy_total)
+.
+eol: if rain[i]: | what combining the two lists lets you learn | weather|rain|affect|pattern|relationship|together|new|link | combining sales with weather shows how rain affects sales
+out:
+40
+.
+ownsay: count the dry days
+ownlines:
+print(len(sales) - 1, "dry days")
+.
+ownout:
+2 dry days
+.
+
+--- BUILD Put it together: a capacity plan
+say: A new app expects 2 million users who each create 50 MB. Each machine holds 10 TB. Build a plan that shows the total data and how many machines are needed.
+tip: What does the finished program do?
+tipbody:
+p It multiplies users by megabytes, converts to terabytes (a million MB is a TB), and divides by a machine's capacity.
+.
+plan:
+users = 2000000
+mb_per_user = 50
+total_tb = users * mb_per_user // 1000000
+machines = total_tb // 10
+print("Total TB:", total_tb)
+print("Machines needed:", machines)
+.
+item:
+@item Store the users and the data each one creates.
+users = 2000000
+mb_per_user = 50
+@item Work out the total in terabytes.
+total_tb = users * mb_per_user // 1000000
+@item Each machine holds 10 TB, so divide.
+machines = total_tb // 10
+@eol machines = total_tb // 10 | why more data needs more machines | scale|more|distribut|split|capacity|grow|store|fit | more data does not fit on one machine, so it must be spread across more
+@item Show the plan.
+print("Total TB:", total_tb)
+print("Machines needed:", machines)
+.
+out:
+Total TB: 100
+Machines needed: 10
+.
+
+=== a204 | Cleaning Data | cleaning-data
+unit: Unit 12: Data
+num: 3
+learn: counting missing values, removing them, removing duplicates, making formats consistent, removing impossible values, and how cleaning changes an average
+ap: Data must often be cleaned before it is used: missing values, duplicates, inconsistent formats, and impossible values. Conclusions are only as good as the data. Cleaning decisions can introduce bias, so keep the original and document what you changed. Programs clean data with loops and conditionals.
+mc:
+Q: A survey data set lists the same state as "GA", "ga", and "Georgia". What should be done before counting responses by state?
+C: Nothing, because a computer will understand
+C*: Convert them all to one consistent format
+C: Delete the whole column
+C: Sort the rows by age
+Q: A list of student ages includes the value 200. What is the best next step?
+C: Include it, because it is in the data
+C*: Investigate it, since it is probably an error to correct or remove
+C: Double every age
+C: Use it as the average
+Q: Why can removing every row with a missing value cause a problem?
+C: It always makes the data bigger
+C*: If the missing rows are mostly from one group, the remaining data may be biased
+C: Computers cannot delete rows
+C: It changes the file type
+Q: Which is the best practice when cleaning data?
+C: Overwrite the original and forget what was changed
+C*: Keep the original and document each cleaning step
+C: Delete any row that looks odd
+C: Round every number
+Q: A program loops over a list of ages and keeps only the ones from 0 to 120. What is this program doing?
+C: Compressing the data
+C*: Cleaning the data by removing impossible values
+C: Encrypting the data
+C: Sorting the data
+.
+
+--- Count the missing values
+notes: Real Data Is Messy
+say: Real data has holes. In this list an empty string `""` means the person did not answer. The loop counts the blanks.
+tip: What does an empty string mean here?
+tipbody:
+p `""` is a string with nothing in it. In a survey it usually means the question was skipped.
+.
+code:
+ages = [16, 17, "", 16, 15]
+missing = 0
+for a in ages:
+    if a == "":
+        missing = missing + 1
+print(missing)
+.
+eol: if a == "": | what an empty string means in this data | missing|blank|empty|no answer|skipped|nothing | an empty string means the answer is missing
+out:
+1
+.
+ownsay: show how many answers are usable
+ownlines:
+print(len(ages) - missing, "usable")
+.
+ownout:
+4 usable
+.
+
+--- Remove the missing values
+notes: Real Data Is Messy
+say: To clean it, build a **new** list that keeps only the real answers. `!=` means "not equal to". The original list stays untouched, which is good practice.
+tip: Why a new list?
+tipbody:
+p Keeping the original means you can check or redo your cleaning later. Only the copy is changed.
+.
+code:
+ages = [16, 17, "", 16, 15]
+clean = []
+for a in ages:
+    if a != "":
+        clean.append(a)
+print(clean)
+.
+eol: if a != "": | why only the values that are not empty are kept | only|keep|not missing|usable|valid|real|answer | only real answers are kept, the missing ones are left out
+out:
+[16, 17, 16, 15]
+.
+ownsay: count what is left
+ownlines:
+print(len(clean))
+.
+ownout:
+4
+.
+
+--- Remove duplicates
+notes: Real Data Is Messy
+say: The same sign-up can be entered twice. This loop builds a list of **unique** names. A name is added only when it is **not in** the list yet.
+tip: How does it keep each name once?
+tipbody:
+steps Start with an empty `unique` list. ;; For each name, check `n not in unique`. ;; Only a name that has **not** been seen is added. ;; A repeat is skipped.
+.
+code:
+names = ["Ana", "Ben", "Ana", "Cara"]
+unique = []
+for n in names:
+    if n not in unique:
+        unique.append(n)
+print(unique)
+.
+eol: if n not in unique: | how this line removes duplicates | already|once|twice|duplicate|repeat|only one|seen | a name is added only if it is not already in the list, so repeats are skipped
+out:
+['Ana', 'Ben', 'Cara']
+.
+ownsay: count the duplicates that were removed
+ownlines:
+print(len(names) - len(unique), "duplicate")
+.
+ownout:
+1 duplicate
+.
+
+--- Make formats consistent
+notes: Real Data Is Messy
+say: "GA", "ga", "Georgia", and "GA " are all the same state, but a computer sees four different values. **New idea:** `strip()` removes extra spaces and `upper()` makes capital letters. Then one `if` fixes the long name.
+tip: What do strip and upper do?
+tipbody:
+ex "GA ".strip()    # "GA"
+ex "ga".upper()     # "GA"
+good A consistent format means the same thing is always written the same way.
+.
+code:
+states = ["GA", "ga", "Georgia", "GA "]
+fixed = []
+for s in states:
+    s = s.strip().upper()
+    if s == "GEORGIA":
+        s = "GA"
+    fixed.append(s)
+print(fixed)
+.
+eol: s = s.strip().upper() | why all the spellings must match before counting | consistent|same|format|count|standard|match|different | the same state must be written the same way, or it counts as different values
+out:
+['GA', 'GA', 'GA', 'GA']
+.
+ownsay: check the length
+ownlines:
+print(len(fixed))
+.
+ownout:
+4
+.
+
+--- Remove impossible values
+notes: Real Data Is Messy
+say: An age of 200 or -3 cannot be real. A condition with **and** keeps only ages from 0 to 120. Both parts must be true.
+tip: What does the condition do?
+tipbody:
+p `a >= 0 and a <= 120` is only True for ages in the possible range. 200 and -3 fail and are left out.
+.
+code:
+ages = [16, 200, 17, -3, 15]
+valid = []
+for a in ages:
+    if a >= 0 and a <= 120:
+        valid.append(a)
+print(valid)
+.
+eol: if a >= 0 and a <= 120: | why 200 and -3 are removed | impossible|error|mistake|can't|cannot|invalid|unrealistic|typo|range | an age of 200 or -3 is impossible, so it is probably an error
+out:
+[16, 17, 15]
+.
+ownsay: count how many were removed
+ownlines:
+print(len(ages) - len(valid), "removed")
+.
+ownout:
+2 removed
+.
+
+--- Cleaning changes the answer
+notes: Cleaning Can Change the Answer
+say: The error of 200 ruins the average. This function averages any list. Compare the raw data with the cleaned data.
+tip: Why does the cleaned average look realistic?
+tipbody:
+p One impossible value of 200 pulls the average up to about 53. Without it the average is 16, a believable age for a high school class.
+.
+code:
+def average(values):
+    total = 0
+    for v in values:
+        total = total + v
+    return total / len(values)
+print(average([16, 17, 16, 200, 15]))
+print(average([16, 17, 16, 15]))
+.
+eol: print(average([16, 17, 16, 15])) | why the cleaned average is more realistic | outlier|error|200|typo|realistic|true|clean|impossible | the 200 was an error, so the cleaned data gives a realistic average
+out:
+52.8
+16.0
+.
+ownsay: show how much the error moved the average
+ownlines:
+print(round(average([16, 17, 16, 200, 15]) - average([16, 17, 16, 15]), 1))
+.
+ownout:
+36.8
+.
+
+--- BUILD Put it together: a cleaning function
+say: Build one function that removes both the blanks and the impossible ages, and report how many rows it removed.
+tip: What does the finished program do?
+tipbody:
+p It keeps an age only if it is not blank **and** is between 0 and 120. The last line compares the lengths to count what was removed.
+.
+plan:
+def clean_ages(raw):
+    result = []
+    for a in raw:
+        if a != "" and a >= 0 and a <= 120:
+            result.append(a)
+    return result
+raw = [16, "", 17, 200, 16, 15]
+print(clean_ages(raw))
+print(len(raw) - len(clean_ages(raw)), "rows removed")
+.
+item:
+@item Write the cleaning function.
+def clean_ages(raw):
+    result = []
+    for a in raw:
+        if a != "" and a >= 0 and a <= 120:
+            result.append(a)
+    return result
+@eol if a != "" and a >= 0 and a <= 120: | what each part of the condition removes | missing|blank|impossible|range|valid|empty|error | it removes blank answers and ages outside the possible range
+@item Store some raw ages with problems in them.
+raw = [16, "", 17, 200, 16, 15]
+@item Show the clean list and how many rows were removed.
+print(clean_ages(raw))
+print(len(raw) - len(clean_ages(raw)), "rows removed")
+.
+out:
+[16, 17, 16, 15]
+2 rows removed
+.
+
+=== a205 | Filtering, Transforming, and Combining Data | filter-transform-data
+unit: Unit 12: Data
+num: 4
+learn: filtering, transforming, sorting, summarizing, combining two lists by a shared ID, and naming the operation a program performs
+ap: Data is processed with filtering, transforming, sorting, summarizing, and combining. Programs do these with loops, conditionals, and a variable that collects the result. Combining data sets uses a shared key and can reveal new information.
+mc:
+Q: A program goes through a list of test scores and builds a new list containing only the scores above 70. This is
+C: sorting
+C*: filtering
+C: combining
+C: compressing
+Q: A program turns a list of prices in dollars into a list of prices in euros by multiplying each by 0.9. This is
+C: filtering
+C*: transforming
+C: summarizing
+C: encrypting
+Q: Which code pattern finds the total of a list called prices?
+C*: A loop that adds each price to a running total
+C: A loop that removes every price
+C: A loop that sorts the list
+C: A loop that prints the first price
+Q: One list holds student IDs with names and another holds student IDs with grades. How can the two be combined?
+C*: By matching rows that have the same student ID
+C: By adding the grades to the names
+C: By deleting the duplicate names
+C: By sorting both lists alphabetically
+Q: A program adds up every order and divides by the number of orders. This is best described as
+C: filtering
+C: transforming
+C*: summarizing
+C: combining
+.
+
+--- Filter: keep what matches
+notes: Questions You Ask Data
+say: To **filter**, build a new list with only the items that meet a condition. This keeps the passing scores, 70 or above.
+tip: What does filtering do?
+tipbody:
+p Filtering **keeps or skips** each item. It never changes an item, it only decides whether it goes into the new list.
+.
+code:
+scores = [88, 62, 95, 71, 54]
+passing = []
+for s in scores:
+    if s >= 70:
+        passing.append(s)
+print(passing)
+.
+eol: if s >= 70: | what filtering does here | keep|only|condition|match|skip|passing|subset|select | filtering keeps only the scores that match the condition
+out:
+[88, 95, 71]
+.
+ownsay: count how many passed
+ownlines:
+print(len(passing), "of", len(scores))
+.
+ownout:
+3 of 5
+.
+
+--- Transform: change every item
+notes: Transforming and Combining
+say: To **transform**, build a new list where every item is **changed**. Nothing is skipped. This converts temperatures from Celsius to Fahrenheit.
+tip: How is this different from filtering?
+tipbody:
+p Filtering skips some items and keeps the rest unchanged. Transforming keeps every item but **changes** it.
+ex F = C * 9 / 5 + 32
+.
+code:
+celsius = [0, 20, 37]
+fahrenheit = []
+for c in celsius:
+    fahrenheit.append(c * 9 / 5 + 32)
+print(fahrenheit)
+.
+eol: fahrenheit.append(c * 9 / 5 + 32) | how this differs from filtering | change|every|new value|convert|each|transform|all|not skip | it changes every item into a new value instead of skipping any
+out:
+[32.0, 68.0, 98.6]
+.
+ownsay: print the second temperature
+ownlines:
+print(fahrenheit[1])
+.
+ownout:
+68.0
+.
+
+--- Sort
+notes: Questions You Ask Data
+say: `sorted` returns a **new, sorted list**. The original list stays in its old order.
+tip: Does sorting change the original?
+tipbody:
+p `sorted(names)` makes a sorted copy. The list `names` itself is not changed, so you can still see the original order.
+.
+code:
+names = ["Cara", "Ana", "Ben"]
+print(sorted(names))
+print(names)
+.
+eol: print(sorted(names)) | whether the original list changed | not|original|copy|new list|same|unchanged|still | sorted makes a new list, so the original list is not changed
+out:
+['Ana', 'Ben', 'Cara']
+['Cara', 'Ana', 'Ben']
+.
+ownsay: print the smallest number from a sorted list
+ownlines:
+print(sorted([3, 1, 2])[0])
+.
+ownout:
+1
+.
+
+--- Summarize
+notes: Questions You Ask Data
+say: To **summarize**, boil many values down to one. A running **total** starts at 0 and grows as the loop adds each value. `max` finds the biggest.
+tip: How does a running total work?
+tipbody:
+steps Start `total` at 0. ;; For each value, add it to `total`. ;; When the loop ends, `total` holds the sum of all values.
+.
+code:
+orders = [12.5, 40, 7.5]
+total = 0
+for o in orders:
+    total = total + o
+print(total)
+print(max(orders))
+.
+eol: total = total + o | how a total is built | running|adds|accumulate|each|keeps|grows|sum | it adds each order to a running total that grows with every pass
+out:
+60.0
+40
+.
+ownsay: print the average order
+ownlines:
+print(round(total / len(orders), 2))
+.
+ownout:
+20.0
+.
+
+--- Combine two lists with a shared ID
+notes: Transforming and Combining
+say: To **combine** two data sets, find something they share. Here the position in each list matches the same student. `ids.index(102)` finds where 102 is, and that position works in the other lists too. **New idea:** `.index()` returns the position of an item.
+tip: What is the shared key?
+tipbody:
+p The student ID is the **key**. Once you know where an ID sits, you can read the name and the score at the same position.
+.
+code:
+ids = [101, 102, 103]
+names = ["Ana", "Ben", "Cara"]
+scores = [92, 78, 85]
+pos = ids.index(102)
+print(names[pos], scores[pos])
+.
+eol: pos = ids.index(102) | how the shared ID matches rows across the lists | key|id|match|same|find|link|shared|position | the shared ID finds the same student's row in the other lists
+out:
+Ben 78
+.
+ownsay: look up student 103's score
+ownlines:
+print(scores[ids.index(103)])
+.
+ownout:
+85
+.
+
+--- Which operation is it?
+notes: Reading an Exam Question
+say: AP questions describe a program and ask which operation it performs. This function reads a short description and names the operation. The key words are the clue.
+tip: What are the clue words?
+tipbody:
+rows keeps only | filtering | some items are left out
+rows changes each | transforming | every item becomes a new value
+rows adds up | summarizing | many values become one
+.
+code:
+def operation(description):
+    if "keeps only" in description:
+        return "filtering"
+    if "changes each" in description:
+        return "transforming"
+    return "summarizing"
+print(operation("keeps only orders over 50"))
+print(operation("changes each price to euros"))
+print(operation("adds up every order"))
+.
+eol: if "keeps only" in description: | why this wording means filtering | condition|only|match|subset|some|keeps|leaves out|skip | keeping only some items that meet a condition is filtering
+out:
+filtering
+transforming
+summarizing
+.
+ownsay: name a new description
+ownlines:
+print(operation("changes each name to capitals"))
+.
+ownout:
+transforming
+.
+
+--- BUILD Put it together: a processing pipeline
+say: Build a pipeline: **filter** the passing scores, **transform** them with a 5-point curve, then **summarize** with the average.
+tip: What does the finished program do?
+tipbody:
+p Three loops in a row: one filters, one transforms, one summarizes. Each loop feeds the next.
+.
+plan:
+scores = [88, 62, 94, 70, 54]
+passing = []
+for s in scores:
+    if s >= 70:
+        passing.append(s)
+curved = []
+for p in passing:
+    curved.append(p + 5)
+total = 0
+for c in curved:
+    total = total + c
+print(curved)
+print(total / len(curved))
+.
+item:
+@item Store the scores and keep only the passing ones.
+scores = [88, 62, 94, 70, 54]
+passing = []
+for s in scores:
+    if s >= 70:
+        passing.append(s)
+@item Add 5 points to each passing score.
+curved = []
+for p in passing:
+    curved.append(p + 5)
+@eol curved.append(p + 5) | which operation this loop performs | transform|change|curve|new value|every|add 5|convert | it transforms every score into a new, curved score
+@item Add up the curved scores.
+total = 0
+for c in curved:
+    total = total + c
+@item Show the curved scores and their average.
+print(curved)
+print(total / len(curved))
+.
+out:
+[93, 99, 75]
+89.0
+.
+
+=== a206 | Visualizing Data | visualizing-data
+unit: Unit 12: Data
+num: 5
+learn: drawing a text bar chart, choosing a chart for a question, bars that start at zero, how a cut-off axis misleads, summarizing before charting, and labeling a chart
+ap: Visualizations help people see patterns, trends, and outliers. Match the chart to the question: line for change over time, bar for comparing categories, pie for parts of a whole, scatter for a relationship. Charts can mislead through truncated axes, cherry-picked ranges, and missing labels.
+mc:
+Q: A company wants to show how website visits changed each month over two years. Which chart is the best choice?
+C: Pie chart
+C*: Line chart
+C: Scatter plot of zip codes
+C: A table with no chart
+Q: A bar chart's vertical axis starts at 50 instead of 0. What is the most likely effect?
+C: It hides the data
+C*: It makes small differences between bars look much larger
+C: It makes the bars the same height
+C: It changes the data itself
+Q: Which chart best shows whether students who study more earn higher scores?
+C: Pie chart
+C*: Scatter plot
+C: A line chart of one student
+C: A bar chart of class names
+Q: A graph shows only the three warmest months to argue that the climate is not changing. What is the problem?
+C: The graph used a line
+C*: It cherry-picks a range of data that supports only one story
+C: It was drawn in color
+C: It has too many labels
+Q: Which habit makes a chart more honest and easier to read?
+C: Leaving off the axis labels to save space
+C*: Giving the chart a title and labeling the axes with units
+C: Using a different scale on each side
+C: Showing only the data that supports your point
+.
+
+--- A text bar chart
+notes: Why Visualize?
+say: A chart turns numbers into **length** so patterns jump out. This loop draws a bar for each food with one `#` per vote. `"#" * 5` repeats the character five times.
+tip: How does the bar get its length?
+tipbody:
+p `"#" * votes[i]` repeats the hash mark as many times as there are votes, so a longer bar means more votes.
+.
+code:
+labels = ["Pizza", "Tacos", "Salad"]
+votes = [5, 3, 8]
+for i in range(len(labels)):
+    print(labels[i], "#" * votes[i])
+.
+eol: print(labels[i], "#" * votes[i]) | what the length of each bar shows | votes|count|how many|value|number|size|amount | the length of each bar shows how many votes that food got
+out:
+Pizza #####
+Tacos ###
+Salad ########
+.
+ownsay: say how many votes the tallest bar has
+ownlines:
+print(max(votes), "is the tallest bar")
+.
+ownout:
+8 is the tallest bar
+.
+
+--- Choose the right chart
+notes: Choose the Right Chart
+say: Different questions need different charts. This function reads the question and names a chart: a **line** chart for change over time, a **bar** chart to compare, a **pie** chart for parts of a whole, and a **scatter** plot otherwise.
+tip: Which chart for which question?
+tipbody:
+rows line | change over time | a town's temperature each month
+rows bar | compare categories | votes for each lunch
+rows pie | parts of a whole | a budget
+rows scatter | relationship between two numbers | hours studied and score
+.
+code:
+def best_chart(question):
+    if "over time" in question:
+        return "line"
+    if "compare" in question:
+        return "bar"
+    if "parts of a whole" in question:
+        return "pie"
+    return "scatter"
+print(best_chart("how sales change over time"))
+print(best_chart("compare votes for each lunch"))
+.
+eol: if "over time" in question: | why a line chart suits change over time | time|trend|change|connects|order|sequence|follow | a line connects the values in time order so you see the trend
+out:
+line
+bar
+.
+ownsay: choose a chart for a relationship
+ownlines:
+print(best_chart("relationship between two numbers"))
+.
+ownout:
+scatter
+.
+
+--- Bars should start at zero
+notes: Charts Can Mislead
+say: A bar chart is honest when the length of each bar is **in proportion** to its value. Plan A sold 52 and Plan B sold 55. Drawn from zero, the bars are almost the same length.
+tip: Why from zero?
+tipbody:
+p A bar from zero is 52 units long, and another is 55 units long. The picture shows the real, small difference.
+.
+code:
+values = [52, 55]
+for v in values:
+    print("#" * (v // 5))
+.
+eol: print("#" * (v // 5)) | why bars should start at zero | zero|true|proportion|honest|exaggerat|fair|0|real | bars that start at zero show the true size of the difference
+out:
+##########
+###########
+.
+ownsay: work out the real ratio
+ownlines:
+print(round(55 / 52, 2))
+.
+ownout:
+1.06
+.
+
+--- A cut-off axis misleads
+notes: Charts Can Mislead
+say: Now cut off the bottom of the chart by starting the axis at 50. Each bar loses 50 units, so Plan A shows 2 and Plan B shows 5. The very same data now looks like a huge gap.
+tip: How does that change the picture?
+tipbody:
+p The real difference is 6 percent. After cutting the axis, one bar looks 2.5 times as long as the other. The numbers did not change, only the picture.
+warn A truncated axis exaggerates differences.
+.
+code:
+values = [52, 55]
+for v in values:
+    print("#" * (v - 50))
+.
+eol: print("#" * (v - 50)) | how cutting off the axis changes the picture | exaggerat|bigger|misleading|truncat|larger|looks|mislead|huge|gap | cutting off the axis exaggerates the difference and misleads
+out:
+##
+#####
+.
+ownsay: show how much taller B looks now
+ownlines:
+print((55 - 50) / (52 - 50))
+.
+ownout:
+2.5
+.
+
+--- Summarize before you draw
+notes: Why Visualize?
+say: A chart of thousands of values is a blur. Often you **summarize first**, then chart the summary. This computes the average and extremes of a week of daily sales.
+tip: Why summarize?
+tipbody:
+p Seven numbers are easy to scan, but a million are not. An average, a maximum, and a minimum turn many values into a few you can chart.
+.
+code:
+daily = [10, 12, 8, 14, 9, 11, 13]
+total = 0
+for d in daily:
+    total = total + d
+print(round(total / len(daily), 1))
+.
+eol: print(round(total / len(daily), 1)) | why we summarize big data before charting | summar|too many|simple|pattern|easier|clear|average|reduce | a summary turns many values into one that is easier to see and chart
+out:
+11.0
+.
+ownsay: show the best and worst day
+ownlines:
+print(max(daily), min(daily))
+.
+ownout:
+14 8
+.
+
+--- Label your chart
+notes: Making a Chart Well
+say: A chart needs a **title** and **labels with units** so people know what they are looking at. This prints a title, an axis label, and an underline the same length as the title.
+tip: What goes on a good chart?
+tipbody:
+steps A title that says what the chart shows. ;; Axis labels that name what is measured. ;; Units, like "students" or "dollars".
+.
+code:
+title = "Votes for lunch"
+axis = "Number of students"
+print(title)
+print(axis)
+print("-" * len(title))
+.
+eol: axis = "Number of students" | why axes need labels and units | units|label|mean|measure|understand|what|know|read | labels and units tell the reader what is being measured
+out:
+Votes for lunch
+Number of students
+---------------
+.
+ownsay: print how long the title is
+ownlines:
+print(len(title))
+.
+ownout:
+15
+.
+
+--- BUILD Put it together: a labeled bar chart
+say: Build a bar chart of four days of sales. Each row shows the day, a bar, and the number, and the last line names the best day.
+tip: What does the finished program do?
+tipbody:
+p `sales.index(max(sales))` finds the position of the biggest value, and the same position in `labels` gives the day's name.
+.
+plan:
+labels = ["Mon", "Tue", "Wed", "Thu"]
+sales = [4, 7, 3, 9]
+for i in range(len(labels)):
+    print(labels[i], "#" * sales[i], sales[i])
+print("Best day:", labels[sales.index(max(sales))])
+.
+item:
+@item Store the day names and the sales.
+labels = ["Mon", "Tue", "Wed", "Thu"]
+sales = [4, 7, 3, 9]
+@item Draw one labeled bar for each day.
+for i in range(len(labels)):
+    print(labels[i], "#" * sales[i], sales[i])
+@item Name the best day.
+print("Best day:", labels[sales.index(max(sales))])
+@eol print("Best day:", labels[sales.index(max(sales))]) | why a bar chart suits comparing the days | bar|compare|categories|each|days|side by side|tallest | a bar chart compares categories like days, and the tallest bar is the best
+.
+out:
+Mon #### 4
+Tue ####### 7
+Wed ### 3
+Thu ######### 9
+Best day: Thu
+.
+
+=== a207 | Bias, Sampling, and Trust in Data | data-bias-sampling
+unit: Unit 12: Data
+num: 6
+learn: a population and a sample, a friends-only sample, a poll only some people answer, why a bigger biased sample is still wrong, and survivorship bias
+ap: A sample should represent the population. Biased sampling gives biased conclusions. Know sampling bias, self-selection bias, and survivorship bias. A bigger sample does not fix a biased method. Data collection raises questions of consent, privacy, and fairness.
+mc:
+Q: To learn what all students at a school think about the lunch menu, a student surveys only the people at one lunch table. What is the main problem?
+C: The survey has too many questions
+C*: The sample may not represent the whole school
+C: The data is stored in binary
+C: Lunch menus cannot be surveyed
+Q: A website runs an optional poll, and mostly people with strong opinions respond. This is an example of
+C*: self-selection bias
+C: lossy compression
+C: a DDoS attack
+C: parallel computing
+Q: A researcher says, "My biased survey is fine because I asked 50,000 people." What is wrong with that?
+C: Nothing, because large samples fix bias
+C*: A large sample from a biased method is still biased
+C: 50,000 is too many to count
+C: Surveys cannot be that large
+Q: A study of successful companies concludes that quitting college makes you rich, because it only looked at famous founders who did. This is
+C*: survivorship bias
+C: open-source licensing
+C: metadata
+C: a heuristic
+Q: Which question is most useful to ask before trusting a data set?
+C: What color is the chart?
+C*: Who might be missing from this data, and how was it collected?
+C: How many pages is the report?
+C: Which font was used?
+.
+
+--- Population and sample
+notes: Who Is in the Data?
+say: The **population** is everyone you want to know about. This list is a tiny population of ten people and whether they like the new schedule. The function finds the **percent** who said yes.
+tip: What is the population?
+tipbody:
+p It is the whole group. If you could ask everyone, you would get the true answer.
+.
+code:
+population = ["yes", "no", "no", "yes", "no", "yes", "no", "no", "yes", "no"]
+def percent_yes(group):
+    count = 0
+    for answer in group:
+        if answer == "yes":
+            count = count + 1
+    return count / len(group) * 100
+print(percent_yes(population))
+.
+eol: print(percent_yes(population)) | what the population is | everyone|whole|all|group|entire|true|everybody | the population is everyone we want to know about, so this is the true answer
+out:
+40.0
+.
+ownsay: count the people
+ownlines:
+print(len(population), "people")
+.
+ownout:
+10 people
+.
+
+--- A sample
+notes: Who Is in the Data?
+say: You usually cannot ask everyone, so you ask a **sample**: part of the population. A sample can differ from the true answer just by chance.
+tip: Why might the sample differ?
+tipbody:
+p `population[:4]` is the first four people. They happen to answer 50 percent yes, but the whole group says 40 percent.
+.
+code:
+population = ["yes", "no", "no", "yes", "no", "yes", "no", "no", "yes", "no"]
+def percent_yes(group):
+    count = 0
+    for answer in group:
+        if answer == "yes":
+            count = count + 1
+    return count / len(group) * 100
+sample = population[:4]
+print(percent_yes(sample))
+.
+eol: print(percent_yes(sample)) | why a sample can differ from the population | part|some|subset|differ|not everyone|chance|different|only | a sample is only part of the population, so it can differ by chance
+out:
+50.0
+.
+ownsay: check the other six people
+ownlines:
+print(round(percent_yes(population[4:]), 1))
+.
+ownout:
+33.3
+.
+
+--- A biased sample
+notes: Common Ways Data Becomes Biased
+say: Asking only your **friends** is a convenient sample, but friends are alike. If they happen to like the new schedule, you will wrongly think everyone does. This is **sampling bias**.
+tip: Why is asking only friends biased?
+tipbody:
+p Friends share interests and opinions. They are not a typical slice of the whole school, so their answers lean one way.
+.
+code:
+friends = ["yes", "yes", "yes", "no"]
+def percent_yes(group):
+    count = 0
+    for answer in group:
+        if answer == "yes":
+            count = count + 1
+    return count / len(group) * 100
+print(percent_yes(friends))
+.
+eol: print(percent_yes(friends)) | why asking only friends gives a biased answer | friend|same|represent|typical|bias|not everyone|similar|alike|lean | friends are alike, so they do not represent the whole population
+out:
+75.0
+.
+ownsay: show how far off the friends are from the truth of 40
+ownlines:
+print(percent_yes(friends) - 40.0)
+.
+ownout:
+35.0
+.
+
+--- Self-selection
+notes: Common Ways Data Becomes Biased
+say: In an online poll, people **choose** whether to answer, and the ones who care most reply the most. Suppose only the people who like the schedule bother to reply. The poll would say 100 percent.
+tip: What is self-selection?
+tipbody:
+p People select themselves into the sample. The people who reply are not typical of the people who do not.
+.
+code:
+population = ["yes", "no", "no", "yes", "no", "yes", "no", "no", "yes", "no"]
+replies = []
+for person in population:
+    if person == "yes":
+        replies.append(person)
+print(len(replies), "replies from", len(population))
+.
+eol: if person == "yes": | why a poll where mostly one group replies is biased | volunteer|choose|opt|self|strong|only|reply|respond|selected | only the people who chose to answer are counted, so it is self-selection bias
+out:
+4 replies from 10
+.
+ownsay: show what percent of the replies say yes
+ownlines:
+print(len(replies) / len(replies) * 100)
+.
+ownout:
+100.0
+.
+
+--- A bigger biased sample is still biased
+notes: Common Ways Data Becomes Biased
+say: Asking more people does not fix a biased **method**. Here the friends' answers are repeated 1,000 times, like surveying 4,000 friends. The percent does not move at all.
+tip: Does size fix bias?
+tipbody:
+p `friends * 1000` repeats the list 1000 times. More answers, the same lean.
+warn A bigger sample does not fix a biased method.
+.
+code:
+friends = ["yes", "yes", "yes", "no"]
+big = friends * 1000
+print(len(big))
+print(len(big) // len(friends), "times as many answers")
+.
+eol: print(len(big)) | why a huge biased sample is still wrong | method|bias|still|size|doesn't|not fix|same|wrong|sample | a bigger sample from a biased method is still biased
+out:
+4000
+1000 times as many answers
+.
+ownsay: show that 4000 friends is still all friends
+ownlines:
+print(big.count("yes") / len(big) * 100)
+.
+ownout:
+75.0
+.
+
+--- Survivorship bias
+notes: Common Ways Data Becomes Biased
+say: If you only study what **survived**, you ignore everything that did not. Eight companies started and only two are still around. Looking at just those two makes starting a company look much safer than it is.
+tip: What is survivorship bias?
+tipbody:
+p The failures are invisible, so the data only shows the winners and gives an unrealistic picture.
+.
+code:
+all_start = ["A", "B", "C", "D", "E", "F", "G", "H"]
+survivors = ["A", "B"]
+print(len(survivors) / len(all_start) * 100, "% survived")
+.
+eol: print(len(survivors) / len(all_start) * 100, "% survived") | what is misleading about studying only the survivors | ignore|missing|failed|only|others|did not|survivor|75|invisible|hidden | studying only the survivors ignores the many that failed
+out:
+25.0 % survived
+.
+ownsay: count the ones that did not survive
+ownlines:
+print(len(all_start) - len(survivors), "did not survive")
+.
+ownout:
+6 did not survive
+.
+
+--- BUILD Put it together: a bias check
+say: Build a check that compares a friends-only sample with the whole population and prints the size of the gap.
+tip: What does the finished program do?
+tipbody:
+p It finds the percent saying yes in each group and subtracts. A large gap is a sign of sampling bias.
+.
+plan:
+population = ["yes", "no", "no", "yes", "no", "yes", "no", "no", "yes", "no"]
+friends = ["yes", "yes", "yes", "no"]
+def percent_yes(group):
+    count = 0
+    for answer in group:
+        if answer == "yes":
+            count = count + 1
+    return count / len(group) * 100
+print("Population:", percent_yes(population))
+print("Friends only:", percent_yes(friends))
+print("Gap:", percent_yes(friends) - percent_yes(population))
+.
+item:
+@item Store the whole population and the friends-only sample.
+population = ["yes", "no", "no", "yes", "no", "yes", "no", "no", "yes", "no"]
+friends = ["yes", "yes", "yes", "no"]
+@item Write the function that finds the percent of yes answers.
+def percent_yes(group):
+    count = 0
+    for answer in group:
+        if answer == "yes":
+            count = count + 1
+    return count / len(group) * 100
+@item Show both percents and the gap between them.
+print("Population:", percent_yes(population))
+print("Friends only:", percent_yes(friends))
+print("Gap:", percent_yes(friends) - percent_yes(population))
+@eol print("Gap:", percent_yes(friends) - percent_yes(population)) | what the gap shows about the friends-only sample | bias|biased|sampling|differ|wrong|not represent|gap|off|lean | the big gap shows the friends-only sample is biased and does not represent everyone
+.
+out:
+Population: 40.0
+Friends only: 75.0
+Gap: 35.0
+.
+
+=== a208 | Developing Algorithms and Equivalent Algorithms | developing-algorithms
+unit: Unit 7: Basic Data Structures
+num: 7
+learn: sequencing, selection, and iteration in one algorithm, an equivalent algorithm, a look-alike that gives the wrong answer, edge-case tests, combining and modifying algorithms
+ap: Every algorithm is built from sequencing, selection, and iteration. Equivalent algorithms give the same result for every input but may differ in how many steps they take. Algorithms that look similar can give different results, so test edge cases. New algorithms can be made by combining or modifying existing ones.
+mc:
+Q: Which are the three building blocks of every algorithm?
+C: Input, output, and storage
+C*: Sequencing, selection, and iteration
+C: Variables, lists, and functions
+C: Compile, run, and debug
+Q: Two algorithms are equivalent if they
+C: use exactly the same code
+C*: give the same result for every input, even if their steps are different
+C: run in the same amount of time
+C: were written by the same person
+Q: A program finds the largest number in a list but starts its "largest so far" at 0. For which list does it give a wrong answer?
+C: 4, 9, 2
+C: 10, 20, 30
+C*: -5, -2, -9
+C: 0, 1, 2
+Q: In the AP exam pseudocode, what is the index of the first item in a list?
+C: 0
+C*: 1
+C: -1
+C: It depends on the list
+Q: A developer takes an existing sorting algorithm and changes the comparison so it sorts from largest to smallest. This is an example of
+C*: developing an algorithm by modifying an existing one
+C: compressing data
+C: encrypting data
+C: parallel computing
+.
+
+--- Three building blocks in one algorithm
+notes: What Is an Algorithm?
+say: This algorithm finds the largest number. It uses **sequencing** (the lines run in order), **iteration** (the `for` loop repeats), and **selection** (the `if` decides whether to keep a number).
+tip: Where are the three blocks?
+tipbody:
+rows Sequencing | lines run in order | largest is set before the loop
+rows Iteration | the for loop | looks at every number
+rows Selection | the if | keeps a number only if it is bigger
+.
+code:
+numbers = [4, 9, 2, 7]
+largest = numbers[0]
+for n in numbers:
+    if n > largest:
+        largest = n
+print(largest)
+.
+eol: if n > largest: | which building block this line is | selection|decision|condition|choose|if|choice | this is selection, because a condition decides whether to change largest
+out:
+9
+.
+ownsay: count how many numbers were checked
+ownlines:
+print(len(numbers), "numbers checked")
+.
+ownout:
+4 numbers checked
+.
+
+--- An equivalent algorithm
+notes: Equivalent Algorithms
+say: There is more than one way to find the largest number. You could **sort** the list and take the last item. The steps are different, but the answer is the same for every list. These are **equivalent algorithms**.
+tip: Why are they equivalent?
+tipbody:
+p Equivalent means the **same results for every input**. It does not mean the same steps, and it does not mean the same speed.
+.
+code:
+numbers = [4, 9, 2, 7]
+print(sorted(numbers)[len(numbers) - 1])
+print(max(numbers))
+.
+eol: print(sorted(numbers)[len(numbers) - 1]) | why this is an equivalent algorithm to the loop | same|equivalent|result|different steps|answer|both|every input | it uses different steps but gives the same answer for every input
+out:
+9
+9
+.
+ownsay: check that the two methods agree
+ownlines:
+print(max(numbers) == sorted(numbers)[len(numbers) - 1])
+.
+ownout:
+True
+.
+
+--- A look-alike that is wrong
+notes: Equivalent Algorithms
+say: This program looks almost the same, but it starts `largest` at **0** instead of the first number. With negative numbers nothing is bigger than 0, so it never changes and gives the wrong answer.
+tip: Why is it wrong?
+tipbody:
+p The real largest of -5, -2, and -9 is -2. But 0 is bigger than all of them, so the loop never replaces it.
+good Algorithms that look alike can give different results.
+.
+code:
+numbers = [-5, -2, -9]
+largest = 0
+for n in numbers:
+    if n > largest:
+        largest = n
+print(largest)
+.
+eol: largest = 0 | why this gives the wrong answer for negative numbers | negative|0|never|bigger|start|wrong|zero|replace | starting at 0 means no negative number is ever bigger, so the answer is wrong
+out:
+0
+.
+ownsay: print the correct answer
+ownlines:
+print(max(numbers))
+.
+ownout:
+-2
+.
+
+--- Test the edge cases
+notes: Testing With the Right Inputs
+say: Running a program once proves very little. Good tests include the **smallest** input, **ties**, and **negative** numbers. This function is correct because it starts with the first item.
+tip: What are edge cases?
+tipbody:
+p Edge cases are the unusual inputs at the boundaries: a list of one item, a list of equal numbers, all negatives. They are where mistakes hide.
+.
+code:
+def biggest(numbers):
+    largest = numbers[0]
+    for n in numbers:
+        if n > largest:
+            largest = n
+    return largest
+print(biggest([5]))
+print(biggest([3, 3, 3]))
+print(biggest([-1, -2]))
+.
+eol: print(biggest([5])) | why you should test a list of just one item | edge|smallest|one|boundary|only|special|corner|unusual | a one-item list is an edge case and the smallest possible input
+out:
+5
+3
+-1
+.
+ownsay: test a list holding zero
+ownlines:
+print(biggest([0]))
+.
+ownout:
+0
+.
+
+--- Combine two algorithms
+notes: Developing an Algorithm
+say: You can build a new algorithm from ones you already have. This one finds the largest number, then uses it to **scale** every number to a percent of the largest.
+tip: How are two algorithms combined?
+tipbody:
+p First algorithm: find the largest. Second algorithm: loop through the list and divide each number by the largest. The output of the first feeds the second.
+.
+code:
+numbers = [2, 5, 10]
+largest = numbers[0]
+for n in numbers:
+    if n > largest:
+        largest = n
+scaled = []
+for n in numbers:
+    scaled.append(n / largest * 100)
+print(scaled)
+.
+eol: scaled.append(n / largest * 100) | how this combines two algorithms | combine|uses|first|then|largest|existing|build on|reuse|result | it reuses the largest-number algorithm and then uses its result to scale every number
+out:
+[20.0, 50.0, 100.0]
+.
+ownsay: count the scaled numbers
+ownlines:
+print(len(scaled))
+.
+ownout:
+3
+.
+
+--- Modify an algorithm
+notes: Developing an Algorithm
+say: To find the **smallest** number, change the largest-number algorithm by flipping one comparison from `>` to `<`. Modifying an algorithm you already trust is faster than starting over.
+tip: What changed?
+tipbody:
+p Only the comparison. Everything else, starting at the first item and looping through the rest, stays the same.
+.
+code:
+numbers = [4, 9, 2, 7]
+smallest = numbers[0]
+for n in numbers:
+    if n < smallest:
+        smallest = n
+print(smallest)
+.
+eol: if n < smallest: | what changed from the algorithm that finds the largest | comparison|<|flip|reverse|smaller|opposite|modif|changed|less | the comparison was flipped to less than, so it finds the smallest
+out:
+2
+.
+ownsay: double the smallest
+ownlines:
+print(2 * smallest)
+.
+ownout:
+4
+.
+
+--- BUILD Put it together: the spread of a list
+say: Build a function that returns the **spread** of a list: the largest number minus the smallest. It combines the two algorithms in a single loop.
+tip: What does the finished program do?
+tipbody:
+p It tracks the largest and the smallest at the same time. A list with one number, or all equal numbers, has a spread of 0.
+.
+plan:
+def spread(numbers):
+    largest = numbers[0]
+    smallest = numbers[0]
+    for n in numbers:
+        if n > largest:
+            largest = n
+        if n < smallest:
+            smallest = n
+    return largest - smallest
+print(spread([4, 9, 2, 7]))
+print(spread([5]))
+print(spread([-3, 3]))
+.
+item:
+@item Write the function that tracks both the largest and the smallest.
+def spread(numbers):
+    largest = numbers[0]
+    smallest = numbers[0]
+    for n in numbers:
+        if n > largest:
+            largest = n
+        if n < smallest:
+            smallest = n
+    return largest - smallest
+@eol return largest - smallest | what the function returns | difference|range|biggest|largest|smallest|spread|gap|minus | it returns the difference between the largest and smallest numbers
+@item Test a normal list, a one-item list, and a list with a negative.
+print(spread([4, 9, 2, 7]))
+print(spread([5]))
+print(spread([-3, 3]))
+.
+out:
+7
+0
+6
+.
+
+=== a209 | Efficiency, Reasonable Time, and Heuristics | algorithm-efficiency
+unit: Unit 7: Basic Data Structures
+num: 8
+learn: counting steps in a linear search and in nested loops, halving, why 2 to the n and factorial explode, and a heuristic that always goes to the nearest stop
+ap: Efficiency describes how the number of steps grows with the size of the input. Polynomial growth is reasonable and exponential or factorial growth is unreasonable. A decision problem asks yes or no and an optimization problem asks for the best. A heuristic finds a good answer in reasonable time when the best answer takes unreasonable time.
+mc:
+Q: An algorithm must try every possible ordering of 25 locations. Which statement is most accurate?
+C: It runs in reasonable time because computers are fast
+C*: The number of orderings grows so quickly that it takes unreasonable time
+C: It runs in linear time
+C: It is impossible to write
+Q: Algorithm A takes about n steps and algorithm B takes about n times n steps. If the list becomes 10 times longer, what happens to B's steps?
+C: They become 10 times bigger
+C*: They become 100 times bigger
+C: They stay the same
+C: They become 20 times bigger
+Q: What is a heuristic?
+C: An algorithm that always finds the best answer
+C*: An approach that finds a good-enough answer in reasonable time when the best answer takes too long
+C: A type of loop
+C: An error in a program
+Q: Which problem is a decision problem?
+C: Find the shortest route through 20 cities
+C*: Is a given number in a list?
+C: Find the cheapest set of items that fits in a bag
+C: Find the best seating plan
+Q: Which algorithm runs in reasonable time?
+C*: Checking every item of a list once
+C: Trying every possible subset of the items
+C: Trying every possible ordering of the items
+C: Trying every possible password of any length
+.
+
+--- Count the steps of a linear search
+notes: What Is Efficiency?
+say: Efficiency is about **how many steps** an algorithm takes as the input grows. This linear search counts how many items it looks at before finding the target. In the worst case it looks at **every** item. `break` stops the loop early.
+tip: What is the worst case?
+tipbody:
+p If the target is the last item, or not there at all, the search checks all n items. So the steps grow in step with n.
+.
+code:
+items = [7, 3, 9, 4, 6]
+target = 6
+steps = 0
+for x in items:
+    steps = steps + 1
+    if x == target:
+        break
+print(steps)
+.
+eol: print(steps) | how many steps a linear search can take in the worst case | n|all|every|each|worst|length|whole|list|up to | in the worst case it checks every item, so it takes about n steps
+out:
+5
+.
+ownsay: show the size of the list
+ownlines:
+print(len(items), "items")
+.
+ownout:
+5 items
+.
+
+--- Nested loops: n times n
+notes: What Is Efficiency?
+say: A loop **inside** a loop does the inner work once for every pass of the outer loop. With n = 10, that is 10 times 10 steps. Doubling n makes **four** times as many steps.
+tip: Why n times n?
+tipbody:
+p The outer loop runs 10 times. Each time, the inner loop runs 10 times. So the inner line runs 10 x 10 = 100 times.
+.
+code:
+n = 10
+steps = 0
+for i in range(n):
+    for j in range(n):
+        steps = steps + 1
+print(steps)
+.
+eol: steps = steps + 1 | why the number of steps is n times n | n times n|n squared|square|loop inside|nested|100|inner|each | the inner loop runs n times for each of the n passes of the outer loop
+out:
+100
+.
+ownsay: double n to 20
+ownlines:
+n = 20
+steps = 0
+for i in range(n):
+    for j in range(n):
+        steps = steps + 1
+print(steps)
+.
+ownout:
+400
+.
+
+--- Halving: binary search
+notes: What Is Efficiency?
+say: **Binary search** on a sorted list cuts the possibilities in **half** every step. This loop counts how many halvings it takes to get from 1,000 items down to 1. It is a tiny number compared with 1,000.
+tip: Why so few steps?
+tipbody:
+p Each step throws away half of what is left: 1000, 500, 250, 125 ... Ten steps get you from 1,000 down to 1.
+good Doubling the list adds only **one** more step.
+.
+code:
+size = 1000
+steps = 0
+while size > 1:
+    size = size // 2
+    steps = steps + 1
+print(steps)
+.
+eol: size = size // 2 | why halving needs so few steps | half|halve|divid|cut|log|few|each step|fast|quick | each step cuts the list in half, so only a few steps are needed
+out:
+9
+.
+ownsay: try a million items
+ownlines:
+size = 1000000
+steps = 0
+while size > 1:
+    size = size // 2
+    steps = steps + 1
+print(steps)
+.
+ownout:
+19
+.
+
+--- Reasonable and unreasonable growth
+notes: Reasonable and Unreasonable Time
+say: Compare two kinds of growth. n squared and n cubed grow **polynomially**, which is **reasonable**. `2 ** n` doubles with every extra item. That is **exponential** growth, which is **unreasonable** for large n.
+tip: Why is 2 ** n unreasonable?
+tipbody:
+p It doubles each time n goes up by 1. 2 ** 30 is already over a billion, and 2 ** 60 would take decades even at a billion steps per second.
+.
+code:
+for n in [10, 20, 30]:
+    print(n, 2 ** n)
+.
+eol: print(n, 2 ** n) | why 2 ** n is called unreasonable | doubles|explode|too long|grows|exponential|fast|unreasonable|huge|billion | the number of steps doubles with each item, so it explodes
+out:
+10 1024
+20 1048576
+30 1073741824
+.
+ownsay: print the cube of the last n
+ownlines:
+print(n ** 3)
+.
+ownout:
+27000
+.
+
+--- Trying every ordering
+notes: Reasonable and Unreasonable Time
+say: Trying **every ordering** of n items takes `n!` steps (n factorial: n x (n-1) x ... x 1). A delivery driver checking every route is doing this. It explodes even faster than `2 ** n`.
+tip: What is a factorial?
+tipbody:
+ex 5! = 5 x 4 x 3 x 2 x 1 = 120
+p With 10 stops there are over 3 million orderings. With 20 stops there are over 2 quintillion.
+.
+code:
+def factorial(n):
+    result = 1
+    for i in range(2, n + 1):
+        result = result * i
+    return result
+print(factorial(5))
+print(factorial(10))
+.
+eol: result = result * i | why trying every ordering is unreasonable | factorial|orderings|explode|n!|too many|grows|unreasonable|huge | factorial growth explodes, so trying every ordering takes too long
+out:
+120
+3628800
+.
+ownsay: try twenty stops
+ownlines:
+print(factorial(20))
+.
+ownout:
+2432902008176640000
+.
+
+--- A heuristic: go to the nearest stop
+notes: Heuristics: Good Enough, Fast Enough
+say: A **heuristic** finds a **good** answer fast without checking everything. This one plans a route along a road: from where you are, always drive to the **nearest** stop that is left. It never looks at every possible ordering. `abs` gives a distance, and `remove` takes a stop off the list once it is visited.
+tip: How does the heuristic work?
+tipbody:
+steps Start at position 0. ;; Find the unvisited stop closest to where you are. ;; Drive there, add the distance to the total, and cross it off. ;; Repeat until none are left.
+good It is quick, but on a hard map it is **not guaranteed** to be the shortest route.
+.
+code:
+stops = [9, 2, 5, 7]
+position = 0
+total = 0
+while len(stops) > 0:
+    nearest = stops[0]
+    for s in stops:
+        if abs(s - position) < abs(nearest - position):
+            nearest = s
+    total = total + abs(nearest - position)
+    position = nearest
+    stops.remove(nearest)
+print(total)
+.
+eol: if abs(s - position) < abs(nearest - position): | what rule the heuristic follows | nearest|closest|closer|shortest|next|distance|smallest | it always picks the stop that is nearest to where it is now
+out:
+9
+.
+ownsay: show where the route ends
+ownlines:
+print(position)
+.
+ownout:
+9
+.
+
+--- BUILD Put it together: compare two algorithms
+say: Build a program that compares a linear search with a binary search on a sorted list of 1,024 items by counting the worst-case steps of each.
+tip: What does the finished program do?
+tipbody:
+p Linear search may check all 1,024 items. Binary search halves 1,024 until 1 is left, which takes 10 steps.
+.
+plan:
+n = 1024
+linear = n
+binary = 0
+size = n
+while size > 1:
+    size = size // 2
+    binary = binary + 1
+print("Linear search:", linear, "steps")
+print("Binary search:", binary, "steps")
+.
+item:
+@item Store the size of the list and the linear worst case.
+n = 1024
+linear = n
+@item Count how many times 1,024 can be halved.
+binary = 0
+size = n
+while size > 1:
+    size = size // 2
+    binary = binary + 1
+@item Show both worst cases.
+print("Linear search:", linear, "steps")
+print("Binary search:", binary, "steps")
+@eol print("Binary search:", binary, "steps") | which algorithm grows slower and why | binary|log|slower|fewer|half|halving|less | binary search takes far fewer steps because it halves the list each time
+.
+out:
+Linear search: 1024 steps
+Binary search: 10 steps
+.
+
+=== a210 | Undecidable Problems | undecidable-problems
+unit: Unit 7: Basic Data Structures
+num: 9
+learn: decidable problems that always finish, why seeing a program still running proves nothing, a loop nobody can prove stops, solvable-but-unreasonable versus unsolvable, and the paradox behind the halting problem
+ap: A problem is decidable if an algorithm can always give a correct yes or no answer, and undecidable if no algorithm can. The halting problem is the standard undecidable problem. Unreasonable time (solvable but too slow) is different from undecidable (not solvable at all). Algorithms can still solve some specific cases of an undecidable problem.
+mc:
+Q: What does it mean for a problem to be undecidable?
+C: It takes a very long time to solve
+C*: No algorithm can solve it correctly for every input
+C: It has no inputs
+C: It can only be solved by a person
+Q: Which statement about the halting problem is true?
+C: It is solved by running the program and watching it
+C*: No program can correctly tell, for every program and input, whether it will halt
+C: It can be solved with a faster computer
+C: It is only a problem for Python
+Q: A problem can be solved by an algorithm, but the algorithm would take billions of years for large inputs. This problem is best described as
+C: undecidable
+C*: solvable, but only in unreasonable time
+C: a decision problem with no input
+C: a heuristic
+Q: Which statement is true?
+C: An undecidable problem will be solved when computers get faster
+C*: Undecidable means it has been proven that no algorithm can solve every case
+C: Heuristics solve undecidable problems perfectly
+C: Undecidable problems are always about passwords
+Q: A programmer says, "I watched my program for an hour and it has not stopped, so it will never stop." What is wrong with this reasoning?
+C: Nothing, because an hour is long enough
+C*: A program that is still running might stop later, so you cannot tell by watching
+C: Programs can never run for an hour
+C: The program has no input
+.
+
+--- A decidable problem
+notes: Some Problems Can't Be Solved
+say: A problem is **decidable** if some algorithm **always** finishes with a correct yes or no. "Is this number even?" is decidable. The function checks the remainder after dividing by 2, then answers.
+tip: Why is this decidable?
+tipbody:
+p For every whole number the function finishes and gives the right answer. There is no input that makes it run forever or answer wrongly.
+.
+code:
+def is_even(n):
+    return n % 2 == 0
+print(is_even(10))
+print(is_even(7))
+.
+eol: return n % 2 == 0 | why this problem is decidable | always|answer|every|algorithm|yes or no|decidable|finish|correct | the function always finishes with a correct yes or no for every number
+out:
+True
+False
+.
+ownsay: try zero
+ownlines:
+print(is_even(0))
+.
+ownout:
+True
+.
+
+--- Another decidable problem
+notes: Some Problems Can't Be Solved
+say: "Is this value in the list?" is also decidable. The loop checks every item, and when it runs out of items it **always** finishes with a no.
+tip: Why does it always finish?
+tipbody:
+p The list has a limited number of items, so the loop must end. There is always a yes or a no at the end.
+.
+code:
+def contains(items, target):
+    for x in items:
+        if x == target:
+            return True
+    return False
+print(contains([4, 8, 15], 8))
+print(contains([4, 8, 15], 9))
+.
+eol: return False | why the function always finishes with an answer | finish|always|ends|every|stops|loop ends|runs out|limited | the loop runs out of items, so the function always ends with an answer
+out:
+True
+False
+.
+ownsay: search an empty list
+ownlines:
+print(contains([], 1))
+.
+ownout:
+False
+.
+
+--- You cannot just run it and see
+notes: You Cannot Just Run It and See
+say: Suppose you try to decide whether a program stops by **running it for a while**. If it stops, you learn it halts. But if it is **still running**, you learn nothing: it might stop in the next second or never. This function pretends to run a program that stops after a chosen number of steps.
+tip: What does "still running" tell you?
+tipbody:
+p Nothing for certain. The second call below stops at 100,000 steps, but after only 100 steps it looks exactly like a program that never stops.
+good This is the heart of the halting problem.
+.
+code:
+def run(steps_allowed, stops_at):
+    count = 0
+    while count < steps_allowed:
+        if count == stops_at:
+            return "halted"
+        count = count + 1
+    return "still running"
+print(run(100, 10))
+print(run(100, 100000))
+.
+eol: return "still running" | why still running does not tell you the program will never stop | later|might|unknown|more time|yet|not know|can't tell|cannot tell|wait|eventually | it might stop later, so still running does not prove it never stops
+out:
+halted
+still running
+.
+ownsay: give the second program enough time
+ownlines:
+print(run(200000, 100000))
+.
+ownout:
+halted
+.
+
+--- A loop nobody can prove stops
+notes: You Cannot Just Run It and See
+say: This loop follows a simple rule: halve even numbers, and triple-and-add-one for odd numbers. It stops when it reaches 1. It has stopped for **every** number anyone has tried. But nobody has **proven** that it always stops.
+tip: Why is that surprising?
+tipbody:
+p A simple rule, yet nobody can prove whether it stops for every starting number. It shows how hard it can be to say whether a program halts.
+.
+code:
+def collatz_steps(n):
+    steps = 0
+    while n != 1:
+        if n % 2 == 0:
+            n = n // 2
+        else:
+            n = 3 * n + 1
+        steps = steps + 1
+    return steps
+print(collatz_steps(6))
+print(collatz_steps(27))
+.
+eol: while n != 1: | what nobody has proven about this loop | always|stop|every|prove|halt|ends|never|1|reach | nobody has proven that this loop always stops for every starting number
+out:
+8
+111
+.
+ownsay: start at 1
+ownlines:
+print(collatz_steps(1))
+.
+ownout:
+0
+.
+
+--- Hard is not the same as impossible
+notes: Hard Is Not the Same as Impossible
+say: A problem that takes **unreasonable time** can still be **solved**. An algorithm exists, it is just far too slow for big inputs. Counting every subset of n items takes `2 ** n` steps. That is not undecidable, only huge.
+tip: How is this different from undecidable?
+tipbody:
+rows Unreasonable time | an algorithm exists, but takes too long | use a heuristic
+rows Undecidable | no algorithm can exist | solve only special cases
+.
+code:
+def subsets(n):
+    return 2 ** n
+print(subsets(20))
+print(subsets(60))
+.
+eol: return 2 ** n | why this problem is solvable but unreasonable | solvable|too long|exponential|slow|time|can be solved|still|doubles|huge | an algorithm exists but the number of steps explodes, so it takes too long
+out:
+1048576
+1152921504606846976
+.
+ownsay: try three items
+ownlines:
+print(subsets(3))
+.
+ownout:
+8
+.
+
+--- Sort the problems
+notes: Hard Is Not the Same as Impossible
+say: This function labels three problems. Sorting is **reasonable**. The shortest route through every city has no known reasonable algorithm, so its best known algorithms are **unreasonable**. The halting problem is **undecidable**.
+tip: Which label fits which problem?
+tipbody:
+rows sorting a list | reasonable | polynomial steps
+rows shortest route through all cities | unreasonable time (best known) | a heuristic helps
+rows halting problem | undecidable | proven impossible
+.
+code:
+def kind(problem):
+    if problem == "halting":
+        return "undecidable"
+    if problem == "shortest route":
+        return "unreasonable time"
+    return "reasonable"
+print(kind("halting"))
+print(kind("shortest route"))
+.
+eol: return "undecidable" | why the halting problem is undecidable | no algorithm|impossible|can't|cannot|every program|proven|always correct|none|no program | it has been proven that no algorithm can answer it correctly for every program
+out:
+undecidable
+unreasonable time
+.
+ownsay: label sorting
+ownlines:
+print(kind("sorting"))
+.
+ownout:
+reasonable
+.
+
+--- BUILD Put it together: the paradox
+say: Build a small model of the paradox that proves the halting problem is undecidable. A pretend `halts` function claims to know which programs stop. A sneaky `trouble` program does the **opposite** of whatever `halts` says.
+tip: What does the finished program show?
+tipbody:
+p If `halts` says a program stops, `trouble` loops forever. If `halts` says it never stops, `trouble` stops. Run on itself, `trouble` would make `halts` wrong either way.
+.
+plan:
+def halts(program_name):
+    return program_name == "countdown"
+def trouble(program_name):
+    if halts(program_name):
+        return "loops forever"
+    return "stops"
+print(halts("countdown"))
+print(trouble("countdown"))
+print(trouble("spinner"))
+.
+item:
+@item Write a pretend halts function that only knows about one program.
+def halts(program_name):
+    return program_name == "countdown"
+@item Write trouble, which does the opposite of what halts says.
+def trouble(program_name):
+    if halts(program_name):
+        return "loops forever"
+    return "stops"
+@eol if halts(program_name): | why trouble does the opposite of what halts says | opposite|contradict|paradox|wrong|disagree|reverse|against|trick | trouble does the opposite of halts, so halts would always be wrong about it
+@item Try it on a program halts knows about, then one it does not.
+print(halts("countdown"))
+print(trouble("countdown"))
+print(trouble("spinner"))
+.
+out:
+True
+loops forever
+stops
+.

@@ -57,7 +57,10 @@ window.PY_LESSONS = [
     { id: "7.3", t: "For Loops and Lists", notes: "lists-for-loops.html", w: "a41" },
     { id: "7.4", t: "Simulations", notes: "simulations.html", w: "a42" },
     { id: "7.5", t: "Searching and Efficiency", notes: "searching-efficiency.html", w: "a43" },
-    { id: "7.6", t: "Data Abstraction and the Create Task", notes: "data-abstraction.html", w: "a44" }
+    { id: "7.6", t: "Data Abstraction and the Create Task", notes: "data-abstraction.html", w: "a44" },
+    { id: "7.7", t: "Developing Algorithms and Equivalent Algorithms", notes: "developing-algorithms.html", w: "a208" },
+    { id: "7.8", t: "Efficiency, Reasonable Time, and Heuristics", notes: "algorithm-efficiency.html", w: "a209" },
+    { id: "7.9", t: "Undecidable Problems", notes: "undecidable-problems.html", w: "a210" }
   ] },
   { n: 8, name: "Digital Information", notes: "unit-8/index.html", lessons: [
     { id: "8.1", t: "Intro to Digital Information", notes: "digital-info-intro.html", w: "a45", p: "a55", g: "a112" },
@@ -87,6 +90,14 @@ window.PY_LESSONS = [
     { id: "11.1", t: "Beneficial and Harmful Effects", notes: "beneficial-harmful.html", w: "a195" },
     { id: "11.2", t: "The Digital Divide", notes: "digital-divide.html", w: "a196" },
     { id: "11.3", t: "Crowdsourcing and Citizen Science", notes: "crowdsourcing.html", w: "a197" }
+  ] },
+  { n: 12, name: "Data", notes: "unit-12/index.html", lessons: [
+    { id: "12.1", t: "Extracting Information from Data", notes: "extracting-information.html", w: "a202" },
+    { id: "12.2", t: "Big Data, Metadata, and Scale", notes: "big-data-metadata.html", w: "a203" },
+    { id: "12.3", t: "Cleaning Data", notes: "cleaning-data.html", w: "a204" },
+    { id: "12.4", t: "Filtering, Transforming, and Combining Data", notes: "filter-transform-data.html", w: "a205" },
+    { id: "12.5", t: "Visualizing Data", notes: "visualizing-data.html", w: "a206" },
+    { id: "12.6", t: "Bias, Sampling, and Trust in Data", notes: "data-bias-sampling.html", w: "a207" }
   ] },
   { n: 16, name: "Project: The Impact of Computing", notes: "unit-16/index.html", lessons: [
     { id: "16.1", t: "Computing Bias", notes: "computing-bias.html", w: "a198" },

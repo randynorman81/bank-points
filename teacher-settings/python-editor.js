@@ -191,6 +191,15 @@ export const PY_SETTINGS = {
   a199: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 16.2 Copyright, Creative Commons, and Open Source
   a200: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 16.3 Privacy and Personal Data
   a201: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 16.4 Safe Computing
+  a202: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 12.1 Extracting Information from Data
+  a203: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 12.2 Big Data, Metadata, and Scale
+  a204: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 12.3 Cleaning Data
+  a205: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 12.4 Filtering, Transforming, and Combining Data
+  a206: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 12.5 Visualizing Data
+  a207: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 12.6 Bias, Sampling, and Trust in Data
+  a208: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 7.7 Developing Algorithms and Equivalent Algorithms
+  a209: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 7.8 Efficiency, Reasonable Time, and Heuristics
+  a210: { live: true, fresh: true, passMin: 100, needBoth: true, ungated: true },   // 7.9 Undecidable Problems
 };
 /* WORDING CHANGES to a walkthrough, kept in the code (no PIN). Each one gets a copy of the walkthrough and changes it. */
 const STEP5_ODD = "Now test an odd number **without changing your code above**. Below your last line, type `number = 7`, then type the same four `print` lines again under it (you can copy and paste your own lines). Add an **end-of-line comment** at the end of your last print line with what the four answers were for 7. If that line already has a comment, add to it. [[How do I test 7?|oddtest]]";

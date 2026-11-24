@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cleaning Data | AP CSP Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#A3E635; --acc-tint:rgba(163,230,53,.14); --acc-ink:#D9F99D;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#1A2E05;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(36px,6.4vw,58px);font-weight:600;max-width:18ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:62ch;margin-top:18px}
+
+.part{padding:54px 0 8px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.lede{font-size:17.5px;line-height:1.6;max-width:66ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .err{color:var(--bad-ink);font-weight:600}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--rule)}
+.box.ok{border-top-color:var(--acc)}
+.box.bad{border-top-color:var(--bad)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p{font-size:15px;line-height:1.55;color:#C4CDD8;margin:0}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F1FAD9}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx code.line{display:block;font-family:"JetBrains Mono",monospace;font-size:13.5px;background:#05070B;border:1px solid var(--rule);border-radius:4px;padding:8px 10px;color:#D8E1EC;margin:0 0 8px;white-space:pre-wrap}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.bad{background:var(--bad-tint)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:28ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:60ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:10px 12px}
+}
+.stp{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:14px 12px}.stp .frame{display:none}.stp .frame.on{display:block}.stp .ctl{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:10px}.stp button{font:700 14px Manrope,system-ui,sans-serif;padding:8px 16px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer}.stp button:hover{border-color:#A3E635}.stp .cnt{font:600 13px Manrope,system-ui,sans-serif;color:var(--ink-soft)}.stp .say{margin:10px auto 0;max-width:70ch;text-align:center;font-size:15px;line-height:1.5}
+.fig{margin:6px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:8px;padding:16px 12px 12px;overflow-x:auto}
+.fig figcaption{margin:12px auto 0;max-width:70ch;text-align:center;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
+ul.chk{margin:6px 0 20px;padding-left:22px}ul.chk li{margin:6px 0}
+.resp{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--acc);border-radius:6px;padding:14px 18px;margin:8px 0 18px}
+.resp .rl{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink);margin-bottom:6px}
+.resp p{margin:0 0 .6em}
+.cards.one{grid-template-columns:1fr}
+
+.wg{margin:8px 0 26px;background:#0B0F16;border:1px solid var(--rule);border-radius:10px;padding:16px 16px 14px}
+.wg h4{margin:0 0 4px;font:700 13px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink)}
+.wg .wsub{margin:0 0 12px;font-size:14.5px;color:var(--ink-soft)}
+.wg .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.wg button,.wg input,.wg select{font:600 15px 'JetBrains Mono',monospace;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:8px 12px}
+.wg button{cursor:pointer}.wg button:hover{border-color:#A3E635}
+.wg input[type=text],.wg input[type=number]{min-width:0;width:12ch}
+.wg input[type=range]{padding:0;width:min(320px,100%);accent-color:#A3E635}
+.wg .bit{width:48px;height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:22px}
+.wg .bit small{font-size:11px;color:var(--ink-soft);font-weight:600}
+.wg .bit.on{background:#A3E635;color:#0B0E14;border-color:#A3E635}.wg .bit.on small{color:#2a3b00}
+.wg .out{font:600 16px 'JetBrains Mono',monospace;line-height:1.7;margin:6px 0 0;word-break:break-all}
+.wg .out b{color:#A3E635}.wg .out i{color:#FBBF24;font-style:normal}
+.wg table{border-collapse:collapse;margin:6px 0;font:600 14px 'JetBrains Mono',monospace}.wg td,.wg th{border:1px solid var(--rule);padding:5px 10px;text-align:center}.wg th{color:var(--ink-soft);font-weight:700}
+.wg .cell{width:34px;height:34px;border:1px solid #2B3647;display:inline-block;cursor:pointer;vertical-align:top}
+.wg .cell.on{background:#EAEFF6}
+.wg .sw{width:110px;height:70px;border-radius:8px;border:2px solid #2B3647;flex:none}
+.wg .px{width:62px;height:62px;border-radius:6px;border:2px solid #2B3647}
+.wg .note{font-size:13.5px;color:var(--ink-soft);margin-top:6px}
+.wg canvas{border:1px solid var(--rule);border-radius:6px;max-width:100%}
+
+.qz{margin:10px 0 30px;background:#0B0F16;border:1px solid var(--rule);border-radius:10px;padding:18px 18px 8px}
+.qz>h4{margin:0 0 4px;font:700 13px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-ink)}
+.qz>.qsub{margin:0 0 14px;font-size:14.5px;color:var(--ink-soft)}
+.qz .q{border-top:1px solid var(--rule);padding:14px 0 12px}
+.qz .qs{margin:0 0 10px;font-weight:600;color:#fff}
+.qz .qs code{font-weight:500}
+.qz .opts{display:grid;gap:8px}
+.qz .opts button{text-align:left;font:500 15px Manrope,system-ui,sans-serif;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:10px 14px;cursor:pointer;line-height:1.45}
+.qz .opts button:hover:not(:disabled){border-color:#A3E635}
+.qz .opts button.right{border-color:#34D399;background:rgba(52,211,153,.16)}
+.qz .opts button.wrong{border-color:var(--bad);background:var(--bad-tint)}
+.qz .why{margin:10px 0 0;padding:10px 14px;border-left:4px solid var(--acc);background:var(--acc-tint);border-radius:0 6px 6px 0;font-size:14.5px;color:#F1FAD9;display:none}
+.qz .why.on{display:block}
+.qz .score{margin:6px 0 10px;font:700 14px 'JetBrains Mono',monospace;color:var(--acc-ink)}
+.asgw{background:linear-gradient(120deg,var(--acc-tint),var(--card) 65%);border:2px solid var(--acc);border-radius:10px;padding:20px 24px;margin:26px 0 6px}
+.asgw .lb{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--acc-ink)}
+.asgw h3{font-family:'Fraunces',Georgia,serif;font-size:24px;font-weight:600;color:#fff;margin:4px 0 12px}
+.asgw .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.asgw .card{background:rgba(0,0,0,.25);border:1px solid var(--rule);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.asgw .card b{color:#fff;font-size:16px}.asgw .card p{margin:0;font-size:14.5px;color:#C4CDD8}
+.asgw .card .n{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--acc)}
+.asgw a.go{display:inline-block;align-self:flex-start;background:var(--acc);color:#0B0E14;font-weight:800;font-size:15px;text-decoration:none;border-radius:8px;padding:10px 16px}
+.asgw a.go:hover{filter:brightness(1.1)}
+.wg .bar{height:22px;border-radius:6px;background:#1B2330;border:1px solid var(--rule);overflow:hidden;margin:6px 0}
+.wg .bar>i{display:block;height:100%;background:#A3E635;transition:width .2s}
+.wg .bar>i.hot{background:#F87171}
+.wg label{font-size:14.5px;color:var(--ink)}
+.wg .chip{display:inline-block;border:1px solid var(--rule);border-radius:100px;padding:4px 12px;margin:3px 4px 3px 0;font:600 13px 'JetBrains Mono',monospace;background:var(--card)}
+.wg .chip.on{background:#A3E635;color:#0B0E14;border-color:#A3E635}
+.wg .chip.bad{background:var(--bad-tint);color:var(--bad-ink);border-color:var(--bad)}
+.wg .seg{display:inline-block;padding:6px 10px;margin:2px;border-radius:6px;font:600 15px 'JetBrains Mono',monospace;border:1px solid var(--rule);background:var(--card)}
+.wg .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.mono{font-family:'JetBrains Mono',monospace}
+
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="unit-12/index.html">&larr; Unit 12</a><a href="extracting-information.html">12.1 Information</a><a href="big-data-metadata.html">12.2 Big Data</a><a href="cleaning-data.html" class="current">12.3 Cleaning</a><a href="filter-transform-data.html">12.4 Processing</a><a href="visualizing-data.html">12.5 Visualizing</a><a href="data-bias-sampling.html">12.6 Bias in Data</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">AP CSP NOTES &nbsp;/&nbsp; SUBJECT: FIX IT BEFORE YOU USE IT</div>
+    <h1>Cleaning Data</h1>
+    <p class="deck">A survey with an age of 200 will give you a nonsense average. Learn the usual <b>problems in real data</b>, how a program <b>cleans</b> them, and how cleaning itself can change the answer.</p>
+  </div>
+</header>
+<div class="wrap"><div class="asgw"><div class="lb">Your work &middot; Unit 12</div><h3>Cleaning Data (12.3)</h3><div class="two"><div class="card"><span class="n">STEP 1 &middot; THE DOOR</span><b>Walkthrough</b><p>Walk through these notes in the Python Editor. Type the notes as comments and run the small programs. Get <b>every box and every question right (100%)</b>.</p><a class="go" href="../python/editor.html?a=a204">Open the walkthrough</a></div></div></div></div>
+
+<section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">00</div><h2>Real Data Is Messy</h2></div><p class="lede">Data collected from people and sensors is rarely perfect. <b>Cleaning data</b> means finding and fixing (or removing) the problems <b>before</b> you analyze it. If you skip it, your answers can be wrong, a rule called <b>garbage in, garbage out</b>.</p><div class="tblwrap"><div class="tblscroll"><table class="cmp"><tr><th>Problem</th><th>Example</th><th>Usual fix</th></tr><tr><td><b>Missing values</b></td><td>a survey row with no age</td><td>leave it out, or fill it in sensibly (and say so)</td></tr><tr><td><b>Duplicates</b></td><td>the same sign-up entered twice</td><td>keep one copy</td></tr><tr><td><b>Inconsistent format</b></td><td>GA, ga, Georgia, "GA "</td><td>pick one format and convert the rest</td></tr><tr><td><b>Impossible values</b></td><td>an age of 200, a negative price</td><td>check the source, then correct or remove</td></tr><tr><td><b>Mixed units</b></td><td>some heights in inches, others in centimeters</td><td>convert everything to one unit</td></tr></table></div></div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">01</div><h2>Clean It Yourself</h2></div><p class="lede">Here is the process in action.</p><div class="wg" id="wgclean"><h4>Try it: clean a messy survey</h4><p class="wsub">These eight survey rows have real-world problems. Switch on each cleaning step and watch the row count and the average age change.</p><div class="steps"></div><div class="out"></div></div><script>(function(root){
+var raw=[["Ana",16,"GA"],["ben",17,"Georgia"],["Cara","","GA"],["Dev",16,"ga"],["Ana",16,"GA"],["Eli",200,"GA"],["Fay",15,"GA "],["Gus",17,"FL"]];
+var steps=[["dups","Remove the duplicate row"],["case","Fix names and state codes (capital letters, spaces, Georgia = GA)"],["miss","Drop rows with a missing age"],["bad","Drop impossible ages (over 120)"]];
+var box=root.querySelector(".steps"),out=root.querySelector(".out"),on={};
+box.innerHTML=steps.map(function(s){return'<label style="display:block;margin:4px 0"><input type="checkbox" data-k="'+s[0]+'"> '+s[1]+'</label>'}).join("");
+function upd(){var rows=raw.map(function(r){return r.slice()}),flag=[];
+ if(on.case)rows=rows.map(function(r){var n=r[0].charAt(0).toUpperCase()+r[0].slice(1),s=String(r[2]).trim().toUpperCase();if(s==="GEORGIA")s="GA";return[n,r[1],s]});
+ if(on.dups){var seen={};rows=rows.filter(function(r){var k=r.join("|");if(seen[k])return false;seen[k]=1;return true})}
+ if(on.miss)rows=rows.filter(function(r){return r[1]!==""});
+ if(on.bad)rows=rows.filter(function(r){return r[1]===""||r[1]<=120});
+ var ages=rows.filter(function(r){return r[1]!==""}).map(function(r){return Number(r[1])}),avg=ages.length?ages.reduce(function(a,b){return a+b},0)/ages.length:0;
+ var h='<table><tr><th>Name</th><th>Age</th><th>State</th></tr>'+rows.map(function(r){var bad=[];if(r[1]==="")bad.push(1);else if(r[1]>120)bad.push(1);var st=String(r[2]);if(st!==st.trim()||st!==st.toUpperCase()||st==="Georgia")bad.push(2);if(r[0]!==r[0].charAt(0).toUpperCase()+r[0].slice(1))bad.push(0);return'<tr>'+r.map(function(c,i){return'<td'+(bad.indexOf(i)>-1?' style="color:#F87171"':'')+'>'+(c===""?"(missing)":(typeof c==="string"?c.replace(/ /g,"&middot;"):c))+'</td>'}).join("")+'</tr>'}).join("")+'</table>';
+ h+='Rows: <b>'+rows.length+'</b> &nbsp; Average age: <b>'+avg.toFixed(1)+'</b>';
+ if(on.miss&&rows.length<raw.length)h+='<div class="note">Careful: dropping rows loses information, and if the missing rows are not random, the cleaned data can be <b>biased</b>.</div>';
+ if(!on.bad&&!on.dups&&!on.miss)h+='<div class="note">One age of 200 drags the average far above what is typical. That is why data is cleaned <b>before</b> it is analyzed.</div>';
+ out.innerHTML=h}
+box.addEventListener("change",function(e){on[e.target.dataset.k]=e.target.checked;upd()});upd();
+})(document.getElementById("wgclean"));</script><div class="hint-panel">In Python this is done with <b>loops and conditionals</b>: loop over every row, and <code>if</code> a row has a problem, fix it or skip it. The walkthrough has you write exactly that.</div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">02</div><h2>Cleaning Can Change the Answer</h2></div><p class="lede">Cleaning decisions are choices, and choices have consequences.</p><div class="two"><div class="box ok"><h3>Keep the original</h3><p>Never overwrite the raw data. Work on a <b>copy</b> so you can check or redo your cleaning.</p></div><div class="box ok"><h3>Write down what you did</h3><p>Record every rule ("removed ages over 120"). Others need to trust your result.</p></div></div><div class="warn"><b>Dropping rows can create bias.</b> If most of the missing ages come from one group (say, younger students who skipped the question), removing them changes who is represented.</div><div class="qz" id="qz12c"><h4>Check yourself</h4><p class="qsub">Answer each one. You see why right away, so read the explanation even when you are right.</p><div class="q" data-a="1"><p class="qs">A survey data set lists the same state as "GA", "ga", and "Georgia". What should be done before counting responses by state?</p><div class="opts"><button>Nothing, a computer will understand</button><button>Convert them all to one consistent format</button><button>Delete the whole column</button><button>Sort by age</button></div><div class="why">Inconsistent formats make the same thing look like different things. <b>Standardize</b> them first.</div></div><div class="q" data-a="1"><p class="qs">A list of student ages includes one value of 200. What is the best next step?</p><div class="opts"><button>Include it, since it is in the data</button><button>Investigate it. It is likely an error to fix or remove</button><button>Double every age</button><button>Use it as the average</button></div><div class="why">Impossible values usually mean a mistake. Check the source before deciding.</div></div><div class="q" data-a="1"><p class="qs">Why can <b>removing every row with a missing value</b> be a problem?</p><div class="opts"><button>It always makes the data bigger</button><button>If the missing rows are mostly from one group, the remaining data may be biased</button><button>Computers cannot delete rows</button><button>It changes the file format</button></div><div class="why">Cleaning choices can bias the data.</div></div><div class="q" data-a="1"><p class="qs">Which is the best practice when cleaning data?</p><div class="opts"><button>Overwrite the original and forget what you changed</button><button>Keep the original and document each cleaning step</button><button>Delete any row that looks odd</button><button>Round every number</button></div><div class="why">Keep the raw data and a record so your work can be checked.</div></div><div class="score"></div></div></div></section><section class="part"><div class="wrap"><div class="part-head"><div class="part-tag">AP</div><h2>On the AP Exam</h2></div><p class="lede">These are the ideas the exam asks about. Be ready to explain each one in your own words.</p><ul class="chk"><li>Data must often be <b>cleaned</b> before it is used: missing values, duplicates, inconsistent formats, and impossible values.</li><li><b>Garbage in, garbage out</b>: conclusions are only as good as the data.</li><li>Cleaning decisions can <b>introduce bias</b>. Keep the original and document what you changed.</li><li>Programs clean data with <b>loops and conditionals</b>.</li></ul></div></section>
+
+<footer class="final">
+  <div class="wrap">
+    <h2>Clean first, then count.</h2>
+    <p>Next: once the data is clean, how do you ask it questions? Filtering, transforming, and combining.</p>
+    <div style="margin-bottom:10px"></div>
+    <a class="back" href="filter-transform-data.html">Filtering, Transforming, and Combining Data (12.4) &rarr;</a><a class="back" href="big-data-metadata.html">&larr; Big Data, Metadata, and Scale (12.2)</a><a class="back" href="unit-12/index.html">&larr; Unit 12</a>
+    <p class="sig">AP CSP Notes &nbsp;/&nbsp; Cleaning Data &nbsp;/&nbsp; end of file</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  document.querySelectorAll(".stp").forEach(function(r){
+    var f=r.querySelectorAll(".frame"),c=r.querySelector(".cnt"),i=0;
+    function s(){f.forEach(function(x,k){x.classList.toggle("on",k===i)});c.textContent="Step "+(i+1)+" of "+f.length}
+    r.querySelectorAll("button").forEach(function(b){b.onclick=function(){i=Math.max(0,Math.min(f.length-1,i+Number(b.dataset.d)));s()}});s();
+  });
+  document.querySelectorAll(".qz").forEach(function(z){
+    var qs=z.querySelectorAll(".q"),got=0,done=0,sc=z.querySelector(".score");
+    qs.forEach(function(q){
+      var a=Number(q.dataset.a),bs=q.querySelectorAll("button"),why=q.querySelector(".why");
+      bs.forEach(function(b,i){b.onclick=function(){
+        if(q.dataset.done)return;q.dataset.done=1;done++;
+        bs.forEach(function(x,k){x.disabled=true;if(k===a)x.classList.add("right")});
+        if(i===a)got++;else b.classList.add("wrong");
+        why.classList.add("on");
+        sc.textContent=got+" of "+qs.length+" right"+(done<qs.length?" so far":(got===qs.length?" - perfect!":""));
+      }});
+    });
+  });
+})();
+</script>
+</body>
+</html>
