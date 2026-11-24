@@ -1,5 +1,5 @@
 """Study-guide engine: components, the notes-page converter, and the book assembler. See build.py for the renderer."""
-import base64, html as _h, os, re, random, sys
+import base64, html as _h, json, os, re, random, sys
 from bs4 import BeautifulSoup, NavigableString
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -263,7 +263,7 @@ def flowchart(title, nodes, arrows, size=(680, 300), caption=None):
 
 
 def see(*items):
-    return sec("See It in Action", "".join(items), tag="VISUAL")
+    return sec_t("example", "Worked Examples", "".join(items), "EXAMPLE")
 
 
 def gloss(*pairs):
@@ -390,7 +390,7 @@ def load_page(src):
 class Ctx:
     """Per-unit counters (figures, practice questions) and the answer key being collected."""
     def __init__(self, unit):
-        self.unit = unit; self.fig = 0; self.key = []   # key = [(chapter_id, [(qno, letters, why)])]
+        self.unit = unit; self.fig = 0; self.key = []; self.words = []   # key = [(chapter_id, [(qno, letters, why)])]
 
 
 def label_figures(html_s, ctx):
@@ -447,7 +447,7 @@ def convert_section(sec_tag, ch, ctx, soup, nohead=False):
     if nohead:
         h = '<div class="sec">%s</div>' % body
     else:
-        h = '<div class="sec%s"><h3>%s%s</h3>%s</div>' % (" exam" if is_exam else "", ('<span class="tag">%s</span>' % ("AP EXAM" if is_exam else tag)) if tag else "", title, body)
+        h = '<div class="sec%s"><h3><span class="tag">%s</span>%s</h3>%s</div>' % (" exam" if is_exam else " t-learn", "AP EXAM" if is_exam else "LEARN", title, body)
     return h, quizzes
 
 
@@ -503,27 +503,106 @@ def G(cid, mod, slug, **kw):
     return dict(id=cid, src=("gen", mod, slug), **kw)
 
 
+
+# ============================================================================ authoring helpers
+LMAP = json.load(open(os.path.join(HERE, "lessons-map.json")))
+
+
+def md(t):
+    """Tiny markup for authored text: `code`, **bold**, blank line = new paragraph, '- ' bullets, '1. ' numbers, and !key:/!tip:/!warn:/!ex: callouts."""
+    def inline(x):
+        x = re.sub(r"`([^`]+)`", lambda m: "<code>%s</code>" % esc(m.group(1)), x)
+        return re.sub(r"\*\*([^*]+)\*\*", r"<b>\1</b>", x)
+    out = []
+    for blk in re.split(r"\n\s*\n", t.strip("\n")):
+        lines = [l for l in blk.split("\n") if l.strip()]
+        if not lines: continue
+        if blk.lstrip().startswith("!"):
+            kind, _, rest = blk.strip()[1:].partition(":")
+            body = inline(" ".join(l.strip() for l in rest.split("\n")).strip())
+            out.append({"key": callout(body), "tip": tip(body), "warn": warn(body), "ex": example(body)}[kind.strip()])
+        elif all(l.lstrip().startswith("|") for l in lines):
+            rows = [[inline(c.strip()) for c in l.strip().strip("|").split("|")] for l in lines if not re.match(r"^\s*\|[\s:|-]+\|\s*$", l)]
+            out.append(tbl(rows[0], rows[1:]))
+        elif all(l.lstrip().startswith("- ") for l in lines):
+            out.append("<ul>%s</ul>" % "".join("<li>%s</li>" % inline(l.lstrip()[2:]) for l in lines))
+        elif all(re.match(r"\s*\d+\. ", l) for l in lines):
+            out.append("<ol>%s</ol>" % "".join("<li>%s</li>" % inline(re.sub(r"^\s*\d+\. ", "", l)) for l in lines))
+        else:
+            out.append("<p>%s</p>" % inline(" ".join(l.strip() for l in lines)))
+    return "".join(out)
+
+
+def body_html(b):
+    if isinstance(b, str): return md(b) if not b.lstrip().startswith("<") else b
+    return "".join(body_html(x) for x in b)
+
+
+def sec_t(kind, title, body, tag):
+    return '<div class="sec t-%s"><h3><span class="tag">%s</span>%s</h3>%s</div>' % (kind, tag, title, body)
+
+
+def watch(rows, intro=None, extra=""):
+    """rows = [(what it looks like, what goes wrong, how to fix it)] with the same tiny markup as md()."""
+    def cell(x): return md(x)[3:-4] if md(x).startswith("<p>") and md(x).count("<p>") == 1 else md(x)
+    body = '<p class="lede">%s</p>' % md(intro)[3:-4] if intro else ""
+    body += '<div class="tblwrap"><table class="cmp watch"><tr><th>What it looks like</th><th>What goes wrong</th><th>How to fix it</th></tr>%s</table></div>' % "".join(
+        "<tr><td>%s</td><td>%s</td><td>%s</td></tr>" % (cell(a), cell(b), cell(c)) for a, b, c in rows)
+    return body + extra
+
+
+def glance_html(ch, words):
+    m = LMAP.get(ch["id"]); bits = []
+    if m:
+        if m["w"]: bits.append("<b>Walkthrough</b>")
+        if m["p"]: bits.append("<b>Assignment:</b> %s" % esc(m["p"]["title"]))
+        if m["g"]: bits.append("<b>%s:</b> %s" % ("Mission" if m["g"]["pts"] >= 100 else "Bonus game", esc(m["g"]["title"])))
+    site = " &nbsp;·&nbsp; ".join(bits)
+    wh = "".join('<div class="w"><b>%s</b> %s</div>' % (md(t)[3:-4], md(d)[3:-4]) for t, d in words)
+    return ('<div class="glance">%s%s%s</div>' % (
+        ('<div class="g1"><span>GOAL</span>%s</div>' % md(ch["goal"])[3:-4]) if ch.get("goal") else "",
+        ('<div class="g2"><span>WORDS TO KNOW</span><div class="wl">%s</div></div>' % wh) if words else "",
+        ('<div class="g3"><span>ON THE SITE</span>%s</div>' % site) if site else ""))
+
+
 def chapter_html(ch, ctx, accent):
-    """ch = dict(id, src, title?, kicker?, before=[html], after=[html], insert={index: [html]})"""
-    page = load_page(ch["src"])
-    title = ch.get("title") or re.sub(r"\s*\(\d+\.\d+\)\s*$", "", page["title"])
-    kick = ch.get("kicker") or page["deck"]
+    """ch = dict(id, src?, title?, goal, words, learn, learn_after, after/ex, tr, bad, exam, questions, ...). Every lesson is laid out the same way:
+    header, at-a-glance box, LEARN, EXAMPLE, TRACE IT, WATCH OUT, AP EXAM, the online bar, CHECK YOURSELF."""
+    m = LMAP.get(ch["id"], {})
+    page = load_page(ch["src"]) if ch.get("src") else None
+    title = ch.get("title") or m.get("title") or (re.sub(r"\s*\(\d+\.\d+\)\s*$", "", page["title"]) if page else ch["id"])
+    kick = ch.get("kick") or ch.get("kicker") or (page["deck"] if page else "")
     parts = []; quizzes = []
-    secs = list(enumerate(page["sections"]))
-    if ch.get("sel") is not None: secs = [secs[i] for i in ch["sel"]]
-    secs = [(i, s) for i, s in secs if i not in ch.get("skip", ())]
-    for i, s in secs:
-        h, qz = convert_section(s, ch, ctx, page["soup"], nohead=(i in ch.get("nohead", ())))
-        parts.append(h); quizzes.extend(qz)
-        for extra in ch.get("insert", {}).get(i, []): parts.append(extra)
+    if page:
+        secs = list(enumerate(page["sections"]))
+        if ch.get("sel") is not None: secs = [secs[i] for i in ch["sel"]]
+        secs = [(i, s) for i, s in secs if i not in ch.get("skip", ())]
+        for i, s in secs:
+            h, qz = convert_section(s, ch, ctx, page["soup"], nohead=(i in ch.get("nohead", ())))
+            parts.append(h); quizzes.extend(qz)
+            for extra in ch.get("insert", {}).get(i, []): parts.append(extra)
     exam = [p for p in parts if 'class="sec exam"' in p]; rest = [p for p in parts if 'class="sec exam"' not in p]
-    body = "".join(ch.get("before", [])) + "".join(rest) + "".join(ch.get("after", [])) + "".join(exam)
-    if page.get("url") and ch.get("online", True):
-        body += '<div class="online">Practice this lesson interactively, with walkthroughs and games, at <b>%s/apcsp/%s</b></div>' % (SITE, page["url"])
+    learn = "".join(sec_t("learn", esc(t), body_html(b), "LEARN") for t, b in ch.get("learn", []))
+    learn_after = "".join(sec_t("learn", esc(t), body_html(b), "LEARN") for t, b in ch.get("learn_after", []))
+    ex_items = list(ch.get("ex", []))
+    ex_html = sec_t("example", "Worked Examples", "".join(ex_items), "EXAMPLE") if ex_items else ""
+    tr_html = ""
+    if ch.get("tr"):
+        lede = ch.get("trace_intro") or "Tracing means playing computer: go one line at a time and write down what every variable holds. Cover the table with a sheet of paper, trace the code yourself, then check."
+        tr_html = sec_t("trace", "Trace It", '<div class="keep"><p class="lede">%s</p>%s</div>%s' % (md(lede)[3:-4], ch["tr"][0], "".join(ch["tr"][1:])), "TRACE IT")
+    bad_html = sec_t("watch", "Watch Out: Common Mistakes", body_html(ch["bad"]), "WATCH OUT") if ch.get("bad") else ""
+    exam_html = ""
+    if ch.get("ap"): exam_html = '<div class="sec exam"><h3><span class="tag">AP EXAM</span>On the AP Exam</h3><ul class="chk">%s</ul></div>' % "".join("<li>%s</li>" % md(x)[3:-4] for x in ch["ap"])
+    glance = glance_html(ch, ch.get("words", [])) if (ch.get("goal") or ch.get("words")) else ""
+    ctx.words.extend(ch.get("words", []))
+    body = "".join(ch.get("before", [])) + glance + learn + "".join(rest) + learn_after + "".join(ch.get("after", [])) + ex_html + tr_html + bad_html + "".join(exam) + exam_html
+    if ch.get("online", True) and (m.get("notes") or (page and page.get("url"))) and not ch.get("noonline"):
+        url = (m.get("notes") or page["url"]).replace("unit-", "unit-", 1)
+        body += '<div class="online">Practice this lesson interactively, with walkthroughs, assignments, and games, at <b>%s/apcsp/%s</b></div>' % (SITE, url)
     body += quiz_to_practice(quizzes, ch["id"], ctx)
     if ch.get("questions"): body += practice_from_dicts(ch["questions"], ch["id"], ctx)
     head = ('<div class="chead"><div class="badge"><small>LESSON</small><b>%s</b></div><h2>%s</h2><p class="kick">%s</p></div>'
-            % (esc(ch["id"]), title, kick))
+            % (esc(ch["id"]), title, md(kick)[3:-4] if kick and not kick.lstrip().startswith("<") else kick))
     out = '<section class="chapter"><span class="mk" style="font-size:1pt;color:#fff;position:absolute">ZZC%sZZ</span>%s%s</section>' % (esc(ch["id"]), head, body)
     return label_figures(out, ctx), title
 
@@ -610,6 +689,11 @@ def build_html(unit, toc_pages=None):
     ctx = Ctx(unit); chapters = []; titles = []
     for ch in unit.chapters:
         h, t = chapter_html(ch, ctx, unit.accent); chapters.append(h); titles.append((ch["id"], t))
+    seen = {}; 
+    for t, d in list(unit.glossary) + list(ctx.words):
+        k = re.sub(r"[`*]", "", t).lower()
+        if k not in seen: seen[k] = (re.sub(r"[`*]", "", t), d)
+    glossary = list(seen.values())
     css = css_for(unit)
     logo = data_uri_png(os.path.join(HERE, "logo-cover.png"))
     cover = ('<section class="cover">%s<div class="band"></div><div class="kicker">AP® COMPUTER SCIENCE PRINCIPLES  ·  STUDY GUIDE</div><div class="num">%d</div>'
@@ -622,17 +706,21 @@ def build_html(unit, toc_pages=None):
             '<p>AP® and Advanced Placement® are registered trademarks of the College Board, which was not involved in the production of, and does not endorse, this product. '
             'Python® is a trademark of the Python Software Foundation. All other names are the property of their owners. The company names used in examples are fictional or used only to illustrate ideas.</p>'
             '<p>Interactive notes, walkthroughs, and games that go with this guide are at <b>%s/apcsp</b>.</p></section>' % (logo, unit.n, unit.title, SITE))
-    how = ('<div class="how"><div class="c"><h4>Read a lesson</h4><p>Start with the one-sentence summary at the top. Read the key ideas, study the annotated examples, then look at the diagrams. Say each idea out loud in your own words.</p></div>'
-           '<div class="c"><h4>Check yourself</h4><p>Cover the answers and work the practice questions at the end of each lesson. Then use the answer key to see <i>why</i> each answer is right.</p></div>'
-           '<div class="c"><h4>Follow the arrows</h4><p>In the annotated examples, each colored arrow points to the exact piece of code or text that its caption explains.</p></div>'
-           '<div class="c"><h4>Finish with the exam box</h4><p>Every lesson ends with <b>On the AP Exam</b>: the facts the exam asks about. Make sure you can explain each one.</p></div></div>')
+    how = ('<div class="legend"><p class="lg-intro">Every lesson in this book is laid out the same way, in the same order, so you always know where to look.</p>'
+           '<div class="lgrow"><span class="lgt a">AT A GLANCE</span><div><b>The box under the lesson title.</b> The goal of the lesson, the words you need, and where the matching walkthrough, assignment, and game are on the site.</div></div>'
+           '<div class="lgrow"><span class="lgt l">LEARN</span><div><b>The ideas, in plain words.</b> Every new word is explained before it is used.</div></div>'
+           '<div class="lgrow"><span class="lgt e">EXAMPLE</span><div><b>Annotated code and diagrams.</b> Follow each colored arrow to the exact piece it explains.</div></div>'
+           '<div class="lgrow"><span class="lgt t">TRACE IT</span><div><b>Play computer.</b> Step through code one line at a time and watch every variable change. There are several in every lesson.</div></div>'
+           '<div class="lgrow"><span class="lgt w">WATCH OUT</span><div><b>The mistakes people really make,</b> why they happen, and how to fix them.</div></div>'
+           '<div class="lgrow"><span class="lgt x">AP EXAM</span><div><b>What the exam asks</b> about the lesson.</div></div>'
+           '<div class="lgrow"><span class="lgt c">CHECK YOURSELF</span><div><b>Practice questions.</b> Cover the answers, try them, then read the reason in the answer key at the back.</div></div></div>')
     objectives = '<ul class="objectives">%s</ul>' % "".join("<li>%s</li>" % o for o in unit.objectives)
     toc_rows = ""
     for cid, t in titles:
         toc_rows += '<li><span class="n">%s</span><span class="t">%s</span><span class="p">%s</span></li>' % (esc(cid), t, toc_pages.get(cid, "00"))
     extras = []
     if unit.cheat: extras.append(("cheat", "Quick Reference"))
-    if unit.glossary: extras.append(("gloss", "Glossary"))
+    if glossary: extras.append(("gloss", "Glossary"))
     if ctx.key: extras.append(("key", "Answer Key"))
     for k, t in extras:
         toc_rows += '<li class="sub"><span class="n">&#9656;</span><span class="t">%s</span><span class="p">%s</span></li>' % (t, toc_pages.get(k, "00"))
@@ -641,8 +729,8 @@ def build_html(unit, toc_pages=None):
     tail = ""
     if unit.cheat:
         tail += '<section class="chapter cheat"><span class="mk" style="font-size:1pt;color:#fff;position:absolute">ZZCcheatZZ</span><div class="chead"><div class="badge"><small>UNIT</small><b>%d</b></div><h2>Quick Reference</h2><p class="kick">The whole unit on one or two pages. Tear it out and keep it beside you while you code.</p></div>%s</section>' % (unit.n, "".join(unit.cheat))
-    if unit.glossary:
-        g = "".join('<div class="g"><b>%s</b>%s</div>' % (esc(t), d) for t, d in sorted(unit.glossary, key=lambda x: x[0].lower()))
+    if glossary:
+        g = "".join('<div class="g"><b>%s</b>%s</div>' % (esc(t), d) for t, d in sorted(glossary, key=lambda x: x[0].lower()))
         tail += '<section class="chapter"><span class="mk" style="font-size:1pt;color:#fff;position:absolute">ZZCglossZZ</span><div class="chead"><div class="badge"><small>UNIT</small><b>%d</b></div><h2>Glossary</h2><p class="kick">The vocabulary of this unit, in plain words.</p></div><div class="gloss">%s</div></section>' % (unit.n, g)
     if ctx.key:
         k = ""
