@@ -45,6 +45,12 @@ I compared the code and headings in each notes page with its walkthrough.
 - **Unit 8 is not the same length or scope.** Each walkthrough is two short steps (one example each) with four boxes, so none of them walks through the notes. The lessons with notes content that no walkthrough step touches: ASCII vs Unicode (8.3), metadata (8.4), hex and binary relationship (8.5), repeated patterns in compression (8.8), ways to lose data (8.9), symmetric vs public key encryption and trust on the web (8.10).
 - **Unit 10 is close in length and scope** (8 to 10 steps) but has fewer boxes (17 to 20 versus 31 to 46), and there are **no notes pages** for Unit 10 at all.
 
+### Fixed (2026-11-24): the Unit 8 walkthroughs
+
+a45 to a54 were 2 steps and 4 boxes each. They are now 7 to 9 steps and 29 to 33 boxes each, the same pattern as Units 3 to 7: heading-comment box, "comment out above steps" box, a short explanation that names the part of the notes, a help popup, a code sample, a "type it + end-of-line comment" box, a Try-it line, a "below it, type exactly" box, and a last "Put it together" step built from several boxes. Every notes topic now has a step (analog vs digital and sampling, overflow and round-off, bytes and KB/MB, ASCII vs Unicode, metadata, hex and binary, repeated patterns, lossy trade-offs, symmetric vs public key, trust on the web). The 6 questions at the bottom of each walkthrough, the 100% gate and the assignment under it are unchanged.
+- Source: `tools/missions/u8-walk.txt` (the lessons) and `u8-walk.js` (the builder). `node tools/missions/u8-build.mjs` runs every step's code in real Python (the page's Try-it lines must match exactly), runs every check through the real scorer, and writes `teacher-settings/python-unit8.js`, which `python-editor.js` lays over the saved short versions.
+- Still open: Unit 10 has no notes pages, and the AP Big Idea 5 / parallel computing / data-extraction topics (section 4) have no notes or walkthrough.
+
 ## 4. AP CSP exam coverage (Big Ideas 1 to 5)
 
 Keyword scan of all notes pages and all walkthroughs, by topic:
