@@ -5,10 +5,16 @@ def _run_checked(code, rows, out, inp, title):
     """Run the code for real and check the authored trace rows and printed output against what Python does."""
     import ast, io, sys, contextlib
     src = code.strip("\n"); events = []; buf = io.StringIO(); feed = list(inp or [])
+    import copy
     def snap(frame):
         st = dict(frame.f_globals)
         if frame.f_code.co_name != "<module>": st.update(frame.f_locals)
-        return st
+        out = {}
+        for k, v in st.items():
+            if k.startswith("__") or callable(v) or isinstance(v, type(sys)): continue
+            try: out[k] = copy.deepcopy(v)
+            except Exception: out[k] = v
+        return out
     def tracer(frame, event, arg):
         if frame.f_code.co_filename != "<trace>": return tracer
         if event in ("line", "return"): events.append((frame.f_lineno if event == "line" else None, snap(frame), id(frame)))
@@ -20,7 +26,7 @@ def _run_checked(code, rows, out, inp, title):
         with contextlib.redirect_stdout(buf): exec(co, g)
     except Exception as e: err = "%s: %s" % (type(e).__name__, e)
     finally: sys.settrace(None)
-    final = dict(g)
+    final = {k: copy.deepcopy(v) for k, v in g.items() if not k.startswith('__') and not callable(v) and not isinstance(v, type(sys))}
     pos = 0; done = {}
     for ln, vals in rows:
         p0 = pos
