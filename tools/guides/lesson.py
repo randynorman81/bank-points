@@ -84,3 +84,23 @@ def L(cid, goal, words, learn, ex, tr, bad, ap, q, **kw):
     """words = [(term, definition)], learn = [(title, md text or list)], ex/tr = lists of components, bad = [(looks like, goes wrong, fix)], ap = [bullets], q = [Q(...)]"""
     d = dict(id=cid, goal=goal, words=words, learn=learn, ex=ex, tr=tr, bad=watch(bad) if isinstance(bad, list) else bad, ap=ap, questions=q, online=True)
     d.update(kw); return d
+
+
+def X(goal, words, tr, bad, ex=None, ap=None, q=None, **kw):
+    """Extras for a lesson that already has a notes page: goal, words, extra examples, traces, and the watch-out table."""
+    d = dict(goal=goal, words=words, tr=tr, bad=watch(bad))
+    if ex: d["ex"] = ex
+    if ap: d["ap"] = ap
+    if q: d["questions"] = q
+    d.update(kw); return d
+
+def apply(unit, extras, renumber=None):
+    """Merge extras into a unit's chapters (keyed by lesson id). renumber = {old id: new id}."""
+    for ch in unit.chapters:
+        if renumber and ch["id"] in renumber: ch["id"] = renumber[ch["id"]]
+        if ch["id"] in extras: ch.update(extras[ch["id"]])
+        for k in ("title", "kicker"):
+            ch.pop(k, None) if k == "title" else None
+    missing = [k for k in extras if k not in [c["id"] for c in unit.chapters]]
+    assert not missing, "extras for unknown lessons: %s" % missing
+    return unit

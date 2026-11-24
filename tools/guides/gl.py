@@ -584,7 +584,12 @@ def chapter_html(ch, ctx, accent):
     exam = [p for p in parts if 'class="sec exam"' in p]; rest = [p for p in parts if 'class="sec exam"' not in p]
     learn = "".join(sec_t("learn", esc(t), body_html(b), "LEARN") for t, b in ch.get("learn", []))
     learn_after = "".join(sec_t("learn", esc(t), body_html(b), "LEARN") for t, b in ch.get("learn_after", []))
-    ex_items = list(ch.get("ex", []))
+    ex_items = []; after_other = []
+    for a_ in ch.get("after", []):
+        m_ = re.match(r'^<div class="sec t-example"><h3>.*?</h3>(.*)</div>$', a_, re.S)
+        if m_: ex_items.append(m_.group(1))
+        else: after_other.append(a_)
+    ex_items += list(ch.get("ex", []))
     ex_html = sec_t("example", "Worked Examples", "".join(ex_items), "EXAMPLE") if ex_items else ""
     tr_html = ""
     if ch.get("tr"):
@@ -595,7 +600,7 @@ def chapter_html(ch, ctx, accent):
     if ch.get("ap"): exam_html = '<div class="sec exam"><h3><span class="tag">AP EXAM</span>On the AP Exam</h3><ul class="chk">%s</ul></div>' % "".join("<li>%s</li>" % md(x)[3:-4] for x in ch["ap"])
     glance = glance_html(ch, ch.get("words", [])) if (ch.get("goal") or ch.get("words")) else ""
     ctx.words.extend(ch.get("words", []))
-    body = "".join(ch.get("before", [])) + glance + learn + "".join(rest) + learn_after + "".join(ch.get("after", [])) + ex_html + tr_html + bad_html + "".join(exam) + exam_html
+    body = "".join(ch.get("before", [])) + glance + learn + "".join(rest) + learn_after + "".join(after_other) + ex_html + tr_html + bad_html + "".join(exam) + exam_html
     if ch.get("online", True) and (m.get("notes") or (page and page.get("url"))) and not ch.get("noonline"):
         url = (m.get("notes") or page["url"]).replace("unit-", "unit-", 1)
         body += '<div class="online">Practice this lesson interactively, with walkthroughs, assignments, and games, at <b>%s/apcsp/%s</b></div>' % (SITE, url)
