@@ -1,0 +1,2400 @@
+## UNIT 8 WALKTHROUGH LESSONS (a45 to a54). Read by u8-walk.js. See the header there for the format.
+## Fields: "name: text" (one line) or "name:" followed by lines up to a line that is just "." (code, out, ownlines, ownout, tipbody, item, plan).
+## eol: line the comment goes on | what the comment says (after "saying") | words the comment must contain (regex, optional) | example comment
+## tipbody lines start with p, ex, good, warn, steps (separated by " ;; "), or rows (3 columns separated by " | ").
+
+=== a45 | Intro to Digital Information | digital-info-intro
+learn: how many patterns n bits make, the biggest number n bits can hold, how many bits a set of things needs, bytes and kilobytes, sampling, and overflow and round-off errors
+ap: A bit is a 0 or 1 and a byte is 8 bits. n bits make 2 to the n patterns. A computer stores analog data by sampling it, so a little is always lost. Overflow means a number is too big for its bits, and round-off means a number cannot be stored exactly.
+
+--- Count the patterns
+notes: How Many Patterns?
+say: Every extra bit doubles the number of patterns. In Python, `2 ** bits` is 2 to the power of `bits`, so it counts the different patterns that many bits can make.
+tip: Why does each bit double the patterns?
+tipbody:
+p One bit can be 0 or 1, so it makes 2 patterns. Add a second bit and each of those 2 can be followed by a 0 or a 1, so you get 4. Every new bit doubles the count.
+rows 1 bit | 2 patterns | 0, 1
+rows 2 bits | 4 patterns | 00, 01, 10, 11
+rows 3 bits | 8 patterns | 000 up to 111
+good The shortcut is `2 ** bits`: 2 to the power of the number of bits.
+.
+code:
+bits = 3
+print(2 ** bits)
+.
+eol: print(2 ** bits) | how many patterns 3 bits make | \b8\b|eight | 8 patterns, because 2 ** 3 is 8
+predict: yes
+out:
+8
+.
+ownsay: try 5 bits instead
+ownlines:
+bits = 5
+print(2 ** bits)
+.
+ownout:
+32
+.
+
+--- The biggest number
+notes: How Many Patterns?
+say: Patterns start counting at **0**, so the biggest number is **one less** than the number of patterns. 8 bits make 256 patterns, so the biggest number they can hold is 255.
+tip: Why is it one less?
+tipbody:
+p With 2 bits there are 4 patterns, and they count 0, 1, 2, 3. The counting starts at 0, so the last number is 3, not 4.
+ex print(2 ** 2 - 1)   # 3
+good Biggest number = `2 ** bits - 1`.
+.
+code:
+bits = 8
+print(2 ** bits - 1)
+.
+eol: print(2 ** bits - 1) | the biggest number 8 bits can hold | 255 | the biggest number 8 bits can hold is 255
+out:
+255
+.
+ownsay: try 4 bits
+ownlines:
+bits = 4
+print(2 ** bits - 1)
+.
+ownout:
+15
+.
+
+--- How many bits do I need?
+notes: How Many Patterns?
+say: To store 26 letters you need at least 26 different patterns. This loop starts with 1 bit and adds one more bit for as long as `2 ** bits` is still too small.
+tip: How does the loop work?
+tipbody:
+steps Start with `bits = 1`, which makes 2 patterns. ;; `2 ** bits < things` asks: are there still too few patterns? ;; If yes, `bits = bits + 1` adds a bit and the loop asks again. ;; When there are enough patterns, the loop stops and `bits` holds the answer.
+good 4 bits make only 16 patterns, which is too few for 26 letters. 5 bits make 32, so the answer is 5.
+.
+code:
+things = 26
+bits = 1
+while 2 ** bits < things:
+    bits = bits + 1
+print(bits)
+.
+eol: while 2 ** bits < things: | when the loop keeps going | few|small|less|enough | the loop keeps going while there are too few patterns
+out:
+5
+.
+ownsay: find how many bits 5 colors need
+ownlines:
+things = 5
+bits = 1
+while 2 ** bits < things:
+    bits = bits + 1
+print(bits)
+.
+ownout:
+3
+.
+
+--- Bytes, kilobytes, and megabytes
+notes: Bits and Bytes
+say: A **byte** is 8 bits. A **kilobyte** (KB) is about 1,000 bytes and a **megabyte** (MB) is about 1,000 KB. Dividing is how you change from one unit to the next bigger one.
+tip: Why divide by 1,000?
+tipbody:
+p Each unit is about 1,000 times the one before it, so going **up** a unit means dividing by 1,000.
+rows byte | 8 bits | one text character
+rows KB | about 1,000 bytes | a short text message
+rows MB | about 1,000 KB | one photo
+.
+code:
+file_bytes = 3000000
+print(file_bytes / 1000, "KB")
+print(file_bytes / 1000000, "MB")
+.
+eol: print(file_bytes / 1000000, "MB") | how many megabytes the file is | \b3\b|three | the file is 3 megabytes
+out:
+3000.0 KB
+3.0 MB
+.
+ownsay: show the size in bits
+ownlines:
+print(file_bytes * 8, "bits")
+.
+ownout:
+24000000 bits
+.
+
+--- From analog to digital: sampling
+notes: Analog vs Digital
+say: The real world is **analog**: it changes smoothly. A computer can only keep numbers, so it **samples**: it measures the value every so often and stores the measurements. Measuring less often means less data, but more is lost between the samples.
+tip: What does sampling lose?
+tipbody:
+p This list holds a temperature measured six times. The list `slow` only keeps every other reading.
+ex temps = [20.0, 20.4, 21.1, 22.0, 22.8, 23.1]
+ex slow = [temps[0], temps[2], temps[4]]
+good A higher sampling rate gives a closer copy but needs more data. A lower rate is smaller but loses what happened between the samples.
+.
+code:
+temps = [20.0, 20.4, 21.1, 22.0, 22.8, 23.1]
+slow = [temps[0], temps[2], temps[4]]
+print(len(temps), len(slow))
+print(slow)
+.
+eol: print(len(temps), len(slow)) | what slow lost | half|three|3|skip|lost|missing | slow lost half of the readings
+out:
+6 3
+[20.0, 21.1, 22.8]
+.
+ownsay: look at a reading that `slow` never measured
+ownlines:
+print(temps[1])
+.
+ownout:
+20.4
+.
+
+--- Overflow and round-off errors
+notes: Two Errors to Know
+say: A fixed number of bits can only hold so much. In 8 bits the biggest number is 255, so 255 + 1 has no room and **wraps around** to 0. That is an **overflow error**. Some decimals can never be stored exactly, so the computer keeps a very close number. That is a **round-off error**.
+tip: Overflow or round-off?
+tipbody:
+rows Overflow | the number is too big for the bits | 255 + 1 in 8 bits wraps to 0
+rows Round-off | the number cannot be written exactly | 0.1 + 0.2 is 0.30000000000000004
+good Do not mix them up. Overflow means **too large**. Round-off means **slightly off**.
+.
+code:
+byte = 255
+byte = (byte + 1) % 256
+print(byte)
+print(0.1 + 0.2)
+.
+eol: print(byte) | which kind of error this shows | overflow | this is an overflow error, 255 + 1 wraps around to 0
+out:
+0
+0.30000000000000004
+.
+ownsay: ask Python whether 0.1 + 0.2 equals 0.3
+ownlines:
+print(0.1 + 0.2 == 0.3)
+.
+ownout:
+False
+.
+
+--- BUILD Put it together: a bit counter
+say: A game has 12 different characters. How many bits does each one need? Build the program that finds out, one box at a time.
+tip: What does the finished program do?
+tipbody:
+p It starts with 1 bit and adds bits until there are enough patterns. Then it prints the bits needed, how many patterns those bits make, and the biggest number they can hold.
+.
+plan:
+things = 12
+bits = 1
+while 2 ** bits < things:
+    bits = bits + 1
+print("Bits needed:", bits)
+print("Patterns:", 2 ** bits)
+print("Biggest number:", 2 ** bits - 1)
+.
+item:
+@item Store how many different things you need to hold.
+things = 12
+@item Start counting at one bit, then add bits until there are enough patterns.
+bits = 1
+while 2 ** bits < things:
+    bits = bits + 1
+@eol while 2 ** bits < things: | why the loop stops | enough|stop|patterns | the loop stops when there are enough patterns
+@item Show the answer.
+print("Bits needed:", bits)
+@item Show how many patterns that many bits make, and the biggest number they hold.
+print("Patterns:", 2 ** bits)
+print("Biggest number:", 2 ** bits - 1)
+.
+out:
+Bits needed: 4
+Patterns: 16
+Biggest number: 15
+.
+
+=== a46 | Number Systems | number-systems
+learn: place value in binary, binary to decimal, decimal to binary (two ways), Python's converters, and how big a number n bits can hold
+ap: Expect small conversions (up to about 8 bits), questions about how many bits a number needs, and comparing two binary numbers. You will not be asked to use bin(), but it is a fine way to check your answers.
+
+--- Binary to decimal
+notes: Binary to Decimal
+say: In binary each place is worth **twice** the place to its right: 128, 64, 32, 16, 8, 4, 2, 1. To read a binary number, add up the place values that hold a 1. In 1101 the places are 8, 4, 2, and 1, so the number is 8 + 4 + 0 + 1.
+tip: How do I add the place values?
+tipbody:
+ex # 1101 in binary
+ex # place values:  8  4  2  1
+ex # bits:          1  1  0  1
+ex # 8 + 4 + 0 + 1 = 13
+good A bit of 1 keeps its place value and a bit of 0 adds nothing. That is why the code multiplies each place value by its bit.
+.
+code:
+total = 8 * 1 + 4 * 1 + 2 * 0 + 1 * 1
+print(total)
+.
+eol: print(total) | what 1101 is in decimal | \b13\b|thirteen | 1101 in binary is 13 in decimal
+out:
+13
+.
+ownsay: work out 10101 the same way
+ownlines:
+print(16 * 1 + 8 * 0 + 4 * 1 + 2 * 0 + 1 * 1)
+.
+ownout:
+21
+.
+
+--- Let Python check your work
+notes: Python Does It Too
+say: `int(text, 2)` reads the text as **base 2**, so Python does the place-value adding for you. It is a great way to check your own work, but learn to do it by hand too, because the exam has no calculator.
+tip: What is the 2 for?
+tipbody:
+p The second number is the **base** to read the text in. 2 means binary, 10 means ordinary decimal, and 16 means hexadecimal.
+ex print(int("1101", 2))    # 13
+good The first thing in the brackets is **text** (in quotes), because binary is written as a string of digits.
+.
+code:
+print(int("1101", 2))
+print(int("1010", 2))
+.
+eol: print(int("1101", 2)) | what the 2 tells int to do | base|binary|read | the 2 tells int to read the text as base 2
+out:
+13
+10
+.
+ownsay: find the biggest 8-bit number
+ownlines:
+print(int("11111111", 2))
+.
+ownout:
+255
+.
+
+--- Odd or even
+notes: Binary to Decimal
+say: A quick check: a binary number that ends in 1 is **odd**, and one that ends in 0 is **even**. The last place is worth 1, so it decides odd or even. `% 2` gives the remainder after dividing by 2, which is 1 for odd numbers and 0 for even ones.
+tip: Why does the last bit decide?
+tipbody:
+p Every other place (2, 4, 8, 16 ...) is an even number. Only the last place (worth 1) can make the total odd.
+rows 1011 | 8 + 2 + 1 = 11 | ends in 1, odd
+rows 1010 | 8 + 2 = 10 | ends in 0, even
+.
+code:
+number = int("1011", 2)
+print(number)
+print(number % 2)
+.
+eol: print(number % 2) | what the answer 1 tells you about the number | odd | 1 means the number is odd, because the last bit is 1
+out:
+11
+1
+.
+ownsay: try 1010
+ownlines:
+number = int("1010", 2)
+print(number % 2)
+.
+ownout:
+0
+.
+
+--- Decimal to binary: divide by 2
+notes: Decimal to Binary
+say: One method for writing a decimal number in binary: **divide by 2 again and again**, and keep each remainder. The remainders, read from last to first, are the bits. The loop below does exactly that, and `str(...) + bits` puts each new bit on the **left**.
+tip: How does 13 become 1101?
+tipbody:
+rows 13 / 2 | 6 remainder 1 | bit 1
+rows 6 / 2 | 3 remainder 0 | bit 0
+rows 3 / 2 | 1 remainder 1 | bit 1
+rows 1 / 2 | 0 remainder 1 | bit 1
+good Read the remainders from bottom to top: 1101. The code does that by adding each new bit to the left of `bits`.
+.
+code:
+number = 13
+bits = ""
+while number > 0:
+    bits = str(number % 2) + bits
+    number = number // 2
+print(bits)
+.
+eol: bits = str(number % 2) + bits | what the remainder is | bit|remainder|left | the remainder is the next bit, added on the left
+out:
+1101
+.
+ownsay: convert 77 the same way
+ownlines:
+number = 77
+bits = ""
+while number > 0:
+    bits = str(number % 2) + bits
+    number = number // 2
+print(bits)
+.
+ownout:
+1001101
+.
+
+--- Python's converters
+notes: Python Does It Too
+say: `bin(13)` gives the binary with a `0b` in front (the `0b` just means binary). `format(13, "08b")` writes it as exactly **8 bits** with leading zeros, and `format(13, "b")` writes it with no extra zeros.
+tip: What does "08b" mean?
+tipbody:
+steps The `b` means binary. ;; The `8` means at least 8 characters wide. ;; The `0` means fill the empty spaces with zeros.
+ex print(format(13, "08b"))   # 00001101
+good Leading zeros do not change the value. We write them so every number has the same number of bits.
+.
+code:
+print(bin(13))
+print(format(13, "08b"))
+print(format(13, "b"))
+.
+eol: print(format(13, "08b")) | what "08b" asks for | 8|eight | "08b" asks for 8 bits with leading zeros
+out:
+0b1101
+00001101
+1101
+.
+ownsay: write 77 as 8 bits
+ownlines:
+print(format(77, "08b"))
+.
+ownout:
+01001101
+.
+
+--- How big can it get?
+notes: How Big Can It Get?
+say: With n bits you can write the numbers from 0 up to `2 ** n - 1`. A number that needs more bits than you have causes an **overflow error**: 256 needs a 9th bit. Leading zeros never change a value: `00001101` and `1101` are both 13.
+tip: How many bits does a number need?
+tipbody:
+rows 4 bits | 0 to 15 | 2 ** 4 - 1
+rows 8 bits | 0 to 255 | 2 ** 8 - 1
+rows 16 bits | 0 to 65,535 | 2 ** 16 - 1
+good If a number is bigger than the biggest your bits can hold, you need more bits.
+.
+code:
+bits = 8
+print(2 ** bits - 1)
+print(int("00001101", 2))
+.
+eol: print(int("00001101", 2)) | what the leading zeros do to the value | \b13\b|same|nothing|not|no | the leading zeros do not change the value, it is still 13
+out:
+255
+13
+.
+ownsay: see how many bits 256 needs
+ownlines:
+print(len(format(256, "b")))
+.
+ownout:
+9
+.
+
+--- BUILD Put it together: a converter
+say: Build a small converter that turns 45 into binary by dividing by 2, then checks the answer two ways.
+tip: What does the finished program do?
+tipbody:
+p It divides 45 by 2 over and over, collecting the remainders as bits. Then it uses Python's own tools to check: `int(bits, 2)` turns the bits back into 45, and `format(45, "08b")` shows the 8-bit version.
+.
+plan:
+number = 45
+bits = ""
+while number > 0:
+    bits = str(number % 2) + bits
+    number = number // 2
+print("Binary:", bits)
+print("Back to decimal:", int(bits, 2))
+print("8 bits:", format(45, "08b"))
+.
+item:
+@item Start with the number to convert.
+number = 45
+@item Start with an empty string for the bits, then divide by 2 until nothing is left.
+bits = ""
+while number > 0:
+    bits = str(number % 2) + bits
+    number = number // 2
+@eol while number > 0: | when the loop stops | zero|0|nothing | the loop stops when number reaches 0
+@item Show the binary answer.
+print("Binary:", bits)
+@item Check it with Python.
+print("Back to decimal:", int(bits, 2))
+print("8 bits:", format(45, "08b"))
+.
+out:
+Binary: 101101
+Back to decimal: 45
+8 bits: 00101101
+.
+
+=== a47 | Encoding Text with Binary | encoding-text
+learn: how characters become numbers, ord() and chr(), turning text into bits and bits back into text, message size, and ASCII versus Unicode
+ap: Text is stored by giving each character a number and then storing the number in binary. More different characters need more bits per character. A message of n characters in an 8-bit encoding is 8 x n bits. Two computers must use the same encoding to understand each other.
+
+--- Characters are numbers
+notes: Characters Become Numbers
+say: A computer cannot store the letter A. It can only store numbers, so people agreed on a table that gives every character its own number. The most famous table is **ASCII**. `ord("A")` looks a character up in the table.
+tip: What does ord do?
+tipbody:
+p `ord` takes **one character** and gives its number.
+rows A to Z | 65 to 90 | in alphabet order
+rows a to z | 97 to 122 | also in order
+rows 0 to 9 | 48 to 57 | the character 5 is 53, not the number 5
+good Even a space has a number: 32.
+.
+code:
+print(ord("A"))
+print(ord("a"))
+print(ord("5"))
+.
+eol: print(ord("5")) | why the character 5 is not the number 5 | 53|not|character | the character 5 is stored as 53, not 5
+out:
+65
+97
+53
+.
+ownsay: look up a space
+ownlines:
+print(ord(" "))
+.
+ownout:
+32
+.
+
+--- Numbers back to characters
+notes: Python: ord() and chr()
+say: `chr` goes the other way: it takes a number and gives the character. The two **undo** each other, so `chr(ord("A"))` is `A` again.
+tip: What does chr do?
+tipbody:
+p `chr` takes **one number** and gives its character.
+ex print(chr(66))        # B
+ex print(chr(ord("A")))  # A
+good `ord` = character to number. `chr` = number to character.
+.
+code:
+print(chr(66))
+print(chr(97))
+.
+eol: print(chr(97)) | what chr does | character|letter|number | chr turns a number into a character
+out:
+B
+a
+.
+ownsay: go up two letters from A
+ownlines:
+print(chr(ord("A") + 2))
+.
+ownout:
+C
+.
+
+--- Capital and lowercase are 32 apart
+notes: Characters Become Numbers
+say: A capital letter and the same lowercase letter are exactly **32 apart**: A is 65 and a is 97. So you can change case with plain math.
+tip: How does the math change the case?
+tipbody:
+ex print(ord("a") - ord("A"))   # 32
+ex print(chr(ord("m") - 32))    # M
+good Subtract 32 to go from lowercase to capital. Add 32 to go the other way.
+.
+code:
+print(ord("a") - ord("A"))
+print(chr(ord("m") - 32))
+.
+eol: print(chr(ord("m") - 32)) | why subtracting 32 gives a capital letter | 32|capital|upper | subtracting 32 turns a lowercase letter into a capital
+out:
+32
+M
+.
+ownsay: turn a capital Z into lowercase
+ownlines:
+print(chr(ord("Z") + 32))
+.
+ownout:
+z
+.
+
+--- Characters become bits
+notes: Python: ord() and chr()
+say: The number is then stored in binary. `format(ord("A"), "08b")` gives the **8 bits** for a letter, and a loop can do it for every letter in a word.
+tip: What does each part of the loop line do?
+tipbody:
+steps `letter` is one character of the word. ;; `ord(letter)` is its number. ;; `format(..., "08b")` writes that number as 8 bits.
+ex H 72 01001000
+good The loop runs once for every character in the word.
+.
+code:
+print(format(ord("A"), "08b"))
+word = "Hi"
+for letter in word:
+    print(letter, ord(letter), format(ord(letter), "08b"))
+.
+eol: print(letter, ord(letter), format(ord(letter), "08b")) | what is on each printed line | letter|number|bits | each line shows the letter, its number, and its 8 bits
+out:
+01000001
+H 72 01001000
+i 105 01101001
+.
+ownsay: do the same for the word Go
+ownlines:
+word = "Go"
+for letter in word:
+    print(letter, ord(letter), format(ord(letter), "08b"))
+.
+ownout:
+G 71 01000111
+o 111 01101111
+.
+
+--- How big is a message?
+notes: Try It: Text to Bits
+say: Every character takes 8 bits, so a message is **8 x (the number of characters)** bits. A 5-character word takes 40 bits, which is 5 bytes. The space between two words counts as a character too.
+tip: How do I count the characters?
+tipbody:
+p `len(message)` counts every character, including spaces.
+ex "Hello World"  ->  11 characters  ->  88 bits
+good Message size in bits = `len(message) * 8`.
+.
+code:
+message = "Hello World"
+print(len(message))
+print(len(message) * 8, "bits")
+.
+eol: print(len(message) * 8, "bits") | why the space counts | space|character|11 | the space is a character too, so there are 11 characters
+out:
+11
+88 bits
+.
+ownsay: measure a different message
+ownlines:
+message = "AP exam"
+print(len(message) * 8, "bits")
+.
+ownout:
+56 bits
+.
+
+--- Reading bits back as text
+notes: Reading Bits Back as Text
+say: To decode, cut the bits into groups of 8, turn each group into a number, then look up the character. `int(bits, 2)` does the number part and `chr` does the character part.
+tip: How do I decode one byte?
+tipbody:
+ex 01001000 = 64 + 8 = 72  ->  H
+ex print(chr(int("01001000", 2)))   # H
+good The sender and the receiver must use the **same encoding**. Bits read with the wrong table give the wrong characters.
+.
+code:
+bits = "01001000"
+print(int(bits, 2))
+print(chr(int(bits, 2)))
+.
+eol: print(chr(int(bits, 2))) | which letter 01001000 is | \bH\b | 01001000 is 72, which is H
+out:
+72
+H
+.
+ownsay: decode the second byte of Hi
+ownlines:
+print(chr(int("01101001", 2)))
+.
+ownout:
+i
+.
+
+--- ASCII versus Unicode
+notes: ASCII vs Unicode
+say: ASCII only has 128 characters: English letters, digits, and punctuation. That is not enough for the world. **Unicode** has over a hundred thousand characters, including every language and emoji, and its first 128 characters are the same as ASCII.
+tip: Why does Unicode need more bits?
+tipbody:
+rows ASCII | 128 characters | 7 bits (stored in 8)
+rows Unicode | over 100,000 characters | more than 8 bits for many
+good More different characters means more patterns, and more patterns means more bits per character.
+.
+code:
+print(chr(233))
+print(chr(8364))
+print(chr(128512))
+.
+eol: print(chr(128512)) | why this character cannot be in ASCII | 128|more|big|unicode|emoji | its number is bigger than 127, so it needs Unicode
+out:
+é
+€
+😀
+.
+ownsay: check that a plain English letter fits in ASCII
+ownlines:
+print(ord("A") < 128)
+.
+ownout:
+True
+.
+
+--- BUILD Put it together: text to bits
+say: Build a program that turns the word Cat into one long string of bits and measures it.
+tip: What does the finished program do?
+tipbody:
+p For every letter it adds that letter's 8 bits onto the end of `bits`. Three letters make 24 bits.
+.
+plan:
+message = "Cat"
+bits = ""
+for letter in message:
+    bits = bits + format(ord(letter), "08b")
+print(bits)
+print(len(bits), "bits")
+.
+item:
+@item Store the message.
+message = "Cat"
+@item Start with an empty string of bits, then add 8 bits for every letter.
+bits = ""
+for letter in message:
+    bits = bits + format(ord(letter), "08b")
+@eol for letter in message: | how many times the loop runs | 3|three|letter | the loop runs 3 times, once for each letter
+@item Show the bits and how many there are.
+print(bits)
+print(len(bits), "bits")
+.
+out:
+010000110110000101110100
+24 bits
+.
+
+=== a48 | Pixel Images | pixel-images
+learn: a picture as a list of rows of bits, drawing it with a loop, rows and columns, file size from resolution and bits per pixel, counting pixels, and metadata
+ap: An image is a grid of pixels and each pixel is stored as bits. More pixels or more bits per pixel mean more data and a bigger file. Metadata describes data (date, location, size). Changing the pixels changes what you see, but changing metadata does not.
+
+--- A picture as a list of rows
+notes: Python: a Picture in a List
+say: Zoom in on any digital picture and you find a grid of tiny squares called **pixels**. A black-and-white picture is just a grid of bits: 1 is white and 0 is black. In Python we store it as a **list of strings**, one string for each row.
+tip: How does a list hold a picture?
+tipbody:
+p Each string is one row of pixels, read left to right. The list holds the rows from top to bottom.
+ex image = ["0110", "1001", "1001", "0110"]
+good The loop `for row in image` runs once for every row.
+.
+code:
+image = ["0110", "1001", "1001", "0110"]
+for row in image:
+    print(row)
+.
+eol: for row in image: | what each pass of the loop gives you | row|string|line | each pass gives one row of the picture
+out:
+0110
+1001
+1001
+0110
+.
+ownsay: count the rows
+ownlines:
+print(len(image))
+.
+ownout:
+4
+.
+
+--- Make the bits visible
+notes: Python: a Picture in a List
+say: Bits are hard to see. `replace` swaps every one of a character for another, so we can swap each 0 for a `.` and each 1 for a `#` and the picture appears.
+tip: How does replace draw the picture?
+tipbody:
+ex "0110".replace("0", ".")                  # ".11."
+ex "0110".replace("0", ".").replace("1", "#") # ".##."
+good The first replace changes the 0s. The second replace is run on the result and changes the 1s.
+.
+code:
+image = ["0110", "1001", "1001", "0110"]
+for row in image:
+    print(row.replace("0", ".").replace("1", "#"))
+.
+eol: print(row.replace("0", ".").replace("1", "#")) | what replace does to each row | replace|swap|dot|#|\. | replace swaps the 0s for dots and the 1s for hash marks
+out:
+.##.
+#..#
+#..#
+.##.
+.
+ownsay: draw a square instead
+ownlines:
+image = ["1111", "1001", "1001", "1111"]
+for row in image:
+    print(row.replace("0", ".").replace("1", "#"))
+.
+ownout:
+####
+#..#
+#..#
+####
+.
+
+--- Rows, columns, and bits
+notes: Python: a Picture in a List
+say: The number of rows is `len(image)`. The number of columns is the length of one row, `len(image[0])`. Rows times columns is the number of pixels, and with 1 bit per pixel, that is also the number of bits.
+tip: What is image[0]?
+tipbody:
+p `image[0]` is the **first row**, the string `"0110"`. Its length is the number of columns.
+ex rows = len(image)           # 4
+ex cols = len(image[0])        # 4
+good Every row has the same length, so the first row tells you the width.
+.
+code:
+image = ["0110", "1001", "1001", "0110"]
+rows = len(image)
+cols = len(image[0])
+print(rows, "rows,", cols, "columns")
+print(rows * cols, "bits")
+.
+eol: cols = len(image[0]) | what image[0] is | first|row|\b0\b | image[0] is the first row, and its length is the number of columns
+out:
+4 rows, 4 columns
+16 bits
+.
+ownsay: show the size in bytes
+ownlines:
+print(rows * cols // 8, "bytes")
+.
+ownout:
+2 bytes
+.
+
+--- File size
+notes: Resolution and Bits per Pixel
+say: Two numbers decide how much data a picture holds: the **resolution** (width x height, the number of pixels) and the **bits per pixel**. File size in bits is width x height x bits per pixel, and dividing by 8 gives bytes.
+tip: What do the three numbers mean?
+tipbody:
+rows Resolution | width x height | more pixels means a sharper picture and more data
+rows Bits per pixel | bits for each color | more bits means more colors and more data
+rows File size | width x height x bits | divide by 8 for bytes
+.
+code:
+width = 100
+height = 100
+bits_per_pixel = 8
+total_bits = width * height * bits_per_pixel
+print(total_bits)
+print(total_bits // 8, "bytes")
+.
+eol: total_bits = width * height * bits_per_pixel | what is multiplied together | width|height|pixel|bits | width times height times bits per pixel
+out:
+80000
+10000 bytes
+.
+ownsay: change to full color, 24 bits per pixel
+ownlines:
+bits_per_pixel = 24
+print(width * height * bits_per_pixel // 8, "bytes")
+.
+ownout:
+30000 bytes
+.
+
+--- Resolution against bits per pixel
+notes: Resolution and Bits per Pixel
+say: A tiny black-and-white picture and a bigger full-color one can be compared with the same formula. Bigger pictures with more bits per pixel need far more storage. That is why a high-resolution photo takes more room than a thumbnail.
+tip: How many times bigger?
+tipbody:
+p Divide the big size by the small size to see how many times bigger it is.
+ex print(big // small)   # 3750
+good 8 x 8 at 1 bit is only 64 bits. 100 x 100 at 24 bits is 240,000 bits.
+.
+code:
+small = 8 * 8 * 1
+big = 100 * 100 * 24
+print(small // 8, "bytes")
+print(big // 8, "bytes")
+print(big // small)
+.
+eol: print(big // small) | how many times bigger the full-color picture is | 3750 | the big picture is 3750 times bigger
+out:
+8 bytes
+30000 bytes
+3750
+.
+ownsay: find how many bits bigger it is
+ownlines:
+print(big - small)
+.
+ownout:
+239936
+.
+
+--- Count the white pixels
+notes: Python: a Picture in a List
+say: To look at every pixel, put a loop **inside** a loop. The outer loop goes through the rows, and the inner loop goes through the characters (pixels) of that row. Each time a pixel is a 1, the count goes up by one.
+tip: How does a loop inside a loop work?
+tipbody:
+steps The outer loop picks one row. ;; The inner loop visits every pixel of that row, left to right. ;; Then the outer loop picks the next row and the inner loop starts again.
+good The line under the `if` is indented one more level, 12 spaces in all.
+.
+code:
+image = ["0110", "1001", "1001", "0110"]
+white = 0
+for row in image:
+    for pixel in row:
+        if pixel == "1":
+            white = white + 1
+print(white)
+.
+eol: if pixel == "1": | what the inner loop is looking at | pixel|character|each|white | the inner loop looks at each pixel in the row
+out:
+8
+.
+ownsay: show what fraction of the 16 pixels are white
+ownlines:
+print(white / 16)
+.
+ownout:
+0.5
+.
+
+--- Metadata
+notes: Metadata: Data About Data
+say: A photo file holds more than pixels. It also holds **metadata**: facts that describe the picture, like the date it was taken and where. Metadata is not the picture, so it can be changed or removed without changing a single pixel.
+tip: What counts as metadata?
+tipbody:
+rows A photo | pixels | date taken, camera, GPS location, size
+rows A song | the sound | title, artist, length
+rows A message | the text | who sent it, when
+good Metadata can still reveal private things, like where a photo was taken.
+.
+code:
+photo = "0110"
+metadata = "date 2026-11-03, place Chicago"
+metadata = ""
+print(photo)
+print(len(metadata))
+.
+eol: metadata = "" | why removing the metadata does not change the picture | pixel|picture|photo|same|data | the pixels stay the same, only the description is gone
+out:
+0110
+0
+.
+ownsay: check that the picture is still all there
+ownlines:
+print(len(photo))
+.
+ownout:
+4
+.
+
+--- BUILD Put it together: a pixel heart
+say: Build a program that stores a 5 by 5 heart, draws it, and reports its size.
+tip: What does the finished program do?
+tipbody:
+p It stores five rows of bits, draws each row with `.` and `#`, and then multiplies rows by columns to get the number of bits.
+.
+plan:
+image = ["01010", "11111", "11111", "01110", "00100"]
+for row in image:
+    print(row.replace("0", ".").replace("1", "#"))
+print(len(image), "x", len(image[0]), "=", len(image) * len(image[0]), "bits")
+.
+item:
+@item Store the picture as five rows of bits.
+image = ["01010", "11111", "11111", "01110", "00100"]
+@item Draw every row, swapping 0 for a dot and 1 for a hash mark.
+for row in image:
+    print(row.replace("0", ".").replace("1", "#"))
+@eol for row in image: | how many times the loop runs | 5|five|row | the loop runs 5 times, once for each row
+@item Show the size of the picture.
+print(len(image), "x", len(image[0]), "=", len(image) * len(image[0]), "bits")
+.
+out:
+.#.#.
+#####
+#####
+.###.
+..#..
+5 x 5 = 25 bits
+.
+
+=== a49 | Hexadecimal | hexadecimal
+learn: the sixteen hex digits, hex to decimal, decimal to hex, how one hex digit matches 4 bits, how a byte is two hex digits, and reading numbers in different bases
+ap: Hex is not a required skill on the exam, but it explains how colors are written. Hex is base 16 with the digits 0 to 9 and A to F. One hex digit is 4 bits, so two hex digits are one byte. Hex is a shorter way to write binary, and the computer still stores bits.
+
+--- The sixteen digits
+notes: Sixteen Digits
+say: Base 10 has ten digits. Base 16 needs sixteen, so it borrows the first six letters: A is 10, B is 11, C is 12, D is 13, E is 14, and F is 15. `int(text, 16)` reads text as hex.
+tip: How do the letters work?
+tipbody:
+rows 0 to 9 | 0 to 9 | the digits you know
+rows A B C | 10 11 12 | the first three letters
+rows D E F | 13 14 15 | the biggest single digit is F, which is 15
+.
+code:
+print(int("A", 16))
+print(int("F", 16))
+.
+eol: print(int("A", 16)) | what A is in decimal | \b10\b|ten | A is 10 in decimal
+out:
+10
+15
+.
+ownsay: look up C
+ownlines:
+print(int("C", 16))
+.
+ownout:
+12
+.
+
+--- Hex place values
+notes: Hex to Decimal and Back
+say: Each hex place is worth **16 times** the place to its right: 1, 16, 256, 4096 ... To read a hex number, multiply each digit by its place value and add. For 2F that is 2 x 16 + 15, because F is 15.
+tip: How do I read 2F?
+tipbody:
+ex # 2F in hex
+ex # place values:  16   1
+ex # digits:        2    F (15)
+ex # 2 x 16 + 15 = 47
+.
+code:
+print(2 * 16 + 15)
+print(1 * 16 + 10)
+.
+eol: print(2 * 16 + 15) | which hex number this works out | 2F | this works out the hex number 2F, which is 47
+out:
+47
+26
+.
+ownsay: work out FF
+ownlines:
+print(15 * 16 + 15)
+.
+ownout:
+255
+.
+
+--- Let Python read hex
+notes: Python Does Hex
+say: `int(text, 16)` does the place-value math for you. A hex value like `100` is **not** one hundred. It is 1 x 256, because the third place is worth 256.
+tip: Why is 100 in hex 256?
+tipbody:
+p The places are 1, 16, 256 from right to left. In `100` the 1 is in the 256 place.
+ex print(int("100", 16))   # 256
+good Always say which base you are in. 10 in hex is 16 in decimal.
+.
+code:
+print(int("2F", 16))
+print(int("FF", 16))
+print(int("100", 16))
+.
+eol: print(int("100", 16)) | why 100 in hex is not one hundred | 256|16|place | the 1 is in the 256 place, so 100 in hex is 256
+out:
+47
+255
+256
+.
+ownsay: convert 1A
+ownlines:
+print(int("1A", 16))
+.
+ownout:
+26
+.
+
+--- Decimal to hex
+notes: Hex to Decimal and Back
+say: To go the other way, **divide by 16**. The quotient is the left digit and the remainder is the right digit. 200 divided by 16 is 12 remainder 8, and 12 is C, so 200 is C8. `hex(number)` and `format(number, "02X")` do it for you.
+tip: How does 200 become C8?
+tipbody:
+steps 200 // 16 is 12, the left digit. ;; 200 % 16 is 8, the right digit. ;; 12 is the hex digit C, so the answer is C8.
+good `02X` means two digits, capital letters, with a leading zero if needed.
+.
+code:
+number = 200
+left = number // 16
+right = number % 16
+print(left, right)
+print(hex(number))
+.
+eol: print(left, right) | what 12 and 8 are as hex digits | \bC\b | 12 is the hex digit C and 8 stays 8, so 200 is C8
+out:
+12 8
+0xc8
+.
+ownsay: print it as two capital hex digits
+ownlines:
+print(format(number, "02X"))
+.
+ownout:
+C8
+.
+
+--- One hex digit is 4 bits
+notes: Hex and Binary: the Perfect Match
+say: One hex digit is exactly **4 bits**. That is why programmers love hex: it is binary written in a much shorter way. 13 is `1101` in binary and `D` in hex, and Python agrees they are the same number.
+tip: Why exactly 4 bits?
+tipbody:
+p 4 bits make 16 patterns (0 to 15), and a hex digit has 16 values (0 to F). They match perfectly.
+rows 0000 | 0 | 0
+rows 1101 | 13 | D
+rows 1111 | 15 | F
+.
+code:
+print(format(13, "04b"))
+print(format(13, "X"))
+print(int("1101", 2) == int("D", 16))
+.
+eol: print(int("1101", 2) == int("D", 16)) | what True tells you about 1101 and D | same|equal|match | True means 1101 in binary and D in hex are the same number
+out:
+1101
+D
+True
+.
+ownsay: write 6 as 4 bits
+ownlines:
+print(format(6, "04b"))
+.
+ownout:
+0110
+.
+
+--- A byte is two hex digits
+notes: Hex and Binary: the Perfect Match
+say: A byte (8 bits) splits into two groups of 4 bits, and each group is one hex digit. So `11010110` is cut in half into `1101` and `0110`, which are D and 6. Two hex digits is one byte: 00 is 0 and FF is 255.
+tip: How do I cut the byte in half?
+tipbody:
+ex byte[0:4]   # the left 4 bits, "1101"
+ex byte[4:8]   # the right 4 bits, "0110"
+good Slices stop **before** the second number, so `[0:4]` takes positions 0, 1, 2, and 3.
+.
+code:
+byte = "11010110"
+left = byte[0:4]
+right = byte[4:8]
+print(format(int(left, 2), "X"), format(int(right, 2), "X"))
+.
+eol: print(format(int(left, 2), "X"), format(int(right, 2), "X")) | which two hex digits the byte makes | D6|\bD\b | the byte makes the hex digits D and 6
+out:
+D 6
+.
+ownsay: find what D6 is in decimal
+ownlines:
+print(int("D6", 16))
+.
+ownout:
+214
+.
+
+--- Reading numbers in different bases
+notes: Why It Matters
+say: The same digits mean different numbers in different bases. `10` is ten in base 10, sixteen in base 16, and two in base 2. Always know which base you are reading.
+tip: Why does the base change the answer?
+tipbody:
+rows 10 in base 10 | 1 x 10 + 0 | ten
+rows 10 in base 16 | 1 x 16 + 0 | sixteen
+rows 10 in base 2 | 1 x 2 + 0 | two
+.
+code:
+print(int("10", 16))
+print(int("10", 10))
+print(int("10", 2))
+.
+eol: print(int("10", 16)) | why 10 in hex is not ten | 16|sixteen|base | the 1 is in the 16 place in hex, so 10 in hex is 16
+out:
+16
+10
+2
+.
+ownsay: try 11 in hex
+ownlines:
+print(int("11", 16))
+.
+ownout:
+17
+.
+
+--- BUILD Put it together: a hex table
+say: Build a small table that shows each number in hex, the way a color code would.
+tip: What does the finished program do?
+tipbody:
+p For each number in the list, it prints the number and then the same number as two hex digits.
+.
+plan:
+numbers = [10, 255, 16, 200]
+for n in numbers:
+    print(n, "is", format(n, "02X"))
+.
+item:
+@item Store the numbers.
+numbers = [10, 255, 16, 200]
+@item Loop through them and print each one in hex.
+for n in numbers:
+    print(n, "is", format(n, "02X"))
+@eol for n in numbers: | how many times the loop runs | 4|four|number | the loop runs 4 times, once for each number
+.
+out:
+10 is 0A
+255 is FF
+16 is 10
+200 is C8
+.
+
+=== a50 | Pixel Colors | pixel-colors
+learn: RGB (three numbers per pixel), gray, how many colors 24 bits make, turning RGB into a hex color code and back, and the size of a full-color picture
+ap: A pixel's color is stored as three numbers (red, green, blue), each from 0 to 255. More bits per pixel means more possible colors and a bigger file. A digital image only approximates what the camera saw, because each color is rounded to a fixed number of values.
+
+--- Three numbers make a color
+notes: RGB: Three Numbers per Pixel
+say: A screen mixes just three lights: **red, green, and blue**. A pixel's color is three numbers from 0 (off) to 255 (full brightness). In Python we keep the three numbers together in a **tuple**, written with round brackets. `orange[1]` is the second number, because the first is at index 0.
+tip: How do I read a tuple?
+tipbody:
+p A tuple is like a list that you do not change. The three numbers are red, green, and blue, in that order.
+ex orange = (255, 140, 0)
+ex orange[0]   # 255, red
+ex orange[1]   # 140, green
+ex orange[2]   # 0, blue
+.
+code:
+orange = (255, 140, 0)
+print(orange)
+print(orange[1])
+.
+eol: print(orange[1]) | which color value 140 is | green | 140 is the green value, the second number
+out:
+(255, 140, 0)
+140
+.
+ownsay: make pure red and read its red value
+ownlines:
+red = (255, 0, 0)
+print(red[0])
+.
+ownout:
+255
+.
+
+--- Gray, black, and white
+notes: RGB: Three Numbers per Pixel
+say: When red, green, and blue are **equal**, you get a shade of gray. All 0 is black and all 255 is white. Each number is one byte (8 bits), so one pixel is 3 bytes, which is 24 bits.
+tip: Why is equal light gray?
+tipbody:
+rows (0, 0, 0) | black | no light at all
+rows (128, 128, 128) | gray | equal amounts
+rows (255, 255, 255) | white | all lights at full
+.
+code:
+shade = 128
+gray = (shade, shade, shade)
+print(gray)
+print(3 * 8, "bits per pixel")
+.
+eol: print(gray) | why equal numbers make gray | equal|same|gray | when all three numbers are equal the pixel is gray
+out:
+(128, 128, 128)
+24 bits per pixel
+.
+ownsay: make white
+ownlines:
+shade = 255
+print((shade, shade, shade))
+.
+ownout:
+(255, 255, 255)
+.
+
+--- How many colors?
+notes: How Many Colors?
+say: One pixel uses 3 bytes, so it can be any of 256 x 256 x 256 colors. That is the same as `2 ** 24`, because 3 bytes is 24 bits. This is called **24-bit color**.
+tip: Why are the two numbers the same?
+tipbody:
+p 256 is `2 ** 8`, so 256 x 256 x 256 is `2 ** 8 * 2 ** 8 * 2 ** 8`, which is `2 ** 24`.
+rows 1 bit | 2 colors | black and white
+rows 8 bits | 256 colors | 256 shades
+rows 24 bits | 16,777,216 colors | full color
+.
+code:
+print(256 * 256 * 256)
+print(2 ** 24)
+.
+eol: print(2 ** 24) | why this is the same as the line above | 24|bits|256 | 24 bits is 3 bytes, and 256 x 256 x 256 is the same count
+out:
+16777216
+16777216
+.
+ownsay: count the shades of one color
+ownlines:
+print(2 ** 8)
+.
+ownout:
+256
+.
+
+--- RGB to a hex color code
+notes: Hex Color Codes
+say: Web pages write a color as `#RRGGBB`: three hex bytes, one each for red, green, and blue. To make the code, change each number into **two hex digits** with `format(number, "02X")` and join them after a `#`.
+tip: How does 140 become 8C?
+tipbody:
+steps 140 divided by 16 is 8 remainder 12. ;; 12 is the hex digit C. ;; So 140 is 8C, and orange (255, 140, 0) is #FF8C00.
+good `02X` means two digits, capital letters, with a leading zero if needed.
+.
+code:
+r = 255
+g = 140
+b = 0
+print("#" + format(r, "02X") + format(g, "02X") + format(b, "02X"))
+.
+eol: print("#" + format(r, "02X") + format(g, "02X") + format(b, "02X")) | what 02X does to each number | two|digits|zero|hex | 02X writes each number as two hex digits
+out:
+#FF8C00
+.
+ownsay: see why the zero matters
+ownlines:
+print(format(0, "02X"))
+.
+ownout:
+00
+.
+
+--- The f-string shortcut
+notes: Hex Color Codes
+say: **New idea:** an **f-string** is a string with an `f` in front of the quote. Anything inside curly brackets `{ }` is replaced by its value, and `:02X` after the name formats it. It does the same job as the line before, in much less typing.
+tip: How does an f-string work?
+tipbody:
+steps The `f` in front of the quote turns on the curly brackets. ;; `{r}` is replaced by the value of `r`. ;; `{r:02X}` is replaced by `r` written as two hex digits.
+ex print(f"{r} {g} {b}")    # 255 140 0
+good Everything outside the curly brackets is printed as it is, so `#` stays a `#`.
+.
+code:
+r = 255
+g = 140
+b = 0
+print(f"#{r:02X}{g:02X}{b:02X}")
+.
+eol: print(f"#{r:02X}{g:02X}{b:02X}") | what the f in front of the quote does | f|format|insert|replace|value|curly | the f lets the curly brackets insert the values and format them
+out:
+#FF8C00
+.
+ownsay: print the three numbers with spaces between them
+ownlines:
+print(f"{r} {g} {b}")
+.
+ownout:
+255 140 0
+.
+
+--- A hex color code back to RGB
+notes: Hex Color Codes
+say: To go back, cut the code into its three bytes with slices, `[0:2]`, `[2:4]`, and `[4:6]`, and read each one as hex with `int(..., 16)`.
+tip: What do the three slices cut?
+tipbody:
+rows code[0:2] | 33 | red
+rows code[2:4] | 66 | green
+rows code[4:6] | 99 | blue
+good Hex 33 is 51, 66 is 102, and 99 is 153.
+.
+code:
+code = "336699"
+r = int(code[0:2], 16)
+g = int(code[2:4], 16)
+b = int(code[4:6], 16)
+print(r, g, b)
+.
+eol: r = int(code[0:2], 16) | which part of the code the slice [0:2] cuts | first|red|two|33 | the slice [0:2] cuts the first two digits, the red byte
+out:
+51 102 153
+.
+ownsay: read just the green byte of an orange code
+ownlines:
+code = "FF8C00"
+print(int(code[2:4], 16))
+.
+ownout:
+140
+.
+
+--- How big is a full-color picture?
+notes: How Many Colors?
+say: A 1920 x 1080 picture has over two million pixels. At 3 bytes each, that is more than 6 million bytes before any compression.
+tip: Why multiply by 3?
+tipbody:
+p Each pixel needs 3 bytes: one for red, one for green, and one for blue.
+good Pixels = width x height. Bytes = pixels x 3.
+.
+code:
+width = 1920
+height = 1080
+pixels = width * height
+print(pixels)
+print(pixels * 3, "bytes")
+.
+eol: print(pixels * 3, "bytes") | why each pixel is multiplied by 3 | 3|byte|red|green|blue|three | each pixel needs 3 bytes, one each for red, green, and blue
+out:
+2073600
+6220800 bytes
+.
+ownsay: show the size in megabytes
+ownlines:
+print(pixels * 3 / 1000000, "MB")
+.
+ownout:
+6.2208 MB
+.
+
+--- BUILD Put it together: a color card
+say: Build a program that makes a hex color code from three numbers, then reads the code back to prove it works.
+tip: What does the finished program do?
+tipbody:
+p It writes (0, 128, 255) as the hex code `#0080FF`, then slices the code and converts each byte back to the original three numbers.
+.
+plan:
+r = 0
+g = 128
+b = 255
+code = f"{r:02X}{g:02X}{b:02X}"
+print("#" + code)
+print(int(code[0:2], 16), int(code[2:4], 16), int(code[4:6], 16))
+.
+item:
+@item Store the three color numbers.
+r = 0
+g = 128
+b = 255
+@item Make the hex code, leaving off the # for now.
+code = f"{r:02X}{g:02X}{b:02X}"
+@eol code = f"{r:02X}{g:02X}{b:02X}" | what the code holds | hex|two|digits|color|code | the code holds three hex bytes, two digits for each color
+@item Show the finished color code, with the # in front.
+print("#" + code)
+@item Read the code back into three numbers.
+print(int(code[0:2], 16), int(code[2:4], 16), int(code[4:6], 16))
+.
+out:
+#0080FF
+0 128 255
+.
+
+=== a51 | Image Manipulation | image-manipulation
+learn: an image as a list of pixel tuples, looping through pixels, building a new list, and the invert, grayscale, brighten, and darken filters
+ap: Digital data like an image is processed by an algorithm that works on every item. A loop over a list, with the same change applied to each item, is the pattern you have used all unit. Changing the numbers changes what you see, because the numbers are the picture. A filter that builds a new list keeps the original safe.
+
+--- An image is a list of pixels
+notes: An Image Is a List of Pixels
+say: Photo filters are not magic. A picture is a **list of pixels**, and each pixel is a tuple of three numbers (red, green, blue). `pixels[0]` is the first pixel, and `pixels[1][2]` is the third number (the blue) of the second pixel.
+tip: How do two sets of brackets work?
+tipbody:
+steps `pixels[1]` picks the second pixel, which is the tuple `(0, 128, 255)`. ;; Then `[2]` picks the third number inside that tuple. ;; So `pixels[1][2]` is 255, the blue value.
+.
+code:
+pixels = [(255, 0, 0), (0, 128, 255), (100, 100, 100)]
+print(pixels[0])
+print(pixels[1][2])
+.
+eol: print(pixels[1][2]) | which color value that is | blue|255 | that is the blue value of the second pixel
+out:
+(255, 0, 0)
+255
+.
+ownsay: count the pixels
+ownlines:
+print(len(pixels))
+.
+ownout:
+3
+.
+
+--- Visit every pixel
+notes: Filter 1: Invert
+say: **New idea:** `for (r, g, b) in pixels` **unpacks** each tuple into three variables, so inside the loop you can use the red, green, and blue values by name. A filter is a traversal: visit every pixel and change its numbers.
+tip: What does the loop line do?
+tipbody:
+p On each pass `pixels` gives one tuple, such as `(255, 0, 0)`. The line splits it into `r = 255`, `g = 0`, and `b = 0`.
+ex for (r, g, b) in pixels:
+ex     print(r, g, b)
+good Round brackets in the `for` line match the shape of the tuple.
+.
+code:
+pixels = [(255, 0, 0), (0, 128, 255), (100, 100, 100)]
+for (r, g, b) in pixels:
+    print(r, g, b)
+.
+eol: for (r, g, b) in pixels: | what r, g, and b hold on each pass | red|green|blue|color|pixel | r, g, and b hold the red, green, and blue of one pixel
+out:
+255 0 0
+0 128 255
+100 100 100
+.
+ownsay: add up each pixel's three numbers
+ownlines:
+for (r, g, b) in pixels:
+    print(r + g + b)
+.
+ownout:
+255
+383
+300
+.
+
+--- Build a new list
+notes: An Image Is a List of Pixels
+say: A filter should leave the original picture alone and build a **new list**. Start with an empty list, `result = []`, and `result.append(...)` adds one pixel to the end of it. This copy changes nothing, but every filter follows this same shape.
+tip: Why build a new list?
+tipbody:
+p If a filter changed the original list, you could never get the original picture back. A new list keeps the original safe.
+steps Start with `result = []`. ;; Loop through every pixel. ;; `append` the new pixel to `result`. ;; Show or return `result`.
+.
+code:
+pixels = [(255, 0, 0), (0, 128, 255)]
+result = []
+for (r, g, b) in pixels:
+    result.append((r, g, b))
+print(result)
+.
+eol: result.append((r, g, b)) | where the new pixel goes | end|list|result|new | append puts the new pixel at the end of the result list
+out:
+[(255, 0, 0), (0, 128, 255)]
+.
+ownsay: check that the copy matches the original
+ownlines:
+print(pixels == result)
+.
+ownout:
+True
+.
+
+--- Filter 1: invert
+notes: Filter 1: Invert
+say: **Invert** flips every value to its opposite: 255 minus the value. Black becomes white, and red becomes cyan. Putting the loop inside a function means you can use the filter on any list of pixels.
+tip: Why 255 minus the value?
+tipbody:
+rows 0 | 255 | black becomes white
+rows 255 | 0 | the biggest becomes the smallest
+rows 128 | 127 | the middle stays near the middle
+good The numbers go from 0 to 255, so 255 minus a number is its opposite.
+.
+code:
+def invert(pixels):
+    result = []
+    for (r, g, b) in pixels:
+        result.append((255 - r, 255 - g, 255 - b))
+    return result
+print(invert([(255, 0, 0), (0, 128, 255)]))
+.
+eol: result.append((255 - r, 255 - g, 255 - b)) | what 255 minus each value does | opposite|flip|invert|reverse | 255 minus each value flips it to its opposite
+out:
+[(0, 255, 255), (255, 127, 0)]
+.
+ownsay: invert black
+ownlines:
+print(invert([(0, 0, 0)]))
+.
+ownout:
+[(255, 255, 255)]
+.
+
+--- Filter 2: grayscale
+notes: Filter 2: Grayscale
+say: A gray pixel has equal red, green, and blue. Averaging the three values gives a gray of about the same brightness. `//` divides and drops the decimal, so the new values stay whole numbers, and colors must be whole numbers from 0 to 255.
+tip: How is the average made?
+tipbody:
+p Add the three values and divide by 3. For (255, 0, 0) that is 255 // 3, which is 85.
+ex average = (r + g + b) // 3
+ex result.append((average, average, average))
+good The same average is used three times, once for each color.
+.
+code:
+def grayscale(pixels):
+    result = []
+    for (r, g, b) in pixels:
+        average = (r + g + b) // 3
+        result.append((average, average, average))
+    return result
+print(grayscale([(255, 0, 0), (0, 128, 255)]))
+.
+eol: average = (r + g + b) // 3 | why // is used | whole|decimal|integer|round|drop | // drops the decimal so the average stays a whole number
+out:
+[(85, 85, 85), (127, 127, 127)]
+.
+ownsay: make a gray from a blue-ish pixel
+ownlines:
+print(grayscale([(30, 60, 90)]))
+.
+ownout:
+[(60, 60, 60)]
+.
+
+--- Filter 3: brighten and stay in range
+notes: Filter 3: Brighten (and Stay in Range)
+say: To brighten, add to every value. But a color value can never go above 255, so the code must **cap** it. `min(255, r + amount)` takes the smaller of 255 and the new value. Going out of range is the **overflow** idea from Lesson 8.1.
+tip: What does min do here?
+tipbody:
+p `min` gives the smaller of two numbers. If `r + amount` is 270, `min(255, 270)` is 255.
+ex min(255, 250 + 20)   # 255, not 270
+good Without the cap, 270 would not fit in one byte.
+.
+code:
+def brighten(pixels, amount):
+    result = []
+    for (r, g, b) in pixels:
+        result.append((min(255, r + amount), min(255, g + amount), min(255, b + amount)))
+    return result
+print(brighten([(250, 100, 0)], 20))
+.
+eol: result.append((min(255, r + amount), min(255, g + amount), min(255, b + amount))) | what min(255, ...) prevents | 255|range|big|overflow|cap | min(255, ...) stops a value going above 255
+out:
+[(255, 120, 20)]
+.
+ownsay: brighten a dark pixel by 50
+ownlines:
+print(brighten([(10, 20, 30)], 50))
+.
+ownout:
+[(60, 70, 80)]
+.
+
+--- Filter 4: darken
+notes: Filter 3: Brighten (and Stay in Range)
+say: To darken, subtract from every value, and use `max(0, ...)` so a value never drops below 0. It is the mirror image of brighten.
+tip: What does max do here?
+tipbody:
+p `max` gives the bigger of two numbers. If `r - amount` is -40, `max(0, -40)` is 0.
+rows Invert | (255 - r, ...) | flips the values
+rows Brighten | min(255, r + n) | caps at 255
+rows Darken | max(0, r - n) | stops at 0
+.
+code:
+def darken(pixels, amount):
+    result = []
+    for (r, g, b) in pixels:
+        result.append((max(0, r - amount), max(0, g - amount), max(0, b - amount)))
+    return result
+print(darken([(10, 100, 200)], 50))
+.
+eol: result.append((max(0, r - amount), max(0, g - amount), max(0, b - amount))) | what max(0, ...) prevents | 0|below|negative|zero | max(0, ...) stops a value dropping below 0
+out:
+[(0, 50, 150)]
+.
+ownsay: darken white by 100
+ownlines:
+print(darken([(255, 255, 255)], 100))
+.
+ownout:
+[(155, 155, 155)]
+.
+
+--- BUILD Put it together: a photo filter
+say: Build a program that inverts a small photo, then inverts it again to prove that invert can be undone.
+tip: What does the finished program do?
+tipbody:
+p Inverting twice flips every value to its opposite and then back again, so you get the original photo. That proves invert loses nothing.
+.
+plan:
+def invert(pixels):
+    result = []
+    for (r, g, b) in pixels:
+        result.append((255 - r, 255 - g, 255 - b))
+    return result
+photo = [(200, 50, 50), (0, 0, 0), (255, 255, 255)]
+print(invert(photo))
+print(invert(invert(photo)) == photo)
+.
+item:
+@item Write the invert filter.
+def invert(pixels):
+    result = []
+    for (r, g, b) in pixels:
+        result.append((255 - r, 255 - g, 255 - b))
+    return result
+@item Store a three-pixel photo.
+photo = [(200, 50, 50), (0, 0, 0), (255, 255, 255)]
+@item Show the inverted photo.
+print(invert(photo))
+@item Invert it twice and compare it with the original.
+print(invert(invert(photo)) == photo)
+@eol print(invert(invert(photo)) == photo) | what True proves about invert | original|back|undo|same|lossless | True proves that inverting twice gets the original photo back
+.
+out:
+[(55, 205, 205), (255, 255, 255), (0, 0, 0)]
+True
+.
+
+=== a52 | Data Compression | data-compression
+learn: compression ratio, run-length encoding, compress and decompress functions, when compression makes a file bigger, testing that it is lossless, and repeated patterns
+ap: Compression reduces the number of bits needed to store or send data. Lossless compression lets you rebuild the exact original and lossy does not. Some data compresses well (lots of repeats) and some does not. There is a trade-off: a smaller file can mean more work, or lost detail.
+
+--- Compression ratio
+notes: Why Compress?
+say: Compression makes data smaller so it takes less storage and less time to send. The **compression ratio** is compressed size divided by original size. A 1,000-byte file that becomes 400 bytes has a ratio of 0.4, so it is 40% of the original. Smaller is better.
+tip: How do I read the ratio?
+tipbody:
+rows 0.4 | 40% of the original | a big saving
+rows 1.0 | the same size | no saving
+rows 2.0 | twice as big | compression made it worse
+.
+code:
+original = 1000
+compressed = 400
+print(compressed / original)
+print(compressed / original * 100, "%")
+.
+eol: print(compressed / original * 100, "%") | what percent of the original is left | 40|percent|%|left | 40 percent of the original is left
+out:
+0.4
+40.0 %
+.
+ownsay: try a file that shrinks to 250 bytes
+ownlines:
+compressed = 250
+print(compressed / original)
+.
+ownout:
+0.25
+.
+
+--- A run becomes a count and a character
+notes: Idea 1: Run-Length Encoding
+say: **Run-length encoding** works when the same thing repeats in a row: write it once and say how many times. `AAAA` becomes `4A`. In code, `str(count)` turns the number into text so it can be joined to the letter.
+tip: Why str(count)?
+tipbody:
+p You cannot join a number to text with `+`. `str(count)` turns the number into text first.
+ex str(4) + "A"   # "4A"
+good Ten characters AAAABBBCCD shrink to eight, 4A3B2C1D.
+.
+code:
+count = 4
+letter = "A"
+print(str(count) + letter)
+.
+eol: print(str(count) + letter) | what 4A means | four|4|A|run|times | 4A means the letter A repeats 4 times in a row
+out:
+4A
+.
+ownsay: write three Bs
+ownlines:
+count = 3
+letter = "B"
+print(str(count) + letter)
+.
+ownout:
+3B
+.
+
+--- Compress a whole string
+notes: Python: Compress and Decompress
+say: Here is run-length encoding as a function. It walks along the string with a counter: if a letter matches the one before it, the count goes up; if the letter changes, it saves the finished run and starts counting again. After the loop it adds the last run. Read it slowly, then type it.
+tip: How does compress work on AAB?
+tipbody:
+steps i = 1: the letter A matches the one before it, so count becomes 2. ;; i = 2: the letter B is different, so add 2A to the result and reset count to 1. ;; After the loop, add the last run, 1B. ;; The answer is 2A1B.
+good `text[i - 1]` is the letter **before** the current one.
+.
+code:
+def compress(text):
+    result = ""
+    count = 1
+    for i in range(1, len(text)):
+        if text[i] == text[i - 1]:
+            count = count + 1
+        else:
+            result = result + str(count) + text[i - 1]
+            count = 1
+    result = result + str(count) + text[len(text) - 1]
+    return result
+print(compress("AAAABBBCCD"))
+.
+eol: if text[i] == text[i - 1]: | what this line compares | letter|before|previous|same|next | it compares a letter with the letter before it
+out:
+4A3B2C1D
+.
+ownsay: compress a short string
+ownlines:
+print(compress("AAB"))
+.
+ownout:
+2A1B
+.
+
+--- When compression makes a file bigger
+notes: Idea 1: Run-Length Encoding
+say: Run-length encoding shines on data with long runs, like a cartoon with big flat areas. But on data with **no repeats**, like `ABC`, it makes the file **bigger**: `1A1B1C` is twice as long. No compression works on everything.
+uses: 3
+keep: yes
+keepwhat: the compress function
+tip: Why is ABC bigger?
+tipbody:
+p With no repeats, every letter gets a count of 1 stuck in front of it, so the result is twice as long.
+rows AAAAAAAAAA | 10A | 10 characters become 3
+rows ABC | 1A1B1C | 3 characters become 6
+.
+code:
+print(compress("ABC"))
+print(len(compress("ABC")))
+print(compress("AAAAAAAAAA"))
+.
+eol: print(len(compress("ABC"))) | why this is bigger than the original 3 | 6|bigger|repeat|count|longer | with no repeats the compressed text is bigger, 6 instead of 3
+out:
+1A1B1C
+6
+10A
+.
+ownsay: measure the long run
+ownlines:
+print(len(compress("AAAAAAAAAA")))
+.
+ownout:
+3
+.
+
+--- Decompress
+notes: Python: Compress and Decompress
+say: Decompressing reads the code back: digits build up the count, and when a letter comes, it is repeated that many times. `ch.isdigit()` is True when the character is a digit, and `ch * int(count)` repeats the letter.
+uses: 3
+keep: yes
+keepwhat: the compress function
+tip: How does decompress read 4A3B?
+tipbody:
+steps The 4 is a digit, so it goes into `count`. ;; The A is not a digit, so add `A` repeated 4 times. ;; Reset `count` and read 3B the same way.
+ex "A" * 4   # "AAAA"
+.
+code:
+def decompress(code):
+    result = ""
+    count = ""
+    for ch in code:
+        if ch.isdigit():
+            count = count + ch
+        else:
+            result = result + ch * int(count)
+            count = ""
+    return result
+print(decompress("4A3B2C1D"))
+.
+eol: if ch.isdigit(): | what isdigit checks | digit|number|count | isdigit checks whether the character is a digit, part of the count
+out:
+AAAABBBCCD
+.
+ownsay: compress a word and decompress it straight away
+ownlines:
+print(decompress(compress("HELLO")))
+.
+ownout:
+HELLO
+.
+
+--- Is it lossless?
+notes: Python: Compress and Decompress
+say: If `decompress(compress(x))` gives back `x` every time, the compression is **lossless**. That is the test. You can also measure how much smaller it got by dividing the compressed length by the original length.
+uses: 3, 5
+keep: yes
+keepwhat: the compress and decompress functions
+tip: What does True prove?
+tipbody:
+p `==` checks that two things are exactly equal. If compressing and then decompressing gives the exact original, nothing was lost.
+ex print(decompress(compress(text)) == text)   # True
+good Lossless means you get the original back bit for bit.
+.
+code:
+text = "AAAABBBCCD"
+print(decompress(compress(text)) == text)
+print(len(compress(text)) / len(text))
+.
+eol: print(decompress(compress(text)) == text) | what True proves about this compression | lossless|exact|original|back|nothing | True proves it is lossless, because the exact original came back
+out:
+True
+0.8
+.
+ownsay: try text with no runs
+ownlines:
+text = "ABABAB"
+print(len(compress(text)) / len(text))
+.
+ownout:
+2.0
+.
+
+--- Idea 2: repeated patterns
+notes: Idea 2: Repeated Patterns
+say: Another trick: when a **pattern** appears many times, give it a short label and store the pattern once. Here `replace` swaps the pattern for a `1`. But the table (the pattern you keep) takes room too, so it only saves space when the pattern repeats often enough. This is the idea behind ZIP files.
+tip: Why add the pattern back in?
+tipbody:
+p The compressed text is only useful if you also keep the table that says what `1` means. So the true size is the short text **plus** the table.
+ex print(len(text), len(small) + len(pattern))   # 31 18
+good Data that is already random, or already compressed, has no patterns left to remove.
+.
+code:
+text = "the cat the cat the cat the dog"
+pattern = "the cat "
+small = text.replace(pattern, "1")
+print(small)
+print(len(text), len(small) + len(pattern))
+.
+eol: small = text.replace(pattern, "1") | what replace does to the repeated pattern | pattern|label|1|swap|short | replace swaps every copy of the pattern for the short label 1
+out:
+111the dog
+31 18
+.
+ownsay: measure just the short text
+ownlines:
+print(len(small))
+.
+ownout:
+10
+.
+
+--- BUILD Put it together: a compression check
+say: Build a program that compresses a message and checks whether that really made it smaller.
+uses: 3
+keep: yes
+keepwhat: the compress function
+tip: What does the finished program do?
+tipbody:
+p It prints the original length, the compressed text, and True or False for whether the compressed text is shorter.
+.
+plan:
+message = "WWWWWWBBBW"
+print("Original:", len(message))
+print("Compressed:", compress(message))
+print("Smaller?", len(compress(message)) < len(message))
+.
+item:
+@item Store the message. It has long runs, so it should compress well.
+message = "WWWWWWBBBW"
+@item Show the original length.
+print("Original:", len(message))
+@item Show the compressed text.
+print("Compressed:", compress(message))
+@item Check whether it is really smaller.
+print("Smaller?", len(compress(message)) < len(message))
+@eol print("Smaller?", len(compress(message)) < len(message)) | what True means | shorter|smaller|less|fewer | True means the compressed text is shorter than the original
+.
+out:
+Original: 10
+Compressed: 6W3B1W
+Smaller? True
+.
+
+=== a53 | Lossy Compression | lossy-compression
+learn: how lossy compression merges values, why the original cannot come back, counting shades, bits per pixel, file size before and after, and choosing lossy or lossless
+ap: Lossy compression cannot rebuild the exact original and lossless can. Lossy usually gives a smaller file. Pick lossless when every bit matters, and lossy when small size matters more than perfect detail. A compressed file can be very different in size from the original with little visible change.
+
+--- Merge the shades
+notes: Python: Merging Values
+say: Lossy compression throws away detail people barely notice. Here every value is rounded **down to a multiple of 64**, so many different values become the same value. `v // 64 * 64` does the rounding: `//` drops the remainder and `* 64` scales it back up.
+tip: How does v // 64 * 64 round?
+tipbody:
+rows 12 | 12 // 64 * 64 | 0
+rows 70 | 70 // 64 * 64 | 64
+rows 255 | 255 // 64 * 64 | 192
+good Every value from 0 to 63 becomes 0, every value from 64 to 127 becomes 64, and so on.
+.
+code:
+values = [12, 70, 130, 200, 255]
+small = []
+for v in values:
+    small.append(v // 64 * 64)
+print(small)
+.
+eol: small.append(v // 64 * 64) | what // 64 * 64 does to each value | round|down|multiple|64|merge | it rounds each value down to a multiple of 64
+out:
+[0, 64, 128, 192, 192]
+.
+ownsay: check the list is still the same length
+ownlines:
+print(len(values), len(small))
+.
+ownout:
+5 5
+.
+
+--- Two values become one
+notes: Python: Merging Values
+say: Look at the end of the list: 200 and 255 both became 192. Once two values are merged you can never tell which one was the original. That lost information is exactly what makes it **lossy**.
+tip: Why can't we undo it?
+tipbody:
+p If you only have 192, you cannot know if it came from 200, 255, or 193. The detail is gone for good.
+good There is no uncompress that could undo this. If you need the exact original, keep a copy before compressing lossily.
+.
+code:
+a = 200
+b = 255
+print(a == b)
+print(a // 64 * 64 == b // 64 * 64)
+.
+eol: print(a // 64 * 64 == b // 64 * 64) | what True means after rounding | same|merged|lost|equal | True means the two different values became the same value
+out:
+False
+True
+.
+ownsay: show what 200 became
+ownlines:
+print(a // 64 * 64)
+.
+ownout:
+192
+.
+
+--- Count the shades
+notes: Try It: Drop the Shades
+say: One easy lossy trick is to use **fewer shades**. This loop builds a list of the different shades that are left. `shade not in distinct` is True when the shade is **not already** in the list, so each shade is added only once.
+tip: How does the loop keep each shade once?
+tipbody:
+steps Round each value to its shade. ;; If that shade is **not in** the `distinct` list yet, add it. ;; If it is already there, do nothing. ;; At the end `distinct` holds each shade once.
+.
+code:
+values = [12, 70, 130, 200, 255]
+distinct = []
+for v in values:
+    shade = v // 64 * 64
+    if shade not in distinct:
+        distinct.append(shade)
+print(distinct)
+print(len(distinct))
+.
+eol: if shade not in distinct: | what not in checks | already|list|new|once | not in checks whether the shade is not already in the list
+out:
+[0, 64, 128, 192]
+4
+.
+ownsay: count how many values were merged away
+ownlines:
+print(len(values) - len(distinct))
+.
+ownout:
+1
+.
+
+--- Fewer shades, fewer bits
+notes: Try It: Drop the Shades
+say: Fewer shades need fewer bits per pixel, so the file shrinks. 4 shades need 2 bits, but 256 shades need 8 bits. This is the bit-counting loop from Lesson 8.1.
+tip: How many bits do 4 shades need?
+tipbody:
+p 1 bit makes 2 shades and 2 bits make 4. So 4 shades need exactly 2 bits.
+rows 2 shades | 1 bit | black and white
+rows 4 shades | 2 bits | 4 shades
+rows 256 shades | 8 bits | full gray
+.
+code:
+shades = 4
+bits = 1
+while 2 ** bits < shades:
+    bits = bits + 1
+print(bits)
+.
+eol: print(bits) | how many bits 4 shades need | \b2\b|two | 4 shades need 2 bits
+out:
+2
+.
+ownsay: do it again for 256 shades
+ownlines:
+shades = 256
+bits = 1
+while 2 ** bits < shades:
+    bits = bits + 1
+print(bits)
+.
+ownout:
+8
+.
+
+--- File size before and after
+notes: Lossy vs Lossless
+say: Lossy compression gives a **much smaller** file. If a picture of 1,000 pixels drops from 8 bits per pixel to 2 bits per pixel, the file is a quarter of its size. The price is quality that cannot come back.
+tip: What is the trade-off?
+tipbody:
+rows Lossless | exact copy | bigger file
+rows Lossy | close copy | much smaller file
+good Lossy: smaller file, lower quality, no going back.
+.
+code:
+pixels = 1000
+before = pixels * 8
+after = pixels * 2
+print(before, "bits")
+print(after, "bits")
+print(after / before)
+.
+eol: print(after / before) | how much of the original is left | 0.25|quarter|25|1/4 | a quarter (0.25) of the original is left
+out:
+8000 bits
+2000 bits
+0.25
+.
+ownsay: show how many bits were saved
+ownlines:
+print(before - after, "bits saved")
+.
+ownout:
+6000 bits saved
+.
+
+--- The detail is gone
+notes: Python: Merging Values
+say: Put the original values next to the compressed ones. Two original values are different, but the compressed list cannot tell them apart. There is nothing in `small` to tell you which original it came from.
+tip: What can small tell us?
+tipbody:
+p Compare `small[3]` and `small[4]`. They are the same, but `values[3]` and `values[4]` are not.
+good The information that was lost cannot be recovered from the compressed data.
+.
+code:
+values = [12, 70, 130, 200, 255]
+small = []
+for v in values:
+    small.append(v // 64 * 64)
+print(small[3], small[4])
+print(values[3], values[4])
+.
+eol: print(values[3], values[4]) | why you cannot rebuild these from the small list | both|same|192|lost|gone|different | both became 192, so you cannot tell which was the original
+out:
+192 192
+200 255
+.
+ownsay: test whether the compressed values match
+ownlines:
+print(small[3] == small[4])
+.
+ownout:
+True
+.
+
+--- Choose lossy or lossless
+notes: Which One Should I Use?
+say: The right choice depends on what the data is for. Text, programs, and scans must be **lossless**, because one missing character could break them. Photos, music, and video can be **lossy**, because small files matter more than perfect detail.
+tip: How do I choose?
+tipbody:
+rows A text document or program | lossless | one wrong character could break it
+rows A vacation photo | lossy | small file, nobody sees the difference
+rows Streaming music or video | lossy | must be small to send quickly
+rows A medical scan | lossless | every detail may matter
+.
+code:
+def choose(data):
+    if data == "text" or data == "scan":
+        return "lossless"
+    return "lossy"
+print(choose("text"))
+print(choose("photo"))
+print(choose("scan"))
+.
+eol: if data == "text" or data == "scan": | why text and scans must be lossless | every|exact|detail|bit|missing|break | every detail matters, so no data can be lost
+out:
+lossless
+lossy
+lossless
+.
+ownsay: choose for music
+ownlines:
+print(choose("music"))
+.
+ownout:
+lossy
+.
+
+--- BUILD Put it together: a lossy squeezer
+say: Build a function that squeezes a list of shades by rounding each one down to a multiple of a step, then prove that it cannot be undone.
+tip: What does the finished program do?
+tipbody:
+p `squeeze(values, step)` rounds each value down to a multiple of `step` and returns a new list. A bigger step loses more detail. The last line shows that the squeezed list is not the same as the original.
+.
+plan:
+shades = [10, 90, 150, 220]
+def squeeze(values, step):
+    result = []
+    for v in values:
+        result.append(v // step * step)
+    return result
+print(squeeze(shades, 100))
+print(squeeze(shades, 50))
+print(squeeze(shades, 100) == shades)
+.
+item:
+@item Store the original shades.
+shades = [10, 90, 150, 220]
+@item Write the function that squeezes every value.
+def squeeze(values, step):
+    result = []
+    for v in values:
+        result.append(v // step * step)
+    return result
+@item Squeeze with a big step, then a smaller one.
+print(squeeze(shades, 100))
+print(squeeze(shades, 50))
+@item Compare the squeezed list with the original.
+print(squeeze(shades, 100) == shades)
+@eol print(squeeze(shades, 100) == shades) | what False tells you | lost|different|not|original|gone | False tells you that the detail is lost, the lists are different
+.
+out:
+[0, 0, 100, 200]
+[0, 50, 150, 200]
+False
+.
+
+=== a54 | Cryptography | cryptography
+learn: encrypting and decrypting with a shift, the wrap-around, a Caesar cipher function, trying every key, symmetric and public key encryption, and trust on the web
+ap: Encryption scrambles data and decryption unscrambles it. Symmetric encryption uses one shared key. Public key encryption uses a public key to encrypt and a private key to decrypt, so strangers can communicate securely. A cipher with few possible keys is easy to break by trying them all. Certificate authorities issue certificates that verify who owns a public key.
+
+--- Plaintext, ciphertext, and a key
+notes: The Basic Words
+say: **Encryption** turns a readable message (the **plaintext**) into scrambled nonsense (the **ciphertext**), and **decryption** turns it back. The method is the **cipher** and the secret value that controls it is the **key**. In the Caesar cipher the key is how far to shift each letter. Here the key is 3.
+tip: Which word is which?
+tipbody:
+rows plaintext | the readable message | A
+rows ciphertext | the scrambled message | D
+rows key | the secret value | 3
+good Shift the letter forward by the key to encrypt. Shift it back to decrypt.
+.
+code:
+plaintext = "A"
+number = ord(plaintext) + 3
+ciphertext = chr(number)
+print(ciphertext)
+.
+eol: ciphertext = chr(number) | what the key is in this program | 3|shift|key | the key is 3, the number the letter is shifted by
+out:
+D
+.
+ownsay: decrypt it by shifting back
+ownlines:
+print(chr(ord(ciphertext) - 3))
+.
+ownout:
+A
+.
+
+--- Encrypt a whole word
+notes: The Caesar Cipher
+say: A loop can shift every letter of a word. For each letter it takes the number, adds the key, and turns the new number back into a letter. HELLO with a key of 3 becomes KHOOR. Anyone who grabs KHOOR on the way sees only nonsense.
+tip: What happens on each pass?
+tipbody:
+steps `ch` is one letter of the word. ;; `ord(ch) + 3` shifts its number up by 3. ;; `chr(...)` turns the new number back into a letter. ;; The letter is added to `ciphertext`.
+ex H -> K, E -> H, L -> O, L -> O, O -> R
+.
+code:
+plaintext = "HELLO"
+ciphertext = ""
+for ch in plaintext:
+    ciphertext = ciphertext + chr(ord(ch) + 3)
+print(ciphertext)
+.
+eol: ciphertext = ciphertext + chr(ord(ch) + 3) | what each pass adds | shifted|letter|encrypted|new | each pass adds the next letter, shifted by 3
+out:
+KHOOR
+.
+ownsay: decrypt KHOOR by shifting each letter back
+ownlines:
+plain = ""
+for ch in ciphertext:
+    plain = plain + chr(ord(ch) - 3)
+print(plain)
+.
+ownout:
+HELLO
+.
+
+--- The wrap-around problem
+notes: The Caesar Cipher
+say: There is a problem: X shifted by 3 would run off the end of the alphabet. The fix is to turn each letter into a **position from 0 to 25**, add the shift, use `% 26` to wrap around from Z back to A, and then turn the position back into a letter.
+tip: How does % 26 wrap around?
+tipbody:
+steps `ord("X") - ord("A")` is the position, 23. ;; 23 + 3 is 26, and `26 % 26` is 0. ;; Position 0 is the letter A. ;; So X wraps around to A.
+good There are 26 letters, so `% 26` always keeps the position between 0 and 25.
+.
+code:
+position = ord("X") - ord("A")
+print(position)
+print((position + 3) % 26)
+print(chr((position + 3) % 26 + ord("A")))
+.
+eol: print((position + 3) % 26) | what % 26 does | wrap|around|start|back|26 | % 26 wraps the position back to the start of the alphabet
+out:
+23
+0
+A
+.
+ownsay: shift Z by 3
+ownlines:
+print(chr((ord("Z") - ord("A") + 3) % 26 + ord("A")))
+.
+ownout:
+C
+.
+
+--- The encrypt function
+notes: The Caesar Cipher
+say: Put it all in a function. It loops over the text and shifts only the **letters**, leaving spaces and punctuation alone. It remembers whether a letter was capital or lowercase by starting from `ord("A")` or `ord("a")`.
+tip: What is this function doing?
+tipbody:
+steps `ch.isalpha()` is True for letters, so spaces and punctuation skip the shift. ;; `ch.isupper()` picks the right starting letter, A or a. ;; `(ord(ch) - base + shift) % 26 + base` shifts and wraps. ;; Everything else is copied unchanged.
+good `encrypt("xyz", 3)` is `abc`, because it wraps around.
+.
+code:
+def encrypt(text, shift):
+    result = ""
+    for ch in text:
+        if ch.isalpha():
+            if ch.isupper():
+                base = ord("A")
+            else:
+                base = ord("a")
+            result = result + chr((ord(ch) - base + shift) % 26 + base)
+        else:
+            result = result + ch
+    return result
+print(encrypt("HELLO", 3))
+print(encrypt("xyz", 3))
+.
+eol: if ch.isalpha(): | what this line skips | space|punctuation|not|letter|other | it skips spaces and punctuation, only letters are shifted
+out:
+KHOOR
+abc
+.
+ownsay: encrypt a message with a space and a capital
+ownlines:
+print(encrypt("Hi There", 1))
+.
+ownout:
+Ij Uifsf
+.
+
+--- Decrypt, and break it
+notes: The Caesar Cipher
+say: To decrypt, shift **backwards** by the same key: `encrypt(cipher, -3)`. But the Caesar cipher is weak. There are only 25 possible keys, so a computer can try them all in an instant. This is called a **brute-force attack**.
+uses: 4
+keep: yes
+keepwhat: the encrypt function
+tip: Why is Caesar easy to break?
+tipbody:
+p A computer can try all 25 keys faster than you can blink and look for the one that makes a real word.
+good Longer keys mean more possible keys, so brute force takes much longer.
+.
+code:
+cipher = "KHOOR"
+print(encrypt(cipher, -3))
+for key in range(1, 26):
+    print(key, encrypt(cipher, -key))
+.
+eol: print(key, encrypt(cipher, -key)) | why a computer can try every key | 25|few|all|every|quick|instant | there are only 25 keys, so a computer can try every one
+try: It prints `HELLO` first, then 25 lines, one for every possible key. Only the line for key 3 shows a real word, HELLO.
+ownsay: encrypt HELLO twice with the key 13
+ownlines:
+print(encrypt(encrypt("HELLO", 13), 13))
+.
+ownout:
+HELLO
+.
+
+--- Symmetric encryption
+notes: Symmetric Encryption
+say: In **symmetric encryption** the **same key** encrypts and decrypts. The Caesar cipher is symmetric: the key 3 locks the message and the key 3 (backwards) unlocks it. The big problem: how do two people agree on the key if they have never met? Sending it over the internet could let a spy steal it too.
+uses: 4
+keep: yes
+keepwhat: the encrypt function
+tip: Why is the key a problem?
+tipbody:
+p Both people need the same secret key before they can talk. If the key travels over the network, a spy could copy it.
+good One shared key, used both ways. Fast, but the key must be shared first.
+.
+code:
+key = 3
+cipher = encrypt("HELLO", key)
+print(cipher)
+print(encrypt(cipher, -key))
+.
+eol: print(encrypt(cipher, -key)) | why the same key works both ways | same|undo|back|shared|opposite | the same key undoes the shift, so one shared key works both ways
+out:
+KHOOR
+HELLO
+.
+ownsay: check that the same key gives the same ciphertext
+ownlines:
+print(encrypt("HELLO", key) == cipher)
+.
+ownout:
+True
+.
+
+--- Public key encryption
+notes: Public Key Encryption
+say: **Public key encryption** solves the sharing problem with **two different keys** that belong together. Anyone can use the **public key** to encrypt a message to its owner, but only the owner's **private key** can decrypt it. This program is only a **toy model** of the idea, because with Caesar the private key is easy to work out from the public one.
+uses: 4
+keep: yes
+keepwhat: the encrypt function
+tip: How is this different from symmetric?
+tipbody:
+rows Public key | everyone can see it | encrypts a message to its owner
+rows Private key | only the owner keeps it | decrypts that message
+warn In a real system the private key **cannot be worked out** from the public key. The math is easy one way and extremely slow to undo without the private key.
+.
+code:
+public_key = 3
+private_key = -3
+cipher = encrypt("HELLO", public_key)
+print(cipher)
+print(encrypt(cipher, private_key))
+.
+eol: private_key = -3 | who should keep this key secret | owner|only|secret|private | only the owner keeps the private key secret
+out:
+KHOOR
+HELLO
+.
+ownsay: try to decrypt with the public key instead
+ownlines:
+print(encrypt(cipher, public_key))
+.
+ownout:
+NKRRU
+.
+
+--- Trust on the web
+notes: Trust on the Web
+say: Every time you see https and the lock in your browser, public key encryption is at work. A **digital certificate** proves that a public key really belongs to that website, and a **certificate authority** is a trusted organization that issues certificates. The browser checks whether the issuer is trusted, like checking a name against a list.
+tip: What does a certificate prove?
+tipbody:
+rows HTTPS | encrypts data between you and a website | the lock in the browser
+rows Certificate | proves a public key belongs to a site | issued by a trusted authority
+rows Certificate authority | issues certificates | a trusted organization
+good Encryption protects data in transit, but it cannot protect you if you hand your password to a fake website. The certificate check helps you notice that.
+.
+code:
+trusted = ["DigiCert", "Sectigo"]
+issuer = "DigiCert"
+print(issuer in trusted)
+issuer = "Unknown Co"
+print(issuer in trusted)
+.
+eol: print(issuer in trusted) | what False means for a website | not|trust|fake|warn|unsafe|unknown | False means the issuer is not trusted, so be careful with this website
+out:
+True
+False
+.
+ownsay: count the trusted authorities
+ownlines:
+print(len(trusted))
+.
+ownout:
+2
+.
+
+--- BUILD Put it together: a secret message
+say: Build a program that encrypts a message, shows the scrambled text, decrypts it, and proves the round trip worked.
+uses: 4
+keep: yes
+keepwhat: the encrypt function
+tip: What does the finished program do?
+tipbody:
+p It encrypts Meet at noon with a key of 5, shows the ciphertext, decrypts it with the same key backwards, and compares the result with the original.
+.
+plan:
+message = "Meet at noon"
+shift = 5
+secret = encrypt(message, shift)
+print("Secret:", secret)
+print("Decrypted:", encrypt(secret, -shift))
+print("Match:", encrypt(secret, -shift) == message)
+.
+item:
+@item Store the message and the key.
+message = "Meet at noon"
+shift = 5
+@item Encrypt the message.
+secret = encrypt(message, shift)
+@eol secret = encrypt(message, shift) | what secret holds | cipher|scrambled|encrypted|nonsense | secret holds the ciphertext, the scrambled message
+@item Show the ciphertext, then decrypt it with the same key backwards.
+print("Secret:", secret)
+print("Decrypted:", encrypt(secret, -shift))
+@item Prove the round trip worked.
+print("Match:", encrypt(secret, -shift) == message)
+.
+out:
+Secret: Rjjy fy stts
+Decrypted: Meet at noon
+Match: True
+.

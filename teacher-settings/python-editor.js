@@ -9,6 +9,7 @@
                a20 If/Elif/Else, a21 Key Events, a22 For Loops, a23 General For Loops */
 import { PY_RECORDS } from "./python-records.js";
 import { fixA5, fixA7, fixA13, fixA33, headingAtEdge, TAB_SLOTS } from "./python-fixes.js";
+import { UNIT8 } from "./python-unit8.js";
 /* THE MASTER SWITCH. While this is true EVERYTHING is open to everyone: every walkthrough, assignment, game and quiz is live, nothing is held, nothing is in an unlock chain,
    and games can be played as a guest with no sign-in (nothing is saved for a guest). When the curriculum is finished, set it to false and the per-slot lines below take over again. */
 export const OPEN_EVERYTHING = true;
@@ -206,3 +207,7 @@ export function withPySettings(slot, rec) {
 function addPatch(slot, fn) { const prev = PY_PATCHES[slot]; PY_PATCHES[slot] = prev ? function (r) { return fn(prev(r)); } : fn; }
 TAB_SLOTS.forEach(function (s) { addPatch(s, headingAtEdge); });
 addPatch("a5", fixA5); addPatch("a7", fixA7); addPatch("a13", fixA13); addPatch("a33", fixA33);
+/* Unit 8 walkthroughs a45 to a54: the long versions (7 to 9 steps each, generated from tools/missions/u8-walk.txt) replace the 2-step versions saved on the grading server. The saved questions, gating and settings are kept. */
+Object.keys(UNIT8).forEach(function (s) {
+  addPatch(s, function (r) { const u = UNIT8[s]; r.blocks = JSON.parse(JSON.stringify(u.blocks)); r.tips = Object.assign({}, r.tips || {}, JSON.parse(JSON.stringify(u.tips))); r.checks = JSON.parse(JSON.stringify(u.checks)); return r; });
+});
