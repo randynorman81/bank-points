@@ -211,7 +211,7 @@ def trace(title, code, vars_, rows, caption=None, output=None):
     for ln, vals in rows:
         cur = dict(prev); cur.update(vals)
         cells = "".join('<td class="%s">%s</td>' % ("chg" if (v in vals and vals[v] != prev.get(v)) else "", esc(cur.get(v, "-"))) for v in vars_)
-        body += '<tr><td class="ln2">%d</td>%s</tr>' % (ln, cells); prev = cur
+        body += '<tr><td class="ln2">%s</td>%s</tr>' % ("start" if ln == 0 else ln, cells); prev = cur
     if output: body += '<tr><td class="ln2">OUT</td><td class="out" colspan="%d">%s</td></tr>' % (len(vars_), esc(output))
     html_ = '<div class="trace"><div class="tcode">%s</div><table>%s%s</table></div>' % (left, head, body)
     cap = ('<figcaption>%s%s</figcaption>' % (FIGMARK, caption)) if caption else ""
@@ -553,7 +553,8 @@ def watch(rows, intro=None, extra=""):
 
 def glance_html(ch, words):
     m = LMAP.get(ch["id"]); bits = []
-    if m:
+    if ch.get("site"): bits.append(ch["site"])
+    elif m:
         if m["w"]: bits.append("<b>Walkthrough</b>")
         if m["p"]: bits.append("<b>Assignment:</b> %s" % esc(m["p"]["title"]))
         if m["g"]: bits.append("<b>%s:</b> %s" % ("Mission" if m["g"]["pts"] >= 100 else "Bonus game", esc(m["g"]["title"])))

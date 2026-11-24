@@ -1,7 +1,33 @@
 """Authoring shortcuts for the lesson-by-lesson guides. A lesson is: goal, words, learn, ex, tr, bad, ap, q (see gl.chapter_html for the fixed layout)."""
 from gl import *
 
-def _run_checked(code, rows, out, inp, title):
+
+def _karel_env(g, balls=None, size=(8, 8)):
+    """A tiny Karel world so Karel traces are checked by running them. Columns are avenues, rows are streets (1 at the bottom)."""
+    W, H = size; b = dict(balls or {}); st = {"x": 1, "y": 1, "d": 0}
+    names = ["East", "North", "West", "South"]; dx = [1, 0, -1, 0]; dy = [0, 1, 0, -1]
+    def sync():
+        g["avenue"] = st["x"]; g["street"] = st["y"]; g["facing"] = names[st["d"]]; g["balls_here"] = b.get((st["x"], st["y"]), 0)
+    def ahead(d):
+        return st["x"] + dx[d], st["y"] + dy[d]
+    def clear(d):
+        nx, ny = ahead(d % 4); return 1 <= nx <= W and 1 <= ny <= H
+    def move():
+        if not clear(st["d"]): raise RuntimeError("Karel hit a wall")
+        st["x"], st["y"] = ahead(st["d"]); sync()
+    def turn_left(): st["d"] = (st["d"] + 1) % 4; sync()
+    def turn_right(): st["d"] = (st["d"] - 1) % 4; sync()
+    def turn_around(): st["d"] = (st["d"] + 2) % 4; sync()
+    def put_ball(): b[(st["x"], st["y"])] = b.get((st["x"], st["y"]), 0) + 1; sync()
+    def take_ball():
+        if b.get((st["x"], st["y"]), 0) < 1: raise RuntimeError("Karel tried to take a ball that is not there")
+        b[(st["x"], st["y"])] -= 1; sync()
+    env = dict(move=move, turn_left=turn_left, turn_right=turn_right, turn_around=turn_around, put_ball=put_ball, take_ball=take_ball,
+               front_is_clear=lambda: clear(st["d"]), left_is_clear=lambda: clear(st["d"] + 1), right_is_clear=lambda: clear(st["d"] - 1),
+               ball_present=lambda: b.get((st["x"], st["y"]), 0) > 0)
+    sync(); return env
+
+def _run_checked(code, rows, out, inp, title, karel=None):
     """Run the code for real and check the authored trace rows and printed output against what Python does."""
     import ast, io, sys, contextlib
     src = code.strip("\n"); events = []; buf = io.StringIO(); feed = list(inp or [])
@@ -17,10 +43,12 @@ def _run_checked(code, rows, out, inp, title):
         return out
     def tracer(frame, event, arg):
         if frame.f_code.co_filename != "<trace>": return tracer
+        if len(events) > 50000: raise RuntimeError("too many steps (infinite loop?)")
         if event in ("line", "return"): events.append((frame.f_lineno if event == "line" else None, snap(frame), id(frame)))
         return tracer
     g = {"__name__": "__trace__", "input": lambda p="": (buf.write(str(p)), feed.pop(0))[1]}
     err = None
+    if karel is not None: g.update(_karel_env(g, **karel))
     try:
         co = compile(src, "<trace>", "exec"); sys.settrace(tracer)
         with contextlib.redirect_stdout(buf): exec(co, g)
@@ -29,6 +57,7 @@ def _run_checked(code, rows, out, inp, title):
     final = {k: copy.deepcopy(v) for k, v in g.items() if not k.startswith('__') and not callable(v) and not isinstance(v, type(sys))}
     pos = 0; done = {}
     for ln, vals in rows:
+        if ln == 0: continue
         p0 = pos
         while pos < len(events) and events[pos][0] != ln: pos += 1
         if pos >= len(events) and ln in done:
@@ -47,7 +76,7 @@ def _run_checked(code, rows, out, inp, title):
         if err: assert want.startswith(err.split(":")[0]), "%s: expected %r, code raised %s" % (title, want, err)
         elif not inp: assert got == want, "%s: printed %r but the table says %r" % (title, got, want)
 
-def T(title, code, rows, out=None, cap=None, vars=None, inp=None, check=True):
+def T(title, code, rows, out=None, cap=None, vars=None, inp=None, check=True, karel=None):
     """Trace table. rows = ["1| name=\"Ana\"; age=15", "2| age=16", ...] (line number, then var=value pairs, values written as they should print)."""
     parsed = []; order = []
     for r in rows:
@@ -57,7 +86,12 @@ def T(title, code, rows, out=None, cap=None, vars=None, inp=None, check=True):
             vals[k.strip()] = v.strip()
             if k.strip() not in order: order.append(k.strip())
         parsed.append((int(ln), vals))
-    if check: _run_checked(code, parsed, out, inp, title)
+    import os
+    if check or os.environ.get('FORCECHECK'):
+        try: _run_checked(code, parsed, out, inp, title, karel)
+        except AssertionError as e:
+            if not check: print('UNCHECKED-FAIL:', e)
+            else: raise
     return trace(title, code, vars or order, parsed, cap, out)
 
 def _check_out(title, code, out):
@@ -104,3 +138,8 @@ def apply(unit, extras, renumber=None):
     missing = [k for k in extras if k not in [c["id"] for c in unit.chapters]]
     assert not missing, "extras for unknown lessons: %s" % missing
     return unit
+
+
+def K(title, code, rows, cap=None, out=None, balls=None, size=(8, 8)):
+    """A Karel trace: the table shows Karel's avenue, street, facing, and the balls on its square after each line."""
+    return T(title, code, rows, out=out, cap=cap, vars=["avenue", "street", "facing", "balls_here"], karel=dict(balls=balls, size=size))
