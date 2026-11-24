@@ -73,7 +73,9 @@ function buildLesson(L) {
 
   /* intro */
   blocks.push({ h: "What you will learn" });
-  blocks.push({ p: "**This walkthrough is a door, not a grade.** It walks you through the notes for this lesson. Finish **every box** and answer **every question at the bottom correctly (100%)**, and the **assignment** under it opens." });
+  blocks.push({ p: L.unit
+    ? "**This walkthrough is your proof that you understand the notes.** It is not graded for points. Finish **every box** and answer **every question at the bottom correctly (100%)**. You write what you learned as comments and test it with small programs."
+    : "**This walkthrough is a door, not a grade.** It walks you through the notes for this lesson. Finish **every box** and answer **every question at the bottom correctly (100%)**, and the **assignment** under it opens." });
   blocks.push({ p: "Keep the notes open in another tab: **" + L.title + "** (use the course menu on the left, or the link on the notes page). Each step names the part of the notes it comes from." });
   if (L.learn) blocks.push({ p: "**You will learn:** " + L.learn + "." });
   if (L.ap) blocks.push({ p: "**On the AP exam:** " + L.ap });

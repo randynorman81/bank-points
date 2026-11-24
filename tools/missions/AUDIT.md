@@ -51,6 +51,14 @@ a45 to a54 were 2 steps and 4 boxes each. They are now 7 to 9 steps and 29 to 33
 - Source: `tools/missions/u8-walk.txt` (the lessons) and `u8-walk.js` (the builder). `node tools/missions/u8-build.mjs` runs every step's code in real Python (the page's Try-it lines must match exactly), runs every check through the real scorer, and writes `teacher-settings/python-unit8.js`, which `python-editor.js` lays over the saved short versions.
 - Still open: Unit 10 has no notes pages, and the AP Big Idea 5 / parallel computing / data-extraction topics (section 4) have no notes or walkthrough.
 
+### Fixed (2026-11-24): Unit 10 notes and Big Idea 5
+
+- **Unit 10 notes** (7 pages, `apcsp/unit-10/`): highway and bandwidth (10.1), addresses (10.3), router, NAT and DHCP (10.4), DNS (10.5), routing and fault tolerance (10.6), packets and protocols (10.7), and parallel and distributed computing (10.8, new). They use the same words and pictures as the existing Unit 10 walkthroughs (highway, neighborhood, phone book).
+- **Big Idea 5** (7 pages): Unit 11 "Effects of the Internet" = beneficial and harmful effects, the digital divide, crowdsourcing and citizen science; Unit 16 "Impact of Computing" = computing bias, copyright / Creative Commons / open source, privacy and PII, safe computing (authentication, MFA, phishing, malware, keyloggers, rogue access points, DDoS). Every page has interactive parts, an "On the AP exam" list, and check-yourself questions.
+- **Walkthroughs a194 to a201** for the new pages (10.8, 11.1 to 11.3, 16.1 to 16.4): 7 steps each, a small Python model of the idea plus an end-of-line comment that explains it, a "put it together" step, and 5 exam-style questions.
+- Sources: `tools/notes/` (generator, `unit10.py`, `bigidea5.py`; run `python3 tools/notes/build.py`) and `tools/missions/concepts-walk.txt` (run `node tools/missions/u8-build.mjs`).
+- Still open: Unit 12 (Data: extracting information, correlation, trends, data privacy) has no notes, and the Big Idea 3 gaps in section 4 (undecidable problems, heuristics, reasonable time).
+
 ## 4. AP CSP exam coverage (Big Ideas 1 to 5)
 
 Keyword scan of all notes pages and all walkthroughs, by topic:
