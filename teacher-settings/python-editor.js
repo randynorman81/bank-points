@@ -8,6 +8,7 @@
    Unit 4 ids: a16 Booleans, a17 Logical Operators, a18 Comparison Operators, a19 If Statements,
                a20 If/Elif/Else, a21 Key Events, a22 For Loops, a23 General For Loops */
 import { PY_RECORDS } from "./python-records.js";
+import { fixA5, fixA7, fixA13, fixA33, headingAtEdge, TAB_SLOTS } from "./python-fixes.js";
 /* THE MASTER SWITCH. While this is true EVERYTHING is open to everyone: every walkthrough, assignment, game and quiz is live, nothing is held, nothing is in an unlock chain,
    and games can be played as a guest with no sign-in (nothing is saved for a guest). When the curriculum is finished, set it to false and the per-slot lines below take over again. */
 export const OPEN_EVERYTHING = true;
@@ -201,3 +202,7 @@ export function withPySettings(slot, rec) {
   if (PY_PATCHES[slot]) out = PY_PATCHES[slot](JSON.parse(JSON.stringify(out)));
   return out;
 }
+/* Walkthrough fixes from the 2026-11-23 audit (the code is in python-fixes.js): a5 introduces //, a7 and a13 get more steps, a33 gets its line breaks back, and the "# Step N" instruction says the left edge everywhere. */
+function addPatch(slot, fn) { const prev = PY_PATCHES[slot]; PY_PATCHES[slot] = prev ? function (r) { return fn(prev(r)); } : fn; }
+TAB_SLOTS.forEach(function (s) { addPatch(s, headingAtEdge); });
+addPatch("a5", fixA5); addPatch("a7", fixA7); addPatch("a13", fixA13); addPatch("a33", fixA33);

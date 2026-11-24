@@ -1,6 +1,6 @@
 # Audit: assignments, walkthroughs, notes pages (2026-11-23)
 
-Nothing in a walkthrough or a notes page was changed. Everything below is for Randy to check.
+Section 1 (the walkthrough flags) was FIXED on 2026-11-24 at Randy's request; the fixes are in `teacher-settings/python-fixes.js` (see "Fixed" below). Nothing else in a walkthrough or a notes page was changed. The rest of this file is for Randy to decide.
 
 ## 1. Walkthrough flags (units 3 to 7)
 
@@ -12,6 +12,17 @@ Nothing in a walkthrough or a notes page was changed. Everything below is for Ra
 | a1 to a11 vs a12 and later | The first-step instruction for the heading comment is different: a1 to a11 say "do not press Tab or indent it", a12 onward say "press the Tab key once, then type a comment ... one tab over". |
 | a33 (5.5 Libraries) | Three code samples have lost their line breaks on the live site: Step 1 `import math print(math.sqrt(16))`, Step 4 `import random roll = random.randint(1, 6)`, Step 6 `import math def hypotenuse(a, b): ... print(hypotenuse(3, 4))`. |
 | a36 (6.3 Practice PT 1) | The walkthrough is the same Color Counter program as the 6.3 assignment (Crayola). The assignment is the same task with different colors, so a student can copy the walkthrough. |
+
+### Fixed (2026-11-24)
+
+| Walkthrough | Fix |
+|---|---|
+| a5 | Step 8 now introduces `//` in one short paragraph ("floor division, you will practice it in 3.10") and the "How does the middle work?" help says the same. |
+| a7 | Two new steps: Step 2 slices around a found position (`email.find("@")`, `email[:at]`, `email[at + 1:]`), Step 3 splits an email the user types with two `.find()` calls. New boxes 3 to 10 and 17 new checks, added after the saved ones. |
+| a13 | Three new trace-by-hand code steps (variables that change, text, `//` and `%`) with a trace table written as comments and a prediction on the last line of each. They come before the 10 questions, which are now "Step 4". 29 new checks. |
+| a1 to a44 | The first-step instruction now says "at the very left edge (do not press Tab or indent it)" everywhere. Before, a12 to a34 and a39 to a44 said "press the Tab key once". The heading check accepted both, so grading is unchanged. |
+| a33 | The three code samples have their line breaks back. |
+| 6.3 assignment | Was the same Color Counter as the a36 walkthrough. It is now "Strava Weekly Distance": a list of runs and a procedure that adds up only the runs at least as long as the minimum the user types. Same Create Task parts, different logic. |
 
 ## 2. Notes pages versus walkthroughs
 
