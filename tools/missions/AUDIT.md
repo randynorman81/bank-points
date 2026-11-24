@@ -64,7 +64,7 @@ a45 to a54 were 2 steps and 4 boxes each. They are now 7 to 9 steps and 29 to 33
 - **Unit 12 Data** (6 notes pages, `apcsp/unit-12/`): extracting information (patterns, trends, correlation vs causation, outliers), big data / metadata / scale, cleaning data, filtering / transforming / combining, visualizing (chart choice and misleading charts), bias and sampling. Walkthroughs a202 to a207.
 - **Big Idea 3 gaps** (3 new Unit 7 lessons): 7.7 developing algorithms and equivalent algorithms (with the AP pseudocode table), 7.8 efficiency, reasonable and unreasonable time, decision vs optimization problems, and heuristics, 7.9 undecidable problems and the halting problem. Walkthroughs a208 to a210. The six older Unit 7 pages and the Unit 7 overview now link to them.
 - Sources: `tools/notes/data12.py`, `tools/notes/algos7.py` (run `python3 tools/notes/build.py`; it also patches the older Unit 7 pages' nav, safe to repeat) and `tools/missions/concepts-walk.txt`.
-- Still open: Unit 10 and Unit 8 have no printed study guide (Units 3 and 8 do), and Unit 13/15 (projects) are CodeHS only. Big Ideas 1, 2 (binary and compression), 3, 4, and 5 are now all covered by notes and walkthroughs.
+- Still thin from the original audit: Big Idea 1 error types by name (syntax, logic, runtime, overflow) are only mentioned in a line or two. Units 13, 14, 15 (Data project, Strings, Personal Data Tracker) and 17 to 21 are still taught in CodeHS only and have no notes here.
 
 ## 4. AP CSP exam coverage (Big Ideas 1 to 5)
 
