@@ -1,0 +1,13 @@
+from gl import *
+import creative19
+UNIT = Unit(19, "Creative Development", "How programs get made: collaboration, purpose, process, testing, and debugging.",
+    "Big Idea 1: Creative Development", "#65A30D", "#4D7C0F", "#A3E635", "#ECFCCB", "waves",
+    ["Explain how collaboration improves programs", "Describe a program's purpose, function, and events", "Describe iterative and incremental development", "Identify the four kinds of errors and a debugging routine"],
+    [G("19.1", creative19, "collaboration-purpose"),
+     G("19.2", creative19, "development-process", after=[see(flowchart("The development cycle repeats", {"i": (110, 70, 110, 44, "Investigate", "proc"), "d": (290, 70, 110, 44, "Design", "proc"), "p": (470, 70, 110, 44, "Prototype", "proc"), "t": (470, 190, 110, 44, "Test", "proc"), "r": (290, 190, 110, 44, "Refine", "dec")},
+          [([(165, 70), (235, 70)], None, 4), ([(345, 70), (415, 70)], None, 4), ([(470, 92), (470, 168)], None, 4), ([(415, 190), (345, 190)], None, 4), ([(240, 190), (140, 190), (110, 92)], "feedback", 3)], size=(680, 270),
+          caption="Iterative development loops back with feedback. Incremental development adds one small working piece at a time."))]),
+     G("19.3", creative19, "errors-debugging", after=[see(annot_code("Three bugs, three kinds", "print(\"Total:\" total)\nprint(10 / 0)\nscores = [90, 80]\nprint(sum(scores) / 3)",
+          [(0, "\"Total:\" total", "SYNTAX error: missing +, comma, or f-string. Python refuses to run."), (1, "10 / 0", "RUNTIME error: the program starts, then crashes."), (3, "/ 3", "LOGIC error: runs fine but the average is wrong. There are only 2 scores.")], caption="Syntax and runtime errors announce themselves. Logic errors hide, so test with answers you can predict."))])],
+    glossary=[("Collaboration", "Working with others, which brings different skills and perspectives."), ("Pair programming", "Two people, one computer: one drives, one reviews."), ("Purpose", "The problem a program solves."), ("Function", "What a program does."), ("Event", "An action, like a click, that triggers code."), ("Iterative", "Repeating a cycle with feedback."), ("Incremental", "Building in small, tested pieces."), ("Prototype", "An early working version."), ("Syntax error", "Broken language rules. The program will not run."), ("Runtime error", "A crash while running."), ("Logic error", "Runs, but gives the wrong result."), ("Overflow error", "A value too big for the space provided."), ("Debugging", "Finding and fixing errors."), ("Documentation", "Comments and notes explaining the program.")],
+    seed=19)

@@ -1,0 +1,9 @@
+from gl import *
+import karel1
+def Q(s, o, a, e): return dict(s=s, o=o, a=[a], e=e)
+UNIT = Unit(2, "Paired Programming and Collaboration", "How to work with a partner: two roles, honest credit, reflection, and the audit checklist.",
+    "Big Idea 1: Creative Development", "#7C3AED", "#6D28D9", "#A78BFA", "#EDE9FE", "network",
+    ["Describe the driver and navigator roles", "Explain how collaboration improves programs", "Use an audit checklist before submitting"],
+    [G("2.1", karel1, "collaboration", online=False, questions=[Q("In pair programming, who types the code?", ["The driver", "The navigator", "The teacher", "Nobody"], 0, "The driver types. The navigator reviews and thinks ahead."), Q("Why switch roles?", ["So both people understand every line", "To go faster", "It is a rule with no reason", "To avoid talking"], 0, "Both partners should be able to explain the code."), Q("What should you do if you used someone's idea?", ["Credit them", "Hide it", "Delete it", "Nothing"], 0, "Always credit others' help and code.")],
+         after=[see(flowchart("Pair programming: two roles, switching", {"d": (170, 90, 150, 50, "Driver types", "proc"), "n": (510, 90, 150, 50, "Navigator reviews", "proc")}, [([(245, 70), (435, 70)], "switch", 3), ([(435, 112), (245, 112)], "switch back", 3)], size=(680, 200), caption="The roles change every few minutes so both partners stay involved."))])],
+    glossary=[("Collaboration", "Working with others toward one goal."), ("Pair programming", "Two people sharing one computer."), ("Driver", "The partner who types."), ("Navigator", "The partner who reviews and plans."), ("Reflection", "Thinking about what worked and what to change."), ("Audit", "A check that the work is complete and honest."), ("Documentation", "Notes that explain a program."), ("Credit", "Naming who made or helped with something.")], seed=2)

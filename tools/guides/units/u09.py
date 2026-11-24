@@ -1,0 +1,7 @@
+from gl import *
+UNIT = Unit(9, "Practice Performance Task: The Shopping List", "A second full practice program, this time with a different list and a different comparison.",
+    "Big Idea 3: Algorithms and Programming", "#EA580C", "#C2410C", "#FB923C", "#FFEDD5", "pixels",
+    ["Plan a Create Task program in four comment lines", "Label every requirement in a finished program", "Storyboard a 60-second video", "Build a reference sheet and answer the written prompts"],
+    [F("9.1", "practice-pt-shopping-list.html", after=[see(timeline("The Shopping List video, second by second", [(0, 15, "INPUT", "Type a maximum price of 5."), (15, 35, "FUNCTIONALITY", "The program counts the affordable items."), (35, 50, "OUTPUT", "You can afford: 4 items stays on screen."), (50, 60, "AGAIN", "Run it with 2.")], 60, caption="The same four-part video plan works for any program."))])],
+    glossary=[("Purpose", "The problem the program solves."), ("Input", "Data the user gives the program."), ("Output", "What the program shows because of the input and its work."), ("Functionality", "What the program does between input and output."), ("Procedure", "A named block of code. Yours must have a parameter that changes the result."), ("Call", "A line that runs the procedure."), ("List", "Stores related data, and must really be used."), ("Reference sheet", "Four segments of your code with no comments."), ("Written response", "A prompt about your own program, answered on exam day.")],
+    seed=9)

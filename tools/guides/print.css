@@ -1,0 +1,197 @@
+/* PRINT STYLESHEET for the AP CSP study guides. Placeholders __ACCENT__, __ACCENT_DK__, __ACCENT_TINT__, __UNIT_LABEL__, __RUNNING_RIGHT__, __LOGO_URL__ are filled in by gl.py. */
+@page {
+  size: Letter;
+  margin: 0.95in 0.9in 1in 0.9in;
+  @top-left { content: "AP® COMPUTER SCIENCE PRINCIPLES   ·   STUDY GUIDE"; font: 700 6.6pt Manrope, sans-serif; letter-spacing: .14em; color: #6B7280; vertical-align: bottom; padding-bottom: .16in; }
+  @top-right { content: "__RUNNING_RIGHT__"; font: 700 6.6pt Manrope, sans-serif; letter-spacing: .14em; color: __ACCENT_DK__; vertical-align: bottom; padding-bottom: .16in; }
+  @bottom-left { content: url("__LOGO_URL__") "   Social Circle High School  ·  Computer Science"; font: 600 7.4pt Manrope, sans-serif; color: #4B5563; vertical-align: top; padding-top: .26in; }
+  @bottom-right { content: counter(page); font: 700 10.5pt Fraunces, serif; color: __ACCENT_DK__; vertical-align: top; padding-top: .26in; }
+}
+@page cover { margin: 0; @top-left{content:none} @top-right{content:none} @bottom-left{content:none} @bottom-right{content:none} }
+@page plain { @top-left{content:none} @top-right{content:none} @bottom-left{content:none} }
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; font-family: Manrope, "Helvetica Neue", Arial, sans-serif; font-size: 9.9pt; line-height: 1.52; color: #1F2937; }
+h1, h2, h3, h4 { font-family: Fraunces, Georgia, serif; color: #111827; margin: 0; line-height: 1.15; }
+p { margin: 0 0 .7em; orphans: 3; widows: 3; }
+b, strong { font-weight: 700; color: #111827; }
+code { font-family: "JetBrains Mono", Menlo, monospace; font-size: .88em; background: #F1F5F9; color: #0F172A; padding: .5pt 3.2pt; border-radius: 2.5pt; border: .5pt solid #E2E8F0; }
+a { color: __ACCENT_DK__; text-decoration: none; }
+sup { font-size: .7em; line-height: 0; }
+
+/* ---------------------------------------------------------------- cover */
+.cover { page: cover; height: 11in; width: 8.5in; position: relative; overflow: hidden; break-after: page; background: #0B0F1A; color: #fff; }
+.cover .art { position: absolute; inset: 0; }
+.cover .band { position: absolute; left: 0; right: 0; top: 0; height: .34in; background: #E81820; }
+.cover .kicker { position: absolute; left: .9in; top: 1.05in; font: 800 9pt Manrope; letter-spacing: .28em; color: __ACCENT_LT__; }
+.cover .num { position: absolute; left: .82in; top: 1.35in; font: 700 190pt/1 Fraunces, serif; color: #fff; opacity: .97; letter-spacing: -.03em; }
+.cover .unit-word { position: absolute; left: .92in; top: 1.2in; font: 800 11pt Manrope; letter-spacing: .3em; color: #fff; opacity: .0; }
+.cover .title { position: absolute; left: .9in; right: .9in; top: 5.3in; font: 700 38pt/1.08 Fraunces, serif; color: #fff; }
+.cover .tag { position: absolute; left: .9in; right: 1.4in; top: 7.25in; font: 500 12.5pt/1.5 Manrope; color: #CBD5E1; }
+.cover .rule { position: absolute; left: .9in; top: 7.0in; width: 1.1in; height: 5pt; background: __ACCENT_LT__; border-radius: 3pt; }
+.cover .foot { position: absolute; left: 0; right: 0; bottom: 0; height: 1.45in; background: #fff; }
+.cover .foot img { position: absolute; left: .9in; top: .2in; height: 1.05in; }
+.cover .foot .school { position: absolute; left: 2.35in; top: .36in; font: 800 14pt Manrope; color: #111827; }
+.cover .foot .dept { position: absolute; left: 2.35in; top: .66in; font: 600 9.5pt Manrope; color: #4B5563; letter-spacing: .04em; }
+.cover .foot .series { position: absolute; right: .9in; top: .38in; text-align: right; font: 700 8pt Manrope; letter-spacing: .14em; color: #6B7280; line-height: 1.7; }
+.cover .foot .redbar { position: absolute; left: 0; right: 0; bottom: 0; height: .14in; background: #E81820; }
+
+/* ---------------------------------------------------------------- front matter */
+.front { break-after: page; }
+.front h2 { font-size: 22pt; margin-bottom: .18in; padding-bottom: .1in; border-bottom: 2.4pt solid __ACCENT__; }
+.copy { page: plain; break-after: page; font-size: 8.6pt; color: #4B5563; }
+.copy h2 { font-size: 15pt; margin-bottom: .12in; }
+.copy .mark { display: flex; align-items: center; gap: .18in; margin-bottom: .3in; }
+.copy .mark img { height: .9in; }
+.toc { list-style: none; margin: 0; padding: 0; }
+.toc li { display: flex; align-items: baseline; gap: 8pt; padding: 5.2pt 0; border-bottom: .6pt solid #E5E7EB; }
+.toc .n { flex: none; width: 34pt; font: 800 9pt Manrope; color: __ACCENT_DK__; letter-spacing: .04em; }
+.toc .t { flex: 0 1 auto; font: 600 10.5pt Manrope; color: #111827; }
+.toc li::after { content: ""; order: 2; flex: 1; border-bottom: 1.2pt dotted #CBD5E1; margin: 0 2pt 3pt; }
+.toc .p { order: 3; }
+.toc .d { flex: none; flex-basis: 0; }
+.toc .p { flex: none; font: 700 10.5pt Fraunces; color: #111827; }
+.toc li.sub .t { font-weight: 500; color: #374151; padding-left: 0; }
+.how { display: grid; grid-template-columns: 1fr 1fr; gap: 12pt; margin-top: .2in; }
+.how .c { border: .8pt solid #E5E7EB; border-top: 3pt solid __ACCENT__; border-radius: 4pt; padding: 10pt 12pt; background: #fff; }
+.how .c h4 { font-size: 10.5pt; margin-bottom: 4pt; }
+.how .c p { font-size: 9pt; color: #374151; margin: 0; }
+.objectives { margin: 0 0 .16in; padding: 0; list-style: none; }
+.objectives li { position: relative; padding: 4.5pt 0 4.5pt 22pt; border-bottom: .6pt solid #EEF0F3; font-size: 10.2pt; }
+.objectives li::before { content: "✓"; position: absolute; left: 0; top: 4pt; width: 15pt; height: 15pt; border-radius: 50%; background: __ACCENT__; color: #fff; font: 800 8.5pt/15pt Manrope; text-align: center; }
+
+/* ---------------------------------------------------------------- chapter */
+.chapter { break-before: page; }
+.chead { position: relative; margin: 0 0 .22in; padding: 0 0 .16in .78in; min-height: .72in; border-bottom: 1.2pt solid #E5E7EB; }
+.chead .badge { position: absolute; left: 0; top: 0; width: .62in; height: .72in; background: __ACCENT__; color: #fff; border-radius: 5pt; text-align: center; padding-top: 7pt; }
+.chead .badge small { display: block; font: 800 5.8pt Manrope; letter-spacing: .18em; opacity: .9; }
+.chead .badge b { display: block; font: 700 21pt/1.05 Fraunces; color: #fff; margin-top: 2pt; }
+.chead h2 { font-size: 21pt; letter-spacing: -.01em; }
+.chead .kick { margin: 5pt 0 0; font-size: 10.5pt; line-height: 1.45; color: #4B5563; font-style: italic; }
+.chead .kick b { color: #374151; }
+.sec { margin: 0 0 .2in; }
+.sec > h3 { font-size: 13pt; margin: .02in 0 .08in; padding-left: 9pt; border-left: 3.2pt solid __ACCENT__; }
+.sec > h3 .tag { display: inline-block; font: 800 6.2pt Manrope; letter-spacing: .14em; color: __ACCENT_DK__; background: __ACCENT_TINT__; padding: 1.6pt 5pt; border-radius: 2pt; margin-right: 6pt; vertical-align: 1.5pt; }
+.lede { font-size: 10.6pt; line-height: 1.55; color: #374151; margin-bottom: .1in; }
+.sec.exam { break-inside: avoid; border: 1pt solid #C4B5FD; border-radius: 6pt; background: #F5F3FF; padding: 10pt 14pt 8pt; margin-top: .22in; }
+.sec.exam > h3 { border-left-color: #7C3AED; color: #4C1D95; }
+.sec.exam > h3 .tag { background: #7C3AED; color: #fff; }
+.sec.exam .lede { font-size: 9.2pt; color: #4B5563; }
+
+/* tables */
+.tblwrap { margin: .06in 0 .14in; break-inside: auto; }
+table.cmp { width: 100%; border-collapse: collapse; font-size: 8.9pt; line-height: 1.4; }
+table.cmp th { background: __ACCENT_DK__; color: #fff; font: 800 6.8pt Manrope; letter-spacing: .11em; text-transform: uppercase; text-align: left; padding: 5.5pt 8pt; }
+table.cmp th:first-child { border-top-left-radius: 4pt; } table.cmp th:last-child { border-top-right-radius: 4pt; }
+table.cmp td { padding: 5.2pt 8pt; border-bottom: .6pt solid #E5E7EB; vertical-align: top; }
+table.cmp tr:nth-child(even) td { background: #F8FAFC; }
+table.cmp tr { break-inside: avoid; }
+table.cmp td:first-child { font-weight: 600; }
+table.cmp td.bad { background: #FEF2F2 !important; }
+
+/* callouts */
+.example, .warn, .hint-panel, .callout, .note-box { break-inside: avoid; margin: .1in 0 .14in; padding: 8pt 11pt 7pt 13pt; border-radius: 0 5pt 5pt 0; font-size: 9.2pt; line-height: 1.5; position: relative; }
+.example { background: #ECFDF5; border-left: 3.6pt solid #059669; }
+.example::before { content: "EXAMPLE"; display: block; font: 800 6.4pt Manrope; letter-spacing: .16em; color: #047857; margin-bottom: 2.5pt; }
+.warn { background: #FEF2F2; border-left: 3.6pt solid #DC2626; }
+.warn::before { content: "WATCH OUT"; display: block; font: 800 6.4pt Manrope; letter-spacing: .16em; color: #B91C1C; margin-bottom: 2.5pt; }
+.hint-panel { background: #EFF6FF; border-left: 3.6pt solid #2563EB; }
+.hint-panel::before { content: "TIP"; display: block; font: 800 6.4pt Manrope; letter-spacing: .16em; color: #1D4ED8; margin-bottom: 2.5pt; }
+.callout { background: __ACCENT_TINT__; border-left: 3.6pt solid __ACCENT__; font-family: Fraunces, serif; font-size: 11.2pt; line-height: 1.42; color: #111827; padding: 10pt 13pt; }
+.callout::before { content: "KEY IDEA"; display: block; font: 800 6.4pt Manrope; letter-spacing: .16em; color: __ACCENT_DK__; margin-bottom: 3pt; }
+.callout span { display: block; margin-top: 4pt; font: 500 9pt/1.45 Manrope; color: #4B5563; }
+
+/* cards and boxes */
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8pt; margin: .06in 0 .14in; }
+.cardx { break-inside: avoid; border: .8pt solid #E2E8F0; border-top: 3pt solid __ACCENT__; border-radius: 4pt; padding: 7pt 10pt 8pt; background: #fff; }
+.cardx .num { font: 800 6.2pt Manrope; letter-spacing: .14em; color: __ACCENT_DK__; text-transform: uppercase; }
+.cardx h4 { font: 700 10.5pt Fraunces; margin: 2pt 0 3pt; }
+.cardx p { font-size: 8.8pt; line-height: 1.42; margin: 0; color: #374151; }
+.cards.one { grid-template-columns: 1fr; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 9pt; margin: .06in 0 .14in; }
+.box { break-inside: avoid; border: .8pt solid #E2E8F0; border-top: 3pt solid #94A3B8; border-radius: 4pt; padding: 7pt 10pt 8pt; background: #fff; }
+.box.ok { border-top-color: #059669; } .box.bad { border-top-color: #DC2626; }
+.box h3 { font: 700 10.5pt Fraunces; margin: 0 0 3pt; }
+.box.ok h3 { color: #047857; } .box.bad h3 { color: #B91C1C; }
+.box p { font-size: 8.9pt; line-height: 1.45; margin: 0; color: #374151; }
+.chk { margin: .04in 0 .1in; padding: 0; list-style: none; }
+.chk li { position: relative; padding: 2.6pt 0 2.6pt 17pt; font-size: 9.4pt; }
+.chk li::before { content: "✓"; position: absolute; left: 0; top: 3pt; width: 11pt; height: 11pt; border-radius: 50%; background: __ACCENT__; color: #fff; font: 800 6.8pt/11pt Manrope; text-align: center; }
+.sec.exam .chk li::before { background: #7C3AED; }
+ol.chk { counter-reset: n; } ol.chk li::before { counter-increment: n; content: counter(n); }
+
+/* code */
+.code, pre.code { break-inside: avoid; margin: .06in 0 .14in; padding: 8pt 11pt; background: #F8FAFC; border: .8pt solid #E2E8F0; border-left: 3.6pt solid __ACCENT__; border-radius: 0 4pt 4pt 0; font: 500 8.6pt/1.62 "JetBrains Mono", Menlo, monospace; color: #0F172A; white-space: pre-wrap; }
+.tk-kw { color: #7C3AED; font-weight: 600; } .tk-bi { color: #0D9488; } .tk-str { color: #B45309; } .tk-num { color: #C2410C; } .tk-cm { color: #6B7280; font-style: italic; } .tk-fn { color: #2563EB; font-weight: 600; } .tk-op { color: #475569; }
+.code .cm { color: #6B7280; font-style: italic; } .code .err { color: #B91C1C; font-weight: 700; }
+
+/* figures */
+figure.fig { break-inside: avoid; margin: .1in 0 .16in; padding: 8pt 8pt 6pt; border: .8pt solid #E2E8F0; border-radius: 5pt; background: #fff; }
+figure.fig svg { display: block; width: 100%; height: auto; margin: 0 auto; }
+figure.fig figcaption { margin: 5pt 6pt 0; padding-top: 5pt; border-top: .6pt solid #EEF0F3; font-size: 8.4pt; line-height: 1.42; color: #4B5563; }
+figure.fig figcaption .fl { font: 800 6.6pt Manrope; letter-spacing: .12em; color: __ACCENT_DK__; margin-right: 5pt; }
+.frames { display: grid; grid-template-columns: 1fr 1fr; gap: 8pt; margin: .08in 0 .14in; }
+.frames .fr { break-inside: avoid; border: .8pt solid #E2E8F0; border-radius: 5pt; padding: 6pt; background: #fff; }
+.frames .fr svg { width: 100%; height: auto; display: block; }
+.frames .fr .say { font-size: 8pt; line-height: 1.38; color: #374151; margin-top: 3pt; }
+.frames .fr .st { font: 800 6.4pt Manrope; letter-spacing: .14em; color: __ACCENT_DK__; margin-bottom: 2pt; }
+.frames-title { font: 700 9pt Manrope; color: #374151; margin: .08in 0 -.02in; }
+
+/* check yourself */
+.practice { break-inside: auto; margin: .2in 0 0; border-top: 1.4pt dashed #CBD5E1; padding-top: .12in; }
+.practice > h3 { font-size: 12.5pt; margin-bottom: .06in; break-after: avoid; }
+.sec > h3, .lede { break-after: avoid; }
+.practice > h3 .tag { font: 800 6.4pt Manrope; letter-spacing: .14em; background: __ACCENT__; color: #fff; padding: 2pt 6pt; border-radius: 2pt; margin-right: 6pt; vertical-align: 1.5pt; }
+.pq { break-inside: avoid; margin: 0 0 8pt; padding: 7pt 10pt; border: .8pt solid #E5E7EB; border-radius: 4pt; background: #fff; }
+.pq .qn { float: left; width: 17pt; height: 17pt; border-radius: 50%; background: __ACCENT_DK__; color: #fff; font: 800 7.8pt/17pt Manrope; text-align: center; margin: 0 8pt 0 0; }
+.pq .qs { font-size: 9.4pt; font-weight: 600; margin: 0 0 4pt 25pt; }
+.pq .qs code { font-weight: 500; }
+.pq .qs .tagsel { font: 800 6pt Manrope; letter-spacing: .1em; color: #7C3AED; border: .6pt solid #7C3AED; border-radius: 2pt; padding: 0 3pt; margin-left: 4pt; }
+.qc { background: #F8FAFC; border: .6pt solid #E2E8F0; border-radius: 3pt; padding: 5pt 8pt; margin: 4pt 0 2pt; font: 500 8.2pt/1.55 "JetBrains Mono", Menlo, monospace; white-space: pre; color: #0F172A; font-weight: 500; }
+.pq ol { list-style: none; margin: 2pt 0 0 25pt; padding: 0; counter-reset: o; }
+.pq ol li { counter-increment: o; position: relative; padding: 1.6pt 0 1.6pt 17pt; font-size: 9pt; }
+.pq ol li::before { content: counter(o, upper-alpha); position: absolute; left: 0; top: 1.5pt; width: 12pt; height: 12pt; border: .8pt solid #94A3B8; border-radius: 50%; font: 700 6.8pt/11pt Manrope; text-align: center; color: #475569; }
+
+/* answer key, glossary, reference */
+.keyhead { break-before: page; }
+.ans { display: grid; grid-template-columns: 1fr 1fr; gap: 3pt 14pt; margin-bottom: .14in; }
+.ans .a { break-inside: avoid; font-size: 8.4pt; line-height: 1.4; padding: 3.5pt 0; border-bottom: .5pt solid #EEF0F3; }
+.ans .a .k { display: inline-block; min-width: 17pt; font: 800 8pt Manrope; color: __ACCENT_DK__; }
+.ans .a .l { display: inline-block; font: 800 8pt Manrope; background: __ACCENT__; color: #fff; border-radius: 2pt; padding: 0 4pt; margin-right: 4pt; }
+.keychap { font: 800 8pt Manrope; letter-spacing: .12em; color: #374151; margin: .1in 0 .04in; text-transform: uppercase; }
+.gloss { column-count: 2; column-gap: 16pt; margin: 0; }
+.gloss .g { break-inside: avoid; padding: 4pt 0 5pt; border-bottom: .5pt solid #EEF0F3; font-size: 8.8pt; line-height: 1.42; }
+.gloss .g b { display: block; font: 700 9.4pt Fraunces; color: __ACCENT_DK__; }
+.cheat { break-before: page; }
+.cheat .sec { margin-bottom: .14in; }
+
+/* misc from the notes pages */
+.big { font-size: 1.4em; } .kbd { font: 700 7.6pt "JetBrains Mono", monospace; border: .8pt solid #94A3B8; border-bottom-width: 2pt; border-radius: 3pt; padding: 0 3pt; background: #F8FAFC; }
+.typerow, .keys { margin: 3pt 0; } .line { display: block; }
+.wr { padding: 6pt 9pt; border-radius: 4pt; margin: 4pt 0; font-size: 8.8pt; } .wr.good { background: #ECFDF5; border-left: 3pt solid #059669; } .wr.bad { background: #FEF2F2; border-left: 3pt solid #DC2626; }
+.resp { break-inside: avoid; margin: 6pt 0; padding: 7pt 10pt; border: .8pt solid #E2E8F0; border-left: 3.4pt solid __ACCENT__; border-radius: 0 4pt 4pt 0; }
+.resp .rl { font: 800 6.4pt Manrope; letter-spacing: .12em; color: __ACCENT_DK__; text-transform: uppercase; margin-bottom: 2pt; }
+.resp p { font-size: 8.8pt; margin: 0 0 3pt; }
+ul, ol { margin: 0 0 .7em; padding-left: 16pt; } li { margin: 0 0 2pt; }
+.wg, .stp, .qz { display: none; }
+.online { margin: .12in 0 0; padding: 6pt 10pt; border-radius: 4pt; background: #F1F5F9; font-size: 8pt; color: #475569; }
+.online b { color: __ACCENT_DK__; }
+
+.pq ol.two { display: grid; grid-template-columns: 1fr 1fr; column-gap: 14pt; }
+.online { break-after: avoid; }
+
+/* code: no ligatures (== must look like two characters) */
+code, pre, .code, .qc, .cardx code.line, .trace, .trace * { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
+.cardx code.line { display: block; white-space: pre-wrap; font-size: 7.9pt; line-height: 1.55; background: #F8FAFC; border: .6pt solid #E2E8F0; border-left: 2.6pt solid __ACCENT__; border-radius: 0 3pt 3pt 0; padding: 4pt 7pt; margin: 3pt 0 4pt; }
+/* trace tables */
+.trace { display: grid; grid-template-columns: 1.05fr 1fr; gap: 12pt; align-items: start; }
+.trace .tcode { font: 500 8.6pt/1.7 "JetBrains Mono", monospace; background: #F8FAFC; border: .8pt solid #E2E8F0; border-radius: 4pt; padding: 6pt 0; }
+.trace .tcode div { display: flex; padding: 0 8pt 0 0; white-space: pre; }
+.trace .tcode .ln { flex: none; width: 22pt; text-align: right; padding-right: 8pt; color: #94A3B8; font-weight: 700; }
+.trace table { width: 100%; border-collapse: collapse; font-size: 8.6pt; }
+.trace th { background: __ACCENT_DK__; color: #fff; font: 800 6.6pt Manrope; letter-spacing: .1em; text-transform: uppercase; padding: 4.5pt 6pt; text-align: center; }
+.trace td { text-align: center; padding: 3.6pt 6pt; border-bottom: .6pt solid #E5E7EB; font-family: "JetBrains Mono", monospace; }
+.trace td.ln2 { font: 800 7.6pt Manrope; color: #fff; background: #94A3B8; }
+.trace td.chg { background: __ACCENT_TINT__; color: __ACCENT_DK__; font-weight: 800; }
+.trace td.out { background: #111827; color: #34D399; text-align: left; font-weight: 600; }
