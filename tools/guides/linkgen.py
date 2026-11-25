@@ -60,8 +60,8 @@ for n in live:
                  'tracing practice, common mistakes, and practice questions with answers.</p>'
                  '<div class="btns3"><div class="b1"><a class="big alt" href="../downloads/%s" download>&#128230; All units (ZIP)</a><small>every unit, 19 PDFs</small></div>'
                  '<div class="b1"><a class="big" href="../downloads/units/%s" download>&#128196; Download Whole Unit %d (PDF)</a><small>%d pages, %s</small></div>'
-                 '<div class="b1"><a class="big open" href="../downloads/units/%s" target="_blank" rel="noopener">&#128065; Open in browser</a><small>opens in a new tab</small></div></div>'
-                 '</div>' % (n, zip_name, os.path.basename(up), n, pages(up), size(up), os.path.basename(up)))
+                 '<div class="b1"><a class="big open" href="../downloads/units/%s" target="_blank" rel="noopener">&#128065; Open Unit %d in browser</a><small>opens in a new tab</small></div></div>'
+                 '</div>' % (n, zip_name, os.path.basename(up), n, pages(up), size(up), os.path.basename(up), n))
     page = os.path.join(ROOT, "apcsp", "unit-%d" % n, "index.html")
     put(page, "study-guide", unit_html, ANCHOR)
     put(page, "lesson-cards", cards_html(n, ls), ANCHOR)
