@@ -255,6 +255,10 @@ body.gameon #game{display:flex}
 #mWork .wpmodhead{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--wph);color:var(--wpi);position:sticky;top:0}
 #mWork .wpmodhead b{font-size:14px}#mWork .wpmodhead button{margin-left:auto}
 #mWork .wpmodbody{padding:14px 16px}
+#mWork.float{background:transparent;pointer-events:none;place-items:start center}
+#mWork.float .box{pointer-events:auto;margin-top:96px;width:min(560px,92vw);max-width:none;max-height:62vh;overflow:auto;padding:0;box-shadow:0 12px 40px rgba(0,0,0,.45);border:1px solid var(--wpc,var(--rule))}
+#mWork.float .wpmodhead{cursor:move;touch-action:none}
+#mWork.float .wpmodbody pre{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;user-select:none}
 #mWork pre{background:var(--deep);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;font:12.5px/1.6 "JetBrains Mono",monospace;white-space:pre-wrap;margin:0}
 #mWork .wpstat{display:inline-block;padding:2px 10px;border-radius:99px;font:700 12px system-ui,sans-serif;margin:0 0 10px}
 #mWork .wpstat.ok{background:rgba(52,211,153,.18);color:var(--okl,#34d399)}#mWork .wpstat.no{background:rgba(251,191,36,.18);color:var(--warnl,#fbbf24)}
@@ -1499,11 +1503,17 @@ function workHtml(W) {
     + '<button type="button" class="wpsend" id="wpSend">&#9993; Send to ' + escA(first) + " for review</button>"
     + '<div class="wpnote">Classroom simulation: ' + escA(b.name) + " did not write or endorse this assignment. The people and messages are made up, and the company name is only shown in its colors.</div></div>";
 }
-function workModal(W, title, html) {
-  var m = $("mWork"); if (!m) { m = document.createElement("div"); m.className = "modal"; m.id = "mWork"; m.innerHTML = '<div class="box" role="dialog" aria-modal="true"><div class="wpmodhead"><b id="wpModT"></b><button type="button" class="btn" id="wpModX">Close</button></div><div class="wpmodbody" id="wpModB"></div></div>'; document.body.appendChild(m); m.addEventListener("click", function (e) { if (e.target === m || (e.target.id === "wpModX")) m.classList.remove("show"); }); }
+function workModal(W, title, html, float) {
+  var m = $("mWork"); if (!m) { m = document.createElement("div"); m.className = "modal"; m.id = "mWork"; m.innerHTML = '<div class="box" role="dialog" aria-modal="true"><div class="wpmodhead"><b id="wpModT"></b><button type="button" class="btn" id="wpModX" aria-label="Close">&#10005; Close</button></div><div class="wpmodbody" id="wpModB"></div></div>'; document.body.appendChild(m); m.addEventListener("click", function (e) { if (e.target === m || (e.target.id === "wpModX")) m.classList.remove("show"); }); }
   m.querySelector(".wpmodhead").style.cssText = "--wph:" + W.brand.head + ";--wpi:" + W.brand.ink; m.querySelector(".wpmodhead").style.background = W.brand.head; m.querySelector(".wpmodhead").style.color = W.brand.ink;
-  $("wpModT").textContent = title; $("wpModB").innerHTML = html; m.classList.add("show");
+  $("wpModT").textContent = title; $("wpModB").innerHTML = html; m.classList.toggle("float", !!float); m.querySelector(".box").style.transform = ""; m.classList.add("show");
 }
+/* the floating file window can be dragged by its title bar */
+(function () { var dx = 0, dy = 0, drag = null;
+  document.addEventListener("pointerdown", function (e) { var h = e.target.closest && e.target.closest("#mWork.float .wpmodhead"); if (!h || e.target.closest("button")) return; drag = { x: e.clientX - dx, y: e.clientY - dy, b: h.parentNode }; try { h.setPointerCapture(e.pointerId); } catch (x) {} });
+  document.addEventListener("pointermove", function (e) { if (!drag) return; dx = e.clientX - drag.x; dy = e.clientY - drag.y; drag.b.style.transform = "translate(" + dx + "px," + dy + "px)"; });
+  document.addEventListener("pointerup", function () { drag = null; });
+})();
 function workReview(W, j) {
   var R = W.review, bx = j.boxes || {}, miss = j.missing || [], core = W.core, total = R.stages.length, lines = [], coreDone = true;
   function st(i) { var any = false, ok = true, seen = false; [bx[2 * i], bx[2 * i + 1]].forEach(function (t) { if (t) { any = true; if (t.f < t.t - 1e-9) ok = false; if (t.f >= t.t * 0.5) seen = true; } }); return { done: any && ok, started: seen }; }
@@ -1543,20 +1553,8 @@ document.addEventListener("click", function (e) {
   var f = t.closest("[data-wf]"), sn = t.closest("#wpSend"); if (!f && !sn) return;
   var A = (window.PY_ASSIGN || {})[slot], W = workFor(slot, A); if (!W) return;
   if (sn) { workSend(W); return; }
-  var file = W.files[Number(f.getAttribute("data-wf"))]; if (file && !workFileTab(W, file)) workModal(W, file.name, "<pre>" + escA(file.text) + "</pre>");   /* a pop-up blocker falls back to the old window */
+  var file = W.files[Number(f.getAttribute("data-wf"))]; if (file) workModal(W, file.name, "<pre>" + escA(file.text) + "</pre>", true);   /* a file floats over the page without blocking it: the student can keep scrolling and typing, and closes it with the X */
 });
-/* a company file opens in its own browser tab, so the student can flip between the file and their code. Same file = same tab (it is reused, not stacked). Read-only: no copying, same rule as the instructions. */
-function workFileTab(W, file) {
-  var br = W.brand, bs = W.boss, doc = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + escA(file.name) + " - " + escA(br.name) + '</title><style>*{box-sizing:border-box}body{margin:0;background:#E9EDF4;font:15px/1.6 Inter,"Segoe UI",system-ui,sans-serif;color:#1E293B;-webkit-user-select:none;user-select:none}'
-    + ".top{background:" + br.head + ";color:" + br.ink + ";border-bottom:3px solid " + br.color + ';padding:12px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}.brand{font:' + br.font + ";letter-spacing:" + br.spacing + '}.ws{font:600 11px system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:99px;border:1px solid currentColor;opacity:.85}'
-    + '.wrap{max-width:860px;margin:22px auto;padding:0 16px}.tip{background:#fff;border:1px solid #D7DEEA;border-left:5px solid ' + br.color + ';border-radius:12px;padding:10px 14px;margin:0 0 14px;font-size:13.5px;color:#475569}'
-    + ".win{background:#0F172A;border-radius:14px;overflow:hidden;box-shadow:0 6px 20px rgba(15,23,42,.25)}.bar{display:flex;align-items:center;gap:8px;background:#1E293B;padding:8px 14px}.bar i{width:10px;height:10px;border-radius:50%;display:inline-block;background:#EF4444}.bar i:nth-child(2){background:#F59E0B}.bar i:nth-child(3){background:#22C55E}"
-    + '.bar b{margin-left:8px;background:#0F172A;color:#F8FAFC;border-radius:8px 8px 0 0;padding:3px 14px;font:600 12.5px "JetBrains Mono",ui-monospace,monospace;border-bottom:2px solid ' + br.color + '}.bar span{margin-left:auto;color:#64748B;font:11px ui-monospace,monospace}'
-    + 'pre{margin:0;padding:18px 20px;color:#E2E8F0;font:14px/1.7 "JetBrains Mono",ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere}</style></head><body oncopy="return false" oncut="return false" oncontextmenu="return false" ondragstart="return false">'
-    + '<div class="top"><span class="brand">' + escA(br.name) + '</span><span class="ws">Files &middot; ' + escA(br.team) + '</span></div><div class="wrap"><div class="tip">This file is from ' + escA(bs.name) + ". Keep this tab open and switch back to your code tab when you need to. It is read-only: type what you need yourself.</div>"
-    + '<div class="win"><div class="bar"><i></i><i></i><i></i><b>' + escA(file.name) + "</b><span>read-only</span></div><pre>" + escA(file.text) + "</pre></div></div></body></html>";
-  try { var url = URL.createObjectURL(new Blob([doc], { type: "text/html" })), w = window.open(url, "wf_" + slot + "_" + file.name); if (!w) return false; try { w.focus(); } catch (e) {} return true; } catch (e) { return false; }
-}
 var ASSIGN_READY = false;
 function renderAssignment() {
   try { updatePicBar(); } catch (e) {}
