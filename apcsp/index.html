@@ -49,6 +49,8 @@
 <script>
 renderHeader();
 renderUnitGrid("apcsp");
+/* the whole course opens in the Python Editor, so the "Python Compiler" and "Notes" tags are not needed (CodeHS tags stay: those units open on CodeHS) */
+document.querySelectorAll("#unit-grid-root .badge").forEach(function (b) { if (/^(python compiler|notes)$/i.test(b.textContent.trim())) b.remove(); });
 document.getElementById("unit-grid-root").insertAdjacentHTML("afterbegin", `
   <a class="unit-card" href="../python/editor.html">
     <div class="unit-label"><span>Tool</span><span class="badge">Python</span></div>
