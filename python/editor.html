@@ -404,6 +404,12 @@ body.wpmode .loadcard i:nth-of-type(2){width:80%}body.wpmode .loadcard i:nth-of-
 body.wpmode .ldspin{width:26px;height:26px;border-radius:50%;border:3px solid #E2E8F0;border-top-color:var(--wpc);animation:ldrot .8s linear infinite;margin-bottom:10px}
 @keyframes ldrot{to{transform:rotate(360deg)}}@keyframes ldsh{to{background-position:-200% 0}}
 body.wpmode .scbody{padding:14px 16px 6px}
+body.wpmode .bossnote{display:flex;gap:10px;align-items:flex-start;margin:0 0 12px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--wpc) 9%,#fff);border:1px solid color-mix(in srgb,var(--wpc) 28%,#fff);color:#0F172A;font-size:13.5px;line-height:1.5}
+body.wpmode .bossnote .wpav{flex:none;width:30px;height:30px;font-size:11px}
+body.wpmode .bossnote b{font-size:12.5px;color:var(--wpc)}
+body.wpmode .stepcard.handoff{border:2px solid var(--wpc)}
+body.wpmode .handoff .wpsend{width:100%;margin:6px 0 10px}
+body.wpmode .msg-lock{padding:10px 14px;border-radius:12px;background:#F1F5F9;color:#475569;font-size:13.5px;margin:4px 0 10px}
 body.wpmode .stepcard.plain .snum{background:color-mix(in srgb,var(--wpc) 16%,#fff);color:var(--wpc);font-style:italic;box-shadow:none}
 body.wpmode .scbody>h3{font:800 14px Inter,system-ui,sans-serif;margin:6px 0 8px}
 body.wpmode #assBody .pcopy,body.wpmode #assBody .playbtn{border-radius:99px}
@@ -534,6 +540,7 @@ body.wpmode #out{background:#0B1220;color:#E2E8F0}
 <script src="assignments.js"></script>
 <script src="games/arcade-info.js"></script>
 <script src="workplace.js"></script>
+<script src="training.js"></script>
 <script src="lessons.js"></script>
 <script src="appendix-a-core.js"></script>
 <script src="appendix-a-1.js"></script>
@@ -1493,6 +1500,26 @@ function codeMarked(src, mark) {
 }
 /* ---- the workplace skin (python/workplace.js) ---- */
 function workFor(sl, A) { var W = window.PY_WORK && window.PY_WORK[sl]; return W && A && String(A.title || "").indexOf(W.match) >= 0 ? W : null; }
+/* the TRAINING voice: a Unit 3 walkthrough shown in the same company skin as its assignment (python/training.js). Only the framing is added: the walkthrough's own steps, boxes and checks are untouched. */
+function trainFor(sl, A) {
+  var T = window.PY_TRAIN && window.PY_TRAIN[sl], B = T && window.PY_WORK && window.PY_WORK[T.assign];
+  if (!T || !B || !A || String(A.title || "").indexOf(T.match) < 0) return null;
+  return { training: T, brand: B.brand, boss: B.boss, ticket: "TRAINING", file: "practice.py", email: T.email, files: [], match: T.match, points: 0 };
+}
+function trainHtml(W) {
+  var b = W.brand, bs = W.boss, em = W.email;
+  return '<div class="wp" style="--wpc:' + b.color + ";--wph:" + b.head + ";--wpi:" + b.ink + '">'
+    + '<div class="wphead"><span class="wpmark" style="font:' + b.font + ";letter-spacing:" + b.spacing + '">' + escA(b.name) + '</span><span class="wpteam">' + escA(b.team) + " &middot; New hire training</span></div><div class=\"wpbar\"></div>"
+    + '<div class="wpmail"><div class="wpsubj">' + escA(em.subject) + '</div><div class="wpfrom"><span class="wpav">' + escA(bs.initials) + "</span><div><b>" + escA(bs.name) + "</b> <small>" + escA(bs.title) + "</small><br><small>to: you &middot; today</small></div></div>"
+    + '<div class="wpbody">' + em.paras.map(function (t) { return "<p>" + inl(t) + "</p>"; }).join("") + '</div><div class="wpsign">' + escA(em.sign) + "</div></div>"
+    + '<div class="wpnote">Classroom simulation: ' + escA(b.name) + " did not write or endorse this training. The people and messages are made up, and the company name is only shown in its colors.</div></div>";
+}
+function bossNote(W, text) { var bs = W.boss; return '<div class="bossnote"><span class="wpav">' + escA(bs.initials) + '</span><div><b>' + escA(bs.name) + "</b><br>" + inl(text) + "</div></div>"; }
+function handoffHtml(W) {
+  var T = W.training, bs = W.boss, A2 = (window.PY_ASSIGN || {})[T.assign], B = window.PY_WORK[T.assign];
+  return '<section class="stepcard handoff"><div class="schead"><span class="snum">&#10003;</span><h3>Training complete: your project</h3></div><div class="scbody"><div class="bossnote"><span class="wpav">' + escA(bs.initials) + "</span><div><b>" + escA(bs.name) + "</b><br>" + inl(T.outro) + "</div></div>"
+    + (A2 ? '<button type="button" class="wpsend" data-goslot="' + escA(T.assign) + '">Open my project: ' + escA(B.match) + "</button>" : '<div class="msg-lock">Your project opens in the Curriculum menu once every task above is green and you have clicked <b>Submit</b> at the top.</div>') + "</div></section>";
+}
 function workHtml(W) {
   var b = W.brand, bs = W.boss, em = W.email, first = bs.name.split(" ")[0];
   return '<div class="wp" style="--wpc:' + b.color + ";--wph:" + b.head + ";--wpi:" + b.ink + '">'
@@ -1551,6 +1578,7 @@ function workSend(W) {
 }
 document.addEventListener("click", function (e) {
   var t = e.target; if (!t || !t.closest) return;
+  var go = t.closest("[data-goslot]"); if (go) { var id = go.getAttribute("data-goslot"); if ((window.PY_ASSIGN || {})[id]) { $("slot").value = id; $("slot").dispatchEvent(new Event("change")); window.scrollTo(0, 0); } return; }
   var f = t.closest("[data-wf]"), sn = t.closest("#wpSend"); if (!f && !sn) return;
   var A = (window.PY_ASSIGN || {})[slot], W = workFor(slot, A); if (!W) return;
   if (sn) { workSend(W); return; }
@@ -1568,8 +1596,8 @@ function renderAssignment() {
   if (!A && !ASSIGN_READY && slot !== "free" && slot !== "example") { applyPortal(defaultPortal({})); body.innerHTML = '<div class="loadcard"><div class="ldspin"></div><b>Loading your assignment&hellip;</b><span>This takes a few seconds the first time.</span><i></i><i></i><i></i></div>'; return; }   /* the list is still on its way: show a loading card in the new look instead of the old editor */
   if (!A) { applyPortal(null); body.innerHTML = '<p class="none">Your teacher has not posted instructions for this assignment yet.</p>'; return; }
   var done = {}; try { done = JSON.parse(lsGet("py:prog:" + slot) || "{}"); } catch (e) {}
-  var W = workFor(slot, A), P = W ? { brand: W.brand, file: W.file, badge: "Workstation \u00b7 " + W.brand.team, host: "ws-" + W.brand.team.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "." + W.brand.name.toLowerCase().replace(/[^a-z0-9]/g, "") + ".internal" } : defaultPortal(A); applyPortal(P); var h = W ? workHtml(W) : "", n = 0, cardOpen = false, secTips = {}, sec = 0, seen = {}, firstStep = 0, stretchShown = false; stepHelp = {};
-  if (W) { for (var fi = 0; fi < A.blocks.length; fi++) if (A.blocks[fi].h && /^Step 1\b/.test(A.blocks[fi].h)) { firstStep = fi; break; } }
+  var W = workFor(slot, A) || trainFor(slot, A), P = W ? { brand: W.brand, file: W.file, badge: (W.training ? "Training \u00b7 " : "Workstation \u00b7 ") + W.brand.team, host: "ws-" + W.brand.team.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "." + W.brand.name.toLowerCase().replace(/[^a-z0-9]/g, "") + ".internal" } : defaultPortal(A); applyPortal(P); var h = W ? (W.training ? trainHtml(W) : workHtml(W)) : "", n = 0, cardOpen = false, secTips = {}, sec = 0, seen = {}, firstStep = 0, stretchShown = false; stepHelp = {};
+  if (W && !W.training) { for (var fi = 0; fi < A.blocks.length; fi++) if (A.blocks[fi].h && /^Step 1\b/.test(A.blocks[fi].h)) { firstStep = fi; break; } }
   A.blocks.forEach(function (b) {
     if (b.h) { sec++; seen[sec] = {}; }
     else if (b.tips) b.tips.forEach(function (id) { if (A.tips && A.tips[id] && !seen[sec || 0]) seen[sec || 0] = {}; if (A.tips && A.tips[id] && !(seen[sec || 0][id])) { seen[sec || 0][id] = 1; (secTips[sec] = secTips[sec] || []).push(id); } });
@@ -1580,9 +1608,12 @@ function renderAssignment() {
     if (W && bi < firstStep) { if (b.h) sec++; return; }   /* the email replaces the intro */
     if (b.h && W && !stretchShown && /^Step \d+: Stretch/.test(b.h)) { stretchShown = true; h += '<div class="wpstretch" style="--wpc:' + W.brand.color + '">&#9733; <b>Stretch tasks (optional).</b> Do these only if you have time. Each check you meet earns <b>+1 bonus point</b> on top of your 100 (up to +10), once your regular steps are at 100.</div>'; }
     if (b.h) { sec++;
-      if (P) { var sm = /^Step (\d+):\s*(Stretch:\s*)?(.*)$/.exec(b.h), isS = !!sm; if (!sm) sm = [0, "", "", b.h]; if (cardOpen) h += "</div></section>"; cardOpen = true;
+      var sm = null; if (W && W.training && b.h === "What you will learn") b = Object.assign({}, b, { h: "Your training agenda" });
+      if (P) { sm = /^Step (\d+):\s*(Stretch:\s*)?(.*)$/.exec(b.h); var isS = !!sm; if (!sm) sm = [0, "", "", b.h]; if (cardOpen) h += "</div></section>"; cardOpen = true;
         h += '<section class="stepcard' + (sm[2] ? " stretch" : "") + (isS ? "" : " plain") + '" data-sec="' + sec + '"><div class="schead"><span class="snum">' + (sm[2] ? "&#9733;" : (isS ? sm[1] : "i")) + "</span><h3>" + inl(sm[3]) + "</h3>" + (sm[2] ? '<span class="sopt">OPTIONAL</span>' : "") + (isS ? '<span class="spill">To do</span>' : "") + '</div><div class="scbody">'; }
-      else h += "<h3>" + inl(b.h) + "</h3>"; if (secTips[sec] && secTips[sec].length) { var isStep = /^(Step|Trace) /.test(b.h); stepHelp[sec] = { title: isStep ? String(b.h).replace(/:.*$/, "") : (/^Stuck/.test(b.h) ? "this assignment" : "the house rules"), ids: secTips[sec] }; h += '<div class="helprow"><button type="button" class="helpstep" data-help="' + sec + '">\uD83D\uDCA1 ' + (isStep ? "Help for this step" : "Help with the house rules") + ' <small>(' + secTips[sec].length + " topics)</small></button></div>"; } }
+      else h += "<h3>" + inl(b.h) + "</h3>";
+      if (W && W.training && sm && sm[1] && !sm[2] && W.training.notes[Number(sm[1]) - 1]) h += bossNote(W, W.training.notes[Number(sm[1]) - 1]);
+      if (secTips[sec] && secTips[sec].length) { var isStep = /^(Step|Trace) /.test(b.h); stepHelp[sec] = { title: isStep ? String(b.h).replace(/:.*$/, "") : (/^Stuck/.test(b.h) ? "this assignment" : "the house rules"), ids: secTips[sec] }; h += '<div class="helprow"><button type="button" class="helpstep" data-help="' + sec + '">\uD83D\uDCA1 ' + (isStep ? "Help for this step" : "Help with the house rules") + ' <small>(' + secTips[sec].length + " topics)</small></button></div>"; } }
     else if (b.p) { if (P && /^\*\*Goal:\*\*/.test(b.p)) h += '<div class="goal"><span>GOAL</span>' + inl(b.p.replace(/^\*\*Goal:\*\*\s*/, "")) + "</div>"; else if (P && /^\*\*How each step works/.test(b.p)) h += '<div class="howto"><span>HOW IT WORKS</span>' + inl(b.p.replace(/^\*\*How each step works:\*\*\s*/, "")) + "</div>"; else h += "<p>" + inl(b.p) + "</p>"; }
     else if (b.table) h += '<table class="atbl"><thead><tr>' + b.table.head.map(function (c) { return "<th>" + inl(c) + "</th>"; }).join("") + "</tr></thead><tbody>" + b.table.rows.map(function (r) { return "<tr>" + r.map(function (c) { return "<td>" + inl(c) + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody></table>";
     else if (b.see) h += P ? '<div class="asee term"><div class="aseeh"><i></i><i></i><i></i><span>Expected output</span></div><pre><u>$ python ' + escA(P.file) + "</u>" + b.see.map(escA).join("\n") + "</pre></div>" : '<div class="asee"><b>What you should see</b><pre>' + b.see.map(escA).join("\n") + "</pre></div>";
@@ -1595,6 +1626,7 @@ function renderAssignment() {
     }
   });
   if (cardOpen) h += "</div></section>";
+  if (W && W.training) h += handoffHtml(W);
   if (A.mc && A.mc.length) h += mcHtml(A);
   if (isQuizNow()) h = '<div id="qres" aria-live="polite"></div>' + h;
   body.innerHTML = h; updateProg(); updateScore(); mcBind(A); if (A.game) loadGameBest();
