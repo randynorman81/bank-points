@@ -11,8 +11,12 @@ def run(code, ins):
     feed = iter(ins); buf = io.StringIO()
     with contextlib.redirect_stdout(buf): exec(code, {'input': lambda p='': next(feed)})
     return buf.getvalue().rstrip('\n').split('\n')
-def fill(sh, row):
-    d = dict(zip(sh['keys'], row)); return {k: v.format(**d) if isinstance(v, str) else v for k, v in dict(story=sh['story']).items()}['story'], [l.format(**d) for l in sh['sol'].split('\n')], [x.format(**d) for x in sh['dis']], [i.format(**d) for i in sh['ins']]
+from stories import ST
+def fill(sh, row, lid=None, si=None):
+    d = dict(zip(sh['keys'], row))
+    if 'ch' in d: d['chn'] = 'a space' if d['ch'] == ' ' else '"%s"' % d['ch']
+    title, story = ST[lid][si]
+    return story.format(**d), [l.format(**d) for l in sh['sol'].split('\n')], [x.format(**d) for x in sh['dis']], [i.format(**d) for i in sh['ins']], title.format(**d)
 errors = []
 def check_problem(tag, sol, dis, groups, ins):
     code = '\n'.join(sol)
@@ -107,19 +111,23 @@ for lid, shapes in SH.items():
         got = 0
         for row in (0, 1, 2, 3):          # two per shape; skip a row that repeats a hand-written problem
             if got == 2: break
-            story, sol, dis, ins = fill(sh, sh['pool'][row])
+            story, sol, dis, ins, ttl = fill(sh, sh['pool'][row], lid, si)
             if '\n'.join(sol) in seen: continue
             seen.add('\n'.join(sol)); got += 1
             exp = check_problem('%s P%d.%d' % (lid, si + 1, row), sol, dis, sh['groups'], ins)
-            probs.append(dict(title=short(story), story=story, expect=exp, ins=ins, pieces=pieces_for(sol, dis), sol=sol, steps=[describe(l) for l in sol], valid=valid_orders(sol, ins, exp)))
+            probs.append(dict(title=ttl, story=story, expect=exp, ins=ins, pieces=pieces_for(sol, dis), sol=sol, steps=[describe(l) for l in sol], valid=valid_orders(sol, ins, exp)))
     if len({'\n'.join(p['sol']) for p in probs}) != len(probs): errors.append((lid, 'duplicate Parsons problem'))
     if len(probs) != 10: errors.append((lid, 'expected 10 Parsons, got %d' % len(probs)))
+    seen_t = {}
+    for p_ in probs:   # no two problems in a lesson share a title
+        n_ = seen_t.get(p_['title'], 0); seen_t[p_['title']] = n_ + 1
+        if n_: p_['title'] += ' (new numbers)' if n_ == 1 else ' (new numbers, again)'
     probs.sort(key=lambda p: difficulty(p['sol']))   # easiest first, hardest last (stable: same-size problems keep their order)
     P[lid] = dict(num=base['num'], title=base['title'], brand=dict(name=base['brand'][0], color=base['brand'][1], head=base['brand'][2]), problems=probs)
     trs = []
     for si, sh in enumerate(shapes):
         for row in (2, 3):
-            story, sol, dis, ins = fill(sh, sh['pool'][row]); tag = '%s T%d.%d' % (lid, si + 1, row)
+            story, sol, dis, ins, ttl = fill(sh, sh['pool'][row], lid, si); tag = '%s T%d.%d' % (lid, si + 1, row)
             check_problem(tag, sol, [], sh['groups'], ins)
             feed = iter(ins); g = {'input': lambda p='': next(feed)}; steps = []; prev = {}
             for ln in sol:
