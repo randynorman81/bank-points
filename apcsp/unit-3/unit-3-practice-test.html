@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 3 Practice Test | AP CSP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#FB923C; --acc-tint:rgba(251,146,60,.14); --acc-ink:#FDC79B;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --lst:#34D399; --lst-tint:rgba(52,211,153,.13); --lst-ink:#6EE7B7;
+  --cir:#22D3EE; --rec:#818CF8;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+h3.sub{font-size:20px;font-weight:600;color:#fff;margin:30px 0 12px}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:5}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#2B1706;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(32px,6vw,52px);font-weight:600;max-width:22ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:68ch;margin-top:18px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.chip{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:6px 14px}
+.chip b{color:var(--acc-ink)}
+.cta{display:inline-block;margin-top:24px;font-family:"JetBrains Mono",monospace;font-size:13.5px;font-weight:700;color:#2B1706;background:var(--acc);text-decoration:none;border-radius:100px;padding:11px 22px}
+
+.part{padding:54px 0 8px;scroll-margin-top:60px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.part-head .les{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-soft);white-space:nowrap}
+.lede{font-size:17.5px;line-height:1.6;max-width:70ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .no{color:var(--bad-ink)}
+.code .ok{color:var(--lst-ink)}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:8px 0 18px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--acc)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p,.box li{font-size:15px;line-height:1.55;color:#C4CDD8}
+.box ul{margin:0;padding-left:18px}
+.box.green{border-top-color:var(--lst)} .box.red{border-top-color:var(--bad)}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F0DAC4}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+.good{background:var(--lst-tint);border-left:4px solid var(--lst);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#D3F5E6}
+.good b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:18px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.y{color:var(--lst-ink)} table.cmp td.n{color:var(--bad-ink)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.checklist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 20px}
+.checklist li{font-size:14.5px;color:#C4CDD8;padding:8px 0 8px 26px;position:relative;border-bottom:1px solid var(--rule)}
+.checklist li::before{content:"\2610";position:absolute;left:0;color:var(--acc-ink);font-size:15px}
+
+/* trace table */
+table.trace{border-collapse:collapse;font-family:"JetBrains Mono",monospace;font-size:14px;margin:4px 0 20px;background:var(--card);border:1px solid var(--rule)}
+table.trace th,table.trace td{padding:8px 16px;border:1px solid var(--rule);text-align:left}
+table.trace th{color:var(--ink-soft);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+table.trace td.chg{color:var(--acc-ink);font-weight:700}
+
+/* math lab */
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:20px 22px;margin:10px 0 22px}
+.lab .row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-family:"JetBrains Mono",monospace}
+.lab input{width:90px;background:#05070B;color:#fff;border:1px solid #3A4658;border-radius:4px;padding:8px 10px;font:inherit;font-size:16px}
+.lab .out{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px}
+.lab .cell{background:#05070B;border:1px solid var(--rule);border-radius:5px;padding:12px 14px;font-family:"JetBrains Mono",monospace}
+.lab .cell .op{font-size:12px;color:var(--ink-soft)}
+.lab .cell .v{font-size:22px;color:#fff;font-weight:700;margin-top:4px}
+.lab .cell .t{font-size:11px;color:var(--acc-ink);margin-top:2px}
+.lab .explain{margin-top:14px;font-size:14.5px;color:#C4CDD8}
+
+/* canvas figure */
+.fig{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:18px;margin:10px 0 22px}
+.fig svg{width:100%;height:auto;display:block}
+.fig .cap{font-size:13.5px;color:var(--ink-soft);margin-top:10px}
+
+/* ===== practice test ===== */
+.testbar{position:sticky;top:52px;z-index:4;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.score{font-family:"JetBrains Mono",monospace;font-size:14px;color:#fff;font-weight:700;margin-right:auto}
+.score span{color:var(--ink-soft);font-weight:500}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.fbtn,.tbtn{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:6px 12px;cursor:pointer}
+.fbtn:hover,.tbtn:hover{color:#fff;border-color:#3A4658}
+.fbtn.on{background:var(--acc);color:#2B1706;border-color:var(--acc)}
+.tbtn.danger{color:var(--bad-ink)}
+.q{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:22px 24px;margin-bottom:14px}
+.q.right{border-color:rgba(52,211,153,.5)} .q.wrong{border-color:rgba(248,113,113,.5)}
+.q .qh{display:flex;gap:10px;align-items:baseline;margin-bottom:10px;flex-wrap:wrap}
+.q .qn{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);font-weight:700}
+.q .qt{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--rule);border-radius:100px;padding:2px 9px}
+.q .stem{font-size:15.5px;color:#EAEFF6;margin-bottom:10px}
+.q .code{margin:8px 0 14px;font-size:14px}
+.q .sel2{font-weight:700;color:var(--acc-ink)}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;background:#0E121A;border:1px solid var(--rule);border-radius:5px;padding:11px 14px;color:#D8E1EC;font:inherit;font-size:15px;cursor:pointer}
+.opt:hover:not([disabled]){border-color:#3A4658;background:#121824}
+.opt .l{font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--ink-soft);flex:none;width:22px}
+.opt.picked{border-color:var(--acc)}
+.opt.ok{border-color:var(--lst);background:var(--lst-tint)} .opt.ok .l{color:var(--lst-ink)}
+.opt.bad{border-color:var(--bad);background:var(--bad-tint)} .opt.bad .l{color:var(--bad-ink)}
+.opt[disabled]{cursor:default}
+.opt code{white-space:pre-wrap}
+.check{margin-top:10px;font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:700;background:var(--acc);color:#2B1706;border:0;border-radius:100px;padding:8px 16px;cursor:pointer}
+.check[disabled]{opacity:.4;cursor:default}
+.why{display:none;margin-top:14px;border-top:1px solid var(--rule);padding-top:12px;font-size:14.5px;color:#C4CDD8}
+.why b.v{color:var(--lst-ink)} .why b.x{color:var(--bad-ink)}
+.q.done .why{display:block}
+.done-msg{display:none;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:22px 24px;margin:10px 0 20px}
+.done-msg h3{font-size:22px;color:#fff;margin-bottom:8px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:30ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:64ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .wrap{padding:0 16px}
+  .pillnav{padding:10px 16px;position:static}
+  .testbar{top:0}
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:9px 11px}
+  .checklist{grid-template-columns:1fr}
+  .part-head{flex-wrap:wrap} .part-head .les{margin-left:0}
+  .code{font-size:13px;padding:14px}
+  .q{padding:18px 16px}
+}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../study-guides.html">&larr; Study Guides</a>
+  <a href="index.html">Unit 3 lessons</a>
+  <a href="#test" class="current">Practice Test</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">AP CSP &nbsp;/&nbsp; UNIT 3 &nbsp;/&nbsp; PROGRAMMING WITH PYTHON</div>
+    <h1>Unit 3 Practice Test</h1>
+    <p class="deck">Questions for every lesson from 3.1 Variable Names to 3.13 Tracing Code by Hand. They are worded the way the AP exam words them: "What is displayed?", "Which of the following&hellip;", and "Select two answers." Trace the code on paper first, then choose. Use the topic buttons to practice one lesson at a time.</p>
+    <div class="meta">
+      <span class="chip">Covers <b>3.1&ndash;3.13</b></span>
+      <span class="chip"><b id="heroCount">0</b> AP-style questions</span>
+      <span class="chip">Every answer <b>explained</b></span>
+    </div>
+    <a class="cta" href="#test">Start the practice test &darr;</a>
+  </div>
+</header>
+
+<section class="part" id="test">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">Q</div><h2>Practice Test (AP Style)</h2></div>
+    <p class="lede">These are worded the way the AP exam words its questions. Trace the code on paper before you choose. You get one try per question, and the explanation shows after you answer. "Select two" questions need exactly two choices before you can check.</p>
+
+    <div class="testbar">
+      <div class="score" id="score">0 / 0 <span>correct &middot; 0 left</span></div>
+      <div class="filters" id="filters"></div>
+      <button class="tbtn" id="missedBtn" type="button">Show missed only</button>
+      <button class="tbtn danger" id="resetBtn" type="button">Reset</button>
+    </div>
+    <div class="done-msg" id="doneMsg"></div>
+    <div id="quiz"></div>
+  </div>
+</section>
+
+
+<script>
+var LAB={"Variables": "3.1-3.2 Variables and types", "Input": "3.3 Input", "Joining": "3.4 Joining and converting", "Indexing": "3.5 Indexing", "Slicing": "3.6 Slicing", "Find": "3.7 .find()", "Math": "3.8-3.12 Math", "Tracing": "3.13 Tracing"};
+var Q = [
+{
+"t": "Variables",
+"s": "Which of the following is a valid Python variable name?",
+"o": [
+"<code>2nd_score</code>",
+"<code>second score</code>",
+"<code>second_score</code>",
+"<code>second-score</code>"
+],
+"a": [
+2
+],
+"e": "Names may use letters, digits, and underscores but can’t start with a digit (A), contain spaces (B), or contain <code>-</code> (D), which Python reads as subtraction."
+},
+{
+"t": "Variables",
+"s": "Which of the following are valid Python variable names? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"<code>player1</code>",
+"<code>1player</code>",
+"<code>_lives</code>",
+"<code>my@name</code>"
+],
+"a": [
+0,
+2
+],
+"e": "<code>player1</code> has its digit at the end, and a leading underscore is allowed. <code>1player</code> starts with a digit, and <code>@</code> is never allowed in a name."
+},
+{
+"t": "Variables",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "a = 10\nb = a\na = 20\nprint(b)",
+"o": [
+"An error occurs",
+"<code>20</code>",
+"<code>30</code>",
+"<code>10</code>"
+],
+"a": [
+3
+],
+"e": "<code>b = a</code> copies the value 10 into <code>b</code> at that moment. Changing <code>a</code> afterward doesn’t affect <code>b</code>."
+},
+{
+"t": "Variables",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "x = 5\nx = x + 3\nx = x * 2\nprint(x)",
+"o": [
+"<code>5</code>",
+"<code>13</code>",
+"<code>10</code>",
+"<code>16</code>"
+],
+"a": [
+3
+],
+"e": "x becomes 5 + 3 = 8, then 8 * 2 = <b class=\"v\">16</b>. Each line uses the value x holds at that moment."
+},
+{
+"t": "Variables",
+"s": "A programmer wants to swap the values of <code>a</code> and <code>b</code>. What is displayed?",
+"c": "a = 3\nb = 7\na = b\nb = a\nprint(a, b)",
+"o": [
+"<code>7 3</code>",
+"<code>3 7</code>",
+"<code>3 3</code>",
+"<code>7 7</code>"
+],
+"a": [
+3
+],
+"e": "After <code>a = b</code>, a is 7 and the 3 is lost. Then <code>b = a</code> sets b to 7 as well. A correct swap needs a temporary variable: <code>temp = a</code>, <code>a = b</code>, <code>b = temp</code>."
+},
+{
+"t": "Variables",
+"s": "What is the result of executing the code segment?",
+"c": "score = 50\nprint(Score)",
+"o": [
+"<code>50</code>",
+"A NameError, because <code>Score</code> was never created",
+"<code>Score</code>",
+"A SyntaxError, because of the capital letter"
+],
+"a": [
+1
+],
+"e": "Python is case-sensitive. <code>Score</code> and <code>score</code> are different names, and only <code>score</code> exists. Capital letters are legal in names, so it isn’t a SyntaxError."
+},
+{
+"t": "Variables",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "count = 4\ncount = count + count\ncount = count - 1\nprint(count)",
+"o": [
+"<code>3</code>",
+"<code>7</code>",
+"<code>8</code>",
+"<code>4</code>"
+],
+"a": [
+1
+],
+"e": "4 + 4 = 8, then 8 - 1 = <b class=\"v\">7</b>."
+},
+{
+"t": "Variables",
+"s": "Which line stores the text <code>Blinding Lights</code> in a variable?",
+"o": [
+"<code>\"Blinding Lights\" = title</code>",
+"<code>title = Blinding Lights</code>",
+"<code>title == \"Blinding Lights\"</code>",
+"<code>title = \"Blinding Lights\"</code>"
+],
+"a": [
+3
+],
+"e": "Text goes inside quotes, and a single <code>=</code> stores the value in the variable on its left. <code>==</code> compares, and the variable name must be on the left."
+},
+{
+"t": "Variables",
+"s": "Which of the following values is a float?",
+"o": [
+"<code>5.0</code>",
+"<code>\"5.0\"</code>",
+"<code>5</code>",
+"<code>True</code>"
+],
+"a": [
+0
+],
+"e": "A float has a decimal point. <code>5</code> is an int, <code>\"5.0\"</code> is a string because of the quotes, and <code>True</code> is a boolean."
+},
+{
+"t": "Variables",
+"s": "Which line correctly stores a boolean value?",
+"o": [
+"<code>is_ready = \"True\"</code>",
+"<code>is_ready = true</code>",
+"<code>is_ready = True</code>",
+"<code>is_ready = \"yes\"</code>"
+],
+"a": [
+2
+],
+"e": "A boolean is <code>True</code> or <code>False</code> with a capital first letter and no quotes. Lowercase <code>true</code> is not defined in Python, and anything in quotes is a string."
+},
+{
+"t": "Input",
+"s": "A user types <code>25</code> when this line runs. What type of value is stored in <code>age</code>?",
+"c": "age = input(\"Enter your age: \")",
+"o": [
+"int",
+"float",
+"boolean",
+"string"
+],
+"a": [
+3
+],
+"e": "<code>input()</code> <b>always</b> returns a string. <code>age</code> holds \"25\"."
+},
+{
+"t": "Input",
+"s": "The user types <code>4</code>. What is the result?",
+"c": "num = input(\"Enter a number: \")\nprint(num + 1)",
+"o": [
+"<code>5</code>",
+"A TypeError",
+"<code>41</code>",
+"<code>4</code>"
+],
+"a": [
+1
+],
+"e": "<code>num</code> is the string \"4\". A string plus an int is a TypeError. Fix: <code>int(num) + 1</code>."
+},
+{
+"t": "Input",
+"s": "The user types <code>7</code>. What is displayed?",
+"c": "num = input(\"Enter a number: \")\nprint(num * 2)",
+"o": [
+"<code>77</code>",
+"<code>14</code>",
+"A TypeError",
+"<code>72</code>"
+],
+"a": [
+0
+],
+"e": "A string times an int <b>repeats</b> the string: \"7\" * 2 = \"77\". There’s no error, just the wrong answer, which makes this bug hard to spot."
+},
+{
+"t": "Input",
+"s": "Which line correctly asks the user for a whole number and stores it so it can be used in math?",
+"o": [
+"<code>n = input(int(\"Enter: \"))</code>",
+"<code>n = str(input(\"Enter: \"))</code>",
+"<code>n = input(\"Enter: \")</code>",
+"<code>n = int(input(\"Enter: \"))</code>"
+],
+"a": [
+3
+],
+"e": "The innermost call runs first: <code>input()</code> gets the text, then <code>int()</code> converts it. Option A tries to convert the prompt \"Enter: \" into a number, which is a ValueError."
+},
+{
+"t": "Input",
+"s": "A program uses <code>cost = int(input(\"Cost: \"))</code>. The user types <code>3.50</code>. What happens?",
+"o": [
+"<code>cost</code> becomes 3",
+"<code>cost</code> becomes 3.5",
+"A ValueError occurs",
+"<code>cost</code> becomes 4"
+],
+"a": [
+2
+],
+"e": "\"3.50\" isn’t whole-number text, so <code>int()</code> fails. Money needs <code>float(input(...))</code>."
+},
+{
+"t": "Input",
+"s": "For which of the following inputs is it necessary to convert the value returned by <code>input()</code>? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"A user’s name, to print a greeting",
+"The number of tickets, to calculate a total price",
+"A favorite color, to print it back",
+"A temperature, to convert it to Celsius"
+],
+"a": [
+1,
+3
+],
+"e": "Convert only when you’ll do <b>math</b>. Names and colors are text and should stay strings."
+},
+{
+"t": "Input",
+"s": "The user types <code>15</code>. What is the result of executing the code segment?",
+"c": "age = int(input(\"Age: \"))\nprint(\"Next year you will be \" + age + 1)",
+"o": [
+"<code>Next year you will be 16</code>",
+"A TypeError",
+"<code>Next year you will be 151</code>",
+"A ValueError"
+],
+"a": [
+1
+],
+"e": "<code>age</code> is correctly an int, but concatenating it with a string is a TypeError. Fix: <code>\"Next year you will be \" + str(age + 1)</code>."
+},
+{
+"t": "Input",
+"s": "The user types <code>6</code> and then <code>4</code>. What is displayed?",
+"c": "a = input(\"First: \")\nb = input(\"Second: \")\nprint(a + b)",
+"o": [
+"<code>10</code>",
+"<code>64</code>",
+"<code>6 4</code>",
+"A TypeError"
+],
+"a": [
+1
+],
+"e": "Both are strings, so <code>+</code> concatenates: \"64\". To add, use <code>int(a) + int(b)</code>."
+},
+{
+"t": "Input",
+"s": "The user types 8. What is displayed as a result of executing the code segment?",
+"c": "n = int(input(\"n: \"))\nprint(n * 3)",
+"o": [
+"8 * 3",
+"888",
+"24",
+"An error occurs"
+],
+"a": [
+2
+],
+"e": "<code>int( )</code> turns the typed text into the number 8, so <code>n * 3</code> is 24. Without <code>int</code> the answer would be the text <code>888</code>."
+},
+{
+"t": "Joining",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "print(\"5\" + \"3\")",
+"o": [
+"<code>8</code>",
+"<code>53</code>",
+"<code>5 3</code>",
+"An error occurs"
+],
+"a": [
+1
+],
+"e": "Both are strings (in quotes), so <code>+</code> <b>concatenates</b>: \"5\" joined with \"3\" is \"53\"."
+},
+{
+"t": "Joining",
+"s": "What is the result of executing the code segment?",
+"c": "age = 16\nprint(\"I am \" + age + \" years old\")",
+"o": [
+"A TypeError, because a string and an integer cannot be concatenated",
+"<code>I am age years old</code>",
+"<code>I am 16 years old</code>",
+"A NameError"
+],
+"a": [
+0
+],
+"e": "<code>age</code> is an int. Fix it with <code>str(age)</code>: <code>\"I am \" + str(age) + \" years old\"</code>."
+},
+{
+"t": "Joining",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "first = \"Ada\"\nlast = \"Lovelace\"\nprint(first + last)",
+"o": [
+"<code>AdaLovelace</code>",
+"<code>Ada Lovelace</code>",
+"<code>first last</code>",
+"<code>first + last</code>"
+],
+"a": [
+0
+],
+"e": "Concatenation adds no spaces. You’d need <code>first + \" \" + last</code>."
+},
+{
+"t": "Joining",
+"s": "Which line correctly displays <code>Total: 25</code> when <code>total = 25</code>? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"<code>print(\"Total: \" + total)</code>",
+"<code>print(\"Total: \" + str(total))</code>",
+"<code>print(\"Total:\", total)</code>",
+"<code>print(\"Total: \" + \"total\")</code>"
+],
+"a": [
+1,
+2
+],
+"e": "B converts the number to a string. C uses a comma, which prints both items with a space between them. A is a TypeError. D prints the word \"total\"."
+},
+{
+"t": "Joining",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "print(str(7) + str(3))\nprint(int(\"7\") + int(\"3\"))",
+"o": [
+"<code>10</code> then <code>10</code>",
+"<code>73</code> then <code>73</code>",
+"<code>10</code> then <code>73</code>",
+"<code>73</code> then <code>10</code>"
+],
+"a": [
+3
+],
+"e": "Converted to strings, the <code>+</code> concatenates to \"73\". Converted to ints, it adds to 10."
+},
+{
+"t": "Joining",
+"s": "What is the result of executing <code>int(\"3.5\")</code>?",
+"o": [
+"<code>3</code>",
+"<code>4</code>",
+"<code>3.5</code>",
+"A ValueError"
+],
+"a": [
+3
+],
+"e": "<code>int()</code> can only read text that is a whole number. For \"3.5\" use <code>float(\"3.5\")</code>. Compare <code>int(3.5)</code> with no quotes, which gives 3 by cutting off the decimal."
+},
+{
+"t": "Joining",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "price = 4.5\nprint(\"$\" + str(price * 2))",
+"o": [
+"<code>$9</code>",
+"<code>$9.0</code>",
+"<code>$4.54.5</code>",
+"An error occurs"
+],
+"a": [
+1
+],
+"e": "The math happens first: 4.5 * 2 = 9.0 (a float stays a float). <code>str(9.0)</code> is \"9.0\"."
+},
+{
+"t": "Joining",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "print(\"Score: \" + str(10 + 5))",
+"o": [
+"An error occurs",
+"Score: 105",
+"Score: 10 + 5",
+"Score: 15"
+],
+"a": [
+3
+],
+"e": "The math inside <code>str( )</code> runs first, so <code>10 + 5</code> becomes 15, then <code>str</code> turns it into text and it is joined to <code>\"Score: \"</code>."
+},
+{
+"t": "Joining",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "print(\"Score: \" + str(10) + str(5))",
+"o": [
+"Score: 15",
+"Score: 105",
+"Score: 10 5",
+"An error occurs"
+],
+"a": [
+1
+],
+"e": "Each number is converted to text separately and then joined, so the digits are placed side by side: <code>\"10\"</code> then <code>\"5\"</code> makes <code>105</code>."
+},
+{
+"t": "Joining",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "x = 3\ny = \"4\"\nprint(x + int(y))",
+"o": [
+"An error occurs",
+"34",
+"37",
+"7"
+],
+"a": [
+3
+],
+"e": "<code>int(y)</code> turns the text <code>\"4\"</code> into the number 4, so this adds 3 + 4. Without <code>int</code> Python would raise a TypeError."
+},
+{
+"t": "Indexing",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "print(len(\"Hi there\"))",
+"o": [
+"<code>8</code>",
+"<code>7</code>",
+"<code>2</code>",
+"<code>6</code>"
+],
+"a": [
+0
+],
+"e": "<code>len()</code> counts every character, including the space: H-i-space-t-h-e-r-e = 8."
+},
+{
+"t": "Indexing",
+"s": "Which of the following correctly finds the number of characters in <code>msg</code>?",
+"o": [
+"<code>len(msg)</code>",
+"<code>msg.len()</code>",
+"<code>msg.length</code>",
+"<code>length(msg)</code>"
+],
+"a": [
+0
+],
+"e": "<code>len</code> is a plain function (no dot) that takes the string as its argument. <code>msg.len()</code> is an AttributeError."
+},
+{
+"t": "Indexing",
+"s": "The variable <code>word</code> holds <code>\"python\"</code>. What is displayed by <code>print(word[0])</code>?",
+"o": [
+"p",
+"y",
+"python",
+"An error occurs"
+],
+"a": [
+0
+],
+"e": "Indexes start at 0, so <code>word[0]</code> is the first character."
+},
+{
+"t": "Indexing",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "word = \"python\"\nprint(word[3])",
+"o": [
+"t",
+"h",
+"o",
+"y"
+],
+"a": [
+1
+],
+"e": "The letters are p(0) y(1) t(2) h(3) o(4) n(5), so index 3 is <code>h</code>."
+},
+{
+"t": "Indexing",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "word = \"python\"\nprint(word[-1])",
+"o": [
+"n",
+"p",
+"o",
+"An error occurs"
+],
+"a": [
+0
+],
+"e": "A negative index counts from the end, so <code>-1</code> is the last character."
+},
+{
+"t": "Indexing",
+"s": "What is the result of executing the code segment?",
+"c": "word = \"python\"\nprint(word[6])",
+"o": [
+"n",
+"A blank line",
+"An IndexError",
+"None"
+],
+"a": [
+2
+],
+"e": "<code>\"python\"</code> has 6 characters, so the valid indexes are 0 through 5. Index 6 is past the end."
+},
+{
+"t": "Indexing",
+"s": "The variable <code>word</code> holds a string with at least one character. Which expression gives its last character?",
+"o": [
+"<code>word[len(word)]</code>",
+"<code>word[-0]</code>",
+"<code>word[len(word) + 1]</code>",
+"<code>word[len(word) - 1]</code>"
+],
+"a": [
+3
+],
+"e": "The last index is one less than the length, because counting starts at 0. <code>word[len(word)]</code> is one past the end and causes an IndexError."
+},
+{
+"t": "Slicing",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "word = \"python\"\nprint(word[1:4])",
+"o": [
+"ytho",
+"yth",
+"pyth",
+"tho"
+],
+"a": [
+1
+],
+"e": "A slice <code>[1:4]</code> starts at index 1 and stops <b>before</b> index 4, so it takes the characters at 1, 2 and 3: y, t, h."
+},
+{
+"t": "Slicing",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "word = \"python\"\nprint(word[:2])",
+"o": [
+"p",
+"yt",
+"pyt",
+"py"
+],
+"a": [
+3
+],
+"e": "Leaving out the start means start at 0, so <code>[:2]</code> takes the characters at 0 and 1."
+},
+{
+"t": "Slicing",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "word = \"python\"\nprint(word[3:])",
+"o": [
+"hon",
+"tho",
+"on",
+"thon"
+],
+"a": [
+0
+],
+"e": "Leaving out the stop means go to the end, so <code>[3:]</code> takes everything from index 3: h, o, n."
+},
+{
+"t": "Slicing",
+"s": "The variable <code>title</code> holds <code>\"Blinding Lights\"</code>. Which expression gives <code>\"Lights\"</code>?",
+"o": [
+"<code>title[8:]</code>",
+"<code>title[9:]</code>",
+"<code>title[10:]</code>",
+"<code>title[9:14]</code>"
+],
+"a": [
+1
+],
+"e": "B is at 0, and the space is at index 8, so L is at 9. <code>title[9:]</code> runs from 9 to the end. <code>[8:]</code> would include the space, and <code>[9:14]</code> stops one letter early."
+},
+{
+"t": "Slicing",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "word = \"python\"\nprint(word[2:2])",
+"o": [
+"t",
+"yt",
+"An error occurs",
+"Nothing is shown on the line (an empty string)"
+],
+"a": [
+3
+],
+"e": "When the start and stop are the same, the slice is empty. Python does not raise an error, it just prints a blank line."
+},
+{
+"t": "Find",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "fruit = \"banana\"\nprint(fruit.find(\"n\"))",
+"o": [
+"<code>2</code>",
+"<code>1</code>",
+"<code>3</code>",
+"<code>-1</code>"
+],
+"a": [
+0
+],
+"e": "Indexes start at 0: b=0, a=1, <b>n=2</b>. <code>.find()</code> gives the <b>first</b> match."
+},
+{
+"t": "Find",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "print(\"banana\".find(\"z\"))",
+"o": [
+"<code>-1</code>",
+"<code>None</code>",
+"<code>0</code>",
+"An error occurs"
+],
+"a": [
+0
+],
+"e": "<code>.find()</code> returns <b>-1</b> when the text isn’t found. It does not crash."
+},
+{
+"t": "Find",
+"s": "The variable <code>email</code> holds <code>\"sam@mail.com\"</code>. What is displayed by <code>print(email.find(\"@\"))</code>?",
+"o": [
+"2",
+"4",
+"3",
+"-1"
+],
+"a": [
+2
+],
+"e": "s(0) a(1) m(2) @(3), so <code>.find(\"@\")</code> gives the index of the first match: 3."
+},
+{
+"t": "Find",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "email = \"sam@mail.com\"\nprint(email[:email.find(\"@\")])",
+"o": [
+"sam@",
+"sam",
+"mail.com",
+"@mail.com"
+],
+"a": [
+1
+],
+"e": "<code>email.find(\"@\")</code> is 3, so <code>email[:3]</code> keeps indexes 0, 1 and 2: s, a, m."
+},
+{
+"t": "Math",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "print(17 // 5)\nprint(17 % 5)",
+"o": [
+"<code>3.4</code> then <code>2</code>",
+"<code>3</code> then <code>2</code>",
+"<code>2</code> then <code>3</code>",
+"<code>3</code> then <code>3</code>"
+],
+"a": [
+1
+],
+"e": "5 fits into 17 three whole times (<code>//</code> = 3), with 17 - 15 = 2 left over (<code>%</code> = 2)."
+},
+{
+"t": "Math",
+"s": "What is displayed as a result of executing <code>print(10 / 2)</code>?",
+"o": [
+"<code>5</code>",
+"<code>5.0</code>",
+"<code>0</code>",
+"<code>2</code>"
+],
+"a": [
+1
+],
+"e": "Regular division <code>/</code> <b>always</b> produces a float, even when it divides evenly."
+},
+{
+"t": "Math",
+"s": "Which best describes a float?",
+"o": [
+"A number that can include a decimal point, like 2.75 or 5.0",
+"Any number greater than 1000",
+"A number stored as text",
+"A whole number with no decimal"
+],
+"a": [
+0
+],
+"e": "Floats are decimal numbers. <code>5.0</code> is a float even though it equals the int <code>5</code>."
+},
+{
+"t": "Math",
+"s": "What is the value of <code>7 % 10</code>?",
+"o": [
+"<code>0</code>",
+"<code>3</code>",
+"<code>0.7</code>",
+"<code>7</code>"
+],
+"a": [
+3
+],
+"e": "10 fits into 7 zero times, so the entire 7 is left over. When the left number is smaller, <code>%</code> gives back the left number."
+},
+{
+"t": "Math",
+"s": "What is the value of <code>12 % 3</code>?",
+"o": [
+"<code>4</code>",
+"<code>3</code>",
+"<code>0</code>",
+"<code>1</code>"
+],
+"a": [
+2
+],
+"e": "3 goes into 12 exactly 4 times with <b>nothing</b> left over. A remainder of 0 means \"divides evenly.\""
+},
+{
+"t": "Math",
+"s": "Which expression evaluates to <code>0</code> exactly when the integer <code>n</code> is even?",
+"o": [
+"<code>n / 2</code>",
+"<code>n // 2</code>",
+"<code>n * 2</code>",
+"<code>n % 2</code>"
+],
+"a": [
+3
+],
+"e": "Even numbers leave remainder 0 when divided by 2, and odd numbers leave remainder 1."
+},
+{
+"t": "Math",
+"s": "A video is <code>135</code> seconds long. Which code displays <code>2 minutes 15 seconds</code>?",
+"o": [
+"<code>print(135 / 60, \"minutes\", 135 % 60, \"seconds\")</code>",
+"<code>print(135 // 60, \"minutes\", 135 % 60, \"seconds\")</code>",
+"<code>print(135 % 60, \"minutes\", 135 // 60, \"seconds\")</code>",
+"<code>print(135 // 60, \"minutes\", 135 / 60, \"seconds\")</code>"
+],
+"a": [
+1
+],
+"e": "<code>//</code> gives the whole minutes (2) and <code>%</code> gives the leftover seconds (15). Option A would print 2.25 minutes."
+},
+{
+"t": "Math",
+"s": "Which expression gives the <b>last digit</b> of the positive integer <code>num</code>? (For 472 it should give 2.)",
+"o": [
+"<code>num // 10</code>",
+"<code>num % 10</code>",
+"<code>num / 10</code>",
+"<code>num % 100</code>"
+],
+"a": [
+1
+],
+"e": "472 % 10 = 2. The remainder after dividing by 10 is the ones digit. (<code>472 // 10</code> = 47 removes it.)"
+},
+{
+"t": "Math",
+"s": "What is the value of <code>2 + 3 * 4 ** 2</code>?",
+"o": [
+"<code>400</code>",
+"<code>194</code>",
+"<code>50</code>",
+"<code>70</code>"
+],
+"a": [
+2
+],
+"e": "Exponent first: 4 ** 2 = 16. Then multiply: 3 * 16 = 48. Then add: 2 + 48 = <b class=\"v\">50</b>."
+},
+{
+"t": "Math",
+"s": "What is the value of <code>(2 + 3) * 4 // 3</code>?",
+"o": [
+"<code>7</code>",
+"<code>6.67</code>",
+"<code>2</code>",
+"<code>6</code>"
+],
+"a": [
+3
+],
+"e": "Parentheses: 5. Then left to right, 5 * 4 = 20, then 20 // 3 = 6 (the whole part only)."
+},
+{
+"t": "Math",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "x = 9\nx = x % 4\nx = x + 10 // 3\nprint(x)",
+"o": [
+"<code>4</code>",
+"<code>3.67</code>",
+"<code>7</code>",
+"<code>13</code>"
+],
+"a": [
+0
+],
+"e": "9 % 4 = 1. Then <code>10 // 3</code> runs before <code>+</code>: 3. So 1 + 3 = <b class=\"v\">4</b>."
+},
+{
+"t": "Math",
+"s": "What is displayed as a result of executing <code>print(5 + 2.0)</code>?",
+"o": [
+"<code>7.0</code>",
+"<code>7</code>",
+"<code>52.0</code>",
+"An error occurs"
+],
+"a": [
+0
+],
+"e": "If any number in the calculation is a float, the result is a float."
+},
+{
+"t": "Math",
+"s": "What is the result of executing <code>print(10 % 0)</code>?",
+"o": [
+"<code>0</code>",
+"<code>10</code>",
+"<code>None</code>",
+"A ZeroDivisionError"
+],
+"a": [
+3
+],
+"e": "<code>%</code>, <code>//</code>, and <code>/</code> all divide, and dividing by zero is never allowed."
+},
+{
+"t": "Math",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "print(7 / 2)",
+"o": [
+"4",
+"3",
+"3.5",
+"3.0"
+],
+"a": [
+2
+],
+"e": "The <code>/</code> operator always gives a float, and it keeps the decimal part: 7 divided by 2 is 3.5."
+},
+{
+"t": "Math",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "print(7 // 2)",
+"o": [
+"3.5",
+"3.0",
+"4",
+"3"
+],
+"a": [
+3
+],
+"e": "<code>//</code> is floor division: it keeps only the whole-number part of the answer, so 7 // 2 is 3."
+},
+{
+"t": "Math",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "print(20 % 6)",
+"o": [
+"3",
+"3.3",
+"2",
+"0"
+],
+"a": [
+2
+],
+"e": "20 divided by 6 is 3 with a remainder of 2 (3 * 6 = 18, and 20 - 18 = 2). The <code>%</code> operator gives that remainder."
+},
+{
+"t": "Math",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "print(10 - 4 / 2)",
+"o": [
+"3.0",
+"8.0",
+"8",
+"6.0"
+],
+"a": [
+1
+],
+"e": "Division happens before subtraction, so 4 / 2 is 2.0 first, and then 10 - 2.0 is 8.0. Any math that includes a float gives a float."
+},
+{
+"t": "Math",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "print((10 - 4) / 2)",
+"o": [
+"8.0",
+"8",
+"3.0",
+"6.0"
+],
+"a": [
+2
+],
+"e": "The parentheses make the subtraction happen first: (10 - 4) is 6, and 6 / 2 is 3.0."
+},
+{
+"t": "Math",
+"s": "A store sells eggs in dozens. The variable <code>n</code> holds the number of eggs. Which expression gives the number of <b>full</b> dozens?",
+"o": [
+"<code>n / 12</code>",
+"<code>n // 12</code>",
+"<code>n % 12</code>",
+"<code>n * 12</code>"
+],
+"a": [
+1
+],
+"e": "Floor division gives the whole number of times 12 fits into <code>n</code>. <code>n % 12</code> would give the leftover eggs instead."
+},
+{
+"t": "Tracing",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "a = 5\nb = 2\na = a + b\nb = a - b\nprint(a, b)",
+"o": [
+"7 5",
+"5 2",
+"7 2",
+"7 7"
+],
+"a": [
+0
+],
+"e": "Trace it: a = 5, b = 2. Then a = 5 + 2 = 7. Then b = a - b = 7 - 2 = 5. So it prints 7 5."
+},
+{
+"t": "Tracing",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "total = 47\npacks = total // 10\nleft = total % 10\nprint(packs, left)",
+"o": [
+"47 0",
+"4 7",
+"7 4",
+"4.7 0"
+],
+"a": [
+1
+],
+"e": "47 // 10 is 4 (whole tens), and 47 % 10 is 7 (what is left over). It prints 4 7."
+},
+{
+"t": "Tracing",
+"s": "What is displayed as a result of executing the code segment?",
+"c": "word = \"rocket\"\nfirst = word[0]\nrest = word[1:]\nprint(rest + first + \"ay\")",
+"o": [
+"ayrocket",
+"rocketay",
+"ocketr",
+"ocketray"
+],
+"a": [
+3
+],
+"e": "<code>first</code> is \"r\" and <code>rest</code> is \"ocket\". The print joins rest + first + \"ay\": ocket + r + ay = ocketray."
+}
+];
+
+(function(){
+  var KEY='apcsp-u3-pt-v2', state={};
+  try{ state=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ state={}; }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+  var quiz=document.getElementById('quiz'), filt='All', missedOnly=false;
+  var topics=['All'].concat(["Variables", "Input", "Joining", "Indexing", "Slicing", "Find", "Math", "Tracing"]);
+  document.getElementById('heroCount').textContent=Q.length;
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function same(a,b){ if(a.length!==b.length) return false; var x=a.slice().sort(), y=b.slice().sort(); return x.every(function(v,i){return v===y[i];}); }
+
+  var fwrap=document.getElementById('filters');
+  topics.forEach(function(t){
+    var b=document.createElement('button'); b.type='button'; b.className='fbtn'+(t==='All'?' on':''); b.textContent=LAB[t]||t;
+    b.onclick=function(){ filt=t; [].forEach.call(fwrap.children,function(c){c.classList.toggle('on',c===b);}); apply(); };
+    fwrap.appendChild(b);
+  });
+
+  Q.forEach(function(q,i){
+    var multi=q.a.length>1, el=document.createElement('div'); el.className='q'; el.dataset.t=q.t; el.id='q'+i;
+    var h='<div class="qh"><span class="qn">Question '+(i+1)+'</span><span class="qt">'+(LAB[q.t]||q.t)+'</span></div><div class="stem">'+q.s+'</div>';
+    if(q.c) h+='<div class="code">'+esc(q.c)+'</div>';
+    h+='<div class="opts">'+q.o.map(function(o,j){return '<button type="button" class="opt" data-j="'+j+'"><span class="l">'+'ABCD'[j]+'</span><span>'+o+'</span></button>';}).join('')+'</div>';
+    if(multi) h+='<button type="button" class="check" disabled>Check answer</button>';
+    h+='<div class="why"></div>';
+    el.innerHTML=h; quiz.appendChild(el);
+    var picks=[], btns=el.querySelectorAll('.opt'), chk=el.querySelector('.check');
+    [].forEach.call(btns,function(b){
+      b.onclick=function(){
+        if(el.classList.contains('done')) return;
+        var j=+b.dataset.j;
+        if(!multi){ grade(i,[j]); return; }
+        var k=picks.indexOf(j);
+        if(k>=0) picks.splice(k,1); else if(picks.length<2) picks.push(j);
+        [].forEach.call(btns,function(x){ x.classList.toggle('picked', picks.indexOf(+x.dataset.j)>=0); });
+        chk.disabled=picks.length!==2;
+      };
+    });
+    if(chk) chk.onclick=function(){ grade(i,picks.slice()); };
+    if(state[i]) render(i,state[i]);
+  });
+
+  function grade(i,picked){ state[i]=picked; save(); render(i,picked); tally(); }
+  function render(i,picked){
+    var q=Q[i], el=document.getElementById('q'+i), ok=same(picked,q.a);
+    el.classList.add('done', ok?'right':'wrong');
+    [].forEach.call(el.querySelectorAll('.opt'),function(b){
+      var j=+b.dataset.j; b.disabled=true; b.classList.remove('picked');
+      if(q.a.indexOf(j)>=0) b.classList.add('ok'); else if(picked.indexOf(j)>=0) b.classList.add('bad');
+    });
+    var c=el.querySelector('.check'); if(c) c.style.display='none';
+    var ans=q.a.map(function(j){return 'ABCD'[j];}).join(' and ');
+    el.querySelector('.why').innerHTML=(ok?'<b class="v">Correct.</b> ':'<b class="x">Not quite. The answer is '+ans+'.</b> ')+q.e;
+  }
+  function tally(){
+    var done=0,right=0;
+    Q.forEach(function(q,i){ if(state[i]){ done++; if(same(state[i],q.a)) right++; } });
+    document.getElementById('score').innerHTML=right+' / '+done+' <span>correct &middot; '+(Q.length-done)+' left</span>';
+    var dm=document.getElementById('doneMsg');
+    if(done===Q.length){
+      var pct=Math.round(100*right/Q.length);
+      dm.style.display='block';
+      dm.innerHTML='<h3>Finished: '+right+' / '+Q.length+' ('+pct+'%)</h3><p style="color:#C4CDD8">'+(pct>=90?'You’re ready for the Unit 3 test.':pct>=75?'Close. Click “Show missed only,” re-read those sections, then Reset and retake.':'Re-read the sections for the topics you missed (use the topic filters), then Reset and retake.')+'</p>';
+    } else dm.style.display='none';
+  }
+  function apply(){
+    Q.forEach(function(q,i){
+      var el=document.getElementById('q'+i);
+      var show=(filt==='All'||q.t===filt) && (!missedOnly || (state[i] && !same(state[i],q.a)));
+      el.style.display=show?'':'none';
+    });
+  }
+  document.getElementById('missedBtn').onclick=function(){ missedOnly=!missedOnly; this.classList.toggle('on',missedOnly); this.textContent=missedOnly?'Show all':'Show missed only'; apply(); };
+  document.getElementById('resetBtn').onclick=function(){
+    if(!confirm('Clear all your answers and start over?')) return;
+    state={}; save(); location.hash='#test'; location.reload();
+  };
+  tally();
+})();
+</script>
+</body>
+</html>
