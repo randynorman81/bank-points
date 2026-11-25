@@ -10,7 +10,7 @@ def size(p): return "%.1f MB" % (os.path.getsize(p) / 1e6)
 def pages(p): return len(fitz.open(p))
 zip_name = "AP-CSP-Study-Guides-All-Units.zip"; zip_path = os.path.join(DL, zip_name)
 CSS = ('<style>.sg{margin:14px 0 26px;padding:18px 20px;border:1px solid #d9dee7;border-radius:10px;background:#f7f9fc}.sg h2{margin:0 0 6px;font-size:1.15rem}.sg p{margin:6px 0;font-size:.9rem}'
-       '.sg .big{display:inline-block;margin:6px 10px 6px 0;padding:8px 14px;font-size:.9rem;border-radius:8px;background:#1d4ed8;color:#fff;font-weight:700;text-decoration:none}.sg .big.alt{background:#0f172a}.sg .btnrow{display:flex;flex-direction:column;align-items:center;text-align:center;margin:12px 0}.sg .btnrow .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.sg .btnrow .big{margin:0}.sg .btnrow small{display:block;margin-top:5px;font-size:.78rem}.sg .big.open{background:#fff;color:#1d4ed8;border:2px solid #1d4ed8;padding:8px 14px}'
+       '.sg .big{display:inline-block;margin:6px 10px 6px 0;padding:8px 14px;font-size:.9rem;line-height:1.3;border-radius:8px;background:#1d4ed8;color:#fff;font-weight:700;text-decoration:none}.sg .big.alt{background:#0f172a}.sg .btns3{display:flex;flex-wrap:wrap;gap:14px 22px;justify-content:center;align-items:flex-start;margin:14px 0}.sg .btns3 .b1{display:flex;flex-direction:column;align-items:center;text-align:center}.sg .btns3 .big{margin:0}.sg .btns3 small{margin-top:5px;font-size:.78rem}.sg .btnrow{display:flex;flex-direction:column;align-items:center;text-align:center;margin:12px 0}.sg .btnrow .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.sg .btnrow .big{margin:0}.sg .btnrow small{display:block;margin-top:5px;font-size:.78rem}.sg .big{box-sizing:border-box;border:2px solid transparent}.sg .big.open{background:#fff;color:#1d4ed8;border-color:#1d4ed8}'
        '.sg .big:hover{filter:brightness(1.12)}.sg small{color:#5b6472}.sg table{border-collapse:collapse;width:100%;margin-top:10px}.sg td{font-size:.88rem;padding:5px 8px;border-top:1px solid #e3e7ee;vertical-align:top}'
        '.sg td.n{width:84px;white-space:nowrap;font-weight:700}.sg .soon{color:#8a93a3}a.sg-l{font-size:.82em;white-space:nowrap;margin-left:8px}</style>')
 ANCHOR = '      <div class="unit-grid" id="lesson-grid-root"></div>'
@@ -58,9 +58,10 @@ for n in live:
         n, int(re.match(r".*Lesson-\d+-(\d+)-", f).group(1)), fitz.open(f).metadata["title"].split(", ", 1)[1], os.path.basename(f), os.path.basename(f), pages(f)) for f in ls)
     unit_html = (CSS + '<div class="sg" id="study-guide"><h2>Unit %d Study Guide</h2><p>Printable PDFs for this unit: the whole guide, or one lesson at a time. Every lesson has the key ideas in plain words, worked examples, '
                  'tracing practice, common mistakes, and practice questions with answers.</p>'
-                 '<div class="btnrow"><div class="btns"><a class="big alt" href="../downloads/%s" download>&#128230; All units (ZIP)</a></div><small>every unit, 19 PDFs</small></div>'
-                 '<div class="btnrow"><div class="btns"><a class="big" href="../downloads/units/%s" download>&#128196; Download Whole Unit %d (PDF)</a> <a class="big open" href="../downloads/units/%s" target="_blank" rel="noopener">&#128065; Open in browser</a></div><small>%d pages, %s</small></div>'
-                 '</div>' % (n, zip_name, os.path.basename(up), n, os.path.basename(up), pages(up), size(up)))
+                 '<div class="btns3"><div class="b1"><a class="big alt" href="../downloads/%s" download>&#128230; All units (ZIP)</a><small>every unit, 19 PDFs</small></div>'
+                 '<div class="b1"><a class="big" href="../downloads/units/%s" download>&#128196; Download Whole Unit %d (PDF)</a><small>%d pages, %s</small></div>'
+                 '<div class="b1"><a class="big open" href="../downloads/units/%s" target="_blank" rel="noopener">&#128065; Open in browser</a><small>opens in a new tab</small></div></div>'
+                 '</div>' % (n, zip_name, os.path.basename(up), n, pages(up), size(up), os.path.basename(up)))
     page = os.path.join(ROOT, "apcsp", "unit-%d" % n, "index.html")
     put(page, "study-guide", unit_html, ANCHOR)
     put(page, "lesson-cards", cards_html(n, ls), ANCHOR)
