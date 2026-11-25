@@ -1568,7 +1568,9 @@ function workReview(W, j) {
 function workSend(W) {
   var A = (window.PY_ASSIGN || {})[slot]; if (!A) return;
   workModal(W, "Review from " + W.boss.name, '<p style="color:var(--soft)">' + escA(W.boss.name.split(" ")[0]) + " is reading your code...</p>");
-  var hid = hiddenOutput(ta.value, A), body = { action: "score", slot: slot, code: ta.value, output: hid !== null ? hid : out.textContent.slice(-4000), period: $("period").value, credential: CRED || undefined }, tp = "";
+  var hid = hiddenOutput(ta.value, A);
+  if (hid === null && !out.textContent.trim() && ta.value.trim()) { $("wpModB").innerHTML = '<p>' + escA(W.boss.name.split(" ")[0]) + ' needs to see what your program prints. Press the <b>Run</b> button at the top, then click <b>Send</b> again.</p>'; return; }   /* never run yet: the review would wrongly say the printed lines are missing */
+  var body = { action: "score", slot: slot, code: ta.value, output: hid !== null ? hid : out.textContent.slice(-4000), period: $("period").value, credential: CRED || undefined }, tp = "";
   try { tp = /[?&]teacher/.test(location.search) ? (sessionStorage.getItem("pypin") || "") : ""; } catch (e) {}
   if (tp) body.pin = tp;
   fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(function (r) { return r.json(); }).then(function (j) {
