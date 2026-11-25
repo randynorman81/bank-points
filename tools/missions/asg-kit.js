@@ -18,5 +18,16 @@ const PURPOSE = ["a PURPOSE comment of five or more words", note("PURPOSE", 5), 
 const splice = (prog, marker, add) => { const i = prog.indexOf(marker); if (i < 0) throw new Error("marker not found: " + marker); return prog.slice(0, i) + add + prog.slice(i); };   /* put `add` in front of the marker line (a feature added above the closing block) */
 const ASG = {}, WORK = {};   /* WORK[id] = the workplace skin for that assignment (boss, email, files, review lines); mkwork.js turns it into python/workplace.js */
 const WK = (id, o) => { WORK[id] = o; };
-const def = (id, name, intro, learn, stages, auto) => { ASG[id] = { name, intro, learn, stages, auto }; };
-module.exports = { V, FN, note, S, X, ASG, WORK, WK, def, esc, L, PV, OUT, PURPOSE, splice };
+/* The CLEAR step layout (used by 3.1 first): T(title, { goal, say, table, tasks: [[task text, [checks]], ...], run, runChk, see, refCode }).
+   Each task is its own checkbox with its own auto-checks, so the checklist matches the tasks one for one. table = { head, rows } shows facts (names and values) in a table;
+   see = the exact output lines the student should see after Run. XT is the same thing for a stretch (extra-credit) step. */
+const T = (title, o) => {
+  const t = o.tasks, s = S(title, o.say || [], t[0][0], o.ref, t[0][1], o.run, o.runChk, o.refCode);
+  s.goal = o.goal; s.table = o.table; s.see = o.see; s.do = t.slice(1).map((x) => ({ t: x[0], c: x[1] })); return s;
+};
+const XT = (title, o) => {
+  const s = T("Stretch: " + title, o), tag = (c) => ["Bonus (+1): " + c[0]].concat(c.slice(1));
+  s.chk = (s.chk || []).map(tag); s.do = s.do.map((d) => ({ t: d.t, c: (d.c || []).map(tag) })); s.runChk = s.runChk ? s.runChk.map(tag) : undefined; return s;
+};
+const def = (id, name, intro, learn, stages, auto, extra) => { ASG[id] = Object.assign({ name, intro, learn, stages, auto }, extra || {}); };
+module.exports = { V, FN, note, S, X, T, XT, ASG, WORK, WK, def, esc, L, PV, OUT, PURPOSE, splice };

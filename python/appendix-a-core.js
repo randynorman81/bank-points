@@ -146,12 +146,15 @@
     blocks.push({ h: "What you will make" });
     (Array.isArray(w.intro) ? w.intro : [w.intro]).forEach(function (p) { blocks.push({ p: p }); });
     if (w.learn && w.learn.length) blocks.push({ p: "**You will learn:** " + w.learn.join(", ") + "." });
-    blocks.push({ p: "Type the code yourself. Lines that are **green** in the code boxes are the new ones for that step. The auto-check under each checkbox turns green when your code has what the step asks for." });
+    if (!w.how) blocks.push({ p: "Type the code yourself. Lines that are **green** in the code boxes are the new ones for that step. The auto-check under each checkbox turns green when your code has what the step asks for." });
     if (w.firstTips) blocks.push({ tips: w.firstTips });
     w.stages.forEach(function (s, i) {
       var num = i + 1; curStage = num;
       blocks.push({ h: "Step " + num + ": " + s.title });
+      if (i === 0 && w.how) blocks.push({ p: w.how });
+      if (s.goal) blocks.push({ p: "**Goal:** " + s.goal });
       (Array.isArray(s.say) ? s.say : [s.say]).forEach(function (p) { if (p) blocks.push({ p: p }); });
+      if (s.table) blocks.push({ table: s.table });
       if (s.help && s.help.length) blocks.push({ tips: s.help });
       if (s.code) {
         var lines = s.code.replace(/\n+$/, "").split("\n"), marks = s.bring ? [] : diffMarks(prevLines, lines, s.reindent), win = s.bring ? { code: lines.join("\n"), mark: [] } : windowed(lines, marks);
@@ -163,7 +166,14 @@
       (s.do || []).forEach(function (d) { items.push(d); });
       if (s.run) items.push(s.runChk ? { t: "Press **Run** (or **Ctrl + Enter**). " + s.run, c: s.runChk.map(function (c) { return [c[0], c[1], c[2] || 1, "output"]; }) } : "Press **Run** (or **Ctrl + Enter**). " + s.run);
       if (items.length) blocks.push({ make: box(items) });
+      if (s.see) blocks.push({ see: s.see });
     });
+    if (w.fin) {   /* the last step of the clear layout: check the whole program and turn it in */
+      blocks.push({ h: "Step " + (w.stages.length + 1) + ": " + (w.fin.title || "Check your whole program") });
+      (w.fin.say || []).forEach(function (p) { blocks.push({ p: p }); });
+      if (w.fin.see) blocks.push({ see: w.fin.see });
+      blocks.push({ build: box(w.fin.do || []) });
+    }
     var last = w.stages[w.stages.length - 1];
     if (w.check !== false && last && last.code) {
       blocks.push({ h: "Step " + (w.stages.length + 1) + ": Check your whole program" });

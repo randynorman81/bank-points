@@ -86,6 +86,12 @@ body.noass #paneAss,body.noass #split0{display:none}
 #assBody pre .newl{background:rgba(52,211,153,.18);box-shadow:-12px 0 0 rgba(52,211,153,.18),12px 0 0 rgba(52,211,153,.18);border-left:0;position:relative}
 #assBody pre .newl::before{content:"";position:absolute;left:-12px;top:0;bottom:0;width:3px;background:var(--ok)}
 #assBody pre{background:var(--deep);border:1px solid var(--rule);border-radius:8px;padding:8px 12px;margin:0 0 10px;font:12.5px/1.6 "JetBrains Mono",monospace;white-space:pre-wrap;user-select:none}
+#assBody table.atbl{border-collapse:collapse;width:100%;margin:2px 0 12px;font-size:13px}
+#assBody table.atbl th{text-align:left;padding:5px 10px;background:var(--deep);border:1px solid var(--rule);font:700 11px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
+#assBody table.atbl td{padding:5px 10px;border:1px solid var(--rule)}
+#assBody .asee{border:1px dashed var(--rule);border-radius:8px;padding:6px 12px 2px;margin:0 0 12px;background:rgba(255,255,255,.03)}
+#assBody .asee>b{display:block;font:700 11px "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;opacity:.8;margin-bottom:4px}
+#assBody .asee pre{border:0;background:transparent;padding:2px 0 6px;margin:0;user-select:text}
 #assBody .cb{border-radius:8px;padding:8px 12px;margin:0 0 10px}
 #assBody .cb.build{background:rgba(52,211,153,.08);border-left:4px solid var(--ok)}
 #assBody .cb.make{background:rgba(56,189,248,.10);border-left:4px solid #38BDF8}
@@ -1443,6 +1449,8 @@ function renderAssignment() {
     if (b.h && W && !stretchShown && /^Step \d+: Stretch/.test(b.h)) { stretchShown = true; h += '<div class="wpstretch" style="--wpc:' + W.brand.color + '">&#9733; <b>Stretch tasks (optional).</b> Do these only if you have time. Each check you meet earns <b>+1 bonus point</b> on top of your 100 (up to +10), once your regular steps are at 100.</div>'; }
     if (b.h) { sec++; h += "<h3>" + inl(b.h) + "</h3>"; if (secTips[sec] && secTips[sec].length) { var isStep = /^(Step|Trace) /.test(b.h); stepHelp[sec] = { title: isStep ? String(b.h).replace(/:.*$/, "") : (/^Stuck/.test(b.h) ? "this assignment" : "the house rules"), ids: secTips[sec] }; h += '<div class="helprow"><button type="button" class="helpstep" data-help="' + sec + '">\uD83D\uDCA1 ' + (isStep ? "Help for this step" : "Help with the house rules") + ' <small>(' + secTips[sec].length + " topics)</small></button></div>"; } }
     else if (b.p) h += "<p>" + inl(b.p) + "</p>";
+    else if (b.table) h += '<table class="atbl"><thead><tr>' + b.table.head.map(function (c) { return "<th>" + inl(c) + "</th>"; }).join("") + "</tr></thead><tbody>" + b.table.rows.map(function (r) { return "<tr>" + r.map(function (c) { return "<td>" + inl(c) + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody></table>";
+    else if (b.see) h += '<div class="asee"><b>What you should see</b><pre>' + b.see.map(escA).join("\n") + "</pre></div>";
     else if (b.play) h += '<div class="playbox"><a class="playbtn" id="playBtn" href="games/play.html?slot=' + slot + '" target="_blank" rel="noopener">&#9654; PLAY THE GAME</a><div class="playbest" id="gameBest">' + escA(b.play === true ? "Opens in a new tab. Your best score saves by itself." : b.play) + "</div></div>";
     else if (b.code) { h += "<pre>" + (b.mark && b.mark.length ? codeMarked(b.code, b.mark) : highlight(b.code)) + "</pre>"; if (isPseudo(b.code)) h += '<div class="pcopyrow"><button type="button" class="pcopy" data-pc="' + bi + '">📋 Copy pseudocode</button><small>Pastes into your code box as comment lines</small></div>'; }
     else if (b.tips) { if (sec === 0 && introTips.length && !stepHelp[0]) { stepHelp[0] = { title: "Getting started", ids: introTips }; h += '<div class="helprow"><button type="button" class="helpstep" data-help="0">\uD83D\uDCA1 Help for getting started <small>(' + introTips.length + " topics)</small></button></div>"; } }

@@ -20,8 +20,8 @@ require("./asg-u6.js");
 /* ---- build every record (hidden, not gating) ---- */
 T.rows.forEach((row) => {
   const a = ASG[row.id]; if (!a) throw new Error("no assignment written for " + row.id);
-  const w = { title: "Assignment " + row.n + ": " + a.name, intro: a.intro.concat(["**Scoring:** worth **" + row.pts[0] + " points**. There is no code to copy: read the job, then write the program yourself. Use the names in **bold** exactly. The auto-checker under each box turns green when your code (and its output) has what the step asks for. **100%** is full points."]), learn: a.learn,
-    stages: a.stages.map((s) => ({ title: s.title, say: s.say, type: s.type, ref: s.ref, refCode: s.refCode, chk: s.chk, run: s.run, runChk: s.runChk, inp: s.inp })), autoRun: a.auto };
+  const w = { title: "Assignment " + row.n + ": " + a.name, intro: a.intro.concat([a.scoring || ("**Scoring:** worth **" + row.pts[0] + " points**. There is no code to copy: read the job, then write the program yourself. Use the names in **bold** exactly. The auto-checker under each box turns green when your code (and its output) has what the step asks for. **100%** is full points.")]), learn: a.learn, how: a.how, fin: a.fin,
+    stages: a.stages.map((s) => ({ title: s.title, say: s.say, type: s.type, ref: s.ref, refCode: s.refCode, chk: s.chk, run: s.run, runChk: s.runChk, inp: s.inp, goal: s.goal, table: s.table, see: s.see, do: s.do })), autoRun: a.auto };
   M.addMission(row.asg, w, { unit: row.UNIT, num: Math.floor(row.wt), points: row.pts[0], seq: row.wt + (row.wt % 1 ? 0.05 : 0.5), passMin: 0, part: "project" });
 });
 module.exports = { ASG };

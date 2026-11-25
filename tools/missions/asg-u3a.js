@@ -2,32 +2,68 @@
    Each uses ONLY what the lesson's walkthrough (and the ones before it) taught. In 3.1 to 3.3 a label and its value are printed on separate lines, because print("Label:", value) is first taught in 3.4.
    No code is shown to the student. Each stage has a hidden reference solution (ref adds lines, refCode is the whole program) that test.mjs proves scores 100. Helpers are in asg-kit.js. */
 "use strict";
-const { V, note, S, X, WK, def, L, PV, OUT, PURPOSE } = require("./asg-kit.js");
+const { V, note, S, X, T, XT, WK, def, L, PV, OUT, PURPOSE } = require("./asg-kit.js");
 
 /* ---------------------------------------------------------------- 3.1 */
 def("u3l1", "Spotify Track Card", ["**You are a backend engineer at Spotify.** Every song has an info card, and the code behind the card keeps each fact in a variable. Build the card for one track, then keep its play count up to date."],
   ["making variables", "legal names", "capital letters matter", "good names", "changing a variable"], [
-  S("Set up the file", ["Start the file with a comment that begins `# PURPOSE:` and says in at least five words what the program is for. Spotify's style guide says a variable name is lowercase words joined by underscores that describe what the variable holds, and capital letters count (`play_count` and `Play_Count` would be two different variables). Under the purpose, add a comment that begins `# NAME RULES:` and says in at least ten words how your names follow that guide.",
-    "Then make seven variables: **`track_title`** (`Blinding Lights`), **`artist_name`** (`The Weeknd`), **`play_count`** (`4000000`), **`length_seconds`** (`200`), **`rating`** (`4.8`), **`top_song`** (`Flowers`) and **`second_song`** (`As It Was`)."],
-    "Write the two comments and the seven variables.", `# PURPOSE: build the info card for one track and keep its play count current\n# NAME RULES: every name is lowercase words joined by underscores and says what the variable holds\ntrack_title = "Blinding Lights"\nartist_name = "The Weeknd"\nplay_count = 4000000\nlength_seconds = 200\nrating = 4.8\ntop_song = "Flowers"\nsecond_song = "As It Was"`,
-    [PURPOSE, ["a NAME RULES comment of ten or more words", note("NAME RULES", 10), 1, "comments"], ["track_title holds text", V("track_title", "[\"']")], ["artist_name holds text", V("artist_name", "[\"']")], ["play_count is a whole number", V("play_count", "\\d+\\s*$")], ["length_seconds is a whole number", V("length_seconds", "\\d+\\s*$")], ["rating is a decimal number", V("rating", "\\d+\\.\\d+")], ["top_song holds text", V("top_song", "[\"']")], ["second_song holds text", V("second_song", "[\"']")]],
-    "Nothing prints yet. Make sure there is no red error."),
-  S("Print the card", ["Under a heading comment, print the card. First the line `NOW PLAYING`, then the title and the artist. Then the label `PLAYS` and the play count, the label `LENGTH IN SECONDS` and the length, and the label `RATING` and the rating. Finally the label `CHARTS` and the two charts songs. Print the **variables** themselves, never typed-in copies, and give each label and each value its own `print`."],
-    "Write the print lines for the card.", `\n# Card\nprint("NOW PLAYING")\nprint(track_title)\nprint(artist_name)\nprint("PLAYS")\nprint(play_count)\nprint("LENGTH IN SECONDS")\nprint(length_seconds)\nprint("RATING")\nprint(rating)\nprint("CHARTS")\nprint(top_song)\nprint(second_song)`,
-    [["printing the NOW PLAYING label", L("NOW PLAYING")], ["printing track_title", PV("track_title")], ["printing artist_name", PV("artist_name")], ["printing play_count", PV("play_count")], ["printing length_seconds", PV("length_seconds")], ["printing rating", PV("rating")], ["printing top_song", PV("top_song")], ["printing second_song", PV("second_song")]],
-    "Check the card.", [["the title", OUT("Blinding Lights")], ["the artist", OUT("The Weeknd")], ["the plays", OUT("4000000")], ["the rating", OUT("4.8")], ["the charts songs", OUT("As It Was")]]),
-  S("A listener presses play", ["A listener presses play, so the play count goes up by one. Under a heading comment, change the **same** variable (do not make a new one), then print the label `PLAYS NOW` and the new count."],
-    "Update the count and print it.", `\n# A listener presses play\nplay_count = play_count + 1\nprint("PLAYS NOW")\nprint(play_count)`,
-    [["play_count changed by adding 1", /^\s*play_count\s*(=\s*play_count\s*\+\s*1|\+=\s*1)/m], ["printing the PLAYS NOW label", L("PLAYS NOW")], ["printing play_count again", PV("play_count"), 2]],
-    "Run it.", [["4000001", OUT("4000001")]]),
-  X("Wrapped counter", ["Wrapped needs the count after **three more** listeners press play. Under a heading comment, update the **same** `play_count` variable three more times, then print the label `AFTER 3 MORE` and the count. Add a comment that begins `# WRAPPED:` and says in at least eight words why you reused the variable instead of making new ones."],
-    "Add the three updates, the print and the comment.", `\n# Wrapped\nplay_count = play_count + 1\nplay_count = play_count + 1\nplay_count = play_count + 1\nprint("AFTER 3 MORE")\nprint(play_count)\n# WRAPPED: reusing one variable keeps a single true count instead of many copies that could disagree`,
-    [["play_count updated three more times", /^\s*play_count\s*(=\s*play_count\s*\+\s*1|\+=\s*1)/m, 4], ["printing the AFTER 3 MORE label", L("AFTER 3 MORE")], ["a WRAPPED comment of eight or more words", note("WRAPPED", 8), 1, "comments"]],
-    "Run it.", [["4000004", OUT("4000004")]]),
-  X("Up next", ["Charts wants an Up Next row on the card. Under a heading comment, make **`next_title`** (`Levitating`) and **`next_artist`** (`Dua Lipa`), then print the label `UP NEXT` and the two variables."],
-    "Add the two variables and the three prints.", `\n# Up next\nnext_title = "Levitating"\nnext_artist = "Dua Lipa"\nprint("UP NEXT")\nprint(next_title)\nprint(next_artist)`,
-    [["next_title holds text", V("next_title", "[\"']")], ["next_artist holds text", V("next_artist", "[\"']")], ["printing the UP NEXT label", L("UP NEXT")], ["printing next_title", PV("next_title")], ["printing next_artist", PV("next_artist")]],
-    "Run it.", [["Levitating", OUT("Levitating")]])]);
+  T("Set up the file", {
+    goal: "Set up your file and store the facts about one song in variables.",
+    say: ["Spotify's style guide says a variable name is lowercase words joined by underscores that say what the variable holds. Capital letters count, so `play_count` and `Play_Count` are two different variables."],
+    table: { head: ["Variable name", "Value", "Kind of value"], rows: [["`track_title`", "Blinding Lights", "text"], ["`artist_name`", "The Weeknd", "text"], ["`play_count`", "4000000", "whole number"], ["`length_seconds`", "200", "whole number"], ["`rating`", "4.8", "decimal number"], ["`top_song`", "Flowers", "text"], ["`second_song`", "As It Was", "text"]] },
+    tasks: [
+      ["Make the **first line** of the file a comment that starts with `# PURPOSE:` and says, in at least five words, what this program is for.", [PURPOSE]],
+      ["On the next line, add a comment that starts with `# NAME RULES:` and says, in at least ten words, how your variable names follow the style guide.", [["a NAME RULES comment of ten or more words", note("NAME RULES", 10), 1, "comments"]]],
+      ["Make the seven variables in the table above. Use the exact names and the exact values.", [["track_title holds text", V("track_title", "[\"']")], ["artist_name holds text", V("artist_name", "[\"']")], ["play_count is a whole number", V("play_count", "\\d+\\s*$")], ["length_seconds is a whole number", V("length_seconds", "\\d+\\s*$")], ["rating is a decimal number", V("rating", "\\d+\\.\\d+")], ["top_song holds text", V("top_song", "[\"']")], ["second_song holds text", V("second_song", "[\"']")]]]],
+    run: "Nothing prints yet.",
+    see: ["Nothing prints in this step.", "You should see no red error."],
+    refCode: `# PURPOSE: build the info card for one track and keep its play count current\n# NAME RULES: every name is lowercase words joined by underscores and says what the variable holds\ntrack_title = "Blinding Lights"\nartist_name = "The Weeknd"\nplay_count = 4000000\nlength_seconds = 200\nrating = 4.8\ntop_song = "Flowers"\nsecond_song = "As It Was"` }),
+  T("Print the card", {
+    goal: "Print the song card, one line at a time.",
+    say: ["Print the **variables** themselves, never typed-in copies. Give each label and each value its own `print` line."],
+    tasks: [
+      ["Under a heading comment, print the label `NOW PLAYING`, then the track title, then the artist.", [["printing the NOW PLAYING label", L("NOW PLAYING")], ["printing track_title", PV("track_title")], ["printing artist_name", PV("artist_name")]]],
+      ["Print the label `PLAYS` and the play count, then the label `LENGTH IN SECONDS` and the length, then the label `RATING` and the rating.", [["printing the PLAYS label", L("PLAYS")], ["printing play_count", PV("play_count")], ["printing the LENGTH IN SECONDS label", L("LENGTH IN SECONDS")], ["printing length_seconds", PV("length_seconds")], ["printing the RATING label", L("RATING")], ["printing rating", PV("rating")]]],
+      ["Print the label `CHARTS`, then the two chart songs.", [["printing the CHARTS label", L("CHARTS")], ["printing top_song", PV("top_song")], ["printing second_song", PV("second_song")]]]],
+    run: "Compare your card with the box below.",
+    runChk: [["the title", OUT("Blinding Lights")], ["the artist", OUT("The Weeknd")], ["the plays", OUT("4000000")], ["the rating", OUT("4.8")], ["the charts songs", OUT("As It Was")]],
+    see: ["NOW PLAYING", "Blinding Lights", "The Weeknd", "PLAYS", "4000000", "LENGTH IN SECONDS", "200", "RATING", "4.8", "CHARTS", "Flowers", "As It Was"],
+    refCode: `# PURPOSE: build the info card for one track and keep its play count current\n# NAME RULES: every name is lowercase words joined by underscores and says what the variable holds\ntrack_title = "Blinding Lights"\nartist_name = "The Weeknd"\nplay_count = 4000000\nlength_seconds = 200\nrating = 4.8\ntop_song = "Flowers"\nsecond_song = "As It Was"\n# Card\nprint("NOW PLAYING")\nprint(track_title)\nprint(artist_name)\nprint("PLAYS")\nprint(play_count)\nprint("LENGTH IN SECONDS")\nprint(length_seconds)\nprint("RATING")\nprint(rating)\nprint("CHARTS")\nprint(top_song)\nprint(second_song)` }),
+  T("A listener presses play", {
+    goal: "A listener presses play, so the play count goes up by 1.",
+    say: ["Change the **same** variable. Do not make a new one."],
+    tasks: [
+      ["Under a heading comment, change `play_count` so it is 1 bigger.", [["play_count changed by adding 1", /^\s*play_count\s*(=\s*play_count\s*\+\s*1|\+=\s*1)/m]]],
+      ["Print the label `PLAYS NOW`, then print `play_count` again.", [["printing the PLAYS NOW label", L("PLAYS NOW")], ["printing play_count again", PV("play_count"), 2]]]],
+    run: "Compare the end of your output with the box below.",
+    runChk: [["4000001", OUT("4000001")]],
+    see: ["PLAYS NOW", "4000001"],
+    refCode: `# PURPOSE: build the info card for one track and keep its play count current\n# NAME RULES: every name is lowercase words joined by underscores and says what the variable holds\ntrack_title = "Blinding Lights"\nartist_name = "The Weeknd"\nplay_count = 4000000\nlength_seconds = 200\nrating = 4.8\ntop_song = "Flowers"\nsecond_song = "As It Was"\n# Card\nprint("NOW PLAYING")\nprint(track_title)\nprint(artist_name)\nprint("PLAYS")\nprint(play_count)\nprint("LENGTH IN SECONDS")\nprint(length_seconds)\nprint("RATING")\nprint(rating)\nprint("CHARTS")\nprint(top_song)\nprint(second_song)\n# A listener presses play\nplay_count = play_count + 1\nprint("PLAYS NOW")\nprint(play_count)` }),
+  XT("Wrapped counter", {
+    goal: "Wrapped needs the play count after 3 more listeners press play.",
+    tasks: [
+      ["Under a heading comment, update `play_count` three more times, making it 1 bigger each time (three separate updates).", [["play_count updated three more times", /^\s*play_count\s*(=\s*play_count\s*\+\s*1|\+=\s*1)/m, 4]]],
+      ["Print the label `AFTER 3 MORE`, then print `play_count`.", [["printing the AFTER 3 MORE label", L("AFTER 3 MORE")]]],
+      ["Add a comment that starts with `# WRAPPED:` and says, in at least eight words, why you reused one variable instead of making new ones.", [["a WRAPPED comment of eight or more words", note("WRAPPED", 8), 1, "comments"]]]],
+    run: "Compare the end of your output with the box below.",
+    runChk: [["4000004", OUT("4000004")]],
+    see: ["AFTER 3 MORE", "4000004"],
+    refCode: `# PURPOSE: build the info card for one track and keep its play count current\n# NAME RULES: every name is lowercase words joined by underscores and says what the variable holds\ntrack_title = "Blinding Lights"\nartist_name = "The Weeknd"\nplay_count = 4000000\nlength_seconds = 200\nrating = 4.8\ntop_song = "Flowers"\nsecond_song = "As It Was"\n# Card\nprint("NOW PLAYING")\nprint(track_title)\nprint(artist_name)\nprint("PLAYS")\nprint(play_count)\nprint("LENGTH IN SECONDS")\nprint(length_seconds)\nprint("RATING")\nprint(rating)\nprint("CHARTS")\nprint(top_song)\nprint(second_song)\n# A listener presses play\nplay_count = play_count + 1\nprint("PLAYS NOW")\nprint(play_count)\n# Wrapped\nplay_count = play_count + 1\nplay_count = play_count + 1\nplay_count = play_count + 1\nprint("AFTER 3 MORE")\nprint(play_count)\n# WRAPPED: reusing one variable keeps a single true count instead of many copies that could disagree` }),
+  XT("Up next", {
+    goal: "Add an Up Next row to the card.",
+    table: { head: ["Variable name", "Value", "Kind of value"], rows: [["`next_title`", "Levitating", "text"], ["`next_artist`", "Dua Lipa", "text"]] },
+    tasks: [
+      ["Under a heading comment, make the two variables in the table above.", [["next_title holds text", V("next_title", "[\"']")], ["next_artist holds text", V("next_artist", "[\"']")]]],
+      ["Print the label `UP NEXT`, then the two variables.", [["printing the UP NEXT label", L("UP NEXT")], ["printing next_title", PV("next_title")], ["printing next_artist", PV("next_artist")]]]],
+    run: "Compare the end of your output with the box below.",
+    runChk: [["Levitating", OUT("Levitating")]],
+    see: ["UP NEXT", "Levitating", "Dua Lipa"],
+    refCode: `# PURPOSE: build the info card for one track and keep its play count current\n# NAME RULES: every name is lowercase words joined by underscores and says what the variable holds\ntrack_title = "Blinding Lights"\nartist_name = "The Weeknd"\nplay_count = 4000000\nlength_seconds = 200\nrating = 4.8\ntop_song = "Flowers"\nsecond_song = "As It Was"\n# Card\nprint("NOW PLAYING")\nprint(track_title)\nprint(artist_name)\nprint("PLAYS")\nprint(play_count)\nprint("LENGTH IN SECONDS")\nprint(length_seconds)\nprint("RATING")\nprint(rating)\nprint("CHARTS")\nprint(top_song)\nprint(second_song)\n# A listener presses play\nplay_count = play_count + 1\nprint("PLAYS NOW")\nprint(play_count)\n# Wrapped\nplay_count = play_count + 1\nplay_count = play_count + 1\nplay_count = play_count + 1\nprint("AFTER 3 MORE")\nprint(play_count)\n# WRAPPED: reusing one variable keeps a single true count instead of many copies that could disagree\n# Up next\nnext_title = "Levitating"\nnext_artist = "Dua Lipa"\nprint("UP NEXT")\nprint(next_title)\nprint(next_artist)` })], undefined, {
+  how: "**How each step works:** read the **Goal**, then do the tasks in order. Every task has its own checkbox, and the small line under it turns green when your code has what the task needs. After you press **Run**, compare your output with **What you should see**.",
+  scoring: "**Scoring:** worth **100 points**. There is no code to copy, so write it yourself. Use the names and values in the tables exactly. **100%** is full points.",
+  fin: { title: "Check your whole program", say: ["Press **Run** one last time. Your output should match the box below, line for line. (If you did the stretch steps, you will see their extra lines at the end.)"],
+    see: ["NOW PLAYING", "Blinding Lights", "The Weeknd", "PLAYS", "4000000", "LENGTH IN SECONDS", "200", "RATING", "4.8", "CHARTS", "Flowers", "As It Was", "PLAYS NOW", "4000001"],
+    do: ["Run the whole program and compare it with the output above.", "Look at the checklist above: every box should be green.", "Press **Submit** when your score says 100%."] } });
 WK("u3l1", { brand: ["Spotify", "#1DB954", "#121212", "#ffffff", "800 22px 'Segoe UI',Helvetica,Arial,sans-serif", "-0.5px"], team: "Content Platform", boss: ["Priya Nair", "Senior Backend Engineer"], ticket: "CP-1042", file: "track_card.py",
   subject: "Track card for Blinding Lights (needed before tomorrow's demo)", hi: "Hi, and welcome to the Content Platform team! I'm glad you're here.",
   job: "Every song in the app has an info card, and the code behind the card keeps each fact in a variable. The Charts team is demoing tomorrow with **Blinding Lights**, and the card script still isn't done. Can you build it, and then make it keep the play count up to date?",
