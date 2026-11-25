@@ -114,7 +114,8 @@ body.noass #paneAss,body.noass #split0{display:none}
 .edwrap{flex:1;min-height:0;display:flex;background:var(--deep2)}
 #gut{margin:0;padding:12px 8px 12px 12px;text-align:right;color:var(--gutx);font:13.5px/1.6 "JetBrains Mono",monospace;user-select:none;overflow:hidden;min-width:44px;white-space:pre}
 .edbox{position:relative;flex:1;min-width:0}
-#hl,#code{position:absolute;inset:0;margin:0;border:0;padding:12px 12px 12px 4px;font:13.5px/1.6 "JetBrains Mono",monospace;tab-size:4;white-space:pre;letter-spacing:0}
+#hl,#code{position:absolute;inset:0;margin:0;border:0;padding:12px 12px 12px 4px;font:13.5px/1.6 "JetBrains Mono",monospace;tab-size:4;white-space:pre-wrap;overflow-wrap:break-word;word-break:normal;letter-spacing:0}
+#meas{position:absolute;left:-99999px;top:0;visibility:hidden;pointer-events:none;margin:0;padding:0;border:0;font:13.5px/1.6 "JetBrains Mono",monospace;tab-size:4;white-space:pre-wrap;overflow-wrap:break-word;word-break:normal;letter-spacing:0}
 #hl{overflow:hidden;pointer-events:none;color:var(--ink2)}
 #marks{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 #marksIn{position:absolute;left:0;top:0;width:100%}
@@ -128,7 +129,7 @@ body.noass #paneAss,body.noass #split0{display:none}
 #assBody label.flash,#assBody label.hlbox{outline:2px solid var(--warn);outline-offset:2px;border-radius:6px}
 #assBody label.hlbox{background:rgba(251,191,36,.12);box-shadow:0 0 0 4px rgba(251,191,36,.14)}
 #assMiss li .ref{display:block;color:var(--soft);font-size:11px;margin-top:1px}
-#code{resize:none;outline:0;background:transparent;color:transparent;caret-color:var(--acc);overflow:auto;z-index:1}
+#code{resize:none;outline:0;background:transparent;color:transparent;caret-color:var(--acc);overflow-y:auto;overflow-x:hidden;z-index:1}
 #code::selection{background:rgba(251,146,60,.35);color:transparent}
 #code::placeholder{color:var(--gutx);font-style:italic}
 .c-com{color:var(--py-com);font-style:italic}.c-str{color:var(--py-str)}.c-int{color:var(--py-int)}.c-float{color:var(--py-float)}.c-bool{color:var(--py-bool);font-weight:700}
@@ -481,16 +482,36 @@ function starter() { if (slot === "example" && mode !== "karel") return EXAMPLE_
 function savedCode() { if (slot === "example" && mode !== "karel") return EXAMPLE_CODE; var v = lsGet(codeKey()); return v === STARTER_PY ? null : v; }
 
 /* ---------- the editor box ---------- */
-function gutter() { var n = ta.value.split("\n").length, s = ""; for (var i = 1; i <= n; i++) s += i + "\n"; gut.textContent = s.replace(/\n$/, ""); gut.scrollTop = ta.scrollTop; paint(); }
+/* A long line wraps onto the next screen row but stays ONE line of code (one number in the gutter). ROWS[i] = how many screen rows logical line i takes, ROWSTART[i] = the screen row it starts on. */
+var ROWS = [], ROWSTART = [], measEl = null;
+function measureRows(lines) {
+  var w = ta.clientWidth - 16, rows = [];
+  if (!(w > 40)) { lines.forEach(function () { rows.push(1); }); return rows; }
+  if (!measEl) { measEl = document.createElement("div"); measEl.id = "meas"; measEl.setAttribute("aria-hidden", "true"); document.body.appendChild(measEl); }
+  measEl.style.width = w + "px"; measEl.textContent = "";
+  var frag = document.createDocumentFragment();
+  lines.forEach(function (l) { var d = document.createElement("div"); d.textContent = l === "" ? "\u00a0" : l; frag.appendChild(d); });
+  measEl.appendChild(frag);
+  for (var i = 0; i < measEl.children.length; i++) rows.push(Math.max(1, Math.round(measEl.children[i].offsetHeight / 21.6)));
+  return rows;
+}
+function gutter() {
+  var lines = ta.value.split("\n"), s = "", r = 0; ROWS = measureRows(lines); ROWSTART = [];
+  for (var i = 0; i < lines.length; i++) { ROWSTART.push(r); s += (i + 1) + "\n" + (ROWS[i] > 1 ? new Array(ROWS[i]).join("\n") : ""); r += ROWS[i]; }
+  gut.textContent = s.replace(/\n$/, ""); gut.scrollTop = ta.scrollTop; paint();
+}
+function rowTop(n) { return 12 + (ROWSTART[n - 1] !== undefined ? ROWSTART[n - 1] : n - 1) * LH; }   /* top (px) of code line n (1 = first line) */
+function rowsOf(n) { return ROWS[n - 1] || 1; }
 function paint() { var h = $("hl"); h.innerHTML = highlight(ta.value) + "\n"; h.scrollTop = ta.scrollTop; h.scrollLeft = ta.scrollLeft; }
 function loadCode() { var v = savedCode(); ta.value = v !== null ? v : starter(); gutter(); }
 var saveT = 0;
 ta.addEventListener("input", function () { clearMarks(); updateScore(); gutter(); if (typeof updateSaveInd === "function") updateSaveInd(); clearTimeout(saveT); saveT = setTimeout(function () { lsSet(codeKey(), ta.value); flash("Saved"); }, 500); });
+if (window.ResizeObserver) { var lastW = 0; new ResizeObserver(function () { if (ta.clientWidth !== lastW) { lastW = ta.clientWidth; gutter(); } }).observe(ta); }
 ta.addEventListener("scroll", function () { gut.scrollTop = ta.scrollTop; var h = $("hl"); h.scrollTop = ta.scrollTop; h.scrollLeft = ta.scrollLeft; syncMarks(); });
 /* the Enter key inserts the new line in code, so the browser does not scroll for us: keep the cursor line in view, one line at a time */
 function keepCaretVisible() {
   var LH = 13.5 * 1.6, PAD = 12, line = ta.value.slice(0, ta.selectionStart).split("\n").length - 1;
-  var top = PAD + line * LH, bottom = top + LH;
+  var top = PAD + (ROWSTART[line] !== undefined ? ROWSTART[line] : line) * LH, bottom = top + (ROWS[line] || 1) * LH;
   if (bottom + LH > ta.scrollTop + ta.clientHeight) ta.scrollTop = bottom + LH - ta.clientHeight;
   else if (top - LH < ta.scrollTop) ta.scrollTop = Math.max(0, top - LH);
 }
@@ -1491,10 +1512,10 @@ function whereMarks(h) {
   var out = "";
   if (h.k === "above" || h.k === "below" || h.k === "eol" || h.k === "fix") {
     var chip = h.k === "fix" ? "\u270E finish this comment: add the title after the step number" : h.k === "above" ? "↑ your comment goes on its own line directly above" : h.k === "below" ? "↓ your comment goes on its own line directly below" : "→ add a comment at the end of this line";
-    (h.lines || []).forEach(function (n) { out += '<div class="mk" style="top:' + (12 + (n - 1) * LH) + 'px"><b>' + chip + "</b></div>"; });
+    (h.lines || []).forEach(function (n) { out += '<div class="mk" style="top:' + rowTop(n) + 'px;height:' + (rowsOf(n) * LH) + 'px"><b>' + chip + "</b></div>"; });
   } else if (h.k === "add") {
     var n = h.after || 0;
-    out = n ? '<div class="mk add" style="top:' + (12 + (n - 1) * LH) + 'px"><b>↓ add it after this line</b></div>' : '<div class="mk add" style="top:' + (12 - 3) + 'px;height:0;border-bottom:0;border-top:2px dashed #34D399"><b>↓ add it at the top</b></div>';
+    out = n ? '<div class="mk add" style="top:' + (rowTop(n) + (rowsOf(n) - 1) * LH) + 'px"><b>↓ add it after this line</b></div>' : '<div class="mk add" style="top:' + (12 - 3) + 'px;height:0;border-bottom:0;border-top:2px dashed #34D399"><b>↓ add it at the top</b></div>';
   }
   return out;
 }
@@ -1505,7 +1526,7 @@ function showWhere(m) {
   if (h.k === "need") { clearMarks(); flash("Type the line this goes with first, then click Show me where again."); return; }
   $("marksIn").innerHTML = whereMarks(h);
   var line = h.lines && h.lines.length ? h.lines[0] : (h.after || 1);
-  ta.scrollTop = Math.max(0, (line - 4) * LH);
+  ta.scrollTop = Math.max(0, rowTop(line) - 12 - 3 * LH);
   syncMarks();
 }
 function refreshWhere() {
