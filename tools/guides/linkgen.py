@@ -30,11 +30,14 @@ def cards_html(n, ls):
         rows = ('<div class="lprow sg"><span class="ic">&#128196;</span><span class="tx"><b>Study guide</b><span>%d-page PDF</span></span><span class="st"><a href="../downloads/lessons/%s" target="_blank" rel="noopener">Open</a> &nbsp;|&nbsp; <a href="../downloads/lessons/%s" download>Download</a></span></div>' % (pages(f), base, base))
         for w in m["w"]: rows += '<a class="lprow" href="%s%s"><span class="ic">&#128187;</span><span class="tx"><b>Walkthrough</b><span>%s</span></span><span class="st">100 pts</span></a>' % (ed, w["id"], m["title"])
         if m["p"]: rows += '<a class="lprow" href="%s%s"><span class="ic">&#128221;</span><span class="tx"><b>Assignment</b><span>Assignment %s: %s</span></span><span class="st">%d pts</span></a>' % (ed, m["p"]["id"], lid, m["p"]["title"], m["p"]["pts"])
-        if n in PZ_UNITS: rows += '<a class="lprow" href="../../python/parsons.html?l=u%dl%s"><span class="ic">%s</span><span class="tx"><b>Parsons puzzles</b><span>Put the code in order</span></span><span class="st">counts toward lesson score</span></a>' % (n, lid.split(".")[1], PZ_SVG)
         if m["g"]: rows += '<a class="lprow" href="%s%s"><span class="ic">&#127918;</span><span class="tx"><b>%s</b><span>%s %s: %s</span></span><span class="st">%d pts</span></a>' % (ed, m["g"]["id"], "Mission" if m["g"]["pts"] >= 100 else "Bonus game", "Mission" if m["g"]["pts"] >= 100 else "Bonus Game", lid, m["g"]["title"], m["g"]["pts"])
         cards += '<div class="lpcard"><div class="lpch"><span class="ln">%s</span><span class="lt">%s</span></div>%s</div>' % (lid, m["title"], rows)
-    trace = ('<div style="margin:12px 0 4px"><a class="lprow" style="display:inline-flex;max-width:520px" href="../../python/parsons.html?t=%d"><span class="ic">%s</span><span class="tx"><b>Code tracing</b><span>5 problems: step through code and fill in the values</span></span><span class="st">Unit %d</span></a></div>' % (n, TR_SVG, n)) if n in PZ_UNITS else ""
-    return CARD_CSS + '<h2>Lessons</h2>' + trace + '<p>Each lesson has its study guide, walkthrough, assignment, Parsons puzzles, and bonus game. The walkthrough, assignment, and game open in the Python Editor.</p><div class="lpgrid">%s</div>' % cards
+    return CARD_CSS + '<h2>Lessons</h2><p>Each lesson has its study guide, walkthrough, assignment, and bonus game. The walkthrough, assignment, and game open in the Python Editor.</p><div class="lpgrid">%s</div>' % cards
+PRACTICE_CSS = ('<style>.pbtns{display:flex;flex-wrap:wrap;gap:14px;margin:6px 0 22px}.pbtn{display:flex;align-items:center;gap:14px;flex:1 1 280px;max-width:520px;padding:16px 20px;border:1.5px solid #c7d2fe;border-radius:14px;background:#eef0ff;color:#1e1b4b;text-decoration:none;font-weight:800;font-size:1.15rem;box-shadow:0 2px 8px rgba(79,70,229,.12)}'
+                '.pbtn:hover{background:#e0e7ff;border-color:#818cf8}.pbtn svg{flex:none}.pbtn small{display:block;font-weight:500;font-size:.82rem;color:#4338ca;margin-top:2px}.lesson-content a.pbtn,.lesson-content a.pbtn span{color:#1e1b4b;text-decoration:none}.lesson-content a.pbtn small{color:#4338ca}</style>')
+def practice_html(n):
+    return (PRACTICE_CSS + '<div class="pbtns"><a class="pbtn" href="../../python/parsons.html?hub=p">%s<span>Parsons Problems<small>10 per lesson</small></span></a>'
+            '<a class="pbtn" href="../../python/parsons.html?hub=t">%s<span>Code tracing<small>10 per lesson</small></span></a></div>' % (PZ_SVG, TR_SVG)).replace('width="22" height="22"', 'width="30" height="30"')
 def block(marker, html):
     return "<!-- %s:start -->\n%s\n<!-- %s:end -->" % (marker, html, marker)
 def put(path, marker, html, before):
@@ -69,5 +72,6 @@ for n in live:
                  '</div>' % (n, zip_name, os.path.basename(up), n, pages(up), size(up), os.path.basename(up), n))
     page = os.path.join(ROOT, "apcsp", "unit-%d" % n, "index.html")
     put(page, "study-guide", unit_html, ANCHOR)
+    if n in PZ_UNITS: put(page, "practice-buttons", practice_html(n), "<!-- study-guide:start -->")
     put(page, "lesson-cards", cards_html(n, ls), ANCHOR)
 print("links written for units", live)

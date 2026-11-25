@@ -84,6 +84,20 @@ input.ans.ok{border-color:var(--ok);background:var(--okl)}input.ans.no{border-co
 .say{margin:0 0 10px;color:#334155}
 .note{font-size:13px;color:var(--soft);margin-top:10px}
 .conf{font-size:44px;text-align:center}
+.hubs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.hubc{background:#fff;border:1px solid var(--rule);border-radius:16px;box-shadow:0 2px 8px rgba(15,23,42,.06);padding:14px 16px}
+.hubc h3{margin:0 0 2px;font-size:15px;color:var(--hi);display:flex;gap:8px;align-items:baseline}
+.hubc h3 b{color:var(--acc);font-family:var(--mono)}
+.hubc .sc{font-size:12.5px;color:var(--soft);margin:0 0 10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-grid;place-items:center;min-width:38px;height:36px;padding:0 8px;border-radius:10px;border:1px solid #CBD5E1;background:#F8FAFC;color:var(--hi);font-weight:700;font-size:14px;text-decoration:none}
+.chip:hover{border-color:var(--acc);color:var(--acc)}
+.chip.done{background:var(--okl);border-color:#86EFAC;color:#166534}
+.hubtop{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px}
+.hubtop h1{margin:0;font-size:22px;color:var(--hi);flex:1;display:flex;gap:10px;align-items:center}
+.hubtop p{margin:0;color:var(--soft);flex-basis:100%}
+.crumb{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:0 0 12px;font-weight:600;font-size:14px}
+.crumb a{color:var(--acc);text-decoration:none}
 </style>
 </head>
 <body>
@@ -96,47 +110,58 @@ input.ans.ok{border-color:var(--ok);background:var(--okl)}input.ans.no{border-co
   <div id="main"></div>
 </div>
 <script src="parsons-u3.js"></script>
+<script src="trace-u3.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 <script>
-var D = window.PARSONS || { lessons: {}, traces: {} }, Q = new URLSearchParams(location.search), $ = function (id) { return document.getElementById(id); };
+var D = window.PARSONS || { lessons: {} }, TR = window.TRACES || {}, Q = new URLSearchParams(location.search), $ = function (id) { return document.getElementById(id); };
 var ICON = { puzzle: '<svg class="i" viewBox="0 0 24 24"><path d="M4 7h3a1 1 0 0 0 1 -1v-1a2 2 0 0 1 4 0v1a1 1 0 0 0 1 1h3a1 1 0 0 1 1 1v3a1 1 0 0 0 1 1h1a2 2 0 0 1 0 4h-1a1 1 0 0 0 -1 1v3a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-1a2 2 0 0 0 -4 0v1a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h1a2 2 0 0 0 0 -4h-1a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1"/></svg>',
   route: '<svg class="i" viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M12 19h4.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h3.5"/></svg>',
   grip: '<svg class="i g" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="18" r="1"/></svg>',
-  check: '<svg class="i" viewBox="0 0 24 24"><path d="M5 12l5 5l10 -10"/></svg>', undo: '<svg class="i" viewBox="0 0 24 24"><path d="M9 14l-4 -4l4 -4"/><path d="M5 10h11a4 4 0 1 1 0 8h-1"/></svg>', next: '<svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6l-6 6"/></svg>' };
+  check: '<svg class="i" viewBox="0 0 24 24"><path d="M5 12l5 5l10 -10"/></svg>', undo: '<svg class="i" viewBox="0 0 24 24"><path d="M9 14l-4 -4l4 -4"/><path d="M5 10h11a4 4 0 1 1 0 8h-1"/></svg>', next: '<svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6l-6 6"/></svg>', back: '<svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6l6 6"/></svg>' };
 function esc(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function ls(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || "null"); localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} return null; }
-var LESS = Object.keys(D.lessons), mode = Q.get("t") ? "trace" : "parsons", lid = Q.get("l") && D.lessons[Q.get("l")] ? Q.get("l") : LESS[0], unit = Q.get("t") || "3";
-function lessonScore(id) { var L = D.lessons[id], st = ls("py:parsons:" + id) || {}, s = 0; L.problems.forEach(function (p, i) { s += (st[i] && st[i].best) || 0; }); return Math.round(s / L.problems.length); }
-function lessonDone(id) { var L = D.lessons[id], st = ls("py:parsons:" + id) || {}; return L.problems.every(function (p, i) { return st[i] && st[i].done; }); }
-function tabs() {
-  var h = LESS.map(function (id) { var L = D.lessons[id]; return '<a class="tab' + (mode === "parsons" && id === lid ? " on" : "") + (lessonDone(id) ? " done" : "") + '" href="?l=' + id + '">' + ICON.puzzle + L.num + '</a>'; }).join("");
-  h += '<a class="tab' + (mode === "trace" ? " on" : "") + '" href="?t=3">' + ICON.route + 'Code tracing <small>Unit 3</small></a>';
-  $("tabs").innerHTML = h;
+var LESS = Object.keys(D.lessons);
+var view = Q.get("hub") ? "hub" + Q.get("hub") : Q.get("tl") ? "trace" : Q.get("l") ? "parsons" : "hubp";
+var lid = Q.get("l") && D.lessons[Q.get("l")] ? Q.get("l") : LESS[0], tlid = Q.get("tl") && TR[Q.get("tl")] ? Q.get("tl") : LESS[0];
+function pScore(id) { var L = D.lessons[id], st = ls("py:parsons:" + id) || {}, s = 0; L.problems.forEach(function (p, i) { s += (st[i] && st[i].best) || 0; }); return Math.round(s / L.problems.length); }
+function pDone(id) { var st = ls("py:parsons:" + id) || {}; return D.lessons[id].problems.filter(function (p, i) { return st[i] && st[i].done; }).length; }
+function tScore(id) { var n = TR[id].traces.length, st = ls("py:trace:" + id) || {}, s = 0; for (var i = 0; i < n; i++) s += (st[i] && st[i].best) || 0; return Math.round(s / n); }
+function tDone(id) { var st = ls("py:trace:" + id) || {}; return TR[id].traces.filter(function (t, i) { return st[i] && st[i].done; }).length; }
+function topTabs() {
+  $("tabs").innerHTML = '<a class="tab' + (view === "hubp" || view === "parsons" ? " on" : "") + '" href="?hub=p">' + ICON.puzzle + 'Parsons problems</a><a class="tab' + (view === "hubt" || view === "trace" ? " on" : "") + '" href="?hub=t">' + ICON.route + 'Code tracing</a>';
 }
-
+/* ---------------- hubs: every lesson with its 10 problems ---------------- */
+function hub(kind) {
+  var isP = kind === "p", ids = LESS, cards = ids.map(function (id) {
+    var L = isP ? D.lessons[id] : TR[id], n = isP ? L.problems.length : L.traces.length, st = ls(isP ? "py:parsons:" + id : "py:trace:" + id) || {}, chips = "";
+    for (var i = 0; i < n; i++) chips += '<a class="chip' + (st[i] && st[i].done ? " done" : "") + '" href="?' + (isP ? "l=" : "tl=") + id + "&" + (isP ? "p=" : "i=") + i + '">' + (i + 1) + "</a>";
+    return '<div class="hubc"><h3><b>' + L.num + "</b>" + esc(L.title) + '</h3><p class="sc">' + (isP ? pDone(id) : tDone(id)) + " of " + n + " done &middot; " + (isP ? pScore(id) : tScore(id)) + '%</p><div class="chips">' + chips + "</div></div>";
+  }).join("");
+  $("badge").textContent = isP ? "Parsons problems" : "Code tracing"; document.title = (isP ? "Parsons problems" : "Code tracing") + " | SCHS Computer Science";
+  $("main").innerHTML = '<div class="hubtop"><h1>' + (isP ? ICON.puzzle + "Parsons problems" : ICON.route + "Code tracing") + "</h1><p>" + (isP ? "Put the lines of code in the right order. Each lesson has 10 problems. Pick a number to start." : "Step through the code one line at a time and fill in what each variable holds. Each lesson has 10 problems. Pick a number to start.") + '</p></div><div class="hubs">' + cards + "</div>";
+}
 /* ---------------- Parsons ---------------- */
 var cur = 0, sortables = [], tries = 0, solved = false;
-function sameText(a, b) { return a === b; }
 function grade(placed, P) {
-  var sol = P.sol, N = sol.length, ok = new Array(placed.length), pos, all = placed.length === N;
+  var sol = P.sol, N = sol.length, ok = new Array(placed.length);
   placed.forEach(function (p, i) { ok[i] = !p.d && i < N && p.t === sol[i]; });
-  (P.groups || []).forEach(function (g) {   /* lines inside a group may swap places */
+  (P.groups || []).forEach(function (g) {
     var idx = g.slice().sort(function (a, b) { return a - b; }); if (idx.some(function (i) { return i >= placed.length; })) return;
     var want = idx.map(function (i) { return sol[i]; }).sort().join("\n"), have = idx.map(function (i) { return placed[i].d ? "\u0000" + placed[i].t : placed[i].t; }).sort().join("\n");
     if (want === have) idx.forEach(function (i) { ok[i] = true; });
   });
   var right = ok.filter(Boolean).length, dis = placed.filter(function (p) { return p.d; }).length;
-  return { ok: ok, right: right, N: N, dis: dis, full: all && right === N && dis === 0, short: placed.length < N };
+  return { ok: ok, right: right, N: N, dis: dis, full: placed.length === N && right === N && dis === 0, short: placed.length < N };
 }
 function pieceEl(p) { var d = document.createElement("div"); d.className = "piece"; d.dataset.t = p.t; if (p.d) d.dataset.d = "1"; d.innerHTML = ICON.grip + "<span>" + esc(p.t) + "</span>"; return d; }
 function readProg() { return Array.prototype.map.call($("prog").children, function (e) { return e.classList.contains("piece") ? { t: e.dataset.t, d: !!e.dataset.d } : null; }).filter(Boolean); }
 function showParsons() {
   var L = D.lessons[lid], P = L.problems[cur], st = ls("py:parsons:" + lid) || {}, done = st[cur] && st[cur].done;
   tries = 0; solved = false; sortables.forEach(function (s) { s.destroy(); }); sortables = [];
-  document.title = "Parsons " + L.num + " | SCHS Computer Science"; $("badge").textContent = "Parsons puzzle · " + L.num;
-  var probTabs = L.problems.map(function (p, i) { var d = st[i] && st[i].done; return '<a class="tab' + (i === cur ? " on" : "") + (d ? " done" : "") + '" href="?l=' + lid + '&p=' + i + '">Problem ' + (i + 1) + "</a>"; }).join("");
-  var sc = lessonScore(lid);
-  $("main").innerHTML = '<div class="meter">Lesson ' + L.num + ': ' + esc(L.title) + '<div class="bar"><i style="width:' + sc + '%"></i></div><span>' + sc + '% <small style="font-weight:500;color:#64748B">of the lesson score</small></span></div><div class="tabs">' + probTabs + "</div>"
+  document.title = "Parsons " + L.num + " | SCHS Computer Science"; $("badge").textContent = "Parsons · " + L.num;
+  var chips = L.problems.map(function (p, i) { return '<a class="chip' + (st[i] && st[i].done ? " done" : "") + '" style="' + (i === cur ? "background:#4F46E5;border-color:#4F46E5;color:#fff" : "") + '" href="?l=' + lid + "&p=" + i + '">' + (i + 1) + "</a>"; }).join("");
+  var sc = pScore(lid);
+  $("main").innerHTML = '<div class="crumb"><a href="?hub=p">' + ICON.back + 'All lessons</a></div><div class="meter">Lesson ' + L.num + ': ' + esc(L.title) + '<div class="bar"><i style="width:' + sc + '%"></i></div><span>' + sc + '%</span></div><div class="chips" style="margin:0 0 14px">' + chips + "</div>"
     + '<div class="card"><div class="ch"><span class="num">' + (cur + 1) + '</span><h2>' + esc(P.title) + '</h2><span class="pillst' + (done ? " ok" : "") + '" id="pst">' + (done ? "✓ Done" : "To do") + '</span></div><div class="cb">'
     + '<div class="goal"><span>YOUR TASK</span>' + esc(P.story) + "</div>"
     + '<div class="term"><div class="bar"><i></i><i></i><i></i><span>The finished program prints' + (P.ins.length ? " (when the user types " + esc(P.ins.join(", ")) + ")" : "") + "</span></div><pre>" + P.expect.map(esc).join("\n") + "</pre></div>"
@@ -152,7 +177,6 @@ function showParsons() {
   [pool, prog].forEach(function (list) { list.addEventListener("click", function (e) { var el = e.target.closest(".piece"); if (!el || solved) return; el.classList.remove("ok", "no"); (list === pool ? prog : pool).appendChild(el); hint(); $("msg").className = "msg"; }); });
   $("rst").onclick = function () { if (solved) return; Array.prototype.slice.call(prog.querySelectorAll(".piece")).forEach(function (e) { e.classList.remove("ok", "no"); pool.appendChild(e); }); hint(); $("msg").className = "msg"; };
   $("chk").onclick = function () { check(P); };
-  if (done) { /* already solved before: show the solved program so they can look at it */ }
 }
 function check(P) {
   if (solved) return; var placed = readProg(), msg = $("msg");
@@ -160,81 +184,80 @@ function check(P) {
   tries++; var g = grade(placed, P), els = $("prog").querySelectorAll(".piece");
   Array.prototype.forEach.call(els, function (e, i) { e.classList.remove("ok", "no"); e.classList.add(g.ok[i] ? "ok" : "no"); });
   if (g.full) {
-    solved = true; var pts = Math.max(40, 100 - 15 * (tries - 1)), st = ls("py:parsons:" + lid) || {}; if (!st[cur] || pts > (st[cur].best || 0)) st[cur] = { best: pts, done: true, tries: tries }; else st[cur].done = true; ls("py:parsons:" + lid, st);
-    msg.className = "msg show ok"; msg.textContent = (tries === 1 ? "First try! " : "Solved in " + tries + " tries. ") + "That program prints exactly what the ticket asked for. +" + pts + " points on this problem.";
+    solved = true; var pts = Math.max(40, 100 - 15 * (tries - 1)), st = ls("py:parsons:" + lid) || {}; if (!st[cur] || pts > (st[cur].best || 0)) st[cur] = { best: pts, done: true, tries: tries }; else st[cur].done = true; ls("py:parsons:" + lid, st); ls("py:parsons-sum:" + lid, pScore(lid));
+    msg.className = "msg show ok"; msg.textContent = (tries === 1 ? "First try! " : "Solved in " + tries + " tries. ") + "That program prints exactly what the task asked for. +" + pts + " points on this problem.";
     $("pst").className = "pillst ok"; $("pst").textContent = "✓ Done"; $("chk").disabled = true; $("rst").disabled = true; sortables.forEach(function (s) { s.option("disabled", true); });
-    var L = D.lessons[lid], nx = $("nx"); nx.style.display = ""; nx.innerHTML = (cur + 1 < L.problems.length ? "Next problem " : "Finish lesson ") + ICON.next;
-    nx.onclick = function () { if (cur + 1 < L.problems.length) { cur++; showParsons(); tabs(); window.scrollTo(0, 0); } else finishLesson(); };
-    tabs(); var sc = lessonScore(lid); ls("py:parsons-sum:" + lid, sc); document.querySelector(".meter .bar i").style.width = sc + "%"; document.querySelector(".meter span").firstChild.textContent = sc + "% ";
+    var L = D.lessons[lid], nx = $("nx"); nx.style.display = ""; nx.innerHTML = (cur + 1 < L.problems.length ? "Next problem " : "Finish ") + ICON.next;
+    nx.onclick = function () { if (cur + 1 < L.problems.length) { cur++; showParsons(); window.scrollTo(0, 0); history.replaceState(null, "", "?l=" + lid + "&p=" + cur); } else finishParsons(); };
+    var sc = pScore(lid); document.querySelector(".meter .bar i").style.width = sc + "%"; document.querySelector(".meter span").textContent = sc + "%";
     return;
   }
   var bits = [];
   if (g.dis) bits.push(g.dis + " piece" + (g.dis > 1 ? "s" : "") + " in your program " + (g.dis > 1 ? "are" : "is") + " not needed (a distractor)");
-  if (g.short) bits.push("you are missing " + (g.N - placed.length + 0) + " line" + (g.N - placed.length === 1 ? "" : "s") + (g.dis ? " (after taking out the extras)" : ""));
+  if (g.short) bits.push("you are missing " + (g.N - placed.length) + " line" + (g.N - placed.length === 1 ? "" : "s") + (g.dis ? " (after taking out the extras)" : ""));
   var wrongPos = placed.length - g.right - g.dis; if (wrongPos > 0 && !g.short) bits.push(wrongPos + " line" + (wrongPos > 1 ? "s are" : " is") + " in the wrong spot");
   msg.className = "msg show bad"; msg.textContent = g.right + " of " + g.N + " lines are right. " + (bits.length ? bits.join("; ").replace(/^./, function (c) { return c.toUpperCase(); }) + "." : "Keep going.") + " Green means right, red means move it or remove it.";
 }
-function finishLesson() {
-  var L = D.lessons[lid], sc = lessonScore(lid), i = LESS.indexOf(lid), nextId = LESS[i + 1];
-  $("main").innerHTML = '<div class="card"><div class="cb" style="text-align:center;padding:30px 16px"><div class="conf">🎉</div><h2 style="margin:6px 0 4px;color:#0F172A">Lesson ' + L.num + ' puzzles complete</h2><p class="say">Your lesson score from these puzzles: <b>' + sc + '%</b></p><div class="btns" style="justify-content:center">'
-    + (nextId ? '<a class="btn go" href="?l=' + nextId + '">Next: ' + D.lessons[nextId].num + " " + ICON.next + "</a>" : '<a class="btn go" href="?t=3">Try the code tracing problems ' + ICON.next + "</a>") + '<a class="btn" href="?l=' + lid + '">Review this lesson</a></div></div></div>';
-  tabs();
+function finishParsons() {
+  var L = D.lessons[lid], sc = pScore(lid), n = pDone(lid), i = LESS.indexOf(lid), nextId = LESS[i + 1], total = L.problems.length;
+  $("main").innerHTML = '<div class="card"><div class="cb" style="text-align:center;padding:30px 16px"><div class="conf">🎉</div><h2 style="margin:6px 0 4px;color:#0F172A">' + (n === total ? "All " + total + " puzzles for " + L.num + " done" : n + " of " + total + " puzzles done") + '</h2><p class="say">Your score for this lesson: <b>' + sc + '%</b></p><div class="btns" style="justify-content:center">'
+    + (nextId ? '<a class="btn go" href="?l=' + nextId + '&p=0">Next lesson: ' + D.lessons[nextId].num + " " + ICON.next + "</a>" : "") + '<a class="btn" href="?l=' + lid + '&p=0">Back to this lesson</a><a class="btn" href="?hub=p">All lessons</a></div></div></div>';
 }
-
 /* ---------------- Code tracing ---------------- */
-var ti = 0, si = 0, tScore = {};
+var ti = 0, si = 0, stepsFull = [];
 function norm(s) { return String(s).trim(); }
-function same(ans, exp) {   /* exp is a Python repr: 'text' or 14 or 1.5 */
+function same(ans, exp) {
   ans = norm(ans); var m = /^'(.*)'$/.exec(exp); if (m) { return ans === m[1] || ans === "'" + m[1] + "'" || ans === '"' + m[1] + '"'; }
-  if (/^-?\d+(\.\d+)?$/.test(exp)) { if (!/^-?\d+(\.\d+)?$/.test(ans)) return false; return ans.indexOf(".") >= 0 === exp.indexOf(".") >= 0 && Number(ans) === Number(exp); }
+  if (/^-?\d+(\.\d+)?$/.test(exp)) { if (!/^-?\d+(\.\d+)?$/.test(ans)) return false; return (ans.indexOf(".") >= 0) === (exp.indexOf(".") >= 0) && Number(ans) === Number(exp); }
   return ans === exp;
 }
+function buildSteps(tr) { var vars = {}; return tr.steps.map(function (s) { Object.keys(s[0]).forEach(function (k) { vars[k] = s[0][k]; }); return { changed: s[0], printed: s[1], vars: JSON.parse(JSON.stringify(vars)) }; }); }
 function showTrace() {
-  var T = D.traces[unit] || [], tr = T[ti]; mode = "trace"; $("badge").textContent = "Code tracing · Unit " + unit; document.title = "Code tracing | SCHS Computer Science";
-  var sc = ls("py:trace:" + unit) || {}, tabsH = T.map(function (t, i) { return '<a class="tab' + (i === ti ? " on" : "") + (sc[i] && sc[i].done ? " done" : "") + '" href="?t=' + unit + "&i=" + i + '">' + ICON.route + "Trace " + (i + 1) + "</a>"; }).join("");
-  var tot = 0; T.forEach(function (t, i) { tot += (sc[i] && sc[i].best) || 0; }); tot = Math.round(tot / T.length);
-  si = 0; $("main").innerHTML = '<div class="meter">Unit ' + unit + ' code tracing<div class="bar"><i style="width:' + tot + '%"></i></div><span>' + tot + '%</span></div><div class="tabs">' + tabsH + "</div>" + '<div class="card"><div class="ch"><span class="num">' + (ti + 1) + "</span><h2>" + esc(tr.title) + '</h2><span class="pillst" id="tpst">Line 1 of ' + tr.code.length + '</span></div><div class="cb"><p class="say">' + esc(tr.intro) + '</p><div class="tr"><div><div class="lab">CODE</div><div class="code" id="tcode"></div></div><div><div class="lab">VARIABLES AFTER THIS LINE RUNS</div><div id="tvars"></div><div class="msg" id="tmsg"></div><div class="btns"><button class="btn go" id="tchk">' + ICON.check + 'Check</button><button class="btn go" id="tnx" style="display:none">Next line ' + ICON.next + "</button></div></div></div></div></div>";
-  tr._wrong = 0; tr._asked = 0; drawStep(tr);
+  var T = TR[tlid], tr = T.traces[ti], sc = ls("py:trace:" + tlid) || {}; $("badge").textContent = "Code tracing · " + T.num; document.title = "Code tracing " + T.num + " | SCHS Computer Science";
+  var chips = T.traces.map(function (t, i) { return '<a class="chip' + (sc[i] && sc[i].done ? " done" : "") + '" style="' + (i === ti ? "background:#4F46E5;border-color:#4F46E5;color:#fff" : "") + '" href="?tl=' + tlid + "&i=" + i + '">' + (i + 1) + "</a>"; }).join(""), tot = tScore(tlid);
+  si = 0; stepsFull = buildSteps(tr); tr._wrong = 0;
+  $("main").innerHTML = '<div class="crumb"><a href="?hub=t">' + ICON.back + 'All lessons</a></div><div class="meter">Lesson ' + T.num + ': ' + esc(T.title) + '<div class="bar"><i style="width:' + tot + '%"></i></div><span>' + tot + '%</span></div><div class="chips" style="margin:0 0 14px">' + chips + "</div>"
+    + '<div class="card"><div class="ch"><span class="num">' + (ti + 1) + "</span><h2>" + esc(tr.title) + '</h2><span class="pillst" id="tpst">Line 1 of ' + tr.code.length + '</span></div><div class="cb"><p class="say">' + esc(tr.intro) + '</p><div class="tr"><div><div class="lab">CODE</div><div class="code" id="tcode"></div></div><div><div class="lab">VARIABLES AFTER THIS LINE RUNS</div><div id="tvars"></div><div class="msg" id="tmsg"></div><div class="btns"><button class="btn go" id="tchk">' + ICON.check + 'Check</button><button class="btn go" id="tnx" style="display:none">Next line ' + ICON.next + "</button></div></div></div></div></div>";
+  drawStep(tr);
 }
 function drawStep(tr) {
-  var step = tr.steps[si], last = si === tr.steps.length - 1, prevVars = si ? tr.steps[si - 1].vars : {};
+  var step = stepsFull[si], last = si === tr.code.length - 1;
   $("tcode").innerHTML = tr.code.map(function (ln, i) { return '<div class="' + (i === si ? "cur" : i < si ? "past" : "") + '"><b>' + (i + 1) + "</b>" + esc(ln) + "</div>"; }).join("");
   $("tpst").textContent = "Line " + (si + 1) + " of " + tr.code.length;
   var names = Object.keys(step.vars), rows = "", ask = [];
   names.forEach(function (n) {
-    var chg = step.changed[n] !== undefined;
-    if (chg) { ask.push({ n: n, exp: step.changed[n] }); rows += "<tr><td>" + esc(n) + '</td><td><input class="ans" data-n="' + esc(n) + '" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="value?"></td></tr>'; }
+    if (step.changed[n] !== undefined) { ask.push({ n: n, exp: step.changed[n] }); rows += "<tr><td>" + esc(n) + '</td><td><input class="ans" data-n="' + esc(n) + '" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="value?"></td></tr>'; }
     else rows += "<tr><td>" + esc(n) + '</td><td class="old">' + esc(step.vars[n]) + "</td></tr>";
   });
   var printAsk = step.printed && step.printed.length;
-  if (printAsk) { rows += '<tr><td>prints</td><td><input class="ans" data-n="__print" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="what shows?"></td></tr>'; }
+  if (printAsk) rows += '<tr><td>prints</td><td><input class="ans" data-n="__print" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="what shows?"></td></tr>';
   if (!names.length && !printAsk) rows = '<tr><td colspan="2" class="old">Nothing has been stored yet.</td></tr>';
-  var inputLine = /input\(/.test(tr.code[si]) ? '<div class="note" style="margin:0 0 8px">This line reads from the keyboard. The user types <b>' + esc(tr.ins[0] || "") + "</b>.</div>" : "";
+  var inputsBefore = tr.code.slice(0, si).filter(function (l) { return /input\(/.test(l); }).length, inputLine = /input\(/.test(tr.code[si]) ? '<div class="note" style="margin:0 0 8px">This line reads from the keyboard. The user types <b>' + esc(tr.ins[inputsBefore] || "") + "</b>.</div>" : "";
   $("tvars").innerHTML = inputLine + '<table class="vt"><thead><tr><th>Variable</th><th>Value</th></tr></thead><tbody>' + rows + "</tbody></table>";
-  var firstIn = document.querySelector("#tvars input"); if (firstIn) firstIn.focus();
-  $("tmsg").className = "msg"; $("tnx").style.display = "none"; $("tchk").disabled = false;
+  var firstIn = document.querySelector("#tvars input"); if (firstIn) try { firstIn.focus({ preventScroll: true }); } catch (e) {}
+  $("tmsg").className = "msg"; $("tnx").style.display = "none"; $("tchk").disabled = false; $("tchk").style.display = "";
   $("tchk").onclick = function () { checkStep(tr, step, ask, printAsk, last); };
   $("tvars").onkeydown = function (e) { if (e.key === "Enter") { e.preventDefault(); if ($("tnx").style.display === "none") $("tchk").click(); else $("tnx").click(); } };
-  if (!ask.length && !printAsk) { $("tchk").style.display = "none"; $("tnx").style.display = ""; $("tnx").textContent = ""; $("tnx").innerHTML = (last ? "Finish " : "Next line ") + ICON.next; $("tnx").onclick = function () { advance(tr, last); }; } else $("tchk").style.display = "";
+  if (!ask.length && !printAsk) { $("tchk").style.display = "none"; $("tnx").style.display = ""; $("tnx").innerHTML = (last ? "Finish " : "Next line ") + ICON.next; $("tnx").onclick = function () { advance(tr, last); }; }
 }
 function checkStep(tr, step, ask, printAsk, last) {
-  var allOk = true, msg = $("tmsg"); tr._asked++;
+  var allOk = true, msg = $("tmsg");
   ask.forEach(function (a) { var el = document.querySelector('input[data-n="' + a.n + '"]'), ok = same(el.value, a.exp); el.classList.remove("ok", "no"); el.classList.add(ok ? "ok" : "no"); if (!ok) allOk = false; });
-  if (printAsk) { var el = document.querySelector('input[data-n="__print"]'), ok = same(el.value, "'" + step.printed.join(" | ") + "'") || norm(el.value) === step.printed.join("\n") || same(el.value, step.printed[0]) && step.printed.length === 1; el.classList.remove("ok", "no"); el.classList.add(ok ? "ok" : "no"); if (!ok) allOk = false; }
+  if (printAsk) { var el = document.querySelector('input[data-n="__print"]'), ok = norm(el.value) === step.printed.join(" | ") || norm(el.value) === step.printed.join("\n") || (step.printed.length === 1 && same(el.value, "'" + step.printed[0] + "'")); el.classList.remove("ok", "no"); el.classList.add(ok ? "ok" : "no"); if (!ok) allOk = false; }
   if (!allOk) { tr._wrong++; msg.className = "msg show bad"; msg.textContent = "Not yet. Re-read line " + (si + 1) + " and check what it does to the value (a number with a decimal point is a float, text is a string)."; return; }
-  msg.className = "msg show ok"; msg.textContent = "Right."; $("tchk").style.display = "none"; var nx = $("tnx"); nx.style.display = ""; nx.innerHTML = (last ? "Finish " : "Next line ") + ICON.next; nx.onclick = function () { advance(tr, last); };
+  msg.className = "msg show ok"; msg.textContent = "Right."; $("tchk").style.display = "none"; var nx = $("tnx"); nx.style.display = ""; nx.innerHTML = (last ? "Finish " : "Next line ") + ICON.next; nx.onclick = function () { advance(tr, last); }; nx.focus();
 }
 function advance(tr, last) {
   if (!last) { si++; drawStep(tr); return; }
-  var pts = Math.max(40, 100 - 12 * tr._wrong), sc = ls("py:trace:" + unit) || {}; if (!sc[ti] || pts > (sc[ti].best || 0)) sc[ti] = { best: pts, done: true }; else sc[ti].done = true; ls("py:trace:" + unit, sc); var TT = D.traces[unit], tsum = 0; TT.forEach(function (t, k) { tsum += (sc[k] && sc[k].best) || 0; }); ls("py:trace-sum:" + unit, Math.round(tsum / TT.length));
-  var T = D.traces[unit]; $("main").innerHTML = '<div class="card"><div class="cb" style="text-align:center;padding:30px 16px"><div class="conf">🎯</div><h2 style="margin:6px 0 4px;color:#0F172A">Trace ' + (ti + 1) + " complete</h2><p class=\"say\">The program prints <b style=\"font-family:var(--mono)\">" + esc(tr.steps[tr.steps.length - 1].printed.join(" / ") || "") + "</b>. You scored <b>" + pts + "%</b>" + (tr._wrong ? " (" + tr._wrong + " wrong check" + (tr._wrong > 1 ? "s" : "") + ")" : " with no wrong checks") + '.</p><div class="btns" style="justify-content:center">' + (ti + 1 < T.length ? '<a class="btn go" href="?t=' + unit + "&i=" + (ti + 1) + '">Next trace ' + ICON.next + "</a>" : "") + '<a class="btn" href="?t=' + unit + "&i=" + ti + '">Do it again</a></div></div></div>';
+  var pts = Math.max(40, 100 - 12 * tr._wrong), sc = ls("py:trace:" + tlid) || {}; if (!sc[ti] || pts > (sc[ti].best || 0)) sc[ti] = { best: pts, done: true }; else sc[ti].done = true; ls("py:trace:" + tlid, sc); ls("py:trace-sum:" + tlid, tScore(tlid));
+  var T = TR[tlid], pr = tr.steps[tr.steps.length - 1][1].join(" / ") || (tr.steps.filter(function (s) { return s[1].length; }).pop() || [0, []])[1].join(" / ");
+  $("main").innerHTML = '<div class="card"><div class="cb" style="text-align:center;padding:30px 16px"><div class="conf">🎯</div><h2 style="margin:6px 0 4px;color:#0F172A">Trace ' + (ti + 1) + " complete</h2><p class=\"say\">You scored <b>" + pts + "%</b>" + (tr._wrong ? " (" + tr._wrong + " wrong check" + (tr._wrong > 1 ? "s" : "") + ")" : " with no wrong checks") + '.</p><div class="btns" style="justify-content:center">' + (ti + 1 < T.traces.length ? '<a class="btn go" href="?tl=' + tlid + "&i=" + (ti + 1) + '">Next trace ' + ICON.next + "</a>" : (LESS[LESS.indexOf(tlid) + 1] ? '<a class="btn go" href="?tl=' + LESS[LESS.indexOf(tlid) + 1] + '&i=0">Next lesson ' + ICON.next + "</a>" : "")) + '<a class="btn" href="?tl=' + tlid + "&i=" + ti + '">Do it again</a><a class="btn" href="?hub=t">All lessons</a></div></div></div>';
 }
-
 /* ---------------- start ---------------- */
 (function () {
-  var p = Number(Q.get("p")); if (p >= 0 && p < (D.lessons[lid] || { problems: [] }).problems.length) cur = p;
-  var i = Number(Q.get("i")); if (i >= 0 && D.traces[unit] && i < D.traces[unit].length) ti = i;
-  tabs(); if (mode === "trace") showTrace(); else showParsons();
+  var p = Number(Q.get("p")); if (p >= 0 && D.lessons[lid] && p < D.lessons[lid].problems.length) cur = p;
+  var i = Number(Q.get("i")); if (i >= 0 && TR[tlid] && i < TR[tlid].traces.length) ti = i;
+  topTabs(); if (view === "trace") showTrace(); else if (view === "parsons") showParsons(); else hub(view === "hubt" ? "t" : "p");
 })();
 </script>
 </body>

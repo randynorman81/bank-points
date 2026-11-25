@@ -1,0 +1,88 @@
+"""Builds python/parsons-u3.js (10 Parsons problems per lesson) and python/trace-u3.js (10 code-tracing problems per lesson) for Unit 3.
+Every program is RUN here. Nothing is written unless every check passes.   usage: python3 tools/parsons/gen_u3.py"""
+import sys, os, io, json, random, itertools, contextlib, copy, runpy
+HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
+import shapes_b
+from shapes_a import SH
+ROOT = os.path.dirname(os.path.dirname(HERE))
+hand = runpy.run_path(os.path.join(HERE, 'u3.py'))['L']   # the two hand-written Parsons problems per lesson
+LESSONS = {l['id']: l for l in hand}
+def run(code, ins):
+    feed = iter(ins); buf = io.StringIO()
+    with contextlib.redirect_stdout(buf): exec(code, {'input': lambda p='': next(feed)})
+    return buf.getvalue().rstrip('\n').split('\n')
+def fill(sh, row):
+    d = dict(zip(sh['keys'], row)); return {k: v.format(**d) if isinstance(v, str) else v for k, v in dict(story=sh['story']).items()}['story'], [l.format(**d) for l in sh['sol'].split('\n')], [x.format(**d) for x in sh['dis']], [i.format(**d) for i in sh['ins']]
+errors = []
+def check_problem(tag, sol, dis, groups, ins):
+    code = '\n'.join(sol)
+    try: exp = run(code, ins)
+    except Exception as e: errors.append((tag, 'solution fails: %r' % e)); return None
+    if exp == ['']: errors.append((tag, 'prints nothing'))
+    for d in dis:
+        if d in sol: errors.append((tag, 'distractor is a solution line: ' + d))
+        for i in range(len(sol)):     # a distractor swapped into the solution must NOT give the same output
+            alt = list(sol); alt[i] = d
+            try:
+                if run('\n'.join(alt), ins) == exp: errors.append((tag, 'distractor %r is equivalent at line %d' % (d, i + 1))); break
+            except Exception: pass
+    for g in groups:
+        idx = sorted(g)
+        for perm in itertools.permutations(g):
+            s = list(sol)
+            for dst, src in zip(idx, perm): s[dst] = sol[src]
+            try:
+                if run('\n'.join(s), ins) != exp: errors.append((tag, 'group %r is not interchangeable' % g)); break
+            except Exception: errors.append((tag, 'group %r raises' % g)); break
+    return exp
+rnd = random.Random(7)
+def pieces_for(sol, dis):
+    ps = [dict(t=t) for t in sol] + [dict(t=t, d=1) for t in dis]
+    for _ in range(50):
+        rnd.shuffle(ps)
+        if [p['t'] for p in ps if not p.get('d')] != sol: break
+    return ps
+def short(story):
+    s = story.split('.')[0].split(' (')[0]; w = s.split(); return ' '.join(w[:7]) + ('...' if len(w) > 7 else '')
+P, T = {}, {}
+for lid, shapes in SH.items():
+    base = LESSONS[lid]; probs = []
+    for k, hp in enumerate(base['probs']):
+        exp = check_problem('%s hand%d' % (lid, k), hp['sol'], hp['distract'], hp['groups'], hp['ins'])
+        probs.append(dict(title=hp['title'], story=hp['story'], expect=exp, ins=hp['ins'], pieces=pieces_for(hp['sol'], hp['distract']), sol=hp['sol'], groups=hp['groups']))
+    seen = {'\n'.join(p['sol']) for p in probs}
+    for si, sh in enumerate(shapes[:4]):
+        got = 0
+        for row in (0, 1, 2, 3):          # two per shape; skip a row that repeats a hand-written problem
+            if got == 2: break
+            story, sol, dis, ins = fill(sh, sh['pool'][row])
+            if '\n'.join(sol) in seen: continue
+            seen.add('\n'.join(sol)); got += 1
+            exp = check_problem('%s P%d.%d' % (lid, si + 1, row), sol, dis, sh['groups'], ins)
+            probs.append(dict(title=short(story), story=story, expect=exp, ins=ins, pieces=pieces_for(sol, dis), sol=sol, groups=sh['groups']))
+    if len({'\n'.join(p['sol']) for p in probs}) != len(probs): errors.append((lid, 'duplicate Parsons problem'))
+    if len(probs) != 10: errors.append((lid, 'expected 10 Parsons, got %d' % len(probs)))
+    P[lid] = dict(num=base['num'], title=base['title'], brand=dict(name=base['brand'][0], color=base['brand'][1], head=base['brand'][2]), problems=probs)
+    trs = []
+    for si, sh in enumerate(shapes):
+        for row in (2, 3):
+            story, sol, dis, ins = fill(sh, sh['pool'][row]); tag = '%s T%d.%d' % (lid, si + 1, row)
+            check_problem(tag, sol, [], sh['groups'], ins)
+            feed = iter(ins); g = {'input': lambda p='': next(feed)}; steps = []; prev = {}
+            for ln in sol:
+                buf = io.StringIO()
+                with contextlib.redirect_stdout(buf): exec(ln, g)
+                printed = buf.getvalue().rstrip('\n').split('\n') if buf.getvalue() else []
+                cur = {n: v for n, v in g.items() if n != 'input' and not n.startswith('__')}
+                steps.append([{n: repr(v) for n, v in cur.items() if n not in prev or prev[n] != v}, printed]); prev = copy.deepcopy(cur)
+            trs.append(dict(title='Trace %d' % (len(trs) + 1), intro=story, code=sol, ins=ins, steps=steps))
+    if len({'\n'.join(t['code']) for t in trs}) != len(trs): errors.append((lid, 'duplicate trace'))
+    if len(trs) != 10: errors.append((lid, 'expected 10 traces, got %d' % len(trs)))
+    T[lid] = dict(num=base['num'], title=base['title'], traces=trs)
+if errors:
+    for e in errors: print('PROBLEM', e)
+    sys.exit(1)
+dump = lambda o: json.dumps(o, ensure_ascii=False, separators=(',', ':'))
+open(os.path.join(ROOT, 'python', 'parsons-u3.js'), 'w', encoding='utf-8').write('/* GENERATED by tools/parsons/gen_u3.py. Do not edit by hand. */\nwindow.PARSONS = ' + dump(dict(lessons=P)) + ';\n')
+open(os.path.join(ROOT, 'python', 'trace-u3.js'), 'w', encoding='utf-8').write('/* GENERATED by tools/parsons/gen_u3.py. Do not edit by hand. */\nwindow.TRACES = ' + dump(T) + ';\n')
+print('OK: %d lessons, %d Parsons, %d traces' % (len(P), sum(len(v['problems']) for v in P.values()), sum(len(v['traces']) for v in T.values())))

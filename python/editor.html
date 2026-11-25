@@ -1979,13 +1979,9 @@ var PZ_UNITS = { 3: true };
 var PZ_ICON = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3a1 1 0 0 0 1 -1v-1a2 2 0 0 1 4 0v1a1 1 0 0 0 1 1h3a1 1 0 0 1 1 1v3a1 1 0 0 0 1 1h1a2 2 0 0 1 0 4h-1a1 1 0 0 0 -1 1v3a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-1a2 2 0 0 0 -4 0v1a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h1a2 2 0 0 0 0 -4h-1a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1"/></svg>';
 var TR_ICON = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M12 19h4.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h3.5"/></svg>';
 function pzSum(k) { try { var v = JSON.parse(localStorage.getItem(k) || "null"); return v; } catch (e) { return null; } }
-function pzRow(unitNum, lessonId) {
-  if (!PZ_UNITS[unitNum] || !lessonId) return ""; var key = "u" + String(lessonId).replace(".", "l"), sc = pzSum("py:parsons-sum:" + key);
-  return '<a class="lprow open pz' + (sc === 100 ? " done" : "") + '" href="parsons.html?l=' + key + '"><span class="ic">' + PZ_ICON + '</span><span class="tx"><b>Parsons puzzles</b><span>Put the code in order</span></span><span class="st">' + (sc === null ? "Start" : (sc >= 100 ? "&#10003; " : "") + sc + "%") + "</span></a>";
-}
-function traceRow(unitNum) {
-  if (!PZ_UNITS[unitNum]) return ""; var sc = pzSum("py:trace-sum:" + unitNum);
-  return '<a class="lprow open pz" href="parsons.html?t=' + unitNum + '"><span class="ic">' + TR_ICON + '</span><span class="tx"><b>Code tracing</b><span>5 problems: step through code and fill in the values</span></span><span class="st">' + (sc === null ? "Start" : sc + "%") + "</span></a>";
+function pzButtons(unitNum) {   /* two buttons for the whole unit: each opens a page with every lesson and its 10 problems */
+  if (!PZ_UNITS[unitNum]) return "";
+  return '<a class="lprow open pz" href="parsons.html?hub=p"><span class="ic">' + PZ_ICON + '</span><span class="tx"><b>Parsons Problems</b></span></a><a class="lprow open pz" href="parsons.html?hub=t"><span class="ic">' + TR_ICON + '</span><span class="tx"><b>Code tracing</b></span></a>';
 }
 function lpRow(kind, s, label, stText) {
   var ic = { notes: "&#128214;", w: "&#128187;", p: "&#128221;", g: "&#127918;", q: "&#128203;" }[kind] || "&#128196;";
@@ -2021,12 +2017,12 @@ function lpRenderUnit(key) {
     var rows = "", have = 0, done = 0, declared = l.parts.w.length + l.parts.p.length;   /* the game is an optional bonus: it does not count toward "every part done" */
     var add = function (k, label) { var sts = l.parts[k].map(lpState).filter(function (x) { return x; }); if (!sts.length) { rows += lpRow(k, null, label); return; } sts.forEach(function (s) { if (k !== "g") { have++; if (MY[s.id] === "sub") done++; } rows += lpRow(k, s, label); }); };
     var notesRow = l.notes ? '<a class="lprow open" href="../apcsp/' + escA(l.notes) + '" target="_blank" rel="noopener"><span class="ic">&#128214;</span><span class="tx"><b>Lesson notes</b><span>' + (l.unitNotes ? "Unit notes page" : "Read this first") + '</span></span><span class="st">new tab</span></a>' : lpRow("notes", null, "Lesson notes");
-    add("w", "Walkthrough"); add("p", "Assignment"); rows += pzRow(info.u.n, l.id); add("g", "Bonus game");
+    add("w", "Walkthrough"); add("p", "Assignment"); add("g", "Bonus game");
     var cur = false; ["w", "p", "g"].forEach(function (k) { l.parts[k].forEach(function (id) { if (id === slot) cur = true; }); });
     h += '<div class="lpcard' + (cur ? " here" : "") + (declared && done === declared ? " alldone" : "") + '"><div class="lpch"><span class="ln">' + escA(l.id) + '</span><span class="lt">' + escA(l.t) + '</span>' + (declared && done === declared ? '<span class="ld" title="Every part done">&#10003;</span>' : "") + '</div>' + notesRow + rows + '</div>';
   });
   h += "</div>";
-  if (PZ_UNITS[info.u.n]) h += '<div class="lpsec">Practice for the whole unit</div><div class="lpextra">' + traceRow(info.u.n) + "</div>";
+  if (PZ_UNITS[info.u.n]) h += '<div class="lpsec">Practice for every lesson</div><div class="lpextra">' + pzButtons(info.u.n) + "</div>";
   if (info.extra && info.extra.length) {
     h += '<div class="lpsec">' + (info.lessons.length ? "Quizzes and unit games" : "Everything in this unit") + '</div><div class="lpextra">' + info.extra.map(function (s) {
       var A = s.A, part = A ? slotPart(A) : (s.L && s.L.part) || "assignment", kind = (A && A.game) ? "g" : part === "quiz" || part === "test" ? "q" : part === "project" ? "p" : "w";
