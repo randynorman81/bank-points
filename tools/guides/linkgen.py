@@ -20,6 +20,9 @@ CARD_CSS = ('<style>.lpgrid{display:grid;grid-template-columns:repeat(auto-fill,
             '.lprow{display:flex;gap:11px;align-items:center;padding:9px 11px;margin:0 0 9px;border:1px solid #b9d3f0;border-radius:9px;background:#eaf4ff;color:#0f172a;text-decoration:none}'
             'a.lprow:hover{background:#dcecff;border-color:#7fb0e8}a.lprow,a.lprow .tx span{color:#0f172a;text-decoration:none}.lprow .ic{font-size:1.25em}.lprow .tx{min-width:0}.lprow .tx b{display:block;font:700 .68em ui-monospace,Menlo,monospace;letter-spacing:.09em;text-transform:uppercase;color:#475569}'
             '.lprow .tx span{display:block;line-height:1.25}.lprow .st{margin-left:auto;font-size:.8em;color:#475569;white-space:nowrap;text-align:right}.lprow .st a{white-space:nowrap}.lprow.sg{background:#fff7ed;border-color:#f3c99b}</style>')
+PZ_UNITS = {3}   # units that have Parsons puzzles and code tracing (python/parsons.html)
+PZ_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#4F46E5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3a1 1 0 0 0 1 -1v-1a2 2 0 0 1 4 0v1a1 1 0 0 0 1 1h3a1 1 0 0 1 1 1v3a1 1 0 0 0 1 1h1a2 2 0 0 1 0 4h-1a1 1 0 0 0 -1 1v3a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-1a2 2 0 0 0 -4 0v1a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h1a2 2 0 0 0 0 -4h-1a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1"/></svg>'
+TR_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#4F46E5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M12 19h4.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h3.5"/></svg>'
 def cards_html(n, ls):
     ed = "../../python/editor.html#"; cards = ""
     for f in ls:
@@ -27,9 +30,11 @@ def cards_html(n, ls):
         rows = ('<div class="lprow sg"><span class="ic">&#128196;</span><span class="tx"><b>Study guide</b><span>%d-page PDF</span></span><span class="st"><a href="../downloads/lessons/%s" target="_blank" rel="noopener">Open</a> &nbsp;|&nbsp; <a href="../downloads/lessons/%s" download>Download</a></span></div>' % (pages(f), base, base))
         for w in m["w"]: rows += '<a class="lprow" href="%s%s"><span class="ic">&#128187;</span><span class="tx"><b>Walkthrough</b><span>%s</span></span><span class="st">100 pts</span></a>' % (ed, w["id"], m["title"])
         if m["p"]: rows += '<a class="lprow" href="%s%s"><span class="ic">&#128221;</span><span class="tx"><b>Assignment</b><span>Assignment %s: %s</span></span><span class="st">%d pts</span></a>' % (ed, m["p"]["id"], lid, m["p"]["title"], m["p"]["pts"])
+        if n in PZ_UNITS: rows += '<a class="lprow" href="../../python/parsons.html?l=u%dl%s"><span class="ic">%s</span><span class="tx"><b>Parsons puzzles</b><span>Put the code in order</span></span><span class="st">counts toward lesson score</span></a>' % (n, lid.split(".")[1], PZ_SVG)
         if m["g"]: rows += '<a class="lprow" href="%s%s"><span class="ic">&#127918;</span><span class="tx"><b>%s</b><span>%s %s: %s</span></span><span class="st">%d pts</span></a>' % (ed, m["g"]["id"], "Mission" if m["g"]["pts"] >= 100 else "Bonus game", "Mission" if m["g"]["pts"] >= 100 else "Bonus Game", lid, m["g"]["title"], m["g"]["pts"])
         cards += '<div class="lpcard"><div class="lpch"><span class="ln">%s</span><span class="lt">%s</span></div>%s</div>' % (lid, m["title"], rows)
-    return CARD_CSS + '<h2>Lessons</h2><p>Each lesson has its study guide, walkthrough, assignment, and bonus game. The walkthrough, assignment, and game open in the Python Editor.</p><div class="lpgrid">%s</div>' % cards
+    trace = ('<div style="margin:12px 0 4px"><a class="lprow" style="display:inline-flex;max-width:520px" href="../../python/parsons.html?t=%d"><span class="ic">%s</span><span class="tx"><b>Code tracing</b><span>5 problems: step through code and fill in the values</span></span><span class="st">Unit %d</span></a></div>' % (n, TR_SVG, n)) if n in PZ_UNITS else ""
+    return CARD_CSS + '<h2>Lessons</h2>' + trace + '<p>Each lesson has its study guide, walkthrough, assignment, Parsons puzzles, and bonus game. The walkthrough, assignment, and game open in the Python Editor.</p><div class="lpgrid">%s</div>' % cards
 def block(marker, html):
     return "<!-- %s:start -->\n%s\n<!-- %s:end -->" % (marker, html, marker)
 def put(path, marker, html, before):
