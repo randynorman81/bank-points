@@ -759,5 +759,5 @@ def build_html(unit, toc_pages=None, only=None):
             k += '<div class="keychap">Lesson %s  ·  %s</div><div class="ans">%s</div>' % (esc(cid), cm, "".join('<div class="a"><span class="k">%d</span><span class="l">%s</span>%s</div>' % (q, l, w) for q, l, w in items))
         tail += '<section class="chapter"><span class="mk" style="font-size:1pt;color:#fff;position:absolute">ZZCkeyZZ</span><div class="chead"><div class="badge"><small>UNIT</small><b>%d</b></div><h2>Answer Key</h2><p class="kick">Every practice question, with the reason behind the answer.</p></div>%s</section>' % (unit.n, k)
     doc = '<!doctype html><html><head><meta charset="utf-8"><title>AP CSP Unit %d Study Guide: %s</title>' \
-          '<style>%s</style><style>%s</style></head><body>%s%s%s%s%s%s</body></html>' % (unit.n, unit.title, font_css(), css, cover, copy, front, toc, "".join(chapters), tail)
+          '<style>%s</style><style>%s</style></head><body>%s%s%s%s%s</body></html>' % (unit.n, unit.title, font_css(), css, cover, front, toc, "".join(chapters), tail)
     return doc, titles, [k for k, _ in extras]

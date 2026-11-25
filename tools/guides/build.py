@@ -38,7 +38,7 @@ def build(n):
     d = fitz.open(p)
     d.set_metadata({"title": "AP Computer Science Principles Study Guide: Unit %d, %s" % (unit.n, unit.title), "author": "Social Circle High School Computer Science",
                     "subject": unit.bigidea, "keywords": "AP CSP, Computer Science Principles, study guide, Unit %d, %s" % (unit.n, unit.title), "creator": "Social Circle High School Computer Science", "producer": "Social Circle High School Computer Science"})
-    toc = [[1, "Cover", 1], [1, "Contents", 4 if pages.get(titles[0][0], 5) > 4 else 3]]
+    toc = [[1, "Cover", 1], [1, "Contents", 3]]
     for cid, t in titles: toc.append([1, "%s  %s" % (cid, re.sub("<[^>]+>", "", t)), pages[cid]])
     for k, lab in (("cheat", "Quick Reference"), ("gloss", "Glossary"), ("key", "Answer Key")):
         if k in pages: toc.append([1, lab, pages[k]])
