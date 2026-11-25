@@ -101,6 +101,7 @@ input.ans.ok{border-color:var(--ok);background:var(--okl)}input.ans.no{border-co
 .hubtop{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px}
 .hubtop h1{margin:0;font-size:22px;color:var(--hi);flex:1;display:flex;gap:10px;align-items:center}
 .hubtop p{margin:0;color:var(--soft);flex-basis:100%}
+.pnote{margin:0 0 14px;padding:9px 14px;border-radius:12px;background:#FEF3C7;border:1px solid #FDE68A;color:#92400E;font-size:14px}
 .crumb{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:0 0 12px;font-weight:600;font-size:14px}
 .crumb a{color:var(--acc);text-decoration:none}
 </style>
@@ -134,13 +135,14 @@ function tScore(id) { var n = TR[id].traces.length, st = ls("py:trace:" + id) ||
 function tDone(id) { var st = ls("py:trace:" + id) || {}; return TR[id].traces.filter(function (t, i) { return st[i] && st[i].done; }).length; }
 function topTabs() {
   $("tabs").innerHTML = '<a class="tab' + (view === "hubp" || view === "parsons" ? " on" : "") + '" href="?hub=p">' + ICON.puzzle + 'Parsons problems</a><a class="tab' + (view === "hubt" || view === "trace" ? " on" : "") + '" href="?hub=t">' + ICON.route + 'Code tracing</a>';
+  if (!$("pnote")) $("tabs").insertAdjacentHTML("afterend", '<div class="pnote" id="pnote"><b>Practice only.</b> These do not change your grade. Your grade comes from the walkthrough and the assignment.</div>');
 }
 /* ---------------- hubs: every lesson with its 10 problems ---------------- */
 function hub(kind) {
   var isP = kind === "p", ids = LESS, cards = ids.map(function (id) {
     var L = isP ? D.lessons[id] : TR[id], n = isP ? L.problems.length : L.traces.length, st = ls(isP ? "py:parsons:" + id : "py:trace:" + id) || {}, chips = "";
     for (var i = 0; i < n; i++) chips += '<a class="chip' + (st[i] && st[i].done ? " done" : "") + '" href="?' + (isP ? "l=" : "tl=") + id + "&" + (isP ? "p=" : "i=") + i + '">' + (i + 1) + "</a>";
-    return '<div class="hubc"><h3><b>' + L.num + "</b>" + esc(L.title) + '</h3><p class="sc">' + (isP ? pDone(id) : tDone(id)) + " of " + n + " done &middot; " + (isP ? pScore(id) : tScore(id)) + '%</p><div class="chips">' + chips + "</div></div>";
+    return '<div class="hubc"><h3><b>' + L.num + "</b>" + esc(L.title) + '</h3><p class="sc">' + (isP ? pDone(id) : tDone(id)) + " of " + n + ' done</p><div class="chips">' + chips + "</div></div>";
   }).join("");
   $("badge").textContent = isP ? "Parsons problems" : "Code tracing"; document.title = (isP ? "Parsons problems" : "Code tracing") + " | SCHS Computer Science";
   $("main").innerHTML = '<div class="hubtop"><h1>' + (isP ? ICON.puzzle + "Parsons problems" : ICON.route + "Code tracing") + "</h1><p>" + (isP ? "Put the lines of code in the right order. Each lesson has 10 problems. Pick a number to start." : "Step through the code one line at a time and fill in what each variable holds. Each lesson has 10 problems. Pick a number to start.") + '</p></div><div class="hubs">' + cards + "</div>";
@@ -168,7 +170,7 @@ function showParsons() {
   document.title = "Parsons " + L.num + " | SCHS Computer Science"; $("badge").textContent = "Parsons · " + L.num;
   var chips = L.problems.map(function (p, i) { return '<a class="chip' + (st[i] && st[i].done ? " done" : "") + '" style="' + (i === cur ? "background:#4F46E5;border-color:#4F46E5;color:#fff" : "") + '" href="?l=' + lid + "&p=" + i + '">' + (i + 1) + "</a>"; }).join("");
   var sc = pScore(lid);
-  $("main").innerHTML = '<div class="crumb"><a href="?hub=p">' + ICON.back + 'All lessons</a></div><div class="meter">Lesson ' + L.num + ': ' + esc(L.title) + '<div class="bar"><i style="width:' + sc + '%"></i></div><span>' + sc + '%</span></div><div class="chips" style="margin:0 0 14px">' + chips + "</div>"
+  $("main").innerHTML = '<div class="crumb"><a href="?hub=p">' + ICON.back + 'All lessons</a></div><div class="meter">Lesson ' + L.num + ': ' + esc(L.title) + '<div class="bar"><i style="width:' + sc + '%"></i></div><span>' + pDone(lid) + ' of ' + L.problems.length + ' done</span></div><div class="chips" style="margin:0 0 14px">' + chips + "</div>"
     + '<div class="card"><div class="ch"><span class="num">' + (cur + 1) + '</span><h2>' + esc(P.title) + '</h2><span class="pillst' + (done ? " ok" : "") + '" id="pst">' + (done ? "✓ Done" : "To do") + '</span></div><div class="cb">'
     + '<div class="goal"><span>YOUR TASK</span>' + esc(P.story) + "</div>"
     + '<div class="steps"><div class="lab">YOUR PROGRAM NEEDS THESE STEPS</div><ol>' + (P.steps || []).map(function (t) { return "<li>" + bt(t) + "</li>"; }).join("") + '</ol><div class="stnote">Put them in an order that works. Some pieces on the left are wrong (a typo, the wrong symbol, or a line the program does not need): leave those out.</div></div>'
@@ -193,11 +195,11 @@ function check(P) {
   Array.prototype.forEach.call(els, function (e, i) { e.classList.remove("ok", "no"); e.classList.add(g.ok[i] ? "ok" : "no"); });
   if (g.full) {
     solved = true; var pts = Math.max(40, 100 - 15 * (tries - 1)), st = ls("py:parsons:" + lid) || {}; if (!st[cur] || pts > (st[cur].best || 0)) st[cur] = { best: pts, done: true, tries: tries }; else st[cur].done = true; ls("py:parsons:" + lid, st); ls("py:parsons-sum:" + lid, pScore(lid));
-    msg.className = "msg show ok"; msg.textContent = (tries === 1 ? "First try! " : "Solved in " + tries + " tries. ") + "That program prints exactly what the task asked for. +" + pts + " points on this problem.";
+    msg.className = "msg show ok"; msg.textContent = (tries === 1 ? "First try! " : "Solved in " + tries + " tries. ") + "That program prints exactly what the task asked for.";
     $("pst").className = "pillst ok"; $("pst").textContent = "✓ Done"; $("chk").disabled = true; $("rst").disabled = true; sortables.forEach(function (s) { s.option("disabled", true); });
     var L = D.lessons[lid], nx = $("nx"); nx.style.display = ""; nx.innerHTML = (cur + 1 < L.problems.length ? "Next problem " : "Finish ") + ICON.next;
     nx.onclick = function () { if (cur + 1 < L.problems.length) { cur++; showParsons(); window.scrollTo(0, 0); history.replaceState(null, "", "?l=" + lid + "&p=" + cur); } else finishParsons(); };
-    var sc = pScore(lid); document.querySelector(".meter .bar i").style.width = sc + "%"; document.querySelector(".meter span").textContent = sc + "%";
+    var sc = pScore(lid); document.querySelector(".meter .bar i").style.width = sc + "%"; document.querySelector(".meter span").textContent = pDone(lid) + " of " + D.lessons[lid].problems.length + " done";
     return;
   }
   var bits = [];
@@ -208,7 +210,7 @@ function check(P) {
 }
 function finishParsons() {
   var L = D.lessons[lid], sc = pScore(lid), n = pDone(lid), i = LESS.indexOf(lid), nextId = LESS[i + 1], total = L.problems.length;
-  $("main").innerHTML = '<div class="card"><div class="cb" style="text-align:center;padding:30px 16px"><div class="conf">🎉</div><h2 style="margin:6px 0 4px;color:#0F172A">' + (n === total ? "All " + total + " puzzles for " + L.num + " done" : n + " of " + total + " puzzles done") + '</h2><p class="say">Your score for this lesson: <b>' + sc + '%</b></p><div class="btns" style="justify-content:center">'
+  $("main").innerHTML = '<div class="card"><div class="cb" style="text-align:center;padding:30px 16px"><div class="conf">🎉</div><h2 style="margin:6px 0 4px;color:#0F172A">' + (n === total ? "All " + total + " puzzles for " + L.num + " done" : n + " of " + total + " puzzles done") + '</h2><p class="say">You finished <b>' + n + ' of ' + total + '</b> puzzles for this lesson.</p><div class="btns" style="justify-content:center">'
     + (nextId ? '<a class="btn go" href="?l=' + nextId + '&p=0">Next lesson: ' + D.lessons[nextId].num + " " + ICON.next + "</a>" : "") + '<a class="btn" href="?l=' + lid + '&p=0">Back to this lesson</a><a class="btn" href="?hub=p">All lessons</a></div></div></div>';
 }
 /* ---------------- Code tracing ---------------- */
@@ -224,7 +226,7 @@ function showTrace() {
   var T = TR[tlid], tr = T.traces[ti], sc = ls("py:trace:" + tlid) || {}; $("badge").textContent = "Code tracing · " + T.num; document.title = "Code tracing " + T.num + " | SCHS Computer Science";
   var chips = T.traces.map(function (t, i) { return '<a class="chip' + (sc[i] && sc[i].done ? " done" : "") + '" style="' + (i === ti ? "background:#4F46E5;border-color:#4F46E5;color:#fff" : "") + '" href="?tl=' + tlid + "&i=" + i + '">' + (i + 1) + "</a>"; }).join(""), tot = tScore(tlid);
   si = 0; stepsFull = buildSteps(tr); tr._wrong = 0;
-  $("main").innerHTML = '<div class="crumb"><a href="?hub=t">' + ICON.back + 'All lessons</a></div><div class="meter">Lesson ' + T.num + ': ' + esc(T.title) + '<div class="bar"><i style="width:' + tot + '%"></i></div><span>' + tot + '%</span></div><div class="chips" style="margin:0 0 14px">' + chips + "</div>"
+  $("main").innerHTML = '<div class="crumb"><a href="?hub=t">' + ICON.back + 'All lessons</a></div><div class="meter">Lesson ' + T.num + ': ' + esc(T.title) + '<div class="bar"><i style="width:' + tot + '%"></i></div><span>' + tDone(tlid) + ' of ' + T.traces.length + ' done</span></div><div class="chips" style="margin:0 0 14px">' + chips + "</div>"
     + '<div class="card"><div class="ch"><span class="num">' + (ti + 1) + "</span><h2>" + esc(tr.title) + '</h2><span class="pillst" id="tpst">Line 1 of ' + tr.code.length + '</span></div><div class="cb"><div class="goal"><span>THE PROGRAM</span>' + esc(tr.intro) + '</div><div class="steps"><div class="lab">HOW TO TRACE IT</div><ol><li>Read the highlighted line of code.</li><li>Work out what that line stores, or what it prints.</li><li>Type the new value in the box and press Check (or Enter). Type text without quotes. A number with a decimal point needs the decimal point (4.0, not 4).</li><li>Variables the line did not change are shown for you.</li></ol></div><div class="tr"><div><div class="lab">CODE</div><div class="code" id="tcode"></div></div><div><div class="lab">VARIABLES AFTER THIS LINE RUNS</div><div class="what" id="twhat"></div><div id="tvars"></div><div class="msg" id="tmsg"></div><div class="btns"><button class="btn go" id="tchk">' + ICON.check + 'Check</button><button class="btn go" id="tnx" style="display:none">Next line ' + ICON.next + "</button></div></div></div></div></div>";
   drawStep(tr);
 }
@@ -260,7 +262,7 @@ function advance(tr, last) {
   if (!last) { si++; drawStep(tr); return; }
   var pts = Math.max(40, 100 - 12 * tr._wrong), sc = ls("py:trace:" + tlid) || {}; if (!sc[ti] || pts > (sc[ti].best || 0)) sc[ti] = { best: pts, done: true }; else sc[ti].done = true; ls("py:trace:" + tlid, sc); ls("py:trace-sum:" + tlid, tScore(tlid));
   var T = TR[tlid], pr = tr.steps[tr.steps.length - 1][1].join(" / ") || (tr.steps.filter(function (s) { return s[1].length; }).pop() || [0, []])[1].join(" / ");
-  $("main").innerHTML = '<div class="card"><div class="cb" style="text-align:center;padding:30px 16px"><div class="conf">🎯</div><h2 style="margin:6px 0 4px;color:#0F172A">Trace ' + (ti + 1) + " complete</h2><p class=\"say\">You scored <b>" + pts + "%</b>" + (tr._wrong ? " (" + tr._wrong + " wrong check" + (tr._wrong > 1 ? "s" : "") + ")" : " with no wrong checks") + '.</p><div class="btns" style="justify-content:center">' + (ti + 1 < T.traces.length ? '<a class="btn go" href="?tl=' + tlid + "&i=" + (ti + 1) + '">Next trace ' + ICON.next + "</a>" : (LESS[LESS.indexOf(tlid) + 1] ? '<a class="btn go" href="?tl=' + LESS[LESS.indexOf(tlid) + 1] + '&i=0">Next lesson ' + ICON.next + "</a>" : "")) + '<a class="btn" href="?tl=' + tlid + "&i=" + ti + '">Do it again</a><a class="btn" href="?hub=t">All lessons</a></div></div></div>';
+  $("main").innerHTML = '<div class="card"><div class="cb" style="text-align:center;padding:30px 16px"><div class="conf">🎯</div><h2 style="margin:6px 0 4px;color:#0F172A">Trace ' + (ti + 1) + " complete</h2><p class=\"say\">" + (tr._wrong ? "You had " + tr._wrong + " wrong check" + (tr._wrong > 1 ? "s" : "") + " along the way." : "No wrong checks. Nice tracing.") + '</p><div class="btns" style="justify-content:center">' + (ti + 1 < T.traces.length ? '<a class="btn go" href="?tl=' + tlid + "&i=" + (ti + 1) + '">Next trace ' + ICON.next + "</a>" : (LESS[LESS.indexOf(tlid) + 1] ? '<a class="btn go" href="?tl=' + LESS[LESS.indexOf(tlid) + 1] + '&i=0">Next lesson ' + ICON.next + "</a>" : "")) + '<a class="btn" href="?tl=' + tlid + "&i=" + ti + '">Do it again</a><a class="btn" href="?hub=t">All lessons</a></div></div></div>';
 }
 /* ---------------- start ---------------- */
 (function () {
