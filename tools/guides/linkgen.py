@@ -41,9 +41,9 @@ for n in live:
         n, int(re.match(r".*Lesson-\d+-(\d+)-", f).group(1)), fitz.open(f).metadata["title"].split(", ", 1)[1], os.path.basename(f), os.path.basename(f), pages(f)) for f in ls)
     unit_html = (CSS + '<div class="sg" id="study-guide"><h2>Unit %d Study Guide</h2><p>Printable PDFs for this unit: the whole guide, or one lesson at a time. Every lesson has the key ideas in plain words, worked examples, '
                  'tracing practice, common mistakes, and practice questions with answers.</p>'
-                 '<a class="big" href="../downloads/units/%s" download>&#128196; Download Whole Unit %d (PDF)</a> <a class="big open" href="../downloads/units/%s" target="_blank" rel="noopener">&#128065; Open in browser</a> <small>%d pages, %s</small> '
-                 '<a class="big alt" href="../downloads/%s" download>&#128230; All units (ZIP)</a>'
-                 '<h3 style="margin:16px 0 0">Individual lessons</h3><table>%s</table></div>' % (n, os.path.basename(up), n, os.path.basename(up), pages(up), size(up), zip_name, items))
+                 '<div><a class="big alt" href="../downloads/%s" download>&#128230; All units (ZIP)</a> <small>every unit, 19 PDFs</small></div>'
+                 '<div><a class="big" href="../downloads/units/%s" download>&#128196; Download Whole Unit %d (PDF)</a> <a class="big open" href="../downloads/units/%s" target="_blank" rel="noopener">&#128065; Open in browser</a> <small>%d pages, %s</small></div>'
+                 '<h3 style="margin:16px 0 0">Individual lessons</h3><table>%s</table></div>' % (n, zip_name, os.path.basename(up), n, os.path.basename(up), pages(up), size(up), items))
     page = os.path.join(ROOT, "apcsp", "unit-%d" % n, "index.html")
     put(page, "study-guide", unit_html, "      <h2>Walkthroughs, Projects, and Quizzes</h2>")
 print("links written for units", live)
