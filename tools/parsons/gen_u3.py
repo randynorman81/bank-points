@@ -35,6 +35,53 @@ def check_problem(tag, sol, dis, groups, ins):
                 if run('\n'.join(s), ins) != exp: errors.append((tag, 'group %r is not interchangeable' % g)); break
             except Exception: errors.append((tag, 'group %r raises' % g)); break
     return exp
+import re
+def describe(line):
+    m = re.fullmatch(r'(\w+) = "(.*)"', line)
+    if m: return 'Create `%s` and store the text "%s" in it.' % m.groups()
+    m = re.fullmatch(r'(\w+) = (-?\d+)', line)
+    if m: return 'Create `%s` and store the whole number %s in it.' % m.groups()
+    m = re.fullmatch(r'(\w+) = (-?\d+\.\d+)', line)
+    if m: return 'Create `%s` and store the decimal number %s in it.' % m.groups()
+    m = re.fullmatch(r'(\w+) = (True|False)', line)
+    if m: return 'Create `%s` and store the yes/no value %s in it.' % m.groups()
+    m = re.fullmatch(r'(\w+) = int\(input\("(.*)"\)\)', line)
+    if m: return 'Ask the user "%s" and store the answer in `%s` as a whole number (use int).' % (m.group(2), m.group(1))
+    m = re.fullmatch(r'(\w+) = float\(input\("(.*)"\)\)', line)
+    if m: return 'Ask the user "%s" and store the answer in `%s` as a decimal number (use float).' % (m.group(2), m.group(1))
+    m = re.fullmatch(r'(\w+) = input\("(.*)"\)', line)
+    if m: return 'Ask the user "%s" and store the typed text in `%s`.' % (m.group(2), m.group(1))
+    m = re.fullmatch(r'(\w+) = (\w+)\.find\("(.*)"\)', line)
+    if m: return 'Use .find to get the position of "%s" in `%s` and store it in `%s`.' % (m.group(3), m.group(2), m.group(1))
+    m = re.fullmatch(r'(\w+) = len\((\w+)\)', line)
+    if m: return 'Store the number of characters in `%s` (its length) in `%s`.' % (m.group(2), m.group(1))
+    m = re.fullmatch(r'(\w+) = (\w+)\[(.*)\]', line)
+    if m: return 'Store `%s[%s]` (%s) in `%s`.' % (m.group(2), m.group(3), 'a slice of the text' if ':' in m.group(3) else 'one character of the text', m.group(1))
+    m = re.fullmatch(r'(\w+) = (\w+)', line)
+    if m: return 'Copy the value of `%s` into `%s`.' % (m.group(2), m.group(1))
+    m = re.fullmatch(r'(\w+) = \1 ([+\-*/]) (.+)', line)
+    if m:
+        v, op, rest = m.groups(); w = {'+': 'Add %s to `%s`', '-': 'Subtract %s from `%s`', '*': 'Multiply `%s` by %s', '/': 'Divide `%s` by %s'}[op]
+        return (w % ((rest, v) if op in '+-' else (v, rest))) + ' and store the new value back in `%s`.' % v
+    m = re.fullmatch(r'(\w+) = (.+)', line)
+    if m: return 'Store the result of `%s` in `%s`.' % (m.group(2), m.group(1))
+    m = re.fullmatch(r'print\("(.*)"\)', line)
+    if m: return 'Print the text "%s".' % m.group(1)
+    m = re.fullmatch(r'print\((\w+)\)', line)
+    if m: return 'Print the value stored in `%s`.' % m.group(1)
+    m = re.fullmatch(r'print\((.*)\)', line)
+    if m: return 'Print `%s`.' % m.group(1)
+    return line
+def valid_orders(sol, ins, exp):
+    # every order of the solution lines that runs without an error and prints exactly the expected output
+    ids = {}; seq = [ids.setdefault(t, len(ids)) for t in sol]; out = set()
+    for perm in set(itertools.permutations(seq)):
+        code = '\n'.join(next(t for t, i in ids.items() if i == k) for k in perm)
+        try:
+            if run(code, ins) == exp: out.add(''.join(map(str, perm)))
+        except Exception: pass
+    assert ''.join(map(str, seq)) in out, 'the written solution is not valid'
+    return sorted(out)
 rnd = random.Random(7)
 def pieces_for(sol, dis):
     ps = [dict(t=t) for t in sol] + [dict(t=t, d=1) for t in dis]
@@ -49,7 +96,7 @@ for lid, shapes in SH.items():
     base = LESSONS[lid]; probs = []
     for k, hp in enumerate(base['probs']):
         exp = check_problem('%s hand%d' % (lid, k), hp['sol'], hp['distract'], hp['groups'], hp['ins'])
-        probs.append(dict(title=hp['title'], story=hp['story'], expect=exp, ins=hp['ins'], pieces=pieces_for(hp['sol'], hp['distract']), sol=hp['sol'], groups=hp['groups']))
+        probs.append(dict(title=hp['title'], story=hp['story'], expect=exp, ins=hp['ins'], pieces=pieces_for(hp['sol'], hp['distract']), sol=hp['sol'], steps=[describe(l) for l in hp['sol']], valid=valid_orders(hp['sol'], hp['ins'], exp)))
     seen = {'\n'.join(p['sol']) for p in probs}
     for si, sh in enumerate(shapes[:4]):
         got = 0
@@ -59,7 +106,7 @@ for lid, shapes in SH.items():
             if '\n'.join(sol) in seen: continue
             seen.add('\n'.join(sol)); got += 1
             exp = check_problem('%s P%d.%d' % (lid, si + 1, row), sol, dis, sh['groups'], ins)
-            probs.append(dict(title=short(story), story=story, expect=exp, ins=ins, pieces=pieces_for(sol, dis), sol=sol, groups=sh['groups']))
+            probs.append(dict(title=short(story), story=story, expect=exp, ins=ins, pieces=pieces_for(sol, dis), sol=sol, steps=[describe(l) for l in sol], valid=valid_orders(sol, ins, exp)))
     if len({'\n'.join(p['sol']) for p in probs}) != len(probs): errors.append((lid, 'duplicate Parsons problem'))
     if len(probs) != 10: errors.append((lid, 'expected 10 Parsons, got %d' % len(probs)))
     P[lid] = dict(num=base['num'], title=base['title'], brand=dict(name=base['brand'][0], color=base['brand'][1], head=base['brand'][2]), problems=probs)

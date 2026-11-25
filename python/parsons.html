@@ -33,6 +33,10 @@ svg.i{width:1.15em;height:1.15em;vertical-align:-.2em;fill:none;stroke:currentCo
 .cb{padding:14px 16px}
 .goal{background:var(--accl);border:1px solid #C7D2FE;border-radius:12px;padding:10px 14px;margin:0 0 12px;color:var(--hi);font-weight:600}
 .goal span,.lab{display:block;font:800 10px Inter;letter-spacing:.1em;color:var(--acc);margin-bottom:2px}
+.steps{border:1px solid #C7D2FE;border-radius:12px;padding:10px 14px 12px;margin:0 0 12px;background:#fff}
+.steps ol{margin:4px 0 6px;padding-left:22px}.steps li{margin:3px 0;line-height:1.5}
+.steps code{background:#EEF0FF;color:#1E1B4B;border-radius:5px;padding:1px 6px;font:12.5px var(--mono)}
+.steps .stnote{font-size:13px;color:var(--soft)}
 .term{background:#0B1220;border-radius:12px;overflow:hidden;margin:0 0 14px}
 .term .bar{display:flex;align-items:center;gap:6px;padding:7px 12px;background:#1E293B}
 .term .bar i{width:10px;height:10px;border-radius:50%;background:#EF4444;display:inline-block}.term .bar i:nth-child(2){background:#F59E0B}.term .bar i:nth-child(3){background:#22C55E}
@@ -143,16 +147,18 @@ function hub(kind) {
 /* ---------------- Parsons ---------------- */
 var cur = 0, sortables = [], tries = 0, solved = false;
 function grade(placed, P) {
-  var sol = P.sol, N = sol.length, ok = new Array(placed.length);
-  placed.forEach(function (p, i) { ok[i] = !p.d && i < N && p.t === sol[i]; });
-  (P.groups || []).forEach(function (g) {
-    var idx = g.slice().sort(function (a, b) { return a - b; }); if (idx.some(function (i) { return i >= placed.length; })) return;
-    var want = idx.map(function (i) { return sol[i]; }).sort().join("\n"), have = idx.map(function (i) { return placed[i].d ? "\u0000" + placed[i].t : placed[i].t; }).sort().join("\n");
-    if (want === have) idx.forEach(function (i) { ok[i] = true; });
-  });
-  var right = ok.filter(Boolean).length, dis = placed.filter(function (p) { return p.d; }).length;
-  return { ok: ok, right: right, N: N, dis: dis, full: placed.length === N && right === N && dis === 0, short: placed.length < N };
+  /* The problem lists every ordering of the needed lines that runs and prints exactly the expected output (worked out when the puzzle was made).
+     So any working program is accepted, not just one particular order. */
+  var N = P.sol.length, idOf = {}, ids = [], k = 0; P.sol.forEach(function (t) { if (!(t in idOf)) idOf[t] = k++; });
+  placed.forEach(function (p) { ids.push(p.d || !(p.t in idOf) ? "x" : String(idOf[p.t])); });
+  var key = ids.join(""), dis = placed.filter(function (p) { return p.d; }).length, full = dis === 0 && placed.length === N && P.valid.indexOf(key) >= 0;
+  var best = null, bestN = -1;   /* for the colors: line up with the closest working order */
+  P.valid.forEach(function (v) { var n = 0; for (var i = 0; i < Math.min(v.length, ids.length); i++) if (v.charAt(i) === ids[i]) n++; if (n > bestN) { bestN = n; best = v; } });
+  var ok = placed.map(function (p, i) { return full || (best && i < best.length && best.charAt(i) === ids[i] && ids[i] !== "x"); });
+  var right = ok.filter(Boolean).length, needed = ids.filter(function (x, i) { return x !== "x" && ids.indexOf(x) === i; }).length;
+  return { ok: ok, right: right, N: N, dis: dis, full: full, short: placed.length - dis < N, allThere: dis === 0 && placed.length === N, needed: needed };
 }
+function bt(t) { return esc(t).replace(/`([^`]+)`/g, "<code>$1</code>"); }
 function pieceEl(p) { var d = document.createElement("div"); d.className = "piece"; d.dataset.t = p.t; if (p.d) d.dataset.d = "1"; d.innerHTML = ICON.grip + "<span>" + esc(p.t) + "</span>"; return d; }
 function readProg() { return Array.prototype.map.call($("prog").children, function (e) { return e.classList.contains("piece") ? { t: e.dataset.t, d: !!e.dataset.d } : null; }).filter(Boolean); }
 function showParsons() {
@@ -164,6 +170,7 @@ function showParsons() {
   $("main").innerHTML = '<div class="crumb"><a href="?hub=p">' + ICON.back + 'All lessons</a></div><div class="meter">Lesson ' + L.num + ': ' + esc(L.title) + '<div class="bar"><i style="width:' + sc + '%"></i></div><span>' + sc + '%</span></div><div class="chips" style="margin:0 0 14px">' + chips + "</div>"
     + '<div class="card"><div class="ch"><span class="num">' + (cur + 1) + '</span><h2>' + esc(P.title) + '</h2><span class="pillst' + (done ? " ok" : "") + '" id="pst">' + (done ? "✓ Done" : "To do") + '</span></div><div class="cb">'
     + '<div class="goal"><span>YOUR TASK</span>' + esc(P.story) + "</div>"
+    + '<div class="steps"><div class="lab">YOUR PROGRAM NEEDS THESE STEPS</div><ol>' + (P.steps || []).map(function (t) { return "<li>" + bt(t) + "</li>"; }).join("") + '</ol><div class="stnote">Put them in an order that works. Some pieces on the left are wrong (a typo, the wrong symbol, or a line the program does not need): leave those out.</div></div>'
     + '<div class="term"><div class="bar"><i></i><i></i><i></i><span>The finished program prints' + (P.ins.length ? " (when the user types " + esc(P.ins.join(", ")) + ")" : "") + "</span></div><pre>" + P.expect.map(esc).join("\n") + "</pre></div>"
     + '<div class="cols"><div class="col"><h3>' + ICON.puzzle + ' Pieces <span style="text-transform:none;letter-spacing:0;font-weight:500">(some are not needed)</span></h3><div class="list" id="pool"></div></div>'
     + '<div class="col"><h3>' + ICON.check + ' Your program</h3><div class="list prog" id="prog"><div class="hint" id="hint">Drag pieces here, or tap a piece to move it. Put them in order.</div></div></div></div>'
@@ -193,10 +200,10 @@ function check(P) {
     return;
   }
   var bits = [];
-  if (g.dis) bits.push(g.dis + " piece" + (g.dis > 1 ? "s" : "") + " in your program " + (g.dis > 1 ? "are" : "is") + " not needed (a distractor)");
-  if (g.short) bits.push("you are missing " + (g.N - placed.length) + " line" + (g.N - placed.length === 1 ? "" : "s") + (g.dis ? " (after taking out the extras)" : ""));
-  var wrongPos = placed.length - g.right - g.dis; if (wrongPos > 0 && !g.short) bits.push(wrongPos + " line" + (wrongPos > 1 ? "s are" : " is") + " in the wrong spot");
-  msg.className = "msg show bad"; msg.textContent = g.right + " of " + g.N + " lines are right. " + (bits.length ? bits.join("; ").replace(/^./, function (c) { return c.toUpperCase(); }) + "." : "Keep going.") + " Green means right, red means move it or remove it.";
+  if (g.dis) bits.push(g.dis + " piece" + (g.dis > 1 ? "s" : "") + " in your program " + (g.dis > 1 ? "are" : "is") + " not needed (check it against the steps list)");
+  if (g.short) bits.push("you are missing " + (g.N - (placed.length - g.dis)) + " line" + (g.N - (placed.length - g.dis) === 1 ? "" : "s") + " (compare with the steps list)");
+  if (g.allThere) bits.push("every line you used is needed, but in this order the program does not print the expected output. Make sure a variable is created BEFORE a line uses it, and that the prints come in the order shown");
+  msg.className = "msg show bad"; msg.textContent = g.right + " of " + g.N + " lines are in a good spot. " + (bits.length ? bits.join("; ").replace(/^./, function (c) { return c.toUpperCase(); }) + "." : "Keep going.") + " Green means that line is where a working program has it, red means move it or remove it.";
 }
 function finishParsons() {
   var L = D.lessons[lid], sc = pScore(lid), n = pDone(lid), i = LESS.indexOf(lid), nextId = LESS[i + 1], total = L.problems.length;
