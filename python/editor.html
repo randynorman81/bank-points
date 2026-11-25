@@ -363,7 +363,6 @@ body.wpmode .top .btn.run:hover{filter:brightness(1.1)}
 body.wpmode .top .btn.go{background:#16A34A;color:#fff;border-color:#16A34A;padding:7px 20px;font-size:13px;box-shadow:0 3px 10px rgba(22,163,74,.4)}
 body.wpmode .top .btn.on{background:color-mix(in srgb,var(--wpi) 22%,transparent);border-color:var(--wpc);color:var(--wpi)}
 body.wpmode .top .status,body.wpmode .top .who,body.wpmode .top .pl,body.wpmode .top .saveind{color:var(--wpi);opacity:.8}
-body.wpmode #mode,body.wpmode #lessonBtn,body.wpmode #themeBtn,body.wpmode #csBtn,body.wpmode #histBtn{display:none}
 body.wpmode .top .vsep{background:color-mix(in srgb,var(--wpi) 30%,transparent)}
 body.wpmode #topBanner{background:#fff;border-bottom:1px solid #D7DEEA}
 body.wpmode #nameBar{background:#fff;border:0;padding:6px 16px 0}
@@ -393,6 +392,13 @@ body.wpmode .spill.part{background:#FEF3C7;color:#92400E}body.wpmode .spill.done
 body.wpmode .sopt{flex:none;font:800 10px Inter,system-ui,sans-serif;letter-spacing:.08em;padding:3px 9px;border-radius:99px;border:1px solid var(--wpc);color:var(--wpc);background:#fff}
 body.wpmode .stepcard.stretch{border-style:dashed;border-color:color-mix(in srgb,var(--wpc) 55%,#fff)}
 body.wpmode .scbody{padding:14px 16px 6px}
+body.wpmode .stepcard.plain .snum{background:color-mix(in srgb,var(--wpc) 16%,#fff);color:var(--wpc);font-style:italic;box-shadow:none}
+body.wpmode .scbody>h3{font:800 14px Inter,system-ui,sans-serif;margin:6px 0 8px}
+body.wpmode #assBody .pcopy,body.wpmode #assBody .playbtn{border-radius:99px}
+body.wpmode #assBody pre{background:#0B1220;color:#E2E8F0;border:0;border-radius:12px;padding:12px 14px;margin:0 0 12px;font:12.5px/1.6 "JetBrains Mono",monospace;overflow-x:auto}
+body.wpmode #assBody .asee pre,body.wpmode #assBody .wp pre{margin:0}
+body.wpmode #assBody .playbox{border:1px solid #D7DEEA;border-radius:14px;background:#fff;padding:12px}
+body.wpmode #assBody .mcq{background:#fff;border:1px solid #D7DEEA;border-radius:14px;padding:12px 14px;margin:0 0 12px}
 body.wpmode .scbody p{margin:0 0 10px}
 body.wpmode .goal,body.wpmode .howto{display:block;border-radius:12px;padding:10px 14px;margin:0 0 12px;line-height:1.5}
 body.wpmode .goal{background:color-mix(in srgb,var(--wpc) 10%,#fff);border:1px solid color-mix(in srgb,var(--wpc) 30%,#fff);color:#0F172A;font-weight:600}
@@ -1542,7 +1548,7 @@ function renderAssignment() {
   var plain = (slot === "free" || slot === "example") ? title : (A && A.apx ? "Walkthrough " : "Assignment ") + aNum(slot, A) + (A && A.title ? ": " + A.title : ""), full = (A && A.unit ? A.unit + " · " : "") + plain; $("assTitle").textContent = (unitShort(A) ? unitShort(A) + " · " : "") + ((slot === "free" || slot === "example") ? title : slotLabel(slot, false).replace(/^(?:Unit \d+|Appendix [A-Z]) · /, "") + (A && !A.apx ? " · " + slotPoints(A) + " pts" : "")); $("assTitle").title = full;
   if (!A) { applyPortal(null); body.innerHTML = '<p class="none">Your teacher has not posted instructions for this assignment yet.</p>'; return; }
   var done = {}; try { done = JSON.parse(lsGet("py:prog:" + slot) || "{}"); } catch (e) {}
-  var W = workFor(slot, A); applyPortal(W); var h = W ? workHtml(W) : "", n = 0, cardOpen = false, secTips = {}, sec = 0, seen = {}, firstStep = 0, stretchShown = false; stepHelp = {};
+  var W = workFor(slot, A), P = W ? { brand: W.brand, file: W.file, badge: "Workstation \u00b7 " + W.brand.team, host: "ws-" + W.brand.team.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "." + W.brand.name.toLowerCase().replace(/[^a-z0-9]/g, "") + ".internal" } : defaultPortal(A); applyPortal(P); var h = W ? workHtml(W) : "", n = 0, cardOpen = false, secTips = {}, sec = 0, seen = {}, firstStep = 0, stretchShown = false; stepHelp = {};
   if (W) { for (var fi = 0; fi < A.blocks.length; fi++) if (A.blocks[fi].h && /^Step 1\b/.test(A.blocks[fi].h)) { firstStep = fi; break; } }
   A.blocks.forEach(function (b) {
     if (b.h) { sec++; seen[sec] = {}; }
@@ -1554,12 +1560,12 @@ function renderAssignment() {
     if (W && bi < firstStep) { if (b.h) sec++; return; }   /* the email replaces the intro */
     if (b.h && W && !stretchShown && /^Step \d+: Stretch/.test(b.h)) { stretchShown = true; h += '<div class="wpstretch" style="--wpc:' + W.brand.color + '">&#9733; <b>Stretch tasks (optional).</b> Do these only if you have time. Each check you meet earns <b>+1 bonus point</b> on top of your 100 (up to +10), once your regular steps are at 100.</div>'; }
     if (b.h) { sec++;
-      if (W && /^Step \d+/.test(b.h)) { var sm = /^Step (\d+):\s*(Stretch:\s*)?(.*)$/.exec(b.h) || [0, "", "", b.h]; if (cardOpen) h += "</div></section>"; cardOpen = true;
-        h += '<section class="stepcard' + (sm[2] ? " stretch" : "") + '" data-sec="' + sec + '"><div class="schead"><span class="snum">' + (sm[2] ? "&#9733;" : sm[1]) + "</span><h3>" + inl(sm[3]) + "</h3>" + (sm[2] ? '<span class="sopt">OPTIONAL</span>' : "") + '<span class="spill">To do</span></div><div class="scbody">'; }
+      if (P) { var sm = /^Step (\d+):\s*(Stretch:\s*)?(.*)$/.exec(b.h), isS = !!sm; if (!sm) sm = [0, "", "", b.h]; if (cardOpen) h += "</div></section>"; cardOpen = true;
+        h += '<section class="stepcard' + (sm[2] ? " stretch" : "") + (isS ? "" : " plain") + '" data-sec="' + sec + '"><div class="schead"><span class="snum">' + (sm[2] ? "&#9733;" : (isS ? sm[1] : "i")) + "</span><h3>" + inl(sm[3]) + "</h3>" + (sm[2] ? '<span class="sopt">OPTIONAL</span>' : "") + (isS ? '<span class="spill">To do</span>' : "") + '</div><div class="scbody">'; }
       else h += "<h3>" + inl(b.h) + "</h3>"; if (secTips[sec] && secTips[sec].length) { var isStep = /^(Step|Trace) /.test(b.h); stepHelp[sec] = { title: isStep ? String(b.h).replace(/:.*$/, "") : (/^Stuck/.test(b.h) ? "this assignment" : "the house rules"), ids: secTips[sec] }; h += '<div class="helprow"><button type="button" class="helpstep" data-help="' + sec + '">\uD83D\uDCA1 ' + (isStep ? "Help for this step" : "Help with the house rules") + ' <small>(' + secTips[sec].length + " topics)</small></button></div>"; } }
-    else if (b.p) { if (W && /^\*\*Goal:\*\*/.test(b.p)) h += '<div class="goal"><span>GOAL</span>' + inl(b.p.replace(/^\*\*Goal:\*\*\s*/, "")) + "</div>"; else if (W && /^\*\*How each step works/.test(b.p)) h += '<div class="howto"><span>HOW IT WORKS</span>' + inl(b.p.replace(/^\*\*How each step works:\*\*\s*/, "")) + "</div>"; else h += "<p>" + inl(b.p) + "</p>"; }
+    else if (b.p) { if (P && /^\*\*Goal:\*\*/.test(b.p)) h += '<div class="goal"><span>GOAL</span>' + inl(b.p.replace(/^\*\*Goal:\*\*\s*/, "")) + "</div>"; else if (P && /^\*\*How each step works/.test(b.p)) h += '<div class="howto"><span>HOW IT WORKS</span>' + inl(b.p.replace(/^\*\*How each step works:\*\*\s*/, "")) + "</div>"; else h += "<p>" + inl(b.p) + "</p>"; }
     else if (b.table) h += '<table class="atbl"><thead><tr>' + b.table.head.map(function (c) { return "<th>" + inl(c) + "</th>"; }).join("") + "</tr></thead><tbody>" + b.table.rows.map(function (r) { return "<tr>" + r.map(function (c) { return "<td>" + inl(c) + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody></table>";
-    else if (b.see) h += W ? '<div class="asee term"><div class="aseeh"><i></i><i></i><i></i><span>Expected output</span></div><pre><u>$ python ' + escA(W.file || "main.py") + "</u>" + b.see.map(escA).join("\n") + "</pre></div>" : '<div class="asee"><b>What you should see</b><pre>' + b.see.map(escA).join("\n") + "</pre></div>";
+    else if (b.see) h += P ? '<div class="asee term"><div class="aseeh"><i></i><i></i><i></i><span>Expected output</span></div><pre><u>$ python ' + escA(P.file) + "</u>" + b.see.map(escA).join("\n") + "</pre></div>" : '<div class="asee"><b>What you should see</b><pre>' + b.see.map(escA).join("\n") + "</pre></div>";
     else if (b.play) h += '<div class="playbox"><a class="playbtn" id="playBtn" href="games/play.html?slot=' + slot + '" target="_blank" rel="noopener">&#9654; PLAY THE GAME</a><div class="playbest" id="gameBest">' + escA(b.play === true ? "Opens in a new tab. Your best score saves by itself." : b.play) + "</div></div>";
     else if (b.code) { h += "<pre>" + (b.mark && b.mark.length ? codeMarked(b.code, b.mark) : highlight(b.code)) + "</pre>"; if (isPseudo(b.code)) h += '<div class="pcopyrow"><button type="button" class="pcopy" data-pc="' + bi + '">📋 Copy pseudocode</button><small>Pastes into your code box as comment lines</small></div>'; }
     else if (b.tips) { if (sec === 0 && introTips.length && !stepHelp[0]) { stepHelp[0] = { title: "Getting started", ids: introTips }; h += '<div class="helprow"><button type="button" class="helpstep" data-help="0">\uD83D\uDCA1 Help for getting started <small>(' + introTips.length + " topics)</small></button></div>"; } }
@@ -1654,18 +1660,23 @@ function updatePills() {
   });
 }
 /* PORTAL: an assignment with a company skin is shown as a work portal for that company (its colors, ticket, workstation-style windows), not as the plain editor */
-function applyPortal(W) {
+function defaultPortal(A) {   /* walkthroughs, quizzes, tests and projects: one shared, simple look (indigo on navy) so only the company assignments stand out */
+  if (!A || slot === "free" || slot === "example") return null;
+  var part = slotPart(A), kind = part === "quiz" ? "Quiz" : part === "test" ? "Test" : part === "project" ? "Project" : A.apx ? "Practice walkthrough" : "Walkthrough";
+  return { brand: { name: "Python Editor", color: "#4F46E5", head: "#0F172A", ink: "#F8FAFC", font: "800 17px Inter,system-ui,sans-serif", spacing: "0" }, file: mode === "karel" ? "karel.py" : "main.py", badge: kind, host: "student-workstation" };
+}
+function setCodeTitle(f) { var t = $("codeTitle"), ft = t.querySelector(".ftab"); if (ft && document.body.classList.contains("wpmode")) ft.textContent = f; else t.textContent = "Your code (" + f + ")"; }
+function applyPortal(P) {
   var b = document.body, h1 = document.querySelector(".top h1"), out = $("out") && $("out").previousElementSibling;
-  b.classList.toggle("wpmode", !!W);
-  if (W) {
-    var c = W.brand; b.style.setProperty("--wpc", c.color); b.style.setProperty("--wph", c.head); b.style.setProperty("--wpi", c.ink);
-    var slug = function (t) { return String(t).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); };
-    h1.innerHTML = '<span class="pbrand" style="font:' + c.font + ";letter-spacing:" + c.spacing + '">' + escA(c.name) + '</span><span class="pws">Workstation &middot; ' + escA(c.team) + "</span>";
-    $("codeTitle").innerHTML = '<span class="wdots"><i></i><i></i><i></i></span><span class="ftab">' + escA(W.file) + '</span><span class="whost">ws-' + slug(c.team) + "." + slug(c.name).replace(/-/g, "") + ".internal</span>";
-    if (out) out.innerHTML = '<span class="wdots"><i></i><i></i><i></i></span><span class="ftab">Terminal</span><span class="whost">' + escA(W.file.replace(/\.py$/, "")) + " &middot; bash</span>";
+  b.classList.toggle("wpmode", !!P);
+  if (P) {
+    var c = P.brand; b.style.setProperty("--wpc", c.color); b.style.setProperty("--wph", c.head); b.style.setProperty("--wpi", c.ink);
+    h1.innerHTML = '<span class="pbrand" style="font:' + c.font + ";letter-spacing:" + c.spacing + '">' + escA(c.name) + '</span><span class="pws">' + escA(P.badge) + "</span>";
+    $("codeTitle").innerHTML = '<span class="wdots"><i></i><i></i><i></i></span><span class="ftab">' + escA(P.file) + '</span><span class="whost">' + escA(P.host) + "</span>";
+    if (out) out.innerHTML = '<span class="wdots"><i></i><i></i><i></i></span><span class="ftab">Terminal</span><span class="whost">' + escA(P.file.replace(/\.py$/, "")) + " &middot; bash</span>";
   } else {
     ["--wpc", "--wph", "--wpi"].forEach(function (k) { b.style.removeProperty(k); }); if (h1) h1.textContent = "Python Editor";
-    $("codeTitle").textContent = mode === "karel" ? "Your code (karel.py)" : "Your code (main.py)"; if (out) out.textContent = "Output";
+    setCodeTitle(mode === "karel" ? "karel.py" : "main.py"); if (out) out.textContent = "Output";
   }
 }
 function markBox(n) {
@@ -2063,7 +2074,7 @@ function currentTicks() {
 }
 function curWorld() { return mode === "karel" && typeof initial !== "undefined" ? JSON.stringify(initial) : ""; }
 function applyRecord(rec) {
-  if (rec.mode && rec.mode !== mode) { lsSet(codeKey(), ta.value); mode = rec.mode; document.body.classList.toggle("karel", mode === "karel"); $("mode").value = mode; lsSet("py:mode", mode); $("codeTitle").textContent = mode === "karel" ? "Your code (karel.py)" : "Your code (main.py)"; renderKey(); }
+  if (rec.mode && rec.mode !== mode) { lsSet(codeKey(), ta.value); mode = rec.mode; document.body.classList.toggle("karel", mode === "karel"); $("mode").value = mode; lsSet("py:mode", mode); setCodeTitle(mode === "karel" ? "karel.py" : "main.py"); renderKey(); }
   if (rec.world && mode === "karel") { try { setWorld(JSON.parse(rec.world)); } catch (e) {} }
   ta.value = rec.code; gutter(); lsSet(codeKey(), ta.value);
   if (rec.ticks && rec.ticks.ids && rec.ticks.ids.length && !lsGet("py:prog:" + slot)) { var d = {}; rec.ticks.ids.forEach(function (i) { d[i] = 1; }); lsSet("py:prog:" + slot, JSON.stringify(d)); renderAssignment(); }
@@ -2417,7 +2428,7 @@ if (/[?&]teacher/.test(location.search)) {
 /* ---------- Python / Karel mode ---------- */
 function setMode(m) {
   if (setMode.ready) lsSet("py:code:" + mode, ta.value); mode = m; document.body.classList.toggle("karel", m === "karel"); $("mode").value = m; lsSet("py:mode", m);
-  $("codeTitle").textContent = m === "karel" ? "Your code (karel.py)" : "Your code (main.py)";
+  setCodeTitle(m === "karel" ? "karel.py" : "main.py");
   loadCode(); renderKey(); if (m === "karel") draw(world);
 }
 $("mode").addEventListener("change", function () { setMode(this.value); });
