@@ -36,6 +36,7 @@ svg.i{width:1.15em;height:1.15em;vertical-align:-.2em;fill:none;stroke:currentCo
 .steps{border:1px solid #C7D2FE;border-radius:12px;padding:10px 14px 12px;margin:0 0 12px;background:#fff}
 .steps ol{margin:4px 0 6px;padding-left:22px}.steps li{margin:3px 0;line-height:1.5}
 .steps code{background:#EEF0FF;color:#1E1B4B;border-radius:5px;padding:1px 6px;font:12.5px var(--mono)}
+.what{margin:0 0 8px;padding:8px 12px;border-radius:10px;background:#F1F5F9;color:#334155;font-size:14px}.what code{background:#E0E7FF;color:#1E1B4B;border-radius:5px;padding:1px 6px;font:12.5px var(--mono)}
 .steps .stnote{font-size:13px;color:var(--soft)}
 .term{background:#0B1220;border-radius:12px;overflow:hidden;margin:0 0 14px}
 .term .bar{display:flex;align-items:center;gap:6px;padding:7px 12px;background:#1E293B}
@@ -218,19 +219,20 @@ function same(ans, exp) {
   if (/^-?\d+(\.\d+)?$/.test(exp)) { if (!/^-?\d+(\.\d+)?$/.test(ans)) return false; return (ans.indexOf(".") >= 0) === (exp.indexOf(".") >= 0) && Number(ans) === Number(exp); }
   return ans === exp;
 }
-function buildSteps(tr) { var vars = {}; return tr.steps.map(function (s) { Object.keys(s[0]).forEach(function (k) { vars[k] = s[0][k]; }); return { changed: s[0], printed: s[1], vars: JSON.parse(JSON.stringify(vars)) }; }); }
+function buildSteps(tr) { var vars = {}; return tr.steps.map(function (s) { Object.keys(s[0]).forEach(function (k) { vars[k] = s[0][k]; }); return { changed: s[0], printed: s[1], desc: s[2] || "", vars: JSON.parse(JSON.stringify(vars)) }; }); }
 function showTrace() {
   var T = TR[tlid], tr = T.traces[ti], sc = ls("py:trace:" + tlid) || {}; $("badge").textContent = "Code tracing · " + T.num; document.title = "Code tracing " + T.num + " | SCHS Computer Science";
   var chips = T.traces.map(function (t, i) { return '<a class="chip' + (sc[i] && sc[i].done ? " done" : "") + '" style="' + (i === ti ? "background:#4F46E5;border-color:#4F46E5;color:#fff" : "") + '" href="?tl=' + tlid + "&i=" + i + '">' + (i + 1) + "</a>"; }).join(""), tot = tScore(tlid);
   si = 0; stepsFull = buildSteps(tr); tr._wrong = 0;
   $("main").innerHTML = '<div class="crumb"><a href="?hub=t">' + ICON.back + 'All lessons</a></div><div class="meter">Lesson ' + T.num + ': ' + esc(T.title) + '<div class="bar"><i style="width:' + tot + '%"></i></div><span>' + tot + '%</span></div><div class="chips" style="margin:0 0 14px">' + chips + "</div>"
-    + '<div class="card"><div class="ch"><span class="num">' + (ti + 1) + "</span><h2>" + esc(tr.title) + '</h2><span class="pillst" id="tpst">Line 1 of ' + tr.code.length + '</span></div><div class="cb"><p class="say">' + esc(tr.intro) + '</p><div class="tr"><div><div class="lab">CODE</div><div class="code" id="tcode"></div></div><div><div class="lab">VARIABLES AFTER THIS LINE RUNS</div><div id="tvars"></div><div class="msg" id="tmsg"></div><div class="btns"><button class="btn go" id="tchk">' + ICON.check + 'Check</button><button class="btn go" id="tnx" style="display:none">Next line ' + ICON.next + "</button></div></div></div></div></div>";
+    + '<div class="card"><div class="ch"><span class="num">' + (ti + 1) + "</span><h2>" + esc(tr.title) + '</h2><span class="pillst" id="tpst">Line 1 of ' + tr.code.length + '</span></div><div class="cb"><div class="goal"><span>THE PROGRAM</span>' + esc(tr.intro) + '</div><div class="steps"><div class="lab">HOW TO TRACE IT</div><ol><li>Read the highlighted line of code.</li><li>Work out what that line stores, or what it prints.</li><li>Type the new value in the box and press Check (or Enter). Type text without quotes. A number with a decimal point needs the decimal point (4.0, not 4).</li><li>Variables the line did not change are shown for you.</li></ol></div><div class="tr"><div><div class="lab">CODE</div><div class="code" id="tcode"></div></div><div><div class="lab">VARIABLES AFTER THIS LINE RUNS</div><div class="what" id="twhat"></div><div id="tvars"></div><div class="msg" id="tmsg"></div><div class="btns"><button class="btn go" id="tchk">' + ICON.check + 'Check</button><button class="btn go" id="tnx" style="display:none">Next line ' + ICON.next + "</button></div></div></div></div></div>";
   drawStep(tr);
 }
 function drawStep(tr) {
   var step = stepsFull[si], last = si === tr.code.length - 1;
   $("tcode").innerHTML = tr.code.map(function (ln, i) { return '<div class="' + (i === si ? "cur" : i < si ? "past" : "") + '"><b>' + (i + 1) + "</b>" + esc(ln) + "</div>"; }).join("");
   $("tpst").textContent = "Line " + (si + 1) + " of " + tr.code.length;
+  $("twhat").innerHTML = step.desc ? "<b>This line:</b> " + bt(step.desc) : "";
   var names = Object.keys(step.vars), rows = "", ask = [];
   names.forEach(function (n) {
     if (step.changed[n] !== undefined) { ask.push({ n: n, exp: step.changed[n] }); rows += "<tr><td>" + esc(n) + '</td><td><input class="ans" data-n="' + esc(n) + '" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="value?"></td></tr>'; }

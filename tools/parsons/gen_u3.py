@@ -91,6 +91,11 @@ def pieces_for(sol, dis):
     return ps
 def short(story):
     s = story.split('.')[0].split(' (')[0]; w = s.split(); return ' '.join(w[:7]) + ('...' if len(w) > 7 else '')
+import re as _re
+def difficulty(lines, ins=()):
+    code = '\n'.join(lines); ops = len(_re.findall(r'[+\-*/%]|//|\[|\.find|int\(|float\(|input\(|str\(|len\(', code))
+    names = len({m for l in lines for m in _re.findall(r'\b[a-z_][a-z_0-9]*\b', l.split('#')[0]) if m not in ('print','input','int','float','str','len','find','temp')})
+    return 10 * len(lines) + 3 * ops + 2 * names
 P, T = {}, {}
 for lid, shapes in SH.items():
     base = LESSONS[lid]; probs = []
@@ -109,6 +114,7 @@ for lid, shapes in SH.items():
             probs.append(dict(title=short(story), story=story, expect=exp, ins=ins, pieces=pieces_for(sol, dis), sol=sol, steps=[describe(l) for l in sol], valid=valid_orders(sol, ins, exp)))
     if len({'\n'.join(p['sol']) for p in probs}) != len(probs): errors.append((lid, 'duplicate Parsons problem'))
     if len(probs) != 10: errors.append((lid, 'expected 10 Parsons, got %d' % len(probs)))
+    probs.sort(key=lambda p: difficulty(p['sol']))   # easiest first, hardest last (stable: same-size problems keep their order)
     P[lid] = dict(num=base['num'], title=base['title'], brand=dict(name=base['brand'][0], color=base['brand'][1], head=base['brand'][2]), problems=probs)
     trs = []
     for si, sh in enumerate(shapes):
@@ -121,8 +127,23 @@ for lid, shapes in SH.items():
                 with contextlib.redirect_stdout(buf): exec(ln, g)
                 printed = buf.getvalue().rstrip('\n').split('\n') if buf.getvalue() else []
                 cur = {n: v for n, v in g.items() if n != 'input' and not n.startswith('__')}
-                steps.append([{n: repr(v) for n, v in cur.items() if n not in prev or prev[n] != v}, printed]); prev = copy.deepcopy(cur)
-            trs.append(dict(title='Trace %d' % (len(trs) + 1), intro=story, code=sol, ins=ins, steps=steps))
+                steps.append([{n: repr(v) for n, v in cur.items() if n not in prev or prev[n] != v}, printed, describe(ln)]); prev = copy.deepcopy(cur)
+            # a SECOND, independent check: re-run the first k lines from scratch and compare with what the steps say
+            seen = {}; shown = []
+            for k in range(1, len(sol) + 1):
+                f2 = iter(ins); g2 = {'input': lambda p='': next(f2)}; b2 = io.StringIO()
+                with contextlib.redirect_stdout(b2): exec('\n'.join(sol[:k]), g2)
+                for n, v in steps[k - 1][0].items(): seen[n] = v
+                now = {n: repr(v) for n, v in g2.items() if n != 'input' and not n.startswith('__')}
+                if now != seen: errors.append((tag, 'step %d variables disagree: %r vs %r' % (k, now, seen)))
+                shown += steps[k - 1][1]
+                if (b2.getvalue().rstrip('\n').split('\n') if b2.getvalue() else []) != shown: errors.append((tag, 'step %d output disagrees' % k))
+                for n, v in steps[k - 1][0].items():
+                    if v.startswith('"') or _re.search(r'\d\.\d{6,}|e[+-]\d', v): errors.append((tag, 'hard-to-type value %s = %s' % (n, v)))
+                if not steps[k - 1][0] and not steps[k - 1][1]: errors.append((tag, 'line %d changes nothing' % k))
+            trs.append(dict(title='', intro=story, code=sol, ins=ins, steps=steps))
+    trs.sort(key=lambda t: difficulty(t['code']))
+    for n_, t_ in enumerate(trs): t_['title'] = 'Trace %d' % (n_ + 1)
     if len({'\n'.join(t['code']) for t in trs}) != len(trs): errors.append((lid, 'duplicate trace'))
     if len(trs) != 10: errors.append((lid, 'expected 10 traces, got %d' % len(trs)))
     T[lid] = dict(num=base['num'], title=base['title'], traces=trs)
