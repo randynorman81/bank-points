@@ -18,6 +18,12 @@ T.rows.forEach((row) => {
     email: { subject: w.subject, paras: [w.hi, w.job, w.filesNote, "Work through the steps below in order. When you have a version that runs, click **Send to " + first + "** and I'll look it over and reply.", "If you finish early and want to take on more, there are two stretch tasks at the bottom. They're optional, but I notice the people who go the extra mile."], sign: "Thanks, " + first },
     files: w.docs.map((d) => ({ name: d[0], text: d[1] })),
     review: { open: w.open, stages: w.rv.map((r) => ({ ok: r[0], todo: r[1] })), approve: w.approve, moreStretch: "There are two stretch tasks at the bottom if you want to take them on.", allDone: w.done, changes: "Fix those and send it back, and I'll take another look." } };
+  /* which checkboxes belong to which step (the new clear layout has several per step), so the boss's review can tell the steps apart */
+  const rec = require("./core.js").RECORDS.find((x) => x.slot === row.asg).rec, cnt = []; let cur = -1;
+  rec.blocks.forEach((b) => { if (b.h) { const m = /^Step (\d+)/.exec(b.h); cur = m ? Number(m[1]) - 1 : -1; if (m) cnt[cur] = 0; } else if (cur >= 0) { const it = b.make || b.build || b.where; if (it) cnt[cur] += it.length; } });
+  if (cnt.length < total) throw new Error(row.id + ": found " + cnt.length + " steps in the record, expected " + total);
+  cnt.length = total;   /* anything after the last step (the "check your whole program" step) belongs to no step */
+  let at = 0; e.sb = cnt.map((n) => { const r = [at, at + n]; at += n; return r; });
   if (row.pts[0] !== 100) e.points = row.pts[0];
   out[row.asg] = e;
 });

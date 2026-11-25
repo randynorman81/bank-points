@@ -1544,8 +1544,9 @@ function workModal(W, title, html, float) {
 })();
 function workReview(W, j) {
   var R = W.review, bx = j.boxes || {}, miss = j.missing || [], core = W.core, total = R.stages.length, lines = [], coreDone = true;
-  function st(i) { var any = false, ok = true, seen = false; [bx[2 * i], bx[2 * i + 1]].forEach(function (t) { if (t) { any = true; if (t.f < t.t - 1e-9) ok = false; if (t.f >= t.t * 0.5) seen = true; } }); return { done: any && ok, started: seen }; }
-  function missingFor(i) { return miss.filter(function (m) { var b0 = Array.isArray(m.box) ? m.box[0] : m.box; return b0 === 2 * i || b0 === 2 * i + 1; }).slice(0, 3).map(function (m) { return m.label; }); }
+  function boxesOf(i) { var r = W.sb && W.sb[i] ? W.sb[i] : [2 * i, 2 * i + 2], o = []; for (var k = r[0]; k < r[1]; k++) o.push(k); return o; }
+  function st(i) { var any = false, ok = true, seen = false; boxesOf(i).forEach(function (k) { var t = bx[k]; if (t && t.t > 0) { any = true; if (t.f < t.t - 1e-9) ok = false; if (t.f >= t.t * 0.5) seen = true; } }); return { done: any && ok, started: seen }; }
+  function missingFor(i) { var set = boxesOf(i); return miss.filter(function (m) { var b0 = Array.isArray(m.box) ? m.box[0] : m.box; return set.indexOf(b0) >= 0; }).slice(0, 3).map(function (m) { return m.label; }); }
   var stretchStarted = false, stretchDone = 0;
   for (var i = 0; i < total; i++) {
     var s = st(i), line = R.stages[i];

@@ -10,6 +10,7 @@ const { ASG } = require("./asg-kit.js");
 require("./asg-u3a.js");
 require("./asg-u3b.js");
 require("./asg-u3c.js");
+require("./asg-u3-clear.js");
 require("./asg-u4a.js");
 require("./asg-u4b.js");
 require("./asg-u4c.js");
