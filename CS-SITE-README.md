@@ -79,3 +79,32 @@ policy pages, because those pages were still empty stubs on the source site
 at migration time. Once you fill in real content there (or tell Claude what
 the policies should say), that page can be rebuilt the same way the lesson
 pages were.
+
+## Clark After Dark Trivia (`tools/trivia/`)
+
+A standalone pub-trivia tool listed under **Class Tools** (`TOOLS` in `assets/nav.js`). Static, no build
+step for the site itself; open `tools/trivia/index.html`.
+
+```
+tools/trivia/
+  index.html  style.css  app.js     UI: Games, Question Bank, My Sets, Host Guide, host "Present" screen
+  core.js                           data model, search, random set builder, CSV/TSV for Google Sheets
+  pdf.js                            jsPDF builders: team answer sheet (rules header + host bonus boxes),
+                                    host answer key, question sheet, tally sheet, bank list
+  data/bank.js                      5,000 questions  [id, genre, topic, difficulty, q, answer, [3 wrong]]
+  data/games.js                     1,000 games      [no, [35 question ids], tiebreaker id, [2 puzzles], [5 songs]]
+  data/extras.js                    93 emoji picture puzzles + 196 music-round songs
+scripts/trivia/
+  build.py                          regenerates data/*.js  (python3 scripts/trivia/build.py)
+  drop.txt                          substrings of questions to remove from the bank
+  src/*.py                          question tables + hand-written lines, one file per genre
+```
+
+* **Regenerate:** edit `scripts/trivia/src/<genre>.py` (or add to `drop.txt`), then run
+  `python3 scripts/trivia/build.py`. The build removes duplicates, answer-in-question give-aways and bad
+  distractors, trims to exactly 5,000 with a per-genre cap, then rebuilds all 1,000 games
+  (2-3 questions per genre, no repeated subject inside a game, every question used 6-11 times).
+* **Per-user data** (My Sets, My Questions) lives in the browser's `localStorage`; the My Sets tab exports/imports JSON.
+* **PDF** uses jsPDF 2.5.1 from cdnjs (needs internet); CSV and "Copy for Google Sheets" work offline.
+  Google Sheets can open the CSV (File, Import, Upload) or accept the pasted TSV; no Google sign-in is used.
+* Bank answers are visible to anyone who can open the page (it is a static site).
