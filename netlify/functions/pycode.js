@@ -209,10 +209,10 @@ function bothParts(asgP, sub) {
   return { mcOk, codePct, codeOk: codePct !== null && codePct >= (pm === null || isNaN(pm) ? 0 : pm) };
 }
 /* did this student pass the assignment: the teacher's saved or automatic grade, or (if none) what the checks give now */
-async function subPassed(slot, email) {
-  const sub = await readJSON("sub:" + slot + ":" + enc(email), null); if (!sub) return false;
+async function subPassed(slot, email, pre) {   /* pre: { sub, asg } already read by the caller (the assignments list reads them all at once, so it does not wait on one slot at a time) */
+  const sub = pre ? pre.sub : await readJSON("sub:" + slot + ":" + enc(email), null); if (!sub) return false;
   /* passMin: this assignment needs that percent (for example 90) before the next one opens. A score the teacher types in by hand (90 or more) also unlocks it. */
-  const asgP = withPySettings(slot, await readJSON("assign:" + slot, null)), pm = passMinOf(asgP);
+  const asgP = pre ? pre.asg : withPySettings(slot, await readJSON("assign:" + slot, null)), pm = passMinOf(asgP);
   if (pm !== null && !isNaN(pm)) {
     const tt = sub.teacher; if (tt && !tt.auto && tt.score !== null && tt.score !== undefined && tt.score !== "" && !isNaN(Number(tt.score)) && Number(tt.score) >= pm) return true;
     const ms = Array.isArray(asgP.mcKey) && asgP.mcKey.length ? mcScoreOf(asgP.mcKey, sub.mc) : null;
@@ -222,7 +222,7 @@ async function subPassed(slot, email) {
     return false;
   }
   const t = sub.teacher; if (t && t.score !== null && t.score !== undefined && t.score !== "" && !isNaN(Number(t.score))) return Number(t.score) >= PASS;
-  const rec = variantFor(withPySettings(slot, await readJSON("assign:" + slot, null)), sub.period);
+  const rec = variantFor(pre ? pre.asg : withPySettings(slot, await readJSON("assign:" + slot, null)), sub.period);
   if (!rec || !Array.isArray(rec.checks) || !rec.checks.length) return true;
   const r = scoreCode(rec.checks, sub.code || "", sub.gradeOutput != null ? sub.gradeOutput : sub.output); return r.pct === null || r.pct >= PASS;
 }
@@ -445,23 +445,25 @@ async function gatedAssignments(user, period) {
      One the student has already submitted stays open, so they can keep working on it or go back and raise an earlier score.
      Quizzes are not part of this chain: they open only when the teacher opens them (ungated). */
   let firstFail = null;
+  const subs = {}; if (user) await Promise.all(order.map(async (id) => { if (all[id].live !== false && inChain(all[id])) subs[id] = await readJSON("sub:" + id + ":" + enc(user.email), null); }));   /* every submission is read at once, not one slot at a time */
   for (const id of order) {
     const a = all[id]; if (a.live === false) continue;
     if (a.fresh === true) firstFail = null;   /* fresh: a new starting point (e.g. the first walkthrough of a unit opens for everyone, whatever is left in earlier units) */
     const chain = inChain(a);
-    const hasSub = chain && firstFail !== null && user ? !!(await readJSON("sub:" + id + ":" + enc(user.email), null)) : false;
+    const hasSub = chain && firstFail !== null && user ? !!subs[id] : false;
     const held = a.hold === true, open = !held && (a.ungated === true || firstFail === null || hasSub);
     if (open) show(id);
     else if (held && firstFail === null) locked.push({ id, held: true, unit: a.unit || "", part: slotPart(a), ord: orderKey(id, a), title: slotPart(a) === "assignment" ? "" : String(a.title || ""), concept: String(a.title || ""), name: itemName(id, a), num: a.num || Number(id.slice(1)) });
     else { const f = all[firstFail]; locked.push({ id, need: firstFail, unit: a.unit || "", part: slotPart(a), ord: orderKey(id, a), title: slotPart(a) === "assignment" ? "" : String(a.title || ""), concept: String(a.title || ""), name: itemName(id, a), needName: itemName(firstFail, f), needName2: slotPart(f) === "assignment" ? "" : itemName(firstFail, f), num: a.num || Number(id.slice(1)), needNum: f.num || Number(firstFail.slice(1)), needPass: passMinOf(f), held }); }
-    if (chain && firstFail === null && !(user && (await subPassed(id, user.email)))) firstFail = id;
+    if (chain && firstFail === null && !(user && (await subPassed(id, user.email, { sub: subs[id], asg: a })))) firstFail = id;
   }
   return { ok: true, assignments: out, locked };
 }
 async function publicAssignments(all) {
   const out = {};
   const slots = new Set((await listPrefix("assign:")).map((k) => k.slice(7))); repoSlots().forEach((x) => slots.add(x));
-  for (const slot of slots) { const v = withPySettings(slot, await store().get("assign:" + slot, { type: "json" })); if (v && (all || v.live !== false)) { if (!all) { delete v.checks; delete v.mcKey; } out[slot] = v; } }
+  const got = await Promise.all([...slots].map(async (slot) => [slot, withPySettings(slot, await store().get("assign:" + slot, { type: "json" }))]));   /* all the records are read at once */
+  for (const [slot, v] of got) { if (v && (all || v.live !== false)) { if (!all) { delete v.checks; delete v.mcKey; } out[slot] = v; } }
   return { ok: true, assignments: out };
 }
 

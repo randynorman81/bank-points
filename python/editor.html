@@ -391,6 +391,13 @@ body.wpmode .spill{flex:none;font:700 11px Inter,system-ui,sans-serif;padding:4p
 body.wpmode .spill.part{background:#FEF3C7;color:#92400E}body.wpmode .spill.done{background:#DCFCE7;color:#166534}
 body.wpmode .sopt{flex:none;font:800 10px Inter,system-ui,sans-serif;letter-spacing:.08em;padding:3px 9px;border-radius:99px;border:1px solid var(--wpc);color:var(--wpc);background:#fff}
 body.wpmode .stepcard.stretch{border-style:dashed;border-color:color-mix(in srgb,var(--wpc) 55%,#fff)}
+body.wpmode .loadcard{background:#fff;border:1px solid #D7DEEA;border-radius:16px;padding:20px 18px;box-shadow:0 2px 8px rgba(15,23,42,.06);color:#475569;font:14px/1.5 Inter,system-ui,sans-serif}
+body.wpmode .loadcard b{display:block;color:#0F172A;font-size:15.5px}
+body.wpmode .loadcard span{display:block;margin-bottom:14px}
+body.wpmode .loadcard i{display:block;height:12px;border-radius:99px;margin:9px 0;background:linear-gradient(90deg,#E2E8F0,#F1F5F9,#E2E8F0);background-size:200% 100%;animation:ldsh 1.2s linear infinite}
+body.wpmode .loadcard i:nth-of-type(2){width:80%}body.wpmode .loadcard i:nth-of-type(3){width:55%}
+body.wpmode .ldspin{width:26px;height:26px;border-radius:50%;border:3px solid #E2E8F0;border-top-color:var(--wpc);animation:ldrot .8s linear infinite;margin-bottom:10px}
+@keyframes ldrot{to{transform:rotate(360deg)}}@keyframes ldsh{to{background-position:-200% 0}}
 body.wpmode .scbody{padding:14px 16px 6px}
 body.wpmode .stepcard.plain .snum{background:color-mix(in srgb,var(--wpc) 16%,#fff);color:var(--wpc);font-style:italic;box-shadow:none}
 body.wpmode .scbody>h3{font:800 14px Inter,system-ui,sans-serif;margin:6px 0 8px}
@@ -1538,6 +1545,7 @@ document.addEventListener("click", function (e) {
   if (sn) { workSend(W); return; }
   var file = W.files[Number(f.getAttribute("data-wf"))]; if (file) workModal(W, file.name, "<pre>" + escA(file.text) + "</pre>");
 });
+var ASSIGN_READY = false;
 function renderAssignment() {
   try { updatePicBar(); } catch (e) {}
   ta.readOnly = slot === "example"; document.body.classList.toggle("isExample", slot === "example");
@@ -1546,6 +1554,7 @@ function renderAssignment() {
   document.body.classList.toggle("hasquiz", !!(A && A.mc && A.mc.length && /\bquiz\b/i.test(A.title || "")));   /* a quiz is just the questions */
   document.body.classList.toggle("isquiz", isQuizNow()); if (!QG || QG.slot !== slot) QG = { slot: slot, sig: null, perfect: false, wrong: [] };
   var plain = (slot === "free" || slot === "example") ? title : (A && A.apx ? "Walkthrough " : "Assignment ") + aNum(slot, A) + (A && A.title ? ": " + A.title : ""), full = (A && A.unit ? A.unit + " · " : "") + plain; $("assTitle").textContent = (unitShort(A) ? unitShort(A) + " · " : "") + ((slot === "free" || slot === "example") ? title : slotLabel(slot, false).replace(/^(?:Unit \d+|Appendix [A-Z]) · /, "") + (A && !A.apx ? " · " + slotPoints(A) + " pts" : "")); $("assTitle").title = full;
+  if (!A && !ASSIGN_READY && slot !== "free" && slot !== "example") { applyPortal(defaultPortal({})); body.innerHTML = '<div class="loadcard"><div class="ldspin"></div><b>Loading your assignment&hellip;</b><span>This takes a few seconds the first time.</span><i></i><i></i><i></i></div>'; return; }   /* the list is still on its way: show a loading card in the new look instead of the old editor */
   if (!A) { applyPortal(null); body.innerHTML = '<p class="none">Your teacher has not posted instructions for this assignment yet.</p>'; return; }
   var done = {}; try { done = JSON.parse(lsGet("py:prog:" + slot) || "{}"); } catch (e) {}
   var W = workFor(slot, A), P = W ? { brand: W.brand, file: W.file, badge: "Workstation \u00b7 " + W.brand.team, host: "ws-" + W.brand.team.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "." + W.brand.name.toLowerCase().replace(/[^a-z0-9]/g, "") + ".internal" } : defaultPortal(A); applyPortal(P); var h = W ? workHtml(W) : "", n = 0, cardOpen = false, secTips = {}, sec = 0, seen = {}, firstStep = 0, stretchShown = false; stepHelp = {};
@@ -2365,7 +2374,8 @@ $("gradeQuiz").addEventListener("click", function () {
 function loadAssignments() {
   var my = ++loadSeq;
   return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "assignments", credential: CRED, period: $("period").value }) }).then(function (r) { return r.json(); }).then(function (j) {
-    if (!j || !j.ok || my !== loadSeq) return;
+    if (!j || !j.ok) { ASSIGN_READY = true; renderAssignment(); return; }
+    if (my !== loadSeq) return;
     if (TEACHER) window.PY_ASSIGN = window.PY_ASSIGN || {}; else window.PY_ASSIGN = {};
     arcFix(j.assignments || {}); Object.keys(j.assignments || {}).forEach(function (k) { window.PY_ASSIGN[k] = j.assignments[k]; });
     addExample(); window.PY_LOCKED = TEACHER ? [] : (j.locked || []);
@@ -2374,8 +2384,8 @@ function loadAssignments() {
     /* the first list can arrive before sign-in finishes, and a teacher's list has more in it than a student's: only fall back to the sandbox when the remembered one is not in THIS list, and never forget it */
     if (want === "free" || want === "example" || window.PY_ASSIGN[want]) slot = want;
     else if (slot !== "free" && slot !== "example" && !window.PY_ASSIGN[slot]) slot = "free";
-    buildSlots(); renderAssignment(); if (typeof afterSlotChange === "function") afterSlotChange();
-  }).catch(function () {});
+    ASSIGN_READY = true; buildSlots(); renderAssignment(); if (typeof afterSlotChange === "function") afterSlotChange();
+  }).catch(function () { ASSIGN_READY = true; renderAssignment(); });
 }
 loadAssignments();
 /* students cannot paste or drag in anything from outside, or copy the steps; they CAN copy/cut their own code from the code box and paste it back; the teacher preview (?teacher) is unrestricted */
