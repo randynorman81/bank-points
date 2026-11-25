@@ -37,6 +37,16 @@ const insertBefore = (rec, test, blocks) => {
 const addTips = (rec, tips) => { rec.tips = Object.assign({}, rec.tips || {}, tips); };
 
 /* ================================================================ a5: the middle letter and // */
+/* ================================================================ a1: the "# Step N" comments were never scored */
+/* Every other Unit 3 walkthrough gives a point for each "# Step N: title" comment the checkbox asks for. a1 (3.1) had the checkboxes but no checks behind them,
+   so typing the six step comments earned nothing. These six checks use the same pattern as every other walkthrough. Box numbers: Step 1 = box 0, Step 3 = 4, Step 4 = 8, Step 5 = 13, Step 6 = 18, Step 7 = 23 (Step 2 has no code). */
+export function fixA1(rec) {
+  const has = (n) => (rec.checks || []).some((c) => c.where === "comments" && c.re && c.re.indexOf("Step\\s*" + n + "\\s*:") >= 0);
+  const add = [[1, 0], [3, 4], [4, 8], [5, 13], [6, 18], [7, 23]].filter((x) => !has(x[0])).map((x) => headChk(x[0], x[1]));
+  if (add.length) rec.checks = (rec.checks || []).concat(add);
+  return rec;
+}
+
 export function fixA5(rec) {
   (rec.blocks || []).forEach(function (b) {
     if (typeof b.p === "string" && b.p.indexOf("Here is a trick that connects to what you know about") === 0)
