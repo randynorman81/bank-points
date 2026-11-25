@@ -9,9 +9,9 @@ UNITS = {1: "Introduction to Programming", 2: "Paired Programming Project", 3: "
 def size(p): return "%.1f MB" % (os.path.getsize(p) / 1e6)
 def pages(p): return len(fitz.open(p))
 zip_name = "AP-CSP-Study-Guides-All-Units.zip"; zip_path = os.path.join(DL, zip_name)
-CSS = ('<style>.sg{margin:14px 0 26px;padding:18px 20px;border:1px solid #d9dee7;border-radius:10px;background:#f7f9fc}.sg h2{margin:0 0 6px}.sg p{margin:6px 0}'
-       '.sg .big{display:inline-block;margin:6px 10px 6px 0;padding:10px 16px;border-radius:8px;background:#1d4ed8;color:#fff;font-weight:700;text-decoration:none}.sg .big.alt{background:#0f172a}.sg .big.open{background:#fff;color:#1d4ed8;border:2px solid #1d4ed8;padding:8px 14px}'
-       '.sg .big:hover{filter:brightness(1.12)}.sg small{color:#5b6472}.sg table{border-collapse:collapse;width:100%;margin-top:10px}.sg td{padding:6px 8px;border-top:1px solid #e3e7ee;vertical-align:top}'
+CSS = ('<style>.sg{margin:14px 0 26px;padding:18px 20px;border:1px solid #d9dee7;border-radius:10px;background:#f7f9fc}.sg h2{margin:0 0 6px;font-size:1.15rem}.sg p{margin:6px 0;font-size:.9rem}'
+       '.sg .big{display:inline-block;margin:6px 10px 6px 0;padding:8px 14px;font-size:.9rem;border-radius:8px;background:#1d4ed8;color:#fff;font-weight:700;text-decoration:none}.sg .big.alt{background:#0f172a}.sg .big.open{background:#fff;color:#1d4ed8;border:2px solid #1d4ed8;padding:8px 14px}'
+       '.sg .big:hover{filter:brightness(1.12)}.sg small{color:#5b6472}.sg table{border-collapse:collapse;width:100%;margin-top:10px}.sg td{font-size:.88rem;padding:5px 8px;border-top:1px solid #e3e7ee;vertical-align:top}'
        '.sg td.n{width:84px;white-space:nowrap;font-weight:700}.sg .soon{color:#8a93a3}a.sg-l{font-size:.82em;white-space:nowrap;margin-left:8px}</style>')
 ANCHOR = '      <div class="unit-grid" id="lesson-grid-root"></div>'
 LMAP = json.load(open(os.path.join(HERE, "lessons-map.json")))
@@ -49,7 +49,7 @@ home = (CSS + '<div class="sg" id="study-guides"><h2>Study Guides (printable PDF
         'step-by-step code tracing, common mistakes, and practice questions with an answer key.</p>'
         '<a class="big" href="downloads/%s" download>&#128230; Download ALL units (ZIP)</a> <small>%s</small>'
         '<table>%s</table><p><small>Each unit page also has a download link for every individual lesson.</small></p></div>' % (zip_name, size(zip_path), rows))
-put(os.path.join(ROOT, "apcsp", "index.html"), "study-guides", home, '  <h2 style="margin-bottom:4px;">Units</h2>')
+put(os.path.join(ROOT, "apcsp", "index.html"), "study-guides", home, '</main>')
 # ---- unit pages
 for n in live:
     up = glob.glob(os.path.join(DL, "units", "AP-CSP-Unit-%02d-*.pdf" % n))[0]
