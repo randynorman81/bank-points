@@ -1543,8 +1543,20 @@ document.addEventListener("click", function (e) {
   var f = t.closest("[data-wf]"), sn = t.closest("#wpSend"); if (!f && !sn) return;
   var A = (window.PY_ASSIGN || {})[slot], W = workFor(slot, A); if (!W) return;
   if (sn) { workSend(W); return; }
-  var file = W.files[Number(f.getAttribute("data-wf"))]; if (file) workModal(W, file.name, "<pre>" + escA(file.text) + "</pre>");
+  var file = W.files[Number(f.getAttribute("data-wf"))]; if (file && !workFileTab(W, file)) workModal(W, file.name, "<pre>" + escA(file.text) + "</pre>");   /* a pop-up blocker falls back to the old window */
 });
+/* a company file opens in its own browser tab, so the student can flip between the file and their code. Same file = same tab (it is reused, not stacked). Read-only: no copying, same rule as the instructions. */
+function workFileTab(W, file) {
+  var br = W.brand, bs = W.boss, doc = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + escA(file.name) + " - " + escA(br.name) + '</title><style>*{box-sizing:border-box}body{margin:0;background:#E9EDF4;font:15px/1.6 Inter,"Segoe UI",system-ui,sans-serif;color:#1E293B;-webkit-user-select:none;user-select:none}'
+    + ".top{background:" + br.head + ";color:" + br.ink + ";border-bottom:3px solid " + br.color + ';padding:12px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}.brand{font:' + br.font + ";letter-spacing:" + br.spacing + '}.ws{font:600 11px system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:99px;border:1px solid currentColor;opacity:.85}'
+    + '.wrap{max-width:860px;margin:22px auto;padding:0 16px}.tip{background:#fff;border:1px solid #D7DEEA;border-left:5px solid ' + br.color + ';border-radius:12px;padding:10px 14px;margin:0 0 14px;font-size:13.5px;color:#475569}'
+    + ".win{background:#0F172A;border-radius:14px;overflow:hidden;box-shadow:0 6px 20px rgba(15,23,42,.25)}.bar{display:flex;align-items:center;gap:8px;background:#1E293B;padding:8px 14px}.bar i{width:10px;height:10px;border-radius:50%;display:inline-block;background:#EF4444}.bar i:nth-child(2){background:#F59E0B}.bar i:nth-child(3){background:#22C55E}"
+    + '.bar b{margin-left:8px;background:#0F172A;color:#F8FAFC;border-radius:8px 8px 0 0;padding:3px 14px;font:600 12.5px "JetBrains Mono",ui-monospace,monospace;border-bottom:2px solid ' + br.color + '}.bar span{margin-left:auto;color:#64748B;font:11px ui-monospace,monospace}'
+    + 'pre{margin:0;padding:18px 20px;color:#E2E8F0;font:14px/1.7 "JetBrains Mono",ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere}</style></head><body oncopy="return false" oncut="return false" oncontextmenu="return false" ondragstart="return false">'
+    + '<div class="top"><span class="brand">' + escA(br.name) + '</span><span class="ws">Files &middot; ' + escA(br.team) + '</span></div><div class="wrap"><div class="tip">This file is from ' + escA(bs.name) + ". Keep this tab open and switch back to your code tab when you need to. It is read-only: type what you need yourself.</div>"
+    + '<div class="win"><div class="bar"><i></i><i></i><i></i><b>' + escA(file.name) + "</b><span>read-only</span></div><pre>" + escA(file.text) + "</pre></div></div></body></html>";
+  try { var url = URL.createObjectURL(new Blob([doc], { type: "text/html" })), w = window.open(url, "wf_" + slot + "_" + file.name); if (!w) return false; try { w.focus(); } catch (e) {} return true; } catch (e) { return false; }
+}
 var ASSIGN_READY = false;
 function renderAssignment() {
   try { updatePicBar(); } catch (e) {}
