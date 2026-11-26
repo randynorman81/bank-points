@@ -58,7 +58,7 @@ def load_js(f, var):
     s = open(os.path.join(ROOT, f), encoding='utf-8').read(); return json.loads(s[s.index('{'):s.rindex('}') + 1])
 call = lambda b: json.loads(subprocess.run(['curl', '-s', '-X', 'POST', 'https://schscomputerscience.com/api/pycode', '-H', 'Content-Type: application/json', '-d', json.dumps(b)], capture_output=True, text=True).stdout)
 live = call({'action': 'assignments'})['assignments']
-for n in list(range(1, 14)) + list(range(126, 139)) + [16, 17, 18, 19, 20, 21, 22, 23, 26, 27, 28]:
+for n in list(range(1, 14)) + list(range(126, 139)) + [16, 17, 18, 19, 20, 21, 22, 23, 26, 27, 28] + list(range(139, 151)):
     s = 'a%d' % n; r = live.get(s)
     if not r: print('(skipped %s: not served right now, locked)' % s); continue
     for b in r['blocks']:
@@ -80,6 +80,17 @@ qa = html.index('var Q = ['); Q = json.loads(html[qa + 8:html.index('];', qa) + 
 for k, q in enumerate(Q): walk({'s': re.sub('<[^>]+>', ' ', q['s']), 'o': [re.sub('<[^>]+>', ' ', o) for o in q['o']], 'e': re.sub('<[^>]+>', ' ', q['e'])}, 'practice test Q%d' % (k + 1))
 W = open(os.path.join(ROOT, 'python/workplace.js'), encoding='utf-8').read()
 for n in range(126, 139):
+    m = re.search(r'W\.a%d = (\{.*?\});\n' % n, W, re.S); d = json.loads(m.group(1)); walk([d['email'], d['review'], [f['text'] for f in d['files']]], 'workplace a%d' % n)
+P4 = load_js('python/parsons-u4.js', 'x')['lessons']
+for lid, L in P4.items():
+    for k, p in enumerate(L['problems']): walk({'t': p['title'], 's': p['story'], 'steps': p['steps']}, 'parsons4 %s #%d' % (lid, k + 1))
+T4 = load_js('python/trace-u4.js', 'x')
+for lid, L in T4.items():
+    for k, t in enumerate(L['traces']): walk({'i': t['intro'], 'd': [s[2] for s in t['steps']]}, 'trace4 %s #%d' % (lid, k + 1))
+html = open(os.path.join(ROOT, 'apcsp/unit-4/unit-4-practice-test.html'), encoding='utf-8').read()
+qa = html.index('var Q = ['); Q4 = json.loads(html[qa + 8:html.index('];', qa) + 1])
+for k, q in enumerate(Q4): walk({'s': re.sub('<[^>]+>', ' ', q['s']), 'o': [re.sub('<[^>]+>', ' ', o) for o in q['o']], 'e': re.sub('<[^>]+>', ' ', q['e'])}, 'practice test 4 Q%d' % (k + 1))
+for n in range(139, 151):
     m = re.search(r'W\.a%d = (\{.*?\});\n' % n, W, re.S); d = json.loads(m.group(1)); walk([d['email'], d['review'], [f['text'] for f in d['files']]], 'workplace a%d' % n)
 print('ISSUES (not words):', len(issues))
 for i in issues[:80]: print('  ', i)
