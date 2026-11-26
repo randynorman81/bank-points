@@ -761,6 +761,7 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
     // one h1, tags closed correctly) carry into later lessons. The unit test (7.6) uses everything.
     var idx = ORDER.indexOf(lesson), out = [];
     if (idx < 0) return out;
+    if (LESSONS[lesson].own) return out;   /* the walkthroughs and assignments added in lab-lessons.js have no rubric: only Problems and their own step checks count */
     var testOf = LESSONS[lesson].testOf || null;
     ORDER.forEach(function (l, i) {
       if (i > idx) return;

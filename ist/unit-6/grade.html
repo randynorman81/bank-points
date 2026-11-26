@@ -121,10 +121,12 @@ iframe{width:100%;height:100%;border:0;background:#fff;display:block}
 <script src="answers-v2.js"></script>
 <script src="answers-site.js"></script>
 <script src="answers-u3.js?v=20261118b"></script>
-<script src="html-check.js"></script>
+<script src="html-check.js?v=20261126"></script>
+<script src="lab-lessons.js?v=20261126"></script>
 <script src="step-checks.js"></script>
 <script src="step-checks-a.js"></script>
 <script src="step-checks-b.js?v=20261118b"></script>
+<script src="step-checks-w.js?v=20261126"></script>
 <script src="/assets/due-dates.js"></script>
 <script>
 "use strict";
@@ -136,7 +138,7 @@ var DISPLAY_LESSON = {
   "8.1": "4.1", "8.2": "4.2", "8.3": "4.3", "8.4": "4.4", "8.5": "4.5", "8.6": "4.6", "8.7": "4.7",
   "9.1": "5.1", "9.2": "5.2", "9.3": "5.3", "9.4": "5.4", "9.5": "5.5", "9.6": "5.6", "9.7": "5.7"
 };
-function dispLesson(l) { return DISPLAY_LESSON[l] || l; }
+function dispLesson(l) { return DISPLAY_LESSON[l] || (window.U7_LAB_DISPLAY || {})[l] || l; }
 var IST_PERIODS = ["3A", "3B", "4A"]; // keep in sync with netlify/functions/code.js
 function lastNameKey(n) { var w = String(n || "").trim().toLowerCase().split(/\s+/); while (w.length > 1 && /^(jr|sr|ii|iii|iv)\.?$/.test(w[w.length - 1])) w.pop(); return w[w.length - 1] + " " + w.join(" "); }
 function byLastName(a, b) { return lastNameKey(a).localeCompare(lastNameKey(b)); }
