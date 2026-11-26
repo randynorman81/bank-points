@@ -7,6 +7,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.insert(0, os.path.join(ROOT, 'tools', 'qa')); import wt_qa as q
 call = lambda b: json.loads(subprocess.run(['curl', '-s', '-X', 'POST', 'https://schscomputerscience.com/api/pycode', '-H', 'Content-Type: application/json', '-d', json.dumps(b)], capture_output=True, text=True).stdout)
 live = call({'action': 'assignments'})['assignments']
+SLOTS = sys.argv[1:] or ['a%d' % n for n in range(1, 14)]      # usage: python3 tools/qa/tips_audit.py a16 a17 ...  (Unit 3 by default)
 def ev(expr):
     G = {'input': lambda p='': '5'}; signal.alarm(2)
     try:
@@ -18,8 +19,8 @@ def ev(expr):
     except BaseException as e: return 'ERR ' + type(e).__name__, None
     finally: signal.alarm(0)
 checked = bad = 0; skipped = 0
-for n in range(1, 14):
-    s = 'a%d' % n; r = live[s]
+for s in SLOTS:
+    r = live[s]
     for tid, t in (r.get('tips') or {}).items():
         for sec in t.get('sections', []):
             for row in sec.get('rows', []) or []:
@@ -44,8 +45,8 @@ for n in range(1, 14):
 print('tip table rows checked:', checked, '| mismatches:', bad, '| rows skipped (not an expression/result pair):', skipped)
 # "Try it" claims versus the model answer's real output
 miss = 0; tried = 0
-for n in range(1, 14):
-    s = 'a%d' % n; src, ins = q.model(s); out = q.run_local(src, ins); rec = live[s]
+for s in SLOTS:
+    src, ins = q.model(s); out = q.run_local(src, ins); rec = live[s]
     for b in rec['blocks']:
         t = b.get('p') or ''
         if t.startswith('▶') or re.search(r'\b(should (print|show|say|be)|answer (should|is)|prints? |it shows)\b', t):
