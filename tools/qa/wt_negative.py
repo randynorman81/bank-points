@@ -7,6 +7,7 @@
 usage: python3 tools/qa/wt_negative.py [a1 a2 ...]"""
 import sys, re, os, json, concurrent.futures as cf
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import wt_qa as q
+REAL = sys.stdout      # run_local swaps sys.stdout from several threads; put the real one back before printing
 slots = sys.argv[1:] or ['a%d' % i for i in range(1, 14)]
 def sc(slot, code, ins):
     return q.score(slot, code, q.run_local(code, ins))
@@ -40,11 +41,13 @@ for s in slots:
     with cf.ThreadPoolExecutor(8) as ex:
         dels = list(ex.map(del_one, [i for i in codeIdx if not lines[i].strip().startswith('# Step')]))
         muts = list(ex.map(mut_one, [i for i in codeIdx if not lines[i].strip().startswith('#')]))
+    sys.stdout = REAL
     unused_here = [lines[i].strip()[:60] for i, p in dels if p == 100]
     loose_here = [lines[i].strip()[:60] for i, p in muts if p == 100]
     print('%s | empty %s%%, print-hello %s%%, comments-only %s%%, another-lesson %s%% %s | lines never checked: %d | corrupt-a-line still 100%%: %d' % (s, res['empty'], res['print hello'], res['comments only'], res['another lesson'], ('<-- PROBLEM ' + ','.join(bad)) if bad else 'ok', len(unused_here), len(loose_here)))
     for u in unused_here: unused.append((s, u))
     for u in loose_here: loose.append((s, u))
+sys.stdout = REAL
 print('\nLINES THAT ARE NOT CHECKED AT ALL (deleting them keeps 100%):')
 for u in unused: print('  ', u)
 print('\nCODE LINES WHOSE CORRUPTED VERSION STILL SCORES 100%:')

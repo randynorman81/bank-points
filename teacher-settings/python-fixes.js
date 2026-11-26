@@ -261,3 +261,32 @@ export function fixA13(rec) {
   ]);
   return rec;
 }
+
+
+/* ================================================================ a21 (Unit 4, 4.6): two help boxes the Step 7 links point to were never written */
+/* "How do I trace it?" in Step 7 links to traceA and traceB, which did not exist. They explain the two exam programs shown in that step. */
+export function fixA21(rec) {
+  addTips(rec, {
+    traceA: { title: "How do I trace Program A?", sections: [{ steps: [
+      "`describe(\"a\")` is the first call. The key is `\"a\"`, so `IF (key = \"a\")` is true and it displays `left`.",
+      "`describe(\"d\")` is the second call. The key is `\"d\"`, so the `IF` is false and the `ELSE` displays `other`.",
+      "Program A displays `left` and then `other`."] }] },
+    traceB: { title: "How do I trace Program B?", sections: [{ steps: [
+      "`score` starts at 0.",
+      "`handle(\"space\")`: the key is `\"space\"`, so `score` becomes 0 + 10 = 10.",
+      "`handle(\"x\")`: the key is not `\"space\"`, so the `ELSE` runs. Inside it, `IF (key = \"x\")` is true, so `score` becomes 10 - 5 = 5.",
+      "`handle(\"space\")` again: `score` becomes 5 + 10 = 15.",
+      "`DISPLAY(score)` shows 15."] }] }
+  });
+  return rec;
+}
+
+/* ================================================================ a23 (Unit 4, 4.8): the "Show me" help box in Step 6 (countE) was never written */
+export function fixA23(rec) {
+  addTips(rec, { countE: { title: "Show me: counting the letter e", sections: [
+    { p: "The loop visits each letter of `\"excellent\"` once. Each time the letter is an `\"e\"`, the counter goes up by 1:" },
+    { ex: ["count = 0", "for letter in \"excellent\":", "    if letter == \"e\":", "        count = count + 1", "print(count)   # shows 3"] },
+    { p: "The letters of `\"excellent\"` are e, x, c, e, l, l, e, n, t. There are 3 `\"e\"`s, so `3` is displayed. The `print` is not indented, so it runs once, after the loop." }
+  ] } });
+  return rec;
+}

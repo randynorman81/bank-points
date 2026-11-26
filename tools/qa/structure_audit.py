@@ -4,8 +4,13 @@ import json, re, subprocess, os, sys
 call = lambda b: json.loads(subprocess.run(['curl', '-s', '-X', 'POST', 'https://schscomputerscience.com/api/pycode', '-H', 'Content-Type: application/json', '-d', json.dumps(b)], capture_output=True, text=True).stdout)
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # the Unit 3 items are locked now, so the public list is empty: read the saved copies (walkthroughs a1-a13 from the last full export with the wording fix applied, assignments from the repo)
-rec = json.load(open(os.path.join(ROOT, 'tools/missions/testkit/u3-records.json')))
-src = 'saved copies' if len(rec) == 26 else 'MISSING %d' % (26 - len(rec))
+if '--u4' in sys.argv:      # Unit 4 is open, so the public list has it: read it (QA_CACHE=/path.json reuses a saved copy of the list)
+    cp = os.environ.get('QA_CACHE'); allr = json.load(open(cp)) if cp and os.path.exists(cp) else call({'action': 'assignments'}); allr = allr.get('assignments', allr)
+    want = ['a%d' % n for n in (16, 17, 18, 19, 20, 21, 22, 23, 26, 27, 28)] + ['a%d' % n for n in range(139, 151)]
+    rec = {k: allr[k] for k in want if k in allr}; src = 'live, Unit 4' if len(rec) == len(want) else 'MISSING %d' % (len(want) - len(rec))
+else:
+    rec = json.load(open(os.path.join(ROOT, 'tools/missions/testkit/u3-records.json')))
+    src = 'saved copies' if len(rec) == 26 else 'MISSING %d' % (26 - len(rec))
 problems = []
 def P(slot, kind, txt): problems.append((slot, kind, txt[:150].replace('\n', ' ')))
 def plain(t): return re.sub(r'`[^`]*`', 'X', t)
