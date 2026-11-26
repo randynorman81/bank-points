@@ -4,7 +4,7 @@ import { createRequire } from "module";
 import { MODELS } from "./lab_models.mjs";
 const require = createRequire(import.meta.url), D = "../../ist/unit-6/";
 globalThis.window = undefined;
-["html-check.js", "lab-lessons.js", "step-checks.js", "step-checks-a.js", "step-checks-b.js", "step-checks-w.js"].forEach((f) => require(D + f));
+["html-check.js", "lab-lessons.js", "step-checks.js", "step-checks-a.js", "step-checks-b.js", "step-checks-w.js", "step-checks-w2.js"].forEach((f) => require(D + f));
 const SC = globalThis.U7_STEPCHECKS;
 const FAM = {
   "tag left open (a closing tag deleted)": (s) => { const m = [...s.matchAll(/<\/(p|h1|h2|h3|li|strong|em|span|a|ul|ol)>/g)]; return m.map((x) => s.slice(0, x.index) + s.slice(x.index + x[0].length)); },
@@ -40,6 +40,20 @@ const FAM = {
   "body before head": (s) => [s.replace(/<head>[\s\S]*<\/head>\n/, "")],
   "heading text wrong case": (s) => [s.replace(/<h1([^>]*)>([^<]*)</, (m, a, t) => "<h1" + a + ">" + t.toLowerCase() + "<")],
   "heading text has a typo": (s) => [s.replace(/<h1([^>]*)>([^<]*)</, (m, a, t) => "<h1" + a + ">" + t.replace(/e/, "ee") + "<")],
+  "padding or margin without px": (s) => [s.replace(/(padding|margin): (\d+)px/, "$1: $2")],
+  "padding misspelled": (s) => [s.replace(/padding/, "pading"), s.replace(/margin/, "margn")],
+  "hex without #": (s) => [s.replace(/color: #([0-9A-Fa-f]{6})/, "color: $1")],
+  "hex too short": (s) => [s.replace(/color: #([0-9A-Fa-f]{6})/, (m, h) => "color: #" + h.slice(0, 5))],
+  "display misspelled": (s) => [s.replace(/inline-block/, "inlineblock"), s.replace(/display: block/, "display: blok")],
+  "vertical-align misspelled": (s) => [s.replace(/vertical-align: top/, "vertical-aligne: top"), s.replace(/vertical-align: top/, "vertical-align: topp")],
+  "div not closed": (s) => [s.replace(/<\/div>/, "")],
+  "td outside a row": (s) => [s.replace(/<tr>\n<td>/, "<td>").replace(/<\/td>\n<\/tr>/, "</td>")],
+  "tr closed with td": (s) => [s.replace(/<\/tr>/, "</td>")],
+  "a cell missing from a row": (s) => [s.replace(/<td>[^<]*<\/td>\n(<\/tr>)/, "$1")],
+  "th closed with td": (s) => [s.replace(/<\/th>/, "</td>")],
+  "table closed wrong": (s) => [s.replace(/<\/table>/, "</tabel>")],
+  "columns wider than 98%": (s) => [s.replace(/width: 45%/g, "width: 55%").replace(/width: 30%/g, "width: 55%").replace(/width: 60%/g, "width: 55%")],
+  "height without px": (s) => [s.replace(/height: (\d+)px/, "height: $1")],
   "emoji inside the tag": (s) => [s.replace(/<h1([^>]*)>/, "<h1$1 🍕>")],
   "paragraph inside a heading": (s) => [s.replace(/<h1([^>]*)>([^<]*)<\/h1>/, "<h1$1><p>$2</p></h1>")],
 };

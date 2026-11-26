@@ -355,6 +355,227 @@ M("6.5a", `
 </html>
 `);
 
+/* ================= Unit 3 Part 2 (3.12-3.16) ================= */
+M("7.1w", `
+<!DOCTYPE html>
+<html>
+<head>
+<title>Postcard Studio</title>
+</head>
+<body>
+<h1>Postcard Studio</h1>
+<p style="padding: 20px; background-color: lightyellow">Greetings from Hawaii!</p>
+<p style="margin: 30px; background-color: lightpink">Wish you were here.</p>
+<p style="border: 4px solid navy; padding-left: 40px; padding-top: 10px">See you soon!</p>
+<p style="width: 200px; padding: 10px; border: 5px solid black">Box total: 230 pixels wide.</p>
+</body>
+</html>
+`);
+M("7.1a", `
+<!DOCTYPE html>
+<html>
+<head>
+<title>Etsy Shop Cards</title>
+</head>
+<body style="background-color: #fdf6ec">
+<h1 style="text-align: center">Etsy Shop Cards</h1>
+<p style="padding: 12px; margin: 15px; border: 3px solid teal; background-color: white">Hand knit scarf for $25</p>
+<p style="padding: 10px 30px; margin: 15px; border: 3px dashed coral; background-color: lightyellow">Painted mug for $14</p>
+<p style="padding-left: 40px; padding: 12px; margin: 15px; border: 3px dotted purple; background-color: lavender">Silver ring for $40</p>
+<p style="width: 250px; padding: 12px; margin: 15px; border: 3px solid brown; background-color: beige">Wooden spoon for $9</p>
+</body>
+</html>
+`);
+M("7.2w", `
+<!DOCTYPE html>
+<html>
+<head>
+<title>Brand Colors</title>
+</head>
+<body style="background-color: #F0F9FF">
+<h1>Brand Colors</h1>
+<p style="color: tomato">Tomato red</p>
+<p style="color: #000080">Navy blue</p>
+<p style="color: #FF0000; background-color: #000000">Pure red</p>
+<p style="color: #00FF00; background-color: #000000">Pure green</p>
+<p style="color: #0000FF; background-color: #000000">Pure blue</p>
+</body>
+</html>
+`);
+M("7.2a", `
+<!DOCTYPE html>
+<html>
+<head>
+<title>Duolingo Colors</title>
+</head>
+<body style="background-color: #F7F7F7; color: #4B4B4B">
+<h1 style="color: #FFFFFF; background-color: #58CC02">Duolingo Colors</h1>
+<p style="color: #58CC02; background-color: #FFFFFF">Feather green is the main brand color.</p>
+<p style="color: #FFC800; background-color: #4B4B4B">Sunny yellow shows rewards and streaks.</p>
+<p style="color: #1CB0F6">Sky blue is used for links and extras.</p>
+<p style="color: #CE82FF">Purple adds a playful touch.</p>
+<p style="color: tomato">This red is a named color for warnings.</p>
+</body>
+</html>
+`);
+M("7.3w", `
+<!DOCTYPE html>
+<html>
+<head>
+<title>Snack Bar</title>
+</head>
+<body>
+<h1>Snack Bar</h1>
+<div style="display: inline-block; padding: 10px; background-color: gold">Home</div>
+<div style="display: inline-block; padding: 10px; background-color: gold">Menu</div>
+<div style="display: inline-block; padding: 10px; background-color: gold">Contact</div>
+<p>Our special today is <span style="color: red">soup</span>.</p>
+<a href="https://www.nasa.gov" target="_blank" style="display: block; padding: 10px; background-color: navy; color: white">Visit NASA</a>
+</body>
+</html>
+`);
+M("7.3a", `
+<!DOCTYPE html>
+<html>
+<head>
+<title>Instagram Menu</title>
+</head>
+<body style="background-color: #fafafa">
+<h1 style="text-align: center">Instagram Menu</h1>
+<div style="display: inline-block; padding: 10px; background-color: pink">Home</div>
+<div style="display: inline-block; padding: 10px; background-color: pink">Search</div>
+<div style="display: inline-block; padding: 10px; background-color: pink">Reels</div>
+<div style="display: inline-block; padding: 10px; background-color: pink">Profile</div>
+<p>Share your <span style="color: crimson">favorite</span> photos with friends today.</p>
+<p style="display: inline">Posting is easy.</p>
+<a href="https://www.instagram.com" target="_blank" style="display: block; padding: 10px; background-color: purple; color: white">Open Instagram</a>
+</body>
+</html>
+`);
+M("7.4w", `
+<!DOCTYPE html>
+<html>
+<head>
+<title>Profile Page</title>
+</head>
+<body>
+<h1>Profile Page</h1>
+<div style="background-color: navy; color: white; padding: 14px">
+<h2>Sam Rivera</h2>
+<p>Loves music and art.</p>
+</div>
+<div style="height: 20px; background-color: orange"></div>
+<div style="display: inline-block; vertical-align: top; width: 30%">
+<h3>Interests</h3>
+<p>Music and art.</p>
+</div>
+<div style="display: inline-block; vertical-align: top; width: 60%">
+<h3>Posts</h3>
+<p>First post!</p>
+</div>
+<hr>
+<div style="display: inline-block; vertical-align: top; width: 45%">Photos</div>
+<div style="display: inline-block; vertical-align: top; width: 45%">Friends</div>
+</body>
+</html>
+`);
+M("7.4a", `
+<!DOCTYPE html>
+<html>
+<head>
+<title>Amazon Products</title>
+</head>
+<body style="background-color: #eaeded">
+<h1 style="text-align: center">Amazon Products</h1>
+<div style="background-color: #131921; color: white; padding: 14px">
+<h2>Today's Deals</h2>
+<p>Save big on electronics and books.</p>
+</div>
+<div style="height: 12px; background-color: #f90"></div>
+<div style="display: inline-block; vertical-align: top; width: 45%; padding: 10px; border: 2px solid #131921">Headphones for $30</div>
+<div style="display: inline-block; vertical-align: top; width: 45%; padding: 10px; border: 2px solid #131921">Laptop stand for $22</div>
+<hr>
+<div style="display: inline-block; vertical-align: top; width: 45%; padding: 10px; border: 2px solid #131921">Desk lamp for $18</div>
+<div style="display: inline-block; vertical-align: top; width: 45%; padding: 10px; border: 2px solid #131921">Phone case for $9</div>
+</body>
+</html>
+`);
+M("7.5w", `
+<!DOCTYPE html>
+<html>
+<head>
+<title>Leaderboard</title>
+</head>
+<body>
+<h1>Leaderboard</h1>
+<table style="border: 3px solid navy; width: 80%; text-align: center">
+<tr>
+<th style="background-color: #1B2A4A; color: white">Rank</th>
+<th style="background-color: #1B2A4A; color: white">Player</th>
+<th style="background-color: #1B2A4A; color: white">Points</th>
+<th style="background-color: #1B2A4A; color: white">Profile</th>
+</tr>
+<tr>
+<td>1</td>
+<td>Ana</td>
+<td>120</td>
+<td><a href="https://www.espn.com" target="_blank">View</a></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Bo</td>
+<td>95</td>
+<td><a href="https://www.espn.com" target="_blank">View</a></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Cy</td>
+<td>80</td>
+<td><a href="https://www.espn.com" target="_blank">View</a></td>
+</tr>
+</table>
+</body>
+</html>
+`);
+M("7.5a", `
+<!DOCTYPE html>
+<html>
+<head>
+<title>ESPN Scoreboard</title>
+</head>
+<body style="background-color: white; color: black">
+<h1 style="text-align: center">ESPN Scoreboard</h1>
+<table style="border: 3px solid red; width: 70%; text-align: center">
+<tr>
+<th style="background-color: red; color: white">Team</th>
+<th style="background-color: red; color: white">Wins</th>
+<th style="background-color: red; color: white">Losses</th>
+</tr>
+<tr>
+<td><strong>Owls</strong></td>
+<td>9</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Hawks</td>
+<td>7</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Bears</td>
+<td>5</td>
+<td>6</td>
+</tr>
+<tr>
+<td><a href="https://www.espn.com" target="_blank">Wolves</a></td>
+<td>3</td>
+<td>8</td>
+</tr>
+</table>
+</body>
+</html>
+`);
+
 FREE["6.1a"] = ["Open your account page to see your bill.", "Watch on phones, tablets, laptops and smart TVs."];
 FREE["6.2a"] = ["Highway Song", "Sunset Drive", "A great song for singing loudly with the windows down.", "A calm song for the last hour before you arrive."];
 FREE["6.20a"] = ["Super Mario Journey", "coming this holiday season", "Mario travels across new worlds in a game made for the whole family."];
@@ -370,3 +591,9 @@ FREE["6.75a"].push("Rating:");
 FREE["6.6a"] = ["NASA Channel", "I watch rocket launches and space videos here every single week.", "Science", "Read how", "explains hard ideas.", "Music", "Find new songs on", "and the", "channel.", "NPR Tiny Desk", "Vevo", "Veritasium", "The gray moon with craters"];
 FREE["6.5a"] = ["Deals", "How to Order", "Menu", "Pepperoni Pan", "the classic with lots of cheese", "Veggie Lovers", "peppers, onions and mushrooms", "Meat Feast", "sausage, ham and bacon", "Cheese Bites", "a cheesy side for the whole table", "Pick your pizza", "Choose a crust", "Pay and wait for the doorbell", "Order", "Contact"];
 SLACK["6.6a"] = ["I watch rocket launches"];
+FREE["7.1a"] = ["Hand knit scarf for $25", "Painted mug for $14", "Silver ring for $40", "Wooden spoon for $9"];
+FREE["7.2a"] = ["Feather green is the main brand color.", "Sunny yellow shows rewards and streaks.", "Sky blue is used for links and extras.", "Purple adds a playful touch.", "This red is a named color for warnings."];
+FREE["7.3a"] = ["Home", "Search", "Reels", "Profile", "Share your", "favorite", "photos with friends today.", "Posting is easy.", "Open Instagram"];
+FREE["7.4a"] = ["Today's Deals", "Save big on electronics and books.", "Headphones for $30", "Laptop stand for $22", "Desk lamp for $18", "Phone case for $9"];
+FREE["7.5a"] = ["Team", "Wins", "Losses", "Owls", "Hawks", "Bears", "Wolves", "9", "2", "7", "4", "5", "6", "3", "8"];
+SLACK["7.1a"] = ["Hand knit scarf"];

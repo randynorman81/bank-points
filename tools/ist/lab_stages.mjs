@@ -86,3 +86,29 @@ STAGES["6.5w"] = [
   pg("Camping Trip", camp(UL(st("list-style-type: square")), OL(st("list-style-type: upper-roman")), "")),
   pg("Camping Trip", camp(UL(st("list-style-type: square")), OL(st("list-style-type: upper-roman")), MENU)),
 ];
+
+/* ================= Unit 3 Part 2 ================= */
+const cardP = (a = "", b = "", c = "", d = "") => `<h1>Postcard Studio</h1>\n<p${a}>Greetings from Hawaii!</p>\n<p${b}>Wish you were here.</p>\n<p${c}>See you soon!</p>\n<p${d}>Box total: 230 pixels wide.</p>\n`;
+const P1 = st("padding: 20px; background-color: lightyellow"), P2 = st("margin: 30px; background-color: lightpink"), P3 = st("border: 4px solid navy; padding-left: 40px; padding-top: 10px"), P4 = st("width: 200px; padding: 10px; border: 5px solid black");
+STAGES["7.1w"] = [pg("Postcard Studio", cardP()), pg("Postcard Studio", cardP(P1)), pg("Postcard Studio", cardP(P1, P2)), pg("Postcard Studio", cardP(P1, P2, P3)), pg("Postcard Studio", cardP(P1, P2, P3, P4))];
+
+const brand = (a = "", b = "", c = "", d = "", e = "") => `<h1>Brand Colors</h1>\n<p${a}>Tomato red</p>\n<p${b}>Navy blue</p>\n<p${c}>Pure red</p>\n<p${d}>Pure green</p>\n<p${e}>Pure blue</p>\n`;
+const pr = (hex) => st(`color: ${hex}; background-color: #000000`);
+STAGES["7.2w"] = [pg("Brand Colors", brand()), pg("Brand Colors", brand(st("color: tomato"))), pg("Brand Colors", brand(st("color: tomato"), st("color: #000080"))),
+  pg("Brand Colors", brand(st("color: tomato"), st("color: #000080"), pr("#FF0000"), pr("#00FF00"), pr("#0000FF"))), pg("Brand Colors", brand(st("color: tomato"), st("color: #000080"), pr("#FF0000"), pr("#00FF00"), pr("#0000FF")), { bodyAttr: st("background-color: #F0F9FF") })];
+
+const NAVS = st("display: inline-block; padding: 10px; background-color: gold"), snack = (nav, extra = "") => `<h1>Snack Bar</h1>\n<div${nav}>Home</div>\n<div${nav}>Menu</div>\n<div${nav}>Contact</div>\n${extra}`;
+const SOUP = '<p>Our special today is <span style="color: red">soup</span>.</p>\n', BTN = '<a href="https://www.nasa.gov" target="_blank" style="display: block; padding: 10px; background-color: navy; color: white">Visit NASA</a>\n';
+STAGES["7.3w"] = [pg("Snack Bar", "<h1>Snack Bar</h1>\n"), pg("Snack Bar", snack("")), pg("Snack Bar", snack(NAVS)), pg("Snack Bar", snack(NAVS, SOUP)), pg("Snack Bar", snack(NAVS, SOUP + BTN))];
+
+const BAN = `<div style="background-color: navy; color: white; padding: 14px">\n<h2>Sam Rivera</h2>\n<p>Loves music and art.</p>\n</div>\n`, BAR = '<div style="height: 20px; background-color: orange"></div>\n';
+const COLS = (w) => `<div style="display: inline-block; vertical-align: top; width: ${w}">`;
+const COLUMNS = `${COLS("30%")}\n<h3>Interests</h3>\n<p>Music and art.</p>\n</div>\n${COLS("60%")}\n<h3>Posts</h3>\n<p>First post!</p>\n</div>\n`, ROW2 = `<hr>\n${COLS("45%")}Photos</div>\n${COLS("45%")}Friends</div>\n`;
+STAGES["7.4w"] = [pg("Profile Page", "<h1>Profile Page</h1>\n"), pg("Profile Page", "<h1>Profile Page</h1>\n" + BAN), pg("Profile Page", "<h1>Profile Page</h1>\n" + BAN + BAR), pg("Profile Page", "<h1>Profile Page</h1>\n" + BAN + BAR + COLUMNS), pg("Profile Page", "<h1>Profile Page</h1>\n" + BAN + BAR + COLUMNS + ROW2)];
+
+const TH = (t, sty = "") => `<th${sty}>${t}</th>\n`, TD = (t) => `<td>${t}</td>\n`, VIEW = '<td><a href="https://www.espn.com" target="_blank">View</a></td>\n', VIEWP = "<td>View</td>\n";
+const THS = st("background-color: #1B2A4A; color: white");
+const lb = (tableAttr, thSty, last) => `<h1>Leaderboard</h1>\n<table${tableAttr}>\n<tr>\n${["Rank", "Player", "Points", "Profile"].map((t) => TH(t, thSty)).join("")}</tr>\n` + [["1", "Ana", "120"], ["2", "Bo", "95"], ["3", "Cy", "80"]].map((r) => `<tr>\n${r.map(TD).join("")}${last}</tr>\n`).join("") + "</table>\n";
+const TH1 = `<h1>Leaderboard</h1>\n<table>\n<tr>\n${["Rank", "Player", "Points", "Profile"].map((t) => TH(t)).join("")}</tr>\n</table>\n`;
+STAGES["7.5w"] = [pg("Leaderboard", "<h1>Leaderboard</h1>\n"), pg("Leaderboard", TH1), pg("Leaderboard", lb("", "", VIEWP)), pg("Leaderboard", lb(st("border: 3px solid navy; width: 80%; text-align: center"), "", VIEWP)),
+  pg("Leaderboard", lb(st("border: 3px solid navy; width: 80%; text-align: center"), THS, VIEWP)), pg("Leaderboard", lb(st("border: 3px solid navy; width: 80%; text-align: center"), THS, VIEW))];

@@ -6,7 +6,7 @@ import { createRequire } from "module";
 import { MODELS, FREE, SLACK } from "./lab_models.mjs";
 const require = createRequire(import.meta.url), D = "../../ist/unit-6/";
 globalThis.window = undefined;
-["html-check.js", "lab-lessons.js", "step-checks.js", "step-checks-a.js", "step-checks-b.js", "step-checks-w.js", "answers-w.js"].forEach((f) => require(D + f));
+["html-check.js", "lab-lessons.js", "step-checks.js", "step-checks-a.js", "step-checks-b.js", "step-checks-w.js", "step-checks-w2.js", "answers-w.js", "answers-w2.js"].forEach((f) => require(D + f));
 const SC = globalThis.U7_STEPCHECKS;
 const want = process.argv.slice(2);
 const score = (id, html) => SC.score(id, html, "");

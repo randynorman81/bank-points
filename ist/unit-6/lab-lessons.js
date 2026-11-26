@@ -6,9 +6,10 @@
   var H = root.HTMLCheck; if (!H) return;
   var NAMES = {
     "6.1": "Intro to HTML and the Skeleton", "6.2": "The Style Attribute and Colors", "6.20": "Text Size, Alignment, Case", "6.3": "Editing Tags (strong, em, br, hr, span)", "6.35": "Google Fonts",
-    "6.4": "Borders", "6.7": "Images and the Favicon", "6.75": "Emojis and Symbols", "6.6": "Links", "6.5": "Lists and Menus"
+    "6.4": "Borders", "6.7": "Images and the Favicon", "6.75": "Emojis and Symbols", "6.6": "Links", "6.5": "Lists and Menus",
+    "7.1": "Box Model", "7.2": "Colors (Names and Hex)", "7.3": "Display (Block vs Inline)", "7.4": "Div Tag", "7.5": "Tables"
   };
-  var DISP = { "6.1": "3.1", "6.2": "3.2", "6.20": "3.3", "6.3": "3.4", "6.35": "3.5", "6.4": "3.6", "6.7": "3.7", "6.75": "3.8", "6.6": "3.9", "6.5": "3.10" };
+  var DISP = { "6.1": "3.1", "6.2": "3.2", "6.20": "3.3", "6.3": "3.4", "6.35": "3.5", "6.4": "3.6", "6.7": "3.7", "6.75": "3.8", "6.6": "3.9", "6.5": "3.10", "7.1": "3.12", "7.2": "3.13", "7.3": "3.14", "7.4": "3.15", "7.5": "3.16" };
   root.U7_LAB_DISPLAY = {};
   Object.keys(NAMES).forEach(function (base) {
     ["w", "a"].forEach(function (s) { var i = H.ORDER.indexOf(base + s); if (i >= 0) H.ORDER.splice(i, 1); });

@@ -5,7 +5,7 @@ import { STAGES } from "./lab_stages.mjs";
 import { MODELS } from "./lab_models.mjs";
 const require = createRequire(import.meta.url), D = "../../ist/unit-6/";
 globalThis.window = undefined;
-["html-check.js", "lab-lessons.js", "step-checks.js", "step-checks-a.js", "step-checks-b.js", "step-checks-w.js"].forEach((f) => require(D + f));
+["html-check.js", "lab-lessons.js", "step-checks.js", "step-checks-a.js", "step-checks-b.js", "step-checks-w.js", "step-checks-w2.js"].forEach((f) => require(D + f));
 const SC = globalThis.U7_STEPCHECKS;
 let bad = 0;
 for (const [id, stages] of Object.entries(STAGES)) {

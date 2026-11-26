@@ -8,6 +8,7 @@ import "../../ist/unit-6/step-checks-a.js";
 import "../../ist/unit-6/checklist-config.js";
 import "../../ist/unit-6/step-checks-b.js";
 import "../../ist/unit-6/step-checks-w.js";
+import "../../ist/unit-6/step-checks-w2.js";
 
 // Student code editor backend (Unit 7 web design).
 //   - Students sign in with their school Google account (same setup as "My Points").
@@ -22,7 +23,7 @@ const LESSONS = ["6.1", "6.2", "6.20", "6.21", "6.22", "6.3", "6.35", "6.4", "6.
   "8.1", "8.2", "8.3", "8.4", "8.5", "8.6", "8.7",
   "9.1", "9.2", "9.3", "9.4", "9.5", "9.6", "9.7"];
 // the Unit 3 walkthroughs ("6.1w") and assignments ("6.1a") added by ist/unit-6/lab-lessons.js: closed to students until listed in live.js
-for (const b of ["6.1", "6.2", "6.20", "6.3", "6.35", "6.4", "6.7", "6.75", "6.6", "6.5"]) LESSONS.push(b + "w", b + "a");
+for (const b of ["6.1", "6.2", "6.20", "6.3", "6.35", "6.4", "6.7", "6.75", "6.6", "6.5", "7.1", "7.2", "7.3", "7.4", "7.5"]) LESSONS.push(b + "w", b + "a");
 const IST_PERIODS = ["3A", "3B", "4A"]; // keep in sync with COURSE_PERIODS in bank/admin.html
 const TEACHER_EMAILS = ["randy.norman@socialcircleschools.org"];
 // An assignment with step checks is closed to students until it is listed in ist/unit-6/live.js.
