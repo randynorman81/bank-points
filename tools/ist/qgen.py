@@ -672,3 +672,302 @@ def make(l, rng, tries=60):
             return rng.choice(LESSON_T[l])(rng)
         except Skip: continue
     raise RuntimeError('could not make a question for lesson %d' % l)
+
+# ############################################################################################ PART 2 (3.12 - 3.16): lessons 11-15
+HEXNAME = [('tomato', '#FF6347'), ('navy', '#000080'), ('gold', '#FFD700'), ('teal', '#008080'), ('crimson', '#DC143C'), ('orchid', '#DA70D6'), ('coral', '#FF7F50'), ('salmon', '#FA8072'), ('indigo', '#4B0082'), ('olive', '#808000'), ('hotpink', '#FF69B4'), ('purple', '#800080')]
+def hex_rgb(h): h = h.lstrip('#'); return 'rgb(%d, %d, %d)' % (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16))
+def total_width(w, p, b): return w + 2 * p + 2 * b
+# ---------------------------------------------------------------- 11 = 3.12 Box model
+def l11_pad_side(rng):
+    n = rng.choice([8, 12, 16, 20, 30, 40]); side = rng.choice(['top', 'right', 'bottom', 'left']); tag = rng.choice(['p', 'h2', 'h3'])
+    code = pg('<%s%s>Postcard</%s>\n' % (tag, st('padding: %dpx; background-color: lightyellow' % n), tag)); must_parse(code)
+    return mkq(rng, 11, 'Padding', 'How many pixels of padding are between the words and the border on the %s side?' % side, code, '%d pixels' % n, ['%d pixels' % x for x in (n + 10, max(2, n - 6), n * 2, 0) if x != n],
+               '<code>padding: %dpx</code> puts %d pixels of space inside the box on all four sides.' % (n, n), [ck(code, "getComputedStyle(d.querySelector('%s')).padding%s" % (tag, side.capitalize()), '%dpx' % n)], key='ps|%d|%s|%s' % (n, side, tag))
+def l11_two_values(rng):
+    a, b = rng.sample([5, 10, 15, 20, 30, 40], 2); ask = rng.choice(['top and bottom', 'left and right'])
+    code = pg('<p%s>Wide note</p>\n' % st('padding: %dpx %dpx; border: 2px solid navy' % (a, b))); must_parse(code)
+    right = a if ask == 'top and bottom' else b; other = b if ask == 'top and bottom' else a
+    return mkq(rng, 11, 'Padding', 'The paragraph has <code>padding: %dpx %dpx</code>. How many pixels of padding are on the %s?' % (a, b, ask), code, '%d pixels' % right, ['%d pixels' % other, '%d pixels' % (a + b), '%d pixels' % max(2, abs(a - b))],
+               'With two values, the first is the top and bottom and the second is the left and right.', [ck(code, "var s=getComputedStyle(d.querySelector('p'));[s.paddingTop,s.paddingRight,s.paddingBottom,s.paddingLeft]", ['%dpx' % a, '%dpx' % b, '%dpx' % a, '%dpx' % b])], key='tv|%d|%d|%s' % (a, b, ask))
+def l11_total(rng):
+    w = rng.choice([100, 150, 200, 250, 300]); p = rng.choice([5, 10, 15, 20]); b = rng.choice([2, 4, 5, 8, 10])
+    code = pg('<p%s>Box</p>\n' % st('width: %dpx; padding: %dpx; border: %dpx solid black' % (w, p, b))); must_parse(code)
+    t = total_width(w, p, b); wrong = [w + p + b, w + 2 * p, w + 2 * b, w]
+    return mkq(rng, 11, 'Total width', 'How wide is this box on the page, counting the padding and the border?', code, '%d pixels' % t, ['%d pixels' % x for x in wrong if x != t][:3],
+               'The width is only the content. Add the padding and the border on BOTH sides: %d + %d + %d = %d.' % (w, 2 * p, 2 * b, t), [ck(code, "d.querySelector('p').getBoundingClientRect().width", t)], key='tw|%d|%d|%d' % (w, p, b))
+def l11_which_style(rng):
+    n = rng.choice([10, 12, 20, 25]); side = rng.choice(['left', 'top']); kind = rng.choice(['padding', 'margin'])
+    good = '%s-%s: %dpx' % (kind, side, n); opts = {'good': good, 'other': '%s-%s: %dpx' % ('margin' if kind == 'padding' else 'padding', side, n), 'all': '%s: %dpx' % (kind, n), 'nounit': '%s-%s: %d' % (kind, side, n)}
+    pages = {k: pg('<p%s>Hi</p>\n' % st(v)) for k, v in opts.items()}
+    js = "var s=getComputedStyle(d.querySelector('p'));[s.%s%s,s.%s%s,s.%s%s,s.%s%s]" % (kind, 'Left' if side == 'left' else 'Top', kind, 'Right' if side == 'left' else 'Right', kind, 'Bottom', 'margin' if kind == 'padding' else 'padding', 'Left' if side == 'left' else 'Top')
+    where = 'inside the border' if kind == 'padding' else 'outside the border'
+    chk = [ck(pages['good'], "getComputedStyle(d.querySelector('p')).%s%s" % (kind, side.capitalize()), '%dpx' % n)] + [dict(html=pages['all'], js="getComputedStyle(d.querySelector('p')).%sBottom" % kind, expect='%dpx' % n), dict(html=pages['nounit'], js="getComputedStyle(d.querySelector('p')).%s%s" % (kind, side.capitalize()), expect={'not': '%dpx' % n})]
+    chk.append(dict(html=pages['other'], js="getComputedStyle(d.querySelector('p')).%s%s" % (kind, side.capitalize()), expect={'not': '%dpx' % n}))
+    return mkq(rng, 11, 'Padding and margin', 'Which style puts %dpx of space %s on the %s side ONLY?' % (n, where, side), None, C(good), [C(opts['other']), C(opts['all']), C(opts['nounit'])],
+               '%s is the space %s the border, and <code>%s-%s</code> sets one side. Using the other property changes the wrong space, using <code>%s</code> alone sets all four sides, and a size needs px.' % (kind.capitalize(), where, kind, side, kind), chk, key='ws|%s|%s|%d' % (kind, side, n))
+def l11_which_layer(rng):
+    q = rng.choice([('Which layer of the box takes on the background color?', 'The padding', ['The margin', 'Neither: backgrounds only color the words', 'The space between two boxes']),
+                    ('Which layer of the box is always see-through?', 'The margin', ['The padding', 'The border', 'The content']),
+                    ('Which layer of the box is the space OUTSIDE the border?', 'The margin', ['The padding', 'The content', 'The border']),
+                    ('Which layer is between the content and the border?', 'The padding', ['The margin', 'The width', 'The outline'])])
+    return mkq(rng, 11, 'The four layers', q[0], None, q[1], q[2], 'The four layers, from the inside out, are content, padding, border and margin. Padding takes the background color; margin is always transparent.', [], key='wl|' + q[0])
+def l11_border_size(rng):
+    w = rng.choice([100, 150, 200]); b = rng.choice([4, 5, 10]); code = pg('<div%s>Box</div>\n' % st('width: %dpx; border: %dpx solid navy' % (w, b))); must_parse(code)
+    t = w + 2 * b
+    return mkq(rng, 11, 'A border adds size', 'This box has <code>width: %dpx</code> and a %dpx border and no padding. How wide is it in all?' % (w, b), code, '%d pixels' % t, ['%d pixels' % x for x in (w, w + b, w - 2 * b, w + 4 * b) if x != t][:3],
+               'A border takes real space on both sides: %d + %d + %d = %d.' % (w, b, b, t), [ck(code, "d.querySelector('div').getBoundingClientRect().width", t)], key='bs|%d|%d' % (w, b))
+L11_FACTS = [
+ ('What are the four layers of every box, from the inside out?', 'Content, padding, border, margin', ['Margin, border, padding, content', 'Content, border, margin, padding', 'Padding, content, margin, border'], 'Think of a framed photo: the picture, the matte, the frame, the wall space.'),
+ ('Where is padding?', 'Inside the border, around the content', ['Outside the border', 'Between two boxes', 'Only on the left side'], 'Padding is the space inside the frame.'),
+ ('What does <code>padding: 16px</code> do?', 'Puts 16 pixels of padding on all four sides', ['Puts 16 pixels on the top only', 'Makes the box 16 pixels wide', 'Puts a 16 pixel border around the box'], 'One value means all four sides equally.'),
+ ('Which property sets space between this box and the next one?', '<code>margin</code>', ['<code>padding</code>', '<code>border</code>', '<code>width</code>'], 'Margin is the space outside the box.'),
+ ('A box has <code>margin: 20px; background-color: yellow</code>. Which part is yellow?', 'The content and padding, not the margin', ['The margin', 'The margin and the border', 'Nothing'], 'Margin is always transparent.'),
+ ('Which style sets the padding on the left only?', '<code>padding-left</code>', ['<code>left-padding</code>', '<code>margin-left</code>', '<code>padding: left</code>'], 'The side goes after the property: padding-left.'),
+ ('Does a border take up space?', 'Yes: it adds its thickness on both sides', ['No: it is drawn on top of the box', 'Only a dotted border', 'Only on the left'], 'A 5px border adds 10px to the width and 10px to the height.'),
+ ('What does <code>width</code> set?', 'The size of the content only', ['The total size with padding and border', 'The size of the margin', 'The size of the border'], 'You add the padding and border to it.'),
+ ('A box is <code>width: 180px</code> with a <code>10px</code> border and no padding. How wide does it render?', '200px', ['180px', '190px', '210px'], '180 + 10 + 10 = 200.'),
+ ('In <code>padding: 10px 30px</code>, what is the 30px?', 'The left and right padding', ['The top and bottom padding', 'The width', 'The margin'], 'Two values: top and bottom first, then left and right.'),
+]
+L11_T = [l11_pad_side, l11_two_values, l11_total, l11_which_style, l11_which_layer, l11_border_size]
+# ---------------------------------------------------------------- 12 = 3.13 Colors
+def l12_named_hex(rng):
+    nm, hx = rng.choice(HEXNAME); others = [h for n, h in HEXNAME if n != nm]
+    pages = {h: pg('<p style="color: %s">Hi</p>\n' % h) for h in [hx] + others[:3]}; named = pg('<p style="color: %s">Hi</p>\n' % nm)
+    chk = [ck(pages[hx], "getComputedStyle(d.querySelector('p')).color", hex_rgb(hx)), ck(named, "getComputedStyle(d.querySelector('p')).color", hex_rgb(hx))] + [dict(html=pages[o], js="getComputedStyle(d.querySelector('p')).color", expect={'not': hex_rgb(hx)}) for o in others[:3]]
+    return mkq(rng, 12, 'Names and hex', 'Which hex code is exactly the same color as the name <code>%s</code>?' % nm, None, C(hx), [C(o) for o in others[:3]], 'The color %s is written %s in hex. A name and a hex code can be the very same color.' % (nm, hx), chk, key='nh|' + nm)
+def l12_pure(rng):
+    d = {'pure red': '#FF0000', 'pure green': '#00FF00', 'pure blue': '#0000FF', 'white': '#FFFFFF', 'black': '#000000', 'yellow (red and green together)': '#FFFF00', 'cyan (green and blue together)': '#00FFFF', 'magenta (red and blue together)': '#FF00FF'}
+    nm = rng.choice(list(d)); hx = d[nm]; wrong = [v for k, v in d.items() if k != nm]; wrong = rng.sample(wrong, 3)
+    pages = {h: pg('<p style="color: %s">Hi</p>\n' % h) for h in [hx] + wrong}
+    chk = [ck(pages[hx], "getComputedStyle(d.querySelector('p')).color", hex_rgb(hx))] + [dict(html=pages[o], js="getComputedStyle(d.querySelector('p')).color", expect={'not': hex_rgb(hx)}) for o in wrong]
+    return mkq(rng, 12, 'Reading hex', 'Which hex code is %s?' % nm, None, C(hx), [C(w) for w in wrong], 'A hex code is three pairs: red, green, blue. 00 means none of that color and FF means the most. %s is %s.' % (hx, nm), chk, key='pu|' + nm)
+def l12_read_pair(rng):
+    nm, hx = rng.choice(HEXNAME); which = rng.choice(['red', 'green', 'blue']); i = ['red', 'green', 'blue'].index(which); pair = hx[1 + 2 * i: 3 + 2 * i]
+    others = [hx[1:3], hx[3:5], hx[5:7]]; wrong = [o for o in others if o != pair]
+    wrong = list(dict.fromkeys(wrong))
+    wrong += ['00', 'FF', '99'] if len(wrong) < 3 else []
+    wrong = [w for w in wrong if w != pair][:3]
+    code = pg('<p style="color: %s">Hi</p>\n' % hx)
+    return mkq(rng, 12, 'Reading hex', 'In the hex code <code>%s</code>, which pair controls the %s?' % (hx, which), None, pair, wrong, 'A hex code is # then red, green and blue pairs, in that order: %s = red %s, green %s, blue %s.' % (hx, hx[1:3], hx[3:5], hx[5:7]),
+               [ck(code, "getComputedStyle(d.querySelector('p')).color", hex_rgb(hx))], key='rp|%s|%s' % (hx, which))
+def l12_valid(rng):
+    nm, hx = rng.choice(HEXNAME); bad = [hx[1:], hx + 'F', '#' + hx[1:6], '#' + hx[1:5] + 'G' + hx[6:]]
+    pages = {h: pg('<p style="color: %s">Hi</p>\n' % h) for h in [hx] + bad}
+    chk = [dict(html=pages[hx], js="getComputedStyle(d.querySelector('p')).color", expect={'not': 'rgb(0, 0, 0)'})] + [dict(html=pages[o], js="getComputedStyle(d.querySelector('p')).color", expect='rgb(0, 0, 0)') for o in bad]
+    return mkq(rng, 12, 'Hex rules', 'Which of these is a valid hex color?', None, C(hx), [C(b) for b in rng.sample(bad, 3)], 'A hex color is a # followed by exactly 6 characters (0 to 9 and A to F). Without the #, with the wrong number of characters, or with a letter past F, the browser ignores it.', chk, key='vh|' + hx)
+def l12_inherit(rng):
+    (n1, h1), (n2, h2) = rng.sample(HEXNAME, 2); (n3, h3) = rng.choice([x for x in HEXNAME if x[1] not in (h1, h2)]); target = rng.choice(['h1', 'p'])
+    code = page('Colors', '<h1 style="color: %s">Title</h1>\n<p>Words</p>\n' % h1, battr=st('color: %s' % h2)); must_parse(code)
+    right = h1 if target == 'h1' else h2
+    return mkq(rng, 12, 'Reading colors', 'What is the text color of the %s?' % ('heading 1' if target == 'h1' else 'paragraph'), code, C(right), [C(x) for x in (h2 if target == 'h1' else h1, h3, '#000000') if x != right][:3],
+               'A tag with its own color keeps it. A tag with none uses the body color: %s.' % h2, [ck(code, "getComputedStyle(d.querySelector('%s')).color" % target, hex_rgb(right))], key='ih|%s|%s|%s' % (h1, h2, target))
+def l12_bg(rng):
+    (_, a), (_, b) = rng.sample(HEXNAME, 2); code = pg('<p style="color: %s; background-color: %s">Contrast</p>\n' % (a, b)); must_parse(code)
+    return mkq(rng, 12, 'Reading colors', 'Which hex code is the BACKGROUND of the paragraph?', code, C(b), [C(a), C('#000000'), C('#FFFFFF')], '<code>background-color</code> is the color behind the text; <code>color</code> is the text itself.', [ck(code, "getComputedStyle(d.querySelector('p')).backgroundColor", hex_rgb(b))], key='bg|%s|%s' % (a, b))
+L12_FACTS = [
+ ('What does a hex color code start with?', 'A # symbol', ['A $ symbol', 'The word hex', 'A zero'], 'Hex codes look like #FF6347.'),
+ ('How many characters follow the # in a hex color code?', 'Six', ['Three', 'Four', 'Eight'], 'Three pairs: red, green and blue.'),
+ ('What does FF mean in a hex pair?', 'The most of that color', ['None of that color', 'Half of that color', 'The color white only'], '00 is none and FF is the most.'),
+ ('What does 00 mean in a hex pair?', 'None of that color', ['The most of that color', 'Half of that color', 'An error'], '00 is none of that color.'),
+ ('Which characters can a hex code use?', '0 to 9 and A to F', ['0 to 9 only', 'A to Z', 'Any letters and symbols'], 'Hex has 16 digits: 0-9 and A-F.'),
+ ('Where can you find the hex code of a shade you like?', 'A color picker (search "color picker")', ['The title tag', 'The doctype', 'The browser tab'], 'Pick a shade and copy the HEX field.'),
+ ('Can a color name and a hex code be the same color?', 'Yes: <code>navy</code> and <code>#000080</code> are identical', ['No: names are always lighter', 'No: hex codes only work on the body', 'Only for red'], 'The syntax is the same, only what you type after the colon changes.'),
+ ('Which hex code is white?', '<code>#FFFFFF</code>', ['<code>#000000</code>', '<code>#FF0000</code>', '<code>#00FF00</code>'], 'The most of all three colors is white.'),
+ ('Which hex code is black?', '<code>#000000</code>', ['<code>#FFFFFF</code>', '<code>#0000FF</code>', '<code>#FF0000</code>'], 'None of any color is black.'),
+ ('Which is easier for people to read: a color name or a hex code?', 'A color name', ['A hex code', 'They are exactly the same', 'Neither works'], 'Names are easy to read. Hex codes are exact and give millions of shades.'),
+]
+L12_T = [l12_named_hex, l12_pure, l12_read_pair, l12_valid, l12_inherit, l12_bg]
+# ---------------------------------------------------------------- 13 = 3.14 Display
+def l13_arrangement(rng):
+    disp = rng.choice(['block', 'inline-block', 'inline']); n = rng.choice([3, 4, 5]); w = rng.choice([50, 60, 80, 100]); lab = rng.choice(['Box', 'Tile', 'Card', 'Item'])
+    boxes = ''.join('<div%s>%s %d</div>\n' % (st('display: %s; width: %dpx; background-color: %s' % (disp, w, rng.choice(['gold', 'pink', 'lightblue', 'lightgreen', 'orange']))), lab, i + 1) for i in range(n)); code = pg(boxes); must_parse(code)
+    right = 'They sit in a row' if disp != 'block' else 'They stack in a column'; wrong = ['They stack in a column' if disp != 'block' else 'They sit in a row', 'They overlap each other', 'Only the first one shows']
+    js = "var t=Array.prototype.map.call(d.querySelectorAll('div'),function(e){return Math.round(e.getBoundingClientRect().top)});t.every(function(x){return x==t[0]})"
+    return mkq(rng, 13, 'Block or inline', 'What does the page show?', code, right, wrong, '<code>block</code> boxes take a whole line each, so they stack. <code>inline-block</code> and <code>inline</code> boxes sit in the line like words.', [ck(code, js, disp != 'block')], key='ar|%s|%d|%s' % (disp, n, boxes))
+def l13_inline_width(rng):
+    disp = rng.choice(['inline', 'inline-block']); w = rng.choice([60, 80, 100, 120, 150, 200, 250]); lab = rng.choice(['Wide?', 'Big box', 'Menu', 'Hello'])
+    code = pg('<span%s>Wide?</span>\n' % st('display: %s; width: %dpx; background-color: gold' % (disp, w))) if False else pg('<div%s>%s</div>\n' % (st('display: %s; width: %dpx; background-color: gold' % (disp, w)), lab)); must_parse(code)
+    keeps = disp == 'inline-block'
+    right = 'It is %d pixels wide' % w if keeps else 'It ignores the width and is only as wide as its words'
+    wrong = ['It ignores the width and is only as wide as its words' if keeps else 'It is %d pixels wide' % w, 'It takes the whole width of the page', 'It does not show']
+    return mkq(rng, 13, 'inline-block', 'How wide is the box on the page?', code, right, wrong, 'An <code>inline</code> box ignores width and height. An <code>inline-block</code> box sits in the line but keeps the width and height you set.',
+               [ck(code, ("Math.abs(d.querySelector('div').getBoundingClientRect().width-%d)<1" % w) if keeps else ("d.querySelector('div').getBoundingClientRect().width<%d" % w), True)], key='iw|%s|%d|%s' % (disp, w, lab))
+def l13_tag_display(rng):
+    t = rng.choice(['span', 'strong', 'em', 'a', 'img', 'div', 'p', 'h1', 'h2', 'h3', 'ul', 'ol', 'hr']); d = 'inline' if t in ('span', 'strong', 'em', 'a', 'img') else 'block'
+    code = pg('<div>d</div><p>p</p><h1>x</h1><h2>h</h2><h3>y</h3><ul><li>l</li></ul><ol><li>m</li></ol><hr><span>s</span><strong>b</strong><em>e</em><a href="https://www.nasa.gov">a</a><img src="https://example.org/a.png" alt="pic">\n')
+    js = "var m={};['div','p','h1','h2','h3','ul','ol','hr','span','strong','em','a','img'].forEach(function(t){m[t]=getComputedStyle(d.querySelector(t)).display});m"
+    exp = {'div': 'block', 'p': 'block', 'h1': 'block', 'h2': 'block', 'h3': 'block', 'ul': 'block', 'ol': 'block', 'hr': 'block', 'span': 'inline', 'strong': 'inline', 'em': 'inline', 'a': 'inline', 'img': 'inline'}
+    return mkq(rng, 13, 'Born block or inline', 'Which kind of tag is <code>&lt;%s&gt;</code> when you add no display style?' % t, None, 'Block: it starts a new line' if d == 'block' else 'Inline: it stays in the line', ['Inline: it stays in the line' if d == 'block' else 'Block: it starts a new line', 'Inline-block: it keeps a width but sits in the line', 'It depends on the browser'],
+               'Block tags (html, body, h1-h6, p, div, ul, ol, li, hr) start on a new line. Inline tags (span, strong, em, a, img) stay in the line.', [ck(code, js, exp)], key='td|' + t)
+def l13_button(rng):
+    n = rng.choice(['display: block', 'display: inline', 'display: inline-block'])
+    opts = {'display: block': 'block', 'display: inline': 'inline', 'display: inline-block': 'inline-block'}
+    lab = rng.choice(['Visit NASA', 'Shop now', 'Sign up', 'Learn more', 'Play'])
+    good = 'display: block; padding: %dpx; background-color: navy; color: white' % rng.choice([8, 10, 12, 16])
+    pd = good.split('padding: ')[1].split(';')[0]
+    bad = {'inline': 'display: inline; padding: %s; background-color: navy; color: white' % pd, 'inline-block': 'display: inline-block; padding: %s; background-color: navy; color: white' % pd, 'width': 'width: 100; padding: %s; background-color: navy; color: white' % pd}
+    pages = {k: pg('<a href="https://www.nasa.gov" style="%s">%s</a>\n' % (v, lab)) for k, v in dict(good=good, **bad).items()}
+    js = "var a=d.querySelector('a'),w=a.getBoundingClientRect().width;Math.abs(w-d.body.clientWidth)<3"
+    chk = [ck(pages['good'], js, True)] + [ck(pages[k], js, False) for k in bad]
+    return mkq(rng, 13, 'Link buttons', 'Which style turns the link into a wide button that takes the whole width?', None, C(good), [C(bad['inline']), C(bad['inline-block']), C(bad['width'])], '<code>display: block</code> makes a tag take the whole width and its own line. Inline and inline-block stay only as wide as their words, and a size needs px.', chk, key='bt|' + good + lab)
+def l13_rows(rng):
+    w = rng.choice([20, 25, 30, 35, 40, 45, 48]); n = rng.choice([3, 4, 5, 6, 7])
+    divs = ''.join('<div%s>%d</div>\n' % (st('display: inline-block; width: %d%%; background-color: gold' % w), i + 1) for i in range(n)); code = pg(divs); must_parse(code)
+    per = int(100 // (w + 1)); rows = -(-n // per)
+    js = "var t=Array.prototype.map.call(d.querySelectorAll('div'),function(e){return Math.round(e.getBoundingClientRect().top)});t.filter(function(x,i){return t.indexOf(x)==i}).length"
+    return mkq(rng, 13, 'Rows of boxes', 'The page is wide. How many rows do the %d boxes make?' % n, code, str(rows), [str(x) for x in (rows + 1, max(1, rows - 1), n, 1) if x != rows][:3], 'Each box is %d%% wide, so %d fit in a row (the spaces between them take a little room). %d boxes need %d rows.' % (w, per, n, rows),
+               [ck(code, js, rows)], key='rw|%d|%d' % (w, n))
+def l13_menu_fix(rng):
+    n = rng.choice([3, 4, 5, 6]); words_ = rng.sample(['Home', 'Menu', 'Shop', 'About', 'Contact', 'News', 'Help', 'Cart'], n)
+    plain = ''.join('<div>%s</div>\n' % w_ for w_ in words_); code = pg(plain); must_parse(code)
+    mk = lambda f: pg(''.join('<div%s>%s</div>\n' % (st(f(i)) if f(i) else '', w_) for i, w_ in enumerate(words_)))
+    good = mk(lambda i: 'display: inline-block'); first = mk(lambda i: 'display: inline-block' if i == 0 else ''); blk = mk(lambda i: 'display: block'); wid = mk(lambda i: 'width: 100')
+    js = "var l=Array.prototype.slice.call(d.querySelectorAll('div'));l.every(function(x){return x.getBoundingClientRect().top==l[0].getBoundingClientRect().top})"
+    chk = [ck(code, js, False), ck(good, js, True), ck(first, js, False), ck(blk, js, False), ck(wid, js, False)]
+    return mkq(rng, 13, 'The nav-bar trick', 'The menu has %d divs and they stack in a tall column. Which change puts them all in one row?' % n, code, 'Add <code>display: inline-block</code> to EVERY div', ['Add <code>display: inline-block</code> to only the first div', 'Add <code>display: block</code> to every div', 'Add <code>width: 100</code> to every div'],
+               'Divs are born block, so they stack. <code>display: inline-block</code> on every one of them puts them side by side. Block does nothing new, and a size needs a unit.', chk, key='nm|' + '|'.join(words_))
+def l13_which_display(rng):
+    q = rng.choice([('Which display value makes a box sit in a row AND still lets you set its width and height?', '<code>inline-block</code>', ['<code>block</code>', '<code>inline</code>', '<code>flat</code>']),
+                    ('Which display value makes a tag start on a new line and take the whole width?', '<code>block</code>', ['<code>inline</code>', '<code>inline-block</code>', '<code>wide</code>']),
+                    ('Which display value makes a tag stay in the line, only as wide as its content, ignoring width and height?', '<code>inline</code>', ['<code>block</code>', '<code>inline-block</code>', '<code>flow</code>']),
+                    ('What is the one-style fix behind almost every horizontal menu?', '<code>display: inline-block</code>', ['<code>display: block</code>', '<code>display: vertical</code>', '<code>text-align: row</code>'])])
+    return mkq(rng, 13, 'The display property', q[0], None, q[1], q[2], 'block = own line, full width. inline = in the line, no size. inline-block = in the line, with a size.', [], key='wd|' + q[0])
+L13_FACTS = [
+ ('What does a block tag do?', 'Starts on a new line and takes the whole width', ['Stays inside the line', 'Hides the tag', 'Makes the text bold'], 'Block tags stack like bricks.'),
+ ('What does an inline tag do?', 'Stays inside the line, only as wide as its content', ['Starts on a new line', 'Takes the whole width', 'Ignores its content'], 'Inline tags flow like words.'),
+ ('Which of these is an inline tag?', '<code>span</code>', ['<code>div</code>', '<code>h2</code>', '<code>p</code>'], 'span, strong, em, a and img are inline.'),
+ ('Which of these is a block tag?', '<code>div</code>', ['<code>span</code>', '<code>strong</code>', '<code>em</code>'], 'div, p, h1-h6, ul, ol, li and hr are block.'),
+ ('Why can a span color just one word inside a sentence?', 'It is inline, so it stays in the line', ['It is a block tag', 'It has no style', 'It is a heading'], 'A span groups a piece of text without breaking the line.'),
+ ('A navigation menu made of divs stacks in a tall column. What fixes it?', 'Give every div <code>display: inline-block</code>', ['Give every div a border', 'Use a heading 1', 'Add a br tag'], 'inline-block puts them side by side.'),
+ ('How do you turn a small inline link into a big full-width button?', 'Give it <code>display: block</code> and some padding', ['Give it <code>display: inline</code>', 'Put it in a heading', 'Make its font tiny'], 'A block takes the whole width.'),
+ ('Is an img tag block or inline?', 'Inline: it sits in the line like a giant letter', ['Block: it takes its own line', 'Neither', 'It depends on its size'], 'Pictures are inline.'),
+ ('Which is an inline-block box allowed to have that a plain inline box is not?', 'A width and a height', ['A color', 'Words inside it', 'A link'], 'inline-block keeps the width and height you set.'),
+ ('A div has no display style. Is it block or inline?', 'Block', ['Inline', 'Inline-block', 'Neither'], 'A div is born block.'),
+]
+L13_T = [l13_arrangement, l13_inline_width, l13_tag_display, l13_button, l13_rows, l13_which_display, l13_menu_fix]
+# ---------------------------------------------------------------- 14 = 3.15 Div
+def l14_inherit(rng):
+    col = rng.choice(['white', 'yellow', 'orange', 'gold']); target = rng.choice(['h3', 'p']); own_p = rng.random() < .4; own = rng.choice([c for c in ('tomato', 'gold', 'teal', 'red') if c != col])
+    code = pg('<div%s>\n<h3>Title</h3>\n<p%s>Words</p>\n</div>\n' % (st('background-color: navy; color: %s; padding: 10px' % col), st('color: ' + own) if own_p else '')); must_parse(code)
+    right = own if (own_p and target == 'p') else col
+    wrong = [c for c in dict.fromkeys([col, own, 'black', 'navy', 'gray']) if c != right][:3]
+    return mkq(rng, 14, 'Mass styling', 'What color is the text of the %s?' % ('heading 3' if target == 'h3' else 'paragraph'), code, right, wrong,
+               'Everything inside a div inherits its text color, unless a tag has its own color.', [ck(code, "getComputedStyle(d.querySelector('%s')).color" % target, RGB[right])], key='in|%s|%s|%s|%s' % (col, own_p, own if own_p else '', target))
+def l14_fits(rng):
+    pairs = [(a, b) for a in (20, 25, 30, 40, 45, 48, 50, 55, 60, 65) for b in (20, 25, 30, 40, 45, 48, 50, 55, 60, 65)]
+    good = [p for p in pairs if p[0] + p[1] <= 98]; bad = [p for p in pairs if p[0] + p[1] > 99]
+    g = rng.choice(good); w = rng.sample(bad, 3)
+    lab = lambda p: '%d%% and %d%%' % p
+    mk = lambda p: pg('<div%s>One</div>\n<div%s>Two</div>\n' % (st('display: inline-block; vertical-align: top; width: %d%%' % p[0]), st('display: inline-block; vertical-align: top; width: %d%%' % p[1])))
+    js = "var a=d.querySelectorAll('div');a[1].getBoundingClientRect().top==a[0].getBoundingClientRect().top"
+    chk = [ck(mk(g), js, True)] + [ck(mk(p), js, False) for p in w]
+    return mkq(rng, 14, 'The 98% rule', 'Two inline-block columns share one row. Which widths fit side by side?', None, lab(g), [lab(p) for p in w], 'The widths of one row must add up to 98%% or less: %d + %d = %d. The others add up to more, so the second column drops to a new line.' % (g[0], g[1], g[0] + g[1]), chk, key='ft|%s' % (g,))
+def l14_empty(rng):
+    h = rng.choice([20, 30, 40, 50, 60, 70, 80, 100]); has = rng.random() < .6; col = rng.choice(['orange', 'gold', 'pink', 'tomato'])
+    code = pg('<div%s></div>\n<p>Below the bar.</p>\n' % st('height: %dpx; background-color: %s' % (h, col) if has else 'background-color: ' + col)); must_parse(code)
+    right = '%d pixels' % h if has else '0 pixels: it disappears'; wrong = ['0 pixels: it disappears' if has else '%d pixels' % h, 'The height of one line of text', 'The whole page']
+    return mkq(rng, 14, 'Empty divs', 'How tall is the %s div on the page?' % col, code, right, wrong, 'A div\'s height stretches to fit what is inside it. An empty div collapses to 0 unless you give it a height.',
+               [ck(code, "d.querySelector('div').getBoundingClientRect().height", h if has else 0)], key='em|%d|%s|%s' % (h, has, col))
+def l14_wrap(rng):
+    a, b = rng.choice([(45, 45), (48, 48), (30, 60), (55, 55), (60, 60), (70, 40), (25, 70), (40, 50), (50, 50), (35, 60), (65, 30), (80, 15), (49, 49), (52, 52)]); fits = a + b <= 98
+    divs = '<div%s>One</div>\n<div%s>Two</div>\n' % (st('display: inline-block; vertical-align: top; width: %d%%' % a), st('display: inline-block; vertical-align: top; width: %d%%' % b)); code = pg(divs); must_parse(code)
+    right = 'Side by side' if fits else 'The second column drops to a new line'; wrong = ['The second column drops to a new line' if fits else 'Side by side', 'They overlap', 'Only one column shows']
+    return mkq(rng, 14, 'Columns', 'The two columns are %d%% and %d%% wide. What happens?' % (a, b), code, right, wrong, 'Widths of one row must add up to 98%% or less to leave room for built-in spacing. %d%% + %d%% = %d%%.' % (a, b, a + b),
+               [ck(code, "var a=d.querySelectorAll('div');a[1].getBoundingClientRect().top==a[0].getBoundingClientRect().top", fits)], key='wr|%d|%d' % (a, b))
+def l14_valign(rng):
+    va = rng.random() < .5
+    sty = 'display: inline-block; width: 30%' + ('; vertical-align: top' if va else '')
+    code = pg('<div%s>\n<p>One</p>\n<p>Two</p>\n<p>Three</p>\n</div>\n<div%s>\n<p>Only one</p>\n</div>\n' % (st(sty), st(sty))); must_parse(code)
+    right = 'The tops line up' if va else 'The shorter column hangs lower'; wrong = ['The shorter column hangs lower' if va else 'The tops line up', 'The columns overlap', 'The second column disappears']
+    return mkq(rng, 14, 'vertical-align', 'Both columns are inline-block. What do you see?', code, right, wrong, '<code>vertical-align: top</code> locks side-by-side columns to the same top edge. Without it they line up by their text baseline, so a column with more text pushes the other down.',
+               [ck(code, "var a=d.querySelectorAll('div');Math.abs(a[0].getBoundingClientRect().top-a[1].getBoundingClientRect().top)<1", va)], key='va|%s' % va)
+def l14_hr(rng):
+    hr = rng.random() < .6; w = 45
+    row = lambda x: '<div%s>%s1</div>\n<div%s>%s2</div>\n' % (st('display: inline-block; vertical-align: top; width: %d%%' % w), x, st('display: inline-block; vertical-align: top; width: %d%%' % w), x)
+    code = pg(row('A') + ('<hr>\n' if hr else '') + row('B')); must_parse(code)
+    right = 'Two rows of two columns' if hr else 'Two rows of two columns'
+    js = "var t=Array.prototype.map.call(d.querySelectorAll('div'),function(e){return Math.round(e.getBoundingClientRect().top)});t.filter(function(x,i){return t.indexOf(x)==i}).length"
+    return mkq(rng, 14, 'Rows of columns', 'How many separate rows of columns are on the page?', code, '2', ['1', '3', '4'], 'Each pair is %d%% + %d%% = %d%%, so a row holds two columns and the next pair starts a new row%s.' % (w, w, 2 * w, ' after the hr' if hr else ''),
+               [ck(code, js, 2)], key='hr|%s' % hr)
+def l14_count_inside(rng):
+    k = rng.randint(2, 4); items = rng.sample(['<h3>Title</h3>', '<p>One</p>', '<p>Two</p>', '<ul><li>a</li></ul>'], k)
+    code = pg('<div%s>\n%s\n</div>\n<div>Other</div>\n' % (st('padding: 10px; background-color: gold'), '\n'.join(items))); must_parse(code)
+    return mkq(rng, 14, 'Grouping', 'How many tags are directly inside the first div?', code, str(k), [str(x) for x in (k + 1, k - 1 if k > 1 else 5, k + 2, 1) if x != k][:3], 'A div groups the tags between its opening and closing tags: %d.' % k, [ck(code, "d.querySelector('div').children.length", k)], key='ci|' + '|'.join(items))
+L14_FACTS = [
+ ('What does a div do by itself?', 'Nothing visible: it only groups tags into one box', ['It makes text bold', 'It draws a border', 'It starts a new page'], 'A div has no style of its own.'),
+ ('A div has <code>color: white</code>. What color is a paragraph inside it with no color of its own?', 'White', ['Black', 'The div background color', 'Gray'], 'Styles on the div are inherited by what is inside.'),
+ ('Is a div block or inline?', 'Block, with a height that stretches to fit its content', ['Inline', 'Inline-block', 'It has no display'], 'A div is born block.'),
+ ('Why can an empty div disappear?', 'With nothing inside, its height collapses to 0', ['Browsers hide empty tags', 'It needs a closing tag', 'It has no width'], 'Give it a height to see it.'),
+ ('Which two styles put two divs side by side with their tops lined up?', '<code>display: inline-block</code> and <code>vertical-align: top</code>', ['<code>display: block</code> and <code>vertical-align: top</code>', '<code>display: inline</code> and <code>margin: 0</code>', '<code>width: 50%</code> only'], 'inline-block makes a row; vertical-align: top aligns the tops.'),
+ ('Why use width in % for columns?', 'The columns resize with the screen', ['It makes them bold', 'Pixels are not allowed', 'It adds a border'], 'A percent is a share of the screen width.'),
+ ('What is the 98% rule?', 'The widths in one row should add up to 98% or less', ['A div can be at most 98 pixels tall', 'Use 98 divs per page', 'Padding must be 98%'], 'It leaves room for the built-in spacing.'),
+ ('How do you start a new row of columns?', 'Put a block tag, like an hr, after the first row', ['Use a smaller width', 'Add a border', 'Use display: inline'], 'Without it the next divs can squeeze onto the end of the row.'),
+ ('Which is better for a column: width in px or in %?', '%, so it resizes with the screen', ['px, so it stays exactly the same', 'Neither works', 'Both are always identical'], 'Use % for widths and px for heights.'),
+ ('What is a div mostly used for?', 'Grouping related tags into one box you can style or arrange', ['Making text bold', 'Drawing a line across the page', 'Showing a picture'], 'A div groups related tags into one unit.'),
+]
+L14_T = [l14_inherit, l14_empty, l14_wrap, l14_valign, l14_hr, l14_count_inside, l14_fits]
+# ---------------------------------------------------------------- 15 = 3.16 Tables
+def tbl(rows, th_first=True, sty=''):
+    out = '<table%s>\n' % (st(sty) if sty else '')
+    for i, r in enumerate(rows): out += '<tr>\n' + ''.join('<%s>%s</%s>\n' % ('th' if (i == 0 and th_first) else 'td', c, 'th' if (i == 0 and th_first) else 'td') for c in r) + '</tr>\n'
+    return out + '</table>\n'
+TEAMS = ['Owls', 'Hawks', 'Bears', 'Wolves', 'Tigers', 'Eagles', 'Lions']
+def l15_counts(rng):
+    cols = rng.randint(2, 4); rows = rng.randint(2, 4); head = ['Team', 'Wins', 'Losses', 'Ties'][:cols]
+    data = [[rng.choice(TEAMS)] + [str(rng.randint(0, 12)) for _ in range(cols - 1)] for _ in range(rows)]
+    code = pg(tbl([head] + data)); must_parse(code)
+    ask = rng.choice(['rows', 'cells', 'headers'])
+    if ask == 'rows': n, what, js = rows + 1, 'rows does the table have (counting the header row)', "d.querySelectorAll('tr').length"
+    elif ask == 'cells': n, what, js = (rows + 1) * cols, 'cells does the table have in all', "d.querySelectorAll('td,th').length"
+    else: n, what, js = cols, 'header cells does the table have', "d.querySelectorAll('th').length"
+    return mkq(rng, 15, 'Reading tables', 'How many %s?' % what, code, str(n), [str(x) for x in (n + 1, n - 1, n + cols, n * 2) if x != n and x > 0][:3], 'Count the %s: %d.' % ({'rows': 'tr tags', 'cells': 'th and td tags', 'headers': 'th tags'}[ask], n), [ck(code, js, n)], key='tc|%s|%s' % (ask, code))
+def l15_row_text(rng):
+    cols = 3; head = ['Player', 'Goals', 'Assists']; names = rng.sample(['Ana', 'Bo', 'Cy', 'Di', 'Ed', 'Flo'], 3); data = [[n, str(rng.randint(0, 9)), str(rng.randint(0, 9))] for n in names]
+    code = pg(tbl([head] + data)); must_parse(code)
+    k = rng.randrange(3); line = ' '.join(data[k])
+    others = [' '.join(data[i]) for i in range(3) if i != k] + [' '.join(head)]
+    return mkq(rng, 15, 'Reading tables', 'What does row %d of the data (the %s data row) show on the page?' % (k + 1, ['first', 'second', 'third'][k]), code, line, others[:3], 'A row shows its cells from left to right: %s.' % line,
+               [ck(code, "d.querySelectorAll('tr')[%d].innerText.replace(/\\s+/g,' ').trim()" % (k + 1), line)], key='rt|' + code)
+def l15_missing(rng):
+    bad = rng.choice(['short', 'long', 'ok']); head = ['Name', 'Score', 'Rank']; rows = [['Ana', '90', '1'], ['Bo', '85', '2']]
+    if bad == 'short': rows[1] = ['Bo', '85']
+    elif bad == 'long': rows[1] = ['Bo', '85', '2', 'x']
+    code = pg(tbl([head] + rows)); must_parse(code)
+    desc = {'short': 'The last row has fewer cells than the header row', 'long': 'The last row has more cells than the header row', 'ok': 'Nothing: every row has the same number of cells'}
+    js = "Array.prototype.map.call(d.querySelectorAll('tr'),function(r){return r.children.length})"
+    exp = {'short': [3, 3, 2], 'long': [3, 3, 4], 'ok': [3, 3, 3]}[bad]
+    wrong = [v for k, v in desc.items() if k != bad] + ['The header cells should be td tags']
+    return mkq(rng, 15, 'The golden rule', 'What is wrong with this table?', code, desc[bad], wrong[:3], 'Every row needs the same number of cells, or the table\'s columns break.', [ck(code, js, exp)], key='ms|' + code)
+def l15_th_bold(rng):
+    code = pg(tbl([['Item', 'Price'], ['Pen', '$2']])); must_parse(code)
+    return mkq(rng, 15, 'th and td', 'Which words does the table show in bold and centered by default?', code, 'Item and Price (the th cells)', ['Pen and $2 (the td cells)', 'All four cells', 'None of them'], 'A th is a table header: bold and centered by default. A td is a normal data cell.',
+               [ck(code, "Array.prototype.map.call(d.querySelectorAll('th,td'),function(c){return getComputedStyle(c).fontWeight+' '+getComputedStyle(c).textAlign})", ['700 center', '700 center', '400 start', '400 start'])], key='tb')
+def l15_style(rng):
+    good = 'text-align: center'; bad = {'a': 'align: center', 'b': 'text-center: yes', 'c': 'center: text'}
+    mk = lambda v: pg(tbl([['A', 'B'], ['1', '2']], sty=v))
+    js = "Array.prototype.map.call(d.querySelectorAll('td'),function(c){return getComputedStyle(c).textAlign})"
+    chk = [ck(mk(good), js, ['center', 'center'])] + [dict(html=mk(v), js=js, expect={'not': ['center', 'center']}) for v in bad.values()]
+    return mkq(rng, 15, 'Styling tables', 'Which table style centers the text in every cell?', None, C('<table style="%s">' % good), [C('<table style="%s">' % v) for v in bad.values()], 'Text-align on the table is inherited by every cell. The property is <code>text-align</code>.', chk, key='st')
+def l15_cell_content(rng):
+    nm, url = rng.choice(SITES); kind = rng.choice(['link', 'bold', 'list'])
+    cell = {'link': '<a href="%s" target="_blank">%s</a>' % (url, nm), 'bold': '<strong>%s</strong>' % nm, 'list': '<ul><li>%s</li><li>Extra</li></ul>' % nm}[kind]
+    code = pg('<table>\n<tr>\n<td>Site</td>\n<td>%s</td>\n</tr>\n</table>\n' % cell); must_parse(code)
+    right = {'link': 'A link', 'bold': 'Bold words', 'list': 'A bulleted list'}[kind]; wrong = [v for v in ('A link', 'Bold words', 'A bulleted list', 'A picture') if v != right]
+    js = "var c=d.querySelectorAll('td')[1];[c.querySelector('a')!==null,c.querySelector('strong')!==null,c.querySelector('ul')!==null]"
+    return mkq(rng, 15, 'Tags in cells', 'What is inside the second cell?', code, right, wrong[:3], 'A td can hold any other tag, like a link, bold words or a whole list.', [ck(code, js, [kind == 'link', kind == 'bold', kind == 'list'])], key='cc|%s|%s' % (kind, nm))
+L15_FACTS = [
+ ('Which tag is the outer wrapper of a table?', '<code>&lt;table&gt;</code>', ['<code>&lt;tr&gt;</code>', '<code>&lt;td&gt;</code>', '<code>&lt;grid&gt;</code>'], 'Everything else lives inside the table tag.'),
+ ('What does <code>tr</code> stand for?', 'Table row', ['Table range', 'Text row', 'Top row'], 'A tr is one horizontal line of the grid.'),
+ ('Which tag is a normal cell?', '<code>&lt;td&gt;</code>', ['<code>&lt;th&gt;</code>', '<code>&lt;tr&gt;</code>', '<code>&lt;cell&gt;</code>'], 'td is table data.'),
+ ('Which tag is a header cell?', '<code>&lt;th&gt;</code>', ['<code>&lt;td&gt;</code>', '<code>&lt;tr&gt;</code>', '<code>&lt;head&gt;</code>'], 'th is a table header: bold and centered by default.'),
+ ('What goes directly inside a <code>tr</code>?', 'Only cells (th or td)', ['Only other rows', 'Any tag', 'Only text'], 'Only cells go directly inside a row.'),
+ ('What goes directly inside a <code>table</code>?', 'Only rows (tr)', ['Only cells', 'Any tag', 'Only text'], 'Only rows go directly inside the table.'),
+ ('What is the golden rule of table alignment?', 'Every row has the same number of cells', ['Every cell has a border', 'Every table has a header', 'Every row has a different color'], 'Leave a cell out and the borders break.'),
+ ('How do you build a table?', 'One row at a time, dropping cells into each row left to right', ['One column at a time', 'All at once', 'With a single tag'], 'You do not build columns directly.'),
+ ('Can a td hold a link or a picture?', 'Yes: it can hold any other tag', ['No: only text', 'Only a picture', 'Only a link'], 'Put the tag inside the td.'),
+ ('When is a table the right tag?', 'When information truly belongs in rows and columns', ['Whenever you want a grid look', 'For every page layout', 'For a menu'], 'Sports stats and pricing plans are good examples.'),
+]
+L15_T = [l15_counts, l15_row_text, l15_missing, l15_th_bold, l15_style, l15_cell_content]
+LESSON_T.update({11: L11_T, 12: L12_T, 13: L13_T, 14: L14_T, 15: L15_T})
+LESSON_FACTS.update({11: L11_FACTS, 12: L12_FACTS, 13: L13_FACTS, 14: L14_FACTS, 15: L15_FACTS})
+TOPIC_NAMES.update({11: 'Box model', 12: 'Colors (names and hex)', 13: 'Display', 14: 'Div tag', 15: 'Tables'})

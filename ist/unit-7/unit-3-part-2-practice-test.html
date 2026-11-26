@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 3 Part 2 Practice Test | Intro to Software Technology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#FB923C; --acc-tint:rgba(251,146,60,.14); --acc-ink:#FDC79B;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --lst:#34D399; --lst-tint:rgba(52,211,153,.13); --lst-ink:#6EE7B7;
+  --cir:#22D3EE; --rec:#818CF8;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+h3.sub{font-size:20px;font-weight:600;color:#fff;margin:30px 0 12px}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:5}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#2B1706;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(32px,6vw,52px);font-weight:600;max-width:22ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:68ch;margin-top:18px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.chip{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:6px 14px}
+.chip b{color:var(--acc-ink)}
+.cta{display:inline-block;margin-top:24px;font-family:"JetBrains Mono",monospace;font-size:13.5px;font-weight:700;color:#2B1706;background:var(--acc);text-decoration:none;border-radius:100px;padding:11px 22px}
+
+.part{padding:54px 0 8px;scroll-margin-top:60px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.part-head .les{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-soft);white-space:nowrap}
+.lede{font-size:17.5px;line-height:1.6;max-width:70ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .no{color:var(--bad-ink)}
+.code .ok{color:var(--lst-ink)}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:8px 0 18px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--acc)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p,.box li{font-size:15px;line-height:1.55;color:#C4CDD8}
+.box ul{margin:0;padding-left:18px}
+.box.green{border-top-color:var(--lst)} .box.red{border-top-color:var(--bad)}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F0DAC4}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+.good{background:var(--lst-tint);border-left:4px solid var(--lst);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#D3F5E6}
+.good b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:18px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.y{color:var(--lst-ink)} table.cmp td.n{color:var(--bad-ink)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.checklist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 20px}
+.checklist li{font-size:14.5px;color:#C4CDD8;padding:8px 0 8px 26px;position:relative;border-bottom:1px solid var(--rule)}
+.checklist li::before{content:"\2610";position:absolute;left:0;color:var(--acc-ink);font-size:15px}
+
+/* trace table */
+table.trace{border-collapse:collapse;font-family:"JetBrains Mono",monospace;font-size:14px;margin:4px 0 20px;background:var(--card);border:1px solid var(--rule)}
+table.trace th,table.trace td{padding:8px 16px;border:1px solid var(--rule);text-align:left}
+table.trace th{color:var(--ink-soft);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+table.trace td.chg{color:var(--acc-ink);font-weight:700}
+
+/* math lab */
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:20px 22px;margin:10px 0 22px}
+.lab .row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-family:"JetBrains Mono",monospace}
+.lab input{width:90px;background:#05070B;color:#fff;border:1px solid #3A4658;border-radius:4px;padding:8px 10px;font:inherit;font-size:16px}
+.lab .out{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px}
+.lab .cell{background:#05070B;border:1px solid var(--rule);border-radius:5px;padding:12px 14px;font-family:"JetBrains Mono",monospace}
+.lab .cell .op{font-size:12px;color:var(--ink-soft)}
+.lab .cell .v{font-size:22px;color:#fff;font-weight:700;margin-top:4px}
+.lab .cell .t{font-size:11px;color:var(--acc-ink);margin-top:2px}
+.lab .explain{margin-top:14px;font-size:14.5px;color:#C4CDD8}
+
+/* canvas figure */
+.fig{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:18px;margin:10px 0 22px}
+.fig svg{width:100%;height:auto;display:block}
+.fig .cap{font-size:13.5px;color:var(--ink-soft);margin-top:10px}
+
+/* ===== practice test ===== */
+.testbar{position:sticky;top:52px;z-index:4;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.score{font-family:"JetBrains Mono",monospace;font-size:14px;color:#fff;font-weight:700;margin-right:auto}
+.score span{color:var(--ink-soft);font-weight:500}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.fbtn,.tbtn{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:6px 12px;cursor:pointer}
+.fbtn:hover,.tbtn:hover{color:#fff;border-color:#3A4658}
+.fbtn.on{background:var(--acc);color:#2B1706;border-color:var(--acc)}
+.tbtn.danger{color:var(--bad-ink)}
+.q{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:22px 24px;margin-bottom:14px}
+.q.right{border-color:rgba(52,211,153,.5)} .q.wrong{border-color:rgba(248,113,113,.5)}
+.q .qh{display:flex;gap:10px;align-items:baseline;margin-bottom:10px;flex-wrap:wrap}
+.q .qn{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);font-weight:700}
+.q .qt{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--rule);border-radius:100px;padding:2px 9px}
+.q .stem{font-size:15.5px;color:#EAEFF6;margin-bottom:10px}
+.q .code{margin:8px 0 14px;font-size:14px}
+.q .sel2{font-weight:700;color:var(--acc-ink)}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;background:#0E121A;border:1px solid var(--rule);border-radius:5px;padding:11px 14px;color:#D8E1EC;font:inherit;font-size:15px;cursor:pointer}
+.opt:hover:not([disabled]){border-color:#3A4658;background:#121824}
+.opt .l{font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--ink-soft);flex:none;width:22px}
+.opt.picked{border-color:var(--acc)}
+.opt.ok{border-color:var(--lst);background:var(--lst-tint)} .opt.ok .l{color:var(--lst-ink)}
+.opt.bad{border-color:var(--bad);background:var(--bad-tint)} .opt.bad .l{color:var(--bad-ink)}
+.opt[disabled]{cursor:default}
+.opt code{white-space:pre-wrap}
+.check{margin-top:10px;font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:700;background:var(--acc);color:#2B1706;border:0;border-radius:100px;padding:8px 16px;cursor:pointer}
+.check[disabled]{opacity:.4;cursor:default}
+.why{display:none;margin-top:14px;border-top:1px solid var(--rule);padding-top:12px;font-size:14.5px;color:#C4CDD8}
+.why b.v{color:var(--lst-ink)} .why b.x{color:var(--bad-ink)}
+.q.done .why{display:block}
+.done-msg{display:none;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:22px 24px;margin:10px 0 20px}
+.done-msg h3{font-size:22px;color:#fff;margin-bottom:8px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:30ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:64ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .wrap{padding:0 16px}
+  .pillnav{padding:10px 16px;position:static}
+  .testbar{top:0}
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:9px 11px}
+  .checklist{grid-template-columns:1fr}
+  .part-head{flex-wrap:wrap} .part-head .les{margin-left:0}
+  .code{font-size:13px;padding:14px}
+  .q{padding:18px 16px}
+}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="index.html">&larr; Unit 3 Part 2</a>
+  <a href="../unit-6/practice-2.html?hub=w">Walkthroughs and assignments</a>
+  <a href="../unit-6/game.html">Quiz games</a>
+  <a href="#test" class="current">Practice Test</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">INTRO TO SOFTWARE TECHNOLOGY &nbsp;/&nbsp; UNIT 3 &nbsp;/&nbsp; WEB DESIGN (HTML PART 2)</div>
+    <h1>Unit 3 Part 2 Practice Test</h1>
+    <p class="deck">Questions for every lesson from 3.12 Box Model to 3.16 Tables. Read the code like a browser: go one line at a time and decide what the page will show. Use the topic buttons to practice one lesson at a time.</p>
+    <div class="meta">
+      <span class="chip">Covers <b>3.12&ndash;3.16</b></span>
+      <span class="chip"><b id="heroCount">0</b> questions</span>
+      <span class="chip">Every answer <b>explained</b></span>
+    </div>
+    <a class="cta" href="#test">Start the practice test &darr;</a>
+  </div>
+</header>
+
+<section class="part" id="test">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">Q</div><h2>Practice Test</h2></div>
+    <p class="lede">Picture the page the code makes before you choose. You get one try per question, and the explanation shows after you answer. "Select two" questions need exactly two choices before you can check.</p>
+
+    <div class="testbar">
+      <div class="score" id="score">0 / 0 <span>correct &middot; 0 left</span></div>
+      <div class="filters" id="filters"></div>
+      <button class="tbtn" id="missedBtn" type="button">Show missed only</button>
+      <button class="tbtn danger" id="resetBtn" type="button">Reset</button>
+    </div>
+    <div class="done-msg" id="doneMsg"></div>
+    <div id="quiz"></div>
+  </div>
+</section>
+
+
+<script>
+var LAB={"Box model": "3.12 Box model", "Colors (names and hex)": "3.13 Colors (names and hex)", "Display": "3.14 Display", "Div tag": "3.15 Div tag", "Tables": "3.16 Tables"};
+var Q = [
+{
+"t": "Box model",
+"s": "A box is <code>width: 180px</code> with a <code>10px</code> border and no padding. How wide does it render?",
+"o": [
+"200px",
+"190px",
+"210px",
+"180px"
+],
+"a": [
+0
+],
+"e": "180 + 10 + 10 = 200."
+},
+{
+"t": "Box model",
+"s": "What does <code>padding: 16px</code> do?",
+"o": [
+"Puts a 16 pixel border around the box",
+"Makes the box 16 pixels wide",
+"Puts 16 pixels of padding on all four sides",
+"Puts 16 pixels on the top only"
+],
+"a": [
+2
+],
+"e": "One value means all four sides equally."
+},
+{
+"t": "Box model",
+"s": "How many pixels of padding are between the words and the border on the left side?",
+"o": [
+"30 pixels",
+"14 pixels",
+"20 pixels",
+"0 pixels"
+],
+"a": [
+2
+],
+"e": "<code>padding: 20px</code> puts 20 pixels of space inside the box on all four sides.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<h2 style=\"padding: 20px; background-color: lightyellow\">Postcard</h2>\n</body>\n</html>"
+},
+{
+"t": "Box model",
+"s": "The paragraph has <code>padding: 15px 5px</code>. How many pixels of padding are on the top and bottom?",
+"o": [
+"15 pixels",
+"20 pixels",
+"10 pixels",
+"5 pixels"
+],
+"a": [
+0
+],
+"e": "With two values, the first is the top and bottom and the second is the left and right.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<p style=\"padding: 15px 5px; border: 2px solid navy\">Wide note</p>\n</body>\n</html>"
+},
+{
+"t": "Box model",
+"s": "How wide is this box on the page, counting the padding and the border?",
+"o": [
+"162 pixels",
+"154 pixels",
+"170 pixels",
+"174 pixels"
+],
+"a": [
+3
+],
+"e": "The width is only the content. Add the padding and the border on BOTH sides: 150 + 20 + 4 = 174.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<p style=\"width: 150px; padding: 10px; border: 2px solid black\">Box</p>\n</body>\n</html>"
+},
+{
+"t": "Box model",
+"s": "Which style puts 10px of space outside the border on the top side ONLY?",
+"o": [
+"<code>margin: 10px</code>",
+"<code>margin-top: 10</code>",
+"<code>padding-top: 10px</code>",
+"<code>margin-top: 10px</code>"
+],
+"a": [
+3
+],
+"e": "Margin is the space outside the border the border, and <code>margin-top</code> sets one side. Using the other property changes the wrong space, using <code>margin</code> alone sets all four sides, and a size needs px."
+},
+{
+"t": "Box model",
+"s": "Which layer is between the content and the border?",
+"o": [
+"The width",
+"The padding",
+"The outline",
+"The margin"
+],
+"a": [
+1
+],
+"e": "The four layers, from the inside out, are content, padding, border and margin. Padding takes the background color; margin is always transparent."
+},
+{
+"t": "Box model",
+"s": "This box has <code>width: 100px</code> and a 4px border and no padding. How wide is it in all?",
+"o": [
+"104 pixels",
+"108 pixels",
+"100 pixels",
+"92 pixels"
+],
+"a": [
+1
+],
+"e": "A border takes real space on both sides: 100 + 4 + 4 = 108.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<div style=\"width: 100px; border: 4px solid navy\">Box</div>\n</body>\n</html>"
+},
+{
+"t": "Box model",
+"s": "Which two styles put space INSIDE the border, so the background color fills it? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"<code>style=\"margin-left: 20px; background-color: yellow\"</code>",
+"<code>style=\"padding: 20px; background-color: yellow\"</code>",
+"<code>style=\"padding-left: 20px; background-color: yellow\"</code>",
+"<code>style=\"margin: 20px; background-color: yellow\"</code>"
+],
+"a": [
+1,
+2
+],
+"e": "Padding is inside the border and takes the background color. Margin is outside the border and is always see-through."
+},
+{
+"t": "Colors (names and hex)",
+"s": "What does a hex color code start with?",
+"o": [
+"A zero",
+"The word hex",
+"A $ symbol",
+"A # symbol"
+],
+"a": [
+3
+],
+"e": "Hex codes look like #FF6347."
+},
+{
+"t": "Colors (names and hex)",
+"s": "Which characters can a hex code use?",
+"o": [
+"0 to 9 only",
+"0 to 9 and A to F",
+"Any letters and symbols",
+"A to Z"
+],
+"a": [
+1
+],
+"e": "Hex has 16 digits: 0-9 and A-F."
+},
+{
+"t": "Colors (names and hex)",
+"s": "Which hex code is exactly the same color as the name <code>gold</code>?",
+"o": [
+"<code>#FFD700</code>",
+"<code>#008080</code>",
+"<code>#FF6347</code>",
+"<code>#000080</code>"
+],
+"a": [
+0
+],
+"e": "The color gold is written #FFD700 in hex. A name and a hex code can be the very same color."
+},
+{
+"t": "Colors (names and hex)",
+"s": "Which hex code is yellow (red and green together)?",
+"o": [
+"<code>#FF0000</code>",
+"<code>#FFFFFF</code>",
+"<code>#FFFF00</code>",
+"<code>#FF00FF</code>"
+],
+"a": [
+2
+],
+"e": "A hex code is three pairs: red, green, blue. 00 means none of that color and FF means the most. #FFFF00 is yellow (red and green together)."
+},
+{
+"t": "Colors (names and hex)",
+"s": "In the hex code <code>#FF7F50</code>, which pair controls the green?",
+"o": [
+"50",
+"FF",
+"7F",
+"00"
+],
+"a": [
+2
+],
+"e": "A hex code is # then red, green and blue pairs, in that order: #FF7F50 = red FF, green 7F, blue 50."
+},
+{
+"t": "Colors (names and hex)",
+"s": "Which of these is a valid hex color?",
+"o": [
+"<code>#0080G0</code>",
+"<code>#008080</code>",
+"<code>#00808</code>",
+"<code>#008080F</code>"
+],
+"a": [
+1
+],
+"e": "A hex color is a # followed by exactly 6 characters (0 to 9 and A to F). Without the #, with the wrong number of characters, or with a letter past F, the browser ignores it."
+},
+{
+"t": "Colors (names and hex)",
+"s": "What is the text color of the heading 1?",
+"o": [
+"<code>#800080</code>",
+"<code>#DC143C</code>",
+"<code>#000000</code>",
+"<code>#FFD700</code>"
+],
+"a": [
+0
+],
+"e": "A tag with its own color keeps it. A tag with none uses the body color: #DC143C.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Colors</title>\n</head>\n<body style=\"color: #DC143C\">\n<h1 style=\"color: #800080\">Title</h1>\n<p>Words</p>\n</body>\n</html>"
+},
+{
+"t": "Colors (names and hex)",
+"s": "Which hex code is the BACKGROUND of the paragraph?",
+"o": [
+"<code>#FFFFFF</code>",
+"<code>#000000</code>",
+"<code>#008080</code>",
+"<code>#FF69B4</code>"
+],
+"a": [
+2
+],
+"e": "<code>background-color</code> is the color behind the text; <code>color</code> is the text itself.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<p style=\"color: #FF69B4; background-color: #008080\">Contrast</p>\n</body>\n</html>"
+},
+{
+"t": "Colors (names and hex)",
+"s": "Which two of these will show a color on the page when used as <code>color: ...</code>? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"<code>#FF0000</code>",
+"<code>#00FG00</code>",
+"<code>#00FF00</code>",
+"<code>FF0000</code>"
+],
+"a": [
+0,
+2
+],
+"e": "A hex color needs a # and exactly 6 characters from 0-9 and A-F. Without the #, or with a letter past F, the browser ignores it."
+},
+{
+"t": "Display",
+"s": "Is an img tag block or inline?",
+"o": [
+"Inline: it sits in the line like a giant letter",
+"Block: it takes its own line",
+"Neither",
+"It depends on its size"
+],
+"a": [
+0
+],
+"e": "Pictures are inline."
+},
+{
+"t": "Display",
+"s": "A div has no display style. Is it block or inline?",
+"o": [
+"Block",
+"Inline",
+"Inline-block",
+"Neither"
+],
+"a": [
+0
+],
+"e": "A div is born block."
+},
+{
+"t": "Display",
+"s": "What does the page show?",
+"o": [
+"Only the first one shows",
+"They overlap each other",
+"They sit in a row",
+"They stack in a column"
+],
+"a": [
+2
+],
+"e": "<code>block</code> boxes take a whole line each, so they stack. <code>inline-block</code> and <code>inline</code> boxes sit in the line like words.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<div style=\"display: inline; width: 50px; background-color: pink\">Card 1</div>\n<div style=\"display: inline; width: 50px; background-color: pink\">Card 2</div>\n<div style=\"display: inline; width: 50px; background-color: lightgreen\">Card 3</div>\n</body>\n</html>"
+},
+{
+"t": "Display",
+"s": "How wide is the box on the page?",
+"o": [
+"It does not show",
+"It is 80 pixels wide",
+"It ignores the width and is only as wide as its words",
+"It takes the whole width of the page"
+],
+"a": [
+1
+],
+"e": "An <code>inline</code> box ignores width and height. An <code>inline-block</code> box sits in the line but keeps the width and height you set.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<div style=\"display: inline-block; width: 80px; background-color: gold\">Wide?</div>\n</body>\n</html>"
+},
+{
+"t": "Display",
+"s": "Which kind of tag is <code>&lt;p&gt;</code> when you add no display style?",
+"o": [
+"Inline: it stays in the line",
+"It depends on the browser",
+"Block: it starts a new line",
+"Inline-block: it keeps a width but sits in the line"
+],
+"a": [
+2
+],
+"e": "Block tags (html, body, h1-h6, p, div, ul, ol, li, hr) start on a new line. Inline tags (span, strong, em, a, img) stay in the line."
+},
+{
+"t": "Display",
+"s": "Which style turns the link into a wide button that takes the whole width?",
+"o": [
+"<code>display: inline-block; padding: 12px; background-color: navy; color: white</code>",
+"<code>display: block; padding: 12px; background-color: navy; color: white</code>",
+"<code>display: inline; padding: 12px; background-color: navy; color: white</code>",
+"<code>width: 100; padding: 12px; background-color: navy; color: white</code>"
+],
+"a": [
+1
+],
+"e": "<code>display: block</code> makes a tag take the whole width and its own line. Inline and inline-block stay only as wide as their words, and a size needs px."
+},
+{
+"t": "Display",
+"s": "The page is wide. How many rows do the 5 boxes make?",
+"o": [
+"5",
+"2",
+"1",
+"3"
+],
+"a": [
+1
+],
+"e": "Each box is 25% wide, so 3 fit in a row (the spaces between them take a little room). 5 boxes need 2 rows.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<div style=\"display: inline-block; width: 25%; background-color: gold\">1</div>\n<div style=\"display: inline-block; width: 25%; background-color: gold\">2</div>\n<div style=\"display: inline-block; width: 25%; background-color: gold\">3</div>\n<div style=\"display: inline-block; width: 25%; background-color: gold\">4</div>\n<div style=\"display: inline-block; width: 25%; background-color: gold\">5</div>\n</body>\n</html>"
+},
+{
+"t": "Display",
+"s": "What is the one-style fix behind almost every horizontal menu?",
+"o": [
+"<code>display: block</code>",
+"<code>text-align: row</code>",
+"<code>display: inline-block</code>",
+"<code>display: vertical</code>"
+],
+"a": [
+2
+],
+"e": "block = own line, full width. inline = in the line, no size. inline-block = in the line, with a size."
+},
+{
+"t": "Display",
+"s": "Which two display values make the three divs sit in one row? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"<code>display: inline</code>",
+"<code>display: inline-block</code>",
+"<code>display: row</code>",
+"<code>display: block</code>"
+],
+"a": [
+0,
+1
+],
+"e": "inline-block and inline both sit in the line like words. block stacks, and row is not a display value."
+},
+{
+"t": "Div tag",
+"s": "What is a div mostly used for?",
+"o": [
+"Showing a picture",
+"Making text bold",
+"Drawing a line across the page",
+"Grouping related tags into one box you can style or arrange"
+],
+"a": [
+3
+],
+"e": "A div groups related tags into one unit."
+},
+{
+"t": "Div tag",
+"s": "Which two styles put two divs side by side with their tops lined up?",
+"o": [
+"<code>display: block</code> and <code>vertical-align: top</code>",
+"<code>display: inline</code> and <code>margin: 0</code>",
+"<code>width: 50%</code> only",
+"<code>display: inline-block</code> and <code>vertical-align: top</code>"
+],
+"a": [
+3
+],
+"e": "inline-block makes a row; vertical-align: top aligns the tops."
+},
+{
+"t": "Div tag",
+"s": "What color is the text of the paragraph?",
+"o": [
+"navy",
+"yellow",
+"black",
+"gold"
+],
+"a": [
+1
+],
+"e": "Everything inside a div inherits its text color, unless a tag has its own color.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<div style=\"background-color: navy; color: yellow; padding: 10px\">\n<h3>Title</h3>\n<p>Words</p>\n</div>\n</body>\n</html>"
+},
+{
+"t": "Div tag",
+"s": "How tall is the orange div on the page?",
+"o": [
+"The height of one line of text",
+"The whole page",
+"40 pixels",
+"0 pixels: it disappears"
+],
+"a": [
+3
+],
+"e": "A div's height stretches to fit what is inside it. An empty div collapses to 0 unless you give it a height.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<div style=\"background-color: orange\"></div>\n<p>Below the bar.</p>\n</body>\n</html>"
+},
+{
+"t": "Div tag",
+"s": "The two columns are 48% and 48% wide. What happens?",
+"o": [
+"Side by side",
+"They overlap",
+"Only one column shows",
+"The second column drops to a new line"
+],
+"a": [
+0
+],
+"e": "Widths of one row must add up to 98% or less to leave room for built-in spacing. 48% + 48% = 96%.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<div style=\"display: inline-block; vertical-align: top; width: 48%\">One</div>\n<div style=\"display: inline-block; vertical-align: top; width: 48%\">Two</div>\n</body>\n</html>"
+},
+{
+"t": "Div tag",
+"s": "Both columns are inline-block. What do you see?",
+"o": [
+"The second column disappears",
+"The tops line up",
+"The shorter column hangs lower",
+"The columns overlap"
+],
+"a": [
+1
+],
+"e": "<code>vertical-align: top</code> locks side-by-side columns to the same top edge. Without it they line up by their text baseline, so a column with more text pushes the other down.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<div style=\"display: inline-block; width: 30%; vertical-align: top\">\n<p>One</p>\n<p>Two</p>\n<p>Three</p>\n</div>\n<div style=\"display: inline-block; width: 30%; vertical-align: top\">\n<p>Only one</p>\n</div>\n</body>\n</html>"
+},
+{
+"t": "Div tag",
+"s": "How many separate rows of columns are on the page?",
+"o": [
+"3",
+"1",
+"2",
+"4"
+],
+"a": [
+2
+],
+"e": "Each pair is 45% + 45% = 90%, so a row holds two columns and the next pair starts a new row after the hr.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<div style=\"display: inline-block; vertical-align: top; width: 45%\">A1</div>\n<div style=\"display: inline-block; vertical-align: top; width: 45%\">A2</div>\n<hr>\n<div style=\"display: inline-block; vertical-align: top; width: 45%\">B1</div>\n<div style=\"display: inline-block; vertical-align: top; width: 45%\">B2</div>\n</body>\n</html>"
+},
+{
+"t": "Div tag",
+"s": "How many tags are directly inside the first div?",
+"o": [
+"5",
+"6",
+"3",
+"4"
+],
+"a": [
+3
+],
+"e": "A div groups the tags between its opening and closing tags: 4.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<div style=\"padding: 10px; background-color: gold\">\n<p>One</p>\n<h3>Title</h3>\n<p>Two</p>\n<ul><li>a</li></ul>\n</div>\n<div>Other</div>\n</body>\n</html>"
+},
+{
+"t": "Div tag",
+"s": "Which two statements about a div are true? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"A div always draws a border around its content",
+"A div is a block tag, so it starts on a new line",
+"A div must have a width or it disappears",
+"A text color on a div is inherited by the tags inside it"
+],
+"a": [
+1,
+3
+],
+"e": "A div is born block, and the styles you put on it (like color) are inherited by what is inside. It draws no border on its own, and its width stretches to the whole line."
+},
+{
+"t": "Tables",
+"s": "How do you build a table?",
+"o": [
+"One column at a time",
+"All at once",
+"With a single tag",
+"One row at a time, dropping cells into each row left to right"
+],
+"a": [
+3
+],
+"e": "You do not build columns directly."
+},
+{
+"t": "Tables",
+"s": "Can a td hold a link or a picture?",
+"o": [
+"Only a link",
+"Yes: it can hold any other tag",
+"No: only text",
+"Only a picture"
+],
+"a": [
+1
+],
+"e": "Put the tag inside the td."
+},
+{
+"t": "Tables",
+"s": "How many rows does the table have (counting the header row)?",
+"o": [
+"9",
+"4",
+"6",
+"5"
+],
+"a": [
+3
+],
+"e": "Count the tr tags: 5.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<table>\n<tr>\n<th>Team</th>\n<th>Wins</th>\n<th>Losses</th>\n<th>Ties</th>\n</tr>\n<tr>\n<td>Hawks</td>\n<td>4</td>\n<td>6</td>\n<td>12</td>\n</tr>\n<tr>\n<td>Eagles</td>\n<td>4</td>\n<td>4</td>\n<td>5</td>\n</tr>\n<tr>\n<td>Lions</td>\n<td>1</td>\n<td>2</td>\n<td>5</td>\n</tr>\n<tr>\n<td>Lions</td>\n<td>8</td>\n<td>7</td>\n<td>9</td>\n</tr>\n</table>\n</body>\n</html>"
+},
+{
+"t": "Tables",
+"s": "What does row 2 of the data (the second data row) show on the page?",
+"o": [
+"Bo 6 3",
+"Ed 6 1",
+"Cy 6 0",
+"Player Goals Assists"
+],
+"a": [
+0
+],
+"e": "A row shows its cells from left to right: Bo 6 3.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<table>\n<tr>\n<th>Player</th>\n<th>Goals</th>\n<th>Assists</th>\n</tr>\n<tr>\n<td>Cy</td>\n<td>6</td>\n<td>0</td>\n</tr>\n<tr>\n<td>Bo</td>\n<td>6</td>\n<td>3</td>\n</tr>\n<tr>\n<td>Ed</td>\n<td>6</td>\n<td>1</td>\n</tr>\n</table>\n</body>\n</html>"
+},
+{
+"t": "Tables",
+"s": "What is wrong with this table?",
+"o": [
+"Nothing: every row has the same number of cells",
+"The last row has fewer cells than the header row",
+"The header cells should be td tags",
+"The last row has more cells than the header row"
+],
+"a": [
+0
+],
+"e": "Every row needs the same number of cells, or the table's columns break.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<table>\n<tr>\n<th>Name</th>\n<th>Score</th>\n<th>Rank</th>\n</tr>\n<tr>\n<td>Ana</td>\n<td>90</td>\n<td>1</td>\n</tr>\n<tr>\n<td>Bo</td>\n<td>85</td>\n<td>2</td>\n</tr>\n</table>\n</body>\n</html>"
+},
+{
+"t": "Tables",
+"s": "Which words does the table show in bold and centered by default?",
+"o": [
+"None of them",
+"Pen and $2 (the td cells)",
+"All four cells",
+"Item and Price (the th cells)"
+],
+"a": [
+3
+],
+"e": "A th is a table header: bold and centered by default. A td is a normal data cell.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<table>\n<tr>\n<th>Item</th>\n<th>Price</th>\n</tr>\n<tr>\n<td>Pen</td>\n<td>$2</td>\n</tr>\n</table>\n</body>\n</html>"
+},
+{
+"t": "Tables",
+"s": "Which table style centers the text in every cell?",
+"o": [
+"<code>&lt;table style=\"text-align: center\"&gt;</code>",
+"<code>&lt;table style=\"text-center: yes\"&gt;</code>",
+"<code>&lt;table style=\"center: text\"&gt;</code>",
+"<code>&lt;table style=\"align: center\"&gt;</code>"
+],
+"a": [
+0
+],
+"e": "Text-align on the table is inherited by every cell. The property is <code>text-align</code>."
+},
+{
+"t": "Tables",
+"s": "What is inside the second cell?",
+"o": [
+"A picture",
+"A link",
+"Bold words",
+"A bulleted list"
+],
+"a": [
+2
+],
+"e": "A td can hold any other tag, like a link, bold words or a whole list.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<table>\n<tr>\n<td>Site</td>\n<td><strong>YouTube</strong></td>\n</tr>\n</table>\n</body>\n</html>"
+},
+{
+"t": "Tables",
+"s": "Which two statements about a table are true? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"You build a table one column at a time",
+"Only a th can hold a link",
+"A td can hold a link",
+"Every row needs the same number of cells"
+],
+"a": [
+2,
+3
+],
+"e": "Every row must have the same number of cells, and a cell can hold any other tag. You build a table one row at a time."
+}
+];
+
+(function(){
+  var KEY='ist-u3p2-pt-v1', state={};
+  try{ state=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ state={}; }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+  var quiz=document.getElementById('quiz'), filt='All', missedOnly=false;
+  var topics=['All'].concat(["Box model", "Colors (names and hex)", "Display", "Div tag", "Tables"]);
+  document.getElementById('heroCount').textContent=Q.length;
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function same(a,b){ if(a.length!==b.length) return false; var x=a.slice().sort(), y=b.slice().sort(); return x.every(function(v,i){return v===y[i];}); }
+
+  var fwrap=document.getElementById('filters');
+  topics.forEach(function(t){
+    var b=document.createElement('button'); b.type='button'; b.className='fbtn'+(t==='All'?' on':''); b.textContent=LAB[t]||t;
+    b.onclick=function(){ filt=t; [].forEach.call(fwrap.children,function(c){c.classList.toggle('on',c===b);}); apply(); };
+    fwrap.appendChild(b);
+  });
+
+  Q.forEach(function(q,i){
+    var multi=q.a.length>1, el=document.createElement('div'); el.className='q'; el.dataset.t=q.t; el.id='q'+i;
+    var h='<div class="qh"><span class="qn">Question '+(i+1)+'</span><span class="qt">'+(LAB[q.t]||q.t)+'</span></div><div class="stem">'+q.s+'</div>';
+    if(q.c) h+='<div class="code">'+esc(q.c)+'</div>';
+    h+='<div class="opts">'+q.o.map(function(o,j){return '<button type="button" class="opt" data-j="'+j+'"><span class="l">'+'ABCD'[j]+'</span><span>'+o+'</span></button>';}).join('')+'</div>';
+    if(multi) h+='<button type="button" class="check" disabled>Check answer</button>';
+    h+='<div class="why"></div>';
+    el.innerHTML=h; quiz.appendChild(el);
+    var picks=[], btns=el.querySelectorAll('.opt'), chk=el.querySelector('.check');
+    [].forEach.call(btns,function(b){
+      b.onclick=function(){
+        if(el.classList.contains('done')) return;
+        var j=+b.dataset.j;
+        if(!multi){ grade(i,[j]); return; }
+        var k=picks.indexOf(j);
+        if(k>=0) picks.splice(k,1); else if(picks.length<2) picks.push(j);
+        [].forEach.call(btns,function(x){ x.classList.toggle('picked', picks.indexOf(+x.dataset.j)>=0); });
+        chk.disabled=picks.length!==2;
+      };
+    });
+    if(chk) chk.onclick=function(){ grade(i,picks.slice()); };
+    if(state[i]) render(i,state[i]);
+  });
+
+  function grade(i,picked){ state[i]=picked; save(); render(i,picked); tally(); }
+  function render(i,picked){
+    var q=Q[i], el=document.getElementById('q'+i), ok=same(picked,q.a);
+    el.classList.add('done', ok?'right':'wrong');
+    [].forEach.call(el.querySelectorAll('.opt'),function(b){
+      var j=+b.dataset.j; b.disabled=true; b.classList.remove('picked');
+      if(q.a.indexOf(j)>=0) b.classList.add('ok'); else if(picked.indexOf(j)>=0) b.classList.add('bad');
+    });
+    var c=el.querySelector('.check'); if(c) c.style.display='none';
+    var ans=q.a.map(function(j){return 'ABCD'[j];}).join(' and ');
+    el.querySelector('.why').innerHTML=(ok?'<b class="v">Correct.</b> ':'<b class="x">Not quite. The answer is '+ans+'.</b> ')+q.e;
+  }
+  function tally(){
+    var done=0,right=0;
+    Q.forEach(function(q,i){ if(state[i]){ done++; if(same(state[i],q.a)) right++; } });
+    document.getElementById('score').innerHTML=right+' / '+done+' <span>correct &middot; '+(Q.length-done)+' left</span>';
+    var dm=document.getElementById('doneMsg');
+    if(done===Q.length){
+      var pct=Math.round(100*right/Q.length);
+      dm.style.display='block';
+      dm.innerHTML='<h3>Finished: '+right+' / '+Q.length+' ('+pct+'%)</h3><p style="color:#C4CDD8">'+(pct>=90?'You’re ready for the Unit 3 test.':pct>=75?'Close. Click “Show missed only,” re-read those sections, then Reset and retake.':'Re-read the sections for the topics you missed (use the topic filters), then Reset and retake.')+'</p>';
+    } else dm.style.display='none';
+  }
+  function apply(){
+    Q.forEach(function(q,i){
+      var el=document.getElementById('q'+i);
+      var show=(filt==='All'||q.t===filt) && (!missedOnly || (state[i] && !same(state[i],q.a)));
+      el.style.display=show?'':'none';
+    });
+  }
+  document.getElementById('missedBtn').onclick=function(){ missedOnly=!missedOnly; this.classList.toggle('on',missedOnly); this.textContent=missedOnly?'Show all':'Show missed only'; apply(); };
+  document.getElementById('resetBtn').onclick=function(){
+    if(!confirm('Clear all your answers and start over?')) return;
+    state={}; save(); location.hash='#test'; location.reload();
+  };
+  tally();
+})();
+</script>
+</body>
+</html>

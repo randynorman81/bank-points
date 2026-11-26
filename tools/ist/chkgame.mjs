@@ -4,7 +4,7 @@ const { launch } = require("/Users/randynorman/bank-points/tools/missions/testki
 const b = await launch(9655, 1100, 900);
 await b.send("Page.addScriptToEvaluateOnNewDocument", { source: "window.__errs=[]; window.addEventListener('error', function(e){ window.__errs.push(String(e.message)); });" });
 let bad = 0, rounds = 0, previews = 0;
-for (let l = 1; l <= 10; l++) {
+for (let l = 1; l <= 15; l++) {
   await b.send("Page.navigate", { url: "http://localhost:8124/ist/unit-6/game.html?l=" + l }); await b.sleep(900);
   for (let r = 0; r < 10; r++) {
     const st = await b.ev(`(function(){ var o=document.querySelectorAll('.opt'); if(!o.length) return null; o[cur.a].click(); return [document.querySelectorAll('.opt.ok').length, document.querySelectorAll('.opt.no').length, document.getElementById('shows').className.indexOf('show')>-1, !!cur.c]; })()`);

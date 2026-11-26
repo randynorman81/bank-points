@@ -1,7 +1,7 @@
 import sys, json, random; sys.path.insert(0, '.')
 import qgen
 r = random.Random(int(sys.argv[1]) if len(sys.argv) > 1 else 1); out = []; seen = set()
-for l in range(1, 11):
+for l in sorted(qgen.LESSON_T):
     for f in qgen.LESSON_T[l]:
         for _ in range(12):
             try: q = f(r)
