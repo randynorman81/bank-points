@@ -5,7 +5,7 @@
   var SC = root.U7_STEPCHECKS, h = SC.H; if (!SC) return;
   var K = h.K, P = h.P, T = h.T, CNT = h.CNT, has = h.has, kids = h.kids, txt = h.txt, words = h.words, within = h.within, exists = h.exists;
   function lastStep(l, st, list) { list.comment = false; SC.LESSONS[l].steps[st] = list; }
-  /* the page is built correctly: the Problems list is empty AND the shapes the Problems list does not catch are right too (every attribute value in double quotes, no paragraph inside a heading, list items only in lists, only li tags directly inside a list) */
+  /* the page is built correctly: no line is marked red in the editor AND the shapes the red line numbers do not catch are right too (every attribute value in double quotes, no paragraph inside a heading, list items only in lists, only li tags directly inside a list) */
   function structOK(c) {
     var s = String(c.rawSrc || "").replace(/<!--[\s\S]*?-->/g, "");
     var tags = s.match(/<[a-zA-Z][^<>]*>/g) || [];
@@ -16,7 +16,7 @@
     if (c.all("ul").concat(c.all("ol")).some(function (l) { return l.children.some(function (k) { return k.tag === "#text" && String(k.text).trim(); }) || kids(l).some(function (k) { return k.tag !== "li"; }); })) return false;
     return true;
   }
-  var NOERR = K("The Problems list is empty and the page is built correctly (every tag closed, every attribute value in double quotes, nothing nested wrongly)", function (c) { return String(c.rawSrc || "").trim().length > 0 && root.HTMLCheck.check(c.lesson, c.rawSrc, c.cssFile || "").errors.length === 0 && structOK(c); });
+  var NOERR = K("No line number is red, and the page is built correctly (every tag closed, every attribute value in double quotes, nothing nested wrongly)", function (c) { return String(c.rawSrc || "").trim().length > 0 && root.HTMLCheck.check(c.lesson, c.rawSrc, c.cssFile || "").errors.length === 0 && structOK(c); });
 
   /* ---------- shared pieces ---------- */
   var norm = function (s) { return String(s).replace(/\s+/g, " ").trim(); };

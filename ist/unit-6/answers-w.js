@@ -43,7 +43,7 @@
       "Count your tags. The page has **1** heading 1, **2** heading 2s and **2** paragraphs."
     ], [], [P("**Try it:** press Enter a few extra times between two of your lines, so there are blank lines. Look at the preview. Nothing moves! The browser ignores blank lines and extra spaces, and only the tags decide how the page looks. Then delete the extra blank lines.")]),
     S("Check and submit", [
-      "Open the **Problems** list. It should be empty. If it is not, click a problem to jump to that line and fix it (usually a tag that is not closed or is misspelled).",
+      "Look at the line numbers on the left of your code. **No line number should be red**: a red number means a problem on that line (usually a tag that is not closed or is misspelled). Fix every one.",
       "Choose your class period at the top, then click **Submit**. You can submit again to replace it."
     ])
   ]);
@@ -51,7 +51,7 @@
   /* ===================== 3.1 Assignment ===================== */
   A["6.1a"] = build([
     { h: "What you are building" },
-    P("**Netflix** wants a simple Help Center page. Build it from scratch with the skeleton, one main heading and two short help sections. Type every tag yourself. Click **Checks** any time to see your score."),
+    P("**Netflix** wants a simple Help Center page. Build it from scratch with the skeleton, one main heading and two short help sections. Type every tag yourself. Watch the **Auto score** at the top to see how you are doing."),
     { map: ["The skeleton and a title", "Heading 1", "Two sections: a heading 2 and a paragraph each", "Check and submit"] },
     S("Skeleton and title", [
       "Type the doctype as the very first line, then the html tags (everything else goes inside them)",
@@ -67,7 +67,7 @@
       "Use only heading 1 and heading 2 (no heading 3 or smaller). The page has exactly **1** heading 1, **2** heading 2s and **2** paragraphs"
     ]),
     S("Check and submit", [
-      "Fix anything in the **Problems** list",
+      "Fix every **red line number** in your code (a red number means a problem on that line)",
       "Choose your class period at the top, then click **Submit**"
     ])
   ]);
@@ -98,7 +98,7 @@
     ], [P("Styles on the **body** reach the whole page. Anything that does not have its own style uses the body's colors. Pieces with their own style (like your tomato heading, the black heading and the yellow paragraph) keep their own colors.")],
       [P("**Try it:** the page turns navy. The heading 1 stays tomato because it has its own color.")]),
     S("Check and submit", [
-      "Open the **Problems** list. It should be empty. If it is not, click a problem to jump to that line and fix it (usually a missing quote or a missing semicolon)",
+      "Look at the line numbers on the left of your code. **No line number should be red**: a red number means a problem on that line (usually a tag that is not closed). Also check every style for a missing quote, colon or semicolon",
       "Choose your class period at the top, then click **Submit**"
     ])
   ]);
@@ -106,7 +106,7 @@
   /* ===================== 3.2 Assignment ===================== */
   A["6.2a"] = build([
     { h: "What you are building" },
-    P("**Spotify** wants a colorful playlist page for a road trip. Build it from scratch. Pick colors that are easy to read: dark text on a light background, or light text on a dark background. Click **Checks** any time to see your score."),
+    P("**Spotify** wants a colorful playlist page for a road trip. Build it from scratch. Pick colors that are easy to read: dark text on a light background, or light text on a dark background. Watch the **Auto score** at the top to see how you are doing."),
     { map: ["The skeleton and a title", "The words on the page", "Colors", "Check and submit"] },
     S("Skeleton and title", [
       "Type the doctype as the very first line, then the html tags",
@@ -124,7 +124,7 @@
       "Give **two of your paragraphs** both a text color and a background color, using **hex codes** (a # and letters and numbers) for both. Use two different colors in each"
     ]),
     S("Check and submit", [
-      "Fix anything in the **Problems** list",
+      "Fix every **red line number** in your code (a red number means a problem on that line)",
       "Choose your class period at the top, then click **Submit**"
     ])
   ]);
@@ -158,7 +158,7 @@
     ], [P("The style `text-transform` changes the letter case **on the page** without changing the words you typed. `uppercase` makes every letter a capital, `lowercase` makes every letter small, and `capitalize` makes the **first letter of every word** a capital."), CODE("<h1 style=\"font-size: 48px; text-align: center; text-transform: uppercase\">Skyline Cinema</h1>")],
       [P("**Try it:** the heading 3 now reads Friday Night Double Feature and the paragraph reads in small letters, even though you typed them the other way around.")]),
     S("Check and submit", [
-      "Open the **Problems** list. It should be empty",
+      "Look at the line numbers on the left of your code. **No line number should be red**: a red number means a problem on that line, like a tag that is not closed or is misspelled",
       "Choose your class period at the top, then click **Submit**"
     ])
   ]);
@@ -166,7 +166,7 @@
   /* ===================== 3.3 Assignment ===================== */
   A["6.20a"] = build([
     { h: "What you are building" },
-    P("**Nintendo** wants a poster page for a game announcement. Build it from scratch. The page title and the main heading are given. The rest is yours: pick a game and write the words. Click **Checks** any time to see your score."),
+    P("**Nintendo** wants a poster page for a game announcement. Build it from scratch. The page title and the main heading are given. The rest is yours: pick a game and write the words. Watch the **Auto score** at the top to see how you are doing."),
     { map: ["The skeleton and a title", "The words on the page", "Size, alignment and letter case", "Check and submit"] },
     S("Skeleton and title", [
       "Type the doctype as the very first line, then the html tags",
@@ -185,7 +185,7 @@
       "Use what you know from 3.2: give the **body** a background color and a different text color"
     ]),
     S("Check and submit", [
-      "Fix anything in the **Problems** list",
+      "Fix every **red line number** in your code (a red number means a problem on that line)",
       "Choose your class period at the top, then click **Submit**"
     ])
   ]);
@@ -216,7 +216,7 @@
     ], [P("A **span** is a tag that does nothing by itself. It only marks a few words inside a line so you can style just those words. Without a style it looks the same as the rest of the line."), CODE("<p>Try the <span style=\"color: green\">Green Giant</span> latte.</p>")],
       [P("**Try it:** only the two words turn green, and the rest of the paragraph stays black.")]),
     S("Check and submit", [
-      "Open the **Problems** list. It should be empty",
+      "Look at the line numbers on the left of your code. **No line number should be red**: a red number means a problem on that line, like a tag that is not closed or is misspelled",
       "Choose your class period at the top, then click **Submit**"
     ])
   ]);
@@ -224,7 +224,7 @@
   /* ===================== 3.4 Assignment ===================== */
   A["6.3a"] = build([
     { h: "What you are building" },
-    P("**Chipotle** wants a menu page for its kiosk screen. Build it from scratch and write your own menu items. Click **Checks** any time to see your score."),
+    P("**Chipotle** wants a menu page for its kiosk screen. Build it from scratch and write your own menu items. Watch the **Auto score** at the top to see how you are doing."),
     { map: ["The skeleton and a title", "The words on the page", "Menu touches", "Check and submit"] },
     S("Skeleton and title", [
       "Type the doctype as the very first line, then the html tags",
@@ -242,7 +242,7 @@
       "Use what you know: **center** the heading 1 and give the **body** a background color and a different text color"
     ]),
     S("Check and submit", [
-      "Fix anything in the **Problems** list",
+      "Fix every **red line number** in your code (a red number means a problem on that line)",
       "Choose your class period at the top, then click **Submit**"
     ])
   ]);
@@ -275,7 +275,7 @@
     ], [P("A span inside a paragraph can use its own font. It overrides the paragraph's font for just those words, the same way a span can change a color."), CODE("<p style=\"font-family: 'Open Sans'\">Try our <span style=\"font-family: 'Pacifico'\">famous</span> cinnamon rolls.</p>")],
       [P("**Try it:** only the word \"famous\" is in the script font. Good designers use **2 to 4 fonts**, and each one has a job.")]),
     S("Check and submit", [
-      "Open the **Problems** list. It should be empty",
+      "Look at the line numbers on the left of your code. **No line number should be red**: a red number means a problem on that line, like a tag that is not closed or is misspelled",
       "Choose your class period at the top, then click **Submit**"
     ])
   ]);
@@ -283,7 +283,7 @@
   /* ===================== 3.5 Assignment ===================== */
   A["6.35a"] = build([
     { h: "What you are building" },
-    P("**Airbnb** wants a page about cozy cabins that uses two fonts with different jobs: one for headings, one for reading. Pick fonts that fit a cabin trip. Click **Checks** any time to see your score."),
+    P("**Airbnb** wants a page about cozy cabins that uses two fonts with different jobs: one for headings, one for reading. Pick fonts that fit a cabin trip. Watch the **Auto score** at the top to see how you are doing."),
     { map: ["The skeleton and a title", "The words on the page", "Load two fonts", "Use the fonts", "Check and submit"] },
     S("Skeleton and title", [
       "Type the doctype as the very first line, then the html tags",
@@ -303,7 +303,7 @@
       "Use what you know: **center** the heading 1, and give the **body** a background color and a different text color"
     ]),
     S("Check and submit", [
-      "Fix anything in the **Problems** list",
+      "Fix every **red line number** in your code (a red number means a problem on that line)",
       "Choose your class period at the top, then click **Submit**"
     ])
   ]);
@@ -335,7 +335,7 @@
     ], [P("To draw a border on just one side, add the side to the property: `border-top`, `border-bottom`, `border-left` or `border-right`. It uses the same three parts: thickness, style, color."), CODE("<h2 style=\"border-bottom: 3px dashed red\">Friday at Six</h2>")],
       [P("**Try it:** change `border-bottom` to `border-top` and see the line jump above the heading. Then put it back.")]),
     S("Check and submit", [
-      "Open the **Problems** list. It should be empty",
+      "Look at the line numbers on the left of your code. **No line number should be red**: a red number means a problem on that line, like a tag that is not closed or is misspelled",
       "Choose your class period at the top, then click **Submit**"
     ])
   ]);
@@ -343,7 +343,7 @@
   /* ===================== 3.6 Assignment ===================== */
   A["6.4a"] = build([
     { h: "What you are building" },
-    P("**Pokemon** wants a trading card page for Pikachu, where borders make every part of the card stand out. Write your own card facts. Click **Checks** any time to see your score."),
+    P("**Pokemon** wants a trading card page for Pikachu, where borders make every part of the card stand out. Write your own card facts. Watch the **Auto score** at the top to see how you are doing."),
     { map: ["The skeleton and a title", "The words on the page", "Borders", "Check and submit"] },
     S("Skeleton and title", [
       "Type the doctype as the very first line, then the html tags",
@@ -362,7 +362,7 @@
       "Use what you know: **center** the heading 1, give it a font-size of **at least 40px**, and give the **body** a background color and a different text color"
     ]),
     S("Check and submit", [
-      "Fix anything in the **Problems** list",
+      "Fix every **red line number** in your code (a red number means a problem on that line)",
       "Choose your class period at the top, then click **Submit**"
     ])
   ]);
@@ -392,7 +392,7 @@
     ], [P("Set a picture's size with the style `width`. A number with **px** is an exact size. A number with **%** is a share of the page's width, so the picture grows and shrinks with the window. Set only the width and the browser works out the height, so the picture is never squished."), CODE("<img src=\"" + LABU + "rocket.svg\" alt=\"A red and white rocket flying through space\" style=\"width: 200px\">")],
       [P("**Try it:** drag the preview narrower. The rocket stays 200px but the planet shrinks with the page. Never use both width and height.")]),
     S("Check and submit", [
-      "Open the **Problems** list. It should be empty",
+      "Look at the line numbers on the left of your code. **No line number should be red**: a red number means a problem on that line, like a tag that is not closed or is misspelled",
       "Choose your class period at the top, then click **Submit**"
     ])
   ]);
@@ -400,7 +400,7 @@
   /* ===================== 3.7 Assignment ===================== */
   A["6.7a"] = build([
     { h: "What you are building" },
-    P("**Apple** wants a store page with pictures. Build it from scratch. You may use any pictures with an **https://** address, or ones you uploaded in **Checks > My images**. These three are ready to use: " + LABU + "rocket.svg, " + LABU + "planet.svg and " + LABU + "moon.svg. Click **Checks** any time to see your score."),
+    P("**Apple** wants a store page with pictures. Build it from scratch. You may use any pictures with an **https://** address, or ones you uploaded with the **Images** button. These three are ready to use: " + LABU + "rocket.svg, " + LABU + "planet.svg and " + LABU + "moon.svg. Watch the **Auto score** at the top to see how you are doing."),
     { map: ["The skeleton and a title", "The words on the page", "The favicon", "Pictures", "Check and submit"] },
     S("Skeleton and title", [
       "Type the doctype as the very first line, then the html tags",
@@ -421,7 +421,7 @@
       "Use what you know: **center** the heading 1 and give the **body** a background color and a different text color"
     ]),
     S("Check and submit", [
-      "Fix anything in the **Problems** list",
+      "Fix every **red line number** in your code (a red number means a problem on that line)",
       "Choose your class period at the top, then click **Submit**"
     ])
   ]);
@@ -451,7 +451,7 @@
       "Change paragraph 3 to **© 2027 Pizza Night™ ♥ Made with love** and give it the style `text-align: center; font-size: 14px`"
     ], [P("Almost every real website ends with a footer line that has a **©** (copyright) symbol, the year, and often a **™** (trademark) symbol. It is small and centered."), CODE("<p style=\"text-align: center; font-size: 14px\">© 2027 Pizza Night™ ♥ Made with love</p>")]),
     S("Check and submit", [
-      "Open the **Problems** list. It should be empty",
+      "Look at the line numbers on the left of your code. **No line number should be red**: a red number means a problem on that line, like a tag that is not closed or is misspelled",
       "Choose your class period at the top, then click **Submit**"
     ])
   ]);
@@ -459,7 +459,7 @@
   /* ===================== 3.8 Assignment ===================== */
   A["6.75a"] = build([
     { h: "What you are building" },
-    P("**Taco Bell** wants a menu page with emojis and symbols. Build it from scratch with your own menu items. Click **Checks** any time to see your score."),
+    P("**Taco Bell** wants a menu page with emojis and symbols. Build it from scratch with your own menu items. Watch the **Auto score** at the top to see how you are doing."),
     { map: ["The skeleton and a title", "The words on the page", "Symbols", "Check and submit"] },
     S("Skeleton and title", [
       "Type the doctype as the very first line, then the html tags",
@@ -476,7 +476,7 @@
       "Use what you know: **center** the heading 1 and give the **body** a background color and a different text color"
     ]),
     S("Check and submit", [
-      "Fix anything in the **Problems** list",
+      "Fix every **red line number** in your code (a red number means a problem on that line)",
       "Choose your class period at the top, then click **Submit**"
     ])
   ]);
@@ -507,7 +507,7 @@
     ], [P("An image can be a link too. Put the whole **img** tag between the opening and closing a tags. The link goes on the **outside** and the picture on the **inside**. The img tag still has no closing tag."), CODE("<a href=\"" + NASA + "\" target=\"_blank\"><img src=\"" + LABU + "rocket.svg\" alt=\"A red and white rocket flying through space\" style=\"width: 150px\"></a>")],
       [P("**Try it:** hover over the rocket. The pointer turns into a hand, and clicking it opens NASA in a new tab.")]),
     S("Check and submit", [
-      "Open the **Problems** list. It should be empty",
+      "Look at the line numbers on the left of your code. **No line number should be red**: a red number means a problem on that line, like a tag that is not closed or is misspelled",
       "Choose your class period at the top, then click **Submit**"
     ])
   ]);
@@ -515,7 +515,7 @@
   /* ===================== 3.9 Assignment ===================== */
   A["6.6a"] = build([
     { h: "What you are building" },
-    P("**YouTube** wants a page that links to a creator's favorite channels and videos. Pick real websites that fit. The links must be real, so test each one. Click **Checks** any time to see your score."),
+    P("**YouTube** wants a page that links to a creator's favorite channels and videos. Pick real websites that fit. The links must be real, so test each one. Watch the **Auto score** at the top to see how you are doing."),
     { map: ["The skeleton and a title", "The words on the page", "Links", "Check and submit"] },
     S("Skeleton and title", [
       "Type the doctype as the very first line, then the html tags",
@@ -533,7 +533,7 @@
       "Use what you know: **center** the heading 1 and give the **body** a background color and a different text color"
     ]),
     S("Check and submit", [
-      "Fix anything in the **Problems** list",
+      "Fix every **red line number** in your code (a red number means a problem on that line)",
       "Choose your class period at the top, then click **Submit**"
     ])
   ]);
@@ -566,7 +566,7 @@
     ], [P("Some tags are **block** (they start on a new line and fill the width) and some are **inline** (they stay in the line, like words). A `li` is block, so a list stacks. The style `display: inline` turns a block into an inline tag. Every menu bar on the internet is a list turned sideways: no bullets, and every li inline."), CODE("<ul style=\"list-style-type: none\">\n<li style=\"display: inline\">Home</li>\n<li style=\"display: inline\">About</li>\n<li style=\"display: inline\">Contact</li>\n</ul>")],
       [P("**Try it:** remove `display: inline` from one li. It drops to its own line, and the other two stay in the row.")]),
     S("Check and submit", [
-      "Open the **Problems** list. It should be empty",
+      "Look at the line numbers on the left of your code. **No line number should be red**: a red number means a problem on that line, like a tag that is not closed or is misspelled",
       "Choose your class period at the top, then click **Submit**"
     ])
   ]);
@@ -574,7 +574,7 @@
   /* ===================== 3.10 Assignment ===================== */
   A["6.5a"] = build([
     { h: "What you are building" },
-    P("**Pizza Hut** wants a specials page with a list of deals, the steps to order, and a menu bar. Write your own items. Click **Checks** any time to see your score."),
+    P("**Pizza Hut** wants a specials page with a list of deals, the steps to order, and a menu bar. Write your own items. Watch the **Auto score** at the top to see how you are doing."),
     { map: ["The skeleton and a title", "The words on the page", "Three lists", "Check and submit"] },
     S("Skeleton and title", [
       "Type the doctype as the very first line, then the html tags",
@@ -591,7 +591,7 @@
       "Give one of your lists a **border**. Use what you know: **center** the heading 1 and give the **body** a background color and a different text color"
     ]),
     S("Check and submit", [
-      "Fix anything in the **Problems** list",
+      "Fix every **red line number** in your code (a red number means a problem on that line)",
       "Choose your class period at the top, then click **Submit**"
     ])
   ]);

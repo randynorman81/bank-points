@@ -24,7 +24,30 @@ PSEUDO = set("IF ELSE REPEAT TIMES UNTIL FOR EACH IN PROCEDURE RETURN DISPLAY IN
 TOK = re.compile(r"""(?P<cm>\#[^\n]*)|(?P<str>[fF]?"(?:\\.|[^"\\\n])*"|[fF]?'(?:\\.|[^'\\\n])*')|(?P<num>\b\d+(?:\.\d+)?\b)|(?P<id>[A-Za-z_][A-Za-z_0-9]*)|(?P<ws>\s+)|(?P<op>.)""", re.S)
 
 
+LANG = "py"   # "html" switches the code coloring to HTML (used by the IST guide)
+HTML_PART = re.compile(r"<!--.*?-->|<[^<>]*>|[^<]+", re.S)
+HTML_IN = re.compile(r"""(?P<str>"[^"]*"|'[^']*')|(?P<nm>[A-Za-z_:][-A-Za-z0-9_:.]*)(?=\s*=)|(?P<op>[=/!<>])|(?P<ws>\s+)|(?P<id>[^\s=/<>"']+)""")
+
+
+def html_tokens(code):
+    for m in HTML_PART.finditer(code):
+        t = m.group()
+        if t.startswith("<!--"): yield "cm", t
+        elif t.startswith("<"):
+            first = True
+            for k in HTML_IN.finditer(t):
+                g = k.lastgroup; x = k.group()
+                if g == "str": yield "str", x
+                elif g == "nm": yield "bi", x
+                elif g == "ws": yield None, x
+                elif g == "id": yield ("kw" if first or x.lower() == "doctype" else "bi"), x; first = False
+                else: yield "kw", x
+        else: yield None, t
+
+
 def tokens(code):
+    if LANG == "html":
+        yield from html_tokens(code); return
     prev_def = False
     for m in TOK.finditer(code):
         k = m.lastgroup; t = m.group()
@@ -82,7 +105,9 @@ def annot_code(title, code, notes, output=None, caption=None, lang="Python"):
     lines = code.strip("\n").split("\n")
     cw, lh, fs, W, top = 7.8, 25, 13, 680, 46
     maxc = max(len(l) for l in lines)
-    assert maxc <= 40, "code line too long for annot_code: %r" % max(lines, key=len)
+    limit = 40
+    if lang == "HTML": cw, fs, limit = 6.6, 11.0, 56      # HTML lines are longer: a smaller code font keeps the arrows room
+    assert maxc <= limit, "code line too long for annot_code: %r" % max(lines, key=len)
     code_w = maxc * cw + 40
     cap_x = max(code_w + 70, 340); cap_w = W - cap_x - 14
     wrap_n = max(18, int(cap_w / 6.55))
@@ -120,7 +145,7 @@ def annot_code(title, code, notes, output=None, caption=None, lang="Python"):
         body += '<path d="M%.1f %.1f C%.1f %.1f %.1f %.1f %.1f %.1f" fill="none" stroke="%s" stroke-width="1.9" marker-end="url(#am%s)"/>' % (sx, sy, sx - 46, sy, ex + 46, ey, ex + 2, ey, b["color"], b["color"][1:])
     # code text
     for i, l in enumerate(lines):
-        body += '<text x="%d" y="%.1f" font-family="\'JetBrains Mono\', Menlo, monospace" font-size="%d" font-weight="500" xml:space="preserve" style="white-space:pre;font-variant-ligatures:none">%s</text>' % (x0, top + i * lh + lh / 2 + 4.6, fs, hl_svg(l))
+        body += '<text x="%d" y="%.1f" font-family="\'JetBrains Mono\', Menlo, monospace" font-size="%g" font-weight="500" xml:space="preserve" style="white-space:pre;font-variant-ligatures:none">%s</text>' % (x0, top + i * lh + lh / 2 + 4.6, fs, hl_svg(l))
         body += '<text x="%d" y="%.1f" font-size="8" fill="#B6BFCC" text-anchor="end" font-weight="700">%d</text>' % (x0 - 5 if False else 15, top + i * lh + lh / 2 + 3.2, i + 1) if False else ""
     # captions
     for b in boxes:
@@ -639,6 +664,9 @@ def cover_art(kind, accent_lt, seed=7):
     elif kind == "code":
         syms = ["{ }", "( )", "[ ]", "def", "for", "if", "==", "+=", "#", "return", "while", ":", "\"\"", "import"]
         for _ in range(60): s += '<text x="%d" y="%d" font-family="JetBrains Mono, monospace" font-size="%d" font-weight="700" fill="%s" fill-opacity="%.2f" transform="rotate(%d %d %d)">%s</text>' % (rnd.randint(10, 560), rnd.randint(30, 380), rnd.choice([18, 24, 34, 46]), accent_lt, rnd.choice([.1, .18, .28]), rnd.choice([-12, 0, 8, 0]), 0, 0, rnd.choice(syms))
+    elif kind == "html":
+        syms = ["<h1>", "</p>", "<p>", "style=", "href=", "<body>", "</h2>", "<li>", "<img>", "color:", "<a>", "<br>", "#", "px", "<ul>", "</html>"]
+        for _ in range(60): s += '<text x="%d" y="%d" font-family="JetBrains Mono, monospace" font-size="%d" font-weight="700" fill="%s" fill-opacity="%.2f" transform="rotate(%d %d %d)">%s</text>' % (rnd.randint(10, 520), rnd.randint(30, 380), rnd.choice([18, 24, 34, 46]), accent_lt, rnd.choice([.1, .18, .28]), rnd.choice([-12, 0, 8, 0]), 0, 0, _h.escape(rnd.choice(syms)))
     elif kind == "bars":
         for i in range(18):
             h = rnd.randint(40, 340) * (0.4 + i / 24); s += '<rect x="%d" y="%.0f" width="24" height="%.0f" rx="4" fill="%s" fill-opacity="%.2f"/>' % (18 + i * 32, 400 - h, h, accent_lt, .18 + (i % 4) * .1)
@@ -683,12 +711,14 @@ def css_for(unit):
     css = open(os.path.join(HERE, "print.css"), encoding="utf-8").read()
     rep = {"__ACCENT_DK__": unit.dk, "__ACCENT_TINT__": unit.tint, "__ACCENT_LT__": unit.lt, "__ACCENT__": unit.accent,
            "__RUNNING_RIGHT__": ("UNIT %d   ·   %s" % (unit.n, unit.title)).upper(), "__LOGO_URL__": small_logo_svg_url()}
+    if unit.brand: css = css.replace("AP® COMPUTER SCIENCE PRINCIPLES   ·   STUDY GUIDE", unit.brand["kicker"].replace("  ·  ", "   ·   "))
     for k in sorted(rep, key=len, reverse=True): css = css.replace(k, rep[k])
     return css
 
 
 class Unit:
-    def __init__(self, n, title, tagline, bigidea, accent, dk, lt, tint, art, objectives, chapters, glossary=None, cheat=None, front_extra="", seed=7):
+    def __init__(self, n, title, tagline, bigidea, accent, dk, lt, tint, art, objectives, chapters, glossary=None, cheat=None, front_extra="", seed=7, brand=None):
+        self.brand = brand or {}
         self.n, self.title, self.tagline, self.bigidea = n, title, tagline, bigidea
         self.accent, self.dk, self.lt, self.tint, self.art = accent, dk, lt, tint, art
         self.objectives, self.chapters, self.glossary, self.cheat, self.seed = objectives, chapters, glossary or [], cheat or [], seed
@@ -733,6 +763,14 @@ def build_html(unit, toc_pages=None, only=None):
            '<div class="lgrow"><span class="lgt w">WATCH OUT</span><div><b>The mistakes people really make,</b> why they happen, and how to fix them.</div></div>'
            '<div class="lgrow"><span class="lgt x">AP EXAM</span><div><b>What the exam asks</b> about the lesson.</div></div>'
            '<div class="lgrow"><span class="lgt c">CHECK YOURSELF</span><div><b>Practice questions.</b> Cover the answers, try them, then read the reason in the answer key at the back.</div></div></div>')
+    B = unit.brand
+    if B:   # a guide that is not AP CSP (the IST guides) swaps the AP wording for its own
+        cover = cover.replace("AP® COMPUTER SCIENCE PRINCIPLES  ·  STUDY GUIDE", B["kicker"])
+        copy = (copy.replace("AP® Computer Science Principles Study Guide Series", B["series"]).replace("%s/apcsp" % SITE, B["site"])
+                    .replace("AP® and Advanced Placement® are registered trademarks of the College Board, which was not involved in the production of, and does not endorse, this product. Python® is a trademark of the Python Software Foundation. All other names are the property of their owners.", B["legal"]))
+        how = re.sub(r'<div class="lgrow"><span class="lgt x">AP EXAM</span>.*?</div></div>', "", how, flags=re.S)
+        how = how.replace("Step through code one line at a time and watch every variable change. There are several in every lesson.", B.get("trace_legend", ""))
+        how = how.replace("where the matching walkthrough, assignment, and game are on the site", B.get("glance_legend", "where the matching walkthrough, assignment, and game are on the site"))
     objectives = '<ul class="objectives">%s</ul>' % "".join("<li>%s</li>" % o for o in unit.objectives)
     toc_rows = ""
     for cid, t in titles:
@@ -750,7 +788,7 @@ def build_html(unit, toc_pages=None, only=None):
     if unit.cheat and not only:
         tail += '<section class="chapter cheat"><span class="mk" style="font-size:1pt;color:#fff;position:absolute">ZZCcheatZZ</span><div class="chead"><div class="badge"><small>UNIT</small><b>%d</b></div><h2>Quick Reference</h2><p class="kick">The whole unit on one or two pages. Tear it out and keep it beside you while you code.</p></div>%s</section>' % (unit.n, "".join(unit.cheat))
     if glossary:
-        g = "".join('<div class="g"><b>%s</b>%s</div>' % (esc(t), d) for t, d in sorted(glossary, key=lambda x: x[0].lower()))
+        g = "".join('<div class="g"><b>%s</b>%s</div>' % (esc(t), (md(d)[3:-4] if unit.brand else d)) for t, d in sorted(glossary, key=lambda x: x[0].lower()))
         tail += '<section class="chapter"><span class="mk" style="font-size:1pt;color:#fff;position:absolute">ZZCglossZZ</span><div class="chead"><div class="badge"><small>UNIT</small><b>%d</b></div><h2>Glossary</h2><p class="kick">The vocabulary of this %s, in plain words.</p></div><div class="gloss">%s</div></section>' % (unit.n, "lesson" if only else "unit", g)
     if ctx.key:
         k = ""
@@ -758,6 +796,6 @@ def build_html(unit, toc_pages=None, only=None):
             cm = [t for c, t in titles if c == cid][0]
             k += '<div class="keychap">Lesson %s  ·  %s</div><div class="ans">%s</div>' % (esc(cid), cm, "".join('<div class="a"><span class="k">%d</span><span class="l">%s</span>%s</div>' % (q, l, w) for q, l, w in items))
         tail += '<section class="chapter"><span class="mk" style="font-size:1pt;color:#fff;position:absolute">ZZCkeyZZ</span><div class="chead"><div class="badge"><small>UNIT</small><b>%d</b></div><h2>Answer Key</h2><p class="kick">Every practice question, with the reason behind the answer.</p></div>%s</section>' % (unit.n, k)
-    doc = '<!doctype html><html><head><meta charset="utf-8"><title>AP CSP Unit %d Study Guide: %s</title>' \
-          '<style>%s</style><style>%s</style></head><body>%s%s%s%s%s</body></html>' % (unit.n, unit.title, font_css(), css, cover, front, toc, "".join(chapters), tail)
+    doc = '<!doctype html><html><head><meta charset="utf-8"><title>%s Unit %d Study Guide: %s</title>' \
+          '<style>%s</style><style>%s</style></head><body>%s%s%s%s%s</body></html>' % (unit.brand.get("doctitle", "AP CSP"), unit.n, unit.title, font_css(), css, cover, front, toc, "".join(chapters), tail)
     return doc, titles, [k for k, _ in extras]

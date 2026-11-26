@@ -10,6 +10,9 @@ PROPWORDS = {'color': 'the text color', 'background-color': 'the background colo
              'width': 'the width', 'display': 'how it is displayed', 'list-style-type': 'the list marker', 'border': 'a border on all four sides', 'border-top': 'a border on the top', 'border-bottom': 'a border on the bottom',
              'border-left': 'a border on the left', 'border-right': 'a border on the right', 'font-weight': 'the boldness', 'font-style': 'the font style', 'text-decoration': 'the text decoration'}
 def describe_line(line):
+    out = _describe_line(line)
+    return re.sub(r'([.!?])"\.$', r'\1"', out)   # a quoted sentence that already ends in . ! or ? needs no second period
+def _describe_line(line):
     s = line.strip()
     if s.upper().startswith('<!DOCTYPE'): return 'Tell the browser this page uses modern HTML (the DOCTYPE).'
     if s.startswith('<!--'): return 'A comment: a note for people that the browser ignores.'
@@ -55,7 +58,7 @@ def describe_line(line):
     if txt and top.tag not in ('br', 'hr'): d += ' that says "%s"' % txt
     sty = authored(top)
     if sty:
-        d += ', styled with ' + ' and '.join('%s %s' % (PROPWORDS.get(p, p), v) for p, v in sty.items())
+        d += ', styled with ' + ' and '.join(('the display style inline (it sits in the line like a word)' if (p == 'display' and v == 'inline') else '%s %s' % (PROPWORDS.get(p, p), v)) for p, v in sty.items())
     inner = [n for n in els[1:] if n.tag in ('strong', 'b', 'em', 'i', 'span', 'a', 'br')]
     if inner: d += ' (with %s inside it)' % ' and '.join(sorted({TAGWORDS.get(n.tag, n.tag) for n in inner}))
     if top.tag in ('br', 'hr'): d = 'Add %s (it stands alone, so it has no closing tag)' % word
