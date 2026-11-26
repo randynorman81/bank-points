@@ -14,6 +14,7 @@
   function S(title, bullets, pre, post) { return { step: title, build: bullets, pre: pre, post: post }; }
   var CODE = function (t) { return { code: t }; }, P = function (t) { return { p: t }; };
   var TYPEIT = "**Type it yourself, exactly as shown.** Pasting is turned off on purpose: typing the tags is how you learn them.";
+  var TYPEIT2 = "**Type it yourself, exactly as shown.** Typing the tags is how you learn them, even where pasting is allowed.";
 
   /* ===================== 3.1 Walkthrough ===================== */
   A["6.1w"] = build([
@@ -143,7 +144,7 @@
       "Add a style to the **heading 3**: `font-size: 24px`",
       "Add a style to the **paragraph**: `font-size: 18px`"
     ], [P("The style `font-size` sets how big the letters are. The size is a number with **px** (pixels) right after it, with **no space**: `48px`. A heading already has its own default size, and `font-size` overrides it."), CODE("<h1 style=\"font-size: 48px\">Skyline Cinema</h1>")],
-      [P("**Try it:** the heading 1 gets bigger and the paragraph a little smaller than before.")]),
+      [P("**Try it:** all three get bigger than the browser's default sizes. Change 48px to 80px and watch the heading grow, then put it back.")]),
     S("Text alignment", [
       "Add `text-align: center` to the **heading 1**. Keep the font-size and put a **semicolon** between the two styles",
       "Add `text-align: center` to the **heading 2**",
@@ -201,7 +202,7 @@
     ], [CODE("<h1>Beanstalk Coffee</h1>\n<p>We roast fresh beans every morning and serve them hot.</p>\n<p>Open daily 7 AM to 5 PM</p>\n<p>Try the Green Giant latte.</p>")]),
     S("Bold and italics: strong and em", [
       "In paragraph 1, put the word **fresh** inside a **strong** tag and the word **hot** inside an **em** tag. Do not use the b or i tags"
-    ], [P("Tags can go **inside** other tags. The **strong** tag makes the words inside it **bold**, and the **em** tag makes them *italic*. Wrap exactly the word you want, and keep the spaces around it."), CODE("<p>We roast <strong>fresh</strong> beans every morning and serve them <em>hot</em>.</p>")],
+    ], [P("Tags can go **inside** other tags. The **strong** tag makes the words inside it **bold**, and the **em** tag makes them italic. Wrap exactly the word you want, and keep the spaces around it."), CODE("<p>We roast <strong>fresh</strong> beans every morning and serve them <em>hot</em>.</p>")],
       [P("**Try it:** \"fresh\" turns bold and \"hot\" turns italic. In this class, bold is always **strong** and italics is always **em**. Never `b` or `i`.")]),
     S("A line break: br", [
       "In paragraph 2, replace the space between **daily** and **7** with a **br** tag so the hours start on a new line: `Open daily<br>7 AM to 5 PM`"
@@ -235,7 +236,7 @@
     ]),
     S("Menu touches", [
       "Add a **horizontal rule** right under the heading 1, and at least one more rule somewhere lower on the page",
-      "Make at least one word **bold** and at least one word *italic* (never the b or i tags)",
+      "Make at least one word **bold** and at least one word in italics (never the b or i tags)",
       "Put an address or a menu item on **two lines** inside one paragraph, with a line break between them",
       "Give **one or more words** their own text color with a span tag",
       "Use what you know: **center** the heading 1 and give the **body** a background color and a different text color"
@@ -250,7 +251,7 @@
   var FONTLINKS = "<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n";
   A["6.35w"] = build([
     { h: "What you are building" },
-    P("**Sweet Dreams Bakery** wants a page with real fonts. Your computer only has a few fonts built in, so you will load fonts from **Google Fonts** and use them with **font-family**. The font links in this lesson may be pasted: that is the one thing you may paste. " + TYPEIT),
+    P("**Sweet Dreams Bakery** wants a page with real fonts. Your computer only has a few fonts built in, so you will load fonts from **Google Fonts** and use them with **font-family**. You may copy and paste the font links from Google Fonts. " + TYPEIT2),
     { map: ["Set up the page", "Load the first font", "Use the first font", "Load and use a second font", "A different font on one word", "Check and submit"] },
     P("Stuck? Read the notes: schscomputerscience.com/ist/unit-6/google-fonts-notes.html"),
     S("Set up the page", [
@@ -310,7 +311,7 @@
   /* ===================== 3.6 Walkthrough ===================== */
   A["6.4w"] = build([
     { h: "What you are building" },
-    P("A school club wants a flyer for **Game Night**. You will put **borders** around the pieces of the page. A border has three parts that always come in this order: a **thickness**, a **style** and a **color**. " + TYPEIT),
+    P("A school club wants a flyer for **Game Night**. You will put **borders** around the pieces of the page. A border has three parts that always come in this order: a **thickness**, a **style** and a **color**. " + TYPEIT2),
     { map: ["Set up the page", "A border on all four sides", "More border styles", "A border on one side", "Check and submit"] },
     P("Stuck? Read the notes: schscomputerscience.com/ist/unit-6/borders-notes.html"),
     S("Set up the page", [
@@ -370,7 +371,7 @@
   var LABU = "https://schscomputerscience.com/ist/unit-6/lab/";
   A["6.7w"] = build([
     { h: "What you are building" },
-    P("**Space Camp** wants a page with pictures and its own tiny icon on the browser tab. You will add the icon (the **favicon**), two **pictures** with the **img** tag, and set their **sizes**. The pictures are already online, so you only need their web addresses. " + TYPEIT),
+    P("**Space Camp** wants a page with pictures and its own tiny icon on the browser tab. You will add the icon (the **favicon**), two **pictures** with the **img** tag, and set their **sizes**. The pictures are already online, so you only need their web addresses. " + TYPEIT2),
     { map: ["Set up the page", "The favicon on the tab", "The first picture", "Picture sizes", "Check and submit"] },
     P("Stuck? Read the notes: schscomputerscience.com/ist/unit-6/images-notes.html"),
     S("Set up the page", [
@@ -428,7 +429,7 @@
   /* ===================== 3.8 Walkthrough ===================== */
   A["6.75w"] = build([
     { h: "What you are building" },
-    P("**Pizza Night** wants a flyer with some personality. You will add an **emoji**, a **symbol**, a row of **stars** and a **footer**. An emoji or a symbol is not a picture: it is a **text character**, like a letter. You copy it and paste it between the tags, with the other text. Copy each character from this page, or open your computer's emoji picker (Windows key + period, or Mac Control + Command + Space). " + TYPEIT),
+    P("**Pizza Night** wants a flyer with some personality. You will add an **emoji**, a **symbol**, a row of **stars** and a **footer**. An emoji or a symbol is not a picture: it is a **text character**, like a letter. You copy it and paste it between the tags, with the other text. Copy each character from this page, or open your computer's emoji picker (Windows key + period, or Mac Control + Command + Space). " + TYPEIT2),
     { map: ["Set up the page", "An emoji in a heading", "A symbol in a paragraph", "Stars with a span", "A footer", "Check and submit"] },
     P("Stuck? Read the notes: schscomputerscience.com/ist/unit-6/emojis-symbols-notes.html"),
     S("Set up the page", [
@@ -480,10 +481,11 @@
     ])
   ]);
 
+  var NASA = "https://www.nasa.gov";
   /* ===================== 3.9 Walkthrough ===================== */
   A["6.6w"] = build([
     { h: "What you are building" },
-    P("The **Space Fan Club** needs a page that connects to other sites. You will make links with the **a** tag: from plain words, from **bold** words, from a **heading**, and from a **picture**. " + TYPEIT),
+    P("The **Space Fan Club** needs a page that connects to other sites. You will make links with the **a** tag: from plain words, from **bold** words, from a **heading**, and from a **picture**. " + TYPEIT2),
     { map: ["Set up the page", "A link in a sentence", "A bold link", "A heading that is a link", "A picture that is a link", "Check and submit"] },
     P("Stuck? Read the notes: schscomputerscience.com/ist/unit-6/links-notes.html"),
     S("Set up the page", [
@@ -539,7 +541,7 @@
   /* ===================== 3.10 Walkthrough ===================== */
   A["6.5w"] = build([
     { h: "What you are building" },
-    P("A scout troop wants a **Camping Trip** page with three lists: a packing list with **bullets**, a numbered list of **steps**, and a **menu** that sits in a row. " + TYPEIT),
+    P("A scout troop wants a **Camping Trip** page with three lists: a packing list with **bullets**, a numbered list of **steps**, and a **menu** that sits in a row. " + TYPEIT2),
     { map: ["Set up the page", "A list with bullets: ul", "Change the bullet style", "A numbered list: ol", "A menu in a row", "Check and submit"] },
     P("Stuck? Read the notes: schscomputerscience.com/ist/unit-6/lists-notes.html"),
     S("Set up the page", [
@@ -583,7 +585,7 @@
       "Inside the body, add a **heading 1** that says exactly **Pizza Hut Specials** and **three heading 2s** (one above each list)"
     ]),
     S("Three lists", [
-      "**Deals:** a list **without numbers** with at least 4 items. Every item has a **bold name** and an *italic description*. Change its marker to a **circle** or a **square**",
+      "**Deals:** a list **without numbers** with at least 4 items. Every item has a **bold name** and an italic description. Change its marker to a **circle** or a **square**",
       "**How to order:** a list **with numbers** or letters, with at least 3 steps, using **upper-roman, lower-roman, upper-alpha or lower-alpha** markers",
       "**Menu bar:** a list with **no markers** and at least 3 items that sit **in a row**",
       "Give one of your lists a **border**. Use what you know: **center** the heading 1 and give the **body** a background color and a different text color"

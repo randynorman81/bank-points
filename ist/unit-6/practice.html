@@ -123,6 +123,7 @@ iframe.pv{display:block;width:100%;height:230px;border:0;background:#fff}
   <div id="main"></div>
 </div>
 <script src="practice-data.js"></script>
+<script src="live.js?v=20261126"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 <script>
 var Q = new URLSearchParams(location.search), U = "3", D = { lessons: {} }, TR = {}, $ = function (id) { return document.getElementById(id); };
@@ -141,8 +142,9 @@ function pDone(id) { var st = ls("ist3:parsons:" + id) || {}; return D.lessons[i
 function tScore(id) { var n = TR[id].traces.length, st = ls("ist3:trace:" + id) || {}, s = 0; for (var i = 0; i < n; i++) s += (st[i] && st[i].best) || 0; return Math.round(s / n); }
 function tDone(id) { var st = ls("ist3:trace:" + id) || {}; return TR[id].traces.filter(function (t, i) { return st[i] && st[i].done; }).length; }
 function topTabs() {
-  $("tabs").innerHTML = '<a class="tab' + (view === "hubp" || view === "parsons" ? " on" : "") + '" href="?hub=p">' + ICON.puzzle + 'Parsons problems</a><a class="tab' + (view === "hubt" || view === "trace" ? " on" : "") + '" href="?hub=t">' + ICON.route + 'Page tracing</a>';
-  if (!$("pnote")) $("tabs").insertAdjacentHTML("afterend", '<div class="pnote" id="pnote"><b>Practice only.</b> These do not change your grade. Your grade comes from the assignments in the Web Editor.</div>');
+  $("tabs").innerHTML = '<a class="tab' + (view === "hubw" ? " on" : "") + '" href="?hub=w">' + ICON.next + 'Walkthroughs and assignments</a><a class="tab' + (view === "hubp" || view === "parsons" ? " on" : "") + '" href="?hub=p">' + ICON.puzzle + 'Parsons problems</a><a class="tab' + (view === "hubt" || view === "trace" ? " on" : "") + '" href="?hub=t">' + ICON.route + 'Page tracing</a>';
+  if (!$("pnote")) $("tabs").insertAdjacentHTML("afterend", '<div class="pnote" id="pnote"><b>Practice only.</b> These do not change your grade. Your grade comes from the walkthroughs and assignments in the Web Editor.</div>');
+  $("pnote").style.display = view === "hubw" ? "none" : "";
 }
 /* ---------------- hubs: every lesson with its 10 problems ---------------- */
 function hub(kind) {
@@ -153,6 +155,16 @@ function hub(kind) {
   }).join("");
   $("badge").textContent = (isP ? "HTML Parsons" : "Page tracing") + " · Unit 3"; document.title = (isP ? "HTML Parsons problems" : "Page tracing") + " | Intro to Software Technology";
   $("main").innerHTML = '<div class="hubtop"><h1>' + (isP ? ICON.puzzle + "HTML Parsons problems" : ICON.route + "Page tracing") + " <small style=\"font-weight:600;color:var(--soft);font-size:15px\">Unit 3: Web Design (HTML Part 1)</small></h1><p>" + (isP ? "Put the lines of HTML in the right order to build the page. Each lesson has 10 problems. Pick a number to start." : "Read the page code one line at a time, like a browser, and say what each line puts on the page or which style applies. Each lesson has 10 problems. Pick a number to start.") + '</p></div><div class="hubs">' + cards + "</div>";
+}
+/* ---------------- the walkthrough and assignment of every lesson (they open in the Web Editor, and only when the teacher has opened them) ---------------- */
+var WLESS = [["6.1", "3.1", "Intro to HTML and the Skeleton"], ["6.2", "3.2", "The Style Attribute and Colors"], ["6.20", "3.3", "Text Size, Alignment, Case"], ["6.3", "3.4", "Editing Tags (strong, em, br, hr, span)"], ["6.35", "3.5", "Google Fonts"], ["6.4", "3.6", "Borders"], ["6.7", "3.7", "Images and the Favicon"], ["6.75", "3.8", "Emojis and Symbols"], ["6.6", "3.9", "Links"], ["6.5", "3.10", "Lists and Menus"]];
+function hubW() {
+  var live = window.U7_LIVE || [], cards = WLESS.map(function (l) {
+    function btn(sfx, label) { var id = l[0] + sfx, on = live.indexOf(id) > -1; return on ? '<a class="btn go" href="editor.html?lesson=' + id + '">' + label + "</a>" : '<span class="btn" style="opacity:.55;cursor:default" title="Your teacher has not opened this yet">' + label + " (not open yet)</span>"; }
+    return '<div class="hubc"><h3><b>' + l[1] + "</b>" + esc(l[2]) + '</h3><p class="sc">Do the walkthrough first, then the assignment.</p><div class="chips" style="gap:8px;flex-wrap:wrap">' + btn("w", "Walkthrough") + btn("a", "Assignment") + "</div></div>";
+  }).join("");
+  $("badge").textContent = "Walkthroughs and assignments · Unit 3"; document.title = "Walkthroughs and assignments | Intro to Software Technology";
+  $("main").innerHTML = '<div class="hubtop"><h1>' + ICON.next + 'Walkthroughs and assignments <small style="font-weight:600;color:var(--soft);font-size:15px">Unit 3: Web Design (HTML Part 1)</small></h1><p>Each lesson has a guided walkthrough, where you build a page step by step, and an assignment, where a real company asks you for a page. Both open in the Web Editor and are graded by the editor.</p></div><div class="hubs">' + cards + "</div>";
 }
 /* ---------------- Parsons ---------------- */
 var cur = 0, sortables = [], tries = 0, solved = false, TOUCH = ("ontouchstart" in window) || (navigator.maxTouchPoints > 0);   /* on a touch screen a piece is dragged by its dots, so the rest of the piece can scroll the page and a tap moves it */
@@ -304,7 +316,7 @@ function advance(tr, last) {
 (function () {
   var p = Number(Q.get("p")); if (p >= 0 && D.lessons[lid] && p < D.lessons[lid].problems.length) cur = p;
   var i = Number(Q.get("i")); if (i >= 0 && TR[tlid] && i < TR[tlid].traces.length) ti = i;
-  if (TOUCH) document.body.classList.add("touch"); topTabs(); if (view === "trace") showTrace(); else if (view === "parsons") showParsons(); else hub(view === "hubt" ? "t" : "p");
+  if (TOUCH) document.body.classList.add("touch"); topTabs(); if (view === "trace") showTrace(); else if (view === "parsons") showParsons(); else if (view === "hubw") hubW(); else hub(view === "hubt" ? "t" : "p");
 })();
 </script>
 </body>

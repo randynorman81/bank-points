@@ -5,7 +5,18 @@
   var SC = root.U7_STEPCHECKS, h = SC.H; if (!SC) return;
   var K = h.K, P = h.P, T = h.T, CNT = h.CNT, has = h.has, kids = h.kids, txt = h.txt, words = h.words, within = h.within, exists = h.exists;
   function lastStep(l, st, list) { list.comment = false; SC.LESSONS[l].steps[st] = list; }
-  var NOERR = K("The Problems list is empty (every tag is closed and nothing is misspelled)", function (c) { return String(c.rawSrc || "").trim().length > 0 && root.HTMLCheck.check(c.lesson, c.rawSrc, c.cssFile || "").errors.length === 0; });
+  /* the page is built correctly: the Problems list is empty AND the shapes the Problems list does not catch are right too (every attribute value in double quotes, no paragraph inside a heading, list items only in lists, only li tags directly inside a list) */
+  function structOK(c) {
+    var s = String(c.rawSrc || "").replace(/<!--[\s\S]*?-->/g, "");
+    var tags = s.match(/<[a-zA-Z][^<>]*>/g) || [];
+    if (tags.some(function (t) { return /\s[a-zA-Z-]+\s*=\s*(?!")/.test(t.replace(/"[^"]*"/g, '""').replace(/\s[a-zA-Z-]+(?=[\s>\/])(?!\s*=)/g, "")) || /\s[a-zA-Z-]+\s*=\s*'/.test(t.replace(/"[^"]*"/g, '""')); })) return false;
+    if (tags.some(function (t) { var rest = t.replace(/"[^"]*"/g, '""').replace(/^<[a-zA-Z][a-zA-Z0-9]*/, "").replace(/\/?>$/, "").trim(); return rest !== "" && rest.split(/\s+/).some(function (tok) { return !/^[a-zA-Z][a-zA-Z0-9-]*(=""|)$/.test(tok); }); })) return false;   /* a stray word or emoji inside a tag */
+    if (c.all("p").some(function (p) { return !!c.ancestor(p, ["h1", "h2", "h3", "h4", "h5", "h6"]); })) return false;
+    if (c.all("li").some(function (li) { return !li.parent || (li.parent.tag !== "ul" && li.parent.tag !== "ol"); })) return false;
+    if (c.all("ul").concat(c.all("ol")).some(function (l) { return l.children.some(function (k) { return k.tag === "#text" && String(k.text).trim(); }) || kids(l).some(function (k) { return k.tag !== "li"; }); })) return false;
+    return true;
+  }
+  var NOERR = K("The Problems list is empty and the page is built correctly (every tag closed, every attribute value in double quotes, nothing nested wrongly)", function (c) { return String(c.rawSrc || "").trim().length > 0 && root.HTMLCheck.check(c.lesson, c.rawSrc, c.cssFile || "").errors.length === 0 && structOK(c); });
 
   /* ---------- shared pieces ---------- */
   var norm = function (s) { return String(s).replace(/\s+/g, " ").trim(); };
@@ -59,7 +70,7 @@
   SC.LESSONS["6.1a"] = { inlineOnly: true, steps: {
     "Step 1": [[DOCTYPE].concat(HTMLTAGS), HEADTAGS.concat(TITLEIS("Netflix Help Center")), BODYTAGS],
     "Step 2": [[K("There is one heading 1 inside the body", function (c) { return c.count("h1") === 1 && inBody(c, c.all("h1")[0]); }), SAYS("The heading 1 says exactly Help Center", T("h1"), "Help Center")]],
-    "Step 3": [flat(sectionChecks(0, "Billing", null)), flat(sectionChecks(1, "Devices", null)), [K("Only heading 1 and heading 2 are used (no heading 3 or smaller)", function (c) { return ["h3", "h4", "h5", "h6"].every(function (t) { return c.count(t) === 0; }); }),
+    "Step 3": [flat(sectionChecks(0, "Billing", null)), flat(sectionChecks(1, "Devices", null)), [K("Only heading 1 and heading 2 are used (no heading 3 or smaller)", function (c) { return c.count("h1") >= 1 && c.count("h2") >= 1 && ["h3", "h4", "h5", "h6"].every(function (t) { return c.count(t) === 0; }); }),
       K("The page has exactly 1 heading 1, 2 heading 2s and 2 paragraphs", function (c) { return c.count("h1") === 1 && c.count("h2") === 2 && c.count("p") === 2; })]],
     "Step 4": [[NOERR], []]
   } };
@@ -146,7 +157,7 @@
   var squash = function (s) { return String(s).replace(/\s+/g, ""); };
   function SAYSNS(label, pick, want) { return K(label, function (c) { var e = pick(c); return !!e && squash(txt(c, e)) === squash(want); }); }   /* same words; spaces and line breaks do not matter at all */
   var PN = function (n) { return function (c) { return c.all("p")[n] || null; }; };
-  var NOBI = K("No <b> or <i> tags are used (bold is strong, italics is em)", function (c) { return c.count("b") === 0 && c.count("i") === 0; });
+  var NOBI = K("Bold and italics use strong and em, and no <b> or <i> tags are used", function (c) { return c.count("strong") + c.count("em") >= 1 && c.count("b") === 0 && c.count("i") === 0; });
   function bodyKids(c) { var b = c.all("body")[0]; return b ? kids(b).map(function (k) { return k.tag; }) : []; }
   function brSplit(c, p, a, b) { if (!p) return false; var k = p.children.filter(function (x) { return !(x.tag === "#text" && !String(x.text).trim()); }); return k.length === 3 && k[0].tag === "#text" && k[1].tag === "br" && k[2].tag === "#text" && norm(k[0].text) === a && norm(k[2].text) === b; }
 
@@ -235,8 +246,8 @@
        SAYS("Paragraph 4 says exactly Games start at seven.", PN(3), "Games start at seven."), SAYS("Paragraph 5 says exactly See you Friday.", PN(4), "See you Friday."), ONLY("The page has 1 heading 1, 1 heading 2 and 5 paragraphs", { h1: 1, h2: 1, p: 5 })]],
     "Step 2": [[BIS("The heading 1 has border: 4px solid navy", T("h1"), "border", "4px", "solid", "navy")], [BIS("Paragraph 1 has border: 3px dotted green", PN(0), "border", "3px", "dotted", "green")]],
     "Step 3": [[BIS("Paragraph 2 has border: 6px double purple", PN(1), "border", "6px", "double", "purple")], [BIS("Paragraph 3 has border: 5px groove orange", PN(2), "border", "5px", "groove", "orange")], [BIS("Paragraph 4 has border: 5px ridge teal", PN(3), "border", "5px", "ridge", "teal")]],
-    "Step 4": [[BIS("The heading 2 has border-bottom: 3px dashed red", T("h2"), "border-bottom", "3px", "dashed", "red"), K("The heading 2 has no full border (only the bottom line)", function (c) { return h.vals(c, c.all("h2")[0], "border").length === 0; })],
-               [BIS("Paragraph 5 has border-left: 8px solid black", PN(4), "border-left", "8px", "solid", "black"), K("Paragraph 5 has no full border (only the left line)", function (c) { return h.vals(c, PN(4)(c), "border").length === 0; })]],
+    "Step 4": [[BIS("The heading 2 has border-bottom: 3px dashed red", T("h2"), "border-bottom", "3px", "dashed", "red"), K("The heading 2 has no full border (only the bottom line)", function (c) { var e = c.all("h2")[0]; return !!e && sideBorders(c, e).length > 0 && h.vals(c, e, "border").length === 0; })],
+               [BIS("Paragraph 5 has border-left: 8px solid black", PN(4), "border-left", "8px", "solid", "black"), K("Paragraph 5 has no full border (only the left line)", function (c) { var e = PN(4)(c); return !!e && sideBorders(c, e).length > 0 && h.vals(c, e, "border").length === 0; })]],
     "Step 5": [[NOERR], []]
   });
 
@@ -262,15 +273,15 @@
   var FAVHEAD = K("The favicon link is inside the head tags", function (c) { var f = faviconEls(c); return f.length >= 1 && f.every(function (l) { return !!c.ancestor(l, ["head"]); }); });
   var IMG = function (n) { return function (c) { return c.all("img")[n] || null; }; };
   var realAlt = function (i) { var a = String(i.attrs.alt || "").trim(); return a.split(/\s+/).filter(Boolean).length >= 2 && a.toLowerCase() !== "describe your image here"; };
-  var NOHEIGHT = K("No picture has a height style (set the width only, so the picture is not squished)", function (c) { return c.all("img").length > 0 && c.all("img").every(function (i) { return h.vals(c, i, "height").length === 0 && !("height" in i.attrs) && !("width" in i.attrs); }); });
-  var NOCLOSEIMG = K("The img tags stand alone (there is no </img> closing tag)", function (c) { return !/<\/img\s*>/i.test(src(c)); });
+  var NOHEIGHT = K("Pictures are sized with a width style only (no height, so nothing is squished)", function (c) { return c.all("img").length > 0 && c.all("img").every(function (i) { return h.vals(c, i, "height").length === 0 && !("height" in i.attrs) && !("width" in i.attrs); }); });
+  var NOCLOSEIMG = K("The img tags stand alone (there is no </img> closing tag)", function (c) { return c.count("img") >= 1 && !/<\/img\s*>/i.test(src(c)); });
   var pct = function (v) { return /^\d+(?:\.\d+)?%$/.test(v); };
 
   /* =============== 3.7 Walkthrough ("6.7w"): Space Camp =============== */
   LAB("6.7w", {
     "Step 1": [SKELETON1("Space Camp"),
       [SAYS("The heading 1 says exactly Space Camp", T("h1"), "Space Camp"), SAYS("The paragraph says exactly Blast off this summer.", T("p"), "Blast off this summer."), ONLY("The page has 1 heading 1 and 1 paragraph", { h1: 1, p: 1 })]],
-    "Step 2": [[FAVICON, FAVHEAD, K("The favicon points at " + LABURL + "rocket.svg", function (c) { var f = faviconEls(c)[0]; return !!f && f.attrs.href === LABURL + "rocket.svg"; }), K("The favicon link stands alone (no closing tag)", function (c) { return !/<\/link\s*>/i.test(src(c)); })]],
+    "Step 2": [[FAVICON, FAVHEAD, K("The favicon points at " + LABURL + "rocket.svg", function (c) { var f = faviconEls(c)[0]; return !!f && f.attrs.href === LABURL + "rocket.svg"; }), K("The favicon link stands alone (no closing tag)", function (c) { return faviconEls(c).length >= 1 && !/<\/link\s*>/i.test(src(c)); })]],
     "Step 3": [[K("There is an img tag right under the heading 1", function (c) { var n = h.nextEl(c.all("h1")[0]); return !!n && n.tag === "img"; }), K("Its src is " + LABURL + "rocket.svg", function (c) { var i = IMG(0)(c); return !!i && i.attrs.src === LABURL + "rocket.svg"; }),
                 K("Its alt says exactly A red and white rocket flying through space", function (c) { var i = IMG(0)(c); return !!i && norm(i.attrs.alt || "") === "A red and white rocket flying through space"; }), NOCLOSEIMG]],
     "Step 4": [[HAS("The rocket picture has width: 200px", IMG(0), "width", eq("200px")), NOHEIGHT],
@@ -347,7 +358,7 @@
     "Step 5": [[K("An a tag is right under the heading 1, with an img tag inside it", function (c) { var n = h.nextEl(c.all("h1")[0]); return !!n && n.tag === "a" && within(n, ["img"]).length === 1; }),
                 K("The picture is " + LABURL + "rocket.svg with the alt A red and white rocket flying through space", function (c) { var n = h.nextEl(c.all("h1")[0]), i = n && within(n, ["img"])[0]; return !!i && i.attrs.src === LABURL + "rocket.svg" && norm(i.attrs.alt || "") === "A red and white rocket flying through space"; }),
                 K("The picture link goes to " + NASA + " and opens in a new tab", function (c) { var n = h.nextEl(c.all("h1")[0]); return !!n && n.tag === "a" && n.attrs.href === NASA && newTab(n); }),
-                K("The picture has width: 150px", function (c) { var n = h.nextEl(c.all("h1")[0]), i = n && within(n, ["img"])[0]; return !!i && has(c, i, "width", eq("150px")); })]],
+                K("The picture has width: 150px and no height", function (c) { var n = h.nextEl(c.all("h1")[0]), i = n && within(n, ["img"])[0]; return !!i && has(c, i, "width", eq("150px")) && h.vals(c, i, "height").length === 0; })]],
     "Step 6": [[NOERR], []]
   });
 
@@ -355,28 +366,28 @@
   LAB("6.6a", {
     "Step 1": SKELETON3("YouTube Favorites"),
     "Step 2": [[SAYS("The heading 1 says exactly YouTube Favorites", T("h1"), "YouTube Favorites"), CNT("There are at least 3 heading 2s", "h2", 3), K("There are at least 2 paragraphs, each with at least 5 words", function (c) { var a = c.all("p"); return a.length >= 2 && a.every(function (p) { return words(c, p) >= 5; }); })]],
-    "Step 3": [[K("There are at least 3 text links, each with a real https:// address", function (c) { return c.all("a").filter(function (a) { return realLink(a) && words(c, a) >= 1; }).length >= 3; }),
+    "Step 3": [[K("There are at least 3 text links, each with a real https:// address", function (c) { return c.all("a").filter(function (a) { return realLink(a) && words(c, a) >= 1; }).length >= 3; }), K("Every link on the page has a real https:// address", function (c) { var a = c.all("a"); return a.length >= 3 && a.every(realLink); }),
                 K("Every link that goes to another website opens in a new tab (target=\"_blank\")", function (c) { var a = c.all("a"); return a.length >= 3 && a.every(function (x) { return newTab(x); }); }),
                 K("No link says click here (the link text says what is behind it)", function (c) { var a = c.all("a"); return a.length >= 1 && a.every(function (x) { return !LINKTEXT_BAD.test(norm(txt(c, x))); }); })],
                [K("A strong tag sits inside a link, around its words", function (c) { return c.all("a").some(function (a) { return within(a, ["strong"]).length >= 1 && words(c, a) >= 1; }); })],
                [K("A whole heading (heading 2) is a link", function (c) { return c.all("h2").some(function (x) { return aIn(c, x).length === 1 && norm(txt(c, aIn(c, x)[0])) === norm(txt(c, x)); }) || c.all("a").some(function (a) { return a.children.some(function (k) { return k.tag === "h2"; }); }); })],
                [K("There is a picture that is a link (the img tag sits inside an a tag with a real https:// address)", function (c) { return c.all("img").some(function (i) { var a = c.ancestor(i, ["a"]); return !!a && realLink(a); }); }),
-                K("The picture has a real alt description and a width in px", function (c) { return c.all("img").some(function (i) { return c.ancestor(i, ["a"]) && realAlt(i) && has(c, i, "width", h.isPx); }); }), K("The picture link opens in a new tab", function (c) { return c.all("img").some(function (i) { var a = c.ancestor(i, ["a"]); return !!a && newTab(a); }); })],
+                K("The picture has a web address (src), a real alt description and a width in px (and no height)", function (c) { return c.all("img").some(function (i) { return c.ancestor(i, ["a"]) && webSrc(i.attrs.src) && realAlt(i) && has(c, i, "width", h.isPx) && h.vals(c, i, "height").length === 0; }); }), K("The picture link opens in a new tab", function (c) { return c.all("img").some(function (i) { var a = c.ancestor(i, ["a"]); return !!a && newTab(a); }); })],
                [HAS("Use what you know: the heading 1 is centered", T("h1"), "text-align", eq("center"))].concat(BODYCOLORS)],
     "Step 4": [[NOERR], []]
   });
 
   /* ---------- 3.10 helpers: lists ---------- */
   var liKids = function (l) { return l ? kids(l).filter(function (k) { return k.tag === "li"; }) : []; };
-  var onlyLi = function (l) { return !!l && kids(l).length > 0 && kids(l).every(function (k) { return k.tag === "li"; }); };
+  var onlyLi = function (l) { return !!l && kids(l).length > 0 && kids(l).every(function (k) { return k.tag === "li"; }) && !l.children.some(function (k) { return k.tag === "#text" && String(k.text).trim(); }); };
   var ULn = function (n) { return function (c) { return c.all("ul")[n] || null; }; }, OLn = function (n) { return function (c) { return c.all("ol")[n] || null; }; };
   function LISTSAY(label, pick, texts) { return K(label, function (c) { var l = pick(c), li = liKids(l); return !!l && onlyLi(l) && li.length === texts.length && li.every(function (x, i) { return squash(txt(c, x)) === squash(texts[i]); }); }); }   /* spaces between two tags (like strong then em) are not kept by the page reader, so compare without spaces */
-  var NOLISTSTYLE_ON_LI = K("The list-style-type style is on the list tag, not on the li tags", function (c) { return c.all("li").every(function (x) { return h.vals(c, x, "list-style-type").length === 0; }); });
+  var NOLISTSTYLE_ON_LI = K("The list-style-type style is on the list tag, not on the li tags", function (c) { return c.all("li").length > 0 && c.all("li").every(function (x) { return h.vals(c, x, "list-style-type").length === 0; }); });
 
   /* =============== 3.10 Walkthrough ("6.5w"): Camping Trip =============== */
   LAB("6.5w", {
     "Step 1": [SKELETON1("Camping Trip"), [SAYS("The heading 1 says exactly Camping Trip", T("h1"), "Camping Trip"), SAYS("Heading 2 number 1 says exactly Pack These", H2(0), "Pack These"), SAYS("Heading 2 number 2 says exactly Cooking Steps", H2(1), "Cooking Steps"), SAYS("Heading 2 number 3 says exactly Menu", H2(2), "Menu"),
-       ONLY("The page has 1 heading 1, 3 heading 2s, 2 unordered lists (ul) and 1 ordered list (ol)", { h1: 1, h2: 3, ul: 2, ol: 1 })]],
+       ONLY("The page has 1 heading 1 and 3 heading 2s", { h1: 1, h2: 3 })]],
     "Step 2": [[K("An unordered list (ul) is right under the heading Pack These", function (c) { var n = h.nextEl(H2(0)(c)); return !!n && n.tag === "ul"; }),
                 LISTSAY("The ul has exactly 3 li items: Tent, Sleeping bag, Flashlight (only li tags inside the ul)", ULn(0), ["Tent", "Sleeping bag", "Flashlight"])]],
     "Step 3": [[HAS("The first ul has list-style-type: square", ULn(0), "list-style-type", eq("square")), NOLISTSTYLE_ON_LI]],
