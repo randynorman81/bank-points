@@ -230,13 +230,13 @@ function same(ans, exp) {
   if (/^-?\d+(\.\d+)?$/.test(exp)) { if (!/^-?\d+(\.\d+)?$/.test(ans)) return false; return (ans.indexOf(".") >= 0) === (exp.indexOf(".") >= 0) && Number(ans) === Number(exp); }
   return ans === exp;
 }
-function buildSteps(tr) { var vars = {}; return tr.steps.map(function (s, n) { Object.keys(s[0]).forEach(function (k) { vars[k] = s[0][k]; }); (s[4] || []).forEach(function (k) { delete vars[k]; }); return { changed: s[0], printed: s[1], desc: s[2] || "", li: s[3] != null ? s[3] : n, vars: JSON.parse(JSON.stringify(vars)) }; }); }
+function buildSteps(tr) { var vars = {}; return tr.steps.map(function (s, n) { Object.keys(s[0]).forEach(function (k) { vars[k] = s[0][k]; }); (s[4] || []).forEach(function (k) { delete vars[k]; }); return { changed: s[0], printed: s[1], desc: s[2] || "", li: s[3] != null ? s[3] : n, free: !!s[5], cond: s[6] || "", vars: JSON.parse(JSON.stringify(vars)) }; }); }
 function showTrace() {
   var T = TR[tlid], tr = T.traces[ti], sc = ls("py:trace:" + tlid) || {}; $("badge").textContent = "Code tracing · " + T.num; document.title = "Code tracing " + T.num + " | SCHS Computer Science";
   var chips = T.traces.map(function (t, i) { return '<a class="chip' + (sc[i] && sc[i].done ? " done" : "") + '" style="' + (i === ti ? "background:#4F46E5;border-color:#4F46E5;color:#fff" : "") + '" href="?tl=' + tlid + "&i=" + i + '">' + (i + 1) + "</a>"; }).join(""), tot = tScore(tlid);
   si = 0; stepsFull = buildSteps(tr); tr._wrong = 0;
   $("main").innerHTML = '<div class="crumb"><a href="?hub=t">' + ICON.back + 'All lessons</a></div><div class="meter">Lesson ' + T.num + ': ' + esc(T.title) + '<div class="bar"><i style="width:' + tot + '%"></i></div><span>' + tDone(tlid) + ' of ' + T.traces.length + ' done</span></div><div class="chips" style="margin:0 0 14px">' + chips + "</div>"
-    + '<div class="card"><div class="ch"><span class="num">' + (ti + 1) + "</span><h2>" + esc(tr.title) + '</h2><span class="pillst" id="tpst">Line 1 of ' + tr.code.length + '</span></div><div class="cb"><div class="goal"><span>THE PROGRAM</span>' + esc(tr.intro) + '</div><div class="steps"><div class="lab">HOW TO TRACE IT</div><ol><li>Read the highlighted line of code.</li><li>Work out what that line stores, or what it prints.</li><li>Type the new value in the box and press Check (or Enter). Type text without quotes. A number with a decimal point needs the decimal point (4.0, not 4).</li><li>Variables the line did not change are shown for you. A line like <code>if</code>, <code>for</code> or <code>while</code> may change nothing: just press Next. A loop runs its lines again and again, so the same line shows up many times. Type a list like [1, 2, 3]. When a line calls a function, the next steps show the function\'s own lines: its parameters appear when it is called and disappear when it returns, and a function that has no <code>return</code> gives back <code>None</code>.</li></ol></div><div class="tr"><div><div class="lab">CODE</div><div class="code" id="tcode"></div></div><div><div class="lab">VARIABLES AFTER THIS LINE RUNS</div><div class="what" id="twhat"></div><div id="tvars"></div><div class="msg" id="tmsg"></div><div class="btns"><button class="btn go" id="tchk">' + ICON.check + 'Check</button><button class="btn go" id="tnx" style="display:none">Next line ' + ICON.next + "</button></div></div></div></div></div>";
+    + '<div class="card"><div class="ch"><span class="num">' + (ti + 1) + "</span><h2>" + esc(tr.title) + '</h2><span class="pillst" id="tpst">Line 1 of ' + tr.code.length + '</span></div><div class="cb"><div class="goal"><span>THE PROGRAM</span>' + esc(tr.intro) + '</div><div class="steps"><div class="lab">HOW TO TRACE IT</div><ol><li>Read the highlighted line of code.</li><li>Work out what that line stores, or what it prints.</li><li>Type the new value in the box and press Check (or Enter). On an <code>if</code>, <code>elif</code> or <code>while</code> line, type <b>True</b> or <b>False</b> for its condition. A value that is simply typed into the code (like <code>x = 5</code>) is shown to you. Type text without quotes. A number with a decimal point needs the decimal point (4.0, not 4).</li><li>Variables the line did not change are shown for you. A line like <code>if</code>, <code>for</code> or <code>while</code> may change nothing: just press Next. A loop runs its lines again and again, so the same line shows up many times. Type a list like [1, 2, 3]. When a line calls a function, the next steps show the function\'s own lines: its parameters appear when it is called and disappear when it returns, and a function that has no <code>return</code> gives back <code>None</code>.</li></ol></div><div class="tr"><div><div class="lab">CODE</div><div class="code" id="tcode"></div></div><div><div class="lab">VARIABLES AFTER THIS LINE RUNS</div><div class="what" id="twhat"></div><div id="tvars"></div><div class="msg" id="tmsg"></div><div class="btns"><button class="btn go" id="tchk">' + ICON.check + 'Check</button><button class="btn go" id="tnx" style="display:none">Next line ' + ICON.next + "</button></div></div></div></div></div>";
   drawStep(tr);
 }
 function drawStep(tr) {
@@ -246,24 +246,32 @@ function drawStep(tr) {
   $("twhat").innerHTML = step.desc ? "<b>This line:</b> " + bt(step.desc) : "";
   var names = Object.keys(step.vars), rows = "", ask = [];
   names.forEach(function (n) {
-    if (step.changed[n] !== undefined) { ask.push({ n: n, exp: step.changed[n] }); rows += "<tr><td>" + esc(n) + '</td><td><input class="ans" data-n="' + esc(n) + '" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="value?"></td></tr>'; }
+    if (step.changed[n] !== undefined && !step.free) { ask.push({ n: n, exp: step.changed[n] }); rows += "<tr><td>" + esc(n) + '</td><td><input class="ans" data-n="' + esc(n) + '" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="value?"></td></tr>'; }
     else rows += "<tr><td>" + esc(n) + '</td><td class="old">' + esc(step.vars[n]) + "</td></tr>";
   });
   var printAsk = step.printed && step.printed.length;
-  if (printAsk) rows += '<tr><td>prints</td><td><input class="ans" data-n="__print" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="what shows?"></td></tr>';
-  if (!names.length && !printAsk) rows = '<tr><td colspan="2" class="old">Nothing has been stored yet.</td></tr>';
+  if (printAsk) rows += '<tr><td>prints</td><td><input class="ans" data-n="__print" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="what shows on screen?"></td></tr>';
+  if (step.cond) rows += '<tr><td>is it True?</td><td><input class="ans" data-n="__cond" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="True or False?"></td></tr>';
+  if (!names.length && !printAsk && !step.cond) rows = '<tr><td colspan="2" class="old">Nothing has been stored yet.</td></tr>';
   var inputsBefore = stepsFull.slice(0, si).filter(function (x) { return /input\(/.test(tr.code[x.li]); }).length, inputLine = /input\(/.test(tr.code[step.li]) ? '<div class="note" style="margin:0 0 8px">This line reads from the keyboard. The user types <b>' + esc(tr.ins[inputsBefore] || "") + "</b>.</div>" : "";
   $("tvars").innerHTML = inputLine + '<table class="vt"><thead><tr><th>Variable</th><th>Value</th></tr></thead><tbody>' + rows + "</tbody></table>";
   var firstIn = document.querySelector("#tvars input"); if (firstIn) try { firstIn.focus({ preventScroll: true }); } catch (e) {}
   $("tmsg").className = "msg"; $("tnx").style.display = "none"; $("tchk").disabled = false; $("tchk").style.display = "";
   $("tchk").onclick = function () { checkStep(tr, step, ask, printAsk, last); };
   $("tvars").onkeydown = function (e) { if (e.key === "Enter") { e.preventDefault(); if ($("tnx").style.display === "none") $("tchk").click(); else $("tnx").click(); } };
-  if (!ask.length && !printAsk) { $("tchk").style.display = "none"; $("tnx").style.display = ""; $("tnx").innerHTML = (last ? "Finish " : "Next line ") + ICON.next; $("tnx").onclick = function () { advance(tr, last); }; }
+  if (!ask.length && !printAsk && !step.cond) { $("tchk").style.display = "none"; $("tnx").style.display = ""; $("tnx").innerHTML = (last ? "Finish " : "Next line ") + ICON.next; $("tnx").onclick = function () { advance(tr, last); }; }
+}
+/* what a print line shows: the whole line is right, and so is just the value after a label (for example 5 for "Evens: 5") */
+function printOk(v, printed) {
+  v = norm(v); if (v === printed.join(" | ") || v === printed.join("\n")) return true;
+  if (printed.length === 1) { var ln = printed[0]; if (same(v, "'" + ln + "'")) return true; var k = ln.indexOf(": "); if (k > 0 && same(v, ln.slice(k + 2))) return true; }
+  return false;
 }
 function checkStep(tr, step, ask, printAsk, last) {
   var allOk = true, msg = $("tmsg");
   ask.forEach(function (a) { var el = document.querySelector('input[data-n="' + a.n + '"]'), ok = same(el.value, a.exp); el.classList.remove("ok", "no"); el.classList.add(ok ? "ok" : "no"); if (!ok) allOk = false; });
-  if (printAsk) { var el = document.querySelector('input[data-n="__print"]'), ok = norm(el.value) === step.printed.join(" | ") || norm(el.value) === step.printed.join("\n") || (step.printed.length === 1 && same(el.value, "'" + step.printed[0] + "'")); el.classList.remove("ok", "no"); el.classList.add(ok ? "ok" : "no"); if (!ok) allOk = false; }
+  if (printAsk) { var el = document.querySelector('input[data-n="__print"]'), ok = printOk(el.value, step.printed); el.classList.remove("ok", "no"); el.classList.add(ok ? "ok" : "no"); if (!ok) allOk = false; }
+  if (step.cond) { var ec = document.querySelector('input[data-n="__cond"]'), okc = norm(ec.value).toLowerCase() === step.cond.toLowerCase(); ec.classList.remove("ok", "no"); ec.classList.add(okc ? "ok" : "no"); if (!okc) allOk = false; }
   if (!allOk) { tr._wrong++; msg.className = "msg show bad"; msg.textContent = "Not yet. Re-read line " + (stepsFull[si].li + 1) + " and check what it does to the value (a number with a decimal point is a float, text is a string)."; return; }
   msg.className = "msg show ok"; msg.textContent = "Right."; $("tchk").style.display = "none"; var nx = $("tnx"); nx.style.display = ""; nx.innerHTML = (last ? "Finish " : "Next line ") + ICON.next; nx.onclick = function () { advance(tr, last); }; nx.focus();
 }

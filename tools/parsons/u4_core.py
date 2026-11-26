@@ -179,7 +179,10 @@ def trace(code_lines, ins, seed=None):
         line = code_lines[li]
         desc = event_desc(code_lines, li, nli, i, ev, rets)
         if line.strip().startswith('return') and printed[p0:p1]: desc += ' Then the line that called the function prints the result.'
-        steps.append([changed, printed[p0:p1], desc, li, removed])
+        free = bool(re.fullmatch(r'\w+ = (-?\d+(\.\d+)?|"[^"]*"|True|False|\[[^\]]*\])', line.strip())) and len(changed) == 1
+        cond = ''
+        if re.fullmatch(r'(if|elif|while) .+:', line.strip()): cond = 'True' if (nli is not None and nli == li + 1 and indent_of(code_lines[nli]) > indent_of(line)) else 'False'
+        steps.append([changed, printed[p0:p1], desc, li, removed, 1 if free else 0, cond])
     return steps, list(printed)
 
 def indent_of(s): return len(s) - len(s.lstrip(' '))
@@ -198,7 +201,7 @@ def event_desc(code, li, nli, i, ev, rets=None):
     m = re.fullmatch(r'return (.+)', s)
     if m:
         v = (rets or {}).get(i, None)
-        return 'Return `%s`. That hands %s back to the line that called the function, and the function ends.' % (m.group(1), 'the value `%r`' % (v,))
+        return 'Return `%s`. That hands its value back to the line that called the function, and the function ends.' % m.group(1)
     if not s.startswith('def '):
         called = [n for n, (d, e) in rng.items() if re.search(r'\b%s\(' % n, s) and nli is not None and d < nli <= e and not d < li <= e]
         if called:
@@ -207,10 +210,10 @@ def event_desc(code, li, nli, i, ev, rets=None):
     inside = nli is not None and nli > li and indent_of(code[nli]) > indent_of(line) and nli == li + 1
     m = re.fullmatch(r'if (.+):', s) or re.fullmatch(r'elif (.+):', s)
     if m:
-        return 'Check `%s`. It is True, so the indented lines under it run.' % m.group(1) if inside else 'Check `%s`. It is False, so Python skips the indented lines under it.' % m.group(1)
+        return 'Check `%s`. If it is True the indented lines under it run, and if it is False Python skips them.' % m.group(1)
     m = re.fullmatch(r'while (.+):', s)
     if m:
-        return 'Check `%s`. It is True, so the loop body runs again.' % m.group(1) if inside else 'Check `%s`. It is False, so the loop ends and Python moves on.' % m.group(1)
+        return 'Check `%s`. If it is True the loop body runs, and if it is False the loop ends and Python moves on.' % m.group(1)
     m = re.fullmatch(r'for (\w+) in (.+):', s)
     if m:
         first = not any(e[0] == li for e in ev[:i])

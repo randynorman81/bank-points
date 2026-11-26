@@ -5,6 +5,7 @@ from multiprocessing import Pool
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 ROOT = os.path.dirname(os.path.dirname(HERE))
 from u4_core import *
+from u4_traces import TR as CUSTOM_TRACES
 SH = {}
 for mod in ('u4_shapes1', 'u4_shapes2'):
     try: SH.update(__import__(mod).SH)
@@ -64,22 +65,23 @@ def main(only):
             if n: pr['title'] += ' (again)'
         probs_by[lid] = probs; jobs += [j for _, _, j in probs]
         trs = []
-        for si, sh in enumerate(shapes):
-            for row in (2, 3):
-                ttl, story, sol, dis, ins = fill(sh, sh['pool'][row], tr=True); tag = '%s T%d.%d' % (lid, si + 1, row)
-                if not sh['rnd'] or sh['tr']:
-                    check_problem(tag, sol, [], ins, False, errors)
-                    steps, printed = trace(sol, ins)
-                    # an independent check: a plain run must print exactly what the trace printed, and no step may be a do-nothing line
-                    if run('\n'.join(sol), ins) != printed: errors.append((tag, 'trace output disagrees with a plain run'))
-                    if len(steps) > 40: errors.append((tag, 'trace has %d steps (too long)' % len(steps)))
-                    for k, st in enumerate(steps):
-                        for v in st[0].values():
-                            if re.search(r'\d\.\d{6,}|e[+-]\d', v) or (v.startswith("'") and (v[1:-1] != v[1:-1].strip() or v == "''")) or (v.startswith("'") and ("\\" in v or '"' in v)): errors.append((tag, 'hard-to-type value ' + v))
-                            if v.startswith('[') and len(v) > 40: errors.append((tag, 'list too long to type: ' + v))
-                        isctl = re.match(r'\s*(if|elif|while|for|def|break|import)\b', sol[st[3]]) or re.fullmatch(r'\s*(\w+)\(.*\)', sol[st[3]]) and re.search(r'^def %s\(' % re.match(r'\s*(\w+)', sol[st[3]]).group(1), '\n'.join(sol), re.M)
-                        if not st[0] and not st[1] and not isctl and not st[4]: errors.append((tag, 'line %d changes nothing' % (st[3] + 1)))
-                    trs.append(dict(title='', intro=story, code=sol, ins=ins, steps=steps))
+        for ti, (code, ins) in enumerate(CUSTOM_TRACES[lid]):
+            sol = code.split('\n'); tag = '%s T%d' % (lid, ti + 1)
+            check_problem(tag, sol, [], ins, False, errors)
+            steps, printed = trace(sol, ins)
+            if run('\n'.join(sol), ins) != printed: errors.append((tag, 'trace output disagrees with a plain run'))
+            if len(steps) > 40: errors.append((tag, 'trace has %d steps (too long)' % len(steps)))
+            asked = sum(1 for st in steps if (not st[5] and (st[0] or st[1])) or st[6])
+            if asked < 2: errors.append((tag, 'only %d steps ask the student for anything' % asked))
+            for k, st in enumerate(steps):
+                for v in st[0].values():
+                    if re.search(r'\d\.\d{6,}|e[+-]\d', v) or (v.startswith("'") and (v[1:-1] != v[1:-1].strip() or v == "''") and not st[5]) or (v.startswith("'") and ("\\" in v or '"' in v)): errors.append((tag, 'hard-to-type value ' + v))
+                    if v.startswith('[') and len(v) > 40 and not st[5]: errors.append((tag, 'list too long to type: ' + v))
+                isctl = re.match(r'\s*(if|elif|while|for|def|break|import)\b', sol[st[3]]) or re.fullmatch(r'\s*(\w+)\(.*\)', sol[st[3]]) and re.search(r'^def %s\(' % re.match(r'\s*(\w+)', sol[st[3]]).group(1), '\n'.join(sol), re.M)
+                calls_def = any(re.search(r'\b%s\(' % n, sol[st[3]]) for n in re.findall(r'(?m)^def (\w+)\(', '\n'.join(sol)))
+                if not st[0] and not st[1] and not isctl and not st[4] and not calls_def: errors.append((tag, 'line %d changes nothing' % (st[3] + 1)))
+            intro = 'Trace this program one line at a time. Work out what each line stores or prints.' + (' When it asks for input, the user types %s.' % ', '.join(ins) if ins else '')
+            trs.append(dict(title='', intro=intro, code=sol, ins=ins, steps=steps))
         trs.sort(key=lambda t: difficulty(t['code']))
         for n_, t_ in enumerate(trs): t_['title'] = 'Trace %d' % (n_ + 1)
         if len({'\n'.join(t['code']) + '|' + ','.join(t['ins']) for t in trs}) != len(trs): errors.append((lid, 'duplicate trace'))
