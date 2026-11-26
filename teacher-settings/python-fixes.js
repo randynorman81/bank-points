@@ -43,6 +43,8 @@ const addTips = (rec, tips) => { rec.tips = Object.assign({}, rec.tips || {}, ti
 export function fixUiWords(rec) {
   const fix = (t) => typeof t !== "string" ? t : t
     .replace(/the orange \*\*Run\*\* button/g, "the **Run** button")
+    .replace(/Look at one line, like `print\(7 \/\/ 2\)`\./, "Look at one line, like `print(2 + 3)`.")
+    .replace(/`print\(7 \/\/ 2\)(\s+)# my guess: 3`/, "`print(2 + 3)$1# my guess: 5`")
     .replace(/^Why is 8% tax\s+\* 0\.08\?$/, "Why multiply by 0.08 to get 8% tax?")
     .replace(/Sign in with Google \(top right\), pick \*\*Assignment (\d+)\*\* in the Assignment box, choose your \*\*period\*\*, then click \*\*Submit\*\*\./g, "Sign in with Google (at the top), open **Walkthrough $1** with the **CURRICULUM** button, choose your **period**, then click **Submit**.")
     .replace(/Sign in with Google \(top right\), pick Assignment (\d+) in the\.\.\./g, "Sign in with Google (at the top), open Walkthrough $1 with the CURRICULUM button...")

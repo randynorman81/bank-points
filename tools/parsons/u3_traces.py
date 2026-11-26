@@ -3,15 +3,15 @@ from u4_traces import P
 TR3 = {}
 TR3['u3l1'] = [
  P('score = 10\nscore = score + 5\nprint(score)'),
- P('a = 4\nb = a\na = 9\nprint(a, b)'),
- P('x = 3\ny = x * 2\nx = y + 1\nprint(x, y)'),
+ P('a = 4\nb = a\na = 9\nprint(a)\nprint(b)'),
+ P('x = 3\ny = x * 2\nx = y + 1\nprint(x)\nprint(y)'),
  P('player_name = "Mia"\nPlayer_name = "Zoe"\nprint(player_name)\nprint(Player_name)'),
  P('count = 1\ncount = count + count\ncount = count + count\nprint(count)'),
- P('old = 5\nnew = 8\ntemp = old\nold = new\nnew = temp\nprint(old, new)'),
- P('a = 2\nb = 3\nc = a + b\na = c\nb = a + c\nprint(a, b, c)'),
- P('lives = 3\nlives = lives - 1\nbonus = lives * 10\nlives = lives + 1\nprint(lives, bonus)'),
- P('first = "ab"\nsecond = first + "cd"\nfirst = second + first\nprint(first, second)'),
- P('n = 1\nn = n * 2\nm = n + 1\nn = m * n\nm = n // m\nprint(n, m)'),
+ P('old = 5\nnew = 8\ntemp = old\nold = new\nnew = temp\nprint(old)\nprint(new)'),
+ P('a = 2\nb = 3\nc = a + b\na = c\nb = a + c\nprint(a)\nprint(b)\nprint(c)'),
+ P('lives = 3\nlives = lives - 1\nbonus = lives * 10\nlives = lives + 1\nprint(lives)\nprint(bonus)'),
+ P('first = 2\nsecond = first * 3\nfirst = second + first\nprint(first)\nprint(second)'),
+ P('n = 1\nn = n * 2\nm = n + 1\nn = m * n\nm = m + n\nprint(n)\nprint(m)'),
 ]
 TR3['u3l2'] = [
  P('x = 5\nprint(x + 1)\nprint(type(x))'),
@@ -19,11 +19,11 @@ TR3['u3l2'] = [
  P('s = "5"\nprint(type(s))\nprint(s)'),
  P('a = 3\nb = 2.5\nc = a + b\nprint(c)\nprint(type(c))'),
  P('flag = 4 > 2\nprint(flag)\nprint(type(flag))'),
- P('n = 7\ns = str(n)\nprint(s)\nprint(type(s))\nprint(type(n))'),
- P('x = 10\nx = x / 4\nprint(x)\nprint(type(x))'),
- P('a = "3"\nb = int(a)\nc = b + 4\nprint(c)\nprint(type(c))'),
- P('price = 4.5\nwhole = int(price)\nback = float(whole)\nprint(whole, back)'),
- P('x = 2\ny = "2"\nz = x * 2\nw = y * 2\nprint(z, w)'),
+ P('n = 7\ns = "7"\nprint(s)\nprint(type(s))\nprint(type(n))'),
+ P('x = 10\nx = x * 2.5\nprint(x)\nprint(type(x))'),
+ P('a = 3\nb = a > 2\nc = a * 4\nprint(b)\nprint(c)\nprint(type(b))'),
+ P('price = 4.5\nwhole = 4\nback = whole + 0.5\nprint(back == price)\nprint(type(whole))\nprint(type(back))'),
+ P('x = 2\ny = "2"\nz = x * 2\nprint(z)\nprint(y)\nprint(type(z))\nprint(type(y))'),
 ]
 TR3['u3l3'] = [
  P('name = input("Name: ")\nprint(name)', ['Ada']),
@@ -32,9 +32,9 @@ TR3['u3l3'] = [
  P('a = input("A: ")\nb = input("B: ")\nprint(a + b)', ['4', '5']),
  P('a = int(input("A: "))\nb = int(input("B: "))\nprint(a + b)', ['4', '5']),
  P('price = float(input("Price: "))\nqty = int(input("Qty: "))\ntotal = price * qty\nprint(total)', ['2.5', '4']),
- P('x = input("X: ")\ny = x * 3\nprint(y)', ['ab']),
+ P('x = int(input("X: "))\ny = x * 3\nprint(y)', ['7']),
  P('name = input("Name: ")\ngreeting = "Hi " + name\nprint(greeting)\nname = input("Again: ")\nprint(name)', ['Ava', 'Bo']),
- P('n = int(input("n: "))\ndouble = n * 2\nhalf = n / 2\nprint(double, half)', ['8']),
+ P('n = int(input("n: "))\ndouble = n * 2\ntriple = n * 3\nprint(double)\nprint(triple)', ['8']),
  P('a = input("A: ")\nb = int(a)\nc = b * b\nprint(a + a)\nprint(c)', ['6']),
 ]
 TR3['u3l4'] = [
@@ -45,9 +45,9 @@ TR3['u3l4'] = [
  P('item = "pen"\nqty = 3\nprint(item, qty)\nprint(item + str(qty))'),
  P('x = 2.5\ntext = "Price: " + str(x)\nprint(text)'),
  P('a = "1"\nb = 2\nprint(a + str(b))\nprint(int(a) + b)'),
- P('n = 5\ns = str(n) + str(n)\nm = int(s) + 1\nprint(s, m)'),
+ P('n = 5\ns = str(n) + str(n)\nprint(s)\nprint(s + "!")'),
  P('flag = True\nmsg = "Done: " + str(flag)\nprint(msg)\nprint(str(1 + 1) + "1")'),
- P('a = 7\nb = "3"\nc = str(a) + b\nd = int(c) - a\nprint(c, d)'),
+ P('a = 7\nb = "3"\nc = str(a) + b\nprint(c)\nprint(c + c)'),
 ]
 TR3['u3l5'] = [
  P('word = "Python"\nfirst = word[0]\nprint(first)\nprint(word[3])'),
@@ -57,7 +57,7 @@ TR3['u3l5'] = [
  P('w = "banana"\nprint(w[2])\nprint(w[len(w) - 1])'),
  P('name = "Maria"\ni = 3\nprint(name[i])\ni = i - 3\nprint(name[i])'),
  P('a = "cat"\nb = "dog"\nprint(a[0] + b[0])\nprint(len(a + b))'),
- P('word = "streams"\nprint(word[len(word) // 2])\nprint(word[-3])'),
+ P('word = "streams"\nprint(word[5])\nprint(word[-3])'),
  P('s = "abcdef"\nx = s[1]\ny = s[-1]\nz = s[2]\nprint(z + y + x)'),
  P('word = "level"\nok = word[0] == word[-1]\nok2 = word[1] == word[-2]\nprint(ok, ok2)'),
 ]
@@ -88,14 +88,14 @@ TR3['u3l7'] = [
 TR3['u3l8'] = [
  P('a = int(input("A: "))\nprint(a * 2)', ['7']),
  P('a = int(input("A: "))\nb = int(input("B: "))\nprint(a - b)', ['10', '4']),
- P('price = float(input("Price: "))\ntotal = price * 3\nprint(total)\nprint(total / 2)', ['1.5']),
- P('a = int(input("A: "))\nb = int(input("B: "))\ntotal = a + b\navg = total / 2\nprint(total, avg)', ['3', '8']),
+ P('price = float(input("Price: "))\ntotal = price * 3\nprint(total)\nprint(total * 2)', ['1.5']),
+ P('a = int(input("A: "))\nb = int(input("B: "))\ntotal = a + b\ndouble = total * 2\nprint(total, double)', ['3', '8']),
  P('hours = int(input("Hours: "))\nrate = int(input("Rate: "))\nprint(hours * rate)', ['8', '15']),
  P('w = int(input("W: "))\nh = int(input("H: "))\narea = w * h\nperim = 2 * (w + h)\nprint(area, perim)', ['5', '3']),
  P('n = int(input("N: "))\nn = n + 1\nn = n * 2\nprint(n)', ['4']),
  P('a = float(input("A: "))\nb = float(input("B: "))\nprint(a + b)\nprint(a - b)', ['2.5', '1.5']),
  P('age = int(input("Age: "))\nnext_year = age + 1\nprint(next_year * 2)\nprint(age + next_year)', ['13']),
- P('a = int(input("A: "))\nb = int(input("B: "))\nc = int(input("C: "))\nprint(a + b + c)\nprint((a + b + c) / 3)', ['70', '80', '90']),
+ P('a = int(input("A: "))\nb = int(input("B: "))\nc = int(input("C: "))\nprint(a + b + c)\nprint(a * b * c)', ['2', '3', '4']),
 ]
 TR3['u3l9'] = [
  P('a = 9\nb = 2\nc = a / b\nprint(c)'),

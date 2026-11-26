@@ -44,7 +44,7 @@ WK("u3l10", { brand: ["UPS", "#6B3F1D", "#351C15", "#FFB500", "900 26px Arial,He
   approve: "The dock numbers are all correct.", done: "The round-up formula is going on the dock screens." });
 
 /* ---------------------------------------------------------------- 3.11 */
-def("u3l11", "Delta Flight Board", ["**You are on the flight-operations software team at Delta Air Lines**, whose biggest hub is right here in Atlanta. The // and % operators are partners: one tells you how many whole groups fit, the other tells you what is left over."],
+def("u3l11", "Delta Flight Board", ["**You are on the flight-operations software team at Delta Air Lines**, whose biggest hub is in Atlanta. The // and % operators are partners: one tells you how many whole groups fit, the other tells you what is left over."],
   ["the remainder %", "// and % together", "even and odd", "divides evenly", "last digit", "wrapping around a clock"], [
   S("Ask and store", ["Start the file with a comment that begins `# PURPOSE:` and says in at least five words what the program is for. Ask `Seat row? ` as a whole number in **`row`**. Then make these variables: **`flight_minutes`** (`135`), **`passengers`** (`200`), **`group_size`** (`6`), **`confirmation`** (`4721`), **`depart_hour`** (`22`) and **`flight_hours`** (`5`)."],
     "Write the comment, the question and the six variables.", `# PURPOSE: work out what the gate board shows for one flight\nrow = int(input("Seat row? "))\nflight_minutes = 135\npassengers = 200\ngroup_size = 6\nconfirmation = 4721\ndepart_hour = 22\nflight_hours = 5`,

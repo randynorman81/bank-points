@@ -39,8 +39,8 @@ MORE['u3l3'] = [
    ['a = input("First: ")', 'print(a, b)', 'b = int(input("Second: ")'], ['3', '4']),
  P('What type does input give?', 'Ask "Age: " and store the answer in age (do not convert it). Print the type of age. (The user types 15.)', L('age = input("Age: ")', 'print(type(age))'),
    ['age = int(input("Age: "))', 'print(type(int(age)))', 'print(typ(age))'], ['15']),
- P('Next number message', 'Ask "Number: " and store it as a whole number in n. Store "Next: " joined to str(n + 1) in msg. Print msg. (The user types 9.)', L('n = int(input("Number: "))', 'msg = "Next: " + str(n + 1)', 'print(msg)'),
-   ['msg = "Next: " + n + 1', 'msg = "Next: " + str(n) + 1', 'n = input("Number: ")'], ['9']),
+ P('Store the next number', 'Ask "Number: " and store it as a whole number in n. Store n + 1 in next_n. Print next_n. (The user types 9.)', L('n = int(input("Number: "))', 'next_n = n + 1', 'print(next_n)'),
+   ['next_n = n - 1', 'print(n)', 'n = input("Number: ")'], ['9']),
 ]
 MORE['u3l4'] = [
  P('Greet a name', 'Store "Hello" in greeting and "Maya" in name. Print greeting, a space, then name, joined with +.', L('greeting = "Hello"', 'name = "Maya"', 'print(greeting + " " + name)'),

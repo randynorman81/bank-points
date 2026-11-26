@@ -40,7 +40,11 @@ def check_problem(tag, sol, dis, groups, ins):
             except Exception: errors.append((tag, 'group %r raises' % g)); break
     return exp
 import re
+from desc_util import print_words
 def describe(line):
+    if line.strip().startswith('print('):
+        w_ = print_words(line)
+        if w_: return w_
     m = re.fullmatch(r'(\w+) = "(.*)"', line)
     if m: return 'Create `%s` and store the text "%s" in it.' % m.groups()
     m = re.fullmatch(r'(\w+) = (-?\d+)', line)
@@ -66,7 +70,9 @@ def describe(line):
     m = re.fullmatch(r'(\w+) = \1 ([+\-*/]) (.+)', line)
     if m:
         v, op, rest = m.groups(); w = {'+': 'Add %s to `%s`', '-': 'Subtract %s from `%s`', '*': 'Multiply `%s` by %s', '/': 'Divide `%s` by %s'}[op]
-        return (w % ((rest, v) if op in '+-' else (v, rest))) + ' and store the new value back in `%s`.' % v
+        bt = (lambda x: x) if re.fullmatch(r'-?\d+(\.\d+)?', rest) else (lambda x: '`%s`' % x)
+        if rest == v: return ('Add `%s` to itself' % v if op == '+' else 'Multiply `%s` by itself' % v if op == '*' else (w % ((bt(rest), v) if op in '+-' else (v, bt(rest))))) + ' and store the new value back in `%s`.' % v
+        return (w % ((bt(rest), v) if op in '+-' else (v, bt(rest)))) + ' and store the new value back in `%s`.' % v
     m = re.fullmatch(r'(\w+) = (.+)', line)
     if m: return 'Store the result of `%s` in `%s`.' % (m.group(2), m.group(1))
     m = re.fullmatch(r'print\("(.*)"\)', line)

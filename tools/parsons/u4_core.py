@@ -44,8 +44,12 @@ def rng_words(args):
 def _minus1(x):
     try: return str(int(x) - 1)
     except ValueError: return '%s minus 1' % x
+from desc_util import print_words
 def describe(line):
     s = line.strip()
+    if s.startswith('print('):
+        w = print_words(s)
+        if w: return w
     m = re.fullmatch(r'if (.+):', s)
     if m: return 'Start an `if` that checks `%s`. The indented lines under it run only when it is True.' % m.group(1)
     m = re.fullmatch(r'elif (.+):', s)
@@ -88,6 +92,8 @@ def describe(line):
     if m: return 'Create `%s` and store the decimal number %s in it.' % m.groups()
     m = re.fullmatch(r'(\w+) = int\(input\("(.*)"\)\)', s)
     if m: return 'Ask the user "%s" and store the answer in `%s` as a whole number (use int).' % (m.group(2), m.group(1))
+    m = re.fullmatch(r'(\w+) = float\(input\("(.*)"\)\)', s)
+    if m: return 'Ask the user "%s" and store the answer in `%s` as a decimal number (use float).' % (m.group(2), m.group(1))
     m = re.fullmatch(r'(\w+) = input\("(.*)"\)', s)
     if m: return 'Ask the user "%s" and store the typed text in `%s`.' % (m.group(2), m.group(1))
     m = re.fullmatch(r'(\w+) = len\((\w+)\)', s)
@@ -95,8 +101,12 @@ def describe(line):
     m = re.fullmatch(r'(\w+) = \1 ([+\-*/]) (.+)', s)
     if m:
         v, op, rest = m.groups()
+        bt = (lambda x: x) if re.fullmatch(r'-?\d+(\.\d+)?', rest) else (lambda x: '`%s`' % x)
         w = {'+': 'Add %s to `%s`', '-': 'Subtract %s from `%s`', '*': 'Multiply `%s` by %s', '/': 'Divide `%s` by %s'}[op]
-        return (w % ((rest, v) if op in '+-' else (v, rest))) + ' and store the new value back in `%s`.' % v
+        if rest == v: return ('Add `%s` to itself' % v if op == '+' else 'Multiply `%s` by itself' % v if op == '*' else (w % ((bt(rest), v) if op in '+-' else (v, bt(rest))))) + ' and store the new value back in `%s`.' % v
+        return (w % ((bt(rest), v) if op in '+-' else (v, bt(rest)))) + ' and store the new value back in `%s`.' % v
+    m = re.fullmatch(r'(\w+) = (\w+)', s)
+    if m and not re.fullmatch(r'-?\d+', m.group(2)) and m.group(2) not in ('True', 'False'): return 'Copy the value of `%s` into `%s`.' % (m.group(2), m.group(1))
     m = re.fullmatch(r'(\w+) = (.+)', s)
     if m and CMP.search(m.group(2)): return 'Store the True or False answer of `%s` in `%s`.' % (m.group(2), m.group(1))
     if m: return 'Store the result of `%s` in `%s`.' % (m.group(2), m.group(1))
