@@ -1,0 +1,48 @@
+# Lesson 3.7: images (img, src, alt, width in px and %) and favicons (link rel=icon in the head)
+L = lambda *a: '\n'.join(a)
+def P(title, story, code, dis): return (title, story, code, dis)
+U = lambda n: 'https://images.example.org/%s.png' % n
+P37 = [
+ P('Add a picture', 'Show a picture of a bulldog. The picture is at %s and its alt text is Rex the bulldog. Write the heading Rex above it.' % U('rex'),
+   L('<h1>Rex</h1>', '<img src="%s" alt="Rex the bulldog">' % U('rex')),
+   [(1, '<img src="%s" alt="Rex the bulldog"></img>' % U('rex')), (1, '<img scr="%s" alt="Rex the bulldog">' % U('rex')), (1, '<img src="%s">' % U('rex'))]),
+ P('Describe it with alt', 'Show the picture at %s with the alt text A rocket launching. Add a paragraph under it that says Liftoff.' % U('rocket'),
+   L('<img src="%s" alt="A rocket launching">' % U('rocket'), '<p>Liftoff.</p>'),
+   [(0, '<img src="%s" alt="A rocket launching>' % U('rocket')), (0, '<img src=%s alt="A rocket launching">' % U('rocket')), (0, '<img src="%s" alt="A rocket launching"</img>' % U('rocket'))]),
+ P('Set the width in pixels', 'Show the picture at %s with the alt text A red kite, 200px wide. Set only the width.' % U('kite'),
+   L('<img src="%s" alt="A red kite" style="width: 200px;">' % U('kite')),
+   [(0, '<img src="%s" alt="A red kite" style="width: 200;">' % U('kite')), (0, '<img src="%s" alt="A red kite" style="width: 200px; height: 40px;">' % U('kite')), (0, '<img src="%s" alt="A red kite" style="witdh: 200px;">' % U('kite'))]),
+ P('Set the width in percent', 'Show the picture at %s with the alt text A wide beach, 50%% as wide as the page. Add a heading that says Beach Day above it.' % U('beach'),
+   L('<h1>Beach Day</h1>', '<img src="%s" alt="A wide beach" style="width: 50%%;">' % U('beach')),
+   [(1, '<img src="%s" alt="A wide beach" style="width: 50;">' % U('beach')), (1, '<img src="%s" alt="A wide beach" style="width: 50px;">' % U('beach')), (1, '<img src="%s" alt="A wide beach" style="width: 50%%;">></img>' % U('beach'))]),
+ P('A picture between paragraphs', 'Write a paragraph that says Meet my cat., then the picture at %s with the alt text Milo the gray cat, 300px wide, then a paragraph that says He naps all day.' % U('milo'),
+   L('<p>Meet my cat.</p>', '<img src="%s" alt="Milo the gray cat" style="width: 300px;">' % U('milo'), '<p>He naps all day.</p>'),
+   [(1, '<img src="%s" alt="Milo the gray cat" style="width: 300px"></img>' % U('milo')), (2, '<p>He naps all day.</h1>'), (1, '<img src="%s" alt="Milo the gray cat" style="width: 300px height: 200px;">' % U('milo'))]),
+ P('The favicon link', 'The tiny picture on the browser tab is the favicon. Build a page whose head has a title that says Pizza Shop and a link tag with rel icon pointing at %s. The body has a heading that says Pizza Shop.' % U('pizza-icon'),
+   L('<html>', '<head>', '<title>Pizza Shop</title>', '<link rel="icon" href="%s">' % U('pizza-icon'), '</head>', '<body>', '<h1>Pizza Shop</h1>', '</body>', '</html>'),
+   [(3, '<link rel="icon" href="%s"></link>' % U('pizza-icon')), (3, '<link rel="icon" href=%s>' % U('pizza-icon')), (3, '<link rel="iccon" href="%s">' % U('pizza-icon'))]),
+ P('Two pictures of different sizes', 'Show two pictures. The first is at %s with the alt text A small star and is 100px wide. The second is at %s with the alt text A big star and is 400px wide. Add a heading that says Stars first.' % (U('star1'), U('star2')),
+   L('<h1>Stars</h1>', '<img src="%s" alt="A small star" style="width: 100px;">' % U('star1'), '<img src="%s" alt="A big star" style="width: 400px;">' % U('star2')),
+   [(1, '<img src="%s" alt="A small star" style="width: 100px;">' % U('star1').replace('star1', 'star2')), (2, '<img src="%s" alt="A big star" style="width: 400px;"></img>' % U('star2')), (2, '<img src="%s" alt="A big star" style="width: 400px">>' % U('star2'))]),
+ P('A centered picture with a border', 'Center a picture by putting it in a paragraph that is centered with text-align. The picture is at %s with the alt text A mountain lake, 60%% wide with a 4px solid navy border.' % U('lake'),
+   L('<p style="text-align: center;">', '<img src="%s" alt="A mountain lake" style="width: 60%%; border: 4px solid navy;">' % U('lake'), '</p>'),
+   [(0, '<p style="text-align: center>'), (1, '<img src="%s" alt="A mountain lake" style="width: 60%%; border: 4px navy;">' % U('lake')), (2, '</p></p>')]),
+ P('A full page with a picture', 'Build a full page titled Pet Page. The body has a heading Pet Page and a picture at %s with the alt text A golden retriever puppy, 250px wide.' % U('puppy'),
+   L('<!DOCTYPE html>', '<html>', '<head>', '<title>Pet Page</title>', '</head>', '<body>', '<h1>Pet Page</h1>', '<img src="%s" alt="A golden retriever puppy" style="width: 250px;">' % U('puppy'), '</body>', '</html>'),
+   [(7, '<img src="%s" alt="A golden retriever puppy" style="width: 250px;"></img>' % U('puppy')), (3, '<title>Pet Page<title>'), (7, '<img src="%s" style="width: 250px;">' % U('puppy'))]),
+ P('A full page with a favicon and a picture', 'Build a full page titled Space Club. The head has the title and a favicon link (rel icon) at %s. The body has a heading Space Club, a picture at %s with the alt text The moon at night, 40%% wide, and a paragraph that says We love space.' % (U('space-icon'), U('moon')),
+   L('<!DOCTYPE html>', '<html>', '<head>', '<title>Space Club</title>', '<link rel="icon" href="%s">' % U('space-icon'), '</head>', '<body>', '<h1>Space Club</h1>', '<img src="%s" alt="The moon at night" style="width: 40%%;">' % U('moon'), '<p>We love space.</p>', '</body>', '</html>'),
+   [(4, '<link rel="icon" href="%s"></link>' % U('space-icon')), (8, '<img src="%s" alt="The moon at night" style="width: 40%%;"></img>' % U('moon')), (9, '<p>We love space.</h1>')]),
+]
+T37 = [
+ L('<h1>Rex</h1>', '<img src="https://images.example.org/rex.png" alt="Rex the bulldog">'),
+ L('<img src="https://images.example.org/kite.png" alt="A red kite" style="width: 200px;">', '<p>It flies high.</p>'),
+ L('<img src="https://images.example.org/a.png" alt="A tiny seed" style="width: 50px;">', '<img src="https://images.example.org/b.png" alt="A tall tree" style="width: 400px;">'),
+ L('<h2>Beach</h2>', '<img src="https://images.example.org/beach.png" alt="A wide beach" style="width: 50%;">', '<p>Sand and waves.</p>'),
+ L('<p style="text-align: center;">', '<img src="https://images.example.org/lake.png" alt="A mountain lake" style="width: 60%; border: 4px solid navy;">', '</p>'),
+ L('<h1 style="text-transform: uppercase;">my cat</h1>', '<img src="https://images.example.org/milo.png" alt="Milo the gray cat" style="width: 300px;">', '<p>He naps all day.</p>'),
+ L('<body style="color: darkgreen;">', '<h1>Garden</h1>', '<img src="https://images.example.org/rose.png" alt="A pink rose" style="width: 30%;">', '<p>Roses smell sweet.</p>', '</body>'),
+ L('<html>', '<head>', '<title>Icon Page</title>', '<link rel="icon" href="https://images.example.org/icon.png">', '</head>', '<body>', '<h1>Icon Page</h1>', '</body>', '</html>'),
+ L('<!DOCTYPE html>', '<html>', '<head>', '<title>Gallery</title>', '</head>', '<body style="text-align: center;">', '<h1>Gallery</h1>', '<img src="https://images.example.org/one.png" alt="Sunrise over hills" style="width: 45%;">', '<img src="https://images.example.org/two.png" alt="Sunset over the sea" style="width: 45%;">', '</body>', '</html>'),
+ L('<!DOCTYPE html>', '<html>', '<head>', '<title>Pet Club</title>', '<link rel="icon" href="https://images.example.org/paw.png">', '</head>', '<body>', '<h1 style="border-bottom: 3px solid brown;">Pet Club</h1>', '<img src="https://images.example.org/dog.png" alt="A happy dog" style="width: 250px; border: 3px dashed brown;">', '<p style="font-size: 20px;">Join us every week.</p>', '</body>', '</html>'),
+]
