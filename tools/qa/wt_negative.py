@@ -21,7 +21,7 @@ for s in slots:
     res['empty'] = pct(s, '', ins); res['print hello'] = pct(s, 'print("hello world")', ins)
     codeless = '\n'.join(l for l in lines if l.strip().startswith('#') and not re.match(r'^\s*#\s*[a-z_0-9]+\s*(=|\()', l.strip()))
     res['comments only'] = pct(s, codeless, ins)
-    other = 'a%d' % (int(s[1:]) % 13 + 1); osrc, oins = q.model(other); res['another lesson'] = pct(s, osrc, oins)
+    other = slots[(slots.index(s) + 1) % len(slots)] if len(slots) > 1 else s; osrc, oins = q.model(other); res['another lesson'] = pct(s, osrc, oins)
     bad = [k for k, v in res.items() if v is None or v >= 100 or (k in ('empty', 'print hello') and v > 5)]
     # limit for "comments only" / "another lesson": must stay clearly below passing (90) -- step comments alone are worth a share on purpose
     bad += [k for k in ('comments only', 'another lesson') if res[k] is not None and res[k] >= 70]

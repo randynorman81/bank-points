@@ -5,11 +5,21 @@ import json, subprocess, re, sys, os
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 API = os.environ.get('API', 'https://schscomputerscience.com/api/pycode')
 def call(d):
-    out = subprocess.run(['curl', '-s', '-X', 'POST', API, '-H', 'Content-Type: application/json', '-d', json.dumps(d)], capture_output=True, text=True).stdout
-    return json.loads(out)
+    import time
+    for attempt in range(6):      # the server sometimes answers with nothing when it is busy: wait and ask again
+        out = subprocess.run(['curl', '-s', '-X', 'POST', API, '-H', 'Content-Type: application/json', '-d', json.dumps(d)], capture_output=True, text=True).stdout
+        try: return json.loads(out)
+        except ValueError: time.sleep(2 + 2 * attempt)
+    raise RuntimeError('the server did not answer')
 def score(slot, code, output=''): return call({'action': 'score', 'slot': slot, 'code': code, 'output': output})
+_CACHE = {}
 def record(slot):
-    A = call({'action': 'assignments'}); A = A.get('assignments', A); return A[slot]
+    if 'A' not in _CACHE:      # fetched once per run (set QA_CACHE=/path.json to reuse a saved copy)
+        cp = os.environ.get('QA_CACHE')
+        if cp and os.path.exists(cp): A = json.load(open(cp))
+        else: A = call({'action': 'assignments'})
+        _CACHE['A'] = A.get('assignments', A)
+    return _CACHE['A'][slot]
 def boxes_of(rec):
     out = []; cur = None
     for b in rec['blocks']:

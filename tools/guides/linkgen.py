@@ -20,7 +20,7 @@ CARD_CSS = ('<style>.lpgrid{display:grid;grid-template-columns:repeat(auto-fill,
             '.lprow{display:flex;gap:11px;align-items:center;padding:9px 11px;margin:0 0 9px;border:1px solid #b9d3f0;border-radius:9px;background:#eaf4ff;color:#0f172a;text-decoration:none}'
             'a.lprow:hover{background:#dcecff;border-color:#7fb0e8}a.lprow,a.lprow .tx span{color:#0f172a;text-decoration:none}.lprow .ic{font-size:1.25em}.lprow .tx{min-width:0}.lprow .tx b{display:block;font:700 .68em ui-monospace,Menlo,monospace;letter-spacing:.09em;text-transform:uppercase;color:#475569}'
             '.lprow .tx span{display:block;line-height:1.25}.lprow .st{margin-left:auto;font-size:.8em;color:#475569;white-space:nowrap;text-align:right}.lprow .st a{white-space:nowrap}.lprow.sg{background:#fff7ed;border-color:#f3c99b}</style>')
-PZ_UNITS = {3}   # units that have Parsons puzzles and code tracing (python/parsons.html)
+PZ_UNITS = {3, 4}   # units that have Parsons puzzles and code tracing (python/parsons.html)
 PZ_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#4F46E5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3a1 1 0 0 0 1 -1v-1a2 2 0 0 1 4 0v1a1 1 0 0 0 1 1h3a1 1 0 0 1 1 1v3a1 1 0 0 0 1 1h1a2 2 0 0 1 0 4h-1a1 1 0 0 0 -1 1v3a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-1a2 2 0 0 0 -4 0v1a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h1a2 2 0 0 0 0 -4h-1a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1"/></svg>'
 TR_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#4F46E5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M12 19h4.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h3.5"/></svg>'
 def cards_html(n, ls):
@@ -36,8 +36,8 @@ def cards_html(n, ls):
 PRACTICE_CSS = ('<style>.pbtns{display:flex;flex-wrap:wrap;gap:14px;margin:6px 0 22px}.pbtn{display:flex;align-items:center;gap:14px;flex:1 1 280px;max-width:520px;padding:16px 20px;border:1.5px solid #c7d2fe;border-radius:14px;background:#eef0ff;color:#1e1b4b;text-decoration:none;font-weight:800;font-size:1.15rem;box-shadow:0 2px 8px rgba(79,70,229,.12)}'
                 '.pbtn:hover{background:#e0e7ff;border-color:#818cf8}.pbtn svg{flex:none}.pbtn small{display:block;font-weight:500;font-size:.82rem;color:#4338ca;margin-top:2px}.lesson-content a.pbtn,.lesson-content a.pbtn span{color:#1e1b4b;text-decoration:none}.lesson-content a.pbtn small{color:#4338ca}</style>')
 def practice_html(n):
-    return (PRACTICE_CSS + '<div class="pbtns"><a class="pbtn" href="../../python/parsons.html?hub=p">%s<span>Parsons Problems<small>10 per lesson</small></span></a>'
-            '<a class="pbtn" href="../../python/parsons.html?hub=t">%s<span>Code tracing<small>10 per lesson</small></span></a></div>' % (PZ_SVG, TR_SVG)).replace('width="22" height="22"', 'width="30" height="30"')
+    return (PRACTICE_CSS + '<div class="pbtns"><a class="pbtn" href="../../python/parsons.html?hub=p&u=%d">%s<span>Parsons Problems<small>10 per lesson</small></span></a>'
+            '<a class="pbtn" href="../../python/parsons.html?hub=t&u=%d">%s<span>Code tracing<small>10 per lesson</small></span></a></div>' % (n, PZ_SVG, n, TR_SVG)).replace('width="22" height="22"', 'width="30" height="30"')
 def block(marker, html):
     return "<!-- %s:start -->\n%s\n<!-- %s:end -->" % (marker, html, marker)
 def put(path, marker, html, before):
@@ -74,4 +74,7 @@ for n in live:
     put(page, "study-guide", unit_html, ANCHOR)
     if n in PZ_UNITS: put(page, "practice-buttons", practice_html(n), "<!-- study-guide:start -->")
     put(page, "lesson-cards", cards_html(n, ls), ANCHOR)
+for n in sorted(PZ_UNITS - set(live)):      # units with practice pages but no study guide yet: just the two practice buttons
+    page = os.path.join(ROOT, "apcsp", "unit-%d" % n, "index.html")
+    if os.path.exists(page): put(page, "practice-buttons", practice_html(n), ANCHOR)
 print("links written for units", live)
