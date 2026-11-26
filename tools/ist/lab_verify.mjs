@@ -6,7 +6,7 @@ import { createRequire } from "module";
 import { MODELS, FREE, SLACK } from "./lab_models.mjs";
 const require = createRequire(import.meta.url), D = "../../ist/unit-6/";
 globalThis.window = undefined;
-["html-check.js", "lab-lessons.js", "step-checks.js", "step-checks-a.js", "step-checks-b.js", "step-checks-w.js"].forEach((f) => require(D + f));
+["html-check.js", "lab-lessons.js", "step-checks.js", "step-checks-a.js", "step-checks-b.js", "step-checks-w.js", "answers-w.js"].forEach((f) => require(D + f));
 const SC = globalThis.U7_STEPCHECKS;
 const want = process.argv.slice(2);
 const score = (id, html) => SC.score(id, html, "");
@@ -24,6 +24,13 @@ function variants(src) {
   return v;
 }
 let bad = 0;
+/* the text of every step has exactly as many bullets as there are check lists (otherwise a box is shown with the wrong checks) */
+for (const id of Object.keys(SC.LESSONS).filter((k) => /\.\d+[wa]$/.test(k))) {
+  const steps = []; let cur = null; (globalThis.U7_ANSWERS[id] || []).forEach((b) => { if (b.h && /^Step \d+/.test(b.h)) { cur = { h: b.h, n: 0 }; steps.push(cur); } else if (b.build && cur) cur.n += b.build.length; });
+  const keys = Object.keys(SC.LESSONS[id].steps);
+  if (steps.length !== keys.length) { console.log("MISALIGNED", id, "steps", steps.length, "vs", keys.length); bad++; }
+  steps.forEach((st, i) => { if (keys[i] && st.n !== SC.LESSONS[id].steps[keys[i]].length) { console.log("MISALIGNED", id, st.h, st.n, "bullets vs", SC.LESSONS[id].steps[keys[i]].length, "check lists"); bad++; } });
+}
 for (const id of Object.keys(MODELS)) {
   if (want.length && !want.includes(id)) continue;
   const src = MODELS[id], base = score(id, src);

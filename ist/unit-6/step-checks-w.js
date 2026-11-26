@@ -298,8 +298,8 @@
     "Step 4": [[K("There are at least 3 pictures (img tags)", function (c) { return c.count("img") >= 3; }), K("Every picture has a src that is a web address starting with https://, or one you uploaded", function (c) { var a = c.all("img"); return a.length >= 3 && a.every(function (i) { return webSrc(i.attrs.src); }); }), NOCLOSEIMG],
                [K("Every picture has a real alt description (at least 2 words)", function (c) { var a = c.all("img"); return a.length >= 3 && a.every(realAlt); })],
                [K("At least one picture has a width in px", function (c) { return c.all("img").some(function (i) { return has(c, i, "width", h.isPx); }); }), K("At least one picture has a width in %", function (c) { return c.all("img").some(function (i) { return has(c, i, "width", pct); }); }), NOHEIGHT],
-               [K("One picture has a border (thickness, style, color)", function (c) { return c.all("img").some(function (i) { return h.vals(c, i, "border").some(function (v) { return BORDERRE.test(v) && named(h.borderColor(v)); }); }); }),
-                HAS("Use what you know: the heading 1 is centered", T("h1"), "text-align", eq("center"))].concat(BODYCOLORS)],
+               [K("One picture has a border (thickness, style, named color)", function (c) { return c.all("img").some(function (i) { return h.vals(c, i, "border").some(function (v) { return BORDERRE.test(v) && named(h.borderColor(v)); }); }); })],
+               [HAS("Use what you know: the heading 1 is centered", T("h1"), "text-align", eq("center"))].concat(BODYCOLORS)],
     "Step 5": [[NOERR], []]
   });
 
