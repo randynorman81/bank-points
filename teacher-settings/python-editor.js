@@ -238,7 +238,7 @@ export function withPySettings(slot, rec) {
 function addPatch(slot, fn) { const prev = PY_PATCHES[slot]; PY_PATCHES[slot] = prev ? function (r) { return fn(prev(r)); } : fn; }
 TAB_SLOTS.forEach(function (s) { addPatch(s, headingAtEdge); });
 for (let u = 1; u <= 13; u++) addPatch("a" + u, fixUiWords);
-[16, 17, 18, 19, 20, 21, 22, 23, 26, 27, 28].forEach(function (u) { addPatch("a" + u, fixUiWords); });   /* Unit 4 walkthroughs say the same out-of-date things about the Run button and the Assignment box */
+[16, 17, 18, 19, 20, 21, 22, 23, 26, 27, 28, 29, 30, 31, 32, 33, 34].forEach(function (u) { addPatch("a" + u, fixUiWords); });   /* Unit 4 walkthroughs say the same out-of-date things about the Run button and the Assignment box */
 addPatch("a21", fixA21); addPatch("a23", fixA23);
 addPatch("a1", fixA1); addPatch("a5", fixA5); addPatch("a7", fixA7); addPatch("a13", fixA13); addPatch("a33", fixA33);
 /* Unit 8 walkthroughs a45 to a54: the long versions (7 to 9 steps each, generated from tools/missions/u8-walk.txt) replace the 2-step versions saved on the grading server. The saved questions, gating and settings are kept. */

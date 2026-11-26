@@ -17,6 +17,7 @@ require("./asg-u4c.js");
 require("./asg-u4-clear.js");
 require("./asg-u5a.js");
 require("./asg-u5b.js");
+require("./asg-u5-clear.js");
 require("./asg-u6.js");
 
 /* ---- build every record (hidden, not gating) ---- */

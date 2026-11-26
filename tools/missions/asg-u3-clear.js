@@ -5,7 +5,7 @@
    "What you should see" comes from testkit/u3-see.json, made by running each hidden reference program (qa-dump.mjs + the python step in it). Regenerate it after changing a reference program. */
 "use strict";
 const { ASG, PURPOSE } = require("./asg-kit.js");
-const SEE = Object.assign({}, require("./testkit/u3-see.json"), require("./testkit/u4-see.json"));
+const SEE = Object.assign({}, require("./testkit/u3-see.json"), require("./testkit/u4-see.json"), require("./testkit/u5-see.json"));
 const HOW = "**How each step works:** read the **Goal**, then do the tasks in order. Every task has its own checkbox, and the small line under it turns green when your code has what the task needs. After you press **Run**, compare your output with **What you should see**.";
 const SCORE_T = "**Scoring:** worth **100 points**. There is no code to copy, so write it yourself. Use the names and values in the tables exactly. **100%** is full points.";
 const SCORE_N = "**Scoring:** worth **100 points**. There is no code to copy, so write it yourself. Use the names in **bold** and the labels in `code` exactly. **100%** is full points.";

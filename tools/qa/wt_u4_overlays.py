@@ -12,6 +12,7 @@ def COMMENTED(L):
     first = L[0].split('\n')
     return '\n'.join('# ' + l if l.strip() and not l.startswith('score =') else l for l in first)
 OV = {
+ 'a30': {5: '# average(80, 90)  # this call would crash because average needs three arguments and only two were given'},
  'a16': {2: 'game_over = False\nprint(game_over)'},
  'a17': {7: '# score <- 82\n# passed <- score > 70 AND score < 90\n# DISPLAY(passed)\n# DISPLAY(score < 60 OR score > 80)\n# DISPLAY(NOT (score = 82))'},
  'a18': {5: lambda L: 'number = 7\n' + '\n'.join(x for x in L if x.startswith('print'))},

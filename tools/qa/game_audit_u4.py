@@ -5,7 +5,8 @@
 usage: node tools/qa/game_dump_u4.mjs && python3 tools/qa/game_audit_u4.py"""
 import json, re, sys, os, io, contextlib, collections
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'parsons'))
-d = json.load(open('/private/tmp/claude-501/game_u4.json'))
+PRE = 'u' + (sys.argv[1] if len(sys.argv) > 1 else '4')      # usage: node tools/qa/game_dump_u4.mjs u5 && python3 tools/qa/game_audit_u4.py 5
+d = json.load(open('/private/tmp/claude-501/game_%s.json' % PRE))
 def plain(code, ins):
     feed = iter(ins); buf = io.StringIO(); g = {'input': lambda p='': next(feed)}
     with contextlib.redirect_stdout(buf): exec(compile(code, 'q', 'exec'), g)

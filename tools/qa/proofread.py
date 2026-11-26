@@ -58,7 +58,7 @@ def load_js(f, var):
     s = open(os.path.join(ROOT, f), encoding='utf-8').read(); return json.loads(s[s.index('{'):s.rindex('}') + 1])
 call = lambda b: json.loads(subprocess.run(['curl', '-s', '-X', 'POST', 'https://schscomputerscience.com/api/pycode', '-H', 'Content-Type: application/json', '-d', json.dumps(b)], capture_output=True, text=True).stdout)
 live = call({'action': 'assignments'})['assignments']
-for n in list(range(1, 14)) + list(range(126, 139)) + [16, 17, 18, 19, 20, 21, 22, 23, 26, 27, 28] + list(range(139, 151)):
+for n in list(range(1, 14)) + list(range(126, 139)) + [16, 17, 18, 19, 20, 21, 22, 23, 26, 27, 28] + list(range(139, 151)) + [29, 30, 31, 32, 33, 34] + list(range(151, 157)):
     s = 'a%d' % n; r = live.get(s)
     if not r: print('(skipped %s: not served right now, locked)' % s); continue
     for b in r['blocks']:
@@ -69,6 +69,7 @@ for n in list(range(1, 14)) + list(range(126, 139)) + [16, 17, 18, 19, 20, 21, 2
     check(s, r.get('title'))
 walk(load_js('python/training.js', 'x'), 'training')
 walk(load_js('python/training-u4.js', 'x'), 'training-u4')
+walk(load_js('python/training-u5.js', 'x'), 'training-u5')
 P = load_js('python/parsons-u3.js', 'x')['lessons']
 for lid, L in P.items():
     for k, p in enumerate(L['problems']): walk({'t': p['title'], 's': p['story'], 'steps': p['steps']}, 'parsons %s #%d' % (lid, k + 1))
@@ -87,9 +88,18 @@ for lid, L in P4.items():
 T4 = load_js('python/trace-u4.js', 'x')
 for lid, L in T4.items():
     for k, t in enumerate(L['traces']): walk({'i': t['intro'], 'd': [s[2] for s in t['steps']]}, 'trace4 %s #%d' % (lid, k + 1))
-html = open(os.path.join(ROOT, 'apcsp/unit-4/unit-4-practice-test.html'), encoding='utf-8').read()
-qa = html.index('var Q = ['); Q4 = json.loads(html[qa + 8:html.index('];', qa) + 1])
-for k, q in enumerate(Q4): walk({'s': re.sub('<[^>]+>', ' ', q['s']), 'o': [re.sub('<[^>]+>', ' ', o) for o in q['o']], 'e': re.sub('<[^>]+>', ' ', q['e'])}, 'practice test 4 Q%d' % (k + 1))
+for UN in ('4', '5'):
+    html = open(os.path.join(ROOT, 'apcsp/unit-%s/unit-%s-practice-test.html' % (UN, UN)), encoding='utf-8').read()
+    qa = html.index('var Q = ['); Q4 = json.loads(html[qa + 8:html.index('];', qa) + 1])
+    for k, q in enumerate(Q4): walk({'s': re.sub('<[^>]+>', ' ', q['s']), 'o': [re.sub('<[^>]+>', ' ', o) for o in q['o']], 'e': re.sub('<[^>]+>', ' ', q['e'])}, 'practice test %s Q%d' % (UN, k + 1))
+P5 = load_js('python/parsons-u5.js', 'x')['lessons']
+for lid, L in P5.items():
+    for k, p in enumerate(L['problems']): walk({'t': p['title'], 's': p['story'], 'steps': p['steps']}, 'parsons5 %s #%d' % (lid, k + 1))
+T5 = load_js('python/trace-u5.js', 'x')
+for lid, L in T5.items():
+    for k, t in enumerate(L['traces']): walk({'i': t['intro'], 'd': [s[2] for s in t['steps']]}, 'trace5 %s #%d' % (lid, k + 1))
+for n in range(151, 157):
+    m = re.search(r'W\.a%d = (\{.*?\});\n' % n, W, re.S); d = json.loads(m.group(1)); walk([d['email'], d['review'], [f['text'] for f in d['files']]], 'workplace a%d' % n)
 for n in range(139, 151):
     m = re.search(r'W\.a%d = (\{.*?\});\n' % n, W, re.S); d = json.loads(m.group(1)); walk([d['email'], d['review'], [f['text'] for f in d['files']]], 'workplace a%d' % n)
 print('ISSUES (not words):', len(issues))

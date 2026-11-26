@@ -3,8 +3,9 @@ and compares it with the answer marked in the page the students get.  Questions 
 usage: python3 tools/qa/practice_test_audit_u4.py"""
 import json, re, io, contextlib, html, os, random, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-s = open(os.path.join(ROOT, 'apcsp/unit-4/unit-4-practice-test.html'), encoding='utf-8').read(); a = s.index('var Q = ['); Q = json.loads(s[a + 8:s.index('];', a) + 1])
-K = json.load(open(os.path.join(ROOT, 'tools/practice/u4_test_key.json'), encoding='utf-8'))
+UNIT = sys.argv[1] if len(sys.argv) > 1 else '4'      # usage: python3 tools/qa/practice_test_audit_u4.py [4|5]
+s = open(os.path.join(ROOT, 'apcsp/unit-%s/unit-%s-practice-test.html' % (UNIT, UNIT)), encoding='utf-8').read(); a = s.index('var Q = ['); Q = json.loads(s[a + 8:s.index('];', a) + 1])
+K = json.load(open(os.path.join(ROOT, 'tools/practice/u%s_test_key.json' % UNIT), encoding='utf-8'))
 strip = lambda x: html.unescape(re.sub('<[^>]+>', ' ', x)).strip()
 txt = lambda x: re.sub(r'\s+', ' ', strip(x))
 ok = bad = read = 0
@@ -45,6 +46,15 @@ for i, (q, k) in enumerate(zip(Q, K), 1):
             fits = [n for n, e in enumerate(v['exprs']) if all(bool(eval(e, {'n': c})) == w for c, w in v['cases'])]
             if fits == sorted(q['a']): ok += 1
             else: report(i, 'fitting options %r, the page marks %r' % (fits, q['a']))
+        elif kind == 'execs':
+            fits = []
+            for n, e in enumerate(v['opts']):
+                try:
+                    with contextlib.redirect_stdout(io.StringIO()): exec(v['setup'] + '\n' + e, {})
+                    fits.append(n)
+                except Exception: pass
+            if fits == sorted(q['a']): ok += 1
+            else: report(i, 'options that run %r, the page marks %r' % (fits, q['a']))
         elif kind == 'range':
             fits = [n for n, e in enumerate(v['opts']) if list(eval(e)) == v['want']]
             if fits == sorted(q['a']): ok += 1

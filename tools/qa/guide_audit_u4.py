@@ -5,7 +5,8 @@ import sys, os, re, io, html, importlib, contextlib
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(ROOT, 'tools', 'guides')); sys.path.insert(0, os.path.join(ROOT, 'tools', 'parsons'))
 import gl, u4_core
-U = importlib.import_module('units.u04').UNIT
+UN = sys.argv[1] if len(sys.argv) > 1 else '4'      # usage: .venv/bin/python tools/qa/guide_audit_u4.py [4|5]
+U = importlib.import_module('units.u0' + UN).UNIT
 tx = lambda s: re.sub(r'\s+', ' ', html.unescape(re.sub(r'<[^>]+>', ' ', s))).strip()
 ok = bad = read = 0
 for ch in U.chapters:

@@ -58,8 +58,17 @@ def describe(line):
     m = re.fullmatch(r'for (\w+) in (.+):', s)
     if m: return 'Start a `for` loop that gives `%s` each item (or letter) of `%s`, one at a time.' % (m.group(1), m.group(2))
     if s == 'break': return 'Write `break`, which stops the loop right away.'
-    m = re.fullmatch(r'def (\w+)\((\w*)\):', s)
-    if m: return 'Define a function named `%s`%s. The indented lines under it run only when the function is called.' % (m.group(1), ' with one parameter, `%s`' % m.group(2) if m.group(2) else '')
+    m = re.fullmatch(r'def (\w+)\(([\w, ]*)\):', s)
+    if m:
+        ps = [x.strip() for x in m.group(2).split(',') if x.strip()]
+        w = '' if not ps else (' with one parameter, `%s`' % ps[0] if len(ps) == 1 else ' with the parameters %s' % ', '.join('`%s`' % x for x in ps))
+        return 'Define a function named `%s`%s. The indented lines under it run only when the function is called.' % (m.group(1), w)
+    m = re.fullmatch(r'return (.+)', s)
+    if m: return 'Return `%s`: hand that value back to the line that called the function, and end the function.' % m.group(1)
+    m = re.fullmatch(r'import (\w+)', s)
+    if m: return 'Bring in the %s library.' % m.group(1)
+    m = re.fullmatch(r'(\w+) = (\w+)\((.*)\)', s)
+    if m and m.group(2) not in ('int', 'float', 'str', 'len', 'input', 'abs', 'round', 'min', 'max', 'pow'): return 'Call `%s(%s)` and store the value it returns in `%s`.' % (m.group(2), m.group(3), m.group(1))
     m = re.fullmatch(r'global (\w+)', s)
     if m: return 'Tell the function that `%s` is the global variable, so changes to it last after the function ends.' % m.group(1)
     if s == 'import random': return 'Bring in the random library.'
@@ -129,7 +138,7 @@ def check_problem(tag, sol, dis, ins, rnd, errors):
     return exp, run(code, ins, 1 if rnd else None)
 
 # ------------------------------------------------------------------ tracing
-SIMPLE = (int, float, str, bool, list, tuple)
+SIMPLE = (int, float, str, bool, list, tuple, type(None))
 def view(frame_g, frame_l, in_func):
     d = {}
     for k, v in frame_g.items():
@@ -147,11 +156,14 @@ def trace(code_lines, ins, seed=None):
     def myprint(*a): printed.append(' '.join(str(x) for x in a))
     g['print'] = myprint
     ev = []   # (line index, view before, prints so far)
+    rets = {}
     def tr(frame, event, arg):
         if frame.f_code.co_filename != '<prog>': return tr
         if event == 'line':
             infn = frame.f_code.co_name != '<module>'
             ev.append((frame.f_lineno - 1, copy.deepcopy(view(frame.f_globals, frame.f_locals, infn)), len(printed)))
+        elif event == 'return' and frame.f_code.co_name != '<module>':
+            rets[len(ev) - 1] = arg          # the value this function hands back, kept with its last executed line
         elif event == 'return' and frame.f_code.co_name == '<module>':
             ev.append((None, copy.deepcopy(view(frame.f_globals, {}, False)), len(printed)))
         return tr
@@ -165,12 +177,34 @@ def trace(code_lines, ins, seed=None):
         changed = {k: rep(v) for k, v in after.items() if k not in before or before[k] != v}
         removed = [k for k in before if k not in after]
         line = code_lines[li]
-        steps.append([changed, printed[p0:p1], event_desc(code_lines, li, nli, i, ev), li, removed])
+        desc = event_desc(code_lines, li, nli, i, ev, rets)
+        if line.strip().startswith('return') and printed[p0:p1]: desc += ' Then the line that called the function prints the result.'
+        steps.append([changed, printed[p0:p1], desc, li, removed])
     return steps, list(printed)
 
 def indent_of(s): return len(s) - len(s.lstrip(' '))
-def event_desc(code, li, nli, i, ev):
-    line = code[li]; s = line.strip(); inside = nli is not None and nli > li and indent_of(code[nli]) > indent_of(line) and nli == li + 1
+def func_ranges(code):
+    """name -> (def line, last body line) for every top-level def"""
+    out = {}
+    for k, l in enumerate(code):
+        m = re.match(r'def (\w+)\(', l)
+        if m:
+            e = k
+            while e + 1 < len(code) and (not code[e + 1].strip() or indent_of(code[e + 1]) > 0): e += 1
+            out[m.group(1)] = (k, e)
+    return out
+def event_desc(code, li, nli, i, ev, rets=None):
+    line = code[li]; s = line.strip(); rng = func_ranges(code)
+    m = re.fullmatch(r'return (.+)', s)
+    if m:
+        v = (rets or {}).get(i, None)
+        return 'Return `%s`. That hands %s back to the line that called the function, and the function ends.' % (m.group(1), 'the value `%r`' % (v,))
+    if not s.startswith('def '):
+        called = [n for n, (d, e) in rng.items() if re.search(r'\b%s\(' % n, s) and nli is not None and d < nli <= e and not d < li <= e]
+        if called:
+            n = called[0]; m2 = re.search(r'\b%s\((.*?)\)' % n, s)
+            return 'This line calls `%s(%s)`. Python jumps up into the function, and the answer comes back to this line afterwards.' % (n, m2.group(1) if m2 else '')
+    inside = nli is not None and nli > li and indent_of(code[nli]) > indent_of(line) and nli == li + 1
     m = re.fullmatch(r'if (.+):', s) or re.fullmatch(r'elif (.+):', s)
     if m:
         return 'Check `%s`. It is True, so the indented lines under it run.' % m.group(1) if inside else 'Check `%s`. It is False, so Python skips the indented lines under it.' % m.group(1)
@@ -182,7 +216,7 @@ def event_desc(code, li, nli, i, ev):
         first = not any(e[0] == li for e in ev[:i])
         if inside: return ('The loop starts and gives `%s` its first value.' if first else 'The loop gives `%s` its next value.') % m.group(1)
         return 'The loop has no more values, so it ends and Python moves on.' if not first else 'The loop has nothing to go through, so it ends.'
-    m = re.fullmatch(r'def (\w+)\((\w*)\):', s)
+    m = re.fullmatch(r'def (\w+)\(([\w, ]*)\):', s)
     if m: return 'Define the function `%s`. Nothing inside it runs yet.' % m.group(1)
     if s == 'break': return '`break` stops the loop right away.'
     m = re.fullmatch(r'(\w+)\((.*)\)', s)

@@ -5,7 +5,7 @@ const core = require("./index.js"); const { ASG } = require("./asg-kit.js");
 const T = require("./py-table.js");
 const out = {};
 for (const row of T.rows) {
-  if (!/^u[34]l/.test(row.id)) continue;
+  if (!/^u[345]l/.test(row.id)) continue;
   const r = core.RECORDS.find((x) => x.slot === row.asg); const a = ASG[row.id];
   const answers = (a.auto && a.auto[0] && a.auto[0].answers) || [];
   const stages = a.stages.map((s, k) => {
@@ -14,5 +14,5 @@ for (const row of T.rows) {
   });
   out[row.id] = { slot: row.asg, name: a.name, answers: answers.map((x) => x[1]), stages };
 }
-fs.writeFileSync(new URL("./testkit/u34-dump.json", import.meta.url), JSON.stringify(out));
+fs.writeFileSync(new URL("./testkit/u345-dump.json", import.meta.url), JSON.stringify(out));
 console.log("dumped", Object.keys(out).length);

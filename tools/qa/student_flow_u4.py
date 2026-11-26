@@ -6,11 +6,13 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 URL = 'http://localhost:8124/api/pycode'
 def call(d): return json.loads(subprocess.run(['curl', '-s', '-X', 'POST', URL, '-H', 'Content-Type: application/json', '-d', json.dumps(d)], capture_output=True, text=True).stdout)
 V = {v['slot']: v for v in json.load(open(os.path.join(ROOT, 'tools/missions/testkit/verify.json')))}
+UNIT = sys.argv[1] if len(sys.argv) > 1 else '4'      # usage: python3 tools/qa/student_flow_u4.py [4|5]
+RNG = range(139, 151) if UNIT == '4' else range(151, 157)
 who = 'test:eli@socialcircleschools.org'; fails = 0
 def ok(c, m):
     global fails; print(('PASS ' if c else 'FAIL ') + m); fails += (0 if c else 1)
-for n in range(139, 151): call({'pin': '1234', 'action': 'adminSetLive', 'slot': 'a%d' % n, 'live': True, 'points': 100, 'passMin': 0, 'seq': n - 138, 'part': 'project'})
-for n in range(139, 151):
+for n in RNG: call({'pin': '1234', 'action': 'adminSetLive', 'slot': 'a%d' % n, 'live': True, 'points': 100, 'passMin': 0, 'seq': n - RNG[0] + 1, 'part': 'project'})
+for n in RNG:
     s = 'a%d' % n; v = V[s]
     lst = call({'action': 'assignments', 'credential': who, 'period': '1A'})['assignments']
     ok(s in lst and 'checks' not in lst[s], '%s is listed for a student and the list has no answer checks' % s)

@@ -4,7 +4,8 @@ usage: python3 tools/qa/notes_audit_u4.py"""
 import re, html, os, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(ROOT, 'tools', 'parsons')); import u4_core
-PAGES = ['booleans', 'logical-operators', 'comparison-operators', 'if-statements', 'if-elif-else', 'key-events', 'for-loops', 'general-for-loops', 'for-loop-practice', 'while-loops', 'loop-and-a-half', 'random-numbers']
+PAGES5 = ['functions-parameters', 'multiple-parameters', 'return-values', 'return-decisions-loops', 'libraries-apis', 'procedures-create-task']
+PAGES = PAGES5 if (len(sys.argv) > 1 and sys.argv[1] == '5') else ['booleans', 'logical-operators', 'comparison-operators', 'if-statements', 'if-elif-else', 'key-events', 'for-loops', 'general-for-loops', 'for-loop-practice', 'while-loops', 'loop-and-a-half', 'random-numbers']
 def blocks(h):
     out = []
     for m in re.finditer(r'<(div|code)\s+class="(code|line)[^"]*"[^>]*>(.*?)</\1>', h, re.S):

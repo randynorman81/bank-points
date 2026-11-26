@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 5 Practice Test | AP CSP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#FB923C; --acc-tint:rgba(251,146,60,.14); --acc-ink:#FDC79B;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --lst:#34D399; --lst-tint:rgba(52,211,153,.13); --lst-ink:#6EE7B7;
+  --cir:#22D3EE; --rec:#818CF8;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+h3.sub{font-size:20px;font-weight:600;color:#fff;margin:30px 0 12px}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:5}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#2B1706;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(32px,6vw,52px);font-weight:600;max-width:22ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:68ch;margin-top:18px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.chip{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:6px 14px}
+.chip b{color:var(--acc-ink)}
+.cta{display:inline-block;margin-top:24px;font-family:"JetBrains Mono",monospace;font-size:13.5px;font-weight:700;color:#2B1706;background:var(--acc);text-decoration:none;border-radius:100px;padding:11px 22px}
+
+.part{padding:54px 0 8px;scroll-margin-top:60px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.part-head .les{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-soft);white-space:nowrap}
+.lede{font-size:17.5px;line-height:1.6;max-width:70ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .no{color:var(--bad-ink)}
+.code .ok{color:var(--lst-ink)}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:8px 0 18px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--acc)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p,.box li{font-size:15px;line-height:1.55;color:#C4CDD8}
+.box ul{margin:0;padding-left:18px}
+.box.green{border-top-color:var(--lst)} .box.red{border-top-color:var(--bad)}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F0DAC4}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+.good{background:var(--lst-tint);border-left:4px solid var(--lst);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#D3F5E6}
+.good b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:18px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.y{color:var(--lst-ink)} table.cmp td.n{color:var(--bad-ink)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.checklist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 20px}
+.checklist li{font-size:14.5px;color:#C4CDD8;padding:8px 0 8px 26px;position:relative;border-bottom:1px solid var(--rule)}
+.checklist li::before{content:"\2610";position:absolute;left:0;color:var(--acc-ink);font-size:15px}
+
+/* trace table */
+table.trace{border-collapse:collapse;font-family:"JetBrains Mono",monospace;font-size:14px;margin:4px 0 20px;background:var(--card);border:1px solid var(--rule)}
+table.trace th,table.trace td{padding:8px 16px;border:1px solid var(--rule);text-align:left}
+table.trace th{color:var(--ink-soft);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+table.trace td.chg{color:var(--acc-ink);font-weight:700}
+
+/* math lab */
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:20px 22px;margin:10px 0 22px}
+.lab .row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-family:"JetBrains Mono",monospace}
+.lab input{width:90px;background:#05070B;color:#fff;border:1px solid #3A4658;border-radius:4px;padding:8px 10px;font:inherit;font-size:16px}
+.lab .out{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px}
+.lab .cell{background:#05070B;border:1px solid var(--rule);border-radius:5px;padding:12px 14px;font-family:"JetBrains Mono",monospace}
+.lab .cell .op{font-size:12px;color:var(--ink-soft)}
+.lab .cell .v{font-size:22px;color:#fff;font-weight:700;margin-top:4px}
+.lab .cell .t{font-size:11px;color:var(--acc-ink);margin-top:2px}
+.lab .explain{margin-top:14px;font-size:14.5px;color:#C4CDD8}
+
+/* canvas figure */
+.fig{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:18px;margin:10px 0 22px}
+.fig svg{width:100%;height:auto;display:block}
+.fig .cap{font-size:13.5px;color:var(--ink-soft);margin-top:10px}
+
+/* ===== practice test ===== */
+.testbar{position:sticky;top:52px;z-index:4;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.score{font-family:"JetBrains Mono",monospace;font-size:14px;color:#fff;font-weight:700;margin-right:auto}
+.score span{color:var(--ink-soft);font-weight:500}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.fbtn,.tbtn{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:6px 12px;cursor:pointer}
+.fbtn:hover,.tbtn:hover{color:#fff;border-color:#3A4658}
+.fbtn.on{background:var(--acc);color:#2B1706;border-color:var(--acc)}
+.tbtn.danger{color:var(--bad-ink)}
+.q{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:22px 24px;margin-bottom:14px}
+.q.right{border-color:rgba(52,211,153,.5)} .q.wrong{border-color:rgba(248,113,113,.5)}
+.q .qh{display:flex;gap:10px;align-items:baseline;margin-bottom:10px;flex-wrap:wrap}
+.q .qn{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);font-weight:700}
+.q .qt{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--rule);border-radius:100px;padding:2px 9px}
+.q .stem{font-size:15.5px;color:#EAEFF6;margin-bottom:10px}
+.q .code{margin:8px 0 14px;font-size:14px}
+.q .sel2{font-weight:700;color:var(--acc-ink)}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;background:#0E121A;border:1px solid var(--rule);border-radius:5px;padding:11px 14px;color:#D8E1EC;font:inherit;font-size:15px;cursor:pointer}
+.opt:hover:not([disabled]){border-color:#3A4658;background:#121824}
+.opt .l{font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--ink-soft);flex:none;width:22px}
+.opt.picked{border-color:var(--acc)}
+.opt.ok{border-color:var(--lst);background:var(--lst-tint)} .opt.ok .l{color:var(--lst-ink)}
+.opt.bad{border-color:var(--bad);background:var(--bad-tint)} .opt.bad .l{color:var(--bad-ink)}
+.opt[disabled]{cursor:default}
+.opt code{white-space:pre-wrap}
+.check{margin-top:10px;font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:700;background:var(--acc);color:#2B1706;border:0;border-radius:100px;padding:8px 16px;cursor:pointer}
+.check[disabled]{opacity:.4;cursor:default}
+.why{display:none;margin-top:14px;border-top:1px solid var(--rule);padding-top:12px;font-size:14.5px;color:#C4CDD8}
+.why b.v{color:var(--lst-ink)} .why b.x{color:var(--bad-ink)}
+.q.done .why{display:block}
+.done-msg{display:none;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:22px 24px;margin:10px 0 20px}
+.done-msg h3{font-size:22px;color:#fff;margin-bottom:8px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:30ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:64ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .wrap{padding:0 16px}
+  .pillnav{padding:10px 16px;position:static}
+  .testbar{top:0}
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:9px 11px}
+  .checklist{grid-template-columns:1fr}
+  .part-head{flex-wrap:wrap} .part-head .les{margin-left:0}
+  .code{font-size:13px;padding:14px}
+  .q{padding:18px 16px}
+}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="../study-guides.html">&larr; Study Guides</a>
+  <a href="index.html">Unit 5 lessons</a>
+  <a href="#test" class="current">Practice Test</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">AP CSP &nbsp;/&nbsp; UNIT 5 &nbsp;/&nbsp; FUNCTIONS AND PARAMETERS</div>
+    <h1>Unit 5 Practice Test</h1>
+    <p class="deck">Questions for every lesson from 5.1 Functions and Parameters to 5.6 Procedures and the Create Task. They are worded the way the AP exam words them: "What is displayed?", "Which of the following&hellip;", and "Select two answers." Trace the code on paper first, then choose. Use the topic buttons to practice one lesson at a time.</p>
+    <div class="meta">
+      <span class="chip">Covers <b>5.1&ndash;5.6</b></span>
+      <span class="chip"><b id="heroCount">0</b> AP-style questions</span>
+      <span class="chip">Every answer <b>explained</b></span>
+    </div>
+    <a class="cta" href="#test">Start the practice test &darr;</a>
+  </div>
+</header>
+
+<section class="part" id="test">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">Q</div><h2>Practice Test (AP Style)</h2></div>
+    <p class="lede">These are worded the way the AP exam words its questions. Trace the code on paper before you choose. You get one try per question, and the explanation shows after you answer. "Select two" questions need exactly two choices before you can check.</p>
+
+    <div class="testbar">
+      <div class="score" id="score">0 / 0 <span>correct &middot; 0 left</span></div>
+      <div class="filters" id="filters"></div>
+      <button class="tbtn" id="missedBtn" type="button">Show missed only</button>
+      <button class="tbtn danger" id="resetBtn" type="button">Reset</button>
+    </div>
+    <div class="done-msg" id="doneMsg"></div>
+    <div id="quiz"></div>
+  </div>
+</section>
+
+
+<script>
+var LAB={"Define": "5.1 Functions and parameters", "Multi": "5.2 Multiple parameters", "Return": "5.3 Return values", "Decide": "5.4 Return with decisions and loops", "Library": "5.5 Libraries and APIs", "Proc": "5.6 Procedures"};
+var Q = [
+ {
+  "t": "Define",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def welcome():\n    print(\"Hello\")\nwelcome()\nwelcome()",
+  "o": [
+   "<code>Hello</code><br><code>Hello</code>",
+   "<code>Hello</code>",
+   "<code>welcome()</code><br><code>welcome()</code>",
+   "Nothing is displayed"
+  ],
+  "a": [
+   0
+  ],
+  "e": "The function is defined once and then <b>called</b> twice. Each call runs the body, so <code>Hello</code> is displayed two times."
+ },
+ {
+  "t": "Define",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def welcome():\n    print(\"Hello\")",
+  "o": [
+   "<code>welcome</code>",
+   "<code>None</code>",
+   "<code>Hello</code>",
+   "Nothing is displayed"
+  ],
+  "a": [
+   3
+  ],
+  "e": "Defining a function only saves it. Nothing runs until it is <b>called</b>, and this program never calls <code>welcome</code>, so nothing is displayed."
+ },
+ {
+  "t": "Define",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def greet(name):\n    print(\"Hi,\", name)\ngreet(\"Ava\")\ngreet(\"Ben\")",
+  "o": [
+   "<code>Hi, name</code><br><code>Hi, name</code>",
+   "<code>Hi, Ava</code><br><code>Hi, Ava</code>",
+   "<code>Hi, Ben</code><br><code>Hi, Ava</code>",
+   "<code>Hi, Ava</code><br><code>Hi, Ben</code>"
+  ],
+  "a": [
+   3
+  ],
+  "e": "Each call sends a value into the parameter <code>name</code>. The first call uses <code>\"Ava\"</code> and the second uses <code>\"Ben\"</code>."
+ },
+ {
+  "t": "Define",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def double(n):\n    print(n * 2)\ndouble(4)\ndouble(10)",
+  "o": [
+   "<code>8</code><br><code>8</code>",
+   "<code>8</code><br><code>20</code>",
+   "<code>4</code><br><code>10</code>",
+   "<code>8</code><br><code>10</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "The parameter <code>n</code> holds 4 on the first call and 10 on the second, so the function prints 8 and then 20."
+ },
+ {
+  "t": "Define",
+  "s": "In the code segment below, which name is a <b>parameter</b>?",
+  "o": [
+   "<code>show</code>",
+   "<code>score</code>",
+   "<code>95</code>",
+   "<code>print</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "A parameter is the name inside the parentheses of the <code>def</code> line. <code>show</code> is the function name, <code>95</code> is the argument in the call, and <code>print</code> is a built-in function.",
+  "c": "def show(score):\n    print(score)\nshow(95)"
+ },
+ {
+  "t": "Define",
+  "s": "In the call <code>show(95)</code>, what is <code>95</code> called?",
+  "o": [
+   "A return value",
+   "A function name",
+   "An argument",
+   "A parameter"
+  ],
+  "a": [
+   2
+  ],
+  "e": "The value you put in the parentheses of a call is the <b>argument</b>. It is sent into the parameter named in the <code>def</code> line."
+ },
+ {
+  "t": "Define",
+  "s": "What is the result of executing the code segment?",
+  "c": "def greet(name):\n    print(\"Hi,\", name)\ngreet()",
+  "o": [
+   "<code>Hi, name</code>",
+   "An error occurs",
+   "<code>Hi,</code>",
+   "<code>None</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "The function needs one argument for <code>name</code>, but the call gives none. Python stops with an error."
+ },
+ {
+  "t": "Define",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def banner(text):\n    print(\"*\" + text + \"*\")\nbanner(\"Hi\")\nstatus = \"Done\"\nbanner(status)",
+  "o": [
+   "<code>*Hi*</code><br><code>*status*</code>",
+   "<code>*Hi*</code>",
+   "<code>*Hi*</code><br><code>*Done*</code>",
+   "<code>Hi</code><br><code>Done</code>"
+  ],
+  "a": [
+   2
+  ],
+  "e": "An argument can be text or a variable. The first call joins <code>Hi</code> between stars, and the second sends the value stored in <code>status</code>."
+ },
+ {
+  "t": "Define",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def b():\n    print(\"B\")\ndef a():\n    print(\"A\")\n    b()\na()",
+  "o": [
+   "<code>A</code><br><code>B</code>",
+   "<code>B</code>",
+   "<code>A</code>",
+   "<code>B</code><br><code>A</code>"
+  ],
+  "a": [
+   0
+  ],
+  "e": "Calling <code>a()</code> runs its first line (<code>A</code>), then the call to <code>b()</code> jumps into <code>b</code> (<code>B</code>), and then the program continues."
+ },
+ {
+  "t": "Define",
+  "s": "Which of the following correctly <b>calls</b> the function <code>show</code> with the argument 5?",
+  "c": "def show(n):\n    print(n)",
+  "o": [
+   "<code>call show(5)</code>",
+   "<code>show 5</code>",
+   "<code>show(5)</code>",
+   "<code>def show(5)</code>"
+  ],
+  "a": [
+   2
+  ],
+  "e": "A call is the function name followed by parentheses that hold the argument: <code>show(5)</code>. The other lines are syntax errors."
+ },
+ {
+  "t": "Define",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "print(\"Start\")\ndef hello():\n    print(\"Hello\")\nprint(\"End\")\nhello()",
+  "o": [
+   "<code>Start</code><br><code>Hello</code><br><code>End</code>",
+   "<code>Hello</code><br><code>Start</code><br><code>End</code>",
+   "<code>Start</code><br><code>End</code>",
+   "<code>Start</code><br><code>End</code><br><code>Hello</code>"
+  ],
+  "a": [
+   3
+  ],
+  "e": "Defining <code>hello</code> prints nothing. The program displays Start, then End, and only then reaches the call that runs the function."
+ },
+ {
+  "t": "Define",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def add_one(n):\n    print(n + 1)\nx = 5\nadd_one(x)",
+  "o": [
+   "<code>x</code>",
+   "<code>1</code>",
+   "<code>6</code>",
+   "<code>5</code>"
+  ],
+  "a": [
+   2
+  ],
+  "e": "The variable <code>x</code> is sent to the parameter <code>n</code>, so the function receives the value 5 and prints 6."
+ },
+ {
+  "t": "Multi",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def add(a, b):\n    print(a + b)\nadd(2, 3)\nadd(10, 25)",
+  "o": [
+   "<code>5</code>",
+   "<code>5</code><br><code>10</code>",
+   "<code>5</code><br><code>35</code>",
+   "<code>23</code><br><code>1025</code>"
+  ],
+  "a": [
+   2
+  ],
+  "e": "The arguments match the parameters in order. The first call adds 2 and 3, and the second adds 10 and 25."
+ },
+ {
+  "t": "Multi",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def subtract(a, b):\n    print(a - b)\nsubtract(10, 3)\nsubtract(3, 10)",
+  "o": [
+   "<code>7</code><br><code>3</code>",
+   "<code>7</code><br><code>-7</code>",
+   "<code>-7</code><br><code>7</code>",
+   "<code>7</code><br><code>7</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "Order matters. In the first call <code>a</code> is 10 and <code>b</code> is 3 (7). In the second call they are swapped (3 - 10 is -7)."
+ },
+ {
+  "t": "Multi",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def contact(name, phone):\n    print(name + \": \" + phone)\ncontact(\"Mom\", \"555\")\ncontact(\"555\", \"Mom\")",
+  "o": [
+   "<code>555: Mom</code><br><code>555: Mom</code>",
+   "<code>Mom: 555</code><br><code>555: Mom</code>",
+   "<code>Mom: 555</code><br><code>Mom: 555</code>",
+   "<code>Mom: 555</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "Both calls run, but the second one sends the arguments in the wrong order, so the name and the phone number are swapped in the output."
+ },
+ {
+  "t": "Multi",
+  "s": "What is the result of executing the code segment?",
+  "c": "def average(a, b, c):\n    print((a + b + c) / 3)\naverage(80, 90)",
+  "o": [
+   "<code>56.666666666666664</code>",
+   "An error occurs",
+   "<code>85.0</code>",
+   "<code>170</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "The function has three parameters, so a call needs exactly three arguments. With only two, Python raises an error."
+ },
+ {
+  "t": "Multi",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def average(a, b, c):\n    print((a + b + c) / 3)\naverage(80, 90, 100)",
+  "o": [
+   "<code>270</code>",
+   "<code>90.0</code>",
+   "<code>100.0</code>",
+   "<code>90</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "The three scores add up to 270, and 270 divided by 3 is <code>90.0</code> (division with <code>/</code> always gives a decimal)."
+ },
+ {
+  "t": "Multi",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def listing(address, bedrooms):\n    print(address + \" has \" + str(bedrooms) + \" bedrooms\")\nlisting(\"12 Oak\", 3)",
+  "o": [
+   "<code>12 Oak has 3</code>",
+   "<code>12 Oak has 3 bedrooms</code>",
+   "<code>12 Oak has bedrooms 3</code>",
+   "<code>address has 3 bedrooms</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "<code>str(bedrooms)</code> turns the number 3 into text, so it can be joined with <code>+</code>. The line displays <code>12 Oak has 3 bedrooms</code>."
+ },
+ {
+  "t": "Multi",
+  "s": "What is the result of executing the code segment?",
+  "c": "def listing(address, bedrooms):\n    print(address + \" has \" + bedrooms + \" bedrooms\")\nlisting(\"12 Oak\", 3)",
+  "o": [
+   "<code>3</code>",
+   "<code>12 Oak has 3 bedrooms</code>",
+   "An error occurs",
+   "<code>12 Oak has bedrooms</code>"
+  ],
+  "a": [
+   2
+  ],
+  "e": "The parameter <code>bedrooms</code> holds the number 3. A number cannot be joined to text with <code>+</code> unless it is converted with <code>str()</code>, so an error occurs."
+ },
+ {
+  "t": "Multi",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def area(w, h):\n    print(w * h)\nw = 3\nh = 5\narea(h, w)",
+  "o": [
+   "<code>15</code>",
+   "<code>3</code>",
+   "<code>8</code>",
+   "<code>35</code>"
+  ],
+  "a": [
+   0
+  ],
+  "e": "The call sends <code>h</code> (5) first, then <code>w</code> (3). Multiplying is the same either way, so 15 is displayed."
+ },
+ {
+  "t": "Multi",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def label(x, y):\n    print(x, y)\nx = 1\nlabel(x, x)",
+  "o": [
+   "<code>1 2</code>",
+   "<code>1</code>",
+   "<code>1 1</code>",
+   "<code>x x</code>"
+  ],
+  "a": [
+   2
+  ],
+  "e": "The same variable can be sent twice. Both parameters get the value 1, so <code>1 1</code> is displayed."
+ },
+ {
+  "t": "Multi",
+  "s": "How many parameters does <code>def price(cost, tax, tip):</code> have?",
+  "o": [
+   "1",
+   "3",
+   "2",
+   "0"
+  ],
+  "a": [
+   1
+  ],
+  "e": "The names inside the parentheses are the parameters: <code>cost</code>, <code>tax</code> and <code>tip</code>. A call has to send three arguments."
+ },
+ {
+  "t": "Multi",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def rect(width, height):\n    print(\"Area:\", width * height)\n    print(\"Perimeter:\", 2 * (width + height))\nrect(5, 3)",
+  "o": [
+   "<code>Area: 15</code><br><code>Perimeter: 8</code>",
+   "<code>Area: 16</code><br><code>Perimeter: 15</code>",
+   "<code>Area: 8</code><br><code>Perimeter: 15</code>",
+   "<code>Area: 15</code><br><code>Perimeter: 16</code>"
+  ],
+  "a": [
+   3
+  ],
+  "e": "Area is 5 times 3 = 15. Perimeter is 2 times (5 + 3) = 16. Both prints run each time the function is called."
+ },
+ {
+  "t": "Multi",
+  "s": "Which statement calls <code>f</code> correctly and runs without an error?",
+  "c": "def f(a, b):\n    print(a, b)",
+  "o": [
+   "<code>f[1, 2]</code>",
+   "<code>f(1, 2)</code>",
+   "<code>f(1)</code>",
+   "<code>f(1, 2, 3)</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "<code>f(1)</code> gives too few arguments and <code>f(1, 2, 3)</code> gives too many. Square brackets do not call a function, so <code>f[1, 2]</code> is also an error."
+ },
+ {
+  "t": "Return",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def double(n):\n    return n * 2\nresult = double(4)\nprint(result)",
+  "o": [
+   "<code>8</code>",
+   "<code>n * 2</code>",
+   "<code>4</code>",
+   "<code>None</code>"
+  ],
+  "a": [
+   0
+  ],
+  "e": "<code>return</code> hands 8 back to the line that called the function. It is stored in <code>result</code> and then displayed."
+ },
+ {
+  "t": "Return",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def double(n):\n    return n * 2\ndouble(4)",
+  "o": [
+   "<code>4</code>",
+   "<code>None</code>",
+   "<code>8</code>",
+   "Nothing is displayed"
+  ],
+  "a": [
+   3
+  ],
+  "e": "The function returns 8, but nothing stores or prints that value, so nothing is displayed."
+ },
+ {
+  "t": "Return",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def double(n):\n    return n * 2\ntotal = double(3) + double(10)\nprint(total)",
+  "o": [
+   "<code>6</code><br><code>20</code>",
+   "<code>26</code>",
+   "<code>60</code>",
+   "<code>13</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "A returned value can be used in math. <code>double(3)</code> is 6 and <code>double(10)</code> is 20, so the total is 26."
+ },
+ {
+  "t": "Return",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def show(n):\n    print(n * 2)\nr = show(4)\nprint(r)",
+  "o": [
+   "<code>8</code>",
+   "<code>8</code><br><code>8</code>",
+   "<code>None</code>",
+   "<code>8</code><br><code>None</code>"
+  ],
+  "a": [
+   3
+  ],
+  "e": "<code>show</code> prints 8 but has no <code>return</code>, so it gives back <code>None</code>. That is what gets stored in <code>r</code> and displayed."
+ },
+ {
+  "t": "Return",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def double(n):\n    return n * 2\nprint(double(double(3)))",
+  "o": [
+   "<code>12</code>",
+   "<code>6</code>",
+   "<code>3</code>",
+   "<code>9</code>"
+  ],
+  "a": [
+   0
+  ],
+  "e": "The inner call runs first: <code>double(3)</code> is 6. That 6 is sent into the outer call, which returns 12."
+ },
+ {
+  "t": "Return",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def test():\n    return 1\n    print(\"never\")\nprint(test())",
+  "o": [
+   "<code>never</code>",
+   "<code>1</code>",
+   "<code>never</code><br><code>1</code>",
+   "<code>1</code><br><code>never</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "A <code>return</code> ends the function right away. The <code>print(\"never\")</code> line is never reached, so only the returned 1 is displayed."
+ },
+ {
+  "t": "Return",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def make_tag(first, last):\n    return first[0] + last\nprint(make_tag(\"Sam\", \"Rivera\"))",
+  "o": [
+   "<code>SRiver</code>",
+   "<code>SRivera</code>",
+   "<code>Sam Rivera</code>",
+   "<code>SamRivera</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "<code>first[0]</code> is the first letter, <code>S</code>. The function returns it joined to <code>Rivera</code>, so <code>SRivera</code> is displayed."
+ },
+ {
+  "t": "Return",
+  "s": "What is the value of <code>price</code> after the code segment is executed?",
+  "c": "def add_shipping(amount):\n    return amount + 5\nprice = add_shipping(20)\nprice = add_shipping(price)",
+  "o": [
+   "<code>25</code>",
+   "<code>20</code>",
+   "<code>30</code>",
+   "<code>10</code>"
+  ],
+  "a": [
+   2
+  ],
+  "e": "The first call returns 25 and stores it in <code>price</code>. The second call sends that 25 in and returns 30."
+ },
+ {
+  "t": "Return",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def f(n):\n    return n + 1\n    print(n)\nprint(f(5))",
+  "o": [
+   "<code>6</code>",
+   "<code>5</code><br><code>6</code>",
+   "<code>6</code><br><code>5</code>",
+   "<code>5</code>"
+  ],
+  "a": [
+   0
+  ],
+  "e": "The function returns 6 and ends before the <code>print(n)</code> line. Only the returned value is displayed, by the <code>print</code> in the last line."
+ },
+ {
+  "t": "Return",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def f():\n    pass\nprint(f())",
+  "o": [
+   "<code>None</code>",
+   "Nothing is displayed",
+   "<code>f</code>",
+   "<code>0</code>"
+  ],
+  "a": [
+   0
+  ],
+  "e": "A function with no <code>return</code> gives back <code>None</code>, and <code>print</code> displays it."
+ },
+ {
+  "t": "Return",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def tax(amount):\n    return amount / 10\nprint(\"Tax:\", tax(50))",
+  "o": [
+   "<code>Tax: tax(50)</code>",
+   "<code>Tax: 50</code>",
+   "<code>Tax: 5</code>",
+   "<code>Tax: 5.0</code>"
+  ],
+  "a": [
+   3
+  ],
+  "e": "<code>tax(50)</code> returns 5.0 (division with <code>/</code> gives a decimal), so the line displays <code>Tax: 5.0</code>."
+ },
+ {
+  "t": "Return",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def double(n):\n    return n * 2\ndef add_one(n):\n    return n + 1\nprint(add_one(double(4)))",
+  "o": [
+   "<code>10</code>",
+   "<code>5</code>",
+   "<code>9</code>",
+   "<code>8</code>"
+  ],
+  "a": [
+   2
+  ],
+  "e": "<code>double(4)</code> returns 8, and <code>add_one(8)</code> returns 9."
+ },
+ {
+  "t": "Decide",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def is_even(n):\n    return n % 2 == 0\nprint(is_even(9))\nprint(is_even(10))",
+  "o": [
+   "<code>False</code><br><code>True</code>",
+   "<code>1</code><br><code>0</code>",
+   "<code>True</code><br><code>True</code>",
+   "<code>True</code><br><code>False</code>"
+  ],
+  "a": [
+   0
+  ],
+  "e": "The function returns the True or False answer to <code>n % 2 == 0</code>. 9 leaves a remainder of 1 (False), and 10 leaves 0 (True)."
+ },
+ {
+  "t": "Decide",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def is_even(n):\n    return n % 2 == 0\nif is_even(9):\n    print(\"even\")\nelse:\n    print(\"odd\")",
+  "o": [
+   "<code>even</code>",
+   "<code>even</code><br><code>odd</code>",
+   "<code>odd</code>",
+   "<code>False</code>"
+  ],
+  "a": [
+   2
+  ],
+  "e": "<code>is_even(9)</code> returns <code>False</code>, so the <code>if</code> is skipped and the <code>else</code> displays <code>odd</code>."
+ },
+ {
+  "t": "Decide",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def bigger(a, b):\n    if a > b:\n        return a\n    else:\n        return b\nprint(bigger(8, 3))\nprint(bigger(2, 9))",
+  "o": [
+   "<code>3</code><br><code>9</code>",
+   "<code>3</code><br><code>2</code>",
+   "<code>8</code><br><code>2</code>",
+   "<code>8</code><br><code>9</code>"
+  ],
+  "a": [
+   3
+  ],
+  "e": "The function returns the larger number. 8 is bigger than 3, and in the second call 9 is bigger than 2."
+ },
+ {
+  "t": "Decide",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def league(xp):\n    if xp >= 500:\n        return \"Gold\"\n    if xp >= 200:\n        return \"Silver\"\n    return \"Bronze\"\nprint(league(350))\nprint(league(600))\nprint(league(100))",
+  "o": [
+   "<code>Silver</code><br><code>Silver</code><br><code>Bronze</code>",
+   "<code>Gold</code><br><code>Gold</code><br><code>Bronze</code>",
+   "<code>Silver</code><br><code>Gold</code><br><code>Silver</code>",
+   "<code>Silver</code><br><code>Gold</code><br><code>Bronze</code>"
+  ],
+  "a": [
+   3
+  ],
+  "e": "Each call stops at the first <code>return</code> that matches. 350 is at least 200 (Silver), 600 is at least 500 (Gold), and 100 matches nothing, so it reaches the final Bronze."
+ },
+ {
+  "t": "Decide",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def check(n):\n    if n > 10:\n        return \"big\"\n    print(\"small\")\n    return \"done\"\nprint(check(20))",
+  "o": [
+   "<code>big</code>",
+   "<code>done</code>",
+   "<code>small</code><br><code>big</code>",
+   "<code>big</code><br><code>small</code>"
+  ],
+  "a": [
+   0
+  ],
+  "e": "20 is over 10, so the function returns <code>big</code> immediately. The lines after that never run, so <code>small</code> is not displayed."
+ },
+ {
+  "t": "Decide",
+  "s": "What is the value of <code>answer</code> after the code segment is executed?",
+  "c": "def sum_to(n):\n    total = 0\n    for i in range(1, n + 1):\n        total = total + i\n    return total\nanswer = sum_to(4)",
+  "o": [
+   "<code>24</code>",
+   "<code>4</code>",
+   "<code>10</code>",
+   "<code>6</code>"
+  ],
+  "a": [
+   2
+  ],
+  "e": "The loop adds 1, 2, 3 and 4 to <code>total</code>, then the return after the loop hands back 10."
+ },
+ {
+  "t": "Decide",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def first_only(n):\n    total = 0\n    for i in range(1, n + 1):\n        total = total + i\n        return total\nprint(first_only(4))",
+  "o": [
+   "<code>4</code>",
+   "<code>1</code>",
+   "<code>10</code>",
+   "<code>0</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "The <code>return</code> is <b>inside</b> the loop, so the function returns after the very first pass, when <code>total</code> is only 1."
+ },
+ {
+  "t": "Decide",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def count_even(n):\n    count = 0\n    for i in range(1, n + 1):\n        if i % 2 == 0:\n            count = count + 1\n    return count\nprint(count_even(10))",
+  "o": [
+   "<code>55</code>",
+   "<code>5</code>",
+   "<code>4</code>",
+   "<code>10</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "The loop checks 1 through 10 and counts the even numbers (2, 4, 6, 8, 10). The return after the loop gives back 5."
+ },
+ {
+  "t": "Decide",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def passed(score):\n    return score >= 70\nprint(\"Passed:\", passed(65))",
+  "o": [
+   "<code>Passed: True</code>",
+   "<code>Passed: 65</code>",
+   "<code>Passed: False</code>",
+   "<code>Passed: None</code>"
+  ],
+  "a": [
+   2
+  ],
+  "e": "65 is not at least 70, so the comparison is False and the function returns <code>False</code>."
+ },
+ {
+  "t": "Decide",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def letter(score):\n    if score >= 90:\n        return \"A\"\n    elif score >= 80:\n        return \"B\"\n    return \"C\"\nprint(letter(85))\nprint(letter(95))\nprint(letter(50))",
+  "o": [
+   "<code>B</code><br><code>B</code><br><code>C</code>",
+   "<code>B</code><br><code>A</code><br><code>C</code>",
+   "<code>A</code><br><code>A</code><br><code>C</code>",
+   "<code>B</code><br><code>A</code><br><code>B</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "85 matches the 80 test (B), 95 matches the first test (A), and 50 matches neither so the final <code>return \"C\"</code> runs."
+ },
+ {
+  "t": "Decide",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def has_a(word):\n    for ch in word:\n        if ch == \"a\":\n            return True\n    return False\nprint(has_a(\"banana\"))\nprint(has_a(\"kiwi\"))",
+  "o": [
+   "<code>False</code><br><code>True</code>",
+   "<code>False</code><br><code>False</code>",
+   "<code>True</code><br><code>True</code>",
+   "<code>True</code><br><code>False</code>"
+  ],
+  "a": [
+   3
+  ],
+  "e": "For <code>banana</code> the loop finds an <code>a</code> and returns <code>True</code> right away. <code>kiwi</code> has no <code>a</code>, so the loop ends and <code>False</code> is returned."
+ },
+ {
+  "t": "Decide",
+  "s": "A function loops through a list and must return the <b>total</b> of all the items. Where should the <code>return</code> line go?",
+  "o": [
+   "Inside the loop, as its last line",
+   "After the loop, not indented under it",
+   "Before the loop starts",
+   "Inside the loop, as its first line"
+  ],
+  "a": [
+   1
+  ],
+  "e": "A return inside the loop ends the function after one pass. To total every item, the loop must finish first, so the return goes <b>after</b> the loop."
+ },
+ {
+  "t": "Library",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "import math\nprint(math.sqrt(16))",
+  "o": [
+   "<code>4.0</code>",
+   "<code>256</code>",
+   "<code>4</code>",
+   "<code>8.0</code>"
+  ],
+  "a": [
+   0
+  ],
+  "e": "<code>import math</code> brings in the library, and <code>math.sqrt(16)</code> gives the square root, <code>4.0</code> (a decimal)."
+ },
+ {
+  "t": "Library",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "print(abs(-7))\nprint(round(3.67))\nprint(len(\"robot\"))",
+  "o": [
+   "<code>7</code><br><code>4</code><br><code>5</code>",
+   "<code>7</code><br><code>3</code><br><code>5</code>",
+   "<code>-7</code><br><code>4</code><br><code>5</code>",
+   "<code>7</code><br><code>4</code><br><code>6</code>"
+  ],
+  "a": [
+   0
+  ],
+  "e": "<code>abs(-7)</code> is the distance from zero, 7. <code>round(3.67)</code> rounds to 4. <code>len(\"robot\")</code> counts 5 characters."
+ },
+ {
+  "t": "Library",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "print(round(3.14159, 2))\nprint(round(7.891, 1))",
+  "o": [
+   "<code>3</code><br><code>8</code>",
+   "<code>3.14</code><br><code>7.9</code>",
+   "<code>3.1</code><br><code>7.89</code>",
+   "<code>3.15</code><br><code>7.9</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "The second argument tells <code>round</code> how many decimal places to keep: 3.14 and 7.9."
+ },
+ {
+  "t": "Library",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "print(pow(2, 3))\nprint(pow(3, 2))",
+  "o": [
+   "<code>9</code><br><code>8</code>",
+   "<code>8</code><br><code>8</code>",
+   "<code>6</code><br><code>6</code>",
+   "<code>8</code><br><code>9</code>"
+  ],
+  "a": [
+   3
+  ],
+  "e": "<code>pow(base, exponent)</code> takes the base first. 2 to the power 3 is 8, and 3 to the power 2 is 9. Swapping the arguments changes the answer."
+ },
+ {
+  "t": "Library",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "print(min(4, 2, 8))\nprint(max(4, 2, 8))",
+  "o": [
+   "<code>2</code><br><code>2</code>",
+   "<code>2</code><br><code>8</code>",
+   "<code>8</code><br><code>2</code>",
+   "<code>4</code><br><code>4</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "<code>min</code> gives the smallest value and <code>max</code> gives the largest."
+ },
+ {
+  "t": "Library",
+  "s": "Which of the following expressions can produce the value 3?",
+  "o": [
+   "<code>random.randint(0, 2)</code>",
+   "<code>random.randint(5, 9)</code>",
+   "<code>random.randint(4, 6)</code>",
+   "<code>random.randint(1, 5)</code>"
+  ],
+  "a": [
+   3
+  ],
+  "e": "<code>random.randint(a, b)</code> gives a whole number from <code>a</code> to <code>b</code>, and both ends count. Only the range 1 to 5 includes 3."
+ },
+ {
+  "t": "Library",
+  "s": "Which expression gives a random whole number from 1 to 5, with <b>both</b> 1 and 5 possible?",
+  "o": [
+   "<code>random.randint(1, 6)</code>",
+   "<code>random.randint(1, 4)</code>",
+   "<code>random.randint(1, 5)</code>",
+   "<code>random.randint(0, 5)</code>"
+  ],
+  "a": [
+   2
+  ],
+  "e": "Both ends count in <code>randint</code>. <code>(1, 4)</code> never gives 5, <code>(0, 5)</code> can give 0, and <code>(1, 6)</code> can give 6."
+ },
+ {
+  "t": "Library",
+  "s": "What is the result of executing the code segment?",
+  "c": "print(math.sqrt(9))",
+  "o": [
+   "<code>9</code>",
+   "<code>3</code>",
+   "<code>3.0</code>",
+   "An error occurs"
+  ],
+  "a": [
+   3
+  ],
+  "e": "The <code>math</code> library was never brought in with <code>import math</code>, so Python does not know the name <code>math</code> and stops with an error."
+ },
+ {
+  "t": "Library",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "import math\ndef hypotenuse(a, b):\n    return math.sqrt(a * a + b * b)\nprint(hypotenuse(3, 4))",
+  "o": [
+   "<code>5.0</code>",
+   "<code>5</code>",
+   "<code>7.0</code>",
+   "<code>25.0</code>"
+  ],
+  "a": [
+   0
+  ],
+  "e": "Your own function can use a library. 3 squared plus 4 squared is 25, and its square root is <code>5.0</code>."
+ },
+ {
+  "t": "Library",
+  "s": "What does the <b>documentation</b> (the API description) of a library procedure tell you?",
+  "o": [
+   "The answer to every call you might make",
+   "What the procedure needs and what it gives back",
+   "How the procedure was written inside the library",
+   "Which computer the library was made on"
+  ],
+  "a": [
+   1
+  ],
+  "e": "Documentation describes how to use a procedure: the arguments it expects, their order, and the value it returns. You do not need to see how it is written inside."
+ },
+ {
+  "t": "Library",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def clamp(value, low, high):\n    if value < low:\n        return low\n    if value > high:\n        return high\n    return value\nprint(clamp(15, 0, 10))\nprint(clamp(-3, 0, 10))\nprint(clamp(7, 0, 10))",
+  "o": [
+   "<code>10</code><br><code>0</code><br><code>10</code>",
+   "<code>10</code><br><code>10</code><br><code>7</code>",
+   "<code>15</code><br><code>-3</code><br><code>7</code>",
+   "<code>10</code><br><code>0</code><br><code>7</code>"
+  ],
+  "a": [
+   3
+  ],
+  "e": "The function keeps a value between <code>low</code> and <code>high</code>. 15 is too high (10), -3 is too low (0), and 7 is already inside the range (7)."
+ },
+ {
+  "t": "Library",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "import random\nroll = random.randint(5, 5)\nprint(roll)",
+  "o": [
+   "<code>5</code>",
+   "<code>0</code>",
+   "<code>6</code>",
+   "<code>1</code>"
+  ],
+  "a": [
+   0
+  ],
+  "e": "Both ends count in <code>randint</code>. When both numbers are 5, the only possible value is 5, so 5 is displayed every time."
+ },
+ {
+  "t": "Proc",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def divider():\n    print(\"---\")\ndivider()\nprint(\"Title\")\ndivider()",
+  "o": [
+   "<code>---</code><br><code>Title</code><br><code>---</code>",
+   "<code>Title</code><br><code>---</code><br><code>---</code>",
+   "<code>---</code><br><code>Title</code>",
+   "<code>---</code><br><code>---</code><br><code>Title</code>"
+  ],
+  "a": [
+   0
+  ],
+  "e": "The same procedure is called twice. The program prints the divider, then the title, then the divider again."
+ },
+ {
+  "t": "Proc",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def divider():\n    print(\"---\")\ndef title_card(title):\n    divider()\n    print(title)\n    divider()\ntitle_card(\"Dark\")",
+  "o": [
+   "<code>---</code><br><code>Dark</code><br><code>---</code>",
+   "<code>Dark</code><br><code>---</code><br><code>---</code>",
+   "<code>Dark</code>",
+   "<code>---</code><br><code>Dark</code>"
+  ],
+  "a": [
+   0
+  ],
+  "e": "Calling <code>title_card</code> runs its three lines. Two of them call <code>divider</code>, so the title is framed by dividers."
+ },
+ {
+  "t": "Proc",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def welcome(name, is_member):\n    if is_member:\n        print(\"Welcome back,\", name)\n    else:\n        print(\"Welcome,\", name)\nwelcome(\"Ava\", True)\nwelcome(\"Ben\", False)",
+  "o": [
+   "<code>Welcome, Ava</code><br><code>Welcome, Ben</code>",
+   "<code>Welcome back, Ava</code><br><code>Welcome, Ben</code>",
+   "<code>Welcome back, Ava</code><br><code>Welcome back, Ben</code>",
+   "<code>Welcome, Ava</code><br><code>Welcome back, Ben</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "The parameter <code>is_member</code> picks the branch. Ava is a member, so she gets <code>Welcome back</code>. Ben is not, so the <code>else</code> runs."
+ },
+ {
+  "t": "Proc",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def stars(count):\n    line = \"\"\n    for i in range(count):\n        line = line + \"*\"\n    print(line)\nstars(3)\nstars(1)",
+  "o": [
+   "<code>***</code><br><code>*</code>",
+   "<code>***</code><br><code>***</code>",
+   "<code>*</code><br><code>***</code>",
+   "<code>*</code><br><code>*</code><br><code>*</code><br><code>*</code>"
+  ],
+  "a": [
+   0
+  ],
+  "e": "The loop adds one star per pass, and the line is printed after the loop. <code>stars(3)</code> shows three stars and <code>stars(1)</code> shows one."
+ },
+ {
+  "t": "Proc",
+  "s": "How many times is <code>Hi</code> displayed as a result of executing the code segment?",
+  "c": "def repeat_message(text, times):\n    for i in range(times):\n        print(text)\nrepeat_message(\"Hi\", 3)",
+  "o": [
+   "<code>4</code>",
+   "<code>3</code>",
+   "<code>2</code>",
+   "<code>1</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "The loop is controlled by the parameter <code>times</code>. With 3, the body runs three times, so <code>Hi</code> is displayed 3 times."
+ },
+ {
+  "t": "Proc",
+  "s": "Why is it better to write one procedure than to copy the same lines into several places?",
+  "o": [
+   "A change only has to be made in one place",
+   "Python refuses to run repeated lines",
+   "The lines run faster when they are copied",
+   "The program runs without using any memory"
+  ],
+  "a": [
+   0
+  ],
+  "e": "When code is in one procedure, fixing or changing it once changes every call. Copied code has to be found and fixed everywhere."
+ },
+ {
+  "t": "Proc",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def check(n):\n    for i in range(n):\n        if i % 2 == 0:\n            print(i)\ncheck(5)",
+  "o": [
+   "<code>1</code><br><code>3</code>",
+   "<code>0</code><br><code>2</code><br><code>4</code>",
+   "<code>2</code><br><code>4</code>",
+   "<code>0</code><br><code>2</code><br><code>4</code><br><code>6</code>"
+  ],
+  "a": [
+   1
+  ],
+  "e": "This procedure uses a loop (iteration) and an <code>if</code> (selection) together. It prints the even numbers from 0 up to 4."
+ },
+ {
+  "t": "Proc",
+  "s": "What is displayed as a result of executing the code segment?",
+  "c": "def double(n):\n    return n * 2\ndef double_then_add(n, extra):\n    return double(n) + extra\nprint(double_then_add(5, 1))",
+  "o": [
+   "<code>10</code>",
+   "<code>6</code>",
+   "<code>11</code>",
+   "<code>12</code>"
+  ],
+  "a": [
+   2
+  ],
+  "e": "One function can call another. <code>double(5)</code> returns 10, and then 1 is added, so 11 is returned and displayed."
+ }
+];
+
+(function(){
+  var KEY='apcsp-u5-pt-v1', state={};
+  try{ state=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ state={}; }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+  var quiz=document.getElementById('quiz'), filt='All', missedOnly=false;
+  var topics=['All'].concat(["Define", "Multi", "Return", "Decide", "Library", "Proc"]);
+  document.getElementById('heroCount').textContent=Q.length;
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function same(a,b){ if(a.length!==b.length) return false; var x=a.slice().sort(), y=b.slice().sort(); return x.every(function(v,i){return v===y[i];}); }
+
+  var fwrap=document.getElementById('filters');
+  topics.forEach(function(t){
+    var b=document.createElement('button'); b.type='button'; b.className='fbtn'+(t==='All'?' on':''); b.textContent=LAB[t]||t;
+    b.onclick=function(){ filt=t; [].forEach.call(fwrap.children,function(c){c.classList.toggle('on',c===b);}); apply(); };
+    fwrap.appendChild(b);
+  });
+
+  Q.forEach(function(q,i){
+    var multi=q.a.length>1, el=document.createElement('div'); el.className='q'; el.dataset.t=q.t; el.id='q'+i;
+    var h='<div class="qh"><span class="qn">Question '+(i+1)+'</span><span class="qt">'+(LAB[q.t]||q.t)+'</span></div><div class="stem">'+q.s+'</div>';
+    if(q.c) h+='<div class="code">'+esc(q.c)+'</div>';
+    h+='<div class="opts">'+q.o.map(function(o,j){return '<button type="button" class="opt" data-j="'+j+'"><span class="l">'+'ABCD'[j]+'</span><span>'+o+'</span></button>';}).join('')+'</div>';
+    if(multi) h+='<button type="button" class="check" disabled>Check answer</button>';
+    h+='<div class="why"></div>';
+    el.innerHTML=h; quiz.appendChild(el);
+    var picks=[], btns=el.querySelectorAll('.opt'), chk=el.querySelector('.check');
+    [].forEach.call(btns,function(b){
+      b.onclick=function(){
+        if(el.classList.contains('done')) return;
+        var j=+b.dataset.j;
+        if(!multi){ grade(i,[j]); return; }
+        var k=picks.indexOf(j);
+        if(k>=0) picks.splice(k,1); else if(picks.length<2) picks.push(j);
+        [].forEach.call(btns,function(x){ x.classList.toggle('picked', picks.indexOf(+x.dataset.j)>=0); });
+        chk.disabled=picks.length!==2;
+      };
+    });
+    if(chk) chk.onclick=function(){ grade(i,picks.slice()); };
+    if(state[i]) render(i,state[i]);
+  });
+
+  function grade(i,picked){ state[i]=picked; save(); render(i,picked); tally(); }
+  function render(i,picked){
+    var q=Q[i], el=document.getElementById('q'+i), ok=same(picked,q.a);
+    el.classList.add('done', ok?'right':'wrong');
+    [].forEach.call(el.querySelectorAll('.opt'),function(b){
+      var j=+b.dataset.j; b.disabled=true; b.classList.remove('picked');
+      if(q.a.indexOf(j)>=0) b.classList.add('ok'); else if(picked.indexOf(j)>=0) b.classList.add('bad');
+    });
+    var c=el.querySelector('.check'); if(c) c.style.display='none';
+    var ans=q.a.map(function(j){return 'ABCD'[j];}).join(' and ');
+    el.querySelector('.why').innerHTML=(ok?'<b class="v">Correct.</b> ':'<b class="x">Not quite. The answer is '+ans+'.</b> ')+q.e;
+  }
+  function tally(){
+    var done=0,right=0;
+    Q.forEach(function(q,i){ if(state[i]){ done++; if(same(state[i],q.a)) right++; } });
+    document.getElementById('score').innerHTML=right+' / '+done+' <span>correct &middot; '+(Q.length-done)+' left</span>';
+    var dm=document.getElementById('doneMsg');
+    if(done===Q.length){
+      var pct=Math.round(100*right/Q.length);
+      dm.style.display='block';
+      dm.innerHTML='<h3>Finished: '+right+' / '+Q.length+' ('+pct+'%)</h3><p style="color:#C4CDD8">'+(pct>=90?'You’re ready for the Unit 5 test.':pct>=75?'Close. Click “Show missed only,” re-read those sections, then Reset and retake.':'Re-read the sections for the topics you missed (use the topic filters), then Reset and retake.')+'</p>';
+    } else dm.style.display='none';
+  }
+  function apply(){
+    Q.forEach(function(q,i){
+      var el=document.getElementById('q'+i);
+      var show=(filt==='All'||q.t===filt) && (!missedOnly || (state[i] && !same(state[i],q.a)));
+      el.style.display=show?'':'none';
+    });
+  }
+  document.getElementById('missedBtn').onclick=function(){ missedOnly=!missedOnly; this.classList.toggle('on',missedOnly); this.textContent=missedOnly?'Show all':'Show missed only'; apply(); };
+  document.getElementById('resetBtn').onclick=function(){
+    if(!confirm('Clear all your answers and start over?')) return;
+    state={}; save(); location.hash='#test'; location.reload();
+  };
+  tally();
+})();
+</script>
+</body>
+</html>

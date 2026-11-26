@@ -77,7 +77,7 @@ def main(only):
                         for v in st[0].values():
                             if re.search(r'\d\.\d{6,}|e[+-]\d', v) or (v.startswith("'") and (v[1:-1] != v[1:-1].strip() or v == "''")) or (v.startswith("'") and ("\\" in v or '"' in v)): errors.append((tag, 'hard-to-type value ' + v))
                             if v.startswith('[') and len(v) > 40: errors.append((tag, 'list too long to type: ' + v))
-                        isctl = re.match(r'\s*(if|elif|while|for|def|break)\b', sol[st[3]])
+                        isctl = re.match(r'\s*(if|elif|while|for|def|break|import)\b', sol[st[3]]) or re.fullmatch(r'\s*(\w+)\(.*\)', sol[st[3]]) and re.search(r'^def %s\(' % re.match(r'\s*(\w+)', sol[st[3]]).group(1), '\n'.join(sol), re.M)
                         if not st[0] and not st[1] and not isctl and not st[4]: errors.append((tag, 'line %d changes nothing' % (st[3] + 1)))
                     trs.append(dict(title='', intro=story, code=sol, ins=ins, steps=steps))
         trs.sort(key=lambda t: difficulty(t['code']))
