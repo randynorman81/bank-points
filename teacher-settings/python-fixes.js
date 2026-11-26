@@ -81,9 +81,11 @@ export function fixA5(rec) {
    A student who explains the rule in other correct words ("I never calculate with it", "it is just an address", "no arithmetic") got the point refused. The words below are added to the saved pattern (the old words still work). */
 export function fixA8(rec) {
   (rec.checks || []).forEach(function (c) {
-    if (/end-of-line comment on house_number/.test(c.label || "") && c.re)
-      c.re = "(?:" + c.re + ")|(?:calculat|arithmetic|address|identifier|digit|quantity|comput|multipl|\\bsum\\b|\\bplus\\b|numeric|integer|\\bint\\b|float|label|\\bid\\b|\\bphone\\b|\\bzip\\b|\\badd(ing)?\\b|subtract|divide)";
-    if (/end-of-line comment on house_number/.test(c.label || "")) c.flags = String(c.flags || "").replace(/i/g, "") + "i";
+    if (/end-of-line comment on house_number/.test(c.label || "")) {
+      /* the comment must sit at the end of the house_number line itself (the saved pattern let any "int(" or "float" elsewhere count, so this is written out in full) */
+      c.where = "raw"; c.flags = "mi";
+      c.re = "^[ \\t]*house_number[ \\t]*=[ \\t]*(?:str\\([ \\t]*)?input\\(.*#.*(?:math|string|text|number|whole|decimal|calculat|arithmetic|address|identifier|digit|quantity|comput|multipl|\\bsum\\b|\\bplus\\b|numeric|integer|\\bint\\b|float|\\bid\\b|\\bphone\\b|\\bzip\\b|\\badd(?:ing)?\\b|subtract|divide)";
+    }
   });
   return rec;
 }
