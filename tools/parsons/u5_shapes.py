@@ -6,7 +6,7 @@ SH = {}
 SH['u5l1'] = [
  S('Call {f} twice', 'Write a function named {f} with no parameters. Inside it, print {m}. Then call {f} two times.',
    L('def {f}():', '    print("{m}")', '{f}()', '{f}()'),
-   [(0, 'def {f}()'), (1, 'print("{m}")'), (2, '{f}')],
+   [(0, 'def {f}()'), (1, '    print("{m}"'), (2, '{f}')],
    'f m', [('welcome', 'Welcome to Uber Eats!'), ('confirm', 'Order received'), ('notify', 'Driver on the way'), ('thanks', 'Enjoy your meal')]),
  S('Greet {a} and {b}', 'Write a function named greet with one parameter, name. Inside it, print Hi, followed by name. Call greet with {a}, then with {b}.',
    L('def greet(name):', '    print("Hi,", name)', 'greet("{a}")', 'greet("{b}")'),
@@ -72,7 +72,7 @@ SH['u5l3'] = [
    'p', [('9',), ('15',), ('40',), ('7',)]),
  S('Return ends the function ({w})', 'Write a function named first_word with one parameter, text. It RETURNS text, and then (after the return) it has a line that prints done. Print first_word called with {w}. The line after the return never runs.',
    L('def first_word(text):', '    return text', '    print("done")', 'print(first_word("{w}"))'),
-   [(1, '    print(text)'), (2, '    print("done"'), (3, 'print(first_word({w}))')],
+   [(1, '    retrun text'), (2, '    print("done"'), (3, 'print(first_word({w}))')],
    'w', [('apple',), ('robot',), ('green',), ('music',)]),
 ]
 

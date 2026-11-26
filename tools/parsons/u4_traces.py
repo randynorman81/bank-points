@@ -16,10 +16,10 @@ TR['u4l1'] = [
 ]
 TR['u4l2'] = [
  P('a = True\nb = False\nprint(a and b)\nprint(a or b)'),
- P('x = 5\ny = 12\nprint(x < 10 and y < 10)\nprint(x < 10 or y < 10)'),
- P('age = 20\nhas_id = True\ncan_enter = age >= 18 and has_id\nprint(can_enter)'),
- P('x = 5\nprint(x > 3 and x < 8)\nprint(x > 3 and x > 8)'),
- P('rain = True\nsun = False\nprint(not rain)\nprint(rain or sun)\nprint(not rain or sun)'),
+ P('x = 5\ny = 12\nprint(x + y)\nprint(x < 10 or y < 10)'),
+ P('age = 20\nhas_id = True\ncan_enter = age >= 18 and has_id\nprint(can_enter)\nprint(age + 5)'),
+ P('x = 5\nprint(x > 3 and x < 8)\nprint(x > 3 and x > 8)\nprint(x)'),
+ P('rain = True\nsun = False\nprint(not rain)\nprint(rain or sun)\nresult = not rain or sun\nprint(result)'),
  P('x = 15\nin_range = x >= 10 and x <= 20\nx = x + 10\nin_range2 = x >= 10 and x <= 20\nprint(in_range, in_range2)'),
  P('a = True\nb = True\nc = False\nprint(a and b and c)\nprint(a or b or c)\nprint(a and (b or c))'),
  P('a = False\nb = True\nprint(not (a or b))\nprint(not a or b)\nprint(not a and not b)'),
@@ -28,9 +28,9 @@ TR['u4l2'] = [
 ]
 TR['u4l3'] = [
  P('x = 5\nprint(x == 5)\nprint(x != 5)'),
- P('a = 3\nb = 9\nprint(a < b)\nprint(a >= b)'),
+ P('a = 3\nb = 9\nprint(a < b)\nprint(b - a)'),
  P('score = 80\nprint(score >= 80)\nprint(score > 80)'),
- P('n = 14\nprint(n % 2 == 0)\nprint(n % 5 == 0)\nprint(n % 7 == 0)'),
+ P('n = 14\nprint(n % 2 == 0)\nprint(n % 5)\nprint(n % 7 == 0)'),
  P('a = 10\nb = a * 2\nprint(b > 15)\nprint(b == a + 10)\nprint(b - a != 10)'),
  P('word = "cat"\nprint(word == "cat")\nprint(word == "Cat")\nprint(len(word) == 3)'),
  P('x = 7\ny = x\nx = x + 1\nprint(x == y)\nprint(x > y)\nprint(y == 7)'),

@@ -20,6 +20,8 @@ def record(slot):
         else: A = call({'action': 'assignments'})
         _CACHE['A'] = A.get('assignments', A)
     return _CACHE['A'][slot]
+def _cache_all():
+    record('a1' if os.environ.get('QA_CACHE') else 'a16'); return _CACHE['A']
 def boxes_of(rec):
     out = []; cur = None
     for b in rec['blocks']:

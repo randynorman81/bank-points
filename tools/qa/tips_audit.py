@@ -6,7 +6,7 @@ signal.signal(signal.SIGALRM, _alarm)
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(ROOT, 'tools', 'qa')); import wt_qa as q
 call = lambda b: json.loads(subprocess.run(['curl', '-s', '-X', 'POST', 'https://schscomputerscience.com/api/pycode', '-H', 'Content-Type: application/json', '-d', json.dumps(b)], capture_output=True, text=True).stdout)
-live = call({'action': 'assignments'})['assignments']
+live = q._cache_all() if hasattr(q, '_cache_all') else call({'action': 'assignments'})['assignments']
 SLOTS = sys.argv[1:] or ['a%d' % n for n in range(1, 14)]      # usage: python3 tools/qa/tips_audit.py a16 a17 ...  (Unit 3 by default)
 def ev(expr):
     G = {'input': lambda p='': '5'}; signal.alarm(2)

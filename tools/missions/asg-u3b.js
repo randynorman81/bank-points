@@ -88,7 +88,7 @@ def("u3l8", "DoorDash Tip Calculator", ["**You are on the DoorDash checkout team
     "Run it again with the same answers.", [["Tip: 3.0", OUT("Tip: 3.0")], ["Total: 23.0", OUT("Total: 23.0")], ["Customer pays: 26.5", OUT("Customer pays: 26.5")]]),
   S("What the Dasher earns", ["A Dasher earns a base of `1.50`, plus `0.60` for every mile, plus the tip. Under a heading comment, print `Dasher pay:` followed by the pay."],
     "Print the pay.", `\n# What the Dasher earns\nprint("Dasher pay:", 1.50 + 0.60 * miles + tip)`,
-    [["printing the pay using miles and the tip", /print\(\s*["']Dasher pay:["'].*(miles.*tip|tip.*miles)/]],
+    [["printing the pay using miles and the tip", /print\(\s*(?:f?["']Dasher pay:\s?["']?|["']Dasher pay:\s?["']\s*\+).*(miles.*tip|tip.*miles)/]],
     "Run it again.", [["Dasher pay: 6.9", OUT("Dasher pay: 6.9")]]),
   S("The phone number stays text", ["The Dasher also needs the customer's phone number. Print `Phone:` followed by it, and `Phone type:` followed by its **type**, so the team can see it was never converted."],
     "Print the phone and its type.", `print("Phone:", phone)\nprint("Phone type:", type(phone))`,
@@ -100,7 +100,7 @@ def("u3l8", "DoorDash Tip Calculator", ["**You are on the DoorDash checkout team
     "Run it again.", [["With Peak Pay: 9.4", OUT("With Peak Pay: 9.4")], ["Per mile: 2.4", OUT("Per mile: 2.4")]]),
   X("Team order", ["A team of **4** friends ordered together. Make **`team_size`** equal to `4` and print `Team total:` followed by the customer total times the team size. Add a comment that begins `# CONVERT:` and says in at least eight words why the phone number was not converted but the subtotal was."],
     "Write the variable, the print and the comment.", `\n# Team order\nteam_size = 4\nprint("Team total:", total * team_size)\n# CONVERT: the subtotal needs math so it must be a number but the phone number is only a label so it stays text`,
-    [["team_size is 4", V("team_size", "4\\s*$")], ["printing the Team total label", /print\(\s*["']Team total:["']/], ["the total times the team size", /print\(\s*["']Team total:["']\s*,\s*(total\s*\*\s*team_size|team_size\s*\*\s*total)\s*\)/], ["a CONVERT comment of eight or more words", note("CONVERT", 8), 1, "comments"]],
+    [["team_size is 4", V("team_size", "4\\s*$")], ["printing the Team total label", /print\(\s*f?["']Team total:/], ["the total times the team size", /print\(\s*["']Team total:["']\s*,\s*(total\s*\*\s*team_size|team_size\s*\*\s*total)\s*\)/], ["a CONVERT comment of eight or more words", note("CONVERT", 8), 1, "comments"]],
     "Run it again.", [["Team total: 92.0", OUT("Team total: 92.0")]])],
   [{ answers: [["Subtotal", "20"], ["Tip as", "0.15"], ["Miles", "4"], ["Phone", "7705551234"]] }]);
 WK("u3l8", { brand: ["DOORDASH", "#EB1700", "#EB1700", "#ffffff", "900 20px Arial,Helvetica,sans-serif", "3px"], team: "Checkout", boss: ["Sasha Ivanov", "Checkout Engineer"], ticket: "CHK-6612", file: "tip_calc.py",

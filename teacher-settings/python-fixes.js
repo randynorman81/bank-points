@@ -43,6 +43,7 @@ const addTips = (rec, tips) => { rec.tips = Object.assign({}, rec.tips || {}, ti
 export function fixUiWords(rec) {
   const fix = (t) => typeof t !== "string" ? t : t
     .replace(/the orange \*\*Run\*\* button/g, "the **Run** button")
+    .replace(/^Why is 8% tax\s+\* 0\.08\?$/, "Why multiply by 0.08 to get 8% tax?")
     .replace(/Sign in with Google \(top right\), pick \*\*Assignment (\d+)\*\* in the Assignment box, choose your \*\*period\*\*, then click \*\*Submit\*\*\./g, "Sign in with Google (at the top), open **Walkthrough $1** with the **CURRICULUM** button, choose your **period**, then click **Submit**.")
     .replace(/Sign in with Google \(top right\), pick Assignment (\d+) in the\.\.\./g, "Sign in with Google (at the top), open Walkthrough $1 with the CURRICULUM button...")
     .replace(/In Assignment (\d+) you typed/g, "In Walkthrough $1 you typed")
@@ -73,6 +74,17 @@ export function fixA5(rec) {
   });
   const t = rec.tips && rec.tips.middle;
   if (t && t.sections && t.sections[0] && t.sections[0].steps) t.sections[0].steps[1] = "`6 // 2` is **3**. `//` is floor division: it divides and drops the decimal part, so you get a whole number, and an index has to be a whole number.";
+  return rec;
+}
+
+/* ================================================================ a8 (3.8) step 5: the "explain your rule" comment accepted only math / string / text / number / whole / decimal.
+   A student who explains the rule in other correct words ("I never calculate with it", "it is just an address", "no arithmetic") got the point refused. The words below are added to the saved pattern (the old words still work). */
+export function fixA8(rec) {
+  (rec.checks || []).forEach(function (c) {
+    if (/end-of-line comment on house_number/.test(c.label || "") && c.re)
+      c.re = "(?:" + c.re + ")|(?:calculat|arithmetic|address|identifier|digit|quantity|comput|multipl|\\bsum\\b|\\bplus\\b|numeric|integer|\\bint\\b|float|label|\\bid\\b|\\bphone\\b|\\bzip\\b|\\badd(ing)?\\b|subtract|divide)";
+    if (/end-of-line comment on house_number/.test(c.label || "")) c.flags = String(c.flags || "").replace(/i/g, "") + "i";
+  });
   return rec;
 }
 

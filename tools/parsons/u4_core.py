@@ -129,7 +129,7 @@ def check_problem(tag, sol, dis, ins, rnd, errors):
     """dis = [(index of the solution line it is a wrong version of, text)]. Putting it in that line's place must break the program or change its output."""
     code = '\n'.join(sol)
     exp = outputs(code, ins, rnd)
-    if any(r and r[0].startswith('<') for r in exp): errors.append((tag, 'solution fails: %r' % (exp,))); return None, None
+    if any(r and (r[0].startswith('<error') or r[0] == '<endless>') for r in exp): errors.append((tag, 'solution fails: %r' % (exp,))); return None, None
     if all(r == () for r in exp): errors.append((tag, 'prints nothing'))
     for idx, d in dis:
         if d in sol: errors.append((tag, 'distractor is a solution line: ' + d))
@@ -226,3 +226,10 @@ def event_desc(code, li, nli, i, ev, rets=None):
     if m and re.search(r'^def %s\(' % m.group(1), '\n'.join(code), re.M):
         return 'Call the function `%s(%s)`. Python jumps up into the function.' % (m.group(1), m.group(2))
     return describe(line)
+
+def trace_difficulty(code, steps):
+    """one number for how hard a trace is: questions asked + control lines + variables + length (used to order the 10 traces of a lesson easy to hard)"""
+    asked = sum(1 for st in steps if (len(st) < 6 or not st[5]) and (st[0] or st[1])) + sum(1 for st in steps if len(st) > 6 and st[6])
+    ctl = sum(1 for l in code if re.match(r'\s*(if|elif|while|for|def)\b', l))
+    names = len({m for l in code for m in re.findall(r'\b[a-z_][a-z_0-9]*\b', l) if m not in ('print', 'input', 'int', 'float', 'str', 'len', 'range', 'if', 'elif', 'else', 'for', 'while', 'in', 'def', 'return', 'and', 'or', 'not', 'True', 'False', 'break', 'global', 'import', 'type')})
+    return asked + 3 * ctl + 2 * names + len(steps) // 3

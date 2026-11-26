@@ -5,6 +5,7 @@ from multiprocessing import Pool
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 ROOT = os.path.dirname(os.path.dirname(HERE))
 from u4_core import *
+from u4_core import trace_difficulty
 from u4_traces import TR as CUSTOM_TRACES
 SH = {}
 for mod in ('u4_shapes1', 'u4_shapes2'):
@@ -82,7 +83,7 @@ def main(only):
                 if not st[0] and not st[1] and not isctl and not st[4] and not calls_def: errors.append((tag, 'line %d changes nothing' % (st[3] + 1)))
             intro = 'Trace this program one line at a time. Work out what each line stores or prints.' + (' When it asks for input, the user types %s.' % ', '.join(ins) if ins else '')
             trs.append(dict(title='', intro=intro, code=sol, ins=ins, steps=steps))
-        trs.sort(key=lambda t: difficulty(t['code']))
+        trs.sort(key=(lambda t: trace_difficulty(t['code'], t['steps'])) if lid in CUSTOM_TRACES else (lambda t: difficulty(t['code'])))      # easy to hard (stable)
         for n_, t_ in enumerate(trs): t_['title'] = 'Trace %d' % (n_ + 1)
         if len({'\n'.join(t['code']) + '|' + ','.join(t['ins']) for t in trs}) != len(trs): errors.append((lid, 'duplicate trace'))
         if len(trs) != 10: errors.append((lid, 'expected 10 traces, got %d' % len(trs)))

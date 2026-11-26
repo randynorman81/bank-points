@@ -19,9 +19,26 @@ function toRecord(w, o) {
   if (o.passMin !== undefined) rec.passMin = o.passMin;
   if (w.autoRun) rec.autoRun = w.autoRun;
   /* a check whose label starts "Bonus (+N): " is STRETCH work: it is worth N extra points beyond the 100 (see scoreCode in pycode.js) */
-  rec.checks = rec.checks.map((c) => { const bm = /^Bonus \(\+(\d+)\):\s*/.exec(c.label || ""); return { label: bm ? c.label.slice(bm[0].length) : c.label, re: c.re, flags: (c.flags || "").replace(/m/g, "") + "m", min: c.min || 1, pts: bm ? Number(bm[1]) : 1, where: c.where, box: c.box, bonus: bm ? true : undefined }; });
+  rec.checks = rec.checks.map((c) => { const bm = /^Bonus \(\+(\d+)\):\s*/.exec(c.label || ""); return { label: bm ? c.label.slice(bm[0].length) : c.label, re: widenAug(widenPrint(c.re, c.where, /comma/i.test(JSON.stringify(rec.blocks)))),  flags: (c.flags || "").replace(/m/g, "") + "m", min: c.min || 1, pts: bm ? Number(bm[1]) : 1, where: c.where, box: c.box, bonus: bm ? true : undefined }; });
   if (rec.checks.some((c) => !c.re)) throw new Error(w.title + ": a check has no pattern (functions are not allowed in server checks)");
   return rec;
+}
+/* x = x + n can be written x = n + x (and x = x * n as x = n * x): the same number comes out. A check written  (=\s*x\s*\+\s*E|\+=\s*E)  also accepts the swapped order. */
+function widenAug(re) {
+  if (typeof re !== "string") return re;
+  return re.replace(/\(=\\s\*([A-Za-z_]\w*)\\s\*(\\[+*])\\s\*([^|()]+?)\|(\\[+*])=\\s\*/g, function (m, v, op, e, op2) {
+    return op === op2 ? "(=\\s*" + v + "\\s*" + op + "\\s*" + e + "|=\\s*" + e + "\\s*" + op + "\\s*" + v + "\\b|" + op2 + "=\\s*" : m;
+  });
+}
+/* print("Label:", value) can also be written print("Label: " + str(value)) or print(f"Label: {value}"). All three print the same line, so a check that insists on the comma form would turn away a correct answer.
+   Unless the step text itself asks for the comma form, every check written as  print("LABEL", EXPR)  also accepts the + str(...) and f-string forms. */
+function widenPrint(re, where, commaForced) {
+  if (commaForced || (where && where !== "code") || typeof re !== "string") return re;
+  const m = /^(\^?(?:\\s[+*])?)print\\\(\\s\*\["']([^"'\\]*(?:\\.[^"'\\]*)*)\["']\\s\*,\\s\*([\s\S]+?)\\s\*\\\)$/.exec(re);
+  if (!m) return re;
+  const pre = m[1], lab = m[2], ex = m[3], bare = /^[A-Za-z_]\w*$/.test(ex);
+  const labSp = lab.replace(/\\s\??$/, "");
+  return pre + "print\\(\\s*(?:[\"']" + lab + "[\"']\\s*,\\s*" + ex + "|[\"']" + labSp + "\\s?[\"']\\s*\\+\\s*(?:str\\(\\s*" + ex + "\\s*\\)" + (bare ? "|" + ex : "") + ")|f[\"']" + labSp + "\\s?\\{\\s*" + ex + "\\s*\\}[\"'])\\s*\\)";
 }
 /* A Mission: the student writes the code themselves, so the stages carry a hidden reference solution (ref / refEdit) instead of a code sample.
    The reference is only used by the tests (it must score 100). Returns the walkthrough-style definition to build, plus the reference program for each stage. */

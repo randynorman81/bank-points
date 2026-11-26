@@ -55,7 +55,7 @@ SH['u4l9'] = [
  S('Peak of {a}, {b}, {c}, {d}', 'Store the viewer counts {a}, {b}, {c} and {d} in a list named viewers. Start peak at 0. Write a for loop with the loop variable v. Inside it, IF v is bigger than peak, store v in peak (indented under the if). After the loop print Peak viewers: followed by peak.',
    L('viewers = [{a}, {b}, {c}, {d}]', 'peak = 0', 'for v in viewers:', '    if v > peak:', '        peak = v', 'print("Peak viewers:", peak)'),
    [(3, '    if v > peak'), (4, '        peak = peak + v'), (4, '        peak = viewers')],
-   'a b c d', [('120', '340', '95', '410'), ('50', '20', '80', '60'), ('300', '150', '500', '250'), ('15', '45', '30', '60')]),
+   'a b c d', [('120', '340', '95', '210'), ('50', '20', '80', '60'), ('300', '150', '500', '250'), ('15', '45', '30', '60')]),
  S('Lowest of {a}, {b}, {c}, {d}', 'Store the viewer counts {a}, {b}, {c} and {d} in a list named viewers. Start low as the FIRST number in the list (viewers[0]). Write a for loop with the loop variable v. Inside it, IF v is smaller than low, store v in low. After the loop print Lowest viewers: followed by low.',
    L('viewers = [{a}, {b}, {c}, {d}]', 'low = viewers[0]', 'for v in viewers:', '    if v < low:', '        low = v', 'print("Lowest viewers:", low)'),
    [(1, 'low = 0'), (3, '    if v > low:'), (4, 'low = v')],
@@ -102,7 +102,7 @@ SH['u4l10'] = [
 SH['u4l11'] = [
  S('PIN loop for {p}', 'Write a while True loop. Inside it ask PIN: and store the answer in pin. Still inside, IF pin equals {p}, break (indented under the if). After the loop print Welcome back.',
    L('while True:', '    pin = input("PIN: ")', '    if pin == "{p}":', '        break', 'print("Welcome back")'),
-   [(0, 'while True'), (2, '    if pin = "{p}":'), (3, '    break')],
+   [(0, 'while True'), (2, '    if pin = "{p}":'), (3, '        brake')],
    'p', [('1234',), ('4321',), ('2468',), ('9999',)], ins=['0000', '{p}']),
  S('Add payments until 0', 'Start total at 0. Write a while True loop. Inside it, ask Payment (0 to stop): as a whole number in amount. IF amount equals 0, break. Otherwise (a line after the if) add amount to total. After the loop print Total: followed by total.',
    L('total = 0', 'while True:', '    amount = int(input("Payment (0 to stop): "))', '    if amount == 0:', '        break', '    total = total + amount', 'print("Total:", total)'),

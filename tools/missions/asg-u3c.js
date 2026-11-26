@@ -147,7 +147,7 @@ def("u3l13", "Roblox Robux Tracker", ["**You are a developer on Roblox.** A game
     "Run it.", [["After fee: 180", OUT("After fee: 180")]]),
   X("Another trade", ["You buy a `25` Robux item from your friend. Change **both** `my_robux` and `friend_robux`, then print `Me now:` and `Friend now:` followed by each balance. Add a comment that begins `# TRACE:` and gives both new balances."],
     "Write the two changes, the prints and the comment.", `\n# Another trade\nmy_robux = my_robux - 25\nfriend_robux = friend_robux + 25\nprint("Me now:", my_robux)\nprint("Friend now:", friend_robux)\n# TRACE: me 25 and friend 75`,
-    [["my_robux reduced by 25", /^\s*my_robux\s*(=\s*my_robux\s*-\s*25|-=\s*25)/m], ["friend_robux raised by 25", /^\s*friend_robux\s*(=\s*friend_robux\s*\+\s*25|\+=\s*25)/m], ["a TRACE comment with 25 and 75", /TRACE:.*\b25\b.*\b75\b/, 1, "comments"]],
+    [["my_robux reduced by 25", /^\s*my_robux\s*(=\s*my_robux\s*-\s*25|-=\s*25)/m], ["friend_robux raised by 25", /^\s*friend_robux\s*(=\s*friend_robux\s*\+\s*25|\+=\s*25)/m], ["a TRACE comment with 25 and 75", /TRACE:.*(\b25\b.*\b75\b|\b75\b.*\b25\b)/, 1, "comments"]],
     "Run it.", [["Me now: 25", OUT("Me now: 25")], ["Friend now: 75", OUT("Friend now: 75")]])]);
 WK("u3l13", { brand: ["ROBLOX", "#00A2FF", "#232527", "#ffffff", "900 22px Arial,Helvetica,sans-serif", "3px"], team: "Economy", boss: ["Imani Clarke", "Economy Engineer"], ticket: "ECO-1301", file: "robux_tracker.py",
   subject: "Robux balance tracing (for the economy audit)", hi: "Hi, welcome to the Economy team!",

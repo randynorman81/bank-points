@@ -85,7 +85,7 @@ def("u4l11", "Venmo Payment Loops", ["**You are on the Venmo security and paymen
     "Run it. The test types a wrong PIN, then 1234.", [["Welcome back", OUT("Welcome back")]]),
   S("Only valid amounts", ["Venmo only sends between `1` and `500` dollars. Under a heading comment, use `while True` to ask `Send amount (1 to 500): ` as a whole number in **`send`** until the amount is **in that range** (use **and** to check both ends, then break). Print `Sending:` followed by the amount."],
     "Write the validation loop.", `\n# Send money\nwhile True:\n    send = int(input("Send amount (1 to 500): "))\n    if send >= 1 and send <= 500:\n        break\nprint("Sending:", send)`,
-    [["asking for send as a whole number inside the loop", /^\s+send\s*=\s*int\(\s*input\(/m], ["a range check with and", /^\s+if\s+send\s*>=\s*1\s+and\s+send\s*<=\s*500\s*:/m], ["a second break", /^\s+break\s*$/m, 2]],
+    [["asking for send as a whole number inside the loop", /^\s+send\s*=\s*int\(\s*input\(/m], ["a range check with and", /^\s+if\s+(?:send\s*>=\s*1\s+and\s+send\s*<=\s*500|send\s*<=\s*500\s+and\s+send\s*>=\s*1|1\s*<=\s*send\s*<=\s*500)\s*:/m], ["a second break", /^\s+break\s*$/m, 2]],
     "Run it. The test types 900, then 50.", [["Sending: 50", OUT("Sending: 50")]]),
   S("Split a bill", ["Venmo splits a bill. Under a heading comment, start **`total`** at `0`. Use `while True` to ask `Payment (0 to stop): ` as a whole number in **`amount`**; if it is `0` **break**; otherwise add it to the total. After the loop print `Total:` followed by it."],
     "Write the sentinel loop.", `\n# Split a bill\ntotal = 0\nwhile True:\n    amount = int(input("Payment (0 to stop): "))\n    if amount == 0:\n        break\n    total = total + amount\nprint("Total:", total)`,
