@@ -14,12 +14,10 @@ if temperature > 90:  # I think this shows the answer because it follows the rul
     print("It is hot")  # I think this shows the answer because it follows the rule we practiced
     print("Drink water")  # I think this shows the answer because it follows the rule we practiced
 print("Have a nice day")  # I think this shows the answer because it follows the rule we practiced
-print("Have a nice day")  # I think this shows the answer because it follows the rule we practiced
 temperature = 70  # I think this shows the answer because it follows the rule we practiced
 if temperature > 90:  # I think this shows the answer because it follows the rule we practiced
     print("It is hot")  # I think this shows the answer because it follows the rule we practiced
     print("Drink water")  # I think this shows the answer because it follows the rule we practiced
-print("Have a nice day")  # I think this shows the answer because it follows the rule we practiced
 print("Have a nice day")  # I think this shows the answer because it follows the rule we practiced
 # Step 3: Conditions can be Booleans and logic
 has_ticket = True  # I think this shows the answer because it follows the rule we practiced
@@ -52,14 +50,12 @@ if age >= 16:  # I think this shows the answer because it follows the rule we pr
     print("Old enough")  # I think this shows the answer because it follows the rule we practiced
     if has_license:  # I think this shows the answer because it follows the rule we practiced
         print("You may drive")  # I think this shows the answer because it follows the rule we practiced
-if has_license:  # I think this shows the answer because it follows the rule we practiced
 age = 20  # I think this shows the answer because it follows the rule we practiced
 has_license = False  # I think this shows the answer because it follows the rule we practiced
 if age >= 16:  # I think this shows the answer because it follows the rule we practiced
     print("Old enough")  # I think this shows the answer because it follows the rule we practiced
     if has_license:  # I think this shows the answer because it follows the rule we practiced
         print("You may drive")  # I think this shows the answer because it follows the rule we practiced
-if has_license:  # I think this shows the answer because it follows the rule we practiced
 # Step 7: Build a ticket price program
 # Ticket price
 price = 10  # I think this shows the answer because it follows the rule we practiced
@@ -71,5 +67,4 @@ if age > 64:  # I think this shows the answer because it follows the rule we pra
     price = price - 3  # I think this shows the answer because it follows the rule we practiced
 if member == "yes":  # I think this shows the answer because it follows the rule we practiced
     price = price - 2  # I think this shows the answer because it follows the rule we practiced
-print(...)  # I think this shows the answer because it follows the rule we practiced
 print("Price:", price)  # I think this shows the answer because it follows the rule we practiced

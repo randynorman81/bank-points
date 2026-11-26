@@ -33,8 +33,8 @@ for grade in grades:  # I think this shows the answer because it follows the rul
         passing = passing + 1  # I think this shows the answer because it follows the rule we practiced
 print(passing)  # I think this shows the answer because it follows the rule we practiced
 for g in grades:  # I think this shows the answer because it follows the rule we practiced
-if g >= 70:  # I think this shows the answer because it follows the rule we practiced
-print(g)  # I think this shows the answer because it follows the rule we practiced
+    if g >= 70:  # I think this shows the answer because it follows the rule we practiced
+        print(g)  # I think this shows the answer because it follows the rule we practiced
 # Step 6: Count letters in a string
 word = "computer"  # I think this shows the answer because it follows the rule we practiced
 count = 0  # I think this shows the answer because it follows the rule we practiced
@@ -44,27 +44,10 @@ for letter in word:  # I think this shows the answer because it follows the rule
 print(count)  # I think this shows the answer because it follows the rule we practiced
 count = 0  # I think this shows the answer because it follows the rule we practiced
 for letter in "excellent":  # I think this shows the answer because it follows the rule we practiced
-if letter == "e":  # I think this shows the answer because it follows the rule we practiced
-count = count + 1  # I think this shows the answer because it follows the rule we practiced
+    if letter == "e":  # I think this shows the answer because it follows the rule we practiced
+        count = count + 1  # I think this shows the answer because it follows the rule we practiced
 print(count)  # I think this shows the answer because it follows the rule we practiced
 # Step 7: Read FOR EACH the way the exam does
-nums ← [3, 8, 5]  # I think this shows the answer because it follows the rule we practiced
-result ← 0  # I think this shows the answer because it follows the rule we practiced
-FOR EACH n IN nums  # I think this shows the answer because it follows the rule we practiced
-{  # I think this shows the answer because it follows the rule we practiced
-   result ← result + n  # I think this shows the answer because it follows the rule we practiced
-}  # I think this shows the answer because it follows the rule we practiced
-DISPLAY(result)  # I think this shows the answer because it follows the rule we practiced
-temps ← [72, 55, 90, 68]  # I think this shows the answer because it follows the rule we practiced
-hot ← 0  # I think this shows the answer because it follows the rule we practiced
-FOR EACH t IN temps  # I think this shows the answer because it follows the rule we practiced
-{  # I think this shows the answer because it follows the rule we practiced
-   IF (t > 70)  # I think this shows the answer because it follows the rule we practiced
-   {  # I think this shows the answer because it follows the rule we practiced
-      hot ← hot + 1  # I think this shows the answer because it follows the rule we practiced
-   }  # I think this shows the answer because it follows the rule we practiced
-}  # I think this shows the answer because it follows the rule we practiced
-DISPLAY(hot)  # I think this shows the answer because it follows the rule we practiced
 # nums <- [3, 8, 5]
 # result <- 0
 # FOR EACH n IN nums
@@ -76,17 +59,6 @@ DISPLAY(hot)  # I think this shows the answer because it follows the rule we pra
 # IF (t > 70)
 # hot <- hot + 1
 # DISPLAY(hot)
-nums = [3, 8, 5]  # I think this shows the answer because it follows the rule we practiced
-result = 0  # I think this shows the answer because it follows the rule we practiced
-for n in nums:  # I think this shows the answer because it follows the rule we practiced
-    result = result + n  # I think this shows the answer because it follows the rule we practiced
-    print(result)  # I think this shows the answer because it follows the rule we practiced
-temps = [72, 55, 90, 68]  # I think this shows the answer because it follows the rule we practiced
-hot = 0  # I think this shows the answer because it follows the rule we practiced
-for t in temps:  # I think this shows the answer because it follows the rule we practiced
-    if t > 70:  # I think this shows the answer because it follows the rule we practiced
-        hot = hot + 1  # I think this shows the answer because it follows the rule we practiced
-        print(hot)  # I think this shows the answer because it follows the rule we practiced
 nums = [3, 8, 5]  # I think this shows the answer because it follows the rule we practiced
 result = 0  # I think this shows the answer because it follows the rule we practiced
 for n in nums:  # I think this shows the answer because it follows the rule we practiced
@@ -110,7 +82,6 @@ for score in scores:  # I think this shows the answer because it follows the rul
         passing = passing + 1  # I think this shows the answer because it follows the rule we practiced
         if score > highest:  # I think this shows the answer because it follows the rule we practiced
             highest = score  # I think this shows the answer because it follows the rule we practiced
-print(...)  # I think this shows the answer because it follows the rule we practiced
 print("Average:", total / len(scores))  # I think this shows the answer because it follows the rule we practiced
 print("Passing:", passing)  # I think this shows the answer because it follows the rule we practiced
 print("Highest:", highest)  # I think this shows the answer because it follows the rule we practiced
@@ -125,7 +96,6 @@ for score in scores:  # I think this shows the answer because it follows the rul
         passing = passing + 1  # I think this shows the answer because it follows the rule we practiced
         if score > highest:  # I think this shows the answer because it follows the rule we practiced
             highest = score  # I think this shows the answer because it follows the rule we practiced
-print(...)  # I think this shows the answer because it follows the rule we practiced
 print("Average:", total / len(scores))  # I think this shows the answer because it follows the rule we practiced
 print("Passing:", passing)  # I think this shows the answer because it follows the rule we practiced
 print("Highest:", highest)  # I think this shows the answer because it follows the rule we practiced

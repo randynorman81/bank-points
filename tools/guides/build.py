@@ -84,7 +84,7 @@ def build_lesson(n, cid):
             for r in pg.search_for(m.group(0)): pg.add_redact_annot(r)
         pg.apply_redactions(images=fitz.PDF_REDACT_IMAGE_NONE)
     num = cid.split(".")
-    name = "AP-CSP-Lesson-%02d-%02d-%s.pdf" % (int(num[0]), int(num[1]) if num[1].isdigit() else 0, re.sub(r"[^A-Za-z0-9]+", "-", title).strip("-")[:60])
+    name = "AP-CSP-Lesson-%02d-%s-%s.pdf" % (int(num[0]), ("%02d" % int(re.match(r"\d+", num[1]).group(0))) + re.sub(r"\d+", "", num[1]), re.sub(r"[^A-Za-z0-9]+", "-", title).strip("-")[:60])
     os.makedirs(os.path.join(OUT, "lessons"), exist_ok=True)
     final = os.path.join(OUT, "lessons", name); d.save(final, garbage=4, deflate=True, deflate_images=True, deflate_fonts=True, use_objstms=1, clean=True); d.close()
     return final, len(fitz.open(final))

@@ -327,7 +327,7 @@ Python asks the question **before every pass**. When the answer is `False`, the 
        Q("`REPEAT UNTIL(n > 3)` is the same as which Python loop?", ["`while n > 3:`", "`while n <= 3:`", "`while n == 3:`", "`for n in 3:`"], 1, "Flip the condition."),
        Q("What does `while` check?", ["After each pass", "Before every pass", "Only once", "Never"], 1, "The question is asked before the body runs each time.")]),
 
-    L("4.11", "Use `while True` and `break` to ask once and stop when you are ready.",
+    L("4.10b", "Use `while True` and `break` to ask once and stop when you are ready.",
       [("`while True:`", "starts a loop that would run forever, until a `break`"), ("`break`", "jumps out of the loop right away"), ("sentinel", "a special value that means \"stop\""), ("loop and a half", "a loop that runs its test in the middle, using `break`")],
       [("Ask only once", """In the last lesson every `while` loop had its question at the **top**, and you had to ask for input **twice**: once before the loop and once inside it. The **loop and a half** is cleaner. `while True:` starts a loop that would run forever, and an `if` inside it uses **`break`** to jump out when you are done.
 
@@ -362,7 +362,7 @@ The input line appears only once."""),
        Q("What is a sentinel?", ["A variable name", "A special value that means stop", "A type of loop", "An error"], 1, "It tells the loop to end."),
        Q("Why is `while True:` followed by `break` useful?", ["It asks for input only once in the code", "It is faster", "It avoids all errors", "It needs no condition"], 0, "The input line appears once, inside the loop.")]),
 
-    L("4.12", "Use `random.randint()`, `random.choice()`, and `random.random()` to make programs unpredictable.",
+    L("4.11", "Use `random.randint()`, `random.choice()`, and `random.random()` to make programs unpredictable.",
       [("`import random`", "loads Python's random tools"), ("`random.randint(a, b)`", "a random whole number from a to b, including both"), ("`random.choice(list)`", "picks one random item from a list"), ("`random.random()`", "a random decimal from 0 up to but not including 1")],
       [("Roll a die", """Games, simulations, and shuffled playlists all need **randomness**. You **import** the `random` tool at the top, and then `random.randint(1, 6)` rolls a six-sided die: a **whole number from 1 to 6, and both 1 and 6 are possible**. The answer can change every time you run the program.
 

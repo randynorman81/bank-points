@@ -23,10 +23,14 @@ CARD_CSS = ('<style>.lpgrid{display:grid;grid-template-columns:repeat(auto-fill,
 PZ_UNITS = {3, 4}   # units that have Parsons puzzles and code tracing (python/parsons.html)
 PZ_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#4F46E5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3a1 1 0 0 0 1 -1v-1a2 2 0 0 1 4 0v1a1 1 0 0 0 1 1h3a1 1 0 0 1 1 1v3a1 1 0 0 0 1 1h1a2 2 0 0 1 0 4h-1a1 1 0 0 0 -1 1v3a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-1a2 2 0 0 0 -4 0v1a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h1a2 2 0 0 0 0 -4h-1a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1"/></svg>'
 TR_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#4F46E5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M12 19h4.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h3.5"/></svg>'
+def lessid(n, f):
+    """lesson id from a lesson PDF name: Lesson-04-10b-... -> 4.10b"""
+    g = re.match(r".*Lesson-\d+-(\d+)(b?)-", f)
+    return "%d.%d%s" % (n, int(g.group(1)), g.group(2))
 def cards_html(n, ls):
     ed = "../../python/editor.html#"; cards = ""
     for f in ls:
-        lid = "%d.%d" % (n, int(re.match(r".*Lesson-\d+-(\d+)-", f).group(1))); m = LMAP[lid]; base = os.path.basename(f)
+        lid = lessid(n, f); m = LMAP[lid]; base = os.path.basename(f)
         rows = ('<div class="lprow sg"><span class="ic">&#128196;</span><span class="tx"><b>Study guide</b><span>%d-page PDF</span></span><span class="st"><a href="../downloads/lessons/%s" target="_blank" rel="noopener">Open</a> &nbsp;|&nbsp; <a href="../downloads/lessons/%s" download>Download</a></span></div>' % (pages(f), base, base))
         for w in m["w"]: rows += '<a class="lprow" href="%s%s"><span class="ic">&#128187;</span><span class="tx"><b>Walkthrough</b><span>%s</span></span><span class="st">100 pts</span></a>' % (ed, w["id"], m["title"])
         if m["p"]: rows += '<a class="lprow" href="%s%s"><span class="ic">&#128221;</span><span class="tx"><b>Assignment</b><span>Assignment %s: %s</span></span><span class="st">%d pts</span></a>' % (ed, m["p"]["id"], lid, m["p"]["title"], m["p"]["pts"])
@@ -62,8 +66,8 @@ put(os.path.join(ROOT, "apcsp", "index.html"), "study-guides", home, '</main>')
 for n in live:
     up = glob.glob(os.path.join(DL, "units", "AP-CSP-Unit-%02d-*.pdf" % n))[0]
     ls = sorted(glob.glob(os.path.join(DL, "lessons", "AP-CSP-Lesson-%02d-*.pdf" % n)))
-    items = "".join('<tr><td class="n">%d.%d</td><td>%s</td><td><a href="../downloads/lessons/%s" target="_blank" rel="noopener">Open</a> &nbsp;|&nbsp; <a href="../downloads/lessons/%s" download>Download PDF</a> <small>(%d pages)</small></td></tr>' % (
-        n, int(re.match(r".*Lesson-\d+-(\d+)-", f).group(1)), fitz.open(f).metadata["title"].split(", ", 1)[1], os.path.basename(f), os.path.basename(f), pages(f)) for f in ls)
+    items = "".join('<tr><td class="n">%d.%s</td><td>%s</td><td><a href="../downloads/lessons/%s" target="_blank" rel="noopener">Open</a> &nbsp;|&nbsp; <a href="../downloads/lessons/%s" download>Download PDF</a> <small>(%d pages)</small></td></tr>' % (
+        n, lessid(n, f).split(".", 1)[1], fitz.open(f).metadata["title"].split(", ", 1)[1], os.path.basename(f), os.path.basename(f), pages(f)) for f in ls)
     unit_html = (CSS + '<div class="sg" id="study-guide"><h2>Unit %d Study Guide</h2><p>Printable PDFs for this unit: the whole guide, or one lesson at a time. Every lesson has the key ideas in plain words, worked examples, '
                  'tracing practice, common mistakes, and practice questions with answers.</p>'
                  '<div class="btns3"><div class="b1"><a class="big alt" href="../downloads/%s" download>&#128230; All units (ZIP)</a><small>every unit, 19 PDFs</small></div>'

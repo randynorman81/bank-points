@@ -43,11 +43,11 @@ weeks = 0  # I think this shows the answer because it follows the rule we practi
 while savings < 200:  # I think this shows the answer because it follows the rule we practiced
     savings = savings + 45  # I think this shows the answer because it follows the rule we practiced
     weeks = weeks + 1  # I think this shows the answer because it follows the rule we practiced
-print(weeks)  # I think this shows the answer because it follows the rule we practiced
+    print(weeks)  # I think this shows the answer because it follows the rule we practiced
 # Step 5: Loops that never end
-count = 1  # I think this shows the answer because it follows the rule we practiced
-while count <= 3:  # I think this shows the answer because it follows the rule we practiced
-    print(count)  # I think this shows the answer because it follows the rule we practiced
+# count = 1
+# while count <= 3:
+#     print(count)
 count = 1  # I think this shows the answer because it follows the rule we practiced
 while count <= 3:  # I think this shows the answer because it follows the rule we practiced
     print(count)  # I think this shows the answer because it follows the rule we practiced
@@ -64,20 +64,8 @@ print("Thanks!")  # I think this shows the answer because it follows the rule we
 password = input("Password? ")  # I think this shows the answer because it follows the rule we practiced
 while password != "python":  # I think this shows the answer because it follows the rule we practiced
     password = input("Password? ")  # I think this shows the answer because it follows the rule we practiced
-print("Welcome!")  # I think this shows the answer because it follows the rule we practiced
+    print("Welcome!")  # I think this shows the answer because it follows the rule we practiced
 # Step 7: Read REPEAT UNTIL the way the exam does
-n ← 1  # I think this shows the answer because it follows the rule we practiced
-REPEAT UNTIL (n > 3)  # I think this shows the answer because it follows the rule we practiced
-{  # I think this shows the answer because it follows the rule we practiced
-   DISPLAY(n)  # I think this shows the answer because it follows the rule we practiced
-   n ← n + 1  # I think this shows the answer because it follows the rule we practiced
-}  # I think this shows the answer because it follows the rule we practiced
-lives ← 3  # I think this shows the answer because it follows the rule we practiced
-REPEAT UNTIL (lives = 0)  # I think this shows the answer because it follows the rule we practiced
-{  # I think this shows the answer because it follows the rule we practiced
-   DISPLAY(lives)  # I think this shows the answer because it follows the rule we practiced
-   lives ← lives - 1  # I think this shows the answer because it follows the rule we practiced
-}  # I think this shows the answer because it follows the rule we practiced
 n = 1  # I think this shows the answer because it follows the rule we practiced
 while n <= 3:  # REPEAT UNTIL n > 3 was flipped to keep going while n <= 3
     print(n)  # I think this shows the answer because it follows the rule we practiced
@@ -94,5 +82,4 @@ per_day = int(input("Sell how many each day? "))  # I think this shows the answe
 while stock > 0:  # I think this shows the answer because it follows the rule we practiced
     stock = stock - per_day  # I think this shows the answer because it follows the rule we practiced
     days = days + 1  # I think this shows the answer because it follows the rule we practiced
-print(...)  # I think this shows the answer because it follows the rule we practiced
 print("Days to sell out:", days)  # I think this shows the answer because it follows the rule we practiced

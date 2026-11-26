@@ -12,31 +12,51 @@ def tick_lines(t):
     return out
 FILL = ' this explains the idea in my own words and it is long enough to count'
 def children(t):
-    """`for i in range(6):` with `print("Go!")` under it  ->  header plus indented child lines (handles 'and `x` under it', 'then `if p:` with `break` under it')"""
-    segs = [(m.group(1).strip(), t[max(0, m.start() - 30):m.start()], t[m.end():m.end() + 40]) for m in re.finditer(r'`([^`]+)`', t)]
-    out = []; ind = 0; head_open = False
-    for k, (seg, before, after) in enumerate(segs):
-        if not CODEY.match(seg) or seg.endswith('...'): continue
-        if head_open and re.search(r'with\s*$|and\s*$|,\s*$|^\s*,? ?and', before + ' ') and not re.search(r'then\s*$|finally\s*$', before):
-            out.append('    ' * ind + seg)
-        elif head_open and re.search(r'under (the )?`?if', before) : out.append('    ' * (ind) + seg)
-        else:
-            ind = 0; out.append(seg); head_open = False
-        if seg.endswith(':'):
-            if out and len(out) > 1 and out[-1] != seg and False: pass
-            head_open = True; ind = (out[-1].count('    ') if out[-1].startswith('    ') else 0) + 1
-            out[-1] = out[-1]
-            ind = len(out[-1]) - len(out[-1].lstrip()); ind = ind // 4 + 1
-        if re.search(r'\(not indented\)|not indented', after): head_open = False; ind = 0
+    """Reads 'type exactly: `A:` with `B` under it, then `C:` ... and finally `D` (not indented)' into indented lines.
+    A header's first child is marked by 'with' / 'under it' / 'indented'; 'elif' and 'else' line up with their `if`; 'under the `while`' goes one level inside that header;
+    'finally' or '(not indented)' goes back to the left edge; anything else stays at the level of the line before it."""
+    if 'Type exactly' in t: t = 'Type exactly' + t.split('Type exactly', 1)[1] if t.index('Type exactly') >= 0 and not re.search(r'(?i)inside the loop|indented under the', t[:t.index('Type exactly')]) else t   # only what follows 'Type exactly' is typed
+    raw = [(m.group(1).strip(), t[max(0, m.start() - 40):m.start()], t[m.end():].split('`', 1)[0], t[m.end():]) for m in re.finditer(r'`([^`]+)`', t)]
+    base = 1 if re.search(r'(?i)indented under the `?(while|for)`?|inside the loop|still inside the loop', t) else 0
+    out = []; depth = base; headers = []; prev_hdr = False; prev_depth = base; ended = False
+    for k, (seg, before, after, rest) in enumerate(raw):
+        if not CODEY.match(seg) or '...' in seg or re.match(r'\s*(line|lines|statement)\b', after): continue
+        kw = re.match(r'[a-z]+', seg).group(0) if re.match(r'[a-z]+', seg) else ''
+        m_under = re.match(r'\s*(?:\(indented[^)]*\)\s*)?(?:,? ?and )?under the\s*`?(\w+)`?', after + ' ')
+        nxt = raw[k + 1][0] if k + 1 < len(raw) else ''
+        under_the = re.match(r'\s*\(?(?:indented\)?\s*)?under the\s*$', after)
+        if kw in ('elif', 'else'):
+            d = [h for h in headers if h[0] == 'if'][-1][1] if any(h[0] == 'if' for h in headers) else depth
+        elif under_the and nxt:
+            tgt = re.sub(r'\W', '', nxt); cand = [h for h in headers if h[0] == tgt]
+            d = (cand[-1][1] + 1) if cand else depth
+        elif prev_hdr and (re.search(r'with\s*$|indented under it,?\s*$|and,? ?$', before) or re.match(r'\s*(?:\(indented[^)]*\)\s*)?under it', after)):
+            d = prev_depth + 1
+        elif re.search(r'(?i)finally,?\s*$', before) or re.match(r'\s*\(not indented\)', after):
+            d = 0
+        elif ended and re.search(r'(?i)(and|then)\s*$', before): d = base
+        else: d = depth
+        ended = bool(under_the)
+        out.append('    ' * d + seg)
+        depth = d
+        if seg.endswith(':'): headers.append((kw, d)); prev_hdr = True; prev_depth = d
+        else: prev_hdr = False
     return out
-def build(rec, over=None):
-    lines = []; step = 0; sec = {}; cur = None
+def sections(rec, over=None):
+    sec = {}; cur = None
+    # a step whose box says 'type these lines with a # at the start of each line' (a broken loop that must not run) is typed commented out
+    hashed = set(); c = None
+    for b in rec['blocks']:
+        if 'h' in b:
+            m = re.match(r'Step (\d+)', b['h']); c = int(m.group(1)) if m else None
+        for t in b.get('make', []):
+            if c and re.search(r'with a `#` at the start of \*\*each\*\* line', t): hashed.add(c)
     for b in rec['blocks']:
         if 'h' in b:
             m = re.match(r'Step (\d+): (.*)', b['h'])
             if m and 'Stretch' not in b['h']: cur = int(m.group(1)); sec[cur] = ['# Step %s: %s' % (m.group(1), m.group(2))]
             else: cur = None
-        elif 'code' in b and cur: sec[cur].append(b['code'])
+        elif 'code' in b and cur and not re.search(r'←|PROCEDURE|REPEAT|DISPLAY\(|IF \(', b['code']): sec[cur].append('\n'.join('# ' + l for l in b['code'].split('\n')) if (cur in hashed and not any(x.startswith('# ') and 'count' in x for x in sec[cur][1:])) else b['code'])   # exam pseudocode is only read, never typed
         for k in ('make', 'build', 'where'):
             for t in b.get(k, []):
                 if not cur: continue
@@ -44,16 +64,28 @@ def build(rec, over=None):
                     for seg in re.findall(r'`(# [^`]+)`', t): sec[cur].append(seg)
                 elif re.search(r'pasted? as comment|pasted comment lines|pastes as comment', t):
                     for seg in re.findall(r'`(# [^`]+)`', t): sec[cur].append(seg)
-                    sec[cur] += children(t.split('The Python is exactly')[-1]) if 'The Python is exactly' in t else []
+                    # the Python translation of the pseudocode is typed by tools/qa/wt_u4_overlays.py
                 elif re.search(r'Start it with `# ', t):
                     for seg in re.findall(r'[Ss]tart it with `(# [^`]+)`', t): sec[cur].append(seg + FILL)
                 elif re.search(r'[Tt]ype exactly|exactly:|Type it\.|under it', t) and not re.search(r'new copy', t):
                     sec[cur] += children(t)
+    for n in list(sec):
+        if over and n in over: sec[n].append(over[n](sec[n][1:]) if callable(over[n]) else over[n])
+    return sec
+def drop_empty_headers(lines):
     out = []
-    for n in sorted(sec):
-        out += sec[n]
-        if over and n in over: out.append(over[n](sec[n][1:]) if callable(over[n]) else over[n])
-    return '\n'.join(out)
+    for i, l in enumerate(lines):
+        c = l.split('  #')[0].rstrip()
+        if c.endswith(':') and not c.lstrip().startswith('#'):
+            j = i + 1
+            while j < len(lines) and (not lines[j].strip() or lines[j].lstrip().startswith('#')): j += 1
+            if j >= len(lines) or len(lines[j]) - len(lines[j].lstrip(' ')) <= len(l) - len(l.lstrip(' ')): continue
+        out.append(l)
+    return out
+def build(rec, over=None):
+    sec = sections(rec, over); out = []
+    for n in sorted(sec): out += sec[n]
+    return '\n'.join(drop_empty_headers('\n'.join(out).split('\n')))
 def comment_up(code):
     out = []
     for l in code.split('\n'):

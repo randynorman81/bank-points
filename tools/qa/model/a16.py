@@ -54,7 +54,6 @@ height = int(input("Height in inches? "))  # I think this shows the answer becau
 old_enough = age > 11  # I think this shows the answer because it follows the rule we practiced
 tall_enough = height > 47  # I think this shows the answer because it follows the rule we practiced
 needs_adult = not old_enough  # I think this shows the answer because it follows the rule we practiced
-print(...)  # I think this shows the answer because it follows the rule we practiced
 print("Old enough:", old_enough)  # I think this shows the answer because it follows the rule we practiced
 print("Tall enough:", tall_enough)  # I think this shows the answer because it follows the rule we practiced
 print("Needs an adult:", needs_adult)  # I think this shows the answer because it follows the rule we practiced

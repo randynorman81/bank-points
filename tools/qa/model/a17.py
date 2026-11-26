@@ -44,11 +44,6 @@ print(a < 5 or b > 5)  # I think this shows the answer because it follows the ru
 print(not (a > 5 and b > 5))  # I think this shows the answer because it follows the rule we practiced
 print(a == 6 and not (b == 6))  # I think this shows the answer because it follows the rule we practiced
 print(a > b or a == 6)  # I think this shows the answer because it follows the rule we practiced
-score ← 82  # I think this shows the answer because it follows the rule we practiced
-passed ← score > 70 AND score < 90  # I think this shows the answer because it follows the rule we practiced
-DISPLAY(passed)  # I think this shows the answer because it follows the rule we practiced
-DISPLAY(score < 60 OR score > 80)  # I think this shows the answer because it follows the rule we practiced
-DISPLAY(NOT (score = 82))  # I think this shows the answer because it follows the rule we practiced
 # score <- 82
 # passed <- score > 70 AND score < 90
 # DISPLAY(passed)
@@ -61,7 +56,6 @@ height = int(input("Height in inches? "))  # I think this shows the answer becau
 can_ride = age > 11 and height > 47  # I think this shows the answer because it follows the rule we practiced
 gets_discount = age < 6 or age > 64  # I think this shows the answer because it follows the rule we practiced
 must_wait = not can_ride  # I think this shows the answer because it follows the rule we practiced
-print(...)  # I think this shows the answer because it follows the rule we practiced
 print("Can ride:", can_ride)  # I think this shows the answer because it follows the rule we practiced
 print("Gets discount:", gets_discount)  # I think this shows the answer because it follows the rule we practiced
 print("Must wait:", must_wait)  # I think this shows the answer because it follows the rule we practiced

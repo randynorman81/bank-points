@@ -26,11 +26,10 @@ total = 0  # I think this shows the answer because it follows the rule we practi
 for i in range(1, 8):  # I think this shows the answer because it follows the rule we practiced
     total = total + i  # I think this shows the answer because it follows the rule we practiced
 print(total)  # I think this shows the answer because it follows the rule we practiced
-product = product * j  # I think this shows the answer because it follows the rule we practiced
 product = 1  # I think this shows the answer because it follows the rule we practiced
 for j in range(1, 5):  # I think this shows the answer because it follows the rule we practiced
     product = product * j  # I think this shows the answer because it follows the rule we practiced
-    print(product)  # I think this shows the answer because it follows the rule we practiced
+print(product)  # I think this shows the answer because it follows the rule we practiced
 # Step 6: An if inside a loop
 evens = 0  # I think this shows the answer because it follows the rule we practiced
 for n in range(1, 13):  # I think this shows the answer because it follows the rule we practiced
@@ -38,24 +37,9 @@ for n in range(1, 13):  # I think this shows the answer because it follows the r
         evens = evens + 1  # I think this shows the answer because it follows the rule we practiced
 print(evens)  # I think this shows the answer because it follows the rule we practiced
 for m in range(1, 21):  # I think this shows the answer because it follows the rule we practiced
-if m % 3 == 0:  # I think this shows the answer because it follows the rule we practiced
-print(m)  # I think this shows the answer because it follows the rule we practiced
+    if m % 3 == 0:  # I think this shows the answer because it follows the rule we practiced
+        print(m)  # I think this shows the answer because it follows the rule we practiced
 # Step 7: Read loops the way the exam does
-count ← 0  # I think this shows the answer because it follows the rule we practiced
-REPEAT 4 TIMES  # I think this shows the answer because it follows the rule we practiced
-{  # I think this shows the answer because it follows the rule we practiced
-   count ← count + 3  # I think this shows the answer because it follows the rule we practiced
-}  # I think this shows the answer because it follows the rule we practiced
-DISPLAY(count)  # I think this shows the answer because it follows the rule we practiced
-x ← 1  # I think this shows the answer because it follows the rule we practiced
-REPEAT 7 TIMES  # I think this shows the answer because it follows the rule we practiced
-{  # I think this shows the answer because it follows the rule we practiced
-   IF (x MOD 2 = 0)  # I think this shows the answer because it follows the rule we practiced
-   {  # I think this shows the answer because it follows the rule we practiced
-      DISPLAY(x)  # I think this shows the answer because it follows the rule we practiced
-   }  # I think this shows the answer because it follows the rule we practiced
-   x ← x + 1  # I think this shows the answer because it follows the rule we practiced
-}  # I think this shows the answer because it follows the rule we practiced
 # count <- 0
 # REPEAT 4 TIMES
 # count <- count + 3
@@ -88,6 +72,6 @@ for i in range(7):  # I think this shows the answer because it follows the rule 
 number = int(input("Number? "))  # I think this shows the answer because it follows the rule we practiced
 total = 0  # I think this shows the answer because it follows the rule we practiced
 for i in range(1, 11):  # I think this shows the answer because it follows the rule we practiced
-print(number, "x", i, "=", number * i)  # I think this shows the answer because it follows the rule we practiced
-total = total + number * i  # I think this shows the answer because it follows the rule we practiced
+    print(number, "x", i, "=", number * i)  # I think this shows the answer because it follows the rule we practiced
+    total = total + number * i  # I think this shows the answer because it follows the rule we practiced
 print("Total:", total)  # I think this shows the answer because it follows the rule we practiced

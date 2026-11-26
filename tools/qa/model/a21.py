@@ -75,38 +75,6 @@ move(Event("ArrowRight"))  # I think this shows the answer because it follows th
 move(Event("ArrowLeft"))  # I think this shows the answer because it follows the rule we practiced
 print(x)  # I think this shows the answer because it follows the rule we practiced
 # Step 7: Read a handler the way the exam does
-PROCEDURE describe(key)  # I think this shows the answer because it follows the rule we practiced
-{  # I think this shows the answer because it follows the rule we practiced
-   IF (key = "a")  # I think this shows the answer because it follows the rule we practiced
-   {  # I think this shows the answer because it follows the rule we practiced
-      DISPLAY("left")  # I think this shows the answer because it follows the rule we practiced
-   }  # I think this shows the answer because it follows the rule we practiced
-   ELSE  # I think this shows the answer because it follows the rule we practiced
-   {  # I think this shows the answer because it follows the rule we practiced
-      DISPLAY("other")  # I think this shows the answer because it follows the rule we practiced
-   }  # I think this shows the answer because it follows the rule we practiced
-}  # I think this shows the answer because it follows the rule we practiced
-describe("a")  # I think this shows the answer because it follows the rule we practiced
-describe("d")  # I think this shows the answer because it follows the rule we practiced
-score ← 0  # I think this shows the answer because it follows the rule we practiced
-PROCEDURE handle(key)  # I think this shows the answer because it follows the rule we practiced
-{  # I think this shows the answer because it follows the rule we practiced
-   IF (key = "space")  # I think this shows the answer because it follows the rule we practiced
-   {  # I think this shows the answer because it follows the rule we practiced
-      score ← score + 10  # I think this shows the answer because it follows the rule we practiced
-   }  # I think this shows the answer because it follows the rule we practiced
-   ELSE  # I think this shows the answer because it follows the rule we practiced
-   {  # I think this shows the answer because it follows the rule we practiced
-      IF (key = "x")  # I think this shows the answer because it follows the rule we practiced
-      {  # I think this shows the answer because it follows the rule we practiced
-         score ← score - 5  # I think this shows the answer because it follows the rule we practiced
-      }  # I think this shows the answer because it follows the rule we practiced
-   }  # I think this shows the answer because it follows the rule we practiced
-}  # I think this shows the answer because it follows the rule we practiced
-handle("space")  # I think this shows the answer because it follows the rule we practiced
-handle("x")  # I think this shows the answer because it follows the rule we practiced
-handle("space")  # I think this shows the answer because it follows the rule we practiced
-DISPLAY(score)  # I think this shows the answer because it follows the rule we practiced
 # Program A: this explains the idea in my own words and it is long enough to count
 # Program B: this explains the idea in my own words and it is long enough to count
 # Events: the event is the key press and its key is the input the handler receives
@@ -125,7 +93,6 @@ elif event.key == "space":  # I think this shows the answer because it follows t
     score = score + 1  # I think this shows the answer because it follows the rule we practiced
 else:  # I think this shows the answer because it follows the rule we practiced
     print("Unknown key")  # I think this shows the answer because it follows the rule we practiced
-print(...)  # I think this shows the answer because it follows the rule we practiced
 print("x:", x)  # I think this shows the answer because it follows the rule we practiced
 print("Score:", score)  # I think this shows the answer because it follows the rule we practiced
 control(Event("ArrowRight"))  # I think this shows the answer because it follows the rule we practiced

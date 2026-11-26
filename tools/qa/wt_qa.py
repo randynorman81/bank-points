@@ -48,10 +48,17 @@ if __name__ == '__main__':
 # ---------- model answers (tools/qa/model/aN.py): written from the walkthrough's own instructions ----------
 import io, contextlib
 def run_local(code, inputs):
+    import signal
     feed = iter(inputs); buf = io.StringIO()
+    def _stop(*a): raise TimeoutError('the program ran for more than 10 seconds (endless loop?)')
+    try: signal.signal(signal.SIGALRM, _stop); signal.alarm(10)
+    except ValueError: pass      # not the main thread (the negative tests run this in threads): no time limit there
     try:
         with contextlib.redirect_stdout(buf): exec(compile(code, 'model', 'exec'), {'input': lambda p='': (print(p, end=''), next(feed))[1]})
-    except Exception as e: buf.write('\n%s: %s' % (type(e).__name__, e))
+    except BaseException as e: buf.write('\n%s: %s' % (type(e).__name__, e))
+    finally:
+        try: signal.alarm(0)
+        except Exception: pass
     return buf.getvalue()
 def model(slot):
     p = os.path.join(ROOT, 'tools', 'qa', 'model', slot + '.py')

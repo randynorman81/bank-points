@@ -1,42 +1,46 @@
-"""Checks every 'Try it' claim in the Unit 4 walkthroughs by RUNNING the step's own code block with the inputs the sentence says to type.
-For each '▶ Try it' paragraph: take the nearest code block above it in the same step, feed it the typed values, and look for the numbers/words the sentence says appear.
-Claims that cannot be checked this way (no code above, graphics, random numbers, several programs) are counted and left for a human read.
+"""Checks the 'Try it' claims of the Unit 4 walkthroughs by RUNNING each step's own program (what the step tells the student to type) with the values the sentence says to type.
+A claim such as 'type 5, then 10, then 20, then 0: it prints 35' is confirmed when 35 shows up in the real output. Claims that talk about several runs ('run it three times, typing 8, then 7,
+then 150') are run once per value. Anything that cannot be confirmed is printed so a person can read it.
 usage: python3 tools/qa/tryit_u4.py [slots]   (QA_CACHE=/path.json reuses a saved copy of the list)"""
-import sys, os, re, json
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import wt_qa as q
+import sys, os, re
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'parsons'))
+import wt_qa as q, wt_auto_u4 as A, wt_u4_overlays as O, u4_core
 slots = sys.argv[1:] or ['a%d' % n for n in (16, 17, 18, 19, 20, 21, 22, 23, 26, 27, 28)]
-PRE = "class Event:\n    def __init__(self, key):\n        self.key = key\n"
-def inputs_of(t):
-    m = re.search(r'\b[Tt]ype(?:ing)? ((?:`?-?[\w.]+`?)(?:(?:,| and|,? then|,? and then)\s+`?-?[\w.]+`?)*)', t)
-    if not m: return None
-    return [x.strip('` ') for x in re.split(r',? (?:and )?(?:then )?|,\s*', m.group(1)) if x.strip('` ')]
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'parsons'))
-import u4_core
 def run(code, ins):
-    # u4_core.run stops an endless loop (Step 5 of the while-loop walkthrough shows one on purpose) and returns the printed lines
-    try: return '\n'.join(u4_core.run(code, ins))
+    try: return '\n'.join(u4_core.run(code, ins, 1))
     except u4_core.Endless: return '<endless loop>'
-    except StopIteration: return '<asked for more input than the sentence says to type>'
-    except Exception as e: return 'ERR %s' % type(e).__name__
-ok = bad = skip = 0
+    except StopIteration: return '<asked for more input>'
+    except Exception as e: return 'ERR ' + type(e).__name__
+def typed(t):
+    m = re.search(r'\b(?:[Tt]ype|typing|enter)\s+((?:`?-?[\w.]+`?)(?:(?:,\s*(?:and\s+)?(?:then\s+)?|\s+and\s+(?:then\s+)?|\s+then\s+)`?-?[\w.]+`?)*)', t)
+    if not m: return []
+    return [x for x in re.split(r',\s*(?:and\s+)?(?:then\s+)?|\s+and\s+(?:then\s+)?|\s+then\s+', m.group(1)) if x]
+ok = bad = skip = 0; report = []
 for s in slots:
-    rec = q.record(s); last = None; step = None
+    rec = q.record(s); sec = A.sections(rec, O.OV.get(s)); step = None; n = 0; prog = {}
+    for k, v in sec.items(): prog[k] = '\n'.join(x for x in v if not x.startswith('# Step'))
+    EV = "class Event:\n    def __init__(self, key):\n        self.key = key\n"
     for b in rec['blocks']:
-        if 'h' in b: step = b['h']; last = None
-        elif 'code' in b and not re.search(r'PROCEDURE|←', b['code']): last = b['code']
-        elif 'p' in b and b['p'].startswith('▶'):
-            t = b['p']; m = re.search(r'(?:prints?|should (?:print|show|see|say|be)|shows?|displays?|answer (?:is|should be)|ends with)\s*(.*)', t)
-            if not last or not m or re.search(r'random|[Rr]un it a few times|graphics', t): skip += 1; continue
-            claim = m.group(1); toks = re.findall(r'`([^`]{1,40})`', claim) + re.findall(r'(?<![\w.])(-?\d+\.\d+|-?\d+)(?![\w.])', re.sub(r'`[^`]*`', '', claim))
-            toks = [x.strip('"\'') for x in toks if x.strip('"\'') not in ('', 'True', 'False') or x in ('True', 'False')]
-            if not toks: skip += 1; continue
-            runs = re.split(r'(?:Run it|Run both) (?:three|two|again|twice|3|2) times|(?:again|then) ', t)
-            ins = inputs_of(t) or []
-            out = run(PRE + last if 'Event(' in last and 'class Event' not in last else last, ins)
-            out2 = run(PRE + last if 'Event(' in last and 'class Event' not in last else last, ins) if False else ''
-            missing = [x for x in toks if x not in out]
-            if missing and not re.search(r'three times|then with|Run it again|again and type|run it again', t):
-                bad += 1; print('CLAIM NOT SEEN %s | %s | tokens %s | output %r | inputs %s' % (s, step[:30], missing, out[-90:], ins))
-            elif missing: skip += 1
-            else: ok += 1
-print('Try-it claims confirmed by running the step\'s code: %d | not confirmed: %d | left for a human read: %d' % (ok, bad, skip))
+        if 'h' in b:
+            m = re.match(r'Step (\d+)', b['h']); n = int(m.group(1)) if m and 'Stretch' not in b['h'] else None
+            continue
+        t = b.get('p', '')
+        if not (n and t.startswith('▶')): continue
+        m = re.search(r'(?:prints?|should (?:print|show|see|say|be|end)|shows?|displays?|answer (?:is|should be)|ends with)\s+(.*)', t)
+        if not m or re.search(r'random|a few times|graphics', t) or n not in prog: skip += 1; continue
+        claim = m.group(1)
+        toks = re.findall(r'`([^`]{1,40})`', claim) + re.findall(r'(?<![\w.])(-?\d+\.\d+|-?\d+)(?![\w.])', re.sub(r'`[^`]*`', '', claim))
+        toks = [x.strip('"\'') for x in toks]
+        if not toks: skip += 1; continue
+        code = prog[n]
+        if 'Event(' in code and 'class Event' not in code: code = EV + code
+        vals = typed(t)
+        if re.search(r'(three|two|\d) times|again|separately|each time|both', t) and len(vals) > 1 and re.search(r'times|again|separately', t) and not re.search(r'then (type|enter)', t):
+            outs = [run(code, [v]) for v in vals]
+        else: outs = [run(code, vals)]
+        out = '\n'.join(outs)
+        miss = [x for x in toks if x not in out]
+        if not miss: ok += 1
+        else: bad += 1; report.append('%s step %d | %s | inputs %s | missing %s | output tail %r' % (s, n, t[:150].replace('\n', ' '), vals, miss, out[-110:]))
+print('\n'.join(report))
+print('\nTry-it claims confirmed by running the step: %d | not confirmed: %d | no checkable claim: %d' % (ok, bad, skip))

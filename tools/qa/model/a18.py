@@ -14,7 +14,6 @@ print(age <= 16)  # I think this shows the answer because it follows the rule we
 print(age < 16)  # I think this shows the answer because it follows the rule we practiced
 # Step 3: From English to Python
 score = 85  # I think this shows the answer because it follows the rule we practiced
-score = 85  # I think this shows the answer because it follows the rule we practiced
 print(score >= 90)  # I think this shows the answer because it follows the rule we practiced
 print(score > 80)  # I think this shows the answer because it follows the rule we practiced
 print(score <= 85)  # I think this shows the answer because it follows the rule we practiced
@@ -63,7 +62,6 @@ honor_roll = score >= 90  # I think this shows the answer because it follows the
 perfect = score == 100  # I think this shows the answer because it follows the rule we practiced
 needs_retake = score < 60  # I think this shows the answer because it follows the rule we practiced
 even_score = score % 2 == 0  # I think this shows the answer because it follows the rule we practiced
-print(...)  # I think this shows the answer because it follows the rule we practiced
 print("Passed:", passed)  # I think this shows the answer because it follows the rule we practiced
 print("Honor roll:", honor_roll)  # I think this shows the answer because it follows the rule we practiced
 print("Perfect:", perfect)  # I think this shows the answer because it follows the rule we practiced
