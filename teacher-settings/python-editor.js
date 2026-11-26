@@ -8,7 +8,7 @@
    Unit 4 ids: a16 Booleans, a17 Logical Operators, a18 Comparison Operators, a19 If Statements,
                a20 If/Elif/Else, a21 Key Events, a22 For Loops, a23 General For Loops */
 import { PY_RECORDS } from "./python-records.js";
-import { fixA1, fixA5, fixA7, fixA13, fixA33, headingAtEdge, TAB_SLOTS } from "./python-fixes.js";
+import { fixUiWords, fixA1, fixA5, fixA7, fixA13, fixA33, headingAtEdge, TAB_SLOTS } from "./python-fixes.js";
 import { UNIT8 } from "./python-unit8.js";
 import { CONCEPTS } from "./python-concepts.js";
 const REPO = Object.assign({}, PY_RECORDS, CONCEPTS);   /* every record the repo carries: a101 to a193 (python-records.js) and the Unit 10.8, 11 and 16 walkthroughs a194 to a201 (python-concepts.js) */
@@ -234,6 +234,7 @@ export function withPySettings(slot, rec) {
 /* Walkthrough fixes from the 2026-11-23 audit (the code is in python-fixes.js): a5 introduces //, a7 and a13 get more steps, a33 gets its line breaks back, and the "# Step N" instruction says the left edge everywhere. */
 function addPatch(slot, fn) { const prev = PY_PATCHES[slot]; PY_PATCHES[slot] = prev ? function (r) { return fn(prev(r)); } : fn; }
 TAB_SLOTS.forEach(function (s) { addPatch(s, headingAtEdge); });
+for (let u = 1; u <= 13; u++) addPatch("a" + u, fixUiWords);
 addPatch("a1", fixA1); addPatch("a5", fixA5); addPatch("a7", fixA7); addPatch("a13", fixA13); addPatch("a33", fixA33);
 /* Unit 8 walkthroughs a45 to a54: the long versions (7 to 9 steps each, generated from tools/missions/u8-walk.txt) replace the 2-step versions saved on the grading server. The saved questions, gating and settings are kept. */
 Object.keys(UNIT8).forEach(function (s) {

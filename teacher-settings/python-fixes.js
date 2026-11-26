@@ -37,6 +37,23 @@ const insertBefore = (rec, test, blocks) => {
 const addTips = (rec, tips) => { rec.tips = Object.assign({}, rec.tips || {}, tips); };
 
 /* ================================================================ a5: the middle letter and // */
+/* ================================================================ every Unit 3 walkthrough: wording that no longer matches the editor */
+/* The Run button takes the company's color now (it is not always orange), the lesson is opened from the CURRICULUM button (there is no "Assignment box" any more), and the lessons are called
+   "Walkthrough N" (an "Assignment N" is the company project that comes after). Only words change: no box, no check and no help button moves. */
+export function fixUiWords(rec) {
+  const fix = (t) => typeof t !== "string" ? t : t
+    .replace(/the orange \*\*Run\*\* button/g, "the **Run** button")
+    .replace(/Sign in with Google \(top right\), pick \*\*Assignment (\d+)\*\* in the Assignment box, choose your \*\*period\*\*, then click \*\*Submit\*\*\./g, "Sign in with Google (at the top), open **Walkthrough $1** with the **CURRICULUM** button, choose your **period**, then click **Submit**.")
+    .replace(/Sign in with Google \(top right\), pick Assignment (\d+) in the\.\.\./g, "Sign in with Google (at the top), open Walkthrough $1 with the CURRICULUM button...")
+    .replace(/In Assignment (\d+) you typed/g, "In Walkthrough $1 you typed")
+    .replace(/problem from Assignment (\d+)\./g, "problem from Walkthrough $1.")
+    .replace(/properly in Assignment (\d+)\./g, "properly in Walkthrough $1.");
+  const walk = (o) => { if (Array.isArray(o)) return o.map(walk); if (o && typeof o === "object") { const r = {}; Object.keys(o).forEach((k) => { r[k] = (k === "re" || k === "flags" || k === "label" || k === "id") ? o[k] : walk(o[k]); }); return r; } return fix(o); };
+  (rec.blocks || []).forEach((b, i) => { rec.blocks[i] = walk(b); });
+  if (rec.tips) Object.keys(rec.tips).forEach((k) => { rec.tips[k] = walk(rec.tips[k]); });
+  return rec;
+}
+
 /* ================================================================ a1: the "# Step N" comments were never scored */
 /* Every other Unit 3 walkthrough gives a point for each "# Step N: title" comment the checkbox asks for. a1 (3.1) had the checkboxes but no checks behind them,
    so typing the six step comments earned nothing. These six checks use the same pattern as every other walkthrough. Box numbers: Step 1 = box 0, Step 3 = 4, Step 4 = 8, Step 5 = 13, Step 6 = 18, Step 7 = 23 (Step 2 has no code). */

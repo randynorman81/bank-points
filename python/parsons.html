@@ -53,12 +53,14 @@ svg.i{width:1.15em;height:1.15em;vertical-align:-.2em;fill:none;stroke:currentCo
 .piece{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #CBD5E1;border-radius:10px;padding:9px 11px;margin:0 0 7px;font:13.5px var(--mono);color:#0F172A;cursor:grab;touch-action:manipulation;user-select:none;-webkit-user-select:none;word-break:break-word}
 .piece:active{cursor:grabbing}
 .piece .g{color:#94A3B8;flex:none}
+body.touch .piece svg.g{width:30px;height:30px;padding:6px;margin:-6px 0 -6px -8px;touch-action:none;color:#475569}
 .prog .piece{background:#1E293B;border-color:#334155;color:#E2E8F0;counter-increment:ln}
 .prog .piece::before{content:counter(ln);flex:none;width:18px;text-align:right;color:#64748B;font-size:12px}
 .prog .piece .g{color:#64748B}
 .piece.ok{background:#064E3B!important;border-color:#34D399!important}
 .piece.no{background:#7F1D1D!important;border-color:#F87171!important}
 .piece.ghost{opacity:.4}
+.sortable-fallback{opacity:.92!important;box-shadow:0 8px 24px rgba(15,23,42,.35);border-radius:10px;z-index:9999}
 .msg{margin:12px 0 0;padding:10px 14px;border-radius:12px;font-weight:600;font-size:14px;display:none}
 .msg.show{display:block}.msg.ok{background:var(--okl);color:#166534}.msg.bad{background:var(--badl);color:#991B1B}.msg.info{background:var(--warnl);color:#92400E}
 .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
@@ -148,7 +150,7 @@ function hub(kind) {
   $("main").innerHTML = '<div class="hubtop"><h1>' + (isP ? ICON.puzzle + "Parsons problems" : ICON.route + "Code tracing") + "</h1><p>" + (isP ? "Put the lines of code in the right order. Each lesson has 10 problems. Pick a number to start." : "Step through the code one line at a time and fill in what each variable holds. Each lesson has 10 problems. Pick a number to start.") + '</p></div><div class="hubs">' + cards + "</div>";
 }
 /* ---------------- Parsons ---------------- */
-var cur = 0, sortables = [], tries = 0, solved = false;
+var cur = 0, sortables = [], tries = 0, solved = false, TOUCH = ("ontouchstart" in window) || (navigator.maxTouchPoints > 0);   /* on a touch screen a piece is dragged by its dots, so the rest of the piece can scroll the page and a tap moves it */
 function grade(placed, P) {
   /* The problem lists every ordering of the needed lines that runs and prints exactly the expected output (worked out when the puzzle was made).
      So any working program is accepted, not just one particular order. */
@@ -178,10 +180,10 @@ function showParsons() {
     + '<div class="cols"><div class="col"><h3>' + ICON.puzzle + ' Pieces <span style="text-transform:none;letter-spacing:0;font-weight:500">(some are not needed)</span></h3><div class="list" id="pool"></div></div>'
     + '<div class="col"><h3>' + ICON.check + ' Your program</h3><div class="list prog" id="prog"><div class="hint" id="hint">Drag pieces here, or tap a piece to move it. Put them in order.</div></div></div></div>'
     + '<div class="msg" id="msg"></div><div class="btns"><button class="btn go" id="chk">' + ICON.check + 'Check my program</button><button class="btn" id="rst">' + ICON.undo + 'Start over</button><button class="btn go" id="nx" style="display:none">Next ' + ICON.next + "</button></div>"
-    + '<div class="note">Tap a piece to move it between the lists. Drag to reorder. Tap a piece in your program to send it back.</div></div></div>';
+    + '<div class="note">' + (TOUCH ? 'Tap a piece to move it between the lists. Drag the dots on the left of a piece to reorder.' : 'Tap or click a piece to move it between the lists. Drag to reorder.') + ' Tap a piece in your program to send it back.</div></div></div>';
   var pool = $("pool"), prog = $("prog");
   P.pieces.forEach(function (p) { pool.appendChild(pieceEl(p)); });
-  var opts = { group: "p", animation: 150, ghostClass: "ghost", delay: 80, delayOnTouchOnly: true, touchStartThreshold: 4, onSort: hint, onAdd: hint, onRemove: hint };
+  var opts = { group: "p", animation: 150, ghostClass: "ghost", forceFallback: true, fallbackTolerance: 3, fallbackOnBody: true, handle: TOUCH ? ".g" : null, touchStartThreshold: 3, onSort: hint, onAdd: hint, onRemove: hint };   /* forceFallback: the same mouse/touch dragging on every browser and iPad, not the browser's own drag and drop */
   sortables.push(Sortable.create(pool, opts), Sortable.create(prog, opts));
   function hint() { var h = $("hint"); if (prog.querySelectorAll(".piece").length) { if (h) h.style.display = "none"; } else if (h) h.style.display = ""; }
   [pool, prog].forEach(function (list) { list.addEventListener("click", function (e) { var el = e.target.closest(".piece"); if (!el || solved) return; el.classList.remove("ok", "no"); (list === pool ? prog : pool).appendChild(el); hint(); $("msg").className = "msg"; }); });
@@ -268,7 +270,7 @@ function advance(tr, last) {
 (function () {
   var p = Number(Q.get("p")); if (p >= 0 && D.lessons[lid] && p < D.lessons[lid].problems.length) cur = p;
   var i = Number(Q.get("i")); if (i >= 0 && TR[tlid] && i < TR[tlid].traces.length) ti = i;
-  topTabs(); if (view === "trace") showTrace(); else if (view === "parsons") showParsons(); else hub(view === "hubt" ? "t" : "p");
+  if (TOUCH) document.body.classList.add("touch"); topTabs(); if (view === "trace") showTrace(); else if (view === "parsons") showParsons(); else hub(view === "hubt" ? "t" : "p");
 })();
 </script>
 </body>
