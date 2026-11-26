@@ -1,14 +1,30 @@
 """Builds Parsons and browser-trace problems for IST Unit 3 (HTML). Every page is parsed by html_model (checked against a real browser)."""
 import re, itertools, json
 from html_model import *
+from html_model import _is_block
 
 # ------------------------------------------------------------------ plain-English descriptions of one HTML line
 TAGWORDS = {'html': 'the page itself', 'head': 'the hidden information area', 'body': 'everything the visitor sees', 'h1': 'a level 1 heading (the biggest title)', 'h2': 'a level 2 heading', 'h3': 'a level 3 heading',
             'h4': 'a level 4 heading', 'h5': 'a level 5 heading', 'h6': 'a level 6 heading', 'p': 'a paragraph', 'strong': 'bold text', 'b': 'bold text', 'em': 'italic text', 'i': 'italic text', 'span': 'a span (part of a line)',
-            'a': 'a link', 'ul': 'a bulleted list', 'ol': 'a numbered list', 'li': 'a list item', 'img': 'a picture', 'br': 'a line break', 'hr': 'a horizontal line', 'title': 'the page title (shown on the browser tab)', 'link': 'a link tag'}
+            'a': 'a link', 'ul': 'a bulleted list', 'ol': 'a numbered list', 'li': 'a list item', 'img': 'a picture', 'br': 'a line break', 'hr': 'a horizontal line', 'title': 'the page title (shown on the browser tab)', 'link': 'a link tag',
+            'div': 'a div (an invisible box that groups other tags)', 'table': 'a table (a grid of rows and cells)', 'tr': 'a table row (one line of the grid)', 'th': 'a header cell (a bold title cell)', 'td': 'a data cell (a normal cell)'}
 PROPWORDS = {'color': 'the text color', 'background-color': 'the background color', 'font-size': 'the text size', 'text-align': 'the text alignment', 'text-transform': 'the letter case', 'font-family': 'the font',
              'width': 'the width', 'display': 'how it is displayed', 'list-style-type': 'the list marker', 'border': 'a border on all four sides', 'border-top': 'a border on the top', 'border-bottom': 'a border on the bottom',
-             'border-left': 'a border on the left', 'border-right': 'a border on the right', 'font-weight': 'the boldness', 'font-style': 'the font style', 'text-decoration': 'the text decoration'}
+             'border-left': 'a border on the left', 'border-right': 'a border on the right', 'font-weight': 'the boldness', 'font-style': 'the font style', 'text-decoration': 'the text decoration', 'height': 'the height', 'vertical-align': 'the vertical alignment', 'padding': 'the padding', 'margin': 'the margin',
+             'padding-top': 'the top padding', 'padding-bottom': 'the bottom padding', 'padding-left': 'the left padding', 'padding-right': 'the right padding', 'margin-top': 'the top margin', 'margin-bottom': 'the bottom margin', 'margin-left': 'the left margin', 'margin-right': 'the right margin'}
+DISPLAYWORDS = {'inline': 'the display style inline (it sits in the line like a word)', 'inline-block': 'the display style inline-block (it sits in the line like a word but keeps its width)', 'block': 'the display style block (it takes its own line)'}
+def style_phrase(p, v):
+    """a short phrase for one style: 'the text color navy', 'a padding of 12px (space inside the border)' ..."""
+    if p == 'display' and v in DISPLAYWORDS: return DISPLAYWORDS[v]
+    if p in ('padding', 'margin'): return 'a %s of %s (space %s the border)' % (p, v, 'inside' if p == 'padding' else 'outside')
+    m = re.match(r'^(padding|margin)-(top|bottom|left|right)$', p)
+    if m: return 'a %s %s of %s' % (m.group(2), m.group(1), v)
+    return '%s %s' % (PROPWORDS.get(p, p), v)
+def container_phrase(p, v):
+    """the same, as a sentence about a box that has just been opened"""
+    if p == 'display' and v in DISPLAYWORDS: return ' Its ' + DISPLAYWORDS[v].replace('the display style', 'display style') + '.'
+    if p.startswith('border') or p in ('padding', 'margin') or re.match(r'^(padding|margin)-', p): return ' It has ' + re.sub(r'(a border on (?:all four sides|the \w+)) ', r'\1: ', style_phrase(p, v)) + '.'
+    return ' Its %s is %s.' % (PROPWORDS.get(p, p).replace('the ', '', 1), v)
 def describe_line(line):
     out = _describe_line(line)
     return re.sub(r'([.!?])"\.$', r'\1"', out)   # a quoted sentence that already ends in . ! or ? needs no second period
@@ -31,10 +47,10 @@ def _describe_line(line):
     word = TAGWORDS.get(top.tag, top.tag)
     # a whole element on one line
     full = len(els) >= 1 and re.search(r'</%s>\s*$' % top.tag, s) or top.tag in VOID
-    if top.tag in ('html', 'head', 'body', 'ul', 'ol') and not re.search(r'</%s>\s*$' % top.tag, s):
-        d = 'Open %s: %s' % ('<%s>' % top.tag, {'html': 'the outer box that holds the whole page.', 'head': 'it holds information about the page that is not shown on the page.', 'body': 'everything the visitor can see goes inside it.', 'ul': 'a bulleted list; only <li> items go inside it.', 'ol': 'a numbered list; only <li> items go inside it.'}[top.tag])
+    if top.tag in ('html', 'head', 'body', 'ul', 'ol', 'div', 'table', 'tr') and not re.search(r'</%s>\s*$' % top.tag, s):
+        d = 'Open %s: %s' % ('<%s>' % top.tag, {'html': 'the outer box that holds the whole page.', 'head': 'it holds information about the page that is not shown on the page.', 'body': 'everything the visitor can see goes inside it.', 'ul': 'a bulleted list; only <li> items go inside it.', 'ol': 'a numbered list; only <li> items go inside it.', 'div': 'an invisible box that groups the tags inside it.', 'table': 'a grid of rows and cells; only <tr> rows go inside it.', 'tr': 'one row of the grid; only cells (<th> or <td>) go inside it.'}[top.tag])
         sty = authored(top)
-        for p, v in sty.items(): d += ' Its %s is %s.' % (PROPWORDS.get(p, p).replace('the ', '', 1) if p.startswith('border') is False else PROPWORDS[p], v)
+        for p, v in sty.items(): d += container_phrase(p, v)
         return d
     if top.tag == 'link':
         a = top.attrs
@@ -52,13 +68,14 @@ def _describe_line(line):
         if top.attrs.get('target') == '_blank': d += ' that opens in a new tab'
         inner = [n for n in els[1:] if n.tag == 'img']
         if inner: d += ', with a picture inside it as the clickable part'
-        elif txt: d += ('; ' if top.attrs.get('target') == '_blank' else ' ') + 'the clickable words are "%s"' % txt
+        elif txt: d += ('; ' if top.attrs.get('target') == '_blank' else ', ') + 'the clickable words are "%s"' % txt
+        if authored(top): d += ' (the link is styled with ' + ' and '.join(style_phrase(p, v) for p, v in authored(top).items()) + ')'
         return d + '.'
     d = 'Write %s' % word
     if txt and top.tag not in ('br', 'hr'): d += ' that says "%s"' % txt
     sty = authored(top)
     if sty:
-        d += ', styled with ' + ' and '.join(('the display style inline (it sits in the line like a word)' if (p == 'display' and v == 'inline') else '%s %s' % (PROPWORDS.get(p, p), v)) for p, v in sty.items())
+        d += ', styled with ' + ' and '.join(style_phrase(p, v) for p, v in sty.items())
     inner = [n for n in els[1:] if n.tag in ('strong', 'b', 'em', 'i', 'span', 'a', 'br')]
     if inner: d += ' (with %s inside it)' % ' and '.join(sorted({TAGWORDS.get(n.tag, n.tag) for n in inner}))
     if top.tag in ('br', 'hr'): d = 'Add %s (it stands alone, so it has no closing tag)' % word
@@ -143,7 +160,7 @@ def _lines(src):
 def depth_ok(lines): return True
 
 # ------------------------------------------------------------------ browser trace
-ASK_ORDER = ('color', 'background-color', 'font-size', 'text-align', 'text-transform', 'font-family', 'width', 'display', 'list-style-type', 'border', 'border-top', 'border-bottom', 'border-left', 'border-right')
+ASK_ORDER = ('color', 'background-color', 'font-size', 'text-align', 'text-transform', 'font-family', 'width', 'height', 'padding', 'margin', 'vertical-align', 'display', 'list-style-type', 'border', 'border-top', 'border-bottom', 'border-left', 'border-right')
 INH_ASK = ('color', 'font-size', 'text-align', 'text-transform', 'font-family')
 def emit_by_line(root):
     """{source line index: [text this line puts on the page, one string per page line]}. Inline pieces that sit on different source lines (a menu of inline list items) stay with their own line."""
@@ -165,9 +182,10 @@ def emit_by_line(root):
         if nd.tag in ('#comment', 'head', 'link'): return
         if nd.tag in ('br', 'hr'): flush(); return
         if nd.tag == 'img': return
-        blk = nd.tag in BLOCK and own(nd, 'display') not in ('inline', 'inline-block')
+        blk = _is_block(nd)
         if blk: flush()
         for c in nd.children: rec(c)
+        if nd.tag in ('td', 'th'): cur.append((nd.line, ' '))
         if blk: flush()
     for c in root.children: rec(c)
     flush(); return res
@@ -237,7 +255,8 @@ def features(src):
         elif t == 'img': add('<img>', 7)
         elif t == 'a': add('<a>', 9)
         elif t in ('ul', 'ol', 'li'): add('<%s>' % t, 10)
-        elif t == 'div': add('<div>', 99)
+        elif t == 'div': add('<div>', 14)
+        elif t in ('table', 'tr', 'th', 'td'): add('<%s>' % t, 12)
         for k in n.attrs:
             if k == 'style': add('the style attribute', 2)
             elif k in ('href', 'target') and t == 'a': add(k, 9)
@@ -245,8 +264,9 @@ def features(src):
             elif k in ('rel', 'href', 'crossorigin') and t == 'link': pass
             elif k not in ('style',): add('attribute ' + k, 99)
         for p, v in parse_style(n.attrs.get('style', ''))[0]:
-            lv = {'color': 2, 'background-color': 2, 'font-size': 3, 'text-align': 3, 'text-transform': 3, 'font-family': 5, 'width': 7, 'display': 10, 'list-style-type': 10}.get(p, 6 if p.startswith('border') else 99)
+            lv = {'color': 2, 'background-color': 2, 'font-size': 3, 'text-align': 3, 'text-transform': 3, 'font-family': 5, 'width': 7, 'display': 10, 'list-style-type': 10, 'vertical-align': 15, 'height': 15}.get(p, 6 if p.startswith('border') else (13 if re.match(r'^(padding|margin)', p) else 99))
             add(p, lv)
+            if p == 'display' and v == 'inline-block': add('display: inline-block', 14)
             if p == 'width' and v.endswith('%'): add('width in %', 7)
     return out
 def concept_errors(tag, src, lesson, errors):

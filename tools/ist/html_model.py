@@ -6,7 +6,7 @@ import re, json, os
 HERE = os.path.dirname(os.path.abspath(__file__))
 VOID = {'br', 'hr', 'img', 'link', 'meta', 'input'}
 BLOCK = {'html', 'body', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div', 'ul', 'ol', 'li', 'hr', 'table', 'tr'}
-KNOWN = {'html', 'head', 'title', 'body', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'strong', 'b', 'em', 'i', 'br', 'hr', 'span', 'link', 'img', 'a', 'ul', 'ol', 'li', 'meta', 'div'}
+KNOWN = {'html', 'head', 'title', 'body', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'strong', 'b', 'em', 'i', 'br', 'hr', 'span', 'link', 'img', 'a', 'ul', 'ol', 'li', 'meta', 'div', 'table', 'tr', 'th', 'td'}
 BSTYLES = ('solid', 'dashed', 'dotted', 'double', 'groove', 'ridge', 'none')
 INHERITED = {'color', 'font-size', 'font-family', 'text-align', 'text-transform', 'list-style-type', 'font-weight', 'font-style'}
 NAMED = set(re.findall(r'"([a-z]+)"', re.search(r'var NAMES = \[(.*?)\]', open(os.path.join(HERE, '..', '..', 'ist', 'unit-6', 'colors-list.js'), encoding='utf-8').read(), re.S).group(1)))
@@ -95,6 +95,7 @@ def ok_decl(p, v):
     if p == 'border-width': return ok_len(v)
     if p == 'border-color': return ok_color(v)
     if p == 'border-radius': return ok_len(v)
+    if p == 'vertical-align': return v in ('top', 'middle', 'bottom', 'baseline')
     if p in ('padding', 'margin') or re.match(r'^(padding|margin)-(top|bottom|left|right)$', p): return all(ok_len(x) or x == 'auto' for x in v.split()) and 1 <= len(v.split()) <= 4
     return False
 def parse_style(s):
@@ -143,8 +144,11 @@ def in_head(nd):
         if x.tag == 'head': return True
         x = x.parent
     return False
-def page_lines(root):
-    """The visible page as a list of lines (blocks and <br> start a new line). Emojis and symbols stay as typed."""
+def _is_block(nd):
+    d = own(nd, 'display')
+    return d == 'block' or (nd.tag in BLOCK and d not in ('inline', 'inline-block'))
+def _lines_core(children, with_img):
+    """the lines of text a person SEES. Blocks and <br> start a new line; a run of two or more inline-block boxes sits side by side, so their lines are read row by row ("Left Right" / "One Two")."""
     out = []; cur = ['']
     def flush():
         s = ' '.join(''.join(cur).split())
@@ -153,15 +157,37 @@ def page_lines(root):
     def rec(nd):
         if nd.tag == '#text': cur.append(shown_text(nd)); return
         if nd.tag == '#comment' or nd.tag in ('head', 'link'): return
-        if nd.tag == 'br': flush(); return
-        if nd.tag == 'hr': flush(); return
-        if nd.tag == 'img': cur.append(' [image: %s]' % nd.attrs.get('alt', '')); return
-        blk = nd.tag in BLOCK and own(nd, 'display') not in ('inline', 'inline-block')
+        if nd.tag in ('br', 'hr'): flush(); return
+        if nd.tag == 'img':
+            if with_img: cur.append(' [image: %s]' % nd.attrs.get('alt', ''))
+            return
+        blk = _is_block(nd)
         if blk: flush()
-        for c in nd.children: rec(c)
+        kids(nd.children)
+        if nd.tag in ('td', 'th'): cur.append(' ')
         if blk: flush()
-    for c in root.children: rec(c)
-    flush(); return out
+    def kids(ch):
+        i = 0
+        while i < len(ch):
+            c = ch[i]
+            if c.tag not in ('#text', '#comment') and own(c, 'display') == 'inline-block':
+                run = [c]; j = i + 1
+                while j < len(ch):
+                    k = ch[j]
+                    if k.tag == '#text' and not k.text.strip(): j += 1; continue
+                    if k.tag not in ('#text', '#comment') and own(k, 'display') == 'inline-block': run.append(k); j += 1; continue
+                    break
+                if len(run) >= 2:
+                    flush(); cols = [_lines_core(r.children, with_img) for r in run]
+                    rows = [' '.join(x[rr] for x in cols if rr < len(x)) for rr in range(max(len(x) for x in cols))]
+                    out.extend(rows[:-1])
+                    if rows: cur[0:] = [rows[-1], ' ']   # the last row stays open: inline text that follows sits on the same line
+                    i = j; continue
+            rec(c); i += 1
+    kids(children); flush(); return out
+def page_lines(root):
+    """The visible page as a list of lines. Emojis and symbols stay as typed; a picture shows as [image: alt]."""
+    return _lines_core(root.children, True)
 def signature(root):
     """what makes two pages 'the same page' for a Parsons problem: tag tree, accepted inline declarations, the attributes that matter, and the text.
     A space between two inline things (bold word, space, italic word) counts; whitespace next to a block or at the edge of a box does not."""
@@ -187,12 +213,29 @@ def try_sig(src):
 # ------------------------------------------------------------------ what a browser should compute (for the real-browser check)
 def elements(root):
     return [n for n in walk(root) if n.tag not in ('#root', '#text', '#comment')]
-CHECK_PROPS = ('color', 'background-color', 'font-size', 'text-align', 'text-transform', 'font-family', 'width', 'display', 'list-style-type')
+CHECK_PROPS = ('color', 'background-color', 'font-size', 'text-align', 'text-transform', 'font-family', 'width', 'height', 'display', 'list-style-type', 'vertical-align')
+def expand4(v):
+    x = v.split()
+    n = len(x)   # top right bottom left
+    if n == 1: return [x[0]] * 4
+    if n == 2: return [x[0], x[1], x[0], x[1]]
+    if n == 3: return [x[0], x[1], x[2], x[1]]
+    return x
+def box_sides(nd, kind):
+    """{side: value} for padding or margin as the browser computes them, the LAST declaration winning (padding: 8px; padding-top: 2px ...)"""
+    d = {}
+    for p, v in parse_style(nd.attrs.get('style', ''))[0]:
+        if p == kind:
+            for side, val in zip(('top', 'right', 'bottom', 'left'), expand4(v)): d[side] = val
+        elif p.startswith(kind + '-'): d[p[len(kind) + 1:]] = v
+    return d
 def expected_props(nd):
     d = {}
     for p in CHECK_PROPS:
         v = effective(nd, p) if p in INHERITED else own(nd, p)
         if v is not None: d[p] = v
+    for kind in ('padding', 'margin'):
+        for side, val in box_sides(nd, kind).items(): d['%s-%s' % (kind, side)] = val
     for side in ('top', 'bottom', 'left', 'right'):
         v = own(nd, 'border-' + side) or own(nd, 'border')
         # a later declaration wins, so use the last of border / border-<side> in the order written
@@ -213,18 +256,4 @@ def page_lines_noimg(root):
     import copy
     return [l for l in page_lines(root) if not l.startswith('[image:')] if False else _lines_without_images(root)
 def _lines_without_images(root):
-    out = []; cur = ['']
-    def flush():
-        s = ' '.join(''.join(cur).split())
-        if s: out.append(s)
-        cur[0:] = ['']
-    def rec(nd):
-        if nd.tag == '#text': cur.append(shown_text(nd)); return
-        if nd.tag in ('#comment', 'head', 'link', 'img'): return
-        if nd.tag in ('br', 'hr'): flush(); return
-        blk = nd.tag in BLOCK and own(nd, 'display') not in ('inline', 'inline-block')
-        if blk: flush()
-        for c in nd.children: rec(c)
-        if blk: flush()
-    for c in root.children: rec(c)
-    flush(); return out
+    return _lines_core(root.children, False)
