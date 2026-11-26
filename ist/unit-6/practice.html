@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HTML Parsons Puzzles and Page Tracing | Intro to Software Technology</title>
+<title>HTML Parsons Puzzles | Intro to Software Technology</title>
 <link rel="icon" href="../../assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -135,14 +135,14 @@ var ICON = { puzzle: '<svg class="i" viewBox="0 0 24 24"><path d="M4 7h3a1 1 0 0
 function esc(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function ls(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || "null"); localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} return null; }
 var LESS = Object.keys(D.lessons);
-var view = Q.get("hub") ? "hub" + Q.get("hub") : Q.get("tl") ? "trace" : Q.get("l") ? "parsons" : "hubp";
+var view = Q.get("hub") ? "hub" + (Q.get("hub") === "t" ? "p" : Q.get("hub")) : Q.get("l") ? "parsons" : "hubp";
 var lid = Q.get("l") && D.lessons[Q.get("l")] ? Q.get("l") : LESS[0], tlid = Q.get("tl") && TR[Q.get("tl")] ? Q.get("tl") : LESS[0];
 function pScore(id) { var L = D.lessons[id], st = ls("ist3:parsons:" + id) || {}, s = 0; L.problems.forEach(function (p, i) { s += (st[i] && st[i].best) || 0; }); return Math.round(s / L.problems.length); }
 function pDone(id) { var st = ls("ist3:parsons:" + id) || {}; return D.lessons[id].problems.filter(function (p, i) { return st[i] && st[i].done; }).length; }
 function tScore(id) { var n = TR[id].traces.length, st = ls("ist3:trace:" + id) || {}, s = 0; for (var i = 0; i < n; i++) s += (st[i] && st[i].best) || 0; return Math.round(s / n); }
 function tDone(id) { var st = ls("ist3:trace:" + id) || {}; return TR[id].traces.filter(function (t, i) { return st[i] && st[i].done; }).length; }
 function topTabs() {
-  $("tabs").innerHTML = '<a class="tab' + (view === "hubw" ? " on" : "") + '" href="?hub=w">' + ICON.next + 'Walkthroughs and assignments</a><a class="tab' + (view === "hubp" || view === "parsons" ? " on" : "") + '" href="?hub=p">' + ICON.puzzle + 'Parsons problems</a><a class="tab' + (view === "hubt" || view === "trace" ? " on" : "") + '" href="?hub=t">' + ICON.route + 'Page tracing</a><a class="tab" href="game.html">' + ICON.next + 'Quiz games</a>';
+  $("tabs").innerHTML = '<a class="tab' + (view === "hubw" ? " on" : "") + '" href="?hub=w">' + ICON.next + 'Walkthroughs and assignments</a><a class="tab' + (view === "hubp" || view === "parsons" ? " on" : "") + '" href="?hub=p">' + ICON.puzzle + 'Parsons problems</a><a class="tab" href="game.html">' + ICON.next + 'Quiz games</a>';
   if (!$("pnote")) $("tabs").insertAdjacentHTML("afterend", '<div class="pnote" id="pnote"><b>Practice only.</b> These do not change your grade. Your grade comes from the walkthroughs and assignments in the Web Editor.</div>');
   $("pnote").style.display = view === "hubw" ? "none" : "";
 }

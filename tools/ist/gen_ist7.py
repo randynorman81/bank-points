@@ -37,10 +37,10 @@ def pdiff(sol):
 only = sys.argv[1:]
 D = {}
 for lid, num, title, probs, traces in LESSONS:
+    traces = []   # page tracing was removed from this unit: the programs could not be made hard enough to teach anything
     k = RANK[num]
     if only and num not in only: continue
     if len(probs) != 10: errors.append((num, 'need 10 Parsons, have %d' % len(probs)))
-    if len(traces) != 10: errors.append((num, 'need 10 traces, have %d' % len(traces)))
     ps = []; seen = set()
     for n_, (ttl, story, sol, dis) in enumerate(probs):
         tag = '%s P%d' % (num, n_ + 1)

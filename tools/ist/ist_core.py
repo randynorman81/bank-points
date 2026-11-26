@@ -192,34 +192,114 @@ def emit_by_line(root):
 def norm_val(p, v):
     if p == 'font-family': return v.split(',')[0].strip().strip('"\'').lower()
     return ' '.join(v.lower().split())
+ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X']
+PURE = {'#ff0000': 'red', '#00ff00': 'green', '#0000ff': 'blue', '#ffffff': 'white', '#000000': 'black'}
+def _px(v):
+    m = re.match(r'^(\d+(?:\.\d+)?)px$', v or ''); return float(m.group(1)) if m else (0.0 if v in (None, '0') else None)
+def _num(x): return str(int(x)) if abs(x - round(x)) < 1e-9 else str(x)
+def total_width(e):
+    """content width + padding + border on both sides, in px, or None when it cannot be worked out (needs a px width and px padding/border)"""
+    a = authored(e); w = _px(a.get('width'))
+    if w is None or not a.get('width', '').endswith('px'): return None
+    pad = box_sides(e, 'padding'); bd = expected_props(e); tot = w
+    if not pad and not any(k.startswith('border') for k in bd): return None
+    for side in ('left', 'right'):
+        p = pad.get(side); 
+        if p is not None:
+            v = _px(p)
+            if v is None: return None
+            tot += v
+        b = bd.get('border-' + side)
+        if b:
+            m = re.search(r'(\d+(?:\.\d+)?)px', b); tot += float(m.group(1)) if m and b.split()[-1] != 'none' and 'none' not in b.split() else 0
+    return tot
+def lines_at(code, i):
+    """the lines of text the page shows after source line i (an unfinished page is closed by the browser)"""
+    try: return page_lines_noimg(parse('\n'.join(code.split('\n')[:i + 1]), partial=True))
+    except HtmlError: return []
+LAST_SPEC = []
 def trace(code):
-    root = parse(code); lines = code.split('\n'); els = elements(root); em = emit_by_line(root); steps = []; seenv = {}
+    """one step per source line. Every question needs REASONING about the browser (inherited styles, display, box sizes, nesting, table cells, line counts), never just copying what is written on the line."""
+    global LAST_SPEC
+    root = parse(code); lines = code.split('\n'); els = elements(root); em = emit_by_line(root); steps = []; LAST_SPEC = []
+    prev_lines = []; table_cells = 0; counts = []
     for i, ln in enumerate(lines):
-        changed = {}; printed = em.get(i, []); cond = ''
-        opened = [e for e in els if e.line == i]
-        tagcount = {}
-        for e in opened:
+        now = lines_at(code, i); counts.append(len(now))
+        changed = {}; printed = []; cond = ''
+        opened = [e for e in els if e.line == i]; tagcount = {}; cands = []   # (priority, key, answer, spec)
+        raw = ' '.join(re.sub(r'<[^>]*>', ' ', ln).split())
+        emitted = em.get(i, []); n_text = len(emitted)
+        for k_, e in enumerate(opened):
             if e.tag in ('html', 'head', 'title', 'link', 'meta'): continue
             tagcount[e.tag] = tagcount.get(e.tag, 0) + 1
             nm = e.tag + ('' if sum(1 for x in opened if x.tag == e.tag) == 1 else '#%d' % tagcount[e.tag])
-            got = 0; a = authored(e)
-            if e.tag == 'a':
-                if 'href' in e.attrs: changed['L%d %s href' % (i + 1, nm)] = e.attrs['href']; got += 1
-                changed['L%d %s opens-in' % (i + 1, nm)] = 'new tab' if e.attrs.get('target') == '_blank' else 'same tab'; got += 1
-            elif e.tag == 'img':
-                if 'alt' in e.attrs: changed['L%d %s alt' % (i + 1, nm)] = e.attrs['alt']; got += 1
-            elif e.tag == 'li' and e.parent is not None and e.parent.tag == 'ol' and effective(e.parent, 'list-style-type') is None and 'list-style-type' not in a:
-                sibs = [c for c in e.parent.children if c.tag == 'li']; changed['L%d %s number' % (i + 1, nm)] = str(sibs.index(e) + 1); got += 1
-            for p in ASK_ORDER:
-                if p in a and got < 2: changed['L%d %s %s' % (i + 1, nm, p)] = norm_val(p, a[p]); got += 1
-            has_text = any(t.text.strip() and (t.line == i) and _under(t, e) for t in walk(e) if t.tag == '#text')
+            a = authored(e); key = lambda p: 'L%d %s %s' % (i + 1, nm, p); sp = dict(ln=i, k=k_, tag=e.tag)
+            has_text = any(t.text.strip() and t.line == i and _under(t, e) for t in walk(e) if t.tag == '#text')
             nested = any(o is not e and _under(e, o) for o in opened)
-            if has_text and got < 2 and not nested:
+            tw = total_width(e)
+            if tw is not None: cands.append((1, key('total-width'), _num(tw) + 'px', dict(sp, kind='width', expect=tw)))
+            for kind in ('padding', 'margin'):
+                sides = box_sides(e, kind); decl = [v for p, v in parse_style(e.attrs.get('style', ''))[0] if p == kind]
+                if decl and len(decl[-1].split()) in (2, 3, 4):
+                    side = ('left', 'top', 'right', 'bottom')[(i + k_) % 4] if len(decl[-1].split()) > 2 else ('left', 'top')[(i + k_) % 2]
+                    v = sides.get(side)
+                    if v and v.endswith('px'): cands.append((2, key('%s-%s' % (kind, side)), v, dict(sp, kind='side', prop='%s-%s' % (kind, side), expect=v)))
+            if e.tag == 'li' and e.parent is not None and e.parent.tag == 'ol':
+                sibs = [c for c in e.parent.children if c.tag == 'li']; n = sibs.index(e) + 1; lt = effective(e.parent, 'list-style-type')
+                if lt is None and 'list-style-type' not in a: cands.append((3, key('number'), str(n), dict(sp, kind='number', expect=n)))
+                elif lt in ('upper-roman', 'lower-roman', 'upper-alpha', 'lower-alpha') and n <= 8:
+                    ans = {'upper-roman': ROMAN[n - 1], 'lower-roman': ROMAN[n - 1].lower(), 'upper-alpha': 'ABCDEFGH'[n - 1], 'lower-alpha': 'abcdefgh'[n - 1]}[lt]
+                    cands.append((3, key('marker'), ans, dict(sp, kind='marker', expect=lt, n=n)))
+            if e.tag in ('strong', 'em', 'b', 'i') and has_text:
+                anc = []; x = e
+                while x is not None and x.tag != '#root': anc.append(x.tag); x = x.parent
+                bold = any(t in ('strong', 'b', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6') for t in anc); ital = any(t in ('em', 'i') for t in anc)
+                if len([t for t in anc if t in ('strong', 'b', 'em', 'i', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6')]) >= 2:
+                    cands.append((3, key('looks'), 'both' if bold and ital else ('bold' if bold else 'italic'), dict(sp, kind='looks', bold=bold, ital=ital)))
+            if 'color' in a and a['color'].lower() in PURE and has_text:
+                cands.append((3, key('pure-color'), PURE[a['color'].lower()], dict(sp, kind='pure', expect=a['color'])))
+            bs = {sd: (own(e, 'border-' + sd) or own(e, 'border')) for sd in ('top', 'bottom', 'left', 'right')}
+            order = [p_ for p_, _ in parse_style(e.attrs.get('style', ''))[0] if p_ == 'border' or p_.startswith('border-')]
+            if len(order) >= 2:
+                sides_on = [sd for sd in ('top', 'right', 'bottom', 'left') if expected_props(e).get('border-' + sd) and 'none' not in expected_props(e)['border-' + sd].split()]
+                if len(sides_on) == 4: ans = 'all four sides'
+                elif len(sides_on) == 2 and set(sides_on) in ({'top', 'bottom'}, {'left', 'right'}): ans = ' and '.join(sides_on)
+                else: ans = ' and '.join(sides_on) if len(sides_on) > 1 else sides_on[0]
+                cands.append((3, key('border-sides'), ans, dict(sp, kind='bsides', expect=sorted(sides_on))))
+            if e.tag in ('td', 'th') and e.parent is not None and e.parent.tag == 'tr':
+                row = [c for c in e.parent.children if c.tag in ('td', 'th')]; col = row.index(e) + 1
+                trs = [r for r in walk(root) if r.tag == 'tr']
+                if trs and e.parent is not trs[0] and col >= 2: cands.append((4, key('column'), str(col), dict(sp, kind='column', expect=col)))
+            if has_text and not nested and e.parent is not None:
                 for p in INH_ASK:
                     if p in a: continue
-                    v = effective(e.parent, p) if e.parent is not None else None
-                    if v is not None and got < 2: changed['L%d %s %s' % (i + 1, nm, p)] = norm_val(p, v); got += 1
+                    v = effective(e.parent, p)
+                    if v is not None: cands.append((5, key(p), norm_val(p, v), dict(sp, kind='inherit', prop=p, expect=v)))
+        # lines on the page: only the lines where text joins an earlier line or a line break splits it (everything else is just counting blocks)
+        inline_ish = any(e.tag in ('span', 'strong', 'em', 'a', 'img') or own(e, 'display') in ('inline', 'inline-block') for e in opened if e.tag not in ('html', 'head', 'title', 'link', 'meta'))
+        if n_text or raw:
+            grew = len(now) - len(prev_lines)
+            if raw and inline_ish: cands.append((5, 'L%d line new-line' % (i + 1), 'yes' if grew > 0 else 'no', dict(ln=i, kind='newline', expect=grew > 0)))
+            elif raw and now and prev_lines and (grew == 0 or grew > 1): cands.append((5, 'L%d page lines' % (i + 1), str(len(now)), dict(ln=i, kind='lines', expect=len(now))))
+        depth = 0
+        for l_ in lines[:i + 1]:
+            for m_ in re.finditer(r'<(/?)([A-Za-z][A-Za-z0-9]*)[^<>]*?(/?)>', re.sub(r'<!--.*?-->', '', l_)):
+                t_ = m_.group(2).lower()
+                if t_ in VOID or m_.group(3): continue
+                depth += -1 if m_.group(1) else 1
+        if ln.strip() and not ln.strip().lower().startswith('<!doctype') and len(opened) + len(re.findall(r'</', ln)) >= 2 and 0 < depth < 8: cands.append((6, 'L%d page open-tags' % (i + 1), str(depth), dict(ln=i, kind='depth', expect=depth)))
+        if re.match(r'\s*</tr>', ln):
+            done = sum(len([c for c in r.children if c.tag in ('td', 'th')]) for r in walk(root) if r.tag == 'tr' and r.endline <= i)
+            cands.append((2, 'L%d table cells' % (i + 1), str(done), dict(ln=i, kind='cells', expect=done)))
+        # transformed text: the page shows different letters than the code
+        if emitted and raw and ' '.join(emitted) != raw and ' '.join(emitted).lower() == raw.lower():
+            printed = emitted
+        cands.sort(key=lambda c: c[0]); picked = 0
+        for pr, key_, ans, spec in cands:
+            if picked >= (1 if printed else 2): break
+            changed[key_] = ans; spec = dict(spec, key=key_, ans=ans); LAST_SPEC.append(spec); picked += 1
         if re.match(r'\s*<title>', ln) or re.match(r'\s*<!--', ln): cond = 'False'
+        prev_lines = now
         steps.append([changed, printed, describe_line(ln), i, [], 0, cond])
     return steps
 def _under(t, e):

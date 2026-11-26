@@ -178,8 +178,18 @@ def _lines_core(children, with_img):
                     if k.tag not in ('#text', '#comment') and own(k, 'display') == 'inline-block': run.append(k); j += 1; continue
                     break
                 if len(run) >= 2:
-                    flush(); cols = [_lines_core(r.children, with_img) for r in run]
-                    rows = [' '.join(x[rr] for x in cols if rr < len(x)) for rr in range(max(len(x) for x in cols))]
+                    flush()
+                    def pct(r_):
+                        w_ = own(r_, 'width'); return float(w_[:-1]) if w_ and w_.endswith('%') else None
+                    groups = [[]]; tot = 0.0
+                    for r_ in run:   # a row holds boxes until the percent widths (and the little gaps between them) pass 100%
+                        p_ = pct(r_) if pct(r_) is not None else 0.0
+                        if groups[-1] and tot + p_ + 0.6 * len(groups[-1]) > 100: groups.append([]); tot = 0.0
+                        groups[-1].append(r_); tot += p_
+                    rows = []
+                    for g_ in groups:
+                        cols = [_lines_core(r.children, with_img) for r in g_]
+                        rows += [' '.join(x[rr] for x in cols if rr < len(x)) for rr in range(max(len(x) for x in cols))]
                     out.extend(rows[:-1])
                     if rows: cur[0:] = [rows[-1], ' ']   # the last row stays open: inline text that follows sits on the same line
                     i = j; continue
