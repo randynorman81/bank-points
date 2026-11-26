@@ -4,6 +4,8 @@
      passMin: 90  = score a student needs before the NEXT walkthrough opens
      fresh: true  = starts a new unlock chain (opens even if earlier units are unfinished)
      live: false  = hidden from students completely
+     lock: true   = this slot ignores the master switch below and follows its own line (used to close Unit 3 for the year). To open it again: change hold: true to hold: false
+                    (the unlock chain then works: pass a walkthrough with 90 and its assignment opens, and so on), or remove lock: true to make it open to everyone with no chain.
    Leave a walkthrough out to use what the grading page saved.
    Unit 4 ids: a16 Booleans, a17 Logical Operators, a18 Comparison Operators, a19 If Statements,
                a20 If/Elif/Else, a21 Key Events, a22 For Loops, a23 General For Loops */
@@ -18,20 +20,21 @@ export const OPEN_EVERYTHING = true;
 /* The assignment and game records for a101 to a193 live in python-records.js (generated from tools/missions by `node tools/missions/bundle.mjs`), so they go live with a deploy and need no PIN. */
 export const repoSlots = () => Object.keys(REPO);
 export const PY_SETTINGS = {
-  /* UNIT 3 walkthroughs: open, and not part of the unlock chain */
-  a1: { hold: false, ungated: true },
-  a2: { hold: false, ungated: true },
-  a3: { hold: false, ungated: true },
-  a4: { hold: false, ungated: true },
-  a5: { hold: false, ungated: true },
-  a6: { hold: false, ungated: true },
-  a7: { hold: false, ungated: true },
-  a8: { hold: false, ungated: true },
-  a9: { hold: false, ungated: true },
-  a10: { hold: false, ungated: true },
-  a11: { hold: false, ungated: true },
-  a12: { hold: false, ungated: true },
-  a13: { hold: false, ungated: true },
+  /* UNIT 3 is CLOSED for the year (locked: students see the lessons but cannot open them). The unlock chain is set up for when it opens again:
+     Walkthrough 1 starts the chain, each walkthrough needs 90 to open its assignment, and the assignment (then the next walkthrough) follows. */
+  a1: { live: true, lock: true, hold: true, fresh: true, passMin: 90 },
+  a2: { live: true, lock: true, hold: true, passMin: 90 },
+  a3: { live: true, lock: true, hold: true, passMin: 90 },
+  a4: { live: true, lock: true, hold: true, passMin: 90 },
+  a5: { live: true, lock: true, hold: true, passMin: 90 },
+  a6: { live: true, lock: true, hold: true, passMin: 90 },
+  a7: { live: true, lock: true, hold: true, passMin: 90 },
+  a8: { live: true, lock: true, hold: true, passMin: 90 },
+  a9: { live: true, lock: true, hold: true, passMin: 90 },
+  a10: { live: true, lock: true, hold: true, passMin: 90 },
+  a11: { live: true, lock: true, hold: true, passMin: 90 },
+  a12: { live: true, lock: true, hold: true, passMin: 90 },
+  a13: { live: true, lock: true, hold: true, passMin: 90 },
   a16: { live: true, hold: false, fresh: true, passMin: 90, ungated: true },   // Unit 4 Walkthrough 1: Booleans (opened 11/17)
   a17: { live: true, hold: false, passMin: 90, ungated: true },                // Walkthrough 2: Logical Operators (opened 11/17)
   a18: { live: true, hold: false, passMin: 90, ungated: true },                // Walkthrough 3: Comparison Operators (opened 11/17)
@@ -114,19 +117,19 @@ export const PY_SETTINGS = {
   a122: { live: true, fresh: true, passMin: 0, ungated: true },                  // Castle Byte: the Unit 8 survival horror adventure (learn or challenge mode)
   a123: { live: true, fresh: true, passMin: 0, ungated: true },                  // Dead Signal: the Unit 10 survival horror adventure (learn or challenge mode)
   /* UNITS 3 TO 6, the third and fourth part of every lesson: a graded ASSIGNMENT (a126 to a159) and a Code Vault GAME (a160 to a193). All hidden until you change a line to live: true. Not gating (passMin 0). */
-  a126: { live: true, fresh: false, passMin: 0, ungated: true },
-  a127: { live: true, fresh: false, passMin: 0, ungated: true },
-  a128: { live: true, fresh: false, passMin: 0, ungated: true },
-  a129: { live: true, fresh: false, passMin: 0, ungated: true },
-  a130: { live: true, fresh: false, passMin: 0, ungated: true },
-  a131: { live: true, fresh: false, passMin: 0, ungated: true },
-  a132: { live: true, fresh: false, passMin: 0, ungated: true },
-  a133: { live: true, fresh: false, passMin: 0, ungated: true },
-  a134: { live: true, fresh: false, passMin: 0, ungated: true },
-  a135: { live: true, fresh: false, passMin: 0, ungated: true },
-  a136: { live: true, fresh: false, passMin: 0, ungated: true },
-  a137: { live: true, fresh: false, passMin: 0, ungated: true },
-  a138: { live: true, fresh: false, passMin: 0, ungated: true },
+  a126: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a127: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a128: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a129: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a130: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a131: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a132: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a133: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a134: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a135: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a136: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a137: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a138: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
   a139: { live: true, fresh: false, passMin: 0, ungated: true },
   a140: { live: true, fresh: false, passMin: 0, ungated: true },
   a141: { live: true, fresh: false, passMin: 0, ungated: true },
@@ -148,19 +151,19 @@ export const PY_SETTINGS = {
   a157: { live: true, fresh: false, passMin: 0, ungated: true },
   a158: { live: true, fresh: false, passMin: 0, ungated: true },
   a159: { live: true, fresh: false, passMin: 0, ungated: true },
-  a160: { live: true, fresh: false, passMin: 0, ungated: true },
-  a161: { live: true, fresh: false, passMin: 0, ungated: true },
-  a162: { live: true, fresh: false, passMin: 0, ungated: true },
-  a163: { live: true, fresh: false, passMin: 0, ungated: true },
-  a164: { live: true, fresh: false, passMin: 0, ungated: true },
-  a165: { live: true, fresh: false, passMin: 0, ungated: true },
-  a166: { live: true, fresh: false, passMin: 0, ungated: true },
-  a167: { live: true, fresh: false, passMin: 0, ungated: true },
-  a168: { live: true, fresh: false, passMin: 0, ungated: true },
-  a169: { live: true, fresh: false, passMin: 0, ungated: true },
-  a170: { live: true, fresh: false, passMin: 0, ungated: true },
-  a171: { live: true, fresh: false, passMin: 0, ungated: true },
-  a172: { live: true, fresh: false, passMin: 0, ungated: true },
+  a160: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a161: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a162: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a163: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a164: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a165: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a166: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a167: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a168: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a169: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a170: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a171: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
+  a172: { live: true, lock: true, hold: true, fresh: false, passMin: 0 },
   a173: { live: true, fresh: false, passMin: 0, ungated: true },
   a174: { live: true, fresh: false, passMin: 0, ungated: true },
   a175: { live: true, fresh: false, passMin: 0, ungated: true },
@@ -227,7 +230,7 @@ export function withPySettings(slot, rec) {
   if (!rec) return rec;
   const s = PY_SETTINGS[slot];
   let out = s ? Object.assign({}, rec, s) : rec;
-  if (OPEN_EVERYTHING) out = Object.assign({}, out, { live: true, hold: false, ungated: true });
+  if (OPEN_EVERYTHING && !(s && s.lock)) out = Object.assign({}, out, { live: true, hold: false, ungated: true });   /* lock: true = this slot keeps ITS OWN line below even while everything else is open */
   if (PY_PATCHES[slot]) out = PY_PATCHES[slot](JSON.parse(JSON.stringify(out)));
   return out;
 }

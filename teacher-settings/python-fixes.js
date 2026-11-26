@@ -61,6 +61,8 @@ export function fixA1(rec) {
   const has = (n) => (rec.checks || []).some((c) => c.where === "comments" && c.re && c.re.indexOf("Step\\s*" + n + "\\s*:") >= 0);
   const add = [[1, 0], [3, 4], [4, 8], [5, 13], [6, 18], [7, 23]].filter((x) => !has(x[0])).map((x) => headChk(x[0], x[1]));
   if (add.length) rec.checks = (rec.checks || []).concat(add);
+  /* Step 4 is about CAPITAL LETTERS, but the check for the fixed line print(pizza_slices) ignored them, so the broken print(Pizza_slices) (even commented out) earned the credit and a student who never wrote the fixed line still got 100%. It now respects capitals. */
+  (rec.checks || []).forEach((c) => { if (/the fixed line print\(pizza_slices\)/.test(c.label || "")) c.flags = String(c.flags || "").replace(/i/g, ""); });
   return rec;
 }
 

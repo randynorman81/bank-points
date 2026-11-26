@@ -638,7 +638,7 @@ async function gameAccess(body, user) {
   const asg = withPySettings(slot, await readJSON("assign:" + slot, null));
   if (!asg || !asg.game || !hasGame(asg.game)) return { error: "That mission is not a game." };
   if (isAdmin(body) || isTeacherUser(user)) return { asg, preview: true };   /* the teacher can play any game; nothing is saved */
-  if (!user && guestOk(body)) return { asg, preview: true, guest: true };   /* a guest can play any game; nothing is saved */
+  if (!user && guestOk(body)) { if (asg.live === false || asg.hold === true) return { error: "That mission is not open yet. Your teacher will open it when it is time." }; return { asg, preview: true, guest: true }; }   /* a guest can play any OPEN game; a game the teacher has locked stays locked for guests too. Nothing is saved */
   if (!user) return { error: "Please sign in with your school Google account.", needLogin: true };
   if (await closedToStudent(slot, user)) return { error: "That mission is not open yet. Your teacher will open it when it is time." };
   const open = await gatedAssignments(user, cleanPeriod(body.period));
