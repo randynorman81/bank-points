@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 3 Practice Test | Intro to Software Technology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#FB923C; --acc-tint:rgba(251,146,60,.14); --acc-ink:#FDC79B;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --lst:#34D399; --lst-tint:rgba(52,211,153,.13); --lst-ink:#6EE7B7;
+  --cir:#22D3EE; --rec:#818CF8;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+h3.sub{font-size:20px;font-weight:600;color:#fff;margin:30px 0 12px}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:5}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#2B1706;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(32px,6vw,52px);font-weight:600;max-width:22ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:68ch;margin-top:18px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.chip{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:6px 14px}
+.chip b{color:var(--acc-ink)}
+.cta{display:inline-block;margin-top:24px;font-family:"JetBrains Mono",monospace;font-size:13.5px;font-weight:700;color:#2B1706;background:var(--acc);text-decoration:none;border-radius:100px;padding:11px 22px}
+
+.part{padding:54px 0 8px;scroll-margin-top:60px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.part-head .les{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-soft);white-space:nowrap}
+.lede{font-size:17.5px;line-height:1.6;max-width:70ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .no{color:var(--bad-ink)}
+.code .ok{color:var(--lst-ink)}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:8px 0 18px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--acc)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p,.box li{font-size:15px;line-height:1.55;color:#C4CDD8}
+.box ul{margin:0;padding-left:18px}
+.box.green{border-top-color:var(--lst)} .box.red{border-top-color:var(--bad)}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F0DAC4}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+.good{background:var(--lst-tint);border-left:4px solid var(--lst);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#D3F5E6}
+.good b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:18px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.y{color:var(--lst-ink)} table.cmp td.n{color:var(--bad-ink)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.checklist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 20px}
+.checklist li{font-size:14.5px;color:#C4CDD8;padding:8px 0 8px 26px;position:relative;border-bottom:1px solid var(--rule)}
+.checklist li::before{content:"\2610";position:absolute;left:0;color:var(--acc-ink);font-size:15px}
+
+/* trace table */
+table.trace{border-collapse:collapse;font-family:"JetBrains Mono",monospace;font-size:14px;margin:4px 0 20px;background:var(--card);border:1px solid var(--rule)}
+table.trace th,table.trace td{padding:8px 16px;border:1px solid var(--rule);text-align:left}
+table.trace th{color:var(--ink-soft);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+table.trace td.chg{color:var(--acc-ink);font-weight:700}
+
+/* math lab */
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:20px 22px;margin:10px 0 22px}
+.lab .row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-family:"JetBrains Mono",monospace}
+.lab input{width:90px;background:#05070B;color:#fff;border:1px solid #3A4658;border-radius:4px;padding:8px 10px;font:inherit;font-size:16px}
+.lab .out{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px}
+.lab .cell{background:#05070B;border:1px solid var(--rule);border-radius:5px;padding:12px 14px;font-family:"JetBrains Mono",monospace}
+.lab .cell .op{font-size:12px;color:var(--ink-soft)}
+.lab .cell .v{font-size:22px;color:#fff;font-weight:700;margin-top:4px}
+.lab .cell .t{font-size:11px;color:var(--acc-ink);margin-top:2px}
+.lab .explain{margin-top:14px;font-size:14.5px;color:#C4CDD8}
+
+/* canvas figure */
+.fig{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:18px;margin:10px 0 22px}
+.fig svg{width:100%;height:auto;display:block}
+.fig .cap{font-size:13.5px;color:var(--ink-soft);margin-top:10px}
+
+/* ===== practice test ===== */
+.testbar{position:sticky;top:52px;z-index:4;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.score{font-family:"JetBrains Mono",monospace;font-size:14px;color:#fff;font-weight:700;margin-right:auto}
+.score span{color:var(--ink-soft);font-weight:500}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.fbtn,.tbtn{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:6px 12px;cursor:pointer}
+.fbtn:hover,.tbtn:hover{color:#fff;border-color:#3A4658}
+.fbtn.on{background:var(--acc);color:#2B1706;border-color:var(--acc)}
+.tbtn.danger{color:var(--bad-ink)}
+.q{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:22px 24px;margin-bottom:14px}
+.q.right{border-color:rgba(52,211,153,.5)} .q.wrong{border-color:rgba(248,113,113,.5)}
+.q .qh{display:flex;gap:10px;align-items:baseline;margin-bottom:10px;flex-wrap:wrap}
+.q .qn{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);font-weight:700}
+.q .qt{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--rule);border-radius:100px;padding:2px 9px}
+.q .stem{font-size:15.5px;color:#EAEFF6;margin-bottom:10px}
+.q .code{margin:8px 0 14px;font-size:14px}
+.q .sel2{font-weight:700;color:var(--acc-ink)}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;background:#0E121A;border:1px solid var(--rule);border-radius:5px;padding:11px 14px;color:#D8E1EC;font:inherit;font-size:15px;cursor:pointer}
+.opt:hover:not([disabled]){border-color:#3A4658;background:#121824}
+.opt .l{font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--ink-soft);flex:none;width:22px}
+.opt.picked{border-color:var(--acc)}
+.opt.ok{border-color:var(--lst);background:var(--lst-tint)} .opt.ok .l{color:var(--lst-ink)}
+.opt.bad{border-color:var(--bad);background:var(--bad-tint)} .opt.bad .l{color:var(--bad-ink)}
+.opt[disabled]{cursor:default}
+.opt code{white-space:pre-wrap}
+.check{margin-top:10px;font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:700;background:var(--acc);color:#2B1706;border:0;border-radius:100px;padding:8px 16px;cursor:pointer}
+.check[disabled]{opacity:.4;cursor:default}
+.why{display:none;margin-top:14px;border-top:1px solid var(--rule);padding-top:12px;font-size:14.5px;color:#C4CDD8}
+.why b.v{color:var(--lst-ink)} .why b.x{color:var(--bad-ink)}
+.q.done .why{display:block}
+.done-msg{display:none;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:22px 24px;margin:10px 0 20px}
+.done-msg h3{font-size:22px;color:#fff;margin-bottom:8px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:30ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:64ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .wrap{padding:0 16px}
+  .pillnav{padding:10px 16px;position:static}
+  .testbar{top:0}
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:9px 11px}
+  .checklist{grid-template-columns:1fr}
+  .part-head{flex-wrap:wrap} .part-head .les{margin-left:0}
+  .code{font-size:13px;padding:14px}
+  .q{padding:18px 16px}
+}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="index.html">&larr; Unit 3</a>
+  <a href="practice.html?hub=w">Walkthroughs and assignments</a>
+  <a href="game.html">Quiz games</a>
+  <a href="#test" class="current">Practice Test</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">INTRO TO SOFTWARE TECHNOLOGY &nbsp;/&nbsp; UNIT 3 &nbsp;/&nbsp; WEB DESIGN (HTML PART 1)</div>
+    <h1>Unit 3 Practice Test</h1>
+    <p class="deck">Questions for every lesson from 3.1 The Skeleton to 3.10 Lists. Read the code like a browser: go one line at a time and decide what the page will show. Use the topic buttons to practice one lesson at a time.</p>
+    <div class="meta">
+      <span class="chip">Covers <b>3.1&ndash;3.10</b></span>
+      <span class="chip"><b id="heroCount">0</b> questions</span>
+      <span class="chip">Every answer <b>explained</b></span>
+    </div>
+    <a class="cta" href="#test">Start the practice test &darr;</a>
+  </div>
+</header>
+
+<section class="part" id="test">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">Q</div><h2>Practice Test</h2></div>
+    <p class="lede">Picture the page the code makes before you choose. You get one try per question, and the explanation shows after you answer. "Select two" questions need exactly two choices before you can check.</p>
+
+    <div class="testbar">
+      <div class="score" id="score">0 / 0 <span>correct &middot; 0 left</span></div>
+      <div class="filters" id="filters"></div>
+      <button class="tbtn" id="missedBtn" type="button">Show missed only</button>
+      <button class="tbtn danger" id="resetBtn" type="button">Reset</button>
+    </div>
+    <div class="done-msg" id="doneMsg"></div>
+    <div id="quiz"></div>
+  </div>
+</section>
+
+
+<script>
+var LAB={"The skeleton": "3.1 The skeleton", "Style and color": "3.2 Style and color", "Size, align, case": "3.3 Size, align, case", "strong, em, br, hr, span": "3.4 strong, em, br, hr, span", "Google Fonts": "3.5 Google Fonts", "Borders": "3.6 Borders", "Images and favicon": "3.7 Images and favicon", "Emojis and symbols": "3.8 Emojis and symbols", "Links": "3.9 Links", "Lists and menus": "3.10 Lists and menus"};
+var Q = [
+{
+"t": "The skeleton",
+"s": "What happens if you press Enter a few extra times between two tags?",
+"o": [
+"Nothing: the browser ignores extra blank lines",
+"The page gets extra space",
+"A new paragraph is added",
+"The page breaks"
+],
+"a": [
+0
+],
+"e": "Only tags decide how the page looks."
+},
+{
+"t": "The skeleton",
+"s": "Which tag is used for a normal block of text?",
+"o": [
+"<code>&lt;body&gt;</code>",
+"<code>&lt;p&gt;</code>",
+"<code>&lt;html&gt;</code>",
+"<code>&lt;h1&gt;</code>"
+],
+"a": [
+1
+],
+"e": "A paragraph goes in a p tag."
+},
+{
+"t": "The skeleton",
+"s": "What does a visitor see on the page itself (not on the browser tab)?",
+"o": [
+"Rocket Repair<br>Gallery<br>Bring a friend.",
+"Pixel Arcade<br>Rocket Repair<br>Gallery<br>Bring a friend.",
+"Rocket Repair<br>Bring a friend.",
+"Bring a friend.<br>Gallery<br>Rocket Repair"
+],
+"a": [
+0
+],
+"e": "Only the <b>body</b> shows on the page. The title in the head goes on the browser tab, and the page shows the heading 1, heading 2 and paragraph in the order they are written.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Pixel Arcade</title>\n</head>\n<body>\n<h1>Rocket Repair</h1>\n<h2>Gallery</h2>\n<p>Bring a friend.</p>\n</body>\n</html>"
+},
+{
+"t": "The skeleton",
+"s": "What text appears on the browser tab?",
+"o": [
+"Comet Skate Park",
+"Hours",
+"Nothing (a page cannot have a tab name)",
+"Lucky Noodle Bar"
+],
+"a": [
+0
+],
+"e": "The <b>title</b> tag, inside the head, is the name on the browser tab. The heading 1 is shown on the page, not on the tab.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Comet Skate Park</title>\n</head>\n<body>\n<h1>Lucky Noodle Bar</h1>\n<h2>Hours</h2>\n</body>\n</html>"
+},
+{
+"t": "The skeleton",
+"s": "How many headings in all (heading 1 and heading 2 together) does this page have?",
+"o": [
+"1",
+"5",
+"2",
+"3"
+],
+"a": [
+2
+],
+"e": "Count the opening tags: 2.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Turbo Gym</title>\n</head>\n<body>\n<h1>Turbo Gym</h1>\n<p>Come visit us today.</p>\n<p>Try something new.</p>\n<p>Fun for the whole family.</p>\n<h2>Reviews</h2>\n<p>Come visit us today.</p>\n</body>\n</html>"
+},
+{
+"t": "The skeleton",
+"s": "This page has one mistake. What is it?",
+"o": [
+"The doctype line is missing",
+"The title is in the body instead of the head",
+"The heading 1 is closed with the wrong tag",
+"The body is written before the head"
+],
+"a": [
+0
+],
+"e": "Every page needs the doctype line first, a head holding the title, a body holding what visitors see, and every opening tag closed with the SAME name.",
+"c": "<html>\n<head>\n<title>Maple Music</title>\n</head>\n<body>\n<h1>Maple Music</h1>\n<p>Try something new.</p>\n</body>\n</html>"
+},
+{
+"t": "The skeleton",
+"s": "What does a visitor see on the page itself (not on the browser tab)?",
+"o": [
+"Star Bowling<br>Kids eat free on Monday.",
+"Star Bowling<br>Contact<br>Kids eat free on Monday.",
+"Kids eat free on Monday.<br>Contact<br>Star Bowling",
+"Pizza Planet<br>Star Bowling<br>Contact<br>Kids eat free on Monday."
+],
+"a": [
+1
+],
+"e": "Only the <b>body</b> shows on the page. The title in the head goes on the browser tab, and the page shows the heading 1, heading 2 and paragraph in the order they are written.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Pizza Planet</title>\n</head>\n<body>\n<h1>Star Bowling</h1>\n<h2>Contact</h2>\n<p>Kids eat free on Monday.</p>\n</body>\n</html>"
+},
+{
+"t": "Style and color",
+"s": "A page has a navy background. What text color is easiest to read?",
+"o": [
+"Dark blue",
+"White",
+"Black",
+"Navy"
+],
+"a": [
+1
+],
+"e": "Light text on a dark background is easy to read. Matching colors hide the text."
+},
+{
+"t": "Style and color",
+"s": "Which style on the body changes the whole page background?",
+"o": [
+"<code>&lt;html color=\"navy\"&gt;</code>",
+"<code>&lt;body style=\"background-color: navy\"&gt;</code>",
+"<code>&lt;title style=\"background-color: navy\"&gt;</code>",
+"<code>&lt;head style=\"background-color: navy\"&gt;</code>"
+],
+"a": [
+1
+],
+"e": "Styles on the body reach the whole page."
+},
+{
+"t": "Style and color",
+"s": "What color is the text of the heading 1?",
+"o": [
+"gold",
+"red",
+"green",
+"orchid"
+],
+"a": [
+3
+],
+"e": "A style on a tag wins for that tag. A tag with no style of its own uses the <b>body</b> color, and with no body color the browser default is black.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Maple Music</title>\n</head>\n<body style=\"color: coral\">\n<h1 style=\"color: orchid\">Maple Music</h1>\n<h2>Our Team</h2>\n<p>Open every day.</p>\n</body>\n</html>"
+},
+{
+"t": "Style and color",
+"s": "Which style gives a heading with gray text on a purple background?",
+"o": [
+"<code>color: gray; background-color: purple</code>",
+"<code>color: purple; background-color: gray</code>",
+"<code>text-color: gray; background-color: purple</code>",
+"<code>color = gray; background-color = purple</code>"
+],
+"a": [
+0
+],
+"e": "The property <code>color</code> is the text, <code>background-color</code> is behind the text, and two styles are separated by a <b>semicolon</b>. Swapped colors give the opposite look; a comma, an equals sign or a made-up property name makes the browser skip the style."
+},
+{
+"t": "Style and color",
+"s": "One of these tags will NOT show its color. Which one?",
+"o": [
+"the heading 2",
+"the second paragraph",
+"the heading 1",
+"the first paragraph"
+],
+"a": [
+1
+],
+"e": "A style must be written <code>property: value</code>, with a colon, a real property name, a real color (a name, or a hex code that starts with #), and a semicolon between two styles. The broken style is ignored and the text stays black.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Bright Bikes</title>\n</head>\n<body>\n<h1 style=\"color: red\">News 1</h1>\n<h2 style=\"color: blue\">Hours 2</h2>\n<p style=\"color: gold\">Sale 3</p>\n<p style=\"color: FF6347\">News 4</p>\n</body>\n</html>"
+},
+{
+"t": "Style and color",
+"s": "Which of these is a valid hex color code?",
+"o": [
+"<code>#FFD70</code>",
+"<code>FFD700</code>",
+"<code>#FFD7000</code>",
+"<code>#FFD700</code>"
+],
+"a": [
+3
+],
+"e": "A hex code is a <b>#</b> followed by 6 letters and numbers (0-9 and A-F). No #, a letter past F, or the wrong number of digits makes the browser ignore it."
+},
+{
+"t": "Style and color",
+"s": "What does the paragraph look like?",
+"o": [
+"green text on an orange background",
+"green text on a red background",
+"red text on a green background",
+"orange text on a green background"
+],
+"a": [
+0
+],
+"e": "The paragraph has its own <code>background-color</code>, so that shows behind it. It has no text color of its own, so the text color comes from the body.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Pizza Planet</title>\n</head>\n<body style=\"background-color: red; color: green\">\n<h1>Pizza Planet</h1>\n<p style=\"background-color: orange\">Ask about our deals.</p>\n</body>\n</html>"
+},
+{
+"t": "Style and color",
+"s": "Which of these style attributes will make the heading text red? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"<code>style=\"color = red\"</code>",
+"<code>style=\"color: red, background-color: yellow\"</code>",
+"<code>style=\"color: red\"</code>",
+"<code>style=\"color: red; background-color: yellow\"</code>"
+],
+"a": [
+2,
+3
+],
+"e": "A style needs a colon between the property and value, and two styles are separated by a <b>semicolon</b>. An equals sign or a comma breaks the style, so the text stays black."
+},
+{
+"t": "Size, align, case",
+"s": "Where does text sit on the page if you add no <code>text-align</code> style?",
+"o": [
+"On the right",
+"It depends on the font",
+"In the center",
+"On the left"
+],
+"a": [
+3
+],
+"e": "Text starts on the left."
+},
+{
+"t": "Size, align, case",
+"s": "Does <code>text-transform: uppercase</code> change the words you typed in the code?",
+"o": [
+"No: it only changes how they look on the page",
+"Yes: the code is rewritten in capitals",
+"Yes, but only in the head",
+"It deletes the text"
+],
+"a": [
+0
+],
+"e": "The page shows capitals but your code is unchanged."
+},
+{
+"t": "Size, align, case",
+"s": "What does the page show?",
+"o": [
+"new MENU ready",
+"New MENU Ready",
+"NEW MENU READY",
+"new menu ready"
+],
+"a": [
+2
+],
+"e": "<code>uppercase</code> makes every letter a capital, <code>lowercase</code> makes every letter small, and <code>capitalize</code> makes the first letter of every word a capital. The code you typed does not change.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<h3 style=\"text-transform: uppercase\">new MENU ready</h3>\n</body>\n</html>"
+},
+{
+"t": "Size, align, case",
+"s": "Which style makes the text 60 pixels tall?",
+"o": [
+"<code>size: 60px</code>",
+"<code>font-size: 60px</code>",
+"<code>font-size = 60px</code>",
+"<code>font-size: 60 px</code>"
+],
+"a": [
+1
+],
+"e": "The property is <code>font-size</code>, and the size is a number with <b>px</b> right after it, with no space."
+},
+{
+"t": "Size, align, case",
+"s": "Which style puts the heading at the right of the page?",
+"o": [
+"<code>align: right</code>",
+"<code>text-align = right</code>",
+"<code>text-align: right</code>",
+"<code>text-position: right</code>"
+],
+"a": [
+2
+],
+"e": "The property is <code>text-align</code>. The values are <code>left</code>, <code>center</code> and <code>right</code>. Text starts on the left until you change it."
+},
+{
+"t": "Size, align, case",
+"s": "Which line of text is the biggest?",
+"o": [
+"Hours",
+"They are all the same size",
+"Reviews",
+"About Us"
+],
+"a": [
+0
+],
+"e": "The biggest number of <code>px</code> is the biggest text: 52 px.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<p style=\"font-size: 18px\">About Us</p>\n<p style=\"font-size: 52px\">Hours</p>\n<p style=\"font-size: 22px\">Reviews</p>\n</body>\n</html>"
+},
+{
+"t": "Size, align, case",
+"s": "Which tag is centered?",
+"o": [
+"the heading 3",
+"the heading 1",
+"the paragraph",
+"the heading 2"
+],
+"a": [
+3
+],
+"e": "Only the heading 2 has <code>text-align: center</code>.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<h1>News</h1>\n<h2 style=\"text-align: center\">Contact</h2>\n<h3>Gallery</h3>\n<p>About Us</p>\n</body>\n</html>"
+},
+{
+"t": "strong, em, br, hr, span",
+"s": "Which tag starts a new line inside a paragraph?",
+"o": [
+"<code>&lt;hr&gt;</code>",
+"<code>&lt;newline&gt;</code>",
+"<code>&lt;br&gt;</code>",
+"<code>&lt;lb&gt;</code>"
+],
+"a": [
+2
+],
+"e": "br is the line break."
+},
+{
+"t": "strong, em, br, hr, span",
+"s": "Which is the correct way to put bold words inside a paragraph?",
+"o": [
+"<code>&lt;strong&gt;&lt;p&gt;Hi&lt;/strong&gt;&lt;/p&gt;</code>",
+"<code>&lt;p&gt;&lt;strong&gt;Hi&lt;/p&gt;</code>",
+"<code>&lt;p&gt;&lt;strong&gt;Hi&lt;/strong&gt;&lt;/p&gt;</code>",
+"<code>&lt;p&gt;&lt;strong&gt;Hi&lt;/p&gt;&lt;/strong&gt;</code>"
+],
+"a": [
+2
+],
+"e": "Close the inside tag first: the last tag opened is the first one closed."
+},
+{
+"t": "strong, em, br, hr, span",
+"s": "Which words does the page show in italic?",
+"o": [
+"crispy",
+"hot and crispy",
+"hot and fresh",
+"none of the words"
+],
+"a": [
+3
+],
+"e": "In this class bold is the <code>strong</code> tag and italics is the <code>em</code> tag. Only the words between the tags change.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<p>We serve crispy food <strong>hot</strong> and <strong>fresh</strong> today.</p>\n</body>\n</html>"
+},
+{
+"t": "strong, em, br, hr, span",
+"s": "How many lines of text does the paragraph show?",
+"o": [
+"1",
+"4",
+"3",
+"2"
+],
+"a": [
+3
+],
+"e": "Each <code>br</code> starts a new line, so 1 br tags give 2 lines.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<p>Open daily<br>Call us today</p>\n</body>\n</html>"
+},
+{
+"t": "strong, em, br, hr, span",
+"s": "How many lines does the browser draw across the page?",
+"o": [
+"1",
+"0",
+"4",
+"2"
+],
+"a": [
+3
+],
+"e": "Each <code>hr</code> tag draws one line across the page.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<h1>Comet Skate Park</h1>\n<hr>\n<p>Now with free delivery.</p>\n<hr>\n<p>Try something new.</p>\n</body>\n</html>"
+},
+{
+"t": "strong, em, br, hr, span",
+"s": "Which words does the page show in orange?",
+"o": [
+"tiny",
+"menu",
+"The crispy menu has tiny prices.",
+"crispy"
+],
+"a": [
+0
+],
+"e": "A <code>span</code> styles only the few words inside it. The rest of the paragraph keeps its normal color.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<p>The crispy menu has <span style=\"color: orange\">tiny</span> prices.</p>\n</body>\n</html>"
+},
+{
+"t": "strong, em, br, hr, span",
+"s": "How does the page show each word?",
+"o": [
+"big: bold only; tiny: bold and italic; new: plain",
+"big: bold only; tiny: bold and italic; new: bold",
+"big: bold and italic; tiny: italic only; new: plain",
+"big: bold only; tiny: italic only; new: plain"
+],
+"a": [
+0
+],
+"e": "The em tag sits INSIDE the strong tag, so tiny gets both. big is only inside strong, and new is outside both.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<p><strong>big <em>tiny</em></strong> new</p>\n</body>\n</html>"
+},
+{
+"t": "strong, em, br, hr, span",
+"s": "Which two words does the page show in bold? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"free",
+"fast",
+"fun",
+"and"
+],
+"a": [
+0,
+1
+],
+"e": "The <code>strong</code> tag makes bold. <b>fast</b> and <b>free</b> are inside strong tags. <code>fun</code> is inside an <code>em</code> tag, so it is italic.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<p><strong>fast</strong> and <em>fun</em> and <strong>free</strong></p>\n</body>\n</html>"
+},
+{
+"t": "Google Fonts",
+"s": "Where do you copy the font link from?",
+"o": [
+"The title tag",
+"The body",
+"fonts.google.com, using Get embed code",
+"A font file on your computer"
+],
+"a": [
+2
+],
+"e": "Google Fonts gives you the embed code."
+},
+{
+"t": "Google Fonts",
+"s": "Where does the Google Fonts link go?",
+"o": [
+"Inside the body",
+"Inside the head",
+"Above the doctype",
+"Inside the h1"
+],
+"a": [
+1
+],
+"e": "The link goes in the head and downloads the font."
+},
+{
+"t": "Google Fonts",
+"s": "Which font does the heading 1 use?",
+"o": [
+"Lora",
+"the browser default font",
+"Space Mono",
+"Playfair Display"
+],
+"a": [
+0
+],
+"e": "The heading has its own <code>font-family</code>.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Fonts</title>\n<link href=\"https://fonts.googleapis.com/css2?family=Lora&display=swap\" rel=\"stylesheet\">\n<link href=\"https://fonts.googleapis.com/css2?family=Space+Mono&display=swap\" rel=\"stylesheet\">\n</head>\n<body style=\"font-family: 'Space Mono'\">\n<h1 style=\"font-family: 'Lora'\">Pixel Arcade</h1>\n<p>We love our neighbors.</p>\n</body>\n</html>"
+},
+{
+"t": "Google Fonts",
+"s": "Which h1 tag uses the Bebas Neue font correctly?",
+"o": [
+"<code>&lt;h1 style=\"font-family 'Bebas Neue'\"&gt;</code>",
+"<code>&lt;h1 style=\"font-family: 'Bebas Neue'\"&gt;</code>",
+"<code>&lt;h1 style=\"font-family: \"Bebas Neue\"\"&gt;</code>",
+"<code>&lt;h1 style=\"font-name: 'Bebas Neue'\"&gt;</code>"
+],
+"a": [
+1
+],
+"e": "The font name goes in <b>single</b> quotes, because the style attribute already uses double quotes. The property is <code>font-family</code>, followed by a colon."
+},
+{
+"t": "Google Fonts",
+"s": "This page loads the Roboto Mono font in the head. What does the heading look like?",
+"o": [
+"It is empty",
+"It uses the Roboto Mono font",
+"The page shows an error",
+"It still uses the default font: the font is loaded but never used"
+],
+"a": [
+3
+],
+"e": "Loading a font only downloads it. To use it you must write <code>font-family</code> in a style.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Fonts</title>\n<link href=\"https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap\" rel=\"stylesheet\">\n</head>\n<body>\n<h1>Hello</h1>\n</body>\n</html>"
+},
+{
+"t": "Google Fonts",
+"s": "How many Google fonts does the head load?",
+"o": [
+"4",
+"0",
+"3",
+"5"
+],
+"a": [
+2
+],
+"e": "Each link line loads one font: Playfair Display, Dancing Script, Bebas Neue.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Fonts</title>\n<link href=\"https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap\" rel=\"stylesheet\">\n<link href=\"https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap\" rel=\"stylesheet\">\n<link href=\"https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap\" rel=\"stylesheet\">\n</head>\n<body>\n<h1>Hi</h1>\n</body>\n</html>"
+},
+{
+"t": "Google Fonts",
+"s": "Which of these is a monospace font?",
+"o": [
+"Playfair Display",
+"Dancing Script",
+"Open Sans",
+"Roboto Mono"
+],
+"a": [
+3
+],
+"e": "Monospace fonts give every letter the same width, like typed code."
+},
+{
+"t": "Borders",
+"s": "Which property draws a line under a heading only?",
+"o": [
+"<code>border-bottom</code>",
+"<code>underline</code>",
+"<code>border-down</code>",
+"<code>border-under</code>"
+],
+"a": [
+0
+],
+"e": "border-bottom draws only the bottom line."
+},
+{
+"t": "Borders",
+"s": "How many border styles are taught in this lesson?",
+"o": [
+"Twelve",
+"Six",
+"Three",
+"Two"
+],
+"a": [
+1
+],
+"e": "solid, dashed, dotted, double, groove and ridge."
+},
+{
+"t": "Borders",
+"s": "What style of border does it have?",
+"o": [
+"groove",
+"solid",
+"dotted",
+"dashed"
+],
+"a": [
+0
+],
+"e": "The border style is written in 3 parts, in this order: <b>thickness</b>, <b>style</b>, <b>color</b>: 5px groove hotpink.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<h2 style=\"border: 5px groove hotpink\">Gallery</h2>\n</body>\n</html>"
+},
+{
+"t": "Borders",
+"s": "Where does the browser draw a border line?",
+"o": [
+"a line on the right only",
+"a line on all four sides",
+"a line on the top only",
+"a line on the top and bottom only"
+],
+"a": [
+0
+],
+"e": "Writing <code>border-top</code>, <code>border-bottom</code>, <code>border-left</code> or <code>border-right</code> draws a line on just that side.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<p style=\"border-right: 3px solid purple\">Events</p>\n</body>\n</html>"
+},
+{
+"t": "Borders",
+"s": "Which paragraph has a double border?",
+"o": [
+"None of them",
+"About Us",
+"Our Menu",
+"Reviews"
+],
+"a": [
+1
+],
+"e": "The paragraph \"About Us\" is the one written with the double style.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<p style=\"border: 6px double black\">About Us</p>\n<p style=\"border: 4px solid black\">Our Menu</p>\n<p style=\"border: 4px ridge black\">Reviews</p>\n</body>\n</html>"
+},
+{
+"t": "Borders",
+"s": "Which style draws a dashed, 4 pixel, lime border?",
+"o": [
+"<code>border: 4px dashedx lime</code>",
+"<code>border: 4px dashed lime</code>",
+"<code>border: 4px; dashed; lime</code>",
+"<code>border: 4 dashed lime</code>"
+],
+"a": [
+1
+],
+"e": "The border style needs the unit px, a real border style name, and the parts separated by spaces (no semicolons or dashes between them)."
+},
+{
+"t": "Borders",
+"s": "Which paragraph shows a border made of two lines?",
+"o": [
+"Neither paragraph",
+"The second paragraph (<code>solid</code>)",
+"Both paragraphs",
+"The first paragraph (<code>double</code>)"
+],
+"a": [
+3
+],
+"e": "The <code>double</code> style draws two lines. It needs a thickness of at least 3px so both lines show.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<p style=\"border: 6px double navy\">Two lines</p>\n<p style=\"border: 6px solid navy\">One line</p>\n</body>\n</html>"
+},
+{
+"t": "Borders",
+"s": "Which two styles draw a line on only ONE side of a paragraph? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"<code>style=\"border-left: 2px solid red\"</code>",
+"<code>style=\"border-all: 2px solid red\"</code>",
+"<code>style=\"border: 2px solid red\"</code>",
+"<code>style=\"border-top: 2px solid red\"</code>"
+],
+"a": [
+0,
+3
+],
+"e": "<code>border-top</code> and <code>border-left</code> each draw one side. <code>border</code> draws all four sides, and <code>border-all</code> is not a real property, so it draws nothing."
+},
+{
+"t": "Images and favicon",
+"s": "Which attribute holds the web address of a picture?",
+"o": [
+"<code>src</code>",
+"<code>url</code>",
+"<code>alt</code>",
+"<code>href</code>"
+],
+"a": [
+0
+],
+"e": "src is the source address."
+},
+{
+"t": "Images and favicon",
+"s": "Which style sets how wide a picture is?",
+"o": [
+"<code>pixels</code>",
+"<code>size-x</code>",
+"<code>width</code>",
+"<code>wide</code>"
+],
+"a": [
+2
+],
+"e": "Use <code>width: 200px</code>."
+},
+{
+"t": "Images and favicon",
+"s": "How many pictures does this page have?",
+"o": [
+"5",
+"4",
+"6",
+"7"
+],
+"a": [
+1
+],
+"e": "Each <code>img</code> tag is one picture: 4.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<h1>Frosty Treats</h1>\n<img src=\"https://example.org/rocket.png\" alt=\"A rocket launching at sunrise\" style=\"width: 100px\">\n<p>Fun for the whole family.</p>\n<img src=\"https://example.org/cat.png\" alt=\"A gray cat sleeping on a sofa\" style=\"width: 100px\">\n<p>Kids eat free on Monday.</p>\n<img src=\"https://example.org/beach.png\" alt=\"Waves rolling onto a sandy beach\" style=\"width: 100px\">\n<p>Fun for the whole family.</p>\n<img src=\"https://example.org/team.jpg\" alt=\"The soccer team holding a trophy\" style=\"width: 100px\">\n<p>Kids eat free on Monday.</p>\n</body>\n</html>"
+},
+{
+"t": "Images and favicon",
+"s": "How wide is the picture on the page?",
+"o": [
+"100 pixels",
+"200 pixels",
+"150 pixels",
+"300 pixels"
+],
+"a": [
+2
+],
+"e": "The style <code>width: 150px</code> sets the width. The browser works out the height so the picture is not squished.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<img src=\"https://example.org/pizza.jpg\" alt=\"A pepperoni pizza on a plate\" style=\"width: 150px\">\n</body>\n</html>"
+},
+{
+"t": "Images and favicon",
+"s": "Why will this picture look squished or stretched?",
+"o": [
+"A width is never allowed on a picture",
+"The alt text is too long",
+"Both a width AND a height are set, so the browser cannot keep the picture's natural shape",
+"The src is missing"
+],
+"a": [
+2
+],
+"e": "Set only ONE size (the width) and the browser works out the other so the picture keeps its shape.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<img src=\"https://example.org/pizza.jpg\" alt=\"A pepperoni pizza on a plate\" style=\"width: 400px; height: 60px\">\n</body>\n</html>"
+},
+{
+"t": "Images and favicon",
+"s": "Which line adds a picture correctly in this class?",
+"o": [
+"<code>&lt;img src=\"rocket.png\" alt=\"A rocket launching at sunrise\"&gt;&lt;/img&gt;</code>",
+"<code>&lt;img \"rocket.png\" \"A rocket launching at sunrise\"&gt;</code>",
+"<code>&lt;image src=\"rocket.png\" alt=\"A rocket launching at sunrise\"&gt;</code>",
+"<code>&lt;img src=\"rocket.png\" alt=\"A rocket launching at sunrise\"&gt;</code>"
+],
+"a": [
+3
+],
+"e": "The tag is <code>img</code>, with <code>src</code> and <code>alt</code> attributes. It stands alone, with <b>no closing tag</b>."
+},
+{
+"t": "Images and favicon",
+"s": "Which src will work for everyone who visits the page?",
+"o": [
+"<code>src=\"cat.png\"</code>",
+"<code>src=\"https://images.example.org/cat.png\"</code>",
+"<code>src=\"C:\\Users\\me\\Pictures\\cat.png\"</code>",
+"<code>src=\"My Pictures\"</code>"
+],
+"a": [
+1
+],
+"e": "A picture needs a real web address starting with <code>https://</code>. A file on your own computer has no web address. A bare file name only works if that file sits next to the page."
+},
+{
+"t": "Emojis and symbols",
+"s": "Is an emoji a picture file or a text character?",
+"o": [
+"A picture file",
+"A sound",
+"A style",
+"A text character"
+],
+"a": [
+3
+],
+"e": "An emoji is closer to the letter A than to a photograph."
+},
+{
+"t": "Emojis and symbols",
+"s": "Where does a footer symbol like the copyright sign usually go?",
+"o": [
+"In the src",
+"In a hr tag",
+"In the title tag",
+"In a small centered paragraph at the bottom"
+],
+"a": [
+3
+],
+"e": "A footer line is small and centered."
+},
+{
+"t": "Emojis and symbols",
+"s": "What does the page show?",
+"o": [
+"Comet Skate Park 🐶",
+"Comet Skate Park<br>We ♥ our fans",
+"Comet Skate Park 🐶<br>We ♥ our fans",
+"We ♥ our fans<br>Comet Skate Park 🐶"
+],
+"a": [
+2
+],
+"e": "Emojis and symbols are <b>text characters</b>. They show on the page just like the letters beside them.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<h1>Comet Skate Park 🐶</h1>\n<p>We ♥ our fans</p>\n</body>\n</html>"
+},
+{
+"t": "Emojis and symbols",
+"s": "How many ♥ symbols does the page show?",
+"o": [
+"4",
+"6",
+"7",
+"5"
+],
+"a": [
+3
+],
+"e": "Count the symbols between the tags: 5.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<p>Rating: ♥♥♥♥♥</p>\n</body>\n</html>"
+},
+{
+"t": "Emojis and symbols",
+"s": "The heading has <code>font-size: 30px</code>. How big is the emoji?",
+"o": [
+"It cannot be changed",
+"The same size as the letters: 30 px",
+"Always the same small size",
+"Twice the size of the letters"
+],
+"a": [
+1
+],
+"e": "An emoji is text, so <code>font-size</code> changes it just like a letter.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<h1 style=\"font-size: 30px\">Party ⚽</h1>\n</body>\n</html>"
+},
+{
+"t": "Emojis and symbols",
+"s": "Where do you put an emoji in your code?",
+"o": [
+"In the head",
+"Between the opening and closing tags, with the other text",
+"Inside the angle brackets of the tag",
+"In the src attribute"
+],
+"a": [
+1
+],
+"e": "An emoji is a text character, so it goes between the tags like a letter. Never inside a tag's angle brackets."
+},
+{
+"t": "Emojis and symbols",
+"s": "Which character is a right arrow?",
+"o": [
+"©",
+"°",
+"★",
+"→"
+],
+"a": [
+3
+],
+"e": "Symbols are characters you copy and paste, like →."
+},
+{
+"t": "Emojis and symbols",
+"s": "Which two of these are text characters that you can paste between tags, with no img tag? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"A photo saved as <code>pizza.jpg</code>",
+"The copyright symbol ©",
+"A logo saved as <code>logo.png</code>",
+"The pizza emoji 🍕"
+],
+"a": [
+1,
+3
+],
+"e": "Emojis and symbols are characters, like letters. A picture file such as a .jpg or .png is not text: it needs an <code>img</code> tag with <code>src</code> and <code>alt</code>."
+},
+{
+"t": "Links",
+"s": "Which attribute opens a link in a new tab?",
+"o": [
+"<code>target=\"_blank\"</code>",
+"<code>open=\"new\"</code>",
+"<code>href=\"_blank\"</code>",
+"<code>new=\"tab\"</code>"
+],
+"a": [
+0
+],
+"e": "The underscore matters: <code>_blank</code>."
+},
+{
+"t": "Links",
+"s": "Where are the attributes of a link written?",
+"o": [
+"In the head",
+"In the opening a tag only",
+"In the closing tag only",
+"In both tags"
+],
+"a": [
+1
+],
+"e": "The closing tag is always plain: <code>&lt;/a&gt;</code>."
+},
+{
+"t": "Links",
+"s": "Which words can a visitor click?",
+"o": [
+"Learn from Wikipedia this week.",
+"this week.",
+"Wikipedia",
+"Learn from"
+],
+"a": [
+2
+],
+"e": "Only the words between <code>&lt;a&gt;</code> and <code>&lt;/a&gt;</code> are the link.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<p>Learn from <a href=\"https://www.wikipedia.org\" target=\"_blank\">Wikipedia</a> this week.</p>\n</body>\n</html>"
+},
+{
+"t": "Links",
+"s": "Where does the link \"the library\" go?",
+"o": [
+"<code>https://www.weather.gov</code>",
+"<code>https://www.wikipedia.org</code>",
+"<code>https://www.nasa.gov</code>",
+"<code>https://www.loc.gov</code>"
+],
+"a": [
+3
+],
+"e": "The address is in the <code>href</code> attribute of that link.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<p><a href=\"https://www.loc.gov\" target=\"_blank\">the library</a> or <a href=\"https://www.weather.gov\" target=\"_blank\">the weather page</a></p>\n</body>\n</html>"
+},
+{
+"t": "Links",
+"s": "When a visitor clicks the link, where does it open?",
+"o": [
+"In the same tab",
+"In a new tab",
+"It does not open",
+"In a pop-up window that cannot be closed"
+],
+"a": [
+0
+],
+"e": "<code>target=\"_blank\"</code> opens a new tab. With no target, or <code>target=\"_self\"</code>, the link opens in the tab you are already in.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<p><a href=\"https://mars.nasa.gov\" target=\"_self\">Mars photos</a></p>\n</body>\n</html>"
+},
+{
+"t": "Links",
+"s": "What can a visitor click?",
+"o": [
+"Only the alt text",
+"The picture",
+"Nothing: pictures cannot be links",
+"The whole page"
+],
+"a": [
+1
+],
+"e": "Whatever sits between the opening and closing a tags is the link. A picture inside the a tags is a clickable picture.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<a href=\"https://www.wikipedia.org\" target=\"_blank\"><img src=\"https://example.org/guitar.jpg\" alt=\"A red guitar leaning on a wall\" style=\"width: 150px\"></a>\n</body>\n</html>"
+},
+{
+"t": "Links",
+"s": "What is wrong with this link?",
+"o": [
+"The closing a tag is missing",
+"The strong and a tags cross",
+"The address does not start with https://",
+"The attribute is src instead of href"
+],
+"a": [
+2
+],
+"e": "A link needs <code>href</code> with a full <code>https://</code> address, a closing <code>&lt;/a&gt;</code>, and tags closed in the reverse order they were opened.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<p>Visit <a href=\"www.youtube.com\" target=\"_blank\">YouTube</a> today.</p>\n</body>\n</html>"
+},
+{
+"t": "Lists and menus",
+"s": "Which marker values can a <code>ul</code> use?",
+"o": [
+"decimal and upper-roman",
+"red, green, blue",
+"disc, circle, square and none",
+"A, B, C"
+],
+"a": [
+2
+],
+"e": "Bullet shapes belong to ul."
+},
+{
+"t": "Lists and menus",
+"s": "Where do you write <code>list-style-type</code> to change the markers of the whole list?",
+"o": [
+"On the ul or ol tag",
+"On the body tag only",
+"In the title",
+"On every li tag"
+],
+"a": [
+0
+],
+"e": "Write it once on the list tag."
+},
+{
+"t": "Lists and menus",
+"s": "How many items does the list have?",
+"o": [
+"5",
+"3",
+"4",
+"6"
+],
+"a": [
+2
+],
+"e": "Each <code>li</code> tag is one item: 4.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<ul>\n<li>Home</li>\n<li>About</li>\n<li>Menu</li>\n<li>Contact</li>\n</ul>\n</body>\n</html>"
+},
+{
+"t": "Lists and menus",
+"s": "Which tag should you use for a grocery list?",
+"o": [
+"<code>&lt;li&gt;</code> by itself",
+"<code>&lt;list&gt;</code>",
+"<code>&lt;ul&gt;</code>",
+"<code>&lt;ol&gt;</code>"
+],
+"a": [
+2
+],
+"e": "Order does not matter, so use an <b>unordered</b> list (bullets)."
+},
+{
+"t": "Lists and menus",
+"s": "What marker does the fifth item show?",
+"o": [
+"5",
+"E",
+"v",
+"V"
+],
+"a": [
+1
+],
+"e": "The list uses <code>upper-alpha</code>, so item 5 shows E.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<ol style=\"list-style-type: upper-alpha\">\n<li>Home</li>\n<li>About</li>\n<li>Menu</li>\n<li>Contact</li>\n<li>Blog</li>\n</ol>\n</body>\n</html>"
+},
+{
+"t": "Lists and menus",
+"s": "Which <code>ul</code> tag gives the whole list square bullets?",
+"o": [
+"<code>&lt;ul style=\"bullet-style: square\"&gt;</code>",
+"<code>&lt;ul style=\"list-type = square\"&gt;</code>",
+"<code>&lt;ul style=\"list-style: squares\"&gt;</code>",
+"<code>&lt;ul style=\"list-style-type: square\"&gt;</code>"
+],
+"a": [
+3
+],
+"e": "The property is <code>list-style-type</code>, written on the <code>ul</code> or <code>ol</code> tag (not on each li)."
+},
+{
+"t": "Lists and menus",
+"s": "This page shows a menu in one row with no bullets. What makes that happen?",
+"o": [
+"<code>display: inline</code> on every li only",
+"<code>display: block</code> on every li",
+"<code>list-style-type: none</code> on the ul, and <code>display: inline</code> on every li",
+"<code>list-style-type: none</code> on the ul only"
+],
+"a": [
+2
+],
+"e": "The ul style removes the bullets. Each li is a block (own line) until <code>display: inline</code> puts it in the line like a word.",
+"c": "<!DOCTYPE html>\n<html>\n<head>\n<title>Page</title>\n</head>\n<body>\n<ul style=\"list-style-type: none\">\n<li style=\"display: inline\">Home</li>\n<li style=\"display: inline\">About</li>\n<li style=\"display: inline\">Contact</li>\n</ul>\n</body>\n</html>"
+},
+{
+"t": "Lists and menus",
+"s": "Which two styles together turn a bulleted list into a menu that sits in one row with no bullets? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"<code>list-style-type: none</code> on the <code>ul</code>",
+"<code>display: block</code> on every <code>li</code>",
+"<code>display: inline</code> on every <code>li</code>",
+"<code>list-style-type: square</code> on the <code>ul</code>"
+],
+"a": [
+0,
+2
+],
+"e": "The ul style removes the bullets, and <code>display: inline</code> on every li makes the items flow in a row like words. Without both, you get bullets or a stack."
+}
+];
+
+(function(){
+  var KEY='ist-u3-pt-v1', state={};
+  try{ state=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ state={}; }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+  var quiz=document.getElementById('quiz'), filt='All', missedOnly=false;
+  var topics=['All'].concat(["The skeleton", "Style and color", "Size, align, case", "strong, em, br, hr, span", "Google Fonts", "Borders", "Images and favicon", "Emojis and symbols", "Links", "Lists and menus"]);
+  document.getElementById('heroCount').textContent=Q.length;
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function same(a,b){ if(a.length!==b.length) return false; var x=a.slice().sort(), y=b.slice().sort(); return x.every(function(v,i){return v===y[i];}); }
+
+  var fwrap=document.getElementById('filters');
+  topics.forEach(function(t){
+    var b=document.createElement('button'); b.type='button'; b.className='fbtn'+(t==='All'?' on':''); b.textContent=LAB[t]||t;
+    b.onclick=function(){ filt=t; [].forEach.call(fwrap.children,function(c){c.classList.toggle('on',c===b);}); apply(); };
+    fwrap.appendChild(b);
+  });
+
+  Q.forEach(function(q,i){
+    var multi=q.a.length>1, el=document.createElement('div'); el.className='q'; el.dataset.t=q.t; el.id='q'+i;
+    var h='<div class="qh"><span class="qn">Question '+(i+1)+'</span><span class="qt">'+(LAB[q.t]||q.t)+'</span></div><div class="stem">'+q.s+'</div>';
+    if(q.c) h+='<div class="code">'+esc(q.c)+'</div>';
+    h+='<div class="opts">'+q.o.map(function(o,j){return '<button type="button" class="opt" data-j="'+j+'"><span class="l">'+'ABCD'[j]+'</span><span>'+o+'</span></button>';}).join('')+'</div>';
+    if(multi) h+='<button type="button" class="check" disabled>Check answer</button>';
+    h+='<div class="why"></div>';
+    el.innerHTML=h; quiz.appendChild(el);
+    var picks=[], btns=el.querySelectorAll('.opt'), chk=el.querySelector('.check');
+    [].forEach.call(btns,function(b){
+      b.onclick=function(){
+        if(el.classList.contains('done')) return;
+        var j=+b.dataset.j;
+        if(!multi){ grade(i,[j]); return; }
+        var k=picks.indexOf(j);
+        if(k>=0) picks.splice(k,1); else if(picks.length<2) picks.push(j);
+        [].forEach.call(btns,function(x){ x.classList.toggle('picked', picks.indexOf(+x.dataset.j)>=0); });
+        chk.disabled=picks.length!==2;
+      };
+    });
+    if(chk) chk.onclick=function(){ grade(i,picks.slice()); };
+    if(state[i]) render(i,state[i]);
+  });
+
+  function grade(i,picked){ state[i]=picked; save(); render(i,picked); tally(); }
+  function render(i,picked){
+    var q=Q[i], el=document.getElementById('q'+i), ok=same(picked,q.a);
+    el.classList.add('done', ok?'right':'wrong');
+    [].forEach.call(el.querySelectorAll('.opt'),function(b){
+      var j=+b.dataset.j; b.disabled=true; b.classList.remove('picked');
+      if(q.a.indexOf(j)>=0) b.classList.add('ok'); else if(picked.indexOf(j)>=0) b.classList.add('bad');
+    });
+    var c=el.querySelector('.check'); if(c) c.style.display='none';
+    var ans=q.a.map(function(j){return 'ABCD'[j];}).join(' and ');
+    el.querySelector('.why').innerHTML=(ok?'<b class="v">Correct.</b> ':'<b class="x">Not quite. The answer is '+ans+'.</b> ')+q.e;
+  }
+  function tally(){
+    var done=0,right=0;
+    Q.forEach(function(q,i){ if(state[i]){ done++; if(same(state[i],q.a)) right++; } });
+    document.getElementById('score').innerHTML=right+' / '+done+' <span>correct &middot; '+(Q.length-done)+' left</span>';
+    var dm=document.getElementById('doneMsg');
+    if(done===Q.length){
+      var pct=Math.round(100*right/Q.length);
+      dm.style.display='block';
+      dm.innerHTML='<h3>Finished: '+right+' / '+Q.length+' ('+pct+'%)</h3><p style="color:#C4CDD8">'+(pct>=90?'You’re ready for the Unit 3 test.':pct>=75?'Close. Click “Show missed only,” re-read those sections, then Reset and retake.':'Re-read the sections for the topics you missed (use the topic filters), then Reset and retake.')+'</p>';
+    } else dm.style.display='none';
+  }
+  function apply(){
+    Q.forEach(function(q,i){
+      var el=document.getElementById('q'+i);
+      var show=(filt==='All'||q.t===filt) && (!missedOnly || (state[i] && !same(state[i],q.a)));
+      el.style.display=show?'':'none';
+    });
+  }
+  document.getElementById('missedBtn').onclick=function(){ missedOnly=!missedOnly; this.classList.toggle('on',missedOnly); this.textContent=missedOnly?'Show all':'Show missed only'; apply(); };
+  document.getElementById('resetBtn').onclick=function(){
+    if(!confirm('Clear all your answers and start over?')) return;
+    state={}; save(); location.hash='#test'; location.reload();
+  };
+  tally();
+})();
+</script>
+</body>
+</html>

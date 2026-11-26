@@ -142,7 +142,7 @@ function pDone(id) { var st = ls("ist3:parsons:" + id) || {}; return D.lessons[i
 function tScore(id) { var n = TR[id].traces.length, st = ls("ist3:trace:" + id) || {}, s = 0; for (var i = 0; i < n; i++) s += (st[i] && st[i].best) || 0; return Math.round(s / n); }
 function tDone(id) { var st = ls("ist3:trace:" + id) || {}; return TR[id].traces.filter(function (t, i) { return st[i] && st[i].done; }).length; }
 function topTabs() {
-  $("tabs").innerHTML = '<a class="tab' + (view === "hubw" ? " on" : "") + '" href="?hub=w">' + ICON.next + 'Walkthroughs and assignments</a><a class="tab' + (view === "hubp" || view === "parsons" ? " on" : "") + '" href="?hub=p">' + ICON.puzzle + 'Parsons problems</a><a class="tab' + (view === "hubt" || view === "trace" ? " on" : "") + '" href="?hub=t">' + ICON.route + 'Page tracing</a>';
+  $("tabs").innerHTML = '<a class="tab' + (view === "hubw" ? " on" : "") + '" href="?hub=w">' + ICON.next + 'Walkthroughs and assignments</a><a class="tab' + (view === "hubp" || view === "parsons" ? " on" : "") + '" href="?hub=p">' + ICON.puzzle + 'Parsons problems</a><a class="tab' + (view === "hubt" || view === "trace" ? " on" : "") + '" href="?hub=t">' + ICON.route + 'Page tracing</a><a class="tab" href="game.html">' + ICON.next + 'Quiz games</a>';
   if (!$("pnote")) $("tabs").insertAdjacentHTML("afterend", '<div class="pnote" id="pnote"><b>Practice only.</b> These do not change your grade. Your grade comes from the walkthroughs and assignments in the Web Editor.</div>');
   $("pnote").style.display = view === "hubw" ? "none" : "";
 }
