@@ -58,8 +58,9 @@ def load_js(f, var):
     s = open(os.path.join(ROOT, f), encoding='utf-8').read(); return json.loads(s[s.index('{'):s.rindex('}') + 1])
 call = lambda b: json.loads(subprocess.run(['curl', '-s', '-X', 'POST', 'https://schscomputerscience.com/api/pycode', '-H', 'Content-Type: application/json', '-d', json.dumps(b)], capture_output=True, text=True).stdout)
 live = call({'action': 'assignments'})['assignments']
-for n in list(range(1, 14)) + list(range(126, 139)):
-    s = 'a%d' % n; r = live[s]
+for n in list(range(1, 14)) + list(range(126, 139)) + [16, 17, 18, 19, 20, 21, 22, 23, 26, 27, 28]:
+    s = 'a%d' % n; r = live.get(s)
+    if not r: print('(skipped %s: not served right now, locked)' % s); continue
     for b in r['blocks']:
         if 'code' in b: continue
         walk(b, s)
@@ -67,6 +68,7 @@ for n in list(range(1, 14)) + list(range(126, 139)):
     for q in r.get('mc') or []: walk({'q': q['q'], 'c': q['choices']}, s + ' mc')
     check(s, r.get('title'))
 walk(load_js('python/training.js', 'x'), 'training')
+walk(load_js('python/training-u4.js', 'x'), 'training-u4')
 P = load_js('python/parsons-u3.js', 'x')['lessons']
 for lid, L in P.items():
     for k, p in enumerate(L['problems']): walk({'t': p['title'], 's': p['story'], 'steps': p['steps']}, 'parsons %s #%d' % (lid, k + 1))

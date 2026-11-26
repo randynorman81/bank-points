@@ -1,5 +1,5 @@
 import json,sys
-D=json.load(open('/Users/randynorman/bank-points/tools/missions/testkit/u3-dump.json'))
+D=json.load(open('/Users/randynorman/bank-points/tools/missions/testkit/u34-dump.json'))
 for k in sys.argv[1:]:
     a=D[k]; print('=====',k,a['name'],'| answers',a['answers'])
     for i,s in enumerate(a['stages']):

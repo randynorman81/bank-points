@@ -5,7 +5,7 @@
    "What you should see" comes from testkit/u3-see.json, made by running each hidden reference program (qa-dump.mjs + the python step in it). Regenerate it after changing a reference program. */
 "use strict";
 const { ASG, PURPOSE } = require("./asg-kit.js");
-const SEE = require("./testkit/u3-see.json");
+const SEE = Object.assign({}, require("./testkit/u3-see.json"), require("./testkit/u4-see.json"));
 const HOW = "**How each step works:** read the **Goal**, then do the tasks in order. Every task has its own checkbox, and the small line under it turns green when your code has what the task needs. After you press **Run**, compare your output with **What you should see**.";
 const SCORE_T = "**Scoring:** worth **100 points**. There is no code to copy, so write it yourself. Use the names and values in the tables exactly. **100%** is full points.";
 const SCORE_N = "**Scoring:** worth **100 points**. There is no code to copy, so write it yourself. Use the names in **bold** and the labels in `code` exactly. **100%** is full points.";
@@ -26,10 +26,10 @@ function CLEAR(id, steps, o) {
     const sl = c.see || (see.stages[i].length ? see.stages[i] : NOTHING); s.see = sl;
   });
   a.how = HOW; a.scoring = anyTable ? SCORE_T : SCORE_N;
-  a.fin = { title: "Check your whole program", say: ["Press **Run** one last time" + (o && o.inputs ? " and answer the questions the same way (" + o.inputs + ")" : "") + ". Your output should match the box below, line for line. (If you did the stretch steps, you will see their extra lines at the end.)"], see: see.fin,
+  a.fin = { title: "Check your whole program", say: ["Press **Run** one last time" + (o && o.inputs ? " and answer the questions the same way (" + o.inputs + ")" : "") + ((o && o.fin) ? ". This program uses random numbers, so your numbers will differ every run. Your output should have the same kinds of lines as the box below" : ". Your output should match the box below, line for line") + ". (If you did the stretch steps, you will see their extra lines at the end.)"], see: (o && o.fin) || see.fin,
     do: ["Run the whole program and compare it with the output above.", "Look at the checklist above: every box should be green.", "Press **Submit** when your score says 100%."] };
 }
-module.exports = { CLEAR };
+module.exports = { CLEAR, VT, T, NOTHING };
 
 /* ---------------------------------------------------------------- 3.2 */
 CLEAR("u3l2", [
