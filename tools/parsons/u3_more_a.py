@@ -1,0 +1,88 @@
+# NEW Unit 3 Parsons exercises (lessons 3.1-3.6), each a different shape from the ones already in the lesson. P(title, story, code, distractors, typed inputs)
+MORE = {}
+def P(title, story, code, dis, ins=None): return dict(title=title, story=story, sol=code.split('\n'), distract=dis, ins=ins or [])
+L = lambda *a: '\n'.join(a)
+MORE['u3l1'] = [
+ P('Your first variable', 'Store the whole number 3 in a variable named lives. Then print lives.', L('lives = 3', 'print(lives)'),
+   ['lives == 3', 'print("lives")']),
+ P('Store a name', 'Store the text "Sam" in a variable named player_name. Then print player_name.', L('player_name = "Sam"', 'print(player_name)'),
+   ['player_name = Sam', 'print(Player_name)']),
+ P('Overwrite a variable', 'Store 10 in score. Then store 25 in score (it replaces the 10). Print score.', L('score = 10', 'score = 25', 'print(score)'),
+   ['25 = score', 'print(10)']),
+ P('Print the last name', 'Store "Ada" in first_name and "Lovelace" in last_name. Then print only last_name.', L('first_name = "Ada"', 'last_name = "Lovelace"', 'print(last_name)'),
+   ['last name = "Lovelace"', 'print("last_name")', 'print(first_name)']),
+ P('Lose two lives', 'Store 3 in lives. Take 1 away from lives (store it back in lives), then take 1 away again. Print lives.', L('lives = 3', 'lives = lives - 1', 'lives = lives - 1', 'print(lives)'),
+   ['lives - 1 = lives', 'lives = lives - 2', 'print("lives")']),
+ P('Coins with legal names', 'Store 12 in coin_count and 5 in bonus_coins. Store coin_count + bonus_coins in total_coins. Print total_coins. Use names that follow the style guide.', L('coin_count = 12', 'bonus_coins = 5', 'total_coins = coin_count + bonus_coins', 'print(total_coins)'),
+   ['total coins = coin_count + bonus_coins', '2nd_total = coin_count + bonus_coins', 'print(Total_coins)']),
+]
+MORE['u3l2'] = [
+ P('Print a decimal', 'Store the decimal number 4.5 in rating. Then print rating.', L('rating = 4.5', 'print(rating)'),
+   ['rating = 4.5.', 'print("rating")']),
+ P('What type is it?', 'Store the whole number 15 in age. Print the type of age (use type()).', L('age = 15', 'print(type(age))'),
+   ['print(type("age"))', 'print(typ(age))', 'age = "15"']),
+ P('Did the student pass?', 'Store 70 in score. Store in passed whether score is at least 60 (use >=). Print passed.', L('score = 70', 'passed = score >= 60', 'print(passed)'),
+   ['passed = score => 60', 'passed = score >= 80', 'print("passed")']),
+ P('Bill plus tip', 'Store 20 in bill. Store bill * 0.15 in tip. Store bill + tip in total. Print total.', L('bill = 20', 'tip = bill * 0.15', 'total = bill + tip', 'print(total)'),
+   ['tip = bill + 0.15', 'total = bill * tip', 'print(tip)']),
+ P('Lower the battery health', 'Store the decimal 91.5 in battery_health. Take 0.5 away from it and store the new value back in battery_health. Print battery_health.', L('battery_health = 91.5', 'battery_health = battery_health - 0.5', 'print(battery_health)'),
+   ['battery_health = battery_health + 0.5', 'battery_health = 0.5', 'print("battery_health")']),
+]
+MORE['u3l3'] = [
+ P('Echo the answer', 'Ask the user "Say something: " and store the answer in answer. Print answer. (The user types hello.)', L('answer = input("Say something: ")', 'print(answer)'),
+   ['answer = input(Say something: )', 'print("answer")', 'input = answer'], ['hello']),
+ P('Next birthday', 'Ask "Age? ", turn the answer into a whole number and store it in age. Print age + 1. (The user types 15.)', L('age = int(input("Age? "))', 'print(age + 1)'),
+   ['age = input("Age? ")', 'print(age + "1")', 'print(age = 1)'], ['15']),
+ P('Double the price', 'Ask "Price: ", turn the answer into a decimal number and store it in price. Print price * 2. (The user types 4.5.)', L('price = float(input("Price: "))', 'print(price * 2)'),
+   ['price = int(input("Price: "))', 'print(price * "2")', 'price = float(input(Price: ))'], ['4.5']),
+ P('Add two numbers', 'Ask "First: " and "Second: ", storing each answer as a whole number in a and b. Print a + b. (The user types 3 then 4.)', L('a = int(input("First: "))', 'b = int(input("Second: "))', 'print(a + b)'),
+   ['a = input("First: ")', 'print(a, b)', 'b = int(input("Second: ")'], ['3', '4']),
+ P('What type does input give?', 'Ask "Age: " and store the answer in age (do not convert it). Print the type of age. (The user types 15.)', L('age = input("Age: ")', 'print(type(age))'),
+   ['age = int(input("Age: "))', 'print(type(int(age)))', 'print(typ(age))'], ['15']),
+ P('Next number message', 'Ask "Number: " and store it as a whole number in n. Store "Next: " joined to str(n + 1) in msg. Print msg. (The user types 9.)', L('n = int(input("Number: "))', 'msg = "Next: " + str(n + 1)', 'print(msg)'),
+   ['msg = "Next: " + n + 1', 'msg = "Next: " + str(n) + 1', 'n = input("Number: ")'], ['9']),
+]
+MORE['u3l4'] = [
+ P('Greet a name', 'Store "Hello" in greeting and "Maya" in name. Print greeting, a space, then name, joined with +.', L('greeting = "Hello"', 'name = "Maya"', 'print(greeting + " " + name)'),
+   ['print(greeting + name)', 'print(greeting + " " + Name)', 'print("greeting" + " " + name)']),
+ P('Add a dollar sign', 'Store 12 in price. Print a dollar sign joined to the price as text.', L('price = 12', 'print("$" + str(price))'),
+   ['print("$" + price)', 'print("$" str(price))', 'print("$" + str("price"))']),
+ P('A line of dashes', 'Store 10 repeated dashes in line (use "-" * 10). Print line.', L('line = "-" * 10', 'print(line)'),
+   ['line = "-" + 10', 'line = "-" * "10"', 'print("line")']),
+ P('Score as a percent', 'Store 87 in score. Print the score as text with a percent sign after it.', L('score = 87', 'print(str(score) + "%")'),
+   ['print(score + "%")', 'print(str(score + "%"))', 'print(str(score) + %)']),
+ P('Item and cost with a comma', 'Store "Hoodie" in item and 35 in cost. Print item and cost separated by a comma inside print (no +).', L('item = "Hoodie"', 'cost = 35', 'print(item, cost)'),
+   ['print(item + cost)', 'print(item cost)', 'print("item", cost)']),
+ P('Level and boss label', 'Store 7 in level and False in is_boss. Print one line: Level, the level number, boss:, then is_boss (turn the number and the boolean into text).', L('level = 7', 'is_boss = False', 'print("Level " + str(level) + " boss: " + str(is_boss))'),
+   ['print("Level " + level + " boss: " + str(is_boss))', 'print("Level " + str(level) + " boss: " + is_boss)', 'is_boss = false']),
+]
+MORE['u3l5'] = [
+ P('First letter', 'Store "rocket" in word. Print its first letter (index 0).', L('word = "rocket"', 'print(word[0])'),
+   ['print(word[1])', 'print(word(0))', 'print(word[6])']),
+ P('First and last on two lines', 'Store "planet" in word. Print the letter at index 0, then on the next line print the letter at index 5.', L('word = "planet"', 'print(word[0])', 'print(word[5])'),
+   ['print(word[1])', 'print(word[6])', 'print(word(5))']),
+ P('Counting from the end', 'Store "planet" in word. Print word[-1], then on the next line print word[-2].', L('word = "planet"', 'print(word[-1])', 'print(word[-2])'),
+   ['print(word[-0])', 'print(word[-7])', 'print(word[1])']),
+ P('Two letters joined', 'Store "planet" in word. Print the letter at index 0 joined (with +) to the letter at index 1.', L('word = "planet"', 'print(word[0] + word[1])'),
+   ['print(word[0] + word[2])', 'print(word[0], word[1])', 'print(word[0] + word(1))']),
+ P('Initials', 'Store "Ada" in first and "Lovelace" in last. Print the first letter of first joined to the first letter of last.', L('first = "Ada"', 'last = "Lovelace"', 'print(first[0] + last[0])'),
+   ['print(first[1] + last[1])', 'print(first + last[0])', 'last = Lovelace']),
+ P('First letter of the typed word', 'Ask "Word: " and store the answer in word. Print the first letter of word. (The user types robot.)', L('word = input("Word: ")', 'print(word[0])'),
+   ['word = int(input("Word: "))', 'print(word[1])', 'print(word)'], ['robot']),
+ P('Index in a variable', 'Store "planet" in word and 3 in i. Print the letter of word at index i.', L('word = "planet"', 'i = 3', 'print(word[i])'),
+   ['i = 30', 'print(word[i - 1])', 'print(word["i"])']),
+]
+MORE['u3l6'] = [
+ P('First two letters', 'Store "planet" in word. Print the first two letters with a slice that starts at the beginning and stops before index 2.', L('word = "planet"', 'print(word[:2])'),
+   ['print(word[2:])', 'print(word[:3])', 'print(word(:2))']),
+ P('Last three letters', 'Store "planet" in word. Print the last 3 letters using a negative start and nothing after the colon.', L('word = "planet"', 'print(word[-3:])'),
+   ['print(word[:-3])', 'print(word[-2:])', 'print(word[3])']),
+ P('Everything but the last letter', 'Store "planet" in word. Print everything except the last letter (a slice that stops at -1).', L('word = "planet"', 'print(word[:-1])'),
+   ['print(word[-1])', 'print(word[1:])', 'print(word[:1])']),
+ P('Copy with a slice', 'Store "planet" in word. Store a copy of the whole string, made with [:], in copy. Print copy.', L('word = "planet"', 'copy = word[:]', 'print(copy)'),
+   ['copy = word[1:]', 'print(copy[1:])', 'copy = word[:-1]']),
+ P('First letter, dash, the rest', 'Store "ada" in name. Store the first letter (index 0) in first and everything from index 1 to the end in rest. Print first, a dash, then rest.', L('name = "ada"', 'first = name[0]', 'rest = name[1:]', 'print(first + "-" + rest)'),
+   ['rest = name[0:]', 'first = name[1]', 'print(first + rest)']),
+ P('Year and month', 'Store "2026-11-26" in date. Store the year (index 0 up to 4) in year and the month (index 5 up to 7) in month. Print year, a slash, then month.', L('date = "2026-11-26"', 'year = date[:4]', 'month = date[5:7]', 'print(year + "/" + month)'),
+   ['year = date[4:]', 'month = date[5:8]', 'print(year + month)']),
+]

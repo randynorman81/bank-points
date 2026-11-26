@@ -199,7 +199,7 @@ TR['u5l5'] = [
  P('print(abs(-7))\nprint(round(3.67))'),
  P('print(len("robot"))\nprint(min(4, 2, 8))\nprint(max(4, 2, 8))'),
  P('print(pow(2, 3))\nprint(pow(3, 2))'),
- P('import math\nside = math.sqrt(144)\nprint(side + 1)'),
+ P('nums = [2, 4, 6]\nprint(sum(nums))\nprint(sum(nums) / len(nums))'),
  P('print(round(3.14159, 2))\nprint(round(7.891, 1))'),
  P('import math\ndef hypotenuse(a, b):\n    return math.sqrt(a * a + b * b)\nprint(hypotenuse(3, 4))'),
  P('def walking(a, b):\n    return abs(a) + abs(b)\ndetour = int(input("Detour roll: "))\nprint(walking(3, -4) + detour)', ['2']),

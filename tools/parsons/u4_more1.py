@@ -1,0 +1,77 @@
+# Five MORE shapes per lesson (4.1-4.4) so every lesson has 10 different exercises, easy to hard. One row each (no placeholders).
+SH = {}
+def M(title, story, code, dis, ins=None, rnd=False):
+    return dict(title=title, story=story, sol=code, dis=dis, keys=[], pool=[()], ins=ins or [], rnd=rnd, tr=None)
+L = lambda *a: '\n'.join(a)
+
+SH['u4l1'] = [
+ M('Show the verified badge', 'Store True in is_verified. Print the label Verified: followed by is_verified.',
+   L('is_verified = True', 'print("Verified:", is_verified)'),
+   [(0, 'is_verified = Tru'), (1, 'print("Verified:", "is_verified")'), (1, 'print("Verified:" is_verified)')]),
+ M('Is the account under 1000?', 'Store 640 in followers. Store in under whether followers is less than 1000. Print the label Under 1000: followed by under.',
+   L('followers = 640', 'under = followers < 1000', 'print("Under 1000:", under)'),
+   [(1, 'under = followers > 1000'), (1, 'under = followers << 1000'), (2, 'print("Under 1000:", followers)')]),
+ M('Do the counts differ?', 'Store 90 in likes and 75 in comments. Store in different whether likes is NOT equal to comments (use !=). Print the label Different: followed by different.',
+   L('likes = 90', 'comments = 75', 'different = likes != comments', 'print("Different:", different)'),
+   [(2, 'different = likes == comments'), (2, 'different = likes <> comments'), (3, 'print("Different:" different)')]),
+ M('Muted after two taps', 'Store False in is_muted. Tap the mute button twice: flip is_muted with not, then flip it again, storing the result back each time. Print the label Muted after two taps: followed by is_muted.',
+   L('is_muted = False', 'is_muted = not is_muted', 'is_muted = not is_muted', 'print("Muted after two taps:", is_muted)'),
+   [(2, 'is_muted = is_muted'), (1, 'is_muted = not is_muted not'), (3, 'print("Muted after two taps:" is_muted)')]),
+ M('Is the username short enough?', 'Store "dance_queen" in username. Print the label Valid length: followed by whether len(username) is at most 15 (less than or equal to).',
+   L('username = "dance_queen"', 'print("Valid length:", len(username) <= 15)'),
+   [(1, 'print("Valid length:", len(username) >= 15)'), (1, 'print("Valid length:", len(username) <= 15'), (1, 'print("Valid length:", username <= 15)')]),
+ M('Is the account busy?', 'Store 480 in followers and 12 in posts. Store in busy whether followers divided by posts is at least 40. Print the label Busy account: followed by busy.',
+   L('followers = 480', 'posts = 12', 'busy = followers / posts >= 40', 'print("Busy account:", busy)'),
+   [(2, 'busy = followers / posts > 40'), (2, 'busy = followers / posts => 40'), (3, 'print("Busy account", busy)')]),
+]
+SH['u4l2'] = [
+ M('Both must be true', 'Store True in has_account and False in has_password. Store in can_login whether has_account AND has_password. Print the label Can log in: followed by can_login.',
+   L('has_account = True', 'has_password = False', 'can_login = has_account and has_password', 'print("Can log in:", can_login)'),
+   [(2, 'can_login = has_account or has_password'), (2, 'can_login = has_account && has_password'), (3, 'print("Can log in", can_login)')]),
+ M('Either one is enough', 'Store False in has_card and True in has_gift_code. Store in can_pay whether has_card OR has_gift_code. Print the label Can pay: followed by can_pay.',
+   L('has_card = False', 'has_gift_code = True', 'can_pay = has_card or has_gift_code', 'print("Can pay:", can_pay)'),
+   [(2, 'can_pay = has_card and has_gift_code'), (2, 'can_pay = has_card or'), (3, 'print("Can pay:", has_card)')]),
+ M('Flip with not', 'Store True in is_offline. Store in is_online the opposite of is_offline (use not). Then print the label Online: followed by is_online.',
+   L('is_offline = True', 'is_online = not is_offline', 'print("Online:", is_online)'),
+   [(1, 'is_online = is_offline not'), (1, 'is_online = is_offline'), (2, 'print("Online:", is_offline)')]),
+ M('Free shipping rule', 'Store 45 in cart_total and True in is_member. Store in free_ship whether cart_total is at least 50 OR is_member. Print the label Free shipping: followed by free_ship.',
+   L('cart_total = 45', 'is_member = True', 'free_ship = cart_total >= 50 or is_member', 'print("Free shipping:", free_ship)'),
+   [(2, 'free_ship = cart_total >= 50 and is_member'), (2, 'free_ship = cart_total => 50 or is_member'), (3, 'print("Free shipping:", cart_total)')]),
+ M('Watch window', 'Store 12 in hour. Store in prime_time whether hour is at least 7 AND hour is less than 11. Store in late_night the opposite of prime_time. Print the label Prime time: followed by prime_time, then the label Late night: followed by late_night.',
+   L('hour = 12', 'prime_time = hour >= 7 and hour < 11', 'late_night = not prime_time', 'print("Prime time:", prime_time)', 'print("Late night:", late_night)'),
+   [(1, 'prime_time = hour >= 7 or hour < 11'), (2, 'late_night = prime_time'), (4, 'print("Late night:", prime_time)')]),
+]
+SH['u4l3'] = [
+ M('Is it a perfect score?', 'Store 100 in score. Print the label Perfect: followed by whether score is equal to 100.',
+   L('score = 100', 'print("Perfect:", score == 100)'),
+   [(1, 'print("Perfect:", score = 100)'), (1, 'print("Perfect:", score != 100)'), (0, 'score = "100"')]),
+ M('Compare two times', 'Store 4 in my_time and 6 in friend_time (minutes). Print the label Faster: followed by whether my_time is LESS than friend_time.',
+   L('my_time = 4', 'friend_time = 6', 'print("Faster:", my_time < friend_time)'),
+   [(2, 'print("Faster:", my_time > friend_time)'), (2, 'print("Faster:", my_time << friend_time)'), (1, 'friend_time = "6"')]),
+ M('Is the puzzle number odd?', 'Store 17 in puzzle. Store in is_odd whether puzzle % 2 is equal to 1. Print the label Odd puzzle: followed by is_odd.',
+   L('puzzle = 17', 'is_odd = puzzle % 2 == 1', 'print("Odd puzzle:", is_odd)'),
+   [(1, 'is_odd = puzzle % 2 = 1'), (1, 'is_odd = puzzle // 2 == 1'), (2, 'print("Odd puzzle", is_odd)')]),
+ M('Last letter check', 'Store "crane" in guess. Print the label Ends with e: followed by whether the last letter of guess (index -1) is equal to "e".',
+   L('guess = "crane"', 'print("Ends with e:", guess[-1] == "e")'),
+   [(1, 'print("Ends with e:", guess[1] == "e")'), (1, 'print("Ends with e:", guess[-1] = "e")'), (1, 'print("Ends with e:", guess[-1] == e)')]),
+ M('Time to finish', 'Store 540 in seconds. Store in minutes the whole number of minutes (seconds // 60). Print the label Minutes: followed by minutes, then the label Under 10 minutes: followed by whether minutes is less than 10.',
+   L('seconds = 540', 'minutes = seconds // 60', 'print("Minutes:", minutes)', 'print("Under 10 minutes:", minutes < 10)'),
+   [(1, 'minutes = seconds / 60'), (3, 'print("Under 10 minutes:", minutes > 10)'), (2, 'print("Minutes:", seconds)')]),
+]
+SH['u4l4'] = [
+ M('A simple if', 'Store 190 in heart_rate. If heart_rate is greater than 180, print Too high.',
+   L('heart_rate = 190', 'if heart_rate > 180:', '    print("Too high")'),
+   [(1, 'if heart_rate > 180'), (2, 'print("Too high")'), (1, 'if heart_rate < 180:')]),
+ M('How far over the limit?', 'Store 25 in speed and 20 in limit. If speed is greater than limit, store speed - limit in over, then print the label Over by followed by over.',
+   L('speed = 25', 'limit = 20', 'if speed > limit:', '    over = speed - limit', '    print("Over by", over)'),
+   [(2, 'if speed < limit:'), (3, '    over = limit - speed'), (4, '    print("Over by" over)')]),
+ M('An if on a True/False variable', 'Store True in is_raining. If is_raining is True, print Use the indoor bike. Then, at the left edge, print Ride saved.',
+   L('is_raining = True', 'if is_raining:', '    print("Use the indoor bike")', 'print("Ride saved")'),
+   [(1, 'if is_raining'), (2, 'print("Use the indoor bike")'), (0, 'is_raining = False')]),
+ M('Two ifs in a row', 'Store 95 in cadence. First if: cadence is at least 90, print Sprint. Second if: cadence is at least 60, print Steady. Both are separate ifs.',
+   L('cadence = 95', 'if cadence >= 90:', '    print("Sprint")', 'if cadence >= 60:', '    print("Steady")'),
+   [(1, 'if cadence >= 100:'), (3, 'elif cadence >= 60:'), (4, 'print("Steady")')]),
+ M('An if inside an if', 'Store 60 in miles and True in has_helmet. If miles is greater than 50, check inside it: if has_helmet is True, print Long ride approved. Then print Ride saved at the left edge.',
+   L('miles = 60', 'has_helmet = True', 'if miles > 50:', '    if has_helmet:', '        print("Long ride approved")', 'print("Ride saved")'),
+   [(3, '    if has_helmet'), (4, '    print("Long ride approved")'), (2, 'if miles < 50:')]),
+]

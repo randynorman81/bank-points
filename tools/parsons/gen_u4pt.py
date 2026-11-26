@@ -11,6 +11,11 @@ SH = {}
 for mod in ('u4_shapes1', 'u4_shapes2'):
     try: SH.update(__import__(mod).SH)
     except ImportError: pass
+DROP = {'u4l1': ['Flip is_online']}      # existing shapes that were the same exercise as another one
+MORE = {}     # five extra, different exercises per lesson (one row each) so every lesson has 10 DIFFERENT problems
+for mod in ('u4_more1', 'u4_more2', 'u4_more3', 'u5_more'):
+    try: MORE.update(__import__(mod).SH)
+    except ImportError: pass
 LESSONS = [  # id, number as students see it, title, brand name, color, head
  ('u4l1', '4.1', 'Booleans', 'Instagram', '#C13584', '#ffffff'), ('u4l2', '4.2', 'Logical Operators', 'Disney+', '#113CCF', '#0B1D5E'),
  ('u4l3', '4.3', 'Comparison Operators', 'The New York Times', '#121212', '#ffffff'), ('u4l4', '4.4', 'If Statements', 'Peloton', '#DF1C2F', '#181A1D'),
@@ -48,11 +53,11 @@ def main(only):
     P, T, jobs, probs_by = {}, {}, [], {}
     for lid, num, title, brand, color, head in LESSONS:
         if lid not in SH or (only and lid not in only): continue
-        shapes = SH[lid]; probs = []
-        if len(shapes) != 5: errors.append((lid, 'need 5 shapes, have %d' % len(shapes)))
+        shapes = [x for x in SH[lid] if not any(x['title'].startswith(d) for d in DROP.get(lid, []))] + MORE.get(lid, []); probs = []
+        if len(shapes) != 10: errors.append((lid, 'need 10 shapes, have %d' % len(shapes)))
         for si, sh in enumerate(shapes):
-            if len(sh['pool']) != 4: errors.append((lid, 'shape %d needs 4 rows' % (si + 1)))
-            for row in (0, 1):
+            if len(sh['pool']) < 1: errors.append((lid, 'shape %d needs a row' % (si + 1)))
+            for row in (0,):
                 ttl, story, sol, dis, ins = fill(sh, sh['pool'][row]); tag = '%s P%d.%d' % (lid, si + 1, row)
                 exp, sample = check_problem(tag, sol, dis, ins, sh['rnd'], errors)
                 if exp is None: continue
