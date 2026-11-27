@@ -9,7 +9,7 @@
     "6.4": "Borders", "6.7": "Images and the Favicon", "6.75": "Emojis and Symbols", "6.6": "Links", "6.5": "Lists and Menus",
     "7.1": "Box Model", "7.2": "Colors (Names and Hex)", "7.3": "Display (Block vs Inline)", "7.4": "Div Tag", "7.5": "Tables"
   };
-  var DISP = { "6.1": "3.1", "6.2": "3.2", "6.20": "3.3", "6.3": "3.4", "6.35": "3.5", "6.4": "3.6", "6.7": "3.7", "6.75": "3.8", "6.6": "3.9", "6.5": "3.10", "7.1": "4.1 Adv. HTML", "7.2": "4.2 Adv. HTML", "7.3": "4.3 Adv. HTML", "7.4": "4.4 Adv. HTML", "7.5": "4.5 Adv. HTML" };
+  var DISP = { "6.1": "3.1", "6.2": "3.2", "6.20": "3.3", "6.3": "3.4", "6.35": "3.5", "6.4": "3.6", "6.7": "3.7", "6.75": "3.8", "6.6": "3.9", "6.5": "3.10", "7.1": "4.1", "7.2": "4.2", "7.3": "4.3", "7.4": "4.4", "7.5": "4.5" };
   root.U7_LAB_DISPLAY = {};
   Object.keys(NAMES).forEach(function (base) {
     ["w", "a"].forEach(function (s) { var i = H.ORDER.indexOf(base + s); if (i >= 0) H.ORDER.splice(i, 1); });

@@ -34,12 +34,12 @@ const COURSES = [
       { n: 2, label: "Unit 2 · Sep–Oct", title: "Intro to Programming (Karel)", migrated: true, path: "ist/unit-2/index.html" },
       { n: 6, label: "Unit 3 · Oct–Nov", title: "Web Design - HTML", migrated: true, path: "ist/unit-6/index.html" },
       { n: 7, label: "Unit 4 · Nov", title: "Advanced HTML", migrated: true, path: "ist/unit-7/index.html" },
-      { n: 8, label: "Unit 4 · Nov–Jan", title: "Intro to CSS + Layout", migrated: true, path: "ist/unit-8/index.html" },
-      { n: 9, label: "Unit 5 · Jan", title: "Bootstrap", migrated: true, path: "ist/unit-9/index.html" },
-      { n: 10, label: "Unit 6 · Feb", title: "Complete Website Project", migrated: true, path: "ist/unit-10/index.html" },
-      { n: 3, label: "Unit 7 · Mar", title: "Computing Basics", migrated: true, path: "ist/unit-3/index.html" },
-      { n: 4, label: "Unit 8 · Mar", title: "Operating Systems and Software", migrated: true, path: "ist/unit-4/index.html" },
-      { n: 13, label: "Unit 9 · Apr", title: "Networking", migrated: true, path: "ist/unit-13/index.html" }
+      { n: 8, label: "Unit 5 · Nov–Jan", title: "Intro to CSS + Layout", migrated: true, path: "ist/unit-8/index.html" },
+      { n: 9, label: "Unit 6 · Jan", title: "Bootstrap", migrated: true, path: "ist/unit-9/index.html" },
+      { n: 10, label: "Unit 7 · Feb", title: "Complete Website Project", migrated: true, path: "ist/unit-10/index.html" },
+      { n: 3, label: "Unit 8 · Mar", title: "Computing Basics", migrated: true, path: "ist/unit-3/index.html" },
+      { n: 4, label: "Unit 9 · Mar", title: "Operating Systems and Software", migrated: true, path: "ist/unit-4/index.html" },
+      { n: 13, label: "Unit 10 · Apr", title: "Networking", migrated: true, path: "ist/unit-13/index.html" }
       // Units 5 (IT Professional), 11 (JavaScript), and 12 (Web Dev) aren't taught
       // this year; their pages still exist under ist/unit-5, unit-11, unit-12.
     ]

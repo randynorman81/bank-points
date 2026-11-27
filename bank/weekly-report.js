@@ -8,7 +8,7 @@
   const TEACHER_SIGN = "Randy Norman\nSCHS Computer Science";
   const DAY = 86400000;
   const DISP = { "6.1": "3.1", "6.2": "3.2", "6.20": "3.3", "6.21": "3.3 Part 2", "6.22": "3.3 Part 3", "6.3": "3.4", "6.35": "3.5", "6.4": "3.6", "6.7": "3.7", "6.75": "3.8", "6.6": "3.9", "6.5": "3.10", "7.1": "4.1", "7.2": "4.2", "7.3": "4.3", "7.4": "4.4", "7.5": "4.5", "7.6": "4.6" };
-  const dispLesson = l => DISP[l] || (/^8\./.test(l) ? "4." + l.slice(2) : /^9\./.test(l) ? "5." + l.slice(2) : l);
+  const dispLesson = l => DISP[l] || (/^8\./.test(l) ? "5." + l.slice(2) : /^9\./.test(l) ? "6." + l.slice(2) : l);
 
   let PIN = "", ROSTER = [], DATA = null, PYASG = {}, HIST = {}, ACTLOG = {}, STUDENTS = [], WEEK = null;
 
