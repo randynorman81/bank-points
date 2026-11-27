@@ -276,11 +276,11 @@ T("rel", "attribute", ["rel", "relationship"], "link stylesheet icon head",
 
 /* ---------- CSS PROPERTIES ---------- */
 T("color", "property", ["text color", "font color"], "text color words red blue",
-  "color changes the color of the TEXT. Use a color name like tomato or a hex code like #FF6347.",
-  [["color:", "The property"], ["teal", "The value (a color name or hex)"], [";", "Ends the line"]],
+  "color changes the color of the TEXT. Use one of the 140 color names, like tomato or darkcyan.",
+  [["color:", "The property"], ["teal", "The value (one of the 140 color names)"], [";", "Ends the line"]],
   "color is the text. For the space behind the text use background-color.",
   [E("Named color", `<p style="color: teal;">Teal text</p>`, [["color: teal;", "text turns teal"]]),
-   E("Hex color", `<h2 style="color: #FF6347;">Tomato red heading</h2>`, [["#FF6347", "a hex color code"]])]),
+   E("A longer color name", `<h2 style="color: darkcyan;">Dark cyan heading</h2>`, [["darkcyan", "one word, no spaces"]])]),
 
 T("background-color", "property", ["background", "background color"], "color behind fill",
   "background-color paints the space BEHIND an element. Put it on the body and the whole page changes.",
@@ -426,13 +426,13 @@ T("Selectors: tag, .class, #id", "selector", ["selector", "selectors", "css rule
 <ul><li>Teal item</li></ul>`, [["p.note", "p AND class note"], ["ul li", "li inside a ul"]])]),
 
 /* ---------- VALUES ---------- */
-T("Color values (names and hex)", "value", ["color names", "hex", "hex color", "hex code", "#ff6347", "tomato", "red", "blue", "rgb"], "color name code",
-  "A color value can be a name (red, tomato, teal) or a hex code that starts with # and has six letters or numbers, like #FF6347.",
-  [["tomato", "A color name"], ["#FF6347", "A hex code (# plus 6 characters)"]],
-  "Hex codes need the # at the start. Pick colors with a color picker to get the code.",
-  [E("A name and a hex code", `<p style="color: tomato;">Tomato by name</p>
-<p style="color: #FF6347;">Tomato by hex code</p>`, [["tomato", "name"], ["#FF6347", "hex: the same color"]]),
-   E("Two colors on one tag", `<h2 style="color: #FFFFFF; background-color: #1E3A8A;">White on navy</h2>`, [["#FFFFFF", "white"], ["#1E3A8A", "dark blue"]])]),
+T("Color names (140)", "value", ["color names", "named colors", "140 colors", "tomato", "red", "blue", "darkblue", "lightyellow"], "color name code",
+  "A color value is one of the 140 color names: red, tomato, teal, darkblue, lightyellow and many more.",
+  [["tomato", "A color name"], ["darkblue", "A darker version (one word)"]],
+  "A color name is one word with no spaces: darkblue, not dark blue. The color list page shows all 140.",
+  [E("Plain and dark names", `<p style="color: blue;">Blue</p>
+<p style="color: darkblue;">Dark blue</p>`, [["blue", "the plain name"], ["darkblue", "the dark version"]]),
+   E("Two colors on one tag", `<h2 style="color: white; background-color: darkblue;">White on dark blue</h2>`, [["white", "text color"], ["darkblue", "background color"]])]),
 
 T("px and % (sizes)", "value", ["px", "pixels", "percent", "%", "pixel"], "size number unit pixels percent",
   "px means pixels, tiny dots on the screen. A bigger number is bigger. % means a part of the space available: 50% is half.",

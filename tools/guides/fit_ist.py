@@ -91,7 +91,12 @@ def check_lesson(unit, cid, fit):
     d = fitz.open(p); start = {}; end = {}
     for i, pg in enumerate(d):
         for m in re.finditer(r"ZZB(\d+)([se])ZZ", pg.get_text()): (start if m.group(2) == "s" else end)[int(m.group(1))] = i
-    bad = [(k, start[k] + 1, end[k] + 1) for k in start if k in end and start[k] != end[k]]
+    def stray(k):
+        """a block whose only thing on the next page is its own invisible end marker is not split (the 1pt marker line fell over the page edge)"""
+        t = d[end[k]].get_text(); i = t.find("ZZB%deZZ" % k)
+        before = re.sub(r"ZZB\d+[se]ZZ", "", t[:i]); before = re.sub(r"INTRO TO SOFTWARE TECHNOLOGY.*?Computer Science", "", before, flags=re.S)
+        return len(re.sub(r"[\s\d]", "", before.replace("UNIT", "").replace("STUDY GUIDE", ""))) < 40
+    bad = [(k, start[k] + 1, end[k] + 1) for k in start if k in end and start[k] != end[k] and not (end[k] == start[k] + 1 and stray(k))]
     soup = BeautifulSoup(marked, "lxml"); desc = {}
     for sel in SC.SEL:
         for el in soup.select(sel):

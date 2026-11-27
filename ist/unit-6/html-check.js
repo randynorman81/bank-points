@@ -485,7 +485,7 @@
     ] },
     "6.2": { name: "The \"Style\" Attribute + Color", rules: [
       r("Has one heading 1, at least 3 heading 2s, and at least 6 paragraphs", function (c) { return c.count("h1") === 1 && c.count("h2") >= 3 && c.count("p") >= 6; }, "Pick your topic, then build the page: 1 h1, 3 or more h2, 6 or more p."),
-      r("The body has a background-color (a named color or hex code)", function (c) { var b = c.all("body")[0]; return !!b && hasDecl(c, b, "background-color", isNamedColor); }, "Put style=\"background-color: lime;\" on the body tag."),
+      r("The body has a background-color (a named color)", function (c) { var b = c.all("body")[0]; return !!b && hasDecl(c, b, "background-color", isNamedColor); }, "Put style=\"background-color: lime;\" on the body tag."),
       r("The body also has a text color that is different from its background-color", function (c) { var b = c.all("body")[0]; return !!b && hasDecl(c, b, "color", isNamedColor) && colorsDiffer(c, b); }, "Chain it after the background-color: style=\"background-color: lime; color: purple;\""),
       r("The heading 1 uses color and background-color together", function (c) { var h = c.all("h1")[0]; return !!h && bothColors(c, h) && colorsDiffer(c, h); }, "Two properties in one style attribute, with a semicolon between them."),
       r("EVERY heading 2 and EVERY paragraph uses color and background-color together (two different colors)", function (c) { var e = c.all("h2").concat(c.all("p").filter(function (x) { return declOf(c, x, "color")[0] || declOf(c, x, "background-color")[0]; })); return e.length >= 9 && e.every(function (x) { return bothColors(c, x) && colorsDiffer(c, x); }); }, "Almost every tag on an ugly page has both colors."),

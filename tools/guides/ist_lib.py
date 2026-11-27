@@ -39,10 +39,11 @@ def picture(title, code, caption=None, width=560):
     cap = ('<figcaption>%s%s</figcaption>' % (gl.FIGMARK, caption)) if caption else ""
     return '<figure class="fig">%s%s%s</figure>' % (t, frame, cap)
 
-def _wrap_fit(kind, key, inner):
+def _wrap_fit(kind, key, inner, page=None):
     """an example and its picture (or a trace code listing and its table) are ONE unit: they never separate across pages, and finalize() scales the unit so it fits the page it is on"""
     wid = kind + hashlib.md5(key.encode()).hexdigest()[:8]
-    return '<div class="hx" data-id="%s">%s<i class="hxe" data-id="%s"></i></div>' % (wid, inner, wid)
+    pg = (' data-page="%s"' % _html.escape(page, quote=True)) if page else ""     # the full page, so the web version can show it live and let the reader edit it
+    return '<div class="hx" data-id="%s"%s>%s<i class="hxe" data-id="%s"></i></div>' % (wid, pg, inner, wid)
 
 FITFILE = os.path.join(HERE, "ist_fit.json")
 def load_fit():
@@ -52,11 +53,11 @@ def finalize(html, mark=False, fit=None):
     """gives every example/trace unit its scale (ist_fit.json, made by fit_ist.py) and, when mark is on, invisible page-finding markers at its start and end"""
     fit = load_fit() if fit is None else fit
     def op(m):
-        wid = m.group(1); z = fit.get(wid, 1.0)
+        wid = m.group(1); attrs = m.group(2); z = fit.get(wid, 1.0)
         st = ' style="zoom:%.3f;width:%.2f%%;margin-left:auto;margin-right:auto"' % (z, 100 * z) if abs(z - 1) > 1e-6 else ""
         mk = '<span class="zz">ZZH%ssZZ</span>' % wid if mark else ""
-        return '<div class="hx" data-id="%s"%s>%s' % (wid, st, mk)
-    html = re.sub(r'<div class="hx" data-id="(\w+)">', op, html)
+        return '<div class="hx" data-id="%s"%s%s>%s' % (wid, attrs, st, mk)
+    html = re.sub(r'<div class="hx" data-id="(\w+)"((?: data-page="[^"]*")?)>', op, html)
     return re.sub(r'<i class="hxe" data-id="(\w+)"></i>', (lambda m: '<span class="zz">ZZH%seZZ</span>' % m.group(1)) if mark else "", html)
 
 def HX(title, code, notes, cap=None, shot=True, shot_cap=None, render=None):
@@ -65,7 +66,7 @@ def HX(title, code, notes, cap=None, shot=True, shot_cap=None, render=None):
     snippet = code.strip("\n")
     out = annot_code(title, snippet, notes, caption=cap, lang="HTML")
     if shot: out += picture("The page this code makes", render if render is not None else snippet, shot_cap)
-    return _wrap_fit("x", title + "\n" + snippet, out)
+    return _wrap_fit("x", title + "\n" + snippet, out, page=page_of(render if render is not None else snippet))
 
 def TX(title, code, cap=None, names=("The browser does", "The page so far")):
     """a page trace: one row per line of code, what the browser does with that line and the page it has built so far (the rows are checked in a real browser)"""

@@ -23,6 +23,28 @@
 .brandcard .name{font-weight:700;color:#fff;font-size:14px}
 .brandcard .hex{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-soft);display:none;margin-top:4px}
 .brandcard.revealed .hex{display:block}
+
+.hexbuild .lab{display:block;font:600 11px "JetBrains Mono",monospace;margin-top:6px;text-align:center;letter-spacing:.04em}
+.hexbuild.big{flex-wrap:wrap;gap:6px}.hexbuild .cell{display:flex;flex-direction:column;align-items:center;padding:0 10px}
+.hexbuild .cell small{font:600 12px "JetBrains Mono",monospace;margin-top:6px;opacity:.9}
+.hexbuild .r small{color:#FF6B6B}.hexbuild .g small{color:#6BFF95}.hexbuild .b small{color:#6BAFFF}
+.tw{display:inline-block;width:46px;height:20px;border-radius:5px;border:1px solid var(--rule);vertical-align:middle}
+.mixer{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:18px;margin:14px 0 26px}
+.mixer .row{display:grid;grid-template-columns:70px 1fr 56px 44px;gap:10px;align-items:center;margin:8px 0;font:600 13px "JetBrains Mono",monospace}
+.mixer input[type=range]{width:100%}
+.mixer .rr{color:#FF6B6B}.mixer .gg{color:#6BFF95}.mixer .bb{color:#6BAFFF}
+.mixer .out{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:14px}
+.mixer .big{flex:1 1 220px;height:96px;border-radius:10px;border:1px solid var(--rule)}
+.mixer .code{font:700 26px "JetBrains Mono",monospace;color:#fff}
+.mixer .snip{font:500 13px "JetBrains Mono",monospace;color:var(--ink-soft);margin-top:4px}
+.mixer button,.decoder button{background:var(--card);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:7px 12px;cursor:pointer;font:600 12px "JetBrains Mono",monospace}
+.decoder{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:18px;margin:14px 0 26px}
+.decoder input{font:700 20px "JetBrains Mono",monospace;background:#05070B;color:#fff;border:1px solid var(--rule);border-radius:8px;padding:8px 12px;width:min(100%,220px)}
+.decoder .res{margin-top:12px;font:500 14px/1.6 "JetBrains Mono",monospace;color:#E8ECF3}
+.decoder .res .bad{color:#FCA5A5}.decoder .res .ok{color:#86EFAC}
+table.cmp td .tw{margin-right:8px}
+.qa{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:12px 16px;margin:10px 0}
+.qa b{color:#fff}.qa .ans{display:none;margin-top:8px;color:#86EFAC}.qa.open .ans{display:block}.qa button{margin-top:8px;background:transparent;border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:5px 10px;cursor:pointer;font:600 12px "JetBrains Mono",monospace}
 </style>
 </head>
 <body>
@@ -31,7 +53,7 @@
 <header class="hero"><div class="wrap">
   <div class="brief-no">Unit 4 Notes &nbsp;/&nbsp; Lesson 4.2</div>
   <h1>Named Colors &amp; Hex Codes</h1>
-  <p class="deck">140 built-in names get you started fast. Hex codes unlock 16.7 million exact shades. Same property, same syntax &mdash; just a different way of naming the color.</p>
+  <p class="deck">140 built-in names get you started fast. Hex codes unlock 16.7 million exact shades. This page shows you how to read a hex code, how to use one, where to find one, and how to build your own from scratch.</p>
   <span class="stdchip">color &middot; background-color &middot; named colors &middot; #RRGGBB</span>
 </div></header>
 <div class="wrap"><div class="assign-root"></div></div>
@@ -53,40 +75,188 @@
     <div style="background:ForestGreen">ForestGreen</div><div style="background:HotPink">HotPink</div><div style="background:DarkOrange">DarkOrange</div>
     <div style="background:MidnightBlue">MidnightBlue</div><div style="background:Turquoise;color:#111;text-shadow:none">Turquoise</div><div style="background:Chocolate">Chocolate</div>
   </div>
-  <div class="hint-panel">These 12 are a taste of the full 140. The complete list is in the Drive doc linked on the 4.2 lesson page &mdash; you don't need to memorize them, just know they exist and how to spell the ones you use.</div>
+  <div class="hint-panel">These 12 are a taste of the full 140. The complete list is in the Drive doc linked on the 4.2 lesson page &mdash; you don't need to memorize them, just know they exist and how to spell the ones you use. Every named color is also a hex code underneath: <code>tomato</code> is <code>#FF6347</code>, <code>navy</code> is <code>#000080</code>, <code>gold</code> is <code>#FFD700</code>.</div>
 </div></section>
 
 <section class="part"><div class="wrap">
-  <div class="part-head"><div class="part-tag">03</div><h2>How a Hex Code Actually Works</h2></div>
-  <p class="lede">A hex code is <b>#</b> followed by 6 characters, split into <b>three pairs</b>: Red, Green, Blue. Each pair runs from <code>00</code> (none of that color) to <code>FF</code> (the max).</p>
-  <div class="hexbuild"><span class="hash">#</span><span class="r">1B</span><span class="g">2A</span><span class="b">4A</span></div>
-  <div class="chanlabels" style="color:#FF6B6B"><span style="width:1ch"> </span><span style="width:4ch;text-align:center">RED</span></div>
-  <p class="lede" style="margin-top:0">Try a few real ones and watch the swatch update:</p>
+  <div class="part-head"><div class="part-tag">03</div><h2>What the 6 Characters Do</h2></div>
+  <p class="lede">A hex code is a <b>#</b> followed by <b>6 characters</b>. Those 6 characters are really <b>three pairs</b>, and each pair is the amount of one light: <b style="color:#FF6B6B">Red</b>, <b style="color:#6BFF95">Green</b>, then <b style="color:#6BAFFF">Blue</b>, always in that order.</p>
+  <div class="hexbuild big"><span class="hash">#</span><span class="cell r">1B<small>RED</small></span><span class="cell g">2A<small>GREEN</small></span><span class="cell b">4A<small>BLUE</small></span></div>
+  <div class="cards">
+    <div class="cardx"><div class="num">Chars 1&ndash;2</div><h4 style="color:#FF6B6B">Red</h4><p>How much red light the screen shines. <code>00</code> = none, <code>FF</code> = as much as possible.</p></div>
+    <div class="cardx"><div class="num">Chars 3&ndash;4</div><h4 style="color:#6BFF95">Green</h4><p>How much green light. Same scale: <code>00</code> to <code>FF</code>.</p></div>
+    <div class="cardx"><div class="num">Chars 5&ndash;6</div><h4 style="color:#6BAFFF">Blue</h4><p>How much blue light. Same scale: <code>00</code> to <code>FF</code>.</p></div>
+  </div>
+  <p class="lede">Your screen is made of tiny red, green and blue lights. A hex code tells every pixel how bright to make each of the three. Mix the three lights and you get every color you can see on a screen.</p>
+  <div class="callout">Order matters: <b>R</b>ed, <b>G</b>reen, <b>B</b>lue.<span>Swap the pairs and you get a different color. <code>#FF0000</code> is red, <code>#0000FF</code> is blue, and the only difference is which pair holds the <code>FF</code>.</span></div>
+  <p class="lede" style="margin-top:22px">Try some real ones and watch the swatch update. The three bars show how much of each light is in the color:</p>
   <div class="pickrow" id="hx"></div>
   <div class="swatchbig" id="hxOut"></div>
-  <div class="hint-panel"><b>Reading trick:</b> the closer a pair is to <code>FF</code>, the more of that color is mixed in. <code>#FF0000</code> is pure red, <code>#00FF00</code> is pure green, <code>#FFFFFF</code> is white (max of all three), <code>#000000</code> is black (none of any).</div>
+  <div id="hxBars" style="margin-bottom:10px"></div>
+  <div class="hint-panel"><b>Reading trick:</b> the closer a pair is to <code>FF</code>, the more of that light is mixed in. The closer to <code>00</code>, the less. <code>#FF0000</code> is pure red, <code>#00FF00</code> is pure green, <code>#FFFFFF</code> is white (all three at max), <code>#000000</code> is black (none of any).</div>
 </div></section>
 
 <section class="part"><div class="wrap">
-  <div class="part-head"><div class="part-tag">04</div><h2>Finding a Hex Code: Google Color Picker</h2></div>
-  <div class="cards">
-    <div class="cardx"><div class="num">Step 1</div><h4>Search "color picker"</h4><p>Google shows a full interactive picker right in the search results.</p></div>
-    <div class="cardx"><div class="num">Step 2</div><h4>Pick a shade</h4><p>Click the gradient square, drag the hue slider for the base color.</p></div>
-    <div class="cardx"><div class="num">Step 3</div><h4>Copy the HEX field</h4><p>Copy the code (like <code>#3B82F6</code>) and paste it after <code>color:</code> or <code>background-color:</code>.</p></div>
+  <div class="part-head"><div class="part-tag">04</div><h2>Why Letters? Counting in Hexadecimal</h2></div>
+  <p class="lede">"Hex" is short for <b>hexadecimal</b>, which means <b>base 16</b>. We normally count with 10 digits (0&ndash;9). Hexadecimal uses <b>16 digits</b>. Since we only have ten number symbols, the extra six are the letters <b>A through F</b>.</p>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Hex digit</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th></tr></thead>
+    <tbody><tr><td><b>Value</b></td><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td></tr></tbody>
+  </table></div></div>
+  <p class="lede"><b>Why two characters per color?</b> One hex digit only counts 0 to 15. Two hex digits side by side count 0 to 255 &mdash; that is 256 different brightness levels for each light. With three lights, that is 256 &times; 256 &times; 256 = <b>16,777,216</b> possible colors. That is where the "16.7 million" comes from.</p>
+  <h3 style="margin:26px 0 8px">How to turn one pair into a number</h3>
+  <p class="lede">The <b>left</b> character is worth 16 each. The <b>right</b> character is worth 1 each. Multiply the left digit by 16 and add the right digit.</p>
+  <div class="codeblk">pair = (left digit &times; 16) + right digit
+
+<span class="vl">1B</span>  =  1 &times; 16 + 11  =  16 + 11   = <span class="pt">27</span>      (B is 11)
+<span class="vl">2A</span>  =  2 &times; 16 + 10  =  32 + 10   = <span class="pt">42</span>      (A is 10)
+<span class="vl">4A</span>  =  4 &times; 16 + 10  =  64 + 10   = <span class="pt">74</span>
+<span class="vl">FF</span>  = 15 &times; 16 + 15  = 240 + 15   = <span class="pt">255</span>     (the biggest pair)
+<span class="vl">00</span>  =  0 &times; 16 +  0  =   0         = <span class="pt">0</span>       (the smallest pair)</div>
+  <p class="lede">So <code>#1B2A4A</code> means <b>27 red, 42 green, 74 blue</b> out of 255 each. Almost no red or green, a little more blue: a <b>very dark blue</b>.</p>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Pair</th><th>Number</th><th>How much light</th></tr></thead>
+    <tbody>
+      <tr><td><code>00</code></td><td>0</td><td>none (off)</td></tr>
+      <tr><td><code>33</code></td><td>51</td><td>20% (dim)</td></tr>
+      <tr><td><code>66</code></td><td>102</td><td>40%</td></tr>
+      <tr><td><code>80</code></td><td>128</td><td>about half</td></tr>
+      <tr><td><code>99</code></td><td>153</td><td>60%</td></tr>
+      <tr><td><code>CC</code></td><td>204</td><td>80% (bright)</td></tr>
+      <tr><td><code>FF</code></td><td>255</td><td>100% (full)</td></tr>
+    </tbody></table></div></div>
+  <div class="hint-panel">You do not need to do this math to <i>use</i> a hex code. You copy one from a tool. The math only helps you <b>read</b> a code ("this one is mostly blue") and <b>build</b> one yourself.</div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">05</div><h2>Decode Any Hex Code</h2></div>
+  <p class="lede">Type a hex code. The decoder splits it into its three pairs, shows each number, and tells you if the browser would reject it.</p>
+  <div class="decoder">
+    <input id="dec" value="#FF6347" aria-label="hex code" maxlength="12" autocomplete="off" spellcheck="false">
+    <div class="res" id="decOut"></div>
   </div>
-  <p class="lede">Real brands have official hex codes too &mdash; sites like <b>brandcolors.net</b> keep a free database of them. Guess a few, then click to reveal:</p>
-  <div class="brandgrid" id="brands"></div>
 </div></section>
 
 <section class="part"><div class="wrap">
-  <div class="part-head"><div class="part-tag">05</div><h2>Vocab You Need</h2></div>
+  <div class="part-head"><div class="part-tag">06</div><h2>Reading Hex Codes: Patterns to Know</h2></div>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Color</th><th>Hex</th><th>Red</th><th>Green</th><th>Blue</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tw" style="background:#FF0000"></span>Red</td><td><code>#FF0000</code></td><td>255</td><td>0</td><td>0</td><td>only red is on</td></tr>
+      <tr><td><span class="tw" style="background:#00FF00"></span>Lime</td><td><code>#00FF00</code></td><td>0</td><td>255</td><td>0</td><td>only green is on</td></tr>
+      <tr><td><span class="tw" style="background:#0000FF"></span>Blue</td><td><code>#0000FF</code></td><td>0</td><td>0</td><td>255</td><td>only blue is on</td></tr>
+      <tr><td><span class="tw" style="background:#FFFF00"></span>Yellow</td><td><code>#FFFF00</code></td><td>255</td><td>255</td><td>0</td><td>red + green light make yellow</td></tr>
+      <tr><td><span class="tw" style="background:#00FFFF"></span>Cyan</td><td><code>#00FFFF</code></td><td>0</td><td>255</td><td>255</td><td>green + blue make cyan</td></tr>
+      <tr><td><span class="tw" style="background:#FF00FF"></span>Magenta</td><td><code>#FF00FF</code></td><td>255</td><td>0</td><td>255</td><td>red + blue make magenta</td></tr>
+      <tr><td><span class="tw" style="background:#FFFFFF"></span>White</td><td><code>#FFFFFF</code></td><td>255</td><td>255</td><td>255</td><td>all three at full</td></tr>
+      <tr><td><span class="tw" style="background:#000000"></span>Black</td><td><code>#000000</code></td><td>0</td><td>0</td><td>0</td><td>all three off</td></tr>
+      <tr><td><span class="tw" style="background:#808080"></span>Gray</td><td><code>#808080</code></td><td>128</td><td>128</td><td>128</td><td>all three equal</td></tr>
+    </tbody></table></div></div>
+  <div class="cards">
+    <div class="cardx"><div class="num">Pattern 1</div><h4>Same pair 3 times = gray</h4><p>When red, green and blue are equal, no color wins, so you get a gray. <code>#333333</code> is dark gray, <code>#CCCCCC</code> is light gray.</p></div>
+    <div class="cardx"><div class="num">Pattern 2</div><h4>Bigger pairs = lighter</h4><p>Raise all three pairs and the color gets lighter. Lower all three and it gets darker. <code>#800000</code> is dark red, <code>#FF0000</code> is red, <code>#FF8080</code> is light red.</p></div>
+    <div class="cardx"><div class="num">Pattern 3</div><h4>The biggest pair names the color</h4><p>In <code>#1B2A4A</code> the blue pair (<code>4A</code>) is the biggest, so the color leans blue. In <code>#E50914</code> the red pair (<code>E5</code>) is far bigger, so it leans red.</p></div>
+  </div>
+  <p class="lede">Darker, same hue (watch the red pair drop): <span class="tw" style="background:#FF0000"></span> <code>#FF0000</code> &rarr; <span class="tw" style="background:#800000"></span> <code>#800000</code> &rarr; <span class="tw" style="background:#400000"></span> <code>#400000</code>. Lighter (the other two pairs rise): <span class="tw" style="background:#FF0000"></span> <code>#FF0000</code> &rarr; <span class="tw" style="background:#FF8080"></span> <code>#FF8080</code> &rarr; <span class="tw" style="background:#FFC0C0"></span> <code>#FFC0C0</code>.</p>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">07</div><h2>Using a Hex Code in Your HTML</h2></div>
+  <p class="lede">A hex code goes anywhere a color name can go: after <code>color:</code> (text), after <code>background-color:</code>, or inside a border.</p>
+  <div class="codeblk">&lt;h1 style="<span class="pt">color</span>: <span class="vl">#FF6347</span>;"&gt;Tomato Soup&lt;/h1&gt;
+&lt;p style="<span class="pt">color</span>: <span class="vl">#FFFFFF</span>; <span class="pt">background-color</span>: <span class="vl">#1B2A4A</span>;"&gt;Night mode&lt;/p&gt;
+&lt;h3 style="<span class="pt">border</span>: 3px solid <span class="vl">#1DB954</span>;"&gt;A green frame&lt;/h3&gt;</div>
+  <h3 style="margin:22px 0 8px">The rules, every time</h3>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>Rule</th><th>Right</th><th>Wrong</th><th>What the browser does with the wrong one</th></tr></thead>
+    <tbody>
+      <tr><td>Start with <code>#</code></td><td><code>#FF6347</code></td><td><code>FF6347</code></td><td>ignores the whole color</td></tr>
+      <tr><td>Exactly 6 characters (3 pairs)</td><td><code>#FF6347</code></td><td><code>#FF634</code> or <code>#FF63477</code></td><td>ignores the whole color</td></tr>
+      <tr><td>Only 0&ndash;9 and A&ndash;F</td><td><code>#1DB954</code></td><td><code>#1DG954</code></td><td>ignores the whole color</td></tr>
+      <tr><td>No spaces inside</td><td><code>#FF6347</code></td><td><code>#FF 6347</code></td><td>ignores the whole color</td></tr>
+      <tr><td>No quote marks around it</td><td><code>color: #FF6347;</code></td><td><code>color: "#FF6347";</code></td><td>ignores the whole color</td></tr>
+      <tr><td>Finish with a semicolon between styles</td><td><code>color: #FF6347; font-size: 20px;</code></td><td><code>color: #FF6347 font-size: 20px;</code></td><td>ignores the broken style</td></tr>
+    </tbody></table></div></div>
+  <div class="warn"><b>"Ignores" means the style simply does not happen.</b> There is no error message. The text just stays the normal color. If your color is not showing up, count the characters, check for the <code>#</code>, and look for a letter past F.</div>
+  <div class="hint-panel"><b>Upper or lower case?</b> Both work. <code>#ff6347</code> and <code>#FF6347</code> are the same color. This course writes them in capitals so they are easy to read.</div>
+  <h3 style="margin:22px 0 8px">A 3-character shortcut you will see on other sites</h3>
+  <p class="lede">If each pair is two <i>identical</i> characters, a code can be written with just one of each. The browser doubles every character: <code>#F60</code> means <code>#FF6600</code>, and <code>#0AF</code> means <code>#00AAFF</code>. It only works when all three pairs are doubled characters. <code>#FF6347</code> has no shorter form. In this class always write all 6 so your work is easy to check.</p>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">08</div><h2>Finding a Hex Code</h2></div>
+  <p class="lede">Nobody memorizes hex codes. You find them. Here are four ways, from easiest to most powerful.</p>
+  <div class="cards">
+    <div class="cardx"><div class="num">Way 1</div><h4>Google's color picker</h4><p>Search <b>color picker</b>. Google shows a picker right in the results. Drag the rainbow slider for the base color, click in the square for the shade, and copy the <b>HEX</b> value (like <code>#3B82F6</code>).</p></div>
+    <div class="cardx"><div class="num">Way 2</div><h4>A color name's hex code</h4><p>Looking at the 140 named colors? Every one has a hex code. The color name list in the 4.2 lesson shows both. <code>tomato</code> is <code>#FF6347</code>, <code>gold</code> is <code>#FFD700</code>, <code>teal</code> is <code>#008080</code>.</p></div>
+    <div class="cardx"><div class="num">Way 3</div><h4>Brand color databases</h4><p>Companies have official colors. Sites like <b>brandcolors.net</b> list them. Spotify green is <code>#1DB954</code>, Netflix red is <code>#E50914</code>.</p></div>
+    <div class="cardx"><div class="num">Way 4</div><h4>Steal from any website (Chrome)</h4><p>Right-click a page, choose <b>Inspect</b>, find the color in the Styles panel, and click the small colored square next to it. A picker opens with an <b>eyedropper</b> you can click on anything on screen. The code appears right there.</p></div>
+  </div>
+  <p class="lede">Guess a few brand colors, then click to reveal their hex codes:</p>
+  <div class="brandgrid" id="brands"></div>
+  <div class="hint-panel"><b>Always paste the whole code, including the #.</b> Pickers sometimes show the code without the <code>#</code>. Add it back before pasting it into your HTML.</div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">09</div><h2>Create Your Own Hex Code</h2></div>
+  <p class="lede">You can build any color yourself by choosing how much red, green and blue you want, then writing each amount as a pair. Use the mixer to see it happen.</p>
+  <div class="mixer" id="mixer">
+    <div class="row"><span class="rr">RED</span><input type="range" min="0" max="255" value="255" id="mr"><span id="mrn">255</span><span class="rr" id="mrh">FF</span></div>
+    <div class="row"><span class="gg">GREEN</span><input type="range" min="0" max="255" value="99" id="mg"><span id="mgn">99</span><span class="gg" id="mgh">63</span></div>
+    <div class="row"><span class="bb">BLUE</span><input type="range" min="0" max="255" value="71" id="mb"><span id="mbn">71</span><span class="bb" id="mbh">47</span></div>
+    <div class="out"><div class="big" id="mbig"></div><div><div class="code" id="mcode">#FF6347</div><div class="snip" id="msnip">background-color: #FF6347;</div><div style="margin-top:8px"><button type="button" id="mcopy">Copy the code</button> <span id="mnote" class="snip"></span></div></div></div>
+  </div>
+  <h3 style="margin:22px 0 8px">Method 1: Build it from the three amounts</h3>
+  <div class="cards">
+    <div class="cardx"><div class="num">Step 1</div><h4>Decide the three amounts</h4><p>Pick a number from 0 to 255 for red, green and blue. (The sliders do this.)</p></div>
+    <div class="cardx"><div class="num">Step 2</div><h4>Turn each into a pair</h4><p>Divide the number by 16. The <b>whole-number answer</b> is the left character. The <b>remainder</b> is the right character. (10 = A, 11 = B, 12 = C, 13 = D, 14 = E, 15 = F.)</p></div>
+    <div class="cardx"><div class="num">Step 3</div><h4>Write # then the pairs</h4><p>Put the pairs in order: red, green, blue.</p></div>
+  </div>
+  <div class="codeblk"><span style="color:var(--ink-soft)">Make a bright orange: red 255, green 140, blue 0</span>
+
+RED   255 &divide; 16 = 15 remainder 15   &rarr;  F and F   &rarr;  <span class="vl">FF</span>
+GREEN 140 &divide; 16 =  8 remainder 12   &rarr;  8 and C   &rarr;  <span class="vl">8C</span>      (12 is C)
+BLUE    0 &divide; 16 =  0 remainder  0   &rarr;  0 and 0   &rarr;  <span class="vl">00</span>
+
+Hex code: <span class="pt">#FF8C00</span></div>
+  <div class="codeblk"><span style="color:var(--ink-soft)">Make a sea green: red 32, green 178, blue 170</span>
+
+RED    32 &divide; 16 =  2 remainder  0   &rarr;  <span class="vl">20</span>
+GREEN 178 &divide; 16 = 11 remainder  2   &rarr;  B and 2 &rarr;  <span class="vl">B2</span>     (11 is B)
+BLUE  170 &divide; 16 = 10 remainder 10   &rarr;  A and A &rarr;  <span class="vl">AA</span>     (10 is A)
+
+Hex code: <span class="pt">#20B2AA</span></div>
+  <h3 style="margin:22px 0 8px">Method 2: Start from a color you like and tweak it</h3>
+  <p class="lede">This is how most designers really do it. Pick a hex code close to what you want, then change <b>one pair at a time</b> and look at the result.</p>
+  <div class="tblwrap"><div class="tblscroll"><table class="cmp">
+    <thead><tr><th>You want&hellip;</th><th>Change this</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>more red</td><td>raise the first pair</td><td><span class="tw" style="background:#406080"></span> <code>#406080</code> &rarr; <span class="tw" style="background:#C06080"></span> <code>#C06080</code></td></tr>
+      <tr><td>less green</td><td>lower the middle pair</td><td><span class="tw" style="background:#40A080"></span> <code>#40A080</code> &rarr; <span class="tw" style="background:#402080"></span> <code>#402080</code></td></tr>
+      <tr><td>more blue</td><td>raise the last pair</td><td><span class="tw" style="background:#406040"></span> <code>#406040</code> &rarr; <span class="tw" style="background:#4060E0"></span> <code>#4060E0</code></td></tr>
+      <tr><td>a lighter shade</td><td>raise all three pairs a little</td><td><span class="tw" style="background:#306090"></span> <code>#306090</code> &rarr; <span class="tw" style="background:#70A0D0"></span> <code>#70A0D0</code></td></tr>
+      <tr><td>a darker shade</td><td>lower all three pairs a little</td><td><span class="tw" style="background:#306090"></span> <code>#306090</code> &rarr; <span class="tw" style="background:#102040"></span> <code>#102040</code></td></tr>
+      <tr><td>a duller, grayer color</td><td>move the three pairs closer together</td><td><span class="tw" style="background:#E03020"></span> <code>#E03020</code> &rarr; <span class="tw" style="background:#A06050"></span> <code>#A06050</code></td></tr>
+    </tbody></table></div></div>
+  <div class="example"><b>Tip for matching colors that go together.</b> Pick one main color, then make a lighter version for backgrounds and a darker version for text by raising or lowering all three pairs by the same amount. The page will feel like one family of colors.</div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">10</div><h2>Check Yourself</h2></div>
+  <div id="qa"></div>
+</div></section>
+
+<section class="part"><div class="wrap">
+  <div class="part-head"><div class="part-tag">11</div><h2>Vocab You Need</h2></div>
   <div class="tblwrap"><div class="tblscroll"><table class="cmp">
     <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
     <tbody>
       <tr><td><b>Named color</b></td><td>One of 140 built-in color words, like <code>tomato</code> or <code>navy</code></td></tr>
-      <tr><td><b>Hex code</b></td><td>A <code>#</code> plus 6 characters (0&ndash;9, A&ndash;F) giving an exact RGB shade</td></tr>
-      <tr><td><b>RGB pair</b></td><td>Each 2-character chunk of a hex code, controlling red, green, or blue (00&ndash;FF)</td></tr>
+      <tr><td><b>Hex code</b></td><td>A <code>#</code> plus 6 characters (0&ndash;9, A&ndash;F) giving an exact shade</td></tr>
+      <tr><td><b>Hexadecimal</b></td><td>Counting with 16 digits: 0&ndash;9 and then A (10) through F (15)</td></tr>
+      <tr><td><b>RGB pair</b></td><td>Each 2-character chunk of a hex code, controlling red, green, or blue (<code>00</code>&ndash;<code>FF</code>, which is 0&ndash;255)</td></tr>
       <tr><td><b>Color picker</b></td><td>A visual tool (search "color picker") that hands you the hex code for any shade</td></tr>
+      <tr><td><b>Eyedropper</b></td><td>A picker tool, like the one in Chrome's Inspect panel, that copies the color of anything on screen</td></tr>
     </tbody></table></div></div>
 </div></section>
 
@@ -94,14 +264,41 @@
 
 <script src="../unit-4/notes.js"></script>
 <script>
+function toHexPair(n){ var h = n.toString(16).toUpperCase(); return h.length < 2 ? "0" + h : h; }
 (function(){
-  var HX = ["#FF6347","#1B2A4A","#1DB954","#E50914","#457B9D","#F4A460"], row = document.getElementById("hx"), out = document.getElementById("hxOut"), cur = 0;
+  var HX = ["#FF6347","#1B2A4A","#1DB954","#E50914","#457B9D","#F4A460"], row = document.getElementById("hx"), out = document.getElementById("hxOut"), bars = document.getElementById("hxBars"), cur = 0;
   HX.forEach(function (h, i) { var b = document.createElement("button"); b.textContent = h; b.onclick = function () { cur = i; draw(); }; row.appendChild(b); });
   function draw() {
     Array.prototype.forEach.call(row.children, function (b, i) { b.classList.toggle("on", i === cur); });
-    out.style.background = HX[cur];
+    var h = HX[cur]; out.style.background = h;
+    var v = [parseInt(h.substr(1, 2), 16), parseInt(h.substr(3, 2), 16), parseInt(h.substr(5, 2), 16)], nm = ["Red", "Green", "Blue"], col = ["#FF6B6B", "#6BFF95", "#6BAFFF"], p = [h.substr(1, 2), h.substr(3, 2), h.substr(5, 2)], html = "";
+    for (var i = 0; i < 3; i++) html += '<div style="display:grid;grid-template-columns:90px 1fr 120px;gap:10px;align-items:center;margin:5px 0;font:600 13px \'JetBrains Mono\',monospace"><span style="color:' + col[i] + '">' + nm[i] + ' ' + p[i] + '</span><span style="background:#1b2030;border-radius:6px;height:14px;display:block"><span style="display:block;height:14px;border-radius:6px;background:' + col[i] + ';width:' + (v[i] / 255 * 100).toFixed(1) + '%"></span></span><span style="color:#E8ECF3">' + v[i] + ' of 255</span></div>';
+    bars.innerHTML = html;
   }
   draw();
+})();
+(function(){
+  var inp = document.getElementById("dec"), out = document.getElementById("decOut");
+  function run() {
+    var t = inp.value.trim(), msg = "";
+    if (t === "") { out.innerHTML = '<span class="bad">Type a hex code, like #FF6347.</span>'; return; }
+    if (t.charAt(0) !== "#") msg = "It must start with # (a hash mark). The browser would ignore this.";
+    else if (/\s/.test(t)) msg = "No spaces allowed inside a hex code. The browser would ignore this.";
+    else if (t.length === 4 && /^#[0-9A-Fa-f]{3}$/.test(t)) {
+      var f = "#" + t[1] + t[1] + t[2] + t[2] + t[3] + t[3]; inp.setAttribute("data-full", f);
+      out.innerHTML = '<span class="ok">Valid 3-character shortcut. The browser doubles each character:</span> ' + t.toUpperCase() + ' &rarr; ' + f.toUpperCase() + '<br>' + detail(f.toUpperCase()); return;
+    }
+    else if (t.length - 1 !== 6) msg = "It needs exactly 6 characters after the # (you typed " + (t.length - 1) + "). The browser would ignore this.";
+    else if (!/^#[0-9A-Fa-f]{6}$/.test(t)) { var bad = t.slice(1).match(/[^0-9A-Fa-f]/); msg = "The character “" + bad[0] + "” is not allowed. Only 0 to 9 and A to F. The browser would ignore this."; }
+    if (msg) { out.innerHTML = '<span class="bad">&#10007; ' + msg + '</span>'; return; }
+    out.innerHTML = '<span class="ok">&#10003; Valid hex code.</span><br>' + detail(t.toUpperCase());
+  }
+  function detail(h) {
+    var p = [h.substr(1, 2), h.substr(3, 2), h.substr(5, 2)], n = p.map(function (x) { return parseInt(x, 16); }), c = ["#FF6B6B", "#6BFF95", "#6BAFFF"], nm = ["Red", "Green", "Blue"], s = "";
+    for (var i = 0; i < 3; i++) s += '<span style="color:' + c[i] + '">' + nm[i] + ' pair ' + p[i] + '</span> = ' + parseInt(p[i][0], 16) + ' &times; 16 + ' + parseInt(p[i][1], 16) + ' = <b>' + n[i] + '</b> of 255<br>';
+    return s + '<span style="display:inline-block;width:100%;max-width:220px;height:34px;border-radius:6px;background:' + h + ';border:1px solid #2a3040;margin-top:6px"></span>';
+  }
+  inp.addEventListener("input", run); run();
 })();
 (function(){
   var B = [["Netflix","#E50914"],["Spotify","#1DB954"],["YouTube","#FF0000"],["Twitter / X","#000000"]];
@@ -112,6 +309,39 @@
     card.innerHTML = '<div class="chip" style="background:' + b[1] + '"></div><div class="name">' + b[0] + '</div><div class="hex">' + b[1] + '</div>';
     card.onclick = function () { card.classList.add("revealed"); };
     grid.appendChild(card);
+  });
+})();
+(function(){
+  var r = document.getElementById("mr"), g = document.getElementById("mg"), b = document.getElementById("mb");
+  function upd() {
+    var v = [+r.value, +g.value, +b.value], ids = ["mr", "mg", "mb"], pairs = v.map(toHexPair);
+    for (var i = 0; i < 3; i++) { document.getElementById(ids[i] + "n").textContent = v[i]; document.getElementById(ids[i] + "h").textContent = pairs[i]; }
+    var code = "#" + pairs.join(""); document.getElementById("mbig").style.background = code; document.getElementById("mcode").textContent = code; document.getElementById("msnip").textContent = "background-color: " + code + ";";
+  }
+  [r, g, b].forEach(function (x) { x.addEventListener("input", upd); }); upd();
+  document.getElementById("mcopy").onclick = function () {
+    var t = document.getElementById("mcode").textContent, n = document.getElementById("mnote");
+    function done(ok) { n.textContent = ok ? "Copied " + t : "Select the code above and copy it"; }
+    try { navigator.clipboard.writeText(t).then(function () { done(true); }, function () { done(false); }); } catch (e) { done(false); }
+  };
+})();
+(function(){
+  var Q = [
+    ["What does each pair in <code>#1DB954</code> control?", "<code>1D</code> is the red amount, <code>B9</code> is the green amount, and <code>54</code> is the blue amount. Always red, green, blue in that order."],
+    ["Which is bigger in a hex pair, <code>0F</code> or <code>F0</code>?", "<code>F0</code>. The left character is worth 16 each, so F0 = 15 &times; 16 = 240, but 0F = 15."],
+    ["What is the number value of the pair <code>A3</code>?", "A is 10, so 10 &times; 16 + 3 = <b>163</b>."],
+    ["What color is <code>#0000FF</code>? What about <code>#FFFF00</code>?", "<code>#0000FF</code> is pure blue (only the blue pair is full). <code>#FFFF00</code> is yellow (red and green both full, blue off)."],
+    ["Why does <code>color: FF6347;</code> not change the text color?", "It has no <code>#</code> at the front, so the browser ignores it. It must be <code>color: #FF6347;</code>."],
+    ["Is <code>#12345G</code> a valid hex code?", "No. <b>G</b> is not a hex digit (the letters stop at F), so the browser ignores it."],
+    ["What do you get when all three pairs are the same, like <code>#666666</code>?", "A gray. With equal amounts of red, green and blue no color wins. Lower pairs are darker grays, higher pairs are lighter."],
+    ["Write the hex code for red 255, green 0, blue 128.", "255 is <code>FF</code>, 0 is <code>00</code>, and 128 is 8 &times; 16 + 0, which is <code>80</code>. The code is <b>#FF0080</b>."],
+    ["You have <code>#306090</code> and want it darker. What do you do?", "Lower all three pairs by about the same amount, for example to <code>#102040</code>."]
+  ], box = document.getElementById("qa");
+  Q.forEach(function (q, i) {
+    var d = document.createElement("div"); d.className = "qa";
+    d.innerHTML = '<b>' + (i + 1) + '.</b> ' + q[0] + '<div class="ans">' + q[1] + '</div><button type="button">Show the answer</button>';
+    d.querySelector("button").onclick = function () { d.classList.toggle("open"); this.textContent = d.classList.contains("open") ? "Hide the answer" : "Show the answer"; };
+    box.appendChild(d);
   });
 })();
 </script>

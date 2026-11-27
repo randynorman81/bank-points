@@ -15,3 +15,4 @@ UNIT = Unit(3, "Web Design 1: HTML", "Build real web pages: the skeleton, headin
     "Web Design: HTML", "#0D9488", "#0F766E", "#5EEAD4", "#CCFBF1", "html",
     ["Build a web page from the HTML skeleton: doctype, html, head, title and body", "Change colors, sizes, alignment and letter case with the style attribute", "Use strong, em, br, hr and span, and load Google fonts", "Draw borders, add pictures and a favicon, and use emojis and symbols", "Make links, including picture links, and build ordered, unordered and menu lists", "Read HTML like a browser: trace a page one line at a time"],
     CHAPTERS_A + CHAPTERS_B + CHAPTERS_C, glossary=[], brand=BRAND, seed=11)
+from units.ist_extra import enrich as _enrich; _enrich(UNIT)

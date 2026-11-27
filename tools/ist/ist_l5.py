@@ -13,7 +13,7 @@ P35 = [
    [(0, '<p style="font-family: Arial sans-serif;">A clean modern look.</p>'), (0, '<p style="font-family: Arial, sans-serif;">A clean modern look.</h1>'), (0, '<p style="font-family: Arial, ;">A clean modern look.</p>')]),
  P('The monospace family', 'Show the paragraph print("hi") in the monospace family, like typed code. Then add a normal paragraph that says That is code.',
    L('<p style="font-family: monospace;">print("hi")</p>', '<p>That is code.</p>'),
-   [(0, '<p style="font-family: monospaced;">print("hi")</p>'), (0, '<p style="font-family: monospace;">print("hi")<p>'), (0, '<p style="font-style: monospace;">print("hi")</p>')]),
+   [(0, '<p style="font-family: monospaced;">print("hi")</p>'), (0, '<p style="font-family: monospace;">print("hi")<p>'), (0, '<p style="font-famly: monospace;">print("hi")</p>')]),
  P('Link one Google font', 'Build a small page. The html box has a head and a body. In the head, load the Google font Pacifico with the link tag. The body has a heading that says Hello.',
    L('<html>', '<head>', FONT('Pacifico'), '</head>', '<body>', '<h1>Hello</h1>', '</body>', '</html>'),
    [(2, '<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet"'), (2, FONT('Pacifico')[:-1] + '</link>'), (3, '</hed>')]),

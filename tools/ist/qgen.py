@@ -136,7 +136,7 @@ def l2_which_style(rng):
 def l2_errorline(rng):
     cols = rng.sample(COLORS, 5); shop = rng.choice(SHOPS)
     kinds = {'equals': lambda c, p: 'color = %s' % c, 'nosemi': lambda c, p: 'color: %s background-color: %s' % (c, rng.choice(COLORS)), 'badname': lambda c, p: 'color: %s' % (c + 'x'),
-             'badprop': lambda c, p: 'colour: %s' % c, 'nohash': lambda c, p: 'color: %s' % ('FF6347')}
+             'badprop': lambda c, p: 'colour: %s' % c, 'twowords': lambda c, p: 'color: %s' % rng.choice(['dark blue', 'light green', 'hot pink', 'sky blue'])}
     kind = rng.choice(list(kinds))
     tags = ['h1', 'h2', 'p', 'p']; names = ['the heading 1', 'the heading 2', 'the first paragraph', 'the second paragraph']
     bad = rng.randrange(4); lines = []
@@ -148,15 +148,16 @@ def l2_errorline(rng):
     js = "Array.prototype.map.call(d.body.children,function(e){return getComputedStyle(e).color})"
     right = names[bad]; wrong = [n for i, n in enumerate(names) if i != bad]
     return mkq(rng, 2, 'Finding the error', 'One of these tags will NOT show its color. Which one?', code, right, wrong,
-               'A style must be written <code>property: value</code>, with a colon, a real property name, a real color (a name, or a hex code that starts with #), and a semicolon between two styles. The broken style is ignored and the text stays black.', [ck(code, js, exp)])
-def l2_hex(rng):
-    h = rng.choice(HEXES); wrong = [h[1:], h[:4] + 'G' + h[5:], h + '0', '#' + h[1:6]]
-    wrong = [w if w[0] == '#' or w == h[1:] else w for w in wrong]
-    pagesx = {w: pg('<h1%s>Test</h1>\n' % st('color: ' + w)) for w in [h] + wrong}
+               'A style must be written <code>property: value</code>, with a colon, a real property name, a real color name (one word, no spaces), and a semicolon between two styles. The broken style is ignored and the text stays black.', [ck(code, js, exp)])
+NAMES140 = ['darkblue', 'lightyellow', 'lightseagreen', 'darkorange', 'slategray', 'forestgreen', 'dodgerblue', 'darkcyan', 'lightcoral', 'mediumpurple', 'seagreen', 'firebrick', 'steelblue', 'goldenrod', 'darkgreen', 'lightpink', 'midnightblue', 'chocolate', 'tomato', 'crimson']
+def l2_colorname(rng):
+    h = rng.choice(NAMES140[:-2]); bad = [h[:-1], h[:len(h) // 2] + ' ' + h[len(h) // 2:], h + 'x', rng.choice(['sunset', 'darkblu', 'color1'])]
+    bad = [w for w in bad if w != h]
+    pagesx = {w: pg('<h1%s>Test</h1>\n' % st('color: ' + w)) for w in [h] + bad}
     js = "getComputedStyle(d.querySelector('h1')).color"
-    chk = [dict(html=pagesx[h], js=js, expect={'not': RGB['black']})] + [dict(html=pagesx[w], js=js, expect=RGB['black']) for w in wrong]
-    return mkq(rng, 2, 'Hex codes', 'Which of these is a valid hex color code?', None, C(h), [C(w) for w in wrong],
-               'A hex code is a <b>#</b> followed by 6 letters and numbers (0-9 and A-F). No #, a letter past F, or the wrong number of digits makes the browser ignore it.', chk, key='hex|' + h)
+    chk = [dict(html=pagesx[h], js=js, expect={'not': RGB['black']})] + [dict(html=pagesx[w], js=js, expect=RGB['black']) for w in bad]
+    return mkq(rng, 2, 'Color names', 'Which of these is a color name that HTML understands?', None, C(h), [C(w) for w in bad],
+               'HTML knows 140 color names. A name is written as one word with no spaces, spelled exactly right. A misspelled, made-up or two-word name makes the browser ignore the style, and the text stays black.', chk, key='cname|' + h)
 def l2_nesting(rng):
     shop = rng.choice(SHOPS); a, b, c = rng.sample(COLORS, 3)
     code = page(shop, '<h1>%s</h1>\n<p%s>%s</p>\n' % (shop, st('background-color: ' + a), sentence(rng)), battr=st('background-color: %s; color: %s' % (b, c))); must_parse(code)
@@ -173,14 +174,14 @@ L2_FACTS = [
  ('What quotes surround the styles in a style attribute?', 'Double quotes', ['No quotes', 'Angle brackets', 'Parentheses'], 'The styles go inside a pair of double quotes: <code>style="color: red"</code>.'),
  ('Which property changes the color of the text?', '<code>color</code>', ['<code>text-color</code>', '<code>font-paint</code>', '<code>background-color</code>'], '<code>color</code> is the text color.'),
  ('Which property changes the color behind the text?', '<code>background-color</code>', ['<code>color</code>', '<code>back</code>', '<code>text-background</code>'], '<code>background-color</code> colors the box behind the text.'),
- ('What does a hex color code start with?', 'A # symbol', ['A $ symbol', 'A quote', 'A zero'], 'Hex codes look like <code>#1E90FF</code>.'),
+ ('About how many built-in color names does HTML know?', '140', ['5', '16', '1,000'], 'HTML has 140 color names, from <code>red</code> and <code>blue</code> to <code>darkcyan</code> and <code>lightyellow</code>.'),
  ('Which style on the body changes the whole page background?', '<code>&lt;body style="background-color: navy"&gt;</code>', ['<code>&lt;head style="background-color: navy"&gt;</code>', '<code>&lt;html color="navy"&gt;</code>', '<code>&lt;title style="background-color: navy"&gt;</code>'], 'Styles on the body reach the whole page.'),
  ('A page has a navy background. What text color is easiest to read?', 'White', ['Navy', 'Dark blue', 'Black'], 'Light text on a dark background is easy to read. Matching colors hide the text.'),
- ('Can one tag have two style attributes?', 'No: put all the styles inside one style attribute', ['Yes, as many as you like', 'Yes, but only on the body', 'Only if they use hex codes'], 'Use one style attribute and separate the styles with semicolons.'),
- ('Which is a named color?', '<code>tomato</code>', ['<code>#tomato</code>', '<code>color1</code>', '<code>sunset-red</code>'], 'There are 148 named colors, and <code>tomato</code> is one.'),
+ ('Can one tag have two style attributes?', 'No: put all the styles inside one style attribute', ['Yes, as many as you like', 'Yes, but only on the body', 'Only if they use color names'], 'Use one style attribute and separate the styles with semicolons.'),
+ ('Which is a named color?', '<code>tomato</code>', ['<code>#tomato</code>', '<code>color1</code>', '<code>sunset-red</code>'], 'HTML has 140 named colors, and <code>tomato</code> is one.'),
  ('A paragraph has no color style, and the body has <code>color: green</code>. What color is the paragraph text?', 'Green', ['Black', 'Blue', 'There is no text color'], 'Tags without their own color use the body color.'),
 ]
-L2_T = [l2_textcolor, l2_which_style, l2_errorline, l2_hex, l2_nesting]
+L2_T = [l2_textcolor, l2_which_style, l2_errorline, l2_colorname, l2_nesting]
 
 # ====================================================================== LESSON 3: size, alignment, letter case
 def l3_transform(rng):
@@ -350,7 +351,7 @@ def l5_family(rng):
 
 L5_FACTS = [
  ('Where does the Google Fonts link go?', 'Inside the head', ['Inside the body', 'Inside the h1', 'Above the doctype'], 'The link goes in the head and downloads the font.'),
- ('Which tag loads a Google font?', '<code>&lt;link&gt;</code>', ['<code>&lt;font&gt;</code>', '<code>&lt;load&gt;</code>', '<code>&lt;style&gt;</code>'], 'Google gives you a link tag to paste in the head.'),
+ ('Which tag loads a Google font?', '<code>&lt;link&gt;</code>', ['<code>&lt;font&gt;</code>', '<code>&lt;load&gt;</code>', '<code>&lt;import&gt;</code>'], 'Google gives you a link tag to paste in the head.'),
  ('Is loading a font the same as using it?', 'No: you must also write font-family in a style', ['Yes: the font is used automatically', 'Yes, but only for headings', 'Only if the link is in the body'], 'Loading downloads the font. font-family uses it.'),
  ('Why does a font name like Open Sans need quotes in <code>font-family</code>?', 'It has a space in the name', ['It is a long word', 'It has capital letters', 'It is a serif font'], 'Names with spaces need quotes. Use single quotes inside the double-quoted style.'),
  ('In a Google Fonts link, how is the space in Open Sans written?', 'As a plus sign: <code>Open+Sans</code>', ['As a dash', 'As an underscore', 'It cannot have a space'], 'The link writes the space as +.'),
@@ -411,7 +412,7 @@ L6_FACTS = [
  ('Which border style looks pressed in?', '<code>groove</code>', ['<code>ridge</code>', '<code>dotted</code>', '<code>solid</code>'], 'A groove looks pressed in. A ridge looks like it sticks out.'),
  ('Which border style looks like it sticks out?', '<code>ridge</code>', ['<code>groove</code>', '<code>dashed</code>', '<code>double</code>'], 'A ridge looks raised.'),
  ('Which border style is made of dots?', '<code>dotted</code>', ['<code>dashed</code>', '<code>double</code>', '<code>solid</code>'], 'dotted is dots; dashed is dashes.'),
- ('Can one heading have a border on the left side only?', 'Yes, with <code>border-left</code>', ['No, borders are always on all sides', 'Yes, but only on a paragraph', 'Only with a hex code'], 'Use the side property you want.'),
+ ('Can one heading have a border on the left side only?', 'Yes, with <code>border-left</code>', ['No, borders are always on all sides', 'Yes, but only on a paragraph', 'Only with a color name'], 'Use the side property you want.'),
 ]
 L6_T = [l6_describe, l6_sides, l6_which_para, l6_write, l6_double]
 
@@ -651,7 +652,7 @@ L10_FACTS = [
  ('Which marker values can an <code>ol</code> use?', 'decimal, upper-roman, lower-roman, upper-alpha, lower-alpha', ['disc, circle, square, none', 'bold, italic, plain', 'red, green, blue'], 'Numbers, roman numerals and letters belong to ol.'),
  ('Which marker values can a <code>ul</code> use?', 'disc, circle, square and none', ['decimal and upper-roman', 'A, B, C', 'red, green, blue'], 'Bullet shapes belong to ul.'),
  ('Where do you write <code>list-style-type</code> to change the markers of the whole list?', 'On the ul or ol tag', ['On every li tag', 'On the body tag only', 'In the title'], 'Write it once on the list tag.'),
- ('Which style makes the items of a menu sit side by side?', '<code>display: inline</code> on every li', ['<code>display: list</code>', '<code>float: sideways</code>', '<code>margin: 0</code>'], 'Inline tags flow like words.'),
+ ('Which style makes the items of a menu sit side by side?', '<code>display: inline</code> on every li', ['<code>display: list</code>', '<code>row: sideways</code>', '<code>list-style-type: none</code>'], 'Inline tags flow like words.'),
  ('Is an li a block or an inline tag?', 'A block: each item starts on its own line', ['Inline: items flow like words', 'Neither', 'It depends on the marker'], 'That is why a list stacks.'),
 ]
 L10_T = [l10_count, l10_which, l10_marker, l10_ul_style, l10_menu, l10_inline, l10_defect]
@@ -712,10 +713,10 @@ def l11_which_layer(rng):
                     ('Which layer is between the content and the border?', 'The padding', ['The margin', 'The width', 'The outline'])])
     return mkq(rng, 11, 'The four layers', q[0], None, q[1], q[2], 'The four layers, from the inside out, are content, padding, border and margin. Padding takes the background color; margin is always transparent.', [], key='wl|' + q[0])
 def l11_border_size(rng):
-    w = rng.choice([100, 150, 200]); b = rng.choice([4, 5, 10]); code = pg('<div%s>Box</div>\n' % st('width: %dpx; border: %dpx solid navy' % (w, b))); must_parse(code)
+    w = rng.choice([100, 150, 200]); b = rng.choice([4, 5, 10]); code = pg('<p%s>Box</p>\n' % st('width: %dpx; border: %dpx solid navy' % (w, b))); must_parse(code)
     t = w + 2 * b
     return mkq(rng, 11, 'A border adds size', 'This box has <code>width: %dpx</code> and a %dpx border and no padding. How wide is it in all?' % (w, b), code, '%d pixels' % t, ['%d pixels' % x for x in (w, w + b, w - 2 * b, w + 4 * b) if x != t][:3],
-               'A border takes real space on both sides: %d + %d + %d = %d.' % (w, b, b, t), [ck(code, "d.querySelector('div').getBoundingClientRect().width", t)], key='bs|%d|%d' % (w, b))
+               'A border takes real space on both sides: %d + %d + %d = %d.' % (w, b, b, t), [ck(code, "d.querySelector('p').getBoundingClientRect().width", t)], key='bs|%d|%d' % (w, b))
 L11_FACTS = [
  ('What are the four layers of every box, from the inside out?', 'Content, padding, border, margin', ['Margin, border, padding, content', 'Content, border, margin, padding', 'Padding, content, margin, border'], 'Think of a framed photo: the picture, the matte, the frame, the wall space.'),
  ('Where is padding?', 'Inside the border, around the content', ['Outside the border', 'Between two boxes', 'Only on the left side'], 'Padding is the space inside the frame.'),

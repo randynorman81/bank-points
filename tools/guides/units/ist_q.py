@@ -4,7 +4,7 @@ HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.abspath(os.pat
 sys.path.insert(0, os.path.join(ROOT, "tools", "ist"))
 import qgen
 GUIDE_QS = []     # every question that went into the guide, with its browser checks
-def QS(l, nfacts=3, ntemp=5, seed=0):
+def QS(l, nfacts=5, ntemp=9, seed=0):
     rng = random.Random(9000 + l * 10 + seed); out = []; seen = set()
     facts = list(qgen.LESSON_FACTS[l]); rng.shuffle(facts)
     for f in facts:

@@ -8,7 +8,7 @@ spec = importlib.util.spec_from_file_location("guide_build", os.path.join(HERE, 
 DL = os.path.join(ROOT, "ist", "downloads"); os.makedirs(os.path.join(DL, "lessons"), exist_ok=True); os.makedirs(os.path.join(DL, "units"), exist_ok=True)
 PARTS = [("units.ist03", "IST-Unit-03-Web-Design-HTML-Study-Guide.pdf", "IST-Unit-03-Web-Design-HTML-Study-Guide.pdf", "Unit 3: Web Design (HTML)", "IST-Unit-3-Study-Guides.zip"),
          ("units.ist03p2", "IST-Unit-04-Advanced-HTML-Study-Guide.pdf", "IST-Unit-04-Advanced-HTML-Study-Guide.pdf", "Unit 4: Advanced HTML", "IST-Unit-4-Study-Guides.zip")]
-FIXED = {"3.1": os.path.join(HERE, "fixed", "IST-Lesson-03-01-fixed-by-randy.pdf")}   # Randy's own corrected lesson PDFs are used as they are
+FIXED = {}   # Randy's own corrected lesson PDFs are used as they are
 made = []
 for modname, unit_name, src_name, label, zip_name in PARTS:
     shutil.copy(os.path.join(B.OUT, src_name), os.path.join(DL, "units", unit_name))

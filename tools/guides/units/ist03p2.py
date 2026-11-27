@@ -6,3 +6,4 @@ UNIT = Unit(4, "Advanced HTML", "Build real layouts: the box model, hex colors, 
     "Advanced HTML", "#0D9488", "#0F766E", "#5EEAD4", "#CCFBF1", "html",
     ["Describe every box with content, padding, border and margin, and add up its real size", "Name any color as a word or as a hex code, and read a hex code as red, green and blue", "Use block, inline and inline-block display to build menus and buttons", "Group tags with divs and build side-by-side columns and multi-row layouts", "Build tables from rows and cells and keep every row the same length"],
     CHAPTERS_A + CHAPTERS_B, glossary=[], brand=BRAND, seed=13)
+from units.ist_extra import enrich as _enrich; _enrich(UNIT)

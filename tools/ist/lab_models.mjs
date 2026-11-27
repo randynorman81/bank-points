@@ -46,7 +46,7 @@ M("6.2w", `
 <body style="background-color: navy; color: white">
 <h1 style="color: tomato">Pixel Arcade</h1>
 <h2 style="color: white; background-color: black">Top Games</h2>
-<p style="color: #003366; background-color: #FFEEAA">New games arrive every Friday.</p>
+<p style="color: darkblue; background-color: lightyellow">New games arrive every Friday.</p>
 </body>
 </html>
 `);
@@ -57,11 +57,11 @@ M("6.2a", `
 <title>Road Trip Mix</title>
 </head>
 <body style="background-color: black; color: white">
-<h1 style="color: black; background-color: #1DB954">Road Trip Mix</h1>
+<h1 style="color: black; background-color: seagreen">Road Trip Mix</h1>
 <h2 style="color: yellow; background-color: purple">Highway Song</h2>
-<p style="color: #222222; background-color: #EEEEEE">A great song for singing loudly with the windows down.</p>
+<p style="color: darkslategray; background-color: gainsboro">A great song for singing loudly with the windows down.</p>
 <h2 style="color: black; background-color: orange">Sunset Drive</h2>
-<p style="color: #FFFFFF; background-color: #333333">A calm song for the last hour before you arrive.</p>
+<p style="color: white; background-color: dimgray">A calm song for the last hour before you arrive.</p>
 </body>
 </html>
 `);
@@ -154,7 +154,7 @@ M("6.35a", `
 <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 </head>
-<body style="background-color: #2b1d14; color: #f5e6d3">
+<body style="background-color: saddlebrown; color: linen">
 <h1 style="font-family: 'Lobster'; text-align: center">Airbnb Cabins</h1>
 <p style="font-family: 'Roboto'">Find a quiet cabin in the mountains and wake up to birdsong.</p>
 <p style="font-family: 'Roboto'">Every cabin has a warm fireplace and a deck with a <span style="font-family: 'Lobster'">stunning</span> view.</p>
@@ -283,7 +283,7 @@ M("6.6a", `
 <head>
 <title>YouTube Favorites</title>
 </head>
-<body style="background-color: #fff8e7; color: #222222">
+<body style="background-color: cornsilk; color: darkslategray">
 <h1 style="text-align: center">YouTube Favorites</h1>
 <h2><a href="https://www.youtube.com/@NASA" target="_blank">NASA Channel</a></h2>
 <p>I watch rocket launches and space videos here every single week.</p>
@@ -330,7 +330,7 @@ M("6.5a", `
 <head>
 <title>Pizza Hut Specials</title>
 </head>
-<body style="background-color: #b30000; color: white">
+<body style="background-color: firebrick; color: white">
 <h1 style="text-align: center">Pizza Hut Specials</h1>
 <h2>Deals</h2>
 <ul style="list-style-type: square; border: 3px solid yellow">
@@ -377,7 +377,7 @@ M("7.1a", `
 <head>
 <title>Etsy Shop Cards</title>
 </head>
-<body style="background-color: #fdf6ec">
+<body style="background-color: oldlace">
 <h1 style="text-align: center">Etsy Shop Cards</h1>
 <p style="padding: 12px; margin: 15px; border: 3px solid teal; background-color: white">Hand knit scarf for $25</p>
 <p style="padding: 10px 30px; margin: 15px; border: 3px dashed coral; background-color: lightyellow">Painted mug for $14</p>

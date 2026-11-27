@@ -18,7 +18,7 @@
   }
   function notes(url) { return { p: "Stuck? Read the notes: schscomputerscience.com/ist/" + url }; }
   function head(what, themes, note) { return [{ h: "What you are building" }, { p: what + " Pick **one**: " + themes + ". Click **Checks** any time to see your score. The **Concepts** tab lists every tag and style this page needs." }, note].filter(Boolean); }
-  var RULE = { p: "**Every theme uses these same steps.** Use **named colors** (like navy or tomato) unless a step says hex. If you already know **hex codes** (like #1E90FF), you may use those instead anywhere a color is asked for. Dark backgrounds need light text. Each step says the least you must add: you can ALWAYS add more." };
+  var RULE = { p: "**Every theme uses these same steps.** Use **named colors** (like navy or tomato) unless a step says hex. Dark backgrounds need light text. Each step says the least you must add: you can ALWAYS add more." };
   function skeleton(extra) {
     return S("Skeleton and title", [
       "Type the **doctype** line as the very first line, exactly **\"<!DOCTYPE html>\"** (with the exclamation point). Then type the opening **html** tag, and inside it the **head** tags. The editor puts your cursor under the closing head tag, so click on the empty line **between** the head tags and add a **title** with your page's name",
@@ -163,7 +163,7 @@
         "Add a **horizontal line** (under the main picture), then a **heading 2**" + (styleBlock ? " (the style block already styles it)" : ". Style it: **color**, **font-size** 26px, **text-transform** uppercase, **font-family** serif, and a border on the **bottom only**") + ". Under it, add a **paragraph** (**font-family** sans-serif) about your topic, then a **heading 3** that says Photos",
         "Add a **paragraph** and **Insert** your second picture inside it (real https:// link, real alt). This link opens in the **same tab**. Style the picture: **width** 25%, **border-radius** 50%, and a **dashed border** (like 3px dashed)",
         "Add another **paragraph** and **Insert** your third picture inside it (real link, real alt). This link opens in a **new tab**. Style the picture: **width** 45%, **display** block, and a **dotted border** (like 3px dotted)",
-        "Add a **bullet list** with **3 list items**. Style it: **list-style-type** square, a **solid border**" + (adv ? " in a **hex** gray (like 2px solid #666666), and a **margin** (like 14px 30px)" : " (like 2px solid)"),
+        "Add a **bullet list** with **3 list items**. Style it: **list-style-type** square, a **solid border**" + (adv ? " in a **named** gray (like 2px solid dimgray), and a **margin** (like 14px 30px)" : " (like 2px solid)"),
         "Under the list, add a **horizontal line**"
       ])
     ];
@@ -208,7 +208,7 @@
     ].concat(pictureSteps(adv, false), middle, [
       S("Second section: ranked lists", [
         "Add a **heading 2** with a title (same style as your first heading 2). Under it, add a **heading 3** and give it **text-transform** uppercase",
-        "Add a **numbered list** with **3 list items** (bold name, a dash, an italic description). Style it: **list-style-type** decimal and a **background-color**" + (adv ? " that is a **hex** code (like #FFF3E0)" : ""),
+        "Add a **numbered list** with **3 list items** (bold name, a dash, an italic description). Style it: **list-style-type** decimal and a **background-color**" + (adv ? " that is a light **named** color (like oldlace)" : ""),
         "Add a **heading 3** (with a **color** style) and a second **numbered list** of 3 items. Style it: **list-style-type** upper-roman, a **dashed border**" + (adv ? ", and **padding** (like 6px)" : "")
       ]),
       S("A note and the footer", [
@@ -253,7 +253,7 @@
     ]));
     steps = steps.concat(middle);
     if (o.ol) steps.push(S("A numbered list", [
-      "Add a **heading 2** (styled like the others) and a **numbered list** with **3 list items** (a name, a dash, and a short description). Style the list: **list-style-type** decimal and a **background-color**" + (o.adv ? " that is a **hex** code (like #FFF3E0), plus a **margin** (like 14px 30px)" : " (a light named color)")
+      "Add a **heading 2** (styled like the others) and a **numbered list** with **3 list items** (a name, a dash, and a short description). Style the list: **list-style-type** decimal and a **background-color**" + (o.adv ? " that is a light **named** color (like oldlace), plus a **margin** (like 14px 30px)" : " (a light named color)")
     ]));
     steps.push(done());
     return steps;

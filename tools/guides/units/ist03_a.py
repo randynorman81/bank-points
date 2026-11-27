@@ -44,8 +44,8 @@ A **section** is a heading with its paragraphs under it. Most pages are a headin
   [], QS(1), title='Intro to HTML and the HTML Skeleton', kick='Every page starts with the same skeleton. Learn the tags that hold a title, a heading and paragraphs.', site="<b>Notes:</b> html-intro-notes &nbsp;·&nbsp; <b>Walkthrough:</b> Slice House &nbsp;·&nbsp; <b>Assignment:</b> Netflix Help Center &nbsp;·&nbsp; <b>Quiz game:</b> 3.1")
 
 # =============================================================================== 3.2
-C32 = L("3.2", "Change colors with the style attribute: text color, background color, named colors and hex codes.",
-  [("attribute", "extra information written inside an opening tag, like `style`"), ("style attribute", "holds design instructions for one tag: `style=\"color: red\"`"), ("property", "what you want to change, like `color`"), ("value", "what you want it changed to, like `red`"), ("named color", "a color with a name, like `tomato` or `navy`"), ("hex code", "a color written as `#` and 6 letters and numbers, like `#1E90FF`")],
+C32 = L("3.2", "Change colors with the style attribute: text color, background color, and the 140 color names HTML knows.",
+  [("attribute", "extra information written inside an opening tag, like `style`"), ("style attribute", "holds design instructions for one tag: `style=\"color: red\"`"), ("property", "what you want to change, like `color`"), ("value", "what you want it changed to, like `red`"), ("color name", "one of the 140 colors HTML knows by name, like `tomato`, `navy` or `lightyellow`"), ("color list", "the page of all 140 color names, with a swatch for each")],
   [("The style attribute", """HTML gives a page its structure. **CSS** changes how it looks. In this class you write CSS inside a tag's **style attribute**.
 
 The style attribute goes **inside the opening tag**: the word `style`, an equals sign, and the styles inside **double quotes**. Each style is a **property**, a colon, and a **value**:
@@ -64,18 +64,30 @@ To use **more than one** style, put them all inside the **same** quotes and sepa
 `style="color: white; background-color: black"`
 
 !warn: Never write two style attributes on one tag. Use one style attribute and separate the styles with semicolons."""),
-   ("Named colors and hex codes", """A color can be a **name** like `red`, `navy` or `tomato`. There are 148 named colors. For exact colors you can use a **hex code**: a `#` followed by 6 letters and numbers, like `#1E90FF`. Hex codes mix red, green and blue, and can make millions of colors. You must type the `#`."""),
+   ("The 140 color names", """A color is a **name** like `red`, `navy` or `tomato`. HTML knows **140 color names**, far more than the basic red, blue and green. You will find colors you have never thought to name, like `lightseagreen`, `darkorange`, `slategray` and `mediumpurple`.
+
+Four rules for every color name:
+
+| Rule | Right | Wrong |
+| One word, no spaces | `darkblue` | `dark blue` |
+| Spelled exactly right | `lightyellow` | `lightyelow` |
+| No quotes and no `#` | `color: tomato` | `color: "tomato"` |
+| A real name from the list | `seagreen` | `oceangreen` |
+
+Many names come in families. Add **dark** or **light** to get a darker or lighter version: `blue`, `darkblue`, `lightblue`. You do not have to memorize the 140. Keep the color list open (schscomputerscience.com/ist/unit-6/html-colors.html) and pick from it.
+
+!tip: A color name works after both `color:` and `background-color:`. If a name does not work, the browser ignores the style and the text stays black. Check the spelling against the color list."""),
    ("Styling the whole page", """A style on the **body** reaches the whole page. Any tag that does not have its own style uses the body's text color. A tag with its **own** style keeps its own: the tag's style wins.
 
 !tip: Make sure the text color and the background are different. Light text on a dark background (or dark on light) is easy to read. The same color for both hides the text."""),
   ],
-  [HX("Colors on three tags", '<h1 style="color: tomato">Arcade</h1>\n<h2 style="color: white;\n background-color: black">Games</h2>\n<p style="color: #003366">New games.</p>', [(0, 'style="color: tomato"', "One style: the text color is tomato."), (1, "color: white;", "Two styles in one attribute, separated by a semicolon."), (2, "background-color: black", "The second style: a black box behind the text."), (3, "#003366", "A hex code for a dark blue. It starts with #.")], cap="Each tag carries its own style attribute inside its opening tag."),
+  [HX("Colors on three tags", '<h1 style="color: tomato">Arcade</h1>\n<h2 style="color: white;\n background-color: black">Games</h2>\n<p style="color: darkblue">New games.</p>', [(0, 'style="color: tomato"', "One style: the text color is tomato."), (1, "color: white;", "Two styles in one attribute, separated by a semicolon."), (2, "background-color: black", "The second style: a black box behind the text."), (3, "darkblue", "A color name for a dark blue. It is one word with no space.")], cap="Each tag carries its own style attribute inside its opening tag."),
    HX("The body style reaches the whole page", '<body style="color: white;\n background-color: navy">\n<h1 style="color: tomato">Arcade</h1>\n<p>New games arrive.</p>\n</body>', [(0, "color: white", "White text for every tag with no color of its own."), (1, "background-color: navy", "A navy page behind everything."), (2, 'style="color: tomato"', "This heading has its own color, so it keeps tomato."), (3, "<p>New games arrive.</p>", "No style here, so it uses the body: white on navy.")], cap="The tomato heading keeps its own color. The paragraph uses the body colors.")],
   [TX("A style on one tag only", '<h1 style="color: tomato">Pixel Arcade</h1>\n<h2>Top Games</h2>\n<p>New games.</p>', cap="Only the h1 has a style, so only the h1 text is tomato. The other lines use the default black."),
    TX("Two styles on one tag", '<h2 style="color: white; background-color: black">Top Games</h2>\n<p>New games.</p>', cap="White text sits on a black box. The paragraph below is plain."),
    TX("The body color reaches the paragraph", '<body style="color: green">\n<h1 style="color: gold">Menu</h1>\n<p>Soup of the day</p>\n</body>', cap="The h1 has its own gold. The paragraph has no color of its own, so it uses the body: green.")],
-  [("`color = red`", "A style needs a colon, not an equals sign, so the browser ignores it.", "Write `color: red`."), ("`color: red background-color: blue`", "There is no semicolon between the two styles, so the browser ignores both.", "Add a semicolon: `color: red; background-color: blue`."), ("`colour: red` or `text-color: red`", "These property names do not exist, so nothing changes.", "Use `color`."), ("`color: FF6347`", "A hex code must start with `#`.", "Write `color: #FF6347`."), ("`style=\"color: red\" style=\"background-color: blue\"`", "A tag can have only one style attribute.", "Put both styles in one attribute, separated by a semicolon."), ("Same color for text and background", "The text becomes impossible to read.", "Pick a light color on a dark one, or the reverse.")],
-  [], QS(2), title='The Style Attribute and Colors', kick='Add color to a page: text color, background color, named colors and hex codes.', site="<b>Notes:</b> style-attribute-notes &nbsp;·&nbsp; <b>Walkthrough:</b> Pixel Arcade &nbsp;·&nbsp; <b>Assignment:</b> Spotify Road Trip Mix &nbsp;·&nbsp; <b>Quiz game:</b> 3.2")
+  [("`color = red`", "A style needs a colon, not an equals sign, so the browser ignores it.", "Write `color: red`."), ("`color: red background-color: blue`", "There is no semicolon between the two styles, so the browser ignores both.", "Add a semicolon: `color: red; background-color: blue`."), ("`colour: red` or `text-color: red`", "These property names do not exist, so nothing changes.", "Use `color`."), ("`color: dark blue`", "A color name is one word. The space makes the browser ignore the style.", "Write `color: darkblue`."), ("`style=\"color: red\" style=\"background-color: blue\"`", "A tag can have only one style attribute.", "Put both styles in one attribute, separated by a semicolon."), ("Same color for text and background", "The text becomes impossible to read.", "Pick a light color on a dark one, or the reverse.")],
+  [], QS(2), title='The Style Attribute and Colors', kick='Add color to a page: text color, background color and the 140 color names.', site="<b>Notes:</b> style-attribute-notes &nbsp;·&nbsp; <b>Walkthrough:</b> Pixel Arcade &nbsp;·&nbsp; <b>Assignment:</b> Spotify Road Trip Mix &nbsp;·&nbsp; <b>Quiz game:</b> 3.2")
 
 # =============================================================================== 3.3
 C33 = L("3.3", "Change the size, alignment and letter case of text with font-size, text-align and text-transform.",

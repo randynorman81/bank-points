@@ -98,7 +98,7 @@
     "Step 2": [[HAS("The heading 1 has a style attribute with color: tomato", T("h1"), "color", eq("tomato"))]],
     "Step 3": [[HAS("The heading 2 has color: white", T("h2"), "color", eq("white")), HAS("The heading 2 has background-color: black", T("h2"), "background-color", eq("black")),
                 K("The two styles are separated by a semicolon", function (c) { var e = c.all("h2")[0]; return !!e && /\S\s*;\s*\S/.test(e.attrs.style || ""); })]],
-    "Step 4": [[HAS("The paragraph has color: #003366", T("p"), "color", eq("#003366")), HAS("The paragraph has background-color: #FFEEAA", T("p"), "background-color", eq("#ffeeaa"))]],
+    "Step 4": [[HAS("The paragraph has color: darkblue", T("p"), "color", eq("darkblue")), HAS("The paragraph has background-color: lightyellow", T("p"), "background-color", eq("lightyellow"))]],
     "Step 5": [[HAS("The body has background-color: navy", T("body"), "background-color", eq("navy")), HAS("The body has color: white", T("body"), "color", eq("white"))]],
     "Step 6": [[NOERR], []]
   });
@@ -112,7 +112,7 @@
                [BOTH("The heading 1 has a color and a different background-color", T("h1"))],
                [K("Every heading 2 has its own color", function (c) { var a = c.all("h2"); return a.length >= 2 && a.every(function (x) { return has(c, x, "color", named); }); }),
                 K("Every heading 2 has a background-color that is different from its color", function (c) { var a = c.all("h2"); return a.length >= 2 && a.every(function (x) { return has(c, x, "background-color", named) && differ(c, x); }); })],
-               [K("At least 2 paragraphs use hex codes for BOTH color and background-color (a # and 3 or 6 letters and numbers, like #1DB954)", function (c) { return c.all("p").filter(function (x) { return has(c, x, "color", hex6) && has(c, x, "background-color", hex6) && differ(c, x); }).length >= 2; })]],
+               [K("At least 2 paragraphs use color names for BOTH color and background-color, and the two colors are different", function (c) { return c.all("p").filter(function (x) { return has(c, x, "color", named) && has(c, x, "background-color", named) && differ(c, x); }).length >= 2; })]],
     "Step 4": [[NOERR], []]
   });
 

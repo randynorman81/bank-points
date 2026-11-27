@@ -511,6 +511,7 @@ def practice_from_dicts(qs, ch, ctx, title="Practice questions"):
         stem = re.sub(r'<span class="sel2">.*?</span>', "", q["s"])
         if q.get("c"): stem += '<div class="qc">%s</div>' % hl_html(q["c"])
         short = max(len(BeautifulSoup(o, "lxml").get_text()) for o in q["o"]) < 34
+        if LANG == "html" and q.get("c") and q["c"].count("\n") > 9: short = False        # a tall code box fills the page: its options stack in one column (two columns misplace the first option there)
         items += '<div class="pq"><div class="qn">%d</div><div class="qs">%s%s</div><ol%s>%s</ol></div>' % (i, stem, '<span class="tagsel">SELECT TWO</span>' if multi else "", ' class="two"' if short else "", "".join("<li>%s</li>" % o for o in q["o"]))
         keys.append((i, "".join("ABCDEFGH"[a] for a in q["a"]), q["e"]))
     ctx.key.append((ch, keys))
@@ -636,6 +637,8 @@ def chapter_html(ch, ctx, accent):
     if ch.get("online", True) and (m.get("notes") or (page and page.get("url"))) and not ch.get("noonline"):
         url = (m.get("notes") or page["url"]).replace("unit-", "unit-", 1)
         body += '<div class="online">Practice this lesson interactively, with walkthroughs, assignments, and games, at <b>%s/apcsp/%s</b></div>' % (SITE, url)
+    more = ch.get("more")
+    if more: body += more(ctx) if callable(more) else "".join(more)      # extra teaching sections (the IST guides add a guided build, paper exercises and a checklist)
     body += quiz_to_practice(quizzes, ch["id"], ctx)
     if ch.get("questions"): body += practice_from_dicts(ch["questions"], ch["id"], ctx)
     head = ('<div class="chead"><div class="badge"><small>LESSON</small><b>%s</b></div><h2>%s</h2><p class="kick">%s</p></div>'
@@ -794,7 +797,7 @@ def build_html(unit, toc_pages=None, only=None):
         k = ""
         for cid, items in ctx.key:
             cm = [t for c, t in titles if c == cid][0]
-            k += '<div class="keychap">Lesson %s  ·  %s</div><div class="ans">%s</div>' % (esc(cid), cm, "".join('<div class="a"><span class="k">%d</span><span class="l">%s</span>%s</div>' % (q, l, w) for q, l, w in items))
+            k += '<div class="keychap">Lesson %s  ·  %s</div><div class="ans">%s</div>' % (esc(cid), cm, "".join('<div class="a"><span class="k">%s</span><span class="l">%s</span>%s</div>' % (q, l, w) for q, l, w in (list(items) + list(getattr(ctx, "extra_key", {}).get(cid, [])))))
         tail += '<section class="chapter"><span class="mk" style="font-size:1pt;color:#fff;position:absolute">ZZCkeyZZ</span><div class="chead"><div class="badge"><small>UNIT</small><b>%d</b></div><h2>Answer Key</h2><p class="kick">Every practice question, with the reason behind the answer.</p></div>%s</section>' % (unit.n, k)
     doc = '<!doctype html><html><head><meta charset="utf-8"><title>%s Unit %d Study Guide: %s</title>' \
           '<style>%s</style><style>%s</style></head><body>%s%s%s%s%s</body></html>' % (unit.brand.get("doctitle", "AP CSP"), unit.n, unit.title, font_css(), css, cover, front, toc, "".join(chapters), tail)

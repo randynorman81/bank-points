@@ -76,7 +76,7 @@
   A["6.2w"] = build([
     { h: "What you are building" },
     P("**Pixel Arcade** wants a page with some color. You will start with a plain page and then give it colors one piece at a time using the **style attribute**. " + TYPEIT),
-    { map: ["Set up the page", "Color text with color", "Two styles in one attribute", "Hex color codes", "Style the whole page with the body", "Check and submit"] },
+    { map: ["Set up the page", "Color text with color", "Two styles in one attribute", "More color names", "Style the whole page with the body", "Check and submit"] },
     P("Stuck? Read the notes: schscomputerscience.com/ist/unit-6/style-attribute-notes.html"),
     S("Set up the page", [
       "From memory, type the whole skeleton: the doctype line, the **html** tags, the **head** tags with a title that says **Pixel Arcade**, and the **body** tags",
@@ -90,9 +90,9 @@
       "Give the heading 2 a **white** text color and a **black** background: `<h2 style=\"color: white; background-color: black\">`. The two styles are separated by a **semicolon**"
     ], [P("The property `background-color` colors the box behind the text. To use more than one style, put them **all inside the same quotes** and separate them with a **semicolon** (`;`). Never write two style attributes on one tag."), CODE("<h2 style=\"color: white; background-color: black\">Top Games</h2>")],
       [P("**Try it:** swap white and black and watch the heading change. Then put it back.")]),
-    S("Hex color codes", [
-      "Give the paragraph a dark blue text color and a light yellow background, this time with **hex codes**: `<p style=\"color: #003366; background-color: #FFEEAA\">`"
-    ], [P("Besides names like `tomato`, a color can be a **hex code**: a `#` followed by 6 letters and numbers. A hex code can make millions of exact colors. `#003366` is a dark blue and `#FFEEAA` is a light yellow. Type the `#` too."), CODE("<p style=\"color: #003366; background-color: #FFEEAA\">New games arrive every Friday.</p>")]),
+    S("More color names", [
+      "Give the paragraph a dark blue text color and a light yellow background, using two more color names: `<p style=\"color: darkblue; background-color: lightyellow\">`"
+    ], [P("HTML knows **140 color names**, far more than red, blue and green. Many have a light or dark version: `darkblue` is a dark blue and `lightyellow` is a light yellow. Type the name as one word, with no spaces and no `#`. Find every name on the color list: schscomputerscience.com/ist/unit-6/html-colors.html"), CODE("<p style=\"color: darkblue; background-color: lightyellow\">New games arrive every Friday.</p>")]),
     S("Style the whole page with the body", [
       "Give the **body** a navy background and white text: `<body style=\"background-color: navy; color: white\">`"
     ], [P("Styles on the **body** reach the whole page. Anything that does not have its own style uses the body's colors. Pieces with their own style (like your tomato heading, the black heading and the yellow paragraph) keep their own colors.")],
@@ -121,7 +121,7 @@
       "Give the **body** a background color and a text color (named colors). The two colors must be different",
       "Give the **heading 1** a text color and a **different** background color",
       "Give **every heading 2** a text color and a different background color",
-      "Give **two of your paragraphs** both a text color and a background color, using **hex codes** (a # and letters and numbers) for both. Use two different colors in each"
+      "Give **two of your paragraphs** both a text color and a background color, using **color names** for both. Try some of the 140 names you have not used yet, like `darkblue` or `lightyellow`. Use two different colors in each"
     ]),
     S("Check and submit", [
       "Fix every **red line number** in your code (a red number means a problem on that line)",

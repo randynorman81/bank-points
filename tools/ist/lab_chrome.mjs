@@ -28,8 +28,8 @@ await claim("6.1w s4: extra blank lines change nothing", st("6.1w", 4).replace(/
 /* 3.2 */
 await claim("6.2w s2: h1 tomato only", st("6.2w", 2), "[cs(q('h1')).color, cs(q('h2')).color]", [rgb(255, 99, 71), rgb(0, 0, 0)]);
 await claim("6.2w s3: h2 white on black", st("6.2w", 3), "[cs(q('h2')).color, cs(q('h2')).backgroundColor]", [rgb(255, 255, 255), rgb(0, 0, 0)]);
-await claim("6.2w s4: hex p colors", st("6.2w", 4), "[cs(q('p')).color, cs(q('p')).backgroundColor]", [rgb(0, 51, 102), rgb(255, 238, 170)]);
-await claim("6.2w s5: navy page, h1 stays tomato, p keeps its own colors", st("6.2w", 5), "[cs(d.body).backgroundColor, cs(d.body).color, cs(q('h1')).color, cs(q('p')).backgroundColor]", [rgb(0, 0, 128), rgb(255, 255, 255), rgb(255, 99, 71), rgb(255, 238, 170)]);
+await claim("6.2w s4: named p colors", st("6.2w", 4), "[cs(q('p')).color, cs(q('p')).backgroundColor]", [rgb(0, 0, 139), rgb(255, 255, 224)]);
+await claim("6.2w s5: navy page, h1 stays tomato, p keeps its own colors", st("6.2w", 5), "[cs(d.body).backgroundColor, cs(d.body).color, cs(q('h1')).color, cs(q('p')).backgroundColor]", [rgb(0, 0, 128), rgb(255, 255, 255), rgb(255, 99, 71), rgb(255, 255, 224)]);
 /* 3.3 */
 await claim("6.20w s2: font sizes", st("6.20w", 2), "[cs(q('h1')).fontSize, cs(q('h3')).fontSize, cs(q('p')).fontSize]", ["48px", "24px", "18px"]);
 await claim("6.20w s3: alignment", st("6.20w", 3), "[cs(q('h1')).textAlign, cs(q('h2')).textAlign, cs(q('p')).textAlign, cs(q('h3')).textAlign]", ["center", "center", "right", "start"]);

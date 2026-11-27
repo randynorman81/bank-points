@@ -16,8 +16,8 @@ STAGES["6.2w"] = [
   pg("Pixel Arcade", arcadeBody()),
   pg("Pixel Arcade", arcadeBody(' style="color: tomato"')),
   pg("Pixel Arcade", arcadeBody(' style="color: tomato"', ' style="color: white; background-color: black"')),
-  pg("Pixel Arcade", arcadeBody(' style="color: tomato"', ' style="color: white; background-color: black"', ' style="color: #003366; background-color: #FFEEAA"')),
-  pg("Pixel Arcade", arcadeBody(' style="color: tomato"', ' style="color: white; background-color: black"', ' style="color: #003366; background-color: #FFEEAA"'), { bodyAttr: ' style="background-color: navy; color: white"' }),
+  pg("Pixel Arcade", arcadeBody(' style="color: tomato"', ' style="color: white; background-color: black"', ' style="color: darkblue; background-color: lightyellow"')),
+  pg("Pixel Arcade", arcadeBody(' style="color: tomato"', ' style="color: white; background-color: black"', ' style="color: darkblue; background-color: lightyellow"'), { bodyAttr: ' style="background-color: navy; color: white"' }),
 ];
 
 const sky = (a = "", b = "", c = "", d = "") => `<h1${a}>Skyline Cinema</h1>\n<h2${b}>Now Showing</h2>\n<h3${c}>friday night double feature</h3>\n<p${d}>DOORS OPEN AT SIX. TICKETS ARE FIVE DOLLARS.</p>\n`;
