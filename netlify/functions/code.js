@@ -278,7 +278,7 @@ async function adminCounts() {
 }
 
 // One-time helper after the Unit 7 -> Unit 6 renumber: copies sub:/draft: records from lesson 7.N to 6.N. Never deletes.
-// RETIRED 2026-09-29: 7.x is now its own lesson set (HTML Part 2), so copying 7.N into 6.N would mix real work.
+// RETIRED 2026-09-29: 7.x is now its own lesson set (Unit 4: Advanced HTML), so copying 7.N into 6.N would mix real work.
 /* teacher: recalculate the saved auto score of every submission for one lesson with the current checker. Only the auto field changes (never the code, answers, times or teacher grade). */
 async function adminRescore(body) {
   if (!goodLesson(body.lesson)) return { error: "Unknown lesson" };

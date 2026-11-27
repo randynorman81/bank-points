@@ -1,4 +1,4 @@
-"""Writes ist/unit-6/index.html (Unit 3 Part 1) and ist/unit-7/index.html (Part 2) in the SAME layout as the AP CSP unit pages (apcsp/unit-3/index.html):
+"""Writes ist/unit-6/index.html (Unit 3) and ist/unit-7/index.html (Unit 4: Advanced HTML) in the SAME layout as the AP CSP unit pages (apcsp/unit-3/index.html):
 practice buttons, a study-guide box (unit PDF, ZIP, open in browser), a card for every lesson (study guide PDF, notes, walkthrough, assignment, quiz game, practice) and a Review list.
 Walkthrough and assignment rows switch on by themselves when the lesson id is listed in live.js (U7_LIVE). usage: python3 tools/ist/mk_unit_pages.py"""
 import os, re, glob, fitz
@@ -15,16 +15,16 @@ SVG_B = '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#4F
 def pdf_pages(p): return len(fitz.open(p))
 def mb(p): return '%.1f MB' % (os.path.getsize(p) / 1e6)
 PARTS = [
- dict(folder='unit-6', part=1, title='Unit 3 &mdash; Web Design: HTML (Part 1)', short='Unit 3: Web Design - HTML (Part 1)', unit_pdf='IST-Unit-03-Part-1-Web-Design-HTML-Study-Guide.pdf', test='unit-3-practice-test.html', test_label='Unit 3 Part 1 Practice Test (75 questions, lessons 3.1&ndash;3.10)',
-      practice='practice.html', other=('../unit-7/index.html', 'Part 2: box model, colors, display, div and tables'),
+ dict(folder='unit-6', part=1, num=3, zip='IST-Unit-3-Study-Guides.zip', title='Unit 3 &mdash; Web Design: HTML', short='Unit 3: Web Design - HTML', unit_pdf='IST-Unit-03-Web-Design-HTML-Study-Guide.pdf', test='unit-3-practice-test.html', test_label='Unit 3 Practice Test (75 questions, lessons 3.1&ndash;3.10)',
+      practice='practice.html', other=('../unit-7/index.html', 'Unit 4: Advanced HTML (box model, colors, display, div and tables)'),
       lessons=[('3.1', '6.1', 'Intro to HTML and the HTML Skeleton', 'html-intro-notes.html', 'i3l1', 1), ('3.2', '6.2', 'The Style Attribute and Colors', 'style-attribute-notes.html', 'i3l2', 2), ('3.3', '6.20', 'Text Size, Alignment and Case', 'text-size-align-notes.html', 'i3l3', 3),
                ('3.4', '6.3', 'Editing Tags: strong, em, br, hr and span', 'editing-tags-notes.html', 'i3l4', 4), ('3.5', '6.35', 'Google Fonts', 'google-fonts-notes.html', 'i3l5', 5), ('3.6', '6.4', 'Borders', 'borders-notes.html', 'i3l6', 6),
                ('3.7', '6.7', 'Images and the Favicon', 'images-notes.html', 'i3l7', 7), ('3.8', '6.75', 'Emojis and Symbols', 'emojis-symbols-notes.html', 'i3l8', 8), ('3.9', '6.6', 'Links', 'links-notes.html', 'i3l9', 9), ('3.10', '6.5', 'Lists and Menus', 'lists-notes.html', 'i3l10', 10)],
-      review=[('../unit-6/study-guide.html', '&#128214; Unit 3 Study Guide (Part 1), the web version'), ('../unit-6/html-colors.html', '&#127912; HTML Color Names (140+ colors)'), ('../unit-6/editor.html', '&#128187; HTML sandbox (practice writing HTML, not graded)')], notes_dir='../unit-6/'),
- dict(folder='unit-7', part=2, title='Unit 3 &mdash; Web Design: HTML (Part 2)', short='Unit 3: Web Design - HTML (Part 2)', unit_pdf='IST-Unit-03-Part-2-HTML-Layout-and-Tables-Study-Guide.pdf', test='unit-3-part-2-practice-test.html', test_label='Unit 3 Part 2 Practice Test (45 questions, lessons 3.12&ndash;3.16)',
-      practice='practice-2.html', other=('../unit-6/index.html', 'Part 1: the skeleton, text styles, fonts, borders, images, links and lists'),
-      lessons=[('3.12', '7.1', 'Box Model', 'box-model-notes.html', 'i7l1', 11), ('3.13', '7.2', 'Colors (Names and Hex)', 'colors-notes.html', 'i7l2', 12), ('3.14', '7.3', 'Display (Block vs Inline)', 'display-notes.html', 'i7l3', 13), ('3.15', '7.4', 'Div Tag', 'div-tag-notes.html', 'i7l4', 14), ('3.16', '7.5', 'Tables', 'tables-notes.html', 'i7l5', 15)],
-      review=[('7-6-unit-test.html', '&#128221; Unit Test (3.16)'), ('study-guide.html', '&#128214; Unit 3 Study Guide (Part 2), the web version'), ('../unit-6/html-colors.html', '&#127912; HTML Color Names (140+ colors)'), ('../unit-6/editor.html', '&#128187; HTML sandbox (practice writing HTML, not graded)')], notes_dir=''),
+      review=[('../unit-6/study-guide.html', '&#128214; Unit 3 Study Guide, the web version'), ('../unit-6/html-colors.html', '&#127912; HTML Color Names (140+ colors)'), ('../unit-6/editor.html', '&#128187; HTML sandbox (practice writing HTML, not graded)')], notes_dir='../unit-6/'),
+ dict(folder='unit-7', part=2, num=4, zip='IST-Unit-4-Study-Guides.zip', title='Unit 4 &mdash; Advanced HTML', short='Unit 4: Advanced HTML', unit_pdf='IST-Unit-04-Advanced-HTML-Study-Guide.pdf', test='unit-4-practice-test.html', test_label='Unit 4 Practice Test (45 questions, lessons 4.1&ndash;4.5)',
+      practice='practice-2.html', other=('../unit-6/index.html', 'Unit 3: Web Design - HTML (the skeleton, text styles, fonts, borders, images, links and lists)'),
+      lessons=[('4.1', '7.1', 'Box Model', 'box-model-notes.html', 'i7l1', 11), ('4.2', '7.2', 'Colors (Names and Hex)', 'colors-notes.html', 'i7l2', 12), ('4.3', '7.3', 'Display (Block vs Inline)', 'display-notes.html', 'i7l3', 13), ('4.4', '7.4', 'Div Tag', 'div-tag-notes.html', 'i7l4', 14), ('4.5', '7.5', 'Tables', 'tables-notes.html', 'i7l5', 15)],
+      review=[('7-6-unit-test.html', '&#128221; Unit 4 Test'), ('study-guide.html', '&#128214; Unit 4 Study Guide, the web version'), ('../unit-6/html-colors.html', '&#127912; HTML Color Names (140+ colors)'), ('../unit-6/editor.html', '&#128187; HTML sandbox (practice writing HTML, not graded)')], notes_dir=''),
 ]
 def lesson_pdf(cid):
     f = sorted(glob.glob(os.path.join(DL, 'lessons', 'IST-Lesson-%02d-%02d-*.pdf' % tuple(int(x) for x in cid.split('.')))))[0]; return f
@@ -35,17 +35,16 @@ def card(P, l):
     rows += '<a class="lprow lab" data-lab="%sw" href="../unit-6/editor.html?lesson=%sw"><span class="ic">&#128187;</span><span class="tx"><b>Walkthrough</b><span>Build the page step by step</span></span><span class="st">auto-scored</span></a>' % (eid, eid)
     rows += '<a class="lprow lab" data-lab="%sa" href="../unit-6/editor.html?lesson=%sa"><span class="ic">&#128221;</span><span class="tx"><b>Assignment</b><span>Assignment %s: a real company page</span></span><span class="st">auto-scored</span></a>' % (eid, eid, num)
     rows += '<a class="lprow" href="../unit-6/game.html?l=%d"><span class="ic">&#127918;</span><span class="tx"><b>Quiz game</b><span>Game %s: %s</span></span><span class="st">practice</span></a>' % (gid, num, title)
-    rows += '<div class="lprow"><span class="ic">&#129513;</span><span class="tx"><b>Practice</b><span>10 Parsons problems</span></span><span class="st"><a href="../unit-6/%s?l=%s&p=0">Parsons</a></span></div>' % (pz, pid)
     return '<div class="lpcard"><div class="lpch"><span class="ln">%s</span><span class="lt">%s</span></div>%s</div>' % (num, title, rows)
 def page(P):
-    up = os.path.join(DL, 'units', P['unit_pdf']); zp = os.path.join(DL, 'IST-Unit-3-Study-Guides.zip'); cards = ''.join(card(P, l) for l in P['lessons'])
-    if P['part'] == 2: cards += '<div class="lpcard"><div class="lpch"><span class="ln">Test</span><span class="lt">Unit Test</span></div><a class="lprow" href="7-6-unit-test.html" target="_blank" rel="noopener"><span class="ic">&#128221;</span><span class="tx"><b>Unit test</b><span>Covers all of Unit 3</span></span><span class="st">test</span></a></div>'
+    up = os.path.join(DL, 'units', P['unit_pdf']); zp = os.path.join(DL, P['zip']); cards = ''.join(card(P, l) for l in P['lessons'])
+    if P['part'] == 2: cards += '<div class="lpcard"><div class="lpch"><span class="ln">Test</span><span class="lt">Unit Test</span></div><a class="lprow" href="7-6-unit-test.html" target="_blank" rel="noopener"><span class="ic">&#128221;</span><span class="tx"><b>Unit test</b><span>Covers all of Unit 4</span></span><span class="st">test</span></a></div>'
     pb = ('<div class="pbtns"><a class="pbtn" href="../unit-6/%s?hub=p">%s<span>Parsons Problems<small>10 per lesson</small></span></a>'
           '<a class="pbtn" href="../unit-6/game.html">%s<span>Quiz games<small>one per lesson</small></span></a></div>') % (P['practice'], SVG_P, SVG_G)
-    sg = ('<div class="sg" id="study-guide"><h2>Unit 3 Study Guide (Part %d)</h2><p>Printable PDFs for this unit: the whole guide, or one lesson at a time. Every lesson has the key ideas in plain words, worked examples with the page the code makes, common mistakes, and practice questions with answers.</p>'
-          '<div class="btns3"><div class="b1"><a class="big alt" href="../downloads/%s" download>&#128230; Both parts and every lesson (ZIP)</a><small>%s</small></div>'
-          '<div class="b1"><a class="big" href="../downloads/units/%s" download>&#128196; Download Whole Part %d (PDF)</a><small>%d pages, %s</small></div>'
-          '<div class="b1"><a class="big open" href="../downloads/units/%s" target="_blank" rel="noopener">&#128065; Open Part %d in browser</a><small>opens in a new tab</small></div></div></div>') % (P['part'], os.path.basename(zp), mb(zp), P['unit_pdf'], P['part'], pdf_pages(up), mb(up), P['unit_pdf'], P['part'])
+    sg = ('<div class="sg" id="study-guide"><h2>Unit %d Study Guide</h2><p>Printable PDFs for this unit: the whole guide, or one lesson at a time. Every lesson has the key ideas in plain words, worked examples with the page the code makes, common mistakes, and practice questions with answers.</p>'
+          '<div class="btns3"><div class="b1"><a class="big alt" href="../downloads/%s" download>&#128230; Whole unit and every lesson (ZIP)</a><small>%s</small></div>'
+          '<div class="b1"><a class="big" href="../downloads/units/%s" download>&#128196; Download Whole Unit %d (PDF)</a><small>%d pages, %s</small></div>'
+          '<div class="b1"><a class="big open" href="../downloads/units/%s" target="_blank" rel="noopener">&#128065; Open Unit %d in browser</a><small>opens in a new tab</small></div></div></div>') % (P['num'], os.path.basename(zp), mb(zp), P['unit_pdf'], P['num'], pdf_pages(up), mb(up), P['unit_pdf'], P['num'])
     review = '<h2>Review</h2><a class="resource-link" href="%s">&#9989; %s</a>' % (P['test'], P['test_label']) + ''.join('<br><a class="resource-link" href="%s">%s</a>' % (h, t) for h, t in P['review']) + '<br><a class="resource-link" href="%s">&#10145;&#65039; %s</a>' % P['other']
     js = '''<script src="../unit-6/live.js?v=20261126"></script>
 <script>

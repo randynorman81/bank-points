@@ -1,7 +1,7 @@
-# Part 2 authoring, lessons 3.14 (display), 3.15 (div) and 3.16 (tables)
+# Part 2 authoring, lessons 4.3 (display), 4.4 (div) and 4.5 (tables)
 L = lambda *a: '\n'.join(a)
 def P(title, story, code, dis): return (title, story, code, dis)
-# ============================================================ 3.14 Display: block, inline, inline-block (rank 14)
+# ============================================================ 4.3 Display: block, inline, inline-block (rank 14)
 P314 = [
  P('A span stays in the line', 'Write a paragraph that says Today is a sale day. where only the word sale is inside a span with the text color red.',
    L('<p>Today is a <span style="color: red;">sale</span> day.</p>', '<hr>', '<p>Hurry in.</p>'),
@@ -46,7 +46,7 @@ T314 = [
  L('<div style="background-color: #1B2A4A; color: white; padding: 10px;">', '<h3>Box</h3>', '<span style="display: block;">Block span</span>', '</div>'),
  L('<!DOCTYPE html>', '<html>', '<head>', '<title>Rows</title>', '</head>', '<body>', '<div style="display: inline-block; width: 45%; background-color: gold;">One</div>', '<div style="display: inline-block; width: 45%; background-color: pink;">Two</div>', '<p style="display: inline;">Inline words</p>', '</body>', '</html>'),
 ]
-# ============================================================ 3.15 Div: grouping and columns (rank 15)
+# ============================================================ 4.4 Div: grouping and columns (rank 15)
 P315 = [
  P('A div groups', 'Write a div with a navy background-color and white text that holds a heading 3 that says Group and a paragraph that says Both are white.',
    L('<div style="background-color: navy; color: white;">', '<h3>Group</h3>', '<p>Both are white.</p>', '</div>'),
@@ -91,7 +91,7 @@ T315 = [
  L('<div style="width: 50%; padding: 8px; margin: 10px; border: 3px dashed purple;">', '<ul>', '<li>Mix</li>', '<li>Bake</li>', '</ul>', '</div>'),
  L('<!DOCTYPE html>', '<html>', '<head>', '<title>Profile</title>', '</head>', '<body>', '<div style="display: inline-block; vertical-align: top; width: 30%; background-color: gold;">', '<p>Side</p>', '</div>', '<div style="display: inline-block; vertical-align: top; width: 60%; color: navy;">', '<p>Feed</p>', '</div>', '</body>', '</html>'),
 ]
-# ============================================================ 3.16 Tables (rank 12)
+# ============================================================ 4.5 Tables (rank 12)
 P316 = [
  P('A one-row table', 'Write a table with one row that has three data cells: Red, Green, and Blue.',
    L('<table>', '<tr>', '<td>Red</td>', '<td>Green</td>', '<td>Blue</td>', '</tr>', '</table>'),

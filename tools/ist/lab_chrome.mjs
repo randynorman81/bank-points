@@ -73,7 +73,7 @@ await claim("6.5w s4: ol upper-roman, strong/em in item 1", st("6.5w", 4), "[cs(
 await claim("6.5w s5: menu in a row, no bullets", st("6.5w", 5), "(function(){ var m = qa('ul')[1], li = Array.prototype.slice.call(m.querySelectorAll('li')); return [cs(m).listStyleType, li.length, li.every(function(l){ return l.offsetTop === li[0].offsetTop; }), li.map(function(l){ return cs(l).display; }).join()]; })()", ["none", 3, true, "inline,inline,inline"]);
 await claim("6.5w s5: removing display inline from one li drops it to its own line", st("6.5w", 5).replace('<li style="display: inline">About</li>', "<li>About</li>"), "(function(){ var m = qa('ul')[1], li = Array.prototype.slice.call(m.querySelectorAll('li')); return [li[1].offsetTop > li[0].offsetTop, li[2].offsetTop > li[0].offsetTop]; })()", [true, true]);
 
-/* ===== Unit 3 Part 2 ===== */
+/* ===== Unit 4: Advanced HTML ===== */
 await claim("7.1w s2: padding 20px on all four sides, yellow fills it", st("7.1w", 2), "(function(){ var p = qa('p')[0], c = cs(p); return [c.paddingTop, c.paddingRight, c.paddingBottom, c.paddingLeft, c.backgroundColor]; })()", ["20px", "20px", "20px", "20px", rgb(255, 255, 224)]);
 await claim("7.1w s3: margin 30px; pink covers only the box, not the margin", st("7.1w", 3), "(function(){ var p = qa('p')[1], c = cs(p); return [c.marginTop, c.marginLeft, p.getBoundingClientRect().height < 25, c.backgroundColor]; })()", ["30px", "30px", true, rgb(255, 182, 193)]);
 await claim("7.1w s4: padding on single sides", st("7.1w", 4), "(function(){ var c = cs(qa('p')[2]); return [c.paddingLeft, c.paddingTop, c.paddingRight, c.paddingBottom]; })()", ["40px", "10px", "0px", "0px"]);

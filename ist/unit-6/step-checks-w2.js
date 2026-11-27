@@ -1,4 +1,4 @@
-/* Step checks for the Unit 3 Part 2 WALKTHROUGHS ("7.1w" ...) and ASSIGNMENTS ("7.1a" ...): box model (3.12), colors (3.13), display (3.14), div (3.15), tables (3.16).
+/* Step checks for the Unit 4: Advanced HTML WALKTHROUGHS ("7.1w" ...) and ASSIGNMENTS ("7.1a" ...): box model (4.1), colors (4.2), display (4.3), div (4.4), tables (4.5).
    Same format as step-checks-w.js (which defines the helpers in SC.W). Loaded after it (editor, grade page, server). */
 (function (root) {
   "use strict";
@@ -19,7 +19,7 @@
   var BORDERFULL = function (c, e) { return h.vals(c, e, "border").some(function (v) { return BORDERRE.test(v) && named(h.borderColor(v)); }); };
   var kidTags = function (e) { return kids(e).map(function (k) { return k.tag; }); };
 
-  /* =============== 3.12 Walkthrough ("7.1w"): Postcard Studio =============== */
+  /* =============== 4.1 Walkthrough ("7.1w"): Postcard Studio =============== */
   var CARDS = ["Greetings from Hawaii!", "Wish you were here.", "See you soon!", "Box total: 230 pixels wide."];
   LAB("7.1w", {
     "Step 1": [SKELETON1("Postcard Studio"), [SAYS("The heading 1 says exactly Postcard Studio", T("h1"), "Postcard Studio"), SAYS("Paragraph 1 says exactly " + CARDS[0], PN(0), CARDS[0]), SAYS("Paragraph 2 says exactly " + CARDS[1], PN(1), CARDS[1]), SAYS("Paragraph 3 says exactly " + CARDS[2], PN(2), CARDS[2]), SAYS("Paragraph 4 says exactly " + CARDS[3], PN(3), CARDS[3]), ONLY("The page has 1 heading 1 and 4 paragraphs", { h1: 1, p: 4 })]],
@@ -30,7 +30,7 @@
     "Step 6": [[NOERR], []]
   });
 
-  /* =============== 3.12 Assignment ("7.1a"): Etsy shop cards =============== */
+  /* =============== 4.1 Assignment ("7.1a"): Etsy shop cards =============== */
   LAB("7.1a", {
     "Step 1": SKELETON3("Etsy Shop Cards"),
     "Step 2": [[SAYS("The heading 1 says exactly Etsy Shop Cards", T("h1"), "Etsy Shop Cards"), K("There are at least 3 shop cards (paragraphs), each with at least 3 words", function (c) { var a = c.all("p"); return a.length >= 3 && a.every(function (p) { return words(c, p) >= 3; }); })]],
@@ -43,7 +43,7 @@
     "Step 4": [[NOERR], []]
   });
 
-  /* =============== 3.13 Walkthrough ("7.2w"): Brand Colors =============== */
+  /* =============== 4.2 Walkthrough ("7.2w"): Brand Colors =============== */
   var COL = ["Tomato red", "Navy blue", "Pure red", "Pure green", "Pure blue"];
   var BLACK = hex6;
   LAB("7.2w", {
@@ -57,7 +57,7 @@
     "Step 6": [[NOERR], []]
   });
 
-  /* =============== 3.13 Assignment ("7.2a"): Duolingo brand page =============== */
+  /* =============== 4.2 Assignment ("7.2a"): Duolingo brand page =============== */
   function hexSet(c, tag) { var s = {}; c.all(tag).forEach(function (e) { h.vals(c, e, "color").forEach(function (v) { if (hex6(v)) s[v] = 1; }); }); return Object.keys(s); }
   LAB("7.2a", {
     "Step 1": SKELETON3("Duolingo Colors"),
@@ -70,7 +70,7 @@
     "Step 4": [[NOERR], []]
   });
 
-  /* =============== 3.14 Walkthrough ("7.3w"): Snack Bar =============== */
+  /* =============== 4.3 Walkthrough ("7.3w"): Snack Bar =============== */
   var NAV = ["Home", "Menu", "Contact"];
   var divN = function (n) { return function (c) { return c.all("div")[n] || null; }; };
   var NAVSTYLE = function (n) { return [HAS("Div " + (n + 1) + " has display: inline-block", divN(n), "display", eq("inline-block")), HAS("Div " + (n + 1) + " has padding: 10px", divN(n), "padding", eq("10px")), HAS("Div " + (n + 1) + " has background-color: gold", divN(n), "background-color", eq("gold"))]; };
@@ -84,7 +84,7 @@
     "Step 6": [[NOERR], []]
   });
 
-  /* =============== 3.14 Assignment ("7.3a"): an Instagram menu =============== */
+  /* =============== 4.3 Assignment ("7.3a"): an Instagram menu =============== */
   LAB("7.3a", {
     "Step 1": SKELETON3("Instagram Menu"),
     "Step 2": [[SAYS("The heading 1 says exactly Instagram Menu", T("h1"), "Instagram Menu"), K("There are at least 4 divs (the menu items), each with at least one word", function (c) { var a = c.all("div"); return a.length >= 4 && a.every(function (d) { return words(c, d) >= 1; }); })],
@@ -97,7 +97,7 @@
     "Step 4": [[NOERR], []]
   });
 
-  /* =============== 3.15 Walkthrough ("7.4w"): Profile Page =============== */
+  /* =============== 4.4 Walkthrough ("7.4w"): Profile Page =============== */
   var colStyle = function (n, w) { return [K("Div " + n + " has display: inline-block and vertical-align: top", function (c) { return 0; })]; };
   var DV = function (n) { return function (c) { return c.all("div")[n] || null; }; };
   function COLUMN(i, w, head, para) { return [HAS("Div " + (i + 1) + " has display: inline-block", DV(i), "display", eq("inline-block")), HAS("Div " + (i + 1) + " has vertical-align: top", DV(i), "vertical-align", eq("top")), HAS("Div " + (i + 1) + " has width: " + w, DV(i), "width", eq(w))]; }
@@ -115,7 +115,7 @@
     "Step 6": [[NOERR], []]
   });
 
-  /* =============== 3.15 Assignment ("7.4a"): an Amazon products page =============== */
+  /* =============== 4.4 Assignment ("7.4a"): an Amazon products page =============== */
   var col = function (c, e) { return has(c, e, "display", eq("inline-block")) && has(c, e, "vertical-align", eq("top")) && has(c, e, "width", function (v) { return /^\d+(\.\d+)?%$/.test(v) && parseFloat(v) <= 49; }); };
   var colDivs = function (c) { return c.all("div").filter(function (d) { return col(c, d); }); };
   LAB("7.4a", {
@@ -130,7 +130,7 @@
     "Step 4": [[NOERR], []]
   });
 
-  /* =============== 3.16 Walkthrough ("7.5w"): Leaderboard =============== */
+  /* =============== 4.5 Walkthrough ("7.5w"): Leaderboard =============== */
   var ROWS = [["Rank", "Player", "Points", "Profile"], ["1", "Ana", "120", "View"], ["2", "Bo", "95", "View"], ["3", "Cy", "80", "View"]];
   var TR = function (n) { return function (c) { return c.all("tr")[n] || null; }; };
   var cellsOf = function (r) { return r ? kids(r) : []; };
@@ -148,7 +148,7 @@
     "Step 7": [[NOERR], []]
   });
 
-  /* =============== 3.16 Assignment ("7.5a"): an ESPN scoreboard =============== */
+  /* =============== 4.5 Assignment ("7.5a"): an ESPN scoreboard =============== */
   LAB("7.5a", {
     "Step 1": SKELETON3("ESPN Scoreboard"),
     "Step 2": [[SAYS("The heading 1 says exactly ESPN Scoreboard", T("h1"), "ESPN Scoreboard"), K("There is a table with a header row of at least 3 header cells (th)", function (c) { var r = TR(0)(c), cl = cellsOf(r); return cl.length >= 3 && cl.every(function (x) { return x.tag === "th"; }); })],

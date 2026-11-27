@@ -27,16 +27,21 @@ def lessid(n, f):
     """lesson id from a lesson PDF name: Lesson-04-10b-... -> 4.10b"""
     g = re.match(r".*Lesson-\d+-(\d+)(b?)-", f)
     return "%d.%d%s" % (n, int(g.group(1)), g.group(2))
+# Unit 3 has no notes page per lesson of its own: these are the notes pages that teach each lesson (file names inside /apcsp/)
+NOTES3 = {"3.1": "python-variables/index.html", "3.2": "python-variables/index.html", "3.3": "user-input.html", "3.4": "concatenation.html", "3.5": "python-variables/strings.html",
+          "3.6": "string-methods.html", "3.7": "python-variables/string-methods.html", "3.8": "user-input.html", "3.9": "basic-math.html", "3.10": "basic-math.html", "3.11": "basic-math.html", "3.12": "basic-math.html"}
 def cards_html(n, ls):
     ed = "../../python/editor.html#"; cards = ""
     for f in ls:
         lid = lessid(n, f); m = LMAP[lid]; base = os.path.basename(f)
         rows = ('<div class="lprow sg"><span class="ic">&#128196;</span><span class="tx"><b>Study guide</b><span>%d-page PDF</span></span><span class="st"><a href="../downloads/lessons/%s" target="_blank" rel="noopener">Open</a> &nbsp;|&nbsp; <a href="../downloads/lessons/%s" download>Download</a></span></div>' % (pages(f), base, base))
+        nf = m.get("notes") or NOTES3.get(lid)
+        if nf: rows += '<a class="lprow" href="../%s"><span class="ic">&#128214;</span><span class="tx"><b>Notes</b><span>%s</span></span><span class="st">read</span></a>' % (nf, m["title"])
         for w in m["w"]: rows += '<a class="lprow" href="%s%s"><span class="ic">&#128187;</span><span class="tx"><b>Walkthrough</b><span>%s</span></span><span class="st">100 pts</span></a>' % (ed, w["id"], m["title"])
         if m["p"]: rows += '<a class="lprow" href="%s%s"><span class="ic">&#128221;</span><span class="tx"><b>Assignment</b><span>Assignment %s: %s</span></span><span class="st">%d pts</span></a>' % (ed, m["p"]["id"], lid, m["p"]["title"], m["p"]["pts"])
         if m["g"]: rows += '<a class="lprow" href="%s%s"><span class="ic">&#127918;</span><span class="tx"><b>%s</b><span>%s %s: %s</span></span><span class="st">%d pts</span></a>' % (ed, m["g"]["id"], "Mission" if m["g"]["pts"] >= 100 else "Bonus game", "Mission" if m["g"]["pts"] >= 100 else "Bonus Game", lid, m["g"]["title"], m["g"]["pts"])
         cards += '<div class="lpcard"><div class="lpch"><span class="ln">%s</span><span class="lt">%s</span></div>%s</div>' % (lid, m["title"], rows)
-    return CARD_CSS + '<h2>Lessons</h2><p>Each lesson has its study guide, walkthrough, assignment, and bonus game. The walkthrough, assignment, and game open in the Python Editor.</p><div class="lpgrid">%s</div>' % cards
+    return CARD_CSS + '<h2>Lessons</h2><p>Each lesson has its notes, study guide, walkthrough, assignment, and bonus game. The walkthrough, assignment, and game open in the Python Editor.</p><div class="lpgrid">%s</div>' % cards
 PRACTICE_CSS = ('<style>.pbtns{display:flex;flex-wrap:wrap;gap:14px;margin:6px 0 22px}.pbtn{display:flex;align-items:center;gap:14px;flex:1 1 280px;max-width:520px;padding:16px 20px;border:1.5px solid #c7d2fe;border-radius:14px;background:#eef0ff;color:#1e1b4b;text-decoration:none;font-weight:800;font-size:1.15rem;box-shadow:0 2px 8px rgba(79,70,229,.12)}'
                 '.pbtn:hover{background:#e0e7ff;border-color:#818cf8}.pbtn svg{flex:none}.pbtn small{display:block;font-weight:500;font-size:.82rem;color:#4338ca;margin-top:2px}.lesson-content a.pbtn,.lesson-content a.pbtn span{color:#1e1b4b;text-decoration:none}.lesson-content a.pbtn small{color:#4338ca}</style>')
 def practice_html(n):

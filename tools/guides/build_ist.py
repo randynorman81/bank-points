@@ -14,16 +14,16 @@ if r.returncode: sys.exit("browser checks failed")
 importlib.reload(ist_lib)
 for m in [k for k in list(sys.modules) if k.startswith("units.")]: del sys.modules[m]
 import units.ist03 as mod2; unit = mod2.UNIT; gl.LANG = "html"
-html, titles, extras = gl.build_html(unit)
+html, titles, extras = gl.build_html(unit); html = ist_lib.finalize(html)
 h = os.path.join(B.WORK, "ist03.html"); p = os.path.join(B.WORK, "ist03.pdf")
 open(h, "w", encoding="utf-8").write(html); B.chrome(h, p)
 ids = [c for c, _ in titles] + extras
 pages, total = B.find_pages(p, ids)
-html2, _, _ = gl.build_html(unit, toc_pages=pages)
+html2, _, _ = gl.build_html(unit, toc_pages=pages); html2 = ist_lib.finalize(html2)
 open(h, "w", encoding="utf-8").write(html2); B.chrome(h, p)
 pages2, total2 = B.find_pages(p, ids); assert pages2 == pages and total2 == total, "contents numbers moved: %s vs %s" % (pages, pages2)
 d = fitz.open(p)
-d.set_metadata({"title": "Intro to Software Technology Study Guide: Unit 3, Web Design 1 (HTML Part 1)", "author": "Social Circle High School Computer Science", "subject": "Unit 3: Web Design 1 (HTML Part 1)",
+d.set_metadata({"title": "Intro to Software Technology Study Guide: Unit 3, Web Design (HTML)", "author": "Social Circle High School Computer Science", "subject": "Unit 3: Web Design (HTML)",
                 "keywords": "HTML, web design, study guide, Unit 3, Intro to Software Technology", "creator": "Social Circle High School Computer Science", "producer": "Social Circle High School Computer Science"})
 toc = [[1, "Cover", 1], [1, "Contents", 3]]
 for cid, t in titles: toc.append([1, "%s  %s" % (cid, re.sub("<[^>]+>", "", t)), pages[cid]])
@@ -38,5 +38,5 @@ for pg in d:
 gq = sys.modules["units.ist_q"].GUIDE_QS
 json.dump(gq, open(os.path.join(ROOT_T, "ist", "_guide_qs.json"), "w"), ensure_ascii=False)
 os.makedirs(B.OUT, exist_ok=True)
-final = os.path.join(B.OUT, "IST-Unit-03-Web-Design-1-HTML-Part-1-Study-Guide.pdf"); d.save(final, garbage=4, deflate=True, deflate_images=True, deflate_fonts=True, use_objstms=1, clean=True); d.close()
+final = os.path.join(B.OUT, "IST-Unit-03-Web-Design-HTML-Study-Guide.pdf"); d.save(final, garbage=4, deflate=True, deflate_images=True, deflate_fonts=True, use_objstms=1, clean=True); d.close()
 print("pages:", total, "->", final, "%.1f MB" % (os.path.getsize(final) / 1e6))

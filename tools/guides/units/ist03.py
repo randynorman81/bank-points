@@ -12,6 +12,6 @@ BRAND = dict(kicker="INTRO TO SOFTWARE TECHNOLOGY  ·  STUDY GUIDE", doctitle="I
              trace_legend="Play browser. Step through the code one line at a time and watch the page being built. There are several in every lesson.",
              glance_legend="where the matching notes, walkthrough, assignment, and quiz game are on the site")
 UNIT = Unit(3, "Web Design 1: HTML", "Build real web pages: the skeleton, headings and paragraphs, colors, text styles, fonts, borders, pictures, emojis, links and lists.",
-    "Web Design: HTML Part 1", "#0D9488", "#0F766E", "#5EEAD4", "#CCFBF1", "html",
+    "Web Design: HTML", "#0D9488", "#0F766E", "#5EEAD4", "#CCFBF1", "html",
     ["Build a web page from the HTML skeleton: doctype, html, head, title and body", "Change colors, sizes, alignment and letter case with the style attribute", "Use strong, em, br, hr and span, and load Google fonts", "Draw borders, add pictures and a favicon, and use emojis and symbols", "Make links, including picture links, and build ordered, unordered and menu lists", "Read HTML like a browser: trace a page one line at a time"],
     CHAPTERS_A + CHAPTERS_B + CHAPTERS_C, glossary=[], brand=BRAND, seed=11)

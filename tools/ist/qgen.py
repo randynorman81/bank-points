@@ -1,4 +1,4 @@
-"""Question generator for IST Unit 3 (HTML Part 1): the game question bank, the practice test and the study-guide check questions all come from here.
+"""Question generator for IST Unit 3 (HTML): the game question bank, the practice test and the study-guide check questions all come from here.
 Every question carries `chk`: a list of {html, js, expect}. qcheck.mjs loads each page in a REAL browser, evaluates `js` (the document is `d`, the window is `W`) and compares it with `expect`,
 so the marked answer is confirmed by Chrome, not by this file. For "which code ..." questions every option page is checked (only the right one may give the expected result).
 usage: imported by gen_bank.py, gen_test.py"""
@@ -673,11 +673,11 @@ def make(l, rng, tries=60):
         except Skip: continue
     raise RuntimeError('could not make a question for lesson %d' % l)
 
-# ############################################################################################ PART 2 (3.12 - 3.16): lessons 11-15
+# ############################################################################################ PART 2 (4.1 - 4.5): lessons 11-15
 HEXNAME = [('tomato', '#FF6347'), ('navy', '#000080'), ('gold', '#FFD700'), ('teal', '#008080'), ('crimson', '#DC143C'), ('orchid', '#DA70D6'), ('coral', '#FF7F50'), ('salmon', '#FA8072'), ('indigo', '#4B0082'), ('olive', '#808000'), ('hotpink', '#FF69B4'), ('purple', '#800080')]
 def hex_rgb(h): h = h.lstrip('#'); return 'rgb(%d, %d, %d)' % (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16))
 def total_width(w, p, b): return w + 2 * p + 2 * b
-# ---------------------------------------------------------------- 11 = 3.12 Box model
+# ---------------------------------------------------------------- 11 = 4.1 Box model
 def l11_pad_side(rng):
     n = rng.choice([8, 12, 16, 20, 30, 40]); side = rng.choice(['top', 'right', 'bottom', 'left']); tag = rng.choice(['p', 'h2', 'h3'])
     code = pg('<%s%s>Postcard</%s>\n' % (tag, st('padding: %dpx; background-color: lightyellow' % n), tag)); must_parse(code)
@@ -729,7 +729,7 @@ L11_FACTS = [
  ('In <code>padding: 10px 30px</code>, what is the 30px?', 'The left and right padding', ['The top and bottom padding', 'The width', 'The margin'], 'Two values: top and bottom first, then left and right.'),
 ]
 L11_T = [l11_pad_side, l11_two_values, l11_total, l11_which_style, l11_which_layer, l11_border_size]
-# ---------------------------------------------------------------- 12 = 3.13 Colors
+# ---------------------------------------------------------------- 12 = 4.2 Colors
 def l12_named_hex(rng):
     nm, hx = rng.choice(HEXNAME); others = [h for n, h in HEXNAME if n != nm]
     pages = {h: pg('<p style="color: %s">Hi</p>\n' % h) for h in [hx] + others[:3]}; named = pg('<p style="color: %s">Hi</p>\n' % nm)
@@ -777,7 +777,7 @@ L12_FACTS = [
  ('Which is easier for people to read: a color name or a hex code?', 'A color name', ['A hex code', 'They are exactly the same', 'Neither works'], 'Names are easy to read. Hex codes are exact and give millions of shades.'),
 ]
 L12_T = [l12_named_hex, l12_pure, l12_read_pair, l12_valid, l12_inherit, l12_bg]
-# ---------------------------------------------------------------- 13 = 3.14 Display
+# ---------------------------------------------------------------- 13 = 4.3 Display
 def l13_arrangement(rng):
     disp = rng.choice(['block', 'inline-block', 'inline']); n = rng.choice([3, 4, 5]); w = rng.choice([50, 60, 80, 100]); lab = rng.choice(['Box', 'Tile', 'Card', 'Item'])
     boxes = ''.join('<div%s>%s %d</div>\n' % (st('display: %s; width: %dpx; background-color: %s' % (disp, w, rng.choice(['gold', 'pink', 'lightblue', 'lightgreen', 'orange']))), lab, i + 1) for i in range(n)); code = pg(boxes); must_parse(code)
@@ -845,7 +845,7 @@ L13_FACTS = [
  ('A div has no display style. Is it block or inline?', 'Block', ['Inline', 'Inline-block', 'Neither'], 'A div is born block.'),
 ]
 L13_T = [l13_arrangement, l13_inline_width, l13_tag_display, l13_button, l13_rows, l13_which_display, l13_menu_fix]
-# ---------------------------------------------------------------- 14 = 3.15 Div
+# ---------------------------------------------------------------- 14 = 4.4 Div
 def l14_inherit(rng):
     col = rng.choice(['white', 'yellow', 'orange', 'gold']); target = rng.choice(['h3', 'p']); own_p = rng.random() < .4; own = rng.choice([c for c in ('tomato', 'gold', 'teal', 'red') if c != col])
     code = pg('<div%s>\n<h3>Title</h3>\n<p%s>Words</p>\n</div>\n' % (st('background-color: navy; color: %s; padding: 10px' % col), st('color: ' + own) if own_p else '')); must_parse(code)
@@ -906,7 +906,7 @@ L14_FACTS = [
  ('What is a div mostly used for?', 'Grouping related tags into one box you can style or arrange', ['Making text bold', 'Drawing a line across the page', 'Showing a picture'], 'A div groups related tags into one unit.'),
 ]
 L14_T = [l14_inherit, l14_empty, l14_wrap, l14_valign, l14_hr, l14_count_inside, l14_fits]
-# ---------------------------------------------------------------- 15 = 3.16 Tables
+# ---------------------------------------------------------------- 15 = 4.5 Tables
 def tbl(rows, th_first=True, sty=''):
     out = '<table%s>\n' % (st(sty) if sty else '')
     for i, r in enumerate(rows): out += '<tr>\n' + ''.join('<%s>%s</%s>\n' % ('th' if (i == 0 and th_first) else 'td', c, 'th' if (i == 0 and th_first) else 'td') for c in r) + '</tr>\n'

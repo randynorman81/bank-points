@@ -1,4 +1,4 @@
-/* Steps text for the Unit 3 Part 2 WALKTHROUGHS ("7.1w" ...) and ASSIGNMENTS ("7.1a" ...): 3.12 Box Model, 3.13 Colors, 3.14 Display, 3.15 Div, 3.16 Tables (see lab-lessons.js).
+/* Steps text for the Unit 4: Advanced HTML WALKTHROUGHS ("7.1w" ...) and ASSIGNMENTS ("7.1a" ...): 4.1 Box Model, 4.2 Colors, 4.3 Display, 4.4 Div, 4.5 Tables (see lab-lessons.js).
    The bullets line up one-to-one with the check lists in step-checks-w2.js. Walkthrough = training voice with the exact code; assignment = a company brief with no code shown. */
 (function (root) {
   var A = root.U7_ANSWERS = root.U7_ANSWERS || {};
@@ -11,7 +11,7 @@
   var DONE2 = S("Check and submit", ["Fix every **red line number** in your code (a red number means a problem on that line)", "Choose your class period at the top, then click **Submit**"]);
   var SKEL1 = function (title, what) { return ["From memory, type the skeleton with a title that says **" + title + "**, and the body tags", what]; };
 
-  /* ===================== 3.12 Walkthrough ===================== */
+  /* ===================== 4.1 Walkthrough ===================== */
   A["7.1w"] = build([
     { h: "What you are building" },
     P("**Postcard Studio** wants a page of postcards. Every box on a web page is built from four layers: the **content**, the **padding** inside the border, the **border**, and the **margin** outside it. You will use all four. " + TYPEIT2),
@@ -33,7 +33,7 @@
       [P("**Try it:** the black box is 230 pixels wide on the page, even though you wrote `width: 200px`.")]),
     DONE
   ]);
-  /* ===================== 3.12 Assignment ===================== */
+  /* ===================== 4.1 Assignment ===================== */
   A["7.1a"] = build([
     { h: "What you are building" },
     P("**Etsy** wants a page of shop cards. Each card is a box that uses the box model. Write your own shop items. Watch the **Auto score** at the top to see how you are doing."),
@@ -44,7 +44,7 @@
     DONE2
   ]);
 
-  /* ===================== 3.13 Walkthrough ===================== */
+  /* ===================== 4.2 Walkthrough ===================== */
   A["7.2w"] = build([
     { h: "What you are building" },
     P("**Brand Colors** is a page that shows the same idea two ways: a color by **name**, and a color by **hex code**. A hex code is a `#` followed by 6 characters, in three pairs: red, green and blue. " + TYPEIT2),
@@ -60,7 +60,7 @@
     S("The page background", ["Give the **body** the style `background-color: #F0F9FF` (a very light blue)"], [P("Hex codes work anywhere a color works, including the background of the whole page. A hex code with all pairs close to `FF`, like `#F0F9FF`, is a very light color."), CODE("<body style=\"background-color: #F0F9FF\">")]),
     DONE
   ]);
-  /* ===================== 3.13 Assignment ===================== */
+  /* ===================== 4.2 Assignment ===================== */
   A["7.2a"] = build([
     { h: "What you are building" },
     P("**Duolingo** wants a brand page that shows off its colors as hex codes. Pick your own greens, yellows and grays. Watch the **Auto score** at the top to see how you are doing."),
@@ -71,7 +71,7 @@
     DONE2
   ]);
 
-  /* ===================== 3.14 Walkthrough ===================== */
+  /* ===================== 4.3 Walkthrough ===================== */
   A["7.3w"] = build([
     { h: "What you are building" },
     P("A **Snack Bar** needs a menu bar. Every tag is born as **block** (it takes its own line) or **inline** (it stays in the line like a word). The `display` style lets you change that. " + TYPEIT2),
@@ -89,7 +89,7 @@
       [P("A link is naturally **inline** and only as big as its words. `display: block` turns it into a wide button that takes the whole width."), CODE("<a href=\"https://www.nasa.gov\" target=\"_blank\" style=\"display: block; padding: 10px; background-color: navy; color: white\">Visit NASA</a>")]),
     DONE
   ]);
-  /* ===================== 3.14 Assignment ===================== */
+  /* ===================== 4.3 Assignment ===================== */
   A["7.3a"] = build([
     { h: "What you are building" },
     P("**Instagram** wants a menu bar and a call-to-action button for its web page. Write your own menu words. Watch the **Auto score** at the top to see how you are doing."),
@@ -100,7 +100,7 @@
     DONE2
   ]);
 
-  /* ===================== 3.15 Walkthrough ===================== */
+  /* ===================== 4.4 Walkthrough ===================== */
   A["7.4w"] = build([
     { h: "What you are building" },
     P("A **Profile Page** is built from **divs**. A div is an invisible box: it does nothing on its own, but it **groups** other tags so you can style or arrange them as one unit. " + TYPEIT2),
@@ -117,7 +117,7 @@
       [P("To start a **new row** of columns, add a block tag first (an `hr` works). Without one, the next divs can end up on the end of the first row instead of starting fresh. Then repeat the same pattern."), CODE("<hr>\n<div style=\"display: inline-block; vertical-align: top; width: 45%\">Photos</div>")]),
     DONE
   ]);
-  /* ===================== 3.15 Assignment ===================== */
+  /* ===================== 4.4 Assignment ===================== */
   A["7.4a"] = build([
     { h: "What you are building" },
     P("**Amazon** wants a products page laid out with divs: a banner, a color bar, and two rows of columns. Write your own product words. Watch the **Auto score** at the top to see how you are doing."),
@@ -128,7 +128,7 @@
     DONE2
   ]);
 
-  /* ===================== 3.16 Walkthrough ===================== */
+  /* ===================== 4.5 Walkthrough ===================== */
   A["7.5w"] = build([
     { h: "What you are building" },
     P("A **Leaderboard** is a **table**: data that belongs in rows and columns. You do not build columns. You build one **row** at a time, top to bottom, and drop cells into each row. " + TYPEIT2),
@@ -144,7 +144,7 @@
     S("Links in the cells", ["In **each data row**, make the word **View** in the last cell a link to `https://www.espn.com` that opens in a new tab"], [P("A cell can hold any other tag: links, pictures, even a whole list. Put the tag **inside** the `td`."), CODE("<td><a href=\"https://www.espn.com\" target=\"_blank\">View</a></td>")]),
     S("Check and submit", ["Look at the line numbers on the left of your code. **No line number should be red**: a red number means a problem on that line, like a tag that is not closed or is misspelled", "Choose your class period at the top, then click **Submit**"])
   ]);
-  /* ===================== 3.16 Assignment ===================== */
+  /* ===================== 4.5 Assignment ===================== */
   A["7.5a"] = build([
     { h: "What you are building" },
     P("**ESPN** wants a scoreboard built as a **table**. Pick a sport and write your own teams and scores. Watch the **Auto score** at the top to see how you are doing."),

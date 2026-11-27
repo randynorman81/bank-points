@@ -1,4 +1,4 @@
-"""Builds ist/unit-6/practice-data.js: 10 Parsons + 10 browser-trace problems per lesson of IST Unit 3 (HTML Part 2).
+"""Builds ist/unit-6/practice-data.js: 10 Parsons + 10 browser-trace problems per lesson of IST Unit 3 (Unit 4: Advanced HTML).
 Every page is parsed by the model, every ordering is tried, every wrong piece is tried in every line, and every page is also written to
 tools/ist/_pages.json so chrome_check.mjs can compare the model with a real browser.   usage: python3 tools/ist/gen_ist7.py [lesson numbers]"""
 import sys, os, json, re, random
@@ -7,8 +7,8 @@ ROOT = os.path.dirname(os.path.dirname(HERE))
 from ist_core import *
 from ist_p7a import *
 from ist_p7b import *
-RANK = {"3.12": 13, "3.13": 11, "3.14": 14, "3.15": 15, "3.16": 12}   # the order the lessons are TAUGHT: colors (3.13) and tables (3.16) come before the box model (3.12), display (3.14) and div (3.15)
-LESSONS = [("i7l1", "3.12", "Box Model", P312, T312), ("i7l2", "3.13", "Colors (Names and Hex)", P313, T313), ("i7l3", "3.14", "Display (Block vs Inline)", P314, T314), ("i7l4", "3.15", "Div Tag", P315, T315), ("i7l5", "3.16", "Tables", P316, T316)]
+RANK = {"4.1": 13, "4.2": 11, "4.3": 14, "4.4": 15, "4.5": 12}   # the order the lessons are TAUGHT: colors (4.2) and tables (4.5) come before the box model (4.1), display (4.3) and div (4.4)
+LESSONS = [("i7l1", "4.1", "Box Model", P312, T312), ("i7l2", "4.2", "Colors (Names and Hex)", P313, T313), ("i7l3", "4.3", "Display (Block vs Inline)", P314, T314), ("i7l4", "4.4", "Div Tag", P315, T315), ("i7l5", "4.5", "Tables", P316, T316)]
 errors = []; pages = []; alts = []
 rnd = random.Random(31)
 def pieces_for(sol, dis):

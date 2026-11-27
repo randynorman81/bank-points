@@ -417,7 +417,7 @@
     "Step 4": [[NOERR], []]
   });
 
-  /* the helpers, shared with step-checks-w2.js (Unit 3 Part 2) */
+  /* the helpers, shared with step-checks-w2.js (Unit 4: Advanced HTML) */
   SC.W = { K: K, P: P, T: T, CNT: CNT, has: has, kids: kids, txt: txt, words: words, within: within, norm: norm, squash: squash, SAYS: SAYS, SAYSNS: SAYSNS, HAS: HAS, eq: eq, named: named, hex6: hex6, differ: differ, BODYCOLORS: BODYCOLORS, ONLY: ONLY,
     SKELETON1: SKELETON1, SKELETON3: SKELETON3, TITLEIS: TITLEIS, NOERR: NOERR, LAB: LAB, PN: PN, H2: H2, pxGE: pxGE, pxBetween: pxBetween, BORDERRE: BORDERRE, fullBorder: fullBorder, realAlt: realAlt, webSrc: webSrc, realLink: realLink, newTab: newTab, LABURL: LABURL, src: src, inBody: inBody, aIn: aIn };
 })(typeof window !== "undefined" ? window : globalThis);

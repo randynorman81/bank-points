@@ -1,4 +1,4 @@
-"""Builds ist/unit-6/practice-data.js: 10 Parsons + 10 browser-trace problems per lesson of IST Unit 3 (HTML Part 1).
+"""Builds ist/unit-6/practice-data.js: 10 Parsons + 10 browser-trace problems per lesson of IST Unit 3 (HTML).
 Every page is parsed by the model, every ordering is tried, every wrong piece is tried in every line, and every page is also written to
 tools/ist/_pages.json so chrome_check.mjs can compare the model with a real browser.   usage: python3 tools/ist/gen_ist3.py [lesson numbers]"""
 import sys, os, json, re, random

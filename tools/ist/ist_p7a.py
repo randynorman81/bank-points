@@ -1,7 +1,7 @@
-# Part 2 authoring, lessons 3.12 (box model) and 3.13 (colors)
+# Part 2 authoring, lessons 4.1 (box model) and 4.2 (colors)
 L = lambda *a: '\n'.join(a)
 def P(title, story, code, dis): return (title, story, code, dis)
-# ============================================================ 3.12 Box model: padding, margin, border adds size, width
+# ============================================================ 4.1 Box model: padding, margin, border adds size, width
 P312 = [
  P('Padding on a card', 'Write a heading 2 that says Postcard, then a paragraph that says Greetings from the beach! The paragraph has 20px of padding on all four sides.',
    L('<h2>Postcard</h2>', '<p style="padding: 20px;">Greetings from the beach!</p>'),
@@ -46,7 +46,7 @@ T312 = [
  L('<h3 style="padding: 8px; margin: 4px; border: 2px solid purple;">Card</h3>', '<p style="padding: 8px; margin: 4px; border: 2px dotted purple;">Note</p>', '<p>Last</p>'),
  L('<!DOCTYPE html>', '<html>', '<head>', '<title>Boxes</title>', '</head>', '<body>', '<h1 style="padding: 14px; background-color: teal; color: white;">Boxes</h1>', '<p style="padding: 6px 18px; margin: 10px; border: 2px solid teal;">Inside</p>', '<p style="margin-left: 40px;">Indented</p>', '</body>', '</html>'),
 ]
-# ============================================================ 3.13 Colors: names and hex codes (rank 11: part 1 only + hex)
+# ============================================================ 4.2 Colors: names and hex codes (rank 11: part 1 only + hex)
 P313 = [
  P('A hex text color', 'Write a heading 1 that says Tomato Soup with the hex text color #FF6347, then a paragraph that says Hot and fresh.',
    L('<h1 style="color: #FF6347;">Tomato Soup</h1>', '<p>Hot and fresh.</p>'),

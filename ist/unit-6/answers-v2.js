@@ -306,7 +306,7 @@
 
   A["7.6"] = build([
     { h: "Unit test website" },
-    { p: "Your teacher gives the exact requirements on test day. Your site must show everything from 3.1 through 3.12, at least **once each**. The **Concepts** tab lists them all. Your teacher will tell you where to take the multiple choice test." },
+    { p: "Your teacher gives the exact requirements on test day. Your site must show everything from 3.1 through 4.1, at least **once each**. The **Concepts** tab lists them all. Your teacher will tell you where to take the multiple choice test." },
     S("Build a real website of your own", [
       "Type the **skeleton**, then build a real website on a topic of your choice: headings, paragraphs, lists, links, pictures, boxes, columns, and a table",
       "Use every item in the **Concepts** tab at least **once**. The **Checks** list tracks them for you"

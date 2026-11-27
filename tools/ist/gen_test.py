@@ -77,7 +77,7 @@ html = html.replace(nav_old, '<nav class="pillnav">\n  <a href="index.html">&lar
 hero_old = html[html.index('<header class="hero">'): html.index('</header>') + 9]
 hero = '''<header class="hero">
   <div class="wrap">
-    <div class="brief-no">INTRO TO SOFTWARE TECHNOLOGY &nbsp;/&nbsp; UNIT 3 &nbsp;/&nbsp; WEB DESIGN (HTML PART 1)</div>
+    <div class="brief-no">INTRO TO SOFTWARE TECHNOLOGY &nbsp;/&nbsp; UNIT 3 &nbsp;/&nbsp; WEB DESIGN (HTML)</div>
     <h1>Unit 3 Practice Test</h1>
     <p class="deck">Questions for every lesson from 3.1 The Skeleton to 3.10 Lists. Read the code like a browser: go one line at a time and decide what the page will show. Use the topic buttons to practice one lesson at a time.</p>
     <div class="meta">

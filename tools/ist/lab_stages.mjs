@@ -87,7 +87,7 @@ STAGES["6.5w"] = [
   pg("Camping Trip", camp(UL(st("list-style-type: square")), OL(st("list-style-type: upper-roman")), MENU)),
 ];
 
-/* ================= Unit 3 Part 2 ================= */
+/* ================= Unit 4: Advanced HTML ================= */
 const cardP = (a = "", b = "", c = "", d = "") => `<h1>Postcard Studio</h1>\n<p${a}>Greetings from Hawaii!</p>\n<p${b}>Wish you were here.</p>\n<p${c}>See you soon!</p>\n<p${d}>Box total: 230 pixels wide.</p>\n`;
 const P1 = st("padding: 20px; background-color: lightyellow"), P2 = st("margin: 30px; background-color: lightpink"), P3 = st("border: 4px solid navy; padding-left: 40px; padding-top: 10px"), P4 = st("width: 200px; padding: 10px; border: 5px solid black");
 STAGES["7.1w"] = [pg("Postcard Studio", cardP()), pg("Postcard Studio", cardP(P1)), pg("Postcard Studio", cardP(P1, P2)), pg("Postcard Studio", cardP(P1, P2, P3)), pg("Postcard Studio", cardP(P1, P2, P3, P4))];
