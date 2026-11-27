@@ -1,7 +1,7 @@
 """Builds ist/unit-6/practice-data.js: 10 Parsons + 10 browser-trace problems per lesson of IST Unit 3 (Unit 4: Advanced HTML).
 Every page is parsed by the model, every ordering is tried, every wrong piece is tried in every line, and every page is also written to
 tools/ist/_pages.json so chrome_check.mjs can compare the model with a real browser.   usage: python3 tools/ist/gen_ist7.py [lesson numbers]"""
-import sys, os, json, re, random
+import re, sys, os, json, re, random
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 ROOT = os.path.dirname(os.path.dirname(HERE))
 from ist_core import *
@@ -48,6 +48,7 @@ for lid, num, title, probs, traces in LESSONS:
         exp = check_problem(tag, sol, dis, errors)
         if exp is None: continue
         concept_errors(tag, '\n'.join(sol), k, errors)
+        if num == '4.1' and re.search(r'#[0-9A-Fa-f]{3,8}\b|rgb\(|\bhex', ' '.join([ttl, story] + sol + [d for _, d in dis]), re.I): errors.append((tag, 'uses a hex color, which is not taught until lesson 4.2'))
         for _, d in dis: concept_errors(tag + ' wrong piece', d, k, [])      # wrong pieces may show a typo; not audited for taught-ness
         key = exercise_key('\n'.join(sol))
         if key in seen: errors.append((tag, 'same exercise as another problem in this lesson'))
