@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 5 Practice Test | Intro to Software Technology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#FB923C; --acc-tint:rgba(251,146,60,.14); --acc-ink:#FDC79B;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --lst:#34D399; --lst-tint:rgba(52,211,153,.13); --lst-ink:#6EE7B7;
+  --cir:#22D3EE; --rec:#818CF8;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+h3.sub{font-size:20px;font-weight:600;color:#fff;margin:30px 0 12px}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:5}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#2B1706;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(32px,6vw,52px);font-weight:600;max-width:22ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:68ch;margin-top:18px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.chip{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:6px 14px}
+.chip b{color:var(--acc-ink)}
+.cta{display:inline-block;margin-top:24px;font-family:"JetBrains Mono",monospace;font-size:13.5px;font-weight:700;color:#2B1706;background:var(--acc);text-decoration:none;border-radius:100px;padding:11px 22px}
+
+.part{padding:54px 0 8px;scroll-margin-top:60px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.part-head .les{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-soft);white-space:nowrap}
+.lede{font-size:17.5px;line-height:1.6;max-width:70ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .no{color:var(--bad-ink)}
+.code .ok{color:var(--lst-ink)}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:8px 0 18px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--acc)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p,.box li{font-size:15px;line-height:1.55;color:#C4CDD8}
+.box ul{margin:0;padding-left:18px}
+.box.green{border-top-color:var(--lst)} .box.red{border-top-color:var(--bad)}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F0DAC4}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+.good{background:var(--lst-tint);border-left:4px solid var(--lst);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#D3F5E6}
+.good b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:18px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.y{color:var(--lst-ink)} table.cmp td.n{color:var(--bad-ink)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.checklist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 20px}
+.checklist li{font-size:14.5px;color:#C4CDD8;padding:8px 0 8px 26px;position:relative;border-bottom:1px solid var(--rule)}
+.checklist li::before{content:"\2610";position:absolute;left:0;color:var(--acc-ink);font-size:15px}
+
+/* trace table */
+table.trace{border-collapse:collapse;font-family:"JetBrains Mono",monospace;font-size:14px;margin:4px 0 20px;background:var(--card);border:1px solid var(--rule)}
+table.trace th,table.trace td{padding:8px 16px;border:1px solid var(--rule);text-align:left}
+table.trace th{color:var(--ink-soft);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+table.trace td.chg{color:var(--acc-ink);font-weight:700}
+
+/* math lab */
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:20px 22px;margin:10px 0 22px}
+.lab .row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-family:"JetBrains Mono",monospace}
+.lab input{width:90px;background:#05070B;color:#fff;border:1px solid #3A4658;border-radius:4px;padding:8px 10px;font:inherit;font-size:16px}
+.lab .out{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px}
+.lab .cell{background:#05070B;border:1px solid var(--rule);border-radius:5px;padding:12px 14px;font-family:"JetBrains Mono",monospace}
+.lab .cell .op{font-size:12px;color:var(--ink-soft)}
+.lab .cell .v{font-size:22px;color:#fff;font-weight:700;margin-top:4px}
+.lab .cell .t{font-size:11px;color:var(--acc-ink);margin-top:2px}
+.lab .explain{margin-top:14px;font-size:14.5px;color:#C4CDD8}
+
+/* canvas figure */
+.fig{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:18px;margin:10px 0 22px}
+.fig svg{width:100%;height:auto;display:block}
+.fig .cap{font-size:13.5px;color:var(--ink-soft);margin-top:10px}
+
+/* ===== practice test ===== */
+.testbar{position:sticky;top:52px;z-index:4;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.score{font-family:"JetBrains Mono",monospace;font-size:14px;color:#fff;font-weight:700;margin-right:auto}
+.score span{color:var(--ink-soft);font-weight:500}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.fbtn,.tbtn{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:6px 12px;cursor:pointer}
+.fbtn:hover,.tbtn:hover{color:#fff;border-color:#3A4658}
+.fbtn.on{background:var(--acc);color:#2B1706;border-color:var(--acc)}
+.tbtn.danger{color:var(--bad-ink)}
+.q{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:22px 24px;margin-bottom:14px}
+.q.right{border-color:rgba(52,211,153,.5)} .q.wrong{border-color:rgba(248,113,113,.5)}
+.q .qh{display:flex;gap:10px;align-items:baseline;margin-bottom:10px;flex-wrap:wrap}
+.q .qn{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);font-weight:700}
+.q .qt{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--rule);border-radius:100px;padding:2px 9px}
+.q .stem{font-size:15.5px;color:#EAEFF6;margin-bottom:10px}
+.q .code{margin:8px 0 14px;font-size:14px}
+.q .sel2{font-weight:700;color:var(--acc-ink)}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;background:#0E121A;border:1px solid var(--rule);border-radius:5px;padding:11px 14px;color:#D8E1EC;font:inherit;font-size:15px;cursor:pointer}
+.opt:hover:not([disabled]){border-color:#3A4658;background:#121824}
+.opt .l{font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--ink-soft);flex:none;width:22px}
+.opt.picked{border-color:var(--acc)}
+.opt.ok{border-color:var(--lst);background:var(--lst-tint)} .opt.ok .l{color:var(--lst-ink)}
+.opt.bad{border-color:var(--bad);background:var(--bad-tint)} .opt.bad .l{color:var(--bad-ink)}
+.opt[disabled]{cursor:default}
+.opt code{white-space:pre-wrap}
+.check{margin-top:10px;font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:700;background:var(--acc);color:#2B1706;border:0;border-radius:100px;padding:8px 16px;cursor:pointer}
+.check[disabled]{opacity:.4;cursor:default}
+.why{display:none;margin-top:14px;border-top:1px solid var(--rule);padding-top:12px;font-size:14.5px;color:#C4CDD8}
+.why b.v{color:var(--lst-ink)} .why b.x{color:var(--bad-ink)}
+.q.done .why{display:block}
+.done-msg{display:none;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:22px 24px;margin:10px 0 20px}
+.done-msg h3{font-size:22px;color:#fff;margin-bottom:8px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:30ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:64ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .wrap{padding:0 16px}
+  .pillnav{padding:10px 16px;position:static}
+  .testbar{top:0}
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:9px 11px}
+  .checklist{grid-template-columns:1fr}
+  .part-head{flex-wrap:wrap} .part-head .les{margin-left:0}
+  .code{font-size:13px;padding:14px}
+  .q{padding:18px 16px}
+}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="index.html">&larr; Unit 5: Intro to CSS</a>
+  <a href="../unit-6/practice-3.html?hub=w">Walkthroughs and assignments</a>
+  <a href="../unit-6/game.html">Quiz games</a>
+  <a href="#test" class="current">Practice Test</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">INTRO TO SOFTWARE TECHNOLOGY &nbsp;/&nbsp; UNIT 5 &nbsp;/&nbsp; INTRO TO CSS</div>
+    <h1>Unit 5 Practice Test</h1>
+    <p class="deck">Questions for every lesson from 5.1 External CSS to 5.6 CSS Grid. Read the CSS like a browser: decide which rule wins and what the page will show. Use the topic buttons to practice one lesson at a time.</p>
+    <div class="meta">
+      <span class="chip">Covers <b>5.1&ndash;5.6</b></span>
+      <span class="chip"><b id="heroCount">0</b> questions</span>
+      <span class="chip">Every answer <b>explained</b></span>
+    </div>
+    <a class="cta" href="#test">Start the practice test &darr;</a>
+  </div>
+</header>
+
+<section class="part" id="test">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">Q</div><h2>Practice Test</h2></div>
+    <p class="lede">Picture the page the code makes before you choose. You get one try per question, and the explanation shows after you answer. "Select two" questions need exactly two choices before you can check.</p>
+
+    <div class="testbar">
+      <div class="score" id="score">0 / 0 <span>correct &middot; 0 left</span></div>
+      <div class="filters" id="filters"></div>
+      <button class="tbtn" id="missedBtn" type="button">Show missed only</button>
+      <button class="tbtn danger" id="resetBtn" type="button">Reset</button>
+    </div>
+    <div class="done-msg" id="doneMsg"></div>
+    <div id="quiz"></div>
+  </div>
+</section>
+
+
+<script>
+var LAB={"External CSS and classes": "5.1 External CSS and classes", "CSS by id": "5.2 CSS by id", "Selectors and specificity": "5.3 Selectors and specificity", "Pseudo-classes and transitions": "5.4 Pseudo-classes and transitions", "Flexbox": "5.5 Flexbox", "Grid": "5.6 Grid"};
+var Q = [
+{
+"t": "External CSS and classes",
+"s": "Which symbol starts a class rule in the CSS file?",
+"o": [
+"An at sign",
+"A hash",
+"A dot",
+"A colon"
+],
+"a": [
+2
+],
+"e": "A class rule starts with a dot before the name, like .spotlight."
+},
+{
+"t": "External CSS and classes",
+"s": "A paragraph should wear the class <code>spotlight</code>. What does the HTML say?",
+"o": [
+"<p .spotlight>",
+"<p class=\".spotlight\">",
+"<p spotlight>",
+"<p class=\"spotlight\">"
+],
+"a": [
+3
+],
+"e": "In the HTML the class name has no dot. The dot only belongs in the CSS rule."
+},
+{
+"t": "External CSS and classes",
+"s": "How many paragraphs get the style from the <code>.hot</code> rule?",
+"o": [
+"6",
+"2",
+"1",
+"3"
+],
+"a": [
+2
+],
+"e": "The rule starts with a dot, so it styles every element that wears the class <b>hot</b>. 1 of the 6 paragraphs wear it.",
+"c": "/* style.css */\n.hot {\n  background-color: brown;\n  color: white;\n}\n\n<!-- index.html: the body -->\n<p>Soup</p>\n<p>Salad</p>\n<p>Pasta</p>\n<p class=\"hot\">Wings</p>\n<p>Cake</p>\n<p>Pizza</p>"
+},
+{
+"t": "External CSS and classes",
+"s": "Which rule colors the paragraph that wears the class <code>sale</code> tomato?",
+"o": [
+"<pre>.sale {\n  color: tomato;\n}</pre>",
+"<pre>sale {\n  color: tomato;\n}</pre>",
+"<pre>class sale {\n  color: tomato;\n}</pre>",
+"<pre>..sale {\n  color: tomato;\n}</pre>"
+],
+"a": [
+0
+],
+"e": "In a CSS file a class rule starts with a <b>dot</b> before the class name. Without the dot the browser looks for a tag with that name."
+},
+{
+"t": "External CSS and classes",
+"s": "The stylesheet has a <code>.alert</code> rule with a teal background. Which tag gets the background?",
+"o": [
+"<code>&lt;p class=\".alert\"&gt;Pasta&lt;/p&gt;</code>",
+"<code>&lt;alert&gt;Pasta&lt;/alert&gt;</code>",
+"<code>&lt;p alert&gt;Pasta&lt;/p&gt;</code>",
+"<code>&lt;p class=\"alert\"&gt;Pasta&lt;/p&gt;</code>"
+],
+"a": [
+3
+],
+"e": "The HTML uses the class name with <b>no dot</b>, inside the class attribute. The dot belongs only in the CSS rule.",
+"c": "/* style.css */\n.alert {\n  background-color: teal;\n  color: white;\n}\n\n<!-- index.html: the body -->\n"
+},
+{
+"t": "External CSS and classes",
+"s": "The CSS file is named <code>style.css</code>. Which link tag in the head connects it to the page?",
+"o": [
+"<code>&lt;link rel=\"stylesheet\" href=\"styles.css\"&gt;</code>",
+"<code>&lt;link href=\"style.css\"&gt;</code>",
+"<code>&lt;link rel=\"style\" href=\"style.css\"&gt;</code>",
+"<code>&lt;link rel=\"stylesheet\" href=\"style.css\"&gt;</code>"
+],
+"a": [
+3
+],
+"e": "The link tag needs <b>rel=\"stylesheet\"</b> and an <b>href</b> with the exact file name. It has no closing tag and lives in the head.",
+"c": "/* style.css */\nh1 {\n  color: indigo;\n}"
+},
+{
+"t": "External CSS and classes",
+"s": "Does the paragraph that says \"Tacos\" get a background from these two rules?",
+"o": [
+"A gold border",
+"No background",
+"A gold background",
+"A different font"
+],
+"a": [
+1
+],
+"e": "The <b>p</b> rule colors every paragraph. The <b>.menu</b> rule only reaches the paragraph that wears the class (the one that says Salad), so only that one gets the gold background.",
+"c": "/* style.css */\np {\n  color: maroon;\n}\n.menu {\n  background-color: gold;\n}\n\n<!-- index.html: the body -->\n<p>Wings</p>\n<p class=\"menu\">Salad</p>\n<p>Pizza</p>\n<p>Tacos</p>\n<p>Rice</p>"
+},
+{
+"t": "External CSS and classes",
+"s": "The page has 5 paragraphs and the color is set in the CSS file with <code>p { color: green; }</code>. How many places do you edit to change all the text to a new color?",
+"o": [
+"Two: the link and the file",
+"Every page that links the file",
+"One: the p rule in the CSS file",
+"5: one style attribute per paragraph"
+],
+"a": [
+2
+],
+"e": "This is the point of external CSS: one rule in one file styles every paragraph, and the link tag lets every page share it.",
+"c": "/* style.css */\np {\n  color: green;\n}\n\n<!-- index.html: the body -->\n<p>Tacos</p>\n<p>Salad</p>\n<p>Bread</p>\n<p>Pizza</p>\n<p>Juice</p>"
+},
+{
+"t": "External CSS and classes",
+"s": "The <code>.warn</code> rule in the CSS file does not color the paragraph indigo. What is wrong?",
+"o": [
+"There are quotes around the value",
+"The semicolon is missing before the next property",
+"The dot is missing",
+"The colon is missing"
+],
+"a": [
+1
+],
+"e": "A rule needs the dot for a class, a colon after the property, a semicolon after each value, and no quotes around a color. This is a CSS file, so no HTML tags belong in it either.",
+"c": "/* style.css */\n.warn {\n  color: indigo\n  font-size: 20px;\n}\n\n<!-- index.html: the body -->\n<p class=\"warn\">Wings</p>\n<p>Soup</p>"
+},
+{
+"t": "External CSS and classes",
+"s": "How many paragraphs get the style from the <code>.big</code> rule?",
+"o": [
+"3",
+"2",
+"6",
+"1"
+],
+"a": [
+3
+],
+"e": "The rule starts with a dot, so it styles every element that wears the class <b>big</b>. 1 of the 6 paragraphs wear it.",
+"c": "/* style.css */\n.big {\n  background-color: green;\n  color: white;\n}\n\n<!-- index.html: the body -->\n<p class=\"big\">Pasta</p>\n<p>Pizza</p>\n<p>Salad</p>\n<p>Rice</p>\n<p>Juice</p>\n<p>Wings</p>"
+},
+{
+"t": "External CSS and classes",
+"s": "Which two of these belong in a CSS file? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"<code>&lt;link rel=\"stylesheet\" href=\"style.css\"&gt;</code>",
+"<code>p { color: blue; }</code>",
+"<code>.big { font-size: 20px; }</code>",
+"<code>&lt;style&gt;</code>"
+],
+"a": [
+1,
+2
+],
+"e": "A CSS file holds only rules: a selector, curly braces, and property: value pairs. A style tag and a link tag are HTML."
+},
+{
+"t": "CSS by id",
+"s": "Which is the best use of an id?",
+"o": [
+"Every paragraph",
+"Every link in a menu",
+"Every product card",
+"The one page title"
+],
+"a": [
+3
+],
+"e": "An id points at one special element."
+},
+{
+"t": "CSS by id",
+"s": "Which line is a correct id rule?",
+"o": [
+"#logo [ font-size: 36px; ]",
+".logo { font-size: 36px; }",
+"logo { font-size: 36px; }",
+"#logo { font-size: 36px; }"
+],
+"a": [
+3
+],
+"e": "A hash, the id name, then curly braces with property: value; inside."
+},
+{
+"t": "CSS by id",
+"s": "The heading has the id <code>logo</code>. Which rule gives it a orange background?",
+"o": [
+"<pre>##logo {\n  background-color: orange;\n}</pre>",
+"<pre>.logo {\n  background-color: orange;\n}</pre>",
+"<pre>#logo {\n  background-color: orange;\n}</pre>",
+"<pre>logo {\n  background-color: orange;\n}</pre>"
+],
+"a": [
+2
+],
+"e": "A CSS id rule starts with a <b>hash</b> (#) before the id name. A dot looks for a class, and a bare name looks for a tag."
+},
+{
+"t": "CSS by id",
+"s": "The stylesheet has the rule <code>#vip { color: green; }</code>. Which heading wears the id?",
+"o": [
+"<code>&lt;h2 id=\"vip\"&gt;Juice&lt;/h2&gt;</code>",
+"<code>&lt;h2 class=\"vip\"&gt;Juice&lt;/h2&gt;</code>",
+"<code>&lt;h2 id=\"#vip\"&gt;Juice&lt;/h2&gt;</code>",
+"<code>&lt;h2 vip&gt;Juice&lt;/h2&gt;</code>"
+],
+"a": [
+0
+],
+"e": "The HTML uses the <b>id attribute</b> with the name only. No hash goes in the HTML: the hash belongs in the CSS rule.",
+"c": "/* style.css */\n#vip {\n  color: green;\n}\n\n<!-- index.html: the body -->\n"
+},
+{
+"t": "CSS by id",
+"s": "How many paragraphs does the <code>#main</code> rule style?",
+"o": [
+"2",
+"0",
+"3",
+"1"
+],
+"a": [
+3
+],
+"e": "An id points at exactly one element. Only the paragraph that says <b>Cake</b> has the id.",
+"c": "/* style.css */\n#main {\n  background-color: teal;\n  color: white;\n}\n\n<!-- index.html: the body -->\n<p>Pizza</p>\n<p id=\"main\">Cake</p>\n<p>Juice</p>"
+},
+{
+"t": "CSS by id",
+"s": "You want to style the page logo, which appears once on the page. Which fits best?",
+"o": [
+"An id",
+"A tag rule",
+"A class on many tags",
+"A hash in the HTML"
+],
+"a": [
+0
+],
+"e": "An id points at one special element, like the page title. Use a class for a look you will reuse."
+},
+{
+"t": "CSS by id",
+"s": "What does the paragraph that says \"Tacos\" get from these two rules?",
+"o": [
+"A border only",
+"A background only",
+"A border and a teal background",
+"Nothing"
+],
+"a": [
+2
+],
+"e": "Every paragraph wears the class <b>intro</b>, so every one gets the border. Only the paragraph that says <b>Tacos</b> has the id <b>footer</b>, so only that one gets the teal background.",
+"c": "/* style.css */\n.intro {\n  border: 3px solid crimson;\n}\n#footer {\n  background-color: teal;\n  color: white;\n}\n\n<!-- index.html: the body -->\n<p class=\"intro\">Juice</p>\n<p class=\"intro\">Bread</p>\n<p class=\"intro\" id=\"footer\">Tacos</p>\n<p class=\"intro\">Fries</p>"
+},
+{
+"t": "CSS by id",
+"s": "A page has two paragraphs that both say <code>id=\"footer\"</code>. What is wrong with that?",
+"o": [
+"Nothing, ids can be repeated",
+"The id must have a hash in the HTML",
+"An id may be used only once on a page, so one should be a class or get a different id",
+"Ids only work on headings"
+],
+"a": [
+2
+],
+"e": "Every id name may be used once per page. For several elements that share a look, use a class."
+},
+{
+"t": "CSS by id",
+"s": "The heading has the id <code>signup</code>. Which rule gives it a maroon background?",
+"o": [
+"<pre>##signup {\n  background-color: maroon;\n}</pre>",
+"<pre>.signup {\n  background-color: maroon;\n}</pre>",
+"<pre>signup {\n  background-color: maroon;\n}</pre>",
+"<pre>#signup {\n  background-color: maroon;\n}</pre>"
+],
+"a": [
+3
+],
+"e": "A CSS id rule starts with a <b>hash</b> (#) before the id name. A dot looks for a class, and a bare name looks for a tag."
+},
+{
+"t": "CSS by id",
+"s": "The stylesheet has the rule <code>#top { color: brown; }</code>. Which heading wears the id?",
+"o": [
+"<code>&lt;h2 class=\"top\"&gt;Cake&lt;/h2&gt;</code>",
+"<code>&lt;h2 id=\"#top\"&gt;Cake&lt;/h2&gt;</code>",
+"<code>&lt;h2 top&gt;Cake&lt;/h2&gt;</code>",
+"<code>&lt;h2 id=\"top\"&gt;Cake&lt;/h2&gt;</code>"
+],
+"a": [
+3
+],
+"e": "The HTML uses the <b>id attribute</b> with the name only. No hash goes in the HTML: the hash belongs in the CSS rule.",
+"c": "/* style.css */\n#top {\n  color: brown;\n}\n\n<!-- index.html: the body -->\n"
+},
+{
+"t": "CSS by id",
+"s": "The page has <code>&lt;h2 id=\"top\"&gt;Hello&lt;/h2&gt;</code>. Which two rules turn the heading red? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"<code>h2 { color: red; }</code>",
+"<code>.top { color: red; }</code>",
+"<code>top { color: red; }</code>",
+"<code>#top { color: red; }</code>"
+],
+"a": [
+0,
+3
+],
+"e": "A tag rule (h2) and an id rule (#top) both reach this heading. A dot looks for a class, and a bare name looks for a tag with that name."
+},
+{
+"t": "Selectors and specificity",
+"s": "Which is the weakest: a tag rule, a class rule, an id rule, or an inline style?",
+"o": [
+"A class rule",
+"An id rule",
+"An inline style",
+"A tag rule"
+],
+"a": [
+3
+],
+"e": "From weakest to strongest: tag, class, id, inline style."
+},
+{
+"t": "Selectors and specificity",
+"s": "Why do teams avoid inline styles?",
+"o": [
+"They do not work in browsers",
+"They beat the stylesheet, so one file can no longer control the look",
+"They only work on headings",
+"They slow down the computer"
+],
+"a": [
+1
+],
+"e": "If one element has an inline color, the CSS file can never change it without hunting it down in the HTML."
+},
+{
+"t": "Selectors and specificity",
+"s": "The paragraph wears the class <code>sale</code> and the id <code>hero</code>. What color is its text?",
+"o": [
+"indigo",
+"red",
+"tomato",
+"purple"
+],
+"a": [
+2
+],
+"e": "The more specific rule wins no matter which one comes first: a tag is the weakest, then a class, then an id. Here the id rule is the most specific, so the text is tomato.",
+"c": "/* style.css */\np {\n  color: navy;\n}\n#hero {\n  color: tomato;\n}\n.sale {\n  color: red;\n}\n\n<!-- index.html: the body -->\n<p class=\"sale\" id=\"hero\">Fries</p>"
+},
+{
+"t": "Selectors and specificity",
+"s": "The id rule says blue but the tag has an inline style that says red. What color is the text?",
+"o": [
+"red",
+"crimson",
+"navy",
+"hotpink"
+],
+"a": [
+0
+],
+"e": "An inline style is the strongest of all: it beats a class rule and an id rule. That is why teams keep styles in the stylesheet.",
+"c": "/* style.css */\n#vip {\n  color: blue;\n}\n\n<!-- index.html: the body -->\n<p id=\"vip\" style=\"color: red\">Bread</p>"
+},
+{
+"t": "Selectors and specificity",
+"s": "What does the second paragraph get from these two rules?",
+"o": [
+"A maroon text color only",
+"No change from the rules",
+"A maroon text color and a 28px font-size",
+"A 28px font-size only"
+],
+"a": [
+0
+],
+"e": "An element can wear more than one class: list them in one class attribute, separated by a space. Every class rule that matches applies. The first paragraph wears both names; the second wears only <b>intro</b>.",
+"c": "/* style.css */\n.intro {\n  color: maroon;\n}\n.quote {\n  font-size: 28px;\n}\n\n<!-- index.html: the body -->\n<p class=\"intro quote\">Both names</p>\n<p class=\"intro\">One name</p>"
+},
+{
+"t": "Selectors and specificity",
+"s": "How many elements does the rule <code>p.tip</code> style?",
+"o": [
+"1",
+"2",
+"4",
+"0"
+],
+"a": [
+0
+],
+"e": "<b>p.tip</b> (no space) means a paragraph that also wears the class tip. The list item with the same class is not a paragraph, so only one element matches.",
+"c": "/* style.css */\np.tip {\n  background-color: coral;\n}\n\n<!-- index.html: the body -->\n<ul>\n<li class=\"tip\">Juice</li>\n<li>Fries</li>\n</ul>\n<p class=\"tip\">Pie</p>\n<p>Wings</p>"
+},
+{
+"t": "Selectors and specificity",
+"s": "How many list items turn indigo from the rule <code>ol li</code>?",
+"o": [
+"3",
+"6",
+"2",
+"4"
+],
+"a": [
+0
+],
+"e": "A space between two selectors means <b>inside</b>: this rule reaches only the li tags that sit inside a ol. The ol has 3 items and the other list has 3.",
+"c": "/* style.css */\nol li {\n  color: indigo;\n}\n\n<!-- index.html: the body -->\n<ol>\n<li>Salad</li>\n<li>Pasta</li>\n<li>Rice</li>\n</ol>\n<ul>\n<li>Wings</li>\n<li>Pasta</li>\n<li>Salad</li>\n</ul>"
+},
+{
+"t": "Selectors and specificity",
+"s": "Which rule colors only the paragraph that sits inside the <code>tip</code> box?",
+"o": [
+"<pre>.tip p {\n  color: tomato;\n}</pre>",
+"<pre>.tipp {\n  color: tomato;\n}</pre>",
+"<pre>.tip {\n  color: black;\n}</pre>",
+"<pre>p.tip {\n  color: tomato;\n}</pre>"
+],
+"a": [
+0
+],
+"e": "A space means \"inside\": <b>.tip p</b> is every p inside an element with that class."
+},
+{
+"t": "Selectors and specificity",
+"s": "A paragraph should wear the classes <code>tip</code> and <code>note</code>. Which tag is written correctly?",
+"o": [
+"<code>&lt;p class=\"tip, note\"&gt;</code>",
+"<code>&lt;p class=\"tip.note\"&gt;</code>",
+"<code>&lt;p class=\"tip note\"&gt;</code>",
+"<code>&lt;p class=\"tip\" class=\"note\"&gt;</code>"
+],
+"a": [
+2
+],
+"e": "List the classes in one class attribute, separated by a space. No commas, and no second class attribute."
+},
+{
+"t": "Selectors and specificity",
+"s": "The paragraph wears the class <code>menu</code> and the id <code>winner</code>. What color is its text?",
+"o": [
+"navy",
+"hotpink",
+"red",
+"blue"
+],
+"a": [
+2
+],
+"e": "The more specific rule wins no matter which one comes first: a tag is the weakest, then a class, then an id. Here the id rule is the most specific, so the text is red.",
+"c": "/* style.css */\n.menu {\n  color: maroon;\n}\np {\n  color: tomato;\n}\n#winner {\n  color: red;\n}\n\n<!-- index.html: the body -->\n<p class=\"menu\" id=\"winner\">Juice</p>"
+},
+{
+"t": "Selectors and specificity",
+"s": "The page has <code>&lt;p class=\"warning\"&gt;Careful&lt;/p&gt;</code>. Which two rules turn it red? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"<code>warning { color: red; }</code>",
+"<code>p.warning { color: red; }</code>",
+"<code>p .warning { color: red; }</code>",
+"<code>.warning { color: red; }</code>"
+],
+"a": [
+1,
+3
+],
+"e": ".warning matches anything with that class, and p.warning matches a paragraph that wears it (no space). A space would mean a warning INSIDE a p, and a bare name is a tag."
+},
+{
+"t": "Pseudo-classes and transitions",
+"s": "What does a transition time of 0 do?",
+"o": [
+"The change snaps with no glide",
+"The change takes a very long time",
+"The page reloads",
+"The change never happens"
+],
+"a": [
+0
+],
+"e": "At 0 there is no glide: it is like flipping a light switch."
+},
+{
+"t": "Pseudo-classes and transitions",
+"s": "Where should the transition go so the element glides in AND out?",
+"o": [
+"Only on the hover rule",
+"On the body only",
+"Inside the HTML",
+"On the normal rule"
+],
+"a": [
+3
+],
+"e": "On the normal rule the element glides in and glides back out."
+},
+{
+"t": "Pseudo-classes and transitions",
+"s": "What color is the link text while it is clicked into or reached with the Tab key?",
+"o": [
+"blue",
+"brown",
+"gold",
+"green"
+],
+"a": [
+1
+],
+"e": "A pseudo-class like <b>:focus</b> only applies while that state is happening. The rest of the time the normal rule applies.",
+"c": "/* style.css */\na {\n  color: gold;\n}\na:focus {\n  color: brown;\n}\n\n<!-- index.html: the body -->\n<a href=\"https://example.com/soup\">Soup</a>"
+},
+{
+"t": "Pseudo-classes and transitions",
+"s": "You want a link to change while the mouse rests on it. Which pseudo-class do you use?",
+"o": [
+":focus",
+":hover",
+":active",
+":click"
+],
+"a": [
+1
+],
+"e": "Hover is the mouse resting on it, focus is selected by a click or the Tab key, and active is the moment it is pressed."
+},
+{
+"t": "Pseudo-classes and transitions",
+"s": "Which rule turns the link with the class <code>big</code> maroon while the mouse is on it?",
+"o": [
+"<pre>.big::hover {\n  color: maroon;\n}</pre>",
+"<pre>.big: hover {\n  color: maroon;\n}</pre>",
+"<pre>.big :hover {\n  color: maroon;\n}</pre>",
+"<pre>.big:hover {\n  color: maroon;\n}</pre>"
+],
+"a": [
+3
+],
+"e": "A pseudo-class sticks to its selector: the selector, a colon, the state, with no spaces."
+},
+{
+"t": "Pseudo-classes and transitions",
+"s": "The transition is only written inside the <code>:hover</code> rule. What happens when the mouse leaves?",
+"o": [
+"It snaps back instantly",
+"The page shows an error",
+"It glides back slowly",
+"It stays changed"
+],
+"a": [
+0
+],
+"e": "A transition glides <b>into</b> the state that has the transition rule. With it only on the hover rule, the glide happens on the way in and the color snaps back on the way out.",
+"c": "/* style.css */\n.menu {\n  color: green;\n}\n.menu:hover {\n  color: orange;\n  transition: color 0.3s;\n}\n\n<!-- index.html: the body -->\n<a class=\"menu\" href=\"https://example.com/x\">Hover me</a>"
+},
+{
+"t": "Pseudo-classes and transitions",
+"s": "Which property glides in <code>transition: background-color 0.2s</code>?",
+"o": [
+"all of them",
+"font-size",
+"background-color",
+"color"
+],
+"a": [
+2
+],
+"e": "The first word of the transition names the property that glides. The word <b>all</b> makes every changing property glide.",
+"c": "/* style.css */\n.alert {\n  background-color: maroon;\n  color: white;\n  transition: background-color 0.2s;\n}\n.alert:hover {\n  background-color: navy;\n}\n\n<!-- index.html: the body -->\n<p class=\"alert\">Hover me</p>"
+},
+{
+"t": "Pseudo-classes and transitions",
+"s": "The mouse rests on the item that says \"Cake\". How many list items have the navy background right now?",
+"o": [
+"1",
+"4",
+"0",
+"2"
+],
+"a": [
+0
+],
+"e": "A hover rule only applies to the one element the mouse is on. The other items stay normal.",
+"c": "/* style.css */\nli:hover {\n  background-color: navy;\n}\n\n<!-- index.html: the body -->\n<ul>\n<li>Salad</li>\n<li>Rice</li>\n<li>Cake</li>\n<li>Wings</li>\n</ul>"
+},
+{
+"t": "Pseudo-classes and transitions",
+"s": "What color is the link text right now, with nothing happening to it?",
+"o": [
+"coral",
+"hotpink",
+"indigo",
+"tomato"
+],
+"a": [
+2
+],
+"e": "A pseudo-class like <b>:active</b> only applies while that state is happening. The rest of the time the normal rule applies.",
+"c": "/* style.css */\na {\n  color: indigo;\n}\na:active {\n  color: tomato;\n}\n\n<!-- index.html: the body -->\n<a href=\"https://example.com/salad\">Salad</a>"
+},
+{
+"t": "Pseudo-classes and transitions",
+"s": "You want a link to change when it is reached with the Tab key. Which pseudo-class do you use?",
+"o": [
+":focus",
+":click",
+":active",
+":hover"
+],
+"a": [
+0
+],
+"e": "Hover is the mouse resting on it, focus is selected by a click or the Tab key, and active is the moment it is pressed."
+},
+{
+"t": "Pseudo-classes and transitions",
+"s": "The page has <code>&lt;a class=\"nav\" href=\"https://example.com\"&gt;Home&lt;/a&gt;</code>. Which two rules turn the link red while the mouse is on it? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"<code>a :hover { color: red; }</code>",
+"<code>a::hover { color: red; }</code>",
+"<code>.nav:hover { color: red; }</code>",
+"<code>a:hover { color: red; }</code>"
+],
+"a": [
+2,
+3
+],
+"e": "A pseudo-class sticks to its selector with no spaces and one colon. a:hover and .nav:hover both reach this link."
+},
+{
+"t": "Flexbox",
+"s": "Which two properties center something both ways?",
+"o": [
+"flex-direction and gap",
+"gap and display",
+"width and height",
+"justify-content: center and align-items: center"
+],
+"a": [
+3
+],
+"e": "Set both to center on a container and the item lands in the middle."
+},
+{
+"t": "Flexbox",
+"s": "In a row, which property moves the items up and down?",
+"o": [
+"justify-content",
+"align-items",
+"gap",
+"display"
+],
+"a": [
+1
+],
+"e": "Align-items works across the main direction."
+},
+{
+"t": "Flexbox",
+"s": "The page has a container with 5 boxes. Do the boxes sit in one row?",
+"o": [
+"Only the first two sit in a row",
+"Yes, all in one row",
+"It depends on the browser",
+"No, they stack in a column"
+],
+"a": [
+1
+],
+"e": "The moment a container gets <b>display: flex</b>, its direct children jump into one row. Without it, div boxes are blocks and stack.",
+"c": "/* style.css */\n.row {\n  display: flex;\n}\n.box {\n  border: 2px solid brown;\n  padding: 6px;\n}\n\n<!-- index.html: the body -->\n<div class=\"row\">\n<div class=\"box\">1</div>\n<div class=\"box\">2</div>\n<div class=\"box\">3</div>\n<div class=\"box\">4</div>\n<div class=\"box\">5</div>\n</div>"
+},
+{
+"t": "Flexbox",
+"s": "The container is 400px wide and holds 4 boxes that are each 50px wide. How many pixels is the first box from the left edge of the container?",
+"o": [
+"100 pixels",
+"25 pixels",
+"0 pixels",
+"200 pixels"
+],
+"a": [
+1
+],
+"e": "The free space is 400 - 4 x 50 = 200 pixels. With <b>space-around</b> each box gets equal space on both sides: 25 pixels at the left edge.",
+"c": "/* style.css */\n.row {\n  display: flex;\n  width: 400px;\n  justify-content: space-around;\n}\n.box {\n  width: 50px;\n  background-color: gold;\n}\n\n<!-- index.html: the body -->\n<div class=\"row\">\n<div class=\"box\">1</div>\n<div class=\"box\">2</div>\n<div class=\"box\">3</div>\n<div class=\"box\">4</div>\n</div>"
+},
+{
+"t": "Flexbox",
+"s": "The container is 120px tall and each box is 30px tall. How many pixels is the top of the first box below the top of the container?",
+"o": [
+"30 pixels",
+"90 pixels",
+"45 pixels",
+"0 pixels"
+],
+"a": [
+1
+],
+"e": "<b>align-items</b> works across the main direction: in a row it moves the boxes up and down. With flex-end the box sits at the bottom: 120 - 30 = 90 pixels from the top.",
+"c": "/* style.css */\n.row {\n  display: flex;\n  height: 120px;\n  align-items: flex-end;\n}\n.box {\n  height: 30px;\n  width: 60px;\n  background-color: gold;\n}\n\n<!-- index.html: the body -->\n<div class=\"row\">\n<div class=\"box\">1</div>\n<div class=\"box\">2</div>\n<div class=\"box\">3</div>\n</div>"
+},
+{
+"t": "Flexbox",
+"s": "The container has 3 boxes and <code>flex-direction: row</code>. How many separate lines do the boxes form from top to bottom?",
+"o": [
+"3",
+"4",
+"2",
+"1"
+],
+"a": [
+3
+],
+"e": "With <b>row</b> the boxes sit side by side in one line. With <b>column</b> they stack, one box per line.",
+"c": "/* style.css */\n.row {\n  display: flex;\n  flex-direction: row;\n}\n.box {\n  background-color: gold;\n  padding: 6px;\n  margin: 4px;\n}\n\n<!-- index.html: the body -->\n<div class=\"row\">\n<div class=\"box\">1</div>\n<div class=\"box\">2</div>\n<div class=\"box\">3</div>\n</div>"
+},
+{
+"t": "Flexbox",
+"s": "How many pixels of empty space are between the first box and the second box?",
+"o": [
+"15 pixels",
+"24 pixels",
+"48 pixels",
+"5 pixels"
+],
+"a": [
+1
+],
+"e": "<b>gap</b> puts the same space between every pair of neighbors: 24 pixels here.",
+"c": "/* style.css */\n.row {\n  display: flex;\n  gap: 24px;\n}\n.box {\n  width: 60px;\n  background-color: gold;\n}\n\n<!-- index.html: the body -->\n<div class=\"row\">\n<div class=\"box\">1</div>\n<div class=\"box\">2</div>\n<div class=\"box\">3</div>\n<div class=\"box\">4</div>\n</div>"
+},
+{
+"t": "Flexbox",
+"s": "You want equal space on both sides of every box. Which value of justify-content does it?",
+"o": [
+"<code>justify-content: space-between</code>",
+"<code>justify-content: space-around</code>",
+"<code>justify-content: center</code>",
+"<code>justify-content: flex-end</code>"
+],
+"a": [
+1
+],
+"e": "Measured in the browser: <b>space-around</b> is the value that gives this layout."
+},
+{
+"t": "Flexbox",
+"s": "You want each link inside it sitting in a row with flexbox. Which element gets <code>display: flex</code>?",
+"o": [
+"The body only",
+"The nav bar",
+"The link tag in the head",
+"Each link inside it, one by one"
+],
+"a": [
+1
+],
+"e": "Flex goes on the parent (the container). The container arranges its direct children, the items."
+},
+{
+"t": "Flexbox",
+"s": "The page has a container with 3 boxes. Do the boxes sit in one row?",
+"o": [
+"Yes, all in one row",
+"No, they stack in a column",
+"It depends on the browser",
+"Only the first two sit in a row"
+],
+"a": [
+0
+],
+"e": "The moment a container gets <b>display: flex</b>, its direct children jump into one row. Without it, div boxes are blocks and stack.",
+"c": "/* style.css */\n.row {\n  display: flex;\n}\n.box {\n  border: 2px solid gold;\n  padding: 6px;\n}\n\n<!-- index.html: the body -->\n<div class=\"row\">\n<div class=\"box\">1</div>\n<div class=\"box\">2</div>\n<div class=\"box\">3</div>\n</div>"
+},
+{
+"t": "Flexbox",
+"s": "Which two declarations on a flex container center its items both ways? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"<code>flex-direction: center;</code>",
+"<code>gap: center;</code>",
+"<code>align-items: center;</code>",
+"<code>justify-content: center;</code>"
+],
+"a": [
+2,
+3
+],
+"e": "Justify-content works along the row and align-items works across it. Set both to center. Gap and flex-direction do not take the value center."
+},
+{
+"t": "Grid",
+"s": "What does <code>display: grid</code> do by itself?",
+"o": [
+"Hides the container",
+"Turns the grid on, but you still need columns",
+"Makes three equal columns",
+"Makes a row of flex items"
+],
+"a": [
+1
+],
+"e": "Without grid-template-columns you get one wide column."
+},
+{
+"t": "Grid",
+"s": "Where do the layout rules for a grid go?",
+"o": [
+"On the body only",
+"On the container, never widths on the items",
+"On the link tag",
+"On every item"
+],
+"a": [
+1
+],
+"e": "Columns on the container decide the widths. You never set widths on the items."
+},
+{
+"t": "Grid",
+"s": "How many columns does <code>grid-template-columns: 1fr 1fr</code> make?",
+"o": [
+"3",
+"2",
+"1",
+"4"
+],
+"a": [
+1
+],
+"e": "Each value is one column, so 2 values make 2 columns.",
+"c": "/* style.css */\n.gallery {\n  display: grid;\n  grid-template-columns: 1fr 1fr;\n  width: 600px;\n}\n.item {\n  background-color: lightblue;\n  padding: 0px;\n}\n\n<!-- index.html: the body -->\n<div class=\"gallery\">\n<div class=\"item\">1</div>\n<div class=\"item\">2</div>\n<div class=\"item\">3</div>\n<div class=\"item\">4</div>\n<div class=\"item\">5</div>\n<div class=\"item\">6</div>\n</div>"
+},
+{
+"t": "Grid",
+"s": "The grid is 600px wide with 2 equal columns (1fr 1fr) and a gap of 10px. How wide is each column?",
+"o": [
+"200 pixels",
+"290 pixels",
+"295 pixels",
+"300 pixels"
+],
+"a": [
+2
+],
+"e": "The gaps use space first: 1 gaps x 10px = 10px. The rest, 590 pixels, is shared by the 2 columns, so each is 295 pixels.",
+"c": "/* style.css */\n.gallery {\n  display: grid;\n  grid-template-columns: 1fr 1fr;\n  width: 600px;\n  gap: 10px;\n}\n.item {\n  background-color: lightblue;\n  padding: 0px;\n}\n\n<!-- index.html: the body -->\n<div class=\"gallery\">\n<div class=\"item\">1</div>\n<div class=\"item\">2</div>\n<div class=\"item\">3</div>\n<div class=\"item\">4</div>\n</div>"
+},
+{
+"t": "Grid",
+"s": "The grid is 600px wide with <code>grid-template-columns: 1fr 3fr</code> and no gap. How wide is the LAST column?",
+"o": [
+"400 pixels",
+"150 pixels",
+"450 pixels",
+"300 pixels"
+],
+"a": [
+2
+],
+"e": "The fr values add up to 4, so one fr is 600 / 4 pixels. The last column has 3 fr = 450 pixels.",
+"c": "/* style.css */\n.gallery {\n  display: grid;\n  grid-template-columns: 1fr 3fr;\n  width: 600px;\n}\n.item {\n  background-color: lightblue;\n  padding: 0px;\n}\n\n<!-- index.html: the body -->\n<div class=\"gallery\">\n<div class=\"item\">1</div>\n<div class=\"item\">2</div>\n<div class=\"item\">3</div>\n<div class=\"item\">4</div>\n</div>"
+},
+{
+"t": "Grid",
+"s": "The grid is 800px wide with <code>grid-template-columns: 100px 1fr</code> and a gap of 0px. How wide is the second column?",
+"o": [
+"400 pixels",
+"100 pixels",
+"700 pixels",
+"720 pixels"
+],
+"a": [
+2
+],
+"e": "The first column takes its fixed 100 pixels and the gap takes 0. The 1fr column gets everything left: 800 - 100 - 0 = 700 pixels.",
+"c": "/* style.css */\n.gallery {\n  display: grid;\n  grid-template-columns: 100px 1fr;\n  width: 800px;\n}\n.item {\n  background-color: lightblue;\n  padding: 0px;\n}\n\n<!-- index.html: the body -->\n<div class=\"gallery\">\n<div class=\"item\">1</div>\n<div class=\"item\">2</div>\n<div class=\"item\">3</div>\n<div class=\"item\">4</div>\n</div>"
+},
+{
+"t": "Grid",
+"s": "The grid has 10 items and <code>grid-template-columns: 1fr 1fr</code>. How many rows does it make?",
+"o": [
+"5",
+"2",
+"6",
+"4"
+],
+"a": [
+0
+],
+"e": "The browser drops each item into the next open cup: 10 items in 2 columns fill 5 rows (the last row may be short).",
+"c": "/* style.css */\n.gallery {\n  display: grid;\n  grid-template-columns: 1fr 1fr;\n  width: 600px;\n}\n.item {\n  background-color: lightblue;\n  padding: 0px;\n}\n\n<!-- index.html: the body -->\n<div class=\"gallery\">\n<div class=\"item\">1</div>\n<div class=\"item\">2</div>\n<div class=\"item\">3</div>\n<div class=\"item\">4</div>\n<div class=\"item\">5</div>\n<div class=\"item\">6</div>\n<div class=\"item\">7</div>\n<div class=\"item\">8</div>\n<div class=\"item\">9</div>\n<div class=\"item\">10</div>\n</div>"
+},
+{
+"t": "Grid",
+"s": "How many pixels of space are between the first and second item in the first row?",
+"o": [
+"6 pixels",
+"40 pixels",
+"20 pixels",
+"15 pixels"
+],
+"a": [
+2
+],
+"e": "<b>gap</b> is the same space between every row and column at once: 20 pixels.",
+"c": "/* style.css */\n.gallery {\n  display: grid;\n  grid-template-columns: 1fr 1fr 1fr;\n  width: 600px;\n  gap: 20px;\n}\n.item {\n  background-color: lightblue;\n  padding: 0px;\n}\n\n<!-- index.html: the body -->\n<div class=\"gallery\">\n<div class=\"item\">1</div>\n<div class=\"item\">2</div>\n<div class=\"item\">3</div>\n<div class=\"item\">4</div>\n<div class=\"item\">5</div>\n<div class=\"item\">6</div>\n</div>"
+},
+{
+"t": "Grid",
+"s": "The container has <code>display: grid</code> but no <code>grid-template-columns</code>. How many columns do the 5 items form?",
+"o": [
+"5",
+"3",
+"2",
+"1"
+],
+"a": [
+3
+],
+"e": "Without grid-template-columns you get one wide column, so everything stacks like normal. display: grid only turns the grid on.",
+"c": "/* style.css */\n.gallery {\n  display: grid;\n  width: 600px;\n}\n.item {\n  background-color: lightblue;\n  padding: 0px;\n}\n\n<!-- index.html: the body -->\n<div class=\"gallery\">\n<div class=\"item\">1</div>\n<div class=\"item\">2</div>\n<div class=\"item\">3</div>\n<div class=\"item\">4</div>\n<div class=\"item\">5</div>\n</div>"
+},
+{
+"t": "Grid",
+"s": "Which rule makes 2 equal columns?",
+"o": [
+"<pre>.gallery {\n  display: grid;\n  grid-template-columns: 1fr 1fr;\n}</pre>",
+"<pre>.gallery {\n  display: grid;\n  grid-template-columns: 1fr, 1fr;\n}</pre>",
+"<pre>.gallery {\n  display: grid;\n  grid-template-column: 1fr 1fr;\n}</pre>",
+"<pre>.gallery {\n  grid-template-columns: 1fr 1fr;\n}</pre>"
+],
+"a": [
+0
+],
+"e": "A grid needs <b>display: grid</b> AND <b>grid-template-columns</b> (spelled with the s) with the sizes separated by spaces, no commas."
+},
+{
+"t": "Grid",
+"s": "Which two statements about a grid are true? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"The columns are set on the container with grid-template-columns",
+"Every item needs its own width",
+"An fr is a fraction of the leftover space",
+"display: grid makes three columns by itself"
+],
+"a": [
+0,
+2
+],
+"e": "The container decides the columns, and fr shares out what space is left. Items never need widths, and without grid-template-columns you get one column."
+}
+];
+
+(function(){
+  var KEY='ist-u5-pt-v1', state={};
+  try{ state=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ state={}; }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+  var quiz=document.getElementById('quiz'), filt='All', missedOnly=false;
+  var topics=['All'].concat(["External CSS and classes", "CSS by id", "Selectors and specificity", "Pseudo-classes and transitions", "Flexbox", "Grid"]);
+  document.getElementById('heroCount').textContent=Q.length;
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function same(a,b){ if(a.length!==b.length) return false; var x=a.slice().sort(), y=b.slice().sort(); return x.every(function(v,i){return v===y[i];}); }
+
+  var fwrap=document.getElementById('filters');
+  topics.forEach(function(t){
+    var b=document.createElement('button'); b.type='button'; b.className='fbtn'+(t==='All'?' on':''); b.textContent=LAB[t]||t;
+    b.onclick=function(){ filt=t; [].forEach.call(fwrap.children,function(c){c.classList.toggle('on',c===b);}); apply(); };
+    fwrap.appendChild(b);
+  });
+
+  Q.forEach(function(q,i){
+    var multi=q.a.length>1, el=document.createElement('div'); el.className='q'; el.dataset.t=q.t; el.id='q'+i;
+    var h='<div class="qh"><span class="qn">Question '+(i+1)+'</span><span class="qt">'+(LAB[q.t]||q.t)+'</span></div><div class="stem">'+q.s+'</div>';
+    if(q.c) h+='<div class="code">'+esc(q.c)+'</div>';
+    h+='<div class="opts">'+q.o.map(function(o,j){return '<button type="button" class="opt" data-j="'+j+'"><span class="l">'+'ABCD'[j]+'</span><span>'+o+'</span></button>';}).join('')+'</div>';
+    if(multi) h+='<button type="button" class="check" disabled>Check answer</button>';
+    h+='<div class="why"></div>';
+    el.innerHTML=h; quiz.appendChild(el);
+    var picks=[], btns=el.querySelectorAll('.opt'), chk=el.querySelector('.check');
+    [].forEach.call(btns,function(b){
+      b.onclick=function(){
+        if(el.classList.contains('done')) return;
+        var j=+b.dataset.j;
+        if(!multi){ grade(i,[j]); return; }
+        var k=picks.indexOf(j);
+        if(k>=0) picks.splice(k,1); else if(picks.length<2) picks.push(j);
+        [].forEach.call(btns,function(x){ x.classList.toggle('picked', picks.indexOf(+x.dataset.j)>=0); });
+        chk.disabled=picks.length!==2;
+      };
+    });
+    if(chk) chk.onclick=function(){ grade(i,picks.slice()); };
+    if(state[i]) render(i,state[i]);
+  });
+
+  function grade(i,picked){ state[i]=picked; save(); render(i,picked); tally(); }
+  function render(i,picked){
+    var q=Q[i], el=document.getElementById('q'+i), ok=same(picked,q.a);
+    el.classList.add('done', ok?'right':'wrong');
+    [].forEach.call(el.querySelectorAll('.opt'),function(b){
+      var j=+b.dataset.j; b.disabled=true; b.classList.remove('picked');
+      if(q.a.indexOf(j)>=0) b.classList.add('ok'); else if(picked.indexOf(j)>=0) b.classList.add('bad');
+    });
+    var c=el.querySelector('.check'); if(c) c.style.display='none';
+    var ans=q.a.map(function(j){return 'ABCD'[j];}).join(' and ');
+    el.querySelector('.why').innerHTML=(ok?'<b class="v">Correct.</b> ':'<b class="x">Not quite. The answer is '+ans+'.</b> ')+q.e;
+  }
+  function tally(){
+    var done=0,right=0;
+    Q.forEach(function(q,i){ if(state[i]){ done++; if(same(state[i],q.a)) right++; } });
+    document.getElementById('score').innerHTML=right+' / '+done+' <span>correct &middot; '+(Q.length-done)+' left</span>';
+    var dm=document.getElementById('doneMsg');
+    if(done===Q.length){
+      var pct=Math.round(100*right/Q.length);
+      dm.style.display='block';
+      dm.innerHTML='<h3>Finished: '+right+' / '+Q.length+' ('+pct+'%)</h3><p style="color:#C4CDD8">'+(pct>=90?'You’re ready for the Unit 3 test.':pct>=75?'Close. Click “Show missed only,” re-read those sections, then Reset and retake.':'Re-read the sections for the topics you missed (use the topic filters), then Reset and retake.')+'</p>';
+    } else dm.style.display='none';
+  }
+  function apply(){
+    Q.forEach(function(q,i){
+      var el=document.getElementById('q'+i);
+      var show=(filt==='All'||q.t===filt) && (!missedOnly || (state[i] && !same(state[i],q.a)));
+      el.style.display=show?'':'none';
+    });
+  }
+  document.getElementById('missedBtn').onclick=function(){ missedOnly=!missedOnly; this.classList.toggle('on',missedOnly); this.textContent=missedOnly?'Show all':'Show missed only'; apply(); };
+  document.getElementById('resetBtn').onclick=function(){
+    if(!confirm('Clear all your answers and start over?')) return;
+    state={}; save(); location.hash='#test'; location.reload();
+  };
+  tally();
+})();
+</script>
+</body>
+</html>

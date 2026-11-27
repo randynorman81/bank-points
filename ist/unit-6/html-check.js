@@ -803,7 +803,7 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
     var score = den ? Math.round(TOTAL_POINTS * num / den * 10) / 10 : 0;
     var empty = !String(src || "").trim();
     var errs = c.errors;
-    if (LESSONS[lesson] && /^[67]\./.test(lesson)) {   /* Units 3 and 4 (every lesson, old and new) teach empty tags WITHOUT a slash (<br>, <hr>, <img ...>): a slash works in a browser but is not the way this course writes them, so it is a Problem here */
+    if (LESSONS[lesson] && /^[678]\./.test(lesson)) {   /* Units 3 and 4 (every lesson, old and new) teach empty tags WITHOUT a slash (<br>, <hr>, <img ...>): a slash works in a browser but is not the way this course writes them, so it is a Problem here */
       var vre = /<(br|hr|img|link|meta)\b(?:"[^"<]*"|'[^'<]*'|[^>"'])*\/\s*>/gi, vm; errs = errs.slice();
       while ((vm = vre.exec(String(src || "")))) errs.push({ line: lineOf(String(src), vm.index), msg: "<" + vm[1].toLowerCase() + "> is an empty tag. Write it without a slash: <" + vm[1].toLowerCase() + (vm[1].toLowerCase() === "img" || vm[1].toLowerCase() === "link" ? " ...>" : ">") + "." });
     }

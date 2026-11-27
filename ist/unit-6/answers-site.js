@@ -32,7 +32,7 @@
   {
    "build": [
     "Add **one heading 1** with your site's name",
-    "Under it, add a **bullet list** with **3 list items**, each with a **link** (https://) that opens in the same tab. Give the list the **class** nav",
+    "Under it, add a **bullet list** with **3 list items**, each with a **link** (https://) that opens in the same tab. Give the list the **class** nav and give each of its **3 list items** the **class** navitem",
     "Add a **paragraph**. Click inside it, then click **Insert** on your first picture (Checks, then My images). The editor writes the picture wrapped in a link for you. Change that link to a **real website** (a full address starting with https://) and change the **alt** to a real description. Give the **picture** the **class** hero and make its link open in a **new tab**"
    ]
   },
@@ -69,7 +69,7 @@
     "Click the **style.css** tab. In a CSS file there are **no style tags**, **no quotes** around values, and every rule is a selector, curly braces, and **property: value;** lines",
     "**body**: **background-color** (a light named color), **font-family** sans-serif, and **margin** (like 0 20px)",
     "**h1**: **color** white, **background-color**, **font-size** 38px, **text-align** center, and a **solid border**. **h2**: **color** and **font-size** 26px. **p**: **margin** and **color**. **a**: **color**",
-    "A class rule starts with a **dot** before the name. **.nav**: **text-align** center, **list-style-type** none, and a **hex** **background-color** (like #E8F0FF). **.nav li**: **display** inline and a **margin**",
+    "A class rule starts with a **dot** before the name. **.nav**: **text-align** center, **list-style-type** none, and a **hex** **background-color** (like #E8F0FF). **.navitem**: **display** inline and a **margin**",
     "**.hero**: **width** 320px, a **solid border**, and a **margin**. **.highlight**: **background-color** and **padding**. **.bullets**: **background-color**",
     "**table**: a **solid border**, **text-align** center, **width** 90%, and a **margin**. **th**: **background-color**, **color** white, and **padding**. **td**: **padding**",
     "**.left**: **display** inline-block, **vertical-align** top, **width** 30%, a **background-color**, a **solid border**, and **padding**. **.right**: **display** inline-block, **vertical-align** top, **width** 60%, a **hex** **background-color**, a **dashed border**, and **padding**"
@@ -114,7 +114,7 @@
   {
    "build": [
     "Add **one heading 1** with your site's name and give it an **id** named banner",
-    "Under it, add a **bullet list** with **3 list items**, each with a **link** (https://) that opens in the same tab. Give the list the **class** nav",
+    "Under it, add a **bullet list** with **3 list items**, each with a **link** (https://) that opens in the same tab. Give the list the **class** nav and give each of its **3 list items** the **class** navitem",
     "Add a **paragraph**. Click inside it, then click **Insert** on your first picture (Checks, then My images). The editor writes the picture wrapped in a link for you. Change that link to a **real website** (a full address starting with https://) and change the **alt** to a real description. Give the **picture** the **class** hero and make its link open in a **new tab**"
    ]
   },
@@ -151,7 +151,7 @@
     "Click the **style.css** tab. In a CSS file there are **no style tags**, **no quotes** around values, and every rule is a selector, curly braces, and **property: value;** lines",
     "**body**: **background-color** (a light named color), **font-family** sans-serif, and **margin** (like 0 20px)",
     "**h1**: **color** white, **background-color**, **font-size** 38px, **text-align** center, and a **solid border**. **h2**: **color** and **font-size** 26px. **p**: **margin** and **color**. **a**: **color**",
-    "A class rule starts with a **dot** before the name. **.nav**: **text-align** center, **list-style-type** none, and a **hex** **background-color** (like #E8F0FF). **.nav li**: **display** inline and a **margin**",
+    "A class rule starts with a **dot** before the name. **.nav**: **text-align** center, **list-style-type** none, and a **hex** **background-color** (like #E8F0FF). **.navitem**: **display** inline and a **margin**",
     "**.hero**: **width** 320px, a **solid border**, and a **margin**. **.highlight**: **background-color** and **padding**. **.bullets**: **background-color**",
     "**table**: a **solid border**, **text-align** center, **width** 90%, and a **margin**. **th**: **background-color**, **color** white, and **padding**. **td**: **padding**",
     "**.left**: **display** inline-block, **vertical-align** top, **width** 30%, a **background-color**, a **solid border**, and **padding**. **.right**: **display** inline-block, **vertical-align** top, **width** 60%, a **hex** **background-color**, a **dashed border**, and **padding**"
@@ -432,7 +432,7 @@
     "Click the **style.css** tab. In a CSS file there are **no style tags**, **no quotes** around values, and every rule is a selector, curly braces, and **property: value;** lines",
     "**body**: **background-color** (a light named color), **font-family** sans-serif, and **margin** (like 0 20px)",
     "**h1**: **color** white, **background-color**, **font-size** 38px, **text-align** center, and a **solid border**. **h2**: **color** and **font-size** 26px. **p**: **margin** and **color**. **a**: **color**",
-    "A class rule starts with a **dot** before the name. **.menu**: **display** flex, **justify-content** (try space-around), **align-items** center, **list-style-type** none, and a **background-color**. **.menu li**: **font-weight** bold",
+    "A class rule starts with a **dot** before the name. **.menu**: **display** flex, **justify-content** (try space-around), **align-items** center, **list-style-type** none, and a **background-color**. **.menu li**: **text-transform** uppercase",
     "**.hero**: **width** 320px, a **solid border**, and a **margin**. **.highlight**: **background-color** and **padding**. **.bullets**: **background-color**",
     "**table**: a **solid border**, **text-align** center, **width** 90%, and a **margin**. **th**: **background-color**, **color** white, and **padding**. **td**: **padding**"
    ]
@@ -527,7 +527,7 @@
     "Click the **style.css** tab. In a CSS file there are **no style tags**, **no quotes** around values, and every rule is a selector, curly braces, and **property: value;** lines",
     "**body**: **background-color** (a light named color), **font-family** sans-serif, and **margin** (like 0 20px)",
     "**h1**: **color** white, **background-color**, **font-size** 38px, **text-align** center, and a **solid border**. **h2**: **color** and **font-size** 26px. **p**: **margin** and **color**. **a**: **color**",
-    "A class rule starts with a **dot** before the name. **.menu**: **display** flex, **justify-content** (try space-around), **align-items** center, **list-style-type** none, and a **background-color**. **.menu li**: **font-weight** bold",
+    "A class rule starts with a **dot** before the name. **.menu**: **display** flex, **justify-content** (try space-around), **align-items** center, **list-style-type** none, and a **background-color**. **.menu li**: **text-transform** uppercase",
     "**.hero**: **width** 320px, a **solid border**, and a **margin**. **.highlight**: **background-color** and **padding**. **.bullets**: **background-color**"
    ]
   },
@@ -619,7 +619,7 @@
     "Click the **style.css** tab. In a CSS file there are **no style tags**, **no quotes** around values, and every rule is a selector, curly braces, and **property: value;** lines",
     "**body**: **background-color** (a light named color), **font-family** sans-serif, and **margin** (like 0 20px)",
     "**h1**: **color** white, **background-color**, **font-size** 38px, **text-align** center, and a **solid border**. **h2**: **color** and **font-size** 26px. **p**: **margin** and **color**. **a**: **color**",
-    "A class rule starts with a **dot** before the name. **.menu**: **display** flex, **justify-content** (try space-around), **align-items** center, **list-style-type** none, and a **background-color**. **.menu li**: **font-weight** bold",
+    "A class rule starts with a **dot** before the name. **.menu**: **display** flex, **justify-content** (try space-around), **align-items** center, **list-style-type** none, and a **background-color**. **.menu li**: **text-transform** uppercase",
     "**.hero**: **width** 320px, a **solid border**, and a **margin**. **.highlight**: **background-color** and **padding**. **.bullets**: **background-color**"
    ]
   },
@@ -711,7 +711,7 @@
     "Click the **style.css** tab. In a CSS file there are **no style tags**, **no quotes** around values, and every rule is a selector, curly braces, and **property: value;** lines",
     "**body**: **background-color** (a light named color), **font-family** sans-serif, and **margin** (like 0 20px)",
     "**h1**: **color** white, **background-color**, **font-size** 38px, **text-align** center, and a **solid border**. **h2**: **color** and **font-size** 26px. **p**: **margin** and **color**. **a**: **color**",
-    "A class rule starts with a **dot** before the name. **.menu**: **display** flex, **justify-content** (try space-around), **align-items** center, **list-style-type** none, and a **background-color**. **.menu li**: **font-weight** bold",
+    "A class rule starts with a **dot** before the name. **.menu**: **display** flex, **justify-content** (try space-around), **align-items** center, **list-style-type** none, and a **background-color**. **.menu li**: **text-transform** uppercase",
     "**.hero**: **width** 320px, a **solid border**, and a **margin**. **.highlight**: **background-color** and **padding**. **.bullets**: **background-color**"
    ]
   },
@@ -801,7 +801,7 @@
     "Click the **style.css** tab. In a CSS file there are **no style tags**, **no quotes** around values, and every rule is a selector, curly braces, and **property: value;** lines",
     "**body**: **background-color** (a light named color), **font-family** sans-serif, and **margin** (like 0 20px)",
     "**h1**: **color** white, **background-color**, **font-size** 38px, **text-align** center, and a **solid border**. **h2**: **color** and **font-size** 26px. **p**: **margin** and **color**. **a**: **color**",
-    "A class rule starts with a **dot** before the name. **.menu**: **display** flex, **justify-content** (try space-around), **align-items** center, **list-style-type** none, and a **background-color**. **.menu li**: **font-weight** bold",
+    "A class rule starts with a **dot** before the name. **.menu**: **display** flex, **justify-content** (try space-around), **align-items** center, **list-style-type** none, and a **background-color**. **.menu li**: **text-transform** uppercase",
     "**.hero**: **width** 320px, a **solid border**, and a **margin**. **.highlight**: **background-color** and **padding**. **.bullets**: **background-color**"
    ]
   },

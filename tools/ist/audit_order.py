@@ -169,8 +169,64 @@ def legacy():
             for rx, name, rank in LEGACY_EXTRA:
                 m = rx.search(t)
                 if m and rank > r and (where, name) not in ALLOW: ISSUES.append((where, name, 'taught at %s' % NAME.get(rank, 'never'), t[max(0, m.start() - 70):m.end() + 60]))
+# ---------------------------------------------------------------- Unit 5: Intro to CSS (5.1-5.6 = ranks 16-21); the gates live in tools/css5/gen_css5_gates.py
+def unit5():
+    import subprocess
+    sys.path.insert(0, os.path.join(ROOT, 'tools', 'css5'))
+    import gen_css5_gates as G
+    RK = {'5.1': 16, '5.2': 17, '5.3': 18, '5.4': 19, '5.5': 20, '5.6': 21}
+    def chk(where, rank, text):
+        t = _html.unescape(text)
+        for rx, name, r in G.GATES:
+            m = re.search(rx, t, re.M)
+            if m and r > rank and (where, name) not in ALLOW5 and not (where.startswith('Practice test Q') and name == 'something never taught' and '<style>' in t and 'only rules' in t): ISSUES.append((where, name, 'taught at %s' % r, t[max(0, m.start() - 70):m.end() + 60].replace('\n', ' ')))
+    d = load_js_json(os.path.join(ROOT, 'ist', 'unit-6', 'practice-data-3.js'))['lessons']
+    for lid, L in d.items():
+        for n, p in enumerate(L['problems']):
+            chk('Parsons %s #%d' % (L['num'], n + 1), RK[L['num']], ' '.join([p['title'], p['story'], p.get('given') or ''] + p['sol'] + p['steps'] + [x['t'] for x in p['pieces'] if not x.get('d')]))
+    for l in range(16, 22):
+        s_ = open(os.path.join(ROOT, 'ist', 'unit-6', 'game-data', 'l%d.js' % l), encoding='utf-8').read()
+        qs = json.loads(s_[s_.index('= [') + 2: s_.rindex(']') + 1]); seen = set()
+        for q in qs:
+            txt = json.dumps({k: q[k] for k in ('s', 'c', 'o', 'e') if k in q}, ensure_ascii=False)
+            for rx, name, r in G.GATES:
+                m = re.search(rx, _html.unescape(txt), re.M)
+                if m and r > l and (name, 'g%d' % l) not in seen and ('Quiz game %d' % l, name) not in ALLOW5: seen.add((name, 'g%d' % l)); ISSUES.append(('Quiz game %d' % l, name, 'taught at %s' % r, _html.unescape(txt)[max(0, m.start() - 60):m.end() + 60]))
+    t5 = open(os.path.join(ROOT, 'ist', 'unit-8', 'unit-5-practice-test.html'), encoding='utf-8').read()
+    qs = json.loads(re.search(r'var Q = (\[.*?\n\]);', t5, re.S).group(1))
+    for i, q in enumerate(qs):
+        lesson = [k for k, v in {'External CSS and classes': 16, 'CSS by id': 17, 'Selectors and specificity': 18, 'Pseudo-classes and transitions': 19, 'Flexbox': 20, 'Grid': 21}.items() if k == q['t']][0]
+        chk('Practice test Q%d' % (i + 1), {'External CSS and classes': 16, 'CSS by id': 17, 'Selectors and specificity': 18, 'Pseudo-classes and transitions': 19, 'Flexbox': 20, 'Grid': 21}[q['t']], json.dumps(q, ensure_ascii=False))
+    o = subprocess.run(['node', '-e', """globalThis.window = undefined; const D = '%s/ist/unit-6/'; const req = require;
+['html-check.js','lab-lessons.js','step-checks.js','step-checks-a.js','step-checks-b.js','step-checks-w.js','step-checks-w2.js','css-labs.js','css-labs-1.js','css-labs-2.js','css-labs-3.js'].forEach(f => req(D + f));
+const SC = globalThis.U7_STEPCHECKS, out = {}; for (const o of SC.W.CSS.LABS) { const r = SC.run(o.id, o.model.html, o.model.css); const labels = []; Object.values(r).forEach(s => s.bullets.forEach(b => b.forEach(x => labels.push(x.label)))); out[o.id] = { text: JSON.stringify(globalThis.U7_ANSWERS[o.id]), labels: labels, model: o.model.html + '\\n' + o.model.css }; } console.log(JSON.stringify(out));""" % ROOT], capture_output=True, text=True)
+    for lid, v in json.loads(o.stdout).items():
+        base = '5.' + lid[2]; r = RK[base]
+        chk('Walkthrough/assignment %s (%s) text' % (lid, base), r, v['text']); chk('Walkthrough/assignment %s check list' % lid, r, ' '.join(v['labels'])); chk('Model answer %s' % lid, r, v['model'])
+    # the Unit 5 study guide (code and prose of every chapter)
+    sys.path.insert(0, os.path.join(ROOT, 'tools', 'guides'))
+    import gl, ist_lib
+    gl.LANG = 'html'
+    import units.ist05 as u5
+    for ch in u5.UNIT.chapters:
+        html, titles, extras = gl.build_html(u5.UNIT, only=ch['id'])
+        body = html[html.index('<section class="chapter">'):]
+        body = re.sub(r'<style.*?</style>|ZZ\w+ZZ', ' ', body, flags=re.S)
+        caps = ' '.join(re.findall(r'<text[^>]*>([^<]*)</text>', body)); body = re.sub(r'<svg.*?</svg>', ' ', body, flags=re.S)
+        chk('Guide %s' % ch['id'], RK[ch['id']], tags_strip(body) + ' ' + caps)
+    NOTES5 = {'external-css-notes.html': '5.1', 'css-id-notes.html': '5.2', 'specificity-notes.html': '5.3', 'hover-notes.html': '5.4', 'flexbox-notes.html': '5.5', 'grid-notes.html': '5.6'}
+    for f, num in NOTES5.items():
+        s_ = open(os.path.join(ROOT, 'ist', 'unit-8', f), encoding='utf-8').read()
+        s_ = re.sub(r'<style.*?</style>|<script.*?</script>', ' ', s_, flags=re.S); s_ = re.sub(r'\s(?:style)="[^"]*"', ' ', s_)
+        chk('Notes %s' % num, RK[num], tags_strip(s_))
+    o = subprocess.run(['node', os.path.join(ROOT, 'tools', 'css5', 'dump_legacy8.mjs')], capture_output=True, text=True, cwd=ROOT)
+    for lid, v in json.loads(o.stdout).items():
+        r = RK['5.' + lid[2]]
+        for part, txt in (('assignment steps', v['answers']), ('check list', ' '.join(v['checks'])), ('concepts', v['concepts']), ('rubric rules', ' '.join(v['rules']))):
+            chk('Older assignment %s (5.%s) %s' % (lid, lid[2], part), r, txt)
+ALLOW5 = {('Guide 5.1', 'something never taught'), ('Quiz game 16', 'something never taught'), ('Notes 5.1', 'something never taught'), ('Older assignment 8.1 (5.1) assignment steps', 'id selector'), ('Older assignment 8.1 (5.1) rubric rules', 'combined or descendant selector')}   # <style> appears only as the WRONG habit 5.1 teaches against; '#E8F0FF' is a hex color (4.2); 'style.css' has a dot in it
 if __name__ == '__main__':
-    for fn in (parsons, games, tests, labs, checks, guides, notes, legacy): fn()
+    for fn in (parsons, games, tests, labs, checks, guides, notes, legacy, unit5): fn()
     # report, grouped
     from collections import OrderedDict
     g = OrderedDict()

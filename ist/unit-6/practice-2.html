@@ -109,6 +109,7 @@ input.ans.ok{border-color:var(--ok);background:var(--okl)}input.ans.no{border-co
 iframe.pv{display:block;width:100%;height:230px;border:0;background:#fff}
 .piece span.tg{white-space:pre-wrap}
 .pageso{margin:10px 0 0;padding:8px 12px;border-radius:10px;background:#F1F5F9;color:#334155;font-size:13.5px}.pageso b{display:block;font:800 10px Inter;letter-spacing:.1em;color:var(--acc);margin-bottom:3px}
+.ctxbox{margin:0 0 12px;border:1px solid #CBD5E1;border-radius:12px;background:#0F172A;overflow:hidden}.ctxbox .lab{padding:6px 12px;background:#1E293B;color:#C7D2FE;font:800 10px Inter;letter-spacing:.1em;text-transform:uppercase}.ctxbox pre{margin:0;padding:10px 14px;color:#E2E8F0;font:12.5px/1.55 var(--mono);white-space:pre-wrap}
 .crumb{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:0 0 12px;font-weight:600;font-size:14px}
 .crumb a{color:var(--acc);text-decoration:none}
 </style>
@@ -182,27 +183,30 @@ function grade(placed, P) {
 }
 function bt(t) { return esc(t).replace(/`([^`]+)`/g, "<code>$1</code>"); }
 function pieceEl(p) { var d = document.createElement("div"); d.className = "piece"; d.dataset.t = p.t; if (p.d) d.dataset.d = "1"; d.innerHTML = ICON.grip + "<span>" + esc(p.t) + "</span>"; return d; }
+var curP = null;
 function depthIndent() {
   Array.prototype.forEach.call($("pool").querySelectorAll(".piece span"), function (x) { x.style.paddingLeft = "0"; });
   var d = 0; Array.prototype.forEach.call($("prog").querySelectorAll(".piece"), function (e) {
-    var t = e.dataset.t, closes = 0, opens = 0; (t.match(/<\/?[A-Za-z][^>]*>/g) || []).forEach(function (g) { var m = /^<(\/?)([A-Za-z0-9]+)/.exec(g); if (!m) return; if (/^(br|hr|img|link|meta|input)$/i.test(m[2])) return; if (m[1]) closes++; else opens++; });
+    var t = e.dataset.t, closes = 0, opens = 0; if (curP && curP.mode) { var cl = /^\s*\}/.test(t) ? 1 : 0, op = /\{\s*$/.test(t) ? 1 : 0; e.querySelector("span").style.paddingLeft = (Math.max(0, d - cl) * 18) + "px"; d = Math.max(0, d + op - cl); return; }
+    (t.match(/<\/?[A-Za-z][^>]*>/g) || []).forEach(function (g) { var m = /^<(\/?)([A-Za-z0-9]+)/.exec(g); if (!m) return; if (/^(br|hr|img|link|meta|input)$/i.test(m[2])) return; if (m[1]) closes++; else opens++; });
     var lead = /^\s*<\//.test(t) ? 1 : 0, here = Math.max(0, d - lead); e.querySelector("span").style.paddingLeft = (here * 18) + "px"; d = Math.max(0, d + opens - closes);
   });
 }
 function readProg() { return Array.prototype.map.call($("prog").children, function (e) { return e.classList.contains("piece") ? { t: e.dataset.t, d: !!e.dataset.d } : null; }).filter(Boolean); }
 function showParsons() {
   var L = D.lessons[lid], P = L.problems[cur], st = ls("ist7:parsons:" + lid) || {}, done = st[cur] && st[cur].done;
-  tries = 0; solved = false; sortables.forEach(function (s) { s.destroy(); }); sortables = [];
+  curP = P; tries = 0; solved = false; sortables.forEach(function (s) { s.destroy(); }); sortables = [];
   document.title = "HTML Parsons " + L.num + " | Intro to Software Technology"; $("badge").textContent = "Parsons · " + L.num;
   var chips = L.problems.map(function (p, i) { return '<a class="chip' + (st[i] && st[i].done ? " done" : "") + '" style="' + (i === cur ? "background:#4F46E5;border-color:#4F46E5;color:#fff" : "") + '" href="?l=' + lid + "&p=" + i + '">' + (i + 1) + "</a>"; }).join("");
   var sc = pScore(lid);
   $("main").innerHTML = '<div class="crumb"><a href="?hub=p">' + ICON.back + 'All lessons</a></div><div class="meter">Lesson ' + L.num + ': ' + esc(L.title) + '<div class="bar"><i style="width:' + sc + '%"></i></div><span>' + pDone(lid) + ' of ' + L.problems.length + ' done</span></div><div class="chips" style="margin:0 0 14px">' + chips + "</div>"
     + '<div class="card"><div class="ch"><span class="num">' + (cur + 1) + '</span><h2>' + esc(P.title) + '</h2><span class="pillst' + (done ? " ok" : "") + '" id="pst">' + (done ? "✓ Done" : "To do") + '</span></div><div class="cb">'
     + '<div class="goal"><span>YOUR TASK</span>' + esc(P.story) + "</div>"
-    + '<div class="steps"><div class="lab">YOUR PAGE NEEDS THESE STEPS</div><ol>' + (P.steps || []).map(function (t) { return "<li>" + bt(t) + "</li>"; }).join("") + '</ol><div class="stnote">Put the lines in the order that builds the page. Some pieces are wrong (a missing or mismatched closing tag, a misspelled tag or property, a missing quote, or a missing semicolon between two properties): leave those out. A browser sometimes guesses what you meant, but your code has to be exact. Your page indents itself as you build it: lines inside a box are pushed in.</div></div>'
+    + (P.given ? '<div class="ctxbox"><div class="lab">' + esc(P.givenName) + '</div><pre>' + esc(P.given) + '</pre></div>' : '')
+    + '<div class="steps"><div class="lab">' + (P.mode ? 'YOUR CODE NEEDS THESE STEPS' : 'YOUR PAGE NEEDS THESE STEPS') + '</div><ol>' + (P.steps || []).map(function (t) { return "<li>" + bt(t) + "</li>"; }).join("") + '</ol><div class="stnote">' + (P.mode === 'css' ? 'Put the lines in the order that builds the rules. Some pieces are wrong (a missing dot or hash, a misspelled property or value, a missing colon, a missing unit, or a wrong bracket): leave those out. The CSS file indents itself as you build it: lines inside a rule are pushed in.' : 'Put the lines in the order that builds the page. Some pieces are wrong (a missing or mismatched closing tag, a misspelled tag or property, a missing quote, or a missing semicolon between two properties): leave those out. A browser sometimes guesses what you meant, but your code has to be exact. Your page indents itself as you build it: lines inside a box are pushed in.') + '</div></div>'
     + '<div class="term"><div class="bar"><i></i><i></i><i></i><span>The finished page (this is what the browser shows)</span></div><iframe class="pv" sandbox="" title="The finished page" srcdoc="' + esc(P.html).replace(/"/g, "&quot;") + '"></iframe></div>'
     + '<div class="cols"><div class="col"><h3>' + ICON.puzzle + ' Pieces <span style="text-transform:none;letter-spacing:0;font-weight:500">(some are not needed)</span></h3><div class="list" id="pool"></div></div>'
-    + '<div class="col"><h3>' + ICON.check + ' Your page code</h3><div class="list prog" id="prog"><div class="hint" id="hint">Drag pieces here, or tap a piece to move it. Put them in order.</div></div></div></div>'
+    + '<div class="col"><h3>' + ICON.check + ' ' + ((curP && curP.mine) || 'Your page code') + '</h3><div class="list prog" id="prog"><div class="hint" id="hint">Drag pieces here, or tap a piece to move it. Put them in order.</div></div></div></div>'
     + '<div class="msg" id="msg"></div><div class="btns"><button class="btn go" id="chk">' + ICON.check + 'Check my page code</button><button class="btn" id="rst">' + ICON.undo + 'Start over</button><button class="btn go" id="nx" style="display:none">Next ' + ICON.next + "</button></div>"
     + '<div class="note">' + (TOUCH ? 'Tap a piece to move it between the lists. Drag the dots on the left of a piece to reorder.' : 'Tap or click a piece to move it between the lists. Drag to reorder.') + ' Tap a piece in your page code to send it back.</div></div></div>';
   var pool = $("pool"), prog = $("prog");

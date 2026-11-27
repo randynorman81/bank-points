@@ -7,7 +7,8 @@ import ist_lib, gl, fitz
 spec = importlib.util.spec_from_file_location("guide_build", os.path.join(HERE, "build.py")); B = importlib.util.module_from_spec(spec); spec.loader.exec_module(B)   # NOT `import build` (tools/notes/build.py shadows it)
 DL = os.path.join(ROOT, "ist", "downloads"); os.makedirs(os.path.join(DL, "lessons"), exist_ok=True); os.makedirs(os.path.join(DL, "units"), exist_ok=True)
 PARTS = [("units.ist03", "IST-Unit-03-Web-Design-HTML-Study-Guide.pdf", "IST-Unit-03-Web-Design-HTML-Study-Guide.pdf", "Unit 3: Web Design (HTML)", "IST-Unit-3-Study-Guides.zip"),
-         ("units.ist03p2", "IST-Unit-04-Advanced-HTML-Study-Guide.pdf", "IST-Unit-04-Advanced-HTML-Study-Guide.pdf", "Unit 4: Advanced HTML", "IST-Unit-4-Study-Guides.zip")]
+         ("units.ist03p2", "IST-Unit-04-Advanced-HTML-Study-Guide.pdf", "IST-Unit-04-Advanced-HTML-Study-Guide.pdf", "Unit 4: Advanced HTML", "IST-Unit-4-Study-Guides.zip"),
+         ("units.ist05", "IST-Unit-05-Intro-to-CSS-Study-Guide.pdf", "IST-Unit-05-Intro-to-CSS-Study-Guide.pdf", "Unit 5: Intro to CSS", "IST-Unit-5-Study-Guides.zip")]
 FIXED = {}   # Randy's own corrected lesson PDFs are used as they are
 made = []
 for modname, unit_name, src_name, label, zip_name in PARTS:
@@ -35,8 +36,8 @@ for modname, unit_name, src_name, label, zip_name in PARTS:
         if cid in FIXED: d.close(); shutil.copy(FIXED[cid], final); n = len(fitz.open(final)); made.append((cid, name, n)); print("Lesson %s: %d pages (Randys fixed file) -> %s" % (cid, n, name)); continue
         d.save(final, garbage=4, deflate=True, deflate_images=True, deflate_fonts=True, use_objstms=1, clean=True); n = len(fitz.open(final)); d.close()
         made.append((cid, name, n)); print("Lesson %s: %d pages -> %s" % (cid, n, name))
-for zip_name, prefix in (("IST-Unit-3-Study-Guides.zip", "IST-Unit-03-"), ("IST-Unit-4-Study-Guides.zip", "IST-Unit-04-")):
-    lp = "IST-Lesson-%s-" % ("03" if prefix.endswith("03-") else "04")
+for zip_name, prefix in (("IST-Unit-3-Study-Guides.zip", "IST-Unit-03-"), ("IST-Unit-4-Study-Guides.zip", "IST-Unit-04-"), ("IST-Unit-5-Study-Guides.zip", "IST-Unit-05-")):
+    lp = "IST-Lesson-%s-" % prefix[9:11]
     zp = os.path.join(DL, zip_name)
     with zipfile.ZipFile(zp, "w", zipfile.ZIP_DEFLATED) as z:
         for f in sorted(os.listdir(os.path.join(DL, "units"))):

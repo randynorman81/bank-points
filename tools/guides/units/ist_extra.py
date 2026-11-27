@@ -6,8 +6,8 @@ Everything is generated from material that is already tested, so nothing here is
 import os, re, json, html as _html
 import gl
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
-LAB = {"3.1": "6.1", "3.2": "6.2", "3.3": "6.20", "3.4": "6.3", "3.5": "6.35", "3.6": "6.4", "3.7": "6.7", "3.8": "6.75", "3.9": "6.6", "3.10": "6.5", "4.1": "7.1", "4.2": "7.2", "4.3": "7.3", "4.4": "7.4", "4.5": "7.5"}
-PARSONS = {"3.%d" % n: "i3l%d" % n for n in range(1, 11)}; PARSONS.update({"4.%d" % n: "i7l%d" % n for n in range(1, 6)})
+LAB = {"3.1": "6.1", "3.2": "6.2", "3.3": "6.20", "3.4": "6.3", "3.5": "6.35", "3.6": "6.4", "3.7": "6.7", "3.8": "6.75", "3.9": "6.6", "3.10": "6.5", "4.1": "7.1", "4.2": "7.2", "4.3": "7.3", "4.4": "7.4", "4.5": "7.5", "5.1": "8.1", "5.2": "8.2", "5.3": "8.3", "5.4": "8.4", "5.5": "8.5", "5.6": "8.6"}
+PARSONS = {"3.%d" % n: "i3l%d" % n for n in range(1, 11)}; PARSONS.update({"4.%d" % n: "i7l%d" % n for n in range(1, 6)}); PARSONS.update({"5.%d" % n: "i8l%d" % n for n in range(1, 7)})
 CHECK = {
  "3.1": ["Type the HTML skeleton from memory: doctype, html, head with a title, and body", "Say what goes in the head and what goes in the body", "Explain why the title shows on the browser tab and the heading 1 shows on the page", "Close every tag I open, using the same name", "Put a heading 1, heading 2 and paragraphs in the body"],
  "3.2": ["Write a style attribute with the pattern property: value", "Use color and background-color together, separated by a semicolon", "Use any of the 140 color names, written as one word with no spaces", "Say which tags use the body's colors and which keep their own", "Pick a text color that is easy to read on its background"],
@@ -24,6 +24,12 @@ CHECK = {
  "4.3": ["Tell block, inline and inline-block apart", "Say which tags are block and which are inline by default", "Use display to change how a tag sits on the page", "Know that inline ignores width and height but inline-block keeps them", "Build a row of buttons or a menu with display"],
  "4.4": ["Group tags with a div and style the group once", "Explain that a div has no style of its own", "Build two columns with inline-block, a width and vertical-align top", "Apply the 98% rule so columns do not wrap", "Nest a div inside another div"],
  "4.5": ["Build a table from table, tr, th and td", "Keep every row the same number of cells", "Say the difference between th and td", "Put other tags, like strong or a picture, inside a cell", "Close every table, row and cell tag"],
+ "5.1": ["Write a rule: a selector, curly braces, and property: value; lines", "Link style.css in the head with rel=\"stylesheet\" and the exact file name", "Say why the link tag has no closing tag and why it goes in the head", "Write a class rule with a dot, and the class attribute with no dot", "Tell a tag rule from a class rule and use both together"],
+ "5.2": ["Write an id rule with a hash and an id attribute with no hash", "Explain why an id may be used only once on a page", "Choose between a class and an id for a given job", "Put a class and an id on the same element and say what it gets", "Spot an id used twice or a dot where a hash belongs"],
+ "5.3": ["Rank tag, class, id and inline style from weakest to strongest", "Say which of two rules wins, whatever order they are written in", "Put two classes on one element in a single class attribute", "Write p.warning (no space) and ul li (a space) and say what each reaches", "Explain why inline styles are avoided"],
+ "5.4": ["Write a :hover, :focus and :active rule with no spaces", "Say when each pseudo-class applies", "Write a transition with a property and a time in seconds", "Put the transition on the normal rule so the change glides both ways", "Explain why a pseudo-class cannot go in a style attribute"],
+ "5.5": ["Put display: flex on the container, not on the items", "Use justify-content to spread items along the row", "Use align-items with a height to move items up and down", "Stack items with flex-direction: column and space them with gap", "Center something both ways with two properties"],
+ "5.6": ["Make a grid with display: grid and grid-template-columns", "Read 1fr 1fr 1fr, 1fr 2fr and 1fr 100px", "Work out a column width from the container width, the gap and the fr values", "Put the column sizes on the container and never widths on the items", "Choose between flexbox and grid for a given layout"],
 }
 _LAB = None; _PARS = None
 def lab():
@@ -34,7 +40,7 @@ def parsons():
     global _PARS
     if _PARS is None:
         _PARS = {}
-        for f in ("practice-data.js", "practice-data-2.js"):
+        for f in ("practice-data.js", "practice-data-2.js", "practice-data-3.js"):
             s = open(os.path.join(ROOT, "ist", "unit-6", f), encoding="utf-8").read(); _PARS.update(json.loads(s[s.index("{"):s.rindex("}") + 1])["lessons"])
     return _PARS
 def esc(s): return _html.escape(s, quote=False)
@@ -63,7 +69,7 @@ def paper(cid, ctx):
     body = '<p class="lede">Write the code for each page on paper or in the HTML sandbox. Use the exact words from the story. Check your code against the answer key at the back.</p>'
     keys = []
     for n, i in enumerate(pick, 1):
-        p = ps[i]; body += '<div class="pq"><div class="qn">%s</div><div class="qs"><b>%s.</b> %s</div></div>' % ("P%d" % n, esc(p["title"]), esc(p["story"]))
+        p = ps[i]; given = ('<pre class="code" style="margin:3pt 0 0"><b>%s</b><br>%s</pre>' % (esc(p['givenName']), esc(p['given']).replace('\n', '<br>'))) if p.get('given') else ''; body += '<div class="pq"><div class="qn">%s</div><div class="qs"><b>%s.</b> %s%s</div></div>' % ("P%d" % n, esc(p["title"]), esc(p["story"]), given)
         keys.append(("P%d" % n, "&#9998;", '<span style="display:block;font-family:\'JetBrains Mono\',monospace;font-size:8pt;white-space:pre-wrap;line-height:1.35">%s</span>' % esc("\n".join(p["sol"]))))
     ctx.extra_key = getattr(ctx, "extra_key", {}); ctx.extra_key.setdefault(cid, []).extend(keys)
     return gl.sec_t("trace", "Write It on Paper", body, "ON PAPER")

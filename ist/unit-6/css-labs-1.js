@@ -1,0 +1,112 @@
+/* Unit 5 walkthroughs and assignments, part 1: 5.1 (8.1w, 8.1a), 5.2 (8.2w, 8.2a), 5.3 (8.3w, 8.3a). See css-labs.js. */
+(function (root) {
+  "use strict";
+  var SC = root.U7_STEPCHECKS; if (!SC || !SC.W || !SC.W.CSS) return;
+  var W = SC.W, C = W.CSS, K = W.K, T = W.T, P = C.P, CODE = C.CODE, html = C.html, RULE = C.RULE, WINS = C.WINS, WINSALL = C.WINSALL, PICKALL = C.PICKALL, SAYS = C.SAYS, ONLY = C.ONLY, withClass = C.withClass, withId = C.withId, LINK = C.LINK, DONE = C.DONE, named = C.named, pxv = C.pxv;
+  var CSSTAB = "Click the **style.css** tab";
+  var link = { title: "Link the stylesheet", bullets: [{ text: "In the **index.html** tab, inside the **head** under the title, add a link tag: `<link rel=\"stylesheet\" href=\"style.css\">`", checks: LINK }] };
+
+  /* =============== 5.1 Walkthrough ("8.1w"): Snack Shack =============== */
+  var B51 = "<h1>Snack Shack</h1>\n<p>Fresh popcorn and pretzels every day.</p>\n<p class=\"deal\">Today only: two pretzels for the price of one.</p>\n<p>Open until nine.</p>\n";
+  var CSS51 = ["p {\n  color: navy;\n}\n", ".deal {\n  background-color: gold;\n  font-size: 22px;\n}\n", "h1 {\n  text-align: center;\n}\n"];
+  var navy = "rgb(0, 0, 128)", gold = "rgb(255, 215, 0)";
+  C.lab({ id: "8.1w", kind: "w", notes: "external-css-notes.html",
+    intro: "**Snack Shack** wants its page styled from a separate file. Until now your styles lived inside each tag. Today they move into their own file, **style.css**, and one **link tag** plugs it into the page. You will also give some paragraphs a **class**. " + C.TYPEIT,
+    steps: [
+      { title: "Set up the page", bullets: [{ text: "From memory, type the skeleton with a title that says **Snack Shack**, and the body tags", checks: C.SKELETON1("Snack Shack") },
+        { text: "Inside the body type a heading 1 that says **Snack Shack** and **three paragraphs**: **Fresh popcorn and pretzels every day.** / **Today only: two pretzels for the price of one.** / **Open until nine.** Give the **second paragraph** the class **deal** (`class=\"deal\"`)",
+          checks: [SAYS("The heading 1 says exactly Snack Shack", T("h1"), "Snack Shack"), SAYS("Paragraph 1 says exactly Fresh popcorn and pretzels every day.", C.PN(0), "Fresh popcorn and pretzels every day."), SAYS("Paragraph 2 says exactly Today only: two pretzels for the price of one.", C.PN(1), "Today only: two pretzels for the price of one."), SAYS("Paragraph 3 says exactly Open until nine.", C.PN(2), "Open until nine."),
+            K("Paragraph 2 has the class deal (written class=\"deal\", with no dot)", function (c) { var e = c.all("p")[1]; return !!e && (e.attrs["class"] || "") === "deal"; }), ONLY("The page has 1 heading 1 and 3 paragraphs", { h1: 1, p: 3 })] }],
+        pre: [CODE("<h1>Snack Shack</h1>\n<p>Fresh popcorn and pretzels every day.</p>\n<p class=\"deal\">Today only: two pretzels for the price of one.</p>\n<p>Open until nine.</p>"), P("A **class** is a name tag. In the HTML the name goes inside the tag, in the class attribute, with **no dot**.")] },
+      { title: "Link the stylesheet", bullets: link.bullets,
+        pre: [P("Your page has no style of its own yet. The styles will live in a separate file, **style.css**. The page has to be told where that file is, like plugging in a lamp. The plug is the **link tag**. It always goes in the **head**, and it stands alone: **no closing tag**."), CODE("<link rel=\"stylesheet\" href=\"style.css\">")],
+        post: [P("**Try it:** the page looks exactly the same as before, because style.css is still empty. The link only plugs the file in. Notice that the file name in `href` must match the real file name exactly. If they do not match, nothing is styled and no error shows.")] },
+      { title: "A tag rule", bullets: [{ text: "Click the **style.css** tab and write a rule for **p** that sets the text color to **navy**", checks: [RULE("style.css has a rule for p with color: navy", "p", "color", "navy"), WINSALL("All 3 paragraphs end up with the text color navy", PICKALL("p"), 3, "color", "navy")] }],
+        pre: [P("A CSS file holds only **rules**. It is not a web page, so there are **no style tags** and **no quotes** around values. A rule is a **selector**, curly braces, and **property: value;** lines inside."), CODE("p {\n  color: navy;\n}")],
+        post: [P("**Try it:** all three paragraphs turn navy. A tag rule is a school-wide announcement: every p tag hears it.")] },
+      { title: "A class rule", bullets: [{ text: "Write a rule for the class **deal**: `background-color: gold` and `font-size: 22px`. In CSS a class rule starts with a **dot**", checks: [RULE("style.css has a rule for .deal with background-color: gold", ".deal", "background-color", "gold"), RULE("The .deal rule has font-size: 22px", ".deal", "font-size", "22px"), WINS("The paragraph with the class deal ends up with a gold background", withClass("p", "deal"), "background-color", "gold"), WINS("The paragraph with the class deal ends up 22px", withClass("p", "deal"), "font-size", "22px")] }],
+        pre: [P("A tag rule styles everything of that tag. A **class** styles only the elements wearing that name. The class name in the CSS has a **dot** in front. In the HTML it has none."), CODE(".deal {\n  background-color: gold;\n  font-size: 22px;\n}")],
+        post: [P("**Try it:** only the second paragraph gets the gold background and the bigger text. The other two paragraphs do not wear the class. All three are still navy from the p rule.")] },
+      { title: "Center the heading", bullets: [{ text: "Write a rule for **h1** that sets `text-align: center`", checks: [RULE("style.css has a rule for h1 with text-align: center", "h1", "text-align", "center"), WINS("The heading 1 ends up centered", T("h1"), "text-align", "center")] }],
+        pre: [CODE("h1 {\n  text-align: center;\n}")], post: [P("**Try it:** the heading moves to the middle. Now change the navy in the p rule to another color and save: all three paragraphs change at once. That is the power of one file in charge.")] },
+      DONE],
+    stages: function () { return [{ html: html("Snack Shack", B51, false), css: "" }, { html: html("Snack Shack", B51), css: "" }, { html: html("Snack Shack", B51), css: CSS51[0] }, { html: html("Snack Shack", B51), css: CSS51[0] + CSS51[1] }]; },
+    model: { html: html("Snack Shack", B51), css: CSS51.join("") },
+    claims: [
+      { label: "8.1w s2: the link alone changes nothing", stage: 2, expr: "qa('p').map(function(e){return cs(e).color})", expect: ["rgb(0, 0, 0)", "rgb(0, 0, 0)", "rgb(0, 0, 0)"] },
+      { label: "8.1w s3: the p rule colors all three paragraphs navy", stage: 3, expr: "qa('p').map(function(e){return cs(e).color})", expect: [navy, navy, navy] },
+      { label: "8.1w s4: only the deal paragraph gets the gold background and 22px", stage: 4, expr: "qa('p').map(function(e){return [cs(e).backgroundColor, cs(e).fontSize, cs(e).color].join('|')})", expect: ["rgba(0, 0, 0, 0)|16px|" + navy, gold + "|22px|" + navy, "rgba(0, 0, 0, 0)|16px|" + navy] },
+      { label: "8.1w s5: the heading is centered", stage: "model", expr: "cs(q('h1')).textAlign", expect: "center" },
+      { label: "8.1w s5: changing one rule changes all paragraphs", stage: "model", edit: function (s) { return { html: s.html, css: s.css.replace("navy", "tomato") }; }, expr: "qa('p').map(function(e){return cs(e).color})", expect: ["rgb(255, 99, 71)", "rgb(255, 99, 71)", "rgb(255, 99, 71)"] },
+      { label: "8.1w s2: a wrong file name styles nothing", stage: "model", edit: function (s) { return { html: s.html.replace("style.css", "styles.css"), css: s.css, wrongName: true }; }, expr: "qa('p').map(function(e){return cs(e).color})", expect: ["rgb(0, 0, 0)", "rgb(0, 0, 0)", "rgb(0, 0, 0)"] }
+    ] });
+
+  /* =============== 5.1 Assignment ("8.1a"): Spotify =============== */
+  var B51A = "<h1>Spotify Playlists</h1>\n<p class=\"mix\">Road Trip Mix has forty songs for long drives.</p>\n<p class=\"mix\">Study Beats keeps you calm and focused.</p>\n<p class=\"mix\">Workout Power gives you energy for every set.</p>\n<p>Make your own playlist and share it with friends.</p>\n";
+  var CSS51A = "body {\n  background-color: black;\n  color: white;\n}\nh1 {\n  color: limegreen;\n  text-align: center;\n}\np {\n  font-size: 18px;\n  color: white;\n}\n.mix {\n  background-color: darkgreen;\n  padding: 10px;\n  border: 2px solid limegreen;\n}\n";
+  C.lab({ id: "8.1a", kind: "a", notes: "external-css-notes.html",
+    intro: "**Spotify** wants a playlist page styled from an external file. Build the page, link **style.css**, and put every style in that file. Write your own words. Watch the **Auto score** at the top to see how you are doing.",
+    steps: [
+      { title: "Skeleton, title and link", bullets: [{ text: "Type the doctype as the very first line, then the html tags", checks: C.SKELETON3("Spotify Playlists")[0] }, { text: "Inside the html tags, add the head tags with a **title** that says exactly **Spotify Playlists**", checks: C.SKELETON3("Spotify Playlists")[1] }, { text: "Under the title, inside the head, link your stylesheet: **style.css**", checks: LINK }, { text: "Under the head, still inside the html tags, add the body tags", checks: C.SKELETON3("Spotify Playlists")[2] }] },
+      { title: "The words and the class", bullets: [{ text: "Inside the body add a heading 1 that says exactly **Spotify Playlists**", checks: [SAYS("The heading 1 says exactly Spotify Playlists", T("h1"), "Spotify Playlists")] },
+        { text: "Add **at least 4 paragraphs** about playlists, each with at least 5 words", checks: [K("There are at least 4 paragraphs and every paragraph has at least 5 words", function (c) { var a = c.all("p"); return a.length >= 4 && a.every(function (p) { return C.words(c, p) >= 5; }); })] },
+        { text: "Pick a class name you like and give it to **at least 2 of the paragraphs** (but not to all of them)", checks: [K("A class name is used on at least 2 paragraphs, and at least one paragraph does not wear it", function (c) { var p = c.all("p"); return C.classUsed(c, 2).some(function (k) { var n = PICKALL("p", k)(c).length; return n >= 2 && n < p.length; }); })] }] },
+      { title: "Style it in style.css", bullets: [
+        { text: "Click the **style.css** tab. Write a rule for **p** with a text color (a named color) and a font-size in pixels", checks: [RULE("style.css has a rule for p with a named color", "p", "color", named), RULE("The p rule has a font-size in pixels", "p", "font-size", function (v) { return /^\d+(\.\d+)?px$/.test(v); })] },
+        { text: "Write a rule for your class (a **dot**, then the name) with a **background-color**, **padding** in pixels, and a **border** (thickness, style, color)", checks: [C.ANYCLASS("A rule for a class used on 2 or more paragraphs has a named background-color", 2, [["background-color", named]]), C.ANYCLASS("That class rule has padding in pixels", 2, [["padding", function (v) { return /^\d+(\.\d+)?px$/.test(v); }]]), C.ANYCLASS("That class rule has a border (thickness, style, named color)", 2, [["border", C.BORDERV]])] },
+        { text: "Write a rule for **h1** that centers it and gives it a text color", checks: [RULE("style.css has a rule for h1 with text-align: center", "h1", "text-align", "center"), RULE("The h1 rule has a named color", "h1", "color", named)] },
+        { text: "Write a rule for **body** with a background-color and a text color that are different from each other", checks: [RULE("style.css has a rule for body with a named background-color", "body", "background-color", named), RULE("The body rule has a named text color", "body", "color", named), K("The body's text color and background-color are different", function (c) { var b = c.all("body")[0], a = C.win(c, b, "color"), d = C.win(c, b, "background-color"); return !!a && !!d && a !== d; })] },
+        { text: "All the styling lives in style.css: **no style tag** and **no style attributes** in the page", checks: [C.NOSTYLETAG, C.NOINLINE] }] },
+      DONE],
+    stages: function () { return []; },
+    model: { html: html("Spotify Playlists", B51A), css: CSS51A }, claims: [] });
+
+  /* =============== 5.2 Walkthrough ("8.2w"): Pixel Arcade =============== */
+  var B52 = "<h1 id=\"title\">Pixel Arcade</h1>\n<p class=\"row\">Play all day, every day.</p>\n<p class=\"row\" id=\"record\">High score: 9999</p>\n<p class=\"row\">Closed on holidays.</p>\n";
+  var CSS52 = ["#title {\n  color: teal;\n  text-align: center;\n}\n", "#record {\n  background-color: gold;\n  padding: 12px;\n}\n", ".row {\n  border: 2px solid gray;\n}\n"];
+  var teal = "rgb(0, 128, 128)";
+  C.lab({ id: "8.2w", kind: "w", notes: "css-id-notes.html",
+    intro: "**Pixel Arcade** wants to style one special heading and one special paragraph. A class is a team jersey: many elements can wear it. An **id** is a student ID number: it points at **exactly one** element. You will use both. " + C.TYPEIT,
+    steps: [
+      { title: "Set up the page", bullets: [{ text: "From memory, type the skeleton with a title that says **Pixel Arcade**, and the body tags", checks: C.SKELETON1("Pixel Arcade") },
+        { text: "Inside the body type a heading 1 with the id **title** that says **Pixel Arcade**, and **three paragraphs**, each with the class **row**: **Play all day, every day.** / **High score: 9999** / **Closed on holidays.** Give the **second paragraph** the id **record** as well",
+          checks: [SAYS("The heading 1 says exactly Pixel Arcade", T("h1"), "Pixel Arcade"), K("The heading 1 has the id title (written id=\"title\", no hash)", function (c) { var e = c.all("h1")[0]; return !!e && e.attrs.id === "title"; }), SAYS("Paragraph 1 says exactly Play all day, every day.", C.PN(0), "Play all day, every day."), SAYS("Paragraph 2 says exactly High score: 9999", C.PN(1), "High score: 9999"), SAYS("Paragraph 3 says exactly Closed on holidays.", C.PN(2), "Closed on holidays."),
+            K("All three paragraphs have the class row", function (c) { var a = c.all("p"); return a.length === 3 && a.every(function (p) { return (p.attrs["class"] || "") === "row"; }); }), K("Paragraph 2 has the id record", function (c) { var e = c.all("p")[1]; return !!e && e.attrs.id === "record"; }), ONLY("The page has 1 heading 1 and 3 paragraphs", { h1: 1, p: 3 })] }],
+        pre: [CODE("<h1 id=\"title\">Pixel Arcade</h1>\n<p class=\"row\">Play all day, every day.</p>\n<p class=\"row\" id=\"record\">High score: 9999</p>\n<p class=\"row\">Closed on holidays.</p>"), P("In the HTML an id is written in the **id attribute**, in quotes, with **no hash**. An element can wear a class **and** an id at the same time.")] },
+      link,
+      { title: "An id rule for the title", bullets: [{ text: CSSTAB0(), checks: [RULE("style.css has a rule for #title with color: teal", "#title", "color", "teal"), RULE("The #title rule has text-align: center", "#title", "text-align", "center"), WINS("The heading ends up teal", T("h1"), "color", "teal"), WINS("The heading ends up centered", T("h1"), "text-align", "center")] }],
+        pre: [P("In CSS an id rule starts with a **hash**. A class uses a dot, an id uses a hash."), CODE("#title {\n  color: teal;\n  text-align: center;\n}")], post: [P("**Try it:** the heading turns teal and moves to the middle. If you write `.title` with a dot, nothing changes, because a dot looks for a class and no element wears that class.")] },
+      { title: "An id rule for the record", bullets: [{ text: "Write a rule for **#record**: `background-color: gold` and `padding: 12px`", checks: [RULE("style.css has a rule for #record with background-color: gold", "#record", "background-color", "gold"), RULE("The #record rule has padding: 12px", "#record", "padding", "12px"), WINS("Paragraph 2 ends up with a gold background", withId("record"), "background-color", "gold")] }],
+        pre: [CODE("#record {\n  background-color: gold;\n  padding: 12px;\n}")], post: [P("**Try it:** only the paragraph that says High score gets the gold background and the extra space. An id points at one element and nobody else.")] },
+      { title: "A class rule too", bullets: [{ text: "Write a rule for the class **row**: `border: 2px solid gray`", checks: [RULE("style.css has a rule for .row with border: 2px solid gray", ".row", "border", C.sameSet("2px solid gray")), WINSALL("All 3 paragraphs end up with a border", PICKALL("p"), 3, "border", C.sameSet("2px solid gray"))] }],
+        pre: [CODE(".row {\n  border: 2px solid gray;\n}")], post: [P("**Try it:** all three paragraphs get the border, because all three wear the class. The record paragraph wears the class **and** the id, so it has the border **and** the gold background. Use a class for a look you reuse, and an id for the one-of-a-kind element.")] },
+      DONE],
+    stages: function () { return [{ html: html("Pixel Arcade", B52, false), css: "" }, { html: html("Pixel Arcade", B52), css: "" }, { html: html("Pixel Arcade", B52), css: CSS52[0] }, { html: html("Pixel Arcade", B52), css: CSS52[0] + CSS52[1] }]; },
+    model: { html: html("Pixel Arcade", B52), css: CSS52.join("") },
+    claims: [
+      { label: "8.2w s3: the id rule colors and centers the title", stage: 3, expr: "[cs(q('h1')).color, cs(q('h1')).textAlign]", expect: [teal, "center"] },
+      { label: "8.2w s3: a dot instead of a hash changes nothing", stage: "model", edit: function (s) { return { html: s.html, css: s.css.replace("#title", ".title") }; }, expr: "[cs(q('h1')).color, cs(q('h1')).textAlign]", expect: ["rgb(0, 0, 0)", "start"] },
+      { label: "8.2w s4: only the record paragraph is gold with padding", stage: 4, expr: "qa('p').map(function(e){return cs(e).backgroundColor + '|' + cs(e).paddingTop})", expect: ["rgba(0, 0, 0, 0)|0px", gold + "|12px", "rgba(0, 0, 0, 0)|0px"] },
+      { label: "8.2w s5: all three paragraphs have the border, the record also has the gold", stage: "model", expr: "qa('p').map(function(e){return cs(e).borderTopWidth + ' ' + cs(e).borderTopStyle + '|' + cs(e).backgroundColor})", expect: ["2px solid|rgba(0, 0, 0, 0)", "2px solid|" + gold, "2px solid|rgba(0, 0, 0, 0)"] }
+    ] });
+  function CSSTAB0() { return "Click the **style.css** tab and write a rule for the id **title**: `color: teal` and `text-align: center`. In CSS an id rule starts with a **hash**"; }
+
+  /* =============== 5.2 Assignment ("8.2a"): Nintendo =============== */
+  var B52A = "<h1 id=\"banner\">Nintendo Game Cards</h1>\n<p class=\"card\">Mario Kart is a racing game for the whole family.</p>\n<p class=\"card\" id=\"star\">Zelda is the star game of this week.</p>\n<p class=\"card\">Animal Crossing lets you build your own island.</p>\n";
+  var CSS52A = "#banner {\n  text-align: center;\n  color: crimson;\n}\n.card {\n  border: 3px solid navy;\n  padding: 12px;\n}\n#star {\n  background-color: gold;\n  font-size: 22px;\n}\n";
+  C.lab({ id: "8.2a", kind: "a", notes: "css-id-notes.html",
+    intro: "**Nintendo** wants game cards on a page. One card is the star of the week. Use a **class** for the look every card shares and an **id** for the one special element. Write your own words. Watch the **Auto score** at the top to see how you are doing.",
+    steps: [
+      { title: "Skeleton, title and link", bullets: [{ text: "Type the doctype as the very first line, then the html tags", checks: C.SKELETON3("Nintendo Game Cards")[0] }, { text: "Inside the html tags, add the head tags with a **title** that says exactly **Nintendo Game Cards**", checks: C.SKELETON3("Nintendo Game Cards")[1] }, { text: "Under the title, inside the head, link your stylesheet: **style.css**", checks: LINK }, { text: "Under the head, still inside the html tags, add the body tags", checks: C.SKELETON3("Nintendo Game Cards")[2] }] },
+      { title: "The words, a class and ids", bullets: [{ text: "Add a heading 1 that says exactly **Nintendo Game Cards**, and give it an **id**", checks: [SAYS("The heading 1 says exactly Nintendo Game Cards", T("h1"), "Nintendo Game Cards"), K("The heading 1 has an id", function (c) { var e = c.all("h1")[0]; return !!e && !!e.attrs.id; })] },
+        { text: "Add **at least 3 paragraphs** (the cards), each with at least 5 words, and give **every card** the same class", checks: [K("There are at least 3 paragraphs, each with at least 5 words", function (c) { var a = c.all("p"); return a.length >= 3 && a.every(function (p) { return C.words(c, p) >= 5; }); }), K("Every paragraph wears the same class", function (c) { var a = c.all("p"); if (a.length < 3) return false; var k = String(a[0].attrs["class"] || "").trim(); return !!k && !/\s/.test(k) && a.every(function (p) { return (p.attrs["class"] || "") === k; }); })] },
+        { text: "Pick **one card** to be the star of the week and give it an **id** (a different id from the heading's). No id may be used twice", checks: [K("Exactly one paragraph has an id", function (c) { return c.all("p").filter(function (p) { return !!p.attrs.id; }).length === 1; }), C.UNIQUEIDS] }] },
+      { title: "Style it in style.css", bullets: [
+        { text: "Click the **style.css** tab. Write an **id rule** for the heading: center it and give it a text color", checks: [C.ANYID("The heading's id has a rule with text-align: center", "h1", [["text-align", "center"]]), C.ANYID("The heading's id rule has a named color", "h1", [["color", named]])] },
+        { text: "Write a **class rule** for the card class: a **border** (thickness, style, color) and **padding** in pixels", checks: [C.ANYCLASS("The card class rule has a border (thickness, style, named color)", 3, [["border", C.BORDERV]]), C.ANYCLASS("The card class rule has padding in pixels", 3, [["padding", function (v) { return /^\d+(\.\d+)?px$/.test(v); }]])] },
+        { text: "Write an **id rule** for the star card: a **background-color** and a **font-size** in pixels", checks: [C.ANYID("The star card's id rule has a named background-color", "p", [["background-color", named]]), C.ANYID("The star card's id rule has a font-size in pixels", "p", [["font-size", function (v) { return /^\d+(\.\d+)?px$/.test(v); }]])] },
+        { text: "All the styling lives in style.css: **no style tag** and **no style attributes** in the page", checks: [C.NOSTYLETAG, C.NOINLINE] }] },
+      DONE],
+    stages: function () { return []; },
+    model: { html: html("Nintendo Game Cards", B52A), css: CSS52A }, claims: [] });
+})(typeof window !== "undefined" ? window : globalThis);

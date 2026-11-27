@@ -5,8 +5,8 @@ const require = createRequire(import.meta.url);
 const { launch } = require("/Users/randynorman/bank-points/tools/missions/testkit/cdp.js");
 const b = await launch(9654, 1300, 900);
 await b.send("Page.addScriptToEvaluateOnNewDocument", { source: "window.__errs=[]; window.addEventListener('error', function(e){ window.__errs.push(String(e.message)); }); window.addEventListener('unhandledrejection', function(e){ window.__errs.push('rej ' + String(e.reason)); });" });
-const IDS = ["6.2", "6.20", "6.3", "6.35", "6.4", "6.7", "6.75", "6.6", "6.5", "7.1", "7.2", "7.3", "7.4", "7.5"];
-const BAN = { "6.2": /span tag|hex|\bb tag/i, "6.20": /span|hex|\bb tag/i, "6.7": /inside an a tag|every image is a link/i, "7.1": /border-radius|display\*?\*? block/i, "7.2": /padding|margin|border-radius/i, "7.5": /inline-block|vertical-align|padding|margin|border-radius/i };
+const IDS = ["6.2", "6.20", "6.3", "6.35", "6.4", "6.7", "6.75", "6.6", "6.5", "7.1", "7.2", "7.3", "7.4", "7.5", "8.1", "8.2", "8.3", "8.4", "8.5", "8.6"];
+const BAN = { "6.2": /span tag|hex|\bb tag/i, "6.20": /span|hex|\bb tag/i, "6.7": /inside an a tag|every image is a link/i, "7.1": /border-radius|display\*?\*? block/i, "7.2": /padding|margin|border-radius/i, "8.1": /nav li|font-weight/i, "8.2": /nav li|font-weight/i, "8.5": /font-weight/i, "8.6": /font-weight/i, "7.5": /inline-block|vertical-align|padding|margin|border-radius/i };
 let bad = 0;
 for (const id of IDS) {
   await b.send("Page.navigate", { url: "http://localhost:8124/ist/unit-6/editor.html?lesson=" + id + "&teacher=1" }); await b.sleep(1600);

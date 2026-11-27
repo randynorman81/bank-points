@@ -1,4 +1,4 @@
-"""Builds the online study guides: ist/unit-6/study-guide.html (Unit 3) and ist/unit-7/study-guide.html (Unit 4).
+"""Builds the online study guides: ist/unit-6/study-guide.html (Unit 3), ist/unit-7/study-guide.html (Unit 4) and ist/unit-8/study-guide.html (Unit 5).
 They hold the same lessons as the printed guides (same text, examples, traces, mistakes, guided build, paper exercises, checklist and practice questions),
 and add what a screen can do: live examples the reader can edit, a line-by-line trace stepper, questions that mark themselves, a checklist that remembers, quick links.
 usage: ./.venv/bin/python build_web.py"""
@@ -8,13 +8,16 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 import gl, ist_lib
 from units import ist_extra
 gl.LANG = "html"
-import units.ist03 as U3, units.ist03p2 as U4
+import units.ist03 as U3, units.ist03p2 as U4, units.ist05 as U5
 CONF = {3: dict(unit=U3.UNIT, out="ist/unit-6/study-guide.html", folder="unit-6", other=("../unit-7/study-guide.html", "Unit 4: Advanced HTML study guide"), title="Unit 3 Study Guide", sub="Web Design: HTML",
                  pdf="IST-Unit-03-Web-Design-HTML-Study-Guide.pdf", notes=["html-intro-notes", "style-attribute-notes", "text-size-align-notes", "editing-tags-notes", "google-fonts-notes", "borders-notes", "images-notes", "emojis-symbols-notes", "links-notes", "lists-notes"],
                  lab=["6.1", "6.2", "6.20", "6.3", "6.35", "6.4", "6.7", "6.75", "6.6", "6.5"], game=list(range(1, 11)), home="index.html"),
         4: dict(unit=U4.UNIT, out="ist/unit-7/study-guide.html", folder="unit-7", other=("../unit-6/study-guide.html", "Unit 3: Web Design study guide"), title="Unit 4 Study Guide", sub="Advanced HTML",
                  pdf="IST-Unit-04-Advanced-HTML-Study-Guide.pdf", notes=["box-model-notes", "colors-notes", "display-notes", "div-tag-notes", "tables-notes"],
-                 lab=["7.1", "7.2", "7.3", "7.4", "7.5"], game=list(range(11, 16)), home="index.html")}
+                 lab=["7.1", "7.2", "7.3", "7.4", "7.5"], game=list(range(11, 16)), home="index.html"),
+        5: dict(unit=U5.UNIT, out="ist/unit-8/study-guide.html", folder="unit-8", other=("../unit-7/study-guide.html", "Unit 4: Advanced HTML study guide"), title="Unit 5 Study Guide", sub="Intro to CSS",
+                 pdf="IST-Unit-05-Intro-to-CSS-Study-Guide.pdf", notes=["external-css-notes", "css-id-notes", "specificity-notes", "hover-notes", "flexbox-notes", "grid-notes"],
+                 lab=["8.1", "8.2", "8.3", "8.4", "8.5", "8.6"], game=list(range(16, 22)), home="index.html")}
 
 def lesson_pdf(cid):
     n = cid.split("."); f = sorted(glob.glob(os.path.join(ROOT, "ist", "downloads", "lessons", "IST-Lesson-%02d-%02d-*.pdf" % (int(n[0]), int(n[1])))))
@@ -176,7 +179,7 @@ def build(n):
         links = '<div class="links">'
         links += '<a href="%s.html">Read the notes</a>' % nf
         links += '<a href="../unit-6/editor.html?lesson=%sw">Walkthrough</a><a href="../unit-6/editor.html?lesson=%sa">Assignment</a>' % (li, li)
-        links += '<a href="../unit-6/game.html?l=%d">Quiz game</a><a href="../unit-6/%s?l=%s&amp;p=0">Parsons puzzles</a>' % (cfg["game"][idx], "practice.html" if n == 3 else "practice-2.html", ist_extra.PARSONS[cid])
+        links += '<a href="../unit-6/game.html?l=%d">Quiz game</a><a href="../unit-6/%s?l=%s&amp;p=0">Parsons puzzles</a>' % (cfg["game"][idx], {3: "practice.html", 4: "practice-2.html", 5: "practice-3.html"}[n], ist_extra.PARSONS[cid])
         if pdf: links += '<a href="../downloads/lessons/%s" target="_blank" rel="noopener">Printable PDF for this lesson</a>' % pdf
         links += "</div>"
         head_end = chap.index('</p></div>', chap.index('class="chead"')) + 10                  # after the heading block
@@ -205,4 +208,4 @@ def build(n):
     path = os.path.join(ROOT, cfg["out"]); open(path, "w", encoding="utf-8").write(doc); print("wrote", cfg["out"], "%.0f KB" % (len(doc) / 1024))
 
 if __name__ == "__main__":
-    for n in ([int(a) for a in sys.argv[1:]] or [3, 4]): build(n)
+    for n in ([int(a) for a in sys.argv[1:]] or [3, 4, 5]): build(n)

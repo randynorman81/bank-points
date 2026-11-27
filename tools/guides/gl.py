@@ -45,7 +45,32 @@ def html_tokens(code):
         else: yield None, t
 
 
+CSSMODE = False
+def css_tokens(code):
+    """style.css: selectors in blue, property names in purple, numbers orange, braces and punctuation grey"""
+    for li, line in enumerate(code.split("\n")):
+        if li: yield None, "\n"
+        t = line.strip(); ind = line[:len(line) - len(line.lstrip())]
+        if ind: yield None, ind
+        if not t: continue
+        if t.startswith("/*"): yield "cm", t; continue
+        if t.endswith("{"): yield "fn", t[:-1].rstrip(); yield None, " "; yield "op", "{"; continue
+        if t == "}": yield "op", "}"; continue
+        m = re.match(r"^([a-z-]+)(\s*:\s*)(.*?)(;?)$", t)
+        if m:
+            yield "kw", m.group(1); yield "op", m.group(2)
+            for k in re.finditer(r"(\d+(?:\.\d+)?(?:px|%|s|fr)?)|(\s+)|([^\s\d]+)", m.group(3)):
+                if k.group(1): yield "num", k.group(1)
+                elif k.group(2): yield None, k.group(2)
+                else: yield None, k.group(3)
+            if m.group(4): yield "op", ";"
+            continue
+        yield None, t
+
+
 def tokens(code):
+    if CSSMODE:
+        yield from css_tokens(code); return
     if LANG == "html":
         yield from html_tokens(code); return
     prev_def = False

@@ -25,6 +25,10 @@ PARTS = [
       practice='practice-2.html', other=('../unit-6/index.html', 'Unit 3: Web Design - HTML (the skeleton, text styles, fonts, borders, images, links and lists)'),
       lessons=[('4.1', '7.1', 'Box Model', 'box-model-notes.html', 'i7l1', 11), ('4.2', '7.2', 'Colors (Names and Hex)', 'colors-notes.html', 'i7l2', 12), ('4.3', '7.3', 'Display (Block vs Inline)', 'display-notes.html', 'i7l3', 13), ('4.4', '7.4', 'Div Tag', 'div-tag-notes.html', 'i7l4', 14), ('4.5', '7.5', 'Tables', 'tables-notes.html', 'i7l5', 15)],
       review=[('7-6-unit-test.html', '&#128221; Unit 4 Test'), ('study-guide.html', '&#128214; Unit 4 Study Guide, the web version'), ('../unit-6/html-colors.html', '&#127912; HTML Color Names (140+ colors)'), ('../unit-6/editor.html', '&#128187; HTML sandbox (practice writing HTML, not graded)')], notes_dir=''),
+ dict(folder='unit-8', part=3, num=5, zip='IST-Unit-5-Study-Guides.zip', title='Unit 5 &mdash; Intro to CSS', short='Unit 5: Intro to CSS', unit_pdf='IST-Unit-05-Intro-to-CSS-Study-Guide.pdf', test='unit-5-practice-test.html', test_label='Unit 5 Practice Test (66 questions, lessons 5.1&ndash;5.6)',
+      practice='practice-3.html', other=('../unit-7/index.html', 'Unit 4: Advanced HTML (box model, colors, display, div and tables)'), unit_test='8-7-unit-test.html',
+      lessons=[('5.1', '8.1', 'External CSS and Classes', 'external-css-notes.html', 'i8l1', 16), ('5.2', '8.2', 'CSS by ID', 'css-id-notes.html', 'i8l2', 17), ('5.3', '8.3', 'Selectors and Specificity', 'specificity-notes.html', 'i8l3', 18), ('5.4', '8.4', 'Pseudo-classes and Hover Effects', 'hover-notes.html', 'i8l4', 19), ('5.5', '8.5', 'Flexbox Basics', 'flexbox-notes.html', 'i8l5', 20), ('5.6', '8.6', 'CSS Grid Basics', 'grid-notes.html', 'i8l6', 21)],
+      review=[('8-7-unit-test.html', '&#128221; Unit 5 Test'), ('study-guide.html', '&#128214; Unit 5 Study Guide, the web version'), ('../unit-6/html-colors.html', '&#127912; HTML Color Names (140+ colors)'), ('../unit-6/editor.html', '&#128187; HTML sandbox (practice writing HTML, not graded)')], notes_dir=''),
 ]
 def lesson_pdf(cid):
     f = sorted(glob.glob(os.path.join(DL, 'lessons', 'IST-Lesson-%02d-%02d-*.pdf' % tuple(int(x) for x in cid.split('.')))))[0]; return f
@@ -38,7 +42,7 @@ def card(P, l):
     return '<div class="lpcard"><div class="lpch"><span class="ln">%s</span><span class="lt">%s</span></div>%s</div>' % (num, title, rows)
 def page(P):
     up = os.path.join(DL, 'units', P['unit_pdf']); zp = os.path.join(DL, P['zip']); cards = ''.join(card(P, l) for l in P['lessons'])
-    if P['part'] == 2: cards += '<div class="lpcard"><div class="lpch"><span class="ln">Test</span><span class="lt">Unit Test</span></div><a class="lprow" href="7-6-unit-test.html" target="_blank" rel="noopener"><span class="ic">&#128221;</span><span class="tx"><b>Unit test</b><span>Covers all of Unit 4</span></span><span class="st">test</span></a></div>'
+    if P['part'] >= 2: cards += '<div class="lpcard"><div class="lpch"><span class="ln">Test</span><span class="lt">Unit Test</span></div><a class="lprow" href="%s" target="_blank" rel="noopener"><span class="ic">&#128221;</span><span class="tx"><b>Unit test</b><span>Covers all of Unit %d</span></span><span class="st">test</span></a></div>' % (P.get('unit_test', '7-6-unit-test.html'), P['num'])
     pb = ('<div class="pbtns"><a class="pbtn" href="../unit-6/%s?hub=p">%s<span>Parsons Problems<small>10 per lesson</small></span></a>'
           '<a class="pbtn" href="../unit-6/game.html">%s<span>Quiz games<small>one per lesson</small></span></a></div>') % (P['practice'], SVG_P, SVG_G)
     sg = ('<div class="sg" id="study-guide"><h2>Unit %d Study Guide</h2><p>Printable PDFs for this unit: the whole guide, or one lesson at a time. Every lesson has the key ideas in plain words, worked examples with the page the code makes, common mistakes, and practice questions with answers.</p>'
