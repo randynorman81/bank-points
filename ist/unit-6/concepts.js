@@ -13,7 +13,7 @@
     { id: "6.2",
       attrs: [I("attr-style", "style", "until:7.6")],
       props: [I("p-color", "color"), I("p-bg", "background-color")],
-      vals: [I("v-named", "colors: named (like tomato) or hex (like #FF6347)")] },
+      vals: [I("v-named", "colors: named (like tomato)")] },
     { id: "6.20",
       tags: [I("h3", "<h3>")],
       props: [I("p-fs", "font-size"), I("p-ta", "text-align"), I("p-tt", "text-transform")],
@@ -95,7 +95,10 @@
   var TESTS_UNIT = { "7.6": /^[67]\./, "8.7": /^8\./, "9.7": /^9\./ };
   /* the two extra 3.3 practice assignments review exactly what 3.3 reviews (they are not separate steps in the spiral) */
   var ALIAS = { "6.21": "6.20", "6.22": "6.20" };
-  function idxOf(id) { for (var i = 0; i < C.length; i++) if (C[i].id === id) return i; return -1; }
+  /* the review rules follow the order the lessons are TAUGHT (pacing guide): 4.2 colors (7.2) and 4.5 tables (7.5) come before 4.1 box model (7.1), 4.3 display (7.3) and 4.4 div (7.4),
+     so a lesson never asks for something that is taught after it */
+  var TEACH = ORDER.slice(); ["7.5", "7.2"].forEach(function (id) { var k = TEACH.indexOf(id); if (k > -1) { TEACH.splice(k, 1); TEACH.splice(TEACH.indexOf("7.1"), 0, id); } });
+  function idxOf(id) { return TEACH.indexOf(id); }
   function tierFor(lesson, fromId, key) {
     var test = TESTS_UNIT[lesson];
     if (test) return test.test(fromId) ? { tier: "test", min: 1 } : (STAPLES[key] ? { tier: "keep", min: 1 } : null);

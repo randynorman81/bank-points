@@ -556,8 +556,8 @@
       r("At least 3 links open in a NEW tab (target=\"_blank\")", function (c) { return c.all("a").filter(function (a) { return a.attrs.target === "_blank"; }).length >= 3; }, "Links that leave your site open in a new tab."),
       r("At least 3 links open in the CURRENT tab (no target, or target=\"_self\")", function (c) { return c.all("a").filter(function (a) { return a.attrs.target === undefined || a.attrs.target === "_self"; }).length >= 3; }, "Leave off target, or write target=\"_self\"."),
       r("Link text says where the link goes (no \"click here\", \"here\", or \"link\")", function (c) { var a = c.all("a"), imgs = c.all("img"); return a.length > 0 && a.every(function (x) { var s = c.text(x).trim().toLowerCase(); if (!s) { var im = imgs.filter(function (i) { return c.ancestor(i, ["a"]) === x; })[0]; s = im ? String(im.attrs.alt || "").trim().toLowerCase() : ""; } return s.length >= 3 && !/^(click here|here|link|this|this link)$/.test(s); }); }),
-      r("At least 2 links wrap more than plain words: a heading, a paragraph, bold or italic words, or a whole list item", function (c) { return TESTS["a-wrap"](c) >= 2; }, "Put the whole heading or list item inside the a tag, so anything can be a link."),
-      r("Every link sits inside a <li>, <p>, or heading, not loose in the body", function (c) { var a = c.all("a"); return a.length > 0 && a.every(function (x) { return !!c.ancestor(x, ["li", "p", "h1", "h2", "h3", "h4", "h5", "h6"]) || x.children.some(function (k) { return /^(li|p|h[1-6])$/.test(k.tag); }); }); }),
+      r("At least 2 links wrap more than plain words: a heading, a paragraph, or bold or italic words", function (c) { return TESTS["a-wrap"](c) >= 2; }, "Put the whole heading or paragraph inside the a tag, so anything can be a link."),
+      r("Every link sits inside a <p> or a heading, not loose in the body", function (c) { var a = c.all("a"); return a.length > 0 && a.every(function (x) { return !!c.ancestor(x, ["li", "p", "h1", "h2", "h3", "h4", "h5", "h6"]) || x.children.some(function (k) { return /^(li|p|h[1-6])$/.test(k.tag); }); }); }),
       r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\""),
       r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
     ] },
@@ -577,10 +577,10 @@
       r("At least 10 emojis pasted into your text, and at least 6 different ones", function (c) { var e = emojisIn(bodyText(c)); return e.length >= 10 && distinctOf(e) >= 6; }, "Copy emojis from the pad in the notes and paste them between your tags."),
       r("At least 4 different symbols pasted into your text (like © ♥ ★ → °)", function (c) { return distinctOf(symbolsIn(bodyText(c))) >= 4; }, "Symbols are in the Symbols groups of the pad: marks, arrows, math and money, shapes."),
       r("The heading 1 has an emoji or a symbol in it, and at least 3 headings in all do", function (c) { var hs = c.all("h1").concat(c.all("h2"), c.all("h3")), h1 = c.all("h1")[0]; return !!h1 && hasChar(textOf(h1)) && hs.filter(function (x) { return hasChar(textOf(x)); }).length >= 3; }),
-      r("A list (ul or ol) with at least 4 items, where every item starts with an emoji or a symbol", function (c) { return c.all("ul").concat(c.all("ol")).some(function (l) { var li = l.children.filter(function (n) { return n.tag === "li"; }); return li.length >= 4 && li.every(function (x) { return STARTCH_RE.test(textOf(x).trim()); }); }); }, "Paste a character at the start of each list item. Add list-style-type: none; if you do not want the bullets too."),
+      r("At least 4 paragraphs that start with an emoji or a symbol", function (c) { return c.all("p").filter(function (x) { return STARTCH_RE.test(textOf(x).trim()); }).length >= 4; }, "Paste a character at the start of each of 4 paragraphs."),
       r("At least 2 spans around an emoji or symbol, each with its own font-size in px and color", function (c) { return c.all("span").filter(function (s) { return hasChar(textOf(s)) && pxOf(s, c) > 0 && hasInline(s, c, "color"); }).length >= 2; }, "Wrap a single character in a span with style=\"font-size: 30px; color: gold;\"."),
       r("At least 1 emoji or symbol is big: font-size 40px or more on the tag that holds it", function (c) { return els(c).some(function (x) { return pxOf(x, c) >= 40 && hasChar(textOf(x)); }); }),
-      r("Words come first: at least 6 paragraphs or list items with 4 or more real words each", function (c) { return c.all("p").concat(c.all("li")).filter(function (x) { return realWords(textOf(x)) >= 4; }).length >= 6; }, "Emojis add to your words. They do not replace them."),
+      r("Words come first: at least 6 paragraphs with 4 or more real words each", function (c) { return c.all("p").filter(function (x) { return realWords(textOf(x)) >= 4; }).length >= 6; }, "Emojis add to your words. They do not replace them."),
       r("Has a favicon: a <link rel=\"icon\"> with an href inside the <head>", function (c) { var f = faviconLinks(c); return f.length >= 1 && f.every(function (l) { return !!c.ancestor(l, ["head"]); }); }, "Put the favicon link tag in the head, under your title. You can make one from an emoji."),
       r("Style attributes are written correctly (colons, semicolons, valid properties)", function (c) { return c.errors.filter(function (e) { return /On <|semicolon|colon|property we know/.test(e.msg); }).length === 0; }, "Format: style=\"property: value;\""),
       r("Your text is real writing: no nonsense words, filler, or the same words over and over", function (c) { return !quality(c).severe; }, "Write real words that fit your page.", true)
@@ -802,7 +802,12 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
     results.forEach(function (x) { var w = x.isNew ? 1 : CARRY_WEIGHT; den += w; if (x.ok) num += w; });
     var score = den ? Math.round(TOTAL_POINTS * num / den * 10) / 10 : 0;
     var empty = !String(src || "").trim();
-    return { lesson: lesson, results: results, errors: c.errors, warnings: c.warnings, tags: c.tags, score: empty ? 0 : score, total: TOTAL_POINTS, passed: results.filter(function (x) { return x.ok; }).length, count: results.length, empty: empty };
+    var errs = c.errors;
+    if (LESSONS[lesson] && LESSONS[lesson].own) {   /* the walkthroughs and assignments teach empty tags WITHOUT a slash (<br>, <hr>, <img ...>): a slash works in a browser but is not the way this course writes them, so it is a Problem here */
+      var vre = /<(br|hr|img|link|meta)\b(?:"[^"<]*"|'[^'<]*'|[^>"'])*\/\s*>/gi, vm; errs = errs.slice();
+      while ((vm = vre.exec(String(src || "")))) errs.push({ line: lineOf(String(src), vm.index), msg: "<" + vm[1].toLowerCase() + "> is an empty tag. Write it without a slash: <" + vm[1].toLowerCase() + (vm[1].toLowerCase() === "img" || vm[1].toLowerCase() === "link" ? " ...>" : ">") + "." });
+    }
+    return { lesson: lesson, results: results, errors: errs, warnings: c.warnings, tags: c.tags, score: empty ? 0 : score, total: TOTAL_POINTS, passed: results.filter(function (x) { return x.ok; }).length, count: results.length, empty: empty };
   }
 
   // Which tags are still open at the end of this text? (used by the editor to auto-close tags)

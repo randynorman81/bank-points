@@ -269,7 +269,7 @@
   var LABURL = "https://schscomputerscience.com/ist/unit-6/lab/";
   var webSrc = function (src) { return /^https:\/\//i.test(src || "") || /^\/api\/code\?img=/.test(src || ""); };
   function faviconEls(c) { return c.all("link").filter(function (l) { return /^(shortcut\s+)?icon$/i.test((l.attrs.rel || "").trim()) && /\S/.test(l.attrs.href || ""); }); }
-  var FAVICON = K("There is a favicon: a link tag with rel=\"icon\" and an href", function (c) { return faviconEls(c).length >= 1; });
+  var FAVICON = K("There is a favicon: a link tag with rel=\"icon\" and an href that starts with https://", function (c) { var f = faviconEls(c); return f.length >= 1 && f.every(function (l) { return /^https:\/\/\S+/.test(l.attrs.href || ""); }); });
   var FAVHEAD = K("The favicon link is inside the head tags", function (c) { var f = faviconEls(c); return f.length >= 1 && f.every(function (l) { return !!c.ancestor(l, ["head"]); }); });
   var IMG = function (n) { return function (c) { return c.all("img")[n] || null; }; };
   var realAlt = function (i) { var a = String(i.attrs.alt || "").trim(); return a.split(/\s+/).filter(Boolean).length >= 2 && a.toLowerCase() !== "describe your image here"; };
@@ -328,7 +328,7 @@
   /* =============== 3.8 Assignment ("6.75a"): a Taco Bell menu page =============== */
   LAB("6.75a", {
     "Step 1": SKELETON3("Taco Bell Menu"),
-    "Step 2": [[K("The heading 1 has the words Taco Bell in it and at least one emoji", function (c) { var e = c.all("h1")[0]; return !!e && /taco bell/i.test(txt(c, e)) && emo(txt(c, e)) >= 1; })],
+    "Step 2": [[K("The heading 1 has the words Taco Bell in it and at least one emoji", function (c) { var e = c.all("h1")[0]; return !!e && /Taco Bell/.test(txt(c, e)) && emo(txt(c, e)) >= 1; })],
                [K("There are at least 3 menu paragraphs, and each one starts with its own emoji (then at least 2 words)", function (c) { var a = c.all("p").filter(function (p) { return startsEmoji(c, p); }); return a.length >= 3 && a.every(function (p) { return plainCh(txt(c, p)).split(" ").length >= 3; }); })]],
     "Step 3": [[K("There is a rating paragraph with at least 3 star symbols (★) inside a span", function (c) { return c.all("p").some(function (p) { return within(p, ["span"]).some(function (s) { return (txt(c, s).match(/[★☆]/g) || []).length >= 3; }); }); }),
                 K("The star span has a named color and a font-size in px", function (c) { return c.all("span").some(function (s) { return /[★☆]/.test(txt(c, s)) && has(c, s, "color", named) && has(c, s, "font-size", h.isPx); }); })],

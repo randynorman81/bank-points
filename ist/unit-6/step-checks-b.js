@@ -19,19 +19,17 @@
   function bothDiffer(c, el) { var a = h.vals(c, el, "color")[0], b = h.vals(c, el, "background-color")[0]; return !!a && !!b && a !== b; }
   function lastStep(l, st, list) { list.comment = false; SC.LESSONS[l].steps[st] = list; }
 
-  /* BONUS (3.2): 3 words on the page colored with span tags: a whole word in one span, or a word built from single-letter spans.
-     (the editor drops spaces between tags, so single letters are counted 3 to a word.) +5 points */
-  function spanWords(c) {
-    var whole = 0, letters = 0;
-    h.order(c).forEach(function (k) {
-      if (k.tag !== "span" || !has(c, k, "color", named) && !has(c, k, "background-color", named)) return;
-      var t = txt(c, k);
-      if (/^[A-Za-z]$/.test(t)) letters++; else if (/^[A-Za-z']{3,}$/.test(t)) whole++;
-    });
-    return whole + (letters >= 3 ? 3 : 0);   /* one rainbow word (3+ single-letter spans) earns the whole bonus */
+  /* BONUS (3.2): 10 different named colors on the page (named colors are all 3.2 teaches; span is not taught until 3.4). +5 points */
+  function namedColorCount(c) {
+    var seen = {};
+    h.order(c).forEach(function (k) { if (k.tag === "#text") return; ["color", "background-color"].forEach(function (p) { h.vals(c, k, p).forEach(function (v) { if (named(v)) seen[String(v).toLowerCase()] = 1; }); }); });
+    return Object.keys(seen).length;
   }
-  var RAINBOW = [["BONUS: 3 words colored with span tags (a whole word in one span each), or one rainbow word (each letter in its own span)", function (c) { return spanWords(c) >= 3; }]];
+  var RAINBOW = [["BONUS: at least 10 different named colors are used on the page", function (c) { return namedColorCount(c) >= 10; }]];
   RAINBOW.bonus = 5;
+  /* BONUS (3.3): all three text-transform values (3.3 teaches uppercase, lowercase and capitalize) */
+  var ALLCASE = [["BONUS: all three text-transform values are used on the page: uppercase, lowercase, and capitalize", function (c) { var seen = {}; h.order(c).forEach(function (k) { if (k.tag !== "#text") h.vals(c, k, "text-transform").forEach(function (v) { seen[String(v).toLowerCase()] = 1; }); }); return !!(seen.uppercase && seen.lowercase && seen.capitalize); }]];
+  ALLCASE.bonus = 5;
 
   /* =============== 6.2  (3.2) The "Style" Attribute + Color: the ugliest website you can make =============== */
   var h2all = function (c) { return c.all("h2"); };
@@ -695,7 +693,7 @@
       bg8: function (c) { return withProp(c, "background-color", named).length >= 8; },
       both6: function (c) { return notBody(c).filter(function (x) { return x.tag !== "#text" && bothStyled(c, x); }).length >= 6; },
       pattern3: function (c) { var seen = {}, best = 0; notBody(c).forEach(function (x) { if (x.tag === "#text" || !bothStyled(c, x)) return; var k = h.vals(c, x, "color")[0] + "|" + h.vals(c, x, "background-color")[0]; seen[k] = (seen[k] || 0) + 1; if (seen[k] > best) best = seen[k]; }); return best >= 3; },
-      imgLinked: function (c) { var im = c.all("img"); return im.length >= 1 && im.every(function (i) { return !!c.ancestor(i, ["a"]); }); }
+      imgWidthOnly: function (c) { var im = c.all("img"); return im.length >= 1 && im.every(function (i) { return (has(c, i, "width") || i.attrs.width !== undefined) && !has(c, i, "height") && i.attrs.height === undefined; }); }
     };
     function spec(c, s) {
       switch (s[0]) {
@@ -731,7 +729,7 @@
       }
       var fontLimit = !!CL.fontLimit[l];
       var limits = [
-        [K("Use between 2 and " + CL.maxColors(l) + " different colors on the page (text colors and background colors together; colors inside span tags do not count)", function (c) { var seen = {}; notBody(c).concat(c.all("body")).forEach(function (x) { if (x.tag === "span") return; ["color", "background-color"].forEach(function (p) { h.vals(c, x, p).forEach(function (v) { if (named(v)) seen[v] = 1; }); }); }); var k = Object.keys(seen).length; return k >= 2 && k <= CL.maxColors(l); })],
+        [K("Use between 2 and " + CL.maxColors(l) + " different colors on the page (text colors and background colors together" + (/^6\.(2|20|21|22)$/.test(l) ? "" : "; colors inside span tags do not count") + ")", function (c) { var seen = {}; notBody(c).concat(c.all("body")).forEach(function (x) { if (x.tag === "span") return; ["color", "background-color"].forEach(function (p) { h.vals(c, x, p).forEach(function (v) { if (named(v)) seen[v] = 1; }); }); }); var k = Object.keys(seen).length; return k >= 2 && k <= CL.maxColors(l); })],
         [K("Wherever a tag has both a color and a background-color, they are different", function (c) { var ok = true; h.order(c).forEach(function (x) { if (x.tag !== "#text" && has(c, x, "color") && has(c, x, "background-color") && !bothDiffer(c, x)) ok = false; }); return ok; })],
         [K("The whole page uses 5 different font sizes or fewer", function (c) { return distinctVals(c, "font-size", h.isPx).length <= 5; })]
       ];
@@ -747,7 +745,7 @@
         bonus.bonus = 5;
         st["Step " + n++] = [bonus];
       } else {
-        st["Step " + n++] = [RAINBOW];
+        st["Step " + n++] = [l === "6.2" ? RAINBOW : ALLCASE];
       }
       SC.LESSONS[l] = { inlineOnly: true, steps: st };
       lastStep(l, "Step " + n, [[]]);

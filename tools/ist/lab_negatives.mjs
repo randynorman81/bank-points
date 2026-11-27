@@ -27,7 +27,8 @@ const FAM = {
   "img without alt": (s) => [s.replace(/ alt="[^"]*"/, "")],
   "img without src": (s) => [s.replace(/ src="[^"]*"/, "")],
   "img with width AND height": (s) => [s.replace(/(<img [^>]*style=")/, "$1height: 100px; ")],
-  "link without https": (s) => [s.replace(/href="https:\/\//, 'href="')],
+  /* every address in turn (the two "preconnect" lines are only a speed hint: a browser loads the page the same without them, so they are not mutated) */
+  "link without https": (s) => { const out = []; let n = 0; s.replace(/href="https:\/\//g, (m, i) => { const line = s.slice(s.lastIndexOf("\n", i) + 1, s.indexOf("\n", i)); if (!/preconnect/.test(line)) { const k = n; n2 = 0; out.push(s.replace(/href="https:\/\//g, (mm) => (n2++ === k ? 'href="' : mm))); } n++; return m; }); return out; },
   "link target misspelled": (s) => [s.replace(/target="_blank"/, 'target="blank"'), s.replace(/target="_blank"/, "target=_blank")],
   "link has no closing tag": (s) => [s.replace(/<\/a>/, "")],
   "link attribute without quotes": (s) => [s.replace(/href="([^"]*)"/, "href=$1")],
@@ -57,7 +58,7 @@ const FAM = {
   "emoji inside the tag": (s) => [s.replace(/<h1([^>]*)>/, "<h1$1 🍕>")],
   "paragraph inside a heading": (s) => [s.replace(/<h1([^>]*)>([^<]*)<\/h1>/, "<h1$1><p>$2</p></h1>")],
 };
-let bad = 0, applied = 0, holes = [];
+let bad = 0, applied = 0, holes = [], n2 = 0;
 for (const [id, src] of Object.entries(MODELS)) {
   for (const [fam, f] of Object.entries(FAM)) {
     let list = []; try { list = f(src); } catch (e) { list = []; }

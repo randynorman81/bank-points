@@ -141,8 +141,36 @@ def checks():
             if base in names:
                 labels = ' '.join(re.findall(r'"([^"\n]{6,200})"', body))
                 check('Check list %s (%s)' % (lid, names[base]), RANK[names[base]], labels)
+# ---------------------------------------------------------------- the older assignments (editor ids 6.2-6.5, 7.1-7.5 without w/a): what students see = assignment steps, check labels, concept lists, rubric rules
+LEGACY_EXTRA = [   # prose patterns the tag/property regexes above do not catch, so "every image is a link" or "a bullet list" cannot slip in early
+    (r'\bspans?\b', 'span (words)', 4), (r'\bbold\b|\bitalics?\b|\bstrong\b', 'bold/italic (words)', 4),
+    (r'\bborders?\b', 'borders (words)', 6), (r'\bpictures?\b|\bimages?\b|\balt\b', 'images (words)', 7),
+    (r'\bemojis?\b|\bsymbols?\b', 'emojis (words)', 8),
+    (r'\bclickable\b|inside (?:an? )?(?:link|a tag)|\ban a tag\b|\bhyperlinks?\b|\blink hub\b|\bimage is a link\b', 'links (words)', 9),
+    (r'\bbullet(?:ed)? lists?\b|\bnumbered lists?\b|\blist items?\b|\bul or ol\b|\bunordered list|\bordered list', 'lists (words)', 10),
+    (r'\bborder-radius\b|\bbox-shadow\b|\btext-shadow\b|\btext-decoration\b|\bfont-weight\b|\bline-height\b|\bletter-spacing\b|\bopacity\b|\bfloat\b|\boverflow\b|\bmax-width\b|\bmin-width\b|\bbox-sizing\b|\bbackground-image\b|\bbackground-size\b', 'a property this course never teaches (words)', 99),
+    (r'\bdisplay\W{0,6}block\b|\bblock element', 'display: block (words)', 14),
+    (r'\bsans-serif\b|\bserif\b|\bmonospace\b|\bcursive\b', 'generic font families (words)', 5),
+    (r'\btables?\b|\bheader row\b|\bdata cells?\b|\btable cells?\b', 'tables (words)', 12),
+]
+LEGACY_EXTRA = [(re.compile(a, re.I), b, c) for a, b, c in LEGACY_EXTRA]
+def legacy():
+    import subprocess
+    names = {'6.2': '3.2', '6.20': '3.3', '6.3': '3.4', '6.35': '3.5', '6.4': '3.6', '6.7': '3.7', '6.75': '3.8', '6.6': '3.9', '6.5': '3.10', '7.1': '4.1', '7.2': '4.2', '7.3': '4.3', '7.4': '4.4', '7.5': '4.5'}
+    o = subprocess.run(['node', os.path.join(HERE, 'dump_legacy.mjs')], capture_output=True, text=True, cwd=ROOT)
+    d = json.loads(o.stdout)
+    for lid, v in d.items():
+        r = RANK[names[lid]]
+        ans = ' '.join(re.findall(r'"(?:p|build|h|t|q|label|text|opts)":\s*(\[[^\]]*\]|"(?:[^"\\]|\\.)*")', v['answers'])) if False else v['answers']
+        for part, txt in (('assignment steps', ans), ('check list', ' '.join(v['checks'])), ('concepts', v['concepts']), ('rubric rules', ' '.join(v['rules']))):
+            where = 'Older assignment %s (%s) %s' % (lid, names[lid], part)
+            check(where, r, txt)
+            t = _html.unescape(re.sub(r'\\"|\\n', ' ', txt))
+            for rx, name, rank in LEGACY_EXTRA:
+                m = rx.search(t)
+                if m and rank > r and (where, name) not in ALLOW: ISSUES.append((where, name, 'taught at %s' % NAME.get(rank, 'never'), t[max(0, m.start() - 70):m.end() + 60]))
 if __name__ == '__main__':
-    for fn in (parsons, games, tests, labs, checks, guides, notes): fn()
+    for fn in (parsons, games, tests, labs, checks, guides, notes, legacy): fn()
     # report, grouped
     from collections import OrderedDict
     g = OrderedDict()

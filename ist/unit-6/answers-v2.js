@@ -157,12 +157,12 @@
     return [
       S("The main picture", [
         "Add a **paragraph**. Click inside it, then click **Insert** on your first picture (Checks, then My images). The editor writes the picture wrapped in a link for you. Change that link to a **real website** (a full address starting with https://) and change the **alt** to a real description of the picture. Do the same for **every** picture you add. Make this first link open in a **new tab**",
-        "Style the **picture**: **width** 320px, a **solid border** (like 5px solid), **border-radius** 12px, and **display** block"
+        "Style the **picture**: **width** 320px and a **solid border** (like 5px solid)"
       ]),
       S("An intro section with two more pictures", [
         "Add a **horizontal line** (under the main picture), then a **heading 2**" + (styleBlock ? " (the style block already styles it)" : ". Style it: **color**, **font-size** 26px, **text-transform** uppercase, **font-family** serif, and a border on the **bottom only**") + ". Under it, add a **paragraph** (**font-family** sans-serif) about your topic, then a **heading 3** that says Photos",
-        "Add a **paragraph** and **Insert** your second picture inside it (real https:// link, real alt). This link opens in the **same tab**. Style the picture: **width** 25%, **border-radius** 50%, and a **dashed border** (like 3px dashed)",
-        "Add another **paragraph** and **Insert** your third picture inside it (real link, real alt). This link opens in a **new tab**. Style the picture: **width** 45%, **display** block, and a **dotted border** (like 3px dotted)",
+        "Add a **paragraph** and **Insert** your second picture inside it (real https:// link, real alt). This link opens in the **same tab**. Style the picture: **width** 25% and a **dashed border** (like 3px dashed)",
+        "Add another **paragraph** and **Insert** your third picture inside it (real link, real alt). This link opens in a **new tab**. Style the picture: **width** 45% and a **dotted border** (like 3px dotted)",
         "Add a **bullet list** with **3 list items**. Style it: **list-style-type** square, a **solid border**" + (adv ? " in a **named** gray (like 2px solid dimgray), and a **margin** (like 14px 30px)" : " (like 2px solid)"),
         "Under the list, add a **horizontal line**"
       ])
@@ -243,12 +243,12 @@
       ]),
       S("The main picture", [
         "Add a **paragraph**. Click inside it, then click **Insert** on your first picture (Checks, then My images). The editor writes the picture wrapped in a link for you. Change that link to a **real website** (a full address starting with https://) and change the **alt** to a real description. Make this link open in a **new tab**",
-        "Style the **picture**: **width** 50%, a **solid border** (like 5px solid), **border-radius** 12px, and **display** block"
+        "Style the **picture**: **width** 50% and a **solid border** (like 5px solid)"
       ])
     ];
     if (o.pic2) steps.push(S("Intro, a second picture, and a list", [
       "Add a **heading 2** with a short title. " + H2 + ". Under it, add a **paragraph** about your topic and style it: **font-family** sans-serif",
-      "Add another **paragraph** and **Insert** your second picture inside it (real https:// link, real alt, same tab). Style the picture: **width** 45%, **border-radius** 12px, **display** block, and a **dotted border** (like 3px dotted)",
+      "Add another **paragraph** and **Insert** your second picture inside it (real https:// link, real alt, same tab). Style the picture: **width** 45% and a **dotted border** (like 3px dotted)",
       "Add a **bullet list** with **3 list items**. Style it: **list-style-type** square and a **dashed border** (like 2px dashed)"
     ]));
     steps = steps.concat(middle);
@@ -261,12 +261,12 @@
   var H2NOTE = "Style every **heading 2** the same way: **color** and **font-size** 26px.";
 
   /* ======================================================================= 7.2 ===== */
-  A["7.2"] = build([].concat(head("A **mood board**: a page that uses a palette of colors to create a vibe. Hex reminder: a **#** and then 6 characters in three pairs (red, green, blue), each from 00 (none) to FF (the most).", "a spooky night, a beach day, a neon city, or a cozy cabin", notes("unit-7/colors-notes.html")), [RULE],
+  A["7.2"] = build([].concat(head("A **mood board**: a page that uses a palette of colors to create a vibe. Hex is new today: a **#** and then 6 characters in three pairs (red, green, blue), each from 00 (none) to FF (the most).", "a spooky night, a beach day, a neon city, or a cozy cabin", notes("unit-7/colors-notes.html")), [RULE],
     lean7({ pic2: true, ol: true, adv: false }, [
       S("The color palette (new today)", [
         "Add a **heading 2** that says Color Palette. " + H2NOTE + " Under it, add **5 paragraphs**. Each one is a swatch: the color's name, a dash, and a word for the feeling",
         "In the **style attribute of each swatch**, put a **background-color** and a **color** (the text) that is easy to read on it. Use a **named color** for the first swatch and **hex codes** (like #5B2A86) for the other 4",
-        "Give the **first 2 swatches** their own **padding** (like 14px), a **border** (like 3px solid), and a **margin** (like 12px 30px)",
+        "Give the **first 2 swatches** their own **border** (like 3px solid), a **font-size** in pixels (like 24px), and **text-align** center",
         "Every hex code starts with **#** and has **3 or 6** characters (0 to 9 and A to F). Search for a color picker online if you need help"
       ])])));
 
@@ -295,13 +295,13 @@
   A["7.5"] = build([].concat(head("A **leaderboard** built as a **table**, plus a rules and prizes section.", "your favorite game, a sport, or a competition you invent", notes("unit-7/tables-notes.html")), [RULE],
     lean7({ pic2: false, ol: false, adv: true }, [
       S("The leaderboard table (new today)", [
-        "Add a **heading 2** with the leaderboard's name. " + H2NOTE + " Under it, add a **table**. Style the table: a **solid border** (like 3px solid), **text-align** center, **width** 90%, and a **margin** (like 14px 0)",
+        "Add a **heading 2** with the leaderboard's name. " + H2NOTE + " Under it, add a **table**. Style the table: a **solid border** (like 3px solid), **text-align** center, and **width** 90%",
         "Row 1 is the **header row**: one **header cell** for each of **4 columns** (like Rank, Player, Wins, Points). Style each header cell: a **background-color** and **color** white",
         "Then add **5 data rows**, each with one **data cell** per column. Only rows go directly inside the table, and only cells go directly inside a row. **Every row** must have the same number of cells"
       ]),
-      S("Rules and prizes, side by side", [
-        "Add a **heading 2** that says Rules and Prizes. Under it, add **two divs**. In the first: a **heading 2** and a **paragraph** with the rules. In the second: a **heading 2**, a **paragraph** about the prizes, and a **numbered list** of 3 items",
-        "Style **each div**: **display** inline-block, **vertical-align** top, **width** 45%, **padding** (like 10px), and a **border** (like 2px solid). Give the first a **solid** border and a **background-color** (a named color), and the second a **dashed** border and a **hex** background-color"
+      S("Rules and prizes", [
+        "Add a **heading 2** that says Rules and Prizes. Under it, add a **heading 3** and a **paragraph** with the rules. Style the paragraph: a **solid** border and a **background-color** (a named color)",
+        "Then add a second **heading 3**, a **paragraph** about the prizes, and a **numbered list** of 3 items. Style the paragraph: a **dashed** border and a **hex** background-color"
       ])])));
 
   A["7.6"] = build([

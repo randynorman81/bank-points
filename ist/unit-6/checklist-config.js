@@ -70,7 +70,7 @@
     ],
     "6.7": [
       { label: "At least 3 images, each with src and alt", text: "**Images**: at least **3**, each with a **src** and a real **alt** description (use **Checks**, then **My images**, then **Insert**)", spec: ["all", [["count", "attr-src", 3], ["count", "attr-alt", 3]]] },
-      { label: "Every image is inside a link", text: "**Every image is a link**: each img sits **inside** an a tag with an https:// address", spec: ["custom", "imgLinked"] },
+      { label: "Every image is sized with width only", text: "**Every image has a width and no height**: set the size with **width** only, so the picture never gets squished", spec: ["custom", "imgWidthOnly"] },
       { label: "Image width in % at least 3 times", text: "**Image width in %**: at least **3** (like width: 50%)", spec: ["count", "v-pct", 3] },
       { label: "A favicon link in the head", text: "**A favicon** in the head (a link tag with rel set to icon): at least **1**", spec: ["count", "attr-favicon", 1] }
     ],
@@ -139,8 +139,12 @@
   CL.noColorLimit = { "6.2": 1 };   /* 3.2 is supposed to be ugly: no limit on how many colors */
   CL.maxColors = function (lesson) { return lesson === "6.2" ? 6 : 5; };
   CL.newHead = { "6.2": "New this lesson (the number tells you how many)" };
-  CL.intro = { "6.2": "**The Ugliest Website Ever.** Pick a theme and make the most **eye-burning** page you can using **text colors** and **background colors**. Ugly on purpose is the goal, but every word must still be there. Build the skeleton, then the checklist tells you what your page needs **somewhere**. Styles go inside a **style attribute**, with a **semicolon** between properties. Use named colors (or hex codes if you know them)." };
-  CL.bonusText = { "6.2": "**BONUS (+5 points):** a sneak peek at the **span** tag (we cover it fully in 3.4). A span wraps just a few words inside a paragraph or heading and can have its own style attribute. Wrap **at least 3 whole words**, each in its own span with a **color**, OR make **one rainbow word** by giving **each letter** of a word its own span and its own **color**. Your teacher may also add extra credit for good design" };
+  CL.intro = { "6.2": "**The Ugliest Website Ever.** Pick a theme and make the most **eye-burning** page you can using **text colors** and **background colors**. Ugly on purpose is the goal, but every word must still be there. Build the skeleton, then the checklist tells you what your page needs **somewhere**. Styles go inside a **style attribute**, with a **semicolon** between properties. Use named colors: you can use any of the 140 color names." };
+  CL.bonusText = {
+    "6.2": "**BONUS (+5 points):** use **at least 10 different named colors** on your page (text colors and background colors together). Look through the list of 140 color names for ones you have never used. Your teacher may also add extra credit for good design",
+    "6.20": "**BONUS (+5 points):** use **all three** text-transform values on your page: **uppercase**, **lowercase**, and **capitalize**. Your teacher may also add extra credit for good design"
+  };
+  CL.bonusText["6.21"] = CL.bonusText["6.22"] = CL.bonusText["6.20"];
   /* a finished example website students can open in a new tab and recreate (shown under the theme choices) */
   CL.exampleSite = { "6.4": { url: "examples/6.4-ticket.html", label: "Open the finished example website (A concert ticket) in a new tab" } };
   CL.famOrder = ["6.20", "6.3", "6.35", "6.4", "6.7", "6.75", "6.6"];
@@ -157,6 +161,6 @@
   CL.gfReq = { "6.4": 2, "6.7": 1, "6.75": 1, "6.6": 1, "6.5": 1 };
   CL.need = { "6.3": 3, "6.35": 4, "6.4": 5, "6.7": 6, "6.75": 6, "6.6": 7, "6.5": 8 };
   /* the fonts limit applies once fonts are taught (3.5 on) */
-  CL.noBoldItalicRule = { "6.35": 1 };   /* 3.5 drops the "never use b or i" limit, and the 3-fonts limit (so 3.5 is not in fontLimit) */
+  CL.noBoldItalicRule = { "6.2": 1, "6.20": 1, "6.21": 1, "6.22": 1, "6.35": 1 };   /* before 3.4 nobody has met bold and italic tags, so no rule about b and i; 3.5 drops the "never use b or i" limit, and the 3-fonts limit (so 3.5 is not in fontLimit) */
   CL.fontLimit = { "6.4": 1, "6.7": 1, "6.75": 1, "6.6": 1, "6.5": 1 };
 })(typeof window !== "undefined" ? window : globalThis);
