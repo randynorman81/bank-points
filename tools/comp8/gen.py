@@ -1,7 +1,10 @@
 import json, random, html, sys
-import bank
+import importlib
+CFG = {"8": dict(mod="bank", test="/Users/randynorman/bank-points/ist/unit-3/unit-8-practice-test.html", n=8, unit="Unit 8", back="Unit 8: Computing Basics", lessons="8.1 to 8.5"),
+       "9": dict(mod="bank9", test="/Users/randynorman/bank-points/ist/unit-4/unit-9-practice-test.html", n=10, unit="Unit 9", back="Unit 9: Operating Systems and Software", lessons="9.1 to 9.4")}
+C = CFG[sys.argv[1] if len(sys.argv) > 1 else "8"]
+bank = importlib.import_module(C["mod"]); TESTN = C["n"]
 OUT_GAME = "/Users/randynorman/bank-points/ist/unit-6/game-data/"
-OUT_TEST = "/Users/randynorman/bank-points/ist/unit-3/unit-8-practice-test.html"
 esc = lambda s: html.escape(s, quote=False)
 def shuffled(q, rnd, want_pos):
     opts = [q["c"]] + q["w"]
@@ -11,14 +14,14 @@ def shuffled(q, rnd, want_pos):
 games = {}; tests = []
 for lid, (num, title, qs) in bank.B.items():
     rnd = random.Random(8000 + lid)
-    game, test = qs[:-8], qs[-8:]
+    game, test = qs[:-TESTN], qs[-TESTN:]
     items = []
     for i, q in enumerate(qs):
         pos = (i * 3 + lid) % 4   # spread the correct answers evenly over A-D
         opts, a = shuffled(q, rnd, pos)
         items.append(dict(s=esc(q["s"]), c=None, o=[esc(o) for o in opts], a=a, e=esc(q["e"]), t=q["t"]))
-    games[lid] = items[:-8]
-    tests += [(num, title, it) for it in items[-8:]]
+    games[lid] = items[:-TESTN]
+    tests += [(num, title, it) for it in items[-TESTN:]]
     open(OUT_GAME + "l%d.js" % lid, "w").write("window.IST_GAME = window.IST_GAME || {};\nIST_GAME[%d] = %s;\n" % (lid, json.dumps(games[lid], ensure_ascii=False)))
 # practice test page: 5 questions from each lesson's test set (all 8 each = 40)
 rows = []; n = 0; cur = None
@@ -34,7 +37,7 @@ page = '''<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Unit 8 Practice Test | Intro to Software Technology</title>
+<title>__UNIT__ Practice Test | Intro to Software Technology</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
@@ -55,11 +58,11 @@ page = '''<!DOCTYPE html>
 <body>
 <div id="site-header-root"></div>
 <main>
-  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ist/index.html">Intro to Software Technology</a><span class="sep">/</span><a href="index.html">Unit 8: Computing Basics</a><span class="sep">/</span>Practice Test</div>
-  <h1>Unit 8 Practice Test</h1>
-  <p class="hint">%d questions covering lessons 8.1 to 8.5. This is practice only and does not change your grade. Pick an answer for every question, then check your answers.</p>
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ist/index.html">Intro to Software Technology</a><span class="sep">/</span><a href="index.html">__BACK__</a><span class="sep">/</span>Practice Test</div>
+  <h1>__UNIT__ Practice Test</h1>
+  <p class="hint">__N__ questions covering lessons __LESSONS__. This is practice only and does not change your grade. Pick an answer for every question, then check your answers.</p>
   <div id="qs">
-%s
+__ROWS__
   </div>
   <p><button class="btn" id="check" type="button">Check my answers</button> <button class="btn" id="again" type="button">Start over</button></p>
   <div class="psum" id="sum"></div>
@@ -88,6 +91,7 @@ page = '''<!DOCTYPE html>
 </script>
 </body>
 </html>
-''' % (n, "\n".join(rows))
-open(OUT_TEST, "w").write(page)
+'''
+page = page.replace('__UNIT__', C['unit']).replace('__BACK__', C['back']).replace('__LESSONS__', C['lessons']).replace('__N__', str(n)).replace('__ROWS__', "\n".join(rows))
+open(C["test"], "w").write(page)
 print("games", {k: len(v) for k, v in games.items()}, "test questions", n)

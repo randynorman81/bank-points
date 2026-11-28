@@ -3,10 +3,12 @@ import { createRequire } from "module"; const require = createRequire(import.met
 const { launch } = require("/Users/randynorman/bank-points/tools/missions/testkit/cdp.js");
 import fs from "fs";
 const ROOT = "/Users/randynorman/bank-points/ist/";
+const U = process.argv[2] || "8";
+const CF = { "8": { from: 28, to: 32, test: "unit-3/unit-8-practice-test.html", hub: "Unit 8: Computing Basics", last: "8.5", n: 40 }, "9": { from: 33, to: 36, test: "unit-4/unit-9-practice-test.html", hub: "Unit 9: Operating Systems and Software", last: "9.4", n: 40 } }[U];
 let bad = 0; const fail = (...a) => { bad++; console.log("FAIL", ...a); };
 // 1. structure of every game bank
 const posCount = [0, 0, 0, 0], seen = new Set(); let longest = 0, total = 0;
-for (let l = 28; l <= 32; l++) {
+for (let l = CF.from; l <= CF.to; l++) {
   global.window = {}; global.IST_GAME = undefined;
   const src = fs.readFileSync(ROOT + "unit-6/game-data/l" + l + ".js", "utf8"); new Function("window", src.replace(/IST_GAME\[/, "window.IST_GAME[").replace("window.IST_GAME = window.IST_GAME || {};", "window.IST_GAME = {};"))(global.window);
   const bank = global.window.IST_GAME[l];
@@ -26,7 +28,7 @@ if (longest / total > 0.5) fail("correct answer is the longest too often");
 // 2. play every game in Chrome
 const b = await launch(9697, 1100, 900);
 await b.send("Page.addScriptToEvaluateOnNewDocument", { source: "window.__errs=[]; window.addEventListener('error', function(e){ window.__errs.push(String(e.message)); });" });
-for (let l = 28; l <= 32; l++) {
+for (let l = CF.from; l <= CF.to; l++) {
   await b.send("Page.navigate", { url: "file://" + ROOT + "unit-6/game.html?l=" + l }); await b.sleep(900);
   for (let r = 0; r < 10; r++) {
     const st = await b.ev(`(function(){ var o=document.querySelectorAll('.opt'); if(!o.length) return null; o[cur.a].click(); return [document.querySelectorAll('.opt.ok').length, document.querySelectorAll('.opt.no').length]; })()`);
@@ -42,13 +44,13 @@ for (let l = 28; l <= 32; l++) {
 }
 // the hub lists the Unit 8 games
 await b.send("Page.navigate", { url: "file://" + ROOT + "unit-6/game.html" }); await b.sleep(900);
-const hub = await b.ev(`document.body.innerText`); if (!/Unit 8: Computing Basics/.test(hub) || !/8\.5/.test(hub)) fail("hub missing Unit 8");
+const hub = await b.ev(`document.body.innerText`); if (!hub.includes(CF.hub) || !hub.includes(CF.last)) fail("hub missing Unit 8");
 // 3. practice test: all right, all wrong, start over
-await b.send("Page.navigate", { url: "file://" + ROOT + "unit-3/unit-8-practice-test.html" }); await b.sleep(1000);
-const n = await b.ev(`document.querySelectorAll('.pq').length`); if (n !== 40) fail("practice test count", n);
+await b.send("Page.navigate", { url: "file://" + ROOT + CF.test }); await b.sleep(1000);
+const n = await b.ev(`document.querySelectorAll('.pq').length`); if (n !== CF.n) fail("practice test count", n);
 await b.ev(`[].forEach.call(document.querySelectorAll('.pq'), function(q){ q.querySelectorAll('input')[Number(q.getAttribute('data-a'))].checked = true; }); document.getElementById('check').click()`);
-const all = await b.ev(`document.getElementById('sum').textContent`); if (all !== "40 of 40 right") fail("all right gave", all);
+const all = await b.ev(`document.getElementById('sum').textContent`); if (all !== CF.n + " of " + CF.n + " right") fail("all right gave", all);
 await b.ev(`document.getElementById('again').click(); [].forEach.call(document.querySelectorAll('.pq'), function(q){ q.querySelectorAll('input')[(Number(q.getAttribute('data-a'))+1)%4].checked = true; }); document.getElementById('check').click()`);
-const none = await b.ev(`document.getElementById('sum').textContent`); if (none !== "0 of 40 right") fail("all wrong gave", none);
+const none = await b.ev(`document.getElementById('sum').textContent`); if (none !== "0 of " + CF.n + " right") fail("all wrong gave", none);
 const perr = await b.ev(`window.__errs`); if (perr.length) fail("practice errors", perr);
 console.log("failures:", bad); b.close(); process.exit(bad ? 1 : 0);
