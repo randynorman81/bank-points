@@ -149,7 +149,7 @@ code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);pad
       <div class="torreadout" id="torReadout"><span class="ph">Click any stop above to see what it actually knows.</span></div>
     </div>
 
-    <div class="example"><b>Why this works:</b> each relay is encrypted, and each one only knows the IP address of the relay right before it and right after it &mdash; never the full path from you to the destination. That's what makes tracing the original user extremely difficult.</div>
+    <div class="example"><b>Why this works:</b> each relay is encrypted, and each one only knows the IP address of the relay right before it and right after it &mdash; never the full path from you to the destination. That's what makes tracing the original user extremely difficult. (This three-relay picture is simplified: connections to .onion sites add more relays on the website's side.)</div>
 
     <div class="cardx" style="margin-top:16px;max-width:520px;"><h4>Specialized Domains</h4><p>Websites on the Tor network typically use the special top-level domain <code>.onion</code>, reachable only through the Tor browser.</p></div>
   </div>
@@ -196,7 +196,7 @@ const hopInfo = {
   user: "<b>You (the starting point).</b> Your device knows your own real IP address, and it knows Relay 1's address — but nothing past that.",
   r1: "<b>Relay 1 (Entry node).</b> Knows your real IP address (it's the first stop) — but has no idea what website you're actually trying to reach.",
   r2: "<b>Relay 2 (Middle node).</b> Knows only Relay 1 and Relay 3's addresses. It never sees your real IP, and never sees the final .onion address.",
-  r3: "<b>Relay 3 (Exit node).</b> Knows Relay 2's address and the final .onion site's address — but has no idea who the original user actually was.",
+  r3: "<b>Relay 3 (last relay).</b> Knows Relay 2's address and where to pass the traffic next — but has no idea who the original user actually was.",
   site: "<b>The .onion website.</b> Only sees Relay 3 connecting to it. It never learns your real IP address or your location."
 };
 function showHop(id){
