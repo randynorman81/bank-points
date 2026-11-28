@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caught by Their Own Data | Intro to Software Technology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{--bg:#0B0E14;--panel:#10141C;--card:#151A24;--ink:#EAEFF6;--soft:#8B9AAE;--rule:#232B38;--acc:#38BDF8;--acc-ink:#9FE0FB;--ok:#34D399;--bad:#F87171;--warn:#FBBF24;--wrap:1080px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Manrope",system-ui,sans-serif;font-size:16.5px;line-height:1.62;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif;line-height:1.16;margin:0;text-wrap:balance}
+p{margin:0 0 1em}p:last-child{margin-bottom:0}a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+.pillnav{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule)}
+.pillnav a{font:600 12px "JetBrains Mono",monospace;text-decoration:none;color:var(--soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px}
+.pillnav a:hover{color:var(--ink)}.pillnav a.current{background:#fff;color:#0B0E14;border-color:#fff}
+.hero{padding:54px 0 36px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 10% 20%,rgba(56,189,248,.13),transparent 40%),radial-gradient(circle at 85% 10%,rgba(248,113,113,.10),transparent 38%)}
+.hero .wrap{position:relative}.tag{font:12.5px "JetBrains Mono",monospace;color:var(--soft);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}
+.hero h1{font-size:clamp(30px,5.2vw,50px);font-weight:600;max-width:20ch;color:#fff}.hero .deck{color:var(--soft);font-size:clamp(16px,2vw,18.5px);max-width:70ch;margin-top:16px}
+.note{background:var(--panel);border:1px solid var(--rule);border-left:3px solid var(--warn);border-radius:6px;padding:14px 18px;margin:24px 0;font-size:15px;color:#C4CDD8}
+.part{padding:44px 0 6px}.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:12px;margin-bottom:22px}
+.part-tag{font:12px "JetBrains Mono",monospace;color:var(--acc-ink);text-transform:uppercase}.part-head h2{font-size:clamp(21px,3.4vw,29px);color:#fff}
+.lede{font-size:17px;max-width:70ch;color:#C4CDD8;margin-bottom:22px}
+/* case picker */
+.picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-bottom:22px}
+.pick{all:unset;box-sizing:border-box;cursor:pointer;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:12px 14px}
+.pick:hover{border-color:#3A4658}.pick.on{border-color:var(--acc);box-shadow:0 0 0 2px rgba(56,189,248,.25)}
+.pick b{display:block;font-family:"Fraunces",serif;font-size:16px;color:#fff}.pick span{font:12px "JetBrains Mono",monospace;color:var(--soft)}
+.pick i{display:block;font-style:normal;font-size:12.5px;color:var(--acc-ink);margin-top:4px}
+.pick.seen::after{content:"✓ read";float:right;font:11px "JetBrains Mono",monospace;color:var(--ok)}
+.stage{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:24px 26px;margin-bottom:30px}
+.stage h3{font-size:clamp(22px,3.4vw,30px);color:#fff;margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 16px}.chip{font:600 12px "JetBrains Mono",monospace;background:rgba(56,189,248,.12);color:var(--acc-ink);border:1px solid rgba(56,189,248,.3);border-radius:100px;padding:4px 11px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0}.tab{all:unset;cursor:pointer;font:600 13px "JetBrains Mono",monospace;color:var(--soft);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:8px 14px}
+.tab.on{background:#fff;color:#0B0E14;border-color:#fff}
+.panel{display:none}.panel.on{display:block}
+.story{max-width:72ch;color:#D6DEE9}
+/* stepper */
+.stepper{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:18px 20px}
+.dots{display:flex;gap:6px;margin-bottom:14px}.dot{height:6px;flex:1;border-radius:3px;background:#263042}.dot.on{background:var(--acc)}
+.stepper h4{font-size:19px;color:#fff;margin-bottom:6px}.stepper .d{min-height:74px;color:#D6DEE9}
+.btnrow{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.btn{all:unset;cursor:pointer;font:700 13px "JetBrains Mono",monospace;background:var(--acc);color:#06222F;border-radius:8px;padding:9px 16px}.btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--rule)}.btn[disabled]{opacity:.4;cursor:default}
+.visual{margin:14px 0 0;background:#0A0D13;border:1px solid var(--rule);border-radius:10px;padding:14px 16px;font:13.5px "JetBrains Mono",monospace;color:#C4CDD8;min-height:56px}
+.visual .k{color:var(--soft)}.visual .hl{color:#FFD76A;background:rgba(251,191,36,.12);padding:1px 4px;border-radius:3px}
+.bar{height:16px;border-radius:4px;margin:6px 0}
+.callbox{border-left:3px solid var(--acc);background:var(--card);padding:14px 18px;border-radius:0 8px 8px 0;margin:14px 0;color:#D6DEE9}
+.callbox b{color:#fff}
+.src{font-size:13px;color:var(--soft);margin-top:14px}
+/* match game */
+.match{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:700px){.match{grid-template-columns:1fr}}
+.mcol button{all:unset;display:block;box-sizing:border-box;width:100%;cursor:pointer;background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:14.5px}
+.mcol button.sel{border-color:var(--acc);background:rgba(56,189,248,.1)}.mcol button.done{border-color:var(--ok);background:rgba(52,211,153,.12);cursor:default}.mcol button.no{border-color:var(--bad)}
+.score{font:700 15px "JetBrains Mono",monospace;color:var(--ok);margin:10px 0}
+.check{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer}
+.check input{margin-top:5px;accent-color:#38BDF8}.check.done{border-color:var(--ok)}
+.footer{padding:44px 0 60px;color:var(--soft);font-size:14px;border-top:1px solid var(--rule);margin-top:40px}
+</style>
+</head>
+<body>
+<nav class="pillnav"><a href="index.html">← Unit 1</a><a href="1-4-your-phones-invisible-footprint.html">1.4 Lesson Page</a><a class="current" href="caught-by-their-data.html">Caught by Their Own Data</a><a href="unit-1-study-guide.html">Study Guide</a></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="tag">IST Unit 1 · Lesson 1.4 · Case files</div>
+  <h1>Caught by Their Own Data</h1>
+  <p class="deck">Eight real cases where the technology that gave someone away was something they did not know existed, forgot about, or never thought mattered. Work through each case file, then test yourself.</p>
+</div></header>
+
+<div class="wrap">
+  <div class="note"><b>A word about these cases.</b> Several of them involve real victims and real families. We study them to understand how digital evidence works, not for shock value, and the notes leave out graphic detail on purpose. Everything here comes from court records and major news coverage. Where reports disagree, the case file says so.</div>
+
+  <section class="part"><div class="part-head"><div class="part-tag">00</div><h2>The pattern</h2></div>
+    <p class="lede">Look for the same thing in every case: the person was careful about the things they <i>knew</i> could be traced, and got caught by something they did not think about. A hidden field in a file. The gap where a phone should have been. A cousin's DNA test. An old forum post. A photo. A printer. A step counter.</p>
+    <p class="lede">Then notice the flip side. The same invisible trail that catches a criminal can clear an innocent person (Case 8), can be wrong (Case 7), and exists for every one of us. That is why the <b>4th Amendment</b> fights in lesson 1.3 matter.</p>
+  </section>
+
+  <section class="part"><div class="part-head"><div class="part-tag">01</div><h2>Open a case file</h2></div>
+    <p class="lede">Pick a case. Read it in the order of the tabs, then click through the clues one at a time.</p>
+    <div class="picker" id="picker"></div>
+    <div class="stage" id="stage"></div>
+  </section>
+
+  <section class="part"><div class="part-head"><div class="part-tag">02</div><h2>Match the evidence</h2></div>
+    <p class="lede">Click a case on the left, then the technology that exposed it on the right.</p>
+    <div class="match"><div class="mcol" id="mL"></div><div class="mcol" id="mR"></div></div>
+    <div class="score" id="mScore"></div>
+  </section>
+
+  <section class="part"><div class="part-head"><div class="part-tag">03</div><h2>The fair-warning part: this is about you too</h2></div>
+    <p class="lede">Law enforcement used these tools legally in these cases, and courts are still deciding where the limits are. In <i>Carpenter v. United States</i> (2018) the Supreme Court ruled that police generally need a warrant to get a long stretch of your phone's historical cell-tower location records. After the Golden State Killer case, the genealogy site GEDmatch changed its rules so users must opt in before police can search their DNA.</p>
+    <p class="lede">Now audit yourself. Check each one you honestly do not know the answer to.</p>
+    <div id="audit"></div>
+    <div class="callbox"><b>Discuss:</b> If a technology can identify a killer and also track every ordinary person, who should decide when it can be used? A judge? A law? You, by choosing what to switch on?</div>
+  </section>
+
+  <div class="footer">Sources: court filings and reporting from CBS News, NPR, the Associated Press, NBC News, The Intercept, VICE, the Orange County District Attorney, and the Probable Cause Affidavit in <i>State of Idaho v. Kohberger</i>. <a href="1-4-your-phones-invisible-footprint.html">Back to lesson 1.4</a></div>
+</div>
+
+<script>
+(function () {
+"use strict";
+var CASES = [
+ { id:"btk", name:"Dennis Rader (BTK)", year:"2005", chips:["File metadata","Floppy disk","Police can lie"],
+   story:"<p>Between 1974 and 1991 a man who called himself BTK killed ten people in and around Wichita, Kansas, and mailed taunting letters to police and the news. Then he went quiet for years. In 2004 he started writing again. In early 2005 he sent a message asking whether a floppy disk could be traced.</p><p>Police answered through a newspaper ad, \"Rex, it will be OK.\" That was a lie, and it was legal: police may deceive suspects (see lesson 1.3). He sent a disk anyway.</p>",
+   tech:"<p>Every file you create stores <b>metadata</b>: data about the file. A Word document can record who the user account is, which organization the software is registered to, and when and where it was last saved. You never type it. The computer writes it for you.</p><p>A floppy disk holds the file, so the file's hidden data travels with it.</p>",
+   steps:[
+    ["The question","Rader asked in a message whether a floppy disk could be traced. Police replied with an ad saying it would be safe.","<span class=k>message:</span> \"Can I communicate with Floppy and not be traced?\""],
+    ["The disk arrives","In mid-February 2005 a package reached the TV station and police: a purple floppy disk with a file on it.","<span class=k>disk:</span> purple 3.5-inch floppy · 1 file"],
+    ["Open the file properties","Investigators looked at the file's hidden properties. It had last been saved by a user named <b>Dennis</b>, on software registered to <b>Christ Lutheran Church</b> in Park City, Kansas.","<span class=k>Last saved by:</span> <span class=hl>Dennis</span><br><span class=k>Organization:</span> <span class=hl>Christ Lutheran Church</span>"],
+    ["Search the church","A search of the church's website showed that the president of its church council was Dennis Rader.","<span class=k>church council president:</span> <span class=hl>Dennis Rader</span>"],
+    ["DNA closes the case","Police already had crime-scene DNA. News reports say they then obtained DNA tied to a family member's medical records that fit a family match, and his own DNA matched too. (Reports differ on the details of this step.)","<span class=k>DNA:</span> consistent with family match → confirmed"],
+    ["Arrest","Rader was arrested on February 25, 2005, days after the disk arrived. He pleaded guilty in June 2005 and received ten consecutive life sentences.","<span class=k>status:</span> arrested 2005-02-25"]],
+   didnt:"He asked if the disk could be traced and trusted the answer. He did not think about the hidden properties inside the file. The data was not something he typed.",
+   lesson:"Files carry metadata you never see. Anything you send can say where and by whom it was made. Also: police are allowed to lie to you, so never treat an official's reassurance as a guarantee." },
+ { id:"kohberger", name:"Bryan Kohberger", year:"2022", chips:["Cell-tower data","The gap is evidence","DNA","Vehicle video"],
+   story:"<p>On November 13, 2022, four University of Idaho students were killed at an off-campus house in Moscow, Idaho: Kaylee Goncalves, Madison Mogen, Xana Kernodle, and Ethan Chapin. For weeks there was no suspect.</p><p>Investigators collected video from homes and businesses, studied a white Hyundai Elantra seen near the house, and found DNA on a knife sheath left at the scene. On December 30, 2022, Bryan Kohberger, a graduate student at nearby Washington State University, was arrested in Pennsylvania. He pleaded guilty in July 2025 and was sentenced to four consecutive life terms without parole.</p>",
+   tech:"<p>Your phone keeps checking in with cell towers, and the carrier keeps a log. Investigators can ask a court for the records for a place and time. <b>An absence is also data</b>: a phone that was connecting all day and then stops connecting leaves a hole in the log.</p>",
+   steps:[
+    ["Before: a pattern","According to the court's probable cause affidavit, records showed a phone registered to Kohberger near the victims' home at least a dozen times in the months before.","<span class=k>tower log (earlier nights):</span> <span class=hl>near the home, many times</span>"],
+    ["The night of the crime","Investigators got records for the area for the early-morning hours. His phone did <b>not</b> use cell towers in that area during roughly 3 a.m. to 5 a.m. Investigators suggested it had been turned off or put in airplane mode.","<span class=k>tower log (≈3–5 a.m.):</span> <span class=hl>no connection</span> (phone likely off)"],
+    ["After: it comes back","The phone reappeared on the network around 4:48 a.m. at a tower south of Moscow, then moved back toward Pullman, where he lived. The route and timing fit the other evidence.","<span class=k>tower log (≈4:48 a.m.):</span> <span class=hl>reconnects south of Moscow</span>"],
+    ["The car","Video showed a white Elantra near the house. A campus registration tied a white Elantra to Kohberger.","<span class=k>vehicle:</span> white Hyundai Elantra → registered to suspect"],
+    ["DNA","DNA on the button snap of a knife sheath left at the scene was compared with DNA from trash at his parents' home in Pennsylvania. The affidavit said it was a match. (Later reports say investigators first used genetic genealogy; those reports came from unnamed sources, not the affidavit.)","<span class=k>DNA:</span> sheath ↔ trash sample"],
+    ["Arrest","He was arrested December 30, 2022. The phone data did not prove everything on its own. It fit together with the car, the DNA, and the earlier visits.","<span class=k>status:</span> arrested 2022-12-30"]],
+   didnt:"Turning a phone off feels like disappearing. It is not. The carrier still logged every connection before and after, and the gap lined up with the crime. His earlier visits to the area were already in the records.",
+   lesson:"\"Off\" is not invisible. A missing signal is evidence, and so is the pattern around it. Digital evidence is strongest when it fits together with other evidence, which is also why it must be gathered with a proper warrant." },
+ { id:"gsk", name:"Golden State Killer", year:"2018", chips:["Genetic genealogy","Relatives' DNA","GEDmatch"],
+   story:"<p>For decades a man committed dozens of rapes and at least a dozen murders across California in the 1970s and 1980s. Detectives had his DNA from crime scenes but no match: the DNA databases police use hold DNA from people who were arrested, and he never had been.</p><p>In April 2018 police announced the arrest of Joseph DeAngelo, a former police officer. He pleaded guilty in 2020 and was sentenced to life without parole.</p>",
+   tech:"<p><b>Genetic genealogy</b> compares a DNA profile to the DNA that ordinary people upload to hobby genealogy sites. You do not need to match the criminal. You only need a <i>cousin</i> who uploaded.</p>",
+   steps:[
+    ["Dead end","Crime-scene DNA matched nobody in the criminal databases.","<span class=k>police database:</span> no match"],
+    ["Upload to a genealogy site","In early 2018 detectives uploaded the crime-scene profile to GEDmatch, a public site where hobbyists upload their own DNA results.","<span class=k>GEDmatch:</span> profile uploaded"],
+    ["Distant cousins appear","The site listed distant relatives, people who had never heard of the case and had uploaded their DNA for a family tree.","<span class=k>matches:</span> <span class=hl>distant cousins</span>"],
+    ["Build the family tree","Genealogists built family trees from the cousins and narrowed hundreds of people to a few candidates.","<span class=k>candidates:</span> hundreds → a few"],
+    ["Confirm","Detectives confirmed the match using DNA he left behind on items he had discarded.","<span class=k>DNA:</span> discarded items ↔ crime scene"],
+    ["Arrest","April 24, 2018: arrest. It became the best-known use of genetic genealogy to solve a violent crime.","<span class=k>status:</span> arrested 2018-04-24"]],
+   didnt:"He had never uploaded anything. Strangers who share a small amount of his DNA did, and that was enough.",
+   lesson:"Some of your data is not just yours. DNA, your contacts, and group photos are shared with relatives and friends. Your privacy depends on their choices too." },
+ { id:"ulbricht", name:"Ross Ulbricht (Silk Road)", year:"2013", chips:["Old forum posts","Username reuse","Email address"],
+   story:"<p>Silk Road was an online black market on the Tor network, run by someone called \"Dread Pirate Roberts.\" Anonymity was the whole point.</p>",
+   tech:"<p>Nothing you post online is only in the moment. An old account, an old username, or an old email address can be searched years later and connected to a newer, more careful identity.</p>",
+   steps:[
+    ["Look for the beginning","Investigators searched for the earliest mentions of Silk Road. In early 2011, a user named \"altoid\" posted on forums to promote it.","<span class=k>forum user:</span> <span class=hl>altoid</span>"],
+    ["The same name asks for help","Later, \"altoid\" posted on a Bitcoin forum asking for an IT professional to help, and gave an email address that contained Ross Ulbricht's full name.","<span class=k>contact:</span> <span class=hl>(email address with his real name)</span>"],
+    ["Connect the dots","Investigators linked the careful anonymous operator to an early, careless post.","<span class=k>link:</span> early post → real name"],
+    ["Arrest","On October 1, 2013, agents arrested him in a San Francisco public library while he was logged in to the site's admin controls on his laptop.","<span class=k>status:</span> arrested 2013-10-01"],
+    ["Outcome","He was convicted and sentenced to life in prison. He was pardoned in January 2025.","<span class=k>outcome:</span> convicted 2015 · pardoned 2025"]],
+   didnt:"He took great care to stay anonymous later. He did not think of an early, casual post from before the site existed.",
+   lesson:"Your first accounts, usernames, and posts can outlast the identity you built later. Search yourself the way an investigator would." },
+ { id:"mcafee", name:"John McAfee", year:"2012", chips:["Photo metadata (EXIF)","GPS coordinates"],
+   story:"<p>In late 2012 John McAfee, the founder of the antivirus company, was wanted for questioning by police in Belize about the death of a neighbor, and went into hiding. Reporters from VICE met him and published a story with a photo of McAfee with a VICE editor.</p>",
+   tech:"<p>Phone cameras save <b>EXIF metadata</b> inside each photo: the camera model, the time, and, if location is on, the GPS coordinates. Posting the original file posts the metadata.</p>",
+   steps:[
+    ["The photo is posted","On December 3, 2012, VICE published the photo on its website.","<span class=k>file:</span> mcafee-photo.jpg"],
+    ["Someone checks the properties","Readers and reporters checked the file's metadata. It contained GPS coordinates that pointed to Guatemala, not Belize.","<span class=k>EXIF GPS:</span> <span class=hl>coordinates in Guatemala</span>"],
+    ["The denial","McAfee first claimed the data had been faked, then admitted he was in Guatemala. (Whether the data had been altered was never established.)","<span class=k>claim:</span> \"the metadata was manipulated\""],
+    ["Arrest","Guatemalan police arrested him on December 5, 2012, for entering the country illegally.","<span class=k>status:</span> detained 2012-12-05"]],
+   didnt:"Nobody thinks of a photo as a map. The camera quietly attached the location when the shot was taken.",
+   lesson:"Photos can carry your location. Turn off location tagging for the camera, and check what a platform strips out before you post the original." },
+ { id:"winner", name:"Reality Winner", year:"2017", chips:["Printer tracking dots","Access logs"],
+   story:"<p>In 2017 a news site, The Intercept, published a classified government document about foreign interference in elections. A government contractor, Reality Winner, was identified and arrested within days.</p><p>This case is about how she was found, not about whether leaking was right or wrong. People disagree about that, and it is a fair topic for debate.</p>",
+   tech:"<p>Many color laser printers print nearly invisible yellow dots on every page. The dot pattern encodes the printer's serial number and the date and time of printing.</p>",
+   steps:[
+    ["The document is published","The Intercept posted a scan of the printed document. The scan kept the faint dots.","<span class=k>file:</span> scan of a printed page"],
+    ["Decode the dots","Security researchers decoded the dots: a printer serial number and a print date and time in May 2017.","<span class=k>dots:</span> <span class=hl>printer ID + May 9, 2017 6:20 a.m.</span>"],
+    ["Who printed it?","Investigators checked who had printed that document. Six people had. Only one had been in email contact with the news site.","<span class=k>printed by:</span> 6 people → 1 had emailed the reporters"],
+    ["Arrest and outcome","Arrested in June 2017. She pleaded guilty and was sentenced to 63 months in prison.","<span class=k>outcome:</span> 63 months"]],
+   didnt:"A sheet of paper does not feel like data. Many people have never heard of printer tracking dots. (Reports say the dots helped narrow the search, and printing records and emails did the rest.)",
+   lesson:"Even paper can carry a hidden fingerprint of the machine that made it. Remember that nothing is anonymous just because it looks plain." },
+ { id:"dabate", name:"Richard Dabate (the Fitbit case)", year:"2015–2022", chips:["Wearable data","Step counter","Alibi check"],
+   story:"<p>In December 2015 Connie Dabate was killed at her home in Ellington, Connecticut. Her husband, Richard, told police a masked intruder had attacked them and shot his wife in the morning.</p>",
+   tech:"<p>A fitness tracker records movement all day. It does not know a story is being told.</p>",
+   steps:[
+    ["His account","Richard gave police a timeline of events and the time his wife was shot.","<span class=k>story:</span> intruder, shooting early in the morning"],
+    ["Her Fitbit","Connie's Fitbit had recorded her movements. According to state police, it showed her moving around for about an hour after the time he said she was shot.","<span class=k>Fitbit:</span> <span class=hl>motion continues after the \"time of death\"</span>"],
+    ["The conflict","The data contradicted his timeline. Investigators also compared other devices and records.","<span class=k>result:</span> story and data disagree"],
+    ["The trial","A jury convicted him in May 2022 and he was sentenced to 65 years. His lawyer argued the device was not built to be that accurate for court, and he said he would appeal.","<span class=k>outcome:</span> 65 years · appeal planned"]],
+   didnt:"He was not thinking about his wife's wrist. A wearable is a witness that nobody told to stay quiet.",
+   lesson:"Other people's devices record you too. Also: data can be wrong. A good investigation uses a tracker as one clue, not the whole case." },
+ { id:"bradford", name:"Rodney Bradford", year:"2009", chips:["Server records","IP address","Proof of innocence"],
+   story:"<p>In October 2009, 19-year-old Rodney Bradford was arrested for an armed robbery in Brooklyn. He said he was at his father's apartment in Harlem, miles away, at the time.</p>",
+   tech:"<p>Websites keep logs: which account did what, at what time, from which internet address.</p>",
+   steps:[
+    ["The claim","He said he was in Harlem, at his father's apartment, and had posted on Facebook from there at about the time of the robbery.","<span class=k>claim:</span> \"I was posting from Harlem\""],
+    ["Check the records","Prosecutors subpoenaed Facebook's records. They showed that the post was typed from a computer at the Harlem apartment.","<span class=k>server log:</span> <span class=hl>post from the Harlem address</span>"],
+    ["Charges dropped","Prosecutors dropped the charges.","<span class=k>status:</span> charges dropped"]],
+   didnt:"This one is the other direction. A casual status update, written without thinking, turned out to be a record that proved he could not have been there.",
+   lesson:"A digital trail protects the innocent as well as catching the guilty. It also shows where a computer was, not who typed. Courts weigh it with other evidence." }
+];
+var MATCH = [["BTK (Rader)","Hidden file properties on a floppy disk"],["Kohberger","Cell-tower records: a gap and a pattern"],["Golden State Killer","A cousin's DNA on a genealogy site"],["Ross Ulbricht","An old forum post with an email address"],["John McAfee","GPS coordinates inside a photo"],["Reality Winner","Tracking dots printed on a page"],["Richard Dabate","A step counter on a wrist"],["Rodney Bradford","A Facebook server record"]];
+var AUDIT = ["Does my phone add my location to every photo I take?","Which of my old accounts and usernames are still public?","Who else has my DNA, my contacts, or group photos of me, and what do they do with them?","Does my school or home printer add hidden dots?","Which of my devices (watch, earbuds, car, laptop) keep a log of where I was and when?"];
+var $ = function (id) { return document.getElementById(id); }, cur = null, seen = {}, step = 0;
+function esc(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+function drawPicker() { $("picker").innerHTML = CASES.map(function (c, i) { return '<button class="pick' + (cur === i ? " on" : "") + (seen[c.id] ? " seen" : "") + '" data-i="' + i + '"><b>' + esc(c.name) + '</b><span>' + c.year + '</span><i>' + c.chips[0] + '</i></button>'; }).join(""); [].forEach.call($("picker").children, function (b) { b.onclick = function () { open(+b.getAttribute("data-i")); }; }); }
+function open(i) { cur = i; step = 0; draw(); drawPicker(); $("stage").scrollIntoView({ behavior: "smooth", block: "nearest" }); }
+function draw() {
+  var c = CASES[cur];
+  $("stage").innerHTML = '<h3>' + c.name + '</h3><div class="chips">' + c.chips.map(function (x) { return '<span class="chip">' + x + '</span>'; }).join("") + '</div><div class="tabs" id="tabs"></div>' +
+    '<div class="panel on" id="p0"><div class="story">' + c.story + '</div></div>' +
+    '<div class="panel" id="p1"><div class="story">' + c.tech + '</div></div>' +
+    '<div class="panel" id="p2"><div class="stepper"><div class="dots" id="dots"></div><h4 id="sh"></h4><div class="d" id="sd"></div><div class="visual" id="sv"></div><div class="btnrow"><button class="btn ghost" id="prev">← Back</button><button class="btn" id="next">Next clue →</button></div></div></div>' +
+    '<div class="panel" id="p3"><div class="callbox"><b>What they did not know or did not think about:</b><br>' + c.didnt + '</div><div class="callbox"><b>The lesson for you:</b><br>' + c.lesson + '</div></div>';
+  var names = ["1 · The case", "2 · The technology", "3 · Follow the clues", "4 · What they missed"];
+  $("tabs").innerHTML = names.map(function (n, k) { return '<button class="tab' + (k === 0 ? " on" : "") + '" data-k="' + k + '">' + n + '</button>'; }).join("");
+  [].forEach.call($("tabs").children, function (b) { b.onclick = function () { var k = +b.getAttribute("data-k"); [].forEach.call($("tabs").children, function (x, j) { x.classList.toggle("on", j === k); }); for (var j = 0; j < 4; j++) $("p" + j).classList.toggle("on", j === k); if (k === 3) { seen[c.id] = 1; drawPicker(); } }; });
+  $("prev").onclick = function () { if (step > 0) { step--; drawStep(); } }; $("next").onclick = function () { if (step < c.steps.length - 1) { step++; drawStep(); } };
+  drawStep();
+}
+function drawStep() { var c = CASES[cur], s = c.steps[step]; $("sh").textContent = (step + 1) + ". " + s[0]; $("sd").innerHTML = s[1]; $("sv").innerHTML = s[2]; $("dots").innerHTML = c.steps.map(function (x, i) { return '<div class="dot' + (i <= step ? " on" : "") + '"></div>'; }).join(""); $("prev").disabled = step === 0; $("next").disabled = step === c.steps.length - 1; $("next").textContent = step === c.steps.length - 2 ? "Last clue →" : "Next clue →"; }
+// match game
+var pickL = null, matched = 0, wrong = 0, rightOrder = MATCH.map(function (m) { return m[1]; });
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function drawMatch() { $("mL").innerHTML = MATCH.map(function (m, i) { return '<button data-c="' + esc(m[0]) + '">' + esc(m[0]) + '</button>'; }).join(""); $("mR").innerHTML = shuffle(MATCH.map(function (m) { return m[1]; })).map(function (t) { return '<button data-t="' + esc(t) + '">' + esc(t) + '</button>'; }).join("");
+  [].forEach.call($("mL").children, function (b) { b.onclick = function () { if (b.classList.contains("done")) return; [].forEach.call($("mL").children, function (x) { x.classList.remove("sel"); }); b.classList.add("sel"); pickL = b; }; });
+  [].forEach.call($("mR").children, function (b) { b.onclick = function () { if (!pickL || b.classList.contains("done")) return; var name = pickL.getAttribute("data-c"), ok = MATCH.some(function (m) { return m[0] === name && m[1] === b.getAttribute("data-t"); }); if (ok) { pickL.classList.remove("sel"); pickL.classList.add("done"); b.classList.add("done"); matched++; pickL = null; } else { wrong++; b.classList.add("no"); setTimeout(function () { b.classList.remove("no"); }, 600); } $("mScore").textContent = matched + " of " + MATCH.length + " matched" + (wrong ? " · " + wrong + " wrong tries" : "") + (matched === MATCH.length ? " — all eight! You can spot the data trail." : ""); }; }); }
+$("audit").innerHTML = AUDIT.map(function (a, i) { return '<label class="check"><input type="checkbox" data-i="' + i + '"><span>' + a + '</span></label>'; }).join("");
+[].forEach.call($("audit").querySelectorAll("input"), function (cb) { cb.onchange = function () { cb.parentNode.classList.toggle("done", cb.checked); }; });
+drawPicker(); drawMatch(); open(0);
+window.__CASES = CASES;
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Games | Intro to Software Technology</title>
+<link rel="icon" href="../../assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+:root{--bg:#E9EDF4;--card:#fff;--ink:#1E293B;--hi:#0F172A;--soft:#64748B;--rule:#D7DEEA;--acc:#4F46E5;--accl:#EEF0FF;--ok:#16A34A;--okl:#DCFCE7;--bad:#DC2626;--badl:#FEE2E2;--warn:#B45309;--warnl:#FEF3C7;--head:#0F172A;--mono:"JetBrains Mono",ui-monospace,monospace}
+*{box-sizing:border-box;font-variant-ligatures:none}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
+button{font:inherit;cursor:pointer}
+svg.i{width:1.15em;height:1.15em;vertical-align:-.2em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.top{background:var(--head);color:#F8FAFC;border-bottom:3px solid var(--acc);padding:10px clamp(12px,3vw,40px);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.top .brand{font-weight:800;font-size:18px}
+.badge{font:600 11px Inter;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:99px;border:1px solid #475569;color:#CBD5E1}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:99px;border:1px solid #475569;background:#1E293B;color:#F8FAFC;text-decoration:none;font-weight:600;font-size:13px}
+.pill:hover{border-color:var(--acc)}
+.sp{flex:1}
+.wrap{max-width:1500px;margin:0 auto;padding:18px clamp(12px,3vw,40px) 60px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.usw{display:inline-flex;gap:8px;margin-left:auto}
+.tab{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:12px;border:1px solid var(--rule);background:#fff;color:var(--hi);font-weight:600;font-size:13.5px;text-decoration:none}
+.tab.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.tab small{font-weight:500;color:var(--soft)}.tab.on small{color:#E0E7FF}
+.tab.done::after{content:"\2713";color:var(--ok);font-weight:800;margin-left:2px}.tab.on.done::after{color:#BBF7D0}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:16px;box-shadow:0 2px 8px rgba(15,23,42,.06);overflow:hidden;margin:0 0 16px}
+.ch{display:flex;align-items:center;gap:12px;padding:12px 16px;background:linear-gradient(90deg,#EEF0FF,#fff 75%);border-bottom:1px solid #E5EAF3}
+.ch h2{margin:0;font-size:16px;font-weight:800;color:var(--hi);flex:1}
+.num{flex:none;width:32px;height:32px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px}
+.pillst{font:700 11px Inter;padding:4px 11px;border-radius:99px;background:#E2E8F0;color:#475569}.pillst.ok{background:var(--okl);color:#166534}
+.cb{padding:14px 16px}
+.goal{background:var(--accl);border:1px solid #C7D2FE;border-radius:12px;padding:10px 14px;margin:0 0 12px;color:var(--hi);font-weight:600}
+.goal span,.lab{display:block;font:800 10px Inter;letter-spacing:.1em;color:var(--acc);margin-bottom:2px}
+.steps{border:1px solid #C7D2FE;border-radius:12px;padding:10px 14px 12px;margin:0 0 12px;background:#fff}
+.steps ol{margin:4px 0 6px;padding-left:22px}.steps li{margin:3px 0;line-height:1.5}
+.steps code{background:#EEF0FF;color:#1E1B4B;border-radius:5px;padding:1px 6px;font:12.5px var(--mono)}
+.what{margin:0 0 8px;padding:8px 12px;border-radius:10px;background:#F1F5F9;color:#334155;font-size:14px}.what code{background:#E0E7FF;color:#1E1B4B;border-radius:5px;padding:1px 6px;font:12.5px var(--mono)}
+.steps .stnote{font-size:13px;color:var(--soft)}
+.term{background:#0B1220;border-radius:12px;overflow:hidden;margin:0 0 14px}
+.term .bar{display:flex;align-items:center;gap:6px;padding:7px 12px;background:#1E293B}
+.term .bar i{width:10px;height:10px;border-radius:50%;background:#EF4444;display:inline-block}.term .bar i:nth-child(2){background:#F59E0B}.term .bar i:nth-child(3){background:#22C55E}
+.term .bar span{margin-left:8px;font:700 11px Inter;letter-spacing:.06em;text-transform:uppercase;color:#94A3B8}
+.term pre{margin:0;padding:10px 14px 12px;color:#86EFAC;font:12.5px/1.6 var(--mono);white-space:pre-wrap}
+.term pre u{text-decoration:none;color:#7DD3FC;display:block}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+@media (max-width:760px){.cols{grid-template-columns:1fr}}
+.col h3{margin:0 0 6px;font:800 11px Inter;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);display:flex;align-items:center;gap:6px}
+.list{min-height:120px;border:2px dashed #CBD5E1;border-radius:14px;padding:8px;background:#F8FAFC;counter-reset:ln}
+.list.prog{background:#0B1220;border:2px solid #1E293B}
+.list .hint{color:#64748B;font-size:13px;padding:8px}
+.piece{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #CBD5E1;border-radius:10px;padding:9px 11px;margin:0 0 7px;font:13.5px var(--mono);color:#0F172A;cursor:grab;touch-action:manipulation;user-select:none;-webkit-user-select:none;word-break:break-word}
+.piece:active{cursor:grabbing}
+.piece span{white-space:pre-wrap;min-width:0;overflow-wrap:anywhere}
+.piece .g{color:#94A3B8;flex:none}
+body.touch .piece svg.g{width:30px;height:30px;padding:6px;margin:-6px 0 -6px -8px;touch-action:none;color:#475569}
+.prog .piece{background:#1E293B;border-color:#334155;color:#E2E8F0;counter-increment:ln}
+.prog .piece::before{content:counter(ln);flex:none;width:18px;text-align:right;color:#64748B;font-size:12px}
+.prog .piece .g{color:#64748B}
+.piece.ok{background:#064E3B!important;border-color:#34D399!important}
+.piece.no{background:#7F1D1D!important;border-color:#F87171!important}
+.piece.ghost{opacity:.4}
+.sortable-fallback{opacity:.92!important;box-shadow:0 8px 24px rgba(15,23,42,.35);border-radius:10px;z-index:9999}
+.msg{margin:12px 0 0;padding:10px 14px;border-radius:12px;font-weight:600;font-size:14px;display:none}
+.msg.show{display:block}.msg.ok{background:var(--okl);color:#166534}.msg.bad{background:var(--badl);color:#991B1B}.msg.info{background:var(--warnl);color:#92400E}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:99px;border:1px solid #CBD5E1;background:#fff;color:var(--hi);font-weight:700;font-size:14px}
+.btn:hover{border-color:var(--acc);color:var(--acc)}
+.btn.go{background:var(--acc);border-color:var(--acc);color:#fff;box-shadow:0 3px 10px rgba(79,70,229,.35)}
+.btn.go:hover{filter:brightness(1.1);color:#fff}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.meter{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--hi);margin:0 0 14px;flex-wrap:wrap}
+.meter .bar{flex:1;min-width:140px;height:10px;border-radius:99px;background:#CBD5E1;overflow:hidden}
+.meter .bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .3s}
+/* tracing */
+.tr{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px}
+@media (max-width:860px){.tr{grid-template-columns:1fr}}
+.code{background:#0B1220;border-radius:12px;padding:8px 0;font:13.5px/1.9 var(--mono);color:#E2E8F0;overflow-x:auto}
+.code div{display:flex;gap:12px;padding:0 14px;white-space:pre}
+.code div b{color:#64748B;font-weight:500;width:18px;text-align:right;flex:none}
+.code div.cur{background:#3730A3}.code div.cur b{color:#C7D2FE}
+.code div.past{opacity:.55}
+table.vt{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--rule);border-radius:12px;overflow:hidden;font-size:14px}
+table.vt th{background:#EEF0FF;color:var(--hi);font:800 10.5px Inter;letter-spacing:.07em;text-align:left;padding:8px 12px;border-bottom:1px solid var(--rule);text-transform:uppercase}
+table.vt td{padding:7px 12px;border-bottom:1px solid #EDF1F7;font-family:var(--mono)}
+table.vt tr:last-child td{border-bottom:0}
+table.vt td.old{color:#64748B}
+input.ans{width:100%;max-width:200px;padding:7px 10px;border:2px solid #CBD5E1;border-radius:10px;font:14px var(--mono);color:#0F172A;background:#fff}
+input.ans:focus{outline:none;border-color:var(--acc)}
+input.ans.ok{border-color:var(--ok);background:var(--okl)}input.ans.no{border-color:var(--bad);background:var(--badl)}
+.say{margin:0 0 10px;color:#334155}
+.note{font-size:13px;color:var(--soft);margin-top:10px}
+.conf{font-size:44px;text-align:center}
+.hubs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.hubc{background:#fff;border:1px solid var(--rule);border-radius:16px;box-shadow:0 2px 8px rgba(15,23,42,.06);padding:14px 16px}
+.hubc h3{margin:0 0 2px;font-size:15px;color:var(--hi);display:flex;gap:8px;align-items:baseline}
+.hubc h3 b{color:var(--acc);font-family:var(--mono)}
+.hubc .sc{font-size:12.5px;color:var(--soft);margin:0 0 10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-grid;place-items:center;min-width:38px;height:36px;padding:0 8px;border-radius:10px;border:1px solid #CBD5E1;background:#F8FAFC;color:var(--hi);font-weight:700;font-size:14px;text-decoration:none}
+.chip:hover{border-color:var(--acc);color:var(--acc)}
+.chip.done{background:var(--okl);border-color:#86EFAC;color:#166534}
+.hubtop{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px}
+.hubtop h1{margin:0;font-size:22px;color:var(--hi);flex:1;display:flex;gap:10px;align-items:center}
+.hubtop p{margin:0;color:var(--soft);flex-basis:100%}
+.pnote{margin:0 0 14px;padding:9px 14px;border-radius:12px;background:#FEF3C7;border:1px solid #FDE68A;color:#92400E;font-size:14px}
+iframe.pv{display:block;width:100%;height:230px;border:0;background:#fff}
+.piece span.tg{white-space:pre-wrap}
+.pageso{margin:10px 0 0;padding:8px 12px;border-radius:10px;background:#F1F5F9;color:#334155;font-size:13.5px}.pageso b{display:block;font:800 10px Inter;letter-spacing:.1em;color:var(--acc);margin-bottom:3px}
+.crumb{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:0 0 12px;font-weight:600;font-size:14px}
+.crumb a{color:var(--acc);text-decoration:none}
+
+.hearts{font-size:22px;letter-spacing:2px;color:#DC2626}.hearts .lost{filter:grayscale(1);opacity:.35}
+.stem{font-weight:700;color:var(--hi);font-size:16.5px;margin:0 0 10px}
+.stem code,.opt code,.why code{background:#EEF0FF;color:#1E1B4B;border-radius:5px;padding:1px 6px;font:13px var(--mono)}
+.opts{display:grid;gap:8px;margin:12px 0}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;padding:11px 14px;border:2px solid #CBD5E1;border-radius:12px;background:#fff;color:var(--hi);font-size:14.5px;line-height:1.45}
+.opt:hover{border-color:var(--acc)}
+.opt .l{flex:none;width:24px;height:24px;border-radius:50%;background:#E2E8F0;display:grid;place-items:center;font:700 12px Inter}
+.opt.ok{background:var(--okl);border-color:var(--ok)}.opt.ok .l{background:var(--ok);color:#fff}
+.opt.no{background:var(--badl);border-color:var(--bad)}.opt.no .l{background:var(--bad);color:#fff}
+.opt[disabled]{cursor:default}
+.why{display:none;margin:10px 0 0;padding:10px 14px;border-radius:12px;background:#F1F5F9;color:#334155}
+.why.show{display:block}
+.shows{display:none;margin:10px 0 0}.shows.show{display:block}
+.shows .lab{margin-bottom:4px}
+.shows iframe{width:100%;height:170px;border:1px solid var(--rule);border-radius:10px;background:#fff}
+.big{font-size:52px;font-weight:800;color:var(--hi);text-align:center;margin:6px 0}
+.lc{cursor:pointer}
+</style>
+</head>
+<body>
+<div class="top">
+  <span class="brand">Intro to Software Technology</span><span class="badge" id="badge">Quiz games</span><span class="sp"></span>
+  <a class="pill" id="backU" href="index.html">Back to Unit 1</a>
+</div>
+<div class="wrap">
+  <div class="tabs" id="tabs"></div>
+  <div class="pnote" style="margin:0 0 14px;padding:8px 12px;border-radius:12px;background:var(--warnl);color:#92400E;font-size:13.5px"><b>Practice game.</b> Games do not change your grade. They are for fun and for practice. Your grade comes from your assignments and the unit test.</div>
+  <div id="main"></div>
+</div>
+<script>
+"use strict";
+var $ = function (id) { return document.getElementById(id); };
+var LESSONS = [[1, "1.1", "The CIA Triad"], [2, "1.2", "OSINT"], [3, "1.3", "Police and the 4th Amendment"], [4, "1.4", "Your Phone's Invisible Footprint"], [5, "1.4+", "Caught by Their Own Data"], [6, "1.5", "Password Security"], [7, "1.6", "Online Tracking"], [8, "1.7", "Copyright and Ethics"], [9, "1.8", "Hacking Ethics"], [10, "1.9", "Common Security Problems"]];
+var ROUNDS = 10, STRIKES = 3, Q = new URLSearchParams(location.search), L = Number(Q.get("l")) || 0;
+function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function ls(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function topTabs() { $("tabs").innerHTML = ""; }
+function hub() {
+  $("badge").textContent = "Quiz games · Unit 1"; document.title = "Quiz Games | Intro to Software Technology";
+  function card(l) { var best = ls("ist1:game:" + l[0]) || 0;
+    return '<div class="hubc"><h3><b>' + l[1] + "</b>" + esc(l[2]) + '</h3><p class="sc">Best score: ' + (best ? best + " / 100" : "not played yet") + '</p><div class="chips"><a class="btn go" href="?l=' + l[0] + '">Play</a></div></div>'; }
+  $("main").innerHTML = '<div class="hubtop"><h1>Quiz games</h1><p>Ten questions. Three wrong answers end the game. Your score is the number of right answers times ten, so 90 means one mistake. Every game uses new questions, so play again and again.</p></div>' +
+    '<h2 style="margin:6px 0 10px;font-size:17px;color:var(--hi)">Unit 1: Digital Footprint</h2><div class="hubs">' + LESSONS.map(card).join("") + "</div>";
+}
+var BANK = [], round = 0, right = 0, wrong = 0, cur = null, picked = [];
+function load(l, cb) { var s = document.createElement("script"); s.src = "game-data/i" + l + ".js?v=20261128"; s.onload = function () { cb(window.IST1_GAME[l]); }; s.onerror = function () { $("main").innerHTML = '<div class="card"><div class="cb">The questions could not load. Check your connection and reload the page.</div></div>'; }; document.head.appendChild(s); }
+function draw(bank) {
+  var pool = bank.slice(), out = [], perTopic = {};
+  for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = pool[i]; pool[i] = pool[j]; pool[j] = t; }
+  pool.forEach(function (q) { if (out.length >= ROUNDS) return; if ((perTopic[q.t] || 0) >= 4) return; perTopic[q.t] = (perTopic[q.t] || 0) + 1; out.push(q); });
+  pool.forEach(function (q) { if (out.length < ROUNDS && out.indexOf(q) < 0) out.push(q); });
+  return out;
+}
+function play(l) {
+  var info = LESSONS.filter(function (x) { return x[0] === l; })[0]; if (!info) { hub(); return; }
+  $("badge").textContent = "Quiz game · " + info[1]; document.title = "Quiz game " + info[1] + " | Intro to Software Technology";
+  load(l, function (bank) { BANK = draw(bank); round = 0; right = 0; wrong = 0; show(info); });
+}
+function hearts() { var h = ""; for (var i = 0; i < STRIKES; i++) h += '<span class="' + (i < wrong ? "lost" : "") + '">&#10084;&#65039;</span>'; return h; }
+function show(info) {
+  if (round >= ROUNDS || wrong >= STRIKES) { finish(info); return; }
+  cur = BANK[round]; picked = [];
+  var rendered = "";
+  $("main").innerHTML = '<div class="crumb"><a href="game.html">&larr; All games</a></div><div class="meter">Lesson ' + info[1] + ": " + esc(info[2]) + '<div class="bar"><i style="width:' + (100 * round / ROUNDS) + '%"></i></div><span>Round ' + (round + 1) + " of " + ROUNDS + '</span><span class="hearts">' + hearts() + "</span></div>" +
+    '<div class="card"><div class="ch"><span class="num">' + (round + 1) + "</span><h2>" + esc(cur.t) + '</h2></div><div class="cb"><div class="stem">' + cur.s + "</div>" +
+    (cur.c ? '<div class="term"><div class="bar"><i></i><i></i><i></i><span>The code</span></div><pre style="color:#E2E8F0">' + esc(cur.c) + "</pre></div>" : "") +
+    '<div class="opts">' + cur.o.map(function (o, i) { return '<button type="button" class="opt" data-i="' + i + '"><span class="l">' + "ABCD"[i] + "</span><span>" + o + "</span></button>"; }).join("") + '</div>' +
+    '<div class="why" id="why"></div><div class="shows" id="shows"><span class="lab">WHAT THE BROWSER SHOWS FOR THE CODE ABOVE</span><iframe sandbox title="The page the code makes" id="fr"></iframe></div>' +
+    '<div class="btns"><button type="button" class="btn go" id="nx" style="display:none">Next question</button></div></div></div>';
+  [].forEach.call(document.querySelectorAll(".opt"), function (b) { b.onclick = function () { answer(Number(b.getAttribute("data-i")), info); }; });
+}
+function answer(i, info) {
+  var ok = i === cur.a; if (ok) right++; else wrong++;
+  [].forEach.call(document.querySelectorAll(".opt"), function (b, k) { b.disabled = true; if (k === cur.a) b.classList.add("ok"); else if (k === i) b.classList.add("no"); });
+  $("why").className = "why show"; $("why").innerHTML = (ok ? "<b>Correct.</b> " : "<b>Not quite.</b> The answer is " + "ABCD"[cur.a] + ". ") + cur.e;
+  if (cur.c) { var src = cur.c.replace(/https:\/\/example\.org\/[^"]*/g, "data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22200%22%3E%3Crect width=%22300%22 height=%22200%22 fill=%22%23888%22/%3E%3C/svg%3E"); $("fr").srcdoc = cur.p ? cur.p : src; $("shows").className = "shows show"; }
+  document.querySelector(".hearts").innerHTML = hearts();
+  var nx = $("nx"); nx.style.display = ""; nx.textContent = (wrong >= STRIKES || round + 1 >= ROUNDS) ? "See my score" : "Next question"; nx.onclick = function () { round++; show(info); };
+}
+function finish(info) {
+  var score = right * 10, best = ls("ist1:game:" + info[0]) || 0; if (score > best) { best = score; lsSet("ist1:game:" + info[0], best); }
+  var msg = score >= 90 ? "Excellent! You know this lesson." : score >= 70 ? "Good job. Play again to push your score up." : "Read the lesson notes again and play again.";
+  $("main").innerHTML = '<div class="card"><div class="cb" style="text-align:center;padding:30px 16px"><div class="conf">' + (wrong >= STRIKES ? "&#128154;" : "&#127881;") + '</div><h2 style="margin:6px 0 4px;color:#0F172A">' + (wrong >= STRIKES ? "Three wrong answers: game over" : "Game complete") + '</h2><div class="big">' + score + ' / 100</div><p>' + right + " right answers. Best score so far: " + best + ". " + msg + '</p><div class="btns" style="justify-content:center"><a class="btn go" href="?l=' + info[0] + '">Play again</a><a class="btn" href="game.html">All games</a></div></div></div>';
+}
+topTabs(); if (L) play(L); else hub();
+</script>
+</body>
+</html>

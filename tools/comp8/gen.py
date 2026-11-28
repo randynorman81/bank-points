@@ -4,6 +4,7 @@ CFG = {"8": dict(mod="bank", test="/Users/randynorman/bank-points/ist/unit-3/uni
        "10": dict(mod="bank10", test="/Users/randynorman/bank-points/ist/unit-13/unit-10-practice-test.html", n=8, unit="Unit 10", back="Unit 10: Networking", lessons="10.1 to 10.6"),
        "9": dict(mod="bank9", test="/Users/randynorman/bank-points/ist/unit-4/unit-9-practice-test.html", n=10, unit="Unit 9", back="Unit 9: Operating Systems and Software", lessons="9.1 to 9.4")}
 CFG["ec1"] = dict(mod="bank_ec1", test="/Users/randynorman/bank-points/ec/unit-1/unit-1-practice-test.html", n=8, unit="Unit 1", back="Unit 1: What Is an Embedded System?", lessons="1.1 to 1.6", gameout="/Users/randynorman/bank-points/ec/unit-1/game-data/", prefix="e", var="EC_GAME", crumb='<a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ec/index.html">Embedded Computing</a><span class="sep">/</span><a href="index.html">__BACK__</a><span class="sep">/</span>Practice Test', course="Embedded Computing")
+CFG["ist1"] = dict(mod="bank_ist1", test="/Users/randynorman/bank-points/ist/unit-1/unit-1-practice-test.html", n=6, unit="Unit 1", back="Unit 1: Digital Footprint", lessons="1.1 to 1.9", gameout="/Users/randynorman/bank-points/ist/unit-1/game-data/", prefix="i", var="IST1_GAME")
 C = CFG[sys.argv[1] if len(sys.argv) > 1 else "8"]
 OUT_GAME = C.get("gameout", "/Users/randynorman/bank-points/ist/unit-6/game-data/"); GPFX = C.get("prefix", "l"); GVAR = C.get("var", "IST_GAME")
 bank = importlib.import_module(C["mod"]); TESTN = C["n"]

@@ -4,8 +4,9 @@ const { launch } = require("/Users/randynorman/bank-points/tools/missions/testki
 import fs from "fs";
 let ROOT = "/Users/randynorman/bank-points/ist/";
 const U = process.argv[2] || "8";
-const CF = { "ec1": { from: 1, to: 6, test: "unit-1/unit-1-practice-test.html", hub: "Unit 1: What Is an Embedded System?", last: "1.6", n: 48 },  "8": { from: 28, to: 32, test: "unit-3/unit-8-practice-test.html", hub: "Unit 8: Computing Basics", last: "8.5", n: 40 }, "10": { from: 37, to: 42, test: "unit-13/unit-10-practice-test.html", hub: "Unit 10: Networking", last: "10.6", n: 48 }, "9": { from: 33, to: 36, test: "unit-4/unit-9-practice-test.html", hub: "Unit 9: Operating Systems and Software", last: "9.4", n: 40 } }[U];
+const CF = { "ist1": { from: 1, to: 10, test: "unit-1/unit-1-practice-test.html", hub: "Unit 1: Digital Footprint", last: "1.9", n: 60 },  "ec1": { from: 1, to: 6, test: "unit-1/unit-1-practice-test.html", hub: "Unit 1: What Is an Embedded System?", last: "1.6", n: 48 },  "8": { from: 28, to: 32, test: "unit-3/unit-8-practice-test.html", hub: "Unit 8: Computing Basics", last: "8.5", n: 40 }, "10": { from: 37, to: 42, test: "unit-13/unit-10-practice-test.html", hub: "Unit 10: Networking", last: "10.6", n: 48 }, "9": { from: 33, to: 36, test: "unit-4/unit-9-practice-test.html", hub: "Unit 9: Operating Systems and Software", last: "9.4", n: 40 } }[U];
 let GAMEURL = "unit-6/game.html", GAMEDATA = "unit-6/game-data/l", GVAR = "IST_GAME";
+if (U === "ist1") { GAMEURL = "unit-1/game.html"; GAMEDATA = "unit-1/game-data/i"; GVAR = "IST1_GAME"; }
 if (U === "ec1") { ROOT = "/Users/randynorman/bank-points/ec/"; GAMEURL = "unit-1/game.html"; GAMEDATA = "unit-1/game-data/e"; GVAR = "EC_GAME"; }
 let bad = 0; const fail = (...a) => { bad++; console.log("FAIL", ...a); };
 // 1. structure of every game bank
@@ -14,7 +15,7 @@ for (let l = CF.from; l <= CF.to; l++) {
   global.window = {};
   const src = fs.readFileSync(ROOT + GAMEDATA + l + ".js", "utf8"); new Function("window", src.split("window." + GVAR + " = window." + GVAR + " || {};").join("window." + GVAR + " = {};").split(GVAR + "[").join("window." + GVAR + "["))(global.window);
   const bank = global.window[GVAR][l];
-  if (!bank || bank.length < 20) fail("lesson", l, "too few questions", bank && bank.length);
+  if (!bank || bank.length < (U === "ist1" ? 16 : 20)) fail("lesson", l, "too few questions", bank && bank.length);
   const topics = {}; bank.forEach((q) => { topics[q.t] = (topics[q.t] || 0) + 1; });
   if (Object.keys(topics).length < 5) fail("lesson", l, "few topics", Object.keys(topics).length);
   bank.forEach((q, i) => { total++;
