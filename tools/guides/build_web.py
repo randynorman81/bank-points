@@ -8,8 +8,17 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 import gl, ist_lib
 from units import ist_extra
 gl.LANG = "html"
-import units.ist03 as U3, units.ist03p2 as U4, units.ist05 as U5, units.ist06 as U6
-CONF = {3: dict(unit=U3.UNIT, out="ist/unit-6/study-guide.html", folder="unit-6", other=("../unit-7/study-guide.html", "Unit 4: Advanced HTML study guide"), title="Unit 3 Study Guide", sub="Web Design: HTML",
+import units.ist03 as U3, units.ist03p2 as U4, units.ist05 as U5, units.ist06 as U6, units.ist01 as U1
+def _links1(cfg, idx, cid, nf, pdf):
+    g = {"1.1": 1, "1.2": 2, "1.3": 3, "1.4": 4, "1.5": 6, "1.6": 7, "1.7": 8, "1.8": 9, "1.9": 10}[cid]
+    nf = cfg["notes"][idx]
+    out = '<div class="links"><a href="%s.html">Read the notes</a><a href="../lab/lab.html?lab=%sw">Walkthrough</a><a href="../lab/lab.html?lab=%sa">Assignment</a><a href="game.html?l=%d">Quiz game</a>' % (nf, cid, cid, g)
+    if pdf: out += '<a href="../downloads/lessons/%s" target="_blank" rel="noopener">Printable PDF for this lesson</a>' % pdf
+    return out + "</div>"
+CONF = {1: dict(unit=U1.UNIT, out="ist/unit-1/study-guide.html", folder="unit-1", other=("../unit-2/index.html", "Unit 2: Karel"), title="Unit 1 Study Guide", sub="Digital Footprint and Cybersecurity",
+                 pdf="IST-Unit-01-Digital-Footprint-Study-Guide.pdf", notes=["1-1-notes", "1-2-osint-guide", "1-3-notes", "caught-by-their-data", "1-5-notes", "whos-watching-you", "copyright-case-file", "hacking-ethics-briefing", "the-front-door"],
+                 lab=["1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9"], game=list(range(1, 10)), home="index.html", linkfn=_links1),
+        3: dict(unit=U3.UNIT, out="ist/unit-6/study-guide.html", folder="unit-6", other=("../unit-7/study-guide.html", "Unit 4: Advanced HTML study guide"), title="Unit 3 Study Guide", sub="Web Design: HTML",
                  pdf="IST-Unit-03-Web-Design-HTML-Study-Guide.pdf", notes=["html-intro-notes", "style-attribute-notes", "text-size-align-notes", "editing-tags-notes", "google-fonts-notes", "borders-notes", "images-notes", "emojis-symbols-notes", "links-notes", "lists-notes"],
                  lab=["6.1", "6.2", "6.20", "6.3", "6.35", "6.4", "6.7", "6.75", "6.6", "6.5"], game=list(range(1, 11)), home="index.html"),
         4: dict(unit=U4.UNIT, out="ist/unit-7/study-guide.html", folder="unit-7", other=("../unit-6/study-guide.html", "Unit 3: Web Design study guide"), title="Unit 4 Study Guide", sub="Advanced HTML",
@@ -173,18 +182,20 @@ def build(n):
             return '<ul class="chk tick" data-l="%s">%s</ul>' % (cid, "".join('<li><label><input type="checkbox"> <span>%s</span></label></li>' % i for i in items))
         chap = re.sub(r'<ul class="chk">.*?</ul>', tick, chap, count=1, flags=re.S) if "CHECKLIST" in chap else chap
         # the paper exercises get a reveal for their answers
-        pap = ist_extra.parsons().get(ist_extra.PARSONS[cid]); ans = ""
+        pap = ist_extra.parsons().get(ist_extra.PARSONS.get(cid)) if ist_extra.PARSONS.get(cid) else None; ans = ""
         if pap:
             picks = [i for i in (1, 3, 5, 7, 8, 9) if i < len(pap["problems"])]
             ans = '<details class="ans"><summary>Show my answers to the paper exercises</summary>%s</details>' % "".join('<p><b>P%d.</b> %s</p><pre>%s</pre>' % (k, _html.escape(pap["problems"][i]["title"]), _html.escape("\n".join(pap["problems"][i]["sol"]))) for k, i in enumerate(picks, 1))
         chap = chap.replace("</div></div></div>", "</div></div>" + "", 0)
         li = cfg["lab"][idx]; nf = cfg["notes"][idx]; pdf = lesson_pdf(cid)
-        links = '<div class="links">'
-        links += '<a href="%s.html">Read the notes</a>' % nf
-        links += '<a href="../unit-6/editor.html?lesson=%sw">Walkthrough</a><a href="../unit-6/editor.html?lesson=%sa">Assignment</a>' % (li, li)
-        links += '<a href="../unit-6/game.html?l=%d">Quiz game</a><a href="../unit-6/%s?l=%s&amp;p=0">Parsons puzzles</a>' % (cfg["game"][idx], {3: "practice.html", 4: "practice-2.html", 5: "practice-3.html", 6: "practice-4.html"}[n], ist_extra.PARSONS[cid])
-        if pdf: links += '<a href="../downloads/lessons/%s" target="_blank" rel="noopener">Printable PDF for this lesson</a>' % pdf
-        links += "</div>"
+        if cfg.get("linkfn"): links = cfg["linkfn"](cfg, idx, cid, nf, pdf)
+        else:
+            links = '<div class="links">'
+            links += '<a href="%s.html">Read the notes</a>' % nf
+            links += '<a href="../unit-6/editor.html?lesson=%sw">Walkthrough</a><a href="../unit-6/editor.html?lesson=%sa">Assignment</a>' % (li, li)
+            links += '<a href="../unit-6/game.html?l=%d">Quiz game</a><a href="../unit-6/%s?l=%s&amp;p=0">Parsons puzzles</a>' % (cfg["game"][idx], {3: "practice.html", 4: "practice-2.html", 5: "practice-3.html", 6: "practice-4.html"}[n], ist_extra.PARSONS[cid])
+            if pdf: links += '<a href="../downloads/lessons/%s" target="_blank" rel="noopener">Printable PDF for this lesson</a>' % pdf
+            links += "</div>"
         head_end = chap.index('</p></div>', chap.index('class="chead"')) + 10                  # after the heading block
         qs = questions_json(ch); qjson[cid] = qs
         qblock = '<div class="sec t-watch" style="border-color:#99f6e4"><h3><span class="tag">CHECK YOURSELF</span>Practice questions</h3><p class="lede">Choose an answer, then click <b>Check my answer</b>. Your answers are saved on this device.</p><div id="q-%s"></div></div>' % cid.replace(".", "-")
@@ -205,6 +216,7 @@ def build(n):
            '<button class="backtop" type="button">Top</button><script>window.GUIDE_Q = %s;</script><script>%s</script></body></html>') % (
         cfg["title"], cfg["sub"], fonts, css, n, n, chips, cfg["home"], cfg["other"][0], cfg["other"][1], pdf_unit, cfg["title"], cfg["sub"], len(unit.chapters),
         sections, gl_html, pdf_unit, zipn, json.dumps(qjson, ensure_ascii=False).replace("</", "<\\/"), JS)
+    if n == 1: doc = doc.replace('Everything in the printed study guide, plus examples you can edit, traces you can step through, and questions that mark themselves.', 'Everything in the printed study guide, plus a checklist that remembers what you tick and questions that mark themselves.').replace('<span>Read a lesson</span><span>Edit the live examples</span><span>Step through the traces</span><span>Build it yourself</span><span>Check the questions</span>', '<span>Read a lesson</span><span>Study the tables</span><span>Follow the cases</span><span>Tick the checklist</span><span>Check the questions</span>')
     doc = ist_lib.finalize(doc)
     # the print zoom belongs to the PDF only
     doc = re.sub(r' style="zoom:[0-9.]+;width:[0-9.]+%;margin-left:auto;margin-right:auto"', "", doc)

@@ -6,15 +6,17 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 import ist_lib, gl, fitz
 spec = importlib.util.spec_from_file_location("guide_build", os.path.join(HERE, "build.py")); B = importlib.util.module_from_spec(spec); spec.loader.exec_module(B)   # NOT `import build` (tools/notes/build.py shadows it)
 DL = os.path.join(ROOT, "ist", "downloads"); os.makedirs(os.path.join(DL, "lessons"), exist_ok=True); os.makedirs(os.path.join(DL, "units"), exist_ok=True)
-PARTS = [("units.ist03", "IST-Unit-03-Web-Design-HTML-Study-Guide.pdf", "IST-Unit-03-Web-Design-HTML-Study-Guide.pdf", "Unit 3: Web Design (HTML)", "IST-Unit-3-Study-Guides.zip"),
+PARTS = [("units.ist01", "IST-Unit-01-Digital-Footprint-Study-Guide.pdf", "IST-Unit-01-Digital-Footprint-Study-Guide.pdf", "Unit 1: Digital Footprint", "IST-Unit-1-Study-Guides.zip"),
+         ("units.ist03", "IST-Unit-03-Web-Design-HTML-Study-Guide.pdf", "IST-Unit-03-Web-Design-HTML-Study-Guide.pdf", "Unit 3: Web Design (HTML)", "IST-Unit-3-Study-Guides.zip"),
          ("units.ist03p2", "IST-Unit-04-Advanced-HTML-Study-Guide.pdf", "IST-Unit-04-Advanced-HTML-Study-Guide.pdf", "Unit 4: Advanced HTML", "IST-Unit-4-Study-Guides.zip"),
          ("units.ist05", "IST-Unit-05-Intro-to-CSS-Study-Guide.pdf", "IST-Unit-05-Intro-to-CSS-Study-Guide.pdf", "Unit 5: Intro to CSS", "IST-Unit-5-Study-Guides.zip"),
          ("units.ist06", "IST-Unit-06-Bootstrap-Study-Guide.pdf", "IST-Unit-06-Bootstrap-Study-Guide.pdf", "Unit 6: Bootstrap", "IST-Unit-6-Study-Guides.zip")]
+if os.environ.get("IST_UNITS"): PARTS = [p for p in PARTS if p[0] in os.environ["IST_UNITS"].split(",")]
 FIXED = {}   # Randy's own corrected lesson PDFs are used as they are
 made = []
 for modname, unit_name, src_name, label, zip_name in PARTS:
     shutil.copy(os.path.join(B.OUT, src_name), os.path.join(DL, "units", unit_name))
-    mod = importlib.import_module(modname); unit = mod.UNIT; gl.LANG = "html"
+    mod = importlib.import_module(modname); unit = mod.UNIT; gl.LANG = "html"; ist_lib.SPLIT_TABLES = (modname == "units.ist01")
     for ch in unit.chapters:
         cid = ch["id"]
         html, titles, extras = gl.build_html(unit, only=cid); html = ist_lib.finalize(html)
@@ -37,7 +39,8 @@ for modname, unit_name, src_name, label, zip_name in PARTS:
         if cid in FIXED: d.close(); shutil.copy(FIXED[cid], final); n = len(fitz.open(final)); made.append((cid, name, n)); print("Lesson %s: %d pages (Randys fixed file) -> %s" % (cid, n, name)); continue
         d.save(final, garbage=4, deflate=True, deflate_images=True, deflate_fonts=True, use_objstms=1, clean=True); n = len(fitz.open(final)); d.close()
         made.append((cid, name, n)); print("Lesson %s: %d pages -> %s" % (cid, n, name))
-for zip_name, prefix in (("IST-Unit-3-Study-Guides.zip", "IST-Unit-03-"), ("IST-Unit-4-Study-Guides.zip", "IST-Unit-04-"), ("IST-Unit-5-Study-Guides.zip", "IST-Unit-05-"), ("IST-Unit-6-Study-Guides.zip", "IST-Unit-06-")):
+for zip_name, prefix in (("IST-Unit-1-Study-Guides.zip", "IST-Unit-01-"), ("IST-Unit-3-Study-Guides.zip", "IST-Unit-03-"), ("IST-Unit-4-Study-Guides.zip", "IST-Unit-04-"), ("IST-Unit-5-Study-Guides.zip", "IST-Unit-05-"), ("IST-Unit-6-Study-Guides.zip", "IST-Unit-06-")):
+    if os.environ.get("IST_UNITS") and not any(zip_name.startswith("IST-Unit-%s-" % m[-1]) for m in os.environ["IST_UNITS"].split(",")): continue
     lp = "IST-Lesson-%s-" % prefix[9:11]
     zp = os.path.join(DL, zip_name)
     with zipfile.ZipFile(zp, "w", zipfile.ZIP_DEFLATED) as z:

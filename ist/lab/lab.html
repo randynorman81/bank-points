@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Walkthrough and Assignment | Intro to Software Technology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root{--bg:#0B0E14;--panel:#10141C;--card:#151A24;--ink:#EAEFF6;--soft:#8B9AAE;--rule:#232B38;--acc:#38BDF8;--acc-t:rgba(56,189,248,.14);--ok:#34D399;--ok-t:rgba(52,211,153,.14);--bad:#F87171;--bad-t:rgba(248,113,113,.14);--warn:#FBBF24;--warn-t:rgba(251,191,36,.12)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Manrope",system-ui,sans-serif;font-size:16.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Fraunces",Georgia,serif;line-height:1.18;margin:0}
+a{color:#9FE0FB}
+.wrap{max-width:860px;margin:0 auto;padding:0 22px}
+.top{border-bottom:1px solid var(--rule);background:var(--panel);padding:12px 0;font-size:14px}
+.top .wrap{display:flex;gap:14px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.hero{padding:34px 0 18px}
+.tag{font:600 12px "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--acc)}
+.hero h1{font-size:clamp(28px,5vw,40px);color:#fff;margin:8px 0 10px}
+.deck{color:#C4CDD8;max-width:68ch}
+.pts{display:inline-block;margin-top:12px;font:700 13px "JetBrains Mono",monospace;background:var(--acc-t);color:#9FE0FB;border:1px solid #1d4d66;padding:4px 12px;border-radius:99px}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:22px 24px;margin:18px 0}
+.card.signin{text-align:center}
+.step{background:var(--card);border:1px solid var(--rule);border-radius:12px;margin:20px 0;overflow:hidden}
+.step>h2{font-size:20px;color:#fff;padding:16px 22px;background:var(--panel);border-bottom:1px solid var(--rule);display:flex;gap:12px;align-items:baseline}
+.step>h2 .n{font:700 12px "JetBrains Mono",monospace;color:var(--acc);letter-spacing:.06em;flex:none}
+.read{padding:16px 22px;background:var(--warn-t);border-bottom:1px solid var(--rule);font-size:15.5px}
+.read b.lab{font:700 11.5px "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--warn);display:block;margin-bottom:4px}
+.read p{margin:0 0 .6em}.read p:last-child{margin:0}
+.read a.open{display:inline-block;margin:4px 8px 4px 0;padding:7px 14px;border-radius:8px;background:#fff;color:#0B0E14;font-weight:700;text-decoration:none;font-size:14px}
+.read a.open:hover{background:#dbeafe}
+.items{padding:6px 22px 14px}
+.item{padding:14px 0;border-top:1px solid var(--rule)}
+.item:first-child{border-top:0}
+.q{font-weight:600;margin-bottom:9px}
+.q .num{font:700 12px "JetBrains Mono",monospace;color:var(--soft);margin-right:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:8px 12px;margin:5px 0;border:1px solid var(--rule);border-radius:9px;cursor:pointer;background:var(--panel)}
+.opt:hover{border-color:#3A4658}
+.opt input{margin-top:5px;accent-color:#38BDF8}
+.opt.sel{border-color:var(--acc);background:var(--acc-t)}
+input.txt,textarea,select{width:100%;background:var(--panel);color:var(--ink);border:1px solid #2c3646;border-radius:9px;padding:10px 12px;font:inherit}
+input.txt:focus,textarea:focus,select:focus{outline:2px solid var(--acc);border-color:transparent}
+textarea{min-height:120px;resize:vertical}
+.hint{font-size:13px;color:var(--soft);margin-top:6px}
+.ord{list-style:none;margin:0;padding:0}
+.ord li{display:flex;gap:8px;align-items:center;padding:8px 10px;margin:5px 0;background:var(--panel);border:1px solid var(--rule);border-radius:9px}
+.ord li span.t{flex:1}
+.ord button{background:#232B38;color:#fff;border:0;border-radius:6px;width:30px;height:30px;font-size:15px;cursor:pointer}
+.ord button:disabled{opacity:.3;cursor:default}
+.mrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center;margin:6px 0}
+@media(max-width:560px){.mrow{grid-template-columns:1fr}}
+.res{margin-top:9px;padding:9px 12px;border-radius:9px;font-size:14.5px}
+.res.ok{background:var(--ok-t);color:#86EFC0}
+.res.no{background:var(--bad-t);color:#FCA5A5}
+.item.ok{border-left:3px solid var(--ok);padding-left:12px}
+.item.no{border-left:3px solid var(--bad);padding-left:12px}
+.bar{position:sticky;bottom:0;background:rgba(11,14,20,.96);border-top:1px solid var(--rule);padding:12px 0;z-index:5}
+.bar .wrap{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.prog{flex:1;min-width:160px;height:10px;background:#232B38;border-radius:99px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--acc);width:0;transition:width .2s}
+button.go{background:#38BDF8;color:#04202e;border:0;border-radius:10px;padding:11px 22px;font:800 15px Manrope;cursor:pointer}
+button.go:disabled{opacity:.45;cursor:default}
+.result{border-radius:12px;padding:20px 24px;margin:18px 0;border:1px solid var(--rule);background:var(--card)}
+.result h2{font-size:26px}
+.result.pass{border-color:var(--ok);background:var(--ok-t)}
+.err{background:var(--bad-t);color:#FCA5A5;border-radius:9px;padding:10px 14px;margin:12px 0}
+.hide{display:none}
+.company{display:flex;gap:12px;align-items:center;margin:14px 0 0;font-weight:700}
+.company .logo{font:800 15px Manrope;padding:6px 12px;border-radius:8px;color:#fff}
+.email{background:#fff;color:#1f2937;border-radius:10px;padding:16px 20px;margin:14px 0;font-size:15.5px}
+.email .hd{font-size:13px;color:#6b7280;border-bottom:1px solid #e5e7eb;padding-bottom:8px;margin-bottom:10px;line-height:1.5}
+.email p{margin:0 0 .7em}
+.sim{font-size:12.5px;color:var(--soft);margin-top:8px}
+code{font-family:"JetBrains Mono",monospace;font-size:.9em;background:#232B38;padding:1px 6px;border-radius:5px}
+table.t{border-collapse:collapse;width:100%;margin:8px 0;font-size:14.5px}
+table.t th,table.t td{border:1px solid var(--rule);padding:6px 10px;text-align:left;vertical-align:top}
+table.t th{background:var(--panel);color:#9FE0FB}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap"><span><a id="back" href="../unit-1/index.html">&larr; Back to the unit page</a></span><span id="who"></span></div></div>
+<div class="wrap">
+  <div class="hero" id="hero"></div>
+  <div id="authbox" class="card signin hide">
+    <h2 style="font-size:22px;margin-bottom:8px">Sign in to start</h2>
+    <p class="deck" style="margin:0 auto 14px">Use your school Google account. Your score is saved to your name and your class.</p>
+    <div id="g-btn" style="display:inline-block"></div>
+    <div id="autherr" class="err hide"></div>
+  </div>
+  <div id="perbox" class="card hide">
+    <b>Which class are you in?</b>
+    <select id="period" style="margin-top:8px;max-width:260px"><option value="">Pick your class</option><option>3A</option><option>3B</option><option>4A</option></select>
+  </div>
+  <div id="msg" class="err hide"></div>
+  <div id="lab" class="hide"></div>
+  <div id="result"></div>
+</div>
+<div class="bar hide" id="bar"><div class="wrap"><div class="prog"><i id="progi"></i></div><span id="progt" style="font-size:14px;color:var(--soft)"></span><button class="go" id="submit">Check my answers</button></div></div>
+
+<script src="data.js"></script>
+<script>
+(function(){
+"use strict";
+var API="/api/istlab", CLIENT="735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com";
+var q=new URLSearchParams(location.search), labId=q.get("lab")||"", mm=/^(\d+\.\d+)([wa])$/.exec(labId);
+var $=function(id){return document.getElementById(id)};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+var LESSON=mm&&window.ISTLAB&&window.ISTLAB.lessons[mm[1]], KIND=mm&&mm[2], PART=LESSON&&LESSON[KIND];
+var cred="", user=null, answers={}, started=false, results=null;
+function show(el,on){$(el).classList.toggle("hide",!on)}
+function msg(t){var m=$("msg");m.textContent=t||"";show("msg",!!t)}
+function post(action,extra){return fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({action:action,credential:cred},extra||{}))}).then(function(r){return r.json()}).catch(function(){return null})}
+function credOk(c){try{var p=JSON.parse(atob(c.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")));return p.exp*1000>Date.now()+30000}catch(e){return false}}
+function save(){try{sessionStorage.setItem("istlab:"+labId,JSON.stringify(answers))}catch(e){}}
+
+if(!LESSON||!PART){ $("hero").innerHTML='<h1>Lab not found</h1><p class="deck">Go back to the unit page and pick a lesson.</p>'; return; }
+$("back").href=LESSON.back||"../unit-1/index.html";
+var isW=KIND==="w";
+document.title=(isW?"Walkthrough ":"Assignment ")+LESSON.id+": "+LESSON.title+" | Intro to Software Technology";
+var h='<div class="tag">Lesson '+esc(LESSON.id)+" &middot; "+(isW?"Walkthrough":"Assignment")+'</div><h1>'+esc(LESSON.title)+'</h1>';
+if(isW){ h+='<p class="deck">'+PART.intro+'</p>'; }
+else { h+='<div class="company"><span class="logo" style="background:'+esc(PART.color||"#4f46e5")+'">'+esc(PART.company)+'</span></div><p class="deck" style="margin-top:12px">'+PART.tagline+'</p>'; }
+h+='<span class="pts">'+PART.pts+' points</span>';
+$("hero").innerHTML=h;
+
+function itemHtml(it,n){
+  var h='<div class="item" id="it-'+it.id+'"><div class="q"><span class="num">'+n+'</span>'+it.q+'</div>';
+  if(it.type==="mc"||it.type==="multi"){
+    var t=it.type==="mc"?"radio":"checkbox";
+    it.opts.forEach(function(o,i){h+='<label class="opt"><input type="'+t+'" name="'+it.id+'" data-i="'+i+'"><span>'+o+'</span></label>'});
+    if(it.type==="multi")h+='<div class="hint">Pick every answer that is right.</div>';
+  } else if(it.type==="text"){
+    h+='<input class="txt" type="text" data-id="'+it.id+'" autocomplete="off" spellcheck="false" placeholder="'+esc(it.ph||"Type your answer")+'">';
+  } else if(it.type==="num"){
+    h+='<input class="txt" type="text" inputmode="decimal" data-id="'+it.id+'" autocomplete="off" placeholder="'+esc(it.ph||"Type a number")+'" style="max-width:240px">';
+  } else if(it.type==="order"){
+    h+='<ol class="ord" data-id="'+it.id+'"></ol><div class="hint">Use the arrows to put these in the right order.</div>';
+  } else if(it.type==="match"){
+    it.left.forEach(function(l,i){h+='<div class="mrow"><div>'+l+'</div><select data-id="'+it.id+'" data-i="'+i+'"><option value="">Choose...</option>'+it.right.map(function(r,j){return '<option value="'+j+'">'+esc(r.replace(/<[^>]+>/g,""))+'</option>'}).join("")+'</select></div>'});
+  } else if(it.type==="write"){
+    h+='<textarea data-id="'+it.id+'" placeholder="'+esc(it.ph||"Type your answer in your own words.")+'"></textarea><div class="hint" data-wc="'+it.id+'">0 words (at least '+(it.min||1)+')</div>';
+  }
+  return h+'<div class="res hide" id="r-'+it.id+'"></div></div>';
+}
+function build(){
+  var n=0, h="";
+  if(!isW){ h+='<div class="email"><div class="hd"><b>From:</b> '+esc(PART.from)+'<br><b>To:</b> You<br><b>Subject:</b> '+esc(PART.subject)+'</div>'+PART.email+'</div><div class="sim">Classroom simulation. '+esc(PART.company)+' is a real company; this job is made up for practice, and the company has nothing to do with this course.</div>'; }
+  PART.steps.forEach(function(s,si){
+    h+='<section class="step"><h2><span class="n">'+(isW?"STEP ":"TASK ")+(si+1)+'</span>'+s.h+'</h2>';
+    if(s.read) h+='<div class="read"><b class="lab">'+(isW?"Go through the notes":"Read this first")+'</b>'+s.read+(s.links||[]).map(function(l){return '<a class="open" href="'+l.href+'" target="_blank" rel="noopener">'+esc(l.label)+' &#8599;</a>'}).join("")+'</div>';
+    h+='<div class="items">'; s.items.forEach(function(it){n++;h+=itemHtml(it,n)}); h+='</div></section>';
+  });
+  $("lab").innerHTML=h; show("lab",true); show("bar",true);
+  PART.steps.forEach(function(s){s.items.forEach(wire)});
+  restore(); progress();
+}
+function allItems(){var a=[];PART.steps.forEach(function(s){s.items.forEach(function(i){a.push(i)})});return a}
+function wire(it){
+  var root=$("it-"+it.id);
+  if(it.type==="mc"||it.type==="multi"){
+    [].forEach.call(root.querySelectorAll("input"),function(inp){inp.addEventListener("change",function(){
+      if(it.type==="mc"){answers[it.id]=+inp.getAttribute("data-i")}
+      else{answers[it.id]=[].filter.call(root.querySelectorAll("input"),function(x){return x.checked}).map(function(x){return +x.getAttribute("data-i")})}
+      [].forEach.call(root.querySelectorAll(".opt"),function(o){o.classList.toggle("sel",o.querySelector("input").checked)});
+      save();progress();});});
+  } else if(it.type==="text"||it.type==="num"){
+    root.querySelector("input.txt").addEventListener("input",function(e){answers[it.id]=e.target.value;save();progress()});
+  } else if(it.type==="write"){
+    var ta=root.querySelector("textarea");
+    ta.addEventListener("input",function(){answers[it.id]=ta.value;var w=(ta.value.match(/[A-Za-z0-9'’-]+/g)||[]).length;root.querySelector("[data-wc]").textContent=w+" words (at least "+(it.min||1)+")";save();progress()});
+  } else if(it.type==="match"){
+    [].forEach.call(root.querySelectorAll("select"),function(sel){sel.addEventListener("change",function(){
+      var arr=[].map.call(root.querySelectorAll("select"),function(s){return s.value===""?"":+s.value});answers[it.id]=arr;save();progress()})});
+  } else if(it.type==="order"){
+    if(!Array.isArray(answers[it.id])||answers[it.id].length!==it.items.length)answers[it.id]=it.items.map(function(_,i){return i});
+    drawOrder(it,root);
+  }
+}
+function drawOrder(it,root){
+  var ol=root.querySelector(".ord"), ord=answers[it.id];
+  ol.innerHTML=ord.map(function(ix,pos){return '<li><span class="t">'+it.items[ix]+'</span><button data-d="-1" data-p="'+pos+'"'+(pos===0?" disabled":"")+' aria-label="Move up">&uarr;</button><button data-d="1" data-p="'+pos+'"'+(pos===ord.length-1?" disabled":"")+' aria-label="Move down">&darr;</button></li>'}).join("");
+  [].forEach.call(ol.querySelectorAll("button"),function(b){b.addEventListener("click",function(){
+    var p=+b.getAttribute("data-p"),d=+b.getAttribute("data-d"),t=ord[p];ord[p]=ord[p+d];ord[p+d]=t;answers[it.id]=ord;it.__moved=true;save();drawOrder(it,root);progress()})});
+}
+function filled(it){
+  var v=answers[it.id];
+  if(it.type==="mc")return typeof v==="number";
+  if(it.type==="multi")return Array.isArray(v)&&v.length>0;
+  if(it.type==="text"||it.type==="num")return String(v||"").trim()!=="";
+  if(it.type==="write")return (String(v||"").match(/[A-Za-z0-9'’-]+/g)||[]).length>=(it.min||1);
+  if(it.type==="match")return Array.isArray(v)&&v.length===it.left.length&&v.every(function(x){return x!==""});
+  if(it.type==="order")return !!it.__moved||(it.touched);
+  return false;
+}
+function progress(){
+  var all=allItems(), f=all.filter(filled).length;
+  $("progi").style.width=(100*f/all.length)+"%"; $("progt").textContent=f+" of "+all.length+" answered";
+}
+function restore(){
+  allItems().forEach(function(it){
+    var v=answers[it.id]; if(v==null)return; var root=$("it-"+it.id);
+    if(it.type==="mc"){var i=root.querySelector('input[data-i="'+v+'"]');if(i){i.checked=true;i.closest(".opt").classList.add("sel")}}
+    else if(it.type==="multi"){(v||[]).forEach(function(x){var i=root.querySelector('input[data-i="'+x+'"]');if(i){i.checked=true;i.closest(".opt").classList.add("sel")}})}
+    else if(it.type==="text"||it.type==="num"){root.querySelector("input.txt").value=v}
+    else if(it.type==="write"){var ta=root.querySelector("textarea");ta.value=v;var w=(String(v).match(/[A-Za-z0-9'’-]+/g)||[]).length;root.querySelector("[data-wc]").textContent=w+" words (at least "+(it.min||1)+")"}
+    else if(it.type==="match"){[].forEach.call(root.querySelectorAll("select"),function(s,i){if(v[i]!=="")s.value=v[i]})}
+    else if(it.type==="order"){it.touched=true;drawOrder(it,root)}
+  });
+}
+function showResults(r){
+  allItems().forEach(function(it){
+    var root=$("it-"+it.id), box=$("r-"+it.id), ok=r.results[it.id];
+    root.classList.remove("ok","no"); root.classList.add(ok?"ok":"no"); box.className="res "+(ok?"ok":"no");
+    box.innerHTML=ok?("Correct."+(r.why&&r.why[it.id]?" "+r.why[it.id]:"")):("Not yet."+(r.hints&&r.hints[it.id]?" "+r.hints[it.id]:" Look back at the notes and try again."));
+  });
+  var pass=r.pct===100, h='<div class="result'+(pass?" pass":"")+'"><h2>'+(pass?"100%. Nice work.":r.pct+"%: "+r.right+" of "+r.total+" right")+'</h2><p>'+(pass?"Your best score is saved: <b>"+r.earned+" of "+r.pts+" points</b>."+(isW?" The assignment for this lesson is open now.":""):"Your best so far is <b>"+r.best+"%</b> ("+r.earned+" of "+r.pts+" points). The items marked red have a hint. Fix them and check again; you can try as many times as you like.")+'</p>';
+  if(pass&&isW)h+='<p><a class="open" style="display:inline-block;padding:9px 18px;border-radius:9px;background:#fff;color:#0B0E14;font-weight:800;text-decoration:none" href="lab.html?lab='+LESSON.id+'a">Go to the assignment &rarr;</a></p>';
+  $("result").innerHTML=h+'</div>'; $("result").scrollIntoView({behavior:"smooth",block:"start"});
+}
+$("submit").addEventListener("click",function(){
+  var btn=$("submit"); btn.disabled=true; msg("");
+  post("submit",{lab:labId,answers:answers}).then(function(r){
+    btn.disabled=false;
+    if(!r){msg("Could not reach the server. Check your connection and try again.");return}
+    if(r.needLogin){signOut();return}
+    if(r.error){msg(r.error);window.scrollTo({top:0,behavior:"smooth"});return}
+    results=r; showResults(r);
+  });
+});
+function signOut(){cred="";user=null;try{sessionStorage.removeItem("istlab_cred")}catch(e){}enter()}
+function enter(){
+  var inn=!!user&&credOk(cred);
+  show("authbox",!inn); $("who").innerHTML=inn?esc(user.name)+' &middot; <a href="#" id="so">sign out</a>':"";
+  if(inn){var so=$("so");so.addEventListener("click",function(e){e.preventDefault();signOut()});}
+  show("perbox",inn&&!user.period);
+  if(!inn){show("lab",false);show("bar",false);return}
+  if(!user.period){show("lab",false);show("bar",false);return}
+  if(started)return;
+  post("start",{lab:labId}).then(function(r){
+    if(!r||r.error){msg((r&&r.error)||"Could not open this lab.");return}
+    started=true;
+    try{var saved=JSON.parse(sessionStorage.getItem("istlab:"+labId)||"null");if(saved)answers=saved;else if(r.answers)answers=r.answers}catch(e){}
+    build();
+    if(r.best)$("result").innerHTML='<div class="result"><p>Your best score so far on this part: <b>'+r.best+'%</b>. Your answers from last time are filled in.</p></div>';
+  });
+}
+function onCred(resp){
+  cred=resp.credential;
+  post("me").then(function(me){
+    if(!me||me.error){cred="";var e=$("autherr");e.textContent=(me&&me.error)||"Could not sign in. Use your school Google account.";show("autherr",true);return}
+    try{sessionStorage.setItem("istlab_cred",cred)}catch(e){}
+    user={name:me.name,email:me.email,period:me.period,fromRoster:me.fromRoster}; enter();
+  });
+}
+$("period").addEventListener("change",function(e){
+  if(!e.target.value)return;
+  post("setPeriod",{period:e.target.value}).then(function(r){if(r&&r.ok){user.period=r.period;enter()}});
+});
+var saved=""; try{saved=sessionStorage.getItem("istlab_cred")||""}catch(e){}
+if(saved&&credOk(saved))onCred({credential:saved}); else enter();
+var tries=0, wait=setInterval(function(){
+  if(window.google&&google.accounts&&google.accounts.id){clearInterval(wait);
+    google.accounts.id.initialize({client_id:CLIENT,callback:onCred,hd:"socialcircleschools.org",auto_select:false});
+    google.accounts.id.renderButton($("g-btn"),{theme:"filled_blue",size:"large",text:"signin_with",shape:"pill"});
+  } else if(++tries>100){clearInterval(wait);var e=$("autherr");e.textContent="Google sign-in did not load. Check your connection and refresh.";show("autherr",true)}
+},100);
+window.__ISTLAB_TEST={answers:function(){return answers},setAnswers:function(a){answers=a;save()},build:build,showResults:showResults,setUser:function(u,c){user=u;cred=c;enter()}};
+})();
+</script>
+</body>
+</html>

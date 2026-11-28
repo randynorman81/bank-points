@@ -49,6 +49,16 @@ FITFILE = os.path.join(HERE, "ist_fit.json")
 def load_fit():
     try: return json.load(open(FITFILE))
     except Exception: return {}
+SPLIT_TABLES = False
+def split_tables(html):
+    """long tables may run over a page break (a row never splits): Unit 1 has big reference tables and no code pictures, and a table that must stay whole leaves half-empty pages"""
+    css = "<style>.tblwrap.split{break-inside:auto !important;page-break-inside:auto !important}.tblwrap.split table.cmp{break-inside:auto !important;page-break-inside:auto !important}.tblwrap.split tr{break-inside:avoid;page-break-inside:avoid}.tblwrap.split th{break-after:avoid}</style>"
+    def op(m):
+        blk = m.group(0)
+        return blk.replace('<div class="tblwrap">', '<div class="tblwrap split">', 1) if blk.count("<tr>") > 5 else blk
+    html = re.sub(r'<div class="tblwrap">.*?</table></div>', op, html, flags=re.S)
+    return html.replace("</head>", css + "</head>", 1) if "</head>" in html else css + html
+
 def finalize(html, mark=False, fit=None):
     """gives every example/trace unit its scale (ist_fit.json, made by fit_ist.py) and, when mark is on, invisible page-finding markers at its start and end"""
     fit = load_fit() if fit is None else fit
@@ -58,7 +68,8 @@ def finalize(html, mark=False, fit=None):
         mk = '<span class="zz">ZZH%ssZZ</span>' % wid if mark else ""
         return '<div class="hx" data-id="%s"%s%s>%s' % (wid, attrs, st, mk)
     html = re.sub(r'<div class="hx" data-id="(\w+)"((?: data-page="[^"]*")?)>', op, html)
-    return re.sub(r'<i class="hxe" data-id="(\w+)"></i>', (lambda m: '<span class="zz">ZZH%seZZ</span>' % m.group(1)) if mark else "", html)
+    html = re.sub(r'<i class="hxe" data-id="(\w+)"></i>', (lambda m: '<span class="zz">ZZH%seZZ</span>' % m.group(1)) if mark else "", html)
+    return split_tables(html) if SPLIT_TABLES else html
 
 def HX(title, code, notes, cap=None, shot=True, shot_cap=None, render=None):
     """annotated HTML (arrows from each note to the exact piece of code) and, under it, the page the code makes.

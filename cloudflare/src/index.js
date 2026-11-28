@@ -12,6 +12,7 @@ import packetquest from "../../netlify/functions/packetquest.js";
 import pysprint from "../../netlify/functions/pysprint.js";
 import pystorm from "../../netlify/functions/pystorm.js";
 import tagstorm from "../../netlify/functions/tagstorm.js";
+import istlab from "../../netlify/functions/istlab.js";
 import gdoc from "./gdoc.js";
 import { runAwards } from "./awards.js";
 
@@ -28,6 +29,7 @@ export default {
     if (path === "/api/pysprint") return pysprint(req);
     if (path === "/api/pystorm") return pystorm(req);
     if (path === "/api/tagstorm") return tagstorm(req);
+    if (path === "/api/istlab") return istlab(req);
     if (path === "/api/gdoc") return gdoc(req);
     if (path.startsWith("/api/")) return data(req);
     if (path === "/sat") return env.ASSETS.fetch(new Request(new URL("/sat-english/", req.url), req));

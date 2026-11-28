@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Walkthrough and Assignment Dashboard | Teacher</title>
+<link rel="icon" href="../../assets/logo.png">
+<style>
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#f4f6fa;color:#0f172a;font-size:15px}
+.wrap{max-width:1180px;margin:0 auto;padding:20px}
+h1{font-size:24px;margin:0 0 4px}
+.card{background:#fff;border:1px solid #d9dee7;border-radius:12px;padding:16px 18px;margin:14px 0}
+button{background:#1d4ed8;color:#fff;border:0;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer}
+button.alt{background:#fff;color:#1d4ed8;border:1.5px solid #1d4ed8}
+input[type=password]{padding:8px;border:1px solid #c7ced9;border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{border:1px solid #e3e7ee;padding:5px 8px;text-align:center}
+th{background:#f1f5f9;position:sticky;top:0}
+td.n{text-align:left;white-space:nowrap;font-weight:600}
+.s100{background:#dcfce7}.s90{background:#ecfccb}.s60{background:#fef9c3}.s0{background:#fee2e2}.none{color:#94a3b8}
+.tabs button{margin-right:6px}
+.hide{display:none}
+.lab{display:inline-flex;gap:6px;align-items:center;margin:3px 12px 3px 0;font-size:14px}
+.small{font-size:12.5px;color:#64748b}
+.scroll{overflow:auto;max-height:70vh}
+</style>
+</head>
+<body><div class="wrap">
+<h1>Walkthroughs and assignments</h1><div class="small">Teacher dashboard for the reading labs (Unit 1 and later non-coding units). Students' best score counts.</div>
+<div class="card" id="login"><b>Teacher PIN</b> <input type="password" id="pin" autocomplete="off"> <button id="go">Open</button> <span id="err" style="color:#b91c1c"></span></div>
+<div id="main" class="hide">
+  <div class="card"><b>Which labs are open to students?</b> <span class="small">(A student sees "not open yet" until you open it. The assignment also waits for the walkthrough to reach 100%.)</span><div id="opens" style="margin-top:8px"></div><button id="save">Save open/closed</button> <span id="saved" class="small"></span></div>
+  <div class="card"><div class="tabs" id="tabs"></div><div class="scroll"><table id="tbl"></table></div></div>
+</div></div>
+<script>
+var API="/api/istlab", pin="", DATA=null, period="all";
+function $(i){return document.getElementById(i)}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function post(b){b.pin=pin;return fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}).then(function(r){return r.json()})}
+function load(){post({action:"adminAll"}).then(function(r){
+  if(!r||r.error){$("err").textContent=(r&&r.error)||"Could not load";return}
+  DATA=r;$("login").classList.add("hide");$("main").classList.remove("hide");draw()})}
+function draw(){
+  var o=$("opens");o.innerHTML=DATA.labs.map(function(l){return '<label class="lab"><input type="checkbox" data-lab="'+l.lab+'"'+(DATA.open.indexOf(l.lab)>-1?" checked":"")+'> '+esc(l.lab)+" "+(l.kind==="w"?"walkthrough":"assignment")+' <span class="small">('+l.pts+' pts)</span></label>'}).join("");
+  var ps=["all"].concat(DATA.periods);$("tabs").innerHTML=ps.map(function(p){return '<button class="'+(p===period?"":"alt")+'" data-p="'+p+'">'+(p==="all"?"All classes":p)+"</button>"}).join("");
+  [].forEach.call($("tabs").querySelectorAll("button"),function(b){b.onclick=function(){period=b.getAttribute("data-p");draw()}});
+  var by={};DATA.players.forEach(function(p){by[p.email]=p});
+  var rows=DATA.roster.slice();DATA.players.forEach(function(p){if(!rows.some(function(r){return r.email===p.email}))rows.push({name:p.name,email:p.email,period:p.period||"?"})});
+  rows=rows.filter(function(r){return period==="all"||r.period===period}).sort(function(a,b){return (a.period+a.name).localeCompare(b.period+b.name)});
+  var h='<tr><th>Student</th><th>Class</th>'+DATA.labs.map(function(l){return "<th>"+esc(l.lab)+"</th>"}).join("")+"</tr>";
+  rows.forEach(function(r){var p=by[r.email];h+='<tr><td class="n">'+esc(r.name)+"</td><td>"+esc(r.period)+"</td>"+DATA.labs.map(function(l){
+    var v=p&&p.labs[l.lab];if(!v)return '<td class="none">-</td>';var c=v.best>=100?"s100":v.best>=90?"s90":v.best>=60?"s60":"s0";
+    return '<td class="'+c+'" title="'+v.attempts+' tries, '+(v.secs||0)+' s">'+v.best+"%</td>"}).join("")+"</tr>"});
+  $("tbl").innerHTML=h;
+}
+$("go").onclick=function(){pin=$("pin").value;load()};
+$("pin").onkeydown=function(e){if(e.key==="Enter"){pin=$("pin").value;load()}};
+$("save").onclick=function(){var ids=[].filter.call($("opens").querySelectorAll("input"),function(i){return i.checked}).map(function(i){return i.getAttribute("data-lab")});
+  post({action:"adminOpen",open:ids}).then(function(r){$("saved").textContent=r&&r.ok?"Saved. "+r.open.length+" open.":"Error";if(r&&r.ok)DATA.open=r.open})};
+</script>
+</body>
+</html>
