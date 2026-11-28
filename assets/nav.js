@@ -126,6 +126,7 @@ const TOOLS = [
   { id: "arcade", name: "Extra Credit Arcade", url: NAV_ROOT + "tools/arcade/", description: "Play classic NES games in your browser and earn Bank Points for how far you get, verified by your teacher." },
   { id: "submit-ec", name: "Submit Extra Credit", url: "https://docs.google.com/forms/d/e/1FAIpQLSde_IWMSrUn3FU485jZa0_1s7hFOkwK2ZMjBAS0KEVKrhRykw/viewform", description: "Upload proof of extra credit work. Mr. Norman grades it and adds points to your Bank if it's correct." },
   { id: "latework", name: "Late Work", url: NAV_ROOT + "late-work.html", description: "List every assignment you've turned in late, so it's ready to grade at the end of the unit." },
+  { id: "tag-storm", name: "Tag Storm", url: NAV_ROOT + "tools/tag-storm/index.html", description: "An HTML & CSS arcade game: catch the right tags and selectors before time runs out." },
   { id: "trivia", name: "Clark After Dark Trivia", url: NAV_ROOT + "tools/trivia/index.html", description: "1,000 ready-to-run pub trivia games, a searchable 5,000-question bank, a set builder, printable team answer sheets with host bonus points, and PDF / Google Sheets downloads." }
 ];
 
