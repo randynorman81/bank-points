@@ -127,6 +127,7 @@ const TOOLS = [
   { id: "submit-ec", name: "Submit Extra Credit", url: "https://docs.google.com/forms/d/e/1FAIpQLSde_IWMSrUn3FU485jZa0_1s7hFOkwK2ZMjBAS0KEVKrhRykw/viewform", description: "Upload proof of extra credit work. Mr. Norman grades it and adds points to your Bank if it's correct." },
   { id: "latework", name: "Late Work", url: NAV_ROOT + "late-work.html", description: "List every assignment you've turned in late, so it's ready to grade at the end of the unit." },
   { id: "tag-storm", name: "Tag Storm", url: NAV_ROOT + "tools/tag-storm/index.html", description: "An HTML & CSS arcade game: catch the right tags and selectors before time runs out." },
+  { id: "py-sprint", name: "Py Sprint", url: NAV_ROOT + "tools/py-sprint/index.html", description: "A live Python coding race: your whole class gets the same APCSP challenge at the same time. Write real Python, pass the tests fastest, and climb the leaderboard." },
   { id: "py-storm", name: "Py Storm", url: NAV_ROOT + "tools/py-storm/index.html", description: "A Python syntax arcade game: click the valid code, dodge the bugs, and race the clock." },
   { id: "trivia", name: "Clark After Dark Trivia", url: NAV_ROOT + "tools/trivia/index.html", description: "1,000 ready-to-run pub trivia games, a searchable 5,000-question bank, a set builder, printable team answer sheets with host bonus points, and PDF / Google Sheets downloads." }
 ];
@@ -137,6 +138,7 @@ const TEACHER_TOOLS = [
   { id: "rubric-scanner", name: "Rubric Scanner", url: NAV_ROOT + "tools/rubric-scanner/index.html", description: "Print bubble-sheet rubrics, grade by hand, then photograph or scan the stack to get scores and class analytics. Everything stays in your browser." },
   { id: "webp-converter", name: "WebP Converter", url: NAV_ROOT + "tools/webp-converter/index.html", description: "Convert WebP images to PNG right in your browser." },
   { id: "tag-storm-teacher", name: "Tag Storm Progress", url: NAV_ROOT + "tools/tag-storm/teacher.html", description: "See which IST students played Tag Storm, by class: best level, score, time and accuracy." },
+  { id: "py-sprint-host", name: "Py Sprint (Host a Race)", url: NAV_ROOT + "tools/py-sprint/index.html", description: "Host a live Python coding race for a class: pick challenges, share the room code, project the live race track, and export results." },
   { id: "py-storm-teacher", name: "Py Storm Progress", url: NAV_ROOT + "tools/py-storm/teacher.html", description: "See which AP CSP students played Py Storm, by class: best level, score, time and accuracy." },
   { id: "packet-quest-teacher", name: "Packet Quest Dashboard", url: NAV_ROOT + "apcsp/packet-quest/teacher.html", description: "Open Packet Quest missions for each AP CSP period and see completion grades and mastery by Big Idea and CED topic." }
 ];

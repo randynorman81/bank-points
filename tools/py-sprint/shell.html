@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>PY SPRINT — Live APCSP Python Coding Race</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; min-height: 100%; background-color: #060b18; color: #f8fafc; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace; }
+    .custom-scroll::-webkit-scrollbar { width: 7px; height: 7px; }
+    .custom-scroll::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.7); border-radius: 999px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.35); border-radius: 999px; }
+    @keyframes raceStripe { 0% { background-position: 0 0; } 100% { background-position: 36px 0; } }
+    .race-bar-active { background-image: linear-gradient(45deg, rgba(255,255,255,.16) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.16) 50%, rgba(255,255,255,.16) 75%, transparent 75%, transparent); background-size: 36px 36px; animation: raceStripe 0.9s linear infinite; }
+    @keyframes pulseBorder { 0%, 100% { box-shadow: 0 0 0 0 rgba(56,189,248,.45); } 50% { box-shadow: 0 0 22px 2px rgba(56,189,248,.25); } }
+    .glow-sky { animation: pulseBorder 2.4s infinite ease-in-out; }
+    .btn-lift { transition: transform .12s ease, filter .15s ease, box-shadow .15s ease; }
+    .btn-lift:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.07); }
+    .btn-lift:active:not(:disabled) { transform: translateY(1px) scale(.98); }
+    .code-editor-wrap { display: grid; grid-template-columns: 44px 1fr; background: #020617; }
+    .code-gutter { padding: 14px 8px 14px 4px; text-align: right; color: #475569; font-size: 13px; line-height: 1.6; user-select: none; border-right: 1px solid #1e293b; background: #050b18; overflow: hidden; white-space: pre; }
+    .code-textarea { width: 100%; height: 100%; min-height: 215px; padding: 14px 16px; background: transparent; color: #e2e8f0; font-size: 13.5px; line-height: 1.6; border: none; outline: none; resize: none; tab-size: 4; white-space: pre; overflow: auto; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+  <header class="sticky top-0 z-30 bg-slate-950/95 backdrop-blur-md border-b border-slate-800/90 px-3 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-2 shadow-lg">
+    <div class="flex items-center gap-2.5">
+      <button id="btn-home-logo" type="button" class="flex items-center gap-2.5 rounded-xl bg-sky-500/15 border border-sky-400/35 px-3 py-1.5 hover:bg-sky-500/25 transition">
+        <span class="font-mono font-black text-sm sm:text-base text-sky-400">&gt;&gt;&gt;</span>
+        <div class="text-left leading-tight">
+          <div class="font-black text-xs sm:text-sm tracking-wide text-white">PY SPRINT</div>
+          <div class="font-mono text-[10px] text-sky-300/80">APCSP LIVE CODING RACE</div>
+        </div>
+      </button>
+      <div id="hdr-room-pill" class="hidden items-center gap-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5">
+        <span id="hdr-sync-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        <span class="font-mono text-[11px] text-slate-400">ROOM</span>
+        <span id="hdr-room-code" class="font-mono text-xs sm:text-sm font-black text-amber-300 tracking-widest">----</span>
+        <button id="btn-copy-room" type="button" class="text-[10px] font-mono bg-slate-800 hover:bg-slate-700 text-sky-300 px-2 py-0.5 rounded-md">Copy</button>
+      </div>
+    </div>
+    <div id="hdr-race-status" class="hidden items-center gap-2.5">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-1 text-center">
+        <div class="font-mono text-[9px] uppercase text-slate-400">Round</div>
+        <div id="hdr-round-text" class="font-mono text-xs sm:text-sm font-black text-sky-300">1 / 8</div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-1 text-center min-w-[82px]">
+        <div class="font-mono text-[9px] uppercase text-slate-400">Clock</div>
+        <div id="hdr-clock" class="font-mono text-sm sm:text-base font-black text-emerald-400">60.0s</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span id="hdr-py-status" class="hidden sm:inline-flex items-center gap-1.5 font-mono text-[10px] px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-400">
+        <span id="hdr-py-dot" class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+        <span id="hdr-py-label">Python Ready</span>
+      </span>
+      <button id="btn-open-ref" type="button" class="btn-lift bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-300 rounded-xl px-3 py-1.5 font-mono text-xs font-bold">APCSP Python Sheet</button>
+      <button id="btn-toggle-audio" type="button" title="Toggle Sound Effects" class="btn-lift bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl px-2.5 py-1.5 font-mono text-xs font-bold">&#128266;</button>
+    </div>
+  </header>
+
+  <!-- VIEW 1: LANDING -->
+  <main id="view-landing" class="flex-1 flex items-center justify-center p-4 sm:p-6">
+    <div class="w-full max-w-5xl space-y-6">
+      <div class="text-center max-w-3xl mx-auto">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-500/15 border border-sky-400/35 text-sky-300 font-mono text-xs font-bold mb-3">
+          <span>REAL PYTHON EXECUTION</span><span>&bull;</span><span>SYNCHRONIZED CLASSROOM RACE</span><span>&bull;</span><span>ZERO MULTIPLE-CHOICE</span>
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-white">Write Real Python. <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-cyan-300 to-emerald-400">Outcode the Class.</span></h1>
+        <p class="text-sm sm:text-base text-slate-300 mt-2.5">Every signed-in student gets the exact same APCSP Python challenge at the same instant. Type valid Python, pass the automated tests fastest, earn speed bonuses, and watch the live race track and leaderboard unfold.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <section class="bg-slate-900/95 border border-sky-500/35 rounded-3xl p-6 shadow-2xl flex flex-col justify-between glow-sky">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-mono text-xs font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-400/35">Student Racer</span>
+              <span id="landing-sync-badge" class="font-mono text-[10px] text-slate-400">Live race server</span>
+            </div>
+            <h2 class="text-2xl font-black text-white mb-1">Join a Live Classroom Race</h2>
+            <p class="text-xs text-slate-400 mb-4">Sign in with your school Google account, then enter the Room Code from your teacher's screen.</p>
+
+            <div class="space-y-3 mb-5">
+              <div id="auth-out">
+                <div id="g-btn" class="flex justify-center min-h-[44px]"></div>
+                <p id="auth-err" class="text-xs text-rose-300 mt-2 hidden"></p>
+              </div>
+              <div id="auth-in" class="hidden">
+                <div class="flex items-center justify-between gap-2 mb-2">
+                  <div class="min-w-0"><div class="font-mono text-[10px] uppercase text-slate-400">Signed in</div><div id="auth-name" class="font-bold text-white truncate"></div></div>
+                  <button id="btn-signout" type="button" class="text-[11px] text-slate-400 hover:text-white underline shrink-0">Not you?</button>
+                </div>
+                <label for="inp-student-period" class="block font-mono text-[11px] font-bold uppercase text-slate-400 mb-1">Your class</label>
+                <select id="inp-student-period" class="w-full bg-slate-950 border border-slate-700 focus:border-sky-400 rounded-xl px-3 py-2.5 text-sm text-white outline-none">
+                  <option value="">Pick your class&hellip;</option><option value="1A">1A</option><option value="2B">2B</option>
+                </select>
+              </div>
+              <div>
+                <label for="inp-room-code" class="block font-mono text-[11px] font-bold uppercase text-slate-400 mb-1">Room Code</label>
+                <input id="inp-room-code" type="text" maxlength="8" placeholder="e.g., PY42" class="w-full bg-slate-950 border border-slate-700 focus:border-sky-400 rounded-xl px-3.5 py-2.5 text-sm font-mono uppercase tracking-widest text-amber-300 outline-none" />
+              </div>
+            </div>
+          </div>
+          <div class="space-y-2.5">
+            <button id="btn-join-room" type="button" disabled class="btn-lift w-full py-3 rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-400 text-slate-950 font-black text-sm sm:text-base shadow-lg disabled:opacity-40 disabled:cursor-not-allowed">Join Live Race Room &rarr;</button>
+            <button id="btn-solo-practice" type="button" class="btn-lift w-full py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-300 font-bold text-xs sm:text-sm">&#9889; Instant Demo: Race Against 5 AI Classmates (no sign-in, not tracked)</button>
+          </div>
+        </section>
+
+        <section class="bg-slate-900/95 border border-amber-400/35 rounded-3xl p-6 shadow-2xl flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-mono text-xs font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-400/35">Teacher Control Room</span>
+              <span class="font-mono text-[10px] text-amber-300/80">25 APCSP Challenges</span>
+            </div>
+            <h2 class="text-2xl font-black text-white mb-1">Host &amp; Customize Class Race</h2>
+            <p class="text-xs text-slate-400 mb-4">Filter all APCSP Python topics, pick exact questions, add your own custom challenges, project the live race track, and export scores.</p>
+            <div class="grid grid-cols-2 gap-2 text-xs font-mono text-slate-300 mb-5">
+              <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5"><div class="text-sky-300 font-bold mb-0.5">7 APCSP Units</div><div class="text-[11px] text-slate-400">Vars, Strings, Logic, Loops, Lists, Functions, Algos</div></div>
+              <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5"><div class="text-emerald-300 font-bold mb-0.5">Real-Time Track</div><div class="text-[11px] text-slate-400">Watch progress, test passes &amp; finish times live</div></div>
+              <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5"><div class="text-amber-300 font-bold mb-0.5">Speed Scoring</div><div class="text-[11px] text-slate-400">Base + Speed Bonus + Podium + Streak, scored by the server</div></div>
+              <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5"><div class="text-violet-300 font-bold mb-0.5">Custom Builder</div><div class="text-[11px] text-slate-400">Add custom prompts &amp; filter exact questions</div></div>
+            </div>
+          </div>
+          <div class="space-y-2.5">
+            <button id="btn-host-setup" type="button" class="btn-lift w-full py-3 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-orange-400 text-slate-950 font-black text-sm sm:text-base shadow-lg">&#9881; Open Teacher Setup &amp; Host Race &rarr;</button>
+            <div class="text-center font-mono text-[10px] text-slate-500">Hosting needs the teacher PIN.</div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- VIEW 2: TEACHER SETUP -->
+  <main id="view-teacher-setup" class="hidden flex-1 p-4 sm:p-6 max-w-6xl w-full mx-auto">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+      <div><div class="font-mono text-xs font-bold uppercase text-amber-300">Teacher Game Builder</div><h2 class="text-2xl sm:text-3xl font-black text-white">Filter APCSP Python Content &amp; Configure Race</h2></div>
+      <div class="flex items-center gap-2">
+        <button id="btn-setup-back" type="button" class="btn-lift bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl px-4 py-2 text-xs font-mono font-bold">&larr; Back</button>
+        <button id="btn-create-room" type="button" class="btn-lift bg-gradient-to-r from-emerald-400 to-sky-400 text-slate-950 rounded-xl px-5 py-2.5 text-sm font-black shadow-lg">Launch Live Race Room &rarr;</button>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <div class="lg:col-span-4 space-y-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3.5">
+          <div class="font-mono text-xs font-extrabold uppercase text-sky-300">1. Match Settings</div>
+          <div>
+            <label class="block font-mono text-[11px] text-slate-400 mb-1">Teacher PIN (same as the bank)</label>
+            <input id="cfg-pin" type="password" autocomplete="off" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white" />
+          </div>
+          <div>
+            <label class="block font-mono text-[11px] text-slate-400 mb-1">Race Title / Class Label</label>
+            <input id="cfg-title" type="text" value="SCHS APCSP Python Sprint" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white" />
+          </div>
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block font-mono text-[11px] text-slate-400 mb-1">Time / Question</label>
+              <select id="cfg-duration" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono text-white">
+                <option value="45">45 seconds (Blitz)</option><option value="60" selected>60 seconds (Standard)</option><option value="90">90 seconds (Deep)</option><option value="120">120 seconds (Relaxed)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-mono text-[11px] text-slate-400 mb-1">Question Order</label>
+              <select id="cfg-order" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono text-white">
+                <option value="shuffle" selected>Shuffle Selected</option><option value="ordered">Keep Curriculum Order</option>
+              </select>
+            </div>
+          </div>
+          <label class="flex items-center justify-between gap-2 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 cursor-pointer">
+            <div><div class="font-mono text-xs font-bold text-emerald-300">Include AI Pace Racers</div><div class="text-[11px] text-slate-400">Adds 4 simulated classmates (great for small groups or testing)</div></div>
+            <input id="cfg-bots" type="checkbox" class="w-4 h-4 accent-emerald-400" />
+          </label>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-xs font-extrabold uppercase text-amber-300">2. Filter APCSP Units</span>
+            <div class="flex gap-1.5">
+              <button id="btn-select-all-q" type="button" class="text-[10px] font-mono bg-slate-800 hover:bg-slate-700 text-sky-300 px-2 py-1 rounded-lg">All</button>
+              <button id="btn-clear-all-q" type="button" class="text-[10px] font-mono bg-slate-800 hover:bg-slate-700 text-rose-300 px-2 py-1 rounded-lg">None</button>
+            </div>
+          </div>
+          <div id="setup-category-list" class="space-y-1.5"></div>
+        </div>
+        <div class="bg-slate-900 border border-violet-500/35 rounded-2xl p-4 space-y-2.5">
+          <div class="font-mono text-xs font-extrabold uppercase text-violet-300">3. Add Custom Python Challenge</div>
+          <input id="custom-title" type="text" placeholder="Title (e.g., Create 3 Car Variables)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs font-mono text-white" />
+          <textarea id="custom-prompt" rows="2" placeholder="Prompt instructions shown to students..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white"></textarea>
+          <input id="custom-starter" type="text" placeholder="Optional starter code (e.g., # Write code below)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs font-mono text-slate-300" />
+          <div class="grid grid-cols-1 gap-2">
+            <select id="custom-check-type" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs font-mono text-white">
+              <option value="stdout">Check Printed Output (exact text)</option>
+              <option value="vars">Check Required Variable Names (comma-separated)</option>
+              <option value="func">Check Function Return: funcName(args) == expected</option>
+            </select>
+            <input id="custom-check-val" type="text" placeholder="e.g., Hello SCHS  OR  a,b,c  OR  double(5)==10" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs font-mono text-emerald-300" />
+          </div>
+          <button id="btn-add-custom-q" type="button" class="btn-lift w-full py-2 rounded-xl bg-violet-500 hover:bg-violet-400 text-slate-950 font-extrabold text-xs">+ Add Custom Challenge to Playlist</button>
+        </div>
+      </div>
+      <div class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-800">
+          <div><span class="font-mono text-xs font-extrabold uppercase text-emerald-300">Selected Race Playlist</span><span id="setup-selected-count" class="ml-2 font-mono text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/35">0 selected</span></div>
+          <input id="setup-search-q" type="text" placeholder="Search concepts (e.g., append, def, mod, 5 variables)..." class="w-full sm:w-72 bg-slate-950 border border-slate-700 focus:border-sky-400 rounded-xl px-3 py-1.5 text-xs text-white outline-none" />
+        </div>
+        <div id="setup-questions-list" class="space-y-2 overflow-y-auto custom-scroll pr-1 max-h-[640px]"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- VIEW 3: ARENA -->
+  <main id="view-arena" class="hidden flex-1 p-3 sm:p-5 max-w-[1440px] w-full mx-auto flex flex-col gap-4">
+    <section id="teacher-bar" class="hidden bg-slate-900/95 border border-amber-400/40 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 shadow-xl">
+      <div class="flex flex-wrap items-center gap-3">
+        <span id="host-mode-tag" class="font-mono text-xs font-black px-2.5 py-1 rounded-lg bg-amber-400 text-slate-950">HOST MODE</span>
+        <div>
+          <div id="teacher-race-title" class="font-extrabold text-sm text-white">SCHS APCSP Python Sprint</div>
+          <div id="teacher-join-hint" class="font-mono text-[11px] text-slate-300">Students join with Room Code <strong id="teacher-code-inline" class="text-amber-300">----</strong></div>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="btn-host-start" type="button" class="btn-lift bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs px-4 py-2 rounded-xl">&#9654; Start Race</button>
+        <button id="btn-host-end-round" type="button" class="hidden btn-lift bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-3.5 py-2 rounded-xl">End Round &amp; Show Results</button>
+        <button id="btn-host-next" type="button" class="hidden btn-lift bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs px-4 py-2 rounded-xl">Next Question &rarr;</button>
+        <button id="btn-host-solution" type="button" class="hidden btn-lift bg-slate-800 hover:bg-slate-700 border border-slate-700 text-violet-300 font-mono font-bold text-xs px-3 py-2 rounded-xl">Toggle Solution</button>
+        <button id="btn-host-csv" type="button" class="btn-lift bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-mono font-bold text-xs px-3 py-2 rounded-xl">Export CSV</button>
+        <button id="btn-host-leave" type="button" class="btn-lift bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/40 text-rose-300 font-mono font-bold text-xs px-3 py-2 rounded-xl">End Room</button>
+      </div>
+    </section>
+
+    <section id="arena-lobby" class="bg-slate-900/95 border border-slate-800 rounded-3xl p-6 sm:p-8 text-center shadow-2xl">
+      <div class="font-mono text-xs font-extrabold uppercase tracking-widest text-sky-400 mb-2">Synchronized Classroom Lobby</div>
+      <h2 id="lobby-title" class="text-2xl sm:text-4xl font-black text-white mb-2">Waiting for Racers to Join...</h2>
+      <p id="lobby-sub" class="text-sm text-slate-400 max-w-xl mx-auto mb-6">Once the host starts the race, everyone will receive the exact same Python prompt at the exact same second.</p>
+      <div class="inline-flex flex-wrap items-center justify-center gap-4 bg-slate-950 border border-amber-400/40 rounded-2xl px-6 py-4 mb-6">
+        <div class="text-left"><div class="font-mono text-[10px] uppercase text-slate-400">Classroom Join Code</div><div id="lobby-room-code" class="font-mono text-3xl sm:text-4xl font-black tracking-[0.2em] text-amber-300">----</div></div>
+        <div class="h-10 w-px bg-slate-800 hidden sm:block"></div>
+        <div class="text-left"><div class="font-mono text-[10px] uppercase text-slate-400">Playlist &amp; Clock</div><div id="lobby-playlist-info" class="font-mono text-xs sm:text-sm font-bold text-sky-300">0 Questions &bull; 60s / round</div></div>
+      </div>
+      <div class="max-w-3xl mx-auto">
+        <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-2"><span>SIGNED-IN RACERS</span><span id="lobby-racer-count" class="text-emerald-300 font-bold">0 Online</span></div>
+        <div id="lobby-racers-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 text-left"></div>
+      </div>
+    </section>
+
+    <section id="arena-active" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1">
+      <div class="lg:col-span-7 flex flex-col gap-3.5">
+        <div class="bg-slate-900/95 border border-sky-500/35 rounded-2xl p-4 shadow-xl">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <div class="flex items-center gap-2">
+              <span id="q-category-badge" class="font-mono text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-400/35">CATEGORY</span>
+              <span id="q-diff-badge" class="font-mono text-[10px] font-bold uppercase px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300">APCSP</span>
+            </div>
+            <div class="font-mono text-xs font-bold text-amber-300" id="q-points-hint">Up to +1,000 pts plus podium and streak bonuses</div>
+          </div>
+          <h3 id="q-title" class="text-lg sm:text-xl font-black text-white mb-1.5">Challenge Title</h3>
+          <p id="q-prompt" class="text-xs sm:text-sm text-slate-200 leading-relaxed"></p>
+          <div id="q-checklist" class="mt-3 flex flex-wrap gap-1.5"></div>
+          <div id="q-solution-box" class="hidden mt-3 bg-slate-950 border border-violet-500/45 rounded-xl p-3">
+            <div class="font-mono text-[10px] font-extrabold uppercase text-violet-300 mb-1">Model APCSP Python Solution</div>
+            <pre id="q-solution-code" class="font-mono text-xs text-violet-100 whitespace-pre-wrap overflow-x-auto"></pre>
+          </div>
+        </div>
+
+        <div id="student-ide-card" class="bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex flex-col flex-1">
+          <div class="bg-slate-950 border-b border-slate-800 px-3.5 py-2 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span><span class="w-2.5 h-2.5 rounded-full bg-amber-400/80"></span><span class="w-2.5 h-2.5 rounded-full bg-emerald-400/80"></span>
+              <span class="font-mono text-xs font-bold text-slate-300 ml-1">solution.py</span>
+              <span class="font-mono text-[10px] text-slate-500 hidden sm:inline">Tab = 4 spaces &bull; Ctrl+Enter to Run</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="btn-reset-code" type="button" class="text-[11px] font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg">Reset Starter</button>
+              <button id="btn-submit-code" type="button" class="btn-lift bg-gradient-to-r from-emerald-500 to-sky-500 text-slate-950 font-black text-xs px-4 py-1.5 rounded-lg shadow">&#9654; Run &amp; Submit</button>
+            </div>
+          </div>
+          <div id="student-solved-banner" class="hidden bg-gradient-to-r from-emerald-500/20 via-sky-500/15 to-amber-500/20 border-b border-emerald-400/40 px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+            <div><div id="solved-headline" class="font-mono text-sm font-black text-emerald-300">&#127937; FINISHED</div><div id="solved-breakdown" class="font-mono text-xs text-slate-200 mt-0.5"></div></div>
+            <span class="font-mono text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-950/80 border border-emerald-400/40 text-emerald-200">Watch classmates finish live &rarr;</span>
+          </div>
+          <div class="code-editor-wrap flex-1">
+            <div id="code-gutter" class="code-gutter font-mono">1</div>
+            <textarea id="code-input" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" class="code-textarea font-mono" placeholder="# Type your Python solution here..."></textarea>
+          </div>
+          <div class="border-t border-slate-800 bg-slate-950 p-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <div class="font-mono text-[10px] font-extrabold uppercase text-slate-400 mb-1">Python Terminal Output</div>
+              <pre id="term-output" class="font-mono text-xs text-slate-300 bg-slate-900/90 border border-slate-800 rounded-xl p-2.5 min-h-[76px] max-h-32 overflow-y-auto custom-scroll whitespace-pre-wrap">Click "Run &amp; Submit" (or Ctrl+Enter) to execute your Python code.</pre>
+            </div>
+            <div>
+              <div class="font-mono text-[10px] font-extrabold uppercase text-slate-400 mb-1">Automated Test Checks</div>
+              <div id="test-results" class="space-y-1.5 min-h-[76px] max-h-32 overflow-y-auto custom-scroll pr-1 text-xs font-mono text-slate-400">
+                <div class="bg-slate-900/70 border border-slate-800 rounded-lg px-2.5 py-2 text-[11px]">Tests will verify your variables, lists, functions, and output here.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="teacher-projector-card" class="hidden bg-slate-900/95 border border-slate-800 rounded-2xl p-4 shadow-xl flex-1 flex flex-col">
+          <div class="flex items-center justify-between mb-3">
+            <div><div class="font-mono text-xs font-extrabold uppercase text-amber-300">Live Race Feed &amp; Telemetry</div><div class="text-xs text-slate-400">Real-time submissions, speed times, and test progress from all signed-in students.</div></div>
+            <div class="text-right font-mono"><div id="proj-finish-ratio" class="text-lg font-black text-emerald-400">0 / 0</div><div class="text-[10px] text-slate-400 uppercase">Solved Round</div></div>
+          </div>
+          <div id="proj-activity-feed" class="space-y-2 overflow-y-auto custom-scroll flex-1 max-h-[300px] pr-1 font-mono text-xs"><div class="text-slate-500 text-center py-8">Waiting for student submissions...</div></div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5 flex flex-col gap-3.5">
+        <div class="bg-slate-900/95 border border-slate-800 rounded-2xl p-4 shadow-xl">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span><h3 class="font-mono text-xs font-extrabold uppercase tracking-wider text-white">Live Race Track</h3></div>
+            <span id="track-round-label" class="font-mono text-[11px] text-sky-300 font-bold">Round 1</span>
+          </div>
+          <div id="live-race-track" class="space-y-2.5 max-h-[265px] overflow-y-auto custom-scroll pr-1"></div>
+        </div>
+        <div class="bg-slate-900/95 border border-slate-800 rounded-2xl p-4 shadow-xl flex-1 flex flex-col">
+          <div class="flex items-center justify-between gap-2 mb-3"><h3 class="font-mono text-xs font-extrabold uppercase tracking-wider text-amber-300">&#127942; Live Leaderboard</h3><span id="lb-player-count" class="font-mono text-[10px] text-slate-400">0 Racers</span></div>
+          <div id="live-leaderboard" class="space-y-2 overflow-y-auto custom-scroll pr-1 flex-1 max-h-[310px]"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="arena-podium" class="hidden bg-slate-900/95 border border-amber-400/45 rounded-3xl p-6 sm:p-8 text-center shadow-2xl">
+      <div class="font-mono text-xs font-extrabold uppercase tracking-widest text-amber-300 mb-1">Race Complete</div>
+      <h2 class="text-3xl sm:text-4xl font-black text-white mb-2">&#127942; Final Championship Podium</h2>
+      <p id="podium-subtitle" class="text-sm text-slate-300 mb-6"></p>
+      <div id="podium-top3" class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto mb-6 items-end"></div>
+      <div class="max-w-2xl mx-auto bg-slate-950 border border-slate-800 rounded-2xl p-4 mb-6 text-left">
+        <div class="font-mono text-xs font-bold uppercase text-sky-300 mb-2">Full Class Standings</div>
+        <div id="podium-full-list" class="space-y-1.5 max-h-56 overflow-y-auto custom-scroll pr-1"></div>
+      </div>
+      <div class="flex flex-wrap items-center justify-center gap-3">
+        <button id="btn-podium-csv" type="button" class="btn-lift bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/45 text-emerald-200 font-mono font-bold text-xs px-4 py-2.5 rounded-xl">Download Results CSV</button>
+        <button id="btn-podium-again" type="button" class="btn-lift bg-gradient-to-r from-sky-500 to-emerald-400 text-slate-950 font-black text-sm px-6 py-2.5 rounded-xl">Return to Lobby / New Race</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="modal-ref" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-3 sm:p-5">
+    <div class="w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-3xl p-5 shadow-2xl max-h-[88vh] overflow-y-auto custom-scroll">
+      <div class="flex items-center justify-between mb-3">
+        <div><div class="font-mono text-[10px] uppercase text-sky-400 font-bold">College Board APCSP Python Syntax</div><h3 class="text-lg font-black text-white">APCSP Python Quick Reference</h3></div>
+        <button id="btn-close-ref" type="button" class="btn-lift bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl px-3 py-1 font-mono text-xs font-bold">Close</button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3"><div class="font-mono font-bold text-sky-400 mb-1">1. Variables &amp; Math Operators</div><pre class="font-mono text-[11px] text-slate-300 whitespace-pre-wrap">name = "Ada"      # str
+age = 17          # int
+gpa = 3.95        # float
+ready = True      # bool (True/False)
+x += 5            # add 5 to x
+17 // 5           # 3 (int division)
+17 % 5            # 2 (MOD remainder)
+2 ** 3            # 8 (exponent)</pre></div>
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3"><div class="font-mono font-bold text-emerald-400 mb-1">2. Lists &amp; Procedures</div><pre class="font-mono text-[11px] text-slate-300 whitespace-pre-wrap">nums = [10, 20, 30]
+nums[0]           # 10 (0-indexed!)
+nums[-1]          # 30 (last item)
+len(nums)         # 3
+nums.append(40)   # add to end
+nums.insert(1,15) # insert at index 1
+x = nums.pop(0)   # remove &amp; return idx 0</pre></div>
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3"><div class="font-mono font-bold text-amber-400 mb-1">3. Conditionals &amp; Booleans</div><pre class="font-mono text-[11px] text-slate-300 whitespace-pre-wrap">if score &gt;= 90:
+    grade = "A"
+elif score &gt;= 80:
+    grade = "B"
+else:
+    grade = "C"
+# Logic: and, or, not, ==, !=</pre></div>
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3"><div class="font-mono font-bold text-violet-400 mb-1">4. Loops, Functions &amp; Random</div><pre class="font-mono text-[11px] text-slate-300 whitespace-pre-wrap">for i in range(1, 6): # 1,2,3,4,5
+    print(i)
+
+def add(a, b):
+    return a + b
+
+import random
+r = random.randint(1, 6) # inclusive</pre></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="pointer-events-none fixed bottom-5 left-1/2 -translate-x-1/2 z-50 opacity-0 transition-opacity duration-200 bg-slate-900 border border-sky-400/60 text-sky-100 font-mono text-xs font-bold px-4 py-2 rounded-full shadow-2xl"></div>
+
+<!--APP-->
+</body>
+</html>
