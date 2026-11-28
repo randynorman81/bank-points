@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 6 Practice Test | Intro to Software Technology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+:root{
+  --bg:#0B0E14; --panel:#10141C; --card:#151A24; --ink:#EAEFF6; --ink-soft:#8B9AAE; --rule:#232B38;
+  --acc:#FB923C; --acc-tint:rgba(251,146,60,.14); --acc-ink:#FDC79B;
+  --bad:#F87171; --bad-tint:rgba(248,113,113,.13); --bad-ink:#FCA5A5;
+  --lst:#34D399; --lst-tint:rgba(52,211,153,.13); --lst-ink:#6EE7B7;
+  --cir:#22D3EE; --rec:#818CF8;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif; font-size:16.5px; line-height:1.62; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif; line-height:1.14; margin:0; text-wrap:balance}
+h3.sub{font-size:20px;font-weight:600;color:#fff;margin:30px 0 12px}
+p{margin:0 0 1em} p:last-child{margin-bottom:0}
+strong,b{font-weight:700}
+a{color:var(--acc-ink)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 26px}
+
+.pillnav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:5}
+.pillnav a{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:7px 14px;letter-spacing:.02em}
+.pillnav a:hover{color:var(--ink);border-color:#3A4658}
+.pillnav a.current{background:var(--acc);color:#2B1706;border-color:var(--acc)}
+
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 14% 20%, var(--acc-tint), transparent 42%);}
+.hero .wrap{position:relative}
+.brief-no{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:16px;text-transform:uppercase}
+.hero h1{font-size:clamp(32px,6vw,52px);font-weight:600;max-width:22ch;color:#fff}
+.hero .deck{color:var(--ink-soft);font-size:clamp(16px,2vw,18.5px);line-height:1.6;max-width:68ch;margin-top:18px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.chip{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:6px 14px}
+.chip b{color:var(--acc-ink)}
+.cta{display:inline-block;margin-top:24px;font-family:"JetBrains Mono",monospace;font-size:13.5px;font-weight:700;color:#2B1706;background:var(--acc);text-decoration:none;border-radius:100px;padding:11px 22px}
+
+.part{padding:54px 0 8px;scroll-margin-top:60px}
+.part-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:26px}
+.part-tag{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);letter-spacing:.05em;text-transform:uppercase;flex:none}
+.part-head h2{font-size:clamp(22px,3.6vw,30px);font-weight:600;color:#fff}
+.part-head .les{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-soft);white-space:nowrap}
+.lede{font-size:17.5px;line-height:1.6;max-width:70ch;margin-bottom:26px;color:#C4CDD8}
+
+.code{background:#05070B;border:1px solid var(--rule);border-radius:6px;padding:16px 20px;margin:6px 0 22px;font-family:"JetBrains Mono",monospace;font-size:14.5px;line-height:1.75;overflow-x:auto;white-space:pre;color:#D8E1EC}
+.code .cm{color:var(--ink-soft)}
+.code .no{color:var(--bad-ink)}
+.code .ok{color:var(--lst-ink)}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:8px 0 18px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:24px;border-top:3px solid var(--acc)}
+.box h3{font-size:18px;font-weight:600;margin-bottom:12px;color:#fff;font-family:"Fraunces",serif}
+.box p,.box li{font-size:15px;line-height:1.55;color:#C4CDD8}
+.box ul{margin:0;padding-left:18px}
+.box.green{border-top-color:var(--lst)} .box.red{border-top-color:var(--bad)}
+
+.example{background:var(--acc-tint);border-left:4px solid var(--acc);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F0DAC4}
+.example b{color:#fff}
+.warn{background:var(--bad-tint);border-left:4px solid var(--bad);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#F3D2D2}
+.warn b{color:#fff}
+.good{background:var(--lst-tint);border-left:4px solid var(--lst);border-radius:0 5px 5px 0;padding:14px 18px;margin:16px 0;font-size:14.5px;color:#D3F5E6}
+.good b{color:#fff}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:8px}
+.cardx{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:18px 20px 20px;border-top:3px solid var(--acc)}
+.cardx .num{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;color:var(--acc-ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.cardx h4{font-size:15.5px;font-weight:600;color:#fff;margin-bottom:10px;font-family:"Fraunces",serif}
+.cardx p{font-size:13.5px;color:var(--ink-soft);margin:0}
+
+.tblwrap{background:var(--card);border:1px solid var(--rule);border-radius:5px;overflow:hidden;margin-bottom:18px}
+.tblscroll{overflow-x:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th,table.cmp td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600}
+table.cmp td b{color:#fff}
+table.cmp td.y{color:var(--lst-ink)} table.cmp td.n{color:var(--bad-ink)}
+
+code{font-family:"JetBrains Mono",monospace;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-size:.9em}
+
+.hint-panel{background:rgba(255,255,255,.03);border:1px dashed var(--rule);border-radius:5px;padding:16px 20px;font-size:14.5px;color:var(--ink-soft);margin:18px 0}
+.hint-panel b{color:var(--ink)}
+
+.callout{background:var(--panel);border:1px solid var(--rule);color:#fff;padding:28px 30px;border-radius:5px;margin:10px 0 30px;font-size:19px;line-height:1.5;font-family:"Fraunces",serif;font-weight:500}
+.callout span{color:var(--ink-soft);font-weight:400;font-family:"Manrope",sans-serif;font-size:16px;display:block;margin-top:10px}
+
+.checklist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 20px}
+.checklist li{font-size:14.5px;color:#C4CDD8;padding:8px 0 8px 26px;position:relative;border-bottom:1px solid var(--rule)}
+.checklist li::before{content:"\2610";position:absolute;left:0;color:var(--acc-ink);font-size:15px}
+
+/* trace table */
+table.trace{border-collapse:collapse;font-family:"JetBrains Mono",monospace;font-size:14px;margin:4px 0 20px;background:var(--card);border:1px solid var(--rule)}
+table.trace th,table.trace td{padding:8px 16px;border:1px solid var(--rule);text-align:left}
+table.trace th{color:var(--ink-soft);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+table.trace td.chg{color:var(--acc-ink);font-weight:700}
+
+/* math lab */
+.lab{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:20px 22px;margin:10px 0 22px}
+.lab .row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-family:"JetBrains Mono",monospace}
+.lab input{width:90px;background:#05070B;color:#fff;border:1px solid #3A4658;border-radius:4px;padding:8px 10px;font:inherit;font-size:16px}
+.lab .out{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px}
+.lab .cell{background:#05070B;border:1px solid var(--rule);border-radius:5px;padding:12px 14px;font-family:"JetBrains Mono",monospace}
+.lab .cell .op{font-size:12px;color:var(--ink-soft)}
+.lab .cell .v{font-size:22px;color:#fff;font-weight:700;margin-top:4px}
+.lab .cell .t{font-size:11px;color:var(--acc-ink);margin-top:2px}
+.lab .explain{margin-top:14px;font-size:14.5px;color:#C4CDD8}
+
+/* canvas figure */
+.fig{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:18px;margin:10px 0 22px}
+.fig svg{width:100%;height:auto;display:block}
+.fig .cap{font-size:13.5px;color:var(--ink-soft);margin-top:10px}
+
+/* ===== practice test ===== */
+.testbar{position:sticky;top:52px;z-index:4;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.score{font-family:"JetBrains Mono",monospace;font-size:14px;color:#fff;font-weight:700;margin-right:auto}
+.score span{color:var(--ink-soft);font-weight:500}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.fbtn,.tbtn{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--card);border:1px solid var(--rule);border-radius:100px;padding:6px 12px;cursor:pointer}
+.fbtn:hover,.tbtn:hover{color:#fff;border-color:#3A4658}
+.fbtn.on{background:var(--acc);color:#2B1706;border-color:var(--acc)}
+.tbtn.danger{color:var(--bad-ink)}
+.q{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:22px 24px;margin-bottom:14px}
+.q.right{border-color:rgba(52,211,153,.5)} .q.wrong{border-color:rgba(248,113,113,.5)}
+.q .qh{display:flex;gap:10px;align-items:baseline;margin-bottom:10px;flex-wrap:wrap}
+.q .qn{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--acc-ink);font-weight:700}
+.q .qt{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--rule);border-radius:100px;padding:2px 9px}
+.q .stem{font-size:15.5px;color:#EAEFF6;margin-bottom:10px}
+.q .code{margin:8px 0 14px;font-size:14px}
+.q .sel2{font-weight:700;color:var(--acc-ink)}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;background:#0E121A;border:1px solid var(--rule);border-radius:5px;padding:11px 14px;color:#D8E1EC;font:inherit;font-size:15px;cursor:pointer}
+.opt:hover:not([disabled]){border-color:#3A4658;background:#121824}
+.opt .l{font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--ink-soft);flex:none;width:22px}
+.opt.picked{border-color:var(--acc)}
+.opt.ok{border-color:var(--lst);background:var(--lst-tint)} .opt.ok .l{color:var(--lst-ink)}
+.opt.bad{border-color:var(--bad);background:var(--bad-tint)} .opt.bad .l{color:var(--bad-ink)}
+.opt[disabled]{cursor:default}
+.opt code{white-space:pre-wrap}
+.check{margin-top:10px;font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:700;background:var(--acc);color:#2B1706;border:0;border-radius:100px;padding:8px 16px;cursor:pointer}
+.check[disabled]{opacity:.4;cursor:default}
+.why{display:none;margin-top:14px;border-top:1px solid var(--rule);padding-top:12px;font-size:14.5px;color:#C4CDD8}
+.why b.v{color:var(--lst-ink)} .why b.x{color:var(--bad-ink)}
+.q.done .why{display:block}
+.done-msg{display:none;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:22px 24px;margin:10px 0 20px}
+.done-msg h3{font-size:22px;color:#fff;margin-bottom:8px}
+
+.final{background:var(--panel);border-top:1px solid var(--rule);margin-top:56px;padding:52px 0 60px}
+.final h2{font-size:clamp(22px,3.2vw,30px);font-weight:600;max-width:30ch;line-height:1.25;color:#fff}
+.final p{margin-top:16px;color:var(--ink-soft);font-size:16px;line-height:1.6;max-width:64ch}
+.final .back{display:inline-block;margin-top:20px;margin-right:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--acc-ink);text-decoration:none;border:1px solid var(--acc);border-radius:100px;padding:9px 18px}
+.final .back:hover{background:var(--acc-tint)}
+.final .sig{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#5D6B7A;border-top:1px solid var(--rule);padding-top:14px}
+
+@media (max-width:820px){
+  .wrap{padding:0 16px}
+  .pillnav{padding:10px 16px;position:static}
+  .testbar{top:0}
+  .two,.cards{grid-template-columns:1fr}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:9px 11px}
+  .checklist{grid-template-columns:1fr}
+  .part-head{flex-wrap:wrap} .part-head .les{margin-left:0}
+  .code{font-size:13px;padding:14px}
+  .q{padding:18px 16px}
+}
+</style>
+</head>
+<body>
+
+<nav class="pillnav">
+  <a href="index.html">&larr; Unit 6: Bootstrap</a>
+  <a href="../unit-6/game.html">Walkthroughs and assignments</a>
+  <a href="../unit-6/game.html">Quiz games</a>
+  <a href="#test" class="current">Practice Test</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brief-no">INTRO TO SOFTWARE TECHNOLOGY &nbsp;/&nbsp; UNIT 6 &nbsp;/&nbsp; BOOTSTRAP</div>
+    <h1>Unit 6 Practice Test</h1>
+    <p class="deck">Questions for every lesson from 6.1 Setting Up Bootstrap to 6.6 Forms. Picture the page the classes make before you choose. Use the topic buttons to practice one lesson at a time.</p>
+    <div class="meta">
+      <span class="chip">Covers <b>6.1&ndash;6.6</b></span>
+      <span class="chip"><b id="heroCount">0</b> questions</span>
+      <span class="chip">Every answer <b>explained</b></span>
+    </div>
+    <a class="cta" href="#test">Start the practice test &darr;</a>
+  </div>
+</header>
+
+<section class="part" id="test">
+  <div class="wrap">
+    <div class="part-head"><div class="part-tag">Q</div><h2>Practice Test</h2></div>
+    <p class="lede">Picture the page the code makes before you choose. You get one try per question, and the explanation shows after you answer. "Select two" questions need exactly two choices before you can check.</p>
+
+    <div class="testbar">
+      <div class="score" id="score">0 / 0 <span>correct &middot; 0 left</span></div>
+      <div class="filters" id="filters"></div>
+      <button class="tbtn" id="missedBtn" type="button">Show missed only</button>
+      <button class="tbtn danger" id="resetBtn" type="button">Reset</button>
+    </div>
+    <div class="done-msg" id="doneMsg"></div>
+    <div id="quiz"></div>
+  </div>
+</section>
+
+
+<script>
+var LAB={"Setting up Bootstrap": "6.1 Setting up Bootstrap", "The grid": "6.2 The grid", "Typography, colors and buttons": "6.3 Typography, colors and buttons", "Navbar": "6.4 Navbar", "Cards": "6.5 Cards", "Forms": "6.6 Forms"};
+var Q = [
+{
+"t": "Setting up Bootstrap",
+"s": "Which version of Bootstrap does this course use?",
+"o": [
+"5.3.9",
+"2.0",
+"9.0",
+"3.1"
+],
+"a": [
+0
+],
+"e": "The link in the course has bootstrap@5.3.9 in its address."
+},
+{
+"t": "Setting up Bootstrap",
+"s": "What is a CDN?",
+"o": [
+"A network of servers that hosts files (like Bootstrap) so you only link to them",
+"A kind of CSS rule",
+"A tag that stands alone",
+"A browser setting"
+],
+"a": [
+0
+],
+"e": "Content Delivery Network: you do not upload Bootstrap, you link to the address it publishes."
+},
+{
+"t": "Setting up Bootstrap",
+"s": "The page has the heading <h1>Juice</h1>. Which link tag loads Bootstrap into it? Pick the one that really changes the heading.",
+"o": [
+"<code>&lt;link href=\"http://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css\" rel=\"stylesheet\"&gt;</code>",
+"<code>&lt;link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css\" rel=\"stylsheet\"&gt;</code>",
+"<code>&lt;link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css\" rel=\"stylesheet\"&gt;</code>",
+"<code>&lt;link href=\"https://cdn.jsdeliver.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css\" rel=\"stylesheet\"&gt;</code>"
+],
+"a": [
+2
+],
+"e": "A working Bootstrap link is a <b>link</b> tag with <b>rel=\"stylesheet\"</b> and the exact https:// address of Bootstrap's css file. Bootstrap changes the heading from bold (700) to a lighter weight (500)."
+},
+{
+"t": "Setting up Bootstrap",
+"s": "Your style.css has <code>h1 { color: teal; }</code> for the heading \"Art\". Which order of the two links makes the heading teal?",
+"o": [
+"style.css first, then Bootstrap",
+"Bootstrap first, then style.css",
+"Only one of the two files can be linked",
+"The order never matters"
+],
+"a": [
+1
+],
+"e": "When two rules are equally specific, the one that comes <b>last</b> wins. Bootstrap also colors headings, so your own file must come under it."
+},
+{
+"t": "Setting up Bootstrap",
+"s": "The page has a heading 2 and a paragraph. The head holds the Bootstrap link. What do they look like?",
+"o": [
+"The page shows an error",
+"Only the heading changes",
+"They keep the plain browser style (a serif font)",
+"The heading and paragraph look different from the plain browser style"
+],
+"a": [
+3
+],
+"e": "The moment the link is added, plain tags like paragraphs and headings change font and spacing, even before you add a single class.",
+"c": "<head>\n<title>Page</title>\n<link href=\"...\" rel=\"stylesheet\">\n</head>\n<body>\n<h2>Sports</h2>\n<p>Fresh every day.</p>\n</body>"
+},
+{
+"t": "Setting up Bootstrap",
+"s": "The page has the heading <h1>Salad</h1>. Which link tag loads Bootstrap into it? Pick the one that really changes the heading.",
+"o": [
+"<code>&lt;link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css\" rel=\"stylesheet\"&gt;</code>",
+"<code>&lt;link href=\"https://cdn.jsdeliver.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css\" rel=\"stylesheet\"&gt;</code>",
+"<code>&lt;link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css\" rel=\"stylsheet\"&gt;</code>",
+"<code>&lt;style href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css\" rel=\"stylesheet\"&gt;</code>"
+],
+"a": [
+0
+],
+"e": "A working Bootstrap link is a <b>link</b> tag with <b>rel=\"stylesheet\"</b> and the exact https:// address of Bootstrap's css file. Bootstrap changes the heading from bold (700) to a lighter weight (500)."
+},
+{
+"t": "Setting up Bootstrap",
+"s": "Your style.css has <code>h1 { color: purple; }</code> for the heading \"Art\". Which order of the two links makes the heading purple?",
+"o": [
+"style.css first, then Bootstrap",
+"Only one of the two files can be linked",
+"Bootstrap first, then style.css",
+"The order never matters"
+],
+"a": [
+2
+],
+"e": "When two rules are equally specific, the one that comes <b>last</b> wins. Bootstrap also colors headings, so your own file must come under it."
+},
+{
+"t": "Setting up Bootstrap",
+"s": "The page has a heading 2 and a paragraph. The head has no Bootstrap link. What do they look like?",
+"o": [
+"The heading and paragraph look different from the plain browser style",
+"The page shows an error",
+"They keep the plain browser style (a serif font)",
+"Only the heading changes"
+],
+"a": [
+2
+],
+"e": "The moment the link is added, plain tags like paragraphs and headings change font and spacing, even before you add a single class.",
+"c": "<head>\n<title>Page</title>\n</head>\n<body>\n<h2>Cake</h2>\n<p>Fresh every day.</p>\n</body>"
+},
+{
+"t": "Setting up Bootstrap",
+"s": "The page has the heading <h1>Soup</h1>. Which link tag loads Bootstrap into it? Pick the one that really changes the heading.",
+"o": [
+"<code>&lt;link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css\" rel=\"stylesheet\"&gt;</code>",
+"<code>&lt;style href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css\" rel=\"stylesheet\"&gt;</code>",
+"<code>&lt;link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.cs\" rel=\"stylesheet\"&gt;</code>",
+"<code>&lt;link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css\" rel=\"stylsheet\"&gt;</code>"
+],
+"a": [
+0
+],
+"e": "A working Bootstrap link is a <b>link</b> tag with <b>rel=\"stylesheet\"</b> and the exact https:// address of Bootstrap's css file. Bootstrap changes the heading from bold (700) to a lighter weight (500)."
+},
+{
+"t": "Setting up Bootstrap",
+"s": "Your style.css has <code>h1 { color: darkgreen; }</code> for the heading \"Salad\". Which order of the two links makes the heading darkgreen?",
+"o": [
+"The order never matters",
+"style.css first, then Bootstrap",
+"Only one of the two files can be linked",
+"Bootstrap first, then style.css"
+],
+"a": [
+3
+],
+"e": "When two rules are equally specific, the one that comes <b>last</b> wins. Bootstrap also colors headings, so your own file must come under it."
+},
+{
+"t": "Setting up Bootstrap",
+"s": "Which two things are true about adding Bootstrap to a page? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"The link tag needs a closing link tag",
+"The link tag goes inside the head",
+"The link tag has no closing tag",
+"The link tag goes inside the body"
+],
+"a": [
+1,
+2
+],
+"e": "The Bootstrap link is a link tag like your own style.css link: in the head, standing alone."
+},
+{
+"t": "The grid",
+"s": "What does col-md-6 mean?",
+"o": [
+"Medium-sized text",
+"6 columns on phones only",
+"6 columns wide on medium screens and up, full width (stacked) on phones",
+"Always 6 columns wide"
+],
+"a": [
+2
+],
+"e": "The md part is the breakpoint: 768 pixels."
+},
+{
+"t": "The grid",
+"s": "What happens when the columns in a row add up to more than 12?",
+"o": [
+"The columns shrink to fit",
+"An error appears",
+"The row is deleted",
+"The extra column wraps to a new line"
+],
+"a": [
+3
+],
+"e": "A row only has 12 columns."
+},
+{
+"t": "The grid",
+"s": "The row holds columns of col-3, col-3, col-3, col-3. How many lines (rows of columns) do they make on a laptop screen?",
+"o": [
+"2",
+"4",
+"3",
+"1"
+],
+"a": [
+3
+],
+"e": "A row has 12 columns. These add up to 12, so they fit on one line.",
+"c": "<div class=\"container\">\n<div class=\"row\">\n<div class=\"col-3\">Shop</div>\n<div class=\"col-3\">Maps</div>\n<div class=\"col-3\">Help</div>\n<div class=\"col-3\">News</div>\n</div>\n</div>"
+},
+{
+"t": "The grid",
+"s": "How many times as wide is the first column as the third column?",
+"o": [
+"3",
+"1",
+"4",
+"2"
+],
+"a": [
+1
+],
+"e": "The numbers say how many of the 12 columns each one takes: 3 and 3, so one is 1 times the other.",
+"c": "<div class=\"container\">\n<div class=\"row\">\n<div class=\"col-3\">Help</div>\n<div class=\"col-6\">Games</div>\n<div class=\"col-3\">Music</div>\n</div>\n</div>"
+},
+{
+"t": "The grid",
+"s": "The columns use col-md-4, col-md-4, col-md-4. How many lines do they make on a phone (400 pixels wide)?",
+"o": [
+"2",
+"4",
+"3",
+"1"
+],
+"a": [
+2
+],
+"e": "A col-md-N column only takes its share of the 12 columns on medium screens (768 pixels) and wider. On a phone each column is the full width and they stack.",
+"c": "<div class=\"container\">\n<div class=\"row\">\n<div class=\"col-md-4\">Photos</div>\n<div class=\"col-md-4\">Blog</div>\n<div class=\"col-md-4\">Links</div>\n</div>\n</div>"
+},
+{
+"t": "The grid",
+"s": "A row holds 3 divs that all use the plain class col. How do they share the row?",
+"o": [
+"Equally: each is 1/3 of the width",
+"Each takes 6 of the 12 columns",
+"They stack, one per line",
+"Only the first one is visible"
+],
+"a": [
+0
+],
+"e": "Plain col (no number) splits the leftover space evenly among however many you use.",
+"c": "<div class=\"container\">\n<div class=\"row\">\n<div class=\"col\">A</div>\n<div class=\"col\">B</div>\n<div class=\"col\">C</div>\n</div>\n</div>"
+},
+{
+"t": "The grid",
+"s": "The page has the container and the columns, but no row div between them. What happens on a laptop screen?",
+"o": [
+"The columns stack instead of sitting side by side",
+"Nothing changes",
+"The columns are twice as wide",
+"The page shows an error"
+],
+"a": [
+0
+],
+"e": "Columns only line up inside a row. Skip the row and each col div is just a block that takes its own line.",
+"c": "<div class=\"container\">\n<div>\n<div class=\"col-4\">Maps</div>\n<div class=\"col-4\">Music</div>\n<div class=\"col-4\">Links</div>\n</div>\n</div>"
+},
+{
+"t": "The grid",
+"s": "The row holds columns of col-3, col-3, col-3, col-3. How many lines (rows of columns) do they make on a laptop screen?",
+"o": [
+"4",
+"3",
+"2",
+"1"
+],
+"a": [
+3
+],
+"e": "A row has 12 columns. These add up to 12, so they fit on one line.",
+"c": "<div class=\"container\">\n<div class=\"row\">\n<div class=\"col-3\">Music</div>\n<div class=\"col-3\">Photos</div>\n<div class=\"col-3\">Help</div>\n<div class=\"col-3\">Menu</div>\n</div>\n</div>"
+},
+{
+"t": "The grid",
+"s": "How many times as wide is the second column as the first column?",
+"o": [
+"4",
+"2",
+"3",
+"1"
+],
+"a": [
+1
+],
+"e": "The numbers say how many of the 12 columns each one takes: 4 and 2, so one is 2 times the other.",
+"c": "<div class=\"container\">\n<div class=\"row\">\n<div class=\"col-2\">Help</div>\n<div class=\"col-4\">Photos</div>\n<div class=\"col-6\">News</div>\n</div>\n</div>"
+},
+{
+"t": "The grid",
+"s": "The columns use col-md-6, col-md-6. How many lines do they make on a laptop (1000 pixels wide)?",
+"o": [
+"2",
+"4",
+"1",
+"3"
+],
+"a": [
+2
+],
+"e": "On a medium screen or wider (768 pixels and up) the col-md columns take their share of the 12 columns, so they sit side by side.",
+"c": "<div class=\"container\">\n<div class=\"row\">\n<div class=\"col-md-6\">Prices</div>\n<div class=\"col-md-6\">Photos</div>\n</div>\n</div>"
+},
+{
+"t": "The grid",
+"s": "Two columns share one row. Which two class names make them sit side by side, each taking half, on a laptop screen? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"<code>column-6</code>",
+"<code>col-md-6</code>",
+"<code>col6</code>",
+"<code>col-6</code>"
+],
+"a": [
+1,
+3
+],
+"e": "col-6 and col-md-6 both take half the row on a laptop. col6 and column-6 are not Bootstrap classes, so the divs just stack."
+},
+{
+"t": "Typography, colors and buttons",
+"s": "Which of these is NOT one of Bootstrap's six theme colors used in this lesson?",
+"o": [
+"info",
+"danger",
+"primary",
+"purple"
+],
+"a": [
+3
+],
+"e": "The six are primary, secondary, success, danger, warning and info."
+},
+{
+"t": "Typography, colors and buttons",
+"s": "What does p-3 do?",
+"o": [
+"Adds padding on all four sides",
+"Makes the paragraph the third in the row",
+"Makes the text 3 pixels",
+"Adds a margin on the top"
+],
+"a": [
+0
+],
+"e": "p means padding; m means margin."
+},
+{
+"t": "Typography, colors and buttons",
+"s": "The paragraph has the class <code>text-danger</code>. What color is the text?",
+"o": [
+"gray",
+"green",
+"blue",
+"red"
+],
+"a": [
+3
+],
+"e": "<b>text-danger</b> colors text with Bootstrap's danger theme color, which is red.",
+"c": "<p class=\"text-danger\">Cake</p>"
+},
+{
+"t": "Typography, colors and buttons",
+"s": "The paragraph has the classes <code>bg-danger p-3</code>. What color is the box behind the words?",
+"o": [
+"green",
+"red",
+"blue",
+"gray"
+],
+"a": [
+1
+],
+"e": "<b>bg-danger</b> sets the background to the theme color red. The p-3 adds padding so you can see the box.",
+"c": "<p class=\"bg-danger p-3\">Music</p>"
+},
+{
+"t": "Typography, colors and buttons",
+"s": "Which code makes a blue button that says Quit?",
+"o": [
+"<code>&lt;button class=\"button-primary\"&gt;Quit&lt;/button&gt;</code>",
+"<code>&lt;button class=\"btn btn-primary\"&gt;Quit&lt;/button&gt;</code>",
+"<code>&lt;button class=\"btn btn-danger\"&gt;Quit&lt;/button&gt;</code>",
+"<code>&lt;button class=\"btn-primary\"&gt;Quit&lt;/button&gt;</code>"
+],
+"a": [
+1
+],
+"e": "A Bootstrap button needs <b>btn</b> plus one theme color class. btn alone has no color, and a color class alone is not enough."
+},
+{
+"t": "Typography, colors and buttons",
+"s": "The paragraph has the class <code>text-muted</code>. What does it do?",
+"o": [
+"A red background",
+"Centered text",
+"Bold text",
+"Lighter gray text"
+],
+"a": [
+3
+],
+"e": "<b>text-muted</b>: lighter gray text.",
+"c": "<p class=\"text-muted\">Pasta</p>"
+},
+{
+"t": "Typography, colors and buttons",
+"s": "The paragraph has the classes <code>bg-dark p-3</code>. What color are the words?",
+"o": [
+"The same color as the background",
+"Dark (almost black)",
+"Yellow",
+"White"
+],
+"a": [
+1
+],
+"e": "bg-dark only sets the background, never the text color. Add text-white to get white words.",
+"c": "<p class=\"bg-dark p-3\">Pizza</p>"
+},
+{
+"t": "Typography, colors and buttons",
+"s": "Which paragraph has more space inside its colored box?",
+"o": [
+"They are the same",
+"The second one",
+"Neither has any",
+"The first one"
+],
+"a": [
+1
+],
+"e": "p-N is padding on all four sides, and a bigger number means more space (p-4 beats p-2).",
+"c": "<p class=\"bg-info p-2\">First</p>\n<p class=\"bg-warning p-4\">Second</p>"
+},
+{
+"t": "Typography, colors and buttons",
+"s": "The paragraph has the class <code>text-danger</code>. What color is the text?",
+"o": [
+"red",
+"green",
+"gray",
+"blue"
+],
+"a": [
+0
+],
+"e": "<b>text-danger</b> colors text with Bootstrap's danger theme color, which is red.",
+"c": "<p class=\"text-danger\">Rice</p>"
+},
+{
+"t": "Typography, colors and buttons",
+"s": "The paragraph has the classes <code>bg-secondary p-3</code>. What color is the box behind the words?",
+"o": [
+"blue",
+"red",
+"gray",
+"green"
+],
+"a": [
+2
+],
+"e": "<b>bg-secondary</b> sets the background to the theme color gray. The p-3 adds padding so you can see the box.",
+"c": "<p class=\"bg-secondary p-3\">Rice</p>"
+},
+{
+"t": "Typography, colors and buttons",
+"s": "Which two class lists make a button with a Bootstrap theme color as its background? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"<code>btn btn-primary</code>",
+"<code>btn btn-danger</code>",
+"<code>btn</code>",
+"<code>btn-primary</code>"
+],
+"a": [
+0,
+1
+],
+"e": "A Bootstrap button needs btn plus a color class. btn alone and a color class alone are not enough."
+},
+{
+"t": "Navbar",
+"s": "Which tag does a Bootstrap navbar start with?",
+"o": [
+"div only",
+"navbar",
+"nav",
+"header"
+],
+"a": [
+2
+],
+"e": "The nav tag carries the navbar classes."
+},
+{
+"t": "Navbar",
+"s": "Which class goes on the div that wraps the nav-links?",
+"o": [
+"navbar-nav",
+"navbar-dark",
+"navbar-brand",
+"nav-links"
+],
+"a": [
+0
+],
+"e": "It lays the links out together."
+},
+{
+"t": "Navbar",
+"s": "The navbar uses <code>navbar-expand-lg</code> and has 2 nav-links. How many lines of links do you see on a phone (500 pixels wide)?",
+"o": [
+"2",
+"3",
+"1",
+"4"
+],
+"a": [
+0
+],
+"e": "navbar-expand-lg puts the links in a row on large screens (992 pixels and wider). On narrower screens the links stack, one per line.",
+"c": "<nav class=\"navbar navbar-expand-lg navbar-dark bg-dark\">\n<div class=\"container\">\n<a class=\"navbar-brand\" href=\"https://www.nasa.gov\">Brand</a>\n<div class=\"navbar-nav\">\n<a class=\"nav-link\" href=\"https://www.nasa.gov\">Games</a>\n<a class=\"nav-link\" href=\"https://www.nasa.gov\">About</a>\n</div>\n</div>\n</nav>"
+},
+{
+"t": "Navbar",
+"s": "The navbar has no <code>navbar-expand-lg</code> class and 2 nav-links. How are the links laid out on a wide laptop screen?",
+"o": [
+"Spread out evenly",
+"Hidden",
+"Stacked, one per line",
+"In a row"
+],
+"a": [
+2
+],
+"e": "The expand class is what turns the links into a row on large screens. Without it they stack at every width.",
+"c": "<nav class=\"navbar navbar-dark bg-dark\">\n<div class=\"container\">\n<a class=\"navbar-brand\" href=\"https://www.nasa.gov\">Brand</a>\n<div class=\"navbar-nav\">\n<a class=\"nav-link\" href=\"https://www.nasa.gov\">Help</a>\n<a class=\"nav-link\" href=\"https://www.nasa.gov\">Games</a>\n</div>\n</div>\n</nav>"
+},
+{
+"t": "Navbar",
+"s": "The nav tag has the classes <code>navbar navbar-expand-lg navbar-dark bg-secondary</code>. What color is the bar?",
+"o": [
+"green",
+"blue",
+"gray",
+"almost black"
+],
+"a": [
+2
+],
+"e": "<b>bg-secondary</b> sets the bar's background, so it is gray.",
+"c": "<nav class=\"navbar navbar-expand-lg navbar-dark bg-secondary\">\n<div class=\"container\">\n<a class=\"navbar-brand\" href=\"https://www.nasa.gov\">Music</a>\n<div class=\"navbar-nav\">\n<a class=\"nav-link\" href=\"https://www.nasa.gov\">Home</a>\n<a class=\"nav-link\" href=\"https://www.nasa.gov\">Help</a>\n</div>\n</div>\n</nav>"
+},
+{
+"t": "Navbar",
+"s": "Which class goes on each link in the menu?",
+"o": [
+"<code>navbar-brand</code>",
+"<code>container</code>",
+"<code>navbar-dark</code>",
+"<code>nav-link</code>"
+],
+"a": [
+3
+],
+"e": "navbar goes on the nav, navbar-brand on the site name, navbar-nav on the div around the links, and nav-link on each link."
+},
+{
+"t": "Navbar",
+"s": "The first link in the navbar has the class <code>navbar-brand</code>. How does it look next to the nav-links?",
+"o": [
+"Smaller than the other links",
+"Bigger and bolder than the other links",
+"Exactly the same as the other links",
+"Hidden on a laptop"
+],
+"a": [
+1
+],
+"e": "navbar-brand gives the site name bigger, bolder styling.",
+"c": "<nav class=\"navbar navbar-expand-lg navbar-dark bg-dark\">\n<div class=\"container\">\n<a class=\"navbar-brand\" href=\"https://www.nasa.gov\">Brand</a>\n<div class=\"navbar-nav\">\n<a class=\"nav-link\" href=\"https://www.nasa.gov\">Home</a>\n<a class=\"nav-link\" href=\"https://www.nasa.gov\">Help</a>\n</div>\n</div>\n</nav>"
+},
+{
+"t": "Navbar",
+"s": "The navbar uses <code>navbar-expand-lg</code> and has 2 nav-links. How many lines of links do you see on a wide laptop screen (1200 pixels)?",
+"o": [
+"4",
+"2",
+"1",
+"3"
+],
+"a": [
+2
+],
+"e": "navbar-expand-lg puts the links in a row on large screens (992 pixels and wider). On narrower screens the links stack, one per line.",
+"c": "<nav class=\"navbar navbar-expand-lg navbar-dark bg-dark\">\n<div class=\"container\">\n<a class=\"navbar-brand\" href=\"https://www.nasa.gov\">Brand</a>\n<div class=\"navbar-nav\">\n<a class=\"nav-link\" href=\"https://www.nasa.gov\">Help</a>\n<a class=\"nav-link\" href=\"https://www.nasa.gov\">About</a>\n</div>\n</div>\n</nav>"
+},
+{
+"t": "Navbar",
+"s": "The navbar has no <code>navbar-expand-lg</code> class and 2 nav-links. How are the links laid out on a wide laptop screen?",
+"o": [
+"Spread out evenly",
+"Stacked, one per line",
+"In a row",
+"Hidden"
+],
+"a": [
+1
+],
+"e": "The expand class is what turns the links into a row on large screens. Without it they stack at every width.",
+"c": "<nav class=\"navbar navbar-dark bg-dark\">\n<div class=\"container\">\n<a class=\"navbar-brand\" href=\"https://www.nasa.gov\">Brand</a>\n<div class=\"navbar-nav\">\n<a class=\"nav-link\" href=\"https://www.nasa.gov\">Home</a>\n<a class=\"nav-link\" href=\"https://www.nasa.gov\">Help</a>\n</div>\n</div>\n</nav>"
+},
+{
+"t": "Navbar",
+"s": "The nav tag has the classes <code>navbar navbar-expand-lg navbar-dark bg-primary</code>. What color is the bar?",
+"o": [
+"green",
+"red",
+"almost black",
+"blue"
+],
+"a": [
+3
+],
+"e": "<b>bg-primary</b> sets the bar's background, so it is blue.",
+"c": "<nav class=\"navbar navbar-expand-lg navbar-dark bg-primary\">\n<div class=\"container\">\n<a class=\"navbar-brand\" href=\"https://www.nasa.gov\">Bread</a>\n<div class=\"navbar-nav\">\n<a class=\"nav-link\" href=\"https://www.nasa.gov\">Home</a>\n<a class=\"nav-link\" href=\"https://www.nasa.gov\">Help</a>\n</div>\n</div>\n</nav>"
+},
+{
+"t": "Navbar",
+"s": "Which two classes go on a link inside a Bootstrap navbar? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"<code>nav-link</code>",
+"<code>navbar-brand</code>",
+"<code>navbar-dark</code>",
+"<code>navbar-nav</code>"
+],
+"a": [
+0,
+1
+],
+"e": "navbar-brand is for the site name link and nav-link is for each menu link. navbar-nav goes on the div around the links, and navbar-dark goes on the nav."
+},
+{
+"t": "Cards",
+"s": "Where does a card-img-top image go?",
+"o": [
+"First inside the card, above the card-body",
+"Inside the card-title",
+"After the button",
+"Outside the card"
+],
+"a": [
+0
+],
+"e": "It fills the card's width at the top."
+},
+{
+"t": "Cards",
+"s": "Which classes go on the heading and paragraph inside a card?",
+"o": [
+"card-head and card-p",
+"title and text",
+"card-body and card",
+"card-title and card-text"
+],
+"a": [
+3
+],
+"e": "They give spacing and sizing."
+},
+{
+"t": "Cards",
+"s": "In the card code, which class draws the outer border around the whole card?",
+"o": [
+"card-body",
+"card-text",
+"card",
+"card-title"
+],
+"a": [
+2
+],
+"e": "The outer div with <b>card</b> is the bordered box. card-body only adds padding inside it.",
+"c": "<div class=\"card\">\n<div class=\"card-body\">\n<h5 class=\"card-title\">Salad</h5>\n<p class=\"card-text\">Hot today.</p>\n</div>\n</div>"
+},
+{
+"t": "Cards",
+"s": "A row holds 2 cards, each inside a div with the class <code>col-6</code>. How many lines of cards do you see on a laptop (1000 pixels wide)?",
+"o": [
+"4",
+"2",
+"3",
+"1"
+],
+"a": [
+3
+],
+"e": "The cards sit inside columns, so they follow the grid: they fit side by side on one line.",
+"c": "<div class=\"container\">\n<div class=\"row\">\n<div class=\"col-6\">\n<div class=\"card\">\n<div class=\"card-body\">\n<h5 class=\"card-title\">Pizza</h5>\n<p class=\"card-text\">Short text.</p>\n</div>\n</div>\n</div>\n<div class=\"col-6\">\n<div class=\"card\">\n<div class=\"card-body\">\n<h5 class=\"card-title\">Fries</h5>\n<p class=\"card-text\">Short text.</p>\n</div>\n</div>\n</div>\n</div>\n</div>"
+},
+{
+"t": "Cards",
+"s": "The first thing inside the card is an image with the class <code>card-img-top</code>. Where does it appear?",
+"o": [
+"At the top of the card, as wide as the card",
+"Under the title",
+"Outside and above the card",
+"Inside the card-body padding"
+],
+"a": [
+0
+],
+"e": "card-img-top makes an image fill the card's width at the top.",
+"c": "<div class=\"card\">\n<img src=\"https://schscomputerscience.com/ist/unit-6/lab/rocket.svg\" class=\"card-img-top\" alt=\"A red rocket\">\n<div class=\"card-body\">\n<h5 class=\"card-title\">Launch</h5>\n<p class=\"card-text\">Soon.</p>\n</div>\n</div>"
+},
+{
+"t": "Cards",
+"s": "Which class goes on the padding around the title, text and button?",
+"o": [
+"<code>card-text</code>",
+"<code>card-img-top</code>",
+"<code>card-body</code>",
+"<code>card</code>"
+],
+"a": [
+2
+],
+"e": "card is the outer box; card-img-top, card-body, card-title and card-text go on the pieces inside it."
+},
+{
+"t": "Cards",
+"s": "The card has the extra classes <code>bg-dark text-white</code>. What color are the card and its words?",
+"o": [
+"A dark card with white words",
+"A white card with dark words",
+"A blue card",
+"A dark card with dark words"
+],
+"a": [
+0
+],
+"e": "The bg- and text- classes from 6.3 work on a card too.",
+"c": "<div class=\"card bg-dark text-white\">\n<div class=\"card-body\">\n<h5 class=\"card-title\">Night</h5>\n<p class=\"card-text\">Dark.</p>\n</div>\n</div>"
+},
+{
+"t": "Cards",
+"s": "In the card code, which class draws the outer border around the whole card?",
+"o": [
+"card-text",
+"card-title",
+"card",
+"card-body"
+],
+"a": [
+2
+],
+"e": "The outer div with <b>card</b> is the bordered box. card-body only adds padding inside it.",
+"c": "<div class=\"card\">\n<div class=\"card-body\">\n<h5 class=\"card-title\">Tacos</h5>\n<p class=\"card-text\">New menu.</p>\n</div>\n</div>"
+},
+{
+"t": "Cards",
+"s": "A row holds 3 cards, each inside a div with the class <code>col-4</code>. How many lines of cards do you see on a laptop (1000 pixels wide)?",
+"o": [
+"2",
+"1",
+"4",
+"3"
+],
+"a": [
+1
+],
+"e": "The cards sit inside columns, so they follow the grid: they fit side by side on one line.",
+"c": "<div class=\"container\">\n<div class=\"row\">\n<div class=\"col-4\">\n<div class=\"card\">\n<div class=\"card-body\">\n<h5 class=\"card-title\">Cake</h5>\n<p class=\"card-text\">Short text.</p>\n</div>\n</div>\n</div>\n<div class=\"col-4\">\n<div class=\"card\">\n<div class=\"card-body\">\n<h5 class=\"card-title\">Rice</h5>\n<p class=\"card-text\">Short text.</p>\n</div>\n</div>\n</div>\n<div class=\"col-4\">\n<div class=\"card\">\n<div class=\"card-body\">\n<h5 class=\"card-title\">Salad</h5>\n<p class=\"card-text\">Short text.</p>\n</div>\n</div>\n</div>\n</div>\n</div>"
+},
+{
+"t": "Cards",
+"s": "A row holds 4 cards, each inside a div with the class <code>col-md-3</code>. How many lines of cards do you see on a phone (400 pixels wide)?",
+"o": [
+"1",
+"4",
+"3",
+"2"
+],
+"a": [
+1
+],
+"e": "The cards sit inside columns, so they follow the grid: with the md classes they stack on a phone, one per line.",
+"c": "<div class=\"container\">\n<div class=\"row\">\n<div class=\"col-md-3\">\n<div class=\"card\">\n<div class=\"card-body\">\n<h5 class=\"card-title\">Pie</h5>\n<p class=\"card-text\">Short text.</p>\n</div>\n</div>\n</div>\n<div class=\"col-md-3\">\n<div class=\"card\">\n<div class=\"card-body\">\n<h5 class=\"card-title\">Soup</h5>\n<p class=\"card-text\">Short text.</p>\n</div>\n</div>\n</div>\n<div class=\"col-md-3\">\n<div class=\"card\">\n<div class=\"card-body\">\n<h5 class=\"card-title\">Tacos</h5>\n<p class=\"card-text\">Short text.</p>\n</div>\n</div>\n</div>\n<div class=\"col-md-3\">\n<div class=\"card\">\n<div class=\"card-body\">\n<h5 class=\"card-title\">Salad</h5>\n<p class=\"card-text\">Short text.</p>\n</div>\n</div>\n</div>\n</div>\n</div>"
+},
+{
+"t": "Cards",
+"s": "Which two statements about a Bootstrap card are true? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"Cards can sit inside grid columns",
+"The card-body goes outside the card",
+"A card needs an image to work",
+"The outer div has the class card"
+],
+"a": [
+0,
+3
+],
+"e": "A card is a div with the class card, and it is almost always used inside the grid. The card-body goes inside it, and an image is optional."
+},
+{
+"t": "Forms",
+"s": "Which class goes on a label?",
+"o": [
+"form-label",
+"form-control",
+"label",
+"mb-3"
+],
+"a": [
+0
+],
+"e": "It gives standard spacing above a field."
+},
+{
+"t": "Forms",
+"s": "Which tag holds a long message that can have many lines?",
+"o": [
+"div",
+"input type=\"message\"",
+"label",
+"textarea"
+],
+"a": [
+3
+],
+"e": "A textarea is for longer text."
+},
+{
+"t": "Forms",
+"s": "The form fields do not have the class <code>form-control</code>. How wide is the first field?",
+"o": [
+"Full width of the container",
+"A small default width",
+"Exactly half the screen",
+"It is hidden"
+],
+"a": [
+1
+],
+"e": "form-control makes a field full width, padded and clean-bordered. Without it the browser draws a small plain box.",
+"c": "<form>\n<div class=\"mb-3\">\n<label class=\"form-label\">Message</label>\n<textarea></textarea>\n</div>\n<div class=\"mb-3\">\n<label class=\"form-label\">City</label>\n<input type=\"text\">\n</div>\n<button type=\"submit\" class=\"btn btn-primary\">Send</button>\n</form>"
+},
+{
+"t": "Forms",
+"s": "Which class goes on an input or a textarea?",
+"o": [
+"<code>form-input</code>",
+"<code>form-control</code>",
+"<code>form-label</code>",
+"<code>mb-3</code>"
+],
+"a": [
+1
+],
+"e": "form-label goes on labels, form-control on inputs and textareas, and mb-3 on the div around each field."
+},
+{
+"t": "Forms",
+"s": "The div around each field does not have the class <code>mb-3</code>. What do you see?",
+"o": [
+"There is space under each field",
+"The fields are hidden",
+"The labels are bold",
+"The fields are crowded together"
+],
+"a": [
+3
+],
+"e": "mb-3 adds margin at the bottom of the wrapping div, so fields do not crowd each other.",
+"c": "<form>\n<div>\n<label class=\"form-label\">Email</label>\n<input type=\"email\" class=\"form-control\">\n</div>\n<div>\n<label class=\"form-label\">City</label>\n<input type=\"text\" class=\"form-control\">\n</div>\n</form>"
+},
+{
+"t": "Forms",
+"s": "The label has <code>for=\"f0\"</code>. The field has <code>id=\"other\"</code>. What happens when you click the label?",
+"o": [
+"The field is selected (ready for typing)",
+"Nothing happens: the label is not linked to the field",
+"The page reloads",
+"The form is sent"
+],
+"a": [
+1
+],
+"e": "A label is linked to a field when the label's for matches the field's id. Clicking a linked label selects the field.",
+"c": "<form>\n<div class=\"mb-3\">\n<label for=\"f0\" class=\"form-label\">Password</label>\n<input type=\"password\" id=\"other\" class=\"form-control\">\n</div>\n</form>"
+},
+{
+"t": "Forms",
+"s": "The form needs a field for the label \"Email\". Which field does the code use?",
+"o": [
+"An input with type=\"password\" and form-control",
+"An input with type=\"email\" and form-control",
+"A button with form-control",
+"An input with type=\"number\" and form-control"
+],
+"a": [
+1
+],
+"e": "Short one-line answers use an input with a type; long messages use a textarea. Both get form-control.",
+"c": "<form>\n<div class=\"mb-3\">\n<label class=\"form-label\">Email</label>\n<input type=\"email\" class=\"form-control\">\n</div>\n</form>"
+},
+{
+"t": "Forms",
+"s": "The field is an input with <code>type=\"password\"</code>. What happens to what you type?",
+"o": [
+"It is deleted",
+"It turns into a number",
+"It shows as dots",
+"It shows as plain letters"
+],
+"a": [
+2
+],
+"e": "A password field hides the characters while you type.",
+"c": "<form>\n<div class=\"mb-3\">\n<label class=\"form-label\">Password</label>\n<input type=\"password\" class=\"form-control\">\n</div>\n</form>"
+},
+{
+"t": "Forms",
+"s": "The form fields have the class <code>form-control</code>. How wide is the first field?",
+"o": [
+"Full width of the container",
+"Exactly half the screen",
+"A small default width",
+"It is hidden"
+],
+"a": [
+0
+],
+"e": "form-control makes a field full width, padded and clean-bordered. Without it the browser draws a small plain box.",
+"c": "<form>\n<div class=\"mb-3\">\n<label class=\"form-label\">City</label>\n<input type=\"text\" class=\"form-control\">\n</div>\n<div class=\"mb-3\">\n<label class=\"form-label\">Email</label>\n<input type=\"email\" class=\"form-control\">\n</div>\n<button type=\"submit\" class=\"btn btn-primary\">Send</button>\n</form>"
+},
+{
+"t": "Forms",
+"s": "Which class goes on the div that wraps each field, to space the fields apart?",
+"o": [
+"<code>p-3</code>",
+"<code>form-label</code>",
+"<code>form-control</code>",
+"<code>mb-3</code>"
+],
+"a": [
+3
+],
+"e": "form-label goes on labels, form-control on inputs and textareas, and mb-3 on the div around each field."
+},
+{
+"t": "Forms",
+"s": "Which two classes go on form fields and their labels? <span class=\"sel2\">Select two answers.</span>",
+"o": [
+"<code>form-field</code>",
+"<code>form-label</code>",
+"<code>input-text</code>",
+"<code>form-control</code>"
+],
+"a": [
+1,
+3
+],
+"e": "form-label goes on the label and form-control goes on the input or textarea. The other two are not Bootstrap classes."
+}
+];
+
+(function(){
+  var KEY='ist-u6-pt-v1', state={};
+  try{ state=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ state={}; }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+  var quiz=document.getElementById('quiz'), filt='All', missedOnly=false;
+  var topics=['All'].concat(["Setting up Bootstrap", "The grid", "Typography, colors and buttons", "Navbar", "Cards", "Forms"]);
+  document.getElementById('heroCount').textContent=Q.length;
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function same(a,b){ if(a.length!==b.length) return false; var x=a.slice().sort(), y=b.slice().sort(); return x.every(function(v,i){return v===y[i];}); }
+
+  var fwrap=document.getElementById('filters');
+  topics.forEach(function(t){
+    var b=document.createElement('button'); b.type='button'; b.className='fbtn'+(t==='All'?' on':''); b.textContent=LAB[t]||t;
+    b.onclick=function(){ filt=t; [].forEach.call(fwrap.children,function(c){c.classList.toggle('on',c===b);}); apply(); };
+    fwrap.appendChild(b);
+  });
+
+  Q.forEach(function(q,i){
+    var multi=q.a.length>1, el=document.createElement('div'); el.className='q'; el.dataset.t=q.t; el.id='q'+i;
+    var h='<div class="qh"><span class="qn">Question '+(i+1)+'</span><span class="qt">'+(LAB[q.t]||q.t)+'</span></div><div class="stem">'+q.s+'</div>';
+    if(q.c) h+='<div class="code">'+esc(q.c)+'</div>';
+    h+='<div class="opts">'+q.o.map(function(o,j){return '<button type="button" class="opt" data-j="'+j+'"><span class="l">'+'ABCD'[j]+'</span><span>'+o+'</span></button>';}).join('')+'</div>';
+    if(multi) h+='<button type="button" class="check" disabled>Check answer</button>';
+    h+='<div class="why"></div>';
+    el.innerHTML=h; quiz.appendChild(el);
+    var picks=[], btns=el.querySelectorAll('.opt'), chk=el.querySelector('.check');
+    [].forEach.call(btns,function(b){
+      b.onclick=function(){
+        if(el.classList.contains('done')) return;
+        var j=+b.dataset.j;
+        if(!multi){ grade(i,[j]); return; }
+        var k=picks.indexOf(j);
+        if(k>=0) picks.splice(k,1); else if(picks.length<2) picks.push(j);
+        [].forEach.call(btns,function(x){ x.classList.toggle('picked', picks.indexOf(+x.dataset.j)>=0); });
+        chk.disabled=picks.length!==2;
+      };
+    });
+    if(chk) chk.onclick=function(){ grade(i,picks.slice()); };
+    if(state[i]) render(i,state[i]);
+  });
+
+  function grade(i,picked){ state[i]=picked; save(); render(i,picked); tally(); }
+  function render(i,picked){
+    var q=Q[i], el=document.getElementById('q'+i), ok=same(picked,q.a);
+    el.classList.add('done', ok?'right':'wrong');
+    [].forEach.call(el.querySelectorAll('.opt'),function(b){
+      var j=+b.dataset.j; b.disabled=true; b.classList.remove('picked');
+      if(q.a.indexOf(j)>=0) b.classList.add('ok'); else if(picked.indexOf(j)>=0) b.classList.add('bad');
+    });
+    var c=el.querySelector('.check'); if(c) c.style.display='none';
+    var ans=q.a.map(function(j){return 'ABCD'[j];}).join(' and ');
+    el.querySelector('.why').innerHTML=(ok?'<b class="v">Correct.</b> ':'<b class="x">Not quite. The answer is '+ans+'.</b> ')+q.e;
+  }
+  function tally(){
+    var done=0,right=0;
+    Q.forEach(function(q,i){ if(state[i]){ done++; if(same(state[i],q.a)) right++; } });
+    document.getElementById('score').innerHTML=right+' / '+done+' <span>correct &middot; '+(Q.length-done)+' left</span>';
+    var dm=document.getElementById('doneMsg');
+    if(done===Q.length){
+      var pct=Math.round(100*right/Q.length);
+      dm.style.display='block';
+      dm.innerHTML='<h3>Finished: '+right+' / '+Q.length+' ('+pct+'%)</h3><p style="color:#C4CDD8">'+(pct>=90?'You’re ready for the Unit 3 test.':pct>=75?'Close. Click “Show missed only,” re-read those sections, then Reset and retake.':'Re-read the sections for the topics you missed (use the topic filters), then Reset and retake.')+'</p>';
+    } else dm.style.display='none';
+  }
+  function apply(){
+    Q.forEach(function(q,i){
+      var el=document.getElementById('q'+i);
+      var show=(filt==='All'||q.t===filt) && (!missedOnly || (state[i] && !same(state[i],q.a)));
+      el.style.display=show?'':'none';
+    });
+  }
+  document.getElementById('missedBtn').onclick=function(){ missedOnly=!missedOnly; this.classList.toggle('on',missedOnly); this.textContent=missedOnly?'Show all':'Show missed only'; apply(); };
+  document.getElementById('resetBtn').onclick=function(){
+    if(!confirm('Clear all your answers and start over?')) return;
+    state={}; save(); location.hash='#test'; location.reload();
+  };
+  tally();
+})();
+</script>
+</body>
+</html>

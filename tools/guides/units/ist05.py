@@ -244,6 +244,7 @@ C56 = L("5.6", "Arrange items into rows and columns at the same time with a grid
   [], [("`display: grid` with no columns", "One wide column: everything stacks like normal.", "Add `grid-template-columns`."), ("`grid-template-columns: 1fr, 1fr, 1fr`", "Commas make the value invalid.", "Separate the sizes with spaces: `1fr 1fr 1fr`."), ("`width: 33%` on every item", "You fight the grid.", "Put the column sizes on the container."), ("`grid-template-column` (no s)", "A misspelled property is ignored.", "Spell it `grid-template-columns`."), ("`display: grid` on the items", "Items do not arrange anything.", "Put it on the container.")],
   [], QS(21), title="CSS Grid Basics", kick="Rows and columns at the same time: a muffin tin for your layout.", site="<b>Notes:</b> grid-notes &nbsp;·&nbsp; <b>Walkthrough:</b> Photo Gallery &nbsp;·&nbsp; <b>Assignment:</b> Pinterest Boards &nbsp;·&nbsp; <b>Quiz game:</b> 5.6")
 
+for _c in [C51, C52, C53, C54, C55, C56]: _c['noonline'] = True
 UNIT = Unit(5, "Intro to CSS", "Move your styles into one file, style with classes and ids, predict which rule wins, react to the mouse, and lay out a page with flexbox and grid.",
     "Intro to CSS and Layout", "#7C3AED", "#6D28D9", "#C4B5FD", "#EDE9FE", "html",
     ["Link an external style.css file and write tag rules", "Style some elements with a class and one element with an id", "Predict which rule wins: tag, class, id, then inline", "Write pseudo-class rules and glide with a transition", "Arrange items with flexbox", "Build rows and columns with a grid"],

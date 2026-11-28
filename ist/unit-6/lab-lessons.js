@@ -8,9 +8,10 @@
     "6.1": "Intro to HTML and the Skeleton", "6.2": "The Style Attribute and Colors", "6.20": "Text Size, Alignment, Case", "6.3": "Editing Tags (strong, em, br, hr, span)", "6.35": "Google Fonts",
     "6.4": "Borders", "6.7": "Images and the Favicon", "6.75": "Emojis and Symbols", "6.6": "Links", "6.5": "Lists and Menus",
     "7.1": "Box Model", "7.2": "Colors (Names and Hex)", "7.3": "Display (Block vs Inline)", "7.4": "Div Tag", "7.5": "Tables",
-    "8.1": "External CSS and Classes", "8.2": "CSS by ID", "8.3": "Selectors and Specificity", "8.4": "Pseudo-classes and Hover Effects", "8.5": "Flexbox Basics", "8.6": "CSS Grid Basics"
+    "8.1": "External CSS and Classes", "8.2": "CSS by ID", "8.3": "Selectors and Specificity", "8.4": "Pseudo-classes and Hover Effects", "8.5": "Flexbox Basics", "8.6": "CSS Grid Basics",
+    "9.1": "Setting Up Bootstrap", "9.2": "The Grid System", "9.3": "Typography, Colors and Buttons", "9.4": "Navbar", "9.5": "Cards", "9.6": "Forms"
   };
-  var DISP = { "6.1": "3.1", "6.2": "3.2", "6.20": "3.3", "6.3": "3.4", "6.35": "3.5", "6.4": "3.6", "6.7": "3.7", "6.75": "3.8", "6.6": "3.9", "6.5": "3.10", "7.1": "4.1", "7.2": "4.2", "7.3": "4.3", "7.4": "4.4", "7.5": "4.5", "8.1": "5.1", "8.2": "5.2", "8.3": "5.3", "8.4": "5.4", "8.5": "5.5", "8.6": "5.6" };
+  var DISP = { "6.1": "3.1", "6.2": "3.2", "6.20": "3.3", "6.3": "3.4", "6.35": "3.5", "6.4": "3.6", "6.7": "3.7", "6.75": "3.8", "6.6": "3.9", "6.5": "3.10", "7.1": "4.1", "7.2": "4.2", "7.3": "4.3", "7.4": "4.4", "7.5": "4.5", "8.1": "5.1", "8.2": "5.2", "8.3": "5.3", "8.4": "5.4", "8.5": "5.5", "8.6": "5.6", "9.1": "6.1", "9.2": "6.2", "9.3": "6.3", "9.4": "6.4", "9.5": "6.5", "9.6": "6.6" };
   root.U7_LAB_DISPLAY = {};
   Object.keys(NAMES).forEach(function (base) {
     ["w", "a"].forEach(function (s) { var i = H.ORDER.indexOf(base + s); if (i >= 0) H.ORDER.splice(i, 1); });

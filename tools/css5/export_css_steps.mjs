@@ -2,7 +2,7 @@
 import fs from "fs"; import { createRequire } from "module";
 const require = createRequire(import.meta.url), D = "/Users/randynorman/bank-points/ist/unit-6/";
 globalThis.window = undefined;
-["html-check.js", "lab-lessons.js", "step-checks.js", "step-checks-a.js", "step-checks-b.js", "step-checks-w.js", "step-checks-w2.js", "css-labs.js", "css-labs-1.js", "css-labs-2.js", "css-labs-3.js"].forEach((f) => require(D + f));
+["html-check.js", "lab-lessons.js", "step-checks.js", "step-checks-a.js", "step-checks-b.js", "step-checks-w.js", "step-checks-w2.js", "css-labs.js", "css-labs-1.js", "css-labs-2.js", "css-labs-3.js", "bs-labs.js", "bs-labs-1.js", "bs-labs-2.js"].forEach((f) => require(D + f));
 const f = "/Users/randynorman/bank-points/tools/guides/work/ist/lab_steps.json"; const out = JSON.parse(fs.readFileSync(f, "utf8"));
-for (const id of ["8.1", "8.2", "8.3", "8.4", "8.5", "8.6"]) out[id] = globalThis.U7_ANSWERS[id + "w"];
+for (const id of ["8.1", "8.2", "8.3", "8.4", "8.5", "8.6", "9.1", "9.2", "9.3", "9.4", "9.5", "9.6"]) out[id] = globalThis.U7_ANSWERS[id + "w"];
 fs.writeFileSync(f, JSON.stringify(out)); console.log(Object.keys(out).length, "walkthroughs");

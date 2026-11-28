@@ -131,7 +131,7 @@ def annot_code(title, code, notes, output=None, caption=None, lang="Python"):
     cw, lh, fs, W, top = 7.8, 25, 13, 680, 46
     maxc = max(len(l) for l in lines)
     limit = 40
-    if lang == "HTML": cw, fs, limit = 6.6, 11.0, 56      # HTML lines are longer: a smaller code font keeps the arrows room
+    if lang == "HTML": cw, fs, limit = 6.6, 11.0, 62      # HTML lines are longer: a smaller code font keeps the arrows room
     assert maxc <= limit, "code line too long for annot_code: %r" % max(lines, key=len)
     code_w = maxc * cw + 40
     cap_x = max(code_w + 70, 340); cap_w = W - cap_x - 14

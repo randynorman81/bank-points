@@ -15,7 +15,7 @@ MIN = 0.60                       # smallest scale (code and picture text must st
 BOTTOM = 792 - 72.0              # the page text area ends 1in above the page bottom
 TOP = 68.4                       # and starts 0.95in below the page top
 LEFT, RIGHT = 64.8, 612 - 64.8   # 0.9in side margins
-PARTS = ["units.ist03", "units.ist03p2", "units.ist05"]
+PARTS = ["units.ist03", "units.ist03p2", "units.ist05", "units.ist06"]
 
 def units():
     out = []

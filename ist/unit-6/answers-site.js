@@ -850,7 +850,7 @@
   },
   {
    "build": [
-    "At the **very top of the body**, add a **nav** tag with Bootstrap's **navbar** class, plus **navbar-expand**, **bg-dark**, and **navbar-dark**",
+    "At the **very top of the body**, add a **nav** tag with Bootstrap's **navbar** class, plus **navbar-expand-lg**, **bg-dark**, and **navbar-dark**",
     "**Inside the nav**, add a **link** with the **navbar-brand** class showing your site's name, then a **div** with the **navbar-nav** class that holds **3 links** with the **nav-link** class (like Home, About, Contact), each with a full https:// address"
    ]
   },
@@ -952,7 +952,7 @@
   },
   {
    "build": [
-    "At the **very top of the body**, add a **nav** tag with Bootstrap's **navbar** class, plus **navbar-expand**, **bg-dark**, and **navbar-dark**",
+    "At the **very top of the body**, add a **nav** tag with Bootstrap's **navbar** class, plus **navbar-expand-lg**, **bg-dark**, and **navbar-dark**",
     "**Inside the nav**, add a **link** with the **navbar-brand** class showing your site's name, then a **div** with the **navbar-nav** class that holds **3 links** with the **nav-link** class (like Home, About, Contact), each with a full https:// address"
    ]
   },
@@ -1046,7 +1046,7 @@
   },
   {
    "build": [
-    "At the **very top of the body**, add a **nav** tag with Bootstrap's **navbar** class, plus **navbar-expand**, **bg-dark**, and **navbar-dark**",
+    "At the **very top of the body**, add a **nav** tag with Bootstrap's **navbar** class, plus **navbar-expand-lg**, **bg-dark**, and **navbar-dark**",
     "**Inside the nav**, add a **link** with the **navbar-brand** class showing your site's name, then a **div** with the **navbar-nav** class that holds **3 links** with the **nav-link** class (like Home, About, Contact), each with a full https:// address"
    ]
   },

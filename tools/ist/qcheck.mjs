@@ -11,7 +11,7 @@ await b.ev(`window.__fn = function(js){ try { return new Function('d', 'W', 'ret
 window.__run = async function(list){ var f = document.getElementById('qf'); if (!f) { f = document.createElement('iframe'); f.id = 'qf'; f.style.cssText = 'width:800px;height:600px;border:0'; document.body.appendChild(f); }
   var out = [];
   for (var i = 0; i < list.length; i++) { var c = list[i];
-    try { var url = URL.createObjectURL(new Blob([c.html], { type: 'text/html' })); await new Promise(function(r){ f.onload = r; f.src = url; }); var d = f.contentDocument, W = f.contentWindow; URL.revokeObjectURL(url);
+    try { f.style.width = (c.w || 800) + 'px'; var url = URL.createObjectURL(new Blob([c.html], { type: 'text/html' })); await new Promise(function(r){ f.onload = r; f.src = url; }); var d = f.contentDocument, W = f.contentWindow; URL.revokeObjectURL(url);
       var v = window.__fn(c.js)(d, W); out.push(JSON.parse(JSON.stringify(v === undefined ? null : v))); }
     catch (e) { out.push({ __err: String(e) }); } }
   return out; }`);
@@ -20,7 +20,7 @@ const deq = (a, b) => { if (Array.isArray(a) && Array.isArray(b)) return a.lengt
 const bad = []; let n = 0; const flat = [];
 for (const q of input) for (const c of q.chk || []) flat.push({ id: q.id, ...c });
 for (let i = 0; i < flat.length; i += 40) {
-  const batch = flat.slice(i, i + 40), res = await b.ev(`window.__run(${JSON.stringify(batch.map((c) => ({ html: c.html, js: c.js })))})`);
+  const batch = flat.slice(i, i + 40), res = await b.ev(`window.__run(${JSON.stringify(batch.map((c) => ({ html: c.html, js: c.js, w: c.w })))})`);
   batch.forEach((c, k) => { n++; const got = res[k]; const ok = c.expect && typeof c.expect === "object" && !Array.isArray(c.expect) && "not" in c.expect ? !deq(got, c.expect.not) : deq(got, c.expect); if (!ok) bad.push({ id: c.id, js: c.js, expect: c.expect, got, html: c.html.slice(0, 400) }); });
 }
 fs.writeFileSync(process.argv[3], JSON.stringify(bad, null, 1)); b.close();

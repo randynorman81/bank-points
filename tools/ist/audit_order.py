@@ -225,8 +225,60 @@ const SC = globalThis.U7_STEPCHECKS, out = {}; for (const o of SC.W.CSS.LABS) { 
         for part, txt in (('assignment steps', v['answers']), ('check list', ' '.join(v['checks'])), ('concepts', v['concepts']), ('rubric rules', ' '.join(v['rules']))):
             chk('Older assignment %s (5.%s) %s' % (lid, lid[2], part), r, txt)
 ALLOW5 = {('Guide 5.1', 'something never taught'), ('Quiz game 16', 'something never taught'), ('Notes 5.1', 'something never taught'), ('Older assignment 8.1 (5.1) assignment steps', 'id selector'), ('Older assignment 8.1 (5.1) rubric rules', 'combined or descendant selector')}   # <style> appears only as the WRONG habit 5.1 teaches against; '#E8F0FF' is a hex color (4.2); 'style.css' has a dot in it
+# ---------------------------------------------------------------- Unit 6: Bootstrap (6.1-6.6 = ranks 22-27); the gates live in tools/bs6/bsgates.py
+def unit6():
+    import subprocess
+    sys.path.insert(0, os.path.join(ROOT, 'tools', 'bs6'))
+    import bsgates as G
+    RK = {'6.1': 22, '6.2': 23, '6.3': 24, '6.4': 25, '6.5': 26, '6.6': 27}
+    def chk(where, rank, text):
+        t = _html.unescape(text)
+        for e in G.audit(t, rank):
+            if (where, e.split(' (')[0]) not in ALLOW6: ISSUES.append((where, e, '', ''))
+    d = load_js_json(os.path.join(ROOT, 'ist', 'unit-6', 'practice-data-4.js'))['lessons']
+    for lid, L in d.items():
+        for n, p in enumerate(L['problems']):
+            chk('Parsons %s #%d' % (L['num'], n + 1), RK[L['num']], ' '.join([p['title'], p['story'], p.get('given') or ''] + p['sol'] + p['steps']))
+    for l in range(22, 28):
+        s_ = open(os.path.join(ROOT, 'ist', 'unit-6', 'game-data', 'l%d.js' % l), encoding='utf-8').read()
+        qs = json.loads(s_[s_.index('= [') + 2: s_.rindex(']') + 1]); seen = set()
+        for q in qs:
+            txt = _html.unescape(' '.join([q['s'], q.get('c') or '', q['e']] + q['o']))
+            for e in G.audit(txt, l):
+                if (e, l) not in seen: seen.add((e, l)); ISSUES.append(('Quiz game %d' % l, e, '', ''))
+    t6 = open(os.path.join(ROOT, 'ist', 'unit-9', 'unit-6-practice-test.html'), encoding='utf-8').read()
+    qs = json.loads(re.search(r'var Q = (\[.*?\n\]);', t6, re.S).group(1))
+    TOP = {'Setting up Bootstrap': 22, 'The grid': 23, 'Typography, colors and buttons': 24, 'Navbar': 25, 'Cards': 26, 'Forms': 27}
+    for i, q in enumerate(qs): chk('Practice test Q%d' % (i + 1), TOP[q['t']], json.dumps(q, ensure_ascii=False))
+    o = subprocess.run(['node', '-e', """globalThis.window = undefined; const D = '%s/ist/unit-6/'; const req = require;
+['html-check.js','lab-lessons.js','step-checks.js','step-checks-a.js','step-checks-b.js','step-checks-w.js','step-checks-w2.js','css-labs.js','css-labs-1.js','css-labs-2.js','css-labs-3.js','bs-labs.js','bs-labs-1.js','bs-labs-2.js'].forEach(f => req(D + f));
+const SC = globalThis.U7_STEPCHECKS, out = {}; for (const o of SC.W.BS.LABS) { const r = SC.run(o.id, o.model.html, o.model.css); const labels = []; Object.values(r).forEach(s => s.bullets.forEach(b => b.forEach(x => labels.push(x.label)))); out[o.id] = { text: JSON.stringify(globalThis.U7_ANSWERS[o.id]), labels: labels, model: o.model.html + '\\n' + o.model.css }; } console.log(JSON.stringify(out));""" % ROOT], capture_output=True, text=True)
+    for lid, v in json.loads(o.stdout).items():
+        r = RK['6.' + lid[2]]
+        chk('Walkthrough/assignment %s text' % lid, r, v['text']); chk('Walkthrough/assignment %s check list' % lid, r, ' '.join(v['labels'])); chk('Model answer %s' % lid, r, v['model'])
+    NOTES6 = {'9-1-setting-up-bootstrap.html': '6.1', '9-2-the-grid-system.html': '6.2', '9-3-typography-colors-and-buttons.html': '6.3', '9-4-navbar.html': '6.4', '9-5-cards.html': '6.5', '9-6-forms.html': '6.6'}
+    for f, num in NOTES6.items():
+        s_ = open(os.path.join(ROOT, 'ist', 'unit-9', f), encoding='utf-8').read()
+        a = s_.find('<h2>Notes'); b = s_.find('Assignments', a); seg = s_[a:b] if a > 0 else s_
+        chk('Notes %s' % num, RK[num], tags_strip(re.sub(r'<style.*?</style>|<script.*?</script>', ' ', seg, flags=re.S)))
+    sys.path.insert(0, os.path.join(ROOT, 'tools', 'guides'))
+    import gl
+    gl.LANG = 'html'
+    import units.ist06 as u6
+    for ch in u6.UNIT.chapters:
+        html, titles, extras = gl.build_html(u6.UNIT, only=ch['id'])
+        body = html[html.index('<section class="chapter">'):]
+        body = re.sub(r'<style.*?</style>|ZZ\w+ZZ', ' ', body, flags=re.S)
+        caps = ' '.join(re.findall(r'<text[^>]*>([^<]*)</text>', body)); body = re.sub(r'<svg.*?</svg>', ' ', body, flags=re.S)
+        chk('Guide %s' % ch['id'], RK[ch['id']], tags_strip(body) + ' ' + caps)
+    o = subprocess.run(['node', os.path.join(ROOT, 'tools', 'bs6', 'dump_legacy9.mjs')], capture_output=True, text=True, cwd=ROOT)
+    for lid, v in json.loads(o.stdout).items():
+        r = RK['6.' + lid[2]]
+        for part, txt in (('assignment steps', v['answers']), ('check list', ' '.join(v['checks'])), ('concepts', v['concepts']), ('rubric rules', ' '.join(v['rules']))):
+            chk('Older assignment %s (6.%s) %s' % (lid, lid[2], part), r, txt)
+ALLOW6 = set()
 if __name__ == '__main__':
-    for fn in (parsons, games, tests, labs, checks, guides, notes, legacy, unit5): fn()
+    for fn in (parsons, games, tests, labs, checks, guides, notes, legacy, unit5, unit6): fn()
     # report, grouped
     from collections import OrderedDict
     g = OrderedDict()

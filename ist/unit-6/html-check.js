@@ -738,7 +738,7 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
   LESSONS["9.6"] = { name: "Forms", rules: [
     r("Has a <form>", function (c) { return c.has("form"); }),
     r("At least 2 labels use form-label", function (c) { return c.all("label").filter(function (n) { return classesOf(n).indexOf("form-label") > -1; }).length >= 2; }),
-    r("At least 2 fields use form-control (or form-select)", function (c) { return els(c).filter(function (n) { return /^(input|textarea|select)$/.test(n.tag) && classesOf(n).some(function (k) { return k === "form-control" || k === "form-select"; }); }).length >= 2; }),
+    r("At least 2 fields use form-control", function (c) { return els(c).filter(function (n) { return /^(input|textarea|select)$/.test(n.tag) && classesOf(n).some(function (k) { return k === "form-control" || k === "form-select"; }); }).length >= 2; }),
     r("Has a submit button styled with btn", function (c) { return els(c).some(function (n) { return ((n.tag === "button" && (n.attrs.type === undefined || /submit/i.test(n.attrs.type))) || (n.tag === "input" && /submit/i.test(n.attrs.type || ""))) && classesOf(n).indexOf("btn") > -1 && !!c.ancestor(n, ["form"]); }); })
   ] };
   LESSONS["9.7"] = { name: "Unit Test Website (Bootstrap)", rules: [] };
@@ -803,7 +803,7 @@ r("Uses display: inline-block at least 2 times", function (c) { return TESTS["v-
     var score = den ? Math.round(TOTAL_POINTS * num / den * 10) / 10 : 0;
     var empty = !String(src || "").trim();
     var errs = c.errors;
-    if (LESSONS[lesson] && /^[678]\./.test(lesson)) {   /* Units 3 and 4 (every lesson, old and new) teach empty tags WITHOUT a slash (<br>, <hr>, <img ...>): a slash works in a browser but is not the way this course writes them, so it is a Problem here */
+    if (LESSONS[lesson] && /^[6789]\./.test(lesson)) {   /* Units 3 and 4 (every lesson, old and new) teach empty tags WITHOUT a slash (<br>, <hr>, <img ...>): a slash works in a browser but is not the way this course writes them, so it is a Problem here */
       var vre = /<(br|hr|img|link|meta)\b(?:"[^"<]*"|'[^'<]*'|[^>"'])*\/\s*>/gi, vm; errs = errs.slice();
       while ((vm = vre.exec(String(src || "")))) errs.push({ line: lineOf(String(src), vm.index), msg: "<" + vm[1].toLowerCase() + "> is an empty tag. Write it without a slash: <" + vm[1].toLowerCase() + (vm[1].toLowerCase() === "img" || vm[1].toLowerCase() === "link" ? " ...>" : ">") + "." });
     }

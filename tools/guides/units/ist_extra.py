@@ -6,8 +6,8 @@ Everything is generated from material that is already tested, so nothing here is
 import os, re, json, html as _html
 import gl
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
-LAB = {"3.1": "6.1", "3.2": "6.2", "3.3": "6.20", "3.4": "6.3", "3.5": "6.35", "3.6": "6.4", "3.7": "6.7", "3.8": "6.75", "3.9": "6.6", "3.10": "6.5", "4.1": "7.1", "4.2": "7.2", "4.3": "7.3", "4.4": "7.4", "4.5": "7.5", "5.1": "8.1", "5.2": "8.2", "5.3": "8.3", "5.4": "8.4", "5.5": "8.5", "5.6": "8.6"}
-PARSONS = {"3.%d" % n: "i3l%d" % n for n in range(1, 11)}; PARSONS.update({"4.%d" % n: "i7l%d" % n for n in range(1, 6)}); PARSONS.update({"5.%d" % n: "i8l%d" % n for n in range(1, 7)})
+LAB = {"3.1": "6.1", "3.2": "6.2", "3.3": "6.20", "3.4": "6.3", "3.5": "6.35", "3.6": "6.4", "3.7": "6.7", "3.8": "6.75", "3.9": "6.6", "3.10": "6.5", "4.1": "7.1", "4.2": "7.2", "4.3": "7.3", "4.4": "7.4", "4.5": "7.5", "5.1": "8.1", "5.2": "8.2", "5.3": "8.3", "5.4": "8.4", "5.5": "8.5", "5.6": "8.6", "6.1": "9.1", "6.2": "9.2", "6.3": "9.3", "6.4": "9.4", "6.5": "9.5", "6.6": "9.6"}
+PARSONS = {"3.%d" % n: "i3l%d" % n for n in range(1, 11)}; PARSONS.update({"4.%d" % n: "i7l%d" % n for n in range(1, 6)}); PARSONS.update({"5.%d" % n: "i8l%d" % n for n in range(1, 7)}); PARSONS.update({"6.%d" % n: "i9l%d" % n for n in range(1, 7)})
 CHECK = {
  "3.1": ["Type the HTML skeleton from memory: doctype, html, head with a title, and body", "Say what goes in the head and what goes in the body", "Explain why the title shows on the browser tab and the heading 1 shows on the page", "Close every tag I open, using the same name", "Put a heading 1, heading 2 and paragraphs in the body"],
  "3.2": ["Write a style attribute with the pattern property: value", "Use color and background-color together, separated by a semicolon", "Use any of the 140 color names, written as one word with no spaces", "Say which tags use the body's colors and which keep their own", "Pick a text color that is easy to read on its background"],
@@ -30,6 +30,12 @@ CHECK = {
  "5.4": ["Write a :hover, :focus and :active rule with no spaces", "Say when each pseudo-class applies", "Write a transition with a property and a time in seconds", "Put the transition on the normal rule so the change glides both ways", "Explain why a pseudo-class cannot go in a style attribute"],
  "5.5": ["Put display: flex on the container, not on the items", "Use justify-content to spread items along the row", "Use align-items with a height to move items up and down", "Stack items with flex-direction: column and space them with gap", "Center something both ways with two properties"],
  "5.6": ["Make a grid with display: grid and grid-template-columns", "Read 1fr 1fr 1fr, 1fr 2fr and 1fr 100px", "Work out a column width from the container width, the gap and the fr values", "Put the column sizes on the container and never widths on the items", "Choose between flexbox and grid for a given layout"],
+ "6.1": ["Link Bootstrap in the head with rel=\"stylesheet\" and the exact address", "Say why the Bootstrap link has no closing tag", "Put my own style.css link under the Bootstrap link so my rules win", "Explain why classes seem to do nothing when the link is missing", "Name what changes the moment the link is added"],
+ "6.2": ["Nest a container, a row and columns in the right order", "Add up column numbers to 12 and say what happens above 12", "Use col, col-N and col-md-N and say how each behaves on a phone", "Say what the container and the row do", "Predict how many lines a set of columns makes"],
+ "6.3": ["Use text-center, text-muted and fw-bold", "Color text and backgrounds with the six theme colors", "Add text-white on a dark background", "Make a button with btn and a color class on a button tag and a link", "Use mb-3, mt-3 and p-3 for spacing"],
+ "6.4": ["Build a navbar from nav, container, navbar-brand, navbar-nav and nav-link", "Say what navbar-dark and bg-dark do together", "Explain what navbar-expand-lg does on wide and narrow screens", "Change the navbar color with a bg- class", "Put page content under the navbar in its own container"],
+ "6.5": ["Build a card from card, card-body, card-title and card-text", "Add a picture at the top with card-img-top", "Put a button inside a card-body", "Lay out a row of cards with columns", "Predict how a row of cards stacks on a phone"],
+ "6.6": ["Build a field from a div mb-3, a label form-label and an input form-control", "Use a textarea for long messages", "Link a label to its field with for and id", "Add a submit button with btn and a color", "Say what happens to a field without form-control"],
 }
 _LAB = None; _PARS = None
 def lab():
@@ -40,7 +46,7 @@ def parsons():
     global _PARS
     if _PARS is None:
         _PARS = {}
-        for f in ("practice-data.js", "practice-data-2.js", "practice-data-3.js"):
+        for f in ("practice-data.js", "practice-data-2.js", "practice-data-3.js", "practice-data-4.js"):
             s = open(os.path.join(ROOT, "ist", "unit-6", f), encoding="utf-8").read(); _PARS.update(json.loads(s[s.index("{"):s.rindex("}") + 1])["lessons"])
     return _PARS
 def esc(s): return _html.escape(s, quote=False)
