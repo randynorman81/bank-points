@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Requirements Checker | Unit 7 | Intro to Software Technology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="icon" href="../../assets/logo.png">
+<style>
+.pc-drop{border:2px dashed #888;border-radius:10px;padding:22px;text-align:center;margin:14px 0}
+.pc-drop.over{background:rgba(0,0,0,.06)}
+.pc-files{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.pc-chip{border:1px solid #999;border-radius:100px;padding:2px 10px;font-family:monospace;font-size:13px}
+.pc-group{margin:16px 0 4px;font-weight:700}
+.pc-row{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid rgba(0,0,0,.12)}
+.pc-mark{font-weight:900;width:22px;flex:none}
+.pc-ok .pc-mark{color:#1a7f37}.pc-no .pc-mark{color:#c62828}
+.pc-detail{font-size:13px;opacity:.75}
+.pc-sum{font-size:20px;font-weight:700;margin:14px 0}
+textarea.pc-paste{width:100%;min-height:120px;font-family:monospace;font-size:13px}
+</style>
+</head>
+<body>
+<div id="site-header-root"></div>
+<main>
+  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ist/index.html">Intro to Software Technology</a><span class="sep">/</span><a href="index.html">Unit 7: Complete Website Project</a><span class="sep">/</span>Requirements Checker</div>
+  <h1>Project Requirements Checker</h1>
+  <p class="hint">Check your finished site against the 7.1 requirements list before you submit. Everything runs in your browser: your files are never uploaded. Your grade still comes from your teacher in CodeHS.</p>
+
+  <div class="pc-drop" id="drop">
+    <p style="margin:0 0 8px"><b>Choose all of your site's files</b> (every .html page and your style.css), or drag them here.</p>
+    <input type="file" id="pick" multiple accept=".html,.htm,.css">
+  </div>
+  <details><summary>Or paste one file in</summary>
+    <p><input id="pname" placeholder="file name, like about.html" style="width:260px"> <button id="padd" class="btn" type="button">Add this file</button></p>
+    <textarea id="ptext" class="pc-paste" placeholder="Paste the whole file here"></textarea>
+  </details>
+  <div class="pc-files" id="files"></div>
+  <p><button id="go" class="btn" type="button">Check my site</button> <button id="clear" class="btn" type="button">Start over</button></p>
+  <div id="out"></div>
+  <p class="hint">How this works: the checker looks for the minimums on the requirements list. The homepage is the file named index.html. Every page counts for the "every page" checks. A passing check means the requirement is present, not that your site is good: use color, spacing and real content to go well past the list.</p>
+</main>
+<footer class="site-footer">Social Circle High School &middot; Computer Science &middot; questions? see Mr. Norman</footer>
+<script src="../../assets/nav.js"></script>
+<script>renderHeader();</script>
+<script src="project-check.js"></script>
+<script>
+(function () {
+  var $ = function (i) { return document.getElementById(i); }, FILES = [];
+  function esc(t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function show() { $("files").innerHTML = FILES.map(function (f) { return '<span class="pc-chip">' + esc(f.name) + "</span>"; }).join("") || '<span class="hint">No files yet.</span>'; }
+  function add(name, text) { name = name.replace(/^.*[\\/]/, ""); FILES = FILES.filter(function (f) { return f.name.toLowerCase() !== name.toLowerCase(); }); FILES.push({ name: name, text: text }); show(); }
+  function read(list) {
+    Array.prototype.forEach.call(list, function (f) {
+      if (!/\.(html?|css)$/i.test(f.name)) return;
+      var r = new FileReader(); r.onload = function () { add(f.name, String(r.result)); }; r.readAsText(f);
+    });
+  }
+  $("pick").onchange = function () { read(this.files); this.value = ""; };
+  var d = $("drop");
+  d.ondragover = function (e) { e.preventDefault(); d.classList.add("over"); };
+  d.ondragleave = function () { d.classList.remove("over"); };
+  d.ondrop = function (e) { e.preventDefault(); d.classList.remove("over"); read(e.dataTransfer.files); };
+  $("padd").onclick = function () { var n = $("pname").value.trim(), t = $("ptext").value; if (!/\.(html?|css)$/i.test(n) || !t.trim()) { alert("Type a file name ending in .html or .css and paste the file."); return; } add(n, t); $("pname").value = ""; $("ptext").value = ""; };
+  $("clear").onclick = function () { FILES = []; show(); $("out").innerHTML = ""; };
+  $("go").onclick = function () {
+    if (!FILES.length) { $("out").innerHTML = '<p class="alert alert-error">Add your files first.</p>'; return; }
+    var R = PCHECK.run(FILES), pass = R.filter(function (r) { return r.pass; }).length, html = "", last = "";
+    html += '<div class="pc-sum">' + pass + " of " + R.length + " requirements met" + (pass === R.length ? " &mdash; every minimum is on your site!" : "") + "</div>";
+    R.forEach(function (r) {
+      if (r.group !== last) { html += '<div class="pc-group">' + esc(r.group) + "</div>"; last = r.group; }
+      html += '<div class="pc-row ' + (r.pass ? "pc-ok" : "pc-no") + '"><span class="pc-mark">' + (r.pass ? "&#10003;" : "&#10007;") + '</span><div>' + esc(r.label) + (!r.pass && r.detail ? '<div class="pc-detail">' + esc(r.detail) + "</div>" : "") + "</div></div>";
+    });
+    $("out").innerHTML = html;
+  };
+  show();
+})();
+</script>
+</body>
+</html>

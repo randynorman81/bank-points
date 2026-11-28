@@ -1,0 +1,12 @@
+import { createRequire } from "module"; const require = createRequire(import.meta.url);
+const { launch } = require("/Users/randynorman/bank-points/tools/missions/testkit/cdp.js");
+import { site } from "./gen.mjs";
+const b = await launch(9696, 1000, 900);
+await b.send("Page.navigate", { url: "file:///Users/randynorman/bank-points/ist/unit-10/project-check.html" }); await b.sleep(1500);
+const files = site({ oneCard: 1, formNoLabel: 1 });
+for (const f of files) await b.ev(`(function(){document.getElementById('pname').value=${JSON.stringify(f.name)};document.getElementById('ptext').value=${JSON.stringify(f.text)};document.getElementById('padd').click()})()`);
+await b.ev(`document.getElementById('go').click()`);
+console.log(await b.ev(`document.getElementById('out').innerText.split('\\n').filter(function(l){return /requirements met|✗|cards|label/.test(l)}).join(' | ')`));
+console.log("chips:", await b.ev(`document.querySelectorAll('.pc-chip').length`), "errs:", JSON.stringify(b.errs));
+await b.shot("/private/tmp/claude-501/-Users-randynorman/d5673638-c972-4b50-81f2-a59ba13d289c/scratchpad/pc.png");
+b.close(); process.exit(0);
