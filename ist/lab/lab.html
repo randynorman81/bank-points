@@ -75,6 +75,24 @@ button.go:disabled{opacity:.45;cursor:default}
 .email .hd{font-size:13px;color:#6b7280;border-bottom:1px solid #e5e7eb;padding-bottom:8px;margin-bottom:10px;line-height:1.5}
 .email p{margin:0 0 .7em}
 .sim{font-size:12.5px;color:var(--soft);margin-top:8px}
+.kwrap{display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:18px;align-items:start}
+@media(max-width:860px){.kwrap{grid-template-columns:1fr}}
+.klabel{font:700 12px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin:0 0 6px;display:flex;gap:10px;align-items:center;justify-content:space-between}
+.kdim{text-transform:none;letter-spacing:0;font-weight:500;color:#64748b}
+canvas.kcv,canvas.kgoal{background:#0F1520;border:1px solid var(--rule);border-radius:8px;display:block;max-width:100%}
+.kbtns{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.kb{background:#232B38;color:#fff;border:0;border-radius:8px;padding:8px 14px;font:700 13.5px Manrope;cursor:pointer}
+.kb.run{background:#38BDF8;color:#04202e}.kb.ghost{background:transparent;color:var(--soft);border:1px solid #2c3646;padding:3px 10px;font-size:12px}
+.kspd{font-size:13px;color:var(--soft);display:flex;gap:6px;align-items:center}
+.kcode{display:flex;border:1px solid #2c3646;border-radius:9px;overflow:hidden;background:#0B1220}
+.kgut{width:38px;flex:none;background:#0F1520;color:#64748b;font:500 13px/1.55 "JetBrains Mono",monospace;text-align:right;padding:10px 6px 10px 0;overflow:hidden;user-select:none}
+.kgut div.err{background:#7f1d1d;color:#fecaca}.kgut div.cur{background:#164e63;color:#a5f3fc}
+textarea.kta{flex:1;min-height:210px;background:#0B1220;color:#E8ECF3;border:0;border-radius:0;padding:10px 12px;font:500 13px/1.55 "JetBrains Mono",monospace;resize:none;white-space:pre;overflow:auto;tab-size:2}
+textarea.kta:focus{outline:none}
+.kout{margin-top:10px;padding:9px 12px;border-radius:9px;background:var(--panel);color:#cbd5e1;font-size:14.5px}
+.kout.bad{background:var(--bad-t);color:#FCA5A5}.kout.ok{background:var(--ok-t);color:#86EFC0}
+ul.kreq{margin:12px 0 0;padding-left:20px;color:#cbd5e1;font-size:14.5px}ul.kreq li{margin:3px 0}
+body.wide .wrap{max-width:1120px}
 code{font-family:"JetBrains Mono",monospace;font-size:.9em;background:#232B38;padding:1px 6px;border-radius:5px}
 table.t{border-collapse:collapse;width:100%;margin:8px 0;font-size:14.5px}
 table.t th,table.t td{border:1px solid var(--rule);padding:6px 10px;text-align:left;vertical-align:top}
@@ -102,6 +120,8 @@ table.t th{background:var(--panel);color:#9FE0FB}
 <div class="bar hide" id="bar"><div class="wrap"><div class="prog"><i id="progi"></i></div><span id="progt" style="font-size:14px;color:var(--soft)"></span><button class="go" id="submit">Check my answers</button></div></div>
 
 <script src="data.js"></script>
+<script src="../karel/engine.js"></script>
+<script src="../karel/ui.js"></script>
 <script>
 (function(){
 "use strict";
@@ -141,13 +161,15 @@ function itemHtml(it,n){
     h+='<ol class="ord" data-id="'+it.id+'"></ol><div class="hint">Use the arrows to put these in the right order.</div>';
   } else if(it.type==="match"){
     it.left.forEach(function(l,i){h+='<div class="mrow"><div>'+l+'</div><select data-id="'+it.id+'" data-i="'+i+'"><option value="">Choose...</option>'+it.right.map(function(r,j){return '<option value="'+j+'">'+esc(r.replace(/<[^>]+>/g,""))+'</option>'}).join("")+'</select></div>'});
+  } else if(it.type==="karel"){
+    h+='<div class="kmount"></div>';
   } else if(it.type==="write"){
     h+='<textarea data-id="'+it.id+'" placeholder="'+esc(it.ph||"Type your answer in your own words.")+'"></textarea><div class="hint" data-wc="'+it.id+'">0 words (at least '+(it.min||1)+')</div>';
   }
   return h+'<div class="res hide" id="r-'+it.id+'"></div></div>';
 }
 function build(){
-  var n=0, h="";
+  var n=0, h=""; if(allItems().some(function(i){return i.type==="karel"}))document.body.classList.add("wide");
   if(!isW){ h+='<div class="email"><div class="hd"><b>From:</b> '+esc(PART.from)+'<br><b>To:</b> You<br><b>Subject:</b> '+esc(PART.subject)+'</div>'+PART.email+'</div><div class="sim">Classroom simulation. '+esc(PART.company)+' is a real company; this job is made up for practice, and the company has nothing to do with this course.</div>'; }
   PART.steps.forEach(function(s,si){
     h+='<section class="step"><h2><span class="n">'+(isW?"STEP ":"TASK ")+(si+1)+'</span>'+s.h+'</h2>';
@@ -175,6 +197,8 @@ function wire(it){
   } else if(it.type==="match"){
     [].forEach.call(root.querySelectorAll("select"),function(sel){sel.addEventListener("change",function(){
       var arr=[].map.call(root.querySelectorAll("select"),function(s){return s.value===""?"":+s.value});answers[it.id]=arr;save();progress()})});
+  } else if(it.type==="karel"){
+    KarelUI.mount(root.querySelector(".kmount"),it,{get:function(){return answers[it.id]},set:function(c){answers[it.id]=c;save();progress()}});
   } else if(it.type==="order"){
     if(!Array.isArray(answers[it.id])||answers[it.id].length!==it.items.length)answers[it.id]=it.items.map(function(_,i){return i});
     drawOrder(it,root);
@@ -193,6 +217,7 @@ function filled(it){
   if(it.type==="text"||it.type==="num")return String(v||"").trim()!=="";
   if(it.type==="write")return (String(v||"").match(/[A-Za-z0-9'’-]+/g)||[]).length>=(it.min||1);
   if(it.type==="match")return Array.isArray(v)&&v.length===it.left.length&&v.every(function(x){return x!==""});
+  if(it.type==="karel")return typeof v==="string"&&v.trim()!==""&&v.trim()!==String(it.starter).trim();
   if(it.type==="order")return !!it.__moved||(it.touched);
   return false;
 }
@@ -215,7 +240,8 @@ function showResults(r){
   allItems().forEach(function(it){
     var root=$("it-"+it.id), box=$("r-"+it.id), ok=r.results[it.id];
     root.classList.remove("ok","no"); root.classList.add(ok?"ok":"no"); box.className="res "+(ok?"ok":"no");
-    box.innerHTML=ok?("Correct."+(r.why&&r.why[it.id]?" "+r.why[it.id]:"")):("Not yet."+(r.hints&&r.hints[it.id]?" "+r.hints[it.id]:" Look back at the notes and try again."));
+    var note=r.notes&&r.notes[it.id]?String(r.notes[it.id]).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c]}):"";
+    box.innerHTML=ok?("Correct."+(r.why&&r.why[it.id]?" "+r.why[it.id]:"")):("Not yet."+(note?" "+note:"")+(r.hints&&r.hints[it.id]?" "+r.hints[it.id]:(note?"":" Look back at the notes and try again.")));
   });
   var pass=r.pct===100, h='<div class="result'+(pass?" pass":"")+'"><h2>'+(pass?"100%. Nice work.":r.pct+"%: "+r.right+" of "+r.total+" right")+'</h2><p>'+(pass?"Your best score is saved: <b>"+r.earned+" of "+r.pts+" points</b>."+(isW?" The assignment for this lesson is open now.":""):"Your best so far is <b>"+r.best+"%</b> ("+r.earned+" of "+r.pts+" points). The items marked red have a hint. Fix them and check again; you can try as many times as you like.")+'</p>';
   if(pass&&isW)h+='<p><a class="open" style="display:inline-block;padding:9px 18px;border-radius:9px;background:#fff;color:#0B0E14;font-weight:800;text-decoration:none" href="lab.html?lab='+LESSON.id+'a">Go to the assignment &rarr;</a></p>';

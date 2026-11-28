@@ -1,0 +1,30 @@
+// unit tests for ist/karel/engine.js
+import fs from "fs";
+new Function(fs.readFileSync(new URL("../../ist/karel/engine.js", import.meta.url), "utf8")).call(globalThis);
+const K = globalThis.KarelEngine; let bad = 0; const eq = (a, b, m) => { if (JSON.stringify(a) !== JSON.stringify(b)) { bad++; console.log("FAIL", m, JSON.stringify(a), "!=", JSON.stringify(b)); } };
+const W = (o = {}) => Object.assign({ cols: 6, rows: 6, x: 1, y: 1, dir: "E", balls: [], walls: [] }, o);
+let r = K.run("move();move();turnLeft();move();putBall();", W(), { allowLoose: true });
+eq([r.ok, r.final.x, r.final.y, r.final.dir, r.final.balls], [true, 3, 2, "N", { "3,2": 1 }], "first program");
+r = K.run("function turnRight(){turnLeft();turnLeft();turnLeft();}\nfunction main(){move();turnRight();move();}", W({ y: 3 }));
+eq([r.ok, r.final.x, r.final.y, r.final.dir], [true, 2, 2, "S"], "turnRight and main");
+r = K.run("function main(){ move(); }", W({ cols: 1 })); eq([r.ok, r.error && r.error.message], [false, "Karel ran into a wall and cannot move forward"], "wall");
+r = K.run("function main(){ takeBall(); }", W()); eq(r.ok, false, "take with none");
+r = K.run("function main(){ for (var i = 0; i < 4; i++) { move(); putBall(); } }", W()); eq([r.ok, r.final.x, Object.keys(r.final.balls).length], [true, 5, 4], "for");
+r = K.run("function main(){ while (frontIsClear()) { move(); } }", W()); eq([r.ok, r.final.x], [true, 6], "while");
+r = K.run("function main(){ while (true) { } }", W(), { maxSteps: 5000 }); eq([r.ok, /too long/.test(r.error.message)], [false, true], "endless loop");
+r = K.run("function main(){ if (ballsPresent()) { takeBall(); } else { putBall(); } }", W({ balls: [[1, 1, 2]] })); eq(r.final.balls, { "1,1": 1 }, "if/else");
+r = K.run("function main(){ turnRight(); }", W()); eq(/not built in/.test(r.error.message), true, "turnRight not built in");
+r = K.run("function main(){ turnRight(); turnAround(); }", W(), { superKarel: true }); eq([r.ok, r.final.dir], [true, "N"], "super karel");
+r = K.run("function main(){ move() }", W()); eq(/Missing a ;/.test(r.error.message), true, "missing semicolon");
+r = K.run("function main(){ move();", W()); eq(/never closed/.test(r.error.message), true, "missing brace");
+r = K.run("function main(){ mov(); }", W()); eq(/does not know the command mov/.test(r.error.message), true, "typo");
+r = K.run("function main(){ move; }", W()); eq(/needs \(\) after it/.test(r.error.message), true, "no parentheses");
+r = K.run("move();\nfunction main(){ move(); }", W()); eq(/outside every function/.test(r.error.message), true, "loose with main");
+r = K.run("function main(){ if (frontIsClear()) move(); }", W()); eq(r.final.x, 2, "if without braces");
+r = K.run("function main(){ var n = 0; while (n < 3) { move(); n++; } }", W()); eq(r.final.x, 4, "counter variable");
+// walls: a wall on the east side of (2,1) stops movement
+r = K.run("function main(){ while (frontIsClear()) { move(); } }", W({ walls: [[2, 1, "E"]] })); eq(r.final.x, 2, "wall east");
+r = K.run("function main(){ turnLeft(); while (frontIsClear()) { move(); } }", W({ walls: [[1, 3, "N"]] })); eq(r.final.y, 3, "wall north");
+r = K.run("function main(){ turnLeft(); turnLeft(); turnLeft(); if (rightIsBlocked()) { putBall(); } }", W({ x: 1, y: 6, dir: "E" })); eq(r.final.dir, "S", "right of facing");
+r = K.run("function f(){ f(); }\nfunction main(){ f(); }", W()); eq(/keeps calling itself/.test(r.error.message), true, "recursion guard");
+console.log("engine failures:", bad); process.exit(bad ? 1 : 0);

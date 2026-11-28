@@ -22,6 +22,7 @@ const fill = (it, k) => b.ev(`(function(){
   else if(it.type==='text'){ var i=root.querySelector('input.txt'); i.value=k.a[0]; ev(i,'input'); }
   else if(it.type==='num'){ var i=root.querySelector('input.txt'); i.value=String(k.a); ev(i,'input'); }
   else if(it.type==='write'){ var t=root.querySelector('textarea'); t.value=k.kw.map(function(g){return g[0]}).join(' ')+' '+new Array(k.min+1).join('word '); ev(t,'input'); }
+  else if(it.type==='karel'){ var t=root.querySelector('textarea.kta'); t.value=k.solution; ev(t,'input'); }
   else if(it.type==='match'){ root.querySelectorAll('select').forEach(function(s,i){s.value=String(k.a[i]); ev(s,'change')}); }
   else if(it.type==='order'){ for(var pos=0;pos<k.a.length;pos++){ var cur=window.__ISTLAB_TEST.answers()[it.id]; var at=cur.indexOf(k.a[pos]); while(at>pos){ root.querySelector('button[data-d="-1"][data-p="'+at+'"]').click(); at--; } } }
   return 'ok'; })()`);

@@ -112,7 +112,7 @@ async function submit(body, user) {
   if (out.tooFast) return { error: "That was faster than the notes can be read. Go back through them and try again in about " + Math.max(10, out.need) + " seconds.", tooFast: true };
   const hints = {}; for (const it of L.spec.items) if (!sc.results[it.id] && it.hint) hints[it.id] = it.hint;
   const why = {}; if (L.kind === "a" || sc.pct === 100) for (const it of L.spec.items) if (it.why) why[it.id] = it.why;
-  return { ok: true, pct: sc.pct, right: sc.right, total: sc.total, results: sc.results, hints, why, best: out.best, earned: Math.round((L.spec.pts * out.best) / 100), pts: L.spec.pts };
+  return { ok: true, pct: sc.pct, right: sc.right, total: sc.total, results: sc.results, notes: sc.notes, hints, why, best: out.best, earned: Math.round((L.spec.pts * out.best) / 100), pts: L.spec.pts };
 }
 
 async function adminAll() {
