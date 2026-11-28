@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Py Storm | Teacher Dashboard</title>
+<style>
+:root{--bg:#0B0E14;--panel:#121722;--card:#171D2B;--rule:#26304A;--ink:#E8ECF3;--soft:#93A0B8;--acc:#38BDF8;--ok:#34D399;--bad:#F87171}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,sans-serif}
+button,input{font:inherit}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:5}
+.logo{font-weight:900;font-size:18px;letter-spacing:.04em}.logo span{color:var(--acc)}
+.sp{flex:1}
+.btn{background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:7px;padding:6px 12px;cursor:pointer;font-weight:700}
+.btn:hover{border-color:var(--acc)}.btn.pri{background:var(--acc);color:#001018;border-color:var(--acc)}.btn.sm{padding:3px 9px;font-size:12px}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+.seg button{background:var(--card);color:var(--soft);border:0;border-right:1px solid var(--rule);padding:6px 14px;cursor:pointer;font-weight:700}
+.seg button:last-child{border-right:0}.seg button.act{background:var(--acc);color:#001018}
+main{padding:16px;max-width:1300px;margin:0 auto}
+.note{color:var(--soft);font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.stat{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:12px}
+.stat b{font-size:26px;display:block}
+table{border-collapse:collapse;width:100%}
+th{text-align:left;font:700 11px ui-monospace,monospace;color:var(--soft);text-transform:uppercase;letter-spacing:.04em;padding:7px 8px;border-bottom:1px solid var(--rule);white-space:nowrap;background:var(--panel);position:sticky;top:0;cursor:pointer}
+td{padding:6px 8px;border-bottom:1px solid #1b2337;vertical-align:middle}
+.scroll{overflow:auto;max-height:72vh;border:1px solid var(--rule);border-radius:10px}
+.mono{font-family:ui-monospace,monospace}
+.pill{display:inline-block;border-radius:100px;padding:1px 9px;font-size:11px;font-weight:800}
+.win{background:#0F2E24;color:#6EE7B7}.no{background:#2a1418;color:#FCA5A5}.none{background:#1b2337;color:var(--soft)}
+.name{font-weight:700;cursor:pointer}.name:hover{color:var(--acc)}
+#login{max-width:340px;margin:14vh auto;background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:24px}
+#login input{width:100%;margin:8px 0 12px;background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:8px}
+.ov{position:fixed;inset:0;background:#000b;display:flex;justify-content:center;align-items:flex-start;padding:4vh 12px;overflow:auto;z-index:20}
+.ovp{background:var(--panel);border:1px solid var(--rule);border-radius:14px;max-width:760px;width:100%;padding:18px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div id="login">
+  <div class="logo">PY<span>STORM</span></div>
+  <p class="note">Teacher dashboard. Enter the teacher PIN (the same one as the bank).</p>
+  <input id="pin" type="password" placeholder="PIN" autocomplete="off">
+  <button class="btn pri" id="go">Open</button>
+  <div id="lerr" style="color:var(--bad);margin-top:8px"></div>
+</div>
+<div id="app" class="hidden">
+  <div class="top">
+    <div class="logo">PY<span>STORM</span></div>
+    <div class="seg" id="seg"></div>
+    <div class="sp"></div>
+    <span class="note" id="stamp"></span>
+    <button class="btn" id="refresh">Refresh</button>
+  </div>
+  <main>
+    <div class="stats" id="stats"></div>
+    <div class="scroll"><table><thead><tr id="head"></tr></thead><tbody id="body"></tbody></table></div>
+    <p class="note">Class comes from the bank roster when the student is on it, otherwise from what the student picked. Students on the roster who have not played are listed with "Not played". Click a name for every run.</p>
+  </main>
+</div>
+<div id="ov" class="ov hidden"><div class="ovp" id="ovp"></div></div>
+<script>
+(function () {
+"use strict";
+var API = "/api/pystorm", $ = function (id) { return document.getElementById(id); };
+var pin = "", DATA = null, PERIOD = "ALL", SORT = "name", DIR = 1, ROWS = [];
+try { pin = sessionStorage.getItem("pyspin") || sessionStorage.getItem("pqpin") || sessionStorage.getItem("pypin") || ""; } catch (e) {}
+function esc(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+function api(b) { b.pin = pin; return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }).then(function (r) { return r.json(); }); }
+function fmt(s) { s = Math.round(s || 0); return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2); }
+var DN = { rookie: "Script Rookie", scholar: "AP Scholar", five: "Score a 5" };
+
+function load() {
+  return api({ action: "adminAll" }).then(function (j) {
+    if (!j || j.error) { $("lerr").textContent = (j && j.error) || "Couldn't load"; try { sessionStorage.removeItem("pyspin"); } catch (e) {} return; }
+    try { sessionStorage.setItem("pyspin", pin); } catch (e) {}
+    DATA = j; $("login").classList.add("hidden"); $("app").classList.remove("hidden");
+    $("stamp").textContent = "Updated " + new Date().toLocaleTimeString();
+    build(); render();
+  }).catch(function () { $("lerr").textContent = "Network error"; });
+}
+function build() {
+  var by = {};
+  DATA.roster.forEach(function (s) { by[s.email] = { name: s.name, email: s.email, period: s.period, runs: [] }; });
+  DATA.players.forEach(function (p) {
+    var r = by[p.email] || (by[p.email] = { name: p.name, email: p.email, period: p.period || "", runs: [] });
+    r.runs = p.runs || []; if (!r.name) r.name = p.name; if (!r.period) r.period = p.period || "";
+  });
+  ROWS = Object.keys(by).map(function (k) {
+    var r = by[k], runs = r.runs, wins = runs.filter(function (x) { return x.won; });
+    r.plays = runs.length; r.wins = wins.length;
+    r.bestLevel = runs.reduce(function (m, x) { return Math.max(m, x.won ? 10 : x.level); }, 0);
+    r.bestScore = runs.reduce(function (m, x) { return Math.max(m, x.score); }, 0);
+    r.bestTime = wins.length ? Math.min.apply(null, wins.map(function (x) { return x.secs; })) : 0;
+    r.acc = runs.length ? Math.round(runs.reduce(function (a, x) { return a + x.acc; }, 0) / runs.length) : 0;
+    r.ec = ["rookie", "scholar", "five"].reduce(function (a, d) { return a + runs.filter(function (x) { return x.diff === d; }).reduce(function (m, x) { return Math.max(m, x.ec || 0); }, 0); }, 0);
+    r.last = runs.length ? runs[runs.length - 1].at : "";
+    return r;
+  });
+}
+function cols() { return [["name", "Student"], ["period", "Class"], ["plays", "Plays"], ["bestLevel", "Best level"], ["wins", "Wins"], ["bestScore", "Best score"], ["bestTime", "Best win time"], ["acc", "Avg accuracy"], ["ec", "EC earned"], ["last", "Last played"]]; }
+function render() {
+  var seg = $("seg"); seg.innerHTML = "";
+  ["ALL"].concat(DATA.periods).forEach(function (p) {
+    var b = document.createElement("button"); b.textContent = p === "ALL" ? "All" : p; if (p === PERIOD) b.className = "act";
+    b.onclick = function () { PERIOD = p; render(); }; seg.appendChild(b);
+  });
+  var rows = ROWS.filter(function (r) { return PERIOD === "ALL" || r.period === PERIOD; });
+  var played = rows.filter(function (r) { return r.plays; });
+  var wins = rows.filter(function (r) { return r.wins; });
+  $("stats").innerHTML = [["Students", rows.length], ["Played", played.length], ["Cleared all 10 levels", wins.length], ["Not played", rows.length - played.length]]
+    .map(function (x) { return '<div class="stat"><b>' + x[1] + '</b><span class="note">' + x[0] + "</span></div>"; }).join("");
+  $("head").innerHTML = cols().map(function (c) { return '<th data-k="' + c[0] + '">' + c[1] + (SORT === c[0] ? (DIR > 0 ? " ▲" : " ▼") : "") + "</th>"; }).join("");
+  Array.prototype.forEach.call($("head").children, function (th) { th.onclick = function () { var k = th.getAttribute("data-k"); if (SORT === k) DIR = -DIR; else { SORT = k; DIR = k === "name" || k === "period" ? 1 : -1; } render(); }; });
+  rows.sort(function (a, b) { var x = a[SORT], y = b[SORT]; if (typeof x === "string") return DIR * String(x).localeCompare(y); return DIR * ((x || 0) - (y || 0)); });
+  $("body").innerHTML = rows.map(function (r) {
+    return "<tr><td><span class='name' data-e='" + esc(r.email) + "'>" + esc(r.name || r.email) + "</span></td><td>" + esc(r.period || "?") + "</td>" +
+      (r.plays ? "<td class='mono'>" + r.plays + "</td><td class='mono'>" + (r.bestLevel >= 10 ? "<span class='pill win'>10/10</span>" : r.bestLevel + "/10") + "</td><td class='mono'>" + r.wins + "</td><td class='mono'>" + r.bestScore.toLocaleString() + "</td><td class='mono'>" + (r.wins ? fmt(r.bestTime) : "-") + "</td><td class='mono'>" + r.acc + "%</td><td class='mono'>+" + r.ec + "</td><td class='note'>" + new Date(r.last).toLocaleDateString() + "</td>"
+        : "<td colspan='8'><span class='pill none'>Not played</span></td>") + "</tr>";
+  }).join("") || "<tr><td colspan='10' class='note'>No students yet.</td></tr>";
+  Array.prototype.forEach.call(document.querySelectorAll(".name"), function (n) { n.onclick = function () { detail(n.getAttribute("data-e")); }; });
+}
+function detail(email) {
+  var r = ROWS.filter(function (x) { return x.email === email; })[0]; if (!r) return;
+  $("ovp").innerHTML = "<div style='display:flex;gap:10px;align-items:center'><h2 style='margin:0;flex:1'>" + esc(r.name) + " <span class='note'>" + esc(r.period || "") + "</span></h2><button class='btn sm' id='rs'>Reset progress</button><button class='btn sm' id='cl'>Close</button></div>" +
+    (r.runs.length ? "<table style='margin-top:10px'><thead><tr><th>When</th><th>Difficulty</th><th>Result</th><th>Score</th><th>Time</th><th>Accuracy</th></tr></thead><tbody>" +
+      r.runs.slice().reverse().map(function (x) { return "<tr><td class='note'>" + new Date(x.at).toLocaleString() + "</td><td>" + esc(DN[x.diff] || x.diff) + "</td><td>" + (x.won ? "<span class='pill win'>Cleared 10/10</span>" : "<span class='pill no'>Level " + x.level + "</span>") + "</td><td class='mono'>" + x.score.toLocaleString() + "</td><td class='mono'>" + fmt(x.secs) + "</td><td class='mono'>" + x.acc + "%</td></tr>"; }).join("") + "</tbody></table>" : "<p class='note'>No runs yet.</p>");
+  $("ov").classList.remove("hidden");
+  $("cl").onclick = function () { $("ov").classList.add("hidden"); };
+  $("rs").onclick = function () { if (confirm("Delete all of " + r.name + "'s Py Storm runs? This cannot be undone.")) api({ action: "adminReset", email: r.email }).then(function () { $("ov").classList.add("hidden"); load(); }); };
+}
+$("ov").onclick = function (e) { if (e.target === $("ov")) $("ov").classList.add("hidden"); };
+$("go").onclick = function () { pin = $("pin").value; load(); };
+$("pin").onkeydown = function (e) { if (e.key === "Enter") $("go").click(); };
+$("refresh").onclick = load;
+if (pin) load();
+})();
+</script>
+</body>
+</html>

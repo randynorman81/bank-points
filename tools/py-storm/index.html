@@ -1,0 +1,2711 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>PY STORM — APCSP Python Arcade</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tone.js for procedural arcade synth audio -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #050814;
+      color: #f8fafc;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      user-select: none;
+    }
+    .font-mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace; }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+      cursor: crosshair;
+    }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); border-radius: 999px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: rgba(34, 211, 238, 0.35); border-radius: 999px; }
+    .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(34, 211, 238, 0.65); }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 14px rgba(34, 211, 238, 0.35); }
+      50% { box-shadow: 0 0 26px rgba(34, 211, 238, 0.7); }
+    }
+    .btn-arcade {
+      transition: transform 0.12s ease, box-shadow 0.15s ease, filter 0.15s ease;
+    }
+    .btn-arcade:hover { transform: translateY(-1px); filter: brightness(1.08); }
+    .btn-arcade:active { transform: translateY(1px) scale(0.98); }
+    .glow-primary { animation: pulseGlow 2.4s infinite ease-in-out; }
+  </style>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body class="flex flex-col h-screen w-screen overflow-hidden bg-slate-950 text-slate-100">
+
+  <!-- ==================== TOP HUD BAR ==================== -->
+  <header class="shrink-0 z-20 bg-slate-950/95 border-b border-slate-800/90 px-2.5 sm:px-4 py-2 flex flex-wrap items-center justify-between gap-2 shadow-lg">
+    <!-- Left: Brand + Level + Speedrun Timer -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <button id="logo-trigger" type="button" title="Triple-click for Teacher Studio" class="flex items-center gap-2 rounded-xl bg-cyan-500/15 border border-cyan-400/35 px-2.5 py-1.5 hover:bg-cyan-500/25 transition">
+        <span class="font-mono font-extrabold text-sm sm:text-base tracking-tight text-cyan-400">&lt;/&gt;</span>
+        <div class="text-left leading-tight">
+          <div id="hdr-title" class="font-extrabold text-xs sm:text-sm tracking-wide text-white">PY STORM</div>
+          <div id="hdr-section" class="font-mono text-[10px] text-cyan-300/80 hidden sm:block">SCHS APCSP</div>
+        </div>
+      </button>
+
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1 text-center">
+          <div class="text-[9px] font-mono uppercase tracking-wider text-slate-400">Level</div>
+          <div id="hud-level" class="font-mono font-extrabold text-xs sm:text-sm text-cyan-300">01/10</div>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1 text-center min-w-[74px]">
+          <div class="text-[9px] font-mono uppercase tracking-wider text-slate-400">Run Time</div>
+          <div id="hud-timer" class="font-mono font-extrabold text-xs sm:text-sm text-emerald-300">00:00.0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center: Score, Streak, Hearts, Shield & Overdrive Bars -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1 text-center min-w-[72px]">
+        <div class="text-[9px] font-mono uppercase tracking-wider text-slate-400">Score</div>
+        <div id="hud-score" class="font-mono font-extrabold text-xs sm:text-sm text-white">0</div>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1 text-center hidden md:block">
+        <div class="text-[9px] font-mono uppercase tracking-wider text-slate-400">Streak</div>
+        <div id="hud-combo" class="font-mono font-extrabold text-xs sm:text-sm text-amber-300">x1</div>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1 flex flex-col justify-center min-w-[84px]">
+        <div id="hud-hearts" class="text-xs sm:text-sm tracking-widest text-rose-400 leading-none mb-1">♥♥♥♥♥</div>
+        <div class="flex items-center gap-1.5">
+          <div class="w-12 sm:w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden" title="Miss Shield">
+            <div id="hud-shield-bar" class="h-full bg-emerald-400 transition-all duration-150" style="width:100%"></div>
+          </div>
+          <div class="w-10 sm:w-14 h-1.5 bg-slate-800 rounded-full overflow-hidden" title="2x Overdrive Meter">
+            <div id="hud-overdrive-bar" class="h-full bg-amber-400 transition-all duration-150" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Action Buttons -->
+    <div class="flex items-center gap-1.5">
+      <button id="btn-mute" type="button" title="Toggle Audio" class="btn-arcade bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl px-2.5 py-1.5 font-mono text-xs font-bold">&#128266;</button>
+      <button id="btn-pause" type="button" title="Pause (P / ESC)" class="btn-arcade bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl px-2.5 py-1.5 font-mono text-xs font-bold">&#9208;</button>
+    </div>
+  </header>
+
+  <!-- ==================== DIRECTIVE / MISSION BAR ==================== -->
+  <div class="shrink-0 z-10 bg-slate-900/95 border-b border-slate-800 px-3 py-1.5 flex flex-wrap items-center justify-between gap-2">
+    <div class="flex items-center gap-2 min-w-0">
+      <span id="directive-badge" class="shrink-0 font-mono text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-400/35">VALID PYTHON</span>
+      <span id="directive-text" class="text-xs sm:text-sm font-semibold text-slate-100 truncate">Click ONLY valid Python syntax — skip broken bugs!</span>
+    </div>
+    <div class="flex items-center gap-3 shrink-0">
+      <div id="directive-boss-wrap" class="hidden items-center gap-2">
+        <span class="font-mono text-[10px] font-bold text-rose-400 uppercase">Boss HP</span>
+        <div class="w-28 sm:w-40 h-2.5 bg-slate-800 rounded-full overflow-hidden border border-rose-500/40">
+          <div id="directive-boss-bar" class="h-full bg-gradient-to-r from-rose-500 to-amber-400 transition-all duration-150" style="width:100%"></div>
+        </div>
+      </div>
+      <span id="directive-progress" class="font-mono text-xs font-extrabold text-cyan-300 bg-slate-950/90 border border-slate-700/80 px-2.5 py-0.5 rounded-lg">0 / 6</span>
+    </div>
+  </div>
+
+  <!-- Live Feedback Banner -->
+  <div id="directive-feedback" class="pointer-events-none fixed top-[106px] left-1/2 -translate-x-1/2 z-30 opacity-0 transition-opacity duration-200 px-4 py-1.5 rounded-full font-mono text-xs font-bold shadow-xl border backdrop-blur-md"></div>
+
+  <!-- ==================== MAIN GAME ARENA ==================== -->
+  <main id="arena-wrap" class="relative flex-1 w-full overflow-hidden">
+    <canvas id="game-canvas"></canvas>
+  </main>
+
+  <!-- ==================== START / LOBBY MODAL ==================== -->
+  <div id="modal-start" class="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-3 sm:p-5 overflow-y-auto">
+    <div class="w-full max-w-md bg-slate-900/95 border border-slate-700/80 rounded-3xl shadow-2xl p-6 sm:p-8 my-auto text-center">
+      <span id="start-custom-badge" class="hidden inline-block mb-2 px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 font-mono text-[11px] font-bold">CUSTOM LESSON</span>
+      <h1 id="start-title" class="text-4xl sm:text-5xl font-black tracking-tight text-white">PY STORM</h1>
+      <p id="start-subtitle" class="text-sm text-slate-300 mt-2">Click only the correct code.</p>
+
+      <!-- Sign in -->
+      <div class="mt-6">
+        <div id="auth-out">
+          <p class="text-xs text-slate-400 mb-3">Sign in with your school Google account to play.</p>
+          <div id="g-btn" class="flex justify-center min-h-[44px]"></div>
+          <p id="auth-err" class="text-xs text-rose-300 mt-2 hidden"></p>
+        </div>
+        <div id="auth-in" class="hidden text-left">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <div class="min-w-0">
+              <div class="font-mono text-[10px] uppercase text-slate-400">Signed in</div>
+              <div id="auth-name" class="font-bold text-white truncate"></div>
+            </div>
+            <button id="btn-signout" type="button" class="text-[11px] text-slate-400 hover:text-white underline shrink-0">Not you?</button>
+          </div>
+          <label for="inp-section" class="block font-mono text-[10px] uppercase text-slate-400 mb-1">Your class</label>
+          <select id="inp-section" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3 py-2.5 text-sm text-white outline-none">
+            <option value="">Pick your class&hellip;</option>
+            <option value="1A">1A</option><option value="2B">2B</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Difficulty -->
+      <div id="diff-wrap" class="mt-5 hidden">
+        <div id="diff-grid" class="grid grid-cols-3 gap-2"></div>
+      </div>
+
+      <button id="btn-start-game" type="button" disabled class="btn-arcade glow-primary w-full mt-5 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-400 via-sky-500 to-emerald-400 text-slate-950 font-black text-base tracking-wide shadow-xl disabled:opacity-40 disabled:cursor-not-allowed">
+        PLAY &rarr;
+      </button>
+
+      <div class="flex items-center justify-center gap-2 mt-4">
+        <button id="btn-open-help" type="button" class="btn-arcade bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl px-4 py-2 text-xs font-bold font-mono">Instructions</button>
+        <button id="btn-open-scores" type="button" class="btn-arcade bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl px-4 py-2 text-xs font-bold font-mono">&#127942; Scores</button>
+      </div>
+
+      <!-- kept for the game code, never shown on the lobby -->
+      <div class="hidden">
+        <input id="inp-name" type="text" />
+        <button id="btn-open-studio" type="button">Teacher Studio</button>
+        <div id="ec-bank-banner"><div id="ec-bank-details"></div><div id="ec-bank-total"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PAUSE MODAL ==================== -->
+  <div id="modal-pause" class="hidden fixed inset-0 z-40 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
+    <div class="w-full max-w-sm bg-slate-900 border border-slate-700 rounded-3xl p-6 text-center shadow-2xl">
+      <div class="font-mono text-xs font-bold text-cyan-400 uppercase tracking-widest mb-1">Storm Suspended</div>
+      <h2 class="text-2xl font-black text-white mb-2">PAUSED</h2>
+      <p class="text-xs text-slate-400 mb-5">Your speedrun clock is paused while this menu is open.</p>
+      <div class="space-y-2.5">
+        <button id="btn-resume" type="button" class="btn-arcade w-full py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-extrabold text-sm">Resume Campaign</button>
+        <button id="btn-help-pause" type="button" class="btn-arcade w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-sm">Instructions</button>
+        <button id="btn-restart-pause" type="button" class="btn-arcade w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-sm">Restart Level 1</button>
+        <button id="btn-quit-pause" type="button" class="btn-arcade w-full py-2.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/40 text-rose-300 font-bold text-sm">Exit to Lobby</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== END / VICTORY / AUTOPSY MODAL ==================== -->
+  <div id="modal-end" class="hidden fixed inset-0 z-40 flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-3 sm:p-5 overflow-y-auto">
+    <div class="w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-3xl p-5 sm:p-6 shadow-2xl my-auto max-h-[92vh] overflow-y-auto custom-scroll">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <div>
+          <span id="end-badge" class="inline-block font-mono text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/40 mb-1">CONNECTION LOST</span>
+          <h2 id="end-title" class="text-2xl sm:text-3xl font-black text-white">Game Over</h2>
+          <p id="end-subtitle" class="text-xs sm:text-sm text-slate-400 mt-0.5"></p>
+        </div>
+      </div>
+
+      <!-- Run Stats -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4">
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3 text-center">
+          <div class="font-mono text-[10px] uppercase text-slate-400">Final Score</div>
+          <div id="end-score" class="font-mono text-xl font-black text-white">0</div>
+        </div>
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3 text-center">
+          <div class="font-mono text-[10px] uppercase text-slate-400">Level Reached</div>
+          <div id="end-level" class="font-mono text-xl font-black text-cyan-300">1/10</div>
+        </div>
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3 text-center">
+          <div class="font-mono text-[10px] uppercase text-slate-400">Run Time</div>
+          <div id="end-time" class="font-mono text-xl font-black text-emerald-300">00:00.0</div>
+        </div>
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3 text-center">
+          <div class="font-mono text-[10px] uppercase text-slate-400">Accuracy</div>
+          <div id="end-accuracy" class="font-mono text-xl font-black text-amber-300">0%</div>
+        </div>
+      </div>
+
+      <div id="end-saved" class="mb-4 text-xs font-mono rounded-xl px-3 py-2 bg-slate-950 border border-slate-800 text-slate-400">Saving your run&hellip;</div>
+
+      <!-- Extra Credit Reward Callout -->
+      <div id="end-ec-box" class="hidden mb-4 bg-gradient-to-r from-amber-500/20 to-emerald-500/15 border border-amber-400/50 rounded-2xl p-3.5">
+        <div class="font-mono text-xs font-extrabold text-amber-300 uppercase mb-1">&#127942; Extra Credit Bank Updated!</div>
+        <div id="end-ec-text" class="text-xs sm:text-sm text-slate-100"></div>
+      </div>
+
+      <!-- Python Traceback Autopsy -->
+      <div class="mb-4">
+        <div class="font-mono text-xs font-extrabold uppercase text-rose-300 mb-2">Python Traceback Autopsy (Why Clicked Bugs Were Wrong)</div>
+        <div id="end-autopsy-list" class="space-y-2 max-h-44 overflow-y-auto custom-scroll pr-1"></div>
+      </div>
+
+      <!-- SHA-256 LMS Verification Receipt -->
+      <div class="mb-5 bg-slate-950 border border-slate-800 rounded-2xl p-3">
+        <div class="flex items-center justify-between gap-2 mb-1.5">
+          <span class="font-mono text-[11px] font-extrabold text-cyan-300 uppercase">LMS Verification Receipt (SHA-256)</span>
+          <button id="btn-copy-receipt" type="button" class="btn-arcade bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/40 text-cyan-200 rounded-lg px-2.5 py-1 font-mono text-[11px] font-bold">Copy Receipt</button>
+        </div>
+        <pre id="end-receipt-text" class="font-mono text-[10px] sm:text-[11px] text-slate-300 whitespace-pre-wrap break-all select-text"></pre>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <button id="btn-play-again" type="button" class="btn-arcade py-3 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-sm">Play Again (Same Difficulty)</button>
+        <button id="btn-back-menu" type="button" class="btn-arcade py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-sm">Back to Lobby</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PYTHON FIELD GUIDE MODAL ==================== -->
+  <div id="modal-manual" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-3 sm:p-5">
+    <div class="w-full max-w-lg bg-slate-900 border border-slate-700 rounded-3xl p-5 shadow-2xl max-h-[88vh] overflow-y-auto custom-scroll">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg font-black text-white">How to Play</h3>
+        <button id="btn-close-manual" type="button" class="btn-arcade bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl px-3 py-1 font-mono text-xs font-bold">Close</button>
+      </div>
+      <p class="text-sm text-slate-200 mb-4">Code flies in from the top and bottom. <strong class="text-emerald-300">Click only the correct code.</strong> Let broken code fly past &mdash; clicking a bug costs you a heart. Clear all 10 levels as fast as you can.</p>
+      <div class="bg-amber-950/40 border border-amber-400/45 rounded-2xl p-3 mb-4">
+        <div class="font-mono text-[11px] font-extrabold text-amber-300 mb-2">GOLD POWER-UPS &mdash; ALWAYS CLICK THESE</div>
+        <div class="space-y-1.5 text-xs text-slate-200">
+          <div class="flex gap-2"><span class="w-24 shrink-0 font-mono font-bold text-cyan-300">&#10052; Slow-Mo</span><span>Saves a charge. Press <kbd class="px-1 rounded bg-slate-800">Space</kbd> to slow everything down for 4.5 seconds.</span></div>
+          <div class="flex gap-2"><span class="w-24 shrink-0 font-mono font-bold text-amber-300">&#9889; Debug Pulse</span><span>Saves a charge. Press <kbd class="px-1 rounded bg-slate-800">Shift</kbd> to wipe the broken Python off the screen.</span></div>
+          <div class="flex gap-2"><span class="w-24 shrink-0 font-mono font-bold text-rose-300">&#9829; Heart</span><span>Gives you one heart back.</span></div>
+          <div class="flex gap-2"><span class="w-24 shrink-0 font-mono font-bold text-emerald-300">&#128737; Shield</span><span>Refills your shield to 100% and adds 250 points.</span></div>
+          <div class="flex gap-2"><span class="w-24 shrink-0 font-mono font-bold text-rose-300">&#128293; Overdrive</span><span>Double points for 7 seconds.</span></div>
+          <div class="flex gap-2"><span class="w-24 shrink-0 font-mono font-bold text-sky-300">&#127919; Snipe</span><span>Automatically clicks correct code for you.</span></div>
+          <div class="flex gap-2"><span class="w-24 shrink-0 font-mono font-bold text-cyan-300">&#9201; -5s</span><span>Takes 5 seconds off your clock.</span></div>
+        </div>
+      </div>
+      <p class="text-[11px] text-slate-400 mb-3">Pause any time with <kbd class="px-1 rounded bg-slate-800">P</kbd> or <kbd class="px-1 rounded bg-slate-800">Esc</kbd>. Your progress and wins are saved for your teacher.</p>
+      <details class="text-xs text-slate-300">
+        <summary class="cursor-pointer font-mono font-bold text-cyan-300 mb-2">Python cheat sheet</summary>
+        <div class="space-y-3 mt-2">
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-3"><div class="font-mono font-bold text-sky-400 mb-1">1. VARIABLES, BOOLEANS &amp; STRINGS</div><p>Variable names cannot start with a digit (<code class="text-rose-300">1st_val</code> is invalid). Booleans are capitalized: <code class="text-emerald-300">True</code> / <code class="text-emerald-300">False</code>. Use <code class="text-emerald-300">len(word)</code> (not <code class="text-rose-300">.length</code>) and <code class="text-emerald-300">print()</code> (lowercase).</p></div>
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-3"><div class="font-mono font-bold text-emerald-400 mb-1">2. CONDITIONALS &amp; LOGIC</div><p>Python uses <code class="text-emerald-300">if</code>, <code class="text-emerald-300">elif</code> (not <code class="text-rose-300">else if</code>), <code class="text-emerald-300">else:</code>, and the words <code class="text-emerald-300">and</code>, <code class="text-emerald-300">or</code>, <code class="text-emerald-300">not</code> (never <code class="text-rose-300">&amp;&amp;</code> or <code class="text-rose-300">||</code>). End headers with a colon <code class="text-amber-300">:</code> and use <code class="text-emerald-300">==</code> to compare.</p></div>
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-3"><div class="font-mono font-bold text-cyan-400 mb-1">3. LISTS &amp; FUNCTIONS</div><p>Python lists are <strong>0-indexed</strong> with square brackets <code class="text-emerald-300">nums[0]</code>, <code class="text-emerald-300">nums[-1]</code>, and methods like <code class="text-emerald-300">.append(x)</code> (not <code class="text-rose-300">.push()</code>). Functions start with <code class="text-emerald-300">def name(param):</code> and return values with <code class="text-emerald-300">return val</code>.</p></div>
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-3"><div class="font-mono font-bold text-violet-400 mb-1">4. LOOPS, DIVISION &amp; RANDOM</div><p><code class="text-sky-300">range(5)</code> generates <code class="text-amber-300">0, 1, 2, 3, 4</code> (the stop value is exclusive). Use <code class="text-emerald-300">//</code> for integer division, <code class="text-emerald-300">%</code> for the remainder (MOD), and <code class="text-emerald-300">random.randint(a, b)</code> for random integers that include both ends.</p></div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- ==================== LOCAL HIGH SCORES MODAL ==================== -->
+  <div id="modal-scores" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-3 sm:p-5">
+    <div class="w-full max-w-lg bg-slate-900 border border-slate-700 rounded-3xl p-5 shadow-2xl max-h-[85vh] overflow-y-auto custom-scroll">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg font-black text-white">&#127942; Local Hall of Fame</h3>
+        <button id="btn-close-scores" type="button" class="btn-arcade bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl px-3 py-1 font-mono text-xs font-bold">Close</button>
+      </div>
+      <div id="scores-list" class="space-y-2"></div>
+    </div>
+  </div>
+
+  <!-- ==================== TEACHER STUDIO MODAL ==================== -->
+  <div id="modal-studio" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-3 sm:p-5 overflow-y-auto">
+    <div class="w-full max-w-3xl bg-slate-900 border border-amber-400/45 rounded-3xl p-5 sm:p-6 shadow-2xl my-auto max-h-[92vh] overflow-y-auto custom-scroll">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <div>
+          <span class="font-mono text-[10px] font-extrabold uppercase tracking-wider text-amber-300">Instructor Backend</span>
+          <h2 class="text-xl sm:text-2xl font-black text-white">&#9881; Teacher Studio — PY STORM</h2>
+        </div>
+        <button id="btn-close-studio" type="button" class="btn-arcade bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl px-3 py-1.5 font-mono text-xs font-bold">Cancel</button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex flex-wrap gap-1.5 mb-4 border-b border-slate-800 pb-3">
+        <button id="tab-topics" type="button" class="studio-tab px-3 py-1.5 rounded-xl font-mono text-xs font-bold bg-amber-400 text-slate-950">1. Tags &amp; Styles</button>
+        <button id="tab-custom" type="button" class="studio-tab px-3 py-1.5 rounded-xl font-mono text-xs font-bold bg-slate-800 text-slate-300 hover:text-white">2. Custom Code Bank</button>
+        <button id="tab-theme" type="button" class="studio-tab px-3 py-1.5 rounded-xl font-mono text-xs font-bold bg-slate-800 text-slate-300 hover:text-white">3. Theme, Speed &amp; EC</button>
+        <button id="tab-share" type="button" class="studio-tab px-3 py-1.5 rounded-xl font-mono text-xs font-bold bg-slate-800 text-slate-300 hover:text-white">4. Publish / Share</button>
+      </div>
+
+      <!-- TAB 1: Tags & Styles -->
+      <div id="panel-topics" class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-mono text-[11px] text-slate-400 mb-1">Assignment / Game Title</label>
+            <input id="tc-title" type="text" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white" />
+          </div>
+          <div>
+            <label class="block font-mono text-[11px] text-slate-400 mb-1">Default Course / Section Label</label>
+            <input id="tc-section" type="text" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white" />
+          </div>
+        </div>
+
+        <div>
+          <div class="font-mono text-[11px] font-bold uppercase text-slate-400 mb-2">Active APCSP Python Packs</div>
+          <div id="tc-packs-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+        </div>
+
+        <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-3.5">
+          <div class="font-mono text-[11px] font-bold uppercase text-slate-400 mb-2">Active Wave Modes</div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
+            <label class="flex items-center gap-2 cursor-pointer"><input id="tc-mode-valid" type="checkbox" class="accent-cyan-400" /> Valid vs Bugs</label>
+            <label class="flex items-center gap-2 cursor-pointer"><input id="tc-mode-category" type="checkbox" class="accent-cyan-400" /> Target Hunt</label>
+            <label class="flex items-center gap-2 cursor-pointer"><input id="tc-mode-build" type="checkbox" class="accent-cyan-400" /> Build Code</label>
+            <label class="flex items-center gap-2 cursor-pointer"><input id="tc-mode-boss" type="checkbox" class="accent-cyan-400" /> Boss Levels</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: Custom Code Bank -->
+      <div id="panel-custom" class="hidden space-y-4">
+        <label class="flex items-center gap-2 bg-amber-500/10 border border-amber-400/35 rounded-xl p-3 text-xs font-mono text-amber-200 cursor-pointer">
+          <input id="tc-custom-only" type="checkbox" class="accent-amber-400" />
+          <span>Use ONLY my custom items below (ignore built-in packs when custom items exist)</span>
+        </label>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Valid Custom -->
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3 space-y-2">
+            <div class="font-mono text-xs font-bold text-emerald-300">+ Add Valid Python Snippet</div>
+            <input id="tc-add-valid-code" type="text" placeholder="e.g., total += price" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white" />
+            <div class="flex gap-2">
+              <input id="tc-add-valid-cat" type="text" placeholder="Topic (e.g., CSS Flex)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white" />
+              <button id="btn-add-valid" type="button" class="btn-arcade bg-emerald-500 text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg">Add</button>
+            </div>
+            <div id="tc-valid-list" class="space-y-1.5 max-h-40 overflow-y-auto custom-scroll"></div>
+          </div>
+
+          <!-- Broken Custom -->
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3 space-y-2">
+            <div class="font-mono text-xs font-bold text-rose-300">+ Add Broken Syntax Bug</div>
+            <input id="tc-add-bug-code" type="text" placeholder="e.g., if x = 5:" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white" />
+            <div class="flex gap-2">
+              <input id="tc-add-bug-reason" type="text" placeholder="Why is it wrong?" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white" />
+              <button id="btn-add-bug" type="button" class="btn-arcade bg-rose-500 text-white font-bold text-xs px-3 py-1.5 rounded-lg">Add</button>
+            </div>
+            <div id="tc-bug-list" class="space-y-1.5 max-h-40 overflow-y-auto custom-scroll"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: Theme, Speed & Extra Credit -->
+      <div id="panel-theme" class="hidden space-y-4">
+        <div>
+          <div class="font-mono text-[11px] font-bold uppercase text-slate-400 mb-2">Arena Theme Presets</div>
+          <div id="tc-themes-grid" class="grid grid-cols-2 sm:grid-cols-5 gap-2"></div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-950/90 border border-slate-800 rounded-xl p-3.5">
+          <label class="flex items-center justify-between gap-2 text-xs font-mono text-slate-300">
+            <span>Code Capsule Color (Both Directions)</span>
+            <input id="tc-color-top" type="color" value="#22d3ee" class="w-9 h-8 rounded bg-transparent border border-slate-700 cursor-pointer" />
+          </label>
+          <label class="flex items-center justify-between gap-2 text-xs font-mono text-slate-300">
+            <span>Arena Background</span>
+            <input id="tc-color-bg" type="color" value="#050814" class="w-9 h-8 rounded bg-transparent border border-slate-700 cursor-pointer" />
+          </label>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-950/90 border border-slate-800 rounded-xl p-3.5">
+          <div>
+            <div class="flex items-center justify-between text-xs font-mono text-slate-300 mb-1">
+              <span>Speed Multiplier</span>
+              <span id="tc-speed-val" class="text-cyan-300 font-bold">1.0x</span>
+            </div>
+            <input id="tc-speed" type="range" min="0.6" max="1.5" step="0.1" value="1.0" class="w-full accent-cyan-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-mono text-slate-300 mb-1">Difficulty Lock</label>
+            <select id="tc-diff-lock" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white">
+              <option value="unlock">Students Choose Any Difficulty</option>
+              <option value="rookie">Lock to Script Rookie</option>
+              <option value="scholar">Lock to AP Scholar</option>
+              <option value="five">Lock to Score a 5</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="bg-slate-950/90 border border-amber-400/35 rounded-xl p-3.5 space-y-3">
+          <label class="flex items-center gap-2 text-xs font-mono font-bold text-amber-300 cursor-pointer">
+            <input id="tc-ec-enabled" type="checkbox" class="accent-amber-400" />
+            <span>Enable Speedrun Extra Credit Bank (Max EC per Difficulty)</span>
+          </label>
+          <div class="grid grid-cols-3 gap-2 text-xs font-mono">
+            <label class="block">
+              <span class="text-slate-400 text-[10px]">Script Rookie Max</span>
+              <input id="tc-ec-rookie" type="number" min="1" max="100" value="5" class="mt-1 w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-white" />
+            </label>
+            <label class="block">
+              <span class="text-slate-400 text-[10px]">AP Scholar Max</span>
+              <input id="tc-ec-scholar" type="number" min="1" max="100" value="10" class="mt-1 w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-white" />
+            </label>
+            <label class="block">
+              <span class="text-slate-400 text-[10px]">Score a 5 Max</span>
+              <input id="tc-ec-five" type="number" min="1" max="100" value="15" class="mt-1 w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-white" />
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: Publish / Share -->
+      <div id="panel-share" class="hidden space-y-4">
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-2.5">
+          <div class="font-mono text-xs font-bold text-cyan-300">Option 1: 1-Click Student Assignment Link (?cfg=...)</div>
+          <p class="text-xs text-slate-400">Share this URL in Canvas, Blackboard, or Google Classroom once hosted on Cloudflare Pages. Students automatically get your custom tags, CSS packs, colors, and Extra Credit rules—and the Teacher Studio button stays hidden.</p>
+          <div class="flex gap-2">
+            <input id="tc-share-url" type="text" readonly class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-[11px] font-mono text-cyan-200" />
+            <button id="btn-copy-share" type="button" class="btn-arcade bg-cyan-400 text-slate-950 font-bold text-xs px-3.5 py-2 rounded-xl shrink-0">Copy Link</button>
+          </div>
+        </div>
+
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="font-mono text-xs font-bold text-emerald-300">Option 2: Site-Wide config.json</div>
+            <p class="text-xs text-slate-400 mt-0.5">Drop this file next to index.html on Cloudflare Pages to apply your config to every visitor.</p>
+          </div>
+          <div class="flex gap-2">
+            <button id="btn-download-cfg" type="button" class="btn-arcade bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/40 text-emerald-200 font-mono font-bold text-xs px-3.5 py-2 rounded-xl">Download config.json</button>
+            <button id="btn-reset-cfg" type="button" class="btn-arcade bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/40 text-rose-300 font-mono font-bold text-xs px-3.5 py-2 rounded-xl">Reset Defaults</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Studio Footer -->
+      <div class="mt-5 pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+        <div id="tc-summary" class="font-mono text-[11px] text-slate-400"></div>
+        <button id="btn-save-studio" type="button" class="btn-arcade bg-gradient-to-r from-amber-400 to-emerald-400 text-slate-950 font-black text-xs sm:text-sm px-5 py-2.5 rounded-xl">Save &amp; Apply Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast-msg" class="pointer-events-none fixed bottom-5 left-1/2 -translate-x-1/2 z-50 opacity-0 transition-opacity duration-200 bg-slate-900 border border-cyan-400/60 text-cyan-100 font-mono text-xs font-bold px-4 py-2 rounded-full shadow-2xl"></div>
+
+  <!-- ==================== GAME ENGINE & TEACHER STUDIO SCRIPT ==================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ============================================================
+         1. APCSP PYTHON CURRICULUM PACKS & BLUEPRINTS
+         ============================================================ */
+      const PYTHON_PACKS = {
+        variables: {
+          name: 'Variables, Types & Math',
+          catLabel: 'Variables & Math',
+          valid: [
+            { code: 'score = 0', cat: 'Variables & Math' },
+            { code: 'is_ready = True', cat: 'Variables & Math' },
+            { code: 'total += 10', cat: 'Variables & Math' },
+            { code: 'avg = total / 4', cat: 'Variables & Math' },
+            { code: 'whole = 17 // 5', cat: 'Variables & Math' },
+            { code: 'rem = 17 % 5', cat: 'Variables & Math' },
+            { code: 'area = side ** 2', cat: 'Variables & Math' },
+            { code: 'age = int("16")', cat: 'Variables & Math' },
+            { code: 'price = float("4.5")', cat: 'Variables & Math' },
+            { code: 'user_name = "Ada"', cat: 'Variables & Math' }
+          ],
+          broken: [
+            { code: '1st_score = 100', reason: 'Variable names cannot start with a number.' },
+            { code: 'is_done = true', reason: 'Python booleans must be capitalized: True or False.' },
+            { code: 'count++', reason: 'Python does not have ++; use count += 1 instead.' },
+            { code: 'total = "5" + 3', reason: 'TypeError: cannot add a string and an int without int() or str().' },
+            { code: 'my score = 95', reason: 'Variable names cannot contain spaces; use underscores (my_score).' },
+            { code: 'int x = 10', reason: 'Python is dynamically typed—do not declare a type keyword before x = 10.' },
+            { code: 'x == 5  # assign', reason: 'Use single = to assign a value; == checks equality.' }
+          ]
+        },
+        strings_io: {
+          name: 'Strings, Input & Output',
+          catLabel: 'Strings & I/O',
+          valid: [
+            { code: 'print("Hello APCSP")', cat: 'Strings & I/O' },
+            { code: 'name = input("Name: ")', cat: 'Strings & I/O' },
+            { code: 'print(f"Score: {pts}")', cat: 'Strings & I/O' },
+            { code: 'size = len(word)', cat: 'Strings & I/O' },
+            { code: 'first = word[0]', cat: 'Strings & I/O' },
+            { code: 'sub = word[1:4]', cat: 'Strings & I/O' },
+            { code: 'loud = msg.upper()', cat: 'Strings & I/O' },
+            { code: 'full = a + " " + b', cat: 'Strings & I/O' }
+          ],
+          broken: [
+            { code: 'Print("Hello")', reason: 'Python is case-sensitive: use lowercase print().' },
+            { code: 'size = word.length', reason: 'Strings have no .length property in Python; use len(word).' },
+            { code: 'first = word(0)', reason: 'Indexing uses square brackets word[0], not parentheses.' },
+            { code: 'print("Hi there)', reason: 'Unterminated string literal: missing closing quote.' },
+            { code: 'input = ("Name?")', reason: 'Call input("Name?") instead of assigning a string to input.' },
+            { code: 'print("Age: " + 16)', reason: 'Cannot concatenate str and int directly; use str(16) or an f-string.' }
+          ]
+        },
+        conditionals: {
+          name: 'Conditionals & Booleans',
+          catLabel: 'Conditionals',
+          valid: [
+            { code: 'if score >= 90:', cat: 'Conditionals' },
+            { code: 'elif score >= 80:', cat: 'Conditionals' },
+            { code: 'else:', cat: 'Conditionals' },
+            { code: 'if x == 10:', cat: 'Conditionals' },
+            { code: 'if a > 0 and b > 0:', cat: 'Conditionals' },
+            { code: 'if x < 5 or x > 10:', cat: 'Conditionals' },
+            { code: 'if not is_locked:', cat: 'Conditionals' },
+            { code: 'if name != "":', cat: 'Conditionals' }
+          ],
+          broken: [
+            { code: 'else if score >= 80:', reason: 'Python uses elif, not else if.' },
+            { code: 'if score >= 90', reason: 'SyntaxError: missing trailing colon : at the end of if.' },
+            { code: 'if x = 10:', reason: 'Use == to compare values inside an if statement, not =.' },
+            { code: 'if a > 0 && b > 0:', reason: 'Python uses the word and, not &&.' },
+            { code: 'if x < 5 || x > 10:', reason: 'Python uses the word or, not ||.' },
+            { code: 'if !is_ready:', reason: 'Python uses the word not, not !.' },
+            { code: 'else score < 60:', reason: 'else cannot take a condition; use elif score < 60: instead.' }
+          ]
+        },
+        loops: {
+          name: 'Loops & Iteration',
+          catLabel: 'Loops',
+          valid: [
+            { code: 'for i in range(5):', cat: 'Loops' },
+            { code: 'for i in range(1, 6):', cat: 'Loops' },
+            { code: 'for item in cart:', cat: 'Loops' },
+            { code: 'while lives > 0:', cat: 'Loops' },
+            { code: 'for n in range(0,10,2):', cat: 'Loops' },
+            { code: 'break', cat: 'Loops' },
+            { code: 'continue', cat: 'Loops' }
+          ],
+          broken: [
+            { code: 'for i in 5:', reason: 'Ints are not iterable; use for i in range(5):.' },
+            { code: 'for i in range(5)', reason: 'Missing colon : at the end of the for loop header.' },
+            { code: 'while lives > 0', reason: 'Missing colon : at the end of the while loop header.' },
+            { code: 'for (i=0; i<5; i++):', reason: 'JavaScript/C-style for loops are invalid in Python; use range().' },
+            { code: 'repeat 5 times:', reason: 'Python has no repeat keyword; use for i in range(5):.' },
+            { code: 'while lives = 0:', reason: 'Cannot use assignment = inside a while condition; use == or >.' }
+          ]
+        },
+        lists: {
+          name: 'Lists & Indexing',
+          catLabel: 'Lists',
+          valid: [
+            { code: 'nums = [10, 20, 30]', cat: 'Lists' },
+            { code: 'first = nums[0]', cat: 'Lists' },
+            { code: 'last = nums[-1]', cat: 'Lists' },
+            { code: 'nums.append(40)', cat: 'Lists' },
+            { code: 'nums.insert(1, 15)', cat: 'Lists' },
+            { code: 'nums.pop()', cat: 'Lists' },
+            { code: 'count = len(nums)', cat: 'Lists' },
+            { code: 'if 20 in nums:', cat: 'Lists' }
+          ],
+          broken: [
+            { code: 'nums.push(40)', reason: 'Python lists use .append(40), not .push().' },
+            { code: 'count = nums.length', reason: 'Use len(nums) to find the length of a Python list.' },
+            { code: 'first = nums(0)', reason: 'List indexing requires square brackets: nums[0].' },
+            { code: 'append(nums, 40)', reason: 'append is a list method: write nums.append(40).' },
+            { code: 'nums = [10, 20, 30}', reason: 'Mismatched brackets: lists must open and close with [ ].' },
+            { code: 'nums.add(40)', reason: 'Lists use .append(40) rather than .add(40).' }
+          ]
+        },
+        functions: {
+          name: 'Procedures & Functions',
+          catLabel: 'Functions',
+          valid: [
+            { code: 'def greet(name):', cat: 'Functions' },
+            { code: 'return total * 2', cat: 'Functions' },
+            { code: 'ans = calc_avg(nums)', cat: 'Functions' },
+            { code: 'def is_even(n):', cat: 'Functions' },
+            { code: 'return n % 2 == 0', cat: 'Functions' },
+            { code: 'def get_max(a, b):', cat: 'Functions' }
+          ],
+          broken: [
+            { code: 'function greet(name):', reason: 'Python defines functions with def, not function.' },
+            { code: 'def greet(name)', reason: 'Missing colon : at the end of the def header.' },
+            { code: 'return = total', reason: 'return is a keyword, not a variable: write return total.' },
+            { code: 'def 2x(n):', reason: 'Function names cannot start with a digit.' },
+            { code: 'def calc(a b):', reason: 'Parameters must be separated by a comma: def calc(a, b):.' }
+          ]
+        },
+        algorithms_ap: {
+          name: 'AP Algorithms & Random',
+          catLabel: 'AP Algorithms',
+          valid: [
+            { code: 'import random', cat: 'AP Algorithms' },
+            { code: 'roll = random.randint(1,6)', cat: 'AP Algorithms' },
+            { code: 'mid = (low + high) // 2', cat: 'AP Algorithms' },
+            { code: 'best = max(scores)', cat: 'AP Algorithms' },
+            { code: 'avg = sum(a) / len(a)', cat: 'AP Algorithms' },
+            { code: 'bits = bin(13)', cat: 'AP Algorithms' },
+            { code: 'if n % 2 == 0:', cat: 'AP Algorithms' }
+          ],
+          broken: [
+            { code: 'roll = random(1, 6)', reason: 'Use random.randint(1, 6) after import random.' },
+            { code: 'mid = (low + high) / 2', reason: 'Single / creates a float! Binary search index needs integer division //.' },
+            { code: 'import Random', reason: 'Module names are case-sensitive: use lowercase import random.' },
+            { code: 'avg = sum(a) / a.len', reason: 'Use len(a) to get the length of a list.' },
+            { code: 'if n mod 2 == 0:', reason: 'Python uses % for modulo (remainder), not the word mod.' }
+          ]
+        }
+      };
+
+      const BUILD_BLUEPRINTS = [
+        {
+          title: 'Build an Even-Check Function',
+          packs: ['functions', 'conditionals', 'variables'],
+          steps: ['def is_even(n):', '  if n % 2 == 0:', '    return True', '  return False']
+        },
+        {
+          title: 'Build a List Sum Loop',
+          packs: ['loops', 'lists', 'variables'],
+          steps: ['total = 0', 'for n in nums:', '  total += n', 'print(total)']
+        },
+        {
+          title: 'Build a Dice Roll Simulator',
+          packs: ['algorithms_ap', 'strings_io', 'conditionals'],
+          steps: ['import random', 'roll = random.randint(1,6)', 'if roll == 6:', '  print("Winner!")']
+        },
+        {
+          title: 'Build a Safe List Append',
+          packs: ['lists', 'strings_io', 'conditionals'],
+          steps: ['items = []', 'val = input("Add: ")', 'if val != "":', '  items.append(val)']
+        },
+        {
+          title: 'Build a Binary Search Midpoint',
+          packs: ['algorithms_ap', 'loops', 'variables'],
+          steps: ['low = 0', 'high = len(arr) - 1', 'while low <= high:', '  mid = (low + high) // 2']
+        }
+      ];
+
+      /* ============================================================
+         2. THEMES, DIFFICULTIES & STORAGE KEYS
+         ============================================================ */
+      const ARENA_THEMES = {
+        python:  { label: 'Python Pro',   bg: '#060b18', top: '#38bdf8', grid: 'rgba(56, 189, 248, 0.14)' },
+        varsity: { label: 'SCHS Varsity', bg: '#14060b', top: '#fbbf24', grid: 'rgba(248, 113, 113, 0.15)' },
+        matrix:  { label: 'Terminal',     bg: '#020b05', top: '#4ade80', grid: 'rgba(34, 197, 94, 0.16)' },
+        synth:   { label: 'Synthwave',    bg: '#130522', top: '#f472b6', grid: 'rgba(244, 114, 182, 0.18)' },
+        slate:   { label: 'Classroom',    bg: '#0f172a', top: '#38bdf8', grid: 'rgba(148, 163, 184, 0.2)' }
+      };
+
+      const DIFFICULTIES = {
+        rookie: {
+          key: 'rookie',
+          name: 'Script Rookie',
+          tag: '10 LEVELS',
+          desc: '5 Hearts • Moderate pace • Swarms up to 14 lines',
+          hearts: 5,
+          baseSpeed: 64,
+          speedPerLevel: 8.5,
+          spawnInterval: 1.55,
+          minSpawnInterval: 0.72,
+          maxOnScreenBase: 6,
+          maxOnScreenCap: 14,
+          swarmMax: 3,
+          scoreMult: 1.0,
+          goldSec: 165,
+          silverSec: 215,
+          bronzeSec: 280
+        },
+        scholar: {
+          key: 'scholar',
+          name: 'AP Scholar',
+          tag: '10 LEVELS',
+          desc: '4 Hearts • Brisk pace • Swarms up to 19 lines',
+          hearts: 4,
+          baseSpeed: 82,
+          speedPerLevel: 10.5,
+          spawnInterval: 1.25,
+          minSpawnInterval: 0.54,
+          maxOnScreenBase: 8,
+          maxOnScreenCap: 19,
+          swarmMax: 4,
+          scoreMult: 1.5,
+          goldSec: 195,
+          silverSec: 250,
+          bronzeSec: 320
+        },
+        five: {
+          key: 'five',
+          name: 'Score a 5',
+          tag: '10 LEVELS',
+          desc: '3 Hearts • Intense speed • Swarms up to 25 lines',
+          hearts: 3,
+          baseSpeed: 102,
+          speedPerLevel: 13.0,
+          spawnInterval: 0.98,
+          minSpawnInterval: 0.40,
+          maxOnScreenBase: 10,
+          maxOnScreenCap: 25,
+          swarmMax: 5,
+          scoreMult: 2.2,
+          goldSec: 225,
+          silverSec: 290,
+          bronzeSec: 370
+        }
+      };
+
+      const TEACHER_CFG_STORAGE_KEY = 'py_storm_teacher_cfg_v1';
+      const STORAGE_KEY = 'py_storm_apcsp_v1';
+      const MAX_LEVELS = 10;
+
+      function getDefaultTeacherConfig() {
+        return {
+          title: 'PY STORM',
+          section: 'SCHS APCSP',
+          packs: ['variables', 'strings_io', 'conditionals', 'loops', 'lists', 'functions', 'algorithms_ap'],
+          modes: { VALID: true, CATEGORY: true, BUILD: true, BOSS: true },
+          customOnly: false,
+          customValid: [],
+          customBroken: [],
+          theme: 'python',
+          topColor: '#38bdf8',
+          botColor: '#38bdf8',
+          bgColor: '#060b18',
+          speedMult: 1.0,
+          diffLock: 'unlock',
+          ecEnabled: true,
+          ecRookieMax: 5,
+          ecScholarMax: 10,
+          ecFiveMax: 15
+        };
+      }
+
+      /* ============================================================
+         3. STATE & PERSISTENCE
+         ============================================================ */
+      let teacherConfig = getDefaultTeacherConfig();
+      let studioDraft = getDefaultTeacherConfig();
+      let isStudentLockedLink = false;
+      let activeBank = { valid: [], broken: [], categories: [], blueprints: [] };
+
+      let playerProfile = loadProfile();
+      let selectedDifficulty = 'scholar';
+
+      function loadProfile() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const p = JSON.parse(raw);
+            return {
+              name: p.name || '',
+              section: p.section || '',
+              scores: Array.isArray(p.scores) ? p.scores : [],
+              ecBank: p.ecBank && typeof p.ecBank === 'object' ? p.ecBank : {}
+            };
+          }
+        } catch (e) {}
+        return { name: '', section: '', scores: [], ecBank: {} };
+      }
+
+      function saveProfile() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(playerProfile));
+        } catch (e) {}
+      }
+
+      function getEcMaxForDiff(diffKey) {
+        if (diffKey === 'rookie') return Number(teacherConfig.ecRookieMax) || 5;
+        if (diffKey === 'scholar') return Number(teacherConfig.ecScholarMax) || 10;
+        return Number(teacherConfig.ecFiveMax) || 15;
+      }
+
+      function calcEcTotal() {
+        const bank = playerProfile.ecBank || {};
+        return Object.values(bank).reduce((sum, rec) => sum + (Number(rec.points) || 0), 0);
+      }
+
+      /* ============================================================
+         4. PROCEDURAL SOUND ENGINE (TONE.JS SAFE WRAPPER)
+         ============================================================ */
+      const SFX = {
+        muted: false,
+        ready: false,
+        synth: null,
+        bass: null,
+        init() {
+          if (this.ready || typeof Tone === 'undefined') return;
+          try {
+            if (Tone.context && Tone.context.state !== 'running') {
+              Tone.start().catch(() => {});
+            }
+            this.synth = new Tone.PolySynth(Tone.Synth, {
+              oscillator: { type: 'triangle' },
+              envelope: { attack: 0.005, decay: 0.12, sustain: 0.05, release: 0.16 }
+            }).toDestination();
+            this.synth.volume.value = -10;
+            this.bass = new Tone.MonoSynth({
+              oscillator: { type: 'sawtooth' },
+              envelope: { attack: 0.01, decay: 0.2, sustain: 0.0, release: 0.2 }
+            }).toDestination();
+            this.bass.volume.value = -14;
+            this.ready = true;
+          } catch (e) {}
+        },
+        play(notes, dur = '16n') {
+          if (this.muted) return;
+          this.init();
+          try {
+            if (this.synth) this.synth.triggerAttackRelease(notes, dur);
+          } catch (e) {}
+        },
+        hit(combo) {
+          const scale = ['C5', 'D5', 'E5', 'G5', 'A5', 'C6', 'D6', 'E6'];
+          const note = scale[Math.min(scale.length - 1, Math.max(0, combo - 1))];
+          this.play(note, '16n');
+        },
+        miss() {
+          if (this.muted) return;
+          this.init();
+          try {
+            if (this.bass) this.bass.triggerAttackRelease('F2', '8n');
+          } catch (e) {}
+        },
+        powerup() { this.play(['E5', 'G#5', 'B5'], '8n'); },
+        levelUp() { this.play(['C5', 'E5', 'G5', 'C6'], '4n'); },
+        bossHit() { this.play(['A4', 'E5'], '16n'); },
+        win() { this.play(['C5', 'E5', 'G5', 'B5', 'C6'], '2n'); }
+      };
+
+      /* ============================================================
+         5. UTILITY HELPERS
+         ============================================================ */
+      function hexToRgba(hex, alpha) {
+        const clean = (hex || '#22d3ee').replace('#', '');
+        const full = clean.length === 3 ? clean.split('').map(c => c + c).join('') : clean;
+        const num = parseInt(full, 16);
+        if (isNaN(num)) return `rgba(34, 211, 238, ${alpha})`;
+        const r = (num >> 16) & 255;
+        const g = (num >> 8) & 255;
+        const b = num & 255;
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      }
+
+      function formatTime(sec) {
+        const s = Math.max(0, sec);
+        const mins = Math.floor(s / 60);
+        const rem = s - mins * 60;
+        return `${String(mins).padStart(2, '0')}:${rem < 10 ? '0' : ''}${rem.toFixed(1)}`;
+      }
+
+      function escapeHtml(str) {
+        return String(str || '').replace(/[&<>"']/g, ch => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[ch]));
+      }
+
+      let toastTimer = null;
+      function showToast(msg) {
+        const el = document.getElementById('toast-msg');
+        el.textContent = msg;
+        el.style.opacity = '1';
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => { el.style.opacity = '0'; }, 2400);
+      }
+
+      let feedbackTimer = null;
+      function showFeedback(msg, isGood) {
+        const el = document.getElementById('directive-feedback');
+        el.textContent = msg;
+        el.className = 'pointer-events-none fixed top-[106px] left-1/2 -translate-x-1/2 z-30 transition-opacity duration-200 px-4 py-1.5 rounded-full font-mono text-xs font-bold shadow-xl border backdrop-blur-md ' +
+          (isGood
+            ? 'bg-emerald-950/90 border-emerald-400/60 text-emerald-200'
+            : 'bg-rose-950/90 border-rose-400/60 text-rose-200');
+        el.style.opacity = '1';
+        clearTimeout(feedbackTimer);
+        feedbackTimer = setTimeout(() => { el.style.opacity = '0'; }, 1900);
+      }
+
+      function copyToClipboard(text, successMsg) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          showToast(successMsg || 'Copied to clipboard!');
+        } catch (e) {
+          showToast('Copy failed — please select and copy manually.');
+        }
+        document.body.removeChild(ta);
+      }
+
+      async function sha256Hex(message) {
+        try {
+          if (window.crypto && window.crypto.subtle) {
+            const data = new TextEncoder().encode(message);
+            const hashBuf = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
+          }
+        } catch (e) {}
+        let h1 = 0xdeadbeef ^ message.length;
+        let h2 = 0x41c6ce57 ^ message.length;
+        for (let i = 0; i < message.length; i++) {
+          const ch = message.charCodeAt(i);
+          h1 = Math.imul(h1 ^ ch, 2654435761);
+          h2 = Math.imul(h2 ^ ch, 1597334677);
+        }
+        h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+        h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+        return (h2 >>> 0).toString(16).padStart(8, '0') + (h1 >>> 0).toString(16).padStart(8, '0') + 'local';
+      }
+
+      /* ============================================================
+         6. BUILD ACTIVE QUESTION BANK FROM TEACHER CONFIG
+         ============================================================ */
+      function rebuildActiveBank() {
+        let valid = [];
+        let broken = [];
+        const activePacks = Array.isArray(teacherConfig.packs) && teacherConfig.packs.length
+          ? teacherConfig.packs
+          : Object.keys(PYTHON_PACKS);
+
+        const customV = Array.isArray(teacherConfig.customValid) ? teacherConfig.customValid : [];
+        const customB = Array.isArray(teacherConfig.customBroken) ? teacherConfig.customBroken : [];
+
+        if (teacherConfig.customOnly && customV.length > 0 && customB.length > 0) {
+          valid = customV.map(v => ({ code: v.code, cat: v.cat || 'Custom' }));
+          broken = customB.map(b => ({ code: b.code, reason: b.reason || 'Syntax error in custom code snippet.' }));
+        } else {
+          activePacks.forEach(pk => {
+            const pack = PYTHON_PACKS[pk];
+            if (!pack) return;
+            valid.push(...pack.valid);
+            broken.push(...pack.broken);
+          });
+          customV.forEach(v => valid.push({ code: v.code, cat: v.cat || 'Custom' }));
+          customB.forEach(b => broken.push({ code: b.code, reason: b.reason || 'Syntax error in custom code snippet.' }));
+        }
+
+        if (!valid.length) valid = [...PYTHON_PACKS.basics.valid];
+        if (!broken.length) broken = [...PYTHON_PACKS.basics.broken];
+
+        const categories = Array.from(new Set(valid.map(v => v.cat))).filter(Boolean);
+        let blueprints = BUILD_BLUEPRINTS.filter(bp => bp.packs.some(p => activePacks.includes(p)));
+        if (!blueprints.length) blueprints = [...BUILD_BLUEPRINTS];
+
+        activeBank = { valid, broken, categories, blueprints };
+      }
+
+      /* ============================================================
+         7. CANVAS & CORE ARCADE ENGINE
+         ============================================================ */
+      const canvas = document.getElementById('game-canvas');
+      const ctx = canvas.getContext('2d');
+      let W = 800;
+      let H = 500;
+
+      function resizeCanvas() {
+        const wrap = document.getElementById('arena-wrap');
+        const rect = wrap.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = Math.max(320, rect.width);
+        H = Math.max(260, rect.height);
+        canvas.width = Math.floor(W * dpr);
+        canvas.height = Math.floor(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      window.addEventListener('resize', resizeCanvas);
+
+      const game = {
+        running: false,
+        paused: false,
+        diff: DIFFICULTIES.scholar,
+        wave: 1,
+        mode: 'VALID',
+        targetCategory: '',
+        blueprint: null,
+        buildStep: 0,
+        waveHits: 0,
+        waveGoal: 6,
+        bossHp: 100,
+        bossMaxHp: 100,
+        bossName: '502-GATEWAY CORE',
+        bossPulse: 0,
+        score: 0,
+        combo: 0,
+        maxCombo: 0,
+        hearts: 4,
+        maxHearts: 4,
+        shield: 100,
+        overdrive: 0,
+        overdriveActive: false,
+        overdriveTimer: 0,
+        slowMoCharges: 1,
+        slowMoTimer: 0,
+        empCharges: 1,
+        runElapsed: 0,
+        waveIntroTimer: 0,
+        waveIntroTitle: '',
+        waveIntroSub: '',
+        spawnTimer: 0,
+        tutorialSpawned: 0,
+        clicksTotal: 0,
+        clicksCorrect: 0,
+        mistakes: [],
+        capsules: [],
+        particles: [],
+        lasers: [],
+        shockwaves: [],
+        popups: [],
+        shake: 0,
+        gridOffset: 0,
+        lastFrameTs: 0
+      };
+
+      function pickModeForLevel(lvl) {
+        const m = teacherConfig.modes || { VALID: true, CATEGORY: true, BUILD: true, BOSS: true };
+        if (lvl === 1) return 'VALID';
+        if ((lvl === 5 || lvl === 10) && m.BOSS) return 'BOSS';
+
+        const pool = [];
+        if (m.VALID) pool.push('VALID');
+        if (m.CATEGORY && activeBank.categories.length >= 2) pool.push('CATEGORY');
+        if (m.BUILD && !teacherConfig.customOnly) pool.push('BUILD');
+        if (!pool.length) return 'VALID';
+
+        const preferred = ['VALID', 'CATEGORY', 'BUILD', 'VALID', 'BOSS', 'CATEGORY', 'BUILD', 'VALID', 'CATEGORY', 'BOSS'][lvl - 1];
+        if (pool.includes(preferred)) return preferred;
+        return pool[(lvl - 1) % pool.length];
+      }
+
+      function setupLevel(lvl) {
+        game.wave = lvl;
+        game.mode = pickModeForLevel(lvl);
+        game.capsules = [];
+        game.waveHits = 0;
+        game.spawnTimer = 0.25;
+        game.tutorialSpawned = 0;
+
+        const codeWord = 'PYTHON';
+
+        if (game.mode === 'VALID') {
+          game.waveGoal = 5 + Math.floor(lvl * 0.9);
+          game.waveIntroTitle = `LEVEL ${lvl} / ${MAX_LEVELS}`;
+          game.waveIntroSub = `CLICK VALID ${codeWord} — SKIP BROKEN BUGS!`;
+        } else if (game.mode === 'CATEGORY') {
+          game.targetCategory = activeBank.categories[Math.floor(Math.random() * activeBank.categories.length)] || 'Variables & Math';
+          game.waveGoal = 5 + Math.floor(lvl * 0.7);
+          game.waveIntroTitle = `LEVEL ${lvl} • TARGET HUNT`;
+          game.waveIntroSub = `CLICK ONLY VALID: ${game.targetCategory.toUpperCase()}`;
+        } else if (game.mode === 'BUILD') {
+          game.blueprint = activeBank.blueprints[Math.floor(Math.random() * activeBank.blueprints.length)];
+          game.buildStep = 0;
+          game.waveGoal = game.blueprint.steps.length;
+          game.waveIntroTitle = `LEVEL ${lvl} • BUILD CODE`;
+          game.waveIntroSub = game.blueprint.title.toUpperCase();
+        } else if (game.mode === 'BOSS') {
+          game.bossName = lvl === 10 ? 'SYNTAX-OVERLORD' : 'TRACEBACK-GATE';
+          game.bossMaxHp = lvl === 10 ? 12 : 8;
+          game.bossHp = game.bossMaxHp;
+          game.waveGoal = game.bossMaxHp;
+          game.waveIntroTitle = lvl === 10 ? 'FINAL BOSS • LEVEL 10' : 'MID-BOSS • LEVEL 5';
+          game.waveIntroSub = `BLAST ${game.bossName} BY CLICKING VALID ${codeWord}!`;
+        }
+
+        game.waveIntroTimer = 1.45;
+        updateDirectiveBar();
+        updateHud();
+      }
+
+      function updateDirectiveBar() {
+        const badge = document.getElementById('directive-badge');
+        const text = document.getElementById('directive-text');
+        const prog = document.getElementById('directive-progress');
+        const bossWrap = document.getElementById('directive-boss-wrap');
+        const bossBar = document.getElementById('directive-boss-bar');
+
+        bossWrap.classList.add('hidden');
+        bossWrap.classList.remove('flex');
+
+        if (game.mode === 'VALID') {
+          badge.textContent = 'VALID CODE';
+          badge.className = 'shrink-0 font-mono text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-400/35';
+          text.textContent = 'Click ONLY valid Python syntax — skip broken bugs!';
+          prog.textContent = `${game.waveHits} / ${game.waveGoal}`;
+        } else if (game.mode === 'CATEGORY') {
+          badge.textContent = 'TARGET HUNT';
+          badge.className = 'shrink-0 font-mono text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-400/35';
+          text.textContent = `Click ONLY valid "${game.targetCategory}" code snippets!`;
+          prog.textContent = `${game.waveHits} / ${game.waveGoal}`;
+        } else if (game.mode === 'BUILD') {
+          badge.textContent = 'BUILD CODE';
+          badge.className = 'shrink-0 font-mono text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-lg bg-violet-500/20 text-violet-300 border border-violet-400/35';
+          const nextLine = game.blueprint ? (game.blueprint.steps[game.buildStep] || '') : '';
+          text.textContent = `${game.blueprint.title} — Next: ${nextLine.trim()}`;
+          prog.textContent = `Step ${game.buildStep} / ${game.waveGoal}`;
+        } else if (game.mode === 'BOSS') {
+          badge.textContent = `BOSS: ${game.bossName}`;
+          badge.className = 'shrink-0 font-mono text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-400/40';
+          text.textContent = 'Click valid code to fire lasers into the Boss Core! Skip bugs!';
+          const pct = Math.max(0, Math.round((game.bossHp / game.bossMaxHp) * 100));
+          bossWrap.classList.remove('hidden');
+          bossWrap.classList.add('flex');
+          bossBar.style.width = `${pct}%`;
+          prog.textContent = `${game.bossHp} HP`;
+        }
+      }
+
+      function updateTimerDisplay() {
+        const el = document.getElementById('hud-timer');
+        el.textContent = formatTime(game.runElapsed);
+        if (game.runElapsed <= game.diff.goldSec) {
+          el.className = 'font-mono font-extrabold text-xs sm:text-sm text-amber-300';
+        } else if (game.runElapsed <= game.diff.silverSec) {
+          el.className = 'font-mono font-extrabold text-xs sm:text-sm text-cyan-300';
+        } else if (game.runElapsed <= game.diff.bronzeSec) {
+          el.className = 'font-mono font-extrabold text-xs sm:text-sm text-emerald-300';
+        } else {
+          el.className = 'font-mono font-extrabold text-xs sm:text-sm text-slate-300';
+        }
+      }
+
+      function updateHud() {
+        document.getElementById('hud-level').textContent = `${String(game.wave).padStart(2, '0')}/${MAX_LEVELS}`;
+        document.getElementById('hud-score').textContent = game.score.toLocaleString();
+        const mult = (1 + Math.min(4, Math.floor(game.combo / 4))) * (game.overdriveActive ? 2 : 1);
+        document.getElementById('hud-combo').textContent = game.overdriveActive ? `🔥x${mult}` : `x${mult}`;
+        const filled = '♥'.repeat(Math.max(0, game.hearts));
+        const empty = '♡'.repeat(Math.max(0, game.maxHearts - game.hearts));
+        document.getElementById('hud-hearts').textContent = filled + empty;
+        document.getElementById('hud-shield-bar').style.width = `${Math.max(0, Math.min(100, game.shield))}%`;
+        document.getElementById('hud-overdrive-bar').style.width = `${Math.max(0, Math.min(100, game.overdrive))}%`;
+        updateTimerDisplay();
+      }
+
+      function findSafeX(cw, fromTop) {
+        const pad = 16;
+        const maxX = Math.max(pad, W - cw - pad);
+        let bestX = pad + Math.random() * Math.max(1, maxX - pad);
+        for (let tries = 0; tries < 10; tries++) {
+          const cand = pad + Math.random() * Math.max(1, maxX - pad);
+          let overlap = false;
+          for (const c of game.capsules) {
+            const nearEdge = fromTop ? (c.y < 110) : (c.y > H - 150);
+            if (nearEdge && Math.abs((c.x + c.w / 2) - (cand + cw / 2)) < (c.w + cw) * 0.52) {
+              overlap = true;
+              break;
+            }
+          }
+          if (!overlap) return cand;
+          bestX = cand;
+        }
+        return bestX;
+      }
+
+      function spawnCapsule(opts = {}) {
+        const { forceTarget = false, forceBug = false, forcePowerup = false, tutorialHint = '', preferredFromTop = null, yOffsetExtra = 0 } = opts;
+
+        // Glowing Gold Power-Up Orb (7 distinct types)
+        if (!tutorialHint && (forcePowerup || (!forceTarget && !forceBug && Math.random() < 0.095))) {
+          const types = [
+            { type: 'slowmo', text: '❄ SLOW-MO +1' },
+            { type: 'emp', text: '⚡ PULSE +1' },
+            { type: 'heart', text: '♥ +1 HEART' },
+            { type: 'shield', text: '🛡 SHIELD 100%' },
+            { type: 'overdrive', text: '🔥 2X OVERDRIVE' },
+            { type: 'autosnipe', text: '🎯 AUTO-SNIPE' },
+            { type: 'timewarp', text: '⏱ -5s CLOCK' }
+          ];
+          const pick = types[Math.floor(Math.random() * types.length)];
+          const fromTop = preferredFromTop !== null ? preferredFromTop : (Math.random() < 0.5);
+          ctx.font = '700 12px "JetBrains Mono", monospace';
+          const cw = Math.max(154, ctx.measureText(pick.text).width + 34);
+          const ch = 40;
+          const x = findSafeX(cw, fromTop);
+          const spd = (88 + game.wave * 6) * (teacherConfig.speedMult || 1);
+          game.capsules.push({
+            id: Math.random(),
+            text: pick.text,
+            fontSize: 12,
+            isPowerup: true,
+            powerupType: pick.type,
+            isTarget: true,
+            tutorialHint: '',
+            reason: '',
+            fromTop,
+            x,
+            baseX: x,
+            y: fromTop ? (-ch - yOffsetExtra) : (H + ch + yOffsetExtra),
+            w: cw,
+            h: ch,
+            vy: fromTop ? spd : -spd,
+            phase: Math.random() * Math.PI * 2,
+            sway: 26,
+            age: 0
+          });
+          return;
+        }
+
+        let isTarget = forceTarget ? true : (forceBug ? false : Math.random() < 0.46);
+        const targetsOnScreen = game.capsules.filter(c => c.isTarget && !c.isPowerup).length;
+        if (!forceBug && targetsOnScreen === 0 && game.capsules.length >= 2) isTarget = true;
+
+        let text = '';
+        let reason = '';
+
+        if (game.mode === 'BUILD' && game.blueprint) {
+          const needed = game.blueprint.steps[game.buildStep];
+          if (isTarget && needed) {
+            text = needed.trim();
+          } else {
+            isTarget = false;
+            const others = game.blueprint.steps.filter((_, idx) => idx !== game.buildStep).map(s => s.trim());
+            if (Math.random() < 0.5 && others.length) {
+              text = others[Math.floor(Math.random() * others.length)];
+              reason = `Wrong step order! Next needed piece was: ${needed ? needed.trim() : ''}`;
+            } else {
+              const bug = activeBank.broken[Math.floor(Math.random() * activeBank.broken.length)];
+              text = bug.code;
+              reason = bug.reason;
+            }
+          }
+        } else if (game.mode === 'CATEGORY') {
+          const matching = activeBank.valid.filter(v => v.cat === game.targetCategory);
+          const nonMatching = activeBank.valid.filter(v => v.cat !== game.targetCategory);
+          if (isTarget && matching.length) {
+            text = matching[Math.floor(Math.random() * matching.length)].code;
+          } else {
+            isTarget = false;
+            if (nonMatching.length && Math.random() < 0.55) {
+              const other = nonMatching[Math.floor(Math.random() * nonMatching.length)];
+              text = other.code;
+              reason = `Valid code, but it belongs to "${other.cat}" — not "${game.targetCategory}".`;
+            } else {
+              const bug = activeBank.broken[Math.floor(Math.random() * activeBank.broken.length)];
+              text = bug.code;
+              reason = bug.reason;
+            }
+          }
+        } else {
+          if (isTarget) {
+            const item = activeBank.valid[Math.floor(Math.random() * activeBank.valid.length)];
+            text = item.code;
+          } else {
+            const bug = activeBank.broken[Math.floor(Math.random() * activeBank.broken.length)];
+            text = bug.code;
+            reason = bug.reason;
+          }
+        }
+
+        const fromTop = preferredFromTop !== null ? preferredFromTop : (Math.random() < 0.5);
+        const fontSize = text.length > 26 ? 11 : (text.length > 20 ? 12 : 13);
+        ctx.font = `700 ${fontSize}px "JetBrains Mono", monospace`;
+        const cw = Math.min(W - 24, Math.max(128, ctx.measureText(text).width + 38));
+        const ch = 42;
+        const x = findSafeX(cw, fromTop);
+
+        const baseSpd = game.diff.baseSpeed + (game.wave - 1) * game.diff.speedPerLevel;
+        const spd = (baseSpd + (Math.random() * 24 - 10)) * (teacherConfig.speedMult || 1);
+
+        game.capsules.push({
+          id: Math.random(),
+          text,
+          fontSize,
+          isPowerup: false,
+          powerupType: '',
+          isTarget,
+          tutorialHint,
+          reason,
+          fromTop,
+          x,
+          baseX: x,
+          y: fromTop ? (-ch - yOffsetExtra) : (H + ch + yOffsetExtra),
+          w: cw,
+          h: ch,
+          vy: fromTop ? spd : -spd,
+          phase: Math.random() * Math.PI * 2,
+          sway: game.wave >= 3 ? Math.min(34, 8 + game.wave * 2.5) : 0,
+          age: 0
+        });
+      }
+
+      /* ============================================================
+         8. VISUAL FX (PARTICLES, LASERS, POPUPS, SHOCKWAVES)
+         ============================================================ */
+      function spawnParticles(x, y, color, count = 16) {
+        for (let i = 0; i < count; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 60 + Math.random() * 220;
+          game.particles.push({
+            x, y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            life: 0.45 + Math.random() * 0.35,
+            maxLife: 0.8,
+            size: 2 + Math.random() * 3.5,
+            color
+          });
+        }
+      }
+
+      function spawnShockwave(x, y, color, maxR = 85) {
+        game.shockwaves.push({ x, y, r: 8, maxR, color, alpha: 0.9 });
+      }
+
+      function spawnLaser(x1, y1, x2, y2, color) {
+        game.lasers.push({ x1, y1, x2, y2, color, life: 0.24 });
+      }
+
+      function spawnPopup(x, y, text, color, size = 15) {
+        game.popups.push({ x, y, text, color, size, life: 0.95, vy: -48 });
+      }
+
+      /* ============================================================
+         9. HIT HANDLING, POWER-UPS & LEVEL PROGRESSION
+         ============================================================ */
+      function handleCorrectHit(c, cx, cy) {
+        game.clicksCorrect++;
+        game.combo++;
+        game.maxCombo = Math.max(game.maxCombo, game.combo);
+
+        const mult = (1 + Math.min(4, Math.floor(game.combo / 4))) * (game.overdriveActive ? 2 : 1);
+        const pts = Math.round(100 * mult * game.diff.scoreMult);
+        game.score += pts;
+
+        if (!game.overdriveActive) {
+          game.overdrive = Math.min(100, game.overdrive + 16);
+          if (game.overdrive >= 100) {
+            game.overdriveActive = true;
+            game.overdriveTimer = 7.0;
+            spawnShockwave(W / 2, H / 2, '#fbbf24', 220);
+            showFeedback('🔥 2X OVERDRIVE ENGAGED (7 SECONDS)!', true);
+          }
+        }
+
+        spawnParticles(cx, cy, '#34d399', 18);
+        spawnShockwave(cx, cy, '#34d399', 75);
+        spawnPopup(cx, cy, `+${pts}`, '#34d399', 15);
+
+        if (game.mode === 'BOSS') {
+          SFX.bossHit();
+          spawnLaser(cx, cy, W / 2, H / 2, '#22d3ee');
+          spawnParticles(W / 2, H / 2, '#fb7185', 14);
+          game.bossHp = Math.max(0, game.bossHp - 1);
+          game.bossPulse = 1.0;
+          game.shake = 6;
+          if (game.bossHp <= 0) {
+            advanceLevel();
+            return;
+          }
+        } else if (game.mode === 'BUILD') {
+          SFX.hit(game.combo);
+          game.buildStep++;
+          game.waveHits = game.buildStep;
+          if (game.buildStep >= game.waveGoal) {
+            showFeedback(`✓ BUILT: ${game.blueprint.title.toUpperCase()}!`, true);
+            advanceLevel();
+            return;
+          }
+        } else {
+          SFX.hit(game.combo);
+          game.waveHits++;
+          if (game.waveHits >= game.waveGoal) {
+            advanceLevel();
+            return;
+          }
+        }
+        updateDirectiveBar();
+        updateHud();
+      }
+
+      function handleWrongHit(c, cx, cy) {
+        SFX.miss();
+        game.combo = 0;
+        game.overdrive = Math.max(0, game.overdrive - 25);
+        game.hearts--;
+        game.shake = 12;
+
+        spawnParticles(cx, cy, '#fb7185', 20);
+        spawnShockwave(cx, cy, '#fb7185', 90);
+        spawnPopup(cx, cy, 'SYNTAX BUG! -1 ♥', '#fb7185', 15);
+
+        const reason = c.reason || 'Broken Python syntax — skip bugs like this!';
+        game.mistakes.push({ code: c.text, reason, level: game.wave });
+        showFeedback(`✗ ${c.text} — ${reason}`, false);
+
+        updateHud();
+        if (game.hearts <= 0) {
+          endGame(false);
+        }
+      }
+
+      function advanceLevel() {
+        SFX.levelUp();
+        game.score += 300 * game.wave;
+        game.shield = Math.min(100, game.shield + 25);
+        spawnShockwave(W / 2, H / 2, '#22d3ee', Math.max(W, H) * 0.55);
+
+        if (game.wave < MAX_LEVELS) TS.level(game.wave, game.score);
+        if (game.wave >= MAX_LEVELS) {
+          endGame(true);
+        } else {
+          setupLevel(game.wave + 1);
+        }
+      }
+
+      function activateSlowMo() {
+        if (!game.running || game.paused || game.slowMoCharges <= 0 || game.slowMoTimer > 0) return;
+        game.slowMoCharges--;
+        game.slowMoTimer = 4.5;
+        SFX.powerup();
+        spawnShockwave(W / 2, H / 2, '#22d3ee', 240);
+        showFeedback('❄ SLOW-MO ACTIVE (4.5s)!', true);
+        updateHud();
+      }
+
+      function activateEmp() {
+        if (!game.running || game.paused || game.empCharges <= 0) return;
+        game.empCharges--;
+        SFX.powerup();
+        game.shake = 9;
+        spawnShockwave(W / 2, H / 2, '#fbbf24', Math.max(W, H) * 0.6);
+
+        let clearedBugs = 0;
+        for (let i = game.capsules.length - 1; i >= 0; i--) {
+          const c = game.capsules[i];
+          if (!c.isTarget && !c.isPowerup) {
+            spawnParticles(c.x + c.w / 2, c.y + c.h / 2, '#fbbf24', 10);
+            game.capsules.splice(i, 1);
+            clearedBugs++;
+          }
+        }
+        game.score += clearedBugs * 40;
+        showFeedback(`⚡ DEBUG PULSE CLEARED ${clearedBugs} SYNTAX BUG${clearedBugs === 1 ? '' : 'S'}!`, true);
+        updateHud();
+      }
+
+      /* ============================================================
+         10. POINTER / CLICK HANDLING ON CANVAS
+         ============================================================ */
+      function handleArenaPointer(clientX, clientY) {
+        if (!game.running || game.paused || game.waveIntroTimer > 0) return;
+        const rect = canvas.getBoundingClientRect();
+        const mx = clientX - rect.left;
+        const my = clientY - rect.top;
+
+        for (let i = game.capsules.length - 1; i >= 0; i--) {
+          const c = game.capsules[i];
+          const pad = 6;
+          if (mx >= c.x - pad && mx <= c.x + c.w + pad && my >= c.y - pad && my <= c.y + c.h + pad) {
+            game.capsules.splice(i, 1);
+            const cx = c.x + c.w / 2;
+            const cy = c.y + c.h / 2;
+
+            // Glowing Gold Power-Up Orb (7 distinct types)
+            if (c.isPowerup) {
+              SFX.powerup();
+              spawnParticles(cx, cy, '#fbbf24', 22);
+              spawnShockwave(cx, cy, '#fbbf24', 95);
+              if (c.powerupType === 'slowmo') {
+                game.slowMoCharges = Math.min(3, game.slowMoCharges + 1);
+                spawnPopup(cx, cy, '+1 SLOW-MO!', '#22d3ee', 16);
+              } else if (c.powerupType === 'emp') {
+                game.empCharges = Math.min(3, game.empCharges + 1);
+                spawnPopup(cx, cy, '+1 PULSE!', '#fbbf24', 16);
+              } else if (c.powerupType === 'heart') {
+                if (game.hearts < game.maxHearts) {
+                  game.hearts++;
+                  spawnPopup(cx, cy, '+1 HEART!', '#fb7185', 16);
+                } else {
+                  game.shield = 100;
+                  game.score += 250;
+                  spawnPopup(cx, cy, 'FULL HEARTS! +250', '#fb7185', 15);
+                }
+              } else if (c.powerupType === 'shield') {
+                game.shield = 100;
+                game.score += 250;
+                spawnShockwave(cx, cy, '#34d399', 130);
+                spawnPopup(cx, cy, '🛡 SHIELD 100%! +250', '#34d399', 15);
+                showFeedback('🛡 SHIELD RESTORED TO 100% (+250 PTS)!', true);
+              } else if (c.powerupType === 'overdrive') {
+                game.overdriveActive = true;
+                game.overdriveTimer = 7.0;
+                game.overdrive = 100;
+                spawnShockwave(cx, cy, '#f43f5e', 200);
+                spawnPopup(cx, cy, '🔥 2X OVERDRIVE!', '#fb7185', 16);
+                showFeedback('🔥 INSTANT 2X OVERDRIVE ACTIVATED (7s)!', true);
+              } else if (c.powerupType === 'timewarp') {
+                game.runElapsed = Math.max(0, game.runElapsed - 5.0);
+                updateTimerDisplay();
+                spawnShockwave(cx, cy, '#22d3ee', 150);
+                spawnPopup(cx, cy, '⏱ -5.0s CLOCK!', '#22d3ee', 16);
+                showFeedback('⏱ TIME WARP: SHAVED 5.0 SECONDS OFF YOUR SPEEDRUN CLOCK!', true);
+              } else if (c.powerupType === 'autosnipe') {
+                const startWave = game.wave;
+                let sniped = 0;
+                for (let j = game.capsules.length - 1; j >= 0 && sniped < 2; j--) {
+                  const t = game.capsules[j];
+                  if (t.isTarget && !t.isPowerup) {
+                    game.capsules.splice(j, 1);
+                    const tx = t.x + t.w / 2;
+                    const ty = t.y + t.h / 2;
+                    spawnLaser(cx, cy, tx, ty, '#fbbf24');
+                    game.clicksTotal++;
+                    handleCorrectHit(t, tx, ty);
+                    sniped++;
+                    if (!game.running || game.wave !== startWave) break;
+                  }
+                }
+                if (sniped > 0) {
+                  showFeedback(`🎯 AUTO-SNIPE LOCKED & HIT ${sniped} VALID TAG${sniped > 1 ? 'S' : ''}!`, true);
+                } else {
+                  game.score += 350;
+                  spawnPopup(cx, cy, '🎯 SNIPE BONUS +350!', '#fbbf24', 16);
+                  showFeedback('🎯 AUTO-SNIPE BONUS: +350 PTS!', true);
+                }
+              }
+              updateHud();
+              return;
+            }
+
+            game.clicksTotal++;
+            if (c.isTarget) {
+              handleCorrectHit(c, cx, cy);
+            } else {
+              handleWrongHit(c, cx, cy);
+            }
+            return;
+          }
+        }
+      }
+
+      canvas.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        handleArenaPointer(e.clientX, e.clientY);
+      });
+
+      /* ============================================================
+         11. UPDATE & RENDER LOOP
+         ============================================================ */
+      function update(dt) {
+        if (!game.running || game.paused) return;
+
+        game.gridOffset = (game.gridOffset + dt * 28) % 48;
+        if (game.shake > 0) game.shake = Math.max(0, game.shake - dt * 28);
+        if (game.bossPulse > 0) game.bossPulse = Math.max(0, game.bossPulse - dt * 3);
+
+        game.runElapsed += dt;
+        updateTimerDisplay();
+
+        if (game.waveIntroTimer > 0) {
+          game.waveIntroTimer = Math.max(0, game.waveIntroTimer - dt);
+          return;
+        }
+
+        if (game.slowMoTimer > 0) {
+          game.slowMoTimer = Math.max(0, game.slowMoTimer - dt);
+        }
+
+        if (game.overdriveActive) {
+          game.overdriveTimer -= dt;
+          game.overdrive = Math.max(0, (game.overdriveTimer / 7.0) * 100);
+          if (game.overdriveTimer <= 0) {
+            game.overdriveActive = false;
+            game.overdrive = 0;
+          }
+          updateHud();
+        }
+
+        const timeScale = game.slowMoTimer > 0 ? 0.42 : 1.0;
+
+        // Escalating multi-tag swarms across Levels 1 -> 10
+        const maxOnScreen = Math.min(game.diff.maxOnScreenCap, game.diff.maxOnScreenBase + Math.floor(game.wave * 1.5));
+        game.spawnTimer -= dt * timeScale;
+        if (game.spawnTimer <= 0 && game.capsules.length < maxOnScreen) {
+          if (game.wave === 1 && game.tutorialSpawned < 2) {
+            if (game.tutorialSpawned === 0) {
+              spawnCapsule({ forceTarget: true, preferredFromTop: true, tutorialHint: '✓ CLICK ME! (VALID CODE)' });
+            } else {
+              spawnCapsule({ forceBug: true, preferredFromTop: false, tutorialHint: '✗ SKIP ME! (BROKEN BUG)' });
+            }
+            game.tutorialSpawned++;
+            game.spawnTimer = 1.65;
+          } else {
+            const swarmCount = Math.min(game.diff.swarmMax, 1 + Math.floor((game.wave - 1) / 3));
+            const room = Math.max(1, maxOnScreen - game.capsules.length);
+            const toSpawn = Math.min(room, swarmCount);
+            for (let k = 0; k < toSpawn; k++) {
+              spawnCapsule({
+                preferredFromTop: k % 2 === 0 ? true : false,
+                yOffsetExtra: k * 34
+              });
+            }
+            const interval = Math.max(
+              game.diff.minSpawnInterval,
+              game.diff.spawnInterval - (game.wave - 1) * 0.085
+            );
+            game.spawnTimer = interval / (teacherConfig.speedMult || 1);
+          }
+        }
+
+        // Update Capsules
+        for (let i = game.capsules.length - 1; i >= 0; i--) {
+          const c = game.capsules[i];
+          c.age += dt * timeScale;
+          c.y += c.vy * dt * timeScale;
+          if (c.sway > 0) {
+            c.x = Math.max(10, Math.min(W - c.w - 10, c.baseX + Math.sin(c.age * 2.2 + c.phase) * c.sway));
+          }
+
+          const escaped = c.fromTop ? (c.y > H + 16) : (c.y < -c.h - 16);
+          if (escaped) {
+            game.capsules.splice(i, 1);
+            if (c.isTarget && !c.isPowerup && !c.tutorialHint) {
+              game.shield -= 20;
+              if (game.shield <= 0) {
+                game.shield = 100;
+                game.hearts--;
+                game.combo = 0;
+                game.shake = 10;
+                SFX.miss();
+                showFeedback('SHIELD BREACHED! Too many valid tags escaped (-1 ♥)', false);
+                if (game.hearts <= 0) {
+                  updateHud();
+                  endGame(false);
+                  return;
+                }
+              }
+              updateHud();
+            }
+          }
+        }
+
+        // Particles
+        for (let i = game.particles.length - 1; i >= 0; i--) {
+          const p = game.particles[i];
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.life -= dt;
+          if (p.life <= 0) game.particles.splice(i, 1);
+        }
+
+        // Shockwaves
+        for (let i = game.shockwaves.length - 1; i >= 0; i--) {
+          const s = game.shockwaves[i];
+          s.r += (s.maxR - s.r) * Math.min(1, dt * 8);
+          s.alpha -= dt * 1.9;
+          if (s.alpha <= 0) game.shockwaves.splice(i, 1);
+        }
+
+        // Lasers
+        for (let i = game.lasers.length - 1; i >= 0; i--) {
+          game.lasers[i].life -= dt;
+          if (game.lasers[i].life <= 0) game.lasers.splice(i, 1);
+        }
+
+        // Popups
+        for (let i = game.popups.length - 1; i >= 0; i--) {
+          const pop = game.popups[i];
+          pop.y += pop.vy * dt;
+          pop.life -= dt;
+          if (pop.life <= 0) game.popups.splice(i, 1);
+        }
+      }
+
+      function roundRectPath(x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+      }
+
+      function draw() {
+        ctx.save();
+        if (game.shake > 0) {
+          const dx = (Math.random() - 0.5) * game.shake;
+          const dy = (Math.random() - 0.5) * game.shake;
+          ctx.translate(dx, dy);
+        }
+
+        const themePreset = ARENA_THEMES[teacherConfig.theme] || ARENA_THEMES.cyber;
+        const codeAccent = teacherConfig.topColor || themePreset.top;
+        const bgColor = teacherConfig.bgColor || themePreset.bg;
+
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, W, H);
+
+        if (game.slowMoTimer > 0) {
+          ctx.fillStyle = 'rgba(34, 211, 238, 0.08)';
+          ctx.fillRect(0, 0, W, H);
+        }
+
+        // Scrolling Cyber Grid
+        ctx.strokeStyle = themePreset.grid;
+        ctx.lineWidth = 1;
+        const step = 48;
+        ctx.beginPath();
+        for (let x = 0; x <= W; x += step) {
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, H);
+        }
+        for (let y = game.gridOffset - step; y <= H; y += step) {
+          ctx.moveTo(0, y);
+          ctx.lineTo(W, y);
+        }
+        ctx.stroke();
+
+        // Top & Bottom Lane Glows (Unified Color)
+        const topGrad = ctx.createLinearGradient(0, 0, 0, 48);
+        topGrad.addColorStop(0, hexToRgba(codeAccent, 0.22));
+        topGrad.addColorStop(1, hexToRgba(codeAccent, 0));
+        ctx.fillStyle = topGrad;
+        ctx.fillRect(0, 0, W, 48);
+
+        const botGrad = ctx.createLinearGradient(0, H, 0, H - 48);
+        botGrad.addColorStop(0, hexToRgba(codeAccent, 0.22));
+        botGrad.addColorStop(1, hexToRgba(codeAccent, 0));
+        ctx.fillStyle = botGrad;
+        ctx.fillRect(0, H - 48, W, 48);
+
+        // Arena Backdrop / Boss Core / Build Blueprint Bar
+        if (game.running) {
+          if (game.mode === 'BOSS') {
+            ctx.save();
+            const r = 46 + Math.sin(performance.now() * 0.006) * 5 + game.bossPulse * 14;
+            const bGrad = ctx.createRadialGradient(W / 2, H / 2, 8, W / 2, H / 2, r + 24);
+            bGrad.addColorStop(0, 'rgba(244, 63, 94, 0.65)');
+            bGrad.addColorStop(0.6, 'rgba(244, 63, 94, 0.18)');
+            bGrad.addColorStop(1, 'rgba(244, 63, 94, 0)');
+            ctx.fillStyle = bGrad;
+            ctx.beginPath();
+            ctx.arc(W / 2, H / 2, r + 24, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = game.bossPulse > 0.2 ? '#ffffff' : '#fb7185';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(W / 2, H / 2, r, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.fillStyle = '#fff1f2';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = '900 13px "JetBrains Mono", monospace';
+            ctx.fillText(game.bossName, W / 2, H / 2 - 7);
+            ctx.font = '800 11px "JetBrains Mono", monospace';
+            ctx.fillStyle = '#fda4af';
+            ctx.fillText(`${game.bossHp} / ${game.bossMaxHp} HP`, W / 2, H / 2 + 11);
+            ctx.restore();
+          } else {
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const bgLabel = game.mode === 'CATEGORY'
+              ? game.targetCategory.toUpperCase()
+              : (game.mode === 'BUILD' ? 'BUILD CODE' : 'VALID PYTHON');
+            const bgSub = game.mode === 'BUILD' && game.blueprint
+              ? `NEXT PIECE: ${(game.blueprint.steps[game.buildStep] || '').trim()}`
+              : 'CLICK RIGHT CODE • SKIP BUGS • GRAB GOLD ORBS';
+            ctx.font = `900 ${Math.min(44, Math.max(22, W * 0.045))}px "JetBrains Mono", monospace`;
+            ctx.fillStyle = 'rgba(148, 163, 184, 0.09)';
+            ctx.fillText(bgLabel, W / 2, H / 2 - 14);
+            ctx.font = '800 13px "JetBrains Mono", monospace';
+            ctx.fillStyle = hexToRgba(codeAccent, 0.28);
+            ctx.fillText(bgSub, W / 2, H / 2 + 20);
+            ctx.restore();
+          }
+
+          if (game.mode === 'BUILD' && game.blueprint) {
+            ctx.save();
+            const steps = game.blueprint.steps;
+            const slotW = Math.min(200, (W - 36) / steps.length - 8);
+            const totalW = steps.length * (slotW + 8) - 8;
+            const startX = (W - totalW) / 2;
+            const y = H - 44;
+            steps.forEach((st, idx) => {
+              const sx = startX + idx * (slotW + 8);
+              const done = idx < game.buildStep;
+              const current = idx === game.buildStep;
+              roundRectPath(sx, y, slotW, 28, 8);
+              ctx.fillStyle = done ? 'rgba(16, 185, 129, 0.25)' : (current ? 'rgba(34, 211, 238, 0.2)' : 'rgba(15, 23, 42, 0.7)');
+              ctx.fill();
+              ctx.strokeStyle = done ? '#34d399' : (current ? '#22d3ee' : 'rgba(148, 163, 184, 0.3)');
+              ctx.lineWidth = current ? 2 : 1;
+              ctx.stroke();
+
+              ctx.fillStyle = done ? '#a7f3d0' : (current ? '#cffafe' : '#64748b');
+              ctx.font = '700 10px "JetBrains Mono", monospace';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              const label = done ? `✓ ${st.trim()}` : (current ? `▶ ${st.trim()}` : `Step ${idx + 1}`);
+              ctx.fillText(label.slice(0, 22), sx + slotW / 2, y + 14);
+            });
+            ctx.restore();
+          }
+        }
+
+        // Shockwaves
+        for (const s of game.shockwaves) {
+          ctx.save();
+          ctx.strokeStyle = s.color;
+          ctx.globalAlpha = Math.max(0, s.alpha);
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Lasers
+        for (const l of game.lasers) {
+          ctx.save();
+          ctx.strokeStyle = l.color;
+          ctx.lineWidth = 4;
+          ctx.shadowBlur = 14;
+          ctx.shadowColor = l.color;
+          ctx.beginPath();
+          ctx.moveTo(l.x1, l.y1);
+          ctx.lineTo(l.x2, l.y2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Flying Code Capsules (Unified Color for Both Directions; Gold for Power-Ups)
+        for (const c of game.capsules) {
+          ctx.save();
+          const accent = c.isPowerup ? '#fbbf24' : codeAccent;
+          roundRectPath(c.x, c.y, c.w, c.h, 12);
+
+          if (c.isPowerup) {
+            ctx.fillStyle = 'rgba(251, 191, 36, 0.22)';
+            ctx.shadowBlur = 18;
+            ctx.shadowColor = '#fbbf24';
+          } else {
+            ctx.fillStyle = 'rgba(9, 15, 33, 0.92)';
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = hexToRgba(accent, 0.35);
+          }
+          ctx.fill();
+          ctx.lineWidth = c.isPowerup ? 2.4 : 1.8;
+          ctx.strokeStyle = accent;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+
+          // Direction chevron
+          ctx.fillStyle = hexToRgba(accent, 0.78);
+          ctx.font = '800 10px "JetBrains Mono", monospace';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(c.fromTop ? '▼' : '▲', c.x + 10, c.y + c.h / 2);
+
+          // Code text
+          ctx.fillStyle = c.isPowerup ? '#fef08a' : '#f8fafc';
+          ctx.font = `700 ${c.fontSize}px "JetBrains Mono", monospace`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(c.text, c.x + c.w / 2 + 5, c.y + c.h / 2);
+
+          // Wave 1 Training-Wheel Hint Badge
+          if (c.tutorialHint) {
+            ctx.font = '800 11px "JetBrains Mono", monospace';
+            const hw = ctx.measureText(c.tutorialHint).width + 16;
+            const hx = c.x + c.w / 2 - hw / 2;
+            const hy = c.fromTop ? (c.y - 24) : (c.y + c.h + 6);
+            roundRectPath(hx, hy, hw, 20, 6);
+            ctx.fillStyle = c.isTarget ? '#059669' : '#e11d48';
+            ctx.fill();
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(c.tutorialHint, c.x + c.w / 2, hy + 10);
+          }
+          ctx.restore();
+        }
+
+        // Particles
+        for (const p of game.particles) {
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // Floating Score Popups
+        for (const pop of game.popups) {
+          ctx.save();
+          ctx.globalAlpha = Math.min(1, pop.life * 1.4);
+          ctx.fillStyle = pop.color;
+          ctx.font = `900 ${pop.size}px "JetBrains Mono", monospace`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(pop.text, pop.x, pop.y);
+          ctx.restore();
+        }
+
+        // Wave Intro Breather Overlay
+        if (game.running && game.waveIntroTimer > 0) {
+          ctx.save();
+          ctx.fillStyle = 'rgba(2, 6, 23, 0.58)';
+          ctx.fillRect(0, 0, W, H);
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#22d3ee';
+          ctx.font = '900 28px "JetBrains Mono", monospace';
+          ctx.fillText(game.waveIntroTitle, W / 2, H / 2 - 16);
+          ctx.fillStyle = '#f8fafc';
+          ctx.font = '700 14px "Inter", sans-serif';
+          ctx.fillText(game.waveIntroSub, W / 2, H / 2 + 18);
+          ctx.restore();
+        }
+
+        ctx.restore();
+      }
+
+      function gameLoop(ts) {
+        if (!game.lastFrameTs) game.lastFrameTs = ts;
+        const dt = Math.min(0.05, (ts - game.lastFrameTs) / 1000);
+        game.lastFrameTs = ts;
+        update(dt);
+        draw();
+        requestAnimationFrame(gameLoop);
+      }
+
+      /* ============================================================
+         11b. GOOGLE SIGN-IN + PROGRESS TRACKING (/api/pystorm)
+         Students sign in with their school account. The server times each
+         run, logs every cleared level, and verifies wins before they count.
+         ============================================================ */
+      const TS = {
+        API: '/api/pystorm',
+        CLIENT_ID: '735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com',
+        cred: '', user: null, runId: '', chain: Promise.resolve(),
+        jwtExp(c) { try { return JSON.parse(atob(c.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))).exp * 1000; } catch (e) { return 0; } },
+        credOk() { return !!this.cred && this.jwtExp(this.cred) > Date.now() + 10 * 60 * 1000; },
+        ready() { return !!this.user && this.credOk() && !!this.user.period; },
+        async post(action, extra) {
+          try {
+            const r = await fetch(this.API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ action, credential: this.cred }, extra || {})) });
+            return await r.json();
+          } catch (e) { return null; }
+        },
+        begin(diff) {
+          this.runId = '';
+          this.chain = this.post('start', { diff }).then(r => { this.runId = (r && r.id) || ''; });
+        },
+        level(lvl, score) {
+          this.chain = this.chain.then(() => this.runId ? this.post('level', { id: this.runId, level: lvl, score }) : null);
+        },
+        async finish(payload) {
+          await this.chain;
+          if (!this.runId) return { error: 'run was not started' };
+          const r = await this.post('run', Object.assign({ id: this.runId }, payload));
+          if (r && r.needLogin) { this.signOut(); }
+          return r;
+        },
+        signOut() {
+          this.cred = ''; this.user = null;
+          try { sessionStorage.removeItem('ts_cred'); } catch (e) {}
+          try { if (window.google && google.accounts) google.accounts.id.disableAutoSelect(); } catch (e) {}
+          this.refreshUi();
+        },
+        async onCredential(resp) {
+          this.cred = resp.credential;
+          const me = await this.post('me');
+          if (!me || me.error) {
+            this.cred = '';
+            const el = document.getElementById('auth-err');
+            el.textContent = (me && me.error) || 'Could not sign in. Use your school Google account.';
+            el.classList.remove('hidden');
+            return;
+          }
+          try { sessionStorage.setItem('ts_cred', this.cred); } catch (e) {}
+          this.user = { name: me.name, email: me.email, period: me.period, fromRoster: me.fromRoster };
+          this.refreshUi();
+        },
+        refreshUi() {
+          const inn = !!this.user && this.credOk();
+          document.getElementById('auth-out').classList.toggle('hidden', inn);
+          document.getElementById('auth-in').classList.toggle('hidden', !inn);
+          document.getElementById('diff-wrap').classList.toggle('hidden', !inn);
+          if (inn) {
+            document.getElementById('auth-name').textContent = this.user.name;
+            const sel = document.getElementById('inp-section');
+            sel.value = this.user.period || '';
+            sel.disabled = !!this.user.fromRoster;
+          }
+          document.getElementById('btn-start-game').disabled = !this.ready();
+        },
+        init() {
+          document.getElementById('btn-signout').addEventListener('click', () => this.signOut());
+          document.getElementById('inp-section').addEventListener('change', async (e) => {
+            const v = e.target.value;
+            if (!v) { this.user.period = ''; this.refreshUi(); return; }
+            const r = await this.post('setPeriod', { period: v });
+            if (r && r.ok) { this.user.period = r.period; }
+            this.refreshUi();
+          });
+          let saved = '';
+          try { saved = sessionStorage.getItem('ts_cred') || ''; } catch (e) {}
+          if (saved) { this.cred = saved; if (this.credOk()) { this.onCredential({ credential: saved }); } else { this.cred = ''; } }
+          let tries = 0;
+          const wait = setInterval(() => {
+            if (window.google && google.accounts && google.accounts.id) {
+              clearInterval(wait);
+              google.accounts.id.initialize({ client_id: this.CLIENT_ID, callback: (r) => this.onCredential(r), hd: 'socialcircleschools.org', auto_select: false });
+              google.accounts.id.renderButton(document.getElementById('g-btn'), { theme: 'filled_blue', size: 'large', text: 'signin_with', shape: 'pill' });
+            } else if (++tries > 100) {
+              clearInterval(wait);
+              const el = document.getElementById('auth-err');
+              el.textContent = 'Google sign-in did not load. Check your connection and refresh.';
+              el.classList.remove('hidden');
+            }
+          }, 100);
+        }
+      };
+
+      /* ============================================================
+         12. START, PAUSE & END GAME / RECEIPT / EXTRA CREDIT
+         ============================================================ */
+      function startGame() {
+        if (!TS.ready()) { document.getElementById('modal-pause').classList.add('hidden'); document.getElementById('modal-end').classList.add('hidden'); document.getElementById('modal-start').classList.remove('hidden'); game.running = false; TS.refreshUi(); return; }
+        playerProfile.name = TS.user.name || 'Student';
+        playerProfile.section = TS.user.period || 'IST';
+        saveProfile();
+
+        if (teacherConfig.diffLock && teacherConfig.diffLock !== 'unlock') {
+          selectedDifficulty = teacherConfig.diffLock;
+        }
+        const diff = DIFFICULTIES[selectedDifficulty] || DIFFICULTIES.scholar;
+
+        rebuildActiveBank();
+        SFX.init();
+
+        game.diff = diff;
+        game.running = true;
+        game.paused = false;
+        game.score = 0;
+        game.combo = 0;
+        game.maxCombo = 0;
+        game.hearts = diff.hearts;
+        game.maxHearts = diff.hearts;
+        game.shield = 100;
+        game.overdrive = 0;
+        game.overdriveActive = false;
+        game.overdriveTimer = 0;
+        game.slowMoCharges = 1;
+        game.slowMoTimer = 0;
+        game.empCharges = 1;
+        game.runElapsed = 0;
+        game.clicksTotal = 0;
+        game.clicksCorrect = 0;
+        game.mistakes = [];
+        game.particles = [];
+        game.lasers = [];
+        game.shockwaves = [];
+        game.popups = [];
+
+        document.getElementById('modal-start').classList.add('hidden');
+        document.getElementById('modal-end').classList.add('hidden');
+        document.getElementById('modal-pause').classList.add('hidden');
+
+        TS.begin(diff.key);
+        setupLevel(1);
+      }
+
+      function togglePause() {
+        if (!game.running) return;
+        game.paused = !game.paused;
+        document.getElementById('modal-pause').classList.toggle('hidden', !game.paused);
+      }
+
+      async function endGame(won) {
+        game.running = false;
+        game.paused = false;
+        if (won) SFX.win();
+
+        const acc = game.clicksTotal > 0 ? Math.round((game.clicksCorrect / game.clicksTotal) * 100) : 100;
+        const timeStr = formatTime(game.runElapsed);
+
+        playerProfile.scores.push({
+          name: playerProfile.name,
+          diff: game.diff.name,
+          score: game.score,
+          level: won ? MAX_LEVELS : game.wave,
+          won,
+          time: timeStr,
+          date: new Date().toLocaleDateString()
+        });
+        playerProfile.scores.sort((a, b) => b.score - a.score);
+        playerProfile.scores = playerProfile.scores.slice(0, 12);
+
+        let ecBoxHtml = '';
+        if (won && teacherConfig.ecEnabled) {
+          const maxEc = getEcMaxForDiff(game.diff.key);
+          let tier = 'CLEAR';
+          let earned = Math.max(1, Math.round(maxEc * 0.4));
+          if (game.runElapsed <= game.diff.goldSec) {
+            tier = 'GOLD SPEEDRUN';
+            earned = maxEc;
+          } else if (game.runElapsed <= game.diff.silverSec) {
+            tier = 'SILVER SPEEDRUN';
+            earned = Math.max(1, Math.round(maxEc * 0.75));
+          } else if (game.runElapsed <= game.diff.bronzeSec) {
+            tier = 'BRONZE SPEEDRUN';
+            earned = Math.max(1, Math.round(maxEc * 0.5));
+          }
+          const prev = playerProfile.ecBank[game.diff.key] || { points: 0, bestTime: Infinity, tier: '' };
+          const improved = earned > prev.points || game.runElapsed < prev.bestTime;
+          playerProfile.ecBank[game.diff.key] = {
+            points: Math.max(prev.points, earned),
+            bestTime: Math.min(prev.bestTime, game.runElapsed),
+            tier: earned >= prev.points ? tier : prev.tier
+          };
+          ecBoxHtml = `<strong>${tier}</strong> on <strong>${game.diff.name}</strong> in <strong>${timeStr}</strong> &rarr; Earned <strong>+${earned} EC</strong>! ${improved ? '(New Personal Best!)' : ''} Total Extra Credit Bank: <strong>+${calcEcTotal()} PTS</strong>.`;
+        }
+        saveProfile();
+        renderLobbyBankAndDiffs();
+
+        const badge = document.getElementById('end-badge');
+        badge.textContent = won ? 'CAMPAIGN CLEARED (10/10)' : 'CONNECTION LOST';
+        badge.className = 'inline-block font-mono text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-lg mb-1 ' +
+          (won ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40' : 'bg-rose-500/20 text-rose-300 border border-rose-500/40');
+        document.getElementById('end-title').textContent = won ? 'Victory! Storm Conquered' : `Stopped on Level ${game.wave}`;
+        document.getElementById('end-subtitle').textContent = `${game.diff.name} • Max Streak: ${game.maxCombo}`;
+        document.getElementById('end-score').textContent = game.score.toLocaleString();
+        document.getElementById('end-level').textContent = won ? `${MAX_LEVELS}/${MAX_LEVELS}` : `${game.wave}/${MAX_LEVELS}`;
+        document.getElementById('end-time').textContent = timeStr;
+        document.getElementById('end-accuracy').textContent = `${acc}%`;
+
+        const ecBox = document.getElementById('end-ec-box');
+        if (ecBoxHtml) {
+          ecBox.classList.remove('hidden');
+          document.getElementById('end-ec-text').innerHTML = ecBoxHtml;
+        } else {
+          ecBox.classList.add('hidden');
+        }
+
+        const autopsy = document.getElementById('end-autopsy-list');
+        if (!game.mistakes.length) {
+          autopsy.innerHTML = '<div class="bg-emerald-950/40 border border-emerald-500/35 rounded-xl p-3 text-xs font-mono text-emerald-300">Zero syntax bugs clicked this run! Clean markup!</div>';
+        } else {
+          autopsy.innerHTML = game.mistakes.map(m => `
+            <div class="bg-slate-950 border border-rose-500/35 rounded-xl p-2.5">
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <code class="font-mono text-xs font-bold text-rose-300">${escapeHtml(m.code)}</code>
+                <span class="font-mono text-[10px] text-slate-500">Lv ${m.level}</span>
+              </div>
+              <div class="text-xs text-slate-300">${escapeHtml(m.reason)}</div>
+            </div>
+          `).join('');
+        }
+
+        const stamp = new Date().toISOString();
+        const bankSummary = ['rookie', 'scholar', 'five']
+          .map(k => {
+            const rec = playerProfile.ecBank[k];
+            return rec ? `${DIFFICULTIES[k].name}:+${rec.points}EC(${formatTime(rec.bestTime)})` : null;
+          }).filter(Boolean).join(' | ') || 'None yet';
+
+        const payload = [
+          `GAME=${teacherConfig.title}`,
+          `STUDENT=${playerProfile.name}`,
+          `SECTION=${playerProfile.section}`,
+          `DIFF=${game.diff.name}`,
+          `RESULT=${won ? 'WIN_10_OF_10' : 'LVL_' + game.wave}`,
+          `SCORE=${game.score}`,
+          `TIME=${timeStr}`,
+          `ACC=${acc}%`,
+          `EC_BANK=+${calcEcTotal()}`,
+          `TS=${stamp}`
+        ].join(';');
+        const hash = await sha256Hex(payload + '|PY_STORM_PYTHON_SALT_2026');
+        const receipt =
+`=== ${teacherConfig.title} — Python LMS RECEIPT ===
+Student:    ${playerProfile.name} (${playerProfile.section})
+Difficulty: ${game.diff.name} | Outcome: ${won ? 'CAMPAIGN VICTORY (10/10)' : 'Level ' + game.wave + '/10'}
+Score:      ${game.score.toLocaleString()} | Accuracy: ${acc}% | Time: ${timeStr}
+EC Bank:    +${calcEcTotal()} PTS [${bankSummary}]
+Timestamp:  ${stamp}
+SHA-256:    ${hash.slice(0, 32).toUpperCase()}`;
+
+        document.getElementById('end-receipt-text').textContent = receipt;
+        document.getElementById('modal-end').classList.remove('hidden');
+
+        const savedEl = document.getElementById('end-saved');
+        savedEl.className = 'mb-4 text-xs font-mono rounded-xl px-3 py-2 bg-slate-950 border border-slate-800 text-slate-400';
+        savedEl.textContent = 'Saving your run…';
+        const earnedEc = won && teacherConfig.ecEnabled ? (playerProfile.ecBank[game.diff.key] || {}).points || 0 : 0;
+        const saved = await TS.finish({ diff: game.diff.key, won, level: won ? MAX_LEVELS : game.wave, score: game.score, secs: Math.round(game.runElapsed), acc, ec: earnedEc });
+        if (saved && saved.ok) {
+          if (won && !saved.run.verified) {
+            savedEl.className = 'mb-4 text-xs font-mono rounded-xl px-3 py-2 bg-amber-950/40 border border-amber-400/45 text-amber-200';
+            savedEl.textContent = 'Run saved, but the win could not be verified, so it does not count. Play through all 10 levels in one sitting.';
+            document.getElementById('end-ec-box').classList.add('hidden');
+          } else {
+            savedEl.className = 'mb-4 text-xs font-mono rounded-xl px-3 py-2 bg-emerald-950/40 border border-emerald-500/40 text-emerald-300';
+            savedEl.textContent = won ? '✓ Win verified and saved to your teacher’s progress report.' : '✓ Progress saved to your teacher’s progress report.';
+          }
+        } else {
+          savedEl.className = 'mb-4 text-xs font-mono rounded-xl px-3 py-2 bg-rose-950/40 border border-rose-500/40 text-rose-300';
+          savedEl.textContent = 'Could not save this run (' + ((saved && saved.error) || 'no connection') + '). Sign in again and replay to have it count.';
+        }
+      }
+
+      /* ============================================================
+         13. LOBBY UI & TEACHER STUDIO
+         ============================================================ */
+      function renderLobbyBankAndDiffs() {
+        document.getElementById('hdr-title').textContent = teacherConfig.title || 'PY STORM';
+        document.getElementById('hdr-section').textContent = teacherConfig.section || 'SCHS APCSP';
+        document.getElementById('start-title').textContent = teacherConfig.title || 'PY STORM';
+
+        const ecBanner = document.getElementById('ec-bank-banner');
+        if (teacherConfig.ecEnabled) {
+          ecBanner.classList.remove('hidden');
+          document.getElementById('ec-bank-total').textContent = `+${calcEcTotal()} PTS`;
+          const parts = ['rookie', 'scholar', 'five'].map(k => {
+            const rec = playerProfile.ecBank[k];
+            const max = getEcMaxForDiff(k);
+            return `${DIFFICULTIES[k].name}: ${rec ? `+${rec.points}/${max} (${formatTime(rec.bestTime)})` : `0/${max}`}`;
+          });
+          document.getElementById('ec-bank-details').textContent = parts.join(' • ');
+        } else {
+          ecBanner.classList.add('hidden');
+        }
+
+        const grid = document.getElementById('diff-grid');
+        grid.innerHTML = '';
+        const locked = teacherConfig.diffLock && teacherConfig.diffLock !== 'unlock';
+        if (locked) selectedDifficulty = teacherConfig.diffLock;
+
+        Object.values(DIFFICULTIES).forEach(d => {
+          const isSelected = selectedDifficulty === d.key;
+          const isDisabled = locked && d.key !== teacherConfig.diffLock;
+          const maxEc = getEcMaxForDiff(d.key);
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.disabled = isDisabled;
+          btn.className = `text-center rounded-xl p-2.5 border transition ${
+            isSelected
+              ? 'bg-cyan-500/20 border-cyan-400 ring-2 ring-cyan-400/40'
+              : 'bg-slate-950/90 border-slate-800 hover:border-slate-600'
+          } ${isDisabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`;
+          btn.innerHTML = `
+            <div class="font-extrabold text-sm text-white">${d.name}</div>
+            <div class="font-mono text-[10px] text-cyan-300 mt-0.5">${d.tag}</div>
+          `;
+          btn.addEventListener('click', () => {
+            if (isDisabled) return;
+            selectedDifficulty = d.key;
+            renderLobbyBankAndDiffs();
+          });
+          grid.appendChild(btn);
+        });
+
+        document.getElementById('start-custom-badge').classList.toggle('hidden', !isStudentLockedLink);
+      }
+
+      function switchStudioTab(tabName) {
+        const tabs = ['topics', 'custom', 'theme', 'share'];
+        tabs.forEach(t => {
+          document.getElementById(`panel-${t}`).classList.toggle('hidden', t !== tabName);
+          const btn = document.getElementById(`tab-${t}`);
+          if (t === tabName) {
+            btn.className = 'studio-tab px-3 py-1.5 rounded-xl font-mono text-xs font-bold bg-amber-400 text-slate-950';
+          } else {
+            btn.className = 'studio-tab px-3 py-1.5 rounded-xl font-mono text-xs font-bold bg-slate-800 text-slate-300 hover:text-white';
+          }
+        });
+        if (tabName === 'share') updateTeacherSummaryAndShare();
+      }
+
+      function renderTeacherPacks() {
+        const grid = document.getElementById('tc-packs-grid');
+        grid.innerHTML = '';
+        Object.entries(PYTHON_PACKS).forEach(([key, pack]) => {
+          const checked = studioDraft.packs.includes(key);
+          const lbl = document.createElement('label');
+          lbl.className = `flex items-center justify-between gap-2 p-2.5 rounded-xl border cursor-pointer text-xs font-mono ${
+            checked ? 'bg-cyan-500/15 border-cyan-400/50 text-white' : 'bg-slate-950 border-slate-800 text-slate-400'
+          }`;
+          lbl.innerHTML = `
+            <span class="flex items-center gap-2">
+              <input type="checkbox" ${checked ? 'checked' : ''} class="accent-cyan-400" />
+              <span class="font-bold">${pack.name}</span>
+            </span>
+            <span class="text-[10px] text-slate-400">${pack.valid.length}✓ / ${pack.broken.length}✗</span>
+          `;
+          lbl.querySelector('input').addEventListener('change', (e) => {
+            if (e.target.checked) {
+              if (!studioDraft.packs.includes(key)) studioDraft.packs.push(key);
+            } else {
+              studioDraft.packs = studioDraft.packs.filter(p => p !== key);
+            }
+            renderTeacherPacks();
+            updateTeacherSummaryAndShare();
+          });
+          grid.appendChild(lbl);
+        });
+      }
+
+      function renderCustomLists() {
+        const vList = document.getElementById('tc-valid-list');
+        vList.innerHTML = studioDraft.customValid.length
+          ? studioDraft.customValid.map((item, idx) => `
+              <div class="flex items-center justify-between gap-2 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-[11px] font-mono">
+                <span class="truncate text-emerald-300">${escapeHtml(item.code)} <span class="text-slate-500">(${escapeHtml(item.cat)})</span></span>
+                <button data-rm-v="${idx}" type="button" class="text-rose-400 hover:text-rose-300 font-bold">✕</button>
+              </div>`).join('')
+          : '<div class="text-[11px] text-slate-500 font-mono">No custom valid snippets yet.</div>';
+
+        const bList = document.getElementById('tc-bug-list');
+        bList.innerHTML = studioDraft.customBroken.length
+          ? studioDraft.customBroken.map((item, idx) => `
+              <div class="flex items-center justify-between gap-2 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-[11px] font-mono">
+                <span class="truncate text-rose-300">${escapeHtml(item.code)}</span>
+                <button data-rm-b="${idx}" type="button" class="text-rose-400 hover:text-rose-300 font-bold">✕</button>
+              </div>`).join('')
+          : '<div class="text-[11px] text-slate-500 font-mono">No custom bugs yet.</div>';
+
+        vList.querySelectorAll('[data-rm-v]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            studioDraft.customValid.splice(Number(btn.dataset.rmV), 1);
+            renderCustomLists();
+            updateTeacherSummaryAndShare();
+          });
+        });
+        bList.querySelectorAll('[data-rm-b]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            studioDraft.customBroken.splice(Number(btn.dataset.rmB), 1);
+            renderCustomLists();
+            updateTeacherSummaryAndShare();
+          });
+        });
+      }
+
+      function renderTeacherThemes() {
+        const grid = document.getElementById('tc-themes-grid');
+        grid.innerHTML = '';
+        Object.entries(ARENA_THEMES).forEach(([key, th]) => {
+          const active = studioDraft.theme === key;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `p-2.5 rounded-xl border text-left transition ${
+            active ? 'bg-slate-800 border-amber-400 ring-1 ring-amber-400/50' : 'bg-slate-950 border-slate-800 hover:border-slate-600'
+          }`;
+          btn.innerHTML = `
+            <div class="flex items-center gap-1.5 mb-1.5">
+              <span class="w-3.5 h-3.5 rounded-full border border-white/20" style="background:${th.bg}"></span>
+              <span class="w-3.5 h-3.5 rounded-full" style="background:${th.top}"></span>
+            </div>
+            <div class="font-mono text-[11px] font-bold text-white">${th.label}</div>
+          `;
+          btn.addEventListener('click', () => {
+            studioDraft.theme = key;
+            studioDraft.topColor = th.top;
+            studioDraft.botColor = th.top;
+            studioDraft.bgColor = th.bg;
+            document.getElementById('tc-color-top').value = th.top;
+            document.getElementById('tc-color-bg').value = th.bg;
+            renderTeacherThemes();
+            updateTeacherSummaryAndShare();
+          });
+          grid.appendChild(btn);
+        });
+      }
+
+      function readTeacherFormToDraft() {
+        studioDraft.title = document.getElementById('tc-title').value.trim() || 'PY STORM';
+        studioDraft.section = document.getElementById('tc-section').value.trim();
+        studioDraft.modes = {
+          VALID: document.getElementById('tc-mode-valid').checked,
+          CATEGORY: document.getElementById('tc-mode-category').checked,
+          BUILD: document.getElementById('tc-mode-build').checked,
+          BOSS: document.getElementById('tc-mode-boss').checked
+        };
+        studioDraft.customOnly = document.getElementById('tc-custom-only').checked;
+        const unifiedColor = document.getElementById('tc-color-top').value;
+        studioDraft.topColor = unifiedColor;
+        studioDraft.botColor = unifiedColor;
+        studioDraft.bgColor = document.getElementById('tc-color-bg').value;
+        studioDraft.speedMult = parseFloat(document.getElementById('tc-speed').value) || 1.0;
+        studioDraft.diffLock = document.getElementById('tc-diff-lock').value;
+        studioDraft.ecEnabled = document.getElementById('tc-ec-enabled').checked;
+        studioDraft.ecRookieMax = Math.max(1, parseInt(document.getElementById('tc-ec-rookie').value, 10) || 5);
+        studioDraft.ecScholarMax = Math.max(1, parseInt(document.getElementById('tc-ec-scholar').value, 10) || 10);
+        studioDraft.ecFiveMax = Math.max(1, parseInt(document.getElementById('tc-ec-five').value, 10) || 15);
+      }
+
+      function encodeCfgBase64Url(obj) {
+        const json = JSON.stringify(obj);
+        const bytes = new TextEncoder().encode(json);
+        let bin = '';
+        bytes.forEach(b => { bin += String.fromCharCode(b); });
+        return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      }
+
+      function decodeCfgBase64Url(str) {
+        const b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+        const bin = atob(b64);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        return JSON.parse(new TextDecoder().decode(bytes));
+      }
+
+      function updateTeacherSummaryAndShare() {
+        readTeacherFormToDraft();
+        document.getElementById('tc-speed-val').textContent = `${studioDraft.speedMult.toFixed(1)}x`;
+        const summary = `${studioDraft.packs.length} Packs • ${studioDraft.customValid.length} Custom ✓ / ${studioDraft.customBroken.length} Custom ✗ • Speed ${studioDraft.speedMult.toFixed(1)}x`;
+        document.getElementById('tc-summary').textContent = summary;
+
+        const baseUrl = window.location.href.split('?')[0];
+        const shareUrl = `${baseUrl}?cfg=${encodeCfgBase64Url(studioDraft)}`;
+        document.getElementById('tc-share-url').value = shareUrl;
+      }
+
+      function openTeacherStudio() {
+        studioDraft = JSON.parse(JSON.stringify(teacherConfig));
+        document.getElementById('tc-title').value = studioDraft.title || 'PY STORM';
+        document.getElementById('tc-section').value = studioDraft.section || 'SCHS APCSP';
+        document.getElementById('tc-mode-valid').checked = studioDraft.modes?.VALID !== false;
+        document.getElementById('tc-mode-category').checked = studioDraft.modes?.CATEGORY !== false;
+        document.getElementById('tc-mode-build').checked = studioDraft.modes?.BUILD !== false;
+        document.getElementById('tc-mode-boss').checked = studioDraft.modes?.BOSS !== false;
+        document.getElementById('tc-custom-only').checked = !!studioDraft.customOnly;
+        document.getElementById('tc-color-top').value = studioDraft.topColor || '#22d3ee';
+        document.getElementById('tc-color-bg').value = studioDraft.bgColor || '#050814';
+        document.getElementById('tc-speed').value = String(studioDraft.speedMult || 1.0);
+        document.getElementById('tc-diff-lock').value = studioDraft.diffLock || 'unlock';
+        document.getElementById('tc-ec-enabled').checked = studioDraft.ecEnabled !== false;
+        document.getElementById('tc-ec-rookie').value = studioDraft.ecRookieMax || 5;
+        document.getElementById('tc-ec-scholar').value = studioDraft.ecScholarMax || 10;
+        document.getElementById('tc-ec-five').value = studioDraft.ecFiveMax || 15;
+
+        renderTeacherPacks();
+        renderCustomLists();
+        renderTeacherThemes();
+        updateTeacherSummaryAndShare();
+        switchStudioTab('topics');
+        document.getElementById('modal-studio').classList.remove('hidden');
+      }
+
+      /* ============================================================
+         14. WIRE UP ALL UI EVENTS & INITIALIZATION
+         ============================================================ */
+      function bindEvents() {
+        document.getElementById('btn-start-game').addEventListener('click', startGame);
+        document.getElementById('btn-play-again').addEventListener('click', startGame);
+        document.getElementById('btn-back-menu').addEventListener('click', () => {
+          document.getElementById('modal-end').classList.add('hidden');
+          document.getElementById('modal-start').classList.remove('hidden');
+          renderLobbyBankAndDiffs();
+        });
+
+        document.getElementById('btn-pause').addEventListener('click', togglePause);
+        document.getElementById('btn-resume').addEventListener('click', togglePause);
+        document.getElementById('btn-restart-pause').addEventListener('click', startGame);
+        document.getElementById('btn-quit-pause').addEventListener('click', () => {
+          game.running = false;
+          game.paused = false;
+          document.getElementById('modal-pause').classList.add('hidden');
+          document.getElementById('modal-start').classList.remove('hidden');
+        });
+
+        document.getElementById('btn-mute').addEventListener('click', () => {
+          SFX.muted = !SFX.muted;
+          document.getElementById('btn-mute').innerHTML = SFX.muted ? '&#128263;' : '&#128266;';
+          showToast(SFX.muted ? 'Audio Muted' : 'Audio Enabled');
+        });
+
+        const openHelp = () => {
+          if (game.running && !game.paused) togglePause();
+          document.getElementById('modal-manual').classList.remove('hidden');
+        };
+        document.getElementById('btn-open-help').addEventListener('click', openHelp);
+        document.getElementById('btn-help-pause').addEventListener('click', openHelp);
+        document.getElementById('btn-close-manual').addEventListener('click', () => {
+          document.getElementById('modal-manual').classList.add('hidden');
+        });
+
+        document.getElementById('btn-open-scores').addEventListener('click', () => {
+          const list = document.getElementById('scores-list');
+          if (!playerProfile.scores.length) {
+            list.innerHTML = '<div class="text-xs font-mono text-slate-400 text-center py-6">No completed runs on this browser yet. Launch a campaign!</div>';
+          } else {
+            list.innerHTML = playerProfile.scores.map((s, idx) => `
+              <div class="flex items-center justify-between gap-2 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="font-black text-amber-300">#${idx + 1}</span>
+                  <div class="truncate">
+                    <div class="font-bold text-white truncate">${escapeHtml(s.name)}</div>
+                    <div class="text-[10px] text-slate-400">${escapeHtml(s.diff)} • ${s.won ? '10/10 WIN' : 'Lv ' + s.level} • ${escapeHtml(s.time)}</div>
+                  </div>
+                </div>
+                <div class="font-black text-cyan-300 shrink-0">${Number(s.score).toLocaleString()}</div>
+              </div>
+            `).join('');
+          }
+          document.getElementById('modal-scores').classList.remove('hidden');
+        });
+        document.getElementById('btn-close-scores').addEventListener('click', () => {
+          document.getElementById('modal-scores').classList.add('hidden');
+        });
+
+        document.getElementById('btn-copy-receipt').addEventListener('click', () => {
+          copyToClipboard(document.getElementById('end-receipt-text').textContent, 'LMS Receipt copied! Paste into Canvas / Classroom.');
+        });
+
+        // Teacher Studio triggers
+        document.getElementById('btn-open-studio').addEventListener('click', openTeacherStudio);
+        let logoClicks = 0;
+        let logoTimer = null;
+        document.getElementById('logo-trigger').addEventListener('click', () => {
+          logoClicks++;
+          clearTimeout(logoTimer);
+          logoTimer = setTimeout(() => { logoClicks = 0; }, 700);
+          if (logoClicks >= 3) {
+            logoClicks = 0;
+            if (game.running && !game.paused) togglePause();
+            openTeacherStudio();
+          }
+        });
+
+        document.getElementById('btn-close-studio').addEventListener('click', () => {
+          document.getElementById('modal-studio').classList.add('hidden');
+        });
+        document.getElementById('tab-topics').addEventListener('click', () => switchStudioTab('topics'));
+        document.getElementById('tab-custom').addEventListener('click', () => switchStudioTab('custom'));
+        document.getElementById('tab-theme').addEventListener('click', () => switchStudioTab('theme'));
+        document.getElementById('tab-share').addEventListener('click', () => switchStudioTab('share'));
+
+        document.getElementById('btn-add-valid').addEventListener('click', () => {
+          const code = document.getElementById('tc-add-valid-code').value.trim();
+          const cat = document.getElementById('tc-add-valid-cat').value.trim() || 'Custom';
+          if (!code) return;
+          studioDraft.customValid.push({ code, cat });
+          document.getElementById('tc-add-valid-code').value = '';
+          renderCustomLists();
+          updateTeacherSummaryAndShare();
+        });
+
+        document.getElementById('btn-add-bug').addEventListener('click', () => {
+          const code = document.getElementById('tc-add-bug-code').value.trim();
+          const reason = document.getElementById('tc-add-bug-reason').value.trim() || 'Syntax error in Python snippet.';
+          if (!code) return;
+          studioDraft.customBroken.push({ code, reason });
+          document.getElementById('tc-add-bug-code').value = '';
+          document.getElementById('tc-add-bug-reason').value = '';
+          renderCustomLists();
+          updateTeacherSummaryAndShare();
+        });
+
+        ['tc-title', 'tc-section', 'tc-mode-valid', 'tc-mode-category', 'tc-mode-build', 'tc-mode-boss',
+          'tc-custom-only', 'tc-color-top', 'tc-color-bg', 'tc-speed', 'tc-diff-lock',
+          'tc-ec-enabled', 'tc-ec-rookie', 'tc-ec-scholar', 'tc-ec-five'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.addEventListener('input', updateTeacherSummaryAndShare);
+          if (el) el.addEventListener('change', updateTeacherSummaryAndShare);
+        });
+
+        document.getElementById('btn-copy-share').addEventListener('click', () => {
+          updateTeacherSummaryAndShare();
+          copyToClipboard(document.getElementById('tc-share-url').value, 'Student Assignment Link copied!');
+        });
+
+        document.getElementById('btn-download-cfg').addEventListener('click', () => {
+          updateTeacherSummaryAndShare();
+          const blob = new Blob([JSON.stringify(studioDraft, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'config.json';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          showToast('Downloaded config.json!');
+        });
+
+        document.getElementById('btn-reset-cfg').addEventListener('click', () => {
+          studioDraft = getDefaultTeacherConfig();
+          teacherConfig = getDefaultTeacherConfig();
+          try { localStorage.removeItem(TEACHER_CFG_STORAGE_KEY); } catch (e) {}
+          openTeacherStudio();
+          showToast('Teacher Studio reset to Python defaults.');
+        });
+
+        document.getElementById('btn-save-studio').addEventListener('click', () => {
+          readTeacherFormToDraft();
+          teacherConfig = JSON.parse(JSON.stringify(studioDraft));
+          try { localStorage.setItem(TEACHER_CFG_STORAGE_KEY, JSON.stringify(teacherConfig)); } catch (e) {}
+          rebuildActiveBank();
+          renderLobbyBankAndDiffs();
+          document.getElementById('modal-studio').classList.add('hidden');
+          showToast('Custom Python lesson saved!');
+        });
+
+        // Keyboard controls
+        window.addEventListener('keydown', (e) => {
+          const tag = (e.target && e.target.tagName) || '';
+          if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+          if (e.code === 'Space') {
+            if (game.running && !game.paused) {
+              e.preventDefault();
+              activateSlowMo();
+            }
+          } else if (e.key === 'Shift') {
+            if (game.running && !game.paused) {
+              e.preventDefault();
+              activateEmp();
+            }
+          } else if (e.key === 'Escape' || e.key.toLowerCase() === 'p') {
+            if (game.running) togglePause();
+          }
+        });
+      }
+
+      async function loadConfigAndBoot() {
+        const params = new URLSearchParams(window.location.search);
+        const cfgParam = params.get('cfg');
+        const forceTeacher = params.get('teacher') === '1';
+
+        if (cfgParam) {
+          try {
+            teacherConfig = Object.assign(getDefaultTeacherConfig(), decodeCfgBase64Url(cfgParam));
+            isStudentLockedLink = !forceTeacher;
+          } catch (e) {}
+        } else {
+          let loadedExternal = false;
+          if (window.location.protocol.startsWith('http')) {
+            try {
+              const resp = await fetch('./config.json', { cache: 'no-store' });
+              if (resp.ok) {
+                const json = await resp.json();
+                teacherConfig = Object.assign(getDefaultTeacherConfig(), json);
+                loadedExternal = true;
+              }
+            } catch (e) {}
+          }
+          if (!loadedExternal) {
+            try {
+              const saved = localStorage.getItem(TEACHER_CFG_STORAGE_KEY);
+              if (saved) teacherConfig = Object.assign(getDefaultTeacherConfig(), JSON.parse(saved));
+            } catch (e) {}
+          }
+        }
+
+        TS.init();
+        TS.refreshUi();
+
+        rebuildActiveBank();
+        renderLobbyBankAndDiffs();
+        resizeCanvas();
+        bindEvents();
+        requestAnimationFrame(gameLoop);
+      }
+
+      if (document.readyState === 'complete') {
+        loadConfigAndBoot();
+      } else {
+        window.onload = loadConfigAndBoot;
+      }
+    })();
+  </script>
+</body>
+</html>

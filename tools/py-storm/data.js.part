@@ -1,0 +1,254 @@
+      /* ============================================================
+         1. APCSP PYTHON CURRICULUM PACKS & BLUEPRINTS
+         ============================================================ */
+      const PYTHON_PACKS = {
+        variables: {
+          name: 'Variables, Types & Math',
+          catLabel: 'Variables & Math',
+          valid: [
+            { code: 'score = 0', cat: 'Variables & Math' },
+            { code: 'is_ready = True', cat: 'Variables & Math' },
+            { code: 'total += 10', cat: 'Variables & Math' },
+            { code: 'avg = total / 4', cat: 'Variables & Math' },
+            { code: 'whole = 17 // 5', cat: 'Variables & Math' },
+            { code: 'rem = 17 % 5', cat: 'Variables & Math' },
+            { code: 'area = side ** 2', cat: 'Variables & Math' },
+            { code: 'age = int("16")', cat: 'Variables & Math' },
+            { code: 'price = float("4.5")', cat: 'Variables & Math' },
+            { code: 'user_name = "Ada"', cat: 'Variables & Math' }
+          ],
+          broken: [
+            { code: '1st_score = 100', reason: 'Variable names cannot start with a number.' },
+            { code: 'is_done = true', reason: 'Python booleans must be capitalized: True or False.' },
+            { code: 'count++', reason: 'Python does not have ++; use count += 1 instead.' },
+            { code: 'total = "5" + 3', reason: 'TypeError: cannot add a string and an int without int() or str().' },
+            { code: 'my score = 95', reason: 'Variable names cannot contain spaces; use underscores (my_score).' },
+            { code: 'int x = 10', reason: 'Python is dynamically typed—do not declare a type keyword before x = 10.' },
+            { code: 'x == 5  # assign', reason: 'Use single = to assign a value; == checks equality.' }
+          ]
+        },
+        strings_io: {
+          name: 'Strings, Input & Output',
+          catLabel: 'Strings & I/O',
+          valid: [
+            { code: 'print("Hello APCSP")', cat: 'Strings & I/O' },
+            { code: 'name = input("Name: ")', cat: 'Strings & I/O' },
+            { code: 'print(f"Score: {pts}")', cat: 'Strings & I/O' },
+            { code: 'size = len(word)', cat: 'Strings & I/O' },
+            { code: 'first = word[0]', cat: 'Strings & I/O' },
+            { code: 'sub = word[1:4]', cat: 'Strings & I/O' },
+            { code: 'loud = msg.upper()', cat: 'Strings & I/O' },
+            { code: 'full = a + " " + b', cat: 'Strings & I/O' }
+          ],
+          broken: [
+            { code: 'Print("Hello")', reason: 'Python is case-sensitive: use lowercase print().' },
+            { code: 'size = word.length', reason: 'Strings have no .length property in Python; use len(word).' },
+            { code: 'first = word(0)', reason: 'Indexing uses square brackets word[0], not parentheses.' },
+            { code: 'print("Hi there)', reason: 'Unterminated string literal: missing closing quote.' },
+            { code: 'input = ("Name?")', reason: 'Call input("Name?") instead of assigning a string to input.' },
+            { code: 'print("Age: " + 16)', reason: 'Cannot concatenate str and int directly; use str(16) or an f-string.' }
+          ]
+        },
+        conditionals: {
+          name: 'Conditionals & Booleans',
+          catLabel: 'Conditionals',
+          valid: [
+            { code: 'if score >= 90:', cat: 'Conditionals' },
+            { code: 'elif score >= 80:', cat: 'Conditionals' },
+            { code: 'else:', cat: 'Conditionals' },
+            { code: 'if x == 10:', cat: 'Conditionals' },
+            { code: 'if a > 0 and b > 0:', cat: 'Conditionals' },
+            { code: 'if x < 5 or x > 10:', cat: 'Conditionals' },
+            { code: 'if not is_locked:', cat: 'Conditionals' },
+            { code: 'if name != "":', cat: 'Conditionals' }
+          ],
+          broken: [
+            { code: 'else if score >= 80:', reason: 'Python uses elif, not else if.' },
+            { code: 'if score >= 90', reason: 'SyntaxError: missing trailing colon : at the end of if.' },
+            { code: 'if x = 10:', reason: 'Use == to compare values inside an if statement, not =.' },
+            { code: 'if a > 0 && b > 0:', reason: 'Python uses the word and, not &&.' },
+            { code: 'if x < 5 || x > 10:', reason: 'Python uses the word or, not ||.' },
+            { code: 'if !is_ready:', reason: 'Python uses the word not, not !.' },
+            { code: 'else score < 60:', reason: 'else cannot take a condition; use elif score < 60: instead.' }
+          ]
+        },
+        loops: {
+          name: 'Loops & Iteration',
+          catLabel: 'Loops',
+          valid: [
+            { code: 'for i in range(5):', cat: 'Loops' },
+            { code: 'for i in range(1, 6):', cat: 'Loops' },
+            { code: 'for item in cart:', cat: 'Loops' },
+            { code: 'while lives > 0:', cat: 'Loops' },
+            { code: 'for n in range(0,10,2):', cat: 'Loops' },
+            { code: 'break', cat: 'Loops' },
+            { code: 'continue', cat: 'Loops' }
+          ],
+          broken: [
+            { code: 'for i in 5:', reason: 'Ints are not iterable; use for i in range(5):.' },
+            { code: 'for i in range(5)', reason: 'Missing colon : at the end of the for loop header.' },
+            { code: 'while lives > 0', reason: 'Missing colon : at the end of the while loop header.' },
+            { code: 'for (i=0; i<5; i++):', reason: 'JavaScript/C-style for loops are invalid in Python; use range().' },
+            { code: 'repeat 5 times:', reason: 'Python has no repeat keyword; use for i in range(5):.' },
+            { code: 'while lives = 0:', reason: 'Cannot use assignment = inside a while condition; use == or >.' }
+          ]
+        },
+        lists: {
+          name: 'Lists & Indexing',
+          catLabel: 'Lists',
+          valid: [
+            { code: 'nums = [10, 20, 30]', cat: 'Lists' },
+            { code: 'first = nums[0]', cat: 'Lists' },
+            { code: 'last = nums[-1]', cat: 'Lists' },
+            { code: 'nums.append(40)', cat: 'Lists' },
+            { code: 'nums.insert(1, 15)', cat: 'Lists' },
+            { code: 'nums.pop()', cat: 'Lists' },
+            { code: 'count = len(nums)', cat: 'Lists' },
+            { code: 'if 20 in nums:', cat: 'Lists' }
+          ],
+          broken: [
+            { code: 'nums.push(40)', reason: 'Python lists use .append(40), not .push().' },
+            { code: 'count = nums.length', reason: 'Use len(nums) to find the length of a Python list.' },
+            { code: 'first = nums(0)', reason: 'List indexing requires square brackets: nums[0].' },
+            { code: 'append(nums, 40)', reason: 'append is a list method: write nums.append(40).' },
+            { code: 'nums = [10, 20, 30}', reason: 'Mismatched brackets: lists must open and close with [ ].' },
+            { code: 'nums.add(40)', reason: 'Lists use .append(40) rather than .add(40).' }
+          ]
+        },
+        functions: {
+          name: 'Procedures & Functions',
+          catLabel: 'Functions',
+          valid: [
+            { code: 'def greet(name):', cat: 'Functions' },
+            { code: 'return total * 2', cat: 'Functions' },
+            { code: 'ans = calc_avg(nums)', cat: 'Functions' },
+            { code: 'def is_even(n):', cat: 'Functions' },
+            { code: 'return n % 2 == 0', cat: 'Functions' },
+            { code: 'def get_max(a, b):', cat: 'Functions' }
+          ],
+          broken: [
+            { code: 'function greet(name):', reason: 'Python defines functions with def, not function.' },
+            { code: 'def greet(name)', reason: 'Missing colon : at the end of the def header.' },
+            { code: 'return = total', reason: 'return is a keyword, not a variable: write return total.' },
+            { code: 'def 2x(n):', reason: 'Function names cannot start with a digit.' },
+            { code: 'def calc(a b):', reason: 'Parameters must be separated by a comma: def calc(a, b):.' }
+          ]
+        },
+        algorithms_ap: {
+          name: 'AP Algorithms & Random',
+          catLabel: 'AP Algorithms',
+          valid: [
+            { code: 'import random', cat: 'AP Algorithms' },
+            { code: 'roll = random.randint(1,6)', cat: 'AP Algorithms' },
+            { code: 'mid = (low + high) // 2', cat: 'AP Algorithms' },
+            { code: 'best = max(scores)', cat: 'AP Algorithms' },
+            { code: 'avg = sum(a) / len(a)', cat: 'AP Algorithms' },
+            { code: 'bits = bin(13)', cat: 'AP Algorithms' },
+            { code: 'if n % 2 == 0:', cat: 'AP Algorithms' }
+          ],
+          broken: [
+            { code: 'roll = random(1, 6)', reason: 'Use random.randint(1, 6) after import random.' },
+            { code: 'mid = (low + high) / 2', reason: 'Single / creates a float! Binary search index needs integer division //.' },
+            { code: 'import Random', reason: 'Module names are case-sensitive: use lowercase import random.' },
+            { code: 'avg = sum(a) / a.len', reason: 'Use len(a) to get the length of a list.' },
+            { code: 'if n mod 2 == 0:', reason: 'Python uses % for modulo (remainder), not the word mod.' }
+          ]
+        }
+      };
+
+      const BUILD_BLUEPRINTS = [
+        {
+          title: 'Build an Even-Check Function',
+          packs: ['functions', 'conditionals', 'variables'],
+          steps: ['def is_even(n):', '  if n % 2 == 0:', '    return True', '  return False']
+        },
+        {
+          title: 'Build a List Sum Loop',
+          packs: ['loops', 'lists', 'variables'],
+          steps: ['total = 0', 'for n in nums:', '  total += n', 'print(total)']
+        },
+        {
+          title: 'Build a Dice Roll Simulator',
+          packs: ['algorithms_ap', 'strings_io', 'conditionals'],
+          steps: ['import random', 'roll = random.randint(1,6)', 'if roll == 6:', '  print("Winner!")']
+        },
+        {
+          title: 'Build a Safe List Append',
+          packs: ['lists', 'strings_io', 'conditionals'],
+          steps: ['items = []', 'val = input("Add: ")', 'if val != "":', '  items.append(val)']
+        },
+        {
+          title: 'Build a Binary Search Midpoint',
+          packs: ['algorithms_ap', 'loops', 'variables'],
+          steps: ['low = 0', 'high = len(arr) - 1', 'while low <= high:', '  mid = (low + high) // 2']
+        }
+      ];
+
+      /* ============================================================
+         2. THEMES, DIFFICULTIES & STORAGE KEYS
+         ============================================================ */
+      const ARENA_THEMES = {
+        python:  { label: 'Python Pro',   bg: '#060b18', top: '#38bdf8', grid: 'rgba(56, 189, 248, 0.14)' },
+        varsity: { label: 'SCHS Varsity', bg: '#14060b', top: '#fbbf24', grid: 'rgba(248, 113, 113, 0.15)' },
+        matrix:  { label: 'Terminal',     bg: '#020b05', top: '#4ade80', grid: 'rgba(34, 197, 94, 0.16)' },
+        synth:   { label: 'Synthwave',    bg: '#130522', top: '#f472b6', grid: 'rgba(244, 114, 182, 0.18)' },
+        slate:   { label: 'Classroom',    bg: '#0f172a', top: '#38bdf8', grid: 'rgba(148, 163, 184, 0.2)' }
+      };
+
+      const DIFFICULTIES = {
+        rookie: {
+          key: 'rookie',
+          name: 'Script Rookie',
+          tag: '10 LEVELS',
+          desc: '5 Hearts • Moderate pace • Swarms up to 14 lines',
+          hearts: 5,
+          baseSpeed: 64,
+          speedPerLevel: 8.5,
+          spawnInterval: 1.55,
+          minSpawnInterval: 0.72,
+          maxOnScreenBase: 6,
+          maxOnScreenCap: 14,
+          swarmMax: 3,
+          scoreMult: 1.0,
+          goldSec: 165,
+          silverSec: 215,
+          bronzeSec: 280
+        },
+        scholar: {
+          key: 'scholar',
+          name: 'AP Scholar',
+          tag: '10 LEVELS',
+          desc: '4 Hearts • Brisk pace • Swarms up to 19 lines',
+          hearts: 4,
+          baseSpeed: 82,
+          speedPerLevel: 10.5,
+          spawnInterval: 1.25,
+          minSpawnInterval: 0.54,
+          maxOnScreenBase: 8,
+          maxOnScreenCap: 19,
+          swarmMax: 4,
+          scoreMult: 1.5,
+          goldSec: 195,
+          silverSec: 250,
+          bronzeSec: 320
+        },
+        five: {
+          key: 'five',
+          name: 'Score a 5',
+          tag: '10 LEVELS',
+          desc: '3 Hearts • Intense speed • Swarms up to 25 lines',
+          hearts: 3,
+          baseSpeed: 102,
+          speedPerLevel: 13.0,
+          spawnInterval: 0.98,
+          minSpawnInterval: 0.40,
+          maxOnScreenBase: 10,
+          maxOnScreenCap: 25,
+          swarmMax: 5,
+          scoreMult: 2.2,
+          goldSec: 225,
+          silverSec: 290,
+          bronzeSec: 370
+        }
+      };
+
