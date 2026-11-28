@@ -33,7 +33,7 @@
   <p class="lede">Click a device to see its private address, and watch what the internet actually sees:</p>
   <div class="rig">
     <div class="cloud">&#127760; The Internet sees only this:</div>
-    <div class="router" id="pubIp">Public IP: 73.14.201.9</div>
+    <div class="router" id="pubIp">Public IP: 203.0.113.9</div>
     <div class="devgrid" id="devs"></div>
   </div>
   <div class="flow" id="flow"></div>
@@ -44,7 +44,7 @@
   <p class="lede"><b>NAT (Network Address Translation)</b> is the job your router does every single time a device sends a request out, or a response comes back in. It keeps a table matching "which private device asked for what," so it knows exactly where to deliver the response.</p>
   <div class="cards">
     <div class="cardx"><div class="num">Step 1</div><h4>Request goes out</h4><p>Your laptop (private IP) sends a request. The router swaps the private IP for its own public IP before sending it to the internet.</p></div>
-    <div class="cardx"><div class="num">Step 2</div><h4>Router remembers</h4><p>The router logs in its translation table: "this specific request came from my laptop."</p></div>
+    <div class="cardx"><div class="num">Step 2</div><h4>Router remembers</h4><p>The router logs in its translation table: "this specific request came from my laptop." (It also uses port numbers to tell requests apart.)</p></div>
     <div class="cardx"><div class="num">Step 3</div><h4>Response comes back</h4><p>The reply arrives addressed to the router's public IP &mdash; the only address the internet ever saw.</p></div>
     <div class="cardx"><div class="num">Step 4</div><h4>Router delivers it</h4><p>The router checks its table and forwards the response to the correct private device &mdash; your laptop, not your sibling's phone.</p></div>
   </div>
@@ -58,7 +58,7 @@
     <tbody>
       <tr><td><b>IP address</b></td><td>A device's numerical address on a network</td></tr>
       <tr><td><b>Public IP</b></td><td>The one address your ISP assigns to your router, visible to the entire internet</td></tr>
-      <tr><td><b>Private IP</b></td><td>The address your router assigns to each device inside your house, only visible on your own network</td></tr>
+      <tr><td><b>Private IP</b></td><td>The address your router assigns to each device inside your house, only visible on your own network. Private addresses come from reserved ranges such as 192.168.x.x and 10.x.x.x</td></tr>
       <tr><td><b>NAT</b></td><td>Network Address Translation &mdash; how your router lets many private IPs share one public IP</td></tr>
     </tbody></table></div></div>
 </div></section>
@@ -77,7 +77,7 @@
   function draw(active) {
     Array.prototype.forEach.call(grid.children, function (el, i) { el.classList.toggle("on", i === active); });
     var d = DEVS[active];
-    flow.innerHTML = "The internet only ever sees <b>73.14.201.9</b> (your router's public IP). But this request actually came from your <b>" + d.name + "</b>, at private address <b>" + d.ip + "</b>. Your router's NAT table is what remembers to send the reply back to exactly this device, not one of the others.";
+    flow.innerHTML = "The internet only ever sees <b>203.0.113.9</b> (your router's public IP). But this request actually came from your <b>" + d.name + "</b>, at private address <b>" + d.ip + "</b>. Your router's NAT table is what remembers to send the reply back to exactly this device, not one of the others.";
   }
   DEVS.forEach(function (d, i) {
     var el = document.createElement("div");

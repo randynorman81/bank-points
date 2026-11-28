@@ -4,7 +4,7 @@ const { launch } = require("/Users/randynorman/bank-points/tools/missions/testki
 import fs from "fs";
 const ROOT = "/Users/randynorman/bank-points/ist/";
 const U = process.argv[2] || "8";
-const CF = { "8": { from: 28, to: 32, test: "unit-3/unit-8-practice-test.html", hub: "Unit 8: Computing Basics", last: "8.5", n: 40 }, "9": { from: 33, to: 36, test: "unit-4/unit-9-practice-test.html", hub: "Unit 9: Operating Systems and Software", last: "9.4", n: 40 } }[U];
+const CF = { "8": { from: 28, to: 32, test: "unit-3/unit-8-practice-test.html", hub: "Unit 8: Computing Basics", last: "8.5", n: 40 }, "10": { from: 37, to: 42, test: "unit-13/unit-10-practice-test.html", hub: "Unit 10: Networking", last: "10.6", n: 48 }, "9": { from: 33, to: 36, test: "unit-4/unit-9-practice-test.html", hub: "Unit 9: Operating Systems and Software", last: "9.4", n: 40 } }[U];
 let bad = 0; const fail = (...a) => { bad++; console.log("FAIL", ...a); };
 // 1. structure of every game bank
 const posCount = [0, 0, 0, 0], seen = new Set(); let longest = 0, total = 0;

@@ -1,6 +1,7 @@
 import json, random, html, sys
 import importlib
 CFG = {"8": dict(mod="bank", test="/Users/randynorman/bank-points/ist/unit-3/unit-8-practice-test.html", n=8, unit="Unit 8", back="Unit 8: Computing Basics", lessons="8.1 to 8.5"),
+       "10": dict(mod="bank10", test="/Users/randynorman/bank-points/ist/unit-13/unit-10-practice-test.html", n=8, unit="Unit 10", back="Unit 10: Networking", lessons="10.1 to 10.6"),
        "9": dict(mod="bank9", test="/Users/randynorman/bank-points/ist/unit-4/unit-9-practice-test.html", n=10, unit="Unit 9", back="Unit 9: Operating Systems and Software", lessons="9.1 to 9.4")}
 C = CFG[sys.argv[1] if len(sys.argv) > 1 else "8"]
 bank = importlib.import_module(C["mod"]); TESTN = C["n"]
