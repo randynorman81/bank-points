@@ -3,9 +3,10 @@ import importlib
 CFG = {"8": dict(mod="bank", test="/Users/randynorman/bank-points/ist/unit-3/unit-8-practice-test.html", n=8, unit="Unit 8", back="Unit 8: Computing Basics", lessons="8.1 to 8.5"),
        "10": dict(mod="bank10", test="/Users/randynorman/bank-points/ist/unit-13/unit-10-practice-test.html", n=8, unit="Unit 10", back="Unit 10: Networking", lessons="10.1 to 10.6"),
        "9": dict(mod="bank9", test="/Users/randynorman/bank-points/ist/unit-4/unit-9-practice-test.html", n=10, unit="Unit 9", back="Unit 9: Operating Systems and Software", lessons="9.1 to 9.4")}
+CFG["ec1"] = dict(mod="bank_ec1", test="/Users/randynorman/bank-points/ec/unit-1/unit-1-practice-test.html", n=8, unit="Unit 1", back="Unit 1: What Is an Embedded System?", lessons="1.1 to 1.6", gameout="/Users/randynorman/bank-points/ec/unit-1/game-data/", prefix="e", var="EC_GAME", crumb='<a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ec/index.html">Embedded Computing</a><span class="sep">/</span><a href="index.html">__BACK__</a><span class="sep">/</span>Practice Test', course="Embedded Computing")
 C = CFG[sys.argv[1] if len(sys.argv) > 1 else "8"]
+OUT_GAME = C.get("gameout", "/Users/randynorman/bank-points/ist/unit-6/game-data/"); GPFX = C.get("prefix", "l"); GVAR = C.get("var", "IST_GAME")
 bank = importlib.import_module(C["mod"]); TESTN = C["n"]
-OUT_GAME = "/Users/randynorman/bank-points/ist/unit-6/game-data/"
 esc = lambda s: html.escape(s, quote=False)
 def shuffled(q, rnd, want_pos):
     opts = [q["c"]] + q["w"]
@@ -23,7 +24,8 @@ for lid, (num, title, qs) in bank.B.items():
         items.append(dict(s=esc(q["s"]), c=None, o=[esc(o) for o in opts], a=a, e=esc(q["e"]), t=q["t"]))
     games[lid] = items[:-TESTN]
     tests += [(num, title, it) for it in items[-TESTN:]]
-    open(OUT_GAME + "l%d.js" % lid, "w").write("window.IST_GAME = window.IST_GAME || {};\nIST_GAME[%d] = %s;\n" % (lid, json.dumps(games[lid], ensure_ascii=False)))
+    import os; os.makedirs(OUT_GAME, exist_ok=True)
+    open(OUT_GAME + "%s%d.js" % (GPFX, lid), "w").write("window.%s = window.%s || {};\n%s[%d] = %s;\n" % (GVAR, GVAR, GVAR, lid, json.dumps(games[lid], ensure_ascii=False)))
 # practice test page: 5 questions from each lesson's test set (all 8 each = 40)
 rows = []; n = 0; cur = None
 for num, title, it in tests:
@@ -38,7 +40,7 @@ page = '''<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>__UNIT__ Practice Test | Intro to Software Technology</title>
+<title>__UNIT__ Practice Test | __COURSE__</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
@@ -59,7 +61,7 @@ page = '''<!DOCTYPE html>
 <body>
 <div id="site-header-root"></div>
 <main>
-  <div class="breadcrumb"><a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ist/index.html">Intro to Software Technology</a><span class="sep">/</span><a href="index.html">__BACK__</a><span class="sep">/</span>Practice Test</div>
+  <div class="breadcrumb">__CRUMB__</div>
   <h1>__UNIT__ Practice Test</h1>
   <p class="hint">__N__ questions covering lessons __LESSONS__. This is practice only and does not change your grade. Pick an answer for every question, then check your answers.</p>
   <div id="qs">
@@ -93,6 +95,7 @@ __ROWS__
 </body>
 </html>
 '''
-page = page.replace('__UNIT__', C['unit']).replace('__BACK__', C['back']).replace('__LESSONS__', C['lessons']).replace('__N__', str(n)).replace('__ROWS__', "\n".join(rows))
+default_crumb = '<a href="../../index.html">CS Home</a><span class="sep">/</span><a href="../../ist/index.html">Intro to Software Technology</a><span class="sep">/</span><a href="index.html">__BACK__</a><span class="sep">/</span>Practice Test'
+page = page.replace('__CRUMB__', C.get('crumb', default_crumb)).replace('__COURSE__', C.get('course', 'Intro to Software Technology')).replace('__UNIT__', C['unit']).replace('__BACK__', C['back']).replace('__LESSONS__', C['lessons']).replace('__N__', str(n)).replace('__ROWS__', "\n".join(rows))
 open(C["test"], "w").write(page)
 print("games", {k: len(v) for k, v in games.items()}, "test questions", n)
