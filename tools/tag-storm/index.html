@@ -49,6 +49,7 @@
     .btn-arcade:active { transform: translateY(1px) scale(0.98); }
     .glow-primary { animation: pulseGlow 2.4s infinite ease-in-out; }
   </style>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="flex flex-col h-screen w-screen overflow-hidden bg-slate-950 text-slate-100">
 
@@ -103,15 +104,6 @@
 
     <!-- Right: Action Buttons -->
     <div class="flex items-center gap-1.5">
-      <button id="btn-slowmo" type="button" title="Activate Slow-Mo (SPACE)" class="btn-arcade bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-400/40 text-cyan-300 rounded-xl px-2.5 py-1.5 font-mono text-xs font-bold flex items-center gap-1">
-        <span>&#10052;</span><span class="hidden sm:inline">Slow</span>
-        <span id="slowmo-count" class="bg-cyan-400/25 px-1.5 py-0.5 rounded-md text-[10px]">1</span>
-      </button>
-      <button id="btn-emp" type="button" title="Purge Pulse - Clear Bugs (SHIFT)" class="btn-arcade bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/40 text-amber-300 rounded-xl px-2.5 py-1.5 font-mono text-xs font-bold flex items-center gap-1">
-        <span>&#9889;</span><span class="hidden sm:inline">Purge</span>
-        <span id="emp-count" class="bg-amber-400/25 px-1.5 py-0.5 rounded-md text-[10px]">1</span>
-      </button>
-      <button id="btn-manual" type="button" title="HTML & CSS Field Guide" class="btn-arcade bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl px-2.5 py-1.5 font-mono text-xs font-bold">?</button>
       <button id="btn-mute" type="button" title="Toggle Audio" class="btn-arcade bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl px-2.5 py-1.5 font-mono text-xs font-bold">&#128266;</button>
       <button id="btn-pause" type="button" title="Pause (P / ESC)" class="btn-arcade bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl px-2.5 py-1.5 font-mono text-xs font-bold">&#9208;</button>
     </div>
@@ -143,77 +135,55 @@
   </main>
 
   <!-- ==================== START / LOBBY MODAL ==================== -->
-  <div id="modal-start" class="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/88 backdrop-blur-md p-3 sm:p-5 overflow-y-auto">
-    <div class="w-full max-w-3xl bg-slate-900/95 border border-slate-700/80 rounded-3xl shadow-2xl p-5 sm:p-7 my-auto max-h-[94vh] overflow-y-auto custom-scroll">
-      <!-- Top Row -->
-      <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
-        <div>
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-400/35 text-cyan-300 font-mono text-[11px] font-bold mb-2">
-            <span>INTRO TO WEB • HTML5 &amp; CSS</span>
-            <span id="start-custom-badge" class="hidden px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30">CUSTOM LESSON</span>
+  <div id="modal-start" class="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-3 sm:p-5 overflow-y-auto">
+    <div class="w-full max-w-md bg-slate-900/95 border border-slate-700/80 rounded-3xl shadow-2xl p-6 sm:p-8 my-auto text-center">
+      <span id="start-custom-badge" class="hidden inline-block mb-2 px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 font-mono text-[11px] font-bold">CUSTOM LESSON</span>
+      <h1 id="start-title" class="text-4xl sm:text-5xl font-black tracking-tight text-white">TAG STORM</h1>
+      <p id="start-subtitle" class="text-sm text-slate-300 mt-2">Click only the correct code.</p>
+
+      <!-- Sign in -->
+      <div class="mt-6">
+        <div id="auth-out">
+          <p class="text-xs text-slate-400 mb-3">Sign in with your school Google account to play.</p>
+          <div id="g-btn" class="flex justify-center min-h-[44px]"></div>
+          <p id="auth-err" class="text-xs text-rose-300 mt-2 hidden"></p>
+        </div>
+        <div id="auth-in" class="hidden text-left">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <div class="min-w-0">
+              <div class="font-mono text-[10px] uppercase text-slate-400">Signed in</div>
+              <div id="auth-name" class="font-bold text-white truncate"></div>
+            </div>
+            <button id="btn-signout" type="button" class="text-[11px] text-slate-400 hover:text-white underline shrink-0">Not you?</button>
           </div>
-          <h1 id="start-title" class="text-2xl sm:text-4xl font-black tracking-tight text-white">TAG STORM</h1>
-          <p id="start-subtitle" class="text-xs sm:text-sm text-slate-300 mt-1">10-Level Bi-Directional HTML &amp; CSS Arcade • Speedrun for Extra Credit</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <button id="btn-open-scores" type="button" class="btn-arcade bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl px-3 py-2 text-xs font-bold font-mono">&#127942; Scores</button>
-          <button id="btn-open-studio" type="button" class="btn-arcade bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/50 text-amber-300 rounded-xl px-3 py-2 text-xs font-bold font-mono">&#9881; Teacher Studio</button>
-        </div>
-      </div>
-
-      <!-- Visual 2-Second Rule Card (DO vs DON'T) -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-5">
-        <div class="bg-emerald-950/45 border border-emerald-500/40 rounded-2xl p-3">
-          <div class="font-mono text-[11px] font-extrabold text-emerald-300 mb-1">&#10003; ALWAYS CLICK RIGHT CODE</div>
-          <div class="font-mono text-xs bg-slate-950/90 border border-cyan-400/45 text-cyan-200 rounded-lg px-2.5 py-1.5 text-center">&lt;a href="index.html"&gt;</div>
-          <p class="text-[11px] text-slate-300 mt-1.5">Tags launch from top &amp; bottom in one color. Read fast &amp; click valid syntax!</p>
-        </div>
-        <div class="bg-rose-950/40 border border-rose-500/40 rounded-2xl p-3">
-          <div class="font-mono text-[11px] font-extrabold text-rose-300 mb-1">&#10007; SKIP BROKEN SYNTAX BUGS</div>
-          <div class="font-mono text-xs bg-slate-950/90 border border-cyan-400/45 text-cyan-200 rounded-lg px-2.5 py-1.5 text-center">&lt;a herf="home.html"&gt;</div>
-          <p class="text-[11px] text-slate-300 mt-1.5">Let bad tags fly past! Clicking a syntax bug costs a Heart &amp; logs it for Autopsy.</p>
-        </div>
-        <div class="bg-amber-950/40 border border-amber-400/45 rounded-2xl p-3">
-          <div class="font-mono text-[11px] font-extrabold text-amber-300 mb-1">&#9733; GRAB GOLD POWER-UPS</div>
-          <div class="font-mono text-xs bg-amber-400/20 border border-amber-400 text-amber-200 rounded-lg px-2.5 py-1.5 text-center">&#127919; AUTO-SNIPE / &#9201; -5s</div>
-          <p class="text-[11px] text-slate-300 mt-1.5">7 glowing gold orbs: Slow-Mo, Purge, Heart, Shield, Overdrive, Snipe, -5s Clock!</p>
+          <label for="inp-section" class="block font-mono text-[10px] uppercase text-slate-400 mb-1">Your class</label>
+          <select id="inp-section" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3 py-2.5 text-sm text-white outline-none">
+            <option value="">Pick your class&hellip;</option>
+            <option value="3A">3A</option><option value="3B">3B</option><option value="4A">4A</option>
+          </select>
         </div>
       </div>
 
-      <!-- Student Login Inputs -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-        <div>
-          <label for="inp-name" class="block font-mono text-[11px] font-bold uppercase text-slate-400 mb-1">Student Name (For LMS Receipt)</label>
-          <input id="inp-name" type="text" maxlength="40" placeholder="e.g., Alex Rivera" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none" />
-        </div>
-        <div>
-          <label for="inp-section" class="block font-mono text-[11px] font-bold uppercase text-slate-400 mb-1">Course / Section</label>
-          <input id="inp-section" type="text" maxlength="32" placeholder="e.g., CS 101 - Intro to Web" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none" />
-        </div>
+      <!-- Difficulty -->
+      <div id="diff-wrap" class="mt-5 hidden">
+        <div id="diff-grid" class="grid grid-cols-3 gap-2"></div>
       </div>
 
-      <!-- Extra Credit Bank Banner -->
-      <div id="ec-bank-banner" class="bg-gradient-to-r from-amber-500/15 via-emerald-500/10 to-cyan-500/15 border border-amber-400/35 rounded-2xl p-3 mb-4 flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <div class="font-mono text-[11px] font-extrabold text-amber-300 uppercase tracking-wider">&#127941; Extra Credit Bank (Beat 10 Levels Fast!)</div>
-          <div id="ec-bank-details" class="text-xs text-slate-300 mt-0.5">Beat each 10-level campaign within Gold/Silver/Bronze times to bank EC points.</div>
-        </div>
-        <div class="bg-slate-950/90 border border-amber-400/45 rounded-xl px-3.5 py-1.5 text-right">
-          <div class="text-[9px] font-mono uppercase text-slate-400">Banked EC</div>
-          <div id="ec-bank-total" class="font-mono text-lg font-black text-amber-300">+0 PTS</div>
-        </div>
-      </div>
-
-      <!-- 3 Difficulty Cards -->
-      <div class="mb-5">
-        <div class="font-mono text-[11px] font-bold uppercase text-slate-400 mb-2">Select 10-Level Campaign Difficulty</div>
-        <div id="diff-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
-      </div>
-
-      <!-- Launch Button -->
-      <button id="btn-start-game" type="button" class="btn-arcade glow-primary w-full py-3.5 rounded-2xl bg-gradient-to-r from-cyan-400 via-sky-500 to-emerald-400 text-slate-950 font-black text-base sm:text-lg tracking-wide shadow-xl">
-        DROP INTO THE STORM (10 LEVELS) &rarr;
+      <button id="btn-start-game" type="button" disabled class="btn-arcade glow-primary w-full mt-5 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-400 via-sky-500 to-emerald-400 text-slate-950 font-black text-base tracking-wide shadow-xl disabled:opacity-40 disabled:cursor-not-allowed">
+        PLAY &rarr;
       </button>
+
+      <div class="flex items-center justify-center gap-2 mt-4">
+        <button id="btn-open-help" type="button" class="btn-arcade bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl px-4 py-2 text-xs font-bold font-mono">Instructions</button>
+        <button id="btn-open-scores" type="button" class="btn-arcade bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl px-4 py-2 text-xs font-bold font-mono">&#127942; Scores</button>
+      </div>
+
+      <!-- kept for the game code, never shown on the lobby -->
+      <div class="hidden">
+        <input id="inp-name" type="text" />
+        <button id="btn-open-studio" type="button">Teacher Studio</button>
+        <div id="ec-bank-banner"><div id="ec-bank-details"></div><div id="ec-bank-total"></div></div>
+      </div>
     </div>
   </div>
 
@@ -225,6 +195,7 @@
       <p class="text-xs text-slate-400 mb-5">Your speedrun clock is paused while this menu is open.</p>
       <div class="space-y-2.5">
         <button id="btn-resume" type="button" class="btn-arcade w-full py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-extrabold text-sm">Resume Campaign</button>
+        <button id="btn-help-pause" type="button" class="btn-arcade w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-sm">Instructions</button>
         <button id="btn-restart-pause" type="button" class="btn-arcade w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-sm">Restart Level 1</button>
         <button id="btn-quit-pause" type="button" class="btn-arcade w-full py-2.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/40 text-rose-300 font-bold text-sm">Exit to Lobby</button>
       </div>
@@ -262,6 +233,8 @@
         </div>
       </div>
 
+      <div id="end-saved" class="mb-4 text-xs font-mono rounded-xl px-3 py-2 bg-slate-950 border border-slate-800 text-slate-400">Saving your run&hellip;</div>
+
       <!-- Extra Credit Reward Callout -->
       <div id="end-ec-box" class="hidden mb-4 bg-gradient-to-r from-amber-500/20 to-emerald-500/15 border border-amber-400/50 rounded-2xl p-3.5">
         <div class="font-mono text-xs font-extrabold text-amber-300 uppercase mb-1">&#127942; Extra Credit Bank Updated!</div>
@@ -293,12 +266,28 @@
 
   <!-- ==================== HTML & CSS FIELD GUIDE MODAL ==================== -->
   <div id="modal-manual" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-3 sm:p-5">
-    <div class="w-full max-w-xl bg-slate-900 border border-slate-700 rounded-3xl p-5 shadow-2xl max-h-[88vh] overflow-y-auto custom-scroll">
+    <div class="w-full max-w-lg bg-slate-900 border border-slate-700 rounded-3xl p-5 shadow-2xl max-h-[88vh] overflow-y-auto custom-scroll">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="text-lg font-black text-white">HTML5 &amp; CSS Field Guide</h3>
+        <h3 class="text-lg font-black text-white">How to Play</h3>
         <button id="btn-close-manual" type="button" class="btn-arcade bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl px-3 py-1 font-mono text-xs font-bold">Close</button>
       </div>
-      <div class="space-y-3 text-xs sm:text-sm text-slate-300">
+      <p class="text-sm text-slate-200 mb-4">Code flies in from the top and bottom. <strong class="text-emerald-300">Click only the correct code.</strong> Let broken code fly past &mdash; clicking a bug costs you a heart. Clear all 10 levels as fast as you can.</p>
+      <div class="bg-amber-950/40 border border-amber-400/45 rounded-2xl p-3 mb-4">
+        <div class="font-mono text-[11px] font-extrabold text-amber-300 mb-2">GOLD POWER-UPS &mdash; ALWAYS CLICK THESE</div>
+        <div class="space-y-1.5 text-xs text-slate-200">
+          <div class="flex gap-2"><span class="w-24 shrink-0 font-mono font-bold text-cyan-300">&#10052; Slow-Mo</span><span>Saves a charge. Press <kbd class="px-1 rounded bg-slate-800">Space</kbd> to slow everything down for 4.5 seconds.</span></div>
+          <div class="flex gap-2"><span class="w-24 shrink-0 font-mono font-bold text-amber-300">&#9889; Purge</span><span>Saves a charge. Press <kbd class="px-1 rounded bg-slate-800">Shift</kbd> to wipe the broken code off the screen.</span></div>
+          <div class="flex gap-2"><span class="w-24 shrink-0 font-mono font-bold text-rose-300">&#9829; Heart</span><span>Gives you one heart back.</span></div>
+          <div class="flex gap-2"><span class="w-24 shrink-0 font-mono font-bold text-emerald-300">&#128737; Shield</span><span>Refills your shield to 100% and adds 250 points.</span></div>
+          <div class="flex gap-2"><span class="w-24 shrink-0 font-mono font-bold text-rose-300">&#128293; Overdrive</span><span>Double points for 7 seconds.</span></div>
+          <div class="flex gap-2"><span class="w-24 shrink-0 font-mono font-bold text-sky-300">&#127919; Snipe</span><span>Automatically clicks correct code for you.</span></div>
+          <div class="flex gap-2"><span class="w-24 shrink-0 font-mono font-bold text-cyan-300">&#9201; -5s</span><span>Takes 5 seconds off your clock.</span></div>
+        </div>
+      </div>
+      <p class="text-[11px] text-slate-400 mb-3">Pause any time with <kbd class="px-1 rounded bg-slate-800">P</kbd> or <kbd class="px-1 rounded bg-slate-800">Esc</kbd>. Your progress and wins are saved for your teacher.</p>
+      <details class="text-xs text-slate-300">
+        <summary class="cursor-pointer font-mono font-bold text-cyan-300 mb-2">HTML &amp; CSS cheat sheet</summary>
+        <div class="space-y-3 mt-2">
         <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-3">
           <div class="font-mono font-bold text-cyan-400 mb-1">1. OPENING, CLOSING &amp; VOID TAGS</div>
           <p>Matched pairs like <code class="text-emerald-300">&lt;h1&gt;...&lt;/h1&gt;</code> and <code class="text-emerald-300">&lt;p&gt;...&lt;/p&gt;</code> must match names and nest properly. Void elements like <code class="text-emerald-300">&lt;img&gt;</code>, <code class="text-emerald-300">&lt;input&gt;</code>, and <code class="text-emerald-300">&lt;br&gt;</code> never have a closing tag (no <code class="text-rose-300">&lt;/img&gt;</code> or <code class="text-rose-300">&lt;/input&gt;</code>).</p>
@@ -311,11 +300,8 @@
           <div class="font-mono font-bold text-violet-400 mb-1">3. LISTS, TABLES, SEMANTICS &amp; CSS</div>
           <p>Only <code class="text-emerald-300">&lt;li&gt;</code> belongs directly inside <code class="text-emerald-300">&lt;ul&gt;</code>/<code class="text-emerald-300">&lt;ol&gt;</code>. Table cells (<code class="text-emerald-300">&lt;th&gt;</code>/<code class="text-emerald-300">&lt;td&gt;</code>) belong inside <code class="text-emerald-300">&lt;tr&gt;</code>. CSS uses <code class="text-emerald-300">property: value;</code> with American spelling (<code class="text-emerald-300">color</code>) and no space before units (<code class="text-emerald-300">16px</code>).</p>
         </div>
-        <div class="bg-slate-950/90 border border-amber-400/35 rounded-xl p-3">
-          <div class="font-mono font-bold text-amber-300 mb-1">4. GLOWING GOLD POWER-UPS (ALWAYS CLICK!)</div>
-          <p>All code capsules share one color regardless of direction. Watch for <strong class="text-amber-300">GOLD</strong> power-ups: <strong>&#10052; Slow-Mo</strong>, <strong>&#9889; Purge Pulse</strong>, <strong>&#9829; +1 Heart</strong>, <strong>&#128737; Shield 100%</strong>, <strong>&#128293; 2x Overdrive</strong>, <strong>&#127919; Auto-Snipe</strong> (zaps 2 valid tags), and <strong>&#9201; -5s Clock</strong> (cuts speedrun time)!</p>
         </div>
-      </div>
+      </details>
     </div>
   </div>
 
@@ -1160,8 +1146,6 @@
         document.getElementById('hud-hearts').textContent = filled + empty;
         document.getElementById('hud-shield-bar').style.width = `${Math.max(0, Math.min(100, game.shield))}%`;
         document.getElementById('hud-overdrive-bar').style.width = `${Math.max(0, Math.min(100, game.overdrive))}%`;
-        document.getElementById('slowmo-count').textContent = game.slowMoCharges;
-        document.getElementById('emp-count').textContent = game.empCharges;
         updateTimerDisplay();
       }
 
@@ -1428,6 +1412,7 @@
         game.shield = Math.min(100, game.shield + 25);
         spawnShockwave(W / 2, H / 2, '#22d3ee', Math.max(W, H) * 0.55);
 
+        if (game.wave < MAX_LEVELS) TS.level(game.wave, game.score);
         if (game.wave >= MAX_LEVELS) {
           endGame(true);
         } else {
@@ -1962,13 +1947,105 @@
       }
 
       /* ============================================================
+         11b. GOOGLE SIGN-IN + PROGRESS TRACKING (/api/tagstorm)
+         Students sign in with their school account. The server times each
+         run, logs every cleared level, and verifies wins before they count.
+         ============================================================ */
+      const TS = {
+        API: '/api/tagstorm',
+        CLIENT_ID: '735895076358-adequmqdfpmis3vnvvfksepf19oj5nut.apps.googleusercontent.com',
+        cred: '', user: null, runId: '', chain: Promise.resolve(),
+        jwtExp(c) { try { return JSON.parse(atob(c.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))).exp * 1000; } catch (e) { return 0; } },
+        credOk() { return !!this.cred && this.jwtExp(this.cred) > Date.now() + 10 * 60 * 1000; },
+        ready() { return !!this.user && this.credOk() && !!this.user.period; },
+        async post(action, extra) {
+          try {
+            const r = await fetch(this.API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ action, credential: this.cred }, extra || {})) });
+            return await r.json();
+          } catch (e) { return null; }
+        },
+        begin(diff) {
+          this.runId = '';
+          this.chain = this.post('start', { diff }).then(r => { this.runId = (r && r.id) || ''; });
+        },
+        level(lvl, score) {
+          this.chain = this.chain.then(() => this.runId ? this.post('level', { id: this.runId, level: lvl, score }) : null);
+        },
+        async finish(payload) {
+          await this.chain;
+          if (!this.runId) return { error: 'run was not started' };
+          const r = await this.post('run', Object.assign({ id: this.runId }, payload));
+          if (r && r.needLogin) { this.signOut(); }
+          return r;
+        },
+        signOut() {
+          this.cred = ''; this.user = null;
+          try { sessionStorage.removeItem('ts_cred'); } catch (e) {}
+          try { if (window.google && google.accounts) google.accounts.id.disableAutoSelect(); } catch (e) {}
+          this.refreshUi();
+        },
+        async onCredential(resp) {
+          this.cred = resp.credential;
+          const me = await this.post('me');
+          if (!me || me.error) {
+            this.cred = '';
+            const el = document.getElementById('auth-err');
+            el.textContent = (me && me.error) || 'Could not sign in. Use your school Google account.';
+            el.classList.remove('hidden');
+            return;
+          }
+          try { sessionStorage.setItem('ts_cred', this.cred); } catch (e) {}
+          this.user = { name: me.name, email: me.email, period: me.period, fromRoster: me.fromRoster };
+          this.refreshUi();
+        },
+        refreshUi() {
+          const inn = !!this.user && this.credOk();
+          document.getElementById('auth-out').classList.toggle('hidden', inn);
+          document.getElementById('auth-in').classList.toggle('hidden', !inn);
+          document.getElementById('diff-wrap').classList.toggle('hidden', !inn);
+          if (inn) {
+            document.getElementById('auth-name').textContent = this.user.name;
+            const sel = document.getElementById('inp-section');
+            sel.value = this.user.period || '';
+            sel.disabled = !!this.user.fromRoster;
+          }
+          document.getElementById('btn-start-game').disabled = !this.ready();
+        },
+        init() {
+          document.getElementById('btn-signout').addEventListener('click', () => this.signOut());
+          document.getElementById('inp-section').addEventListener('change', async (e) => {
+            const v = e.target.value;
+            if (!v) { this.user.period = ''; this.refreshUi(); return; }
+            const r = await this.post('setPeriod', { period: v });
+            if (r && r.ok) { this.user.period = r.period; }
+            this.refreshUi();
+          });
+          let saved = '';
+          try { saved = sessionStorage.getItem('ts_cred') || ''; } catch (e) {}
+          if (saved) { this.cred = saved; if (this.credOk()) { this.onCredential({ credential: saved }); } else { this.cred = ''; } }
+          let tries = 0;
+          const wait = setInterval(() => {
+            if (window.google && google.accounts && google.accounts.id) {
+              clearInterval(wait);
+              google.accounts.id.initialize({ client_id: this.CLIENT_ID, callback: (r) => this.onCredential(r), hd: 'socialcircleschools.org', auto_select: false });
+              google.accounts.id.renderButton(document.getElementById('g-btn'), { theme: 'filled_blue', size: 'large', text: 'signin_with', shape: 'pill' });
+            } else if (++tries > 100) {
+              clearInterval(wait);
+              const el = document.getElementById('auth-err');
+              el.textContent = 'Google sign-in did not load. Check your connection and refresh.';
+              el.classList.remove('hidden');
+            }
+          }, 100);
+        }
+      };
+
+      /* ============================================================
          12. START, PAUSE & END GAME / RECEIPT / EXTRA CREDIT
          ============================================================ */
       function startGame() {
-        const nameVal = document.getElementById('inp-name').value.trim() || 'Student';
-        const secVal = document.getElementById('inp-section').value.trim() || teacherConfig.section || 'Intro to Web';
-        playerProfile.name = nameVal;
-        playerProfile.section = secVal;
+        if (!TS.ready()) { document.getElementById('modal-pause').classList.add('hidden'); document.getElementById('modal-end').classList.add('hidden'); document.getElementById('modal-start').classList.remove('hidden'); game.running = false; TS.refreshUi(); return; }
+        playerProfile.name = TS.user.name || 'Student';
+        playerProfile.section = TS.user.period || 'IST';
         saveProfile();
 
         if (teacherConfig.diffLock && teacherConfig.diffLock !== 'unlock') {
@@ -2007,6 +2084,7 @@
         document.getElementById('modal-end').classList.add('hidden');
         document.getElementById('modal-pause').classList.add('hidden');
 
+        TS.begin(diff.key);
         setupLevel(1);
       }
 
@@ -2128,6 +2206,25 @@ SHA-256:    ${hash.slice(0, 32).toUpperCase()}`;
 
         document.getElementById('end-receipt-text').textContent = receipt;
         document.getElementById('modal-end').classList.remove('hidden');
+
+        const savedEl = document.getElementById('end-saved');
+        savedEl.className = 'mb-4 text-xs font-mono rounded-xl px-3 py-2 bg-slate-950 border border-slate-800 text-slate-400';
+        savedEl.textContent = 'Saving your run…';
+        const earnedEc = won && teacherConfig.ecEnabled ? (playerProfile.ecBank[game.diff.key] || {}).points || 0 : 0;
+        const saved = await TS.finish({ diff: game.diff.key, won, level: won ? MAX_LEVELS : game.wave, score: game.score, secs: Math.round(game.runElapsed), acc, ec: earnedEc });
+        if (saved && saved.ok) {
+          if (won && !saved.run.verified) {
+            savedEl.className = 'mb-4 text-xs font-mono rounded-xl px-3 py-2 bg-amber-950/40 border border-amber-400/45 text-amber-200';
+            savedEl.textContent = 'Run saved, but the win could not be verified, so it does not count. Play through all 10 levels in one sitting.';
+            document.getElementById('end-ec-box').classList.add('hidden');
+          } else {
+            savedEl.className = 'mb-4 text-xs font-mono rounded-xl px-3 py-2 bg-emerald-950/40 border border-emerald-500/40 text-emerald-300';
+            savedEl.textContent = won ? '✓ Win verified and saved to your teacher’s progress report.' : '✓ Progress saved to your teacher’s progress report.';
+          }
+        } else {
+          savedEl.className = 'mb-4 text-xs font-mono rounded-xl px-3 py-2 bg-rose-950/40 border border-rose-500/40 text-rose-300';
+          savedEl.textContent = 'Could not save this run (' + ((saved && saved.error) || 'no connection') + '). Sign in again and replay to have it count.';
+        }
       }
 
       /* ============================================================
@@ -2164,18 +2261,14 @@ SHA-256:    ${hash.slice(0, 32).toUpperCase()}`;
           const btn = document.createElement('button');
           btn.type = 'button';
           btn.disabled = isDisabled;
-          btn.className = `text-left rounded-2xl p-3 border transition ${
+          btn.className = `text-center rounded-xl p-2.5 border transition ${
             isSelected
               ? 'bg-cyan-500/20 border-cyan-400 ring-2 ring-cyan-400/40'
               : 'bg-slate-950/90 border-slate-800 hover:border-slate-600'
           } ${isDisabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`;
           btn.innerHTML = `
-            <div class="flex items-center justify-between gap-1 mb-1">
-              <span class="font-extrabold text-sm text-white">${d.name}</span>
-              <span class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300">${d.tag}</span>
-            </div>
-            <div class="text-[11px] text-slate-300 leading-snug mb-1.5">${d.desc}</div>
-            ${teacherConfig.ecEnabled ? `<div class="font-mono text-[10px] text-amber-300">Gold ≤ ${formatTime(d.goldSec)} &rarr; +${maxEc} EC</div>` : ''}
+            <div class="font-extrabold text-sm text-white">${d.name}</div>
+            <div class="font-mono text-[10px] text-cyan-300 mt-0.5">${d.tag}</div>
           `;
           btn.addEventListener('click', () => {
             if (isDisabled) return;
@@ -2185,7 +2278,6 @@ SHA-256:    ${hash.slice(0, 32).toUpperCase()}`;
           grid.appendChild(btn);
         });
 
-        document.getElementById('btn-open-studio').classList.toggle('hidden', isStudentLockedLink);
         document.getElementById('start-custom-badge').classList.toggle('hidden', !isStudentLockedLink);
       }
 
@@ -2385,8 +2477,6 @@ SHA-256:    ${hash.slice(0, 32).toUpperCase()}`;
           renderLobbyBankAndDiffs();
         });
 
-        document.getElementById('btn-slowmo').addEventListener('click', activateSlowMo);
-        document.getElementById('btn-emp').addEventListener('click', activateEmp);
         document.getElementById('btn-pause').addEventListener('click', togglePause);
         document.getElementById('btn-resume').addEventListener('click', togglePause);
         document.getElementById('btn-restart-pause').addEventListener('click', startGame);
@@ -2403,10 +2493,12 @@ SHA-256:    ${hash.slice(0, 32).toUpperCase()}`;
           showToast(SFX.muted ? 'Audio Muted' : 'Audio Enabled');
         });
 
-        document.getElementById('btn-manual').addEventListener('click', () => {
+        const openHelp = () => {
           if (game.running && !game.paused) togglePause();
           document.getElementById('modal-manual').classList.remove('hidden');
-        });
+        };
+        document.getElementById('btn-open-help').addEventListener('click', openHelp);
+        document.getElementById('btn-help-pause').addEventListener('click', openHelp);
         document.getElementById('btn-close-manual').addEventListener('click', () => {
           document.getElementById('modal-manual').classList.add('hidden');
         });
@@ -2578,8 +2670,8 @@ SHA-256:    ${hash.slice(0, 32).toUpperCase()}`;
           }
         }
 
-        document.getElementById('inp-name').value = playerProfile.name || '';
-        document.getElementById('inp-section').value = playerProfile.section || teacherConfig.section || 'INTRO TO WEB';
+        TS.init();
+        TS.refreshUi();
 
         rebuildActiveBank();
         renderLobbyBankAndDiffs();

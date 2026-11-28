@@ -135,6 +135,7 @@ const TOOLS = [
 const TEACHER_TOOLS = [
   { id: "rubric-scanner", name: "Rubric Scanner", url: NAV_ROOT + "tools/rubric-scanner/index.html", description: "Print bubble-sheet rubrics, grade by hand, then photograph or scan the stack to get scores and class analytics. Everything stays in your browser." },
   { id: "webp-converter", name: "WebP Converter", url: NAV_ROOT + "tools/webp-converter/index.html", description: "Convert WebP images to PNG right in your browser." },
+  { id: "tag-storm-teacher", name: "Tag Storm Progress", url: NAV_ROOT + "tools/tag-storm/teacher.html", description: "See which IST students played Tag Storm, by class: best level, score, time and accuracy." },
   { id: "packet-quest-teacher", name: "Packet Quest Dashboard", url: NAV_ROOT + "apcsp/packet-quest/teacher.html", description: "Open Packet Quest missions for each AP CSP period and see completion grades and mastery by Big Idea and CED topic." }
 ];
 
